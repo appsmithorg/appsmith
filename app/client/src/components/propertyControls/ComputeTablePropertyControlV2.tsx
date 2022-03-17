@@ -10,7 +10,7 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { ColumnProperties } from "widgets/TableWidget/component/Constants";
+import { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
 import { isString } from "utils/helpers";
@@ -104,8 +104,8 @@ class ComputeTablePropertyControlV2 extends BaseControl<
     const columns: Record<string, ColumnProperties> =
       evaluatedProperties.primaryColumns || {};
     const currentRow: { [key: string]: any } = {};
-    Object.keys(columns).forEach((id: string) => {
-      currentRow[id] = undefined;
+    Object.values(columns).forEach((column) => {
+      currentRow[column.alias || column.originalId] = undefined;
     });
     // Load default value in evaluated value
     if (value && !propertyValue) {

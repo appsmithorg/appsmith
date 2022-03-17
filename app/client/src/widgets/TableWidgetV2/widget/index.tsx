@@ -609,7 +609,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       multiRowSelection,
     } = this.props;
 
-    // Bail out if santizedTableData is a string. This signifies an error in evaluations
+    // Bail out if tableData is a string. This signifies an error in evaluations
     if (isString(this.props.tableData)) {
       return;
     }
@@ -952,9 +952,18 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   handleSearchTable = (searchKey: any) => {
-    const { onSearchTextChanged } = this.props;
+    const { multiRowSelection, onSearchTextChanged } = this.props;
 
-    this.resetSelectedRowIndex();
+    /*
+     * Clear rowSelection to avoid selecting filtered rows
+     * based on stale selection indices
+     */
+    if (multiRowSelection) {
+      this.props.updateWidgetMetaProperty("selectedRowIndices", []);
+    } else {
+      this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
+    }
+
     this.props.updateWidgetMetaProperty("pageNo", 1);
     this.props.updateWidgetMetaProperty("searchText", searchKey, {
       triggerPropertyName: "onSearchTextChanged",

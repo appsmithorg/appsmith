@@ -5,6 +5,7 @@ import {
   ColumnTypes,
   getBasePropertyPath,
   hideByColumnType,
+  uniqueColumnAliasValidation,
   updateColumnAccessorHook,
 } from "../../propertyUtils";
 
@@ -73,9 +74,9 @@ export default {
       isTriggerProperty: false,
     },
     {
-      helpText: "The alias that you use in selectedrowindex",
+      helpText: "The alias that you use in selectedrow",
       propertyName: "alias",
-      label: "alias",
+      label: "Property name",
       controlType: "INPUT_TEXT",
       updateHook: updateColumnAccessorHook,
       hidden: (props: TableWidgetProps, propertyPath: string) => {
@@ -102,7 +103,10 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.JAVASCRIPT_IDENTIFIER,
+        type: ValidationTypes.FUNCTION,
+        params: {
+          fn: uniqueColumnAliasValidation,
+        },
       },
     },
     {

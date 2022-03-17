@@ -32,7 +32,7 @@ export const generatePropertyControl = (
         <Boxed
           show={
             sectionConfig.sectionName !== "General" &&
-            props.type === "TABLE_WIDGET"
+            props.type === "TABLE_WIDGET_V2"
           }
           step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
         >
@@ -53,7 +53,7 @@ export const generatePropertyControl = (
         <Boxed
           show={
             (config as PropertyPaneControlConfig).propertyName !==
-              "tableData" && props.type === "TABLE_WIDGET"
+              "tableData" && props.type === "TABLE_WIDGET_V2"
           }
           step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
         >

@@ -140,6 +140,16 @@ export function getTableStyles(props: TableStyles) {
   };
 }
 
+export function escapeString(str: string) {
+  /*
+   * Match all the unescaped `"`
+   *  match `"` that follows any character except `\`. ([^\\]\")
+   */
+  return str.replace(/[^\\]\"/g, (match) => {
+    return match.substr(0, match.length - 1) + `\\"`;
+  });
+}
+
 export function getDefaultColumnProperties(
   id: string,
   index: number,
@@ -167,7 +177,9 @@ export function getDefaultColumnProperties(
     label: id,
     computedValue: isDerived
       ? ""
-      : `{{${widgetName}.processedTableData.map((currentRow) => ( currentRow[\`${id}\`]))}}`,
+      : `{{${widgetName}.processedTableData.map((currentRow) => ( currentRow["${escapeString(
+          id,
+        )}"]))}}`,
   };
 
   return columnProps;

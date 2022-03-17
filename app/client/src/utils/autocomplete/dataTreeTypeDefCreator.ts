@@ -23,7 +23,7 @@ let extraDefs: any = {};
 // This so that we have more info about them
 // when sorting results in autocomplete
 // DATA_TREE.{entityType}.{entitySubType}.{entityName}
-// eg DATA_TREE.WIDGET.TABLE_WIDGET.Table1
+// eg DATA_TREE.WIDGET.TABLE_WIDGET_V2.Table1
 // or DATA_TREE.ACTION.ACTION.Api1
 export const dataTreeTypeDefCreator = (
   dataTree: DataTree,

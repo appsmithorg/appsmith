@@ -6,6 +6,7 @@ import {
   getBasePropertyPath,
   hideByColumnType,
   ColumnTypes,
+  uniqueColumnAliasValidation,
 } from "./propertyUtils";
 import _ from "lodash";
 import { TableWidgetProps } from "../constants";
@@ -364,6 +365,86 @@ describe("PropertyUtils - ", () => {
           (["Button"] as any) as ColumnTypes[],
         ),
       ).toBe(false);
+    });
+  });
+});
+
+describe("uniqueColumnAliasValidation", () => {
+  it("should validate that duplicate value is not allowed", () => {
+    expect(
+      uniqueColumnAliasValidation(
+        "column",
+        ({
+          primaryColumns: {
+            column: {
+              alias: "column",
+            },
+            column1: {
+              alias: "column",
+            },
+            column2: {
+              alias: "column2",
+            },
+          },
+        } as unknown) as TableWidgetProps,
+        _,
+      ),
+    ).toEqual({
+      isValid: false,
+      parsed: "column",
+      messages: ["Property names should be unique."],
+    });
+  });
+
+  it("should validate that empty value is not allowed", () => {
+    expect(
+      uniqueColumnAliasValidation(
+        "",
+        ({
+          primaryColumns: {
+            column: {
+              alias: "column",
+            },
+            column1: {
+              alias: "column1",
+            },
+            column2: {
+              alias: "column2",
+            },
+          },
+        } as unknown) as TableWidgetProps,
+        _,
+      ),
+    ).toEqual({
+      isValid: false,
+      parsed: "",
+      messages: ["Property name should not be empty."],
+    });
+  });
+
+  it("should validate that unique value is allowed", () => {
+    expect(
+      uniqueColumnAliasValidation(
+        "column1",
+        ({
+          primaryColumns: {
+            column: {
+              alias: "column",
+            },
+            column1: {
+              alias: "column1",
+            },
+            column2: {
+              alias: "column2",
+            },
+          },
+        } as unknown) as TableWidgetProps,
+        _,
+      ),
+    ).toEqual({
+      isValid: true,
+      parsed: "column1",
+      messages: [""],
     });
   });
 });
