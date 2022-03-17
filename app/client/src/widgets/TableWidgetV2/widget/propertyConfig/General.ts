@@ -90,7 +90,8 @@ export default {
           children: {
             type: ValidationTypes.NUMBER,
             params: {
-              min: 0,
+              min: -1,
+              default: -1,
             },
           },
         },
@@ -111,7 +112,8 @@ export default {
       validation: {
         type: ValidationTypes.NUMBER,
         params: {
-          min: 0,
+          min: -1,
+          default: -1,
         },
       },
       hidden: (props: TableWidgetProps) => {

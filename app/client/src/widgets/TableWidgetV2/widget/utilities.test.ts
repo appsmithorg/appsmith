@@ -1,5 +1,6 @@
 import { ColumnProperties, TableStyles } from "../component/Constants";
 import {
+  escapeString,
   getAllTableColumnKeys,
   getDerivedColumns,
   getOriginalRowIndex,
@@ -1066,5 +1067,45 @@ describe("getDerivedColumns - ", () => {
     expect(
       getDerivedColumns((1 as any) as Record<string, ColumnProperties>),
     ).toEqual({});
+  });
+});
+
+describe("escapeString", () => {
+  it("should test that string without quotes are retured as it is", () => {
+    ["column", "1", "columnNameThatIsReallyLong"].forEach((str) => {
+      expect(escapeString(str)).toBe(str);
+    });
+  });
+
+  it("should test that string with quotes are escaped correctly", () => {
+    [
+      {
+        input: `column"`,
+        output: `column\"`,
+      },
+      {
+        input: `1"`,
+        output: `1\"`,
+      },
+      {
+        input: `columnName " ThatIsReallyLong`,
+        output: `columnName \" ThatIsReallyLong`,
+      },
+    ].forEach(({ input, output }) => {
+      expect(escapeString(input)).toBe(output);
+    });
+  });
+
+  it("should test that string with escaped quotes are returned as it is", () => {
+    [
+      `column\"`,
+      `column\\\"`,
+      `column\\\\\"`,
+      `col\\\\\"umn\\\\\"`,
+      `1\"`,
+      `columnNameThatIsReallyLong\"`,
+    ].forEach((str) => {
+      expect(escapeString(str)).toBe(str);
+    });
   });
 });
