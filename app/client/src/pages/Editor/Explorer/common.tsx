@@ -16,12 +16,16 @@ const ECMainText = styled.span`
   display: block;
   margin-bottom: 12px;
   font-size: 10px;
+  font-size: min(max(10px, 0.7vw + 0.1rem), 12px);
+  font-size: clamp(10px, 0.7vw + 0.1rem, 12px);
   color: ${Colors.DOVE_GRAY2};
 `;
 
 const ECAddButton = styled.div`
   display: flex;
   font-size: 11px;
+  font-size: min(max(11px, 0.7vw + 0.1rem), 13px);
+  font-size: clamp(11px, 0.7vw + 0.1rem, 13px);
   color: ${Colors.CHARCOAL};
   font-weight: 600;
   padding: 4px;

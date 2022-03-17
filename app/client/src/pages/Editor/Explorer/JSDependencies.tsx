@@ -11,11 +11,8 @@ import { Size } from "components/ads/Button";
 
 const Wrapper = styled.div`
   font-size: 14px; //fallback if clamp is not supported by browser
-  font-size: min(
-    max(12px, 0.7vw + 0.2rem),
-    16px
-  ); //fallback if clamp is not supported by browser
-  font-size: clamp(12px, 0.7vw + 0.2rem, 16px);
+  font-size: min(max(12px, 0.7vw + 0.2rem), 0.98rem);
+  font-size: clamp(12px, 0.7vw + 0.2rem, 0.98rem);
 `;
 const ListItem = styled.li`
   list-style: none;
@@ -64,11 +61,8 @@ const Title = styled.div`
   padding-right: 4px;
   padding-left: 0.25rem;
   font-size: 14px; //fallback if clamp is not supported by browser
-  font-size: min(
-    max(12px, 0.7vw + 0.2rem),
-    16px
-  ); //fallback if clamp is not supported by browser
-  font-size: clamp(12px, 0.7vw + 0.2rem, 16px);
+  font-size: min(max(12px, 0.7vw + 0.2rem), 0.98rem);
+  font-size: clamp(12px, 0.7vw + 0.2rem, 0.98rem);
   &:hover {
     background: ${Colors.ALABASTER_ALT};
   }

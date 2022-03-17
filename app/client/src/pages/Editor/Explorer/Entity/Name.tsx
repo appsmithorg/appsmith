@@ -37,11 +37,9 @@ const Wrapper = styled.div`
   position: relative;
   font-weight: 500;
   font-size: 14px; //fallback if clamp is not supported by browser
-  font-size: min(
-    max(12px, 0.7vw + 0.2rem),
-    16px
-  ); //fallback if clamp is not supported by browser
-  font-size: clamp(12px, 0.7vw + 0.2rem, 16px);
+  // eslint-disable-next-line prettier/prettier
+  font-size: min(max(12px, 0.7vw + 0.2rem), 0.98rem);
+  font-size: clamp(12px, 0.7vw + 0.2rem, 0.98rem);
   & span.token {
     color: ${Colors.OCEAN_GREEN};
   }

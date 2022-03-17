@@ -37,13 +37,16 @@ import useResize, { DIRECTION } from "utils/hooks/useResize";
 import { saveExplorerStatus, getExplorerStatus } from "../helpers";
 
 const ENTITY_HEIGHT = 36;
+const MIN_PAGES_HEIGHT = 60;
 
 const StyledEntity = styled(Entity)<{ pagesSize?: number }>`
   &.pages {
     & > div:not(.t--entity-item) > div > div {
       max-height: 40vh;
       min-height: ${(props) =>
-        props.pagesSize && props.pagesSize > 100 ? 100 : props.pagesSize}px;
+        props.pagesSize && props.pagesSize > MIN_PAGES_HEIGHT
+          ? MIN_PAGES_HEIGHT
+          : props.pagesSize}px;
       height: ${(props) =>
         props.pagesSize && props.pagesSize > 128 ? 128 : props.pagesSize}px;
       overflow-y: auto;

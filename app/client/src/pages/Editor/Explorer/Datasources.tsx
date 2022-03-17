@@ -34,6 +34,8 @@ const ShowAll = styled.div`
   padding: 0.25rem 1.5rem;
   font-weight: 500;
   font-size: 12px;
+  font-size: min(max(12px, 0.7vw + 0.1rem), 13px);
+  font-size: clamp(12px, 0.7vw + 0.1rem, 13px);
   color: ${Colors.DOVE_GRAY2};
   display: flex;
   align-items: center;

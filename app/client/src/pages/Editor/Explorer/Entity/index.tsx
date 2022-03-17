@@ -80,11 +80,8 @@ export const EntityItem = styled.div<{
       z-index: 100;
     `}
   font-size: 14px; //fallback if clamp is not supported by browser
-  font-size: min(
-    max(12px, 0.7vw + 0.2rem),
-    16px
-  ); //fallback if clamp is not supported by browser
-  font-size: clamp(12px, 0.7vw + 0.2rem, 16px);
+  font-size: min(max(12px, 0.7vw + 0.2rem), 0.98rem);
+  font-size: clamp(12px, 0.7vw + 0.2rem, 0.98rem);
   user-select: none;
   padding-left: ${(props) => `calc(0.25rem + (0.25 * ${props.step}rem))`};
   background: ${(props) =>
