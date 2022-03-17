@@ -81,6 +81,37 @@ export function uniqueColumnNameValidation(
   }
 }
 
+export function uniqueColumnAliasValidation(
+  value: unknown,
+  props: TableWidgetProps,
+  _?: any,
+) {
+  const aliases = _.map(Object.values(props.primaryColumns), "alias");
+  const duplicates = aliases.find(
+    (val: string, index: number, arr: string[]) => arr.indexOf(val) !== index,
+  );
+
+  if (!value) {
+    return {
+      isValid: false,
+      parsed: value,
+      messages: ["Property name should not be empty."],
+    };
+  } else if (value && !!duplicates) {
+    return {
+      isValid: false,
+      parsed: value,
+      messages: ["Property names should be unique."],
+    };
+  } else {
+    return {
+      isValid: true,
+      parsed: value,
+      messages: [""],
+    };
+  }
+}
+
 /*
  * Hook to update all column styles, when global table styles are updated.
  */
@@ -196,20 +227,6 @@ export const updateColumnAccessorHook = (
         propertyPath: "aliasMap",
         propertyValue: { ...props.aliasMap, [columnId]: propertyValue },
       });
-
-      // if (props.primaryColumns && props.primaryColumns[columnId]) {
-      //   const computedValue = props.primaryColumns[columnId].computedValue;
-      //   const oldPropertyValue = props.primaryColumns[columnId].alias;
-
-      //   const newComputedValue = computedValue
-      //     .split(`currentRow.${oldPropertyValue}`)
-      //     .join(`currentRow.${propertyValue}`);
-
-      //   propertiesToUpdate.push({
-      //     propertyPath: `primaryColumns.${columnId}.computedValue`,
-      //     propertyValue: newComputedValue,
-      //   });
-      // }
 
       return propertiesToUpdate;
     } else {

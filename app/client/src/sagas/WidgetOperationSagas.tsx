@@ -1410,7 +1410,7 @@ function* pasteWidgetSaga(
           }
 
           // Update the table widget column properties
-          if (widget.type === "TABLE_WIDGET") {
+          if (widget.type === "TABLE_WIDGET_V2") {
             try {
               // If the primaryColumns of the table exist
               if (widget.primaryColumns) {
