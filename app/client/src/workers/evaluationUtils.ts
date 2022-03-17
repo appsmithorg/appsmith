@@ -602,33 +602,68 @@ export const updateJSCollectionInDataTree = (
       const action = parsedBody.actions[i];
       if (jsCollection.hasOwnProperty(action.name)) {
         if (jsCollection[action.name] !== action.body) {
+          const data = _.get(
+            modifiedDataTree,
+            `${jsCollection.name}.${action.name}.data`,
+            {},
+          );
           _.set(
             modifiedDataTree,
             `${jsCollection.name}.${action.name}`,
-            action.body,
+            new String(action.body),
+          );
+
+          _.set(
+            modifiedDataTree,
+            `${jsCollection.name}.${action.name}.data`,
+            data,
           );
         }
       } else {
         const bindingPaths = jsCollection.bindingPaths;
         bindingPaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
-        _.set(modifiedDataTree, `${jsCollection}.bindingPaths`, bindingPaths);
+        bindingPaths[`${action.name}.data`] =
+          EvaluationSubstitutionType.TEMPLATE;
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.bindingPaths`,
+          bindingPaths,
+        );
         const dynamicBindingPathList = jsCollection.dynamicBindingPathList;
         dynamicBindingPathList.push({ key: action.name });
         _.set(
           modifiedDataTree,
-          `${jsCollection}.dynamicBindingPathList`,
+          `${jsCollection.name}.dynamicBindingPathList`,
           dynamicBindingPathList,
         );
         const dependencyMap = jsCollection.dependencyMap;
         dependencyMap["body"].push(action.name);
-        _.set(modifiedDataTree, `${jsCollection}.dependencyMap`, dependencyMap);
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.dependencyMap`,
+          dependencyMap,
+        );
         const meta = jsCollection.meta;
-        meta[action.name] = { arguments: action.arguments };
+        meta[action.name] = {
+          arguments: action.arguments,
+          isAsync: false,
+          confirmBeforeExecute: false,
+        };
         _.set(modifiedDataTree, `${jsCollection.name}.meta`, meta);
+        const data = _.get(
+          modifiedDataTree,
+          `${jsCollection.name}.${action.name}.data`,
+          {},
+        );
         _.set(
           modifiedDataTree,
           `${jsCollection.name}.${action.name}`,
-          action.body,
+          new String(action.body.toString()),
+        );
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.${action.name}.data`,
+          data,
         );
       }
     }
@@ -672,6 +707,7 @@ export const updateJSCollectionInDataTree = (
         delete meta[preAction];
         _.set(modifiedDataTree, `${jsCollection.name}.meta`, meta);
         delete modifiedDataTree[`${jsCollection.name}`][`${preAction}`];
+        delete modifiedDataTree[`${jsCollection.name}`][`${preAction}.data`];
       }
     }
   }
