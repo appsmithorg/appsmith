@@ -11,7 +11,7 @@ export const isEmptyOrNill = (value: any) => {
   return isNil(value) || (isString(value) && value === "");
 };
 
-interface SelectButtonProps {
+export interface SelectButtonProps {
   disabled?: boolean;
   displayText?: string;
   handleCancelClick?: (event: React.MouseEvent<Element, MouseEvent>) => void;
@@ -29,6 +29,7 @@ function SelectButton(props: SelectButtonProps) {
   } = props;
   return (
     <Button
+      data-testid="selectbutton.btn.main"
       disabled={disabled}
       onClick={togglePopoverVisibility}
       rightIcon={
@@ -36,6 +37,7 @@ function SelectButton(props: SelectButtonProps) {
           {!isEmptyOrNill(value) ? (
             <Icon
               className="dropdown-icon cancel-icon"
+              data-testid="selectbutton.btn.cancel"
               fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
               name="cross"
               onClick={handleCancelClick}
