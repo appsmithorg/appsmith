@@ -34,7 +34,9 @@
           "label": "Limit",
           "configProperty": "actionConfiguration.formData.delete.limit.data",
           "controlType": "DROP_DOWN",
-          "alternateViewTypes": ["json"],
+          "-subtitle": "Allowed values: SINGLE, ALL",
+          "-tooltipText": "Allowed values: SINGLE, ALL",
+          "-alternateViewTypes": ["json"],
           "initialValue": "SINGLE",
           "options": [
             {

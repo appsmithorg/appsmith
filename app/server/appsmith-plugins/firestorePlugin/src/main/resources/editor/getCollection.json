@@ -51,7 +51,9 @@
       "configProperty": "actionConfiguration.formData.where.data",
       "nestedLevels": 1,
       "controlType": "WHERE_CLAUSE",
-      "alternateViewTypes": ["json"],
+      "-subtitle": "Array of Objects",
+      "-tooltipText": "Array of Objects",
+      "-alternateViewTypes": ["json"],
       "logicalTypes": [
         {
           "label": "AND",
