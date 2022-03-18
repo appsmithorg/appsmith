@@ -1,0 +1,21 @@
+name: Close as a feature
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  build:
+    permissions:
+      issues: write
+    runs-on: ubuntu-latest
+    steps:
+    - name: Close Issue
+      uses: peter-evans/close-issue@v1
+      if: contains(github.event.issue.labels.*.name, 'feature')
+      with:
+        comment: |
+          Thank you 🙇 for this request. This request has been classified as a feature by the maintainers.
+          
+          We take all the requests for features seriously and have passed this on to the internal teams for their consideration.
+          
+          Because any feature requires further maintenance and support in the long term by this team, we would like to exercise caution into adding new features. If this feature is something that can be implemented independently, please consider forking this repository and adding the feature.
