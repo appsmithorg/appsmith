@@ -952,7 +952,7 @@ export const ADMIN_SETTINGS = () => "Admin Settings";
 export const RESTART_BANNER_BODY = () => "We will notify you once we are done!";
 export const RESTART_BANNER_HEADER = () => "Restarting Server";
 export const RESTART_ERROR_BODY = () =>
-  "Something went wrong. Please contact your administrator.";
+  "You can try refreshing the page for the settings to take place.";
 export const RESTART_ERROR_HEADER = () => "Restart failed";
 export const INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST = () =>
   "Hey! There is a new version of Appsmith available. Please consider refreshing your window.";

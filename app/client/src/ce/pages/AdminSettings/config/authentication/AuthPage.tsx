@@ -124,7 +124,7 @@ const Label = styled.span<{ enterprise?: boolean }>`
     background: #fff;
   `
       : `
-    color: #03B365;
+    color: ${Colors.GREEN};
     background: #E5F6EC;
   `};
   padding: 0px 4px;
@@ -180,7 +180,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                         openOnTargetFocus={false}
                         position={Position.RIGHT}
                       >
-                        <Icon fillColor="#03B365" name="oval-check" />
+                        <Icon fillColor={Colors.GREEN} name="oval-check" />
                       </TooltipComponent>
                     )}
                   </MethodTitle>
