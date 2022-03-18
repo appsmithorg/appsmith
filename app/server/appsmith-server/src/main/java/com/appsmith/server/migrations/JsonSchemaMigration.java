@@ -3,6 +3,7 @@ package com.appsmith.server.migrations;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.CollectionUtils;
 
 public class JsonSchemaMigration {
     private static boolean checkCompatibility(ApplicationJson applicationJson) {
@@ -38,7 +39,9 @@ public class JsonSchemaMigration {
 
             case 1:
                 // Migration for deprecating archivedAt field in ActionDTO
-                HelperMethods.updateArchivedAtByDeletedATForActions(applicationJson.getActionList());
+                if (!CollectionUtils.isNullOrEmpty(applicationJson.getActionList())) {
+                    HelperMethods.updateArchivedAtByDeletedATForActions(applicationJson.getActionList());
+                }
                 applicationJson.setServerSchemaVersion(2);
             case 2:
 
