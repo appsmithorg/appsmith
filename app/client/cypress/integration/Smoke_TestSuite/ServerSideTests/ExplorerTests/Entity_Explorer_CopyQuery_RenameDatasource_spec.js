@@ -107,7 +107,7 @@ describe("Entity explorer tests related to copy query", function() {
 
     cy.get(".t--entity-name")
       .contains("Query1")
-      .click();
+      .click({ force: true });
     agHelper.ActionContextMenuByEntityName("Query1", "Delete");
   });
 });
