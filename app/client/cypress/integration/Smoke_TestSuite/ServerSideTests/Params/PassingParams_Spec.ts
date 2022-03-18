@@ -37,7 +37,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
         'Params1.run(() => {},() => {},{"condition": selRecordFilter.selectedOptionValue})',
       );
     });
-    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    agHelper.expandCollapseEntity("WIDGETS");
     agHelper.SelectEntityByName("Button1");
     cy.get("@jsObjName").then((jsObjName) => {
       jsEditor.EnterJSContext(

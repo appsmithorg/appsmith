@@ -3863,13 +3863,15 @@ Cypress.Commands.add(
   },
 );
 
+// Cypress >=8.3.x  onwards
 cy.all = function(...commands) {
   const _ = Cypress._;
+  // eslint-disable-next-line
   const chain = cy.wrap(null, { log: false });
-  const stopCommand = _.find(cy.queue.commands, {
+  const stopCommand = _.find(cy.queue.get(), {
     attributes: { chainerId: chain.chainerId },
   });
-  const startCommand = _.find(cy.queue.commands, {
+  const startCommand = _.find(cy.queue.get(), {
     attributes: { chainerId: commands[0].chainerId },
   });
   const p = chain.then(() => {
@@ -3877,7 +3879,7 @@ cy.all = function(...commands) {
       .map((cmd) => {
         return cmd[chainStart]
           ? cmd[chainStart].attributes
-          : _.find(cy.queue.commands, {
+          : _.find(cy.queue.get(), {
               attributes: { chainerId: cmd.chainerId },
             }).attributes;
       })
