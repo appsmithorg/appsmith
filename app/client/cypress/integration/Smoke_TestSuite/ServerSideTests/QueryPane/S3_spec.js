@@ -1,3 +1,5 @@
+/// <reference types="Cypress" />
+
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
@@ -584,8 +586,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
         fixturePath +
         "']/ancestor::div[contains(@class, 't--widget-textwidget')]/following-sibling::div[contains(@class,'t--widget-iconbuttonwidget')]",
     )
-      .should("be.visible")
+      .should("exist")
       .last()
+      .scrollIntoView()
       .click(); //Verifies 8684
     cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating"); //Verifies 8686
 

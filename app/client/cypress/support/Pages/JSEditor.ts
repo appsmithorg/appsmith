@@ -35,8 +35,8 @@ export class JSEditor {
       cy.get(locator._codeMirrorTextArea)
       .first()
       .focus()
-      .type("{shift}", { force: true })
       .type("{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}")
+      .type("{ctrl}{shift}{uparrow}", { force: true })
       .type("{backspace}",{ force: true });
 
       // .type("{uparrow}", { force: true })
