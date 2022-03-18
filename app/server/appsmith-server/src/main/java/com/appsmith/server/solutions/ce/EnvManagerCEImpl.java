@@ -306,15 +306,9 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     public Mono<Void> restart() {
         return verifyCurrentUserIsSuper()
                 .flatMap(user -> {
-                    log.warn("Initiating restart via supervisor.");
+                    log.warn("Running restart script.");
                     try {
-                        Runtime.getRuntime().exec(new String[]{
-                                "supervisorctl",
-                                "restart",
-                                "backend",
-                                "editor",
-                                "rts",
-                        });
+                        Runtime.getRuntime().exec("/opt/appsmith/update-and-restart-supervisor.sh");
                     } catch (IOException e) {
                         log.error("Error invoking supervisorctl to restart.", e);
                         return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
