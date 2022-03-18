@@ -236,8 +236,7 @@ describe("Table Widget property pane feature validation", function() {
       .last()
       .click();
     cy.wait("@updateLayout");
-    cy.wait(2000);
-
+    cy.assertPageSave();
     cy.PublishtheApp();
     cy.wait(4000);
 
@@ -245,8 +244,9 @@ describe("Table Widget property pane feature validation", function() {
     cy.readTabledataValidateCSS(
       "1",
       "1",
-      "background",
-      "rgb(3, 179, 101) none repeat scroll 0% 0% / auto padding-box border-box",
+      "background-color",
+      "rgb(3, 179, 101)",
+      true,
     );
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("tablewidget");
@@ -256,7 +256,7 @@ describe("Table Widget property pane feature validation", function() {
       .clear({ force: true })
       .type("purple", { force: true });
     cy.wait("@updateLayout");
-    cy.wait(2000);
+    cy.assertPageSave();
     cy.PublishtheApp();
     cy.wait(4000);
 
@@ -264,8 +264,9 @@ describe("Table Widget property pane feature validation", function() {
     cy.readTabledataValidateCSS(
       "1",
       "1",
-      "background",
-      "rgb(128, 0, 128) none repeat scroll 0% 0% / auto padding-box border-box",
+      "background-color",
+      "rgb(128, 0, 128)",
+      true,
     );
     cy.get(publish.backToEditor).click();
   });

@@ -57,5 +57,6 @@
   "mockUserDatasources":".t--datasource-name:contains('Users')",
   "mongoUriDropdown": "//p[text()='Use Mongo Connection String URI']/following-sibling::div",
   "mongoUriYes": "//div[text()='Yes']",
-  "mongoUriInput":"//p[text()='Connection String URI']/following-sibling::div//input"
+  "mongoUriInput":"//p[text()='Connection String URI']/following-sibling::div//input",
+  "saveBtn": ".t--save-datasource"
 }
