@@ -117,7 +117,7 @@ export class AggregateHelper {
             else if (!expand && arrow == 'arrow-down')
                 cy.xpath(locator._expandCollapseArrow(entityName)).click({ multiple: true }).wait(500);
             else
-                cy.wait(500)
+                this.Sleep()
         })
     }
 
@@ -333,11 +333,12 @@ export class AggregateHelper {
             .click({ force: true });
         cy.xpath(locator._contextMenuItem(action))
             .click({ force: true })
-            .wait(500);
-        if (subAction)
+        this.Sleep(500)
+        if (subAction) {
             cy.xpath(locator._contextMenuItem(subAction))
                 .click({ force: true })
-                .wait(500);
+            this.Sleep(500)
+        }
     }
 
     public ValidateEntityAbsenceInExplorer(entityNameinLeftSidebar: string) {
