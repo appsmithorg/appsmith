@@ -5,55 +5,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  fat-conatiner-test:
-    needs: [buildClient, buildServer, buildRts]
-    # Only run if the build step is successful
-    # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
-    # then we don't check for the PR approved state
-    if: |
-      success() &&
-      (github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' &&
-      github.event.review.state == 'approved' &&
-      github.event.pull_request.head.repo.full_name == github.repository))
+  build:
+#    permissions:
+#      issues: write
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-    strategy:
-      fail-fast: false
-
-    # Service containers to run with this job. Required for running tests
-    services:
-      # Label used to access the service container
-      redis:
-        # Docker Hub image for Redis
-        image: redis
-        ports:
-          # Opens tcp port 6379 on the host and service container
-          - 6379:6379
-      mongo:
-        image: mongo
-        ports:
-          - 27017:27017
-
     steps:
-      # Checkout the code
-      - name: Checkout the merged commit from PR and base branch
-        if: github.event_name == 'pull_request_review'
-        uses: actions/checkout@v2
-        with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/merge
-
-      - name: Checkout the head commit of the branch
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v2
-
-      # Timestamp will be used to create cache key
-      - id: timestamp
-        run: echo "::set-output name=timestamp::$(timestamp +'%Y-%m-%dT%H:%M:%S')"
-
       - name: Load docker image
         env:
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
@@ -73,4 +29,3 @@ jobs:
       #  run: |
       #    sudo echo  "APPSMITH_LICENSE_KEY=$secrets.APPSMITH_LICENSE_KEY" >> fatcontainerlocal/stacks/configuration/docker.env
       #    docker restart appsmith
-
