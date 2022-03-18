@@ -1849,37 +1849,26 @@ Cypress.Commands.add("DeleteModal", () => {
     .click({ force: true });
 });
 
-Cypress.Commands.add("Createpage", (Pagename) => {
+Cypress.Commands.add("Createpage", (pageName) => {
+  let pageId;
   cy.get(pages.AddPage)
     .first()
     .click({ force: true });
-  cy.wait("@createPage").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
-  cy.xpath(apiwidget.popover)
-    .last()
-    .should("be.hidden")
-    .invoke("show")
-    .click({ force: true });
-  cy.xpath(apiwidget.popover)
-    .last()
-    .click({ force: true });
-  /*  
-  cy.xpath(pages.popover)
-    .last()
-    .click({ force: true });
-    */
-  cy.get(pages.editName).click({ force: true });
-  cy.get(pages.editInput).type(Pagename + "{enter}");
-  pageidcopy = Pagename;
-  cy.get(generatePage.buildFromScratchActionCard).click();
-  cy.get("#loading").should("not.exist");
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
+  cy.wait("@createPage").then((xhr) => {
+    expect(xhr.response.body.responseMeta.status).to.equal(201);
+    if (pageName) {
+      pageId = xhr.response.body.data.id;
+      cy.wait(2000);
+      cy.get(`div[id=entity-${pageId}] .t--context-menu`).click({
+        force: true,
+      });
+      cy.get(pages.editName).click({ force: true });
+      cy.get(pages.editInput).type(pageName + "{enter}");
+      pageidcopy = pageName;
+    }
+    cy.get(generatePage.buildFromScratchActionCard).click();
+    cy.get("#loading").should("not.exist");
+  });
 });
 
 Cypress.Commands.add("Deletepage", (Pagename) => {
