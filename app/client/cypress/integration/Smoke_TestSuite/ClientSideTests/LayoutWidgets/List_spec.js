@@ -131,27 +131,20 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("10. ListWidget-Copy Verification", function() {
+  it("10. ListWidget-Copy & Delete Verification", function() {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     //Copy Chart and verify all properties
     cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("List1");
     cy.copyWidget("List1Copy", commonlocators.containerWidget);
-
-    // cy.PublishtheApp();
-  });
-
-  it("11. ListWidget-Delete Verification", function() {
-    // Delete the Chart widget
-    cy.selectEntityByName("List1Copy");
     cy.deleteWidget();
     cy.PublishtheApp();
     // Verify the copied list widget is deleted
-    cy.get(commonlocators.containerWidget).should("have.length", 1);
+    cy.get(commonlocators.containerWidget).should("have.length", 2);
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("12. List widget background colour and deploy ", function() {
+  it("11. List widget background colour and deploy ", function() {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("List1");
@@ -176,7 +169,7 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("13. Toggle JS - List widget background colour and deploy ", function() {
+  it("12. Toggle JS - List widget background colour and deploy ", function() {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("List1");
@@ -203,7 +196,7 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("14. Add new item in the list widget array object", function() {
+  it("13. Add new item in the list widget array object", function() {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("List1");
@@ -214,7 +207,7 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("15. Adding large item Spacing for item card", function() {
+  it("14. Adding large item Spacing for item card", function() {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("List1");
@@ -226,7 +219,7 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("16. Renaming the widget from Property pane and Entity explorer ", function() {
+  it("15. Renaming the widget from Property pane and Entity explorer ", function() {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("List1");
