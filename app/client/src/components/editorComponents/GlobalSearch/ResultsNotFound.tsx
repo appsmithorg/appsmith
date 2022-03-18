@@ -23,10 +23,13 @@ const Container = styled.div`
 
   .discord {
     margin-top: ${(props) => props.theme.spaces[3]}px;
+    display: flex;
+    gap: 5px;
   }
 
   .discord-link {
     cursor: pointer;
+    display: flex;
     color: ${(props) => props.theme.colors.globalSearch.searchItemText};
     font-weight: 700;
   }
