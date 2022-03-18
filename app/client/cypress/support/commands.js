@@ -2279,16 +2279,16 @@ Cypress.Commands.add(
     const hostAddress = shouldAddTrailingSpaces
       ? datasourceFormData["mongo-host"] + "  "
       : datasourceFormData["mongo-host"];
-    const databaseName = shouldAddTrailingSpaces
-      ? datasourceFormData["mongo-databaseName"] + "  "
-      : datasourceFormData["mongo-databaseName"];
+    // const databaseName = shouldAddTrailingSpaces
+    //   ? datasourceFormData["mongo-databaseName"] + "  "
+    //   : datasourceFormData["mongo-databaseName"];
 
     cy.get(datasourceEditor["host"]).type(hostAddress);
     cy.get(datasourceEditor.port).type(datasourceFormData["mongo-port"]);
     //cy.get(datasourceEditor["port"]).type(datasourceFormData["mongo-port"]);
     //cy.get(datasourceEditor["selConnectionType"]).click();
     //cy.contains(datasourceFormData["connection-type"]).click();
-    cy.get(datasourceEditor["defaultDatabaseName"]).type(databaseName);
+    //cy.get(datasourceEditor["defaultDatabaseName"]).type(databaseName);//is optional hence removing
 
     cy.get(datasourceEditor.sectionAuthentication).click();
     cy.get(datasourceEditor["databaseName"])

@@ -38,6 +38,10 @@ export class JSEditor {
         .focus()
         .type("{uparrow}", { force: true })
         .type("{ctrl}{shift}{downarrow}{del}", { force: true })
+        .wait(400)
+        .first()
+        .focus()
+        .type("{ctrl}{shift}{downarrow}{del}", { force: true })
     }
 
     cy.get(locator._codeMirrorTextArea)
