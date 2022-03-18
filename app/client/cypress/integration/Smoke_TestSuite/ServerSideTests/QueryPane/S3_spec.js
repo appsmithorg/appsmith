@@ -530,9 +530,13 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
     });
-    cy.get("span:contains('" + fixturePath + "')", { timeout: 10000 }).should(
-      "not.exist",
-    ); //verify Deletion of file is success from UI also
+
+    cy.xpath(
+      "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
+        fixturePath +
+        "']",
+      { timeout: 10000 },
+    ).should("not.exist"); //verify Deletion of file is success from UI also
 
     //Upload: 2 - Bug verification 9201
     fixturePath = "AAAFlowerVase.jpeg";
@@ -591,9 +595,12 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
     });
-    cy.get("span:contains('" + fixturePath + "')", { timeout: 10000 }).should(
-      "not.exist",
-    ); //verify Deletion of file is success from UI also
+    cy.xpath(
+      "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
+        fixturePath +
+        "']",
+      { timeout: 10000 },
+    ).should("not.exist"); //verify Deletion of file is success from UI also
 
     //Deleting the page:
     cy.actionContextMenuByEntityName("Assets-test.appsmith.com");

@@ -108,7 +108,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
       true,
     );
     agHelper.SelectEntityByName("Image1");
-    jsEditor.EnterJSContext("image", `{{ Christmas.data }}`, true);
+    jsEditor.EnterJSContext("image", `{{Christmas.data}}`, true);
     agHelper.WaitUntilEleDisappear(
       locator._toastMsg,
       "will be executed automatically on page load",
@@ -309,7 +309,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
     agHelper.NavigateBacktoEditor()
   })
 
-  //Skipping until this bug is closed!
+  //Skipping until this bug this is addressed!
   it.skip("12. Bug 9782: Verify .then & .catch (show alert should trigger) via JS Objects without return keyword", () => {
     cy.fixture('promisesBtnDsl').then((val: any) => {
       agHelper.AddDsl(val)

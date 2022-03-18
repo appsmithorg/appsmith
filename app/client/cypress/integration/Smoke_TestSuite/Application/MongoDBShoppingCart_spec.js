@@ -161,6 +161,8 @@ describe("Shopping cart App", function() {
       .closest("div")
       .eq(0)
       .click();
+    cy.assertPageSave();
+    cy.wait(5000);
     // validating updated value in the cart
     cy.get(".selected-row")
       .children()

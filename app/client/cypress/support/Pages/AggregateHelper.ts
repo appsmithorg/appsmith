@@ -216,7 +216,7 @@ export class AggregateHelper {
             .first()
             .focus()
             .type("{uparrow}", { force: true })
-            .type("{ctrl}{shift}{downarrow}", { force: true });
+            .type("{ctrl}{shift}{downarrow}{del}", { force: true });
         cy.focused().then(($cm: any) => {
             if ($cm.contents != "") {
                 cy.log("The field is not empty");
