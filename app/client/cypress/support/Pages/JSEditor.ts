@@ -86,7 +86,9 @@ export class JSEditor {
       .first()
       .focus()
       .type("{uparrow}", { force: true })
-      .type("{ctrl}{shift}{downarrow}{del}", { force: true });
+      .type("{ctrl}{shift}{downarrow}", { force: true })
+      .type("{del}", { force: true });
+
     cy.focused().then(($cm: any) => {
       if ($cm.contents != "") {
         cy.log("The field is not empty");
