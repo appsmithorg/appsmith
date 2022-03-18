@@ -27,6 +27,7 @@ import { get } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Plugin } from "api/PluginApi";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   const plugin: Plugin | undefined = yield select(
@@ -91,6 +92,8 @@ function* formValueChangeSaga(
 
     // Update the datasource of the form as well
     yield put(autofill(SAAS_EDITOR_FORM, "datasource", datasource));
+
+    AnalyticsUtil.logEvent("SWITCH_DATASOURCE");
 
     return;
   }

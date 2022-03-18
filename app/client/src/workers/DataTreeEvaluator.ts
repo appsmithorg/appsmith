@@ -178,13 +178,27 @@ export default class DataTreeEvaluator {
     return { evalTree: this.evalTree, jsUpdates: jsUpdates };
   }
 
+  isJSObjectFunction(dataTree: DataTree, jsObjectName: string, key: string) {
+    const entity = dataTree[jsObjectName];
+    if (isJSAction(entity)) {
+      return entity.meta.hasOwnProperty(key);
+    }
+    return false;
+  }
+
   updateLocalUnEvalTree(dataTree: DataTree) {
     //add functions and variables to unevalTree
     Object.keys(this.currentJSCollectionState).forEach((update) => {
       const updates = this.currentJSCollectionState[update];
       if (!!dataTree[update]) {
         Object.keys(updates).forEach((key) => {
-          _.set(dataTree, `${update}.${key}`, updates[key]);
+          const data = _.get(dataTree, `${update}.${key}.data`, undefined);
+          if (this.isJSObjectFunction(dataTree, update, key)) {
+            _.set(dataTree, `${update}.${key}`, new String(updates[key]));
+            _.set(dataTree, `${update}.${key}.data`, data);
+          } else {
+            _.set(dataTree, `${update}.${key}`, updates[key]);
+          }
         });
       }
     });
@@ -548,7 +562,8 @@ export default class DataTreeEvaluator {
         Object.keys(entity.bindingPaths).forEach((propertyPath) => {
           const existingDeps =
             dependencies[`${entityName}.${propertyPath}`] || [];
-          const jsSnippets = [_.get(entity, propertyPath)];
+          const unevalPropValue = _.get(entity, propertyPath).toString();
+          const { jsSnippets } = getDynamicBindings(unevalPropValue, entity);
           dependencies[`${entityName}.${propertyPath}`] = existingDeps.concat(
             jsSnippets.filter((jsSnippet) => !!jsSnippet),
           );

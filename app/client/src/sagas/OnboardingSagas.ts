@@ -42,6 +42,7 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getIsEditorInitialized,
 } from "selectors/editorSelectors";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getNextWidgetName } from "./WidgetOperationUtils";
@@ -77,9 +78,25 @@ import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import { shouldBeDefined } from "utils/helpers";
 
 function* createApplication() {
-  const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
-  const currentUser: User | undefined = yield select(getCurrentUser);
-  // @ts-expect-error: Type mismatch currentUser can be undefined
+  // If we are starting onboarding from the editor wait for the editor to reset.
+  const isEditorInitialised: boolean = yield select(getIsEditorInitialized);
+  let userOrgs: Organization[] = yield select(getOnboardingOrganisations);
+  if (isEditorInitialised) {
+    yield take(ReduxActionTypes.RESET_EDITOR_SUCCESS);
+
+    // If we haven't fetched the organisation list yet we wait for it to complete
+    // as we need an organisation where we create an application
+    if (!userOrgs.length) {
+      yield take(ReduxActionTypes.FETCH_USER_APPLICATIONS_ORGS_SUCCESS);
+    }
+  }
+
+  userOrgs = yield select(getOnboardingOrganisations);
+  const currentUser = shouldBeDefined<User>(
+    yield select(getCurrentUser),
+    `currentUser is undefined`,
+  );
+  // @ts-expect-error: currentOrganizationId does not exists on type User.
   const currentOrganizationId = currentUser.currentOrganizationId;
   let organization;
   if (!currentOrganizationId) {

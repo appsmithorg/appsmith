@@ -95,7 +95,7 @@ export const isHidden = (values: any, hiddenConfig?: HiddenType) => {
 };
 
 // Function that extracts the initial value from the JSON configs
-export const getConfigInitialValues = (config: Record<string, any>[]) => {
+export const getConfigInitialValues = (config: Record<string, unknown>[]) => {
   const configInitialValues = {};
   // We expect the JSON configs to be an array of objects
   if (!Array.isArray(config)) return configInitialValues;

@@ -9,7 +9,8 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { CurrentApplicationData, Page } from "constants/ReduxActionConstants";
+import { Page } from "constants/ReduxActionConstants";
+import { ApplicationPayload } from "constants/ReduxActionConstants";
 import {
   APPLICATIONS_URL,
   AUTH_LOGIN_URL,
@@ -133,7 +134,7 @@ const PrimaryLogoLink = styled(Link)`
 
 type AppViewerHeaderProps = {
   url?: string;
-  currentApplicationDetails?: CurrentApplicationData;
+  currentApplicationDetails?: ApplicationPayload;
   pages: Page[];
   currentOrgId: string;
   currentUser?: User;

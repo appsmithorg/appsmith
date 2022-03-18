@@ -95,12 +95,17 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
 import { AppState } from "reducers";
+import { getOrganizationIdForImport } from "selectors/applicationSelectors";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 
-function* fetchDatasourcesSaga() {
+function* fetchDatasourcesSaga(
+  action: ReduxAction<{ orgId?: string } | undefined>,
+) {
   try {
-    const orgId: string = yield select(getCurrentOrgId);
+    let orgId: string = yield select(getCurrentOrgId);
+    if (action.payload?.orgId) orgId = action.payload?.orgId;
+
     const response: ApiResponse<Datasource[]> = yield DatasourcesApi.fetchDatasources(
       orgId,
     );
@@ -345,6 +350,7 @@ function* updateDatasourceSaga(
   try {
     const queryParams = getQueryParams();
     const datasourcePayload = _.omit(actionPayload.payload, "name");
+    datasourcePayload.isConfigured = true; // when clicking save button, it should be changed as configured
     const response: ApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(
       datasourcePayload,
       datasourcePayload.id,
@@ -419,6 +425,7 @@ function* redirectAuthorizationCodeSaga(
   }>,
 ) {
   const { datasourceId, pageId, pluginType } = actionPayload.payload;
+  const isImport: string = yield select(getOrganizationIdForImport);
 
   if (pluginType === PluginType.API) {
     window.location.href = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code`;
@@ -428,6 +435,7 @@ function* redirectAuthorizationCodeSaga(
       const response: ApiResponse<string> = yield OAuthApi.getAppsmithToken(
         datasourceId,
         pageId,
+        !!isImport,
       );
 
       if (validateResponse(response)) {
@@ -525,7 +533,12 @@ function* handleDatasourceNameChangeFailureSaga(
 }
 
 function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
-  const organizationId: string = yield select(getCurrentOrgId);
+  let organizationId: string = yield select(getCurrentOrgId);
+
+  // test button within the import modal
+  if (!organizationId) {
+    organizationId = yield select(getOrganizationIdForImport);
+  }
   const { initialValues, values } = yield select(
     getFormData,
     DATASOURCE_DB_FORM,
@@ -653,6 +666,8 @@ function* createDatasourceFromFormSaga(
     );
 
     const payload = merge(initialValues, actionPayload.payload);
+    // @ts-expect-error: isConfigured does not exists on type Payload
+    payload.isConfigured = false;
 
     const response: ApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
       {
@@ -702,7 +717,6 @@ function* updateDraftsSaga() {
     // @ts-expect-error: values is of type unknown
     values.id,
   );
-
   if (_.isEqual(values, datasource)) {
     yield put({
       type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,
@@ -800,7 +814,17 @@ function* storeAsDatasourceSaga() {
       value: actionHeaders,
     }),
   );
-  _.set(datasource, "datasourceConfiguration.headers", datasourceHeaders);
+
+  // Empty Headers getting created so filtering out the empty headers before setting it to datasource
+  const filteredDatasourceHeaders = datasourceHeaders.filter(
+    (d) => !(d.key === "" && d.key === ""),
+  );
+
+  _.set(
+    datasource,
+    "datasourceConfiguration.headers",
+    filteredDatasourceHeaders,
+  );
 
   yield put(createDatasourceFromForm(datasource));
   const createDatasourceSuccessAction: unknown = yield take(

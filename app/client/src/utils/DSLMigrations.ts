@@ -39,7 +39,10 @@ import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButtonWidget";
 import { ButtonStyleTypes, ButtonVariantTypes } from "../components/constants";
 import { Colors } from "../constants/Colors";
-import { migrateResizableModalWidgetProperties } from "./migrations/ModalWidget";
+import {
+  migrateModalIconButtonWidget,
+  migrateResizableModalWidgetProperties,
+} from "./migrations/ModalWidget";
 import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxGroupWidget";
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
 import { DSLWidget } from "widgets/constants";
@@ -1048,6 +1051,11 @@ export const transformDSL = (
 
   if (currentDSL.version === 51) {
     currentDSL = migratePhoneInputWidgetAllowFormatting(currentDSL);
+    currentDSL.version = 52;
+  }
+
+  if (currentDSL.version === 52) {
+    currentDSL = migrateModalIconButtonWidget(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

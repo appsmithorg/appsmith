@@ -11,6 +11,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -26,6 +27,7 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -71,12 +73,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 
@@ -264,7 +268,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .flatMapMany(datasourceList -> {
                                 datasourceList.forEach(datasource ->
                                         datasourceIdToNameMap.put(datasource.getId(), datasource.getName()));
-
                                 applicationJson.setDatasourceList(datasourceList);
                                 return actionCollectionRepository
                                         .findByApplicationId(applicationId, MANAGE_ACTIONS, null);
@@ -332,7 +335,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         actionDTO.setCollectionId(collectionIdToNameMap.get(actionDTO.getCollectionId()));
                                     }
 
-                                    final String updatedActionId = actionDTO.getPageId() + "_" + actionDTO.getName();
+                                    final String updatedActionId = actionDTO.getPageId() + "_" + actionDTO.getValidName();
                                     actionIdToNameMap.put(newAction.getId(), updatedActionId);
                                     newAction.setId(updatedActionId);
                                 }
@@ -346,7 +349,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     }
 
                                     if (!actionIdToNameMap.containsValue(newAction.getId())) {
-                                        final String updatedActionId = actionDTO.getPageId() + "_" + actionDTO.getName();
+                                        final String updatedActionId = actionDTO.getPageId() + "_" + actionDTO.getValidName();
                                         actionIdToNameMap.put(newAction.getId(), updatedActionId);
                                         newAction.setId(updatedActionId);
                                     }
@@ -357,34 +360,37 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .map(actionList -> {
                                 applicationJson.setActionList(actionList);
 
+                                Map<String, InvisibleActionFields> invisibleActionFieldsMap = new HashMap<>();
+                                applicationJson.setInvisibleActionFields(invisibleActionFieldsMap);
+                                actionList.forEach(newAction -> {
+                                    final InvisibleActionFields invisibleActionFields = new InvisibleActionFields();
+
+                                    if (newAction.getUnpublishedAction() != null) {
+                                        invisibleActionFields.setUnpublishedUserSetOnLoad(newAction.getUnpublishedAction().getUserSetOnLoad());
+                                    }
+                                    if (newAction.getPublishedAction() != null) {
+                                        invisibleActionFields.setPublishedUserSetOnLoad(newAction.getPublishedAction().getUserSetOnLoad());
+                                    }
+
+                                    if (invisibleActionFields.getPublishedUserSetOnLoad() != null || invisibleActionFields.getUnpublishedUserSetOnLoad() != null) {
+                                        invisibleActionFieldsMap.put(newAction.getId(), invisibleActionFields);
+                                    }
+                                });
+
                                 // This is where we're removing global datasources that are unused in this application
                                 applicationJson
                                         .getDatasourceList()
                                         .removeIf(datasource -> !dbNamesUsedInActions.contains(datasource.getName()));
 
                                 // Save decrypted fields for datasources
-                                Map<String, DecryptedSensitiveFields> decryptedFields = new HashMap<>();
                                 applicationJson.getDatasourceList().forEach(datasource -> {
-                                    decryptedFields.put(datasource.getName(), getDecryptedFields(datasource));
                                     datasource.setId(null);
                                     datasource.setOrganizationId(null);
                                     datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
                                     datasource.setStructure(null);
-                                    if (SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor)) {
-                                        // If we are exporting the doc for git functionality, remove the datasourceConfiguration
-                                        // object as user will configure it once imported to other instance
-                                        datasource.setDatasourceConfiguration(null);
-                                    } else if (datasource.getDatasourceConfiguration() != null) {
-                                        datasource.getDatasourceConfiguration().setAuthentication(null);
-                                    }
+                                    // Remove the datasourceConfiguration object as user will configure it once imported to other instance
+                                    datasource.setDatasourceConfiguration(null);
                                 });
-
-                                // Caution : Please don't serialise the credentials if we are serialising for git version control
-                                if (SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor)) {
-                                    applicationJson.setDecryptedFields(null);
-                                } else {
-                                    applicationJson.setDecryptedFields(decryptedFields);
-                                }
 
                                 // Update ids for layoutOnLoadAction
                                 for (NewPage newPage : applicationJson.getPageList()) {
@@ -446,7 +452,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * @param filePart Json file which contains the entire application object
      * @return saved application in DB
      */
-    public Mono<Application> extractFileAndSaveApplication(String orgId, Part filePart) {
+    public Mono<ApplicationImportDTO> extractFileAndSaveApplication(String orgId, Part filePart) {
 
         /*
             1. Check the validity of file part
@@ -471,36 +477,46 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     return new String(data);
                 });
 
-        Mono<Application> importedApplicationMono = stringifiedFile
+        Mono<ApplicationImportDTO> importedApplicationMono = stringifiedFile
                 .flatMap(data -> {
                     Gson gson = new GsonBuilder()
                             .registerTypeAdapter(Instant.class, new GsonISOStringToInstantConverter())
                             .create();
-
-
                     /*
                     // Use JsonObject to migrate when we remove some field from the collection which is being exported
                     JsonObject json = gson.fromJson(data, JsonObject.class);
                     JsonObject update = new JsonObject();
                     update.addProperty("slug", "update_name");
                     update.addProperty("name", "update name");
-
                     ((JsonObject) json.get("exportedApplication")).add("name", update);
                     json.get("random") == null => true
-
                     ((JsonArray) json.get("pageList"))
                     */
-                    Type fileType = new TypeToken<ApplicationJson>() {
-                    }.getType();
+
+                    Type fileType = new TypeToken<ApplicationJson>() {}.getType();
                     ApplicationJson jsonFile = gson.fromJson(data, fileType);
-                    return importApplicationInOrganization(orgId, jsonFile);
+                    return importApplicationInOrganization(orgId, jsonFile)
+                            .onErrorResume(error -> {
+                                if (error instanceof AppsmithException) {
+                                    return Mono.error(error);
+                                }
+                                return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, orgId, error.getMessage()));
+                            });
                 })
-                .onErrorResume(error -> {
-                    if (error instanceof AppsmithException) {
-                        return Mono.error(error);
-                    }
-                    return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, orgId, error.getMessage()));
-                });
+                // Add un-configured datasource to the list to response
+                .flatMap(application -> findDatasourceByApplicationId(application.getId(), orgId)
+                        .map(datasources -> {
+                            ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
+                            applicationImportDTO.setApplication(application);
+                            Long unConfiguredDatasource = datasources.stream().filter(datasource -> Boolean.FALSE.equals(datasource.getIsConfigured())).count();
+                            if (unConfiguredDatasource != 0) {
+                                applicationImportDTO.setIsPartialImport(true);
+                                applicationImportDTO.setUnConfiguredDatasourceList(datasources);
+                            } else {
+                                applicationImportDTO.setIsPartialImport(false);
+                            }
+                            return applicationImportDTO;
+                        }));
 
         return Mono.create(sink -> importedApplicationMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
@@ -643,6 +659,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                                     updateAuthenticationDTO(datasource, decryptedFields);
                                 }
+
                                 return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, organizationId, applicationId);
                             })
                             .map(datasource -> {
@@ -715,7 +732,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                             .then(applicationService.save(importedApplication));
                                 })
                 )
-                .flatMap(savedAPP -> importThemes(savedAPP, importedDoc))
+                .flatMap(savedApp -> importThemes(savedApp, importedDoc))
                 .flatMap(savedApp -> {
                     importedApplication.setId(savedApp.getId());
                     if (savedApp.getGitApplicationMetadata() != null) {
@@ -829,7 +846,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 pluginMap,
                                 datasourceMap,
                                 unpublishedCollectionIdToActionIdsMap,
-                                publishedCollectionIdToActionIdsMap
+                                publishedCollectionIdToActionIdsMap,
+                                applicationJson.getInvisibleActionFields()
                         )
                         .map(NewAction::getId)
                         .collectList()
@@ -1101,7 +1119,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                 Map<String, String> pluginMap,
                                                 Map<String, String> datasourceMap,
                                                 Map<String, Map<String, String>> unpublishedCollectionIdToActionIdsMap,
-                                                Map<String, Map<String, String>> publishedCollectionIdToActionIdsMap) {
+                                                Map<String, Map<String, String>> publishedCollectionIdToActionIdsMap,
+                                                Map<String, InvisibleActionFields> invisibleActionFieldsMap) {
 
         Map<String, NewAction> savedActionsGitIdToActionsMap = new HashMap<>();
         final String organizationId = importedApplication.getOrganizationId();
@@ -1126,13 +1145,19 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     // If pageId is missing in the actionDTO create a fallback pageId
                     final String fallbackParentPageId = unpublishedAction.getPageId();
 
-                    if (unpublishedAction.getName() != null) {
+                    if (unpublishedAction.getValidName() != null) {
+                        if (invisibleActionFieldsMap != null) {
+                            unpublishedAction.setUserSetOnLoad(invisibleActionFieldsMap.get(newAction.getId()).getUnpublishedUserSetOnLoad());
+                        }
                         unpublishedAction.setId(newAction.getId());
                         parentPage = updatePageInAction(unpublishedAction, pageNameMap, actionIdMap);
                         sanitizeDatasourceInActionDTO(unpublishedAction, datasourceMap, pluginMap, organizationId, false);
                     }
 
-                    if (publishedAction != null && publishedAction.getName() != null) {
+                    if (publishedAction != null && publishedAction.getValidName() != null) {
+                        if (invisibleActionFieldsMap != null) {
+                            publishedAction.setUserSetOnLoad(invisibleActionFieldsMap.get(newAction.getId()).getPublishedUserSetOnLoad());
+                        }
                         publishedAction.setId(newAction.getId());
                         if (StringUtils.isEmpty(publishedAction.getPageId())) {
                             publishedAction.setPageId(fallbackParentPageId);
@@ -1203,7 +1228,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     if (newAction.getUnpublishedAction() != null) {
                         ActionDTO unpublishedAction = newAction.getUnpublishedAction();
                         actionIdMap.put(
-                                actionIdMap.get(unpublishedAction.getName() + unpublishedAction.getPageId()),
+                                actionIdMap.get(unpublishedAction.getValidName() + unpublishedAction.getPageId()),
                                 newAction.getId()
                         );
 
@@ -1216,7 +1241,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     if (newAction.getPublishedAction() != null) {
                         ActionDTO publishedAction = newAction.getPublishedAction();
                         actionIdMap.put(
-                                actionIdMap.get(publishedAction.getName() + publishedAction.getPageId()),
+                                actionIdMap.get(publishedAction.getValidName() + publishedAction.getPageId()),
                                 newAction.getId()
                         );
 
@@ -1466,7 +1491,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         if (parentPage == null) {
             return null;
         }
-        actionIdMap.put(action.getName() + parentPage.getId(), action.getId());
+        actionIdMap.put(action.getValidName() + parentPage.getId(), action.getId());
         action.setPageId(parentPage.getId());
 
         // Update defaultResources in actionDTO
@@ -1648,22 +1673,19 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         }
 
         return existingDatasourceFlux
-                .map(ds -> {
-                    final DatasourceConfiguration dsAuthConfig = ds.getDatasourceConfiguration();
-                    if (dsAuthConfig != null && dsAuthConfig.getAuthentication() != null) {
-                        dsAuthConfig.getAuthentication().setAuthenticationResponse(null);
-                        dsAuthConfig.getAuthentication().setAuthenticationType(null);
-                    }
-                    return ds;
-                })
                 // For git import exclude datasource configuration
-                .filter(ds -> applicationId != null ? ds.getName().equals(datasource.getName()) : ds.softEquals(datasource))
+                .filter(ds -> ds.getName().equals(datasource.getName()))
                 .next()  // Get the first matching datasource, we don't need more than one here.
                 .switchIfEmpty(Mono.defer(() -> {
                     if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {
                         datasourceConfig.getAuthentication().setAuthenticationResponse(authResponse);
                     }
                     // No matching existing datasource found, so create a new one.
+                    if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {
+                        datasource.setIsConfigured(true);
+                    } else {
+                        datasource.setIsConfigured(false);
+                    }
                     return datasourceService
                             .findByNameAndOrganizationId(datasource.getName(), organizationId, AclPermission.MANAGE_DATASOURCES)
                             .flatMap(duplicateNameDatasource ->
@@ -1715,41 +1737,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     /**
-     * This will be used to dehydrate sensitive fields from the datasource while exporting the application
-     *
-     * @param datasource entity from which sensitive fields need to be dehydrated
-     * @return sensitive fields which then will be deserialized and exported in JSON file
-     */
-    private DecryptedSensitiveFields getDecryptedFields(Datasource datasource) {
-        final AuthenticationDTO authentication = datasource.getDatasourceConfiguration() == null
-                ? null : datasource.getDatasourceConfiguration().getAuthentication();
-
-        if (authentication != null) {
-            DecryptedSensitiveFields dsDecryptedFields =
-                    authentication.getAuthenticationResponse() == null
-                            ? new DecryptedSensitiveFields()
-                            : new DecryptedSensitiveFields(authentication.getAuthenticationResponse());
-
-            if (authentication instanceof DBAuth) {
-                DBAuth auth = (DBAuth) authentication;
-                dsDecryptedFields.setPassword(auth.getPassword());
-                dsDecryptedFields.setDbAuth(auth);
-            } else if (authentication instanceof OAuth2) {
-                OAuth2 auth = (OAuth2) authentication;
-                dsDecryptedFields.setPassword(auth.getClientSecret());
-                dsDecryptedFields.setOpenAuth2(auth);
-            } else if (authentication instanceof BasicAuth) {
-                BasicAuth auth = (BasicAuth) authentication;
-                dsDecryptedFields.setPassword(auth.getPassword());
-                dsDecryptedFields.setBasicAuth(auth);
-            }
-            dsDecryptedFields.setAuthType(authentication.getClass().getName());
-            return dsDecryptedFields;
-        }
-        return null;
-    }
-
-    /**
      * Removes internal fields e.g. database ID from the provided Theme object.
      * @param srcTheme Theme object from DB that'll be exported
      * @return Theme DTO with null or empty value in internal fields
@@ -1787,6 +1774,24 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     application.getId(), editModeThemeId, publishedModeThemeId, MANAGE_APPLICATIONS
             ).thenReturn(application);
         });
+    }
+
+    public Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String orgId) {
+        Mono<List<Datasource>> listMono = datasourceService.findAllByOrganizationId(orgId, MANAGE_DATASOURCES).collectList();
+        return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, AclPermission.READ_ACTIONS, null)
+                .collectList()
+                .zipWith(listMono)
+                .flatMap(objects -> {
+                    List<Datasource> datasourceList = objects.getT2();
+                    List<NewAction> actionList = objects.getT1();
+                    List<String> usedDatasource = actionList.stream()
+                            .map(newAction -> newAction.getUnpublishedAction().getDatasource().getId())
+                            .collect(Collectors.toList());
+
+                    datasourceList.removeIf(datasource -> !usedDatasource.contains(datasource.getId()));
+
+                    return Mono.just(datasourceList);
+                });
     }
 
     private void removeUnwantedFieldsFromApplicationDuringExport(Application application) {

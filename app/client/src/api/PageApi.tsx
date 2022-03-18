@@ -52,7 +52,15 @@ export type SavePageResponse = ApiResponse<{
   actionUpdates: Array<{
     executeOnLoad: boolean;
     id: string;
-    name: string;
+    layoutOnLoadActions: PageAction[][];
+    dsl: Partial<DSLWidget>;
+    messages: string[];
+    actionUpdates: Array<{
+      executeOnLoad: boolean;
+      id: string;
+      name: string;
+      collectionId?: string;
+    }>;
   }>;
 }>;
 

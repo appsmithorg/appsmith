@@ -84,7 +84,7 @@ const StyledCount = styled.h5`
   color: #716e6e;
 `;
 
-const ModalContent = styled.p`
+const ModalContent = styled.div`
   margin-left: 36px;
 `;
 const ModalContentHeader = styled.h5`
@@ -214,7 +214,7 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
             <div>
               <StyledButton
                 category={Category.tertiary}
-                className="t--introduction-modal-build-button my-6"
+                className="t--introduction-modal-welcome-tour-button my-6"
                 onClick={() => triggerWelcomeTour(dispatch)}
                 size={Size.large}
                 tag="button"

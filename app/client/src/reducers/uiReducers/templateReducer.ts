@@ -1,5 +1,9 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "constants/ReduxActionConstants";
 import { Template } from "api/TemplatesApi";
 
 const initialState: TemplatesReduxState = {
@@ -59,6 +63,14 @@ const templateReducer = createReducer(initialState, {
     };
   },
   [ReduxActionTypes.IMPORT_TEMPLATE_TO_ORGANISATION_SUCCESS]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      isImportingTemplate: false,
+    };
+  },
+  [ReduxActionErrorTypes.IMPORT_TEMPLATE_TO_ORGANISATION_ERROR]: (
     state: TemplatesReduxState,
   ) => {
     return {

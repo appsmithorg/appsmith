@@ -107,6 +107,35 @@ describe("Input widget V2 - ", () => {
     });
   });
 
+  it("8. onSubmit should be triggered with the whole input value", () => {
+    cy.openPropertyPane(widgetName);
+    cy.selectDropdownValue(".t--property-control-datatype", "Text");
+    cy.get(".t--property-control-required label")
+      .last()
+      .click({ force: true });
+    // Set onSubmit action, storing value
+    cy.get(".t--property-control-onsubmit")
+      .find(".t--js-toggle")
+      .click();
+    cy.updateCodeInput(
+      ".t--property-control-onsubmit",
+      "{{storeValue('textPayloadOnSubmit',Input1.text)}}",
+    );
+    // Bind to stored value above
+    cy.openPropertyPane("textwidget");
+    cy.updateCodeInput(
+      ".t--property-control-text",
+      "{{appsmith.store.textPayloadOnSubmit}}",
+    );
+    cy.closePropertyPane();
+    cy.get(widgetInput).clear();
+    cy.wait(300);
+    // Input text and hit enter key
+    cy.get(widgetInput).type("test{enter}");
+    // Assert if the Text widget contains the whole value, test
+    cy.get(".t--widget-textwidget").should("have.text", "test");
+  });
+
   function enterAndTest(text, expected) {
     cy.get(`.t--widget-${widgetName} input`).clear();
     cy.wait(300);

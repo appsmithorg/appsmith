@@ -11,7 +11,7 @@ import { Severity } from "entities/AppsmithConsole";
 import { enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
 import { getLintingErrors } from "workers/lint";
-import { completePromise } from "workers/PromisifyAction";
+import { completePromise, confirmationPromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 
 export type EvalResult = {
@@ -147,7 +147,23 @@ export const createGlobalData = (
       Object.keys(resolvedObject).forEach((key: any) => {
         const dataTreeKey = GLOBAL_DATA[datum];
         if (dataTreeKey) {
-          dataTreeKey[key] = resolvedObject[key];
+          const data = dataTreeKey[key]?.data;
+          const isAsync = dataTreeKey?.meta[key]?.isAsync || false;
+          const confirmBeforeExecute =
+            dataTreeKey?.meta[key]?.confirmBeforeExecute || false;
+          if (isAsync && confirmBeforeExecute) {
+            dataTreeKey[key] = confirmationPromise.bind(
+              {},
+              context?.requestId,
+              resolvedObject[key],
+              dataTreeKey.name + "." + key,
+            );
+          } else {
+            dataTreeKey[key] = resolvedObject[key];
+          }
+          if (!!data) {
+            dataTreeKey[key]["data"] = data;
+          }
         }
       });
     });
@@ -359,7 +375,23 @@ export function isFunctionAsync(
         Object.keys(resolvedObject).forEach((key: any) => {
           const dataTreeKey = GLOBAL_DATA[datum];
           if (dataTreeKey) {
-            dataTreeKey[key] = resolvedObject[key];
+            const data = dataTreeKey[key]?.data;
+            const isAsync = dataTreeKey.meta[key]?.isAsync || false;
+            const confirmBeforeExecute =
+              dataTreeKey.meta[key]?.confirmBeforeExecute || false;
+            if (isAsync && confirmBeforeExecute) {
+              dataTreeKey[key] = confirmationPromise.bind(
+                {},
+                "",
+                resolvedObject[key],
+                key,
+              );
+            } else {
+              dataTreeKey[key] = resolvedObject[key];
+            }
+            if (!!data) {
+              dataTreeKey[key].data = data;
+            }
           }
         });
       });
@@ -372,7 +404,6 @@ export function isFunctionAsync(
       // @ts-ignore: No types available
       self[key] = GLOBAL_DATA[key];
     });
-
     try {
       if (typeof userFunction === "function") {
         const returnValue = userFunction();
