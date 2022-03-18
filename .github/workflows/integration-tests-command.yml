@@ -436,15 +436,7 @@ jobs:
   fat-conatiner-test:
     needs: [build, server-build, buildRts]
     # Only run if the build step is successful
-    # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
-    # then we don't check for the PR approved state
-    if: |
-      success() &&
-      (github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' &&
-      github.event.review.state == 'approved' &&
-      github.event.pull_request.head.repo.full_name == github.repository))
+    if: success()
     runs-on: ubuntu-latest
     defaults:
       run:
