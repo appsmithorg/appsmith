@@ -78,10 +78,22 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
             dependencies: ["isIndeterminate"],
           },
           {
+            propertyName: "counterClockwise",
+            helpText: "Whether to rotate in counterclockwise direction",
+            label: "Counterclockwise",
+            controlType: "SWITCH",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (props: ProgressWidgetProps) =>
+              props.progressType === ProgressType.LINEAR,
+            dependencies: ["progressType"],
+          },
+          {
             helpText:
               "Controls the visibility with the value of progress indicator",
-            propertyName: "isResultShown",
-            label: "Show result",
+            propertyName: "showResult",
+            label: "Show Result",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -140,16 +152,20 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
 
   getPageView() {
     const {
+      counterClockwise,
+      fillColor,
       isIndeterminate,
-      isResultShown,
       progressType,
+      showResult,
       steps,
       value,
     } = this.props;
 
     return (
       <ProgressComponent
-        isResultShown={isResultShown}
+        counterClockwise={counterClockwise}
+        fillColor={fillColor}
+        showResult={showResult}
         steps={steps}
         type={progressType}
         value={value}
@@ -172,7 +188,9 @@ export interface ProgressWidgetProps extends WidgetProps {
   progressType: ProgressType;
   value: number;
   steps: number;
-  isResultShown: boolean;
+  showResult: boolean;
+  counterClockwise: boolean;
+  fillColor: string;
 }
 
 export default ProgressWidget;

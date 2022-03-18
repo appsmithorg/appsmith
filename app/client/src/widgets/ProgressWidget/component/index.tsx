@@ -10,7 +10,9 @@ export interface ProgressComponentProps {
   variant: ProgressVariant;
   value: number;
   steps: number;
-  isResultShown: boolean;
+  showResult: boolean;
+  counterClockwise: boolean;
+  fillColor: string;
 }
 
 export default ProgressComponent;
