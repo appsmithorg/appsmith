@@ -1,6 +1,5 @@
 import {
   ApplicationPayload,
-  Page,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
