@@ -27,16 +27,16 @@ export const CONFIG = {
     defaultPageSize: 0,
     dynamicBindingPathList: [
       {
-        key: "primaryColumns._7564271686515424.computedValue",
+        key: "primaryColumns.step.computedValue",
       },
       {
-        key: "primaryColumns._3356042849650782.computedValue",
+        key: "primaryColumns.task.computedValue",
       },
       {
-        key: "primaryColumns._2413015321063834.computedValue",
+        key: "primaryColumns.status.computedValue",
       },
       {
-        key: "primaryColumns._7359744396795533.computedValue",
+        key: "primaryColumns.action.computedValue",
       },
     ],
     aliasMap: {
@@ -46,10 +46,10 @@ export const CONFIG = {
       action: "action",
     },
     primaryColumns: {
-      _7564271686515424: {
+      step: {
         index: 0,
         width: 150,
-        id: "_7564271686515424",
+        id: "step",
         originalId: "step",
         alias: "step",
         horizontalAlignment: "LEFT",
@@ -64,10 +64,10 @@ export const CONFIG = {
         label: "step",
         computedValue: `{{Table1.processedTableData.map((currentRow) => ( currentRow["step"]))}}`,
       },
-      _3356042849650782: {
+      task: {
         index: 1,
         width: 150,
-        id: "_3356042849650782",
+        id: "task",
         originalId: "task",
         alias: "task",
         horizontalAlignment: "LEFT",
@@ -82,10 +82,10 @@ export const CONFIG = {
         label: "task",
         computedValue: `{{Table1.processedTableData.map((currentRow) => ( currentRow["task"]))}}`,
       },
-      _2413015321063834: {
+      status: {
         index: 2,
         width: 150,
-        id: "_2413015321063834",
+        id: "status",
         originalId: "status",
         alias: "status",
         horizontalAlignment: "LEFT",
@@ -100,10 +100,10 @@ export const CONFIG = {
         label: "status",
         computedValue: `{{Table1.processedTableData.map((currentRow) => ( currentRow["status"]))}}`,
       },
-      _7359744396795533: {
+      action: {
         index: 3,
         width: 150,
-        id: "_7359744396795533",
+        id: "action",
         originalId: "action",
         alias: "action",
         horizontalAlignment: "LEFT",
@@ -143,16 +143,11 @@ export const CONFIG = {
       },
     ],
     columnWidthMap: {
-      _3356042849650782: 245,
-      _7564271686515424: 62,
-      _2413015321063834: 75,
+      task: 245,
+      step: 62,
+      status: 75,
     },
-    columnOrder: [
-      "_7564271686515424",
-      "_3356042849650782",
-      "_2413015321063834",
-      "_7359744396795533",
-    ],
+    columnOrder: ["step", "task", "status", "action"],
     blueprint: {
       operations: [
         {
