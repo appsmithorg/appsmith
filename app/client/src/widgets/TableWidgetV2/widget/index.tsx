@@ -12,6 +12,7 @@ import _, {
   isArray,
   xorWith,
   isEmpty,
+  union,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -50,7 +51,6 @@ import {
   getTableStyles,
   getSelectRowIndex,
   getSelectRowIndices,
-  getHash,
 } from "./utilities";
 
 import {
@@ -67,6 +67,7 @@ import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
 import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
 import equal from "fast-deep-equal/es6";
+import { getSanitizedKey } from "widgets/WidgetUtils";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -467,16 +468,19 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
      * But do not replace existing columns with the same id
      */
     columnKeys.forEach((columnKey, index) => {
-      const hashedColumnKey = getHash(columnKey);
-      const prevIndex = existingColumnIds.indexOf(hashedColumnKey);
+      const existingColumn = this.getColumnByOriginalId(columnKey);
 
-      if (prevIndex > -1) {
+      if (!!existingColumn) {
         // Use the existing column properties
-        newTableColumns[hashedColumnKey] = primaryColumns[hashedColumnKey];
+        newTableColumns[existingColumn.id] = existingColumn;
       } else {
+        const hashedColumnKey = getSanitizedKey(columnKey, {
+          existingKeys: union(existingColumnIds, Object.keys(newTableColumns)),
+        });
         // Create column properties for the new column
         const columnProperties = getDefaultColumnProperties(
           columnKey,
+          hashedColumnKey,
           index,
           this.props.widgetName,
         );
@@ -907,7 +911,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   handleReorderColumn = (columnOrder: string[]) => {
-    columnOrder = columnOrder.map((alias) => this.getColumnIdByAccessor(alias));
+    columnOrder = columnOrder.map((alias) => this.getColumnIdByAlias(alias));
 
     if (this.props.renderMode === RenderModes.CANVAS) {
       super.updateWidgetProperty("columnOrder", columnOrder);
@@ -917,7 +921,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   handleColumnSorting = (columnAccessor: string, isAsc: boolean) => {
-    const columnId = this.getColumnIdByAccessor(columnAccessor);
+    const columnId = this.getColumnIdByAlias(columnAccessor);
     this.resetSelectedRowIndex();
 
     let sortOrderProps;
@@ -1174,7 +1178,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return "TABLE_WIDGET_V2";
   }
 
-  getColumnIdByAccessor(alias: string) {
+  getColumnIdByAlias(alias: string) {
     const { primaryColumns } = this.props;
 
     if (primaryColumns) {
@@ -1188,6 +1192,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     return alias;
+  }
+
+  getColumnByOriginalId(originalId: string) {
+    return Object.values(this.props.primaryColumns).find((column) => {
+      return column.originalId === originalId;
+    });
   }
 }
 
