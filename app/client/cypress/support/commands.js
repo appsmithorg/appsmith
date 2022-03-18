@@ -1858,6 +1858,7 @@ Cypress.Commands.add("Createpage", (pageName) => {
     expect(xhr.response.body.responseMeta.status).to.equal(201);
     if (pageName) {
       pageId = xhr.response.body.data.id;
+      cy.wait(2000);
       cy.get(`div[id=entity-${pageId}] .t--context-menu`).click({
         force: true,
       });
