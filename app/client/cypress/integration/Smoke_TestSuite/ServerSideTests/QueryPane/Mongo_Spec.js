@@ -257,6 +257,8 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       cy.wrap(rawData).as("rawData");
     });
 
+    cy.wait(1000);
+
     cy.all(
       cy.get("@colData"),
       cy.get("@queryData"),

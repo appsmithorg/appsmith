@@ -7,7 +7,6 @@ const locator = new CommonLocators();
 
 export class JSEditor {
   private _runButton = "//li//*[local-name() = 'svg' and @class='run-button']";
-  private _outputConsole = ".CodeEditorTarget";
   private _jsObjName = ".t--js-action-name-edit-field span";
   private _jsObjTxt = ".t--js-action-name-edit-field input";
   private _newJSobj = "span:contains('New JS Object')"
@@ -34,11 +33,15 @@ export class JSEditor {
     }
     else {
       cy.get(locator._codeMirrorTextArea)
-        .first()
-        .focus()
-        .type("{uparrow}", { force: true })
-        .type("{ctrl}{shift}{downarrow}", { force: true })
-        .type("{backspace}", { parseSpecialCharSequences: true });
+      .first()
+      .focus()
+      .type("{ctrl}{shift}{downarrow}", { force: true })
+      .type("{backspace}",{ force: true });
+
+      // cy.get(locator._codeEditorTarget).contains('export').click().closest(locator._codeEditorTarget)
+      //   .type("{uparrow}", { force: true })
+      //   .type("{ctrl}{shift}{downarrow}", { force: true })
+      //   .type("{backspace}",{ force: true });
       }
 
     cy.get(locator._codeMirrorTextArea)

@@ -577,6 +577,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
         "']",
     ).scrollIntoView();
 
+    cy.wait(3000);
     //Verifying DeleteFile icon from UI
     cy.xpath(
       "//button/span[@icon='trash']/ancestor::div[contains(@class,'t--widget-iconbuttonwidget')]/preceding-sibling::div[contains(@class, 't--widget-textwidget')]//span[text()='" +
@@ -591,7 +592,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     expect(
       cy.xpath("//span[text()='Are you sure you want to delete the file?']"),
     ).to.exist; //verify Delete File dialog appears
-    cy.clickButton("Confirm").wait(1000); //wait for Delete operation to be successfull, //Verifies 8684
+    cy.clickButton("Confirm").wait(3000); //wait for Delete operation to be successfull, //Verifies 8684
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
     });

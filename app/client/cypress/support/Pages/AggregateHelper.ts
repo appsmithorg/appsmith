@@ -356,7 +356,7 @@ export class AggregateHelper {
                 this.UpdateCodeInput($field, valueToType);
             });
         } else {
-            cy.xpath(locator._codeEditorTarget).then(($field: any) => {
+            cy.get(locator._codeEditorTarget).then(($field: any) => {
                 this.UpdateCodeInput($field, valueToType);
             });
         }

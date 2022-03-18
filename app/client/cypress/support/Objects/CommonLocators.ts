@@ -13,7 +13,7 @@ export class CommonLocators {
     _codeMirrorTextArea = ".CodeMirror textarea"
     _codeMirrorCode = ".CodeMirror-code"
     _codeEditorTargetTextArea = ".CodeEditorTarget textarea"
-    _codeEditorTarget = "//div[@class='CodeEditorTarget']"
+    _codeEditorTarget = "div.CodeEditorTarget"
     _entityExplorersearch = "#entity-explorer-search"
     _propertyControl = ".t--property-control-"
     _textWidget = ".t--draggable-textwidget span"
