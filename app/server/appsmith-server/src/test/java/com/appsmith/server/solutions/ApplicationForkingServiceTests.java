@@ -529,7 +529,7 @@ public class ApplicationForkingServiceTests {
                     return applicationPageService.createApplication(application, createdOrg.getId());
                 }).flatMap(srcApplication -> {
                     Theme theme = new Theme();
-                    theme.setName("theme_" + uniqueString);
+                    theme.setDisplayName("theme_" + uniqueString);
                     return themeService.updateTheme(srcApplication.getId(), theme)
                             .then(applicationService.findById(srcApplication.getId()));
                 }).flatMap(srcApplication -> {
@@ -572,8 +572,8 @@ public class ApplicationForkingServiceTests {
             assertThat(editModeTheme.getApplicationId()).isNullOrEmpty();
 
             // forked theme should have the same name as src theme
-            assertThat(editModeTheme.getName()).isEqualTo("theme_" + uniqueString);
-            assertThat(publishedModeTheme.getName()).isEqualTo("theme_" + uniqueString);
+            assertThat(editModeTheme.getDisplayName()).isEqualTo("theme_" + uniqueString);
+            assertThat(publishedModeTheme.getDisplayName()).isEqualTo("theme_" + uniqueString);
 
             // forked application should have a new edit mode theme created, should not be same as src app theme
             assertThat(srcApp.getEditModeThemeId()).isNotEqualTo(forkedApp.getEditModeThemeId());
@@ -646,7 +646,7 @@ public class ApplicationForkingServiceTests {
                     return applicationPageService.createApplication(application, createdOrg.getId());
                 }).flatMap(srcApplication -> {
                     Theme theme = new Theme();
-                    theme.setName("theme_" + uniqueString);
+                    theme.setDisplayName("theme_" + uniqueString);
                     return themeService.updateTheme(srcApplication.getId(), theme)
                             .then(themeService.persistCurrentTheme(srcApplication.getId(), theme))
                             .then(applicationService.findById(srcApplication.getId()));
@@ -692,8 +692,8 @@ public class ApplicationForkingServiceTests {
             assertThat(editModeTheme.getApplicationId()).isNullOrEmpty();
 
             // forked theme should have the same name as src theme
-            assertThat(editModeTheme.getName()).isEqualTo("theme_" + uniqueString);
-            assertThat(publishedModeTheme.getName()).isEqualTo("theme_" + uniqueString);
+            assertThat(editModeTheme.getDisplayName()).isEqualTo("theme_" + uniqueString);
+            assertThat(publishedModeTheme.getDisplayName()).isEqualTo("theme_" + uniqueString);
 
             // forked application should have a new edit mode theme created, should not be same as src app theme
             assertThat(srcApp.getEditModeThemeId()).isNotEqualTo(forkedApp.getEditModeThemeId());

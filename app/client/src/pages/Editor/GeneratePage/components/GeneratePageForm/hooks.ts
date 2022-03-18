@@ -70,7 +70,7 @@ export const useDatasourceOptions = ({
 const GOOGLE_SHEET_METHODS = {
   GET_ALL_SPREADSHEETS: "LIST", // Get all the spreadsheets
   GET_ALL_SHEETS: "INFO", // fetch all the sub-sheets
-  GET_ALL_COLUMNS: "GET", // Get column names
+  GET_ALL_COLUMNS: "GET_STRUCTURE", // Get column names
 };
 
 const demoRequest: Record<any, string> = {

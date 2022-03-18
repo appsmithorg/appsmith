@@ -38,13 +38,7 @@ const Form_Auth: AdminConfigType = {
       subCategory: SettingSubCategories.FORMLOGIN,
       controlType: SettingTypes.TOGGLE,
       label: "Form Login Option",
-      toggleText: (value: boolean) => {
-        if (value) {
-          return "Disabled";
-        } else {
-          return " Enabled";
-        }
-      },
+      toggleText: (value: boolean) => (value ? "Enabled" : "Disabled"),
     },
     {
       id: "APPSMITH_SIGNUP_DISABLED",
@@ -52,13 +46,8 @@ const Form_Auth: AdminConfigType = {
       subCategory: SettingSubCategories.FORMLOGIN,
       controlType: SettingTypes.TOGGLE,
       label: "Signup",
-      toggleText: (value: boolean) => {
-        if (value) {
-          return "Restrict Signups";
-        } else {
-          return " Allow all users to signup";
-        }
-      },
+      toggleText: (value: boolean) =>
+        value ? "Allow all users to signup" : "Restrict Signups",
     },
     {
       id: "APPSMITH_FORM_CALLOUT_BANNER",
@@ -96,6 +85,7 @@ const Google_Auth: AdminConfigType = {
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Client ID",
+      isRequired: true,
     },
     {
       id: "APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET",
@@ -104,6 +94,7 @@ const Google_Auth: AdminConfigType = {
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Client Secret",
+      isRequired: true,
     },
     {
       id: "APPSMITH_SIGNUP_ALLOWED_DOMAINS",
@@ -141,6 +132,7 @@ const Github_Auth: AdminConfigType = {
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Client ID",
+      isRequired: true,
     },
     {
       id: "APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET",
@@ -149,6 +141,7 @@ const Github_Auth: AdminConfigType = {
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Client Secret",
+      isRequired: true,
     },
   ],
 };
