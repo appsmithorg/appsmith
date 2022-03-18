@@ -88,6 +88,7 @@ const SnippetContainer = styled.div`
   .snippet-title {
     color: ${(props) => props.theme.colors.globalSearch.primaryTextColor};
     ${(props) => getTypographyByKey(props, "h3")}
+    font-size: 1.5rem;
     display: flex;
     justify-content: space-between;
     .action-msg {
