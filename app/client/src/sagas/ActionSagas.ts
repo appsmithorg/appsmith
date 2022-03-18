@@ -899,7 +899,6 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
     case SlashCommand.NEW_INTEGRATION:
       history.push(
         integrationEditorURL({
-          pageId,
           selectedTab: INTEGRATION_TABS.NEW,
         }),
       );

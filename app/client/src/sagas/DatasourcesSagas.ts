@@ -20,7 +20,6 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectURLSlugs,
 } from "selectors/editorSelectors";
 import {
   getDatasource,
@@ -180,8 +179,6 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
         type: ReduxActionTypes.FETCH_PLUGINS_REQUEST,
       });
       yield call(checkAndGetPluginFormConfigsSaga, response.data.pluginId);
-      const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
-      const pageId: string = yield select(getCurrentPageId);
       const isGeneratePageInitiator = getIsGeneratePageInitiator(
         isGeneratePageMode,
       );
@@ -189,9 +186,6 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       if (isGeneratePageInitiator) {
         history.push(
           generateTemplateFormURL({
-            applicationSlug,
-            pageSlug,
-            pageId,
             params: {
               datasourceId: response.data.id,
             },
@@ -201,9 +195,6 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
         if (isInGuidedTour) return;
         history.push(
           integrationEditorURL({
-            applicationSlug,
-            pageSlug,
-            pageId,
             selectedTab: INTEGRATION_TABS.ACTIVE,
             params: getQueryParams(),
           }),
@@ -707,8 +698,6 @@ function* changeDatasourceSaga(
   const { datasource } = actionPayload.payload;
   const { id } = datasource;
   const draft = yield select(getDatasourceDraft, id);
-  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
-  const pageId: string = yield select(getCurrentPageId);
   let data;
 
   if (_.isEmpty(draft)) {
@@ -721,9 +710,6 @@ function* changeDatasourceSaga(
   // this redirects to the same route, so checking first.
   const datasourcePath = trimQueryString(
     datasourcesEditorIdURL({
-      applicationSlug,
-      pageSlug,
-      pageId,
       datasourceId: datasource.id,
     }),
   );
@@ -731,9 +717,6 @@ function* changeDatasourceSaga(
   if (history.location.pathname !== datasourcePath)
     history.push(
       datasourcesEditorIdURL({
-        applicationSlug,
-        pageSlug,
-        pageId,
         datasourceId: datasource.id,
         params: getQueryParams(),
       }),

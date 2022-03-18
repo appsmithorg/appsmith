@@ -8,7 +8,6 @@ import { createNewQueryName } from "utils/AppsmithUtils";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectURLSlugs,
 } from "selectors/editorSelectors";
 import { QueryAction } from "entities/Action";
 import { Classes } from "@blueprintjs/core";
@@ -47,7 +46,6 @@ export function QueryTemplates(props: QueryTemplatesProps) {
   const dataSource: Datasource | undefined = useSelector((state: AppState) =>
     getDatasource(state, props.datasourceId),
   );
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const createQueryAction = useCallback(
     (template: QueryTemplate) => {
       const newQueryName = createNewQueryName(actions, currentPageId || "");
@@ -77,8 +75,6 @@ export function QueryTemplates(props: QueryTemplatesProps) {
       );
       history.push(
         integrationEditorURL({
-          applicationSlug,
-          pageSlug,
           pageId: currentPageId,
           selectedTab: INTEGRATION_TABS.ACTIVE,
         }),

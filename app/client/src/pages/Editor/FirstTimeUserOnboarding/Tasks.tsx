@@ -27,7 +27,6 @@ import { useDispatch } from "react-redux";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectURLSlugs,
 } from "selectors/editorSelectors";
 import {
   getCanvasWidgets,
@@ -108,7 +107,6 @@ export default function OnboardingTasks() {
   const widgets = useSelector(getCanvasWidgets);
   const dispatch = useDispatch();
   const showModal = useSelector(getFirstTimeUserOnboardingModal);
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   if (!datasources.length && !actions.length) {
     content = (
       <CenteredContainer>
@@ -134,9 +132,6 @@ export default function OnboardingTasks() {
               });
               history.push(
                 integrationEditorURL({
-                  applicationSlug,
-                  pageSlug,
-                  pageId,
                   selectedTab: INTEGRATION_TABS.NEW,
                 }),
               );
@@ -188,9 +183,6 @@ export default function OnboardingTasks() {
               });
               history.push(
                 integrationEditorURL({
-                  applicationSlug,
-                  pageSlug,
-                  pageId,
                   selectedTab: INTEGRATION_TABS.ACTIVE,
                 }),
               );

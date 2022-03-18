@@ -26,7 +26,6 @@ import {
 } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
-import { getCurrentPageId, selectURLSlugs } from "selectors/editorSelectors";
 import { initialize, autofill, change } from "redux-form";
 import { Property } from "api/ActionAPI";
 import { createNewApiName, getQueryParams } from "utils/AppsmithUtils";
@@ -115,16 +114,12 @@ function* syncApiParamsSaga(
 
 function* redirectToNewIntegrations(
   action: ReduxAction<{
-    applicationSlug: string;
-    pageSlug: string;
     pageId: string;
     params?: Record<string, string>;
   }>,
 ) {
   history.push(
     integrationEditorURL({
-      applicationSlug: action.payload.applicationSlug,
-      pageSlug: action.payload.pageSlug,
       pageId: action.payload.pageId,
       selectedTab: INTEGRATION_TABS.ACTIVE,
       params: {
@@ -468,13 +463,8 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
 
   if (pluginType === PluginType.API) {
     yield put(initialize(API_EDITOR_FORM_NAME, omit(data, "name")));
-    const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
-    const pageId: string = yield select(getCurrentPageId);
     history.push(
       apiEditorIdURL({
-        applicationSlug,
-        pageSlug,
-        pageId,
         apiId: id,
         params: {
           editName: "true",

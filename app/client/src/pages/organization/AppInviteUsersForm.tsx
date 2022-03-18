@@ -14,7 +14,6 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import Text, { TextType } from "components/ads/Text";
 import Toggle from "components/ads/Toggle";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { selectURLSlugs } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
 import { viewerURL } from "RouteBuilder";
 
@@ -74,16 +73,13 @@ function AppInviteUsersForm(props: any) {
     userAppPermissions,
     PERMISSION_TYPE.MAKE_PUBLIC_APPLICATION,
   );
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   const appViewEndPoint = React.useMemo(() => {
     const url = viewerURL({
-      applicationSlug,
-      pageSlug,
       pageId: defaultPageId,
     });
     return window.location.origin.toString() + url;
-  }, [applicationSlug, pageSlug, defaultPageId]);
+  }, [defaultPageId]);
 
   useEffect(() => {
     if (currentUser?.name !== ANONYMOUS_USERNAME && canInviteToOrg) {

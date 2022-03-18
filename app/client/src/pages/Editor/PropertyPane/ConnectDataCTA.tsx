@@ -2,8 +2,7 @@ import Button, { Category, Size } from "components/ads/Button";
 import React, { useCallback } from "react";
 import { AppState } from "reducers";
 import styled from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
-import { getCurrentPageId, selectURLSlugs } from "selectors/editorSelectors";
+import { useDispatch } from "react-redux";
 import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import {
@@ -54,8 +53,6 @@ type ConnectDataCTAProps = {
 };
 
 function ConnectDataCTA(props: ConnectDataCTAProps) {
-  const pageId = useSelector(getCurrentPageId);
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const dispatch = useDispatch();
 
   const openHelpModal = useCallback(() => {
@@ -70,9 +67,6 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
     const { widgetId, widgetTitle, widgetType } = props;
     history.push(
       integrationEditorURL({
-        applicationSlug,
-        pageSlug,
-        pageId,
         selectedTab: INTEGRATION_TABS.NEW,
         params: { mode: INTEGRATION_EDITOR_MODES.AUTO },
       }),

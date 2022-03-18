@@ -11,9 +11,7 @@ import { getQueryParams } from "../../../utils/AppsmithUtils";
 import ActionRightPane, {
   useEntityDependencies,
 } from "components/editorComponents/ActionRightPane";
-import { useSelector } from "react-redux";
 import { Classes } from "components/ads/common";
-import { selectURLSlugs } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
 import { sortedDatasourcesHandler } from "./helpers";
 import { datasourcesEditorIdURL } from "RouteBuilder";
@@ -206,8 +204,6 @@ function ApiRightPane(props: any) {
     if (!!props.hasResponse) setSelectedIndex(1);
   }, [props.hasResponse]);
 
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
-
   // array of datasources with the current action's datasource first, followed by the rest.
   const sortedDatasources = useMemo(
     () =>
@@ -256,8 +252,6 @@ function ApiRightPane(props: any) {
                                   e.stopPropagation();
                                   history.push(
                                     datasourcesEditorIdURL({
-                                      applicationSlug,
-                                      pageSlug,
                                       pageId: props.currentPageId,
                                       datasourceId: d.id,
                                       params: getQueryParams(),

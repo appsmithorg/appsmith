@@ -18,7 +18,6 @@ import {
   getApplicationLastDeployedAt,
   getCurrentApplicationId,
   getCurrentPageId,
-  selectURLSlugs,
 } from "selectors/editorSelectors";
 import history from "utils/history";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
@@ -230,7 +229,6 @@ export default function OnboardingChecklist() {
   );
   const theme = useSelector(getCurrentThemeDetails);
   const applicationId = useSelector(getCurrentApplicationId);
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const isDeployed = !!useSelector(getApplicationLastDeployedAt);
   const isCompleted = useSelector(getFirstTimeUserOnboardingComplete);
   const isFirstTimeUserOnboardingEnabled = useSelector(
@@ -352,9 +350,6 @@ export default function OnboardingChecklist() {
                 });
                 history.push(
                   integrationEditorURL({
-                    applicationSlug,
-                    pageSlug,
-                    pageId,
                     selectedTab: INTEGRATION_TABS.NEW,
                   }),
                 );
@@ -405,9 +400,6 @@ export default function OnboardingChecklist() {
                 });
                 history.push(
                   integrationEditorURL({
-                    applicationSlug,
-                    pageSlug,
-                    pageId,
                     selectedTab: INTEGRATION_TABS.ACTIVE,
                   }),
                 );

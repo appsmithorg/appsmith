@@ -20,7 +20,6 @@ import {
   getCurrentApplicationId,
   getCurrentPageName,
   getIsEditorInitialized,
-  selectURLSlugs,
 } from "selectors/editorSelectors";
 import { Plugin } from "api/PluginApi";
 import { Action, PaginationType, RapidApiAction } from "entities/Action";
@@ -63,8 +62,6 @@ interface ReduxStateProps {
   paginationType: PaginationType;
   isEditorInitialized: boolean;
   applicationId: string;
-  applicationSlug: string;
-  pageSlug: string;
 }
 interface ReduxActionProps {
   submitForm: (name: string) => void;
@@ -234,8 +231,6 @@ class ApiEditor extends React.Component<Props> {
         {formUiComponent === "SaaSEditorForm" &&
           history.push(
             saasEditorApiIdURL({
-              applicationSlug: this.props.applicationSlug,
-              pageSlug: this.props.pageSlug,
               pageId: this.props.match.params.pageId,
               pluginPackageName:
                 getPackageNameFromPluginId(
@@ -263,7 +258,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const { isCreating, isDeleting, isRunning } = state.ui.apiPane;
   const pluginId = _.get(apiAction, "pluginId", "");
   const settingsConfig = getPluginSettingConfigs(state, pluginId);
-  const { applicationSlug, pageSlug } = selectURLSlugs(state);
   return {
     actions: state.entities.actions,
     currentApplication: getCurrentApplication(state),
@@ -280,8 +274,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isCreating: isCreating,
     isEditorInitialized: getIsEditorInitialized(state),
     applicationId: getCurrentApplicationId(state),
-    applicationSlug,
-    pageSlug,
   };
 };
 

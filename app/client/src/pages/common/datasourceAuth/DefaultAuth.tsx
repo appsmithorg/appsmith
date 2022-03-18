@@ -20,10 +20,7 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { redirectToNewIntegrations } from "actions/apiPaneActions";
 import { getQueryParams } from "utils/AppsmithUtils";
-import {
-  getCurrentApplicationId,
-  selectURLSlugs,
-} from "selectors/editorSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
@@ -52,8 +49,6 @@ export default function DefaultAuth({
   const { id: datasourceId } = datasource;
 
   const applicationId = useSelector(getCurrentApplicationId);
-
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   const dispatch = useDispatch();
 
@@ -96,14 +91,7 @@ export default function DefaultAuth({
       updateDatasource(
         getSanitizedFormData(),
         !isGeneratePageInitiator && !isReconnectModelOpen
-          ? dispatch(
-              redirectToNewIntegrations(
-                applicationSlug,
-                pageSlug ?? "",
-                pageId,
-                getQueryParams(),
-              ),
-            )
+          ? dispatch(redirectToNewIntegrations(pageId, getQueryParams()))
           : undefined,
       ),
     );

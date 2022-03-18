@@ -16,7 +16,7 @@ import {
 import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
 import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { getViewModePageList, selectURLSlugs } from "selectors/editorSelectors";
+import { getViewModePageList } from "selectors/editorSelectors";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
@@ -163,7 +163,6 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   const showAppInviteUsersDialog = useSelector(
     showAppInviteUsersDialogSelector,
   );
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   if (hideHeader)
     return <HtmlTitle currentApplicationDetails={currentApplicationDetails} />;
@@ -171,8 +170,6 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   const forkUrl = `${AUTH_LOGIN_URL}?redirectUrl=${
     window.location.origin
   }${viewerURL({
-    applicationSlug,
-    pageSlug,
     pageId,
     applicationVersion: currentApplicationDetails?.applicationVersion,
     suffix: "fork",
@@ -181,8 +178,6 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
 
   const CTA = GetAppViewerHeaderCTA({
     url: builderURL({
-      applicationSlug,
-      pageSlug,
       pageId,
       applicationVersion: currentApplicationDetails?.applicationVersion,
     }),

@@ -1,9 +1,5 @@
 import { call, select } from "redux-saga/effects";
-import {
-  getCurrentPageId,
-  getPageList,
-  selectURLSlugs,
-} from "selectors/editorSelectors";
+import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
 import _ from "lodash";
 import { Page } from "constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -38,7 +34,6 @@ export default function* navigateActionSaga(
   action: NavigateActionDescription["payload"],
 ) {
   const pageList: Page[] = yield select(getPageList);
-  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
   const {
     pageNameOrUrl,
     params,
@@ -62,8 +57,6 @@ export default function* navigateActionSaga(
             params,
           })
         : viewerURL({
-            applicationSlug,
-            pageSlug,
             pageId: page.pageId,
             params,
           });

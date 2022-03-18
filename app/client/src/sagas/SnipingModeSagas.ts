@@ -1,7 +1,7 @@
 import { takeLeading, all, put, select } from "redux-saga/effects";
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import history from "../utils/history";
-import { getCurrentPageId, selectURLSlugs } from "../selectors/editorSelectors";
+import { getCurrentPageId } from "../selectors/editorSelectors";
 import { ActionData } from "../reducers/entityReducers/actionsReducer";
 import { getCanvasWidgets } from "../selectors/entitiesSelector";
 import {
@@ -152,11 +152,8 @@ export function* bindDataToWidgetSaga(
         force: true,
       },
     });
-    const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
     history.replace(
       builderURL({
-        applicationSlug,
-        pageSlug,
         pageId,
       }),
     );

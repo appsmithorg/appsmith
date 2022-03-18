@@ -7,7 +7,6 @@ import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import {
   getCurrentApplicationId,
-  getCurrentPageId,
   selectURLSlugs,
 } from "selectors/editorSelectors";
 import {
@@ -57,14 +56,9 @@ function ActionLink(props: EntityLinkProps) {
 }
 
 function JSCollectionLink(props: EntityLinkProps) {
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
-  const pageId = useSelector(getCurrentPageId);
   const onClick = useCallback(() => {
     if (props.id) {
       const url = jsCollectionIdURL({
-        applicationSlug,
-        pageSlug,
-        pageId,
         collectionId: props.id,
       });
 

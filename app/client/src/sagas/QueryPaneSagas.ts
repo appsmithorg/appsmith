@@ -14,7 +14,6 @@ import { APPLICATIONS_URL, INTEGRATION_TABS } from "constants/routes";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectURLSlugs,
 } from "selectors/editorSelectors";
 import { autofill, change, initialize } from "redux-form";
 import {
@@ -216,17 +215,11 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   if (plugin.type !== PluginType.DB && plugin.type !== PluginType.REMOTE)
     return;
 
-  const pageId: string = yield select(getCurrentPageId);
-  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
-
   yield put(
     initialize(DATASOURCE_DB_FORM, _.omit(actionPayload.payload, "name")),
   );
   history.push(
     datasourcesEditorIdURL({
-      applicationSlug,
-      pageSlug,
-      pageId,
       datasourceId: actionPayload.payload.id,
       params: { from: "datasources", ...getQueryParams() },
     }),

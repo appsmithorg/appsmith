@@ -3,7 +3,7 @@ import { getFormValues, InjectedFormProps, reduxForm } from "redux-form";
 import history from "utils/history";
 import { SAAS_EDITOR_FORM } from "constants/forms";
 import { Action, SaaSAction } from "entities/Action";
-import { connect, useDispatch, useSelector } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import { AppState } from "reducers";
 import {
   getPluginResponseTypes,
@@ -29,7 +29,6 @@ import { merge } from "lodash";
 import { Datasource } from "entities/Datasource";
 import { INTEGRATION_TABS } from "constants/routes";
 import { diff, Diff } from "deep-diff";
-import { selectURLSlugs } from "selectors/editorSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
@@ -70,8 +69,6 @@ function ActionForm(props: Props) {
     );
   }, []);
 
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
-
   const { path = "", value = "" } = {
     ...getPathAndValueFromActionDiffObject(props.actionObjectDiff),
   };
@@ -92,8 +89,6 @@ function ActionForm(props: Props) {
   const onCreateDatasourceClick = () => {
     history.push(
       integrationEditorURL({
-        applicationSlug,
-        pageSlug,
         pageId,
         selectedTab: INTEGRATION_TABS.NEW,
       }),
@@ -104,8 +99,6 @@ function ActionForm(props: Props) {
   const goToDatasourcePage = () =>
     history.push(
       integrationEditorURL({
-        applicationSlug,
-        pageSlug,
         pageId,
         selectedTab: INTEGRATION_TABS.ACTIVE,
       }),
