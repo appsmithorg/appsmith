@@ -51,7 +51,7 @@ class TemplatesAPI extends Api {
   static importTemplate(
     templateId: string,
     organizationId: string,
-  ): AxiosPromise<any> {
+  ): AxiosPromise<ImportTemplateResponse> {
     return Api.post(
       TemplatesAPI.baseUrl +
         `/app-templates/${templateId}/import/${organizationId}`,
