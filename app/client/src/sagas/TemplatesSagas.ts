@@ -47,15 +47,13 @@ function* importTemplateToOrganisationSaga(
       action.payload.templateId,
       action.payload.organizationId,
     );
-    const isValid = yield validateResponse(response);
+    const isValid: boolean = yield validateResponse(response);
     if (isValid) {
       const application: ApplicationPayload = {
         ...response.data,
-        defaultPageId: getDefaultPageId(response.data.pages),
+        defaultPageId: getDefaultPageId(response.data.pages) as string,
       };
-      const defaultPage = response.data.pages.find(
-        (page: Page) => page.isDefault,
-      );
+      const defaultPage = response.data.pages.find((page) => page.isDefault);
       const defaultPageSlug = defaultPage?.slug || PLACEHOLDER_PAGE_SLUG;
       const pageURL = builderURL({
         applicationId: application.id,
