@@ -404,7 +404,6 @@ jobs:
           name: rts-build-deps
           path: app/rts/node_modules/
 
-<<<<<<< HEAD
   fat-conatiner-test:
     needs: [buildClient, buildServer, buildRts]
     # Only run if the build step is successful
@@ -744,8 +743,6 @@ jobs:
       # Set status = success
       - run: echo "::set-output name=run_result::success" > ~/run_result
 
-=======
->>>>>>> 4a19b6789bfd4bf90d7d75e0859b19933d1e8124
   ui-test:
     needs: [buildClient, buildServer, buildRts]
     # Only run if the build step is successful
