@@ -498,7 +498,6 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
               disabled={isButtonDisabled}
               key={button.id}
               onClick={() => {
-                if (isButtonDisabled) return;
                 this.onButtonClick(button.onClick);
               }}
               renderMode={this.props.renderMode}
