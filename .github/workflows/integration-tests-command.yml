@@ -573,7 +573,7 @@ jobs:
           mkdir -p fatcontainerlocal/stacks/configuration/
           cd fatcontainerlocal
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
-            -v "$PWD/stacks:/appsmith-stacks" appsmith/appsmith-ce
+            -v "$PWD/stacks:/appsmith-stacks" fatcontainer
           sudo chmod a+rw stacks/configuration/docker.env
           sudo echo  "APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY" >> stacks/configuration/docker.env
       
