@@ -77,8 +77,6 @@ After you completed the above step then we're pretty much done with the inventor
 
 ## Setup your configuration vars for Appsmith
 
-The next step is to setup necessary configuration for your app to run such as environment variable, domain name, etc.
-
 First you need to open `appsmith-vars.yml` file with your editor.  
 There are some variables that will need input from you to get the application start correctly
 
