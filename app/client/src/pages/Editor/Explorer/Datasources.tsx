@@ -1,5 +1,8 @@
 import React, { useCallback } from "react";
-import { useAppWideAndOtherDatasource } from "./hooks";
+import {
+  useAppWideAndOtherDatasource,
+  useDatasourceSuggestions,
+} from "./hooks";
 import { Datasource } from "entities/Datasource";
 import ExplorerDatasourceEntity from "./Datasources/DatasourceEntity";
 import { useSelector } from "store";
@@ -61,6 +64,7 @@ const Datasources = React.memo(() => {
     );
   }, [pageId]);
   const activeDatasourceId = useDatasourceIdFromURL();
+  const datasourceSuggestions = useDatasourceSuggestions();
 
   const listDatasource = useCallback(() => {
     history.push(
@@ -73,7 +77,7 @@ const Datasources = React.memo(() => {
 
   const datasourceElements = React.useMemo(
     () =>
-      appWideDS.map((datasource: Datasource) => {
+      appWideDS.concat(datasourceSuggestions).map((datasource: Datasource) => {
         return (
           <ExplorerDatasourceEntity
             datasource={datasource}
@@ -100,18 +104,17 @@ const Datasources = React.memo(() => {
     <Entity
       addButtonHelptext={createMessage(CREATE_DATASOURCE_TOOLTIP)}
       className={"datasources"}
-      entityId={pageId + "_datasources"}
+      entityId="datasources_section"
       icon={null}
       isDefaultExpanded={isDatasourcesOpen === null ? true : isDatasourcesOpen}
       isSticky
-      key={pageId + "_datasources"}
       name="DATASOURCES"
       onCreate={addDatasource}
       onToggle={onDatasourcesToggle}
       searchKeyword={""}
       step={0}
     >
-      {appWideDS.length ? (
+      {datasourceElements.length ? (
         datasourceElements
       ) : (
         <EmptyComponent
@@ -120,10 +123,10 @@ const Datasources = React.memo(() => {
           mainText={createMessage(EMPTY_DATASOURCE_MAIN_TEXT)}
         />
       )}
-      {appWideDS.length > 0 && (
+      {datasourceElements.length > 0 && (
         <AddEntity
           action={addDatasource}
-          entityId={pageId + "_datasources_add_new_datasource"}
+          entityId="add_new_datasource"
           icon={<Icon name="plus" />}
           name={createMessage(ADD_DATASOURCE_BUTTON)}
           step={1}
