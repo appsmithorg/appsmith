@@ -73,7 +73,7 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Mono<String> findBranchedPageId(String branchName, String defaultPageId, AclPermission permission);
 
-    Mono<String> findBranchedApplicationIdFromNewPage(String branchName, String defaultPageId);
+    Mono<String> findRootApplicationIdFromNewPage(String branchName, String defaultPageId);
 
     Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission);
 

@@ -1,8 +1,6 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
 const agHelper = new AggregateHelper();
 
@@ -19,7 +17,7 @@ describe("Entity explorer tests related to copy query", function() {
     cy.Createpage(pageid);
     cy.get(".t--entity-name")
       .contains("Page1")
-      .click();
+      .click({ force: true });
     cy.wait(2000);
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
@@ -66,7 +64,7 @@ describe("Entity explorer tests related to copy query", function() {
   it("2. Create a page and copy query in explorer", function() {
     cy.get(".t--entity-name")
       .contains("Page1")
-      .click();
+      .click({ force: true });
     agHelper.ActionContextMenuByEntityName("Query1", "Copy to page", pageid);
     cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.get(".t--entity-name")
@@ -86,7 +84,7 @@ describe("Entity explorer tests related to copy query", function() {
   it("3. Delete query and rename datasource in explorer", function() {
     cy.get(".t--entity-name")
       .contains("Page1")
-      .click();
+      .click({ force: true });
     cy.wait(2000);
     cy.generateUUID().then((uid) => {
       updatedName = uid;
@@ -109,7 +107,7 @@ describe("Entity explorer tests related to copy query", function() {
 
     cy.get(".t--entity-name")
       .contains("Query1")
-      .click();
+      .click({ force: true });
     agHelper.ActionContextMenuByEntityName("Query1", "Delete");
   });
 });
