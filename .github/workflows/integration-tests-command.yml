@@ -337,12 +337,9 @@ jobs:
         working-directory: app/rts
     runs-on: ubuntu-latest
     # Only run this workflow for internally triggered events
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' &&
-      github.event.review.state == 'approved' &&
-      github.event.pull_request.head.repo.full_name == github.repository)
+    if: github.event_name == 'repository_dispatch' &&
+      github.event.client_payload.slash_command.sha != '' &&
+      contains(github.event.client_payload.pull_request.head.sha, github.event.client_payload.slash_command.sha)
 
     steps:
       # Checkout the code
