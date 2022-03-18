@@ -22,7 +22,7 @@ const Container = styled.div`
   }
 
   .discord {
-    margin-top: ${(props) => props.theme.spaces[3]}px;
+    margin: ${(props) => props.theme.spaces[3]}px 0;
     display: flex;
     gap: 5px;
   }
