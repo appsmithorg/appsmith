@@ -93,7 +93,7 @@ export function EntityProperties() {
   };
 
   useEffect(() => {
-    const element = document.getElementById(entityId);
+    const element = document.getElementById(`entity-${entityId}`);
     const rect = element?.getBoundingClientRect();
     if (ref.current && rect) {
       const top = rect?.top;
