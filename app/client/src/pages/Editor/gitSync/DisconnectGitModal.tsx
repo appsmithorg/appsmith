@@ -100,7 +100,7 @@ function DisconnectGitModal() {
     >
       <Container>
         <MenuContainer>
-          <Text color={Colors.GREY_4} type={TextType.P3}>
+          <Text color={Colors.GREY_8} type={TextType.P3}>
             {createMessage(GIT_DISCONNECTION_SUBMENU)}
           </Text>
         </MenuContainer>
