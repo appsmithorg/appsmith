@@ -31,6 +31,7 @@ describe("API Panel Test Functionality ", function() {
       "Move to page",
       "Page1",
     );
+    cy.wait(2000);
     cy.get(".t--entity-name")
       .contains("FirstAPICopy")
       .click({ force: true });
