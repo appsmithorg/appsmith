@@ -38,8 +38,8 @@ export class JSEditor {
         .focus()
         .type("{uparrow}", { force: true })
         .type("{ctrl}{shift}{downarrow}", { force: true })
-        .type("{del}", { force: true })
-    }
+        .type("{backspace}", { parseSpecialCharSequences: true });
+      }
 
     cy.get(locator._codeMirrorTextArea)
       .first()

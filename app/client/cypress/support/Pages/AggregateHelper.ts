@@ -329,7 +329,7 @@ export class AggregateHelper {
         subAction = "") {
         this.Sleep();
         cy.xpath(locator._contextMenu(entityNameinLeftSidebar))
-            .first()
+            .last()
             .click({ force: true });
         cy.xpath(locator._contextMenuItem(action))
             .click({ force: true })
