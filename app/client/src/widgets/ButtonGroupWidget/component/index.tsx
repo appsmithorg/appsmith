@@ -465,20 +465,29 @@ class ButtonGroupComponent extends React.Component<
       this.props.width !== prevProps.width ||
       this.props.orientation !== prevProps.orientation
     ) {
-      this.setState(() => {
-        return {
-          ...this.state,
-          itemWidths: Object.keys(this.props.groupButtons).reduce((acc, id) => {
-            if (this.props.groupButtons[id].buttonType === "MENU") {
-              return {
-                ...acc,
-                [id]: this.state.itemRefs[id].current?.getBoundingClientRect()
-                  .width,
-              };
-            }
-            return acc;
-          }, {}),
-        };
+      if (this.timer) {
+        clearTimeout(this.timer);
+      }
+      this.timer = setTimeout(() => {
+        this.setState(() => {
+          return {
+            ...this.state,
+            itemWidths: Object.keys(this.props.groupButtons).reduce(
+              (acc, id) => {
+                if (this.props.groupButtons[id].buttonType === "MENU") {
+                  return {
+                    ...acc,
+                    [id]: this.state.itemRefs[
+                      id
+                    ].current?.getBoundingClientRect().width,
+                  };
+                }
+                return acc;
+              },
+              {},
+            ),
+          };
+        });
       });
     }
   }
