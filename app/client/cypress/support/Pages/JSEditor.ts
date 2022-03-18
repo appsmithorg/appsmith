@@ -35,13 +35,16 @@ export class JSEditor {
       cy.get(locator._codeMirrorTextArea)
       .first()
       .focus()
+      .type("{uparrow}", { force: true })
       .type("{ctrl}{shift}{downarrow}", { force: true })
-      .type("{backspace}",{ force: true });
+      .type("{del}",{ force: true });
 
       // cy.get(locator._codeEditorTarget).contains('export').click().closest(locator._codeEditorTarget)
       //   .type("{uparrow}", { force: true })
       //   .type("{ctrl}{shift}{downarrow}", { force: true })
       //   .type("{backspace}",{ force: true });
+      //.type("{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow} ")
+
       }
 
     cy.get(locator._codeMirrorTextArea)
