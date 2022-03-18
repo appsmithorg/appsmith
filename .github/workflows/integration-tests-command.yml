@@ -438,13 +438,7 @@ jobs:
     # Only run if the build step is successful
     # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
     # then we don't check for the PR approved state
-    if: |
-      success() &&
-      (github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' &&
-      github.event.review.state == 'approved' &&
-      github.event.pull_request.head.repo.full_name == github.repository))
+    if: success()
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -503,8 +497,8 @@ jobs:
         uses: martijnhols/actions-cache/restore@v3
         with:
           path: |
-            ~/combined_failed_spec
-          key: ${{ github.run_id }}-"ui-test-result"-${{ steps.timestamp.outputs.timestamp }}
+            ~/combined_failed_spec_fat
+          key: ${{ github.run_id }}-"fat-conatiner-test-result"-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
 
@@ -513,7 +507,7 @@ jobs:
       - name: Get failed_spec
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
-          failed_spec_env=$(cat ~/combined_failed_spec)
+          failed_spec_env=$(cat ~/combined_failed_spec_fat)
           echo "failed_spec_env<<EOF" >> $GITHUB_ENV
           echo "$failed_spec_env" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
