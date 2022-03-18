@@ -134,7 +134,7 @@ export default {
     gridGap = gridGap >= -8 ? gridGap : 0;
 
     const averageGridGap = itemsCount
-      ? gridGap * (itemsCount - 1 / itemsCount)
+      ? gridGap * ((itemsCount - 1) / itemsCount)
       : 0;
 
     const templateBottomRow = props.templateBottomRow;
