@@ -40,6 +40,7 @@ describe("Undo/Redo functionality", function() {
       .trigger("mouseover");
     cy.get("li:contains(Undo)").click({ multiple: true });
     cy.get(datasourceEditor.username).should("be.empty");
+    cy.get(datasourceEditor.saveBtn).click({ force: true });
   });
 
   it("Checks undo/redo for Api pane", function() {

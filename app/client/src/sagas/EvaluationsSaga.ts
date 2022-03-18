@@ -220,9 +220,14 @@ export function* evaluateAndExecuteDynamicTrigger(
        * We raise an error telling the user that an uncaught error has occurred
        * */
       if (requestData.result.errors.length) {
-        throw new UncaughtPromiseError(
-          requestData.result.errors[0].errorMessage,
-        );
+        if (
+          requestData.result.errors[0].errorMessage !==
+          "UncaughtPromiseRejection: User cancelled action execution"
+        ) {
+          throw new UncaughtPromiseError(
+            requestData.result.errors[0].errorMessage,
+          );
+        }
       }
       // It is possible to get a few triggers here if the user
       // still uses the old way of action runs and not promises. For that we
