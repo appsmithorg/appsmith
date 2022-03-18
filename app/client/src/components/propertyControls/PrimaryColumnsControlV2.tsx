@@ -208,6 +208,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     const nextIndex = columnIds.length;
     const columnProps: ColumnProperties = getDefaultColumnProperties(
       newColumnName,
+      newColumnName,
       nextIndex,
       this.props.widgetProperties.widgetName,
       true,
