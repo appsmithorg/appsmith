@@ -45,4 +45,33 @@ public class QueryUtils {
         }
         return sb.toString().trim();
     }
+
+    /**
+     * To remove Square braces if any in the query.
+     * In a scenario like Multiselect widget, the params are passed as an array which carries a square bracket.
+     * This method will fix it
+     * @param query
+     * @return
+     */
+    public static String removeSquareBraces(String query) {
+        if (query.contains("[") || query.contains("]")) {
+            query = query.replaceAll("\\[", "").replaceAll("\\]","");
+        }
+        return query;
+    }
+
+    /**
+     * Add double quotes for params missing double quotes.
+     * To handle where some widgets send data without double Quotes.
+     * @param query
+     * @return
+     */
+   public static String addDoubleQuotes(String query) {
+        String retQuery = query;
+        if (query.substring(0).equals("\"")) retQuery = query;
+
+       retQuery = "\"" + query + "\"";
+
+       return retQuery;
+    }
 }

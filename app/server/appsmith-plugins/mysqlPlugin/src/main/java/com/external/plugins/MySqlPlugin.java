@@ -15,6 +15,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
@@ -206,9 +207,15 @@ public class MySqlPlugin extends BasePlugin {
 
             // In case of non prepared statement, simply do binding replacement and execute
             if (FALSE.equals(isPreparedStatement)) {
+                cleanupParamsForSQLStatements(executeActionDTO);
                 prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
                 return executeCommon(connection, actionConfiguration, FALSE, null, null, requestData);
             }
+
+            //Convert array param input to multiple query param
+            convertArrayToSeparateParamsForPreparedStatement(executeActionDTO, actionConfiguration);
+
+            query = actionConfiguration.getBody();
 
             //This has to be executed as Prepared Statement
             // First extract all the bindings in order
@@ -218,6 +225,80 @@ public class MySqlPlugin extends BasePlugin {
             // Set the query with bindings extracted and replaced with '?' back in config
             actionConfiguration.setBody(updatedQuery);
             return executeCommon(connection, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO, requestData);
+        }
+
+        /**
+         * To cleanup queries to handle array inputs
+         * @param executeActionDTO
+         */
+        private void cleanupParamsForSQLStatements(ExecuteActionDTO executeActionDTO) {
+            executeActionDTO.getParams().stream().forEach(
+                    p -> {
+                        if (p.getValue().contains("[")) {
+                            p.setValue(QueryUtils.removeSquareBraces(p.getValue()));
+                        } else {
+                            p.setValue(QueryUtils.addDoubleQuotes(p.getValue()));
+                        }
+                    }
+            );
+        }
+
+        /**
+         * To convert each parameter in an array as separate prepared statement parameter.
+         * eg:To handle Widget like Multiselect dropdown sends parameter as an Array along with a square bracket
+         * @param executeActionDTO
+         * @param actionConfiguration
+         */
+        private void convertArrayToSeparateParamsForPreparedStatement(ExecuteActionDTO executeActionDTO, ActionConfiguration actionConfiguration) {
+
+            String[] modifiedQuery = {actionConfiguration.getBody().trim()};
+            List<Param> paramLists = executeActionDTO.getParams();
+            List<Param> newParamLists = new ArrayList<>();
+
+            paramLists.stream().forEach(
+                    paramItem -> {
+                        String paramValue = paramItem.getValue();
+                        String bodyQuery = modifiedQuery[0];
+
+                        if (paramValue.contains("[") || paramValue.contains("]")) {
+                            Param newParamObj = null;
+                            boolean firstIteration = true;
+                            StringBuilder sb = new StringBuilder();
+                            String paramKey = paramItem.getKey().trim();
+
+                            paramValue = paramValue
+                                    .replaceAll("\\[", "")
+                                    .replaceAll("\\]", "")
+                                    .replaceAll("\"", "");
+                            String[] paramValueItems = paramValue.split(",");
+                            String[] queryParts = bodyQuery.split(paramKey);
+                            sb.append(queryParts[0].substring(0, queryParts[0].length() - 2));
+
+                            for (int i = 0; i < paramValueItems.length; i++) {
+                                String newParamKey = paramKey + "_" + (i + 1);
+                                String newParamValue = paramValueItems[i];
+
+                                newParamObj = new Param();
+                                newParamObj.setKey(newParamKey);
+                                newParamObj.setValue(newParamValue);
+                                newParamLists.add(newParamObj);
+
+                                if (!firstIteration) sb.append(", ");
+                                sb.append("{{");
+                                sb.append(newParamKey);
+                                sb.append("}}");
+
+                                firstIteration = false;
+                            }
+                            sb.append(queryParts[1].trim().substring(2));
+                            modifiedQuery[0] = sb.toString();
+                        }
+                    }
+            );
+            actionConfiguration.setBody(modifiedQuery[0]);
+            newParamLists.stream().forEach(param ->
+                    executeActionDTO.getParams().add(param)
+            );
         }
 
         public Mono<ActionExecutionResult> executeCommon(Connection connection,
