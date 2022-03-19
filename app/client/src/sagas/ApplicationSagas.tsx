@@ -696,7 +696,6 @@ export function* importApplicationSaga(
         } else {
           const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
           const pageURL = builderURL({
-            //Comeback
             applicationSlug,
             pageSlug: PLACEHOLDER_PAGE_SLUG,
             pageId: defaultPage[0].id,

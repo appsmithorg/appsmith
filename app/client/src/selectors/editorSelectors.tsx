@@ -112,8 +112,8 @@ export const getCurrentPageId = (state: AppState) =>
 export const selectCurrentPageSlug = createSelector(
   getCurrentPageId,
   getPageList,
-  //Comeback
-  (pageId, pages) => pages.find((page) => page.pageId === pageId)?.slug || "",
+  (pageId, pages) =>
+    pages.find((page) => page.pageId === pageId)?.slug || PLACEHOLDER_PAGE_SLUG,
 );
 
 export const selectPageSlugToIdMap = createSelector(getPageList, (pages) =>
