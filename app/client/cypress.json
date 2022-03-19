@@ -20,7 +20,7 @@
 		"**/Smoke_TestSuite/ClientSideTests/Templates/Fork_Template_spec.js"
 	],
 	"chromeWebSecurity": false,
-	"viewportHeight": 900,
+	"viewportHeight": 1100,
 	"viewportWidth": 1400,
 	"retries": {
 		"runMode": 2,
