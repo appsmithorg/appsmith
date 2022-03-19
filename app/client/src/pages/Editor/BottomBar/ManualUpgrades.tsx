@@ -22,12 +22,14 @@ import {
 } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { useLocalStorage } from "utils/hooks/localstorage";
+import { createMessage, MANUAL_UPDATES } from "@appsmith/constants/messages";
 
 const updates = [
   {
-    name: "Update URLs",
-    shortDesc:
-      "All URLs in your applications will update to a new readable format that includes the application and page names.",
+    name: createMessage(MANUAL_UPDATES[ApplicationVersion.SLUG_URL].name),
+    shortDesc: createMessage(
+      MANUAL_UPDATES[ApplicationVersion.SLUG_URL].shortDesc,
+    ),
     description: [
       "All URLs in your applications will update to a new readable format that includes the application and page names.",
       'Existing references to <code style="background:#ebebeb;padding:2px 5px;border-radius:2px">appsmith.URL.fullpath</code> and <code style="background:#ebebeb;padding:2px 5px;border-radius:2px">appsmith.URL.pathname</code> properties will behave differently.',
