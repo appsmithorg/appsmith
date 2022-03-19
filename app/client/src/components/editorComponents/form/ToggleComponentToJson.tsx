@@ -1,6 +1,10 @@
 import React from "react";
 import { FormInputSwitchToJsonButton } from "components/editorComponents/form/fields/StyledFormComponents";
-import { switchViewType, ViewTypes } from "components/formControls/utils";
+import {
+  alternateViewTypeInputConfig,
+  switchViewType,
+  ViewTypes,
+} from "components/formControls/utils";
 import { ControlProps } from "components/formControls/BaseControl";
 import { connect } from "react-redux";
 import { AnyAction, bindActionCreators, Dispatch } from "redux";
@@ -14,14 +18,6 @@ type Props = {
   formValues: any;
   renderCompFunction: (config?: ControlProps) => JSX.Element;
   change: (formName: string, id: string, value: any) => void;
-};
-
-const inputTextConfig = {
-  label: "",
-  isValid: true,
-  inputType: "JSON",
-  controlType: "QUERY_DYNAMIC_INPUT_TEXT",
-  evaluationSubstitutionType: "TEMPLATE",
 };
 
 function ToggleComponentToJson(props: Props) {
@@ -44,7 +40,7 @@ function ToggleComponentToJson(props: Props) {
       </FormInputSwitchToJsonButton>
       {props.viewType === ViewTypes.JSON
         ? props.renderCompFunction({
-            ...inputTextConfig,
+            ...alternateViewTypeInputConfig,
             configProperty: props.configProperty,
             formName: props.formName,
             id: props.configProperty,
