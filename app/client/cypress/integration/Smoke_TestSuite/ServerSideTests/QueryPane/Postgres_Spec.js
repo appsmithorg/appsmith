@@ -207,7 +207,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.xpath(generatePage.genderField).type("Male");
     cy.xpath(generatePage.emailField)
       .type("curduser31@ihg.com")
-      .wait(1000); //Waiting for Submit button to get enabled
+      .wait(2000); //Waiting for Submit button to get enabled
     cy.get(generatePage.submitBtn)
       .closest("div")
       .first()

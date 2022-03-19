@@ -36,7 +36,7 @@ export class JSEditor {
       .first()
       .focus()
       .type("{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}")
-      .type("{ctrl}{shift}{uparrow}", { force: true })
+      .type("{shift}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}", { force: true })
       .type("{backspace}",{ force: true });
 
       // .type("{uparrow}", { force: true })
