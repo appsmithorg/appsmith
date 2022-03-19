@@ -99,6 +99,14 @@ export enum ViewTypes {
   COMPONENT = "component",
 }
 
+export const alternateViewTypeInputConfig = {
+  label: "",
+  isValid: true,
+  controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+  evaluationSubstitutionType: "TEMPLATE",
+  inputType: "JSON",
+};
+
 export const getViewType = (values: any, configProperty: string) => {
   if (
     configProperty.startsWith("actionConfiguration.formData") &&
