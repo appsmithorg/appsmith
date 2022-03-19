@@ -517,10 +517,10 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       fixturePath +
       "']/ancestor::div[contains(@class, 't--widget-textwidget')]/following-sibling::div[contains(@class,'t--widget-iconbuttonwidget')]";
 
-    cy.xpath(deleteIconButtonXPATH).should("be.visible");
-
     cy.xpath(deleteIconButtonXPATH)
+      .should("exist")
       .last()
+      .scrollIntoView()
       .click(); //Verifies 8684
 
     cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating"); //Verifies 8686
