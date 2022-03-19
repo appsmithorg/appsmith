@@ -93,13 +93,13 @@ export interface TemplateProps {
   size?: string;
 }
 
-function Template(props: TemplateProps) {
+const Template = (props: TemplateProps) => {
   if (props.size) {
     return <LargeTemplate {...props} />;
   } else {
     return <TemplateLayout {...props} />;
   }
-}
+};
 
 export interface TemplateLayoutProps {
   template: TemplateInterface;
