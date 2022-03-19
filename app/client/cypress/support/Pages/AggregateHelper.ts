@@ -113,9 +113,9 @@ export class AggregateHelper {
     public expandCollapseEntity(entityName: string, expand = true) {
         cy.xpath(locator._expandCollapseArrow(entityName)).invoke('attr', 'name').then((arrow) => {
             if (expand && arrow == 'arrow-right')
-                cy.xpath(locator._expandCollapseArrow(entityName)).click({ multiple: true }).wait(500);
+                cy.xpath(locator._expandCollapseArrow(entityName)).trigger('click', { multiple: true }).wait(1000);
             else if (!expand && arrow == 'arrow-down')
-                cy.xpath(locator._expandCollapseArrow(entityName)).click({ multiple: true }).wait(500);
+                cy.xpath(locator._expandCollapseArrow(entityName)).trigger('click', { multiple: true }).wait(1000);
             else
                 this.Sleep()
         })
