@@ -95,6 +95,10 @@ public class GitFileUtils {
         copyProperties(applicationJson, applicationMetadata, keys);
         applicationReference.setMetadata(applicationMetadata);
 
+        // Remove policies from the themes
+        applicationJson.getEditModeTheme().setPolicies(null);
+        applicationJson.getPublishedTheme().setPolicies(null);
+
         // Pass pages within the application
         Map<String, Object> resourceMap = new HashMap<>();
         applicationJson.getPageList().forEach(newPage -> {
@@ -262,6 +266,8 @@ public class GitFileUtils {
         datasource.setUpdatedAt(null);
         datasource.setCreatedAt(null);
         datasource.setUserPermissions(null);
+        datasource.setIsConfigured(null);
+        datasource.setInvalids(null);
     }
 
     private void removeUnwantedFieldFromAction(NewAction action) {
