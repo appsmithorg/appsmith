@@ -120,6 +120,11 @@ function renderFormConfigTop(props: { config: ControlProps }) {
               {tooltipText && (
                 <Tooltip content={tooltipText} hoverOpenDelay={1000}>
                   <FormIcons.HELP_ICON height={16} width={16} />
+                  {tooltipText && (
+                    <Tooltip content={tooltipText} hoverOpenDelay={1000}>
+                      <StyledIcon name="help-outline" size={IconSize.XL} />
+                    </Tooltip>
+                  )}{" "}
                 </Tooltip>
               )}
             </p>
