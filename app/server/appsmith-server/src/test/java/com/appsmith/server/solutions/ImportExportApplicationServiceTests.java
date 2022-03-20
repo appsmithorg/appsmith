@@ -1,11 +1,11 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.InvisibleActionFields;
-import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
@@ -30,6 +30,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
@@ -95,7 +96,6 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -928,12 +928,12 @@ public class ImportExportApplicationServiceTests {
                     Theme publishedTheme = tuple.getT3();
 
                     assertThat(editTheme.isSystemTheme()).isFalse();
-                    assertThat(editTheme.getName()).isEqualTo("Custom edit theme");
+                    assertThat(editTheme.getDisplayName()).isEqualTo("Custom edit theme");
                     assertThat(editTheme.getOrganizationId()).isNull();
                     assertThat(editTheme.getApplicationId()).isNull();
 
                     assertThat(publishedTheme.isSystemTheme()).isFalse();
-                    assertThat(publishedTheme.getName()).isEqualTo("Custom published theme");
+                    assertThat(publishedTheme.getDisplayName()).isEqualTo("Custom published theme");
                     assertThat(publishedTheme.getOrganizationId()).isNullOrEmpty();
                     assertThat(publishedTheme.getApplicationId()).isNullOrEmpty();
                 })
@@ -1871,6 +1871,34 @@ public class ImportExportApplicationServiceTests {
                     assertThat(actionCollectionNames).contains(deletedActionCollectionNames);
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void applySchemaMigration_jsonFileWithFirstVersion_migratedToLatestVersionSuccess() {
+        Mono<ApplicationJson> v1ApplicationMono = createAppJson("test_assets/ImportExportServiceTest/file-with-v1.json").cache();
+        Mono<ApplicationJson> migratedApplicationMono = v1ApplicationMono
+                .map(applicationJson -> {
+                    ApplicationJson applicationJson1 = new ApplicationJson();
+                    AppsmithBeanUtils.copyNestedNonNullProperties(applicationJson, applicationJson1);
+                    return JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson1);
+                });
+
+        StepVerifier
+                .create(Mono.zip(v1ApplicationMono, migratedApplicationMono))
+                .assertNext(tuple -> {
+                    ApplicationJson v1ApplicationJson = tuple.getT1();
+                    ApplicationJson latestApplicationJson = tuple.getT2();
+
+                    assertThat(v1ApplicationJson.getServerSchemaVersion()).isEqualTo(1);
+                    assertThat(v1ApplicationJson.getClientSchemaVersion()).isEqualTo(1);
+
+                    assertThat(latestApplicationJson.getServerSchemaVersion()).isEqualTo(JsonSchemaVersions.serverVersion);
+                    assertThat(latestApplicationJson.getClientSchemaVersion()).isEqualTo(JsonSchemaVersions.clientVersion);
+                })
+                .verifyComplete();
+
+
     }
     
 }
