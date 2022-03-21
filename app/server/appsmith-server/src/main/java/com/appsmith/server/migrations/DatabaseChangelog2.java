@@ -6,6 +6,8 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
@@ -138,14 +140,20 @@ public class DatabaseChangelog2 {
                 continue;
             }
 
-            if (pluginMap.get(uqiAction.getPluginId()).equals("firestore-plugin")) {
-                migrateFirestoreActionsFormData(uqiAction);
-            } else if (pluginMap.get(uqiAction.getPluginId()).equals("amazons3-plugin")) {
-                migrateAmazonS3ActionsFormData(uqiAction);
-            } else {
-                migrateMongoActionsFormData(uqiAction);
+            try {
+                if (pluginMap.get(uqiAction.getPluginId()).equals("firestore-plugin")) {
+                    migrateFirestoreActionsFormData(uqiAction);
+                } else if (pluginMap.get(uqiAction.getPluginId()).equals("amazons3-plugin")) {
+                    migrateAmazonS3ActionsFormData(uqiAction);
+                } else {
+                    migrateMongoActionsFormData(uqiAction);
+                }
+            } catch (AppsmithException e) {
+                // This action is already migrated, move on
+                log.error("Failed with error: {}", e.getMessage());
+                log.error("Failing action: {}", uqiAction.getId());
+                continue;
             }
-
             mongockTemplate.save(uqiAction);
         }
     }
@@ -157,17 +165,28 @@ public class DatabaseChangelog2 {
          */
         final Map<String, Object> unpublishedFormData = unpublishedAction.getActionConfiguration().getFormData();
 
-        unpublishedFormData
-                .keySet()
-                .stream()
-                .forEach(k -> {
-                    final Object oldValue = unpublishedFormData.get(k);
-                    unpublishedFormData.put(k, Map.of(
-                            "data", oldValue,
-                            "componentData", oldValue,
-                            "viewType", "component"
-                    ));
-                });
+        if (unpublishedFormData != null) {
+            final Object command = unpublishedFormData.get("command");
+
+            if (!(command instanceof String)) {
+                throw new AppsmithException(AppsmithError.MIGRATION_ERROR);
+            }
+
+            unpublishedFormData
+                    .keySet()
+                    .stream()
+                    .forEach(k -> {
+                        if (k != null) {
+                            final Object oldValue = unpublishedFormData.get(k);
+                            final HashMap<String, Object> map = new HashMap<>();
+                            map.put("data", oldValue);
+                            map.put("componentData", oldValue);
+                            map.put("viewType", "component");
+                            unpublishedFormData.put(k, map);
+                        }
+                    });
+
+        }
 
         final String unpublishedBody = unpublishedAction.getActionConfiguration().getBody();
         if (StringUtils.hasLength(unpublishedBody)) {
@@ -201,16 +220,24 @@ public class DatabaseChangelog2 {
                 publishedAction.getActionConfiguration().getFormData() != null) {
             final Map<String, Object> publishedFormData = publishedAction.getActionConfiguration().getFormData();
 
+            final Object command = publishedFormData.get("command");
+
+            if (!(command instanceof String)) {
+                throw new AppsmithException(AppsmithError.MIGRATION_ERROR);
+            }
+            
             publishedFormData
                     .keySet()
                     .stream()
                     .forEach(k -> {
-                        final Object oldValue = publishedFormData.get(k);
-                        publishedFormData.put(k, Map.of(
-                                "data", oldValue,
-                                "componentData", oldValue,
-                                "viewType", "component"
-                        ));
+                        if (k != null) {
+                            final Object oldValue = publishedFormData.get(k);
+                            final HashMap<String, Object> map = new HashMap<>();
+                            map.put("data", oldValue);
+                            map.put("componentData", oldValue);
+                            map.put("viewType", "component");
+                            publishedFormData.put(k, map);
+                        }
                     });
 
             final String publishedBody = publishedAction.getActionConfiguration().getBody();
@@ -282,16 +309,30 @@ public class DatabaseChangelog2 {
         if (value == null) {
             return;
         }
-        formDataMap.put(key,
-                Map.of(
-                        "data", value,
-                        "componentData", value,
-                        "viewType", "component"
-                ));
+        if (key != null) {
+            final HashMap<String, Object> map = new HashMap<>();
+            map.put("data", value);
+            map.put("componentData", value);
+            map.put("viewType", "component");
+            formDataMap.put(key, map);
+        }
     }
 
     private static void mapS3ToNewFormData(ActionDTO action, Map<String, Object> f) {
-        final Map<String, Object> unpublishedFormData = action.getActionConfiguration().getFormData();
+        final Map<String, Object> formData = action.getActionConfiguration().getFormData();
+
+        if (formData == null) {
+            return;
+        }
+
+        final Object command = formData.get("command");
+        if (command == null) {
+            return;
+        }
+
+        if (!(command instanceof String)) {
+            throw new AppsmithException(AppsmithError.MIGRATION_ERROR);
+        }
 
         final String body = action.getActionConfiguration().getBody();
         if (StringUtils.hasLength(body)) {
@@ -305,17 +346,13 @@ public class DatabaseChangelog2 {
             action.getActionConfiguration().setPath(null);
         }
 
-        final String command = (String) unpublishedFormData.get("command");
-        if (command == null) {
-            return;
-        }
         convertToFormDataObject(f, "command", command);
-        convertToFormDataObject(f, "bucket", unpublishedFormData.get("bucket"));
-        convertToFormDataObject(f, "smartSubstitution", unpublishedFormData.get("smartSubstitution"));
-        switch (command) {
+        convertToFormDataObject(f, "bucket", formData.get("bucket"));
+        convertToFormDataObject(f, "smartSubstitution", formData.get("smartSubstitution"));
+        switch ((String) command) {
             // No case for delete single and multiple since they only had bucket that needed migration
             case "LIST":
-                final Map listMap = (Map) unpublishedFormData.get("list");
+                final Map listMap = (Map) formData.get("list");
                 if (listMap == null) {
                     break;
                 }
@@ -331,7 +368,7 @@ public class DatabaseChangelog2 {
                 break;
             case "UPLOAD_FILE_FROM_BODY":
             case "UPLOAD_MULTIPLE_FILES_FROM_BODY":
-                final Map createMap = (Map) unpublishedFormData.get("create");
+                final Map createMap = (Map) formData.get("create");
                 if (createMap == null) {
                     break;
                 }
@@ -341,7 +378,7 @@ public class DatabaseChangelog2 {
                 convertToFormDataObject(newCreateMap, "expiry", createMap.get("expiry"));
                 break;
             case "READ_FILE":
-                final Map readMap = (Map) unpublishedFormData.get("read");
+                final Map readMap = (Map) formData.get("read");
                 if (readMap == null) {
                     break;
                 }
@@ -416,26 +453,31 @@ public class DatabaseChangelog2 {
             return;
         }
 
+        final Object command = formData.get("command");
+        if (command == null) {
+            return;
+        }
+
+        if (!(command instanceof String)) {
+            throw new AppsmithException(AppsmithError.MIGRATION_ERROR);
+        }
+
         final String body = action.getActionConfiguration().getBody();
         if (StringUtils.hasLength(body)) {
             convertToFormDataObject(f, "body", body);
             action.getActionConfiguration().setBody(null);
         }
 
-        final String command = (String) formData.get("command");
-        if (command == null) {
-            return;
-        }
         convertToFormDataObject(f, "command", command);
         convertToFormDataObject(f, "collection", formData.get("collection"));
         convertToFormDataObject(f, "smartSubstitution", formData.get("smartSubstitution"));
-        switch (command) {
+        switch ((String) command) {
             case "AGGREGATE":
                 final Map aggregateMap = (Map) formData.get("aggregate");
                 if (aggregateMap == null) {
                     break;
                 }
-                final Map<String,Object> newAggregateMap = new HashMap<>();
+                final Map<String, Object> newAggregateMap = new HashMap<>();
                 f.put("aggregate", newAggregateMap);
                 convertToFormDataObject(newAggregateMap, "arrayPipelines", aggregateMap.get("arrayPipelines"));
                 convertToFormDataObject(newAggregateMap, "limit", aggregateMap.get("limit"));
