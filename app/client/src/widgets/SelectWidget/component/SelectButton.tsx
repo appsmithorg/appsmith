@@ -2,14 +2,9 @@ import React, { memo } from "react";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Button } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
-import { isNil } from "lodash";
 
-import { isString } from "../../../utils/helpers";
+import { isEmptyOrNill } from "../../../utils/helpers";
 import { StyledDiv } from "./index.styled";
-
-export const isEmptyOrNill = (value: any) => {
-  return isNil(value) || (isString(value) && value === "");
-};
 
 export interface SelectButtonProps {
   disabled?: boolean;
