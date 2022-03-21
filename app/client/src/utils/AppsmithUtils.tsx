@@ -1,5 +1,5 @@
 import {
-  CurrentApplicationData,
+  ApplicationPayload,
   Page,
   ReduxAction,
 } from "constants/ReduxActionConstants";
@@ -402,7 +402,7 @@ export const getCamelCaseString = (sourceString: string) => {
 export const getPageURL = (
   page: Page,
   appMode: APP_MODE | undefined,
-  currentApplicationDetails: CurrentApplicationData | undefined,
+  currentApplicationDetails: ApplicationPayload | undefined,
 ) => {
   if (appMode === APP_MODE.PUBLISHED) {
     return trimQueryString(

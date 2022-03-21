@@ -58,6 +58,7 @@ export default {
   enablePublicAccess: ".t--share-public-toggle .slider",
   closeBtn: ".bp3-dialog-close-button",
   applicationName: ".t--application-name",
+  applicationEditMenu: ".t--application-edit-menu",
   editingAppName: "bp3-editable-text-editing",
   portalMenuItem: ".bp3-portal .bp3-menu-item",
   profileMenu: ".bp3-popover-wrapper.profile-menu",
@@ -93,4 +94,5 @@ export default {
   orgCompleteSection: ".t--org-section",
   orgNameText: ".t--org-name-text",
   optionsIcon: ".t--options-icon",
+  reconnectDatasourceModal: ".reconnect-datasource-modal",
 };

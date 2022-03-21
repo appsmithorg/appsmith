@@ -108,27 +108,4 @@ export default {
     }
   },
   //
-  getText: (props, moment, _) => {
-    let text;
-
-    switch (props.inputType) {
-      case "NUMBER":
-        if (_.isNil(props.inputText) || props.inputText === "") {
-          text = null;
-        } else {
-          text = Number(props.inputText);
-
-          if (isNaN(text)) {
-            text = null;
-          }
-        }
-        break;
-      default:
-        text = props.inputText;
-        break;
-    }
-
-    return text;
-  },
-  //
 };

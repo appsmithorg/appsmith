@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styled from "constants/DefaultTheme";
 import { Classes } from "components/ads/common";
 import Text, { Case, FontWeight, TextType } from "components/ads/Text";
@@ -16,11 +16,14 @@ import {
 
 const ErrorWrapper = styled.div`
   padding: 24px 0px;
+
   .${Classes.TEXT} {
     display: block;
     margin-bottom: ${(props) => props.theme.spaces[3]}px;
+
     &.t--read-document {
       display: inline-flex;
+
       .${Classes.ICON} {
         margin-left: ${(props) => props.theme.spaces[3]}px;
       }
@@ -33,25 +36,17 @@ const LinkText = styled.a`
     text-decoration: none;
     color: ${Colors.CRUSTA};
   }
+
   color: ${Colors.CRUSTA};
   cursor: pointer;
 `;
 
-export default function GitConnectError({
-  onDisplay,
-}: {
-  onDisplay?: () => void;
-}) {
+export default function GitConnectError() {
   const error = useSelector(getGitConnectError);
   const connectingErrorDocumentUrl = useSelector(getConnectingErrorDocUrl);
   const titleMessage = error?.errorType
     ? error.errorType.replaceAll("_", " ")
     : "";
-  useEffect(() => {
-    if (error && onDisplay) {
-      onDisplay();
-    }
-  }, [error]);
   return error ? (
     <ErrorWrapper>
       {titleMessage.length > 0 && (

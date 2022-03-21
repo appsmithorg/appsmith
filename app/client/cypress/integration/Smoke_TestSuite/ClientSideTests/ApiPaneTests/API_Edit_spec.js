@@ -53,7 +53,7 @@ describe("API Panel Test Functionality", function() {
     cy.get(apiwidget.runQueryButton).click();
     cy.get(".bp3-dialog")
       .find("button")
-      .contains("Cancel")
+      .contains("No")
       .click();
     cy.get(apiwidget.runQueryButton)
       .children()
