@@ -82,6 +82,7 @@ import { ControlIcons } from "icons/ControlIcons";
 // remix icons
 import AddMoreIcon from "remixicon-react/AddCircleLineIcon";
 import AddMoreFillIcon from "remixicon-react/AddCircleFillIcon";
+// import AlertFillIcon from "remixicon-react/AlertFillIcon";
 import ArrowLeftRightIcon from "remixicon-react/ArrowLeftRightLineIcon";
 import ArrowDownLineIcon from "remixicon-react/ArrowDownLineIcon";
 import BookIcon from "remixicon-react/BookOpenLineIcon";
@@ -108,6 +109,7 @@ import ExpandLess from "remixicon-react/ArrowUpSLineIcon";
 import EyeOn from "remixicon-react/EyeLineIcon";
 import EyeOff from "remixicon-react/EyeOffLineIcon";
 import FileTransfer from "remixicon-react/FileTransferLineIcon";
+import FileLine from "remixicon-react/FileLineIcon";
 import Filter from "remixicon-react/Filter2FillIcon";
 import GitMerge from "remixicon-react/GitMergeLineIcon";
 import GitCommit from "remixicon-react/GitCommitLineIcon";
@@ -146,6 +148,8 @@ import EditBoxLineIcon from "remixicon-react/EditBoxLineIcon";
 import StarLineIcon from "remixicon-react/StarLineIcon";
 import StarFillIcon from "remixicon-react/StarFillIcon";
 import Settings2LineIcon from "remixicon-react/Settings2LineIcon";
+import UploadCloud2LineIcon from "remixicon-react/UploadCloud2LineIcon";
+import DownloadLineIcon from "remixicon-react/DownloadLineIcon";
 import FileListLineIcon from "remixicon-react/FileListLineIcon";
 import HamburgerIcon from "remixicon-react/MenuLineIcon";
 import MagicLineIcon from "remixicon-react/MagicLineIcon";
@@ -257,6 +261,7 @@ const ICON_LOOKUP = {
   "double-arrow-right": <DoubleArrowRightIcon />,
   "down-arrow": <DownArrowIcon />,
   "down-arrow-2": <ArrowDownLineIcon />,
+  "download-line": <DownloadLineIcon />,
   "edit-box-line": <EditBoxLineIcon />,
   "edit-line": <EditLineIcon />,
   "edit-underline": <EditUnderlineIcon />,
@@ -264,6 +269,8 @@ const ICON_LOOKUP = {
   "expand-more": <ExpandMore />,
   "eye-off": <EyeOff />,
   "eye-on": <EyeOn />,
+  "file-line": <FileLine />,
+  "file-list-line": <FileListLineIcon />,
   "fork-2": <Fork2Icon />,
   "file-transfer": <FileTransfer />,
   "git-branch": <GitBranchLineIcon />,
@@ -297,6 +304,7 @@ const ICON_LOOKUP = {
   "trash-outline": <TrashOutline />,
   "trending-flat": <TrendingFlat />,
   "unread-pin": <UnreadPin />,
+  "upload-cloud": <UploadCloud2LineIcon />,
   "user-2": <UserV2Icon />,
   "user-heart-line": <UserHeartLineIcon />,
   "view-all": <RightArrowIcon />,
@@ -332,6 +340,7 @@ const ICON_LOOKUP = {
   guide: <GuideIcon />,
   help: <HelpFillIcon />,
   "help-outline": <HelpOutlineIcon />,
+  hamburger: <HamburgerIcon />,
   info: <InfoIcon />,
   key: <KeyIcon />,
   lightning: <LightningIcon />,
@@ -367,8 +376,6 @@ const ICON_LOOKUP = {
   warning: <WarningIcon />,
   widget: <WidgetIcon />,
   workspace: <WorkspaceIcon />,
-  "file-list-line": <FileListLineIcon />,
-  hamburger: <HamburgerIcon />,
 };
 
 export const IconCollection = Object.keys(ICON_LOOKUP);

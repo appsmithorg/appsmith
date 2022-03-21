@@ -14,7 +14,6 @@ import { EvaluationError } from "utils/DynamicBindingUtils";
 import { getConfigErrors } from "selectors/formSelectors";
 import ToggleComponentToJson from "components/editorComponents/form/ToggleComponentToJson";
 import FormConfig from "./FormConfig";
-
 export interface FormControlProps {
   config: ControlProps;
   formName: string;

@@ -12,7 +12,10 @@ public class ApplicationTemplate extends BaseDomain {
     private String title;
     private String description;
     private String appUrl;
+    private String appDataUrl;
     private String gifUrl;
+    private String productImageUrl;
+    private String sortPriority;
     private List<String> screenshotUrls;
     private List<String> widgets;
     private List<String> functions;
