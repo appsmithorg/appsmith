@@ -416,12 +416,14 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
           (d) => !d.hasOwnProperty("collectionId"),
         );
         if (actions && actions.length) {
+          // @ts-expect-error: actions type mismatch
           yield put(setActionsToExecuteOnPageLoad(actions));
         }
         const jsActions = actionUpdates.filter((d) =>
           d.hasOwnProperty("collectionId"),
         );
         if (jsActions && jsActions.length) {
+          // @ts-expect-error: jsActions type mismatch
           yield put(setJSActionsToExecuteOnPageLoad(jsActions));
         }
       }

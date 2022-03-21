@@ -37,6 +37,8 @@ import {
   GenerateSSHKeyPairReduxAction,
   GetSSHKeyPairReduxAction,
   importAppViaGitSuccess,
+  GenerateSSHKeyPairResponsePayload,
+  GetSSHKeyResponseData,
 } from "actions/gitSyncActions";
 
 import { showReconnectDatasourceModal } from "actions/applicationActions";
@@ -633,7 +635,15 @@ function* disconnectGitSaga() {
 }
 
 function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
-  let response: ApiResponse | undefined;
+  let response:
+    | ApiResponse<{
+        application: {
+          id: string;
+          pages: { default?: boolean; id: string; isDefault?: boolean }[];
+        };
+        isPartialImport: boolean;
+      }>
+    | undefined;
   try {
     const organizationIdForImport: string = yield select(
       getOrganizationIdForImport,
@@ -651,29 +661,23 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
     );
 
     if (isValidResponse) {
-      const allOrgs = yield select(getCurrentOrg);
+      const allOrgs: Org[] = yield select(getCurrentOrg);
       const currentOrg = allOrgs.filter(
         (el: Org) => el.id === organizationIdForImport,
       );
       if (currentOrg.length > 0) {
-        const {
-          application: app,
-          isPartialImport,
-        }: {
-          application: {
-            id: string;
-            pages: { default?: boolean; id: string; isDefault?: boolean }[];
-          };
-          isPartialImport: boolean;
-        } = response?.data;
+        // @ts-expect-error: response.data, data can be undefined
+        const { application: app, isPartialImport } = response?.data;
         yield put(importAppViaGitSuccess()); // reset flag for loader
         yield put(setIsGitSyncModalOpen({ isOpen: false }));
         // there is configuration-missing datasources
         if (isPartialImport) {
           yield put(
             showReconnectDatasourceModal({
+              // @ts-expect-error: Type mismatch
               application: response?.data?.application,
               unConfiguredDatasourceList:
+                // @ts-expect-error: Type mismatch
                 response?.data.unConfiguredDatasourceList,
               orgId: organizationIdForImport,
             }),
@@ -682,6 +686,7 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
           let pageId = "";
           if (app.pages && app.pages.length > 0) {
             const defaultPage = app.pages.find(
+              // @ts-expect-error: eachPage is any
               (eachPage) => !!eachPage.isDefault,
             );
             pageId = defaultPage ? defaultPage.id : "";
@@ -735,17 +740,21 @@ export function* getSSHKeyPairSaga(action: GetSSHKeyPairReduxAction) {
       GitSyncAPI.getSSHKeyPair,
       applicationId,
     );
-    const isValidResponse = yield validateResponse(response, false);
+    const isValidResponse: boolean = yield validateResponse(response, false);
     if (isValidResponse) {
+      // @ts-expect-error: response.data type mismatch
       yield put(getSSHKeyPairSuccess(response.data));
       if (action.onSuccessCallback) {
+        // @ts-expect-error: response type mismatch
         action.onSuccessCallback(response);
       }
     }
   } catch (error) {
-    yield put(getSSHKeyPairError({ error, show: false }));
+    yield put(
+      getSSHKeyPairError({ error: (error as Error).message, show: false }),
+    );
     if (action.onErrorCallback) {
-      action.onErrorCallback(error);
+      action.onErrorCallback((error as Error).message);
     }
   }
 }
@@ -767,14 +776,17 @@ export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
       response?.responseMeta?.status === 500,
     );
     if (isValidResponse) {
+      // @ts-expect-error: response.data type mismatch
       yield put(generateSSHKeyPairSuccess(response?.data));
       if (action.onSuccessCallback) {
-        action.onSuccessCallback(response as ApiResponse);
+        action.onSuccessCallback(
+          response as GenerateSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
+        );
       }
     }
   } catch (error) {
     if (action.onErrorCallback) {
-      action.onErrorCallback(error);
+      action.onErrorCallback((error as Error).message);
     }
     yield call(handleRepoLimitReachedError, response);
   }

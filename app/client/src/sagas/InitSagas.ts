@@ -9,7 +9,7 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import {
-  CurrentApplicationData,
+  ApplicationPayload,
   InitializeEditorPayload,
   ReduxAction,
   ReduxActionErrorTypes,
@@ -216,7 +216,7 @@ function* initializeEditorSaga(
     );
     if (!pluginFormCall) return;
 
-    const currentApplication: CurrentApplicationData | undefined = yield select(
+    const currentApplication: ApplicationPayload | undefined = yield select(
       getCurrentApplication,
     );
     const appName = currentApplication ? currentApplication.name : "";
