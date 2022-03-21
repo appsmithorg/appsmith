@@ -96,12 +96,6 @@ The command uninstalls the release and removes all Kubernetes resources associat
 | `tolerations`								| Tolerations for pod assignment											| `[]`						|
 | `affinity`									| Affinity fod pod assignment													| `{}`						|
 
-
-### Appsmith namespace parameters
-| Name 						  | Description 																																				 	| Value 	|
-| ----------------- | ------------------------------------------------------------------------------------- | ------- |
-| `namespace.create`| Enable creation of `Namespace`															 													| `true` 	|
-
 ### Appsmith service account parameters
 | Name 											 		| Description 																																				 												| Value 	|
 | ----------------------------- | ----------------------------------------------------------------------------------------------------------- | ------- |
@@ -121,6 +115,7 @@ The command uninstalls the release and removes all Kubernetes resources associat
 | `service.loadBalancerSourceRanges`	| Appsmith service Load Balancer sources                                      						| `[]` 				|
 | `service.annotations` 		 					| Additional custom annotations for Appsmith service 																 			| `{}` 				|
 | `ingress.enabled` 				 					| Enable ingress record generation for Appsmith                                       		| `false` 		|
+|	`ingress.annotations`								|	Additional custom annotations for Ingress																								|	`{}`				|
 | `ingress.hosts`            					| An array of hosts to be covered with the ingress record                             		| `[]` 				|
 | `ingress.tls`              					| Enable TLS configuration for the hosts defined at `ingress.hosts` parameter         		| `false` 		|
 | `ingress.secrets`										| Custom TLS certificates as secrets																											| `[]`				|
