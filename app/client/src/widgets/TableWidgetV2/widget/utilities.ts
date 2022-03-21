@@ -159,6 +159,7 @@ export function getDefaultColumnProperties(
   isDerived?: boolean,
 ): ColumnProperties {
   const columnProps = {
+    allowCellWrapping: false,
     index: index,
     width: 150,
     originalId: id,
@@ -321,6 +322,10 @@ export const getCellProperties = (
       ),
       isCellEditable: getBooleanPropertyValue(
         columnProperties.isCellEditable,
+        rowIndex,
+      ),
+      allowCellWrapping: getBooleanPropertyValue(
+        columnProperties.allowCellWrapping,
         rowIndex,
       ),
     } as CellLayoutProperties;

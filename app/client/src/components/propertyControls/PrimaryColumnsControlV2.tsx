@@ -3,7 +3,7 @@ import { AppState } from "reducers";
 import { connect } from "react-redux";
 import { Placement } from "popper.js";
 import * as Sentry from "@sentry/react";
-import _ from "lodash";
+import _, { toString } from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
@@ -27,6 +27,7 @@ import {
   EvaluationError,
   getEvalErrorPath,
   getEvalValuePath,
+  isDynamicValue,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -307,6 +308,18 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
         `${this.props.propertyName}.${originalColumn.id}.isEditable`,
         checked,
       );
+
+      /*
+       * Check whether isCellEditable property of the column has dynamic value
+       * if not, toggle isCellEditable value as well. We're doing this to smooth
+       * the user experience.
+       */
+      if (!isDynamicValue(toString(originalColumn.isCellEditable))) {
+        this.updateProperty(
+          `${this.props.propertyName}.${originalColumn.id}.isCellEditable`,
+          checked,
+        );
+      }
     }
   };
 
@@ -394,6 +407,18 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
           `${this.props.propertyName}.${column.id}.isEditable`,
           !isEditable,
         );
+
+        /*
+         * Check whether isCellEditable property of the column has dynamic value.
+         * if not, toggle isCellEditable value as well. We're doing this to smooth
+         * the user experience.
+         */
+        if (!isDynamicValue(toString(column.isCellEditable))) {
+          this.updateProperty(
+            `${this.props.propertyName}.${column.id}.isCellEditable`,
+            !isEditable,
+          );
+        }
       }
     });
   };
