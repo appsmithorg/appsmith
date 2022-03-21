@@ -155,6 +155,31 @@ export default {
       },
     },
     {
+      propertyName: "allowCellWrapping",
+      dependencies: ["primaryColumns", "columnType"],
+      label: "Cell Wrapping",
+      helpText: "Allows content of the cell to be wrapped",
+      defaultValue: false,
+      controlType: "SWITCH",
+      customJSControl: "COMPUTE_VALUE_V2",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.TABLE_PROPERTY,
+        params: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.TEXT,
+          ColumnTypes.NUMBER,
+          ColumnTypes.URL,
+        ]);
+      },
+    },
+    {
       propertyName: "isCellEditable",
       dependencies: ["primaryColumns", "columnType"],
       label: "Editable",
