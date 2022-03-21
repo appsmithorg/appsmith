@@ -6,7 +6,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import { ReactComponent as DiscordIcon } from "assets/icons/help/discord.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "ce/configs";
-import { Button, Category, Icon, IconPositions } from "components/ads";
+import { Button, Category, IconPositions } from "components/ads";
 
 const Container = styled.div`
   display: flex;
@@ -59,6 +59,7 @@ function ResultsNotFound() {
           category={Category.tertiary}
           className="intercom"
           height="40"
+          icon="chat-help"
           iconPosition={IconPositions.left}
           onClick={() => {
             window.Intercom("show");
