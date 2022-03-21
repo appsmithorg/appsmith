@@ -1,8 +1,6 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
 const agHelper = new AggregateHelper();
 
@@ -15,11 +13,17 @@ describe("Entity explorer tests related to copy query", function() {
     cy.startRoutesForDatasource();
   });
 
-  it("1. Create a query with dataSource in explorer", function() {
+  afterEach(function() {
+    if (this.currentTest.state === "failed") {
+      Cypress.runner.stop();
+    }
+  });
+
+  it("1. Create a query with dataSource in explorer, Create new Page", function() {
     cy.Createpage(pageid);
     cy.get(".t--entity-name")
       .contains("Page1")
-      .click();
+      .click({ force: true });
     cy.wait(2000);
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
@@ -63,10 +67,10 @@ describe("Entity explorer tests related to copy query", function() {
     });
   });
 
-  it("2. Create a page and copy query in explorer", function() {
+  it("2. Copy query in explorer to new page & verify Bindings are copied too", function() {
     cy.get(".t--entity-name")
       .contains("Page1")
-      .click();
+      .click({ force: true });
     agHelper.ActionContextMenuByEntityName("Query1", "Copy to page", pageid);
     cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.get(".t--entity-name")
@@ -83,10 +87,10 @@ describe("Entity explorer tests related to copy query", function() {
     });
   });
 
-  it("3. Delete query and rename datasource in explorer", function() {
+  it("3. Rename datasource in explorer, Delete query and try to Delete datasource", function() {
     cy.get(".t--entity-name")
       .contains("Page1")
-      .click();
+      .click({ force: true });
     cy.wait(2000);
     cy.generateUUID().then((uid) => {
       updatedName = uid;
@@ -95,9 +99,9 @@ describe("Entity explorer tests related to copy query", function() {
       cy.log("sliced id :" + updatedName);
       cy.CheckAndUnfoldEntityItem("QUERIES/JS");
       cy.EditEntityNameByDoubleClick(datasourceName, updatedName);
-      cy.wait(2000);
-      cy.hoverAndClick();
-      cy.get(apiwidget.delete).click({ force: true });
+      cy.wait(1000);
+      agHelper.ActionContextMenuByEntityName(updatedName, "Delete");
+      cy.wait(1000);
       cy.get("[data-cy=t--confirm-modal-btn]").click();
       //This is check to make sure if a datasource is active 409
       cy.wait("@deleteDatasource").should(
@@ -106,10 +110,9 @@ describe("Entity explorer tests related to copy query", function() {
         409,
       );
     });
-
     cy.get(".t--entity-name")
       .contains("Query1")
-      .click();
+      .click({ force: true });
     agHelper.ActionContextMenuByEntityName("Query1", "Delete");
   });
 });

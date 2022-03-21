@@ -6,6 +6,7 @@ import {
   debounce,
   call,
   take,
+  takeLatest,
 } from "redux-saga/effects";
 import {
   ReduxAction,
@@ -31,11 +32,16 @@ import {
   pushLogsForObjectUpdate,
   createDummyJSCollectionActions,
 } from "../utils/JSPaneUtils";
-import JSActionAPI, { RefactorAction } from "../api/JSActionAPI";
+import JSActionAPI, {
+  RefactorAction,
+  SetFunctionPropertyPayload,
+} from "../api/JSActionAPI";
+import ActionAPI from "api/ActionAPI";
 import {
   updateJSCollectionSuccess,
   refactorJSCollectionAction,
   updateJSCollectionBodySuccess,
+  updateJSFunction,
 } from "actions/jsPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
@@ -59,6 +65,7 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
 export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
+import { set } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
@@ -280,7 +287,7 @@ function* handleJSObjectNameChangeSuccessSaga(
   }
 }
 
-function* handleExecuteJSFunctionSaga(
+export function* handleExecuteJSFunctionSaga(
   data: ReduxAction<{
     collectionName: string;
     action: JSAction;
@@ -291,7 +298,6 @@ function* handleExecuteJSFunctionSaga(
   const actionId = action.id;
   try {
     const result = yield call(executeFunction, collectionName, action);
-
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
       payload: {
@@ -338,7 +344,7 @@ function* handleUpdateJSCollectionBody(
   actionPayload: ReduxAction<{ body: string; id: string; isReplay: boolean }>,
 ) {
   const jsCollection = yield select(getJSCollection, actionPayload.payload.id);
-  jsCollection.body = actionPayload.payload.body;
+  jsCollection["body"] = actionPayload.payload.body;
   try {
     if (jsCollection) {
       const response = yield JSActionAPI.updateJSCollection(jsCollection);
@@ -418,6 +424,132 @@ function* handleRefactorJSActionNameSaga(
   }
 }
 
+function* setFunctionPropertySaga(
+  data: ReduxAction<SetFunctionPropertyPayload>,
+) {
+  const { action, propertyName, value } = data.payload;
+  if (!action.id) return;
+  const actionId = action.id;
+  if (propertyName === "executeOnLoad") {
+    yield put({
+      type: ReduxActionTypes.TOGGLE_FUNCTION_EXECUTE_ON_LOAD_INIT,
+      payload: {
+        collectionId: action.collectionId,
+        actionId,
+        shouldExecute: value,
+      },
+    });
+    return;
+  }
+  yield put(updateJSFunction({ ...data.payload }));
+}
+
+function* handleUpdateJSFunctionPropertySaga(
+  data: ReduxAction<SetFunctionPropertyPayload>,
+) {
+  const { action, propertyName, value } = data.payload;
+  if (!action.id) return;
+  const actionId = action.id;
+  let collection: JSCollection;
+  if (action.collectionId) {
+    collection = yield select(getJSCollection, action.collectionId);
+
+    try {
+      const actions: JSAction[] = collection.actions;
+      const updatedActions = actions.map((jsAction: JSAction) => {
+        if (jsAction.id === actionId) {
+          set(jsAction, propertyName, value);
+          return jsAction;
+        }
+        return jsAction;
+      });
+      collection.actions = updatedActions;
+      const response = yield JSActionAPI.updateJSCollection(collection);
+      const isValidResponse = yield validateResponse(response);
+      if (isValidResponse) {
+        const fieldToBeUpdated = propertyName.replace(
+          "actionConfiguration",
+          "config",
+        );
+        AppsmithConsole.info({
+          logType: LOG_TYPE.ACTION_UPDATE,
+          text: "Configuration updated",
+          source: {
+            type: ENTITY_TYPE.JSACTION,
+            name: collection.name + "." + action.name,
+            id: actionId,
+            propertyPath: fieldToBeUpdated,
+          },
+          state: {
+            [fieldToBeUpdated]: value,
+          },
+        });
+        yield put({
+          type: ReduxActionTypes.UPDATE_JS_FUNCTION_PROPERTY_SUCCESS,
+          payload: {
+            collection,
+          },
+        });
+      }
+    } catch (e) {
+      yield put({
+        type: ReduxActionErrorTypes.UPDATE_JS_FUNCTION_PROPERTY_ERROR,
+        payload: collection,
+      });
+    }
+  }
+}
+
+function* toggleFunctionExecuteOnLoadSaga(
+  action: ReduxAction<{
+    collectionId: string;
+    actionId: string;
+    shouldExecute: boolean;
+  }>,
+) {
+  try {
+    const { actionId, collectionId, shouldExecute } = action.payload;
+    const collection = yield select(getJSCollection, collectionId);
+    const jsAction = collection.actions.find(
+      (action: JSAction) => actionId === action.id,
+    );
+    const response = yield call(
+      ActionAPI.toggleActionExecuteOnLoad,
+      actionId,
+      shouldExecute,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      AppsmithConsole.info({
+        logType: LOG_TYPE.ACTION_UPDATE,
+        text: "Configuration updated",
+        source: {
+          type: ENTITY_TYPE.JSACTION,
+          name: collection.name + "." + jsAction.name,
+          id: actionId,
+          propertyPath: "executeOnLoad",
+        },
+        state: {
+          ["executeOnLoad"]: shouldExecute,
+        },
+      });
+      yield put({
+        type: ReduxActionTypes.TOGGLE_FUNCTION_EXECUTE_ON_LOAD_SUCCESS,
+        payload: {
+          actionId: actionId,
+          collectionId: collectionId,
+          executeOnLoad: shouldExecute,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_ERROR,
+      payload: error,
+    });
+  }
+}
+
 export default function* root() {
   yield all([
     takeEvery(
@@ -444,6 +576,15 @@ export default function* root() {
       100,
       ReduxActionTypes.UPDATE_JS_ACTION_BODY_INIT,
       handleUpdateJSCollectionBody,
+    ),
+    takeEvery(ReduxActionTypes.SET_FUNCTION_PROPERTY, setFunctionPropertySaga),
+    takeLatest(
+      ReduxActionTypes.UPDATE_JS_FUNCTION_PROPERTY_INIT,
+      handleUpdateJSFunctionPropertySaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.TOGGLE_FUNCTION_EXECUTE_ON_LOAD_INIT,
+      toggleFunctionExecuteOnLoadSaga,
     ),
   ]);
 }
