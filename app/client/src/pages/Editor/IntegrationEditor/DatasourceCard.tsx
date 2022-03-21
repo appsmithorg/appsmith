@@ -305,8 +305,9 @@ function DatasourceCard(props: DatasourceCardProps) {
                 }}
               >
                 <MenuComponent
-                  menuItemWrapperWidth="140px"
-                  position={Position.LEFT_TOP}
+                  menuItemWrapperWidth="160px"
+                  onClose={() => setConfirmDelete(false)}
+                  position={Position.BOTTOM_RIGHT}
                   target={
                     <MoreOptionsContainer>
                       <Icon
@@ -317,18 +318,24 @@ function DatasourceCard(props: DatasourceCardProps) {
                     </MoreOptionsContainer>
                   }
                 >
-                  <RedMenuItem
-                    className="t--datasource-option-delete"
-                    icon="delete"
-                    isLoading={isDeletingDatasource}
-                    onSelect={deleteAction}
-                    text="Delete"
-                  />
                   <MenuItem
                     className="t--datasource-option-edit"
                     icon="edit"
                     onSelect={editDatasource}
                     text="Edit"
+                  />
+                  <RedMenuItem
+                    className="t--datasource-option-delete"
+                    icon="delete"
+                    isLoading={isDeletingDatasource}
+                    onSelect={() => {
+                      confirmDelete ? deleteAction() : setConfirmDelete(true);
+                    }}
+                    text={
+                      confirmDelete
+                        ? createMessage(CONFIRM_CONTEXT_DELETE)
+                        : createMessage(CONTEXT_DELETE)
+                    }
                   />
                 </MenuComponent>
               </MenuWrapper>
@@ -350,7 +357,8 @@ function DatasourceCard(props: DatasourceCardProps) {
                 }}
               >
                 <MenuComponent
-                  menuItemWrapperWidth="260px"
+                  menuItemWrapperWidth="160px"
+                  onClose={() => setConfirmDelete(false)}
                   position={Position.BOTTOM_RIGHT}
                   target={
                     <MoreOptionsContainer>
