@@ -531,7 +531,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Mono<String> findBranchedApplicationIdFromNewPage(String branchName, String defaultPageId) {
+    public Mono<String> findRootApplicationIdFromNewPage(String branchName, String defaultPageId) {
         Mono<NewPage> getPageMono;
         if (!StringUtils.hasLength(branchName)) {
             if (!StringUtils.hasLength(defaultPageId)) {
@@ -545,7 +545,13 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, defaultPageId + ", " + branchName))
                 )
-                .map(NewPage::getApplicationId);
+                .map(newPage -> {
+                    if(newPage.getDefaultResources() != null) {
+                        return newPage.getDefaultResources().getApplicationId();
+                    } else {
+                        return newPage.getApplicationId();
+                    }
+                });
     }
 
     @Override
@@ -575,9 +581,9 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         if(StringUtils.hasLength(applicationId)) {
             return findApplicationPagesByApplicationIdViewModeAndBranch(applicationId, branchName, isViewMode, true);
         } else if(StringUtils.hasLength(pageId)) {
-            return findBranchedApplicationIdFromNewPage(branchName, pageId)
-                    .flatMap(branchedApplicationId -> findApplicationPagesByApplicationIdViewMode(branchedApplicationId, isViewMode, true))
-                    .map(responseUtils::updateApplicationPagesDTOWithDefaultResources);
+            return findRootApplicationIdFromNewPage(branchName, pageId)
+                    .flatMap(rootApplicationId -> findApplicationPagesByApplicationIdViewModeAndBranch(rootApplicationId, branchName, isViewMode, true))
+                    ;
         } else {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID + " or " + FieldName.PAGE_ID));
         }

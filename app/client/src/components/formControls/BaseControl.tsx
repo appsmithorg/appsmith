@@ -3,6 +3,7 @@ import { ControlType } from "constants/PropertyControlConstants";
 import { InputType } from "components/constants";
 import { ConditonalObject } from "reducers/evaluationReducers/formEvaluationReducer";
 import { DropdownOption } from "components/ads/Dropdown";
+import { ViewTypes } from "./utils";
 // eslint-disable-next-line @typescript-eslint/ban-types
 abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
   P,
@@ -44,7 +45,7 @@ export interface ControlProps extends ControlData, ControlFunctions {
 export interface ControlData {
   id: string;
   label: string;
-  displayType?: "UI" | "JSON"; //used for switch to JSON view
+  alternateViewTypes?: ViewTypes[];
   tooltipText?: string;
   configProperty: string;
   controlType: ControlType;
