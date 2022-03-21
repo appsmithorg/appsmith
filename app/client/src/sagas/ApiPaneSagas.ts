@@ -23,6 +23,7 @@ import {
   CONTENT_TYPE_HEADER_KEY,
   EMPTY_KEY_VALUE_PAIRS,
   HTTP_METHOD,
+  HTTP_METHODS_DEFAULT_FORMAT_TYPES,
 } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import {
@@ -68,7 +69,6 @@ import {
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { getDisplayFormat } from "selectors/apiPaneSelectors";
-import _ from "lodash";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -234,46 +234,52 @@ function* handleUpdateBodyContentType(
   }
 }
 
-function* initializeExtraFormDataSaga() {
+function* updateExtraFormDataSaga() {
   const formData = yield select(getFormData, API_EDITOR_FORM_NAME);
   const { values } = formData;
 
   // when initializing, check if theres a display format present, if not use Json display format as default.
   const extraFormData = yield select(getDisplayFormat, values.id);
 
-  if (!extraFormData) {
-    let rawApiContentType;
+  const headers: Array<{ key: string; value: string }> =
+    get(values, "actionConfiguration.headers") || [];
+  const contentTypeValue: string =
+    headers.find(
+      (h: { key: string; value: string }) => h.key === CONTENT_TYPE_HEADER_KEY,
+    )?.value || "";
 
+  let rawApiContentType;
+
+  if (!extraFormData) {
     /*
      * Checking if the content-type header exists, if yes then set the body format type one of the three json, multipart or url encoded whichever matches else set raw as default
      */
-    const headers: Array<{ key: string; value: string }> = _.get(
-      values,
-      "actionConfiguration.headers",
-    );
-    if (headers?.length) {
-      const contentTypeValue: string =
-        headers.find(
-          (h: { key: string; value: string }) =>
-            h.key === CONTENT_TYPE_HEADER_KEY,
-        )?.value || "";
-      if (
-        [
-          POST_BODY_FORMAT_OPTIONS.JSON,
-          POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED,
-          POST_BODY_FORMAT_OPTIONS.MULTIPART_FORM_DATA,
-        ].includes(contentTypeValue)
-      ) {
-        rawApiContentType = contentTypeValue;
-      } else {
-        rawApiContentType = POST_BODY_FORMAT_OPTIONS.RAW;
-      }
+    if (
+      [
+        POST_BODY_FORMAT_OPTIONS.JSON,
+        POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED,
+        POST_BODY_FORMAT_OPTIONS.MULTIPART_FORM_DATA,
+      ].includes(contentTypeValue)
+    ) {
+      rawApiContentType = contentTypeValue;
     } else {
       rawApiContentType = POST_BODY_FORMAT_OPTIONS.RAW;
     }
-
-    yield call(setHeaderFormat, values.id, rawApiContentType);
+  } else {
+    if (
+      [
+        POST_BODY_FORMAT_OPTIONS.JSON,
+        POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED,
+        POST_BODY_FORMAT_OPTIONS.MULTIPART_FORM_DATA,
+      ].includes(contentTypeValue)
+    ) {
+      rawApiContentType = contentTypeValue;
+    } else {
+      rawApiContentType = POST_BODY_FORMAT_OPTIONS.RAW;
+    }
   }
+
+  yield call(setHeaderFormat, values.id, rawApiContentType);
 }
 
 function* changeApiSaga(
@@ -289,7 +295,7 @@ function* changeApiSaga(
   } else {
     yield put(initialize(API_EDITOR_FORM_NAME, action));
 
-    yield call(initializeExtraFormDataSaga);
+    yield call(updateExtraFormDataSaga);
 
     if (
       action.actionConfiguration &&
@@ -369,6 +375,8 @@ export function* updateFormFields(
     values?.actionConfiguration?.formData?.apiContentType ||
     POST_BODY_FORMAT_OPTIONS.JSON;
 
+  let extraFormDataToBeChanged = false;
+
   if (field === "actionConfiguration.httpMethod") {
     const { actionConfiguration } = values;
     if (!actionConfiguration.headers) return;
@@ -381,8 +389,11 @@ export function* updateFormFields(
 
     if (value !== HTTP_METHOD.GET) {
       // if user switches to other methods that is not GET and apiContentType is undefined set default apiContentType to JSON.
-      if (apiContentType === POST_BODY_FORMAT_OPTIONS.NONE)
-        apiContentType = POST_BODY_FORMAT_OPTIONS.JSON;
+      if (apiContentType === POST_BODY_FORMAT_OPTIONS.NONE) {
+        apiContentType =
+          HTTP_METHODS_DEFAULT_FORMAT_TYPES[value as HTTP_METHOD];
+        extraFormDataToBeChanged = true;
+      }
 
       const indexToUpdate = getIndextoUpdate(
         actionConfigurationHeaders,
@@ -409,6 +420,8 @@ export function* updateFormFields(
         actionConfigurationHeaders,
       ),
     );
+
+    if (extraFormDataToBeChanged) yield call(updateExtraFormDataSaga);
   }
 }
 
