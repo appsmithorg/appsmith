@@ -629,6 +629,7 @@ export const TreeSelectContainer = styled.div<{
   isValid: boolean;
   borderRadius: string;
   boxShadow?: string;
+  primaryColor: string;
 }>`
   display: flex;
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
@@ -910,8 +911,10 @@ export const TreeSelectContainer = styled.div<{
       ${(props) =>
         props.isValid
           ? `
-          border: 1.2px solid ${Colors.GREEN_SOLID} ;
-          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};`
+      border: 1px solid  ${props.primaryColor};
+      box-shadow: 0px 0px 0px 3px ${lightenColor(
+        props.primaryColor,
+      )} !important;`
           : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
     }
   }
@@ -957,7 +960,7 @@ export const TreeSelectContainer = styled.div<{
       }
     }
   }
-<<<<<<< HEAD
+
   .rc-tree-select-show-arrow.rc-tree-select-focused {
     .rc-tree-select-selector {
       outline: 0px;
@@ -969,9 +972,6 @@ export const TreeSelectContainer = styled.div<{
           : `border: 1px solid ${Colors.DANGER_SOLID};`}
     }
   }
-=======
-
->>>>>>> 24030f907b28c14220402acff8d1b672c83c3021
 `;
 
 export const StyledCheckbox = styled(Checkbox)`

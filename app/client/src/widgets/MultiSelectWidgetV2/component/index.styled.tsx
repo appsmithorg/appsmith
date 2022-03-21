@@ -623,7 +623,9 @@ export const MultiSelectContainer = styled.div<{
         props.isValid
           ? `
           border: 1px solid  ${props.primaryColor};
-          box-shadow: 0px 0px 0px 3px ${lightenColor(props.primaryColor)};`
+          box-shadow: 0px 0px 0px 3px ${lightenColor(
+            props.primaryColor,
+          )} !important;`
           : `border: 1px solid ${Colors.DANGER_SOLID};`}
     }
   }
