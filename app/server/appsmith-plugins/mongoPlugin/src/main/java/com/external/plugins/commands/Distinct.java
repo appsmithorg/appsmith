@@ -2,29 +2,27 @@ package com.external.plugins.commands;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
-import com.external.plugins.constants.FieldName;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.bson.Document;
 import org.pf4j.util.StringUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
-import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
-import static com.external.plugins.constants.FieldName.DISTINCT_QUERY;
-import static com.external.plugins.constants.FieldName.DISTINCT_KEY;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
+import static com.external.plugins.constants.FieldName.DISTINCT;
+import static com.external.plugins.constants.FieldName.DISTINCT_KEY;
+import static com.external.plugins.constants.FieldName.DISTINCT_QUERY;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
-import static com.external.plugins.constants.FieldName.KEY;
+import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
 
 @Getter
 @Setter
@@ -42,8 +40,8 @@ public class Distinct extends MongoCommand {
             this.query = (String) getValueSafelyFromFormData(formData, DISTINCT_QUERY);
         }
 
-        if (validConfigurationPresentInFormData(formData, FieldName.DISTINCT_KEY)) {
-            this.key = (String) getValueSafelyFromFormData(formData, FieldName.DISTINCT_KEY);
+        if (validConfigurationPresentInFormData(formData, DISTINCT_KEY)) {
+            this.key = (String) getValueSafelyFromFormData(formData, DISTINCT_KEY);
         }
     }
 
@@ -64,7 +62,7 @@ public class Distinct extends MongoCommand {
     public Document parseCommand() {
         Document document = new Document();
 
-        document.put("distinct", this.collection);
+        document.put(DISTINCT, this.collection);
 
         if (StringUtils.isNullOrEmpty(this.query)) {
             this.query = "{}";
@@ -88,13 +86,12 @@ public class Distinct extends MongoCommand {
         setValueSafelyInFormData(configMap, DISTINCT_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_distinct\") }");
         setValueSafelyInFormData(configMap, DISTINCT_KEY, "_id");
         setValueSafelyInFormData(configMap, COLLECTION, collectionName);
-       
 
         String rawQuery = "{\n" +
-        "  \"distinct\": \"" + collectionName + "\",\n" +
-        "  \"query\": { \"_id\": ObjectId(\"id_of_document_to_distinct\") }," +
-        "  \"key\": \"_id\"," +
-        "}\n";
+                "  \"distinct\": \"" + collectionName + "\",\n" +
+                "  \"query\": { \"_id\": ObjectId(\"id_of_document_to_distinct\") }," +
+                "  \"key\": \"_id\"," +
+                "}\n";
 
 
 

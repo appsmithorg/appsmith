@@ -186,6 +186,7 @@ export function EditableTextSubComponent(props: EditableTextSubComponentProps) {
 
   useEffect(() => {
     setValue(defaultValue);
+    setLastValidValue(defaultValue);
   }, [defaultValue]);
 
   useEffect(() => {

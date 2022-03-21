@@ -122,7 +122,7 @@ export class HomePage {
     }
 
     public CreateNewApplication() {
-        cy.get(this._homePageAppCreateBtn).click({ force: true })
+        cy.get(this._homePageAppCreateBtn).first().click({ force: true })
         cy.wait("@createNewApplication").should(
             "have.nested.property",
             "response.body.responseMeta.status",
@@ -249,11 +249,12 @@ export class HomePage {
             "response.body.responseMeta.status",
             200,
         );
+        agHelper.Sleep(2500)//wait for members page to load!
     }
 
     public UpdateUserRoleInOrg(orgName: string, email: string, currentRole: string, newRole: string) {
         this.OpenMembersPageForOrg(orgName)
-        cy.xpath(this._userRoleDropDown(email, currentRole)).first().click({ force: true });
+        cy.xpath(this._userRoleDropDown(email, currentRole)).first().trigger('click');
         //cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
         cy.get(this._visibleTextSpan(newRole)).last().click({ force: true });
         agHelper.Sleep()
