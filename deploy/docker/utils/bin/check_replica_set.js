@@ -6,12 +6,12 @@ async function exec() {
     useUnifiedTopology: true,
   });
 
-  let isReplicaSetEnabled = false
+  let isReplicaSetEnabled = false;
 
   try {
     isReplicaSetEnabled = await checkReplicaSet(client);
   } catch (err) {
-    console.error("Error trying to check replicaset", err)
+    console.error("Error trying to check replicaset", err);
   } finally {
     client.close();
   }
@@ -29,7 +29,7 @@ async function checkReplicaSet(client) {
         .watch()
         .on("change", (change) => console.log(change))
         .on("error", (err) => {
-          console.error("Error even from changeStream", err)
+          console.error("Error even from changeStream", err);
           resolve(false);
         });
 
