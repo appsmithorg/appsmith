@@ -19,6 +19,7 @@ import {
   createMessage,
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
+import { parseDate } from "./utils";
 
 const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
   &&& {
@@ -224,10 +225,8 @@ class DatePickerComponent extends React.Component<
     if (!dateStr) {
       return null;
     } else {
-      const date = moment(dateStr);
       const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
-      if (date.isValid()) return moment(dateStr, dateFormat).toDate();
-      else return moment().toDate();
+      return parseDate(dateStr, dateFormat);
     }
   };
 
