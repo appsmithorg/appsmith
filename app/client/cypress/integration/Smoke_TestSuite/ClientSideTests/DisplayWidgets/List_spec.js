@@ -8,7 +8,7 @@ describe("List Widget Functionality", function() {
   });
 
   it("should validate that restricted widgets cannot be added to List", () => {
-    cy.get(explorer.addWidget).click();
+    cy.get(explorer.widgetSwitchId).click();
 
     const allowed = [
       "audiowidget",
