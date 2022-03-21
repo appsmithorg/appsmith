@@ -82,6 +82,7 @@ import {
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 const clone = require("rfdc/default");
+
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
   sortedDependencies: Array<string> = [];
@@ -309,7 +310,7 @@ export default class DataTreeEvaluator {
     const evalStart = performance.now();
 
     // Remove anything from the sort order that is not a dynamic leaf since only those need evaluation
-    const evaluationOrder = subTreeSortOrder.filter((propertyPath) => {
+    let evaluationOrder = subTreeSortOrder.filter((propertyPath) => {
       // We are setting all values from our uneval tree to the old eval tree we have
       // So that the actual uneval value can be evaluated
       if (isDynamicLeaf(localUnEvalTree, propertyPath)) {
@@ -322,6 +323,20 @@ export default class DataTreeEvaluator {
       }
       return false;
     });
+
+    let dependencyMap = {};
+    Object.keys(unEvalTree).forEach((entityName) => {
+      const entity = unEvalTree[entityName];
+      if (isAction(entity) || isWidget(entity) || isJSAction(entity)) {
+        const entityListedDependencies = this.listEntityDependencies(
+          entity,
+          entityName,
+        );
+        dependencyMap = { ...dependencyMap, ...entityListedDependencies };
+      }
+    });
+    const allBindingPaths = Object.keys(dependencyMap);
+    evaluationOrder = evaluationOrder.concat(allBindingPaths);
     this.logs.push({
       sortedDependencies: this.sortedDependencies,
       inverse: this.inverseDependencyMap,
@@ -1291,7 +1306,6 @@ export default class DataTreeEvaluator {
             });
             break;
           }
-
           case DataTreeDiffEvent.EDIT: {
             // We only care if the difference is in dynamic bindings since static values do not need
             // an evaluation.
