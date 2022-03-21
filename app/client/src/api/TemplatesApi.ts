@@ -2,6 +2,8 @@ import { AxiosPromise } from "axios";
 import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
 import { WidgetType } from "constants/WidgetConstants";
+import { ApplicationResponsePayload } from "./ApplicationApi";
+
 export interface Template {
   id: string;
   userPermissions: string[];
@@ -16,20 +18,26 @@ export interface Template {
   datasources: string[];
 }
 
+export type FetchTemplatesResponse = ApiResponse<Template[]>;
+
+export type FetchTemplateResponse = ApiResponse<Template>;
+
+export type ImportTemplateResponse = ApiResponse<ApplicationResponsePayload>;
+
 class TemplatesAPI extends Api {
   static baseUrl = "v1";
 
-  static getAllTemplates(): AxiosPromise<ApiResponse<Template[]>> {
+  static getAllTemplates(): AxiosPromise<FetchTemplatesResponse> {
     return Api.get(TemplatesAPI.baseUrl + `/app-templates`);
   }
   static getTemplateInformation(
     templateId: string,
-  ): AxiosPromise<ApiResponse<Template>> {
+  ): AxiosPromise<FetchTemplatesResponse> {
     return Api.get(TemplatesAPI.baseUrl + `/app-templates/${templateId}`);
   }
   static getSimilarTemplates(
     templateId: string,
-  ): AxiosPromise<ApiResponse<Template[]>> {
+  ): AxiosPromise<FetchTemplatesResponse> {
     return Api.get(
       TemplatesAPI.baseUrl + `/app-templates/${templateId}/similar`,
     );
@@ -37,7 +45,7 @@ class TemplatesAPI extends Api {
   static importTemplate(
     templateId: string,
     organizationId: string,
-  ): AxiosPromise<unknown> {
+  ): AxiosPromise<ImportTemplateResponse> {
     return Api.post(
       TemplatesAPI.baseUrl +
         `/app-templates/${templateId}/import/${organizationId}`,

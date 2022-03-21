@@ -9,6 +9,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
 
   it("1. Validate JSObject creation & Run", () => {
     jsEditor.CreateJSObject('return "Hello World";');
+    agHelper.expandCollapseEntity("QUERIES/JS");
     agHelper.ValidateEntityPresenceInExplorer("JSObject1");
     jsEditor.validateDefaultJSObjProperties("JSObject1");
   });
@@ -45,7 +46,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
     agHelper.AddNewPage();
     agHelper.ValidateEntityPresenceInExplorer(newPageId);
     agHelper.SelectEntityByName(pageId);
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    agHelper.expandCollapseEntity("QUERIES/JS");
     agHelper.ActionContextMenuByEntityName(
       "RenamedJSObjectCopy",
       "Move to page",
@@ -58,7 +59,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
 
   it("6. Validate Deletion of JSObject", function() {
     agHelper.SelectEntityByName(pageId);
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    agHelper.expandCollapseEntity("QUERIES/JS");
     agHelper.ActionContextMenuByEntityName("ExplorerRenamed", "Delete");
     agHelper.ValidateEntityAbsenceInExplorer("ExplorerRenamed");
   });

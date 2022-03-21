@@ -5,7 +5,10 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { all, put, takeEvery, call } from "redux-saga/effects";
-import TemplatesAPI, { Template } from "api/TemplatesApi";
+import TemplatesAPI, {
+  FetchTemplateResponse,
+  ImportTemplateResponse,
+} from "api/TemplatesApi";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
 import { getDefaultPageId } from "./ApplicationSagas";
@@ -15,11 +18,10 @@ import {
   setTemplateNotificationSeen,
 } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
-import { ApiResponse } from "api/ApiResponses";
 
 function* getAllTemplatesSaga() {
   try {
-    const response: ApiResponse<Template> = yield call(
+    const response: FetchTemplateResponse = yield call(
       TemplatesAPI.getAllTemplates,
     );
     const isValid: boolean = yield validateResponse(response);
@@ -43,26 +45,27 @@ function* importTemplateToOrganisationSaga(
   action: ReduxAction<{ templateId: string; organizationId: string }>,
 ) {
   try {
-    const response: Record<string, unknown> = yield call(
+    const response: ImportTemplateResponse = yield call(
       TemplatesAPI.importTemplate,
       action.payload.templateId,
       action.payload.organizationId,
     );
-    // @ts-expect-error: response.pages is of type unknown
-    const application: ApplicationPayload = {
-      ...response,
-      // @ts-expect-error: response.pages is of type unknown
-      defaultPageId: getDefaultPageId(response.pages),
-    };
-    const pageURL = BUILDER_PAGE_URL({
-      applicationId: application.id,
-      pageId: application.defaultPageId,
-    });
-    yield put({
-      type: ReduxActionTypes.IMPORT_TEMPLATE_TO_ORGANISATION_SUCCESS,
-      payload: response,
-    });
-    history.push(pageURL);
+    const isValid: boolean = yield validateResponse(response);
+    if (isValid) {
+      const application: ApplicationPayload = {
+        ...response.data,
+        defaultPageId: getDefaultPageId(response.data.pages),
+      };
+      const pageURL = BUILDER_PAGE_URL({
+        applicationId: application.id,
+        pageId: application.defaultPageId,
+      });
+      yield put({
+        type: ReduxActionTypes.IMPORT_TEMPLATE_TO_ORGANISATION_SUCCESS,
+        payload: response.data,
+      });
+      history.push(pageURL);
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.IMPORT_TEMPLATE_TO_ORGANISATION_ERROR,
@@ -75,7 +78,7 @@ function* importTemplateToOrganisationSaga(
 
 function* getSimilarTemplatesSaga(action: ReduxAction<string>) {
   try {
-    const response: ApiResponse<Template> = yield call(
+    const response: FetchTemplateResponse = yield call(
       TemplatesAPI.getSimilarTemplates,
       action.payload,
     );
