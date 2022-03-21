@@ -5072,6 +5072,17 @@ public class DatabaseChangelog {
             );
         }
     }
+
+    @ChangeSet(order = "118", id = "add-isCOnfigured-flag-for-all-datasources", author = "")
+    public void updateIsConfiguredFlagForAllTheExistingDatasources(MongockTemplate mongockTemplate) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("deleted").is(FALSE));
+
+        for (Datasource datasource : mongockTemplate.find(query, Datasource.class)) {
+            datasource.setIsConfigured(TRUE);
+            mongockTemplate.save(datasource);
+        }
+    }
     
     
 }
