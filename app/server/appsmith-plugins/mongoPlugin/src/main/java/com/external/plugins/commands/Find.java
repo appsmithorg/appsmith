@@ -14,17 +14,18 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
-import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
+import static com.external.plugins.constants.FieldName.FIND;
 import static com.external.plugins.constants.FieldName.FIND_LIMIT;
 import static com.external.plugins.constants.FieldName.FIND_PROJECTION;
 import static com.external.plugins.constants.FieldName.FIND_QUERY;
 import static com.external.plugins.constants.FieldName.FIND_SKIP;
 import static com.external.plugins.constants.FieldName.FIND_SORT;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
+import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
 
 @Getter
 @Setter
@@ -70,7 +71,7 @@ public class Find extends MongoCommand {
             this.query = "{}";
         }
 
-        document.put("find", this.collection);
+        document.put(FIND, this.collection);
 
         document.put("filter", parseSafely("Query", this.query));
 
