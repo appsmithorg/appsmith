@@ -96,7 +96,7 @@ function PageTabName({ name }: { name: string }) {
     <TooltipComponent
       boundary="viewport"
       content={name}
-      disabled={ellipsisActive}
+      disabled={!ellipsisActive}
       maxWidth="400px"
       position={Position.BOTTOM}
     >
