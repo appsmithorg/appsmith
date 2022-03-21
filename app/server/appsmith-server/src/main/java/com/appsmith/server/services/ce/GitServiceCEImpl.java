@@ -1295,7 +1295,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     Mono<Application> getApplicationById(String applicationId) {
-        return applicationService.getApplicationByDefaultApplicationIdAndDefaultBranch(applicationId)
+        return applicationService.findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)));
     }
 
