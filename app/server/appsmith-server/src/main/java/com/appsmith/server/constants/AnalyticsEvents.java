@@ -7,6 +7,7 @@ public enum AnalyticsEvents {
     UPDATE,
     DELETE,
     ARCHIVE,
+    APPLY,
     FIRST_LOGIN,
     EXECUTE_ACTION("execute_ACTION_TRIGGERED"),
     UPDATE_LAYOUT,

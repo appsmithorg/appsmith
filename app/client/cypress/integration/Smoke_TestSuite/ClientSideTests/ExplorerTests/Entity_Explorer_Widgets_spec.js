@@ -8,7 +8,6 @@ describe("Entity explorer tests related to widgets and validation", function() {
   });
 
   it("Widget edit/delete/copy to clipboard validation", function() {
-    cy.wait(30000);
     cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("Container4");
     cy.get(".t--entity-collapse-toggle")
