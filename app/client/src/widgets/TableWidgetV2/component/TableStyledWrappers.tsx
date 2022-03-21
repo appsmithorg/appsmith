@@ -329,19 +329,24 @@ export const CellWrapper = styled.div<{
   useLinkToolTip?: boolean;
   isCellVisible?: boolean;
   isTextType?: boolean;
+  allowWrapping?: boolean;
 }>`
   display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
   align-items: center;
   justify-content: flex-start;
   width: 100%;
   height: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   opacity: ${(props) => (props.isHidden ? "0.6" : "1")};
   ${TableStyles};
   padding: 0 10px;
   line-height: 28px;
+  ${(props) =>
+    props.allowWrapping
+      ? "white-space: break-spaces"
+      : `
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;`}
   .image-cell-wrapper {
     width: 100%;
     height: 100%;
