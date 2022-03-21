@@ -45,19 +45,16 @@ type TextCellProps = Omit<
   "onCellTextChange" | "isCellEditMode"
 >;
 
-export const TextCell = React.forwardRef(function TextCell(
-  {
-    cellProperties,
-    columnType,
-    isCellEditable,
-    isCellVisible,
-    isHidden,
-    tableWidth,
-    toggleCellEditMode,
-    value,
-  }: TextCellProps,
-  ref: Ref<HTMLDivElement>,
-) {
+export function TextCell({
+  cellProperties,
+  columnType,
+  isCellEditable,
+  isCellVisible,
+  isHidden,
+  tableWidth,
+  toggleCellEditMode,
+  value,
+}: TextCellProps) {
   const onEdit = useCallback(
     (e: React.MouseEvent<SVGElement | HTMLDivElement>) => {
       if (isCellEditable) {
@@ -69,7 +66,7 @@ export const TextCell = React.forwardRef(function TextCell(
   );
 
   return (
-    <Wrapper onDoubleClick={onEdit} ref={ref}>
+    <Wrapper onDoubleClick={onEdit}>
       <StyledAutoToolTipComponent
         allowWrapping={cellProperties.allowCellWrapping}
         cellProperties={cellProperties}
@@ -91,4 +88,4 @@ export const TextCell = React.forwardRef(function TextCell(
       )}
     </Wrapper>
   );
-});
+}
