@@ -165,7 +165,10 @@ const IndeterminateLinearProgressValue = styled.div<{ fillColor: string }>`
 function IndeterminateLinearProgress({ fillColor }: { fillColor: string }) {
   return (
     <IndeterminateLinearProgressContainer>
-      <IndeterminateLinearProgressValue fillColor={fillColor} />
+      <IndeterminateLinearProgressValue
+        data-cy="indeterminate-linear-progress"
+        fillColor={fillColor}
+      />
     </IndeterminateLinearProgressContainer>
   );
 }
@@ -202,7 +205,7 @@ function LinearProgressWithSteps(props: ProgressComponentProps) {
       {[...Array(Number(steps))].map((_, index) => {
         const width = getProgressPosition(Number(value), stepSize, index);
         return (
-          <StepContainer key={index}>
+          <StepContainer data-cy="step" key={index}>
             <DeterminateLinearProgress
               data-cy={width}
               fillColor={props.fillColor}
@@ -301,7 +304,7 @@ function Separator(props: { turns: number }) {
 
   return (
     <SeparatorContainer turns={turns}>
-      <SeparatorOverlay />
+      <SeparatorOverlay data-cy="separator" />
     </SeparatorContainer>
   );
 }
@@ -352,7 +355,7 @@ function CircularProgress(props: ProgressComponentProps) {
 
   return (
     <SvgContainer
-      data-test-id="CircularProgressbar"
+      data-cy="circular"
       variant={variant}
       viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`}
     >
@@ -379,6 +382,7 @@ function CircularProgress(props: ProgressComponentProps) {
 
           <Path
             d={drawPath()}
+            data-testvalue={value}
             fillColor={fillColor}
             fillOpacity={0}
             strokeWidth={STROKE_WIDTH}
@@ -386,7 +390,11 @@ function CircularProgress(props: ProgressComponentProps) {
           />
 
           {showResult && !isNaN(value) && (
-            <Label x={VIEWBOX_CENTER_X} y={VIEWBOX_CENTER_Y}>
+            <Label
+              data-cy="circular-label"
+              x={VIEWBOX_CENTER_X}
+              y={VIEWBOX_CENTER_Y}
+            >
               {`${Math.round((value / MAX_VALUE) * 100)}%`}
             </Label>
           )}
