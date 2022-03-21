@@ -1,12 +1,9 @@
 package com.appsmith.server.migrations;
 
 import com.appsmith.server.domains.ApplicationJson;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
-
-import java.util.List;
 
 public class JsonSchemaMigration {
     private static boolean checkCompatibility(ApplicationJson applicationJson) {
@@ -47,7 +44,9 @@ public class JsonSchemaMigration {
                 }
                 applicationJson.setServerSchemaVersion(2);
             case 2:
-                migrateActionFormDataToObject(applicationJson);
+                // Migration for converting formData elements to one that supports viewType
+                HelperMethods.migrateActionFormDataToObject(applicationJson);
+                applicationJson.setServerSchemaVersion(3);
             default:
                 // Unable to detect the serverSchema
         }
@@ -64,20 +63,5 @@ public class JsonSchemaMigration {
         return applicationJson;
     }
 
-    private static void migrateActionFormDataToObject(ApplicationJson applicationJson) {
-        final List<NewAction> actionList = applicationJson.getActionList();
 
-        actionList.parallelStream()
-                .forEach(newAction -> {
-                    // determine plugin
-                    final String pluginName = newAction.getPluginId();
-                    if ("mongo-plugin".equals(pluginName)) {
-                        DatabaseChangelog2.migrateMongoActionsFormData(newAction);
-                    } else if ("amazons3-plugin".equals(pluginName)) {
-                        DatabaseChangelog2.migrateAmazonS3ActionsFormData(newAction);
-                    } else if ("firestore-plugin".equals(pluginName)) {
-                        DatabaseChangelog2.migrateFirestoreActionsFormData(newAction);
-                    }
-                });
-    }
 }
