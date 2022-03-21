@@ -20,7 +20,7 @@ interface SaveThemeModalProps {
 }
 
 function SaveThemeModal(props: SaveThemeModalProps) {
-  const { isOpen, onClose } = props;
+  const { isOpen } = props;
   const dispatch = useDispatch();
   const [name, setName] = useState("");
   const [inputValidator, setInputValidator] = useState({
@@ -85,6 +85,19 @@ function SaveThemeModal(props: SaveThemeModalProps) {
 
     setInputValidator(validator);
     setName(value);
+  };
+
+  /**
+   * on close modal
+   */
+  const onClose = () => {
+    // reset validations
+    setInputValidator({
+      isValid: true,
+      message: "",
+    });
+
+    props.onClose();
   };
 
   return (

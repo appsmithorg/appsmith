@@ -198,7 +198,7 @@ ${({ dropDownWidth, id }) => `
       & > .${Classes.ICON} {
         &:first-child {
           left: 12px;
-          top: 14px;
+          top: 12px;
           margin: 9px;
           color: ${Colors.GREY_7};
           & > svg {

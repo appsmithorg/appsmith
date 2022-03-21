@@ -314,6 +314,7 @@ function MultiSelectComponent({
         notFoundContent="No Results Found"
         onChange={onChange}
         onDropdownVisibleChange={onOpen}
+        open
         options={filteredOptions}
         placeholder={placeholder || "select option(s)"}
         removeIcon={
