@@ -180,7 +180,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                     responseHeaders.setContentDisposition(contentDisposition);
                     responseHeaders.setContentType(MediaType.APPLICATION_JSON);
 
-                    return new ResponseEntity(fetchedResource, responseHeaders, HttpStatus.OK);
+                    return new ResponseEntity<>(fetchedResource, responseHeaders, HttpStatus.OK);
                 });
     }
 
