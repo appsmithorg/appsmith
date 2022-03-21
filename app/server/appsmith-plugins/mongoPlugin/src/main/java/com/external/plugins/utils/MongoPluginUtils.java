@@ -2,6 +2,7 @@ package com.external.plugins.utils;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -23,7 +24,6 @@ import org.springframework.util.StringUtils;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -45,7 +45,7 @@ public class MongoPluginUtils {
     }
 
     public static Boolean isRawCommand(Map<String, Object> formData) {
-        String command = (String) formData.getOrDefault(COMMAND, null);
+        String command = (String) PluginUtils.getValueSafelyFromFormDataOrDefault(formData, COMMAND, null);
         return RAW.equals(command);
     }
 
@@ -57,7 +57,7 @@ public class MongoPluginUtils {
 
                 // Parse the commands into raw appropriately
                 MongoCommand command = null;
-                switch ((String) formData.getOrDefault(COMMAND, "")) {
+                switch ((String) PluginUtils.getValueSafelyFromFormDataOrDefault(formData, COMMAND, "")) {
                     case "INSERT":
                         command = new Insert(actionConfiguration);
                         break;

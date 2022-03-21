@@ -26,6 +26,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -483,7 +484,8 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
         Gson gson = gsonBuilder.registerTypeAdapter(DatasourceStructure.Key.class, new DatasourceStructure.KeyInstanceCreator())
                 .create();
 
-        return gson.fromJson(jsonContent, ApplicationJson.class);
+        ApplicationJson applicationJson = gson.fromJson(jsonContent, ApplicationJson.class);
+        return JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
     }
 
     /**
