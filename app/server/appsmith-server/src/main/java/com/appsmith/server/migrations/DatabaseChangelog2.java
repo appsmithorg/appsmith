@@ -412,6 +412,9 @@ public class DatabaseChangelog2 {
 
     private static void mapMongoToNewFormData(ActionDTO action, Map<String, Object> f) {
         final Map<String, Object> formData = action.getActionConfiguration().getFormData();
+        if (formData == null) {
+            return;
+        }
 
         final String body = action.getActionConfiguration().getBody();
         if (StringUtils.hasLength(body)) {
