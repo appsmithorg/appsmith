@@ -98,6 +98,9 @@ describe("Container Widget Functionality", function() {
     // Clear item spacing
     cy.testJsontext("itemspacing\\(" + "px" + "\\)", "");
     cy.wait(2000);
+
+    // Close property pane
+    cy.closePropertyPane();
   });
 
   it("8. checks button action", function() {
