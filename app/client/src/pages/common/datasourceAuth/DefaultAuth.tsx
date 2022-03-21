@@ -8,7 +8,10 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import EditButton from "components/editorComponents/Button";
 import { useDispatch, useSelector } from "react-redux";
-import { getEntities } from "selectors/entitiesSelector";
+import {
+  getEntities,
+  getIsReconnectingDatasourcesModalOpen,
+} from "selectors/entitiesSelector";
 import {
   testDatasource,
   deleteDatasource,
@@ -31,6 +34,7 @@ interface Props {
   datasource: Datasource;
   getSanitizedFormData: () => Datasource;
   isInvalid: boolean;
+  pageId?: string;
   shouldRender: boolean;
 }
 const StyledButton = styled(EditButton)`
@@ -44,6 +48,7 @@ export default function DefaultAuth({
   datasource,
   getSanitizedFormData,
   isInvalid,
+  pageId: pageIdProp,
   shouldRender,
 }: Props): JSX.Element {
   const { id: datasourceId } = datasource;
@@ -64,10 +69,17 @@ export default function DefaultAuth({
     2200,
   );
 
+  // to check if saving during import flow
+  const isReconnectModelOpen: boolean = useSelector(
+    getIsReconnectingDatasourcesModalOpen,
+  );
+
   const {
     datasources: { isDeleting, isTesting, loading: isSaving },
   } = useSelector(getEntities);
-  const { pageId } = useParams<ExplorerURLParams>();
+  const { pageId: pageIdQuery } = useParams<ExplorerURLParams>();
+
+  const pageId = (pageIdQuery || pageIdProp) as string;
 
   // Handles datasource deletion
   const handleDatasourceDelete = () => {
@@ -95,7 +107,7 @@ export default function DefaultAuth({
     dispatch(
       updateDatasource(
         getSanitizedFormData(),
-        !isGeneratePageInitiator
+        !isGeneratePageInitiator && !isReconnectModelOpen
           ? dispatch(
               redirectToNewIntegrations(
                 applicationId,

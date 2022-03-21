@@ -207,7 +207,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.xpath(generatePage.genderField).type("Male");
     cy.xpath(generatePage.emailField)
       .type("curduser31@ihg.com")
-      .wait(1000); //Waiting for Submit button to get enabled
+      .wait(2000); //Waiting for Submit button to get enabled
     cy.get(generatePage.submitBtn)
       .closest("div")
       .first()
@@ -216,6 +216,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
 
     cy.xpath(generatePage.sortByDropdown).click(); //Sorting by descending to verify newly added record - also sorting is verified
     cy.xpath(generatePage.descending).click();
+    cy.wait(2000); //for descending to take effect!
     cy.xpath(generatePage.currentNameField).should("have.value", "CRUD User31"); //Verifying Addition is success
 
     //Verifying Delete from UI

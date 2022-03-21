@@ -21,6 +21,8 @@ import ApplicationApi, {
   UpdateApplicationRequest,
   ImportApplicationRequest,
   FetchApplicationResponse,
+  ApplicationResponsePayload,
+  FetchUnconfiguredDatasourceListResponse,
 } from "api/ApplicationApi";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
@@ -37,12 +39,13 @@ import { AppState } from "reducers";
 import {
   setDefaultApplicationPageSuccess,
   resetCurrentApplication,
-  generateSSHKeyPairSuccess,
-  getSSHKeyPairSuccess,
-  getSSHKeyPairError,
-  GenerateSSHKeyPairReduxAction,
-  GetSSHKeyPairReduxAction,
   FetchApplicationReduxAction,
+  initDatasourceConnectionDuringImportSuccess,
+  importApplicationSuccess,
+  setOrgIdForImport,
+  setIsReconnectingDatasourcesModalOpen,
+  getAllApplications,
+  showReconnectDatasourceModal,
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -78,8 +81,19 @@ import {
   getFirstTimeUserOnboardingApplicationId,
   inGuidedTour,
 } from "selectors/onboardingSelectors";
-import { handleRepoLimitReachedError } from "./GitSyncSagas";
+import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
+import {
+  fetchDatasources,
+  setUnconfiguredDatasourcesDuringImport,
+} from "actions/datasourceActions";
+import { failFastApiCalls } from "./InitSagas";
+import { Datasource } from "entities/Datasource";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
+import { checkAndGetPluginFormConfigsSaga } from "./PluginSagas";
+import { getPluginForm } from "selectors/entitiesSelector";
+import { getConfigInitialValues } from "components/formControls/utils";
+import { merge } from "lodash";
+import DatasourcesApi from "api/DatasourcesApi";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -564,6 +578,26 @@ export function* forkApplicationSaga(
   }
 }
 
+function* showReconnectDatasourcesModalSaga(
+  action: ReduxAction<{
+    application: ApplicationResponsePayload;
+    unConfiguredDatasourceList: Array<Datasource>;
+    orgId: string;
+  }>,
+) {
+  const { application, orgId, unConfiguredDatasourceList } = action.payload;
+  yield put(getAllApplications());
+  yield put(importApplicationSuccess(application));
+  yield put(fetchPlugins({ orgId }));
+
+  yield put(
+    setUnconfiguredDatasourcesDuringImport(unConfiguredDatasourceList || []),
+  );
+
+  yield put(setOrgIdForImport(orgId));
+  yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
+}
+
 export function* importApplicationSaga(
   action: ReduxAction<ImportApplicationRequest>,
 ) {
@@ -580,32 +614,43 @@ export function* importApplicationSaga(
       );
       if (currentOrg.length > 0) {
         const {
-          id: appId,
-          pages,
+          application: { id, pages },
+          isPartialImport,
         }: {
-          id: string;
-          pages: { default?: boolean; id: string; isDefault?: boolean }[];
+          application: {
+            id: string;
+            pages: { default?: boolean; id: string; isDefault?: boolean }[];
+          };
+          isPartialImport: boolean;
         } = response.data;
-        yield put({
-          type: ReduxActionTypes.IMPORT_APPLICATION_SUCCESS,
-          payload: {
-            importedApplication: appId,
-          },
-        });
-        const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
-        const pageURL = BUILDER_PAGE_URL({
-          applicationId: appId,
-          pageId: defaultPage[0].id,
-        });
-        history.push(pageURL);
-        const guidedTour = yield select(inGuidedTour);
 
-        if (guidedTour) return;
+        yield put(importApplicationSuccess(response.data?.application));
 
-        Toaster.show({
-          text: "Application imported successfully",
-          variant: Variant.success,
-        });
+        if (isPartialImport) {
+          yield put(
+            showReconnectDatasourceModal({
+              application: response.data?.application,
+              unConfiguredDatasourceList:
+                response?.data.unConfiguredDatasourceList,
+              orgId: action.payload.orgId,
+            }),
+          );
+        } else {
+          const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
+          const pageURL = BUILDER_PAGE_URL({
+            applicationId: id,
+            pageId: defaultPage[0].id,
+          });
+          history.push(pageURL);
+          const guidedTour = yield select(inGuidedTour);
+
+          if (guidedTour) return;
+
+          Toaster.show({
+            text: "Application imported successfully",
+            variant: Variant.success,
+          });
+        }
       }
     }
   } catch (error) {
@@ -615,52 +660,6 @@ export function* importApplicationSaga(
         error,
       },
     });
-  }
-}
-
-export function* getSSHKeyPairSaga(action: GetSSHKeyPairReduxAction) {
-  try {
-    const applicationId: string = yield select(getCurrentApplicationId);
-    const response: ApiResponse = yield call(
-      ApplicationApi.getSSHKeyPair,
-      applicationId,
-    );
-    const isValidResponse = yield validateResponse(response, false);
-    if (isValidResponse) {
-      yield put(getSSHKeyPairSuccess(response.data));
-      if (action.onSuccessCallback) {
-        action.onSuccessCallback(response);
-      }
-    }
-  } catch (error) {
-    yield put(getSSHKeyPairError({ error, show: false }));
-    if (action.onErrorCallback) {
-      action.onErrorCallback(error);
-    }
-  }
-}
-
-export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
-  let response: ApiResponse | undefined;
-  try {
-    const applicationId: string = yield select(getCurrentApplicationId);
-    response = yield call(ApplicationApi.generateSSHKeyPair, applicationId);
-    const isValidResponse: boolean = yield validateResponse(
-      response,
-      true,
-      response?.responseMeta?.status === 500,
-    );
-    if (isValidResponse) {
-      yield put(generateSSHKeyPairSuccess(response?.data));
-      if (action.onSuccessCallback) {
-        action.onSuccessCallback(response as ApiResponse);
-      }
-    }
-  } catch (error) {
-    if (action.onErrorCallback) {
-      action.onErrorCallback(error);
-    }
-    yield call(handleRepoLimitReachedError, response);
   }
 }
 
@@ -685,6 +684,88 @@ function* fetchReleases() {
       },
     });
   }
+}
+
+export function* fetchUnconfiguredDatasourceList(
+  action: ReduxAction<{
+    applicationId: string;
+    orgId: string;
+  }>,
+) {
+  try {
+    // Get endpoint based on app mode
+    const response: FetchUnconfiguredDatasourceListResponse = yield call(
+      ApplicationApi.fetchUnconfiguredDatasourceList,
+      action.payload,
+    );
+
+    yield put(setUnconfiguredDatasourcesDuringImport(response.data || []));
+  } catch (error) {
+    yield put(setUnconfiguredDatasourcesDuringImport([]));
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
+  if (!datasource.datasourceConfiguration) {
+    yield call(checkAndGetPluginFormConfigsSaga, datasource.pluginId);
+    const formConfig = yield select(getPluginForm, datasource.pluginId);
+    const initialValues = yield call(getConfigInitialValues, formConfig);
+    const payload = merge(initialValues, datasource);
+    payload.isConfigured = false; // imported datasource as not configured yet
+    const response = yield DatasourcesApi.updateDatasource(
+      payload,
+      datasource.id,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_DATASOURCE_IMPORT_SUCCESS,
+        payload: response.data,
+      });
+    }
+  }
+}
+
+function* initDatasourceConnectionDuringImport(action: ReduxAction<string>) {
+  const orgId = action.payload;
+
+  const pluginsAndDatasourcesCalls = yield failFastApiCalls(
+    [fetchPlugins({ orgId }), fetchDatasources({ orgId })],
+    [
+      ReduxActionTypes.FETCH_PLUGINS_SUCCESS,
+      ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
+    ],
+    [
+      ReduxActionErrorTypes.FETCH_PLUGINS_ERROR,
+      ReduxActionErrorTypes.FETCH_DATASOURCES_ERROR,
+    ],
+  );
+  if (!pluginsAndDatasourcesCalls) return;
+
+  const pluginFormCall = yield failFastApiCalls(
+    [fetchPluginFormConfigs()],
+    [ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS],
+    [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR],
+  );
+  if (!pluginFormCall) return;
+
+  const datasources: Array<Datasource> = yield select((state: AppState) => {
+    return state.entities.datasources.list;
+  });
+
+  yield all(
+    datasources.map((datasource: Datasource) =>
+      call(initializeDatasourceWithDefaultValues, datasource),
+    ),
+  );
+
+  yield put(initDatasourceConnectionDuringImportSuccess());
 }
 
 export default function* applicationSagas() {
@@ -716,11 +797,18 @@ export default function* applicationSagas() {
       duplicateApplicationSaga,
     ),
     takeLatest(ReduxActionTypes.IMPORT_APPLICATION_INIT, importApplicationSaga),
-    takeLatest(
-      ReduxActionTypes.GENERATE_SSH_KEY_PAIR_INIT,
-      generateSSHKeyPairSaga,
-    ),
-    takeLatest(ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT, getSSHKeyPairSaga),
     takeLatest(ReduxActionTypes.FETCH_RELEASES, fetchReleases),
+    takeLatest(
+      ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_REQUEST,
+      initDatasourceConnectionDuringImport,
+    ),
+    takeLatest(
+      ReduxActionTypes.SHOW_RECONNECT_DATASOURCE_MODAL,
+      showReconnectDatasourcesModalSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.FETCH_UNCONFIGURED_DATASOURCE_LIST,
+      fetchUnconfiguredDatasourceList,
+    ),
   ]);
 }

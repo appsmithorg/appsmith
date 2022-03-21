@@ -75,6 +75,7 @@ export interface JSONtoFormProps {
   formName: string;
   formConfig: any[];
   datasourceId: string;
+  isReconnectingModalOpen?: boolean;
 }
 
 export class JSONtoForm<
@@ -229,7 +230,10 @@ export class JSONtoForm<
 
   renderForm = (content: any) => {
     return (
-      <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <div
+        className="t--json-to-form-wrapper"
+        style={{ height: "100%", display: "flex", flexDirection: "column" }}
+      >
         <CloseEditor />
         <DBForm>{content}</DBForm>
       </div>
@@ -239,7 +243,11 @@ export class JSONtoForm<
   renderMainSection = (section: any, index: number) => {
     if (isHidden(this.props.formData, section.hidden)) return null;
     return (
-      <Collapsible defaultIsOpen={index === 0} title={section.sectionName}>
+      <Collapsible
+        defaultIsOpen={index === 0}
+        key={index}
+        title={section.sectionName}
+      >
         {this.renderEachConfig(section)}
       </Collapsible>
     );
@@ -250,6 +258,7 @@ export class JSONtoForm<
     multipleConfig?: ControlProps[],
   ) => {
     multipleConfig = multipleConfig || [];
+
     try {
       this.setupConfig(config);
       return (

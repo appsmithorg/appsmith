@@ -160,7 +160,7 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
       ]}
       selectedValue=""
       setConfirmDelete={setConfirmDelete}
-      toggle={<ContextMenuTrigger />}
+      toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
   );
 }
