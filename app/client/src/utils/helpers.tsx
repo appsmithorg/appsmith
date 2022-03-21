@@ -701,7 +701,7 @@ export const getUpdatedRoute = (
 };
 
 export const updateSlugNamesInURL = (params: Record<string, string>) => {
-  const { pathname } = window.location;
+  const { pathname, search } = window.location;
   const newURL = getUpdatedRoute(pathname, params);
-  history.replace(newURL);
+  history.replace(newURL + search);
 };

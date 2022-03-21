@@ -135,16 +135,6 @@ function AppRouter(props: {
                 path={UNSUBSCRIBE_EMAIL_URL}
               />
               <SentryRoute component={Setup} exact path={SETUP} />
-              <SentryRoute component={EditorLoader} path={BUILDER_PATH} />
-              <SentryRoute
-                component={EditorLoader}
-                path={BUILDER_PATH_DEPRECATED}
-              />
-              <SentryRoute component={AppViewerLoader} path={VIEWER_PATH} />
-              <SentryRoute
-                component={AppViewerLoader}
-                path={VIEWER_PATH_DEPRECATED}
-              />
               {getFeatureFlags().APP_TEMPLATE && (
                 <SentryRoute
                   component={TemplatesListLoader}
@@ -160,6 +150,16 @@ function AppRouter(props: {
                 component={Settings}
                 exact
                 path={ADMIN_SETTINGS_CATEGORY_PATH}
+              />
+              <SentryRoute component={EditorLoader} path={BUILDER_PATH} />
+              <SentryRoute
+                component={EditorLoader}
+                path={BUILDER_PATH_DEPRECATED}
+              />
+              <SentryRoute component={AppViewerLoader} path={VIEWER_PATH} />
+              <SentryRoute
+                component={AppViewerLoader}
+                path={VIEWER_PATH_DEPRECATED}
               />
               <SentryRoute component={PageNotFound} />
             </Switch>
