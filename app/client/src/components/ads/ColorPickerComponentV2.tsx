@@ -87,6 +87,7 @@ const COLOR_BOX_CLASSES = `w-6 h-6 transform border rounded-full cursor-pointer 
 
 interface ColorPickerPopupProps {
   color: string;
+  containerRef: React.MutableRefObject<HTMLDivElement | null>;
   setColor: (color: string) => unknown;
   setIsOpen: (isOpen: boolean) => unknown;
   changeColor: (color: string) => unknown;
@@ -104,127 +105,161 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
   const {
     changeColor,
     color,
+    containerRef,
     setColor,
     setIsOpen,
     showApplicationColors,
     showThemeColors,
   } = props;
-  return (
-    <FocusTrap>
-      <div className="p-3 space-y-2 w-72" data-testid="color-picker">
-        {showThemeColors && (
-          <div className="space-y-2">
-            <h2 className="pb-2 font-semibold border-b">Color Styles</h2>
-            <section className="space-y-2">
-              <h3 className="text-xs">Theme Colors</h3>
-              <div className="grid grid-cols-10 gap-2">
-                {Object.keys(themeColors).map((colorKey, colorIndex) => (
-                  <div
-                    className={`${COLOR_BOX_CLASSES} ${
-                      color ===
+
+  const isClick = useRef(false);
+  const [isFocusTrapped, setIsFocusTrapped] = React.useState(false);
+
+  function handleFocus() {
+    if (!isClick.current) setIsFocusTrapped(true);
+  }
+
+  function handleClick() {
+    isClick.current = true;
+  }
+
+  function handleKeyDown() {
+    isClick.current = false;
+  }
+
+  const popup = (
+    <div
+      className="p-3 space-y-2 w-72"
+      data-testid="color-picker"
+      onClick={handleClick}
+      onFocus={handleFocus}
+      onKeyDown={handleKeyDown}
+      ref={containerRef}
+    >
+      {showThemeColors && (
+        <div className="space-y-2">
+          <h2 className="pb-2 font-semibold border-b">Color Styles</h2>
+          <section className="space-y-2">
+            <h3 className="text-xs">Theme Colors</h3>
+            <div className="grid grid-cols-10 gap-2">
+              {Object.keys(themeColors).map((colorKey, colorIndex) => (
+                <div
+                  className={`${COLOR_BOX_CLASSES} ${
+                    color ===
+                    getThemePropertyBinding(`${colorsPropertyName}.${colorKey}`)
+                      ? "ring-1"
+                      : ""
+                  }`}
+                  key={`color-picker-v2-${colorKey}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    setColor(themeColors[colorKey]);
+                    setIsOpen(false);
+                    changeColor(
                       getThemePropertyBinding(
                         `${colorsPropertyName}.${colorKey}`,
-                      )
-                        ? "ring-1"
-                        : ""
-                    }`}
-                    key={`color-picker-v2-${colorKey}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      setColor(themeColors[colorKey]);
-                      setIsOpen(false);
-                      changeColor(
-                        getThemePropertyBinding(
-                          `${colorsPropertyName}.${colorKey}`,
-                        ),
-                      );
-                    }}
-                    style={{ backgroundColor: themeColors[colorKey] }}
-                    tabIndex={colorIndex === 0 ? 0 : -1}
-                  />
-                ))}
-              </div>
-            </section>
-          </div>
-        )}
-        {showApplicationColors && applicationColors.length > 0 && (
-          <section className="space-y-2">
-            <h3 className="text-xs">Application Colors</h3>
-            <div className="grid grid-cols-10 gap-2">
-              {Object.values(applicationColors).map(
-                (colorCode: string, colorIndex) => (
-                  <div
-                    className={`${COLOR_BOX_CLASSES} ring-gray-500 ${
-                      color === colorCode ? "ring-1" : ""
-                    }`}
-                    key={colorCode}
-                    onClick={() => {
-                      setColor(colorCode);
-                      setIsOpen(false);
-                      changeColor(colorCode);
-                    }}
-                    style={{ backgroundColor: colorCode }}
-                    tabIndex={colorIndex === 0 ? 0 : -1}
-                  />
-                ),
-              )}
+                      ),
+                    );
+                  }}
+                  style={{ backgroundColor: themeColors[colorKey] }}
+                  tabIndex={colorIndex === 0 ? 0 : -1}
+                />
+              ))}
             </div>
           </section>
-        )}
-
+        </div>
+      )}
+      {showApplicationColors && applicationColors.length > 0 && (
         <section className="space-y-2">
-          <h3 className="text-xs">All Colors</h3>
+          <h3 className="text-xs">Application Colors</h3>
           <div className="grid grid-cols-10 gap-2">
-            {Object.keys(TAILWIND_COLORS).map((colorKey, rowIndex) =>
-              Object.keys(get(TAILWIND_COLORS, `${colorKey}`)).map(
-                (singleColorKey, colIndex) => (
-                  <div
-                    className={`${COLOR_BOX_CLASSES}  ${
-                      color === TAILWIND_COLORS[colorKey][singleColorKey]
-                        ? "ring-1"
-                        : ""
-                    }`}
-                    key={`all-colors-${colorKey}-${singleColorKey}`}
-                    onClick={(e) => {
-                      setIsOpen(false);
-                      e.stopPropagation();
-                      setColor(TAILWIND_COLORS[colorKey][singleColorKey]);
-                      changeColor(TAILWIND_COLORS[colorKey][singleColorKey]);
-                    }}
-                    style={{
-                      backgroundColor:
-                        TAILWIND_COLORS[colorKey][singleColorKey],
-                    }}
-                    tabIndex={rowIndex === 0 && colIndex === 0 ? 0 : -1}
-                  />
-                ),
+            {Object.values(applicationColors).map(
+              (colorCode: string, colorIndex) => (
+                <div
+                  className={`${COLOR_BOX_CLASSES} ring-gray-500 ${
+                    color === colorCode ? "ring-1" : ""
+                  }`}
+                  key={colorCode}
+                  onClick={() => {
+                    setColor(colorCode);
+                    setIsOpen(false);
+                    changeColor(colorCode);
+                  }}
+                  style={{ backgroundColor: colorCode }}
+                  tabIndex={colorIndex === 0 ? 0 : -1}
+                />
               ),
             )}
-
-            <div
-              className={`${COLOR_BOX_CLASSES}  ${
-                color === "#fff" ? "ring-1" : ""
-              }`}
-              onClick={() => {
-                setColor("#fff");
-                changeColor("#fff");
-              }}
-              tabIndex={-1}
-            />
-            <div
-              className={`${COLOR_BOX_CLASSES}  diagnol-cross ${
-                color === "transparent" ? "ring-1" : ""
-              }`}
-              onClick={() => {
-                setColor("transparent");
-                changeColor("transparent");
-              }}
-              tabIndex={-1}
-            />
           </div>
         </section>
-      </div>
+      )}
+
+      <section className="space-y-2">
+        <h3 className="text-xs">All Colors</h3>
+        <div className="grid grid-cols-10 gap-2">
+          {Object.keys(TAILWIND_COLORS).map((colorKey, rowIndex) =>
+            Object.keys(get(TAILWIND_COLORS, `${colorKey}`)).map(
+              (singleColorKey, colIndex) => (
+                <div
+                  className={`${COLOR_BOX_CLASSES}  ${
+                    color === TAILWIND_COLORS[colorKey][singleColorKey]
+                      ? "ring-1"
+                      : ""
+                  }`}
+                  key={`all-colors-${colorKey}-${singleColorKey}`}
+                  onClick={(e) => {
+                    setIsOpen(false);
+                    e.stopPropagation();
+                    setColor(TAILWIND_COLORS[colorKey][singleColorKey]);
+                    changeColor(TAILWIND_COLORS[colorKey][singleColorKey]);
+                  }}
+                  style={{
+                    backgroundColor: TAILWIND_COLORS[colorKey][singleColorKey],
+                  }}
+                  tabIndex={rowIndex === 0 && colIndex === 0 ? 0 : -1}
+                />
+              ),
+            ),
+          )}
+
+          <div
+            className={`${COLOR_BOX_CLASSES}  ${
+              color === "#fff" ? "ring-1" : ""
+            }`}
+            onClick={() => {
+              setColor("#fff");
+              changeColor("#fff");
+            }}
+            tabIndex={-1}
+          />
+          <div
+            className={`${COLOR_BOX_CLASSES}  diagnol-cross ${
+              color === "transparent" ? "ring-1" : ""
+            }`}
+            onClick={() => {
+              setColor("transparent");
+              changeColor("transparent");
+            }}
+            tabIndex={-1}
+          />
+        </div>
+      </section>
+    </div>
+  );
+
+  return (
+    <FocusTrap
+      active={isFocusTrapped}
+      focusTrapOptions={{
+        onDeactivate: () => {
+          setIsFocusTrapped(false);
+        },
+        clickOutsideDeactivates: true,
+        returnFocusOnDeactivate: true,
+      }}
+    >
+      {popup}
     </FocusTrap>
   );
 }
@@ -236,16 +271,16 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
  */
 function ColorPickerComponent(props: ColorPickerProps) {
   const inputRef = useRef<HTMLDivElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
   const inputGroupRef = useRef<HTMLInputElement>(null);
+  // isClick is used to track whether the input field is in focus by mouse click or by keyboard
+  // This is used since we open the popup only on mouse click not on keyboard focus
+  const isClick = useRef(false);
   const [isOpen, setIsOpen] = React.useState(false);
   const [color, setColor] = React.useState(
     props.evaluatedColorValue || props.color,
   );
 
-  /**
-   * debounced onChange
-   *
-   */
   const debouncedOnChange = React.useCallback(
     debounce((color: string) => {
       props.changeColor(color);
@@ -263,15 +298,27 @@ function ColorPickerComponent(props: ColorPickerProps) {
   const currentFocus = useRef(0);
 
   const handleKeydown = (e: KeyboardEvent) => {
+    // eslint-disable-next-line
+    console.log("bla", "keyDown", e.key);
     if (isOpen) {
       switch (e.key) {
         case "Escape":
+          // eslint-disable-next-line
+          console.log("bla", "keyDown", isOpen, e.key);
           e.stopPropagation();
           setIsOpen(false);
           inputGroupRef.current?.focus();
           break;
         case "Tab":
           currentFocus.current = 0;
+          if (document.activeElement === inputGroupRef.current) {
+            setTimeout(() => {
+              const firstElement = popupRef.current?.querySelectorAll(
+                "[tabindex='0']",
+              )?.[0] as any;
+              firstElement?.focus();
+            });
+          }
           break;
         case "Enter":
         case " ":
@@ -347,7 +394,13 @@ function ColorPickerComponent(props: ColorPickerProps) {
       switch (e.key) {
         case "Enter":
           setIsOpen(true);
+          const firstElement = popupRef.current?.querySelectorAll(
+            "[tabindex='0']",
+          )?.[0] as any;
+          firstElement?.focus();
           break;
+        case "Escape":
+          inputGroupRef.current?.blur();
       }
     }
   };
@@ -369,10 +422,43 @@ function ColorPickerComponent(props: ColorPickerProps) {
   const evaluatedValue = color || "";
 
   function LeftIcon() {
-    return (
+    return color ? (
+      <ColorIcon
+        className="rounded-full cursor-pointer"
+        color={evaluatedValue}
+        onClick={handleInputClick}
+      />
+    ) : (
+      <ColorPickerIconContainer
+        className="cursor-pointer"
+        onClick={handleInputClick}
+      >
+        <ColorPickerIcon />
+      </ColorPickerIconContainer>
+    );
+  }
+
+  const handleInputClick = () => {
+    isClick.current = true;
+  };
+
+  const handleOnInteraction = (nextOpenState: boolean) => {
+    if (isOpen !== nextOpenState) {
+      if (isClick.current) setIsOpen(true);
+      else setIsOpen(nextOpenState);
+      isClick.current = false;
+    }
+  };
+
+  return (
+    <div
+      className="popover-target-colorpicker t--colorpicker-v2-popover"
+      ref={inputRef}
+    >
       <Popover
         autoFocus={false}
         boundary="viewport"
+        enforceFocus={false}
         interactionKind={PopoverInteractionKind.CLICK}
         isOpen={isOpen}
         minimal
@@ -381,46 +467,28 @@ function ColorPickerComponent(props: ColorPickerProps) {
             offset: "0, 10px",
           },
         }}
-        onInteraction={(nextOpenState) => {
-          if (isOpen !== nextOpenState) setIsOpen(nextOpenState);
-        }}
+        onInteraction={handleOnInteraction}
       >
-        {color ? (
-          <ColorIcon
-            className="rounded-full cursor-pointer"
-            color={evaluatedValue}
-          />
-        ) : (
-          <ColorPickerIconContainer className="cursor-pointer">
-            <ColorPickerIcon />
-          </ColorPickerIconContainer>
-        )}
+        <StyledInputGroup
+          autoFocus={props.autoFocus}
+          inputRef={inputGroupRef}
+          leftIcon={<LeftIcon />}
+          onChange={handleChangeColor}
+          onClick={handleInputClick}
+          placeholder="enter color name or hex"
+          value={evaluatedValue}
+        />
 
         <ColorPickerPopup
           changeColor={props.changeColor}
           color={color}
+          containerRef={popupRef}
           setColor={setColor}
           setIsOpen={setIsOpen}
           showApplicationColors={props.showApplicationColors}
           showThemeColors={props.showThemeColors}
         />
       </Popover>
-    );
-  }
-
-  return (
-    <div
-      className="popover-target-colorpicker t--colorpicker-v2-popover"
-      ref={inputRef}
-    >
-      <StyledInputGroup
-        autoFocus={props.autoFocus}
-        inputRef={inputGroupRef}
-        leftIcon={<LeftIcon />}
-        onChange={handleChangeColor}
-        placeholder="enter color name or hex"
-        value={evaluatedValue}
-      />
     </div>
   );
 }
