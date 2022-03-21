@@ -1,4 +1,4 @@
-name: Appsmith External Integration Test Workflow
+name: Appsmith External Integration Test  Workflow
 
 on:
   # This workflow is only triggered by the ok to test command dispatch
