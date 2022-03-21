@@ -12,7 +12,7 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
 
     Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission);
 
-    Flux<NewPage> findByNonArchivedEditModeAndApplicationId(String applicationId, AclPermission aclPermission);
+    Flux<NewPage> findByApplicationIdAndNonDeletedEditMode(String applicationId, AclPermission aclPermission);
 
     Mono<NewPage> findByIdAndLayoutsIdAndViewMode(String id, String layoutId, AclPermission aclPermission, Boolean viewMode);
 

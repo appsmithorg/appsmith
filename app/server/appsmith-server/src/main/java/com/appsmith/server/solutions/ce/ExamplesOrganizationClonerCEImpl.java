@@ -438,7 +438,7 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
                             applicationIds.add(savedApplication.getId());
                             return forkThemes(application, savedApplication).thenMany(
                                     newPageRepository
-                                            .findByNonArchivedEditModeAndApplicationId(templateApplicationId, AclPermission.READ_PAGES)
+                                            .findByApplicationIdAndNonDeletedEditMode(templateApplicationId, AclPermission.READ_PAGES)
                                             .map(newPage -> {
                                                 log.info("Preparing page for cloning {} {}.", newPage.getUnpublishedPage().getName(), newPage.getId());
                                                 newPage.setApplicationId(savedApplication.getId());
