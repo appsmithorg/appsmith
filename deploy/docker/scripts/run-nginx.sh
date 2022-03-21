@@ -11,7 +11,7 @@ https_conf="/opt/appsmith/templates/nginx-app-https.conf.template.sh"
 APP_TEMPLATE="$http_conf"
 
 # Check exist certificate with given custom domain
-if [[ -n $APPSMITH_CUSTOM_DOMAIN ]]; then
+if [[ -n ${APPSMITH_CUSTOM_DOMAIN:-} ]]; then
 	APP_TEMPLATE="$https_conf"
 	if ! [[ -e "/etc/letsencrypt/live/$APPSMITH_CUSTOM_DOMAIN" ]]; then
 		source "/opt/appsmith/init_ssl_cert.sh"
@@ -22,7 +22,7 @@ if [[ -n $APPSMITH_CUSTOM_DOMAIN ]]; then
 	fi
 fi
 
-bash "$APP_TEMPLATE" "$APPSMITH_CUSTOM_DOMAIN" > /etc/nginx/sites-available/default
+bash "$APP_TEMPLATE" "${APPSMITH_CUSTOM_DOMAIN:-}" > /etc/nginx/sites-available/default
 
 index_html_served=/opt/appsmith/editor/index.html
 index_html_original=/opt/appsmith/index.html.original

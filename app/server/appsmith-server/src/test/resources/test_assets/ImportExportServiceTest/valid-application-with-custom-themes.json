@@ -630,14 +630,14 @@
     ]
   },
   "editModeTheme": {
-    "name": "Custom edit theme",
+    "displayName": "Custom edit theme",
     "new": true,
     "isSystemTheme": false,
     "applicationId": "dummy-app-id",
     "organizationId": "dummy-org-id"
   },
   "publishedTheme": {
-    "name": "Custom published theme",
+    "displayName": "Custom published theme",
     "new": true,
     "isSystemTheme": false,
     "applicationId": "dummy-app-id",
