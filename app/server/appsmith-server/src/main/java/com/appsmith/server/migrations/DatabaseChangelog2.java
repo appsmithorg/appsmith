@@ -162,12 +162,14 @@ public class DatabaseChangelog2 {
                     .keySet()
                     .stream()
                     .forEach(k -> {
-                        final Object oldValue = unpublishedFormData.get(k);
-                        unpublishedFormData.put(k, Map.of(
-                                "data", oldValue,
-                                "componentData", oldValue,
-                                "viewType", "component"
-                        ));
+                        if (k != null) {
+                            final Object oldValue = unpublishedFormData.get(k);
+                            unpublishedFormData.put(k, Map.of(
+                                    "data", oldValue,
+                                    "componentData", oldValue,
+                                    "viewType", "component"
+                            ));
+                        }
                     });
 
         }
@@ -208,12 +210,14 @@ public class DatabaseChangelog2 {
                     .keySet()
                     .stream()
                     .forEach(k -> {
-                        final Object oldValue = publishedFormData.get(k);
-                        publishedFormData.put(k, Map.of(
-                                "data", oldValue,
-                                "componentData", oldValue,
-                                "viewType", "component"
-                        ));
+                        if (k != null) {
+                            final Object oldValue = publishedFormData.get(k);
+                            publishedFormData.put(k, Map.of(
+                                    "data", oldValue,
+                                    "componentData", oldValue,
+                                    "viewType", "component"
+                            ));
+                        }
                     });
 
             final String publishedBody = publishedAction.getActionConfiguration().getBody();
@@ -285,12 +289,14 @@ public class DatabaseChangelog2 {
         if (value == null) {
             return;
         }
-        formDataMap.put(key,
-                Map.of(
-                        "data", value,
-                        "componentData", value,
-                        "viewType", "component"
-                ));
+        if (key != null) {
+            formDataMap.put(key,
+                    Map.of(
+                            "data", value,
+                            "componentData", value,
+                            "viewType", "component"
+                    ));
+        }
     }
 
     private static void mapS3ToNewFormData(ActionDTO action, Map<String, Object> f) {
