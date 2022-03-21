@@ -1311,7 +1311,7 @@ Cypress.Commands.add("createModal", (ModalName) => {
 
 Cypress.Commands.add("selectOnClickOption", (option) => {
   cy.get(".bp3-popover-content", { timeout: 10000 }).should("be.visible");
-  cy.get("ul.bp3-menu div.bp3-fill", { timeout: 10000 })
+  cy.get(commonlocators.selectWidgetVirtualList, { timeout: 10000 })
     .should("be.visible")
     .contains(option)
     .click({ force: true });

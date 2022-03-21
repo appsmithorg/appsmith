@@ -28,6 +28,7 @@ function SelectButton(props: SelectButtonProps) {
   } = props;
   return (
     <Button
+      className="select-button"
       data-testid="selectbutton.btn.main"
       disabled={disabled}
       onClick={togglePopoverVisibility}

@@ -133,7 +133,7 @@ class SelectComponent extends React.Component<
     // For tabbable menuItems
     const isFocused = itemProps.modifiers.active;
     const focusClassName = `${isFocused && "has-focus"}`;
-    const selectedClassName = `${isSelected} && "menu-item-active"`;
+    const selectedClassName = `${isSelected && "menu-item-active"}`;
     return (
       <MenuItem key={option.value} onClick={itemProps.handleClick}>
         <a
@@ -200,6 +200,7 @@ class SelectComponent extends React.Component<
     );
     return (
       <FixedSizeList
+        className="menu-virtual-list"
         height={300}
         initialScrollOffset={scrollOffset}
         itemCount={items.length}
