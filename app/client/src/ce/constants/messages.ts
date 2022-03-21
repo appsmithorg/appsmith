@@ -689,19 +689,22 @@ export const REPOSITORY_LIMIT_REACHED = () => "Repository Limit Reached";
 export const REPOSITORY_LIMIT_REACHED_INFO = () =>
   "Adding and using upto 3 repositories is free. To add more repositories kindly upgrade.";
 export const NONE_REVERSIBLE_MESSAGE = () =>
-  "This action is non reversible. Proceed with caution";
+  "This action is non reversible. Proceed with caution.";
 export const CONTACT_SUPPORT_TO_UPGRADE = () =>
   "Contact support to upgrade. You can add unlimited private repositories in upgraded plan.";
 export const DISCONNECT_CAUSE_APPLICATION_BREAK = () =>
   "Disconnect might cause the application to break.";
-export const DISCONNECT_GIT = () => "Disconnect git";
+export const DISCONNECT_GIT = () => "Revoke access";
 export const DISCONNECT = () => "DISCONNECT";
+export const REVOKE = () => "REVOKE";
+export const REVOKE_ACCESS = () => "REVOKE ACCESS";
 export const GIT_DISCONNECTION_SUBMENU = () => "Git Connection > Disconnect";
 export const DISCONNECT_FROM_GIT = (name: string) =>
   `Disconnect ${name} from Git`;
-export const TYPE_PROMO_CODE = (name: string) =>
-  `Type “${name}” in the input box to disconnect.`;
-export const APPLICATION_NAME = () => "Application Name";
+export const GIT_REVOKE_ACCESS = (name: string) => `Revoke Access To ${name}`;
+export const GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS = (name: string) =>
+  `Type “${name}” in the input box to revoke access.`;
+export const APPLICATION_NAME = () => "Application name";
 export const NOT_OPTIONS = () => "Not Options!";
 export const OPEN_REPO = () => "OPEN REPO";
 export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
