@@ -16,7 +16,6 @@ describe("Shopping cart App", function() {
   it("1. Create MongoDB datasource and add Insert, Find, Update and Delete queries", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MongoDB).click();
-    cy.getPluginFormsAndCreateDatasource();
     cy.fillMongoDatasourceForm();
     cy.testSaveDatasource();
     cy.get("@createDatasource").then((httpResponse) => {
@@ -32,9 +31,7 @@ describe("Shopping cart App", function() {
     cy.get(".CodeEditorTarget")
       .first()
       .type("Productnames");
-    // cy.get(".CodeEditorTarget")
-    //   .eq(1)
-    //   .type("{}");
+    cy.assertPageSave();
     cy.get(appPage.dropdownChevronLeft).click();
     // EditProducts query to update the cart
     cy.get(queryLocators.createQuery)
@@ -56,16 +53,15 @@ describe("Shopping cart App", function() {
     cy.get(".CodeEditorTarget")
       .eq(2)
       .type(
-        `{
-      "title" : "{{title.text}}",
+        `{"title" : "{{title.text}}",
       "description" :"{{description.text}}",
       "price" : {{price.text}},
-      "quantity":{{quantity.text}}
-    `,
+      "quantity":{{quantity.text}}`,
         {
           parseSpecialCharSequences: false,
         },
       );
+    cy.assertPageSave();
     cy.get(appPage.dropdownChevronLeft).click();
     // Add product query
     cy.get(queryLocators.createQuery)
@@ -82,14 +78,13 @@ describe("Shopping cart App", function() {
     cy.get(".CodeEditorTarget")
       .eq(1)
       .type(
-        `[{
-        "title" : "{{Title.text}}",
+        `[{"title" : "{{Title.text}}",
         "description": "{{Description.text}}",
         "price" : {{Price.text}},
-        "quantity" : {{Quantity.text}}
-      `,
+        "quantity" : {{Quantity.text}}`,
         { parseSpecialCharSequences: false },
       );
+    cy.assertPageSave();
     cy.get(appPage.dropdownChevronLeft).click();
     // delete product
     cy.get(queryLocators.createQuery)
@@ -108,6 +103,8 @@ describe("Shopping cart App", function() {
       .type('{"title":"{{Table1.selectedRow.title}}"}', {
         parseSpecialCharSequences: false,
       });
+    cy.assertPageSave();
+
     cy.get(appPage.dropdownChevronLeft).click();
     cy.get(appPage.dropdownChevronLeft).click();
   });
@@ -161,6 +158,8 @@ describe("Shopping cart App", function() {
       .closest("div")
       .eq(0)
       .click();
+    cy.assertPageSave();
+    cy.wait(5000);
     // validating updated value in the cart
     cy.get(".selected-row")
       .children()

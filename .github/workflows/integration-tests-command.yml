@@ -436,15 +436,7 @@ jobs:
   fat-conatiner-test:
     needs: [build, server-build, buildRts]
     # Only run if the build step is successful
-    # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
-    # then we don't check for the PR approved state
-    if: |
-      success() &&
-      (github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' &&
-      github.event.review.state == 'approved' &&
-      github.event.pull_request.head.repo.full_name == github.repository))
+    if: success()
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -467,16 +459,11 @@ jobs:
           - 27017:27017
 
     steps:
-      # Checkout the code
-      - name: Checkout the merged commit from PR and base branch
-        if: github.event_name == 'pull_request_review'
+      # Check out merge commit
+      - name: Fork based /ok-to-test checkout
         uses: actions/checkout@v2
         with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/merge
-
-      - name: Checkout the head commit of the branch
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v2
+          ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
 
       # Timestamp will be used to create cache key
       - id: timestamp
@@ -537,20 +524,20 @@ jobs:
       - name: Download the react build artifact
         uses: actions/download-artifact@v2
         with:
-          name: client-build
+          name: build
           path: app/client/build
 
       - name: Download the server build artifact
         uses: actions/download-artifact@v2
         with:
-          name: server-build
-          path: app/server/dist
+          name: build
+          path: app/server/dist/
 
       - name: Download the rts build artifact
         uses: actions/download-artifact@v2
         with:
           name: rts-build
-          path: app/rts/dist
+          path: app/rts/dist/
 
       - name: Download the rts build artifact
         uses: actions/download-artifact@v2
@@ -559,13 +546,13 @@ jobs:
           path: app/rts/node_modules/
 
       - name: Build  docker image
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        if: steps.run_result.outputs.run_result != 'success'
         working-directory: "."
         run: |
           docker build -t fatcontainer .
 
       - name: Load docker image
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        if: steps.run_result.outputs.run_result != 'success'
         env:
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
         working-directory: "."
