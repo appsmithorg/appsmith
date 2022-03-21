@@ -44,9 +44,11 @@ public class JsonSchemaMigration {
                 }
                 applicationJson.setServerSchemaVersion(2);
             case 2:
-
+                // Migration for converting formData elements to one that supports viewType
+                HelperMethods.migrateActionFormDataToObject(applicationJson);
+                applicationJson.setServerSchemaVersion(3);
             default:
-                // Unable to detect the severSchema
+                // Unable to detect the serverSchema
         }
         return applicationJson;
     }
@@ -60,4 +62,6 @@ public class JsonSchemaMigration {
         // supporting this on server side
         return applicationJson;
     }
+
+
 }
