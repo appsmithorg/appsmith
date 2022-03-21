@@ -923,7 +923,7 @@ function ApplicationsSection(props: any) {
     >
       {organizationsListComponent}
       {getFeatureFlags().GIT_IMPORT && <GitSyncModal isImport />}
-      {getFeatureFlags().GIT_IMPORT && <ReconnectDatasourceModal />}
+      <ReconnectDatasourceModal />
     </ApplicationContainer>
   );
 }
