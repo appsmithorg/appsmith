@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styled from "constants/DefaultTheme";
 import { Classes } from "components/ads/common";
 import Text, { Case, FontWeight, TextType } from "components/ads/Text";
@@ -37,21 +37,12 @@ const LinkText = styled.a`
   cursor: pointer;
 `;
 
-export default function GitConnectError({
-  onDisplay,
-}: {
-  onDisplay?: () => void;
-}) {
+export default function GitConnectError() {
   const error = useSelector(getGitConnectError);
   const connectingErrorDocumentUrl = useSelector(getConnectingErrorDocUrl);
   const titleMessage = error?.errorType
     ? error.errorType.replaceAll("_", " ")
     : "";
-  useEffect(() => {
-    if (error && onDisplay) {
-      onDisplay();
-    }
-  }, [error]);
   return error ? (
     <ErrorWrapper>
       {titleMessage.length > 0 && (

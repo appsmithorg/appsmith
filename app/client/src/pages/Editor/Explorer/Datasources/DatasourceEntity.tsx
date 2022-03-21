@@ -122,10 +122,10 @@ const ExplorerDatasourceEntity = React.memo(
           <DataSourceContextMenu
             className={EntityClassNames.CONTEXT_MENU}
             datasourceId={props.datasource.id}
-            entityId={`${props.datasource.id}-${props.pageId}`}
+            entityId={`${props.datasource.id}`}
           />
         }
-        entityId={`${props.datasource.id}-${props.pageId}`}
+        entityId={`${props.datasource.id}`}
         icon={icon}
         isDefaultExpanded={isDefaultExpanded}
         key={props.datasource.id}
