@@ -1,5 +1,3 @@
-import { ApplicationVersion } from "actions/applicationActions";
-
 export function createMessage(
   format: (...strArgs: any[]) => string,
   ...args: any[]
@@ -1135,10 +1133,8 @@ export const FORK_APP_MODAL_SUCCESS_TITLE = () =>
   "Choose where to fork the app";
 export const FORK = () => `FORK`;
 
-export const MANUAL_UPDATES = {
-  [ApplicationVersion.SLUG_URL]: {
-    name: () => "Update URLs",
-    shortDesc: () =>
-      "All URLs in your applications will update to a new readable format that includes the application and page names.",
-  },
+export const CLEAN_URL_UPDATE = {
+  name: () => "Update URLs",
+  shortDesc: () =>
+    "All URLs in your applications will update to a new readable format that includes the application and page names.",
 };
