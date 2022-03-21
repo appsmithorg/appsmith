@@ -259,11 +259,7 @@ export const trimTrailingSlash = (path: string) => {
  * @param element
  */
 export const isEllipsisActive = (element: HTMLElement | null) => {
-  return (
-    element &&
-    (element.clientWidth < element.scrollWidth ||
-      element.offsetHeight < element.scrollHeight)
-  );
+  return element && element.clientWidth < element.scrollWidth;
 };
 
 /**
