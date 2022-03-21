@@ -70,6 +70,7 @@ export const renderDefault = (props: renderDefaultPropsType) => {
         isCellEditable={isCellEditable}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
+        ref={ref}
         tableWidth={tableWidth}
         toggleCellEditMode={toggleCellEditMode}
         value={getCellText(value, cellProperties, columnType)}

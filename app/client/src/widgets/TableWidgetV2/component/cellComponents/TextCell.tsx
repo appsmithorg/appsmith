@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { Ref, useCallback } from "react";
 import styled, { css } from "styled-components";
 import AutoToolTipComponent from "../AutoToolTipComponent";
 import { renderDefaultPropsType } from "../renderHelpers/DefaultRenderer";
@@ -45,16 +45,19 @@ type TextCellProps = Omit<
   "onCellTextChange" | "isCellEditMode"
 >;
 
-export function TextCell({
-  cellProperties,
-  columnType,
-  isCellEditable,
-  isCellVisible,
-  isHidden,
-  tableWidth,
-  toggleCellEditMode,
-  value,
-}: TextCellProps) {
+export const TextCell = React.forwardRef(function TextCell(
+  {
+    cellProperties,
+    columnType,
+    isCellEditable,
+    isCellVisible,
+    isHidden,
+    tableWidth,
+    toggleCellEditMode,
+    value,
+  }: TextCellProps,
+  ref: Ref<HTMLDivElement>,
+) {
   const onEdit = useCallback(
     (e: React.MouseEvent<SVGElement | HTMLDivElement>) => {
       if (isCellEditable) {
@@ -66,8 +69,9 @@ export function TextCell({
   );
 
   return (
-    <Wrapper onDoubleClick={onEdit}>
+    <Wrapper onDoubleClick={onEdit} ref={ref}>
       <StyledAutoToolTipComponent
+        allowWrapping={cellProperties.allowCellWrapping}
         cellProperties={cellProperties}
         className={isCellEditable ? "editable-cell" : ""}
         columnType={columnType}
@@ -87,4 +91,4 @@ export function TextCell({
       )}
     </Wrapper>
   );
-}
+});
