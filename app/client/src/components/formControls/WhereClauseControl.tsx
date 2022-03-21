@@ -60,6 +60,19 @@ const logicalFieldConfig: any = {
   initialValue: "EQ",
 };
 
+const LogicalFieldValue: any = styled.p`
+  height: 38px;
+  line-height: 36px;
+  margin: 8px 0px;
+  border: solid 1.2px transparent;
+  text-align: right;
+  color: var(--appsmith-color-black-400);
+  font-size: 14px;
+  :first-child {
+    margin-top: 0px;
+  }
+`;
+
 // Component for the delete Icon
 const CenteredIcon = styled(Icon)<{
   alignSelf?: string;
@@ -252,27 +265,38 @@ function ConditionBlock(props: any) {
   if (props.logicalTypes.length === 1) {
     isDisabled = true;
   }
-  const conditionPath = getBindingOrConfigPathsForWhereClauseControl(
+  const logicalFieldPath = getBindingOrConfigPathsForWhereClauseControl(
     props.configProperty,
     WhereClauseSubComponent.Condition,
   );
+  const logicalFieldValue = _.get(formValues, logicalFieldPath);
 
   return (
     <SecondaryBox showBorder={props.currentNestingLevel >= 1}>
       {/* Component to render the joining operator between multiple conditions */}
       {props.fields.length > 1 ? (
-        <div style={{ marginTop: "46px" }}>
-          <FormControl
-            config={{
-              ...logicalFieldConfig,
-              customStyles: { width: `${DropdownWidth}px` },
-              configProperty: conditionPath,
-              options: props.logicalTypes,
-              initialValue: props.logicalTypes[0].value,
-              isDisabled,
-            }}
-            formName={props.formName}
-          />
+        <div style={{}}>
+          {props.fields.map((field: any, index: number) => {
+            if (index == 0) {
+              return <LogicalFieldValue>WHERE</LogicalFieldValue>;
+            } else if (index == 1) {
+              return (
+                <FormControl
+                  config={{
+                    ...logicalFieldConfig,
+                    customStyles: { width: `${DropdownWidth}px` },
+                    configProperty: logicalFieldPath,
+                    options: props.logicalTypes,
+                    initialValue: props.logicalTypes[0].value,
+                    isDisabled,
+                  }}
+                  formName={props.formName}
+                />
+              );
+            } else {
+              return <LogicalFieldValue>{logicalFieldValue}</LogicalFieldValue>;
+            }
+          })}
         </div>
       ) : null}
       <ConditionWrapper>
