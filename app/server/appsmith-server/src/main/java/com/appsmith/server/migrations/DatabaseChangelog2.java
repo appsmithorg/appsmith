@@ -157,17 +157,20 @@ public class DatabaseChangelog2 {
          */
         final Map<String, Object> unpublishedFormData = unpublishedAction.getActionConfiguration().getFormData();
 
-        unpublishedFormData
-                .keySet()
-                .stream()
-                .forEach(k -> {
-                    final Object oldValue = unpublishedFormData.get(k);
-                    unpublishedFormData.put(k, Map.of(
-                            "data", oldValue,
-                            "componentData", oldValue,
-                            "viewType", "component"
-                    ));
-                });
+        if (unpublishedFormData != null) {
+            unpublishedFormData
+                    .keySet()
+                    .stream()
+                    .forEach(k -> {
+                        final Object oldValue = unpublishedFormData.get(k);
+                        unpublishedFormData.put(k, Map.of(
+                                "data", oldValue,
+                                "componentData", oldValue,
+                                "viewType", "component"
+                        ));
+                    });
+
+        }
 
         final String unpublishedBody = unpublishedAction.getActionConfiguration().getBody();
         if (StringUtils.hasLength(unpublishedBody)) {
@@ -291,7 +294,11 @@ public class DatabaseChangelog2 {
     }
 
     private static void mapS3ToNewFormData(ActionDTO action, Map<String, Object> f) {
-        final Map<String, Object> unpublishedFormData = action.getActionConfiguration().getFormData();
+        final Map<String, Object> formData = action.getActionConfiguration().getFormData();
+
+        if (formData == null) {
+            return;
+        }
 
         final String body = action.getActionConfiguration().getBody();
         if (StringUtils.hasLength(body)) {
@@ -305,17 +312,17 @@ public class DatabaseChangelog2 {
             action.getActionConfiguration().setPath(null);
         }
 
-        final String command = (String) unpublishedFormData.get("command");
+        final String command = (String) formData.get("command");
         if (command == null) {
             return;
         }
         convertToFormDataObject(f, "command", command);
-        convertToFormDataObject(f, "bucket", unpublishedFormData.get("bucket"));
-        convertToFormDataObject(f, "smartSubstitution", unpublishedFormData.get("smartSubstitution"));
+        convertToFormDataObject(f, "bucket", formData.get("bucket"));
+        convertToFormDataObject(f, "smartSubstitution", formData.get("smartSubstitution"));
         switch (command) {
             // No case for delete single and multiple since they only had bucket that needed migration
             case "LIST":
-                final Map listMap = (Map) unpublishedFormData.get("list");
+                final Map listMap = (Map) formData.get("list");
                 if (listMap == null) {
                     break;
                 }
@@ -331,7 +338,7 @@ public class DatabaseChangelog2 {
                 break;
             case "UPLOAD_FILE_FROM_BODY":
             case "UPLOAD_MULTIPLE_FILES_FROM_BODY":
-                final Map createMap = (Map) unpublishedFormData.get("create");
+                final Map createMap = (Map) formData.get("create");
                 if (createMap == null) {
                     break;
                 }
@@ -341,7 +348,7 @@ public class DatabaseChangelog2 {
                 convertToFormDataObject(newCreateMap, "expiry", createMap.get("expiry"));
                 break;
             case "READ_FILE":
-                final Map readMap = (Map) unpublishedFormData.get("read");
+                final Map readMap = (Map) formData.get("read");
                 if (readMap == null) {
                     break;
                 }
