@@ -360,6 +360,7 @@ function OrgMenuItem({ isFetchingApplications, org, selected }: any) {
       ref={menuRef}
       selected={selected}
       text={org.organization.name}
+      tooltipPos={Position.BOTTOM_LEFT}
     />
   );
 }
