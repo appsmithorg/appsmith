@@ -16,7 +16,7 @@ export type MenuItemProps = CommonComponentProps & {
   selected?: boolean;
   containerClassName?: string;
   onSelect?: (e: React.MouseEvent) => void;
-  tooltipPos?: Position;
+  tooltipPos?: Position; // tooltip position of menu item
 };
 
 const ItemRow = styled.a<{ disabled?: boolean; selected?: boolean }>`
