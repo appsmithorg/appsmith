@@ -1,5 +1,5 @@
 import {
-  CurrentApplicationData,
+  ApplicationPayload,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -31,7 +31,16 @@ import {
   setIsDisconnectGitModalOpen,
   setShowRepoLimitErrorModal,
   fetchGlobalGitConfigInit,
+  generateSSHKeyPairSuccess,
+  getSSHKeyPairSuccess,
+  getSSHKeyPairError,
+  GenerateSSHKeyPairReduxAction,
+  GetSSHKeyPairReduxAction,
+  importAppViaGitSuccess,
 } from "actions/gitSyncActions";
+
+import { showReconnectDatasourceModal } from "actions/applicationActions";
+
 import {
   connectToGitSuccess,
   ConnectToGitReduxAction,
@@ -52,7 +61,11 @@ import {
 import { GitApplicationMetadata } from "../api/ApplicationApi";
 
 import history from "utils/history";
-import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
+import {
+  addBranchParam,
+  BUILDER_PAGE_URL,
+  GIT_BRANCH_QUERY_KEY,
+} from "constants/routes";
 import { MergeBranchPayload, MergeStatusPayload } from "api/GitSyncAPI";
 
 import {
@@ -65,8 +78,11 @@ import {
 } from "selectors/gitSyncSelectors";
 import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
-
+import { getOrganizationIdForImport } from "selectors/applicationSelectors";
 import { getLogToSentryFromResponse } from "utils/helpers";
+import { getCurrentOrg } from "selectors/organizationSelectors";
+import { Org } from "constants/orgConstants";
+import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
@@ -75,6 +91,7 @@ export function* handleRepoLimitReachedError(response?: ApiResponse) {
     responseMeta?.error?.code ===
     GIT_ERROR_CODES.PRIVATE_REPO_CONNECTIONS_LIMIT_REACHED
   ) {
+    yield put(setIsGitSyncModalOpen({ isOpen: false }));
     yield put(setShowRepoLimitErrorModal(true));
     return true;
   }
@@ -107,7 +124,7 @@ function* commitToGitRepoSaga(
 
     if (isValidResponse) {
       yield put(commitToRepoSuccess());
-      const curApplication: CurrentApplicationData = yield select(
+      const curApplication: ApplicationPayload = yield select(
         getCurrentApplication,
       );
       if (curApplication) {
@@ -602,6 +619,154 @@ function* disconnectGitSaga() {
   }
 }
 
+function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
+  let response: ApiResponse | undefined;
+  try {
+    const organizationIdForImport: string = yield select(
+      getOrganizationIdForImport,
+    );
+
+    response = yield GitSyncAPI.importApp(
+      action.payload,
+      organizationIdForImport,
+    );
+
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      false,
+      getLogToSentryFromResponse(response),
+    );
+
+    if (isValidResponse) {
+      const allOrgs = yield select(getCurrentOrg);
+      const currentOrg = allOrgs.filter(
+        (el: Org) => el.id === organizationIdForImport,
+      );
+      if (currentOrg.length > 0) {
+        const {
+          application: app,
+          isPartialImport,
+        }: {
+          application: {
+            id: string;
+            pages: { default?: boolean; id: string; isDefault?: boolean }[];
+          };
+          isPartialImport: boolean;
+        } = response?.data;
+        yield put(importAppViaGitSuccess()); // reset flag for loader
+        yield put(setIsGitSyncModalOpen({ isOpen: false }));
+        // there is configuration-missing datasources
+        if (isPartialImport) {
+          yield put(
+            showReconnectDatasourceModal({
+              application: response?.data?.application,
+              unConfiguredDatasourceList:
+                response?.data.unConfiguredDatasourceList,
+              orgId: organizationIdForImport,
+            }),
+          );
+        } else {
+          let pageId = "";
+          if (app.pages && app.pages.length > 0) {
+            const defaultPage = app.pages.find(
+              (eachPage) => !!eachPage.isDefault,
+            );
+            pageId = defaultPage ? defaultPage.id : "";
+          }
+
+          const pageURL = BUILDER_PAGE_URL({
+            applicationId: app.id,
+            pageId,
+          });
+          history.push(pageURL);
+          Toaster.show({
+            text: "Application imported successfully",
+            variant: Variant.success,
+          });
+        }
+      }
+    }
+  } catch (error) {
+    if (action.onErrorCallback) {
+      action.onErrorCallback(error as string);
+    }
+
+    const isRepoLimitReachedError: boolean = yield call(
+      handleRepoLimitReachedError,
+      response,
+    );
+    if (isRepoLimitReachedError) return;
+
+    // Api error
+    // Display on the UI
+    if (response && !response?.responseMeta?.success) {
+      yield put({
+        type: ReduxActionErrorTypes.CONNECT_TO_GIT_ERROR,
+        payload: {
+          error: response?.responseMeta.error,
+          show: false,
+        },
+      });
+    } else {
+      // Unexpected non api error: report to sentry
+      log(error);
+      throw error;
+    }
+  }
+}
+
+export function* getSSHKeyPairSaga(action: GetSSHKeyPairReduxAction) {
+  try {
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const response: ApiResponse = yield call(
+      GitSyncAPI.getSSHKeyPair,
+      applicationId,
+    );
+    const isValidResponse = yield validateResponse(response, false);
+    if (isValidResponse) {
+      yield put(getSSHKeyPairSuccess(response.data));
+      if (action.onSuccessCallback) {
+        action.onSuccessCallback(response);
+      }
+    }
+  } catch (error) {
+    yield put(getSSHKeyPairError({ error, show: false }));
+    if (action.onErrorCallback) {
+      action.onErrorCallback(error);
+    }
+  }
+}
+
+export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
+  let response: ApiResponse | undefined;
+  try {
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const isImporting: string = yield select(getOrganizationIdForImport);
+
+    response = yield call(
+      GitSyncAPI.generateSSHKeyPair,
+      applicationId,
+      !!isImporting,
+    );
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      true,
+      response?.responseMeta?.status === 500,
+    );
+    if (isValidResponse) {
+      yield put(generateSSHKeyPairSuccess(response?.data));
+      if (action.onSuccessCallback) {
+        action.onSuccessCallback(response as ApiResponse);
+      }
+    }
+  } catch (error) {
+    if (action.onErrorCallback) {
+      action.onErrorCallback(error);
+    }
+    yield call(handleRepoLimitReachedError, response);
+  }
+}
+
 export default function* gitSyncSagas() {
   yield all([
     takeLatest(ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT, commitToGitRepoSaga),
@@ -631,5 +796,14 @@ export default function* gitSyncSagas() {
     takeLatest(ReduxActionTypes.GIT_PULL_INIT, gitPullSaga),
     takeLatest(ReduxActionTypes.SHOW_CONNECT_GIT_MODAL, showConnectGitModal),
     takeLatest(ReduxActionTypes.DISCONNECT_GIT, disconnectGitSaga),
+    takeLatest(
+      ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_INIT,
+      importAppFromGitSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.GENERATE_SSH_KEY_PAIR_INIT,
+      generateSSHKeyPairSaga,
+    ),
+    takeLatest(ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT, getSSHKeyPairSaga),
   ]);
 }

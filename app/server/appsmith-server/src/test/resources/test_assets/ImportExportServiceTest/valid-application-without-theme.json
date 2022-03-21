@@ -442,12 +442,10 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "{\n \"find\": \"users\",\n \"sort\": {\n \"id\": 1\n },\n \"limit\": 10\n}",
-          "pluginSpecifiedTemplates": [
-            {
-              "value": false
-            }
-          ]
+          "formData": {
+            "smartSubstitution": false,
+            "body": "{\n \"find\": \"users\",\n \"sort\": {\n \"id\": 1\n },\n \"limit\": 10\n}"
+          }
         },
         "executeOnLoad": true,
         "dynamicBindingPathList": [],
