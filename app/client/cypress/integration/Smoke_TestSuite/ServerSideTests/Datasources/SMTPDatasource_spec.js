@@ -85,6 +85,7 @@ describe("SMTP datasource test cases using ted", function() {
       );
     });
   });
+
   /* it("3. On canvas, fill to email, from email, subject, body, attachment and run query", function() {
     cy.get(`.t--entity-name:contains("smtpquery")`)
       .should("be.visible")

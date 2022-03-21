@@ -4,6 +4,7 @@ import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.CollectionUtils;
 
 import java.util.List;
 
@@ -34,13 +35,17 @@ public class JsonSchemaMigration {
             return applicationJson;
         }
         // Run migration linearly
+        // Updating the schema version after each migration is not required as we are not exiting by breaking the switch
+        // cases, but this keeps the version number and the migration in sync
         switch (applicationJson.getServerSchemaVersion()) {
             case 0:
 
             case 1:
                 // Migration for deprecating archivedAt field in ActionDTO
-                HelperMethods.updateArchivedAtByDeletedATForActions(applicationJson.getActionList());
-
+                if (!CollectionUtils.isNullOrEmpty(applicationJson.getActionList())) {
+                    HelperMethods.updateArchivedAtByDeletedATForActions(applicationJson.getActionList());
+                }
+                applicationJson.setServerSchemaVersion(2);
             case 2:
                 migrateActionFormDataToObject(applicationJson);
             default:

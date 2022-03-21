@@ -139,9 +139,10 @@ export const setDatsourceEditorMode = (payload: {
   };
 };
 
-export const fetchDatasources = () => {
+export const fetchDatasources = (payload?: { orgId?: string }) => {
   return {
     type: ReduxActionTypes.FETCH_DATASOURCES_INIT,
+    payload,
   };
 };
 
@@ -234,6 +235,13 @@ export const executeDatasourceQuery = ({
     onSuccessCallback,
   };
 };
+
+export const setUnconfiguredDatasourcesDuringImport = (
+  payload?: Array<Datasource>,
+) => ({
+  type: ReduxActionTypes.SET_UNCONFIGURED_DATASOURCES,
+  payload,
+});
 
 export default {
   fetchDatasources,
