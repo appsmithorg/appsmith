@@ -2524,7 +2524,7 @@ public class ApplicationServiceTest {
                 .block();
 
 
-        Mono<Application> getApplication = applicationService.findByIdAndBranchName(gitConnectedApp.getId(), "");
+        Mono<Application> getApplication = applicationService.findByIdAndBranchName(gitConnectedApp.getId(), "release");
         StepVerifier.create(getApplication)
                 .assertNext(application1 -> {
                     assertThat(application1).isNotNull();

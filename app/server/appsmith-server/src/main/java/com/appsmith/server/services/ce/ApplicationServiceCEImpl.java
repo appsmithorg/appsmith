@@ -112,21 +112,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    public Mono<Application> findByIdAndBranchName(String defaultApplicationId, String branchName) {
-            return findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
-                    // Check if the Appsmith application and the default branch are same
-                    .flatMap(application -> {
-                        if (StringUtils.isEmpty(branchName)) {
-                            if(Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()
-                                    || application.getGitApplicationMetadata().getBranchName().equals(application.getGitApplicationMetadata().getDefaultBranchName())) {
-                                return Mono.just(application);
-                            }
-                            return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, application.getGitApplicationMetadata().getDefaultBranchName(), READ_APPLICATIONS)
-                                    .switchIfEmpty(Mono.just(application));
-                        }
-                        return Mono.just(application);
-                    })
-                    .map(responseUtils::updateApplicationWithDefaultResources);
+    public Mono<Application> findByIdAndBranchName(String id, String branchName) {
+        return this.findByBranchNameAndDefaultApplicationId(branchName, id, READ_APPLICATIONS)
+                .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
     private Mono<Application> setUnreadCommentCount(Application application, User user) {
