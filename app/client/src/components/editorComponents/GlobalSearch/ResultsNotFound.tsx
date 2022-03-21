@@ -5,8 +5,6 @@ import { NO_SEARCH_DATA_TEXT } from "@appsmith/constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { ReactComponent as DiscordIcon } from "assets/icons/help/discord.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getAppsmithConfigs } from "ce/configs";
-import { Button, Category, IconPositions } from "components/ads";
 
 const Container = styled.div`
   display: flex;
@@ -35,9 +33,6 @@ const Container = styled.div`
     color: ${(props) => props.theme.colors.globalSearch.searchItemText};
     font-weight: 700;
   }
-  .intercom {
-    margin: 1rem 0;
-  }
 `;
 
 const StyledDiscordIcon = styled(DiscordIcon)`
@@ -47,46 +42,25 @@ const StyledDiscordIcon = styled(DiscordIcon)`
   vertical-align: -7px;
 `;
 
-const { intercomAppID } = getAppsmithConfigs();
-
 function ResultsNotFound() {
   return (
     <Container>
       <img alt="No data" src={NoSearchDataImage} />
       <div className="no-data-title">{NO_SEARCH_DATA_TEXT()}</div>
-      {(intercomAppID && window.Intercom) || true ? (
-        <Button
-          category={Category.tertiary}
-          className="intercom"
-          height="40"
-          icon="chat-help"
-          iconPosition={IconPositions.left}
+      <span className="discord">
+        🤖 Join our{"  "}
+        <span
+          className="discord-link"
           onClick={() => {
-            window.Intercom("show");
-            AnalyticsUtil.logEvent("INTERCOM_CLICK", {
-              from: "OMNIBAR",
-            });
+            window.open("https://discord.gg/rBTTVJp", "_blank");
+            AnalyticsUtil.logEvent("DISCORD_LINK_CLICK");
           }}
-          text="Chat with us"
-          type="button"
-          width="100"
-        />
-      ) : (
-        <span className="discord">
-          🤖 Join our{"  "}
-          <span
-            className="discord-link"
-            onClick={() => {
-              window.open("https://discord.gg/rBTTVJp", "_blank");
-              AnalyticsUtil.logEvent("DISCORD_LINK_CLICK");
-            }}
-          >
-            <StyledDiscordIcon color="red" height={22} width={24} />
-            Discord Server
-          </span>{" "}
-          for more help.
-        </span>
-      )}
+        >
+          <StyledDiscordIcon color="red" height={22} width={24} />
+          Discord Server
+        </span>{" "}
+        for more help.
+      </span>
     </Container>
   );
 }
