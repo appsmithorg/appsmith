@@ -22,13 +22,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
-import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
+import static com.external.plugins.constants.FieldName.INSERT;
 import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
+import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
 
 @Getter
 @Setter
@@ -62,7 +63,7 @@ public class Insert extends MongoCommand {
     public Document parseCommand() {
         Document commandDocument = new Document();
 
-        commandDocument.put("insert", this.collection);
+        commandDocument.put(INSERT, this.collection);
 
         DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(this.documents);
         if (dataType.equals(DataType.ARRAY)) {
