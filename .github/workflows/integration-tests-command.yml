@@ -459,16 +459,11 @@ jobs:
           - 27017:27017
 
     steps:
-      # Checkout the code
-      - name: Checkout the merged commit from PR and base branch
-        if: github.event_name == 'pull_request_review'
+      # Check out merge commit
+      - name: Fork based /ok-to-test checkout
         uses: actions/checkout@v2
         with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/merge
-
-      - name: Checkout the head commit of the branch
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v2
+          ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
 
       # Timestamp will be used to create cache key
       - id: timestamp
@@ -551,13 +546,13 @@ jobs:
           path: app/rts/node_modules/
 
       - name: Build  docker image
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        if: steps.run_result.outputs.run_result != 'success'
         working-directory: "."
         run: |
           docker build -t fatcontainer .
 
       - name: Load docker image
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        if: steps.run_result.outputs.run_result != 'success'
         env:
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
         working-directory: "."
