@@ -13,14 +13,14 @@ import {
   CONNECTING_REPO,
   createMessage,
   GENERATE_KEY,
+  IMPORT_BTN_LABEL,
+  IMPORT_FROM_GIT_REPOSITORY,
+  IMPORTING_APP_FROM_GIT,
   LEARN_MORE,
   PASTE_SSH_URL_INFO,
   REMOTE_URL,
   REMOTE_URL_INFO,
   REMOTE_URL_INPUT_PLACEHOLDER,
-  IMPORT_FROM_GIT_REPOSITORY,
-  IMPORT_BTN_LABEL,
-  IMPORTING_APP_FROM_GIT,
   UPDATE_CONFIG,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
@@ -54,11 +54,11 @@ import {
   getGlobalGitConfig,
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
+  getIsImportingApplicationViaGit,
   getLocalGitConfig,
   getRemoteUrlDocUrl,
   getTempRemoteUrl,
   getUseGlobalProfile,
-  getIsImportingApplicationViaGit,
 } from "selectors/gitSyncSelectors";
 import Statusbar, {
   StatusbarWrapper,
@@ -141,12 +141,10 @@ const TooltipWrapper = styled.div`
 
 // v1 only support SSH
 const selectedAuthType = AUTH_TYPE_OPTIONS[0];
-const HTTP_LITERAL = "https";
 
-const SSH_INIT_FORMAT_REGEX = new RegExp(/^(ssh|.+@).*/);
+const REMOTE_URL_RE = /^((git|ssh)|(git@[\w\.]+))(:(\/\/)?)([\w\.@\:\/\-~]+)(\.git)$/im;
 
-const remoteUrlIsInvalid = (value: string) =>
-  value.startsWith(HTTP_LITERAL) || !SSH_INIT_FORMAT_REGEX.test(value);
+const validRemoteURL = (value: string) => new RegExp(REMOTE_URL_RE).test(value);
 
 type AuthorInfo = {
   authorName: string;
@@ -264,7 +262,7 @@ function GitConnection({ isImport }: Props) {
   }, [authorInfo.authorEmail, authorInfo.authorName, localGitConfig]);
 
   const remoteUrlChangeHandler = (value: string) => {
-    const isInvalid = remoteUrlIsInvalid(value);
+    const isInvalid = !validRemoteURL(value);
     setIsValidRemoteUrl(isInvalid);
     setRemoteUrl(value);
     dispatch(remoteUrlInputValue({ tempRemoteUrl: value }));
