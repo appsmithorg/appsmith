@@ -24,7 +24,7 @@ const Container = styled.div`
   .discord {
     margin: ${(props) => props.theme.spaces[3]}px 0;
     display: flex;
-    gap: 5px;
+    gap: 0.25rem;
   }
 
   .discord-link {

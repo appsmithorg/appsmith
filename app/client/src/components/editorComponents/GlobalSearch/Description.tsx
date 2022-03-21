@@ -59,7 +59,7 @@ const Container = styled.div`
   }
 
   table {
-    margin: 5px 0;
+    margin: 0.25rem 0;
     th {
       text-align: left;
     }
@@ -110,20 +110,20 @@ const Container = styled.div`
 
 const StyledDocumentationDescription = styled.div`
   h1 {
-    margin: 10px 0;
+    margin: 0.5rem 0;
     font-size: 1.5rem;
   }
   h2 {
     font-size: 1.25rem;
-    margin: 10px 0 5px;
+    margin: 0.5rem 0 0.25rem;
   }
   h3 {
     font-size: 1rem;
-    margin: 10px 0 0;
+    margin: 0.5rem 0 0;
   }
   img,
   pre {
-    margin: 5px 0;
+    margin: 0.25rem 0;
   }
   td {
     strong {
