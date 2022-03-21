@@ -150,6 +150,8 @@ public class DatabaseChangelog2 {
                 }
             } catch (AppsmithException e) {
                 // This action is already migrated, move on
+                log.error("Failed with error: {}", e.getMessage());
+                log.error("Failing action: {}", uqiAction.getId());
                 continue;
             }
             mongockTemplate.save(uqiAction);
