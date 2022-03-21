@@ -113,6 +113,7 @@ describe("Git sync:", function() {
     cy.switchGitBranch(mainBranch);
     cy.createGitBranch(tempBranch2);
     cy.get(explorerLocators.explorerSwitchId).click({ force: true });
+    cy.CheckAndUnfoldEntityItem("PAGES");
     cy.Createpage("NewPage");
     cy.commitAndPush();
     cy.merge(mainBranch);
@@ -196,7 +197,7 @@ describe("Git sync:", function() {
     cy.get("[data-cy=t--tab-DEPLOY]")
       .invoke("attr", "aria-selected")
       .should("eq", "true");
-    cy.get(gitSyncLocators.closeGitSyncModal).click();
+    cy.get(gitSyncLocators.closeGitSyncModal).click({ force: true });
   });
 
   after(() => {

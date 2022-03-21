@@ -210,10 +210,18 @@ public class GitControllerCE {
 
     @DeleteMapping("/branch/{defaultApplicationId}")
     public Mono<ResponseDTO<Application>> deleteBranch(@PathVariable String defaultApplicationId, @RequestParam String branchName) {
-        log.debug("Going to delete branch ", branchName);
+        log.debug("Going to delete branch {} for defaultApplicationId {}", branchName, defaultApplicationId);
         return service.deleteBranch(defaultApplicationId, branchName)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
+    @PutMapping("/discard/{defaultApplicationId}")
+    public Mono<ResponseDTO<Application>> discardChanges(@PathVariable String defaultApplicationId,
+                                                         @RequestParam(required = false, defaultValue = "true") Boolean doPull,
+                                                         @RequestHeader(name = FieldName.BRANCH_NAME) String branchName) {
+        log.debug("Going to discard changes for branch {} with defaultApplicationId {}", branchName, defaultApplicationId);
+        return service.discardChanges(defaultApplicationId, branchName, doPull)
+                .map(result -> new ResponseDTO<>((HttpStatus.OK.value()), result, null));
+    }
 
 }

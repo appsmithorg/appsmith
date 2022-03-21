@@ -21,6 +21,7 @@ import {
   ADMIN_SETTINGS_URL,
   ADMIN_SETTINGS_CATEGORY_URL,
   ADMIN_SETTINGS_CATEGORY_DEFAULT_URL,
+  TEMPLATES_URL,
 } from "constants/routes";
 import OrganizationLoader from "pages/organization/loader";
 import ApplicationListLoader from "pages/Applications/loader";
@@ -49,6 +50,8 @@ import { getFeatureFlagsFetched } from "selectors/usersSelectors";
 import Setup from "pages/setup";
 import Settings from "pages/Settings";
 import SignupSuccess from "pages/setup/SignupSuccess";
+import TemplatesListLoader from "pages/Templates/loader";
+import getFeatureFlags from "utils/featureFlags";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -122,6 +125,12 @@ class AppRouter extends React.Component<any, any> {
                   exact
                   path={APPLICATIONS_URL}
                 />
+                {getFeatureFlags().APP_TEMPLATE && (
+                  <SentryRoute
+                    component={TemplatesListLoader}
+                    path={TEMPLATES_URL}
+                  />
+                )}
                 <SentryRoute
                   component={SignupSuccess}
                   exact

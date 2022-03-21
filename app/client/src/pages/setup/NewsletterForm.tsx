@@ -63,6 +63,7 @@ export default memo(function NewsletterForm() {
             size={Size.medium}
             tag="button"
             text={createMessage(WELCOME_FORM_SUBMIT_LABEL)}
+            type="submit"
           />
         </ButtonWrapper>
       </FormBodyWrapper>
