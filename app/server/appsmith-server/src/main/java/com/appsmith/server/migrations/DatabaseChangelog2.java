@@ -178,11 +178,11 @@ public class DatabaseChangelog2 {
                     .forEach(k -> {
                         if (k != null) {
                             final Object oldValue = unpublishedFormData.get(k);
-                            unpublishedFormData.put(k, new HashMap<>(Map.of(
-                                    "data", oldValue,
-                                    "componentData", oldValue,
-                                    "viewType", "component"
-                            )));
+                            final HashMap<String, Object> map = new HashMap<>();
+                            map.put("data", oldValue);
+                            map.put("componentData", oldValue);
+                            map.put("viewType", "component");
+                            unpublishedFormData.put(k, map);
                         }
                     });
 
@@ -232,11 +232,11 @@ public class DatabaseChangelog2 {
                     .forEach(k -> {
                         if (k != null) {
                             final Object oldValue = publishedFormData.get(k);
-                            publishedFormData.put(k, new HashMap<>(Map.of(
-                                    "data", oldValue,
-                                    "componentData", oldValue,
-                                    "viewType", "component"
-                            )));
+                            final HashMap<String, Object> map = new HashMap<>();
+                            map.put("data", oldValue);
+                            map.put("componentData", oldValue);
+                            map.put("viewType", "component");
+                            publishedFormData.put(k, map);
                         }
                     });
 
@@ -310,12 +310,11 @@ public class DatabaseChangelog2 {
             return;
         }
         if (key != null) {
-            formDataMap.put(key,
-                    new HashMap<>(Map.of(
-                            "data", value,
-                            "componentData", value,
-                            "viewType", "component"
-                    )));
+            final HashMap<String, Object> map = new HashMap<>();
+            map.put("data", value);
+            map.put("componentData", value);
+            map.put("viewType", "component");
+            formDataMap.put(key, map);
         }
     }
 
