@@ -15,7 +15,7 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
 
   it("1. Bind Input widget with JSObject", function () {
     jsEditor.CreateJSObject('return "Success";', false);
-    agHelper.SelectEntityByName("WIDGETS")//to expand widgets
+    agHelper.expandCollapseEntity("WIDGETS")//to expand widgets
     agHelper.expandCollapseEntity("Form1")
     agHelper.SelectEntityByName("Input2")
     cy.get("@jsObjName").then((jsObjName) => {
