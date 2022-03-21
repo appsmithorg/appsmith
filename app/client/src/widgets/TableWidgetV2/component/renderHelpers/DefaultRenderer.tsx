@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { isNumber, isNil } from "lodash";
 
 import { ColumnTypes, CellLayoutProperties } from "../Constants";
@@ -70,7 +70,6 @@ export const renderDefault = (props: renderDefaultPropsType) => {
         isCellEditable={isCellEditable}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
-        ref={ref}
         tableWidth={tableWidth}
         toggleCellEditMode={toggleCellEditMode}
         value={getCellText(value, cellProperties, columnType)}
