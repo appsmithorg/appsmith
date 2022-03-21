@@ -20,8 +20,8 @@ import static com.external.plugins.constants.FieldName.CREATE_EXPIRY;
 import static com.external.plugins.constants.FieldName.LIST_SIGNED_URL;
 import static com.external.plugins.constants.FieldName.LIST_UNSIGNED_URL;
 import static com.external.plugins.constants.FieldName.LIST_WHERE;
+import static com.external.plugins.constants.FieldName.READ_DATATYPE;
 import static com.external.plugins.constants.FieldName.READ_EXPIRY;
-import static com.external.plugins.constants.FieldName.READ_USING_BASE64_ENCODING;
 
 public class TemplateUtils {
 
@@ -107,7 +107,7 @@ public class TemplateUtils {
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, COMMAND, AmazonS3Action.READ_FILE.name());
         setValueSafelyInFormData(configMap, BUCKET, bucketName);
-        setValueSafelyInFormData(configMap, READ_USING_BASE64_ENCODING, YES);
+        setValueSafelyInFormData(configMap, READ_DATATYPE, YES);
         setValueSafelyInFormData(configMap, READ_EXPIRY, DEFAULT_URL_EXPIRY_IN_MINUTES);
 
         /**
@@ -165,7 +165,9 @@ public class TemplateUtils {
         setValueSafelyInFormData(configMap, BUCKET, bucketName);
         setValueSafelyInFormData(configMap, LIST_SIGNED_URL, NO);
         setValueSafelyInFormData(configMap, LIST_UNSIGNED_URL, YES);
-        setValueSafelyInFormData(configMap, LIST_WHERE, new HashMap<String, Object>() {{put("condition", "AND");}});
+        setValueSafelyInFormData(configMap, LIST_WHERE, new HashMap<String, Object>() {{
+            put("condition", "AND");
+        }});
 
         return new Template(LIST_FILES_TEMPLATE_NAME, configMap, new ActionConfiguration());
     }
