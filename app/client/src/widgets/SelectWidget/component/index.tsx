@@ -188,7 +188,6 @@ class SelectComponent extends React.Component<
     activeItemIndex: number | null,
     renderItem: (item: any, index: number) => JSX.Element | null,
   ): JSX.Element | null => {
-    const width: number = Math.floor(this.props.width);
     // Don't scroll if the list is filtered.
     const scrollOffset: number =
       !this.state.query && isNumber(activeItemIndex)
@@ -206,7 +205,7 @@ class SelectComponent extends React.Component<
         itemCount={items.length}
         itemSize={ITEM_SIZE}
         ref={this.listRef}
-        width={width}
+        width={"100%"}
       >
         {RowRenderer}
       </FixedSizeList>
