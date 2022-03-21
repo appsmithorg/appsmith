@@ -62,7 +62,7 @@ export enum DatasourceButtonTypeEnum {
 }
 
 export const DatasourceButtonType: Record<
-  keyof typeof DatasourceButtonTypeEnum, // using the key of ApiContentType enum as the key property of this Record type.
+  keyof typeof DatasourceButtonTypeEnum,
   string
 > = {
   DELETE: "DELETE",
@@ -97,7 +97,7 @@ function DatasourceAuth({
 }: Props) {
   const authType =
     formData &&
-    formData.datasourceConfiguration?.authentication?.authenticationType;
+    formData?.datasourceConfiguration?.authentication?.authenticationType;
 
   const { id: datasourceId } = datasource;
   const applicationId = useSelector(getCurrentApplicationId);
@@ -114,6 +114,7 @@ function DatasourceAuth({
 
       const search = new URLSearchParams(location.search);
       const status = search.get("response_status");
+
       if (status) {
         const display_message = search.get("display_message");
         const variant = Variant.danger;
@@ -134,7 +135,7 @@ function DatasourceAuth({
         });
       }
     }
-  }, []);
+  }, [authType]);
 
   // selectors
   const {
@@ -146,8 +147,8 @@ function DatasourceAuth({
   );
 
   const isAuthorized =
-    datasource.datasourceConfiguration.authentication?.authenticationStatus ===
-    AuthenticationStatus.SUCCESS;
+    datasource?.datasourceConfiguration?.authentication
+      ?.authenticationStatus === AuthenticationStatus.SUCCESS;
 
   // Button Operations for respective buttons.
   // Handles datasource deletion

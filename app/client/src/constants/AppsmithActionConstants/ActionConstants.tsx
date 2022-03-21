@@ -164,6 +164,6 @@ export const defaultDatasourceFormButtonConfig: Record<PluginType, string[]> = {
   [PluginType.API]: apiActionDatasourceFormButtonConfig.API,
   [PluginType.DB]: apiActionDatasourceFormButtonConfig.DB,
   [PluginType.SAAS]: apiActionDatasourceFormButtonConfig.SAAS,
-  [PluginType.REMOTE]: [],
+  [PluginType.REMOTE]: apiActionDatasourceFormButtonConfig.REMOTE,
   [PluginType.JS]: [],
 };
