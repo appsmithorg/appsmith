@@ -178,11 +178,11 @@ public class DatabaseChangelog2 {
                     .forEach(k -> {
                         if (k != null) {
                             final Object oldValue = unpublishedFormData.get(k);
-                            unpublishedFormData.put(k, Map.of(
+                            unpublishedFormData.put(k, new HashMap<>(Map.of(
                                     "data", oldValue,
                                     "componentData", oldValue,
                                     "viewType", "component"
-                            ));
+                            )));
                         }
                     });
 
@@ -232,11 +232,11 @@ public class DatabaseChangelog2 {
                     .forEach(k -> {
                         if (k != null) {
                             final Object oldValue = publishedFormData.get(k);
-                            publishedFormData.put(k, Map.of(
+                            publishedFormData.put(k, new HashMap<>(Map.of(
                                     "data", oldValue,
                                     "componentData", oldValue,
                                     "viewType", "component"
-                            ));
+                            )));
                         }
                     });
 
@@ -311,11 +311,11 @@ public class DatabaseChangelog2 {
         }
         if (key != null) {
             formDataMap.put(key,
-                    Map.of(
+                    new HashMap<>(Map.of(
                             "data", value,
                             "componentData", value,
                             "viewType", "component"
-                    ));
+                    )));
         }
     }
 
