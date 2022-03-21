@@ -76,7 +76,8 @@ import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATI
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
-import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINE;
+import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINES;
+import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COUNT_QUERY;
 import static com.external.plugins.constants.FieldName.DELETE_QUERY;
 import static com.external.plugins.constants.FieldName.DISTINCT_QUERY;
@@ -172,7 +173,8 @@ public class MongoPlugin extends BasePlugin {
 
     private static final Integer MONGO_COMMAND_EXCEPTION_UNAUTHORIZED_ERROR_CODE = 13;
 
-    private static final Set<String> bsonFields = new HashSet<>(Arrays.asList(AGGREGATE_PIPELINE,
+    private static final Set<String> bsonFields = new HashSet<>(Arrays.asList(
+            AGGREGATE_PIPELINES,
             COUNT_QUERY,
             DELETE_QUERY,
             DISTINCT_QUERY,
@@ -238,11 +240,12 @@ public class MongoPlugin extends BasePlugin {
                             executeActionDTO.getParams(), parameters);
                 } else {
                     // For raw queries do smart replacements in BSON body
-                    if (actionConfiguration.getBody() != null) {
+                    final Object body = getValueSafelyFromFormData(formData, BODY);
+                    if (body != null) {
                         try {
-                            String updatedRawQuery = smartSubstituteBSON(actionConfiguration.getBody(),
+                            String updatedRawQuery = smartSubstituteBSON((String) body,
                                     executeActionDTO.getParams(), parameters);
-                            actionConfiguration.setBody(updatedRawQuery);
+                            setValueSafelyInFormData(formData, BODY, updatedRawQuery);
                         } catch (AppsmithPluginException e) {
                             ActionExecutionResult errorResult = new ActionExecutionResult();
                             errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
@@ -259,8 +262,10 @@ public class MongoPlugin extends BasePlugin {
             // In case the input type is form instead of raw, parse the same into BSON command
             String parsedRawCommand = convertMongoFormInputToRawCommand(actionConfiguration);
             if (parsedRawCommand != null) {
-                actionConfiguration.setBody(parsedRawCommand);
+                setValueSafelyInFormData(formData, BODY, parsedRawCommand);
             }
+
+            actionConfiguration.setFormData(formData);
 
             return this.executeCommon(mongoClient, datasourceConfiguration, actionConfiguration, parameters);
         }
@@ -287,7 +292,9 @@ public class MongoPlugin extends BasePlugin {
 
             MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
 
-            String query = actionConfiguration.getBody();
+            final Map<String, Object> formData = actionConfiguration.getFormData();
+
+            String query = (String) getValueSafelyFromFormData(formData, BODY);
             Bson command = Document.parse(query);
 
             Mono<Document> mongoOutputMono = Mono.from(database.runCommand(command));
