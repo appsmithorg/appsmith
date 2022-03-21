@@ -11,10 +11,10 @@ export const CONFIG = {
   isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
   defaults: {
     widgetName: "Progress",
-    rows: 17,
+    rows: 4,
     columns: 28,
     fillColor: Colors.GREEN,
-    isIndeterminate: true,
+    isIndeterminate: false,
     showResult: false,
     counterClosewise: false,
     isVisible: true,
