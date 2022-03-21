@@ -39,9 +39,9 @@ export const StyledFormGroup = styled.div`
   }
 `;
 
-export const StyledLabel = styled.label<{ isLabel?: string }>`
+export const StyledLabel = styled.label`
   margin-bottom: ${(props) => props.theme.spaces[3]}px;
-  display: ${(props) => (props.isLabel ? `inline-block` : `none`)};
+  display: inline-block;
   ${(props) => getTypographyByKey(props, "h5")}
   color: ${(props) => props.theme.colors.textInput.normal.text};
 `;
@@ -62,12 +62,11 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
       className={className}
       data-testid="admin-settings-form-group"
     >
-      <StyledLabel
-        data-testid="admin-settings-form-group-label"
-        isLabel={setting.label || ""}
-      >
-        {createMessage(() => setting.label || "")}
-      </StyledLabel>
+      {setting.label && (
+        <StyledLabel data-testid="admin-settings-form-group-label">
+          {createMessage(() => setting.label || "")}
+        </StyledLabel>
+      )}
       {setting.isRequired && <StyledAsterisk>*</StyledAsterisk>}
       {setting.helpText && (
         <Tooltip content={createMessage(() => setting.helpText || "")}>

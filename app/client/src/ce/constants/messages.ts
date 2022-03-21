@@ -677,6 +677,9 @@ export const DISCONNECT_SERVICE_SUBHEADER = () =>
   "Changes to this section can disrupt user authentication. Proceed with caution.";
 export const DISCONNECT_SERVICE_WARNING = () =>
   "will be removed as primary method of authentication";
+export const AUTHENTICATION_METHOD_ENABLED = (methodName: string) => `
+  ${methodName} authentication method is enabled
+`;
 
 export const DISCONNECT_EXISTING_REPOSITORIES = () =>
   "Disconnect existing Repositories";

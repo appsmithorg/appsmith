@@ -11,6 +11,7 @@ import {
   EDIT,
   UPGRADE,
   UPGRADE_TO_EE,
+  AUTHENTICATION_METHOD_ENABLED,
 } from "@appsmith/constants/messages";
 import { getAdminSettingsCategoryUrl } from "constants/routes";
 import { Callout, CalloutType } from "components/ads/CalloutV2";
@@ -174,7 +175,10 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                     {method.isConnected && (
                       <TooltipComponent
                         autoFocus={false}
-                        content={`${method.label} authentication method is enabled`}
+                        content={createMessage(
+                          AUTHENTICATION_METHOD_ENABLED,
+                          method.label,
+                        )}
                         hoverOpenDelay={0}
                         minWidth={"180px"}
                         openOnTargetFocus={false}

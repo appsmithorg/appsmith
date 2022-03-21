@@ -94,6 +94,7 @@ export function SignUp(props: SignUpFormProps) {
   const { emailValue: email, error, pristine, submitting, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
   const socialLoginList = ThirdPartyLoginRegistry.get();
+  const shouldDisableSignupButton = pristine || !isFormValid;
   const location = useLocation();
 
   const recaptchaStatus = useScript(
@@ -119,6 +120,32 @@ export function SignUp(props: SignUpFormProps) {
     }
   }
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formElement: HTMLFormElement = document.getElementById(
+      "signup-form",
+    ) as HTMLFormElement;
+    if (
+      googleRecaptchaSiteKey.enabled &&
+      recaptchaStatus === ScriptStatus.READY
+    ) {
+      window.grecaptcha
+        .execute(googleRecaptchaSiteKey.apiKey, {
+          action: "submit",
+        })
+        .then(function(token: any) {
+          formElement &&
+            formElement.setAttribute(
+              "action",
+              `${signupURL}?recaptchaToken=${token}`,
+            );
+          formElement && formElement.submit();
+        });
+    } else {
+      formElement && formElement.submit();
+    }
+  };
+
   return (
     <>
       {showError && <FormMessage intent="danger" message={errorMessage} />}
@@ -142,32 +169,7 @@ export function SignUp(props: SignUpFormProps) {
           action={signupURL}
           id="signup-form"
           method="POST"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const formElement: HTMLFormElement = document.getElementById(
-              "signup-form",
-            ) as HTMLFormElement;
-            if (
-              googleRecaptchaSiteKey.enabled &&
-              recaptchaStatus === ScriptStatus.READY
-            ) {
-              window.grecaptcha
-                .execute(googleRecaptchaSiteKey.apiKey, {
-                  action: "submit",
-                })
-                .then(function(token: any) {
-                  formElement &&
-                    formElement.setAttribute(
-                      "action",
-                      `${signupURL}?recaptchaToken=${token}`,
-                    );
-                  formElement && formElement.submit();
-                });
-            } else {
-              formElement && formElement.submit();
-            }
-            return false;
-          }}
+          onSubmit={(e) => handleSubmit(e)}
         >
           <FormGroup
             intent={error ? "danger" : "none"}
@@ -194,7 +196,7 @@ export function SignUp(props: SignUpFormProps) {
           </FormGroup>
           <FormActions>
             <Button
-              disabled={pristine || !isFormValid}
+              disabled={shouldDisableSignupButton}
               fill
               isLoading={submitting}
               onClick={() => {
