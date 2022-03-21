@@ -31,6 +31,7 @@ describe("SSO with OIDC test functionality", function() {
       200,
     );
     // adding wait for server to restart
+    cy.wait(30000);
     cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
     cy.get(homePage.profileMenu).click();
     cy.get(homePage.signOutIcon).click();

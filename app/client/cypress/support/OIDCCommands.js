@@ -14,7 +14,7 @@ Cypress.Commands.add("fillOIDCform", () => {
   cy.get(oidcform.tokenURL).type(oidcData.tokenURL);
   cy.get(oidcform.userInfo).type(oidcData.userInfo);
   cy.get(oidcform.jwtSetURI).type(oidcData.jwtSetURI);
-  cy.xpath(oidcform.AdvancedOptionExpand).click({ force: true });
+  // cy.xpath(oidcform.AdvancedOptionExpand).click({ force: true });
   cy.get(oidcform.scope).type(oidcData.scope);
   cy.get(oidcform.userAttribute).type(oidcData.userAttribute);
   cy.get(oidcform.saveBtn).click({ force: true });
