@@ -68,6 +68,7 @@ export function InlineCellEditor({
         isInvalid={false}
         isLoading={false}
         label=""
+        multiline
         onFocusChange={onFocusChange}
         onKeyDown={onKeyDown}
         onValueChange={onChange}
