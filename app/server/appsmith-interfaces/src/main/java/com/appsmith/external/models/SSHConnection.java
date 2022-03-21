@@ -13,18 +13,9 @@ import lombok.ToString;
 @AllArgsConstructor
 public class SSHConnection implements AppsmithDomain {
 
-    public enum AuthType {
-        IDENTITY_FILE, PASSWORD
-    }
+    // Use the SSHAuth class for authentication.
+    SSHAuth authentication;
 
-    String host;
-
-    Long port;
-
-    String username;
-
-    AuthType authType;
-
-    SSHPrivateKey privateKey;
+    // Add any other fields required to define an SSH proxy
 
 }

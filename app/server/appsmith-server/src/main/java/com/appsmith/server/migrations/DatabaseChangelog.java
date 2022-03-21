@@ -4787,11 +4787,6 @@ public class DatabaseChangelog {
         return true;
     }
 
-    @ChangeSet(order = "108", id = "create-system-themes", author = "")
-    public void createSystemThemes(MongockTemplate mongockTemplate) throws IOException {
-        createSystemThemes2(mongockTemplate);
-    }
-
     /**
      * This migration adds a new field to Mongo aggregate command to set batchSize: formData.aggregate.limit. Its value
      * is set by this migration to 101 for all existing actions since this is the default `batchSize` used by
@@ -5072,4 +5067,26 @@ public class DatabaseChangelog {
             );
         }
     }
+
+
+    @ChangeSet(order = "118", id = "add-ssh-plugin", author = "")
+    public void addSSHPlugin(MongockTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("SSH");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("ssh-plugin");
+        plugin.setUiComponent("UQIDbEditorForm");
+        plugin.setDatasourceComponent("AutoForm");
+        plugin.setResponseType(Plugin.ResponseType.JSON);
+        plugin.setIconLocation("https://assets.appsmith.com/ssh-icon.svg");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-ssh-plugin");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+    }
+
 }

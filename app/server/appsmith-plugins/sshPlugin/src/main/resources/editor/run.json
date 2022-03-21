@@ -1,0 +1,23 @@
+{
+  "identifier": "RUN",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command === 'RUN'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Command to execute",
+      "description": "This is the SSH command which will be executed on the remote server",
+      "children": [
+        {
+          "label": "",
+          "propertyName" : "sshCommandBody",
+          "configProperty": "actionConfiguration.body",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE"
+        }
+      ]
+    }
+  ]
+}

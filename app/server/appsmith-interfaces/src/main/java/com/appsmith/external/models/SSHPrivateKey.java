@@ -19,6 +19,6 @@ public class SSHPrivateKey implements AppsmithDomain {
 
     @Encrypted
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    String password;
+    String passphrase;
 
 }
