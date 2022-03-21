@@ -16,11 +16,14 @@ import {
 
 const ErrorWrapper = styled.div`
   padding: 24px 0px;
+
   .${Classes.TEXT} {
     display: block;
     margin-bottom: ${(props) => props.theme.spaces[3]}px;
+
     &.t--read-document {
       display: inline-flex;
+
       .${Classes.ICON} {
         margin-left: ${(props) => props.theme.spaces[3]}px;
       }
@@ -33,6 +36,7 @@ const LinkText = styled.a`
     text-decoration: none;
     color: ${Colors.CRUSTA};
   }
+
   color: ${Colors.CRUSTA};
   cursor: pointer;
 `;

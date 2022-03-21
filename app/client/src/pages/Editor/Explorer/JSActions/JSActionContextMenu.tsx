@@ -149,7 +149,7 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
         },
       ]}
       selectedValue=""
-      toggle={<ContextMenuTrigger />}
+      toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
   );
 }
