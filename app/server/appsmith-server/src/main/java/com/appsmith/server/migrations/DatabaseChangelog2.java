@@ -6,6 +6,8 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
@@ -138,14 +140,20 @@ public class DatabaseChangelog2 {
                 continue;
             }
 
-            if (pluginMap.get(uqiAction.getPluginId()).equals("firestore-plugin")) {
-                migrateFirestoreActionsFormData(uqiAction);
-            } else if (pluginMap.get(uqiAction.getPluginId()).equals("amazons3-plugin")) {
-                migrateAmazonS3ActionsFormData(uqiAction);
-            } else {
-                migrateMongoActionsFormData(uqiAction);
+            try {
+                if (pluginMap.get(uqiAction.getPluginId()).equals("firestore-plugin")) {
+                    migrateFirestoreActionsFormData(uqiAction);
+                } else if (pluginMap.get(uqiAction.getPluginId()).equals("amazons3-plugin")) {
+                    migrateAmazonS3ActionsFormData(uqiAction);
+                } else {
+                    migrateMongoActionsFormData(uqiAction);
+                }
+            } catch (AppsmithException e) {
+                // This action is already migrated, move on
+                log.error("Failed with error: {}", e.getMessage());
+                log.error("Failing action: {}", uqiAction.getId());
+                continue;
             }
-
             mongockTemplate.save(uqiAction);
         }
     }
@@ -158,6 +166,12 @@ public class DatabaseChangelog2 {
         final Map<String, Object> unpublishedFormData = unpublishedAction.getActionConfiguration().getFormData();
 
         if (unpublishedFormData != null) {
+            final Object command = unpublishedFormData.get("command");
+
+            if (!(command instanceof String)) {
+                throw new AppsmithException(AppsmithError.MIGRATION_ERROR);
+            }
+
             unpublishedFormData
                     .keySet()
                     .stream()
@@ -206,6 +220,12 @@ public class DatabaseChangelog2 {
                 publishedAction.getActionConfiguration().getFormData() != null) {
             final Map<String, Object> publishedFormData = publishedAction.getActionConfiguration().getFormData();
 
+            final Object command = publishedFormData.get("command");
+
+            if (!(command instanceof String)) {
+                throw new AppsmithException(AppsmithError.MIGRATION_ERROR);
+            }
+            
             publishedFormData
                     .keySet()
                     .stream()
@@ -306,6 +326,15 @@ public class DatabaseChangelog2 {
             return;
         }
 
+        final Object command = formData.get("command");
+        if (command == null) {
+            return;
+        }
+
+        if (!(command instanceof String)) {
+            throw new AppsmithException(AppsmithError.MIGRATION_ERROR);
+        }
+
         final String body = action.getActionConfiguration().getBody();
         if (StringUtils.hasLength(body)) {
             convertToFormDataObject(f, "body", body);
@@ -318,14 +347,10 @@ public class DatabaseChangelog2 {
             action.getActionConfiguration().setPath(null);
         }
 
-        final String command = (String) formData.get("command");
-        if (command == null) {
-            return;
-        }
         convertToFormDataObject(f, "command", command);
         convertToFormDataObject(f, "bucket", formData.get("bucket"));
         convertToFormDataObject(f, "smartSubstitution", formData.get("smartSubstitution"));
-        switch (command) {
+        switch ((String) command) {
             // No case for delete single and multiple since they only had bucket that needed migration
             case "LIST":
                 final Map listMap = (Map) formData.get("list");
@@ -429,26 +454,31 @@ public class DatabaseChangelog2 {
             return;
         }
 
+        final Object command = formData.get("command");
+        if (command == null) {
+            return;
+        }
+
+        if (!(command instanceof String)) {
+            throw new AppsmithException(AppsmithError.MIGRATION_ERROR);
+        }
+
         final String body = action.getActionConfiguration().getBody();
         if (StringUtils.hasLength(body)) {
             convertToFormDataObject(f, "body", body);
             action.getActionConfiguration().setBody(null);
         }
 
-        final String command = (String) formData.get("command");
-        if (command == null) {
-            return;
-        }
         convertToFormDataObject(f, "command", command);
         convertToFormDataObject(f, "collection", formData.get("collection"));
         convertToFormDataObject(f, "smartSubstitution", formData.get("smartSubstitution"));
-        switch (command) {
+        switch ((String) command) {
             case "AGGREGATE":
                 final Map aggregateMap = (Map) formData.get("aggregate");
                 if (aggregateMap == null) {
                     break;
                 }
-                final Map<String,Object> newAggregateMap = new HashMap<>();
+                final Map<String, Object> newAggregateMap = new HashMap<>();
                 f.put("aggregate", newAggregateMap);
                 convertToFormDataObject(newAggregateMap, "arrayPipelines", aggregateMap.get("arrayPipelines"));
                 convertToFormDataObject(newAggregateMap, "limit", aggregateMap.get("limit"));
