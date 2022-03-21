@@ -86,8 +86,9 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
             hidden: (props: ProgressWidgetProps) =>
-              props.progressType === ProgressType.LINEAR,
-            dependencies: ["progressType"],
+              props.progressType === ProgressType.LINEAR ||
+              props.isIndeterminate,
+            dependencies: ["isIndeterminate", "progressType"],
           },
           {
             helpText:
@@ -160,11 +161,14 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
       steps,
       value,
     } = this.props;
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const isScaleY = componentHeight > componentWidth;
 
     return (
       <ProgressComponent
         counterClockwise={counterClockwise}
         fillColor={fillColor}
+        isScaleY={isScaleY}
         showResult={showResult}
         steps={steps}
         type={progressType}
