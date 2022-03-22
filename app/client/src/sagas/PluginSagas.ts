@@ -77,9 +77,6 @@ function* fetchPluginFormConfigsSaga() {
     if (apiPlugin) {
       pluginIdFormsToFetch.add(apiPlugin.id);
     }
-    for (const id of pluginIdFormsToFetch) {
-      pluginFormRequests.push();
-    }
     const pluginFormData: PluginFormPayload[] = [];
     const pluginFormResponses: GenericApiResponse<
       PluginFormPayload
