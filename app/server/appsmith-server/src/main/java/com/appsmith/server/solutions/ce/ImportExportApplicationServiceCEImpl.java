@@ -2,7 +2,6 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.Stopwatch;
-import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.BasicAuth;
@@ -73,7 +72,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -1810,5 +1808,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             application.setPublishedModeThemeId(null);
             application.setClientSchemaVersion(null);
             application.setServerSchemaVersion(null);
+            application.setIsManualUpdate(false);
     }
 }
