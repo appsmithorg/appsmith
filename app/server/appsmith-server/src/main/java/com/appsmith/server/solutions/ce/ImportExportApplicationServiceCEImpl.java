@@ -718,29 +718,28 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                                         });
                                                             });
                                                 });
-                                    } else {
-                                        Mono<Application> applicationMono = applicationPageService.setApplicationPolicies(currUserMono, organizationId, importedApplication);
-                                        return applicationService
-                                                .findByOrganizationId(organizationId, MANAGE_APPLICATIONS)
-                                                .collectList()
-                                                .zipWith(applicationMono)
-                                                .flatMap(objects -> {
-                                                    Application application1 = objects.getT2();
-                                                    List<Application> applicationList = objects.getT1();
-                                                    Application duplicateNameApp = applicationList
-                                                            .stream()
-                                                            .filter(application2 -> StringUtils.equals(application2.getName(), application1.getName()))
-                                                            .findAny()
-                                                            .orElse(null);
-
-                                                    return getUniqueSuffixForDuplicateNameEntity(duplicateNameApp, organizationId)
-                                                            .map(suffix -> {
-                                                                importedApplication.setName(importedApplication.getName() + suffix);
-                                                                return importedApplication;
-                                                            });
-                                                })
-                                                .then(applicationService.save(importedApplication));
                                     }
+                                    Mono<Application> applicationMono = applicationPageService.setApplicationPolicies(currUserMono, organizationId, importedApplication);
+                                    return applicationService
+                                            .findByOrganizationId(organizationId, MANAGE_APPLICATIONS)
+                                            .collectList()
+                                            .zipWith(applicationMono)
+                                            .flatMap(objects -> {
+                                                Application application1 = objects.getT2();
+                                                List<Application> applicationList = objects.getT1();
+                                                Application duplicateNameApp = applicationList
+                                                        .stream()
+                                                        .filter(application2 -> StringUtils.equals(application2.getName(), application1.getName()))
+                                                        .findAny()
+                                                        .orElse(null);
+
+                                                return getUniqueSuffixForDuplicateNameEntity(duplicateNameApp, organizationId)
+                                                        .map(suffix -> {
+                                                            importedApplication.setName(importedApplication.getName() + suffix);
+                                                            return importedApplication;
+                                                        });
+                                            })
+                                            .then(applicationService.save(importedApplication));
                                 })
                 )
                 .flatMap(savedApp -> importThemes(savedApp, importedDoc))
