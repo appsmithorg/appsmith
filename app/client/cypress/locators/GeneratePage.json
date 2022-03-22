@@ -17,7 +17,7 @@
   "genderField": "//input[@placeholder='gender']",
   "emailField": "//input[@placeholder='email']",
   "submitBtn": "span:contains('Submit')",
-  "sortByDropdown": "//div[@type='CANVAS_WIDGET']/div[contains(@class, 't--widget-dropdownwidget')][2]",
+  "sortByDropdown": "span[name='dropdown']",
   "ascending": "//div[text()='Ascending']",
   "descending": "//div[text()='Descending']",
   "currentNameField": "//div[@type='FORM_WIDGET']//span[text()='name:']//ancestor::div[contains(@class,'t--widget-textwidget')]/following-sibling::div[contains(@class, 't--widget-inputwidgetv2')][1]//input",
