@@ -336,6 +336,8 @@ export default class DataTreeEvaluator {
       }
       return false;
     });
+
+    console.log("hello", evaluationOrder.length);
     this.logs.push({
       sortedDependencies: this.sortedDependencies,
       inverse: this.inverseDependencyMap,
