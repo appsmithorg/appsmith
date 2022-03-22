@@ -350,16 +350,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     };
   }
 
-  componentDidUpdate(prevPorps: InputWidgetProps) {
-    // If defaultText property has changed, reset isDirty to false
-    if (
-      this.props.defaultText !== prevPorps.defaultText &&
-      this.props.isDirty
-    ) {
-      this.props.updateWidgetMetaProperty("isDirty", false);
-    }
-  }
-
   handleFocusChange = (focusState: boolean) => {
     super.handleFocusChange(focusState);
   };
@@ -388,6 +378,13 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         "text",
         getParsedText(this.props.inputText, this.props.inputType),
       );
+    }
+    // If defaultText property has changed, reset isDirty to false
+    if (
+      this.props.defaultText !== prevProps.defaultText &&
+      this.props.isDirty
+    ) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
     }
   };
 
