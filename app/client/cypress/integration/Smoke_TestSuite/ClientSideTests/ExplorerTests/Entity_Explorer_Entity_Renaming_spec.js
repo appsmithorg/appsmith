@@ -67,7 +67,6 @@ describe("Api Naming conflict on different pages test", function() {
     });
     cy.deleteActionAndConfirm();
     cy.wait(1000);
-    cy.DeleteAPIFromSideBar();
   });
 });
 

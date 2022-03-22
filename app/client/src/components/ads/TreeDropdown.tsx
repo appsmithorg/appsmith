@@ -33,7 +33,6 @@ export type TreeDropdownOption = DropdownOption & {
   isChildrenOpen?: boolean;
   selfIndex?: number[];
   args?: Array<any>;
-  confirmDelete?: boolean;
 };
 
 type Setter = (value: TreeDropdownOption, defaultVal?: string) => void;
@@ -54,8 +53,6 @@ export type TreeDropdownProps = {
   modifiers?: IPopoverSharedProps["modifiers"];
   onMenuToggle?: (isOpen: boolean) => void;
   position?: Position;
-  setConfirmDelete?: (val: boolean) => void;
-  editorPageContextMenu?: boolean;
 };
 
 export const StyledMenu = styled(Menu)`
@@ -88,8 +85,7 @@ export const StyledMenu = styled(Menu)`
       fill: #9f9f9f;
     }
 
-    &.t--apiFormDeleteBtn,
-    &.t--apiFormDeleteBtn.bp3-menu-item.bp3-active {
+    &.t--apiFormDeleteBtn {
       color: ${Colors.DANGER_SOLID};
       .${Classes.ICON} svg {
         fill: ${Colors.DANGER_SOLID};
@@ -332,13 +328,7 @@ function TreeDropdown(props: TreeDropdownProps) {
       };
     return (e: any) => {
       handleSelect(option);
-      // if the selected option's value is for a delete operation do not immediately dismiss the dropdown
-      // so we can request confirmation (by double clicking the option).
-      if (option?.value === "delete" && !option?.confirmDelete) {
-        setIsOpen(true);
-      } else {
-        setIsOpen(false);
-      }
+      setIsOpen(false);
       props.onMenuToggle && props.onMenuToggle(false);
       e?.stopPropagation && e.stopPropagation();
     };
@@ -534,7 +524,6 @@ function TreeDropdown(props: TreeDropdownProps) {
       modifiers={props.modifiers}
       onClose={() => {
         setIsOpen(false);
-        props.setConfirmDelete ? props.setConfirmDelete(false) : null;
         props.onMenuToggle && props.onMenuToggle(false);
       }}
       position={props.position || PopoverPosition.LEFT}
