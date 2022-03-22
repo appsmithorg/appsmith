@@ -82,8 +82,10 @@ export const ForgotPassword = withTheme(
           {submitSucceeded && (
             <FormMessage
               intent="lightSuccess"
-              message={`${createMessage(FORGOT_PASSWORD_SUCCESS_TEXT)}
-                ${props.emailValue}`}
+              message={createMessage(
+                FORGOT_PASSWORD_SUCCESS_TEXT,
+                props.emailValue,
+              )}
             />
           )}
           {!mailEnabled && (
@@ -111,7 +113,7 @@ export const ForgotPassword = withTheme(
             label={createMessage(FORGOT_PASSWORD_PAGE_EMAIL_INPUT_LABEL)}
           >
             <FormTextField
-              disabled={submitting}
+              disabled={submitting || submitSucceeded}
               name="email"
               placeholder={createMessage(
                 FORGOT_PASSWORD_PAGE_EMAIL_INPUT_PLACEHOLDER,
