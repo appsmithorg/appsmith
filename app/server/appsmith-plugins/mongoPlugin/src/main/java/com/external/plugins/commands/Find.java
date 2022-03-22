@@ -16,6 +16,7 @@ import java.util.Map;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
+import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.FIND;
@@ -139,10 +140,11 @@ public class Find extends MongoCommand {
                 "  },\n" +
                 "  \"limit\": 10\n" +
                 "}\n";
+        setValueSafelyInFormData(configMap, BODY, rawQuery);
 
         return new DatasourceStructure.Template(
                 "Find",
-                rawQuery,
+                null,
                 configMap
         );
     }
@@ -161,10 +163,11 @@ public class Find extends MongoCommand {
                 "    \"_id\": ObjectId(\"id_to_query_with\")\n" +
                 "  }\n" +
                 "}\n";
+        setValueSafelyInFormData(configMap, BODY, rawQuery);
 
         return new DatasourceStructure.Template(
                 "Find by ID",
-                rawQuery,
+                null,
                 configMap
         );
     }
