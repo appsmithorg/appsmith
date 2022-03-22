@@ -5076,6 +5076,7 @@ public class DatabaseChangelog {
     @ChangeSet(order = "118", id = "add-isCOnfigured-flag-for-all-datasources", author = "")
     public void updateIsConfiguredFlagForAllTheExistingDatasources(MongockTemplate mongockTemplate) {
         final Query datasourceQuery = query(where(fieldName(QDatasource.datasource.deleted)).ne(true));
+        datasourceQuery.equals((fieldName(QDatasource.datasource.invalids)).equals("[]"));
         datasourceQuery.fields()
                 .include(fieldName(QDatasource.datasource.id));
 
