@@ -155,7 +155,7 @@ module.exports = class Perf {
 
     const elementHandle = await this.page.$(selectors.fileInput);
     await elementHandle.uploadFile(jsonPath);
-    await this.page.click(selectors.importButton);
+    // await this.page.click(selectors.importButton);
 
     await this.page.waitForNavigation();
     await this.page.reload();
