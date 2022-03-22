@@ -16,6 +16,7 @@ import java.util.Map;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
+import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.DISTINCT;
@@ -51,7 +52,7 @@ public class Distinct extends MongoCommand {
             if (!StringUtils.isNullOrEmpty(key)) {
                 return Boolean.TRUE;
             } else if (StringUtils.isNullOrEmpty(key)) {
-                    fieldNamesWithNoConfiguration.add("Key/Field");
+                fieldNamesWithNoConfiguration.add("Key/Field");
             }
         }
 
@@ -92,13 +93,12 @@ public class Distinct extends MongoCommand {
                 "  \"query\": { \"_id\": ObjectId(\"id_of_document_to_distinct\") }," +
                 "  \"key\": \"_id\"," +
                 "}\n";
+        setValueSafelyInFormData(configMap, BODY, rawQuery);
 
-
-
-    return Collections.singletonList(new DatasourceStructure.Template(
-        "Distinct",
-        rawQuery,
-        configMap
-    ));
+        return Collections.singletonList(new DatasourceStructure.Template(
+                "Distinct",
+                null,
+                configMap
+        ));
     }
 }
