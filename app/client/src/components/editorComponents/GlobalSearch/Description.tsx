@@ -119,7 +119,7 @@ const StyledDocumentationDescription = styled.div`
   }
   h3 {
     font-size: 1rem;
-    margin: 0.5rem 0 0;
+    margin: 0.5rem 0 0.25rem;
   }
   img,
   pre {
