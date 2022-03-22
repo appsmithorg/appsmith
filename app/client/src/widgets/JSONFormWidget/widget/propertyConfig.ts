@@ -25,6 +25,14 @@ export const sourceDataValidationFn = (
   props: JSONFormWidgetProps,
   _?: any,
 ) => {
+  if (value === "") {
+    return {
+      isValid: false,
+      parsed: {},
+      messages: ["Source data cannot be empty."],
+    };
+  }
+
   if (_.isNil(value)) {
     return {
       isValid: true,
