@@ -5072,25 +5072,5 @@ public class DatabaseChangelog {
             );
         }
     }
-
-    @ChangeSet(order = "118", id = "add-isCOnfigured-flag-for-all-datasources", author = "")
-    public void updateIsConfiguredFlagForAllTheExistingDatasources(MongockTemplate mongockTemplate) {
-        final Query datasourceQuery = query(where(fieldName(QDatasource.datasource.deleted)).ne(true));
-        datasourceQuery.equals((fieldName(QDatasource.datasource.invalids)).equals("[]"));
-        datasourceQuery.fields()
-                .include(fieldName(QDatasource.datasource.id));
-
-        List<Datasource> datasources = mongockTemplate.find(datasourceQuery, Datasource.class);
-        for(Datasource datasource: datasources) {
-            final Update update = new Update();
-            update.set(fieldName(QDatasource.datasource.isConfigured), TRUE);
-            mongockTemplate.updateFirst(
-                    query(where(fieldName(QDatasource.datasource.id)).is(datasource.getId())),
-                    update,
-                    Datasource.class
-            );
-        }
-    }
-    
     
 }
