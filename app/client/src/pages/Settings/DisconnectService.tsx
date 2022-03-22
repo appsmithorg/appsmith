@@ -3,7 +3,12 @@ import styled from "styled-components";
 import { Variant } from "components/ads/common";
 import Button from "components/ads/Button";
 import { Callout } from "components/ads/CalloutV2";
-import { createMessage, DANGER_ZONE } from "@appsmith/constants/messages";
+import {
+  createMessage,
+  DANGER_ZONE,
+  DISCONNECT_AUTH_METHOD,
+  DISCONNECT_CONFIRMATION,
+} from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
@@ -19,7 +24,6 @@ export const DisconnectButton = styled(Button)`
   text-align: center;
   font-size: 13px;
   height: 38px;
-  margin-top: 16px;
   background: ${Colors.CRIMSON};
   border: 2px solid ${Colors.CRIMSON};
 
@@ -60,7 +64,11 @@ export function DisconnectService(props: {
         onClick={() =>
           warnDisconnectAuth ? props.disconnect() : setWarnDisconnectAuth(true)
         }
-        text={warnDisconnectAuth ? "Are you sure?" : "Disconnect"}
+        text={
+          warnDisconnectAuth
+            ? createMessage(DISCONNECT_CONFIRMATION)
+            : createMessage(DISCONNECT_AUTH_METHOD)
+        }
         variant={Variant.danger}
       />
     </Container>
