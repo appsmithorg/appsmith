@@ -34,6 +34,32 @@ import { RenderMode } from "constants/WidgetConstants";
 import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 import { buttonHoverActiveStyles } from "../../ButtonWidget/component/utils";
 
+// Utility functions
+interface ButtonData {
+  id: string;
+  type: string;
+  label: string;
+  iconName: string;
+}
+// extract props influencing to width change
+const getButtonData = (
+  groupButtons: Record<string, GroupButtonProps>,
+): ButtonData[] => {
+  const buttonData = Object.keys(groupButtons).reduce((acc: any[], id) => {
+    return [
+      ...acc,
+      {
+        id,
+        type: groupButtons[id].buttonType,
+        label: groupButtons[id].label,
+        iconName: groupButtons[id].iconName,
+      },
+    ];
+  }, []);
+
+  return buttonData as ButtonData[];
+};
+
 interface WrapperStyleProps {
   isHorizontal: boolean;
   borderRadius?: ButtonBorderRadius;
@@ -443,24 +469,6 @@ class ButtonGroupComponent extends React.Component<
     prevState: ButtonGroupComponentState,
   ) {
     if (
-      JSON.stringify(this.props.groupButtons) !==
-      JSON.stringify(prevProps.groupButtons)
-    ) {
-      this.setState(() => {
-        return {
-          ...this.state,
-          itemRefs: Object.keys(this.props.groupButtons).reduce((acc, id) => {
-            if (this.props.groupButtons[id].buttonType === "MENU") {
-              return {
-                ...acc,
-                [id]: createRef(),
-              };
-            }
-            return acc;
-          }, {}),
-        };
-      });
-    } else if (
       this.state.itemRefs !== prevState.itemRefs ||
       this.props.width !== prevProps.width ||
       this.props.orientation !== prevProps.orientation
@@ -489,6 +497,50 @@ class ButtonGroupComponent extends React.Component<
           };
         });
       });
+    } else {
+      // Reset refs array if
+      // * A button is added/removed or changed into a menu button
+      // * A label is changed or icon is newly added or removed
+      let isWidthChanged = false;
+      const buttons = getButtonData(this.props.groupButtons);
+      const menuButtons = buttons.filter((button) => button.type === "MENU");
+      const prevButtons = getButtonData(prevProps.groupButtons);
+      const prevMenuButtons = prevButtons.filter(
+        (button) => button.type === "MENU",
+      );
+
+      if (buttons.length !== prevButtons.length) {
+        isWidthChanged = true;
+      } else if (menuButtons.length > prevMenuButtons.length) {
+        isWidthChanged = true;
+      } else {
+        isWidthChanged = buttons.some((button) => {
+          const prevButton = prevButtons.find((btn) => btn.id === button.id);
+
+          return (
+            button.label !== prevButton?.label ||
+            (button.iconName && !prevButton.iconName) ||
+            (!button.iconName && prevButton.iconName)
+          );
+        });
+      }
+
+      if (isWidthChanged) {
+        this.setState(() => {
+          return {
+            ...this.state,
+            itemRefs: Object.keys(this.props.groupButtons).reduce((acc, id) => {
+              if (this.props.groupButtons[id].buttonType === "MENU") {
+                return {
+                  ...acc,
+                  [id]: createRef(),
+                };
+              }
+              return acc;
+            }, {}),
+          };
+        });
+      }
     }
   }
 
