@@ -381,7 +381,6 @@ function JSResponseView(props: Props) {
         <EntityBottomTabs
           containerRef={panelRef}
           defaultIndex={0}
-          expandByDefault
           expandedHeight={theme.actionsBottomTabInitialHeight}
           tabs={tabs}
         />

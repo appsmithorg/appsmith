@@ -1,7 +1,6 @@
 import React from "react";
 import { Hotkey, Hotkeys } from "@blueprintjs/core";
 import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
-import { isMac } from "utils/helpers";
 import { JS_OBJECT_HOTKEYS_CLASSNAME } from "./constants";
 
 type Props = {
@@ -15,7 +14,8 @@ class JSObjectHotKeys extends React.Component<Props> {
     return (
       <Hotkeys>
         <Hotkey
-          combo={isMac() ? "cmd + enter" : "ctrl + enter"}
+          allowInInput
+          combo="mod + enter"
           global
           label="Run Js Function"
           onKeyDown={this.props.runActiveJSFunction}

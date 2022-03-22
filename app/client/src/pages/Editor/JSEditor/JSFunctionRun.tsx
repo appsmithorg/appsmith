@@ -27,6 +27,10 @@ type Props = {
 export type DropdownWithCTAWrapperProps = {
   isDisabled: boolean;
 };
+const disabledStyles = `
+opacity: 0.5;
+pointer-events:none;
+`;
 
 const DropdownWithCTAWrapper = styled.div<DropdownWithCTAWrapperProps>`
   display: flex;
@@ -38,16 +42,14 @@ const DropdownWithCTAWrapper = styled.div<DropdownWithCTAWrapperProps>`
     ${(props) =>
       props.isDisabled &&
       `
-    opacity: 0.5;
-    pointer-events:none;
+    ${disabledStyles}
     `}
   }
   ${DropdownContainer} {
     ${(props) =>
       props.isDisabled &&
       `
-    opacity: 0.5;
-    pointer-events:none;
+      ${disabledStyles}
     `}
   }
 `;

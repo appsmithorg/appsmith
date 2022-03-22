@@ -38,12 +38,11 @@ import {
   convertJSActionToDropdownOption,
   getActionFromJsCollection,
   getJSActionOption,
-  getJSFunctionsLineGutters,
+  getJSFunctionLineGutter,
   JSActionDropdownOption,
 } from "./utils";
 import { JS_OBJECT_HOTKEYS_CLASSNAME } from "./constants";
 import { DropdownOnSelect } from "components/ads";
-import { isMac } from "utils/helpers";
 import JSFunctionSettingsView from "./JSFunctionSettings";
 import JSObjectHotKeys from "./JSObjectHotKeys";
 
@@ -202,21 +201,9 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
 
   const JSGutters = useMemo(
     () =>
-      getJSFunctionsLineGutters(
-        jsActions,
-        executeJSAction,
-        !parseErrors.length,
-      ),
+      getJSFunctionLineGutter(jsActions, executeJSAction, !parseErrors.length),
     [jsActions, parseErrors],
   );
-
-  const customKeyMap = {
-    combination: isMac() ? "Cmd-Enter" : "Ctrl-Enter",
-    onKeyDown: () => {
-      selectedJSActionOption.data &&
-        executeJSAction(selectedJSActionOption.data);
-    },
-  };
 
   const handleJSActionOptionSelection: DropdownOnSelect = (
     value,
@@ -292,7 +279,6 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                       <CodeEditor
                         className={"js-editor"}
                         customGutter={JSGutters}
-                        customKeyMap={customKeyMap}
                         dataTreePath={`${currentJSCollection.name}.body`}
                         folding
                         height={"100%"}

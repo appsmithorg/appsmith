@@ -1,9 +1,6 @@
 import { parse, Node } from "acorn";
 import { ancestor } from "acorn-walk";
-import {
-  CodeEditorGutter,
-  GutterConfig,
-} from "components/editorComponents/CodeEditor";
+import { CodeEditorGutter } from "components/editorComponents/CodeEditor";
 import { JSAction, JSCollection } from "entities/JSCollection";
 import {
   ECMA_VERSION,
@@ -14,6 +11,7 @@ import {
   NO_FUNCTION_DROPDOWN_OPTION,
 } from "./constants";
 import { DropdownOption } from "components/ads/Dropdown";
+import { find } from "lodash";
 
 interface IdentifierNode extends Node {
   type: NodeTypes.Identifier;
@@ -39,38 +37,52 @@ const getAST = (code: string, sourceType: SourceType) =>
     locations: true, // Adds location data to each node
   });
 
+const isCursorWithinNode = (
+  location: acorn.SourceLocation,
+  cursorLineNumber: number,
+) => {
+  return (
+    location.start.line <= cursorLineNumber &&
+    location.end.line >= cursorLineNumber
+  );
+};
+
 // Function to get start line of js function from code, returns null if function not found
 export const getJSFunctionStartLineFromCode = (
   code: string,
-  funcName: string,
-): number | null => {
+  cursorLine: number,
+  jsActions: JSAction[],
+): { line: number; action: JSAction } | null => {
   let ast: Node = { end: 0, start: 0, type: "" };
-  let line: number | null = null;
+  let result: { line: number; action: JSAction } | null = null;
   try {
     ast = getAST(code, SourceType.module);
   } catch (e) {
-    return line;
+    return result;
   }
 
   ancestor(ast, {
     Property(node, ancestors: Node[]) {
       // We are only interested in identifiers at this depth (exported object keys)
       const depth = ancestors.length - 3;
-
+      const action =
+        isPropertyNode(node) && find(jsActions, ["name", node.key.name]);
       if (
-        isPropertyNode(node) &&
-        node.key.name === funcName &&
+        action &&
+        node.loc &&
+        isCursorWithinNode(node.loc, cursorLine + 1) &&
         ancestors[depth] &&
-        ancestors[depth].type === NodeTypes.ExportDefaultDeclaration &&
-        node.loc // node has location data
+        ancestors[depth].type === NodeTypes.ExportDefaultDeclaration
       ) {
         // 1 is subtracted because codeMirror's line is zero-indexed, this isn't
-        line = node.loc.start.line - 1;
+        result = {
+          line: node.loc.start.line - 1,
+          action,
+        };
       }
     },
   });
-
-  return line;
+  return result;
 };
 
 export const createGutterMarker = (gutterOnclick: () => void) => {
@@ -84,32 +96,33 @@ export const createGutterMarker = (gutterOnclick: () => void) => {
   return marker;
 };
 
-export const getJSFunctionsLineGutters = (
+export const getJSFunctionLineGutter = (
   jsActions: JSAction[],
   runFuction: (jsAction: JSAction) => void,
   showGutters: boolean,
 ): CodeEditorGutter => {
-  const initialValue: CodeEditorGutter = {
+  const gutter: CodeEditorGutter = {
+    getGutterConfig: null,
     gutterId: RUN_GUTTER_ID,
-    gutterConfig: null,
   };
+  if (!showGutters || !jsActions.length) return gutter;
 
-  if (!showGutters || !jsActions.length) return initialValue;
-
-  return jsActions.reduce((prevCodeEditorGutter, jsAction) => {
-    const currentGutterConfig: GutterConfig = {
-      line: (code: string) =>
-        getJSFunctionStartLineFromCode(code, jsAction.name),
-      element: createGutterMarker(() => runFuction(jsAction)),
-    };
-
-    return {
-      ...prevCodeEditorGutter,
-      gutterConfig: prevCodeEditorGutter.gutterConfig
-        ? [...prevCodeEditorGutter.gutterConfig, currentGutterConfig]
-        : [currentGutterConfig],
-    };
-  }, initialValue);
+  return {
+    getGutterConfig: (code: string, cursorLineNumber: number) => {
+      const config = getJSFunctionStartLineFromCode(
+        code,
+        cursorLineNumber,
+        jsActions,
+      );
+      return config
+        ? {
+            line: config.line,
+            element: createGutterMarker(() => runFuction(config.action)),
+          }
+        : null;
+    },
+    gutterId: RUN_GUTTER_ID,
+  };
 };
 
 export const convertJSActionsToDropdownOptions = (

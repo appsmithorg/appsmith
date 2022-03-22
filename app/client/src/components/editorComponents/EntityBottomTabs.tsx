@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setCurrentTab } from "actions/debuggerActions";
 import {
   CollapsibleTabProps,
+  collapsibleTabRequiredPropKeys,
   TabComponent,
   TabProp,
 } from "components/ads/Tabs";
@@ -26,15 +27,12 @@ type EntityBottomTabsProps = {
 type CollapsibleEntityBottomTabsProps = EntityBottomTabsProps &
   CollapsibleTabProps;
 
-const isCollapsibleEntityBottomTab = (
+// Tab is considered collapsible only when all required collapsible props are present
+export const isCollapsibleEntityBottomTab = (
   props: EntityBottomTabsProps | CollapsibleEntityBottomTabsProps,
-): props is CollapsibleEntityBottomTabsProps => {
-  return (
-    "containerRef" in props &&
-    "expandedHeight" in props &&
-    "expandByDefault" in props
-  );
-};
+): props is CollapsibleEntityBottomTabsProps =>
+  collapsibleTabRequiredPropKeys.every((key) => key in props);
+
 // Using this if there are debugger related tabs
 function EntityBottomTabs(
   props: EntityBottomTabsProps | CollapsibleEntityBottomTabsProps,
@@ -79,7 +77,6 @@ function EntityBottomTabs(
         ? {
             containerRef: props.containerRef,
             expandedHeight: props.expandedHeight,
-            expandByDefault: props.expandByDefault,
           }
         : {})}
     />
