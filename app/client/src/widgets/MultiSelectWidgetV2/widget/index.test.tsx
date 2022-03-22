@@ -14,7 +14,7 @@ describe("defaultOptionValueValidation - ", () => {
     });
   });
 
-  it("should get tested with array of strings|number", () => {
+  it("should get tested with array of strings", () => {
     const input = ["green", "red"];
 
     expect(
@@ -22,6 +22,18 @@ describe("defaultOptionValueValidation - ", () => {
     ).toEqual({
       isValid: true,
       parsed: input,
+      messages: [""],
+    });
+  });
+
+  it("should get tested with a number", () => {
+    const input = 2022;
+
+    expect(
+      defaultOptionValueValidation(input, {} as MultiSelectWidgetProps, _),
+    ).toEqual({
+      isValid: true,
+      parsed: [input],
       messages: [""],
     });
   });

@@ -23,7 +23,7 @@ export function defaultOptionValueValidation(
   _: any,
 ): ValidationResponse {
   let isValid;
-  let parsed;
+  let parsed: any[];
   let message = "";
 
   /*
@@ -67,11 +67,10 @@ export function defaultOptionValueValidation(
     }
   }
 
-  if (_.isString(value) && (value as string).trim() === "") {
-    isValid = true;
-    parsed = [];
-    message = "";
-  } else if (Array.isArray(value)) {
+  /*
+   * When value is "['green', 'red']", "[{label: 'green', value: 'green'}]" and "green, red"
+   */
+  if (Array.isArray(value)) {
     if (value.every((val) => _.isString(val) || _.isFinite(val))) {
       /*
        * When value is ["green", "red"]
@@ -107,6 +106,29 @@ export function defaultOptionValueValidation(
       message =
         "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
     }
+  }
+
+  /*
+   * When value is an empty string
+   */
+  if (_.isString(value) && (value as string).trim() === "") {
+    isValid = true;
+    parsed = [];
+    message = "";
+  } else if (_.isNumber(value)) {
+    /*
+     * When value is a number
+     */
+    isValid = true;
+    parsed = [value];
+    message = "";
+  } else if (_.isString(value)) {
+    /*
+     * When value is just a single string e.g "Blue"
+     */
+    isValid = true;
+    parsed = [value];
+    message = "";
   } else {
     /*
      * When value is undefined, null, {} etc.
