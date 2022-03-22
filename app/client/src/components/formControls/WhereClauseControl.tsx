@@ -278,7 +278,7 @@ function ConditionBlock(props: any) {
         <div style={{}}>
           {props.fields.map((field: any, index: number) => {
             if (index == 0) {
-              return <LogicalFieldValue>WHERE</LogicalFieldValue>;
+              return <LogicalFieldValue>Where</LogicalFieldValue>;
             } else if (index == 1) {
               return (
                 <FormControl
