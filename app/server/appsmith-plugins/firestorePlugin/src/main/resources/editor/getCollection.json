@@ -2,12 +2,12 @@
   "identifier": "GET_COLLECTION",
   "controlType" : "SECTION",
   "conditionals": {
-    "show": "{{actionConfiguration.formData.command === 'GET_COLLECTION'}}"
+    "show": "{{actionConfiguration.formData.command.data === 'GET_COLLECTION'}}"
   },
   "children" : [
     {
       "label": "Collection/Document Path",
-      "configProperty": "actionConfiguration.path",
+      "configProperty": "actionConfiguration.formData.path.data",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
       "isRequired": true,
@@ -15,7 +15,7 @@
     },
     {
       "label": "Order By (JSON array of field names to order by)",
-      "configProperty": "actionConfiguration.formData.orderBy",
+      "configProperty": "actionConfiguration.formData.orderBy.data",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
       "isRequired": false,
@@ -24,7 +24,7 @@
     },
     {
       "label": "Start After",
-      "configProperty": "actionConfiguration.next",
+      "configProperty": "actionConfiguration.formData.next.data",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
       "isRequired": false,
@@ -32,7 +32,7 @@
     },
     {
       "label": "End Before",
-      "configProperty": "actionConfiguration.prev",
+      "configProperty": "actionConfiguration.formData.prev.data",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
       "isRequired": false,
@@ -40,7 +40,7 @@
     },
     {
       "label": "Limit Documents",
-      "configProperty": "actionConfiguration.formData.limitDocuments",
+      "configProperty": "actionConfiguration.formData.limitDocuments.data",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
       "isRequired": false,
@@ -48,9 +48,12 @@
     },
     {
       "label": "Where",
-      "configProperty": "actionConfiguration.formData.where",
+      "configProperty": "actionConfiguration.formData.where.data",
       "nestedLevels": 1,
       "controlType": "WHERE_CLAUSE",
+      "-subtitle": "Array of Objects",
+      "-tooltipText": "Array of Objects",
+      "-alternateViewTypes": ["json"],
       "logicalTypes": [
         {
           "label": "AND",

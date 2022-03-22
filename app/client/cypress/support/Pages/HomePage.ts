@@ -122,7 +122,7 @@ export class HomePage {
     }
 
     public CreateNewApplication() {
-        cy.get(this._homePageAppCreateBtn).click({ force: true })
+        cy.get(this._homePageAppCreateBtn).first().click({ force: true })
         cy.wait("@createNewApplication").should(
             "have.nested.property",
             "response.body.responseMeta.status",

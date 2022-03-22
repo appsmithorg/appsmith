@@ -11,7 +11,7 @@ describe("DocumentViewer Widget Functionality", () => {
 
   it("2. Modify visibility & Publish app & verify", () => {
     agHelper.NavigateToExplorer();
-    cy.CheckAndUnfoldEntityItem("WIDGETS"); //to expand widgets
+    agHelper.expandCollapseEntity("WIDGETS"); //to expand widgets
     agHelper.SelectEntityByName("DocumentViewer1");
     agHelper.ToggleOrDisable("visible", false);
     agHelper.DeployApp();
@@ -22,7 +22,7 @@ describe("DocumentViewer Widget Functionality", () => {
   });
 
   it("3. Change visibility & Publish app & verify again", () => {
-    cy.CheckAndUnfoldEntityItem("WIDGETS"); //to expand widgets
+    agHelper.expandCollapseEntity("WIDGETS"); //to expand widgets
     agHelper.SelectEntityByName("DocumentViewer1");
     agHelper.ToggleOrDisable("visible");
     agHelper.DeployApp();

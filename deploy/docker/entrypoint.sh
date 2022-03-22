@@ -12,14 +12,10 @@ function get_maximum_heap(){
     fi
 }
 
-function setup_backend_cmd(){
+function setup_backend_heap_arg(){
     if [[ ! -z ${maximum_heap} ]]; then
-        # Ref -Dlog4j2.formatMsgNoLookups=true https://spring.io/blog/2021/12/10/log4j2-vulnerability-and-spring-boot
-        backend_start_command="java -Xmx${maximum_heap}m -Dserver.port=8080 -Djava.security.egd='file:/dev/./urandom' -Dlog4j2.formatMsgNoLookups=true -jar server.jar"
-    else
-        backend_start_command="java -Dserver.port=8080 -Djava.security.egd='file:/dev/./urandom' -Dlog4j2.formatMsgNoLookups=true -jar server.jar"
+      export APPSMITH_JAVA_HEAP_ARG="-Xmx${maximum_heap}m"
     fi
-    export BACKEND_CMD=$backend_start_command
 }
 
 init_env_file() {
@@ -153,7 +149,6 @@ init_replica_set() {
 
     if appsmithctl check_replica_set; then
       echo "Mongodb cloud Replica Set is enabled"
-      mongo "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
     else
       echo -e "\033[0;31m********************************************************************\033[0m"
       echo -e "\033[0;31m*          MongoDB Replica Set is not enabled                      *\033[0m"
@@ -211,7 +206,7 @@ fi
 mount_letsencrypt_directory
 # These functions are used to limit heap size for Backend process when deployed on Heroku
 get_maximum_heap
-setup_backend_cmd
+setup_backend_heap_arg
 configure_supervisord
 
 CREDENTIAL_PATH="/etc/nginx/passwords"
