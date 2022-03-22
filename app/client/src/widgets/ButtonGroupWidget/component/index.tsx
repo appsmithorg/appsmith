@@ -83,7 +83,7 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
 const MenuButtonWrapper = styled.div<{ renderMode: RenderMode }>`
   flex: 1 1 auto;
 
-  ${({ renderMode }) => renderMode === RenderModes.CANVAS && `height: 100%`}
+  ${({ renderMode }) => renderMode === RenderModes.CANVAS && `height: 100%`};
 
   & > .${Classes.POPOVER2_TARGET} > button {
     width: 100%;
