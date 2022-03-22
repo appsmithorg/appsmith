@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router-dom";
 import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
@@ -64,6 +64,12 @@ export const ForgotPassword = withTheme(
       submitting,
     } = props;
 
+    useEffect(() => {
+      if (submitSucceeded) {
+        props.reset();
+      }
+    }, [props.emailValue]);
+
     return (
       <>
         <AuthCardHeader>
@@ -113,7 +119,7 @@ export const ForgotPassword = withTheme(
             label={createMessage(FORGOT_PASSWORD_PAGE_EMAIL_INPUT_LABEL)}
           >
             <FormTextField
-              disabled={submitting || submitSucceeded}
+              disabled={submitting}
               name="email"
               placeholder={createMessage(
                 FORGOT_PASSWORD_PAGE_EMAIL_INPUT_PLACEHOLDER,
