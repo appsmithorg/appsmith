@@ -13,7 +13,7 @@ async function testTyping() {
   const perf = new Perf();
   await perf.launch();
   const page = perf.getPage();
-  await perf.importApplication(`${APP_ROOT}/tests/postgres-test.json`);
+  await perf.importApplication(`${APP_ROOT}/tests/dsl/postgres-test.json`);
   let screenshotPath = `${APP_ROOT}/traces/reports/debug-${getFormattedTime()}.png`;
   await this.page.screenshot({
     path: screenshotPath,
