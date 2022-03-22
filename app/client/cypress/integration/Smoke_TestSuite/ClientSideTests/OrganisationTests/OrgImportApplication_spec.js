@@ -54,7 +54,16 @@ describe("Organization Import Application", function() {
                 "contain",
                 "Application imported successfully",
               );
-              cy.url().should("include", `/${appSlug}/`);
+              cy.wait("@getPagesForCreateApp").then((interception) => {
+                const pages = interception.response.body.data.pages;
+                let defaultPage = pages.find(
+                  (eachPage) => !!eachPage.isDefault,
+                );
+                cy.url().should(
+                  "include",
+                  `/${appSlug}/${defaultPage.slug}-${defaultPage.id}`,
+                );
+              });
             });
           });
         });

@@ -128,20 +128,26 @@ describe("Import, Export and Fork application and validate data binding", functi
               }
               const importedApp = interception.response.body.data.application;
               const appSlug = importedApp.slug;
-              let defaultPage = importedApp.pages.find(
-                (eachPage) => !!eachPage.isDefault,
-              );
-              // validating data binding for imported application
-              cy.xpath("//input[@value='Submit']").should("be.visible");
-              cy.xpath("//div[text()='schema_name']").should("be.visible");
-              // cy.xpath("//div[text()='information_schema']").should(
-              //   "be.visible",
-              // );
-              cy.xpath("//div[text()='id']").should("be.visible");
-              cy.xpath("//div[text()='title']").should("be.visible");
-              cy.xpath("//div[text()='due']").should("be.visible");
+              cy.wait("@getPagesForCreateApp").then((interception) => {
+                const pages = interception.response.body.data.pages;
+                let defaultPage = pages.find(
+                  (eachPage) => !!eachPage.isDefault,
+                );
+                // validating data binding for imported application
+                cy.xpath("//input[@value='Submit']").should("be.visible");
+                cy.xpath("//div[text()='schema_name']").should("be.visible");
+                // cy.xpath("//div[text()='information_schema']").should(
+                //   "be.visible",
+                // );
+                cy.xpath("//div[text()='id']").should("be.visible");
+                cy.xpath("//div[text()='title']").should("be.visible");
+                cy.xpath("//div[text()='due']").should("be.visible");
 
-              cy.url().should("include", `/${appSlug}/`);
+                cy.url().should(
+                  "include",
+                  `/${appSlug}/${defaultPage.slug}-${defaultPage.id}/edit`,
+                );
+              });
             });
           });
         });
