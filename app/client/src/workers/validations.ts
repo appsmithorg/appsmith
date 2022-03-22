@@ -27,6 +27,8 @@ import * as log from "loglevel";
 import { countOccurrences, findDuplicateIndex } from "./helpers";
 export const UNDEFINED_VALIDATION = "UNDEFINED_VALIDATION";
 export const VALIDATION_ERROR_COUNT_THRESHOLD = 10;
+const MAX_ALLOWED_LINE_BREAKS = 5000; // Rendering performance deteriorates beyond this number.
+const LINE_BREAKS_ERROR_MESSAGE = `Warning: New lines in the text exceed ${MAX_ALLOWED_LINE_BREAKS}. The text displayed will not contain any new lines.`;
 
 const flat = (array: Record<string, any>[], uniqueParam: string) => {
   let result: { value: string }[] = [];
@@ -242,6 +244,22 @@ function validateArray(
     messages: _messages,
   };
 }
+
+function validateExcessLineBreaks(value: any): boolean {
+  /**
+   * Check if the value exceeds a threshold number of line breaks;
+   * beyond which the rendering performance starts deteriorating.
+   */
+  const str: string = isObject(value) ? JSON.stringify(value, null, 2) : value;
+  const lineBreakCount: number = countOccurrences(
+    str,
+    "\n",
+    false,
+    MAX_ALLOWED_LINE_BREAKS,
+  );
+  return lineBreakCount > MAX_ALLOWED_LINE_BREAKS;
+}
+
 //TODO: parameter props may not be in use
 export const validate = (
   config: ValidationConfig,
@@ -351,31 +369,18 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     }
     let parsed = value;
 
-    if (config.params && config.params.limitLineBreaks) {
-      /**
-       * Check if the value exceeds a threshold number of line breaks;
-       * beyond which the rendering performance starts deteriorating.
-       */
-      const str = JSON.stringify(value, null, 2);
-      const MAX_ALLOWED_LINE_BREAKS = 5000; // Rendering performance deteriorates beyond this number.
-      const lineBreakCount: number = countOccurrences(
-        str,
-        "\n",
-        false,
-        MAX_ALLOWED_LINE_BREAKS,
-      );
-      if (lineBreakCount > MAX_ALLOWED_LINE_BREAKS) {
+    if (isObject(value)) {
+      if (
+        config.params &&
+        config.params.limitLineBreaks &&
+        validateExcessLineBreaks(value)
+      ) {
         return {
           isValid: false,
           parsed: JSON.stringify(value), // Parse without line breaks
-          messages: [
-            `Warning: New lines in the text exceed ${MAX_ALLOWED_LINE_BREAKS}. The text displayed will not contain any new lines.`,
-          ],
+          messages: [LINE_BREAKS_ERROR_MESSAGE],
         };
       }
-    }
-
-    if (isObject(value)) {
       return {
         isValid: false,
         parsed: JSON.stringify(value, null, 2),
@@ -398,6 +403,17 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       } catch (e) {
         return stringValidationError;
       }
+    }
+    if (
+      config.params &&
+      config.params.limitLineBreaks &&
+      validateExcessLineBreaks(value)
+    ) {
+      return {
+        isValid: false,
+        parsed: JSON.stringify(value), // Parse without line breaks
+        messages: [LINE_BREAKS_ERROR_MESSAGE],
+      };
     }
     if (config.params?.allowedValues) {
       if (!config.params?.allowedValues.includes((parsed as string).trim())) {
