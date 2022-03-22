@@ -24,7 +24,7 @@ import evaluate from "./evaluate";
 
 import getIsSafeURL from "utils/validation/getIsSafeURL";
 import * as log from "loglevel";
-import { findDuplicateIndex } from "./helpers";
+import { countOccurrences, findDuplicateIndex } from "./helpers";
 export const UNDEFINED_VALIDATION = "UNDEFINED_VALIDATION";
 export const VALIDATION_ERROR_COUNT_THRESHOLD = 10;
 
@@ -351,26 +351,34 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     }
     let parsed = value;
 
-    if (isObject(value)) {
-      let parsed: string = JSON.stringify(value, null, 2);
-      if (config.params && config.params.limitLineBreaks) {
-        const MAX_ALLOWED_LINE_BREAKS = 5000; // Rendering performance deteriorates beyond this number.
-        const lineBreakCount: number =
-          parsed.match(/[^\n]*\n[^\n]*/gi)?.length || 0;
-        if (lineBreakCount > MAX_ALLOWED_LINE_BREAKS) {
-          parsed = JSON.stringify(value); // Parse without line breaks
-          return {
-            isValid: false,
-            parsed,
-            messages: [
-              `Warning: Line breaks in text exceed ${MAX_ALLOWED_LINE_BREAKS}. Text will be visible without line breaks.`,
-            ],
-          };
-        }
+    if (config.params && config.params.limitLineBreaks) {
+      /**
+       * Check if the value exceeds a threshold number of line breaks;
+       * beyond which the rendering performance starts deteriorating.
+       */
+      const str = JSON.stringify(value, null, 2);
+      const MAX_ALLOWED_LINE_BREAKS = 5000; // Rendering performance deteriorates beyond this number.
+      const lineBreakCount: number = countOccurrences(
+        str,
+        "\n",
+        false,
+        MAX_ALLOWED_LINE_BREAKS,
+      );
+      if (lineBreakCount > MAX_ALLOWED_LINE_BREAKS) {
+        return {
+          isValid: false,
+          parsed: JSON.stringify(value), // Parse without line breaks
+          messages: [
+            `Warning: New lines in text exceed ${MAX_ALLOWED_LINE_BREAKS}. Text will be visible without line breaks.`,
+          ],
+        };
       }
+    }
+
+    if (isObject(value)) {
       return {
         isValid: false,
-        parsed,
+        parsed: JSON.stringify(value, null, 2),
         messages: [
           `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
         ],
