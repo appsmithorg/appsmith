@@ -50,17 +50,11 @@ describe("Organization Import Application", function() {
             cy.wait("@importNewApplication").then((interception) => {
               const importedApp = interception.response.body.data.application;
               const appSlug = importedApp.slug;
-              let defaultPage = importedApp.pages.find(
-                (eachPage) => !!eachPage.isDefault,
-              );
               cy.get(homePage.toastMessage).should(
                 "contain",
                 "Application imported successfully",
               );
-              cy.url().should(
-                "include",
-                `/${appSlug}/${defaultPage.slug}-${defaultPage.id}/edit`,
-              );
+              cy.url().should("include", `/${appSlug}/`);
             });
           });
         });
