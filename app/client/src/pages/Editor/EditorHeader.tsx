@@ -3,7 +3,7 @@ import styled, { ThemeProvider } from "styled-components";
 import classNames from "classnames";
 import { Classes as Popover2Classes } from "@blueprintjs/popover2";
 import {
-  CurrentApplicationData,
+  ApplicationPayload,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import {
@@ -222,7 +222,7 @@ type EditorHeaderProps = {
   publishedTime?: string;
   orgId: string;
   applicationId?: string;
-  currentApplication?: CurrentApplicationData;
+  currentApplication?: ApplicationPayload;
   isSaving: boolean;
   publishApplication: (appId: string) => void;
   lastUpdatedTime?: number;

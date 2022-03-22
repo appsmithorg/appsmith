@@ -27,6 +27,8 @@ public class GoogleSheetsMethodStrategy {
                 return new DeleteSheetMethod(objectMapper);
             case MethodIdentifiers.GET:
                 return new GetValuesMethod(objectMapper);
+            case MethodIdentifiers.GET_STRUCTURE:
+                return new GetStructureMethod(objectMapper);
             case MethodIdentifiers.INFO:
                 return new InfoMethod(objectMapper);
             case MethodIdentifiers.LIST:
