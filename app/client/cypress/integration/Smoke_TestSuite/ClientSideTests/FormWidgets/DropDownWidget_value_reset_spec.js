@@ -12,7 +12,7 @@ describe("Dropdown Widget Check value does not reset on navigation", function() 
     cy.get(commonlocators.selectButton)
       .first()
       .click();
-    cy.selectOnClickOption("Red");
+    cy.selectWidgetOnClickOption("Red");
     cy.wait(200);
 
     //Navigate
