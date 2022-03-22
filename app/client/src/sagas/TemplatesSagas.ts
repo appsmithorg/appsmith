@@ -5,7 +5,7 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { all, put, takeEvery, call } from "redux-saga/effects";
-import TemplatesAPI from "api/TemplatesApi";
+import TemplatesAPI, { ImportTemplateResponse } from "api/TemplatesApi";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
 import { getDefaultPageId } from "./ApplicationSagas";
@@ -40,24 +40,27 @@ function* importTemplateToOrganisationSaga(
   action: ReduxAction<{ templateId: string; organizationId: string }>,
 ) {
   try {
-    const response = yield call(
+    const response: ImportTemplateResponse = yield call(
       TemplatesAPI.importTemplate,
       action.payload.templateId,
       action.payload.organizationId,
     );
-    const application: ApplicationPayload = {
-      ...response,
-      defaultPageId: getDefaultPageId(response.pages),
-    };
-    const pageURL = BUILDER_PAGE_URL({
-      applicationId: application.id,
-      pageId: application.defaultPageId,
-    });
-    yield put({
-      type: ReduxActionTypes.IMPORT_TEMPLATE_TO_ORGANISATION_SUCCESS,
-      payload: response,
-    });
-    history.push(pageURL);
+    const isValid = yield validateResponse(response);
+    if (isValid) {
+      const application: ApplicationPayload = {
+        ...response.data,
+        defaultPageId: getDefaultPageId(response.data.pages),
+      };
+      const pageURL = BUILDER_PAGE_URL({
+        applicationId: application.id,
+        pageId: application.defaultPageId,
+      });
+      yield put({
+        type: ReduxActionTypes.IMPORT_TEMPLATE_TO_ORGANISATION_SUCCESS,
+        payload: response.data,
+      });
+      history.push(pageURL);
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.IMPORT_TEMPLATE_TO_ORGANISATION_ERROR,

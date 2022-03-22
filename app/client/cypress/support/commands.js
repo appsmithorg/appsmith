@@ -328,7 +328,7 @@ Cypress.Commands.add("AppSetupForRename", () => {
       cy.get(homePage.applicationName).click({ force: true });
       cy.get(homePage.portalMenuItem)
         .contains("Edit Name", { matchCase: false })
-        .click();
+        .click({ force: true });
     }
   });
 });
@@ -1849,37 +1849,26 @@ Cypress.Commands.add("DeleteModal", () => {
     .click({ force: true });
 });
 
-Cypress.Commands.add("Createpage", (Pagename) => {
+Cypress.Commands.add("Createpage", (pageName) => {
+  let pageId;
   cy.get(pages.AddPage)
     .first()
     .click({ force: true });
-  cy.wait("@createPage").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
-  cy.xpath(apiwidget.popover)
-    .last()
-    .should("be.hidden")
-    .invoke("show")
-    .click({ force: true });
-  cy.xpath(apiwidget.popover)
-    .last()
-    .click({ force: true });
-  /*  
-  cy.xpath(pages.popover)
-    .last()
-    .click({ force: true });
-    */
-  cy.get(pages.editName).click({ force: true });
-  cy.get(pages.editInput).type(Pagename + "{enter}");
-  pageidcopy = Pagename;
-  cy.get(generatePage.buildFromScratchActionCard).click();
-  cy.get("#loading").should("not.exist");
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
+  cy.wait("@createPage").then((xhr) => {
+    expect(xhr.response.body.responseMeta.status).to.equal(201);
+    if (pageName) {
+      pageId = xhr.response.body.data.id;
+      cy.wait(2000);
+      cy.get(`div[id=entity-${pageId}] .t--context-menu`).click({
+        force: true,
+      });
+      cy.get(pages.editName).click({ force: true });
+      cy.get(pages.editInput).type(pageName + "{enter}");
+      pageidcopy = pageName;
+    }
+    cy.get(generatePage.buildFromScratchActionCard).click();
+    cy.get("#loading").should("not.exist");
+  });
 });
 
 Cypress.Commands.add("Deletepage", (Pagename) => {
@@ -1914,7 +1903,6 @@ Cypress.Commands.add("addDsl", (dsl) => {
     cy.log(pageidcopy + "page id copy");
     cy.log(pageid + "page id");
     //Fetch the layout id
-    cy.server();
     cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
       const respBody = JSON.stringify(response.body);
       layoutId = JSON.parse(respBody).data.layouts[0].id;
@@ -2290,16 +2278,16 @@ Cypress.Commands.add(
     const hostAddress = shouldAddTrailingSpaces
       ? datasourceFormData["mongo-host"] + "  "
       : datasourceFormData["mongo-host"];
-    const databaseName = shouldAddTrailingSpaces
-      ? datasourceFormData["mongo-databaseName"] + "  "
-      : datasourceFormData["mongo-databaseName"];
+    // const databaseName = shouldAddTrailingSpaces
+    //   ? datasourceFormData["mongo-databaseName"] + "  "
+    //   : datasourceFormData["mongo-databaseName"];
 
     cy.get(datasourceEditor["host"]).type(hostAddress);
     cy.get(datasourceEditor.port).type(datasourceFormData["mongo-port"]);
     //cy.get(datasourceEditor["port"]).type(datasourceFormData["mongo-port"]);
     //cy.get(datasourceEditor["selConnectionType"]).click();
     //cy.contains(datasourceFormData["connection-type"]).click();
-    cy.get(datasourceEditor["defaultDatabaseName"]).type(databaseName);
+    //cy.get(datasourceEditor["defaultDatabaseName"]).type(databaseName);//is optional hence removing
 
     cy.get(datasourceEditor.sectionAuthentication).click();
     cy.get(datasourceEditor["databaseName"])
@@ -2538,7 +2526,7 @@ Cypress.Commands.add("onlyQueryRun", () => {
   cy.xpath(queryEditor.runQuery)
     .last()
     .click({ force: true })
-    .wait(500);
+    .wait(1000);
 });
 
 Cypress.Commands.add("hoverAndClick", () => {
@@ -3804,22 +3792,30 @@ Cypress.Commands.add(
   "actionContextMenuByEntityName",
   (entityNameinLeftSidebar, action = "Delete") => {
     cy.wait(2000);
-    cy.get(
-      commonlocators.entitySearchResult
-        .concat(entityNameinLeftSidebar)
-        .concat("')"),
+    // cy.get(
+    //   commonlocators.entitySearchResult
+    //     .concat(entityNameinLeftSidebar)
+    //     .concat("')"),
+    // )
+    //   .parents(commonlocators.entityItem)
+    //   .first()
+    //   .trigger("mouseover")
+    //   .find(commonlocators.entityContextMenu)
+    //   .last()
+    //   .click({ force: true });
+
+    cy.xpath(
+      "//div[text()='" +
+        entityNameinLeftSidebar +
+        "']/ancestor::div[1]/following-sibling::div//div[contains(@class, 'entity-context-menu-icon')]",
     )
-      .parents(commonlocators.entityItem)
-      .first()
-      .trigger("mouseover")
-      .find(commonlocators.entityContextMenu)
       .last()
       .click({ force: true });
 
     cy.xpath(
       "//div[text()='" +
         action +
-        "']/parent::a[contains(@class, 'single-select')]",
+        "']/ancestor::a[contains(@class, 'single-select')]",
     )
       .click({ force: true })
       .wait(500);
@@ -3867,13 +3863,15 @@ Cypress.Commands.add(
   },
 );
 
+// Cypress >=8.3.x  onwards
 cy.all = function(...commands) {
   const _ = Cypress._;
+  // eslint-disable-next-line
   const chain = cy.wrap(null, { log: false });
-  const stopCommand = _.find(cy.queue.commands, {
+  const stopCommand = _.find(cy.queue.get(), {
     attributes: { chainerId: chain.chainerId },
   });
-  const startCommand = _.find(cy.queue.commands, {
+  const startCommand = _.find(cy.queue.get(), {
     attributes: { chainerId: commands[0].chainerId },
   });
   const p = chain.then(() => {
@@ -3881,7 +3879,7 @@ cy.all = function(...commands) {
       .map((cmd) => {
         return cmd[chainStart]
           ? cmd[chainStart].attributes
-          : _.find(cy.queue.commands, {
+          : _.find(cy.queue.get(), {
               attributes: { chainerId: cmd.chainerId },
             }).attributes;
       })

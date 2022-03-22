@@ -15,16 +15,16 @@ describe("Migration Validate", function() {
     cy.xpath(homePage.uploadLogo)
       .attachFile("TableMigrationAppExported.json")
       .wait(500);
-    cy.get(homePage.orgImportAppButton)
-      .trigger("click")
-      .wait(500);
+    // cy.get(homePage.orgImportAppButton)
+    //   .trigger("click")
+    //   .wait(500);
     cy.get(homePage.orgImportAppModal).should("not.exist");
 
     cy.wait("@importNewApplication").then((interception) => {
-      let appId = interception.response.body.data.id;
-      let defaultPage = interception.response.body.data.pages.find(
-        (eachPage) => !!eachPage.isDefault,
-      );
+      // let appId = interception.response.body.data.id;
+      // let defaultPage = interception.response.body.data.pages.find(
+      //   (eachPage) => !!eachPage.isDefault,
+      // );
 
       cy.get(homePage.toastMessage).should(
         "contain",
