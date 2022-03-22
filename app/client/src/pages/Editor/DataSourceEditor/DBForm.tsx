@@ -91,6 +91,12 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   render() {
     const { formConfig } = this.props;
 
+    // make sure this redux form has been initialized before rendering anything.
+    // the initialized prop below comes from redux-form.
+    if (!this.props.initialized) {
+      return null;
+    }
+
     const content = this.renderDataSourceConfigForm(formConfig);
     return this.renderForm(content);
   }
