@@ -369,7 +369,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           isValid: false,
           parsed: JSON.stringify(value), // Parse without line breaks
           messages: [
-            `Warning: New lines in text exceed ${MAX_ALLOWED_LINE_BREAKS}. Text will be visible without line breaks.`,
+            `Warning: New lines in the text exceed ${MAX_ALLOWED_LINE_BREAKS}. The text displayed will not contain any new lines.`,
           ],
         };
       }
