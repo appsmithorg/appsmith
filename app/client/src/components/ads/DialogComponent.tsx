@@ -78,7 +78,7 @@ const StyledDialog = styled(Dialog)<{
 
     & .${Classes.DIALOG_BODY} {
       margin: 0;
-      margin-top: ${(props) => (props.noModalBodyMarginTop ? "0px" : "24px")};
+      margin-top: ${(props) => (props.noModalBodyMarginTop ? "0px" : "16px")};
       overflow: auto;
     }
 
