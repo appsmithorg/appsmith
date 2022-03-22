@@ -267,7 +267,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                               String branchName,
                                               ApplicationAccessDTO applicationAccessDTO) {
         // For git connected application update the policy for all the branch's
-        return findAllApplicationsByDefaultApplicationId(defaultApplicationId)
+        return findAllApplicationsByDefaultApplicationId(defaultApplicationId, MAKE_PUBLIC_APPLICATIONS)
                 .switchIfEmpty(this.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MAKE_PUBLIC_APPLICATIONS))
                 .flatMap(branchedApplication -> changeViewAccess(branchedApplication.getId(), applicationAccessDTO))
                 .then(repository.findById(defaultApplicationId, MAKE_PUBLIC_APPLICATIONS)
@@ -538,8 +538,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
      * @return Application flux which match the condition
      */
     @Override
-    public Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId) {
-        return repository.getApplicationByGitDefaultApplicationId(defaultApplicationId);
+    public Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId, AclPermission permission) {
+        return repository.getApplicationByGitDefaultApplicationId(defaultApplicationId, permission);
     }
 
     @Override
