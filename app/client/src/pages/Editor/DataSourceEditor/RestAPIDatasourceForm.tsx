@@ -79,6 +79,9 @@ interface DatasourceRestApiEditorProps {
   actions: ActionDataState;
   formMeta: any;
   messages?: Array<string>;
+  hiddenHeader?: boolean;
+  responseStatus?: string;
+  responseMessage?: string;
 }
 
 type Props = DatasourceRestApiEditorProps &
@@ -156,8 +159,7 @@ const AuthorizeButton = styled(StyledButton)`
 
 class DatasourceRestAPIEditor extends React.Component<Props> {
   componentDidMount() {
-    const search = new URLSearchParams(this.props.location.search);
-    const status = search.get("response_status");
+    const status = this.props.responseStatus;
 
     // set replay data
     this.props.initializeReplayEntity(
@@ -166,7 +168,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     );
 
     if (status) {
-      const display_message = search.get("display_message");
       // Set default error message
       let message = REST_API_AUTHORIZATION_FAILED;
       let variant = Variant.danger;
@@ -177,7 +178,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         message = REST_API_AUTHORIZATION_APPSMITH_ERROR;
       }
       Toaster.show({
-        text: display_message || createMessage(message),
+        text: this.props.responseMessage || createMessage(message),
         variant,
       });
     }
@@ -326,7 +327,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   render = () => {
     return (
       <>
-        <CloseEditor />
+        {/* this is true during import flow */}
+        {!this.props.hiddenHeader && <CloseEditor />}
         <RestApiForm>
           <form
             onSubmit={(e) => {
@@ -343,30 +345,38 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   renderHeader = () => {
-    const { isNewDatasource, pluginImage } = this.props;
-    return (
+    const { hiddenHeader, isNewDatasource, pluginImage } = this.props;
+    return !hiddenHeader ? (
       <Header>
         <FormTitleContainer>
           <PluginImage alt="Datasource" src={pluginImage} />
           <FormTitle focusOnMount={isNewDatasource} />
         </FormTitleContainer>
       </Header>
-    );
+    ) : null;
   };
 
   renderSave = () => {
-    const { datasourceId, deleteDatasource, isDeleting, isSaving } = this.props;
+    const {
+      datasourceId,
+      deleteDatasource,
+      hiddenHeader,
+      isDeleting,
+      isSaving,
+    } = this.props;
     return (
       <SaveButtonContainer>
-        <ActionButton
-          // accent="error"
-          buttonStyle="DANGER"
-          buttonVariant={ButtonVariantTypes.PRIMARY}
-          className="t--delete-datasource"
-          loading={isDeleting}
-          onClick={() => deleteDatasource(datasourceId)}
-          text="Delete"
-        />
+        {!hiddenHeader && (
+          <ActionButton
+            // accent="error"
+            buttonStyle="DANGER"
+            buttonVariant={ButtonVariantTypes.PRIMARY}
+            className="t--delete-datasource"
+            loading={isDeleting}
+            onClick={() => deleteDatasource(datasourceId)}
+            text="Delete"
+          />
+        )}
 
         <StyledButton
           className="t--save-datasource"
@@ -1079,6 +1089,13 @@ const mapStateToProps = (state: AppState, props: any) => {
   ) as Datasource;
 
   const hintMessages = datasource && datasource.messages;
+  let responseStatus = props.responseStatus;
+  let responseMessage = props.responseMessage;
+  if (props.location) {
+    const search = new URLSearchParams(props.location.search);
+    responseStatus = search.get("response_status");
+    responseMessage = search.get("display_message");
+  }
 
   return {
     initialValues: datasourceToFormValues(datasource),
@@ -1089,6 +1106,8 @@ const mapStateToProps = (state: AppState, props: any) => {
     ) as ApiDatasourceForm,
     formMeta: getFormMeta(DATASOURCE_REST_API_FORM)(state),
     messages: hintMessages,
+    responseStatus,
+    responseMessage,
   };
 };
 

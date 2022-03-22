@@ -1,8 +1,8 @@
 {
   "identifier": "DELETE",
-  "controlType" : "SECTION",
+  "controlType": "SECTION",
   "conditionals": {
-    "show": "{{actionConfiguration.formData.command === 'DELETE'}}"
+    "show": "{{actionConfiguration.formData.command.data === 'DELETE'}}"
   },
   "children": [
     {
@@ -11,7 +11,7 @@
       "children": [
         {
           "label": "Collection",
-          "configProperty": "actionConfiguration.formData.collection",
+          "configProperty": "actionConfiguration.formData.collection.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE"
         }
@@ -20,20 +20,23 @@
     {
       "controlType": "SECTION",
       "label": "Query",
-      "description" : "Optional",
+      "description": "Optional",
       "children": [
         {
           "label": "Query",
-          "configProperty": "actionConfiguration.formData.delete.query",
+          "configProperty": "actionConfiguration.formData.delete.query.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
-          "placeholderText" : "{rating : {$gte : 9}}"
+          "placeholderText": "{rating : {$gte : 9}}"
         },
         {
           "label": "Limit",
-          "configProperty": "actionConfiguration.formData.delete.limit",
+          "configProperty": "actionConfiguration.formData.delete.limit.data",
           "controlType": "DROP_DOWN",
+          "-subtitle": "Allowed values: SINGLE, ALL",
+          "-tooltipText": "Allowed values: SINGLE, ALL",
+          "-alternateViewTypes": ["json"],
           "initialValue": "SINGLE",
           "options": [
             {
