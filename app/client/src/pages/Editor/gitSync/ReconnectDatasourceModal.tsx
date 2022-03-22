@@ -425,7 +425,9 @@ function ReconnectDatasourceModal() {
       <ListItemWrapper
         ds={ds}
         key={ds.id}
-        onClick={onSelectDatasource}
+        onClick={() => {
+          onSelectDatasource(ds);
+        }}
         plugin={{
           name: pluginNames[ds.pluginId],
           image: pluginImages[ds.pluginId],
