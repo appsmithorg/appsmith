@@ -26,6 +26,7 @@ import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresen
 import static com.external.plugins.constants.FieldName.AGGREGATE;
 import static com.external.plugins.constants.FieldName.AGGREGATE_LIMIT;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINES;
+import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
@@ -123,17 +124,17 @@ public class Aggregate extends MongoCommand {
         setValueSafelyInFormData(configMap, AGGREGATE_PIPELINES, "[ {\"$sort\" : {\"_id\": 1} } ]");
         setValueSafelyInFormData(configMap, AGGREGATE_LIMIT, "10");
 
-
         String rawQuery = "{\n" +
                 "  \"aggregate\": \"" + collectionName + "\",\n" +
                 "  \"pipeline\": " + "[ {\"$sort\" : {\"_id\": 1} } ],\n" +
                 "  \"limit\": 10,\n" +
                 "  \"explain\": \"true\"\n" + // Specifies to return the information on the processing of the pipeline. (This also avoids the use of the 'cursor' aggregate key according to Mongo doc)
                 "}\n";
+        setValueSafelyInFormData(configMap, BODY, rawQuery);
 
         return Collections.singletonList(new DatasourceStructure.Template(
                 "Aggregate",
-                rawQuery,
+                null,
                 configMap
         ));
     }
