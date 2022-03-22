@@ -163,10 +163,11 @@ public class Find extends MongoCommand {
                 "    \"_id\": ObjectId(\"id_to_query_with\")\n" +
                 "  }\n" +
                 "}\n";
+        setValueSafelyInFormData(configMap, BODY, rawQuery);
 
         return new DatasourceStructure.Template(
                 "Find by ID",
-                rawQuery,
+                null,
                 configMap
         );
     }
