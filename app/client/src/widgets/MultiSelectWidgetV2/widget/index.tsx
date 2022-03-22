@@ -22,8 +22,8 @@ export function defaultOptionValueValidation(
   props: MultiSelectWidgetProps,
   _: any,
 ): ValidationResponse {
-  let isValid;
-  let parsed: any[];
+  let isValid = false;
+  let parsed: any[] = [];
   let message = "";
 
   /*
@@ -129,14 +129,6 @@ export function defaultOptionValueValidation(
     isValid = true;
     parsed = [value];
     message = "";
-  } else {
-    /*
-     * When value is undefined, null, {} etc.
-     */
-    isValid = false;
-    parsed = [];
-    message =
-      "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
   }
 
   return {
