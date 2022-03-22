@@ -9,21 +9,22 @@ import {
   getGitStatus,
   getIsFetchingGitStatus,
 } from "selectors/gitSyncSelectors";
+import { GitStatusData } from "../../../../reducers/uiReducers/gitSyncReducer";
 
 const Skeleton = styled.div`
-  width: 100%;
+  width: 50%;
   height: ${(props) => props.theme.spaces[9]}px;
   background: linear-gradient(
     90deg,
     ${Colors.GREY_2} 0%,
     rgba(240, 240, 240, 0) 100%
   );
-  margin-right: ${(props) => props.theme.spaces[8] + 5}px;
+  margin-bottom: ${(props) => props.theme.spaces[7]}px;
 `;
 
 const Wrapper = styled.div`
-  //width: 178px;
   height: ${(props) => props.theme.spaces[9]}px;
+  margin-bottom: ${(props) => props.theme.spaces[7]}px;
   display: flex;
 
   .${Classes.ICON} {
@@ -35,52 +36,79 @@ const Wrapper = styled.div`
   }
 `;
 
-const ChangeDifferences = styled.div`
-  margin-bottom: 2px;
+const Statuses = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
 `;
 
 export enum Kind {
-  widget = "widget",
-  query = "query",
-  commit = "commit",
+  WIDGET = "WIDGET",
+  QUERY = "QUERY",
+  COMMIT = "COMMIT",
   // pullRequest = "pullRequest",
+  JS_OBJECT = "JS_OBJECT",
 }
 
-type GitSyncProps = {
-  type: Kind;
+type StatusProps = {
+  iconName: string;
+  message: string;
+  hasValue: boolean;
 };
 
-const GIT_STATUS_MAP = {
-  [Kind.widget]: (status: any) => ({
+type StatusMap = {
+  [key in Kind]: (status: GitStatusData) => StatusProps;
+};
+
+const STATUS_MAP: StatusMap = {
+  [Kind.WIDGET]: (status: GitStatusData) => ({
     message: `${status?.modifiedPages || 0} ${
-      (status?.modifiedPages || 0) === 1 ? "page" : "pages"
+      (status?.modifiedPages || 0) <= 1 ? "page" : "pages"
     } updated`,
     iconName: "widget",
+    hasValue: (status?.modifiedPages || 0) > 0,
   }),
-  [Kind.query]: (status: any) => ({
+  [Kind.QUERY]: (status: GitStatusData) => ({
     message: `${status?.modifiedQueries || 0} ${
-      (status?.modifiedQueries || 0) === 1 ? "query" : "queries"
+      (status?.modifiedQueries || 0) <= 1 ? "query" : "queries"
     } modified`,
     iconName: "query",
+    hasValue: (status?.modifiedQueries || 0) > 0,
   }),
-  [Kind.commit]: (status: any) => ({
-    message: `${status?.aheadCount || 0} ${
-      (status?.aheadCount || 0) === 1 ? "commit" : "commits"
-    } to push`,
+  [Kind.COMMIT]: (status: GitStatusData) => ({
+    message: commitMessage(status),
     iconName: "git-commit",
+    hasValue: (status?.aheadCount || 0) > 0 || (status?.behindCount || 0) > 0,
+  }),
+  [Kind.JS_OBJECT]: (status: GitStatusData) => ({
+    message: `${status?.modifiedJSObjects || 0} JS ${
+      (status?.modifiedJSObjects || 0) <= 1 ? "Object" : "Objects"
+    } modified`,
+    iconName: "js",
+    hasValue: (status?.modifiedJSObjects || 0) > 0,
   }),
 };
 
-function GitStatus(props: GitSyncProps) {
-  const { type } = props;
-  const status: any = useSelector(getGitStatus);
-  const loading = useSelector(getIsFetchingGitStatus);
-  // const loading = true;
-  const { iconName, message } = GIT_STATUS_MAP[type](status);
-  return loading ? (
-    <Skeleton />
-  ) : (
+function commitMessage(status: GitStatusData) {
+  const aheadCount = status?.aheadCount || 0;
+  const behindCount = status?.behindCount || 0;
+  const aheadMessage =
+    aheadCount > 0
+      ? (aheadCount || 0) === 1
+        ? `${aheadCount || 0} commit ahead`
+        : `${aheadCount || 0} commits ahead`
+      : null;
+  const behindMessage =
+    behindCount > 0
+      ? (behindCount || 0) === 1
+        ? `${behindCount || 0} commit behind`
+        : `${behindCount || 0} commits behind `
+      : null;
+  return [aheadMessage, behindMessage].filter((i) => i !== null).join(" and ");
+}
+
+function Status(props: Partial<StatusProps>) {
+  const { iconName, message } = props;
+
+  return (
     <Wrapper>
       <Icon fillColor={Colors.GREY_10} name={iconName} size={IconSize.XXL} />
       <Text type={TextType.P3}>{message}</Text>
@@ -89,12 +117,13 @@ function GitStatus(props: GitSyncProps) {
 }
 
 export default function GitChanged() {
-  const gitStatus: any = useSelector(getGitStatus);
-  return (
-    <ChangeDifferences>
-      <GitStatus type={Kind.widget} />
-      <GitStatus type={Kind.query} />
-      {gitStatus?.aheadCount > 0 && <GitStatus type={Kind.commit} />}
-    </ChangeDifferences>
-  );
+  const status: GitStatusData = useSelector(getGitStatus) as GitStatusData;
+  const loading = useSelector(getIsFetchingGitStatus);
+  const statuses = [Kind.WIDGET, Kind.QUERY, Kind.COMMIT, Kind.JS_OBJECT]
+    .map((type: Kind) => STATUS_MAP[type](status))
+    .map((s) =>
+      s.hasValue ? <Status {...s} key={`change-status-${s.iconName}`} /> : null,
+    )
+    .filter((s) => !!s);
+  return loading ? <Skeleton /> : <Statuses>{statuses}</Statuses>;
 }
