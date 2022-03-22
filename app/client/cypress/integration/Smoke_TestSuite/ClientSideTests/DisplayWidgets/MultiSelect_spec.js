@@ -139,9 +139,5 @@ describe("MultiSelect Widget Functionality", function() {
       .find(".rc-select-selection-item-content")
       .first()
       .should("have.text", "Green");
-    cy.get(formWidgetsPage.multiselectwidgetv2)
-      .find(".rc-select-selection-item-content")
-      .next()
-      .should("have.text", "Blue");
   });
 });
