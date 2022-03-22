@@ -33,11 +33,11 @@ describe("Api Naming conflict on a page test", function() {
     cy.get(`.t--entity-item:contains(${secondApiName})`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
     });
-    cy.selectAction("Delete");
+    cy.deleteActionAndConfirm();
     cy.get(`.t--entity-item:contains(${firstApiName})`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
     });
-    cy.selectAction("Delete");
+    cy.deleteActionAndConfirm();
   });
 });
 
@@ -57,16 +57,15 @@ describe("Api Naming conflict on different pages test", function() {
     cy.get(`.t--entity-item:contains(${firstApiName})`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
     });
-    cy.selectAction("Delete");
+    cy.deleteActionAndConfirm();
     cy.get(`.t--entity-item:contains(Page2)`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
     });
-    cy.selectAction("Delete");
+    cy.deleteActionAndConfirm();
     cy.get(`.t--entity-item:contains(${firstApiName})`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
     });
-    cy.selectAction("Delete");
-    cy.selectAction("Are you sure?");
+    cy.deleteActionAndConfirm();
     cy.wait(1000);
     cy.DeleteAPIFromSideBar();
   });
@@ -103,10 +102,10 @@ describe("Entity Naming conflict test", function() {
     cy.get(`.t--entity-item:contains(${firstApiName})`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
     });
-    cy.selectAction("Delete");
+    cy.deleteActionAndConfirm();
     cy.get(`.t--entity-item:contains(${secondApiName})`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
     });
-    cy.selectAction("Delete");
+    cy.deleteActionAndConfirm();
   });
 });
