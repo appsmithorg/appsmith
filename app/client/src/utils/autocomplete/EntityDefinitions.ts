@@ -134,7 +134,7 @@ export const entityDefinitions: Record<string, unknown> = {
     "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     isVisible: isVisible,
     filterText: {
-      "!type": "[string]",
+      "!type": "string",
       "!doc": "The filter text for Server side filtering",
     },
     selectedOptionValue: {
@@ -145,16 +145,6 @@ export const entityDefinitions: Record<string, unknown> = {
     selectedOptionLabel: {
       "!type": "string",
       "!doc": "The selected option label in a single select dropdown",
-      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
-    },
-    selectedOptionValues: {
-      "!type": "[string]",
-      "!doc": "The array of values selected in a multi select dropdown",
-      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
-    },
-    selectedOptionLabels: {
-      "!type": "[string]",
-      "!doc": "The array of selected option labels in a multi select dropdown",
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     },
     isDisabled: "bool",
@@ -166,7 +156,7 @@ export const entityDefinitions: Record<string, unknown> = {
     "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     isVisible: isVisible,
     filterText: {
-      "!type": "[string]",
+      "!type": "string",
       "!doc": "The filter text for Server side filtering",
     },
     selectedOptionValue: {
@@ -177,16 +167,6 @@ export const entityDefinitions: Record<string, unknown> = {
     selectedOptionLabel: {
       "!type": "string",
       "!doc": "The selected option label in a single select dropdown",
-      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
-    },
-    selectedOptionValues: {
-      "!type": "[string]",
-      "!doc": "The array of values selected in a multi select dropdown",
-      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
-    },
-    selectedOptionLabels: {
-      "!type": "[string]",
-      "!doc": "The array of selected option labels in a multi select dropdown",
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     },
     isDisabled: "bool",
