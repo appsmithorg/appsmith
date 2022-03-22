@@ -2,7 +2,7 @@ const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 const queryEditor = require("../../../../locators/QueryEditor.json");
 
 let datasourceName, actionName;
-describe("Google Sheet datasource test cases", function() {
+describe("Mongo Active datasource test cases", function() {
   before(() => {
     cy.NavigateToDatasourceEditor();
     cy.get(datasourceEditor.MongoDB).click();

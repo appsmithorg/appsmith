@@ -29,7 +29,10 @@ describe("Undo/Redo functionality", function() {
     cy.get(datasourceEditor.password).type(
       datasourceFormData["postgres-password"],
     );
-    cy.get(datasourceEditor.sectionAuthentication).click();
+    cy.get(datasourceEditor.sectionAuthentication)
+      .trigger("click")
+      .wait(1000);
+
     cy.get("body").type(`{${modifierKey}}z`);
     cy.get(
       `${datasourceEditor.sectionAuthentication} .bp3-icon-chevron-up`,

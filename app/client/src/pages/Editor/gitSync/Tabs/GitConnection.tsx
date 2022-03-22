@@ -495,7 +495,7 @@ function GitConnection({ isImport }: Props) {
             setAuthorInfo={setAuthorInfo}
             toggleUseDefaultConfig={toggleHandler}
             triedSubmit={triedSubmit}
-            useGlobalConfig={!!useGlobalConfigInputVal}
+            useGlobalConfig={useGlobalConfigInputVal}
           />
           <ButtonContainer topMargin={3}>
             {(isConnectingToGit || isImportingApplicationViaGit) && (
