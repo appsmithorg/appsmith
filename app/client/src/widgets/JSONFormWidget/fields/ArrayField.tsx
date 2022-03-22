@@ -149,14 +149,14 @@ function ArrayField({
 
   const remove = useCallback(
     (removedKey: string) => {
-      const removedIndex = keysRef.current.findIndex(
-        (key) => key === removedKey,
-      );
       const values = clone(getValues(name));
-
       if (values === undefined) {
         return;
       }
+
+      const removedIndex = keysRef.current.findIndex(
+        (key) => key === removedKey,
+      );
 
       // If the array has some default value passed from the sourceData
       // and the default array item is removed then we need to remove the

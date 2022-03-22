@@ -147,7 +147,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
   })();
 
   const [isFocused, setIsFocused] = useState(false);
-  const [textValue, setTextValue] = useState<string | undefined | null>("");
+  const [inputText, setInputText] = useState<string | undefined | null>("");
 
   const {
     field: { onBlur, onChange, value },
@@ -165,7 +165,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     const stringifiedValue = isNil(inputDefaultValue)
       ? inputDefaultValue
       : `${inputDefaultValue}`;
-    setTextValue(stringifiedValue);
+    setInputText(stringifiedValue);
   }, [inputDefaultValue]);
 
   /**
@@ -181,9 +181,9 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
    * and this is what we save in the "value" of useController but in the field component
    * we need to "1.0" as that is what it was typed out.
    *
-   * Solution - We have a state called textValue which always stores the textual form of
+   * Solution - We have a state called inputText which always stores the textual form of
    * the base input component value. As the main problem are number types we check if
-   * the textValue and the actual value are same then the textValue can be used and
+   * the inputText and the actual value are same then the inputText can be used and
    * if for some reason the value is null (due to invalid number) then we check if the
    * null/undefined if set buy the onChange method or the null/undefined came from
    * resetting the field.
@@ -192,7 +192,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     if (isNil(value)) {
       if (isNilSetByField.current) {
         isNilSetByField.current = false;
-        return textValue;
+        return inputText;
       }
 
       return value;
@@ -200,8 +200,8 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
 
     if (!isNil(value)) {
       if (typeof value === "number") {
-        if (Number(textValue) === value) {
-          return textValue;
+        if (Number(inputText) === value) {
+          return inputText;
         } else {
           return `${value}`;
         }
@@ -211,7 +211,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     }
 
     return value;
-  }, [value, textValue]);
+  }, [value, inputText]);
 
   const isValueValid = isValid(schemaItem, text);
 
@@ -265,14 +265,14 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
       const { onTextChanged } = schemaItem;
       // text - what we show in the component
       // value - what we store in the formData
-      const { text, value } = transformValue(inputValue, textValue || "");
+      const { text, value } = transformValue(inputValue, inputText || "");
 
       if (isNil(value)) {
         isNilSetByField.current = true;
       }
 
       fieldOnChangeHandler(value);
-      setTextValue(text);
+      setInputText(text);
 
       if (onTextChanged && executeAction) {
         executeAction({
@@ -284,7 +284,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
         });
       }
     },
-    [schemaItem.onTextChanged, transformValue, executeAction, textValue],
+    [schemaItem.onTextChanged, transformValue, executeAction, inputText],
   );
 
   const conditionalProps = useMemo(() => {
@@ -300,7 +300,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     if (isDirty && isInvalid) {
       props.isInvalid = true;
 
-      if (isDirty && isRequired && !textValue?.trim()?.length) {
+      if (isDirty && isRequired && !inputText?.trim()?.length) {
         props.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
       }
     }
@@ -319,7 +319,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     }
 
     return props;
-  }, [schemaItem, isDirty, isValueValid, textValue]);
+  }, [schemaItem, isDirty, isValueValid, inputText]);
 
   const fieldComponent = useMemo(() => {
     return (
