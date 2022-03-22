@@ -65,7 +65,6 @@ function* fetchPluginFormConfigsSaga() {
   try {
     const datasources: Datasource[] = yield select(getDatasources);
     const plugins: Plugin[] = yield select(getPlugins);
-    const pluginFormRequests = [];
     // Add plugins of all the datasources of their org
     const pluginIdFormsToFetch = new Set(
       datasources.map((datasource) => datasource.pluginId),
