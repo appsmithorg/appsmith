@@ -16,6 +16,7 @@ import FormRow from "components/editorComponents/FormRow";
 import JSObjectNameEditor from "./JSObjectNameEditor";
 import {
   executeJSFunction,
+  setActiveJSAction,
   updateJSCollectionBody,
 } from "actions/jsPaneActions";
 import { useDispatch, useSelector } from "react-redux";
@@ -190,6 +191,12 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   const executeJSAction = (jsAction: JSAction) => {
     setshowResponse(true);
     setSelectedJSActionOption(convertJSActionToDropdownOption(jsAction));
+    dispatch(
+      setActiveJSAction({
+        jsCollectionId: currentJSCollection.id || "",
+        jsActionId: jsAction.id || "",
+      }),
+    );
     dispatch(
       executeJSFunction({
         collectionName: currentJSCollection.name || "",

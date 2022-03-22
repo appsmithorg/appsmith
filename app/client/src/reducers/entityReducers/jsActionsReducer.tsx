@@ -376,6 +376,22 @@ const jsActionsReducer = createReducer(initialState, {
       });
     });
   },
+  [ReduxActionTypes.SET_ACTIVE_JS_ACTION]: (
+    state: JSCollectionDataState,
+    action: ReduxAction<{
+      jsCollectionId: string;
+      jsActionId: string;
+    }>,
+  ): JSCollectionDataState =>
+    state.map((jsCollection) => {
+      if (jsCollection.config.id === action.payload.jsCollectionId) {
+        return {
+          ...jsCollection,
+          activeJSActionId: action.payload.jsActionId,
+        };
+      }
+      return jsCollection;
+    }),
 });
 
 export default jsActionsReducer;
