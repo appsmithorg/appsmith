@@ -19,13 +19,13 @@ async function testTyping() {
     path: screenshotPath,
   });
   await delay(5000);
-  let screenshotPath = `${APP_ROOT}/traces/reports/debug-${getFormattedTime()}.png`;
+  screenshotPath = `${APP_ROOT}/traces/reports/debug-${getFormattedTime()}.png`;
   await this.page.screenshot({
     path: screenshotPath,
   });
   await page.reload();
   await delay(5000);
-  let screenshotPath = `${APP_ROOT}/traces/reports/debug-${getFormattedTime()}.png`;
+  screenshotPath = `${APP_ROOT}/traces/reports/debug-${getFormattedTime()}.png`;
   await this.page.screenshot({
     path: screenshotPath,
   });
