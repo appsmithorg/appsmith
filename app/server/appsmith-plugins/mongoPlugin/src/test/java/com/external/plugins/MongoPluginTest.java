@@ -255,16 +255,16 @@ public class MongoPluginTest {
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("{\n" +
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: \"users\",\n" +
                 "      filter: { \"age\": { \"$gte\": 30 } },\n" +
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
-
-        Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
         actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
@@ -288,7 +288,7 @@ public class MongoPluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            actionConfiguration.getBody(), null, null, null));
+                            getValueSafelyFromFormData(actionConfiguration.getFormData(), BODY), null, null, null));
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -300,16 +300,16 @@ public class MongoPluginTest {
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("{\n" +
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: \"users\",\n" +
                 "      filter: { $is: {} },\n" +
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
-
-        Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
         actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
@@ -329,7 +329,7 @@ public class MongoPluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            actionConfiguration.getBody(), null, null, null));
+                            getValueSafelyFromFormData(actionConfiguration.getFormData(), BODY), null, null, null));
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -341,7 +341,11 @@ public class MongoPluginTest {
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("{\n" +
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      insert: \"users\",\n" +
                 "      documents: [\n" +
                 "        {\n" +
@@ -352,10 +356,6 @@ public class MongoPluginTest {
                 "        },\n" +
                 "      ],\n" +
                 "    }");
-
-        Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
         actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
@@ -392,7 +392,11 @@ public class MongoPluginTest {
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("{\n" +
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
                 "  findAndModify: \"users\",\n" +
                 "  query: " +
                 "{ " +
@@ -400,10 +404,6 @@ public class MongoPluginTest {
                 " },\n" +
                 "  update: { $set: { gender: \"F\" }}\n" +
                 "}");
-
-        Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
         actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
@@ -433,14 +433,14 @@ public class MongoPluginTest {
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("{\n" +
-                "      find: \"users\",\n" +
-                "      limit: 1,\n" +
-                "    }");
 
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
+                "      find: \"users\",\n" +
+                "      limit: 1,\n" +
+                "    }");
         actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
@@ -831,16 +831,16 @@ public class MongoPluginTest {
         datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("{\n" +
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: \"users\",\n" +
                 "      filter: { age: { $gte: 30 } },\n" +
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
-
-        Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
         actionConfiguration.setFormData(configMap);
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
@@ -870,16 +870,16 @@ public class MongoPluginTest {
         datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DISABLED);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("{\n" +
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: \"users\",\n" +
                 "      filter: { age: { $gte: 30 } },\n" +
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
-
-        Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
         actionConfiguration.setFormData(configMap);
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
@@ -909,16 +909,16 @@ public class MongoPluginTest {
         datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.ENABLED);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("{\n" +
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: \"users\",\n" +
                 "      filter: { age: { $gte: 30 } },\n" +
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
-
-        Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
         actionConfiguration.setFormData(configMap);
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
@@ -1799,16 +1799,16 @@ public class MongoPluginTest {
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        // Set bad attribute for limit key
-        actionConfiguration.setBody("{\n" +
-                "      find: \"users\",\n" +
-                "      filter: \"filter\",\n" +
-                "      limit: 10,\n" +
-                "    }");
 
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        // Set bad attribute for limit key
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
+                "      find: \"users\",\n" +
+                "      filter: \"filter\",\n" +
+                "      limit: 10,\n" +
+                "    }");
         actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
@@ -1833,15 +1833,15 @@ public class MongoPluginTest {
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        // Set bad attribute for limit key
-        actionConfiguration.setBody("{\n" +
-                "      find: \"users\",\n" +
-                "      limit: [10],\n" +
-                "    }");
 
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        // Set bad attribute for limit key
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
+                "      find: \"users\",\n" +
+                "      limit: [10],\n" +
+                "    }");
         actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
@@ -1866,15 +1866,15 @@ public class MongoPluginTest {
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        // Set unrecognized key limitx
-        actionConfiguration.setBody("{\n" +
-                "      find: \"users\",\n" +
-                "      limitx: 10,\n" +
-                "    }");
 
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        // Set unrecognized key limitx
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
+                "      find: \"users\",\n" +
+                "      limitx: 10,\n" +
+                "    }");
         actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
