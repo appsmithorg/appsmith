@@ -207,7 +207,9 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
     const queryTemplate = pluginTemplates[pluginId];
     // Do not show template view if the query has body(code) or if there are no templates
     const showTemplate = !(
-      !!actionConfiguration.body || isEmpty(queryTemplate)
+      !!actionConfiguration.body ||
+      !!actionConfiguration.formData?.body ||
+      isEmpty(queryTemplate)
     );
     history.replace(
       QUERIES_EDITOR_ID_URL(applicationId, pageId, id, {
