@@ -14,7 +14,6 @@ const selectors = {
   appMoreIcon: "span.t--options-icon",
   orgImportAppOption: '[data-cy*="t--org-import-app"]',
   fileInput: "#fileInput",
-  importButton: '[data-cy*="t--org-import-app-button"]',
   createNewApp: ".createnew",
 };
 module.exports = class Perf {
@@ -155,7 +154,6 @@ module.exports = class Perf {
 
     const elementHandle = await this.page.$(selectors.fileInput);
     await elementHandle.uploadFile(jsonPath);
-    await this.page.click(selectors.importButton);
 
     await this.page.waitForNavigation();
     await this.page.reload();
