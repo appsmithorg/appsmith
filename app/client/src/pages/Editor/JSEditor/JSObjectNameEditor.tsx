@@ -19,6 +19,7 @@ import {
   ACTION_NAME_PLACEHOLDER,
   createMessage,
 } from "@appsmith/constants/messages";
+import { JsFileIconV2 } from "../Explorer/ExplorerIcons";
 
 const JSObjectNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -42,6 +43,13 @@ const JSObjectNameWrapper = styled.div<{ page?: string }>`
     font-weight: ${props.theme.typography.h3.fontWeight};
   }`
       : null}
+`;
+
+const JSObjectIconWrapper = styled.span`
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+  align-self: center;
 `;
 
 type ActionNameEditorProps = {
@@ -82,26 +90,33 @@ export function JSObjectNameEditor(props: ActionNameEditorProps) {
         saveStatus: { isSaving: boolean; error: boolean };
       }) => (
         <JSObjectNameWrapper page={props.page}>
-          <NewEditableText
-            className="t--js-action-name-edit-field"
-            defaultValue={
-              currentJSObjectConfig ? currentJSObjectConfig.name : ""
-            }
-            editInteractionKind={NewEditInteractionKind.SINGLE}
-            fill
-            forceDefault={forceUpdate}
-            isEditingDefault={isNew}
-            isInvalid={isInvalidNameForEntity}
-            onBlur={handleNameChange}
-            placeholder={createMessage(ACTION_NAME_PLACEHOLDER, "object")}
-            savingState={
-              saveStatus.isSaving
-                ? SavingState.STARTED
-                : SavingState.NOT_STARTED
-            }
-            underline
-            valueTransform={removeSpecialChars}
-          />
+          <div
+            style={{
+              display: "flex",
+            }}
+          >
+            <JSObjectIconWrapper>{JsFileIconV2}</JSObjectIconWrapper>
+            <NewEditableText
+              className="t--js-action-name-edit-field"
+              defaultValue={
+                currentJSObjectConfig ? currentJSObjectConfig.name : ""
+              }
+              editInteractionKind={NewEditInteractionKind.SINGLE}
+              fill
+              forceDefault={forceUpdate}
+              isEditingDefault={isNew}
+              isInvalid={isInvalidNameForEntity}
+              onBlur={handleNameChange}
+              placeholder={createMessage(ACTION_NAME_PLACEHOLDER, "object")}
+              savingState={
+                saveStatus.isSaving
+                  ? SavingState.STARTED
+                  : SavingState.NOT_STARTED
+              }
+              underline
+              valueTransform={removeSpecialChars}
+            />
+          </div>
         </JSObjectNameWrapper>
       )}
     </NameEditorComponent>
