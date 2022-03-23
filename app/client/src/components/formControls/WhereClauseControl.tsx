@@ -94,7 +94,7 @@ const SecondaryBox = styled.div<{ showBorder: boolean }>`
   display: flex;
   flex-direction: row;
   position: relative;
-  border: solid 1.2px var(--appsmith-color-black-400);
+  border: solid 1.2px #e0dede;
   width: max-content;
   border-width: ${(props) => (props?.showBorder ? "1.2px" : "0px")};
   margin: ${(props) => (props?.showBorder ? "0px 8px" : "0px")};
@@ -343,7 +343,7 @@ function ConditionBlock(props: any) {
                       onDeletePressed(index);
                     }}
                     size={IconSize.SMALL}
-                    top={"1px"}
+                    top={"14px"}
                   />
                 </ConditionBox>
               );
@@ -374,7 +374,7 @@ function ConditionBlock(props: any) {
           }
         >
           <Icon name="add-more-fill" size={IconSize.XL} />
-          <span style={{ marginLeft: "8px" }}>Add Where Condition</span>
+          <span style={{ marginLeft: "8px" }}>Add A Condition</span>
         </AddMoreAction>
         {/* Check if the config allows more nesting, if it does, allow for adding more blocks */}
         <StyledTooltip
@@ -403,7 +403,7 @@ function ConditionBlock(props: any) {
             }}
           >
             <Icon name="add-more-fill" size={IconSize.XL} />
-            <span style={{ marginLeft: "8px" }}>Add Where Group Condition</span>
+            <span style={{ marginLeft: "8px" }}>Add A Group Condition</span>
           </AddMoreAction>
         </StyledTooltip>
       </ActionBox>
