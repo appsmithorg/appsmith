@@ -72,6 +72,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
@@ -529,7 +530,7 @@ public class ApplicationForkingServiceTests {
                     return applicationPageService.createApplication(application, createdOrg.getId());
                 }).flatMap(srcApplication -> {
                     Theme theme = new Theme();
-                    theme.setName("theme_" + uniqueString);
+                    theme.setDisplayName("theme_" + uniqueString);
                     return themeService.updateTheme(srcApplication.getId(), theme)
                             .then(applicationService.findById(srcApplication.getId()));
                 }).flatMap(srcApplication -> {
@@ -572,8 +573,8 @@ public class ApplicationForkingServiceTests {
             assertThat(editModeTheme.getApplicationId()).isNullOrEmpty();
 
             // forked theme should have the same name as src theme
-            assertThat(editModeTheme.getName()).isEqualTo("theme_" + uniqueString);
-            assertThat(publishedModeTheme.getName()).isEqualTo("theme_" + uniqueString);
+            assertThat(editModeTheme.getDisplayName()).isEqualTo("theme_" + uniqueString);
+            assertThat(publishedModeTheme.getDisplayName()).isEqualTo("theme_" + uniqueString);
 
             // forked application should have a new edit mode theme created, should not be same as src app theme
             assertThat(srcApp.getEditModeThemeId()).isNotEqualTo(forkedApp.getEditModeThemeId());
@@ -646,7 +647,7 @@ public class ApplicationForkingServiceTests {
                     return applicationPageService.createApplication(application, createdOrg.getId());
                 }).flatMap(srcApplication -> {
                     Theme theme = new Theme();
-                    theme.setName("theme_" + uniqueString);
+                    theme.setDisplayName("theme_" + uniqueString);
                     return themeService.updateTheme(srcApplication.getId(), theme)
                             .then(themeService.persistCurrentTheme(srcApplication.getId(), theme))
                             .then(applicationService.findById(srcApplication.getId()));
@@ -692,13 +693,61 @@ public class ApplicationForkingServiceTests {
             assertThat(editModeTheme.getApplicationId()).isNullOrEmpty();
 
             // forked theme should have the same name as src theme
-            assertThat(editModeTheme.getName()).isEqualTo("theme_" + uniqueString);
-            assertThat(publishedModeTheme.getName()).isEqualTo("theme_" + uniqueString);
+            assertThat(editModeTheme.getDisplayName()).isEqualTo("theme_" + uniqueString);
+            assertThat(publishedModeTheme.getDisplayName()).isEqualTo("theme_" + uniqueString);
 
             // forked application should have a new edit mode theme created, should not be same as src app theme
             assertThat(srcApp.getEditModeThemeId()).isNotEqualTo(forkedApp.getEditModeThemeId());
             assertThat(srcApp.getPublishedModeThemeId()).isNotEqualTo(forkedApp.getPublishedModeThemeId());
         }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void forkApplication_deletePageAfterBeingPublished_deletedPageIsNotCloned() {
+
+        Organization targetOrganization = new Organization();
+        targetOrganization.setName("delete-edit-mode-page-target-org");
+        targetOrganization = organizationService.create(targetOrganization).block();
+        assert targetOrganization != null;
+        final String targetOrgId = targetOrganization.getId();
+
+        Organization srcOrganization = new Organization();
+        srcOrganization.setName("delete-edit-mode-page-src-org");
+        srcOrganization = organizationService.create(srcOrganization).block();
+
+        Application application = new Application();
+        application.setName("delete-edit-mode-page-app");
+        assert srcOrganization != null;
+        final String originalAppId = Objects.requireNonNull(applicationPageService.createApplication(application, srcOrganization.getId()).block()).getId();
+        PageDTO pageDTO = new PageDTO();
+        pageDTO.setName("delete-edit-mode-page");
+        pageDTO.setApplicationId(originalAppId);
+        final String pageId = Objects.requireNonNull(applicationPageService.createPage(pageDTO).block()).getId();
+        final Mono<Application> resultMono = applicationPageService.publish(originalAppId, true)
+                .flatMap(ignored -> applicationPageService.deleteUnpublishedPage(pageId))
+                .flatMap(page -> applicationForkingService.forkApplicationToOrganization(pageDTO.getApplicationId(), targetOrgId));
+
+        StepVerifier.create(resultMono
+                        .zipWhen(application1 -> newPageService.findNewPagesByApplicationId(application1.getId(), READ_PAGES).collectList()
+                                .zipWith(newPageService.findNewPagesByApplicationId(originalAppId, READ_PAGES).collectList())))
+                .assertNext(tuple -> {
+                    Application forkedApplication = tuple.getT1();
+                    List<NewPage> forkedPages = tuple.getT2().getT1();
+                    List<NewPage> originalPages = tuple.getT2().getT2();
+
+                    assertThat(forkedApplication).isNotNull();
+                    assertThat(forkedPages).hasSize(1);
+                    assertThat(originalPages).hasSize(2);
+                    forkedPages.forEach(newPage -> assertThat(newPage.getUnpublishedPage().getName()).isNotEqualTo(pageDTO.getName()));
+                    NewPage deletedPage = originalPages.stream()
+                            .filter(newPage -> pageDTO.getName().equals(newPage.getUnpublishedPage().getName()))
+                            .findAny()
+                            .orElse(null);
+                    assert deletedPage != null;
+                    assertThat(deletedPage.getUnpublishedPage().getName()).isEqualTo(pageDTO.getName());
+                })
+                .verifyComplete();
     }
 
     private Flux<ActionDTO> getActionsInOrganization(Organization organization) {

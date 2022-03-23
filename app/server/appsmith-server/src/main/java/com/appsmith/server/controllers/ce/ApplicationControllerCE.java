@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
@@ -7,6 +8,7 @@ import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
@@ -43,6 +45,7 @@ import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Slf4j
 @RequestMapping(Url.APPLICATION_URL)
@@ -177,13 +180,13 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                     responseHeaders.setContentDisposition(contentDisposition);
                     responseHeaders.setContentType(MediaType.APPLICATION_JSON);
 
-                    return new ResponseEntity(fetchedResource, responseHeaders, HttpStatus.OK);
+                    return new ResponseEntity<>(fetchedResource, responseHeaders, HttpStatus.OK);
                 });
     }
 
     @PostMapping(value = "/import/{orgId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<ResponseDTO<Application>> importApplicationFromFile(@RequestPart("file") Mono<Part> fileMono,
-                                                                    @PathVariable String orgId) {
+    public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromFile(@RequestPart("file") Mono<Part> fileMono,
+                                                                             @PathVariable String orgId) {
         log.debug("Going to import application in organization with id: {}", orgId);
         return fileMono
                 .flatMap(file -> importExportApplicationService.extractFileAndSaveApplication(orgId, file))
@@ -216,5 +219,11 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     public Mono<ResponseDTO<Theme>> setCurrentTheme(@PathVariable String applicationId, @PathVariable String themeId) {
         return themeService.changeCurrentTheme(themeId, applicationId)
                 .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
+    }
+
+    @GetMapping("/import/{orgId}/datasources")
+    public Mono<ResponseDTO<List<Datasource>>> getUnConfiguredDatasource(@PathVariable String orgId, @RequestParam String defaultApplicationId) {
+        return importExportApplicationService.findDatasourceByApplicationId(defaultApplicationId, orgId)
+                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 }
