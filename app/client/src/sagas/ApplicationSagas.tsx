@@ -86,7 +86,7 @@ import {
 import { failFastApiCalls } from "./InitSagas";
 import { Datasource } from "entities/Datasource";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
-import { PLACEHOLDER_PAGE_SLUG } from "constants/routes";
+import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { updateSlugNamesInURL } from "utils/helpers";
 import { builderURL, generateTemplateURL, viewerURL } from "RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "./selectors";
@@ -217,6 +217,9 @@ export function* fetchAppAndPagesSaga(
 ) {
   try {
     const params = pickBy(action.payload, identity);
+    if (params.pageId && params.applicationId) {
+      delete params.applicationId;
+    }
 
     const response: FetchApplicationResponse = yield call(
       PageApi.fetchAppAndPages,
@@ -702,7 +705,7 @@ export function* importApplicationSaga(
         } else {
           const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
           const pageURL = builderURL({
-            applicationSlug,
+            applicationSlug: applicationSlug ?? PLACEHOLDER_APP_SLUG,
             applicationVersion:
               applicationVersion ?? ApplicationVersion.SLUG_URL,
             pageSlug: defaultPage[0].slug || PLACEHOLDER_PAGE_SLUG,

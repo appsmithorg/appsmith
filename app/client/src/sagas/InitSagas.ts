@@ -127,45 +127,49 @@ function* initiateURLUpdate(
   appMode: APP_MODE,
   pageIdInUrl?: string,
 ) {
-  const currentApplication: ApplicationPayload = yield select(
-    getCurrentApplication,
-  );
-  if (currentApplication.applicationVersion < ApplicationVersion.SLUG_URL)
-    return;
-  const applicationSlug = currentApplication.slug as string;
-  const currentPage: Page = yield select(getPageById(pageId));
-  const pageSlug = currentPage?.slug as string;
+  try {
+    const currentApplication: ApplicationPayload = yield select(
+      getCurrentApplication,
+    );
+    if (currentApplication.applicationVersion < ApplicationVersion.SLUG_URL)
+      return;
+    const applicationSlug = currentApplication.slug as string;
+    const currentPage: Page = yield select(getPageById(pageId));
+    const pageSlug = currentPage?.slug as string;
 
-  // Check if the the current route is a deprecated URL or if pageId is missing,
-  // generate a new route with the v2 structure.
-  let originalUrl = "";
-  const { pathname, search } = window.location;
-  if (isURLDeprecated(pathname) || !pageIdInUrl) {
-    if (appMode === APP_MODE.EDIT) {
-      originalUrl =
-        pathname
-          .replace(
-            `/applications/${currentApplication.id}`,
-            `/${applicationSlug}`,
-          )
-          .replace(
-            `/pages/${currentPage.pageId}`,
-            `/${pageSlug}-${currentPage.pageId}`,
-          ) + search;
+    // Check if the the current route is a deprecated URL or if pageId is missing,
+    // generate a new route with the v2 structure.
+    let originalUrl = "";
+    const { pathname, search } = window.location;
+    if (isURLDeprecated(pathname) || !pageIdInUrl) {
+      if (appMode === APP_MODE.EDIT) {
+        originalUrl =
+          pathname
+            .replace(
+              `/applications/${currentApplication.id}`,
+              `/${applicationSlug}`,
+            )
+            .replace(
+              `/pages/${currentPage.pageId}`,
+              `/${pageSlug}-${currentPage.pageId}`,
+            ) + search;
+      } else {
+        originalUrl = viewerURL({ applicationSlug, pageSlug, pageId });
+      }
     } else {
-      originalUrl = viewerURL({ applicationSlug, pageSlug, pageId });
+      // For urls which has pageId in it,
+      // replace the placeholder values of application slug and page slug with real slug names.
+      originalUrl =
+        getUpdatedRoute(pathname, {
+          applicationSlug,
+          pageSlug,
+          pageId,
+        }) + search;
     }
-  } else {
-    // For urls which has pageId in it,
-    // replace the placeholder values of application slug and page slug with real slug names.
-    originalUrl =
-      getUpdatedRoute(pathname, {
-        applicationSlug,
-        pageSlug,
-        pageId,
-      }) + search;
+    history.replace(originalUrl);
+  } catch (e) {
+    log.error(e);
   }
-  history.replace(originalUrl);
 }
 
 function* initiateEditorApplicationAndPages(payload: InitializeEditorPayload) {
@@ -301,9 +305,10 @@ function* initializeEditorSaga(
       updateAppPersistentStore(getPersistentAppStore(applicationId, branch)),
     );
 
-    yield call(initiateEditorActions, applicationId);
-
-    yield call(initiatePluginsAndDatasources);
+    yield all([
+      call(initiateEditorActions, applicationId),
+      call(initiatePluginsAndDatasources),
+    ]);
 
     AnalyticsUtil.logEvent("EDITOR_OPEN", {
       appId: applicationId,
