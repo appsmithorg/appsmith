@@ -74,6 +74,9 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
 
 const MenuButtonWrapper = styled.div`
   flex: 1 1 auto;
+  cursor: pointer;
+  height: 100%;
+  position: relative;
 
   & > .${Classes.POPOVER2_TARGET} > button {
     width: 100%;
@@ -442,7 +445,7 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
           }
           return (
             <DragContainer
-              buttonColor={button.buttonColor}
+              buttonColor={button.buttonColor || this.props.primaryColor}
               buttonVariant={buttonVariant}
               disabled={isButtonDisabled}
               key={button.id}

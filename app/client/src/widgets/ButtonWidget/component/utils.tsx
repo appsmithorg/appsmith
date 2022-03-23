@@ -6,15 +6,16 @@ import { ButtonContainerProps } from "./DragContainer";
 
 /*
   Created a css util so that we don't repeat our styles.
-  Add more styles in the future also make sure you pass the 
+  Add more styles in the future also make sure you pass the
   same props to the ButtonContainerProps, because we have to
   repeat on the button and the container.
 */
 
 export const buttonHoverActiveStyles = css<ButtonContainerProps>`
   ${({ buttonColor, buttonVariant, disabled, loading, theme }) => {
+    console.log({ buttonColor });
     if (!disabled && !loading) {
-      return ` 
+      return `
         background: ${
           getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
             ? getCustomHoverColor(theme, buttonVariant, buttonColor)

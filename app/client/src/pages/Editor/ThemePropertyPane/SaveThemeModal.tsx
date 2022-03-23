@@ -11,6 +11,7 @@ import { getAppThemes } from "selectors/appThemingSelectors";
 import {
   createMessage,
   ERROR_MESSAGE_NAME_EMPTY,
+  SPECIAL_CHARACTER_ERROR,
   UNIQUE_NAME_ERROR,
 } from "ce/constants/messages";
 
@@ -24,7 +25,7 @@ function SaveThemeModal(props: SaveThemeModalProps) {
   const dispatch = useDispatch();
   const [name, setName] = useState("");
   const [inputValidator, setInputValidator] = useState({
-    isValid: true,
+    isValid: false,
     message: "",
   });
   const applicationId = useSelector(getCurrentApplicationId);
@@ -67,6 +68,11 @@ function SaveThemeModal(props: SaveThemeModalProps) {
     ) {
       isValid = false;
       errorMessage = createMessage(UNIQUE_NAME_ERROR);
+    }
+
+    if (/[^a-zA-Z0-9\-\/]/.test(value)) {
+      isValid = false;
+      errorMessage = createMessage(SPECIAL_CHARACTER_ERROR);
     }
 
     return {
