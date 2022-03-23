@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { DateInput, TimePrecision } from "@blueprintjs/datetime";
 import styled from "constants/DefaultTheme";
 import { Classes } from "./common";
@@ -19,6 +19,14 @@ const StyledDateInput = styled(DateInput)`
       &:focus {
         box-shadow: none;
       }
+    }
+  }
+
+  button,
+  select,
+  [tabindex]:not([tabindex="-1"]) {
+    &:focus {
+      outline: rgba(19, 124, 189, 0.6) auto 2px !important;
     }
   }
 
@@ -101,19 +109,85 @@ interface DatePickerComponentProps {
   parseDate?: (dateStr: string) => Date | null;
 }
 
+function getKeyboardFocusableElements(element: HTMLDivElement) {
+  return [
+    ...element.querySelectorAll(
+      'button, input, textarea, select, details,[tabindex]:not([tabindex="-1"])',
+    ),
+  ].filter(
+    (el) => !el.hasAttribute("disabled") && !el.getAttribute("aria-hidden"),
+  );
+}
+
 function DatePickerComponent(props: DatePickerComponentProps) {
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef(null);
+
+  function handleDateInputClick() {
+    setDatePickerVisibility(true);
+  }
+
+  function handleKeydown(e: KeyboardEvent) {
+    if (document.activeElement === inputRef.current) {
+      if (e.key === "Enter") {
+        setDatePickerVisibility(true);
+      } else if (e.key === "Escape") {
+        setDatePickerVisibility(false);
+      } else if (e.key === "Tab") {
+        const popoverElement = popoverRef.current;
+        if (popoverElement) {
+          e.preventDefault();
+          const focusableElements = getKeyboardFocusableElements(
+            popoverElement,
+          );
+          const firstElement = focusableElements[0];
+          if (firstElement) {
+            (firstElement as any)?.focus();
+          }
+        }
+      }
+    }
+  }
+
+  useEffect(() => {
+    document.body.addEventListener("keydown", handleKeydown);
+    return () => {
+      document.body.removeEventListener("keydown", handleKeydown);
+    };
+  }, []);
+
+  function handleOnDayClick() {
+    setDatePickerVisibility(false);
+  }
+
+  function handleInteraction(nextOpenState: boolean) {
+    setDatePickerVisibility(nextOpenState);
+  }
+
   return (
     <StyledDateInput
       className={Classes.DATE_PICKER_OVARLAY}
       closeOnSelection={props.closeOnSelection}
+      dayPickerProps={{ onDayClick: handleOnDayClick }}
       formatDate={props.formatDate}
       highlightCurrentDay={props.highlightCurrentDay}
+      inputProps={{
+        inputRef: inputRef,
+        onClick: handleDateInputClick,
+      }}
       maxDate={props.maxDate}
       minDate={props.minDate}
       onChange={props.onChange}
       parseDate={props.parseDate}
       placeholder={props.placeholder}
-      popoverProps={{ usePortal: true }}
+      popoverProps={{
+        popoverRef: popoverRef,
+        onInteraction: handleInteraction,
+        usePortal: true,
+        isOpen: isDatePickerVisible,
+      }}
       showActionsBar={props.showActionsBar}
       timePrecision={props.timePrecision}
       value={props.value}
