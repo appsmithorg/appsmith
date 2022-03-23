@@ -12,6 +12,7 @@ import { CellWrapper } from "../TableStyledWrappers";
 import { StyledButton } from "widgets/IconButtonWidget/component";
 
 interface RenderIconButtonProps {
+  compactMode: string;
   isSelected: boolean;
   columnActions?: ColumnAction[];
   iconName?: IconName;
@@ -82,6 +83,7 @@ export const renderIconButton = (
   return (
     <CellWrapper
       cellProperties={cellProperties}
+      compactMode={props.compactMode}
       isCellVisible={props.isCellVisible}
       isHidden={isHidden}
     >
