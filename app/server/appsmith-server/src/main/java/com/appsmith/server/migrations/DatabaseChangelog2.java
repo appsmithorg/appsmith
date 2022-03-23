@@ -1,7 +1,9 @@
 package com.appsmith.server.migrations;
 
 import com.appsmith.server.domains.Application;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.QApplication;
@@ -29,6 +31,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
@@ -224,7 +227,7 @@ public class DatabaseChangelog2 {
             if (!(command instanceof String)) {
                 throw new AppsmithException(AppsmithError.MIGRATION_ERROR);
             }
-            
+
             publishedFormData
                     .keySet()
                     .stream()
@@ -351,7 +354,8 @@ public class DatabaseChangelog2 {
         convertToFormDataObject(f, "bucket", formData.get("bucket"));
         convertToFormDataObject(f, "smartSubstitution", formData.get("smartSubstitution"));
         switch ((String) command) {
-            // No case for delete single and multiple since they only had bucket that needed migration
+            // No case for delete single and multiple since they only had bucket that needed
+            // migration
             case "LIST":
                 final Map listMap = (Map) formData.get("list");
                 if (listMap == null) {
@@ -615,7 +619,32 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "004", id = "set-application-version", author = "")
+    /**
+     * Insert isConfigured boolean to check if the datasource is correctly
+     * configured. This field will be used during
+     * the file or git import to maintain the datasource configuration state
+     *
+     * @param mongockTemplate
+     */
+    @ChangeSet(order = "004", id = "add-isConfigured-flag-for-all-datasources", author = "")
+    public void updateIsConfiguredFlagForAllTheExistingDatasources(MongockTemplate mongockTemplate) {
+        final Query datasourceQuery = query(where(fieldName(QDatasource.datasource.deleted)).ne(true))
+                .addCriteria(where(fieldName(QDatasource.datasource.invalids)).size(0));
+        datasourceQuery.fields()
+                .include(fieldName(QDatasource.datasource.id));
+
+        List<Datasource> datasources = mongockTemplate.find(datasourceQuery, Datasource.class);
+        for (Datasource datasource : datasources) {
+            final Update update = new Update();
+            update.set(fieldName(QDatasource.datasource.isConfigured), TRUE);
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QDatasource.datasource.id)).is(datasource.getId())),
+                    update,
+                    Datasource.class);
+        }
+    }
+
+    @ChangeSet(order = "005", id = "set-application-version", author = "")
     public void setDefaultApplicationVersion(MongockTemplate mongockTemplate) {
         mongockTemplate.updateMulti(
                 Query.query(where(fieldName(QApplication.application.deleted)).is(false)),
