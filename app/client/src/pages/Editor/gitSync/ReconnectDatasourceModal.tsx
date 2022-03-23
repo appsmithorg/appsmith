@@ -38,6 +38,7 @@ import {
   getUnconfiguredDatasources,
 } from "selectors/entitiesSelector";
 import {
+  ApplicationVersion,
   initDatasourceConnectionDuringImportRequest,
   resetDatasourceConfigForImportFetchedFlag,
   setIsReconnectingDatasourcesModalOpen,
@@ -391,6 +392,9 @@ function ReconnectDatasourceModal() {
     if (pageId && appId && datasources.length) {
       setAppURL(
         builderURL({
+          applicationVersion:
+            importedApplication.applicationVersion ??
+            ApplicationVersion.SLUG_URL,
           applicationId: appId,
           pageId: pageId,
         }),
