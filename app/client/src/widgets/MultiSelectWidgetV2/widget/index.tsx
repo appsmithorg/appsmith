@@ -106,6 +106,12 @@ export function defaultOptionValueValidation(
       message =
         "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
     }
+
+    return {
+      isValid,
+      parsed,
+      messages: [message],
+    };
   }
 
   /*
@@ -129,6 +135,14 @@ export function defaultOptionValueValidation(
     isValid = true;
     parsed = [value];
     message = "";
+  } else {
+    /*
+     * When value is undefined, null, {} etc.
+     */
+    isValid = false;
+    parsed = [];
+    message =
+      "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
   }
 
   return {
