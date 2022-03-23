@@ -303,15 +303,15 @@ export const PopoverStyles = createGlobalStyle<{
 export const fontSizeUtility = (fontSize: string | undefined) => {
   switch (fontSize) {
     case TextSizes.PARAGRAPH2:
-      return (fontSize = "0.75rem");
+      return "0.75rem";
     case TextSizes.PARAGRAPH:
-      return (fontSize = "0.875rem");
+      return "0.875rem";
     case TextSizes.HEADING3:
-      return (fontSize = "1rem");
+      return "1rem";
     case TextSizes.HEADING2:
-      return (fontSize = "1.125rem");
+      return "1.125rem";
     case TextSizes.HEADING1:
-      return (fontSize = "1.5rem");
+      return "1.5rem";
 
     default:
       return fontSize;
