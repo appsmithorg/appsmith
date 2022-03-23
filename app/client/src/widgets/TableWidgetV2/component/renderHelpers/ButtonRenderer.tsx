@@ -48,6 +48,7 @@ function TableButton(props: {
 }
 
 interface RenderActionProps {
+  compactMode: string;
   isSelected: boolean;
   columnActions?: ColumnAction[];
   backgroundColor: string;
@@ -66,6 +67,7 @@ export const renderButton = (
     return (
       <CellWrapper
         cellProperties={cellProperties}
+        compactMode={props.compactMode}
         isCellVisible={props.isCellVisible}
         isHidden={isHidden}
       />
@@ -74,6 +76,7 @@ export const renderButton = (
   return (
     <CellWrapper
       cellProperties={cellProperties}
+      compactMode={props.compactMode}
       isCellVisible={props.isCellVisible}
       isHidden={isHidden}
     >

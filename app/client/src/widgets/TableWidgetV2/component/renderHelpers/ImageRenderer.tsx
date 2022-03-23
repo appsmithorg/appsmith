@@ -11,10 +11,12 @@ type renderImageType = {
   isCellVisible: boolean;
   onClick?: () => void;
   isSelected?: boolean;
+  compactMode: string;
 };
 
 export const renderImage = (args: renderImageType) => {
   const {
+    compactMode,
     value,
     isHidden,
     cellProperties,
@@ -27,6 +29,7 @@ export const renderImage = (args: renderImageType) => {
     return (
       <CellWrapper
         cellProperties={cellProperties}
+        compactMode={compactMode}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
       />
@@ -35,6 +38,7 @@ export const renderImage = (args: renderImageType) => {
     return (
       <CellWrapper
         cellProperties={cellProperties}
+        compactMode={compactMode}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
       >
@@ -49,6 +53,7 @@ export const renderImage = (args: renderImageType) => {
   return (
     <CellWrapper
       cellProperties={cellProperties}
+      compactMode={compactMode}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
     >

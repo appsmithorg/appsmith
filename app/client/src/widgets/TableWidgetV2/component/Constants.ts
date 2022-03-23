@@ -15,6 +15,8 @@ export type TableSizes = {
   TABLE_HEADER_HEIGHT: number;
   ROW_HEIGHT: number;
   ROW_FONT_SIZE: number;
+  VERTICAL_PADDING: number;
+  EDIT_ICON_TOP: number;
 };
 
 export enum CompactModeTypes {
@@ -41,18 +43,24 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
     TABLE_HEADER_HEIGHT: 38,
     ROW_HEIGHT: 40,
     ROW_FONT_SIZE: 14,
+    VERTICAL_PADDING: 6,
+    EDIT_ICON_TOP: 11,
   },
   [CompactModeTypes.SHORT]: {
     COLUMN_HEADER_HEIGHT: 32,
     TABLE_HEADER_HEIGHT: 38,
     ROW_HEIGHT: 20,
     ROW_FONT_SIZE: 12,
+    VERTICAL_PADDING: 0,
+    EDIT_ICON_TOP: 5,
   },
   [CompactModeTypes.TALL]: {
     COLUMN_HEADER_HEIGHT: 32,
     TABLE_HEADER_HEIGHT: 38,
     ROW_HEIGHT: 60,
     ROW_FONT_SIZE: 18,
+    VERTICAL_PADDING: 16,
+    EDIT_ICON_TOP: 21,
   },
 };
 
