@@ -191,6 +191,20 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     ); //This verifies the Select on the table, ie page is created fine
 
     cy.ClickGotIt();
+
+    //Check if table is loaded & CRUD is success
+
+    cy.get(generatePage.selectedRow).should("exist");
+    cy.get(generatePage.updateBtn)
+      .closest("button")
+      .then((selector) => {
+        cy.get(selector)
+          .invoke("attr", "class")
+          .then((classes) => {
+            cy.log("classes are:" + classes);
+            expect(classes).not.contain("bp3-disabled");
+          });
+      });
   });
 
   it("8. Validate Deletion of the Newly Created Page", () => {
