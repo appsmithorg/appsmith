@@ -3,7 +3,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import store from "store";
 import { render } from "test/testUtils";
 import DatasourceCard from "../DatasourceCard";
-import { mockDatasources, mockPlugins } from "./mockData";
+import { mockDatasources, mockPlugins } from "../mockData";
 
 describe("Tasks", () => {
   it("Checks to see if generate page button is hidden for unsupported plugins", () => {
