@@ -1,4 +1,10 @@
-import React, { ChangeEvent, useEffect, useMemo, useState } from "react";
+import React, {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import styled from "styled-components";
 import { JSAction, JSCollection } from "entities/JSCollection";
 import CloseEditor from "components/editorComponents/CloseEditor";
@@ -206,10 +212,31 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     );
   };
 
+  const handleActiveActionChange = useCallback(
+    (jsAction: JSAction) => {
+      if (!jsAction) return;
+      if (jsAction.id !== selectedJSActionOption.data?.id) {
+        setSelectedJSActionOption(convertJSActionToDropdownOption(jsAction));
+        dispatch(
+          setActiveJSAction({
+            jsCollectionId: currentJSCollection.id || "",
+            jsActionId: jsAction.id || "",
+          }),
+        );
+      }
+    },
+    [selectedJSActionOption],
+  );
+
   const JSGutters = useMemo(
     () =>
-      getJSFunctionLineGutter(jsActions, executeJSAction, !parseErrors.length),
-    [jsActions, parseErrors],
+      getJSFunctionLineGutter(
+        jsActions,
+        executeJSAction,
+        handleActiveActionChange,
+        !parseErrors.length,
+      ),
+    [jsActions, parseErrors, selectedJSActionOption],
   );
 
   const handleJSActionOptionSelection: DropdownOnSelect = (

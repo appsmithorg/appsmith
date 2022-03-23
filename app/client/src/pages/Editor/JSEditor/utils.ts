@@ -99,6 +99,7 @@ export const createGutterMarker = (gutterOnclick: () => void) => {
 export const getJSFunctionLineGutter = (
   jsActions: JSAction[],
   runFuction: (jsAction: JSAction) => void,
+  onSuccessAction: (jsAction: JSAction) => void,
   showGutters: boolean,
 ): CodeEditorGutter => {
   const gutter: CodeEditorGutter = {
@@ -114,6 +115,7 @@ export const getJSFunctionLineGutter = (
         cursorLineNumber,
         jsActions,
       );
+      config && onSuccessAction(config.action);
       return config
         ? {
             line: config.line,
