@@ -223,7 +223,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               borderRadius: cellProperties.borderRadius,
               boxShadow: cellProperties.boxShadow,
               boxShadowColor: cellProperties.boxShadowColor,
-              iconName: cellProperties.iconName,
+              iconName: cellProperties.iconName || "add",
               iconAlign: cellProperties.iconAlign,
               isCellVisible: cellProperties.isCellVisible ?? true,
               label: cellProperties.menuButtonLabel ?? "Open menu",

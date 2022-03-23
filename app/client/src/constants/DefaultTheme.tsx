@@ -2203,7 +2203,7 @@ export const light: ColorType = {
     },
     disabled: {
       bgColor: Colors.GREY_1,
-      textColor: Colors.GREY_4,
+      textColor: Colors.GREY_8,
     },
     primary: {
       primary: {
