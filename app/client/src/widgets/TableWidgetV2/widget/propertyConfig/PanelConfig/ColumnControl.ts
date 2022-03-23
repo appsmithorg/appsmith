@@ -7,6 +7,7 @@ import {
   hideByColumnType,
   uniqueColumnAliasValidation,
   updateColumnAccessorHook,
+  updateColumnLevelEditability,
 } from "../../propertyUtils";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
@@ -190,6 +191,7 @@ export default {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
+      updateHook: updateColumnLevelEditability,
       validation: {
         type: ValidationTypes.TABLE_PROPERTY,
         params: {

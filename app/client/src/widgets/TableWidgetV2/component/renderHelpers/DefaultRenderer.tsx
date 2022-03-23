@@ -1,12 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { isNumber, isNil } from "lodash";
 
 import { ColumnTypes, CellLayoutProperties } from "../Constants";
-import { InlineCellEditor } from "../cellComponents/InlineCellEditor";
 import { EditableCellActions } from "widgets/TableWidgetV2/constants";
 import { TextCell } from "../cellComponents/TextCell";
 
-export type renderDefaultPropsType = {
+export type RenderDefaultPropsType = {
+  compactMode: string;
   value: any;
   columnType: string;
   isHidden: boolean;
@@ -37,10 +37,11 @@ export function getCellText(
   return text;
 }
 
-export const renderDefault = (props: renderDefaultPropsType) => {
+export const renderDefault = (props: RenderDefaultPropsType) => {
   const {
     cellProperties,
     columnType,
+    compactMode,
     isCellEditable,
     isCellEditMode,
     isCellVisible,
@@ -51,31 +52,22 @@ export const renderDefault = (props: renderDefaultPropsType) => {
     value,
   } = props;
 
-  let cell;
-
-  if (isCellEditMode) {
-    cell = (
-      <InlineCellEditor
-        onChange={(text: string) => onCellTextChange(text)}
-        onDiscard={() => toggleCellEditMode(false, EditableCellActions.DISCARD)}
-        onSave={() => toggleCellEditMode(false, EditableCellActions.SAVE)}
-        value={value}
-      />
-    );
-  } else {
-    cell = (
-      <TextCell
-        cellProperties={cellProperties}
-        columnType={columnType}
-        isCellEditable={isCellEditable}
-        isCellVisible={isCellVisible}
-        isHidden={isHidden}
-        tableWidth={tableWidth}
-        toggleCellEditMode={toggleCellEditMode}
-        value={getCellText(value, cellProperties, columnType)}
-      />
-    );
-  }
-
-  return cell;
+  return (
+    <TextCell
+      cellProperties={cellProperties}
+      columnType={columnType}
+      compactMode={compactMode}
+      isCellEditMode={isCellEditMode}
+      isCellEditable={isCellEditable}
+      isCellVisible={isCellVisible}
+      isHidden={isHidden}
+      onCellTextChange={onCellTextChange}
+      onChange={(text: string) => onCellTextChange(text)}
+      onDiscard={() => toggleCellEditMode(false, EditableCellActions.DISCARD)}
+      onSave={() => toggleCellEditMode(false, EditableCellActions.SAVE)}
+      tableWidth={tableWidth}
+      toggleCellEditMode={toggleCellEditMode}
+      value={getCellText(value, cellProperties, columnType)}
+    />
+  );
 };

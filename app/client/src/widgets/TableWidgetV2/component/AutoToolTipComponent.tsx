@@ -32,6 +32,7 @@ interface Props {
   columnType?: string;
   className?: string;
   allowWrapping?: boolean;
+  compactMode?: string;
 }
 
 function LinkWrapper(props: Props) {
@@ -49,6 +50,7 @@ function LinkWrapper(props: Props) {
     <CellWrapper
       allowWrapping={props.cellProperties?.allowCellWrapping}
       cellProperties={props.cellProperties}
+      compactMode={props.compactMode}
       isCellVisible={props.isCellVisible}
       isHidden={props.isHidden}
       isHyperLink
@@ -102,6 +104,7 @@ function AutoToolTipComponent(props: Props) {
       <CellWrapper
         allowWrapping={props.allowWrapping}
         cellProperties={props.cellProperties}
+        compactMode={props.compactMode}
         isCellVisible={props.isCellVisible}
         isHidden={props.isHidden}
         isTextType
