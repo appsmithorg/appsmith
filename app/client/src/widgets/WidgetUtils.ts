@@ -6,6 +6,7 @@ import { IconName } from "@blueprintjs/icons";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
+  TextSizes,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import generate from "nanoid/generate";
@@ -293,3 +294,26 @@ export const PopoverStyles = createGlobalStyle<{
     }
   `}
 `;
+
+/**
+ * Maps the old font sizes such as HEADING1, HEADING2 etc. to the new theming fontSizes(in rems).
+ * @param fontSize
+ * @returns
+ */
+export const fontSizeUtility = (fontSize: string | undefined) => {
+  switch (fontSize) {
+    case TextSizes.PARAGRAPH2:
+      return (fontSize = "0.75rem");
+    case TextSizes.PARAGRAPH:
+      return (fontSize = "0.875rem");
+    case TextSizes.HEADING3:
+      return (fontSize = "1rem");
+    case TextSizes.HEADING2:
+      return (fontSize = "1.125rem");
+    case TextSizes.HEADING1:
+      return (fontSize = "1.5rem");
+
+    default:
+      return fontSize;
+  }
+};

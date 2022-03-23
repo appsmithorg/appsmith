@@ -4,14 +4,14 @@ import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import Interweave from "interweave";
 import { UrlMatcher, EmailMatcher } from "interweave-autolink";
-import { FontStyleTypes, TextSize } from "constants/WidgetConstants";
+import { FontStyleTypes } from "constants/WidgetConstants";
 import Icon, { IconSize } from "components/ads/Icon";
 import { isEqual, get } from "lodash";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
 import { Color, Colors } from "constants/Colors";
 import FontLoader from "./FontLoader";
 import { DEFAULT_FONT_SIZE } from "constants/ThemeConstants";
-
+import { fontSizeUtility } from "widgets/WidgetUtils";
 export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
 
 const ELLIPSIS_HEIGHT = 15;
@@ -99,7 +99,7 @@ export const StyledText = styled(Text)<{
   backgroundColor?: string;
   textColor?: string;
   fontStyle?: string;
-  fontSize?: TextSize;
+  fontSize?: string;
   borderColor?: Color;
   borderWidth?: number;
 }>`
@@ -128,7 +128,8 @@ export const StyledText = styled(Text)<{
     props?.fontStyle?.includes(FontStyleTypes.UNDERLINE) ? "underline" : ""};
   font-weight: ${(props) =>
     props?.fontStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
-  font-size: ${({ fontSize }) => fontSize || DEFAULT_FONT_SIZE};
+  font-size: ${({ fontSize }) =>
+    fontSizeUtility(fontSize) || DEFAULT_FONT_SIZE};
   word-break: break-word;
   span {
     width: 100%;
@@ -164,7 +165,7 @@ const Heading = styled.div`
 `;
 
 const Content = styled.div<{
-  fontSize?: TextSize;
+  fontSize?: string;
   fontStyle?: string;
   textAlign: string;
   textColor?: string;
@@ -186,7 +187,7 @@ export interface TextComponentProps extends ComponentProps {
   text?: string;
   textAlign: TextAlign;
   ellipsize?: boolean;
-  fontSize?: TextSize;
+  fontSize?: string;
   isLoading: boolean;
   shouldScroll?: boolean;
   backgroundColor?: string;

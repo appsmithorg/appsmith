@@ -2,11 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { labelStyle } from "constants/DefaultTheme";
 import { ComponentProps } from "widgets/BaseComponent";
-import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
+import { FontStyleTypes, TextSize } from "constants/WidgetConstants";
 import {
   Alignment,
   Intent,
@@ -659,7 +655,7 @@ class InputComponent extends React.Component<
         inputType={this.props.inputType}
         labelStyle={labelStyle}
         labelTextColor={labelTextColor}
-        labelTextSize={labelTextSize ? TEXT_SIZES[labelTextSize] : "inherit"}
+        labelTextSize={labelTextSize ?? "inherit"}
         multiline={this.props.multiline.toString()}
         numeric={isNumberInputType(this.props.inputType)}
         primaryColor={this.props.primaryColor}

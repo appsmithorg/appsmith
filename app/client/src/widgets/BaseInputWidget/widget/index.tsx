@@ -2,7 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
-import { WidgetType, TextSize } from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import {
   EventType,
   ExecutionResult,
@@ -217,38 +217,40 @@ class BaseInputWidget<
             controlType: "DROP_DOWN",
             options: [
               {
-                label: "Heading 1",
-                value: "HEADING1",
-                subText: "24px",
-                icon: "HEADING_ONE",
+                label: "sm",
+                value: "0.875rem",
+                subText: "0.875rem",
               },
               {
-                label: "Heading 2",
-                value: "HEADING2",
-                subText: "18px",
-                icon: "HEADING_TWO",
+                label: "base",
+                value: "1rem",
+                subText: "1rem",
               },
               {
-                label: "Heading 3",
-                value: "HEADING3",
-                subText: "16px",
-                icon: "HEADING_THREE",
+                label: "lg",
+                value: "1.25rem",
+                subText: "1.25rem",
               },
               {
-                label: "Paragraph",
-                value: "PARAGRAPH",
-                subText: "14px",
-                icon: "PARAGRAPH",
+                label: "xl",
+                value: "1.875rem",
+                subText: "1.875rem",
               },
               {
-                label: "Paragraph 2",
-                value: "PARAGRAPH2",
-                subText: "12px",
-                icon: "PARAGRAPH_TWO",
+                label: "2xl",
+                value: "3rem",
+                subText: "3rem",
+              },
+              {
+                label: "3xl",
+                value: "3.75rem",
+                subText: "3.75rem",
               },
             ],
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "labelStyle",
@@ -424,7 +426,7 @@ export interface BaseInputWidgetProps extends WidgetProps {
   placeholderText?: string;
   label: string;
   labelTextColor?: string;
-  labelTextSize?: TextSize;
+  labelTextSize?: string;
   labelStyle?: string;
   inputValidators: BaseInputValidator[];
   isValid: boolean;
