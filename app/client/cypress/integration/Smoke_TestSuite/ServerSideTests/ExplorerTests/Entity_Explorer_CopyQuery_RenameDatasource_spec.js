@@ -13,7 +13,13 @@ describe("Entity explorer tests related to copy query", function() {
     cy.startRoutesForDatasource();
   });
 
-  it("1. Create a query with dataSource in explorer", function() {
+  afterEach(function() {
+    if (this.currentTest.state === "failed") {
+      Cypress.runner.stop();
+    }
+  });
+
+  it("1. Create a query with dataSource in explorer, Create new Page", function() {
     cy.Createpage(pageid);
     cy.get(".t--entity-name")
       .contains("Page1")
@@ -61,7 +67,7 @@ describe("Entity explorer tests related to copy query", function() {
     });
   });
 
-  it("2. Create a page and copy query in explorer", function() {
+  it("2. Copy query in explorer to new page & verify Bindings are copied too", function() {
     cy.get(".t--entity-name")
       .contains("Page1")
       .click({ force: true });
@@ -81,7 +87,7 @@ describe("Entity explorer tests related to copy query", function() {
     });
   });
 
-  it("3. Delete query and rename datasource in explorer", function() {
+  it("3. Rename datasource in explorer, Delete query and try to Delete datasource", function() {
     cy.get(".t--entity-name")
       .contains("Page1")
       .click({ force: true });
@@ -96,7 +102,7 @@ describe("Entity explorer tests related to copy query", function() {
       cy.wait(2000);
       cy.hoverAndClick();
       cy.get(apiwidget.delete).click({ force: true });
-      cy.get("[data-cy=t--confirm-modal-btn]").click();
+      cy.get(apiwidget.deleteConfirm).click({ force: true });
       //This is check to make sure if a datasource is active 409
       cy.wait("@deleteDatasource").should(
         "have.nested.property",
@@ -104,10 +110,9 @@ describe("Entity explorer tests related to copy query", function() {
         409,
       );
     });
-
     cy.get(".t--entity-name")
       .contains("Query1")
-      .click({ force: true });
-    agHelper.ActionContextMenuByEntityName("Query1", "Delete");
+      .click();
+    agHelper.ActionContextMenuByEntityName("Query1", "Delete", "Are you sure?");
   });
 });
