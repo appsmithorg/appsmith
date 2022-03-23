@@ -6,7 +6,7 @@ import {
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { noop } from "lodash";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getPageListAsOptions } from "selectors/entitiesSelector";
 import history from "utils/history";
@@ -20,6 +20,7 @@ import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import {
   CONTEXT_COPY,
   CONTEXT_DELETE,
+  CONFIRM_CONTEXT_DELETE,
   CONTEXT_EDIT_NAME,
   CONTEXT_MOVE,
   CONTEXT_NO_PAGE,
@@ -38,6 +39,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   const nextEntityName = useNewActionName();
   const guidedTourEnabled = useSelector(inGuidedTour);
   const dispatch = useDispatch();
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const copyActionToPage = useCallback(
     (actionId: string, actionName: string, pageId: string) =>
       dispatch(
@@ -149,16 +151,25 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
                 ],
         },
         {
+          confirmDelete: confirmDelete,
+          className: "t--apiFormDeleteBtn single-select",
           value: "delete",
-          label: createMessage(CONTEXT_DELETE),
+          label: confirmDelete
+            ? createMessage(CONFIRM_CONTEXT_DELETE)
+            : createMessage(CONTEXT_DELETE),
           intent: "danger",
-          onSelect: () =>
-            deleteActionFromPage(props.id, props.name, () => {
-              history.push(builderURL());
-            }),
+          onSelect: () => {
+            confirmDelete
+              ? deleteActionFromPage(props.id, props.name, () => {
+                  history.push(builderURL());
+                  setConfirmDelete(false);
+                })
+              : setConfirmDelete(true);
+          },
         },
       ]}
       selectedValue=""
+      setConfirmDelete={setConfirmDelete}
       toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
   );

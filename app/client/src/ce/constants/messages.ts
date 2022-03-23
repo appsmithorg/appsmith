@@ -1080,7 +1080,11 @@ export const CONTEXT_SHOW_BINDING = () => "Show Bindings";
 export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
+export const CONFIRM_CONTEXT_DELETE = () => "Are you sure?";
 export const CONTEXT_NO_PAGE = () => "No pages";
+export const CONTEXT_REFRESH = () => "Refresh";
+export const CONTEXT_CLONE = () => "Clone";
+export const CONTEXT_SET_AS_HOME_PAGE = () => "Set as Home Page";
 
 // Entity explorer
 export const ADD_DATASOURCE_BUTTON = () => "ADD DATASOURCE";
