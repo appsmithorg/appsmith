@@ -158,6 +158,10 @@ const StyledTooltip = styled(Tooltip)`
     line-height: 16px;
     text-transform: none;
   }
+  .bp3-tooltip.ads-global-tooltip .bp3-popover-arrow[style*="left"] {
+    left: auto !important;
+    right: 0px;
+  }
 `;
 // Component to display single line of condition, includes 2 inputs and 1 dropdown
 function ConditionComponent(props: any, index: number) {
