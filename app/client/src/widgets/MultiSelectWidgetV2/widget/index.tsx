@@ -2,7 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isArray, isString, isNumber } from "lodash";
+import { isArray, isString, isNumber, LoDashStatic } from "lodash";
 import {
   ValidationResponse,
   ValidationTypes,
@@ -20,7 +20,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 export function defaultOptionValueValidation(
   value: unknown,
   props: MultiSelectWidgetProps,
-  _: any,
+  _: LoDashStatic,
 ): ValidationResponse {
   let isValid = false;
   let parsed: any[] = [];
@@ -51,12 +51,16 @@ export function defaultOptionValueValidation(
   /*
    * When value is "['green', 'red']", "[{label: 'green', value: 'green'}]" and "green, red"
    */
-  if (_.isString(value) && (value as string).trim() !== "") {
+  if (_.isString(value) && value.trim() !== "") {
     try {
       /*
        * when value is "['green', 'red']", "[{label: 'green', value: 'green'}]"
        */
-      value = JSON.parse(value as string);
+      const parsedValue = JSON.parse(value);
+      // Only parse value if resulting value is an array or string
+      if (Array.isArray(parsedValue) || _.isString(parsedValue)) {
+        value = parsedValue;
+      }
     } catch (e) {
       /*
        * when value is "green, red", JSON.parse throws error
@@ -75,12 +79,10 @@ export function defaultOptionValueValidation(
       /*
        * When value is ["green", "red"]
        */
-      if (hasUniqueValues(value as [])) {
+      if (hasUniqueValues(value)) {
         isValid = true;
         parsed = value;
-        message = "";
       } else {
-        isValid = false;
         parsed = [];
         message = "values must be unique. Duplicate values found";
       }
@@ -88,12 +90,10 @@ export function defaultOptionValueValidation(
       /*
        * When value is [{label: "green", value: "red"}]
        */
-      if (hasUniqueValues(value.map((val) => val.value) as [])) {
+      if (hasUniqueValues(value.map((val) => val.value))) {
         isValid = true;
         parsed = value;
-        message = "";
       } else {
-        isValid = false;
         parsed = [];
         message = "path:value must be unique. Duplicate values found";
       }
@@ -101,7 +101,6 @@ export function defaultOptionValueValidation(
       /*
        * When value is [true, false], [undefined, undefined] etc.
        */
-      isValid = false;
       parsed = [];
       message =
         "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
@@ -117,29 +116,19 @@ export function defaultOptionValueValidation(
   /*
    * When value is an empty string
    */
-  if (_.isString(value) && (value as string).trim() === "") {
+  if (_.isString(value) && value.trim() === "") {
     isValid = true;
     parsed = [];
-    message = "";
-  } else if (_.isNumber(value)) {
+  } else if (_.isNumber(value) || _.isString(value)) {
     /*
-     * When value is a number
+     * When value is a number or just a single string e.g "Blue"
      */
     isValid = true;
     parsed = [value];
-    message = "";
-  } else if (_.isString(value)) {
-    /*
-     * When value is just a single string e.g "Blue"
-     */
-    isValid = true;
-    parsed = [value];
-    message = "";
   } else {
     /*
      * When value is undefined, null, {} etc.
      */
-    isValid = false;
     parsed = [];
     message =
       "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
@@ -450,9 +439,7 @@ class MultiSelectWidget extends BaseWidget<
     const { componentWidth } = this.getComponentDimensions();
     const values: LabelValueType[] = this.props.selectedOptions
       ? this.props.selectedOptions.map((o) =>
-          isString(o) || isNumber(o)
-            ? { label: o, value: o }
-            : { label: o.label, value: o.value },
+          isString(o) || isNumber(o) ? { value: o } : { value: o.value },
         )
       : [];
     const isInvalid =

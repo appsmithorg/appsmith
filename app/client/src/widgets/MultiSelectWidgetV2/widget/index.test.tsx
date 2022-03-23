@@ -37,6 +37,19 @@ describe("defaultOptionValueValidation - ", () => {
       messages: [""],
     });
   });
+  it("should get tested with a string", () => {
+    const inputs = ["2022", "true", "null", "test", "undefined"];
+
+    inputs.forEach((input) => {
+      expect(
+        defaultOptionValueValidation(input, {} as MultiSelectWidgetProps, _),
+      ).toEqual({
+        isValid: true,
+        parsed: [input],
+        messages: [""],
+      });
+    });
+  });
 
   it("should get tested with array json string", () => {
     const input = `["green", "red"]`;
@@ -80,14 +93,22 @@ describe("defaultOptionValueValidation - ", () => {
     });
   });
 
-  it("should get tested with comma seperated strings", () => {
+  it("should get tested with comma separated strings", () => {
     const input = "green, red";
+    const input2 = "1, 2";
 
     expect(
       defaultOptionValueValidation(input, {} as MultiSelectWidgetProps, _),
     ).toEqual({
       isValid: true,
       parsed: ["green", "red"],
+      messages: [""],
+    });
+    expect(
+      defaultOptionValueValidation(input2, {} as MultiSelectWidgetProps, _),
+    ).toEqual({
+      isValid: true,
+      parsed: ["1", "2"],
       messages: [""],
     });
   });
