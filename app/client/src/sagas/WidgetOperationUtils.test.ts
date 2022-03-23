@@ -584,7 +584,7 @@ describe("WidgetOperationSaga", () => {
     expect(result).toStrictEqual(expected);
   });
 
-  it("should purge orphaned dynamicTriggerPaths and dynamicReactivePaths from widget", () => {
+  it("should purge orphaned dynamicTriggerPaths and dynamicBindingPaths from widget", () => {
     const input = {
       dynamicBindingPathList: [
         { key: "primaryColumns.name.computedValue" },
