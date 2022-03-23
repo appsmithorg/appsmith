@@ -85,12 +85,14 @@ class RequestConfirmationModal extends React.Component<Props> {
             isOpen={modalInfo?.modalOpen}
             key={index}
             maxHeight={"80vh"}
+            noModalBodyMarginTop
             onClose={() => this.handleClose(modalInfo)}
-            title="Confirm Action"
+            title="Confirmation Dialog"
             width={"580px"}
           >
             <ModalBody>
-              {createMessage(QUERY_CONFIRMATION_MODAL_MESSAGE)}
+              {createMessage(QUERY_CONFIRMATION_MODAL_MESSAGE)}{" "}
+              <b>{modalInfo.name}</b> ?
             </ModalBody>
             <ModalFooter>
               <Button
@@ -100,18 +102,18 @@ class RequestConfirmationModal extends React.Component<Props> {
                   dispatch(cancelActionConfirmationModal(modalInfo.name));
                   this.handleClose(modalInfo);
                 }}
-                size={Size.medium}
+                size={Size.large}
                 tag="button"
-                text="Cancel"
+                text="No"
                 type="button"
               />
               <Button
                 category={Category.primary}
                 cypressSelector="t--confirm-modal-btn"
                 onClick={() => this.onConfirm(modalInfo)}
-                size={Size.medium}
+                size={Size.large}
                 tag="button"
-                text="Confirm"
+                text="Yes"
                 type="button"
               />
             </ModalFooter>

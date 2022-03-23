@@ -38,11 +38,14 @@ import {
   clearIntervalSaga,
   setIntervalSaga,
 } from "sagas/ActionExecution/SetIntervalSaga";
+import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import {
   getCurrentLocationSaga,
   stopWatchCurrentLocation,
   watchCurrentLocation,
 } from "sagas/ActionExecution/GetCurrentLocationSaga";
+import { requestModalConfirmationSaga } from "sagas/UtilSagas";
+import { ModalType } from "reducers/uiReducers/modalActionReducer";
 
 export type TriggerMeta = {
   source?: TriggerSource;
@@ -124,6 +127,17 @@ export function* executeActionTriggers(
 
     case ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION:
       response = yield call(stopWatchCurrentLocation, eventType, triggerMeta);
+      break;
+    case ActionTriggerType.CONFIRMATION_MODAL:
+      const payloadInfo = {
+        name: trigger?.payload?.funName,
+        modalOpen: true,
+        modalType: ModalType.RUN_ACTION,
+      };
+      const flag = yield call(requestModalConfirmationSaga, payloadInfo);
+      if (!flag) {
+        throw new UserCancelledActionExecutionError();
+      }
       break;
     default:
       log.error("Trigger type unknown", trigger);

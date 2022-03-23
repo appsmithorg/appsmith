@@ -72,7 +72,7 @@ import {
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
 
-function* failFastApiCalls(
+export function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
   successActions: string[],
   failureActions: string[],
@@ -434,7 +434,6 @@ export function* initializeAppViewerSaga(
 }
 
 function* resetEditorSaga() {
-  yield put(resetEditorSuccess());
   yield put(resetRecentEntities());
   // End guided tour once user exits editor
   yield put(enableGuidedTour(false));
@@ -443,6 +442,7 @@ function* resetEditorSaga() {
   // might end up in preview mode if they were in preview mode
   // previously
   yield put(setPreviewModeAction(false));
+  yield put(resetEditorSuccess());
 }
 
 export function* waitForInit() {

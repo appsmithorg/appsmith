@@ -1,6 +1,7 @@
 [
   {
     "name": "Classic",
+    "displayName": "Classic",
     "config": {
       "colors": {
         "primaryColor": "#50AF6C",
@@ -269,6 +270,7 @@
   },
   {
     "name": "Default",
+    "displayName": "Modern",
     "config": {
       "colors": {
         "primaryColor": "#553DE9",
@@ -537,6 +539,7 @@
   },
   {
     "name": "Sharp",
+    "displayName": "Sharp",
     "config": {
       "colors": {
         "primaryColor": "#3B7DDD",
@@ -805,6 +808,7 @@
   },
   {
     "name": "Rounded",
+    "displayName": "Rounded",
     "config": {
       "colors": {
         "primaryColor": "#DE1593",

@@ -227,6 +227,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
               }
               return propertiesToUpdate;
             },
+            dependencies: ["iconAlign"],
             validation: {
               type: ValidationTypes.TEXT,
             },

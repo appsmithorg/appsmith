@@ -5006,7 +5006,7 @@ public class DatabaseChangelog {
      * @param mongockTemplate
      * @throws IOException
      */
-    @ChangeSet(order = "117", id = "create-system-themes-v2", author = "")
+    @ChangeSet(order = "117", id = "create-system-themes-v2", author = "", runAlways = true)
     public void createSystemThemes2(MongockTemplate mongockTemplate) throws IOException {
         Index systemThemeIndex = new Index()
                 .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)
@@ -5047,6 +5047,7 @@ public class DatabaseChangelog {
                 savedTheme = mongockTemplate.save(theme);
             } else { // theme already found, update
                 themeExists = true;
+                savedTheme.setDisplayName(theme.getDisplayName());
                 savedTheme.setPolicies(theme.getPolicies());
                 savedTheme.setConfig(theme.getConfig());
                 savedTheme.setProperties(theme.getProperties());
@@ -5071,4 +5072,5 @@ public class DatabaseChangelog {
             );
         }
     }
+    
 }
