@@ -129,7 +129,6 @@ init_replica_set() {
 
     if appsmithctl check_replica_set; then
       echo "Mongodb cloud Replica Set is enabled"
-      mongo "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
     else
       echo -e "\033[0;31m********************************************************************\033[0m"
       echo -e "\033[0;31m*          MongoDB Replica Set is not enabled                      *\033[0m"
