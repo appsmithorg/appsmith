@@ -259,6 +259,7 @@ public class GitFileUtils {
         application.setName(null);
         application.setPublishedPages(null);
         application.setIsPublic(null);
+        application.setSlug(null);
     }
 
     private void removeUnwantedFieldsFromDatasource(Datasource datasource) {
