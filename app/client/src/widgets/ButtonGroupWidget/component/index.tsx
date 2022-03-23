@@ -36,26 +36,29 @@ import { buttonHoverActiveStyles } from "../../ButtonWidget/component/utils";
 
 // Utility functions
 interface ButtonData {
-  id: string;
-  type: string;
-  label: string;
-  iconName: string;
+  id?: string;
+  type?: string;
+  label?: string;
+  iconName?: string;
 }
-// extract props influencing to width change
+// Extract props influencing to width change
 const getButtonData = (
   groupButtons: Record<string, GroupButtonProps>,
 ): ButtonData[] => {
-  const buttonData = Object.keys(groupButtons).reduce((acc: any[], id) => {
-    return [
-      ...acc,
-      {
-        id,
-        type: groupButtons[id].buttonType,
-        label: groupButtons[id].label,
-        iconName: groupButtons[id].iconName,
-      },
-    ];
-  }, []);
+  const buttonData = Object.keys(groupButtons).reduce(
+    (acc: ButtonData[], id) => {
+      return [
+        ...acc,
+        {
+          id,
+          type: groupButtons[id].buttonType,
+          label: groupButtons[id].label,
+          iconName: groupButtons[id].iconName,
+        },
+      ];
+    },
+    [],
+  );
 
   return buttonData as ButtonData[];
 };
@@ -433,15 +436,7 @@ class ButtonGroupComponent extends React.Component<
     this.setState(() => {
       return {
         ...this.state,
-        itemRefs: Object.keys(this.props.groupButtons).reduce((acc, id) => {
-          if (this.props.groupButtons[id].buttonType === "MENU") {
-            return {
-              ...acc,
-              [id]: createRef(),
-            };
-          }
-          return acc;
-        }, {}),
+        itemRefs: this.createMenuButtonRefs(),
       };
     });
 
@@ -449,16 +444,7 @@ class ButtonGroupComponent extends React.Component<
       this.setState(() => {
         return {
           ...this.state,
-          itemWidths: Object.keys(this.props.groupButtons).reduce((acc, id) => {
-            if (this.props.groupButtons[id].buttonType === "MENU") {
-              return {
-                ...acc,
-                [id]: this.state.itemRefs[id].current?.getBoundingClientRect()
-                  .width,
-              };
-            }
-            return acc;
-          }, {}),
+          itemWidths: this.getMenuButtonWidths(),
         };
       });
     }, 0);
@@ -480,20 +466,7 @@ class ButtonGroupComponent extends React.Component<
         this.setState(() => {
           return {
             ...this.state,
-            itemWidths: Object.keys(this.props.groupButtons).reduce(
-              (acc, id) => {
-                if (this.props.groupButtons[id].buttonType === "MENU") {
-                  return {
-                    ...acc,
-                    [id]: this.state.itemRefs[
-                      id
-                    ].current?.getBoundingClientRect().width,
-                  };
-                }
-                return acc;
-              },
-              {},
-            ),
+            itemWidths: this.getMenuButtonWidths(),
           };
         });
       });
@@ -519,8 +492,8 @@ class ButtonGroupComponent extends React.Component<
 
           return (
             button.label !== prevButton?.label ||
-            (button.iconName && !prevButton.iconName) ||
-            (!button.iconName && prevButton.iconName)
+            (button.iconName && !prevButton?.iconName) ||
+            (!button.iconName && prevButton?.iconName)
           );
         });
       }
@@ -529,15 +502,7 @@ class ButtonGroupComponent extends React.Component<
         this.setState(() => {
           return {
             ...this.state,
-            itemRefs: Object.keys(this.props.groupButtons).reduce((acc, id) => {
-              if (this.props.groupButtons[id].buttonType === "MENU") {
-                return {
-                  ...acc,
-                  [id]: createRef(),
-                };
-              }
-              return acc;
-            }, {}),
+            itemRefs: this.createMenuButtonRefs(),
           };
         });
       }
@@ -549,6 +514,30 @@ class ButtonGroupComponent extends React.Component<
       clearTimeout(this.timer);
     }
   }
+
+  // Get widths of menu buttons
+  getMenuButtonWidths = () =>
+    Object.keys(this.props.groupButtons).reduce((acc, id) => {
+      if (this.props.groupButtons[id].buttonType === "MENU") {
+        return {
+          ...acc,
+          [id]: this.state.itemRefs[id].current?.getBoundingClientRect().width,
+        };
+      }
+      return acc;
+    }, {});
+
+  // Create refs of menu buttons
+  createMenuButtonRefs = () =>
+    Object.keys(this.props.groupButtons).reduce((acc, id) => {
+      if (this.props.groupButtons[id].buttonType === "MENU") {
+        return {
+          ...acc,
+          [id]: createRef(),
+        };
+      }
+      return acc;
+    }, {});
 
   onButtonClick = (onClick: string | undefined) => () => {
     this.props.buttonClickHandler(onClick);
