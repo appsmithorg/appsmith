@@ -260,7 +260,6 @@ function SingleSelectTreeComponent({
         onChange={onChange}
         onClear={onClear}
         onDropdownVisibleChange={onOpen}
-        open
         placeholder={placeholder}
         searchValue={filter}
         showArrow
