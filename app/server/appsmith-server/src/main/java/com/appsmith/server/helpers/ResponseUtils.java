@@ -103,6 +103,10 @@ public class ResponseUtils {
             }
             page.setId(page.getDefaultPageId());
         }
+        // need to update the application also if it's present
+        if(applicationPages.getApplication() != null) {
+            applicationPages.setApplication(updateApplicationWithDefaultResources(applicationPages.getApplication()));
+        }
         return applicationPages;
     }
 

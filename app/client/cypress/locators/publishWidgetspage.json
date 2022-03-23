@@ -1,5 +1,6 @@
 {
   "buttonWidget": ".t--widget-buttonwidget",
+  "iconWidgetBtn": ".t--widget-iconbuttonwidget button",
   "textWidget": ".t--widget-textwidget",
   "richTextEditorWidget": ".t--widget-richtexteditorwidget",
   "datepickerWidget": ".t--widget-datepickerwidget",

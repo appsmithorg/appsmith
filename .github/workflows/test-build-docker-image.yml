@@ -109,7 +109,7 @@ jobs:
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
       - name: Set the build environment based on the branch
         if: steps.run_result.outputs.run_result != 'success'
@@ -541,11 +541,17 @@ jobs:
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
         working-directory: "."
         run: |
-          mkdir fatcontainerlocal
-          cd fatcontainerlocal          
+          mkdir -p fatcontainerlocal/stacks/configuration/
+          cd fatcontainerlocal
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
             -v "$PWD/stacks:/appsmith-stacks" fatcontainer
+          sudo chmod a+rw stacks/configuration/docker.env
           sudo echo  "APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY" >> stacks/configuration/docker.env
+      
+#      - name: Restart Appsmith
+#        if: steps.run_result.outputs.run_result != 'success'
+#        run: |
+#          docker restart appsmith
 
       - name: Use Node.js 14.15.4
         if: steps.run_result.outputs.run_result != 'success'
@@ -938,7 +944,7 @@ jobs:
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
       - name: Download the react build artifact
         if: steps.run_result.outputs.run_result != 'success'
@@ -1188,7 +1194,7 @@ jobs:
           fi
 
   package:
-    needs: [ui-test, fat-conatiner-test]
+    needs: ui-test
     runs-on: ubuntu-latest
 
     # Run this job irrespective of tests failing, if this is the release branch; or only if the tests pass, if this is the master branch.

@@ -82,7 +82,9 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
 
 const MenuButtonWrapper = styled.div<{ renderMode: RenderMode }>`
   flex: 1 1 auto;
+
   ${({ renderMode }) => renderMode === RenderModes.CANVAS && `height: 100%`};
+
   & > .${Classes.POPOVER2_TARGET} > button {
     width: 100%;
     height: 100%;
@@ -257,7 +259,6 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
         color: ${theme.colors.button.disabled.textColor} !important;
       }
     }
-    
   `}
 `;
 
@@ -501,7 +502,6 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
               disabled={isButtonDisabled}
               key={button.id}
               onClick={() => {
-                if (isButtonDisabled) return;
                 this.onButtonClick(button.onClick);
               }}
               renderMode={this.props.renderMode}
