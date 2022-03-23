@@ -2487,11 +2487,7 @@ public class ApplicationServiceTest {
                                         )
                         )
                 ).flatMap(objects ->
-<<<<<<< HEAD
-                    themeService.getThemeById(objects.getT1().getEditModeThemeId(), MANAGE_THEME)
-=======
                     themeService.getThemeById(objects.getT1().getEditModeThemeId(), MANAGE_THEMES)
->>>>>>> 64a9fd451b1d977517e65e5b2f3be6183d76d75a
                             .zipWith(Mono.just(objects))
                 );
 
