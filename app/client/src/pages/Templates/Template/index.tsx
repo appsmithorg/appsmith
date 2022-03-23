@@ -160,7 +160,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
               <Tooltip content={createMessage(FORK_THIS_TEMPLATE)}>
                 <StyledButton
                   className="t--fork-template fork-button"
-                  icon="compasses-line"
+                  icon="fork-2"
                   size={Size.medium}
                   tag="button"
                 />

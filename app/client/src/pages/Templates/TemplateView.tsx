@@ -299,7 +299,7 @@ function TemplateView() {
                   >
                     <Button
                       className="template-fork-button"
-                      icon="compasses-line"
+                      icon="fork-2"
                       iconPosition={IconPositions.left}
                       onClick={onForkButtonTrigger}
                       size={Size.large}
