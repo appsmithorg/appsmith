@@ -9,7 +9,7 @@ describe("Icon Button Widget Functionality", function() {
     cy.addDsl(dsl);
   });
 
-  it.only("1. check default buttonVariant with isJSConvertible", function() {
+  it("1. check default buttonVariant with isJSConvertible", function() {
     cy.openPropertyPane("iconbuttonwidget");
 
     cy.get(formWidgetsPage.toggleButtonVariant).click();
@@ -45,7 +45,7 @@ describe("Icon Button Widget Functionality", function() {
     );
   });
 
-  it.only("3. show alert on button click", function() {
+  it("3. show alert on button click", function() {
     cy.get(".t--property-control-onclick")
       .find(".t--js-toggle")
       .click({ force: true });
@@ -63,7 +63,7 @@ describe("Icon Button Widget Functionality", function() {
     cy.goToEditFromPublish();
   });
 
-  it.only("4. should not show alert onclick if button is disabled", function() {
+  it("4. should not show alert onclick if button is disabled", function() {
     cy.openPropertyPane("iconbuttonwidget");
     cy.CheckWidgetProperties(commonlocators.disableCheckbox);
     cy.get(widgetsPage.iconWidgetBtn).click({ force: true });
