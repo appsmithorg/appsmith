@@ -392,9 +392,9 @@ export const ACTION_CONFIGURATION_UPDATED = () => "Configuration updated";
 export const WIDGET_PROPERTIES_UPDATED = () => "Widget properties were updated";
 export const EMPTY_RESPONSE_FIRST_HALF = () => "🙌 Click on";
 export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
-export const JS_SHORTCUT_FIRST_HALF = () => "You can also use";
-export const JS_SHORTCUT_LAST_HALF = () =>
-  "keyboard shortcut to run the function";
+export const JS_SHORTCUT_FIRST_HALF = () =>
+  "You can also run functions using the";
+export const JS_SHORTCUT_LAST_HALF = () => "keyboard shortcut";
 export const EMPTY_JS_RESPONSE_LAST_HALF = () =>
   "to view response of the selected function";
 export const INVALID_EMAIL = () => "Please enter a valid email";

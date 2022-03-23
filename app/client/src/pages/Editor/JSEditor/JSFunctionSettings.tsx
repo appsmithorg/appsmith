@@ -39,7 +39,8 @@ const SettingRow = styled.div<{ isHeading?: boolean; noBorder?: boolean }>`
   ${(props) =>
     props.isHeading &&
     `   
-  background: #f8f8f8; 
+  background: #f8f8f8;
+  font-size: ${props.theme.typography.h5.fontSize}px;
   `};
 `;
 
@@ -76,15 +77,23 @@ const SettingColumn = styled.div<{ grow?: boolean; isHeading?: boolean }>`
 
 const JSFunctionSettingsWrapper = styled.div`
   display: flex;
+  height: 100%;
+  border-bottom: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-top: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+`;
+
+const SettingsContainer = styled.div`
+  display: flex;
   flex-direction: column;
   padding: 0px ${(props) => props.theme.spaces[13] - 2}px;
   width: max-content;
   min-width: 700px;
+  height: 100%;
 
   & > h3 {
     margin: 20px 0;
-    font-size: 17px;
     text-transform: capitalize;
+    font-size: ${(props) => props.theme.fontSizes[4]}px;
   }
 `;
 
@@ -159,27 +168,29 @@ function JSFunctionSettingsView({ actions }: JSFunctionSettingsProps) {
   );
   return (
     <JSFunctionSettingsWrapper>
-      <h3>{createMessage(ASYNC_FUNCTION_SETTINGS_HEADING)}</h3>
-      <SettingRow isHeading>
-        {SETTINGS_HEADINGS.map((setting, index) => (
-          <SettingsHeading
-            grow={index === 0}
-            hasInfo={setting.hasInfo}
-            info={setting.info}
-            key={setting.key}
-            text={setting.text}
-          />
-        ))}
-      </SettingRow>
-      {asyncActions && asyncActions.length ? (
-        asyncActions.map((action) => (
-          <SettingsItem action={action} key={action.id} />
-        ))
-      ) : (
-        <SettingRow noBorder>
-          <SettingColumn>{createMessage(NO_ASYNC_FUNCTIONS)}</SettingColumn>
+      <SettingsContainer>
+        <h3>{createMessage(ASYNC_FUNCTION_SETTINGS_HEADING)}</h3>
+        <SettingRow isHeading>
+          {SETTINGS_HEADINGS.map((setting, index) => (
+            <SettingsHeading
+              grow={index === 0}
+              hasInfo={setting.hasInfo}
+              info={setting.info}
+              key={setting.key}
+              text={setting.text}
+            />
+          ))}
         </SettingRow>
-      )}
+        {asyncActions && asyncActions.length ? (
+          asyncActions.map((action) => (
+            <SettingsItem action={action} key={action.id} />
+          ))
+        ) : (
+          <SettingRow noBorder>
+            <SettingColumn>{createMessage(NO_ASYNC_FUNCTIONS)}</SettingColumn>
+          </SettingRow>
+        )}
+      </SettingsContainer>
     </JSFunctionSettingsWrapper>
   );
 }

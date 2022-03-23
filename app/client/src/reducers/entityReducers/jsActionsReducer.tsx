@@ -1,5 +1,5 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { JSCollection } from "entities/JSCollection";
+import { JSAction, JSCollection } from "entities/JSCollection";
 import {
   ReduxActionTypes,
   ReduxAction,

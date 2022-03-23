@@ -57,6 +57,7 @@ const ResponseContainer = styled.div`
   // Minimum height of bottom tabs as it can be resized
   min-height: ${({ theme }) => theme.smallHeaderHeight};
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
+  height: ${({ theme }) => theme.actionsBottomTabInitialHeight};
 
   .react-tabs__tab-panel {
     overflow-y: auto;
@@ -266,14 +267,11 @@ function JSResponseView(props: Props) {
       !showResponse ||
       !responses.hasOwnProperty(currentFunction.id)
     ) {
-      responseStatus !== JSResponseState.NoResponse &&
-        setResponseStatus(JSResponseState.NoResponse);
+      setResponseStatus(JSResponseState.NoResponse);
     } else if (isExecuting[currentFunction.id]) {
-      responseStatus !== JSResponseState.IsExecuting &&
-        setResponseStatus(JSResponseState.IsExecuting);
+      setResponseStatus(JSResponseState.IsExecuting);
     } else {
-      responseStatus !== JSResponseState.ShowResponse &&
-        setResponseStatus(JSResponseState.ShowResponse);
+      setResponseStatus(JSResponseState.ShowResponse);
     }
   }, [currentFunction, showResponse, responses, isExecuting]);
 
@@ -322,8 +320,9 @@ function JSResponseView(props: Props) {
                           {EMPTY_JS_RESPONSE_LAST_HALF()}
                         </Text>
                         <Text type={TextType.P1}>
-                          {JS_SHORTCUT_FIRST_HALF()} {getShortcut()}
-                          {JS_SHORTCUT_LAST_HALF()}
+                          {createMessage(JS_SHORTCUT_FIRST_HALF)}
+                          {getShortcut()}
+                          {createMessage(JS_SHORTCUT_LAST_HALF)}
                         </Text>
                       </NoResponseContainer>
                     );

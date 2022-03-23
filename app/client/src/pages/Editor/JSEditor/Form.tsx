@@ -107,6 +107,7 @@ const SecondaryWrapper = styled.div`
   display: flex;
   flex-direction: column;
   height: calc(100% - 50px);
+  overflow: hidden;
 `;
 const MainConfiguration = styled.div`
   padding: ${(props) => props.theme.spaces[4]}px
@@ -118,7 +119,6 @@ export const TabbedViewContainer = styled.div`
   flex: 1;
   overflow: auto;
   position: relative;
-  height: 100%;
   border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   ${FormRow} {
     min-height: auto;
@@ -240,6 +240,11 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     [jsActions, parseErrors, selectedJSActionOption],
   );
 
+  const handleTabSwitch = (tabIndex: number) => {
+    setMainTabIndex(tabIndex);
+    setshowResponse(false);
+  };
+
   const handleJSActionOptionSelection: DropdownOnSelect = (
     value,
     dropDownOption: JSActionDropdownOption,
@@ -304,7 +309,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
           <SecondaryWrapper>
             <TabbedViewContainer>
               <TabComponent
-                onSelect={setMainTabIndex}
+                onSelect={handleTabSwitch}
                 selectedIndex={mainTabIndex}
                 tabs={[
                   {
