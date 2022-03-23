@@ -2306,6 +2306,11 @@ Cypress.Commands.add(
   },
 );
 
+Cypress.Commands.add("fillAuthenticatedAPIForm", () => {
+  const URL = datasourceFormData["authenticatedApiUrl"];
+  cy.get(datasourceEditor.url).type(URL);
+});
+
 Cypress.Commands.add(
   "fillPostgresDatasourceForm",
   (shouldAddTrailingSpaces = false) => {
