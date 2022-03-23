@@ -671,13 +671,19 @@ export function* importApplicationSaga(
       );
       if (currentOrg.length > 0) {
         const {
-          application: { pages, slug: applicationSlug },
+          application: { applicationVersion, pages, slug: applicationSlug },
           isPartialImport,
         }: {
           application: {
             id: string;
             slug: string;
-            pages: { default?: boolean; id: string; isDefault?: boolean }[];
+            applicationVersion: number;
+            pages: {
+              default?: boolean;
+              id: string;
+              isDefault?: boolean;
+              slug: string;
+            }[];
           };
           isPartialImport: boolean;
         } = response.data;
@@ -694,11 +700,13 @@ export function* importApplicationSaga(
             }),
           );
         } else {
-          const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
+          const defaultPage = pages.find((eachPage) => !!eachPage.isDefault);
           const pageURL = builderURL({
             applicationSlug,
-            pageSlug: PLACEHOLDER_PAGE_SLUG,
-            pageId: defaultPage[0].id,
+            applicationVersion:
+              applicationVersion || ApplicationVersion.SLUG_URL,
+            pageSlug: defaultPage?.slug ?? PLACEHOLDER_PAGE_SLUG,
+            pageId: defaultPage?.id,
           });
           history.push(pageURL);
           const guidedTour = yield select(inGuidedTour);
