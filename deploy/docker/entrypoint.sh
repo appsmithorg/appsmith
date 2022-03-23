@@ -16,15 +16,15 @@ init_env_file() {
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ""
     )
-    APPSMITH_ENCRYPTION_PASSWORD=$(
+    TEMP_APPSMITH_ENCRYPTION_PASSWORD=$(
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ""
     )
-    APPSMITH_ENCRYPTION_SALT=$(
+    TEMP_APPSMITH_ENCRYPTION_SALT=$(
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ""
     )
-    bash "$TEMPLATES_PATH/docker.env.sh" "$APPSMITH_MONGODB_USER" "$APPSMITH_MONGODB_PASSWORD" "$APPSMITH_ENCRYPTION_PASSWORD" "$APPSMITH_ENCRYPTION_SALT" > "$ENV_PATH"
+    bash "$TEMPLATES_PATH/docker.env.sh" "$APPSMITH_MONGODB_USER" "$APPSMITH_MONGODB_PASSWORD" "$TEMP_APPSMITH_ENCRYPTION_PASSWORD" "$TEMP_APPSMITH_ENCRYPTION_SALT" > "$ENV_PATH"
   fi
 
   # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
