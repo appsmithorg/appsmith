@@ -700,16 +700,16 @@ export function* importApplicationSaga(
             }),
           );
         } else {
-          const defaultPage = pages.find((eachPage) => !!eachPage.isDefault);
+          const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
           const pageURL = builderURL({
             applicationSlug,
             applicationVersion:
-              applicationVersion || ApplicationVersion.SLUG_URL,
-            pageSlug: defaultPage?.slug ?? PLACEHOLDER_PAGE_SLUG,
-            pageId: defaultPage?.id,
+              applicationVersion ?? ApplicationVersion.SLUG_URL,
+            pageSlug: defaultPage[0].slug || PLACEHOLDER_PAGE_SLUG,
+            pageId: defaultPage[0].id,
           });
           history.push(pageURL);
-          const guidedTour = yield select(inGuidedTour);
+          const guidedTour: boolean = yield select(inGuidedTour);
 
           if (guidedTour) return;
 
