@@ -1,6 +1,7 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.git.FileInterface;
+import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.git.helpers.FileUtilsImpl;
@@ -279,6 +280,9 @@ public class GitFileUtils {
         action.setPublishedAction(null);
         action.setUserPermissions(null);
         ActionDTO unpublishedAction = action.getUnpublishedAction();
+        if(action.getPluginType().toString().equals("SAAS")) {
+            action.getUnpublishedAction().setActionConfiguration(new ActionConfiguration());
+        }
         if (unpublishedAction != null) {
             unpublishedAction.setDefaultResources(null);
             if (unpublishedAction.getDatasource() != null) {
