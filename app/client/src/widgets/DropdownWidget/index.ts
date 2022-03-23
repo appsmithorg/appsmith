@@ -6,6 +6,7 @@ export const CONFIG = {
   name: "Select",
   iconSVG: IconSVG,
   needsMeta: true,
+  hideCard: true,
   defaults: {
     rows: 7,
     columns: 20,

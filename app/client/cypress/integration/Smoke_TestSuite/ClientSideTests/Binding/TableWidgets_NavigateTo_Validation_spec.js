@@ -29,14 +29,15 @@ describe("Table Widget and Navigate to functionality validation", function() {
     cy.addDsl(dsl2);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
+    cy.CheckAndUnfoldEntityItem("PAGES");
     cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
   });
 
   it("Validate NavigateTo Page functionality ", function() {
-    cy.SearchEntityandOpen("Table1");
-    //Below test to be enabled once the bug related to change of page in table in fixed
-    //cy.get('.t--table-widget-next-page')
-    //  .click();
+    cy.get(`.t--entity-name:contains("Page1")`)
+      .should("be.visible")
+      .click({ force: true });
+    cy.wait(2000);
     cy.PublishtheApp();
     cy.get(widgetsPage.chartWidget).should("not.exist");
     cy.isSelectRow(1);

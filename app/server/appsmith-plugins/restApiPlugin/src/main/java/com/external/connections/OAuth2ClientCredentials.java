@@ -165,6 +165,7 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
                 .fromFormData(Authentication.GRANT_TYPE, Authentication.CLIENT_CREDENTIALS)
                 .with(Authentication.CLIENT_ID, oAuth2.getClientId())
                 .with(Authentication.CLIENT_SECRET, oAuth2.getClientSecret());
+
         // Adding optional audience parameter
         if (!StringUtils.isEmpty(oAuth2.getAudience())) {
             body.with(Authentication.AUDIENCE, oAuth2.getAudience());

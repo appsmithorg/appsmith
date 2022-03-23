@@ -8,7 +8,7 @@ import {
 } from "entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { promisifyAction } from "workers/PromisifyAction";
-
+const clone = require("rfdc/default");
 declare global {
   interface Window {
     ALLOW_ASYNC?: boolean;
@@ -263,9 +263,8 @@ export const enhanceDataTreeWithFunctions = (
   dataTree: Readonly<DataTree>,
   requestId = "",
 ): DataTree => {
-  const withFunction: DataTree = _.cloneDeep(dataTree);
+  const clonedDT = clone(dataTree);
   self.TRIGGER_COLLECTOR = [];
-
   Object.entries(DATA_TREE_FUNCTIONS).forEach(([name, funcOrFuncCreator]) => {
     if (
       typeof funcOrFuncCreator === "object" &&
@@ -277,7 +276,7 @@ export const enhanceDataTreeWithFunctions = (
           const funcName = `${funcOrFuncCreator.path ||
             `${entityName}.${name}`}`;
           _.set(
-            withFunction,
+            clonedDT,
             funcName,
             pusher.bind(
               {
@@ -291,7 +290,7 @@ export const enhanceDataTreeWithFunctions = (
       });
     } else {
       _.set(
-        withFunction,
+        clonedDT,
         name,
         pusher.bind(
           {
@@ -304,7 +303,7 @@ export const enhanceDataTreeWithFunctions = (
     }
   });
 
-  return withFunction;
+  return clonedDT;
 };
 
 /**

@@ -1,5 +1,5 @@
 import { IPopoverSharedProps } from "@blueprintjs/core";
-import { matchPath } from "react-router";
+import { matchPath, useLocation } from "react-router";
 import {
   API_EDITOR_ID_PATH,
   QUERIES_EDITOR_ID_PATH,
@@ -11,10 +11,14 @@ import {
   SAAS_EDITOR_API_ID_PATH,
   SAAS_EDITOR_DATASOURCE_ID_PATH,
 } from "pages/Editor/SaaSEditor/constants";
+import { ActionData } from "reducers/entityReducers/actionsReducer";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { PluginType } from "entities/Action";
+import localStorage from "utils/localStorage";
 
 export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
-    enabled: true,
+    enabled: false,
     offset: 200,
   },
 
@@ -29,6 +33,12 @@ export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
 
 export type ExplorerURLParams = {
   pageId: string;
+};
+
+export type ExplorerFileEntity = {
+  type: PluginType | "group";
+  group?: string;
+  entity: ActionData | JSCollectionData;
 };
 
 export const getActionIdFromURL = () => {
@@ -73,8 +83,9 @@ export const getQueryIdFromURL = () => {
   }
 };
 
-export const getDatasourceIdFromURL = () => {
-  const match = matchPath<{ datasourceId: string }>(window.location.pathname, {
+export const useDatasourceIdFromURL = () => {
+  const location = useLocation();
+  const match = matchPath<{ datasourceId: string }>(location.pathname, {
     path: DATA_SOURCES_EDITOR_ID_PATH,
   });
   if (match?.params?.datasourceId) {
@@ -89,4 +100,44 @@ export const getDatasourceIdFromURL = () => {
   if (saasMatch?.params?.datasourceId) {
     return saasMatch.params.datasourceId;
   }
+};
+
+const EXPLORER_STORAGE_PREFIX = "explorerState_";
+
+export type ExplorerStateType = {
+  pages: boolean;
+  widgets: boolean;
+  queriesAndJs: boolean;
+  datasource: boolean;
+};
+
+export const getExplorerStatus = (
+  appId: string,
+  entityName: keyof ExplorerStateType,
+): boolean | null => {
+  const storageItemName = EXPLORER_STORAGE_PREFIX + appId;
+  const data = localStorage.getItem(storageItemName);
+  if (data === null) return null;
+  const parsedData: ExplorerStateType = JSON.parse(data);
+  return parsedData[entityName];
+};
+
+export const saveExplorerStatus = (
+  appId: string,
+  entityName: keyof ExplorerStateType,
+  value: boolean,
+): void => {
+  const storageItemName = EXPLORER_STORAGE_PREFIX + appId;
+  const state = localStorage.getItem(storageItemName);
+  let data: ExplorerStateType = {
+    pages: false,
+    widgets: false,
+    queriesAndJs: false,
+    datasource: false,
+  };
+  if (state !== null) {
+    data = JSON.parse(state);
+  }
+  data[entityName] = value;
+  localStorage.setItem(storageItemName, JSON.stringify(data));
 };

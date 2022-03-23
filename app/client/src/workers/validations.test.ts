@@ -575,12 +575,15 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: [],
-        messages: ["Disallowed value: q"],
+        messages: ["Value is not allowed in this array: q"],
       },
       {
         isValid: false,
         parsed: [],
-        messages: ["Disallowed value: q"],
+        messages: [
+          "Value is not allowed in this array: q",
+          "Value is not allowed in this array: s",
+        ],
       },
       {
         isValid: true,
@@ -631,12 +634,15 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: ["a"],
-        messages: ["Disallowed value: q"],
+        messages: ["Value is not allowed in this array: q"],
       },
       {
         isValid: false,
         parsed: ["a"],
-        messages: ["Disallowed value: q"],
+        messages: [
+          "Value is not allowed in this array: q",
+          "Value is not allowed in this array: s",
+        ],
       },
       {
         isValid: true,
@@ -655,6 +661,58 @@ describe("Validate Validators", () => {
       const result = validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
     });
+  });
+
+  it("correctly limits the number of validation errors in array validation", () => {
+    const input = [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f",
+      "g",
+      "h",
+      "i",
+      "j",
+      "k",
+      "l",
+      "m",
+      "n",
+      "o",
+      "p",
+    ];
+    const config = {
+      type: ValidationTypes.ARRAY,
+      params: {
+        children: {
+          type: ValidationTypes.NUMBER,
+          params: {
+            required: true,
+            allowedValues: [1, 2, 3, 4],
+          },
+        },
+      },
+    };
+    const expected = {
+      isValid: false,
+      parsed: [],
+      messages: [
+        "Invalid entry at index: 0. This value does not evaluate to type number Required",
+        "Invalid entry at index: 1. This value does not evaluate to type number Required",
+        "Invalid entry at index: 2. This value does not evaluate to type number Required",
+        "Invalid entry at index: 3. This value does not evaluate to type number Required",
+        "Invalid entry at index: 4. This value does not evaluate to type number Required",
+        "Invalid entry at index: 5. This value does not evaluate to type number Required",
+        "Invalid entry at index: 6. This value does not evaluate to type number Required",
+        "Invalid entry at index: 7. This value does not evaluate to type number Required",
+        "Invalid entry at index: 8. This value does not evaluate to type number Required",
+        "Invalid entry at index: 9. This value does not evaluate to type number Required",
+      ],
+    };
+
+    const result = validate(config, input, DUMMY_WIDGET);
+    expect(result).toStrictEqual(expected);
   });
 
   it("correctly validates array when required is true", () => {
@@ -751,7 +809,7 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: [],
-        messages: ["Array must be unique. Duplicate values found"],
+        messages: ["Array must be unique. Duplicate values found at index: 2"],
       },
       {
         isValid: false,
@@ -1213,6 +1271,53 @@ describe("Validate Validators", () => {
       const result = validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected);
     });
+  });
+
+  it("correctly validates uniqueness of keys in array objects", () => {
+    const config = {
+      type: ValidationTypes.ARRAY,
+      params: {
+        children: {
+          type: ValidationTypes.OBJECT,
+          params: {
+            allowedKeys: [
+              {
+                name: "label",
+                type: ValidationTypes.TEXT,
+                params: {
+                  default: "",
+                  required: true,
+                  unique: true,
+                },
+              },
+              {
+                name: "value",
+                type: ValidationTypes.TEXT,
+                params: {
+                  default: "",
+                  unique: true,
+                },
+              },
+            ],
+          },
+        },
+      },
+    };
+    const input = [
+      { label: "Blue", value: "" },
+      { label: "Green", value: "" },
+      { label: "Red", value: "red" },
+    ];
+    const expected = {
+      isValid: false,
+      parsed: [],
+      messages: [
+        "Duplicate values found for the following properties, in the array entries, that must be unique -- label,value.",
+      ],
+    };
+
+    const result = validate(config, input, DUMMY_WIDGET);
+    expect(result).toStrictEqual(expected);
   });
 
   it("correctly validates TableProperty", () => {

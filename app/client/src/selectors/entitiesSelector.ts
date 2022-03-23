@@ -9,17 +9,21 @@ import {
   Datasource,
   MockDatasource,
   DatasourceStructure,
+  isEmbeddedRestDatasource,
 } from "entities/Datasource";
 import { Action, PluginType } from "entities/Action";
-import { find } from "lodash";
+import { find, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppStoreState } from "reducers/entityReducers/appReducer";
 import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
 import { JSCollection } from "entities/JSCollection";
-import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
+import { DefaultPlugin, GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
 import { APP_MODE } from "entities/App";
+import getFeatureFlags from "utils/featureFlags";
+import { ExplorerFileEntity } from "pages/Editor/Explorer/helpers";
+import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -45,6 +49,17 @@ export const getMockDatasources = (state: AppState): MockDatasource[] => {
 export const getIsDeletingDatasource = (state: AppState): boolean => {
   return state.entities.datasources.isDeleting;
 };
+
+export const getDefaultPlugins = (state: AppState): DefaultPlugin[] =>
+  state.entities.plugins.defaultPluginList;
+
+export const getDefaultPluginByPackageName = (
+  state: AppState,
+  packageName: string,
+): DefaultPlugin | undefined =>
+  state.entities.plugins.defaultPluginList.find(
+    (plugin) => plugin.packageName === packageName,
+  );
 
 export const getPluginIdsOfNames = (
   state: AppState,
@@ -165,6 +180,10 @@ export const getDatasource = (
     (datasource) => datasource.id === datasourceId,
   );
 
+export const getDatasourceDrafts = (state: AppState) => {
+  return state.ui.datasourcePane.drafts;
+};
+
 export const getDatasourceDraft = (state: AppState, id: string) => {
   const drafts = state.ui.datasourcePane.drafts;
   if (id in drafts) return drafts[id];
@@ -202,6 +221,9 @@ export const getDBAndRemotePlugins = createSelector(getPlugins, (plugins) =>
       plugin.type === PluginType.DB || plugin.type === PluginType.REMOTE,
   ),
 );
+
+export const getUnconfiguredDatasources = (state: AppState) =>
+  state.entities.datasources.unconfiguredList ?? [];
 
 export const getDatasourceByPluginId = (state: AppState, pluginId: string) =>
   state.entities.datasources.list.filter((d) => d.pluginId === pluginId);
@@ -255,6 +277,16 @@ export const getPluginImages = createSelector(getPlugins, (plugins) => {
   });
 
   return pluginImages;
+});
+
+export const getPluginNames = createSelector(getPlugins, (plugins) => {
+  const pluginNames: Record<string, string> = {};
+
+  plugins.forEach((plugin) => {
+    pluginNames[plugin.id] = plugin?.name;
+  });
+
+  return pluginNames;
 });
 
 export const getPluginTemplates = createSelector(getPlugins, (plugins) => {
@@ -487,6 +519,11 @@ export const getAllPageWidgets = createSelector(
   },
 );
 
+export const getPageList = createSelector(
+  (state: AppState) => state.entities.pageList.pages,
+  (pages) => pages,
+);
+
 export const getPageListAsOptions = createSelector(
   (state: AppState) => state.entities.pageList.pages,
   (pages) =>
@@ -573,6 +610,9 @@ export const getIsOnboardingTasksView = createSelector(
   },
 );
 
+export const getIsReconnectingDatasourcesModalOpen = (state: AppState) =>
+  state.entities.datasources.isReconnectingModalOpen;
+
 export const getIsOnboardingWidgetSelection = (state: AppState) =>
   state.ui.onBoarding.inOnboardingWidgetSelection;
 
@@ -583,3 +623,138 @@ export const getPageActions = (pageId = "") => {
     });
   };
 };
+
+export const selectDatasourceIdToNameMap = createSelector(
+  getDatasources,
+  (datasources) => {
+    return datasources.reduce((acc, datasource) => {
+      acc[datasource.id] = datasource.name;
+      return acc;
+    }, {} as Record<string, string>);
+  },
+);
+
+export const selectWidgetsForCurrentPage = createSelector(
+  (state: AppState) => state.ui.pageCanvasStructure,
+  getCurrentPageId,
+  (canvasStructure, pageId) => (pageId ? canvasStructure[pageId] : null),
+);
+
+export const selectAllPages = (state: AppState) => {
+  return state.entities.pageList.pages;
+};
+
+export const getIsListing = (state: AppState) => {
+  return state.entities.datasources.isListing;
+};
+
+export const selectFilesForExplorer = createSelector(
+  getActionsForCurrentPage,
+  getJSCollectionsForCurrentPage,
+  selectDatasourceIdToNameMap,
+  (actions, jsActions, datasourceIdToNameMap) => {
+    const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
+    const files = [...actions, ...(isJSEditorEnabled ? jsActions : [])].reduce(
+      (acc, file) => {
+        let group = "";
+        if (file.config.pluginType === PluginType.JS) {
+          group = "JS Objects";
+        } else if (file.config.pluginType === PluginType.API) {
+          group = isEmbeddedRestDatasource(file.config.datasource)
+            ? "APIs"
+            : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
+        } else {
+          group = datasourceIdToNameMap[file.config.datasource.id];
+        }
+        acc = acc.concat({
+          type: file.config.pluginType,
+          entity: file,
+          group,
+        });
+        return acc;
+      },
+      [] as Array<ExplorerFileEntity>,
+    );
+
+    const filesSortedByGroupName = sortBy(files, [
+      (file) => file.group?.toLowerCase(),
+      (file) => file.entity.config?.name?.toLowerCase(),
+    ]);
+    const groupedFiles = filesSortedByGroupName.reduce(
+      (acc, file) => {
+        if (acc.group !== file.group) {
+          acc.files = acc.files.concat({
+            type: "group",
+            entity: {
+              name: file.group,
+            },
+          });
+          acc.group = file.group;
+        }
+        acc.files = acc.files.concat({
+          ...file,
+          entity: { id: file.entity.config.id, name: file.entity.config.name },
+        });
+        return acc;
+      },
+      {
+        group: "" as any,
+        files: [] as any,
+      },
+    );
+    return groupedFiles.files;
+  },
+);
+
+export const getActionValidationConfig = (state: AppState, action: any) => {
+  const pluginId = action.pluginId;
+  return getActionValidationConfigFromPlugin(
+    state.entities.plugins.editorConfigs[pluginId],
+    {},
+  );
+};
+
+export const getAllActionValidationConfig = (state: AppState) => {
+  const allActions = state.entities.actions;
+  const allValidationConfigs: {
+    [actionId: string]: ActionValidationConfigMap;
+  } = {};
+  for (let i = 0; i < allActions.length; i++) {
+    const pluginId = allActions[i].config.pluginId;
+    let validationConfigs: ActionValidationConfigMap = {};
+    validationConfigs = getActionValidationConfigFromPlugin(
+      state.entities.plugins.editorConfigs[pluginId],
+      {},
+    );
+    allValidationConfigs[allActions[i].config.id] = validationConfigs;
+  }
+  return allValidationConfigs;
+};
+
+function getActionValidationConfigFromPlugin(
+  editorConfig: any,
+  validationConfig: ActionValidationConfigMap,
+): ActionValidationConfigMap {
+  let newValidationConfig: ActionValidationConfigMap = {
+    ...validationConfig,
+  };
+  if (!editorConfig || !editorConfig.length) return {};
+  for (let i = 0; i < editorConfig.length; i++) {
+    if (editorConfig[i].validationConfig) {
+      const configProperty = editorConfig[i].configProperty;
+      newValidationConfig[configProperty] = editorConfig[i].validationConfig;
+    }
+
+    if (editorConfig[i].children) {
+      const childrenValidationConfig = getActionValidationConfigFromPlugin(
+        editorConfig[i].children,
+        validationConfig,
+      );
+      newValidationConfig = Object.assign(
+        newValidationConfig,
+        childrenValidationConfig,
+      );
+    }
+  }
+  return newValidationConfig;
+}

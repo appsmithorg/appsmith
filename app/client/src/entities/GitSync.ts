@@ -20,4 +20,5 @@ export type MergeStatus = {
   conflictingFiles: Array<string>;
   status?: string;
   message?: string;
+  referenceDoc?: string;
 };

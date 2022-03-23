@@ -10,7 +10,7 @@ import {
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
 import {
-  CurrentApplicationData,
+  ApplicationPayload,
   PageListPayload,
 } from "constants/ReduxActionConstants";
 import {
@@ -46,6 +46,7 @@ import GetAppViewerHeaderCTA from "./GetAppViewerHeaderCTA";
 import { showAppInviteUsersDialogSelector } from "selectors/applicationSelectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { ShareButtonComponent } from "../../Editor/EditorHeader";
+import TourCompletionMessage from "pages/Editor/GuidedTour/TourCompletionMessage";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   box-shadow: unset;
@@ -135,7 +136,7 @@ const PrimaryLogoLink = styled(Link)`
 
 type AppViewerHeaderProps = {
   url?: string;
-  currentApplicationDetails?: CurrentApplicationData;
+  currentApplicationDetails?: ApplicationPayload;
   pages: PageListPayload;
   currentOrgId: string;
   currentUser?: User;
@@ -250,6 +251,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
           currentApplicationDetails={currentApplicationDetails}
           pages={pages}
         />
+        <TourCompletionMessage />
       </HeaderWrapper>
     </ThemeProvider>
   );

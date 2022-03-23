@@ -7,6 +7,7 @@ public enum AnalyticsEvents {
     UPDATE,
     DELETE,
     ARCHIVE,
+    APPLY,
     FIRST_LOGIN,
     EXECUTE_ACTION("execute_ACTION_TRIGGERED"),
     UPDATE_LAYOUT,
@@ -27,7 +28,11 @@ public enum AnalyticsEvents {
     GIT_PRUNE,
     GIT_DISCONNECT,
     GIT_CHECKOUT_BRANCH,
-    GIT_CHECKOUT_REMOTE_BRANCH
+    GIT_CHECKOUT_REMOTE_BRANCH,
+    GIT_IMPORT,
+    GIT_TEST_CONNECTION,
+    GIT_DELETE_BRANCH,
+    GIT_DISCARD_CHANGES
     ;
 
     private final String eventName;

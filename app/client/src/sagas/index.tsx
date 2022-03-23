@@ -4,6 +4,7 @@ import { watchActionSagas } from "./ActionSagas";
 import { watchJSActionSagas } from "./JSActionSagas";
 import { watchActionExecutionSagas } from "sagas/ActionExecution/ActionExecutionSagas";
 import { watchPluginActionExecutionSagas } from "sagas/ActionExecution/PluginActionSaga";
+import templateSagas from "./TemplatesSagas";
 import widgetOperationSagas from "./WidgetOperationSagas";
 import errorSagas from "./ErrorSagas";
 import applicationSagas from "./ApplicationSagas";
@@ -34,9 +35,9 @@ import websocketSagas from "./WebsocketSagas/WebsocketSagas";
 import debuggerSagas from "./DebuggerSagas";
 import tourSagas from "./TourSagas";
 import notificationsSagas from "./NotificationsSagas";
-import selectionCanvasSagas from "./SelectionCanvasSagas";
 import replaySaga from "./ReplaySaga";
-import draggingCanvasSagas from "./DraggingCanvasSagas";
+import selectionCanvasSagas from "./CanvasSagas/SelectionCanvasSagas";
+import draggingCanvasSagas from "./CanvasSagas/DraggingCanvasSagas";
 import gitSyncSagas from "./GitSyncSagas";
 
 import log from "loglevel";
@@ -59,6 +60,7 @@ const sagas = [
   apiPaneSagas,
   jsPaneSagas,
   userSagas,
+  templateSagas,
   pluginSagas,
   orgSagas,
   importedCollectionsSagas,

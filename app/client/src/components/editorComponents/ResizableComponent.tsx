@@ -1,6 +1,4 @@
 import React, { useContext, memo, useMemo } from "react";
-import { XYCord } from "utils/hooks/useCanvasDragging";
-
 import {
   WidgetOperations,
   WidgetRowCols,
@@ -45,6 +43,7 @@ import { focusWidget } from "actions/widgetActions";
 import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
 import { GridDefaults } from "constants/WidgetConstants";
 import { DropTargetContext } from "./DropTargetComponent";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -274,7 +273,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   };
   const updateBottomRow = (bottom: number) => {
     if (props.parentId) {
-      updateDropTargetRows && updateDropTargetRows(props.parentId, bottom);
+      updateDropTargetRows && updateDropTargetRows([props.parentId], bottom);
     }
   };
 

@@ -243,7 +243,7 @@ describe("Initial value migration test", () => {
     expect(migrateInitialValues(input)).toEqual(output);
   });
 
-  it("DROP_DOWN_WIDGET", () => {
+  it("SELECT_WIDGET", () => {
     const input = {
       ...containerWidget,
       children: [
@@ -257,7 +257,9 @@ describe("Initial value migration test", () => {
           parentRowSpace: 40,
           isVisible: true,
           label: "",
-          type: "DROP_DOWN_WIDGET",
+          isRequired: false,
+          isDisabled: false,
+          type: "SELECT_WIDGET",
           version: 1,
           parentId: "0",
           isLoading: false,
@@ -296,7 +298,7 @@ describe("Initial value migration test", () => {
           isVisible: true,
           label: "",
           selectionType: "SINGLE_SELECT",
-          type: "DROP_DOWN_WIDGET",
+          type: "SELECT_WIDGET",
           version: 1,
           parentId: "0",
           isLoading: false,
@@ -318,7 +320,6 @@ describe("Initial value migration test", () => {
               value: "RED",
             },
           ],
-          // following properties get added
           isRequired: false,
           isDisabled: false,
         },

@@ -19,15 +19,19 @@ export type ExecutionResult = {
 export type TriggerSource = {
   id: string;
   name: string;
+  collectionId?: string;
+  isJSAction?: boolean;
+  actionId?: string;
 };
 
 export type ExecuteTriggerPayload = {
   dynamicString: string;
   event: ExecuteActionPayloadEvent;
-  responseData?: Array<any>;
+  callbackData?: Array<any>;
   triggerPropertyName?: string;
   source?: TriggerSource;
   widgetId?: string;
+  globalContext?: Record<string, unknown>;
 };
 
 export type ContentType =
@@ -94,8 +98,10 @@ export enum EventType {
   ON_SWITCH_GROUP_SELECTION_CHANGE = "ON_SWITCH_GROUP_SELECTION_CHANGE",
   ON_JS_FUNCTION_EXECUTE = "ON_JS_FUNCTION_EXECUTE",
   ON_CAMERA_IMAGE_CAPTURE = "ON_CAMERA_IMAGE_CAPTURE",
+  ON_CAMERA_IMAGE_SAVE = "ON_CAMERA_IMAGE_SAVE",
   ON_CAMERA_VIDEO_RECORDING_START = "ON_CAMERA_VIDEO_RECORDING_START",
   ON_CAMERA_VIDEO_RECORDING_STOP = "ON_CAMERA_VIDEO_RECORDING_STOP",
+  ON_CAMERA_VIDEO_RECORDING_SAVE = "ON_CAMERA_VIDEO_RECORDING_SAVE",
 }
 
 export interface PageAction {
@@ -104,6 +110,8 @@ export interface PageAction {
   name: string;
   jsonPathKeys: string[];
   timeoutInMillisecond: number;
+  clientSideExecution?: boolean;
+  collectionId?: string;
 }
 
 export interface ExecuteErrorPayload extends ErrorActionPayload {
@@ -118,7 +126,8 @@ export interface ExecuteErrorPayload extends ErrorActionPayload {
 export const urlGroupsRegexExp = /^(https?:\/{2}\S+?)(\/[\s\S]*?)?(\?(?![^{]*})[\s\S]*)?$/;
 
 export const EXECUTION_PARAM_KEY = "executionParams";
-export const EXECUTION_PARAM_REFERENCE_REGEX = /this.params/g;
+export const EXECUTION_PARAM_REFERENCE_REGEX = /this.params|this\?.params/g;
+export const THIS_DOT_PARAMS_KEY = "params";
 
 export const RESP_HEADER_DATATYPE = "X-APPSMITH-DATATYPE";
 export const API_REQUEST_HEADERS: APIHeaders = {

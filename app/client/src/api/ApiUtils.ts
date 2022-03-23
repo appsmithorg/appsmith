@@ -3,7 +3,7 @@ import {
   ERROR_0,
   ERROR_500,
   SERVER_API_TIMEOUT_ERROR,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import {
   API_STATUS_CODES,
@@ -42,6 +42,11 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   if (branch) {
     config.headers.branchName = branch;
   }
+
+  if (config.url?.indexOf("/git/") !== -1) {
+    config.timeout = 1000 * 120; // increase timeout for git specific APIs
+  }
+
   return { ...config, timer: performance.now() };
 };
 

@@ -8,19 +8,20 @@ import { ReactComponent as RightArrow } from "assets/icons/ads/arrow-right-line.
 import { getApplicationViewerPageURL } from "constants/routes";
 import { useSelector } from "store";
 import {
+  getApplicationLastDeployedAt,
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import {
-  LATEST_DP_TITLE,
-  LATEST_DP_SUBTITLE,
   createMessage,
-} from "constants/messages";
-import Text, { TextType, Case } from "components/ads/Text";
+  LATEST_DP_SUBTITLE,
+  LATEST_DP_TITLE,
+} from "@appsmith/constants/messages";
+import Text, { Case, TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
 import SuccessTick from "pages/common/SuccessTick";
 import { howMuchTimeBeforeText } from "utils/helpers";
-import { getApplicationLastDeployedAt } from "selectors/editorSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Container = styled.div`
   display: flex;
@@ -34,6 +35,7 @@ const ButtonWrapper = styled.div`
   flex-direction: row;
   padding-top: 2px;
   cursor: pointer;
+
   :hover {
     text-decoration: underline;
   }
@@ -44,6 +46,7 @@ const IconWrapper = styled.div`
   justify-content: center;
   align-items: center;
   display: flex;
+
   svg {
     path {
       fill: ${Colors.GREY_9};
@@ -67,6 +70,9 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
   const lastDeployedAt = useSelector(getApplicationLastDeployedAt);
 
   const showDeployPreview = () => {
+    AnalyticsUtil.logEvent("GS_LAST_DEPLOYED_PREVIEW_LINK_CLICK", {
+      source: "GIT_DEPLOY_MODAL",
+    });
     const path = getApplicationViewerPageURL({ applicationId, pageId });
     window.open(path, "_blank");
   };
@@ -74,10 +80,13 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
   const lastDeployedAtMsg = lastDeployedAt
     ? `${createMessage(LATEST_DP_SUBTITLE)} ${howMuchTimeBeforeText(
         lastDeployedAt,
+        {
+          lessThanAMinute: true,
+        },
       )} ago`
     : "";
   return lastDeployedAt ? (
-    <Container>
+    <Container className="t--git-deploy-preview">
       <CloudIconWrapper>
         {props.showSuccess ? (
           <SuccessTick height="30px" width="30px" />

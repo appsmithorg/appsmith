@@ -75,7 +75,7 @@ import {
   WIDGET_COPY,
   WIDGET_CUT,
   ERROR_WIDGET_COPY_NOT_ALLOWED,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 import {
   CopiedWidgetGroup,
@@ -94,11 +94,12 @@ import {
   getNextWidgetName,
   getParentWidgetIdForGrouping,
   isCopiedModalWidget,
+  purgeOrphanedDynamicPaths,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { getCanvasSizeAfterWidgetMove } from "./DraggingCanvasSagas";
+import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
 import { getReflow } from "selectors/widgetReflowSelectors";
@@ -140,6 +141,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     const updatedCanvasBottomRow: number = yield call(
       getCanvasSizeAfterWidgetMove,
       parentId,
+      [widgetId],
       bottomRow,
     );
     if (updatedCanvasBottomRow) {
@@ -477,7 +479,12 @@ export function* getPropertiesUpdatedWidget(
   if (Array.isArray(remove) && remove.length > 0) {
     widget = yield removeWidgetProperties(widget, remove);
   }
-  return widget;
+
+  // Note: This may not be the best place to do this.
+  // If there exists another spot in this workflow, where we are iterating over the dynamicTriggerPathList and dynamicBindingPathList, after
+  // performing all updates to the widget, we can piggy back on that iteration to purge orphaned paths
+  // I couldn't find it, so here it is.
+  return purgeOrphanedDynamicPaths(widget);
 }
 
 function* batchUpdateWidgetPropertySaga(

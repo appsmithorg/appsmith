@@ -9,7 +9,7 @@ import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
-import { CurrentApplicationData } from "constants/ReduxActionConstants";
+import { ApplicationPayload } from "constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { getGenerateCRUDEnabledPluginMap } from "../../../selectors/entitiesSelector";
@@ -34,7 +34,6 @@ const removeQueryParams = (paramKeysToRemove: Array<string>) => {
 };
 
 const DatasourceHomePage = styled.div`
-  max-height: 95vh;
   .textBtn {
     justify-content: center;
     text-align: center;
@@ -127,7 +126,7 @@ interface ReduxDispatchProps {
 
 interface ReduxStateProps {
   plugins: Plugin[];
-  currentApplication?: CurrentApplicationData;
+  currentApplication?: ApplicationPayload;
   pluginImages: Record<string, string>;
   isSaving: boolean;
   generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap;

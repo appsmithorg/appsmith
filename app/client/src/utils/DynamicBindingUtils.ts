@@ -132,8 +132,6 @@ export enum EVAL_WORKER_ACTIONS {
   EVAL_ACTION_BINDINGS = "EVAL_ACTION_BINDINGS",
   EVAL_TRIGGER = "EVAL_TRIGGER",
   PROCESS_TRIGGER = "PROCESS_TRIGGER",
-  CLEAR_PROPERTY_CACHE = "CLEAR_PROPERTY_CACHE",
-  CLEAR_PROPERTY_CACHE_OF_WIDGET = "CLEAR_PROPERTY_CACHE_OF_WIDGET",
   CLEAR_CACHE = "CLEAR_CACHE",
   VALIDATE_PROPERTY = "VALIDATE_PROPERTY",
   UNDO = "undo",
@@ -309,10 +307,13 @@ export const unsafeFunctionForEval = [
 export const isChildPropertyPath = (
   parentPropertyPath: string,
   childPropertyPath: string,
-): boolean =>
-  parentPropertyPath === childPropertyPath ||
-  childPropertyPath.startsWith(`${parentPropertyPath}.`) ||
-  childPropertyPath.startsWith(`${parentPropertyPath}[`);
+): boolean => {
+  return (
+    parentPropertyPath === childPropertyPath ||
+    childPropertyPath.startsWith(`${parentPropertyPath}.`) ||
+    childPropertyPath.startsWith(`${parentPropertyPath}[`)
+  );
+};
 
 /**
  * Paths set via evaluator on entities

@@ -215,6 +215,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             label: "Close On Selection",
             helpText: "Calender should close when a date is selected",
             controlType: "SWITCH",
+            defaultValue: true,
             isJSConvertible: false,
             isBindProperty: true,
             isTriggerProperty: false,

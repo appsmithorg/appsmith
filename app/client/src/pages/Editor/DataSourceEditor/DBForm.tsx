@@ -16,8 +16,6 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { convertArrayToSentence } from "utils/helpers";
 import { PluginType } from "entities/Action";
-import Boxed from "components/editorComponents/Onboarding/Boxed";
-import { OnboardingStep } from "constants/OnboardingConstants";
 import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
 import { AppState } from "reducers";
@@ -44,6 +42,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   pluginType: string;
   messages?: Array<string>;
   datasource: Datasource;
+  hiddenHeader?: boolean;
 }
 
 type Props = DatasourceDBEditorProps &
@@ -74,7 +73,8 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   componentDidUpdate(prevProps: Props) {
     if (prevProps.datasourceId !== this.props.datasourceId) {
       super.componentDidUpdate(prevProps);
-      this.props.setDatasourceEditorMode(this.props.datasourceId, true);
+      if (!this.props.hiddenHeader)
+        this.props.setDatasourceEditorMode(this.props.datasourceId, true);
     }
   }
   // returns normalized and trimmed datasource form data
@@ -91,6 +91,12 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   render() {
     const { formConfig } = this.props;
 
+    // make sure this redux form has been initialized before rendering anything.
+    // the initialized prop below comes from redux-form.
+    if (!this.props.initialized) {
+      return null;
+    }
+
     const content = this.renderDataSourceConfigForm(formConfig);
     return this.renderForm(content);
   }
@@ -104,13 +110,13 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
           e.preventDefault();
         }}
       >
-        <Header>
-          <FormTitleContainer>
-            <PluginImage alt="Datasource" src={this.props.pluginImage} />
-            <FormTitle focusOnMount={this.props.isNewDatasource} />
-          </FormTitleContainer>
-          {viewMode && (
-            <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
+        {!this.props.hiddenHeader && (
+          <Header>
+            <FormTitleContainer>
+              <PluginImage alt="Datasource" src={this.props.pluginImage} />
+              <FormTitle focusOnMount={this.props.isNewDatasource} />
+            </FormTitleContainer>
+            {viewMode && (
               <EditDatasourceButton
                 category={Category.tertiary}
                 className="t--edit-datasource"
@@ -122,9 +128,9 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
                 }}
                 text="EDIT"
               />
-            </Boxed>
-          )}
-        </Header>
+            )}
+          </Header>
+        )}
         {messages &&
           messages.map((msg, i) => (
             <Callout
@@ -183,6 +189,7 @@ const mapStateToProps = (state: AppState, props: any) => {
   return {
     messages: hintMessages,
     datasource,
+    isReconnectingModalOpen: state.entities.datasources.isReconnectingModalOpen,
   };
 };
 

@@ -209,13 +209,9 @@ class FilePickerWidget extends BaseWidget<
       },
     ];
   }
-
   static getDefaultPropertiesMap(): Record<string, string> {
-    return {
-      selectedFiles: "defaultSelectedFiles",
-    };
+    return {};
   }
-
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{ this.isRequired ? this.files.length > 0 : true }}`,

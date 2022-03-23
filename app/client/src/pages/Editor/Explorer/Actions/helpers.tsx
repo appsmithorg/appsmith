@@ -1,5 +1,5 @@
 import React, { ReactNode, useMemo } from "react";
-import { apiIcon, dbQueryIcon, MethodTag, QueryIcon } from "../ExplorerIcons";
+import { dbQueryIcon, ApiMethodIcon, EntityIcon } from "../ExplorerIcons";
 import { PluginType } from "entities/Action";
 import { generateReactKey } from "utils/generators";
 import {
@@ -11,11 +11,8 @@ import {
   INTEGRATION_TABS,
 } from "constants/routes";
 
-import { Page } from "constants/ReduxActionConstants";
 import { ExplorerURLParams } from "../helpers";
-import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
-import PluginGroup from "../PluginGroup/PluginGroup";
 import {
   SAAS_BASE_URL,
   SAAS_EDITOR_API_ID_URL,
@@ -47,7 +44,7 @@ export type ActionGroupConfig = {
     selectedTab: string,
     mode?: string,
   ) => string;
-  getIcon: (action: any, plugin: Plugin) => ReactNode;
+  getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => ReactNode;
   isGroupActive: (
     params: ExplorerURLParams,
     pageId: string,
@@ -92,14 +89,18 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
         return API_EDITOR_ID_URL(applicationId, pageId, id);
       }
     },
-    getIcon: (action: any, plugin: Plugin) => {
-      if (plugin && plugin.type !== PluginType.API && plugin.iconLocation)
-        return <QueryIcon />;
+    getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => {
+      if (plugin && plugin.type === PluginType.API && !remoteIcon) {
+        const method = action?.actionConfiguration?.httpMethod;
+        if (method) return <ApiMethodIcon type={method} />;
+      }
+      if (plugin && plugin.iconLocation)
+        return (
+          <EntityIcon>
+            <img alt="entityIcon" src={plugin.iconLocation} />
+          </EntityIcon>
+        );
       else if (plugin && plugin.type === PluginType.DB) return dbQueryIcon;
-
-      const method = action.actionConfiguration.httpMethod;
-      if (!method) return apiIcon;
-      return <MethodTag type={method} />;
     },
     generateCreatePageURL: INTEGRATION_EDITOR_URL,
     isGroupActive: (
@@ -157,71 +158,6 @@ export const getActionConfig = (type: PluginType) =>
   ACTION_PLUGIN_MAP.find((configByType: ActionGroupConfig | undefined) =>
     configByType?.types.includes(type),
   );
-
-export const getPluginGroups = (
-  page: Page,
-  step: number,
-  actions: any[],
-  datasources: Datasource[],
-  plugins: Plugin[],
-  searchKeyword?: string,
-  actionPluginMap = ACTION_PLUGIN_MAP,
-) => {
-  return actionPluginMap?.map((config?: ActionGroupConfig) => {
-    if (!config) return null;
-
-    let entries = actions?.filter((entry: any) =>
-      config.types.includes(entry.config.pluginType),
-    );
-
-    // To show properly ordered entries in integrations tab
-    entries = Array.isArray(entries)
-      ? [
-          ...entries.filter(
-            (entry: any) => entry.config.pluginType === PluginType.API,
-          ),
-          ...entries.filter(
-            (entry: any) => entry.config.pluginType === PluginType.SAAS,
-          ),
-          ...entries.filter(
-            (entry: any) => entry.config.pluginType === PluginType.DB,
-          ),
-          ...entries.filter(
-            (entry: any) => entry.config.pluginType === PluginType.REMOTE,
-          ),
-        ]
-      : entries;
-
-    const filteredPlugins = plugins.filter((plugin) =>
-      config.types.includes(plugin.type),
-    );
-
-    const filteredPluginIds = filteredPlugins.map((plugin) => plugin.id);
-    const filteredDatasources = datasources.filter((datasource) => {
-      return filteredPluginIds.includes(datasource.pluginId);
-    });
-
-    if (
-      (!entries && !filteredDatasources) ||
-      (entries.length === 0 &&
-        filteredDatasources.length === 0 &&
-        !!searchKeyword)
-    )
-      return null;
-
-    return (
-      <PluginGroup
-        actionConfig={config}
-        actions={entries}
-        datasources={filteredDatasources}
-        key={page.pageId + "_" + config.types.join("_")}
-        page={page}
-        searchKeyword={searchKeyword}
-        step={step}
-      />
-    );
-  });
-};
 
 export const useNewActionName = () => {
   // This takes into consideration only the current page widgets

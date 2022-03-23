@@ -7,7 +7,7 @@ import {
   createMessage,
   RESOLVE_THREAD,
   RESOLVED_THREAD,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 
 const Container = styled.div`

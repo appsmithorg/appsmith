@@ -14,7 +14,7 @@
 //   });
 
 //   it("Verify Search box for selecting drop-down options", function() {
-//     cy.openPropertyPane("dropdownwidget");
+//     cy.openPropertyPane("selectwidget");
 //     cy.togglebar(formWidgetsPage.filterCheckbox);
 //     cy.PublishtheApp();
 //     cy.get(formWidgetsPage.selectWidget)
@@ -29,20 +29,20 @@
 //   });
 
 //   it("Selects value with invalid default value", () => {
-//     cy.openPropertyPane("dropdownwidget");
+//     cy.openPropertyPane("selectwidget");
 //     // Add options in dropdown
 //     cy.testJsontext("options", JSON.stringify(data.input));
 //     // Assign the invalid default value
 //     cy.testJsontext("defaultoption", "{{ undefined }}");
 //     // Select value with invalid default value
-//     cy.get(formWidgetsPage.dropdownWidget)
+//     cy.get(formwidgetsPage.selectwidget)
 //       .find(widgetLocators.dropdownSingleSelect)
 //       .click({ force: true });
 //     cy.get(commonlocators.singleSelectMenuItem)
 //       .contains("Option 3")
 //       .click({ force: true });
 //     // Varify the selected value
-//     cy.get(formWidgetsPage.dropdownWidget)
+//     cy.get(formwidgetsPage.selectwidget)
 //       .find(widgetLocators.defaultSingleSelectValue)
 //       .should("have.text", "Option 3");
 //   });
@@ -54,10 +54,10 @@
 
 //   // it("Explore Widget related documents Validation", function() {
 //   //   // Open property pane
-//   //   cy.openPropertyPane("dropdownwidget");
+//   //   cy.openPropertyPane("selectwidget");
 //   //   cy.widgetText(
 //   //     "Select",
-//   //     formWidgetsPage.dropdownWidget,
+//   //     formwidgetsPage.selectwidget,
 //   //     commonlocators.dropdownInner,
 //   //   );
 //   //   // Click on "Explore widget related docs" button
@@ -69,7 +69,7 @@
 //   //   cy.get("#header-root").click();
 //   //   cy.widgetText(
 //   //     "Dropdown1",
-//   //     formWidgetsPage.dropdownWidget,
+//   //     formwidgetsPage.selectwidget,
 //   //     commonlocators.dropdownInner,
 //   //   );
 //   //   cy.wait(1000);
@@ -83,12 +83,12 @@
 //   });
 
 //   it("Selects value with enter in default value", () => {
-//     // cy.openPropertyPane("dropdownwidget");
+//     // cy.openPropertyPane("selectwidget");
 //     cy.SearchEntityandOpen("Dropdown1");
 //     // Enter value in default option
 //     cy.testJsontext("defaultoption", "3\n");
 //     // Verify the default value is selected
-//     cy.get(formWidgetsPage.dropdownWidget)
+//     cy.get(formwidgetsPage.selectwidget)
 //       .find(widgetLocators.defaultSingleSelectValue)
 //       .should("have.text", "Option 3");
 //   });
@@ -99,7 +99,7 @@
 //     cy.SearchEntityandOpen("Dropdown1");
 //     cy.widgetText(
 //       "Dropdown1",
-//       formWidgetsPage.dropdownWidget,
+//       formwidgetsPage.selectwidget,
 //       commonlocators.dropdownInner,
 //     );
 //     cy.get("body").type(`{${modifierKey}}c`);
@@ -118,7 +118,7 @@
 //     cy.get(commonlocators.toastAction).should("be.visible");
 
 //     //Check after copying new table widget should not have any warnings
-//     cy.get('.t--draggable-dropdownwidget [name="warning"]').should("not.exist");
+//     cy.get('.t--draggable-selectwidget [name="warning"]').should("not.exist");
 //     cy.GlobalSearchEntity("Dropdown1Copy");
 //   });
 
@@ -126,10 +126,10 @@
 //     // Open property pane
 //     cy.SearchEntityandOpen("Dropdown1Copy");
 //     // Delete the Dropdown widget
-//     cy.deleteWidget(formWidgetsPage.dropdownwidget);
+//     cy.deleteWidget(formwidgetsPage.selectwidget);
 //     cy.PublishtheApp();
 //     // Verify the Dropdown widget is deleted
-//     cy.get(formWidgetsPage.dropdownwidget).should("not.exist");
+//     cy.get(formwidgetsPage.selectwidget).should("not.exist");
 //   });
 
 //   it("Dropdown Widget Functionality", function() {
@@ -137,18 +137,18 @@
 //     // Change dropdown name
 //     cy.widgetText(
 //       "lock",
-//       formWidgetsPage.dropdownWidget,
+//       formwidgetsPage.selectwidget,
 //       commonlocators.containerInnerText,
 //     );
 //     cy.closePropertyPane();
 //   });
 //   it("Dropdown Functionality To Check disabled Widget", function() {
-//     cy.openPropertyPane("dropdownwidget");
+//     cy.openPropertyPane("selectwidget");
 //     // Disable the visible JS
 //     cy.togglebarDisable(commonlocators.visibleCheckbox);
 //     cy.PublishtheApp();
 //     // Verify the disabled visible JS
-//     cy.get(publish.dropdownWidget + " " + "input").should("not.exist");
+//     cy.get(publish.selectwidget + " " + "input").should("not.exist");
 //   });
 //   it("Dropdown Functionality To UnCheck disabled Widget", function() {
 //     cy.SearchEntityandOpen("lock");
@@ -156,11 +156,11 @@
 //     cy.togglebar(commonlocators.visibleCheckbox);
 //     cy.PublishtheApp();
 //     // Verify the checked visible JS
-//     cy.get(publish.dropdownWidget).should("exist");
+//     cy.get(publish.selectwidget).should("exist");
 //   });
 //   it("Toggle JS - Dropdown-Unckeck Visible field Validation", function() {
 //     // Open Property pane
-//     cy.openPropertyPane("dropdownwidget");
+//     cy.openPropertyPane("selectwidget");
 //     //Uncheck the disabled checkbox using JS and validate
 //     cy.get(formWidgetsPage.toggleVisible).click({ force: true });
 //     cy.EditWidgetPropertiesUsingJS(formWidgetsPage.inputToggleVisible, "false");
@@ -170,7 +170,7 @@
 
 //   it("Toggle JS - Dropdown-Check Visible field Validation", function() {
 //     // Open Property pane
-//     cy.openPropertyPane("dropdownwidget");
+//     cy.openPropertyPane("selectwidget");
 //     //Check the disabled checkbox using JS and Validate
 //     cy.EditWidgetPropertiesUsingJS(formWidgetsPage.inputToggleVisible, "true");
 //     cy.PublishtheApp();

@@ -1,11 +1,16 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Editor } from "@tinymce/tinymce-react";
+import { Colors } from "constants/Colors";
 
-const StyledRTEditor = styled.div`
+const StyledRTEditor = styled.div<{
+  isValid?: boolean;
+}>`
   && {
     width: 100%;
     height: 100%;
+    border: 1px solid
+      ${(props) => (props.isValid ? "none" : Colors.DANGER_SOLID)};
     .tox .tox-editor-header {
       z-index: 0;
     }
@@ -28,6 +33,7 @@ export interface RichtextEditorComponentProps {
   isDisabled?: boolean;
   isVisible?: boolean;
   isToolbarHidden: boolean;
+  isValid?: boolean;
   onValueChange: (valueAsString: string) => void;
 }
 const initValue = "<p></p>";
@@ -37,7 +43,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const isInit = useRef<boolean>(false);
 
   const toolbarConfig =
-    "undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | table | help";
+    "insertfile undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | print preview media | forecolor backcolor emoticons' | help";
 
   useEffect(() => {
     if (!value && !props.value) return;
@@ -61,7 +67,10 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     }
   };
   return (
-    <StyledRTEditor className={`container-${props.widgetId}`}>
+    <StyledRTEditor
+      className={`container-${props.widgetId}`}
+      isValid={props.isValid}
+    >
       <Editor
         disabled={props.isDisabled}
         id={`rte-${props.widgetId}`}
@@ -73,8 +82,8 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
           branding: false,
           resize: false,
           plugins: [
-            "advlist autolink lists link image charmap print preview anchor",
-            "searchreplace visualblocks code fullscreen",
+            "advlist autolink lists link image charmap print preview hr anchor pagebreak",
+            "searchreplace visualblocks code fullscreen media",
             "insertdatetime media table paste code help",
           ],
         }}

@@ -32,7 +32,7 @@ font-size: 12px;
 `;
 
 //Styled help text, intended to be used with Form Fields
-const FormInputHelperText = styled.p`
+const FormInputHelperText = styled.p<{ addMarginTop?: string }>`
   color: #858282;
   font-style: normal;
   font-weight: normal;
@@ -40,6 +40,12 @@ const FormInputHelperText = styled.p`
   line-height: 16px;
   letter-spacing: -0.221538px;
   margin: 0px;
+
+  ${(props) =>
+    props.addMarginTop &&
+    `
+    margin-top: ${props.addMarginTop};
+  `}
 `;
 
 //Styled error text, intended to be used with Form Fields
@@ -117,6 +123,12 @@ const StyledFormLabel = styled.label<{ config?: ControlProps }>`
   }
 `;
 
+const FormEncrytedSection = styled.div`
+  display: flex;
+  margin-left: 12px;
+  align-items: center;
+`;
+
 interface FormLabelProps {
   config?: ControlProps;
   children: JSX.Element | React.ReactNode;
@@ -144,4 +156,5 @@ export {
   FormInputHelperText,
   FormInfoText,
   FormSubtitleText,
+  FormEncrytedSection,
 };

@@ -108,18 +108,19 @@ public class DeleteSheetMethod implements Method {
 
         if (GoogleSheets.SPREADSHEET.equalsIgnoreCase(methodConfig.getDeleteFormat())) {
             UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_DRIVE_API_URL,
-                    methodConfig.getSpreadsheetId() /* spreadsheet Id */
+                    methodConfig.getSpreadsheetId(), /* spreadsheet Id */
+                    true
             );
 
             return webClient.method(HttpMethod.DELETE)
-                    .uri(uriBuilder.build(false).toUri());
+                    .uri(uriBuilder.build(true).toUri());
         } else {
             UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
                     methodConfig.getSpreadsheetId() /* spreadsheet Id */
-                            + ":batchUpdate");
+                            + ":batchUpdate", true);
 
             return webClient.method(HttpMethod.POST)
-                    .uri(uriBuilder.build(false).toUri())
+                    .uri(uriBuilder.build(true).toUri())
                     .body(BodyInserters.fromValue(
                             Map.of(
                                     "requests", List.of(

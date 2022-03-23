@@ -45,6 +45,7 @@ import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -411,9 +412,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     public Mono<Application> deleteApplicationByResource(Application application) {
-        log.debug("Archiving pages for applicationId: {}", application.getId());
-        return Mono.when(newPageService.archivePagesByApplicationId(application.getId(), MANAGE_PAGES),
-                        newActionService.archiveActionsByApplicationId(application.getId(), MANAGE_ACTIONS))
+        log.debug("Archiving pages, actions and actionCollections for applicationId: {}", application.getId());
+        return newPageService.archivePagesByApplicationId(application.getId(), MANAGE_PAGES)
+                .then(actionCollectionService.archiveActionCollectionByApplicationId(application.getId(), MANAGE_ACTIONS))
+                .then(newActionService.archiveActionsByApplicationId(application.getId(), MANAGE_ACTIONS))
                 .thenReturn(application)
                 .flatMap(applicationService::archive)
                 .flatMap(analyticsService::sendDeleteEvent);
@@ -654,7 +656,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     public Mono<Application> cloneApplication(String applicationId, String branchName) {
 
         Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Clone Application")))
                 .cache();
 
         // Find the name for the cloned application which wouldn't lead to duplicate key exception
@@ -686,6 +687,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     Application newApplication = new Application(sourceApplication);
                     newApplication.setName(newName);
                     newApplication.setLastEditedAt(Instant.now());
+                    newApplication.setEvaluationVersion(sourceApplication.getEvaluationVersion());
                     Mono<User> userMono = sessionUserService.getCurrentUser().cache();
                     // First set the correct policies for the new cloned application
                     return setApplicationPolicies(userMono, sourceApplication.getOrganizationId(), newApplication)
@@ -696,16 +698,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 application1.setModifiedBy(applicationUserTuple2.getT2().getUsername()); // setting modified by to current user
                                 return applicationService.createDefault(application1);
                             })
-                            // duplicate the source application's themes if required i.e. if they were customized
-                            .flatMap(application ->
-                                    themeService.cloneThemeToApplication(sourceApplication.getEditModeThemeId(), application.getId())
-                                            .zipWith(themeService.cloneThemeToApplication(sourceApplication.getPublishedModeThemeId(), application.getId()))
-                                            .map(themesZip -> {
-                                                application.setEditModeThemeId(themesZip.getT1().getId());
-                                                application.setPublishedModeThemeId(themesZip.getT2().getId());
-                                                return application;
-                                            })
-                            )
                             // Now fetch the pages of the source application, clone and add them to this new application
                             .flatMap(savedApplication -> Flux.fromIterable(sourceApplication.getPages())
                                     .flatMap(applicationPage -> {
@@ -727,6 +719,20 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                         savedApplication.setPages(clonedPages);
                                         return applicationService.save(savedApplication);
                                     })
+                            )
+                            // duplicate the source application's themes if required i.e. if they were customized
+                            .flatMap(application ->
+                                    themeService.cloneThemeToApplication(sourceApplication.getEditModeThemeId(), application)
+                                            .zipWith(themeService.cloneThemeToApplication(sourceApplication.getPublishedModeThemeId(), application))
+                                            .flatMap(themesZip -> {
+                                                String editModeThemeId = themesZip.getT1().getId();
+                                                String publishedModeThemeId = themesZip.getT2().getId();
+                                                application.setEditModeThemeId(editModeThemeId);
+                                                application.setPublishedModeThemeId(publishedModeThemeId);
+                                                return applicationService.setAppTheme(
+                                                        application.getId(), editModeThemeId, publishedModeThemeId, MANAGE_APPLICATIONS
+                                                ).thenReturn(application);
+                                            })
                             );
                 });
 
@@ -841,9 +847,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 .cache();
 
-        Mono<Theme> publishThemeMono = applicationMono.flatMap(application ->  themeService.publishTheme(
-                application.getEditModeThemeId(), application.getPublishedModeThemeId(), application.getId()
-        ));
+        Mono<Theme> publishThemeMono = applicationMono.flatMap(
+                application ->  themeService.publishTheme(application.getId())
+        );
 
         Flux<NewPage> publishApplicationAndPages = applicationMono
                 //Return all the pages in the Application
@@ -874,7 +880,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     publishedPageIds.addAll(editedPageIds);
                     publishedPageIds.removeAll(editedPageIds);
 
-                    Mono<List<Boolean>> archivePageListMono;
+                    Mono<List<NewPage>> archivePageListMono;
                     if (!publishedPageIds.isEmpty()) {
                         archivePageListMono = Flux.fromStream(publishedPageIds.stream())
                                 .flatMap(id -> commentThreadRepository.archiveByPageId(id, ApplicationMode.PUBLISHED)
@@ -911,9 +917,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         Flux<NewAction> publishedActionsFlux = newActionService
                 .findAllByApplicationIdAndViewMode(applicationId, false, MANAGE_ACTIONS, null)
                 .flatMap(newAction -> {
-                    // If the action was deleted in edit mode, now this can be safely deleted from the repository
+                    // If the action was deleted in edit mode, now this document can be safely archived
                     if (newAction.getUnpublishedAction().getDeletedAt() != null) {
-                        return newActionService.delete(newAction.getId())
+                        return newActionService.archive(newAction)
                                 .then(Mono.empty());
                     }
                     // Publish the action by copying the unpublished actionDTO to published actionDTO
@@ -928,7 +934,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(collection -> {
                     // If the collection was deleted in edit mode, now this can be safely deleted from the repository
                     if (collection.getUnpublishedCollection().getDeletedAt() != null) {
-                        return actionCollectionService.delete(collection.getId())
+                        return actionCollectionService.archiveById(collection.getId())
                                 .then(Mono.empty());
                     }
                     // Publish the collection by copying the unpublished collectionDTO to published collectionDTO
@@ -1010,6 +1016,37 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .then(newPageService.findApplicationPagesByApplicationIdViewMode(application.getId(), Boolean.FALSE, false));
                 })
                 .map(responseUtils::updateApplicationPagesDTOWithDefaultResources);
+    }
+
+    /**
+     * This method will create a new suffixed application or update the existing application if there is name conflict
+     * @param application resource which needs to be created or updated
+     * @param name name which should be assigned to the application
+     * @param suffix extension to application name
+     * @return updated application with modified name if duplicate key exception is thrown
+     */
+    public Mono<Application> createOrUpdateSuffixedApplication(Application application, String name, int suffix) {
+        final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
+        application.setName(actualName);
+
+        Mono<User> userMono = sessionUserService.getCurrentUser().cache();
+        Mono<Application> applicationWithPoliciesMono = this.setApplicationPolicies(userMono, application.getOrganizationId(), application);
+
+        return applicationWithPoliciesMono
+                .zipWith(userMono)
+                .flatMap(tuple -> {
+                    Application application1 = tuple.getT1();
+                    application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
+                    // We can't use create or createApplication method here as we are expecting update operation if the
+                    // _id is available with application object
+                    return applicationService.save(application);
+                })
+                .onErrorResume(DuplicateKeyException.class, error -> {
+                    if (error.getMessage() != null) {
+                        return this.createOrUpdateSuffixedApplication(application, name, 1 + suffix);
+                    }
+                    throw error;
+                });
     }
 
 

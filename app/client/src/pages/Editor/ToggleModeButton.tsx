@@ -48,6 +48,7 @@ import { setPreviewModeAction } from "actions/editorActions";
 import { previewModeSelector } from "selectors/editorSelectors";
 
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import { isExploringSelector } from "selectors/onboardingSelectors";
 
 const ModeButton = styled.div<{
   active: boolean;
@@ -321,6 +322,7 @@ function ToggleCommentModeButton({
   showSelectedMode = true,
 }: ToggleCommentModeButtonProps) {
   const dispatch = useDispatch();
+  const isExploring = useSelector(isExploringSelector);
   const isCommentMode = useSelector(commentModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
   const currentUser = useSelector(getCurrentUser);
@@ -376,22 +378,24 @@ function ToggleCommentModeButton({
     <Container className="t--comment-mode-switch-toggle">
       <TourTooltipWrapper {...tourToolTipProps}>
         <div style={{ display: "flex" }}>
-          <ModeButton
-            active={!isCommentMode && !isPreviewMode}
-            className="t--switch-comment-mode-off"
-            onClick={() => {
-              AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
-                mode,
-                source: "CLICK",
-              });
-              setCommentModeInUrl(false);
-              dispatch(setPreviewModeAction(false));
-            }}
-            showSelectedMode={showSelectedMode}
-            type="fill"
-          >
-            <ViewOrEditMode mode={mode} />
-          </ModeButton>
+          {!isExploring && (
+            <ModeButton
+              active={!isCommentMode && !isPreviewMode}
+              className="t--switch-comment-mode-off"
+              onClick={() => {
+                AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
+                  mode,
+                  source: "CLICK",
+                });
+                setCommentModeInUrl(false);
+                dispatch(setPreviewModeAction(false));
+              }}
+              showSelectedMode={showSelectedMode}
+              type="fill"
+            >
+              <ViewOrEditMode mode={mode} />
+            </ModeButton>
+          )}
           <CommentModeBtn
             handleSetCommentModeButton={handleSetCommentModeButton}
             isCommentMode={isCommentMode || isTourStepActive} // Highlight the button during the tour

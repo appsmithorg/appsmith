@@ -8,6 +8,7 @@ import com.appsmith.server.dtos.ResponseDTO;
 import io.sentry.Sentry;
 import io.sentry.SentryLevel;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.buffer.DataBufferLimitException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
@@ -160,6 +161,16 @@ public class GlobalExceptionHandler {
         doLog(e);
         return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
                 appsmithError.getMessage())));
+    }
+
+    @ExceptionHandler
+    @ResponseBody
+    public Mono<ResponseDTO<ErrorDTO>> catchDataBufferLimitException(DataBufferLimitException e, ServerWebExchange exchange) {
+        AppsmithError appsmithError = AppsmithError.FILE_PART_DATA_BUFFER_ERROR;
+        exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
+        doLog(e);
+        return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
+                appsmithError.getMessage(e.getMessage()))));
     }
 
     /**

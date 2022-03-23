@@ -12,6 +12,7 @@ import { ReactComponent as TableIcon } from "assets/icons/widget/table.svg";
 import { ReactComponent as VideoIcon } from "assets/icons/widget/video.svg";
 import { ReactComponent as DropDownIcon } from "assets/icons/widget/dropdown.svg";
 import { ReactComponent as MultiSelectIcon } from "assets/icons/widget/multiselect.svg";
+import { ReactComponent as MultiSelectV2Icon } from "assets/icons/widget/multiselect.svg";
 import { ReactComponent as CheckboxIcon } from "assets/icons/widget/checkbox.svg";
 import { ReactComponent as RadioGroupIcon } from "assets/icons/widget/radio.svg";
 import { ReactComponent as InputIcon } from "assets/icons/widget/input.svg";
@@ -36,6 +37,7 @@ import { ReactComponent as IconButtonIcon } from "assets/icons/widget/icon-butto
 import { ReactComponent as StatboxIcon } from "assets/icons/widget/statbox.svg";
 import { ReactComponent as CheckboxGroupIcon } from "assets/icons/widget/checkbox-group.svg";
 import { ReactComponent as AudioRecorderIcon } from "assets/icons/widget/audio-recorder.svg";
+import { ReactComponent as AudioIcon } from "assets/icons/widget/audio.svg";
 import { ReactComponent as ButtonGroupIcon } from "assets/icons/widget/button-group.svg";
 import { ReactComponent as ProgressBarIcon } from "assets/icons/widget/progressbar-icon.svg";
 import { ReactComponent as SwitchGroupIcon } from "assets/icons/widget/switch-group.svg";
@@ -43,6 +45,7 @@ import { ReactComponent as CameraIcon } from "assets/icons/widget/camera.svg";
 import { ReactComponent as MapChartIcon } from "assets/icons/widget/map-chart.svg";
 import { ReactComponent as PhoneInput } from "assets/icons/widget/phoneInput.svg";
 import { ReactComponent as CurrencyInput } from "assets/icons/widget/currencyInput.svg";
+import { ReactComponent as CircularProgressIcon } from "assets/icons/widget/circular-progress.svg";
 
 /* eslint-disable react/display-name */
 
@@ -105,6 +108,16 @@ export const WidgetIcons: {
   MULTI_SELECT_WIDGET: (props: IconProps) => (
     <StyledIconWrapper {...props}>
       <MultiSelectIcon />
+    </StyledIconWrapper>
+  ),
+  SELECT_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <DropDownIcon />
+    </StyledIconWrapper>
+  ),
+  MULTI_SELECT_WIDGET_V2: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <MultiSelectV2Icon />
     </StyledIconWrapper>
   ),
   RADIO_GROUP_WIDGET: (props: IconProps) => (
@@ -202,12 +215,12 @@ export const WidgetIcons: {
       <MenuButtonIcon />
     </StyledIconWrapper>
   ),
-  TREE_SINGLE_SELECT_WIDGET: (props: IconProps) => (
+  SINGLE_SELECT_TREE_WIDGET: (props: IconProps) => (
     <StyledIconWrapper {...props}>
       <SingleTreeSelectIcon />
     </StyledIconWrapper>
   ),
-  TREE_MULTI_SELECT_WIDGET: (props: IconProps) => (
+  MULTI_SELECT_TREE_WIDGET: (props: IconProps) => (
     <StyledIconWrapper {...props}>
       <MultiTreeSelectIcon />
     </StyledIconWrapper>
@@ -230,6 +243,11 @@ export const WidgetIcons: {
   AUDIO_RECORDER_WIDGET: (props: IconProps) => (
     <StyledIconWrapper {...props}>
       <AudioRecorderIcon />
+    </StyledIconWrapper>
+  ),
+  AUDIO_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <AudioIcon />
     </StyledIconWrapper>
   ),
   BUTTON_GROUP_WIDGET: (props: IconProps) => (
@@ -265,6 +283,11 @@ export const WidgetIcons: {
   CURRENCY_INPUT_WIDGET: (props: IconProps) => (
     <StyledIconWrapper {...props}>
       <CurrencyInput />
+    </StyledIconWrapper>
+  ),
+  CIRCULAR_PROGRESS_WIDGET: (props: IconProps) => (
+    <StyledIconWrapper {...props}>
+      <CircularProgressIcon />
     </StyledIconWrapper>
   ),
 };

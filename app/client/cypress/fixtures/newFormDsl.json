@@ -75,7 +75,7 @@
                 "selectionType": "SINGLE_SELECT",
                 "options": "",
                 "widgetName": "Dropdown1",
-                "type": "DROP_DOWN_WIDGET",
+                "type": "SELECT_WIDGET",
                 "isLoading": false,
                 "parentColumnSpace": 71.75,
                 "parentRowSpace": 38,
@@ -97,12 +97,18 @@
                 "rightColumn": 15,
                 "isVisible": true,
                 "label": "",
-                "type": "MULTI_SELECT_WIDGET",
+                "type": "MULTI_SELECT_WIDGET_V2",
                 "parentId": "zizrooqfps",
                 "isLoading": false,
                 "defaultOptionValue": [
-                  "First",
-                  "Seventh"
+                  {
+                    "label": "Hashirama Senju",
+                    "value": "First"
+                  },
+                  {
+                    "label": "Naruto Uzumaki",
+                    "value": "Seventh"
+                  }
                 ],
                 "parentColumnSpace": 71.75,
                 "leftColumn": 10,

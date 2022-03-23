@@ -4,9 +4,9 @@ import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import Text, { TextType } from "components/ads/Text";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
-import { HELPBAR_PLACEHOLDER } from "constants/messages";
+import { HELPBAR_PLACEHOLDER } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { isMac } from "utils/helpers";
+import { modText } from "utils/helpers";
 import { filterCategories, SEARCH_CATEGORY_ID } from "./utils";
 
 const StyledHelpBar = styled.div`
@@ -30,8 +30,7 @@ const StyledHelpBar = styled.div`
   }
 `;
 
-export const modText = () => (isMac() ? <span>&#8984;</span> : "ctrl");
-const comboText = <>{modText()} + K</>;
+const comboText = <>{modText()} K</>;
 
 type Props = {
   toggleShowModal: () => void;

@@ -1,12 +1,12 @@
 import { transformDSL } from "./DSLMigrations";
-import { RenderModes } from "constants/WidgetConstants";
+import { LATEST_PAGE_VERSION, RenderModes } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { WidgetProps } from "widgets/BaseWidget";
 
 describe("correctly migrate dsl", () => {
   it("AddsPrivateWidgetsToAllListWidgets", () => {
     const currentVersion = 49;
-    const nextVersion = currentVersion + 1;
+    const nextVersion = LATEST_PAGE_VERSION;
     const currentDSL: ContainerWidgetProps<WidgetProps> = {
       backgroundColor: "none",
       bottomRow: 740,

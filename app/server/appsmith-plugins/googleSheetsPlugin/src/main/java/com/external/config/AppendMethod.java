@@ -18,6 +18,8 @@ import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -185,8 +187,8 @@ public class AppendMethod implements Method {
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
                 methodConfig.getSpreadsheetId() /* spreadsheet Id */
                         + "/values/"
-                        + range
-                        + ":append");
+                        + URLEncoder.encode(range, StandardCharsets.UTF_8)
+                        + ":append", true);
 
         uriBuilder.queryParam("valueInputOption", "USER_ENTERED");
         uriBuilder.queryParam("includeValuesInResponse", Boolean.FALSE);
@@ -206,7 +208,7 @@ public class AppendMethod implements Method {
         valueRange.setRange(range);
         valueRange.setValues(collect);
         return webClient.method(HttpMethod.POST)
-                .uri(uriBuilder.build(false).toUri())
+                .uri(uriBuilder.build(true).toUri())
                 .body(BodyInserters.fromValue(valueRange));
     }
 

@@ -1,6 +1,6 @@
-import { XYCord } from "utils/hooks/useCanvasDragging";
 import { WidgetProps, WidgetRowCols } from "widgets/BaseWidget";
 import { GridDefaults } from "constants/WidgetConstants";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
 
 export type UIElementSize = { height: number; width: number };
 

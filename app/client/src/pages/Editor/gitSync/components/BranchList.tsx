@@ -28,7 +28,7 @@ import {
   FIND_OR_CREATE_A_BRANCH,
   SWITCH_BRANCHES,
   SYNC_BRANCHES,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 import { Branch } from "entities/GitSync";
 import Button, { Category, Size } from "components/ads/Button";
@@ -44,6 +44,7 @@ import { isEllipsisActive } from "utils/helpers";
 import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
 
 import SegmentHeader from "components/ads/ListSegmentHeader";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const ListContainer = styled.div`
   flex: 1;
@@ -345,13 +346,14 @@ function Header({
         >
           <Tooltip
             content={createMessage(SYNC_BRANCHES)}
-            hoverOpenDelay={1000}
+            hoverOpenDelay={10}
             modifiers={{
               flip: { enabled: false },
             }}
             position={Position.TOP}
           >
             <Icon
+              className="t--sync-branches"
               fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
               hoverFillColor={Colors.BLACK}
               name="refresh"
@@ -362,6 +364,7 @@ function Header({
         </span>
       </div>
       <Icon
+        className="t--close-branch-list"
         fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
         hoverFillColor={Colors.BLACK}
         name="close-modal"
@@ -376,8 +379,12 @@ export default function BranchList(props: {
   setIsPopupOpen?: (flag: boolean) => void;
 }) {
   const dispatch = useDispatch();
-  const pruneAndFetchBranches = () =>
+  const pruneAndFetchBranches = () => {
+    AnalyticsUtil.logEvent("GS_SYNC_BRANCHES", {
+      source: "BRANCH_LIST_POPUP_FROM_BOTTOM_BAR",
+    });
     dispatch(fetchBranchesInit({ pruneBranches: true }));
+  };
 
   const branches = useSelector(getGitBranches);
   const branchNames = useSelector(getGitBranchNames);
@@ -412,6 +419,9 @@ export default function BranchList(props: {
 
   const handleCreateNewBranch = () => {
     if (isCreatingNewBranch) return;
+    AnalyticsUtil.logEvent("GS_CREATE_NEW_BRANCH", {
+      source: "BRANCH_LIST_POPUP_FROM_BOTTOM_BAR",
+    });
     const branch = searchText;
     setIsCreatingNewBranch(true);
     dispatch(

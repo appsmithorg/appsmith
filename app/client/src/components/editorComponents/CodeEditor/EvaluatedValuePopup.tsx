@@ -83,17 +83,6 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
   border-radius: 0px;
 `;
 
-const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
-  max-height: 300px;
-  min-height: 28px;
-  overflow-y: auto;
-  -ms-overflow-style: none;
-  padding: ${(props) => props.theme.spaces[3]}px;
-  padding-right: 30px;
-  background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
-  position: relative;
-`;
-
 const CopyIconWrapper = styled(Button)<{ colorTheme: EditorTheme }>`
   color: ${(props) => THEMES[props.colorTheme].textColor};
   position: absolute;
@@ -102,6 +91,23 @@ const CopyIconWrapper = styled(Button)<{ colorTheme: EditorTheme }>`
   cursor: pointer;
   padding: 0;
   border-radius: 0;
+  display: none;
+`;
+
+const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
+  // max-height: 300px;
+  min-height: 28px;
+  // overflow-y: auto;
+  -ms-overflow-style: none;
+  padding: ${(props) => props.theme.spaces[3]}px;
+  padding-right: 30px;
+  background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
+  position: relative;
+  &:hover {
+    ${CopyIconWrapper} {
+      display: flex;
+    }
+  }
 `;
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
@@ -231,8 +237,9 @@ export function PreparedStatementViewer(props: {
     });
     return <div />;
   }
-  const stringSegments = value.split(/\$\d/);
-  const $params = [...value.matchAll(/\$\d/g)].map((matches) => matches[0]);
+  const stringSegments = value.split(/\$\d+/);
+  const $params = [...value.matchAll(/\$\d+/g)].map((matches) => matches[0]);
+
   const paramsWithTooltips = $params.map((param) => (
     <Tooltip content={<span>{parameters[param]}</span>} key={param}>
       <PreparedStatementParameter key={param}>
@@ -330,7 +337,10 @@ export const CurrentValueViewer = memo(
           </StyledTitle>
         )}
         <Collapse isOpen={openEvaluatedValue}>
-          <CurrentValueWrapper colorTheme={props.theme}>
+          <CurrentValueWrapper
+            className="t-property-evaluated-value"
+            colorTheme={props.theme}
+          >
             {content}
             {props.hasOwnProperty("evaluatedValue") && (
               <CopyIconWrapper
@@ -338,7 +348,7 @@ export const CurrentValueViewer = memo(
                 minimal
                 onClick={() => copyContent(props.evaluatedValue)}
               >
-                <CopyIcon />
+                <CopyIcon height={34} />
               </CopyIconWrapper>
             )}
           </CurrentValueWrapper>

@@ -1,4 +1,4 @@
-import { put, select } from "redux-saga/effects";
+import { put, select, take } from "redux-saga/effects";
 import { getAppStoreName } from "constants/AppConstants";
 import localStorage from "utils/localStorage";
 import {
@@ -10,6 +10,7 @@ import { getAppStoreData } from "selectors/entitiesSelector";
 import { StoreValueActionDescription } from "entities/DataTree/actionTriggers";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 export default function* storeValueLocally(
   action: StoreValueActionDescription["payload"],
@@ -38,4 +39,5 @@ export default function* storeValueLocally(
       text: `store('${action.key}', '${action.value}', false)`,
     });
   }
+  yield take(ReduxActionTypes.UPDATE_APP_STORE_EVALUATED);
 }

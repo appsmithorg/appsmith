@@ -19,6 +19,8 @@ public interface AppsmithRepository<T> {
 
     Flux<T> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort);
 
+    Flux<T> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort);
+
     T setUserPermissionsInObject(T obj, User user);
 
     Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission);

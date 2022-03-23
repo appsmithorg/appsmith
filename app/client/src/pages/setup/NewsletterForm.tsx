@@ -19,7 +19,7 @@ import {
   WELCOME_FORM_NEWLETTER_HEADER,
   WELCOME_FORM_NEWLETTER_LABEL,
   WELCOME_FORM_SUBMIT_LABEL,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 export const StyledButton = styled(Button)`
   width: 201px;
@@ -63,6 +63,7 @@ export default memo(function NewsletterForm() {
             size={Size.medium}
             tag="button"
             text={createMessage(WELCOME_FORM_SUBMIT_LABEL)}
+            type="submit"
           />
         </ButtonWrapper>
       </FormBodyWrapper>

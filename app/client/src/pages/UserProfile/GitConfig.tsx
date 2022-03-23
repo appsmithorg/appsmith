@@ -10,7 +10,7 @@ import {
   AUTHOR_EMAIL,
   AUTHOR_NAME,
   SUBMIT,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "@blueprintjs/core";
 import TextInput, { notEmptyValidator } from "components/ads/TextInput";

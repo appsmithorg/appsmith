@@ -8,7 +8,7 @@ import { DSLWidget } from "widgets/constants";
 
 import CanvasMultiPointerArena, {
   POINTERS_CANVAS_ID,
-} from "../common/CanvasMultiPointerArena";
+} from "../common/CanvasArenas/CanvasMultiPointerArena";
 import { throttle } from "lodash";
 import { RenderModes } from "constants/WidgetConstants";
 import { isMultiplayerEnabledForUser as isMultiplayerEnabledForUserSelector } from "selectors/appCollabSelectors";

@@ -64,7 +64,10 @@ COPY ./app/rts/package.json ./app/rts/dist/* rts/
 COPY ./app/rts/node_modules rts/node_modules
 
 # Nginx & MongoDB config template - Configuration layer
-COPY ./deploy/docker/templates/nginx/* ./deploy/docker/templates/mongo-init.js.sh ./deploy/docker/templates/docker.env.sh templates/
+COPY ./deploy/docker/templates/nginx/* \
+  ./deploy/docker/templates/mongo-init.js.sh\
+  ./deploy/docker/templates/docker.env.sh \
+  templates/
 
 # Add bootstrapfile
 COPY ./deploy/docker/entrypoint.sh ./deploy/docker/scripts/* ./

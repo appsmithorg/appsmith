@@ -13,15 +13,18 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 /// <reference types="Cypress" />
-require("cypress-xpath");
+
 import "cypress-real-events/support";
-let pageid;
+import "cypress-xpath";
+import "cypress-wait-until";
+/// <reference types="cypress-xpath" />
+
 let appId;
 
 // Import commands.js using ES2015 syntax:
 import "./commands";
 import { initLocalstorage } from "./commands";
-import * as MESSAGES from "../../../client/src/constants/messages.ts";
+import * as MESSAGES from "../../../client/src/ce/constants/messages.ts";
 
 Cypress.on("uncaught:exception", (err, runnable) => {
   // returning false here prevents Cypress from
@@ -90,6 +93,8 @@ beforeEach(function() {
   initLocalstorage();
   Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   cy.startServerAndRoutes();
+  //-- Delete local storage data of entity explorer
+  cy.DeleteEntityStateLocalStorage();
 });
 
 after(function() {
