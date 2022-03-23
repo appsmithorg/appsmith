@@ -217,6 +217,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
       if (!jsAction) return;
       if (jsAction.id !== selectedJSActionOption.data?.id) {
         setSelectedJSActionOption(convertJSActionToDropdownOption(jsAction));
+        setshowResponse(false);
         dispatch(
           setActiveJSAction({
             jsCollectionId: currentJSCollection.id || "",
