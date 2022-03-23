@@ -6,7 +6,7 @@ init_ssl_cert() {
   local rsa_key_size=4096
   local data_path="/appsmith-stacks/data/certificate"
 
-  mkdir -p "$data_path"/{conf,www}
+  mkdir -p "$data_path/www"
 
   echo "Re-generating nginx config template with domain"
   bash "/opt/appsmith/templates/nginx-app-http.conf.template.sh" "$APPSMITH_CUSTOM_DOMAIN" >"/etc/nginx/conf.d/nginx_app.conf.template"
