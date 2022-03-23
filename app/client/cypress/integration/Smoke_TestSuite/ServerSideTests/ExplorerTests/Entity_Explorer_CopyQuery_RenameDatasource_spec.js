@@ -99,10 +99,10 @@ describe("Entity explorer tests related to copy query", function() {
       cy.log("sliced id :" + updatedName);
       cy.CheckAndUnfoldEntityItem("QUERIES/JS");
       cy.EditEntityNameByDoubleClick(datasourceName, updatedName);
-      cy.wait(1000);
-      agHelper.ActionContextMenuByEntityName(updatedName, "Delete");
-      cy.wait(1000);
-      cy.get("[data-cy=t--confirm-modal-btn]").click();
+      cy.wait(2000);
+      cy.hoverAndClick();
+      cy.get(apiwidget.delete).click({ force: true });
+      cy.get(apiwidget.deleteConfirm).click({ force: true });
       //This is check to make sure if a datasource is active 409
       cy.wait("@deleteDatasource").should(
         "have.nested.property",
@@ -112,7 +112,7 @@ describe("Entity explorer tests related to copy query", function() {
     });
     cy.get(".t--entity-name")
       .contains("Query1")
-      .click({ force: true });
-    agHelper.ActionContextMenuByEntityName("Query1", "Delete");
+      .click();
+    agHelper.ActionContextMenuByEntityName("Query1", "Delete", "Are you sure?");
   });
 });
