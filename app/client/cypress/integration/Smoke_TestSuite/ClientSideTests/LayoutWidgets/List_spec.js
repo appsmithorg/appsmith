@@ -86,7 +86,7 @@ describe("Container Widget Functionality", function() {
   it("7. doesn't alter the no of items present when invalid item spacing is entered", () => {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("WIDGETS");
-    cy.CheckAndUnfoldEntityItem("List1");
+    cy.selectEntityByName("List1");
     // Update an invalid value to item spacing
     cy.testJsontext("itemspacing\\(" + "px" + "\\)", "-");
     cy.wait(2000);
