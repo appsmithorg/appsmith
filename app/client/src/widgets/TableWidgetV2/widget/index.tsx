@@ -146,6 +146,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const hiddenColumns: ReactTableColumnProps[] = [];
 
     const { componentWidth } = this.getComponentDimensions();
+    const compactMode = this.props.compactMode || CompactModeTypes.DEFAULT;
     let totalColumnWidth = 0;
 
     orderedTableColumns.forEach((column: any) => {
@@ -189,6 +190,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           switch (column.columnType) {
             case COLUMN_TYPES.BUTTON:
               const buttonProps = {
+                compactMode,
                 isSelected: isSelected,
                 onCommandClick: (action: string, onComplete: () => void) =>
                   this.onColumnEvent({
@@ -243,6 +245,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                 : noop;
 
               return renderImage({
+                compactMode,
                 value: props.cell.value,
                 isHidden: isHidden,
                 cellProperties: cellProperties,
@@ -253,6 +256,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
             case COLUMN_TYPES.MENUBUTTON:
               const menuButtonProps: RenderMenuButtonProps = {
+                compactMode,
                 isSelected: isSelected,
                 onCommandClick: (action: string, onComplete?: () => void) =>
                   this.onColumnEvent({
@@ -285,6 +289,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
             case COLUMN_TYPES.ICONBUTTON:
               const iconButtonProps = {
+                compactMode,
                 isSelected: isSelected,
                 onCommandClick: (action: string, onComplete: () => void) =>
                   this.onColumnEvent({
@@ -319,6 +324,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
             case ColumnTypes.VIDEO:
               return renderVideo({
+                compactMode,
                 value: props.cell.value,
                 isHidden: isHidden,
                 cellProperties: cellProperties,
@@ -331,6 +337,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                 props.cell.column.alias === this.props.editableCell.column &&
                 rowIndex === this.props.editableCell.index;
               return renderDefault({
+                compactMode,
                 value: props.cell.value,
                 columnType: column.columnType,
                 isHidden: isHidden,

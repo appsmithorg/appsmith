@@ -65,6 +65,7 @@ function MenuButton({
 }
 
 export interface RenderMenuButtonProps {
+  compactMode: string;
   isSelected: boolean;
   // columnActions?: ColumnAction[];
   label: string;
@@ -90,6 +91,7 @@ export const renderMenuButton = (
   return (
     <CellWrapper
       cellProperties={cellProperties}
+      compactMode={props.compactMode}
       isCellVisible={props.isCellVisible}
       isHidden={isHidden}
     >
