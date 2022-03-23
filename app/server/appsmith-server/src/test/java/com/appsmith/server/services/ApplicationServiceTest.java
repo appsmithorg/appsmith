@@ -2472,7 +2472,7 @@ public class ApplicationServiceTest {
         testApplication.setName(appName);
 
         Theme theme = new Theme();
-        theme.setName("Custom theme");
+        theme.setDisplayName("Custom theme");
 
         Mono<Theme> createTheme = themeService.create(theme);
 

@@ -23,15 +23,15 @@ export class AggregateHelper {
                 cy.request(
                     "PUT",
                     "api/v1/layouts/" + layoutId + "/pages/" + pageid,
-                    dsl,
-                ).then((response) => {
-                    //cy.log("Pages resposne is : " + response.body);
-                    expect(response.status).equal(200);
+                    dsl
+                ).then((dslDumpResp) => {
+                    //cy.log("Pages resposne is : " + dslDumpResp.body);
+                    expect(dslDumpResp.status).equal(200);
                     cy.reload();
                 });
             });
         });
-        this.Sleep(2000)//settling time for dsl
+        this.Sleep(5000)//settling time for dsl
     }
 
     public NavigateToDSCreateNew() {
@@ -113,11 +113,11 @@ export class AggregateHelper {
     public expandCollapseEntity(entityName: string, expand = true) {
         cy.xpath(locator._expandCollapseArrow(entityName)).invoke('attr', 'name').then((arrow) => {
             if (expand && arrow == 'arrow-right')
-                cy.xpath(locator._expandCollapseArrow(entityName)).click({ multiple: true }).wait(500);
+                cy.xpath(locator._expandCollapseArrow(entityName)).trigger('click', { multiple: true }).wait(1000);
             else if (!expand && arrow == 'arrow-down')
-                cy.xpath(locator._expandCollapseArrow(entityName)).click({ multiple: true }).wait(500);
+                cy.xpath(locator._expandCollapseArrow(entityName)).trigger('click', { multiple: true }).wait(1000);
             else
-                cy.wait(500)
+                this.Sleep()
         })
     }
 
@@ -216,7 +216,7 @@ export class AggregateHelper {
             .first()
             .focus()
             .type("{uparrow}", { force: true })
-            .type("{ctrl}{shift}{downarrow}", { force: true });
+            .type("{ctrl}{shift}{downarrow}{del}", { force: true });
         cy.focused().then(($cm: any) => {
             if ($cm.contents != "") {
                 cy.log("The field is not empty");
@@ -329,15 +329,16 @@ export class AggregateHelper {
         subAction = "") {
         this.Sleep();
         cy.xpath(locator._contextMenu(entityNameinLeftSidebar))
-            .first()
+            .last()
             .click({ force: true });
         cy.xpath(locator._contextMenuItem(action))
             .click({ force: true })
-            .wait(500);
-        if (subAction)
+        this.Sleep(500)
+        if (subAction) {
             cy.xpath(locator._contextMenuItem(subAction))
                 .click({ force: true })
-                .wait(500);
+            this.Sleep(500)
+        }
     }
 
     public ValidateEntityAbsenceInExplorer(entityNameinLeftSidebar: string) {
@@ -355,7 +356,7 @@ export class AggregateHelper {
                 this.UpdateCodeInput($field, valueToType);
             });
         } else {
-            cy.xpath(locator._codeEditorTarget).then(($field: any) => {
+            cy.get(locator._codeEditorTarget).then(($field: any) => {
                 this.UpdateCodeInput($field, valueToType);
             });
         }

@@ -198,13 +198,19 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-    cy.get("[data-cy=t--confirm-modal-btn]").click();
+    cy.get(".t--delete-datasource")
+      .contains("Are you sure?")
+      .click();
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       409,
     );
-    //cy.actionContextMenuByEntityName("listingAndReviews");
+    cy.actionContextMenuByEntityName(
+      "ListingAndReviews",
+      "Delete",
+      "Are you sure?",
+    );
   });
 
   it("9. Bug 7399: Validate Form based & Raw command based templates", function() {
@@ -281,7 +287,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       );
     });
     cy.CheckAndUnfoldEntityItem("QUERIES/JS");
-    cy.actionContextMenuByEntityName("Query1");
+    cy.actionContextMenuByEntityName("Query1", "Delete", "Are you sure?");
   });
 
   it("10. Delete the datasource after NewPage deletion is success", () => {
@@ -289,7 +295,9 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-    cy.get("[data-cy=t--confirm-modal-btn]").click();
+    cy.get(".t--delete-datasource")
+      .contains("Are you sure?")
+      .click();
     // cy.wait("@deleteDatasource").should(
     //   "have.nested.property",
     //   "response.body.responseMeta.status",
@@ -357,12 +365,12 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.xpath(queryLocators.countText).should("have.text", "3 Records");
 
     cy.get("@dSName").then((dbName) => {
-      cy.CheckAndUnfoldEntityItem("DATASOURCES");
+      //cy.CheckAndUnfoldEntityItem("DATASOURCES");
       cy.actionContextMenuByEntityName(dbName, "Refresh");
-      cy.get(`.t--entity.datasource:contains(${dbName})`)
-        .find(explorer.collapse)
-        .first()
-        .click();
+      // cy.get(`.t--entity.datasource:contains(${dbName})`)
+      //   .find(explorer.collapse)
+      //   .first()
+      //   .click();
     });
     cy.xpath("//div[text()='NonAsciiTest']").should("exist");
 
@@ -372,7 +380,6 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       .wait(1000);
     cy.wait("@updateLayout").then(({ response }) => {
       cy.log("1st Response is :" + JSON.stringify(response.body));
-
       //expect(response.body.data.dsl.children[0].type).to.eq("TABLE_WIDGET");
     });
 
@@ -383,7 +390,6 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       .wait(1000);
     cy.wait("@updateLayout").then(({ response }) => {
       cy.log("2nd Response is :" + JSON.stringify(response.body));
-
       //expect(response.body.data.dsl.children[1].type).to.eq("CHART_WIDGET");
     });
 

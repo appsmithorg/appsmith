@@ -42,6 +42,7 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getIsEditorInitialized,
 } from "selectors/editorSelectors";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getNextWidgetName } from "./WidgetOperationUtils";
@@ -73,7 +74,20 @@ import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 
 function* createApplication() {
-  const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
+  // If we are starting onboarding from the editor wait for the editor to reset.
+  const isEditorInitialised = yield select(getIsEditorInitialized);
+  let userOrgs: Organization[] = yield select(getOnboardingOrganisations);
+  if (isEditorInitialised) {
+    yield take(ReduxActionTypes.RESET_EDITOR_SUCCESS);
+
+    // If we haven't fetched the organisation list yet we wait for it to complete
+    // as we need an organisation where we create an application
+    if (!userOrgs.length) {
+      yield take(ReduxActionTypes.FETCH_USER_APPLICATIONS_ORGS_SUCCESS);
+    }
+  }
+
+  userOrgs = yield select(getOnboardingOrganisations);
   const currentUser = yield select(getCurrentUser);
   const currentOrganizationId = currentUser.currentOrganizationId;
   let organization;

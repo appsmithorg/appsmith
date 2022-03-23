@@ -15,17 +15,17 @@ import styled, { useTheme } from "styled-components";
 import Text, { TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
 import {
+  CONTACT_SALES_MESSAGE_ON_INTERCOM,
   CONTACT_SUPPORT,
   CONTACT_SUPPORT_TO_UPGRADE,
   createMessage,
   DISCONNECT_CAUSE_APPLICATION_BREAK,
-  DISCONNECT_GIT,
+  DISCONNECT_EXISTING_REPOSITORIES,
+  DISCONNECT_EXISTING_REPOSITORIES_INFO,
   LEARN_MORE,
   REPOSITORY_LIMIT_REACHED,
   REPOSITORY_LIMIT_REACHED_INFO,
-  DISCONNECT_EXISTING_REPOSITORIES,
-  DISCONNECT_EXISTING_REPOSITORIES_INFO,
-  CONTACT_SALES_MESSAGE_ON_INTERCOM,
+  REVOKE_ACCESS,
 } from "@appsmith/constants/messages";
 import Icon, { IconSize } from "components/ads/Icon";
 import Link from "./components/Link";
@@ -49,7 +49,6 @@ const Container = styled.div`
   flex-direction: column;
   position: relative;
   overflow-y: hidden;
-  padding: 0px ${(props) => props.theme.spaces[4]}px;
 `;
 
 const BodyContainer = styled.div`
@@ -60,19 +59,16 @@ const BodyContainer = styled.div`
 
 const CloseBtnContainer = styled.div`
   position: absolute;
-  right: ${(props) => props.theme.spaces[1]}px;
-  top: 0px;
-
-  padding: ${(props) => props.theme.spaces[1]}px;
-  border-radius: ${(props) => props.theme.radii[1]}px;
+  right: 0;
+  top: 0;
 `;
 
 const ButtonContainer = styled.div`
-  margin-top: ${(props) => `${props.theme.spaces[7]}px`};
+  margin-top: 0;
 `;
 
 const ApplicationWrapper = styled.div`
-  margin-top: ${(props) => props.theme.spaces[8]}px;
+  margin-top: ${(props) => props.theme.spaces[7]}px;
   display: flex;
   justify-content: space-between;
 `;
@@ -100,6 +96,12 @@ const AppListContainer = styled.div`
   position: relative;
 `;
 
+const StyledDialog = styled(Dialog)`
+  && .bp3-dialog-body {
+    margin-top: 0;
+  }
+`;
+
 function RepoLimitExceededErrorModal() {
   const isOpen = useSelector(getShowRepoLimitErrorModal);
   const dispatch = useDispatch();
@@ -116,12 +118,13 @@ function RepoLimitExceededErrorModal() {
       setOrgName(org?.organization.name || "");
       return (
         org?.applications.filter((application: ApplicationPayload) => {
+          const data = application.gitApplicationMetadata;
           return (
-            application.gitApplicationMetadata &&
-            application.gitApplicationMetadata.remoteUrl &&
-            application.gitApplicationMetadata.branchName &&
-            application.gitApplicationMetadata.repoName &&
-            application.gitApplicationMetadata.isRepoPrivate
+            data &&
+            data.remoteUrl &&
+            data.branchName &&
+            data.repoName &&
+            data.isRepoPrivate
           );
         }) || []
       );
@@ -164,11 +167,11 @@ function RepoLimitExceededErrorModal() {
   };
 
   return (
-    <Dialog
+    <StyledDialog
       canEscapeKeyClose
       canOutsideClickClose
       className="t--git-repo-limited-modal"
-      isOpen={!!isOpen}
+      isOpen={isOpen}
       maxWidth={"900px"}
       onClose={onClose}
       width={"550px"}
@@ -180,7 +183,7 @@ function RepoLimitExceededErrorModal() {
           </Text>
           <Text
             color={Colors.BLACK}
-            style={{ marginTop: theme.spaces[3] }}
+            style={{ marginTop: theme.spaces[3], width: "410px" }}
             type={TextType.P1}
           >
             {createMessage(REPOSITORY_LIMIT_REACHED_INFO)}
@@ -194,7 +197,7 @@ function RepoLimitExceededErrorModal() {
           >
             <Icon
               fillColor={Colors.YELLOW_LIGHT}
-              name="info"
+              name="warning-line"
               size={IconSize.XXXL}
             />
             <div style={{ display: "block" }}>
@@ -222,22 +225,22 @@ function RepoLimitExceededErrorModal() {
               text={createMessage(CONTACT_SUPPORT)}
             />
           </ButtonContainer>
-          <Text
-            color={Colors.BLACK}
-            style={{ marginTop: theme.spaces[17] }}
-            type={TextType.H1}
-          >
-            {createMessage(DISCONNECT_EXISTING_REPOSITORIES)}
-          </Text>
-          <Text
-            color={Colors.BLACK}
-            style={{ marginTop: theme.spaces[3], width: 410 }}
-            type={TextType.P1}
-          >
-            {createMessage(DISCONNECT_EXISTING_REPOSITORIES_INFO)}
-          </Text>
-          <InfoWrapper isError style={{ margin: `${theme.spaces[7]}px 0px` }}>
-            <Icon fillColor={Colors.CRIMSON} name="info" size={IconSize.XXXL} />
+          <div style={{ marginTop: theme.spaces[15] }}>
+            <Text color={Colors.BLACK} type={TextType.H1}>
+              {createMessage(DISCONNECT_EXISTING_REPOSITORIES)}
+            </Text>
+          </div>
+          <div style={{ marginTop: theme.spaces[3], width: 410 }}>
+            <Text color={Colors.BLACK} type={TextType.P1}>
+              {createMessage(DISCONNECT_EXISTING_REPOSITORIES_INFO)}
+            </Text>
+          </div>
+          <InfoWrapper isError style={{ margin: `${theme.spaces[7]}px 0px 0` }}>
+            <Icon
+              fillColor={Colors.CRIMSON}
+              name="warning-line"
+              size={IconSize.XXXL}
+            />
             <div style={{ display: "block" }}>
               <Text
                 color={Colors.CRIMSON}
@@ -282,7 +285,7 @@ function RepoLimitExceededErrorModal() {
                     onClick={() =>
                       openDisconnectGitModal(application.id, application.name)
                     }
-                    text={createMessage(DISCONNECT_GIT)}
+                    text={createMessage(REVOKE_ACCESS)}
                   />
                 </ApplicationWrapper>
               );
@@ -297,7 +300,7 @@ function RepoLimitExceededErrorModal() {
           />
         </CloseBtnContainer>
       </Container>
-    </Dialog>
+    </StyledDialog>
   );
 }
 

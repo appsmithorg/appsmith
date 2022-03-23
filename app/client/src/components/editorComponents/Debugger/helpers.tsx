@@ -14,7 +14,7 @@ import {
   matchQueryPath,
 } from "constants/routes";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
-import { isMac } from "utils/helpers";
+import { modText } from "utils/helpers";
 
 const BlankStateWrapper = styled.div`
   overflow: auto;
@@ -35,7 +35,7 @@ export function BlankState(props: {
   placeholderText?: string;
   hasShortCut?: boolean;
 }) {
-  const shortcut = isMac() ? "Cmd + D" : "Ctrl + D";
+  const shortcut = <>{modText()} D</>;
 
   return (
     <BlankStateWrapper>

@@ -116,6 +116,17 @@ class ImageComponent extends React.Component<
     };
   }
 
+  componentDidUpdate = (prevProps: ImageComponentProps) => {
+    // reset the imageError flag when the defaultImageUrl or imageUrl changes
+    if (
+      (prevProps.imageUrl !== this.props.imageUrl ||
+        prevProps.defaultImageUrl !== this.props.defaultImageUrl) &&
+      this.state.imageError
+    ) {
+      this.setState({ imageError: false });
+    }
+  };
+
   render() {
     const { imageUrl, maxZoomLevel } = this.props;
     const { imageError, imageRotation } = this.state;

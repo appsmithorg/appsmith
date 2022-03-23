@@ -447,6 +447,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
         {...this.props}
         menuDropDownWidth={menuDropDownWidth}
         onItemClicked={this.menuItemClickHandler}
+        renderMode={this.props.renderMode}
         width={componentWidth}
       />
     );
