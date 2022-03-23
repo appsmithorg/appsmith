@@ -35,10 +35,7 @@ import { updateReplayEntity } from "actions/pageActions";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import {
-  getUIComponent,
-  getFormEvaluationState,
-} from "selectors/formSelectors";
+import { getFormEvaluationState } from "selectors/formSelectors";
 import { UIComponentTypes } from "api/PluginApi";
 import {
   initFormEvaluations,
@@ -46,6 +43,7 @@ import {
 } from "actions/evaluationActions";
 import { QueryActionConfig } from "entities/Action";
 import { changeQuery } from "actions/queryPaneActions";
+import { getUIComponent } from "../QueryEditor/helpers";
 
 type StateAndRouteProps = EditorJSONtoFormProps & {
   actionObjectDiff?: any;
@@ -58,7 +56,12 @@ type StateAndRouteProps = EditorJSONtoFormProps & {
 
 type ReduxDispatchProps = {
   changeQueryPage: (queryId: string) => void;
-  runFormEvaluation: (formId: string, formData: QueryActionConfig) => void;
+  runFormEvaluation: (
+    formId: string,
+    formData: QueryActionConfig,
+    datasourceId: string,
+    pluginId: string,
+  ) => void;
   initFormEvaluation: (
     editorConfig: any,
     settingConfig: any,
@@ -114,7 +117,12 @@ function ActionForm(props: Props) {
       formData.id &&
       formData.actionConfiguration
     ) {
-      runFormEvaluation(formData.id, formData.actionConfiguration);
+      runFormEvaluation(
+        formData.id,
+        formData.actionConfiguration,
+        formData.datasource.id,
+        pluginId,
+      );
     }
   }, [formData]);
 
@@ -256,8 +264,15 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   changeQueryPage: (apiId: string) => {
     dispatch(changeQuery(apiId));
   },
-  runFormEvaluation: (formId: string, formData: QueryActionConfig) => {
-    dispatch(startFormEvaluations(formId, formData));
+  runFormEvaluation: (
+    formId: string,
+    formData: QueryActionConfig,
+    datasourceId: string,
+    pluginId: string,
+  ) => {
+    return dispatch(
+      startFormEvaluations(formId, formData, datasourceId, pluginId),
+    );
   },
   initFormEvaluation: (
     editorConfig: any,

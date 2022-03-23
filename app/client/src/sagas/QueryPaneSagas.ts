@@ -69,8 +69,6 @@ import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
-  // eslint-disable-next-line no-debugger
-  debugger;
   const { id } = actionPayload.payload;
   let configInitialValues = {};
   const applicationId: string = yield select(getCurrentApplicationId);
