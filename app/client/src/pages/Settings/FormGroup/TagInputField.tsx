@@ -22,7 +22,9 @@ const renderComponent = (
         setting.id}`}
       setting={setting}
     >
-      <TagInputComponent {...componentProps} />
+      <div data-testid="admin-settings-tag-input">
+        <TagInputComponent {...componentProps} />
+      </div>
     </FormGroup>
   );
 };
