@@ -1205,7 +1205,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             return checkoutRemoteBranch(defaultApplicationId, finalBranchName);
                         } else {
                             return Mono.error(
-                                    new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", branchName + " already exists in remote"));
+                                    new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", branchName + " already exists in local - " + branchName.replaceFirst("origin/", "")));
                         }
                     });
         }
