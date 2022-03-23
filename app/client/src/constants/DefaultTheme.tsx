@@ -2201,7 +2201,7 @@ export const light: ColorType = {
     },
     disabled: {
       bgColor: Colors.GREY_1,
-      textColor: Colors.GREY_4,
+      textColor: Colors.GREY_8,
     },
     primary: {
       primary: {
@@ -3036,7 +3036,7 @@ export const theme: Theme = {
     width: 265,
   },
   onboarding: {
-    statusBarHeight: 83,
+    statusBarHeight: 92,
   },
   settings: {
     footerHeight: 84,

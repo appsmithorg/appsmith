@@ -56,7 +56,7 @@ describe("Entity explorer tests related to query and datasource", function() {
     /* eslint-disable */
     cy.wait(2000);
     cy.NavigateToQueryEditor();
-
+    cy.CheckAndUnfoldEntityItem("DATASOURCES");
     cy.contains(".t--entity-name", datasourceName).click();
 
     cy.get(".t--edit-datasource-name").click();
@@ -75,6 +75,7 @@ describe("Entity explorer tests related to query and datasource", function() {
       .blur();
 
     // going  to the query create page
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.contains(commonlocators.entityName, "Query1").click();
 
     cy.wait("@getPluginForm").should(
@@ -120,7 +121,9 @@ describe("Entity explorer tests related to query and datasource", function() {
       .click({ force: true });
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-    cy.get("[data-cy=t--confirm-modal-btn]").click();
+    cy.get(".t--delete-datasource")
+      .contains("Are you sure?")
+      .click();
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
