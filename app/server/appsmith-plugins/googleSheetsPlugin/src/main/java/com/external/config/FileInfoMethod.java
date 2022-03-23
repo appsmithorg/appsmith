@@ -23,11 +23,11 @@ import java.util.Map;
  * API reference: https://developers.google.com/drive/api/v3/reference/files/get
  * For allowed fields: https://developers.google.com/drive/api/v3/reference/files
  */
-public class InfoMethod implements Method {
+public class FileInfoMethod implements Method {
 
     ObjectMapper objectMapper;
 
-    public InfoMethod(ObjectMapper objectMapper) {
+    public FileInfoMethod(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 

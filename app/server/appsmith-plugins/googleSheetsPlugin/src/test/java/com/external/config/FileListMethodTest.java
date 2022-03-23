@@ -7,14 +7,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ListSheetsMethodTest {
+public class FileListMethodTest {
 
     @Test(expected = AppsmithPluginException.class)
     public void testTransformResponse_missingJSON_throwsException() {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        ListSheetsMethod listSheetsMethod = new ListSheetsMethod(objectMapper);
-        listSheetsMethod.transformResponse(null, null);
+        FileListMethod fileListMethod = new FileListMethod(objectMapper);
+        fileListMethod.transformResponse(null, null);
     }
 
     @Test
@@ -27,8 +27,8 @@ public class ListSheetsMethodTest {
 
         Assert.assertNotNull(jsonNode);
 
-        ListSheetsMethod listSheetsMethod = new ListSheetsMethod(objectMapper);
-        JsonNode result = listSheetsMethod.transformResponse(jsonNode, null);
+        FileListMethod fileListMethod = new FileListMethod(objectMapper);
+        JsonNode result = fileListMethod.transformResponse(jsonNode, null);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());
@@ -45,8 +45,8 @@ public class ListSheetsMethodTest {
 
         Assert.assertNotNull(jsonNode);
 
-        ListSheetsMethod listSheetsMethod = new ListSheetsMethod(objectMapper);
-        JsonNode result = listSheetsMethod.transformResponse(jsonNode, null);
+        FileListMethod fileListMethod = new FileListMethod(objectMapper);
+        JsonNode result = fileListMethod.transformResponse(jsonNode, null);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());
@@ -63,8 +63,8 @@ public class ListSheetsMethodTest {
 
         Assert.assertNotNull(jsonNode);
 
-        ListSheetsMethod listSheetsMethod = new ListSheetsMethod(objectMapper);
-        JsonNode result = listSheetsMethod.transformResponse(jsonNode, null);
+        FileListMethod fileListMethod = new FileListMethod(objectMapper);
+        JsonNode result = fileListMethod.transformResponse(jsonNode, null);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());

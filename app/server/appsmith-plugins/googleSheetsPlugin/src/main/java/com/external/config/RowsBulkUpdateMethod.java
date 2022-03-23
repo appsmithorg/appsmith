@@ -7,9 +7,7 @@ import com.external.domains.RowObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.google.api.services.sheets.v4.model.ValueRange;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -20,20 +18,22 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 /**
- * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/append
+ * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
  */
-public class BulkAppendMethod implements Method {
+public class RowsBulkUpdateMethod implements Method {
 
     ObjectMapper objectMapper;
 
-    public BulkAppendMethod(ObjectMapper objectMapper) {
+    public RowsBulkUpdateMethod(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
@@ -72,52 +72,42 @@ public class BulkAppendMethod implements Method {
         return true;
     }
 
-    /**
-     * We need to execute this prerequisite even for append, so that we can maintain the column ordering as
-     * received from the sheet itself.
-     */
     @Override
     public Mono<Object> executePrerequisites(MethodConfig methodConfig, OAuth2 oauth2) {
         WebClient client = WebClient.builder()
                 .exchangeStrategies(EXCHANGE_STRATEGIES)
                 .build();
-        final GetValuesMethod getValuesMethod = new GetValuesMethod(this.objectMapper);
+        final RowsGetMethod rowsGetMethod = new RowsGetMethod(this.objectMapper);
 
-        List<RowObject> rowObjectListFromBody = null;
+        Map<Integer, RowObject> rowObjectMapFromBody = null;
         try {
-            JsonNode body = this.objectMapper.readTree(methodConfig.getRowObjects());
-
-            if ( body.isEmpty()) {
-                return Mono.empty();
-            }
-
-            rowObjectListFromBody = this.getRowObjectListFromBody(body);
+            rowObjectMapFromBody = this.getRowObjectMapFromBody(this.objectMapper.readTree(methodConfig.getRowObjects()));
         } catch (JsonProcessingException e) {
             // Should never enter here
         }
 
-        assert rowObjectListFromBody != null;
-        RowObject rowObjectFromBody = rowObjectListFromBody.get(0);
-        assert rowObjectFromBody != null;
-//        final String row = String.valueOf(rowObjectFromBody.getCurrentRowIndex());
+        assert rowObjectMapFromBody != null;
+        final Integer rowStart = ((TreeMap<Integer, RowObject>) rowObjectMapFromBody).firstKey();
+        final Integer rowEnd = ((TreeMap<Integer, RowObject>) rowObjectMapFromBody).lastKey();
         final MethodConfig newMethodConfig = methodConfig
                 .toBuilder()
                 .queryFormat("ROWS")
-                .rowOffset(String.valueOf(Integer.parseInt(methodConfig.getTableHeaderIndex()) - 1))
-                .rowLimit("1")
+                .rowOffset(String.valueOf(rowStart))
+                .rowLimit(String.valueOf(rowEnd - rowStart + 1))
                 .build();
 
-        getValuesMethod.validateMethodRequest(newMethodConfig);
+        rowsGetMethod.validateMethodRequest(newMethodConfig);
 
-        List<RowObject> finalRowObjectListFromBody = rowObjectListFromBody;
-        return getValuesMethod
+        Map<Integer, RowObject> finalRowObjectMapFromBody = rowObjectMapFromBody;
+        return rowsGetMethod
                 .getClient(client, newMethodConfig)
                 .headers(headers -> headers.set(
                         "Authorization",
                         "Bearer " + oauth2.getAuthenticationResponse().getToken()))
                 .exchange()
                 .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
-                .map(response -> {// Choose body depending on response status
+                .map(response -> {
+                    // Choose body depending on response status
                     byte[] responseBody = response.getBody();
 
                     if (responseBody == null) {
@@ -137,6 +127,7 @@ public class BulkAppendMethod implements Method {
                         ));
                     }
 
+
                     if (response.getStatusCode() != null && !response.getStatusCode().is2xxSuccessful()) {
                         if (jsonNodeBody.get("error") != null && jsonNodeBody.get("error").get("message") !=null) {
                             throw Exceptions.propagate(new AppsmithPluginException(
@@ -148,53 +139,58 @@ public class BulkAppendMethod implements Method {
                                 "Could not map request back to existing data"));
                     }
 
-                    if (jsonNodeBody == null) {
+                    // This is the object with the original values in the referred row
+                    final JsonNode jsonNode = rowsGetMethod
+                            .transformResponse(jsonNodeBody, methodConfig);
+
+                    if (jsonNode == null || jsonNode.isEmpty()) {
                         throw Exceptions.propagate(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
-                                "Expected to receive a response of existing headers."));
+                                "No data found at these row indices. Do you want to try inserting something first?"
+                        ));
                     }
 
-                    ArrayNode valueRanges = (ArrayNode) jsonNodeBody.get("valueRanges");
-                    ArrayNode values = (ArrayNode) valueRanges.get(0).get("values");
+                    // This is the rowObject for original values
+                    final List<RowObject> returnedRowObjects =
+                            new ArrayList<>(this.getRowObjectMapFromBody(jsonNode).values());
+
+                    boolean updatable = false;
 
                     // We replace these original values with new ones
-                    if (values != null && !values.isEmpty()) {
-                        ArrayNode headers = (ArrayNode) values.get(0);
-                        if (headers != null && !headers.isEmpty()) {
-                            for (RowObject rowObject : finalRowObjectListFromBody) {
-                                final Map<String, String> valueMap = new LinkedHashMap<>();
-                                boolean validValues = false;
-                                final Map<String, String> inputValueMap = rowObject.getValueMap();
-                                for (JsonNode header : headers) {
-                                    final String value = inputValueMap.getOrDefault(header.asText(), null);
-                                    if (value != null) {
-                                        validValues = true;
-                                    }
-                                    valueMap.put(header.asText(), value);
-                                }
-                                if (Boolean.TRUE.equals(validValues)) {
-                                    rowObject.setValueMap(valueMap);
-                                } else {
-                                    throw Exceptions.propagate(new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_ERROR,
-                                            "Could not map values to existing data."));
+                    for (RowObject rowObject : returnedRowObjects) {
+                        if (finalRowObjectMapFromBody.containsKey(rowObject.getCurrentRowIndex())) {
+                            final Map<String, String> valueMap =
+                                    finalRowObjectMapFromBody
+                                            .get(rowObject.getCurrentRowIndex())
+                                            .getValueMap();
+                            // We replace these original values with new ones
+                            final Map<String, String> returnedRowObjectValueMap = rowObject.getValueMap();
+                            for (Map.Entry<String, String> entry : returnedRowObjectValueMap.entrySet()) {
+                                String k = entry.getKey();
+                                if (valueMap.containsKey(k)) {
+                                    updatable = true;
+                                    returnedRowObjectValueMap.put(k, valueMap.get(k));
                                 }
                             }
-
-                            methodConfig.setBody(finalRowObjectListFromBody);
-                            return methodConfig;
                         }
                     }
 
-                    final LinkedHashMap<String, String> headerMap =
-                            finalRowObjectListFromBody
-                                    .stream()
-                                    .map(RowObject::getValueMap)
-                                    .flatMap(x -> x.keySet().stream())
-                                    .collect(Collectors.toMap(x -> x, x -> x, (a, b) -> a, LinkedHashMap::new));
-                    finalRowObjectListFromBody.add(0, new RowObject(headerMap));
+                    if (Boolean.FALSE.equals(updatable)) {
+                        throw Exceptions.propagate(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Could not map to existing data. Nothing to update."
+                        ));
+                    }
 
-                    methodConfig.setBody(finalRowObjectListFromBody);
+                    methodConfig.setBody(returnedRowObjects);
+                    assert jsonNodeBody != null;
+                    methodConfig.setSpreadsheetRange(
+                            jsonNodeBody
+                                    .get("valueRanges")
+                                    .get(1)
+                                    .get("range")
+                                    .asText()
+                    );
                     return methodConfig;
                 });
     }
@@ -202,32 +198,28 @@ public class BulkAppendMethod implements Method {
     @Override
     public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
 
-        final String range = "'" + methodConfig.getSheetName() + "'!" +
-                methodConfig.getTableHeaderIndex() + ":" + methodConfig.getTableHeaderIndex();
-
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
                 methodConfig.getSpreadsheetId() /* spreadsheet Id */
                         + "/values/"
-                        + URLEncoder.encode(range, StandardCharsets.UTF_8)
-                        + ":append",
-                true);
+                        + URLEncoder.encode(methodConfig.getSpreadsheetRange(), StandardCharsets.UTF_8),
+                true
+        );
 
         uriBuilder.queryParam("valueInputOption", "USER_ENTERED");
-        uriBuilder.queryParam("includeValuesInResponse", Boolean.FALSE);
-        uriBuilder.queryParam("insertDataOption", "INSERT_ROWS");
+        uriBuilder.queryParam("includeValuesInResponse", Boolean.TRUE);
 
         final List<RowObject> body1 = (List<RowObject>) methodConfig.getBody();
         List<List<Object>> collect = body1.stream()
                 .map(row -> row.getAsSheetValues(body1.get(0).getValueMap().keySet().toArray(new String[0])))
                 .collect(Collectors.toList());
 
-        final ValueRange valueRange = new ValueRange();
-        valueRange.setMajorDimension("ROWS");
-        valueRange.setRange(range);
-        valueRange.setValues(collect);
-        return webClient.method(HttpMethod.POST)
+        return webClient.method(HttpMethod.PUT)
                 .uri(uriBuilder.build(true).toUri())
-                .body(BodyInserters.fromValue(valueRange));
+                .body(BodyInserters.fromValue(Map.of(
+                        "range", methodConfig.getSpreadsheetRange(),
+                        "majorDimension", "ROWS",
+                        "values", collect
+                )));
     }
 
     @Override
@@ -238,10 +230,10 @@ public class BulkAppendMethod implements Method {
                     "Missing a valid response object.");
         }
 
-        return this.objectMapper.valueToTree(Map.of("message", "Inserted rows successfully!"));
+        return this.objectMapper.valueToTree(Map.of("message", "Updated sheet successfully!"));
     }
 
-    private List<RowObject> getRowObjectListFromBody(JsonNode body) {
+    private Map<Integer, RowObject> getRowObjectMapFromBody(JsonNode body) {
 
         if (!body.isArray() || body.isEmpty()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
@@ -250,12 +242,17 @@ public class BulkAppendMethod implements Method {
         return StreamSupport
                 .stream(body.spliterator(), false)
                 .map(rowJson -> new RowObject(
-                        this.objectMapper.convertValue(
-                                rowJson,
-                                TypeFactory
-                                        .defaultInstance()
-                                        .constructMapType(LinkedHashMap.class, String.class, String.class))))
-                .collect(Collectors.toList());
+                        this.objectMapper.convertValue(rowJson, TypeFactory
+                                .defaultInstance()
+                                .constructMapType(LinkedHashMap.class, String.class, String.class)))
+                        .initialize())
+                .collect(Collectors.toMap(
+                        RowObject::getCurrentRowIndex,
+                        rowObject -> rowObject,
+                        (r1, r2) -> r2,
+                        TreeMap::new
+                ));
 
     }
+
 }

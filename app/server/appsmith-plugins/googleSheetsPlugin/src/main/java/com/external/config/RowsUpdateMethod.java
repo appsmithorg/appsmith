@@ -26,11 +26,11 @@ import java.util.Map;
 /**
  * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
  */
-public class UpdateMethod implements Method {
+public class RowsUpdateMethod implements Method {
 
     ObjectMapper objectMapper;
 
-    public UpdateMethod(ObjectMapper objectMapper) {
+    public RowsUpdateMethod(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
@@ -68,7 +68,7 @@ public class UpdateMethod implements Method {
         WebClient client = WebClient.builder()
                 .exchangeStrategies(EXCHANGE_STRATEGIES)
                 .build();
-        final GetValuesMethod getValuesMethod = new GetValuesMethod(this.objectMapper);
+        final RowsGetMethod rowsGetMethod = new RowsGetMethod(this.objectMapper);
 
         final String body = methodConfig.getRowObject();
         RowObject rowObjectFromBody = null;
@@ -87,11 +87,11 @@ public class UpdateMethod implements Method {
                 .rowLimit("1")
                 .build();
 
-        getValuesMethod.validateMethodRequest(newMethodConfig);
+        rowsGetMethod.validateMethodRequest(newMethodConfig);
 
         final RowObject finalRowObjectFromBody = rowObjectFromBody;
 
-        return getValuesMethod
+        return rowsGetMethod
                 .getClient(client, newMethodConfig)
                 .headers(headers -> headers.set(
                         "Authorization",
@@ -129,7 +129,7 @@ public class UpdateMethod implements Method {
                     }
 
                     // This is the object with the original values in the referred row
-                    final JsonNode jsonNode = getValuesMethod
+                    final JsonNode jsonNode = rowsGetMethod
                             .transformResponse(jsonNodeBody, methodConfig)
                             .get(0);
 

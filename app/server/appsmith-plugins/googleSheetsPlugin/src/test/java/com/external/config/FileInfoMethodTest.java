@@ -8,16 +8,17 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-public class InfoMethodTest {
+public class FileInfoMethodTest {
 
     @Test(expected = AppsmithPluginException.class)
     public void testTransformResponse_missingJSON_throwsException() {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        InfoMethod infoMethod = new InfoMethod(objectMapper);
-        infoMethod.transformResponse(null, null);
+        FileInfoMethod fileInfoMethod = new FileInfoMethod(objectMapper);
+        fileInfoMethod.transformResponse(null, null);
     }
 
     @Test
@@ -29,12 +30,12 @@ public class InfoMethodTest {
         JsonNode jsonNode = objectMapper.readTree(jsonString);
         Assert.assertNotNull(jsonNode);
 
-        MethodConfig methodConfig = new MethodConfig(new ArrayList<>());
+        MethodConfig methodConfig = new MethodConfig(new HashMap<>());
         JsonNode sheetNode = objectMapper.readTree("");
         methodConfig.setBody(sheetNode);
 
-        InfoMethod infoMethod = new InfoMethod(objectMapper);
-        JsonNode result = infoMethod.transformResponse(jsonNode, methodConfig);
+        FileInfoMethod fileInfoMethod = new FileInfoMethod(objectMapper);
+        JsonNode result = fileInfoMethod.transformResponse(jsonNode, methodConfig);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isObject());
@@ -50,11 +51,11 @@ public class InfoMethodTest {
         JsonNode jsonNode = objectMapper.readTree(jsonString);
         Assert.assertNotNull(jsonNode);
 
-        MethodConfig methodConfig = new MethodConfig(new ArrayList<>());
+        MethodConfig methodConfig = new MethodConfig(new HashMap<>());
         methodConfig.setBody(new ArrayList<>());
 
-        InfoMethod infoMethod = new InfoMethod(objectMapper);
-        JsonNode result = infoMethod.transformResponse(jsonNode, methodConfig);
+        FileInfoMethod fileInfoMethod = new FileInfoMethod(objectMapper);
+        JsonNode result = fileInfoMethod.transformResponse(jsonNode, methodConfig);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isObject());
@@ -71,12 +72,12 @@ public class InfoMethodTest {
         JsonNode jsonNode = objectMapper.readTree(jsonString);
         Assert.assertNotNull(jsonNode);
 
-        MethodConfig methodConfig = new MethodConfig(new ArrayList<>());
+        MethodConfig methodConfig = new MethodConfig(new HashMap<>());
         JsonNode sheetNode = objectMapper.readTree(sheetMetadataString);
         methodConfig.setBody(List.of(sheetNode));
 
-        InfoMethod infoMethod = new InfoMethod(objectMapper);
-        JsonNode result = infoMethod.transformResponse(jsonNode, methodConfig);
+        FileInfoMethod fileInfoMethod = new FileInfoMethod(objectMapper);
+        JsonNode result = fileInfoMethod.transformResponse(jsonNode, methodConfig);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isObject());

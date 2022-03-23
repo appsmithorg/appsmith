@@ -2,10 +2,12 @@ package com.external.config;
 
 
 import com.appsmith.external.models.Property;
-import com.external.config.MethodConfig;
 import org.junit.Assert;
 import org.junit.Test;
-import java.util.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MethodConfigTest {
 
@@ -33,11 +35,8 @@ public class MethodConfigTest {
         for(int i=0; i< testPropKeys.length; i++) {
 
             for (Map.Entry<String, String> e : testDataMap.entrySet()){
-                properties = new ArrayList<Property>();
-                testProp = new Property(testPropKeys[i],e.getValue());
-                properties.add(testProp);
 
-                methodConfig = new MethodConfig(properties); // We are testing this Class with test data
+                methodConfig = new MethodConfig(Map.of(testPropKeys[i], e.getValue())); // We are testing this Class with test data
 
                 switch (testPropKeys[i]){
                     case "range":

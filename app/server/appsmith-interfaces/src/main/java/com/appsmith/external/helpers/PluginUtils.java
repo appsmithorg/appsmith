@@ -25,10 +25,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.appsmith.external.constants.FieldName.CHILDREN;
-import static com.appsmith.external.constants.FieldName.CONDITION;
-import static com.appsmith.external.constants.FieldName.KEY;
-import static com.appsmith.external.constants.FieldName.VALUE;
+import static com.appsmith.external.constants.CommonFieldName.CHILDREN;
+import static com.appsmith.external.constants.CommonFieldName.CONDITION;
+import static com.appsmith.external.constants.CommonFieldName.KEY;
+import static com.appsmith.external.constants.CommonFieldName.VALUE;
 
 @Slf4j
 public class PluginUtils {
@@ -157,6 +157,17 @@ public class PluginUtils {
 
     }
 
+    public static <T> T getValueSafelyFromFormDataOrDefaultByType(Map<String, Object> formData, String field, T defaultValue) {
+
+        Object value = getValueSafelyFromFormData(formData, field);
+
+        if (value == null) {
+            return defaultValue;
+        }
+
+        return (T) value;
+    }
+
     public static Object getValueSafelyFromFormDataOrDefault(Map<String, Object> formData, String field, Object defaultValue) {
 
         Object value = getValueSafelyFromFormData(formData, field);
@@ -244,6 +255,10 @@ public class PluginUtils {
     }
 
     public static Condition parseWhereClause(Map<String, Object> whereClause) {
+        // Only proceed if this is a valid condition
+        if (whereClause == null || !(whereClause.containsKey(KEY) || whereClause.containsKey(CHILDREN))) {
+            return null;
+        }
         Condition condition = new Condition();
 
         Object unparsedOperator = whereClause.getOrDefault(CONDITION, ConditionalOperator.EQ.name());

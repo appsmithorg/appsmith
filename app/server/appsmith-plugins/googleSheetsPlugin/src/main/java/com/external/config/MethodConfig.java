@@ -3,18 +3,23 @@ package com.external.config;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
-import com.appsmith.external.models.Property;
+import com.external.constants.FieldName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDataOrDefault;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDataOrDefaultByType;
+import static com.appsmith.external.helpers.PluginUtils.parseWhereClause;
+import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 
 @Getter
 @Setter
@@ -37,73 +42,37 @@ public class MethodConfig {
     String rowObject;
     String rowObjects;
     Object body;
-    List<Condition> whereConditions = new ArrayList<>();
+    Condition whereConditions;
     Pattern sheetRangePattern = Pattern.compile("https://docs.google.com/spreadsheets/d/([^/]+)/?.*");
 
-    public MethodConfig(List<Property> propertyList) {
-        propertyList.stream().parallel().forEach(property -> {
-            Object value = property.getValue();
-            if (value != null) {
-                String propertyValue = String.valueOf(value).trim();
-                switch (property.getKey()) {
-                    case "sheetUrl":
-                        this.spreadsheetUrl = propertyValue;
-                        if (this.spreadsheetUrl != null && !this.spreadsheetUrl.isBlank()) {
-                            final Matcher matcher = sheetRangePattern.matcher(spreadsheetUrl);
-                            if (matcher.find()) {
-                                this.spreadsheetId = matcher.group(1);
-                            } else {
-                                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Cannot read spreadsheet URL.");
-                            }
-                        }
-                        break;
-                    case "range":
-                        this.spreadsheetRange = propertyValue;
-                        break;
-                    case "spreadsheetName":
-                        this.spreadsheetName = propertyValue;
-                        break;
-                    case "tableHeaderIndex":
-                        this.tableHeaderIndex = propertyValue;
-                        break;
-                    case "queryFormat":
-                        this.queryFormat = propertyValue;
-                        break;
-                    case "rowLimit":
-                        this.rowLimit = propertyValue;
-                        break;
-                    case "rowOffset":
-                        this.rowOffset = propertyValue;
-                        break;
-                    case "rowIndex":
-                        this.rowIndex = propertyValue;
-                        break;
-                    case "sheetName":
-                        this.sheetName = propertyValue;
-                        break;
-                    case "deleteFormat":
-                        this.deleteFormat = propertyValue;
-                        break;
-                    case "rowObject":
-                        this.rowObject = propertyValue;
-                        break;
-                    case "rowObjects":
-                        this.rowObjects = propertyValue;
-                        break;
-                    case "where":
-                        if (value instanceof List) {
-                            // Check if all values in the where condition are null.
-                            boolean allValuesNull = ((List) value).stream()
-                                    .allMatch(valueMap -> valueMap == null ||
-                                            ((Map) valueMap).entrySet().stream().allMatch(e -> ((Map.Entry) e).getValue() == null));
+    public MethodConfig(Map<String, Object> formData) {
 
-                            if (!allValuesNull) {
-                                this.whereConditions = Condition.generateFromConfiguration((List<Object>) value);
-                            }
-                        }
-                        break;
-                }
+        if (validConfigurationPresentInFormData(formData, FieldName.SHEET_URL)) {
+            this.spreadsheetUrl = (String) getValueSafelyFromFormDataOrDefault(formData, FieldName.SHEET_URL, "");
+            final Matcher matcher = sheetRangePattern.matcher(spreadsheetUrl);
+            if (matcher.find()) {
+                this.spreadsheetId = matcher.group(1);
+            } else {
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Cannot read spreadsheet URL.");
             }
-        });
+
+        }
+        this.spreadsheetRange = getValueSafelyFromFormData(formData, FieldName.RANGE, String.class);
+        this.spreadsheetName = getValueSafelyFromFormData(formData, FieldName.SPREADSHEET_NAME, String.class);
+        this.tableHeaderIndex = getValueSafelyFromFormData(formData, FieldName.TABLE_HEADER_INDEX, String.class);
+        this.queryFormat = getValueSafelyFromFormData(formData, FieldName.QUERY_FORMAT, String.class);
+        this.rowLimit = getValueSafelyFromFormData(formData, FieldName.ROW_LIMIT, String.class);
+        this.rowOffset = getValueSafelyFromFormData(formData, FieldName.ROW_OFFSET, String.class);
+        this.rowIndex = getValueSafelyFromFormData(formData, FieldName.ROW_INDEX, String.class);
+        this.sheetName = getValueSafelyFromFormData(formData, FieldName.SHEET_NAME, String.class);
+        this.deleteFormat = getValueSafelyFromFormData(formData, FieldName.DELETE_FORMAT, String.class);
+        this.rowObject = getValueSafelyFromFormData(formData, FieldName.ROW_OBJECT, String.class);
+        this.rowObjects = getValueSafelyFromFormData(formData, FieldName.ROW_OBJECTS, String.class);
+
+        if (validConfigurationPresentInFormData(formData, FieldName.WHERE)) {
+            Map<String, Object> whereForm = getValueSafelyFromFormDataOrDefaultByType(formData, FieldName.WHERE, new HashMap<String, Object>());
+            this.whereConditions = parseWhereClause(whereForm);
+        }
     }
+
 }

@@ -19,7 +19,7 @@
         {
           "label": "Smart JSON Substitution",
           "info": "Turning on this property fixes the JSON substitution of bindings in the Row objects by adding/removing quotes intelligently and reduces developer errors",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[13].value",
+          "configProperty": "actionConfiguration.formData.smartSubstitution.data",
           "controlType": "SWITCH",
           "initialValue": true
         },

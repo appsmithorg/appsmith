@@ -1,14 +1,14 @@
 package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.external.constants.GoogleSheets;
+import com.external.constants.FieldName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.List;
+import java.util.Map;
 
 public class GetStructureMethodTest {
 
@@ -18,7 +18,7 @@ public class GetStructureMethodTest {
 
         GetStructureMethod getStructureMethod = new GetStructureMethod(objectMapper);
         try {
-            JsonNode result = getStructureMethod.transformResponse(null, new MethodConfig(List.of()).toBuilder().tableHeaderIndex("1").build());
+            JsonNode result = getStructureMethod.transformResponse(null, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
             Assert.assertFalse(result == null);
         } catch (AppsmithPluginException e) {
             Assert.assertTrue("Missing a valid response object.".equalsIgnoreCase(e.getMessage()));
@@ -58,7 +58,7 @@ public class GetStructureMethodTest {
         Assert.assertNotNull(jsonNode);
 
         GetStructureMethod getStructureMethod = new GetStructureMethod(objectMapper);
-        JsonNode result = getStructureMethod.transformResponse(jsonNode, new MethodConfig(List.of()).toBuilder().tableHeaderIndex("1").build());
+        JsonNode result = getStructureMethod.transformResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());
@@ -83,7 +83,7 @@ public class GetStructureMethodTest {
         Assert.assertNotNull(jsonNode);
 
         GetStructureMethod getStructureMethod = new GetStructureMethod(objectMapper);
-        JsonNode result = getStructureMethod.transformResponse(jsonNode, new MethodConfig(List.of()).toBuilder().tableHeaderIndex("1").build());
+        JsonNode result = getStructureMethod.transformResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray() && result.size() == 1);
@@ -110,12 +110,12 @@ public class GetStructureMethodTest {
         Assert.assertNotNull(jsonNode);
 
         GetStructureMethod getStructureMethod = new GetStructureMethod(objectMapper);
-        JsonNode result = getStructureMethod.transformResponse(jsonNode, new MethodConfig(List.of()).toBuilder().tableHeaderIndex("1").build());
+        JsonNode result = getStructureMethod.transformResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());
         Assert.assertEquals(1, result.size());
-        Assert.assertEquals(0, result.get(0).get(GoogleSheets.ROW_INDEX).asInt());
+        Assert.assertEquals(0, result.get(0).get(FieldName.PLAIN_ROW_INDEX).asInt());
     }
 
     @Test
@@ -136,7 +136,7 @@ public class GetStructureMethodTest {
         Assert.assertNotNull(jsonNode);
 
         GetStructureMethod getStructureMethod = new GetStructureMethod(objectMapper);
-        JsonNode result = getStructureMethod.transformResponse(jsonNode, new MethodConfig(List.of()).toBuilder().tableHeaderIndex("1").build());
+        JsonNode result = getStructureMethod.transformResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());
@@ -162,7 +162,7 @@ public class GetStructureMethodTest {
         Assert.assertNotNull(jsonNode);
 
         GetStructureMethod getStructureMethod = new GetStructureMethod(objectMapper);
-        JsonNode result = getStructureMethod.transformResponse(jsonNode, new MethodConfig(List.of()).toBuilder().tableHeaderIndex("1").build());
+        JsonNode result = getStructureMethod.transformResponse(jsonNode, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result.toString(), "[{\"Name\":\"Luke\",\"Actor\":\"Make\",\"Music\":\"Duke\",\"Director\":\"Cake\",\"rowIndex\":\"0\"}]");

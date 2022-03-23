@@ -2,42 +2,51 @@ package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.OAuth2;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 /**
- * API reference: https://developers.google.com/sheets/api/guides/migration#list_spreadsheets_for_the_authenticated_user
+ * API reference: https://developers.google.com/sheets/api/guides/migration#delete_a_sheet
  */
-public class ListSheetsMethod implements Method {
+public class FileDeleteMethod implements Method {
 
     ObjectMapper objectMapper;
 
-    public ListSheetsMethod(ObjectMapper objectMapper) {
+    public FileDeleteMethod(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
-    
+
     @Override
     public boolean validateMethodRequest(MethodConfig methodConfig) {
+        if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Url");
+        }
         return true;
     }
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
-        UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_DRIVE_API_URL,
-                "?q=mimeType%3D'application%2Fvnd.google-apps.spreadsheet'%20and%20trashed%3Dfalse", true);
+    public Mono<Object> executePrerequisites(MethodConfig methodConfig, OAuth2 oauth2) {
+        return Mono.just(true);
+    }
 
-        return webClient.method(HttpMethod.GET)
-                .uri(uriBuilder.build(true).toUri())
-                .body(BodyInserters.empty());
+    @Override
+    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
+
+        UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_DRIVE_API_URL,
+                methodConfig.getSpreadsheetId(), /* spreadsheet Id */
+                true
+        );
+
+        return webClient.method(HttpMethod.DELETE)
+                .uri(uriBuilder.build(true).toUri());
+
     }
 
     @Override
@@ -47,18 +56,10 @@ public class ListSheetsMethod implements Method {
                     AppsmithPluginError.PLUGIN_ERROR,
                     "Missing a valid response object.");
         }
-        if (response.get("files") == null) {
-            return this.objectMapper.createArrayNode();
-        }
-        List<Map<String, String>> filesList = StreamSupport
-                .stream(response.get("files").spliterator(), false)
-                .map(file -> {
 
-                    return Map.of("id", file.get("id").asText(),
-                            "name", file.get("name").asText());
-                })
-                .collect(Collectors.toList());
+        String errorMessage = "Deleted spreadsheet successfully!";
 
-        return this.objectMapper.valueToTree(filesList);
+        return this.objectMapper.valueToTree(Map.of("message", errorMessage));
     }
+
 }

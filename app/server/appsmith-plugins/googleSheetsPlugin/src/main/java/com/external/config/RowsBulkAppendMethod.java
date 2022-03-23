@@ -24,15 +24,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/append
  */
-public class AppendMethod implements Method {
+public class RowsBulkAppendMethod implements Method {
 
     ObjectMapper objectMapper;
 
-    public AppendMethod(ObjectMapper objectMapper) {
+    public RowsBulkAppendMethod(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
@@ -57,34 +58,48 @@ public class AppendMethod implements Method {
         }
         JsonNode bodyNode;
         try {
-            bodyNode = this.objectMapper.readTree(methodConfig.getRowObject());
+            bodyNode = this.objectMapper.readTree(methodConfig.getRowObjects());
         } catch (JsonProcessingException e) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObject(),
-                    "Unable to parse request body. Expected a row object.");
+                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObjects(),
+                    "Unable to parse request body. Expected a list of row objects.");
         }
 
-        if (bodyNode.isArray()) {
+        if (!bodyNode.isArray()) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR, "Request body was an array. Expected a row object.");
+                    AppsmithPluginError.PLUGIN_ERROR, "Request body was not an array.");
         }
         return true;
     }
 
+    /**
+     * We need to execute this prerequisite even for append, so that we can maintain the column ordering as
+     * received from the sheet itself.
+     */
     @Override
     public Mono<Object> executePrerequisites(MethodConfig methodConfig, OAuth2 oauth2) {
         WebClient client = WebClient.builder()
                 .exchangeStrategies(EXCHANGE_STRATEGIES)
                 .build();
-        final GetValuesMethod getValuesMethod = new GetValuesMethod(this.objectMapper);
+        final RowsGetMethod rowsGetMethod = new RowsGetMethod(this.objectMapper);
 
-        RowObject rowObjectFromBody = null;
+        List<RowObject> rowObjectListFromBody = null;
         try {
-            rowObjectFromBody = this.getRowObjectFromBody(this.objectMapper.readTree(methodConfig.getRowObject()));
+            JsonNode body = this.objectMapper.readTree(methodConfig.getRowObjects());
+
+            if ( body.isEmpty()) {
+                return Mono.empty();
+            }
+
+            rowObjectListFromBody = this.getRowObjectListFromBody(body);
         } catch (JsonProcessingException e) {
             // Should never enter here
         }
+
+        assert rowObjectListFromBody != null;
+        RowObject rowObjectFromBody = rowObjectListFromBody.get(0);
         assert rowObjectFromBody != null;
+//        final String row = String.valueOf(rowObjectFromBody.getCurrentRowIndex());
         final MethodConfig newMethodConfig = methodConfig
                 .toBuilder()
                 .queryFormat("ROWS")
@@ -92,18 +107,17 @@ public class AppendMethod implements Method {
                 .rowLimit("1")
                 .build();
 
-        getValuesMethod.validateMethodRequest(newMethodConfig);
+        rowsGetMethod.validateMethodRequest(newMethodConfig);
 
-        RowObject finalRowObjectFromBody = rowObjectFromBody;
-        return getValuesMethod
+        List<RowObject> finalRowObjectListFromBody = rowObjectListFromBody;
+        return rowsGetMethod
                 .getClient(client, newMethodConfig)
                 .headers(headers -> headers.set(
                         "Authorization",
                         "Bearer " + oauth2.getAuthenticationResponse().getToken()))
                 .exchange()
                 .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
-                .map(response -> {
-                    // Choose body depending on response status
+                .map(response -> {// Choose body depending on response status
                     byte[] responseBody = response.getBody();
 
                     if (responseBody == null) {
@@ -122,14 +136,9 @@ public class AppendMethod implements Method {
                                 e.getMessage()
                         ));
                     }
-                    if (jsonNodeBody == null) {
-                        throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Expected to receive a response of existing headers."));
-                    }
 
                     if (response.getStatusCode() != null && !response.getStatusCode().is2xxSuccessful()) {
-                        if (jsonNodeBody.get("error") != null && jsonNodeBody.get("error").get("message") != null) {
+                        if (jsonNodeBody.get("error") != null && jsonNodeBody.get("error").get("message") !=null) {
                             throw Exceptions.propagate(new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_ERROR,   jsonNodeBody.get("error").get("message").toString()));
                         }
@@ -139,6 +148,12 @@ public class AppendMethod implements Method {
                                 "Could not map request back to existing data"));
                     }
 
+                    if (jsonNodeBody == null) {
+                        throw Exceptions.propagate(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_ERROR,
+                                "Expected to receive a response of existing headers."));
+                    }
+
                     ArrayNode valueRanges = (ArrayNode) jsonNodeBody.get("valueRanges");
                     ArrayNode values = (ArrayNode) valueRanges.get(0).get("values");
 
@@ -146,35 +161,41 @@ public class AppendMethod implements Method {
                     if (values != null && !values.isEmpty()) {
                         ArrayNode headers = (ArrayNode) values.get(0);
                         if (headers != null && !headers.isEmpty()) {
-                            final Map<String, String> valueMap = new LinkedHashMap<>();
-                            boolean validValues = false;
-                            final Map<String, String> inputValueMap = finalRowObjectFromBody.getValueMap();
-
-                            for (JsonNode header : headers) {
-                                final String value = inputValueMap.getOrDefault(header.asText(), null);
-                                if (value != null) {
-                                    validValues = true;
+                            for (RowObject rowObject : finalRowObjectListFromBody) {
+                                final Map<String, String> valueMap = new LinkedHashMap<>();
+                                boolean validValues = false;
+                                final Map<String, String> inputValueMap = rowObject.getValueMap();
+                                for (JsonNode header : headers) {
+                                    final String value = inputValueMap.getOrDefault(header.asText(), null);
+                                    if (value != null) {
+                                        validValues = true;
+                                    }
+                                    valueMap.put(header.asText(), value);
                                 }
-                                valueMap.put(header.asText(), value);
+                                if (Boolean.TRUE.equals(validValues)) {
+                                    rowObject.setValueMap(valueMap);
+                                } else {
+                                    throw Exceptions.propagate(new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_ERROR,
+                                            "Could not map values to existing data."));
+                                }
                             }
-                            if (Boolean.TRUE.equals(validValues)) {
-                                finalRowObjectFromBody.setValueMap(valueMap);
-                            } else {
-                                throw Exceptions.propagate(new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_ERROR,
-                                        "Could not map values to existing data."));
-                            }
-                            methodConfig.setBody(finalRowObjectFromBody);
+
+                            methodConfig.setBody(finalRowObjectListFromBody);
                             return methodConfig;
                         }
                     }
 
-                    final LinkedHashMap<String, String> headerMap = new LinkedHashMap<>(finalRowObjectFromBody.getValueMap());
-                    headerMap.replaceAll((k, v) -> k);
-                    methodConfig.setBody(List.of(new RowObject(headerMap), finalRowObjectFromBody));
+                    final LinkedHashMap<String, String> headerMap =
+                            finalRowObjectListFromBody
+                                    .stream()
+                                    .map(RowObject::getValueMap)
+                                    .flatMap(x -> x.keySet().stream())
+                                    .collect(Collectors.toMap(x -> x, x -> x, (a, b) -> a, LinkedHashMap::new));
+                    finalRowObjectListFromBody.add(0, new RowObject(headerMap));
 
+                    methodConfig.setBody(finalRowObjectListFromBody);
                     return methodConfig;
-
                 });
     }
 
@@ -188,21 +209,18 @@ public class AppendMethod implements Method {
                 methodConfig.getSpreadsheetId() /* spreadsheet Id */
                         + "/values/"
                         + URLEncoder.encode(range, StandardCharsets.UTF_8)
-                        + ":append", true);
+                        + ":append",
+                true);
 
         uriBuilder.queryParam("valueInputOption", "USER_ENTERED");
         uriBuilder.queryParam("includeValuesInResponse", Boolean.FALSE);
+        uriBuilder.queryParam("insertDataOption", "INSERT_ROWS");
 
-        List<List<Object>> collect;
-        if (methodConfig.getBody() instanceof RowObject) {
-            final RowObject body1 = (RowObject) methodConfig.getBody();
-            collect = List.of(body1.getAsSheetValues(body1.getValueMap().keySet().toArray(new String[0])));
-        } else {
-            final List<RowObject> body1 = (List<RowObject>) methodConfig.getBody();
-            collect = body1.stream()
-                    .map(row -> row.getAsSheetValues(body1.get(0).getValueMap().keySet().toArray(new String[0])))
-                    .collect(Collectors.toList());
-        }
+        final List<RowObject> body1 = (List<RowObject>) methodConfig.getBody();
+        List<List<Object>> collect = body1.stream()
+                .map(row -> row.getAsSheetValues(body1.get(0).getValueMap().keySet().toArray(new String[0])))
+                .collect(Collectors.toList());
+
         final ValueRange valueRange = new ValueRange();
         valueRange.setMajorDimension("ROWS");
         valueRange.setRange(range);
@@ -220,17 +238,24 @@ public class AppendMethod implements Method {
                     "Missing a valid response object.");
         }
 
-        return this.objectMapper.valueToTree(Map.of("message", "Inserted row successfully!"));
+        return this.objectMapper.valueToTree(Map.of("message", "Inserted rows successfully!"));
     }
 
-    private RowObject getRowObjectFromBody(JsonNode body) {
+    private List<RowObject> getRowObjectListFromBody(JsonNode body) {
 
-        if (body.isArray() || body.isEmpty()) {
+        if (!body.isArray() || body.isEmpty()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                    "Expected a row object.");
+                    "Expected an array of row objects");
         }
-        return new RowObject(this.objectMapper.convertValue(body, TypeFactory
-                .defaultInstance()
-                .constructMapType(LinkedHashMap.class, String.class, String.class)));
+        return StreamSupport
+                .stream(body.spliterator(), false)
+                .map(rowJson -> new RowObject(
+                        this.objectMapper.convertValue(
+                                rowJson,
+                                TypeFactory
+                                        .defaultInstance()
+                                        .constructMapType(LinkedHashMap.class, String.class, String.class))))
+                .collect(Collectors.toList());
+
     }
 }

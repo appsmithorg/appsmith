@@ -11,32 +11,34 @@ public class GoogleSheetsMethodStrategy {
 
     public static Method getMethod(String type, ObjectMapper objectMapper) {
         switch (type) {
-            case MethodIdentifiers.APPEND:
-                return new AppendMethod(objectMapper);
-            case MethodIdentifiers.BULK_APPEND:
-                return new BulkAppendMethod(objectMapper);
-            case MethodIdentifiers.BULK_UPDATE:
-                return new BulkUpdateMethod(objectMapper);
+            case MethodIdentifiers.ROWS_APPEND:
+                return new RowsAppendMethod(objectMapper);
+            case MethodIdentifiers.ROWS_BULK_APPEND:
+                return new RowsBulkAppendMethod(objectMapper);
+            case MethodIdentifiers.ROWS_BULK_UPDATE:
+                return new RowsBulkUpdateMethod(objectMapper);
             case MethodIdentifiers.CLEAR:
                 return new ClearMethod(objectMapper);
             case MethodIdentifiers.COPY:
                 return new CopyMethod(objectMapper);
-            case MethodIdentifiers.CREATE:
-                return new CreateMethod(objectMapper);
-            case MethodIdentifiers.DELETE:
-                return new DeleteSheetMethod(objectMapper);
-            case MethodIdentifiers.GET:
-                return new GetValuesMethod(objectMapper);
+            case MethodIdentifiers.FILE_CREATE:
+                return new FileCreateMethod(objectMapper);
+            case MethodIdentifiers.SHEET_DELETE:
+                return new SheetDeleteMethod(objectMapper);
+            case MethodIdentifiers.FILE_DELETE:
+                return new FileDeleteMethod(objectMapper);
+            case MethodIdentifiers.ROWS_GET:
+                return new RowsGetMethod(objectMapper);
             case MethodIdentifiers.GET_STRUCTURE:
                 return new GetStructureMethod(objectMapper);
-            case MethodIdentifiers.INFO:
-                return new InfoMethod(objectMapper);
-            case MethodIdentifiers.LIST:
-                return new ListSheetsMethod(objectMapper);
-            case MethodIdentifiers.UPDATE:
-                return new UpdateMethod(objectMapper);
-            case MethodIdentifiers.DELETE_ROW:
-                return new DeleteRowMethod(objectMapper);
+            case MethodIdentifiers.FILE_INFO:
+                return new FileInfoMethod(objectMapper);
+            case MethodIdentifiers.FILE_LIST:
+                return new FileListMethod(objectMapper);
+            case MethodIdentifiers.ROWS_UPDATE:
+                return new RowsUpdateMethod(objectMapper);
+            case MethodIdentifiers.ROWS_DELETE:
+                return new RowsDeleteMethod(objectMapper);
             default:
                 throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unknown method type: " + type));
         }

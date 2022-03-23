@@ -17,6 +17,7 @@ import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.config.GoogleSheetsMethodStrategy;
 import com.external.config.Method;
 import com.external.config.MethodConfig;
+import com.external.constants.FieldName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDataOrDefault;
+import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static java.lang.Boolean.TRUE;
 
 public class GoogleSheetsPlugin extends BasePlugin {
@@ -59,8 +64,8 @@ public class GoogleSheetsPlugin extends BasePlugin {
         private static final int SMART_JSON_SUBSTITUTION_INDEX = 13;
 
         private static final Set<String> jsonFields = new HashSet<>(Arrays.asList(
-                "rowObject",
-                "rowObjects"
+                FieldName.ROW_OBJECT,
+                FieldName.ROW_OBJECTS
         ));
 
         @Override
@@ -69,48 +74,42 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                                                 DatasourceConfiguration datasourceConfiguration,
                                                                 ActionConfiguration actionConfiguration) {
 
-            Boolean smartBsonSubstitution;
-            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+            boolean smartJsonSubstitution;
+            final Map<String, Object> formData = actionConfiguration.getFormData();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
             // Default smart substitution to true
-            if (CollectionUtils.isEmpty(properties)) {
-                smartBsonSubstitution = true;
-            } else if (properties.size() > SMART_JSON_SUBSTITUTION_INDEX &&
-                    properties.get(SMART_JSON_SUBSTITUTION_INDEX) != null) {
-                Object ssubValue = properties.get(SMART_JSON_SUBSTITUTION_INDEX).getValue();
-                if (ssubValue instanceof Boolean) {
-                    smartBsonSubstitution = (Boolean) ssubValue;
-                } else if (ssubValue instanceof String) {
-                    smartBsonSubstitution = Boolean.parseBoolean((String) ssubValue);
-                } else {
-                    smartBsonSubstitution = true;
-                }
+            if (!validConfigurationPresentInFormData(formData, FieldName.SMART_SUBSTITUTION)) {
+                smartJsonSubstitution = true;
             } else {
-                smartBsonSubstitution = true;
+                Object ssubValue = getValueSafelyFromFormDataOrDefault(formData, FieldName.SMART_SUBSTITUTION, true);
+                if (ssubValue instanceof Boolean) {
+                    smartJsonSubstitution = (Boolean) ssubValue;
+                } else if (ssubValue instanceof String) {
+                    smartJsonSubstitution = Boolean.parseBoolean((String) ssubValue);
+                } else {
+                    smartJsonSubstitution = true;
+                }
             }
 
             try {
                 // Smartly substitute in Json fields and replace all the bindings with values.
-                if (TRUE.equals(smartBsonSubstitution)) {
-                    properties.stream().parallel().forEach(property -> {
-                        if (property.getValue() != null) {
-                            String propertyValue = String.valueOf(property.getValue());
-                            String propertyKey = property.getKey();
+                if (TRUE.equals(smartJsonSubstitution)) {
+                    jsonFields.forEach(jsonField -> {
+                        String property = (String) getValueSafelyFromFormDataOrDefault(formData, jsonField, null);
+                        if (property != null) {
 
-                            if (jsonFields.contains(propertyKey)) {
-                                // First extract all the bindings in order
-                                List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(propertyValue);
-                                // Replace all the bindings with a placeholder
-                                String updatedValue = MustacheHelper.replaceMustacheWithPlaceholder(propertyValue, mustacheKeysInOrder);
+                            // First extract all the bindings in order
+                            List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(property);
+                            // Replace all the bindings with a placeholder
+                            String updatedValue = MustacheHelper.replaceMustacheWithPlaceholder(property, mustacheKeysInOrder);
 
-                                updatedValue = (String) smartSubstitutionOfBindings(updatedValue,
-                                        mustacheKeysInOrder,
-                                        executeActionDTO.getParams(),
-                                        parameters);
+                            updatedValue = (String) smartSubstitutionOfBindings(updatedValue,
+                                    mustacheKeysInOrder,
+                                    executeActionDTO.getParams(),
+                                    parameters);
 
-                                property.setValue(updatedValue);
-                            }
+                            setValueSafelyInFormData(formData, jsonField, updatedValue);
                         }
                     });
                 }
@@ -138,10 +137,10 @@ public class GoogleSheetsPlugin extends BasePlugin {
             errorResult.setIsExecutionSuccess(false);
 
             // Check if method is defined
-            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+            final Map<String, Object> properties = actionConfiguration.getFormData();
             final Method method = CollectionUtils.isEmpty(properties)
                     ? null
-                    : GoogleSheetsMethodStrategy.getMethod((String) properties.get(0).getValue(), objectMapper);
+                    : GoogleSheetsMethodStrategy.getMethod(getValueSafelyFromFormData(properties, FieldName.COMMAND, String.class), objectMapper);
 
             if (method == null) {
                 return Mono.error(new AppsmithPluginException(

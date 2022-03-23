@@ -35,11 +35,11 @@ import java.util.stream.StreamSupport;
  * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/create
  */
 @Slf4j
-public class CreateMethod implements Method {
+public class FileCreateMethod implements Method {
 
     ObjectMapper objectMapper;
 
-    public CreateMethod(ObjectMapper objectMapper) {
+    public FileCreateMethod(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 

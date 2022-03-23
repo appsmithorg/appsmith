@@ -1,16 +1,15 @@
 package com.external.config;
 
-import com.appsmith.external.models.*;
+import com.appsmith.external.models.AuthenticationResponse;
+import com.appsmith.external.models.OAuth2;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
-public class BulkAppendMethodTest {
+public class RowsBulkAppendMethodTest {
     final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
@@ -22,7 +21,7 @@ public class BulkAppendMethodTest {
         String[] testDataArray = {"[]", ""};
 
         for(int i=0; i<testDataArray.length; i++) {
-            BulkAppendMethod bulkAppend = new BulkAppendMethod(objectMapper);
+            RowsBulkAppendMethod bulkAppend = new RowsBulkAppendMethod(objectMapper);
             Mono<Object> monoTest = bulkAppend.executePrerequisites(getMethodConfigObject(testDataArray[i]), getOAuthObject());
 
             StepVerifier.create(monoTest)
@@ -47,9 +46,8 @@ public class BulkAppendMethodTest {
      * @param rowObject
      * @return
      */
-    private  MethodConfig getMethodConfigObject(String rowObject){
-        List properties = new ArrayList<Property>();
-        MethodConfig methodConfig = new MethodConfig(properties);
+    private  MethodConfig getMethodConfigObject(String rowObject) {
+        MethodConfig methodConfig = new MethodConfig(Map.of());
 
         methodConfig.setRowObjects(rowObject);
 

@@ -1,0 +1,72 @@
+{
+  "editor": [
+    {
+      "controlType": "SECTION",
+      "identifier": "SELECTOR",
+      "children": [
+        {
+          "label": "Commands",
+          "description": "Choose method you would like to use to query the sheet",
+          "propertyName": "commands",
+          "configProperty": "actionConfiguration.formData.command.data",
+          "controlType": "DROP_DOWN",
+          "initialValue": "GET",
+          "options": [
+            {
+              "label": "Fetch a few dozen sheet rows",
+              "value": "GET"
+            },
+            {
+              "label": "Insert sheet row",
+              "value": "APPEND"
+            },
+            {
+              "label": "Update sheet row",
+              "value": "UPDATE"
+            },
+            {
+              "label": "Delete row",
+              "value": "DELETE_ROW"
+            },
+            {
+              "label": "List sheets",
+              "value": "LIST"
+            },
+            {
+              "label": "Fetch sheet",
+              "value": "INFO"
+            },
+            {
+              "label": "Create new spreadsheet",
+              "value": "CREATE"
+            },
+            {
+              "label": "Delete sheet",
+              "value": "DELETE"
+            },
+            {
+              "label": "Bulk insert rows",
+              "value": "BULK_APPEND"
+            },
+            {
+              "label": "Bulk update rows",
+              "value": "BULK_UPDATE"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "files": [
+    "get.json",
+    "append.json",
+    "update.json",
+    "deleteRow.json",
+    "list.json",
+    "info.json",
+    "create.json",
+    "delete.json",
+    "bulkAppend.json",
+    "bulkUpdate.json"
+  ]
+}

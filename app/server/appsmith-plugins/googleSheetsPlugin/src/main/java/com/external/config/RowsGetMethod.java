@@ -1,9 +1,9 @@
 package com.external.config;
 
-import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
+import com.appsmith.external.models.UQIDataFilterParams;
 import com.appsmith.external.services.FilterDataService;
 import com.external.domains.RowObject;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -27,12 +27,12 @@ import java.util.regex.Pattern;
  * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
  */
 @Slf4j
-public class GetValuesMethod implements Method {
+public class RowsGetMethod implements Method {
 
     ObjectMapper objectMapper;
     FilterDataService filterDataService;
 
-    public GetValuesMethod(ObjectMapper objectMapper) {
+    public RowsGetMethod(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
         this.filterDataService = FilterDataService.getInstance();
     }
@@ -209,7 +209,8 @@ public class GetValuesMethod implements Method {
         ArrayNode preFilteringResponse = this.objectMapper.valueToTree(collectedCells);
 
         if (isWhereConditionConfigured(methodConfig)) {
-            return filterDataService.filterData(preFilteringResponse, methodConfig.getWhereConditions(), getDataTypeConversionMap());
+            return filterDataService.filterDataNew(preFilteringResponse,
+                    new UQIDataFilterParams(methodConfig.getWhereConditions(), null, null, null));
         }
 
         return preFilteringResponse;
@@ -245,14 +246,10 @@ public class GetValuesMethod implements Method {
     }
 
     private Boolean isWhereConditionConfigured(MethodConfig methodConfig) {
-        List<Condition> whereConditions = methodConfig.getWhereConditions();
-
-        if (whereConditions == null || whereConditions.size() == 0) {
-            return false;
-        }
+        Condition whereConditions = methodConfig.getWhereConditions();
 
         // At least 1 condition exists
-        return true;
+        return whereConditions != null;
 
     }
 }
