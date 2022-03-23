@@ -251,6 +251,35 @@ export const updateColumnAccessorHook = (
   }
 };
 
+const EDITABLITY_PATH_REGEX = /^primaryColumns\.(\w+)\.isCellEditable$/;
+/*
+ * Hook that updates column leve editability when cell level editability is
+ * updaed.
+ */
+export const updateColumnLevelEditability = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: any,
+): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
+  if (props && propertyValue && EDITABLITY_PATH_REGEX.test(propertyPath)) {
+    const match = EDITABLITY_PATH_REGEX.exec(propertyPath) || [];
+    const columnIdHash = match[1];
+
+    if (columnIdHash) {
+      return [
+        {
+          propertyPath: `primaryColumns.${columnIdHash}.isEditable`,
+          propertyValue: propertyValue,
+        },
+      ];
+    } else {
+      return;
+    }
+  } else {
+    return;
+  }
+};
+
 /*
  * Gets the base property path excluding the current property.
  * For example, for  `primaryColumns[5].computedValue` it will return

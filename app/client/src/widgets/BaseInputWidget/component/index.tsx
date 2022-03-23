@@ -11,6 +11,7 @@ import {
   TextArea,
   Tag,
   IRef,
+  IRefObject,
 } from "@blueprintjs/core";
 import _, { isNil } from "lodash";
 
@@ -429,6 +430,16 @@ class BaseInputComponent extends React.Component<
     }
   };
 
+  onKeyUp = (
+    e:
+      | React.KeyboardEvent<HTMLTextAreaElement>
+      | React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (typeof this.props.onKeyUp === "function") {
+      this.props.onKeyUp(e);
+    }
+  };
+
   private numericInputComponent = () => {
     const leftIcon = this.getLeftIcon();
     const conditionalProps: Record<string, number> = {};
@@ -459,6 +470,7 @@ class BaseInputComponent extends React.Component<
         onBlur={() => this.setFocusState(false)}
         onFocus={() => this.setFocusState(true)}
         onKeyDown={this.onKeyDown}
+        onKeyUp={this.onKeyUp}
         onValueChange={this.onNumberChange}
         placeholder={this.props.placeholder}
         stepSize={this.props.stepSize}
@@ -481,6 +493,7 @@ class BaseInputComponent extends React.Component<
       onChange={this.onTextChange}
       onFocus={() => this.setFocusState(true)}
       onKeyDown={this.onKeyDownTextArea}
+      onKeyUp={this.onKeyUp}
       placeholder={this.props.placeholder}
       style={{ resize: "none" }}
       value={this.props.value}
@@ -507,6 +520,7 @@ class BaseInputComponent extends React.Component<
         onChange={this.onTextChange}
         onFocus={() => this.setFocusState(true)}
         onKeyDown={this.onKeyDown}
+        onKeyUp={this.onKeyUp}
         placeholder={this.props.placeholder}
         rightElement={
           this.props.inputType === "PASSWORD" ? (
@@ -606,6 +620,7 @@ class BaseInputComponent extends React.Component<
           accentColor={this.props.accentColor}
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
+          className="text-input-wrapper"
           compact={compactMode}
           hasError={this.props.isInvalid}
           inputHtmlType={inputHTMLType}
@@ -667,18 +682,30 @@ export interface BaseInputComponentProps extends ComponentProps {
       | React.KeyboardEvent<HTMLTextAreaElement>
       | React.KeyboardEvent<HTMLInputElement>,
   ) => void;
+  onKeyUp?: (
+    e:
+      | React.KeyboardEvent<HTMLTextAreaElement>
+      | React.KeyboardEvent<HTMLInputElement>,
+  ) => void;
   maxChars?: number;
   widgetId: string;
   onStep?: (direction: number) => void;
   spellCheck?: boolean;
   maxNum?: number;
   minNum?: number;
+<<<<<<< HEAD
   inputRef?: MutableRefObject<
     HTMLTextAreaElement | HTMLInputElement | undefined | null
   >;
+<<<<<<< HEAD
   borderRadius?: string;
   boxShadow?: string;
   accentColor?: string;
+=======
+=======
+  inputRef?: IRefObject<HTMLInputElement | HTMLTextAreaElement>;
+>>>>>>> be82e2247 (Text wrapping)
+>>>>>>> 77729450a (Text wrapping)
 }
 
 export default BaseInputComponent;

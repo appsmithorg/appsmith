@@ -115,12 +115,9 @@ export function Table(props: TableProps) {
     }
     props.handleResizeColumn(columnWidthMap);
   };
-  const data = React.useMemo(() => props.data, [
-    props.data,
-    props.editableCell,
-  ]);
+  const data = React.useMemo(() => props.data, [JSON.stringify(props.data)]);
   const columnString = JSON.stringify(
-    pick(props, ["columns", "compactMode", "columnWidthMap", "editableCell"]),
+    pick(props, ["columns", "compactMode", "columnWidthMap"]),
   );
   const columns = React.useMemo(() => props.columns, [columnString]);
   const tableHeadercolumns = React.useMemo(

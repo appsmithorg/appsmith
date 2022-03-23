@@ -7,6 +7,7 @@ import {
   IMAGE_HORIZONTAL_ALIGN,
   IMAGE_VERTICAL_ALIGN,
   TEXT_ALIGN,
+  TABLE_SIZES,
 } from "./Constants";
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar } from "constants/DefaultTheme";
@@ -330,6 +331,7 @@ export const CellWrapper = styled.div<{
   isCellVisible?: boolean;
   isTextType?: boolean;
   allowWrapping?: boolean;
+  compactMode?: string;
 }>`
   display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
   align-items: center;
@@ -338,11 +340,16 @@ export const CellWrapper = styled.div<{
   height: 100%;
   opacity: ${(props) => (props.isHidden ? "0.6" : "1")};
   ${TableStyles};
-  padding: 0 10px;
+  padding: ${(props) =>
+      props.compactMode ? TABLE_SIZES[props.compactMode].VERTICAL_PADDING : 0}px
+    10px;
   line-height: 28px;
   ${(props) =>
     props.allowWrapping
-      ? "white-space: break-spaces"
+      ? `
+        white-space: break-spaces;
+        word-break: break-word;
+      `
       : `
       overflow: hidden;
       text-overflow: ellipsis;
