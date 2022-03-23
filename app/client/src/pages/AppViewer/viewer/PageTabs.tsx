@@ -61,7 +61,7 @@ const StyleTabText = styled.div`
   color: ${(props) => props.theme.colors.header.tabText};
   height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
   & span {
-    height: 110%; 
+    height: 100%; 
     max-width: 138px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -93,11 +93,7 @@ function PageTabName({ name }: { name: string }) {
   );
 
   useEffect(() => {
-    console.log("setting ellipses =============================");
-    console.log(tabNameRef?.current?.clientHeight);
-    console.log(tabNameRef?.current?.offsetHeight);
-    console.log(tabNameRef?.current?.scrollHeight);
-    if (isEllipsisActive(tabNameRef?.current)) {
+    if (isEllipsisActive(tabNameRef?.current, false)) {
       setEllipsisActive(true);
     }
   }, [tabNameRef]);

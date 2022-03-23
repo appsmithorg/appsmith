@@ -257,12 +257,16 @@ export const trimTrailingSlash = (path: string) => {
  * ScrollWidth\ScrollHeight is always greater than the offsetWidth\OffsetHeight when ellipsis made by CSS is active.
  * Using clientWidth to fix this https://stackoverflow.com/a/21064102/8692954
  * @param element
+ * @param [needsHeightCheck] optional. Used to override height check where only horizontal overflow is questionable.
  */
-export const isEllipsisActive = (element: HTMLElement | null) => {
+export const isEllipsisActive = (
+  element: HTMLElement | null,
+  needsHeightCheck = true,
+) => {
   return (
     element &&
     (element.clientWidth < element.scrollWidth ||
-      element.offsetHeight < element.scrollHeight)
+      (needsHeightCheck && element.offsetHeight < element.scrollHeight))
   );
 };
 
