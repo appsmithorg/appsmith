@@ -76,13 +76,13 @@ const LogicalFieldValue: any = styled.p`
 // Component for the delete Icon
 const CenteredIcon = styled(Icon)<{
   alignSelf?: string;
-  marginBottom?: string;
+  top?: string;
 }>`
+  position: relative;
   margin-left: 4px;
   margin-right: 8px;
-  align-self: ${(props) => (props.alignSelf ? props.alignSelf : "end")};
-  margin-bottom: ${(props) =>
-    props.marginBottom ? props.marginBottom : "10px"};
+  align-self: ${(props) => (props.alignSelf ? props.alignSelf : "center")};
+  top: ${(props) => (props.top ? props.top : "0px")};
   &.hide {
     opacity: 0;
     pointer-events: none;
@@ -153,6 +153,11 @@ const AddMoreAction = styled.div<{ isDisabled?: boolean }>`
 const StyledTooltip = styled(Tooltip)`
   display: flex;
   align-items: center;
+  .bp3-tooltip.ads-global-tooltip .bp3-popover-content {
+    padding: 8px 12px;
+    line-height: 16px;
+    text-transform: none;
+  }
 `;
 // Component to display single line of condition, includes 2 inputs and 1 dropdown
 function ConditionComponent(props: any, index: number) {
@@ -227,6 +232,7 @@ function ConditionComponent(props: any, index: number) {
             props.onDeletePressed(index);
           }}
           size={IconSize.SMALL}
+          top="-1px"
         />
       ) : null}
     </ConditionBox>
@@ -327,13 +333,13 @@ function ConditionBlock(props: any) {
                   />
                   <CenteredIcon
                     alignSelf={"start"}
-                    marginBottom={"-5px"}
                     name="cross"
                     onClick={(e) => {
                       e.stopPropagation();
                       onDeletePressed(index);
                     }}
                     size={IconSize.SMALL}
+                    top={"1px"}
                   />
                 </ConditionBox>
               );
@@ -368,8 +374,14 @@ function ConditionBlock(props: any) {
         </AddMoreAction>
         {/* Check if the config allows more nesting, if it does, allow for adding more blocks */}
         <StyledTooltip
-          content="For S3 only 4 nested where condition group is allowed"
+          content={
+            <span>
+              For S3 only 4 nested where <br /> condition group is allowed.
+            </span>
+          }
           disabled={props.currentNestingLevel < props.nestedLevels}
+          donotUsePortal
+          position="bottom"
         >
           <AddMoreAction
             isDisabled={!(props.currentNestingLevel < props.nestedLevels)}
