@@ -1,6 +1,8 @@
 package com.appsmith.server.migrations;
 
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.QNewAction;
@@ -27,6 +29,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
@@ -606,6 +609,31 @@ public class DatabaseChangelog2 {
                             dynamicBindingPath.setKey(currentBinding.replace(matchingBinding.get(), newBindingPrefix));
                         }
                     });
+        }
+    }
+
+    /**
+     * Insert isConfigured boolean to check if the datasource is correctly configured. This field will be used during
+     * the file or git import to maintain the datasource configuration state
+     *
+     * @param mongockTemplate
+     */
+    @ChangeSet(order = "004", id = "add-isConfigured-flag-for-all-datasources", author = "")
+    public void updateIsConfiguredFlagForAllTheExistingDatasources(MongockTemplate mongockTemplate) {
+        final Query datasourceQuery = query(where(fieldName(QDatasource.datasource.deleted)).ne(true))
+                .addCriteria(where(fieldName(QDatasource.datasource.invalids)).size(0));
+        datasourceQuery.fields()
+                .include(fieldName(QDatasource.datasource.id));
+
+        List<Datasource> datasources = mongockTemplate.find(datasourceQuery, Datasource.class);
+        for(Datasource datasource: datasources) {
+            final Update update = new Update();
+            update.set(fieldName(QDatasource.datasource.isConfigured), TRUE);
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QDatasource.datasource.id)).is(datasource.getId())),
+                    update,
+                    Datasource.class
+            );
         }
     }
 
