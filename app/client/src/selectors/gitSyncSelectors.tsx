@@ -33,12 +33,6 @@ export const getActiveGitSyncModalTab = (state: AppState) =>
 export const getIsGitErrorPopupVisible = (state: AppState) =>
   state.ui.gitSync.isErrorPopupVisible;
 
-export const getIsImportAppViaGitModalOpen = (state: AppState) =>
-  state.ui.gitSync.isImportAppViaGitModalOpen;
-
-export const getOrganizationIdForImport = (state: AppState) =>
-  state.ui.gitSync.organizationIdForImport;
-
 export const getGlobalGitConfig = (state: AppState) =>
   state.ui.gitSync.globalGitConfig;
 
@@ -144,13 +138,11 @@ const FALLBACK_GIT_SYNC_DOCS_URL =
 
 // git connect ssh key deploy url
 export const getSSHKeyDeployDocUrl = (state: AppState) =>
-  state.ui.applications.currentApplication?.deployKeyDocUrl ||
-  FALLBACK_GIT_SYNC_DOCS_URL;
+  state.ui.gitSync.deployKeyDocUrl || FALLBACK_GIT_SYNC_DOCS_URL;
 
 // git connect remote url
 export const getRemoteUrlDocUrl = (state: AppState) =>
-  state.ui.applications.currentApplication?.deployKeyDocUrl ||
-  FALLBACK_GIT_SYNC_DOCS_URL;
+  state.ui.gitSync.deployKeyDocUrl || FALLBACK_GIT_SYNC_DOCS_URL;
 
 // git deploy conflict doc url
 export const getConflictFoundDocUrlDeploy = (state: AppState) =>
@@ -173,3 +165,8 @@ export const getConnectingErrorDocUrl = (state: AppState) =>
 export const getUpstreamErrorDocUrl = (state: AppState) =>
   state.ui.gitSync.commitAndPushError?.error?.referenceDoc ||
   FALLBACK_GIT_SYNC_DOCS_URL;
+
+export const getSshKeyPair = (state: AppState) => state.ui.gitSync.SSHKeyPair;
+
+export const getIsImportingApplicationViaGit = (state: AppState) =>
+  state.ui.gitSync.isImportingApplicationViaGit;

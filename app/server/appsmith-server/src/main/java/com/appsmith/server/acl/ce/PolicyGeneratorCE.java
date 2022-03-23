@@ -158,12 +158,6 @@ public class PolicyGeneratorCE {
         lateralGraph.addEdge(MANAGE_THEMES, READ_THEMES);
     }
 
-    private void createThemePolicyGraph() {
-        hierarchyGraph.addEdge(MANAGE_APPLICATIONS, MANAGE_THEME);
-        hierarchyGraph.addEdge(READ_APPLICATIONS, READ_THEME);
-        lateralGraph.addEdge(MANAGE_THEME, READ_THEME);
-    }
-
     public Set<Policy> getLateralPolicies(AclPermission permission, Set<String> userNames, Class<? extends BaseDomain> destinationEntity) {
         Set<DefaultEdge> lateralEdges = lateralGraph.outgoingEdgesOf(permission);
         return lateralEdges.stream()

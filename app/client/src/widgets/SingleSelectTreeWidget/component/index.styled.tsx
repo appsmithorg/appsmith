@@ -264,6 +264,22 @@ ${({ dropDownWidth, id }) => `
     box-shadow: none;
     outline: none !important;
   }
+  .${Classes.INPUT} {
+    height: 32px !important;
+    padding-left: 29px !important;
+    font-size: 14px;
+    border: 1px solid ${Colors.GREY_3};
+    color: ${Colors.GREY_10};
+    box-shadow: 0px 0px 0px 0px;
+    border-radius: ${({ borderRadius }) =>
+      borderRadius === "1.5rem" ? `0.375rem` : borderRadius};
+    &:focus {
+      border: 1px solid  ${(props) => props.primaryColor};
+        box-shadow: 0px 0px 0px 3px ${(props) =>
+          lightenColor(props.primaryColor)};
+    }
+  }
+
   ${CommonSelectFilterStyle}
   .rc-tree-select-item {
     font-size: 16px;
@@ -902,9 +918,11 @@ export const TreeSelectContainer = styled.div<{
       ${(props) =>
         props.isValid
           ? `
-          border: 1.2px solid ${Colors.GREEN_SOLID};
-          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};`
-          : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
+          border: 1px solid ${props.primaryColor};
+          box-shadow: 0px 0px 0px 3px ${lightenColor(
+            props.isValid ? props.primaryColor : Colors.DANGER_SOLID,
+          )};`
+          : `border: 1px solid ${Colors.DANGER_SOLID};`}
     }
   }
   .rc-tree-select-show-arrow {

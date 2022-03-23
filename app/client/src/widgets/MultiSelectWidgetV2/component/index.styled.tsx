@@ -26,6 +26,7 @@ export const CommonSelectFilterStyle = css`
       color: ${Colors.GREY_10} !important;
     }
   }
+
   &&&& .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
     background: transparent;
     box-shadow: none;
@@ -38,13 +39,6 @@ export const CommonSelectFilterStyle = css`
       height: 1em;
     }
   }
-  .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
-    background: ${Colors.GREEN_SOLID} !important;
-    color: rgb(255, 255, 255);
-    border-color: ${Colors.GREEN_SOLID} !important;
-    box-shadow: none;
-    outline: none !important;
-  }
 
   & .${Classes.INPUT_GROUP} {
     padding: 12px 12px 8px 12px;
@@ -52,7 +46,7 @@ export const CommonSelectFilterStyle = css`
     & > .${Classes.ICON} {
       &:first-child {
         left: 12px;
-        top: 14px;
+        top: 12px;
         margin: 9px;
         color: ${Colors.GREY_7};
 
@@ -79,18 +73,6 @@ export const CommonSelectFilterStyle = css`
             border-radius: 0;
           }
         }
-      }
-    }
-    .${Classes.INPUT} {
-      height: 36px;
-      padding-left: 29px !important;
-      font-size: 14px;
-      border: 1px solid ${Colors.GREY_3};
-      color: ${Colors.GREY_10};
-      box-shadow: 0px 0px 0px 0px;
-      &:focus {
-        border: 1.2px solid ${Colors.GREEN_SOLID};
-        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER} !important;
       }
     }
   }
@@ -335,7 +317,7 @@ ${({ dropDownWidth, id }) => `
     & > .${Classes.ICON} {
       &:first-child {
         left: 12px;
-        top: 14px;
+        top: 12px;
         margin: 9px;
         color: ${Colors.GREY_7};
 
@@ -365,13 +347,14 @@ ${({ dropDownWidth, id }) => `
       }
     }
     .${Classes.INPUT} {
-      height: 36px;
+      height: 32px;
       padding-left: 29px !important;
       font-size: 14px;
       border: 1px solid ${Colors.GREY_3};
       color: ${Colors.GREY_10};
       box-shadow: 0px 0px 0px 0px;
-      border-radius: ${(props) => props.borderRadius};
+      border-radius: ${({ borderRadius }) =>
+        borderRadius === "1.5rem" ? `0.375rem` : borderRadius};
       &:focus {
         border: 1px solid  ${(props) => props.primaryColor};
           box-shadow: 0px 0px 0px 3px ${(props) =>
@@ -636,7 +619,9 @@ export const MultiSelectContainer = styled.div<{
         props.isValid
           ? `
           border: 1px solid  ${props.primaryColor};
-          box-shadow: 0px 0px 0px 3px ${lightenColor(props.primaryColor)};`
+          box-shadow: 0px 0px 0px 3px ${lightenColor(
+            props.primaryColor,
+          )} !important;`
           : `border: 1px solid ${Colors.DANGER_SOLID};`}
     }
   }

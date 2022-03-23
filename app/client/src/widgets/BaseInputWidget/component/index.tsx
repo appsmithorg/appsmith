@@ -76,6 +76,24 @@ const InputComponentWrapper = styled((props) => (
   justify-content: flex-end;
   gap: ${(props) => (props.compactMode ? "10px" : "5px")};
 
+  .bp3-input-group {
+    display: flex;
+    > {
+      &:first-child:not(input) {
+        position: static;
+        background: ${(props) =>
+          props.disabled ? Colors.GREY_1 : Colors.WHITE};
+        color: ${(props) => (props.disabled ? Colors.GREY_7 : Colors.GREY_10)};
+        border-right: 0;
+      }
+      input:not(:first-child) {
+        padding-left: 0px;
+        z-index: 16;
+        line-height: 16px;
+      }
+    }
+  }
+
   .currency-type-filter,
   .country-type-filter {
     width: fit-content;

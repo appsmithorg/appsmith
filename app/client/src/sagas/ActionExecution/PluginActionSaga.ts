@@ -23,12 +23,13 @@ import {
   getCurrentPageNameByActionId,
   isActionDirty,
   isActionSaving,
+  getJSCollection,
 } from "selectors/entitiesSelector";
 import {
   getAppMode,
   getCurrentApplication,
 } from "selectors/applicationSelectors";
-import _, { get, isString } from "lodash";
+import _, { get, isString, set } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import { validateResponse } from "sagas/ErrorSagas";
@@ -89,6 +90,8 @@ import {
   UserCancelledActionExecutionError,
 } from "sagas/ActionExecution/errorUtils";
 import { trimQueryString } from "utils/helpers";
+import { JSCollection } from "entities/JSCollection";
+import { executeJSFunction } from "actions/jsPaneActions";
 import {
   executeAppAction,
   TriggerMeta,
@@ -98,6 +101,7 @@ import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { getFormNames, getFormValues } from "redux-form";
 import { CURL_IMPORT_FORM } from "constants/forms";
 import { submitCurlImportForm } from "actions/importActions";
+import { isTrueObject } from "workers/evaluationUtils";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -224,6 +228,22 @@ function* evaluateActionParams(
   for (let i = 0; i < bindings.length; i++) {
     const key = bindings[i];
     let value = values[i];
+
+    if (isTrueObject(value)) {
+      const blobUrlPaths: string[] = [];
+      Object.keys(value).forEach((propertyName) => {
+        if (isBlobUrl(value[propertyName])) {
+          blobUrlPaths.push(propertyName);
+        }
+      });
+
+      for (const blobUrlPath of blobUrlPaths) {
+        const blobUrl = value[blobUrlPath] as string;
+        const resolvedBlobValue = yield call(readBlob, blobUrl);
+        set(value, blobUrlPath, resolvedBlobValue);
+      }
+    }
+
     if (typeof value === "object") value = JSON.stringify(value);
     if (isBlobUrl(value)) {
       value = yield call(readBlob, value);
@@ -570,85 +590,109 @@ function* runActionSaga(
   }
 }
 
-function* executePageLoadAction(pageAction: PageAction) {
-  const pageId = yield select(getCurrentPageId);
-  let currentApp: ApplicationPayload = yield select(getCurrentApplication);
-  currentApp = currentApp || {};
-  const appMode = yield select(getAppMode);
-  AnalyticsUtil.logEvent("EXECUTE_ACTION", {
-    type: pageAction.pluginType,
-    name: pageAction.name,
-    pageId: pageId,
-    appMode: appMode,
-    appId: currentApp.id,
-    onPageLoad: true,
-    appName: currentApp.name,
-    isExampleApp: currentApp.appIsExample,
-  });
-
-  let payload = EMPTY_RESPONSE;
-  let isError = true;
-  const error = `The action "${pageAction.name}" has failed.`;
-  try {
-    const executePluginActionResponse: ExecutePluginActionResponse = yield call(
-      executePluginActionSaga,
-      pageAction,
+function* executeOnPageLoadJSAction(pageAction: PageAction) {
+  const collectionId = pageAction.collectionId;
+  if (collectionId) {
+    const collection: JSCollection = yield select(
+      getJSCollection,
+      collectionId,
     );
-    payload = executePluginActionResponse.payload;
-    isError = executePluginActionResponse.isError;
-  } catch (e) {
-    log.error(e);
+    const jsAction = collection.actions.find((d) => d.id === pageAction.id);
+    if (!!jsAction) {
+      yield put(
+        executeJSFunction({
+          collectionName: collection.name,
+          action: jsAction,
+          collectionId: collectionId,
+        }),
+      );
+    }
   }
+}
 
-  if (isError) {
-    AppsmithConsole.addError({
-      id: pageAction.id,
-      logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
-      text: `Execution failed with status ${payload.statusCode}`,
-      source: {
-        type: ENTITY_TYPE.ACTION,
-        name: pageAction.name,
-        id: pageAction.id,
-      },
-      state: payload.request,
-      messages: [
-        {
-          message: error,
-          type: PLATFORM_ERROR.PLUGIN_EXECUTION,
-          subType: payload.errorType,
-        },
-      ],
+function* executePageLoadAction(pageAction: PageAction) {
+  if (pageAction.hasOwnProperty("collectionId")) {
+    yield call(executeOnPageLoadJSAction, pageAction);
+  } else {
+    const pageId = yield select(getCurrentPageId);
+    let currentApp: ApplicationPayload = yield select(getCurrentApplication);
+    currentApp = currentApp || {};
+    const appMode = yield select(getAppMode);
+    AnalyticsUtil.logEvent("EXECUTE_ACTION", {
+      type: pageAction.pluginType,
+      name: pageAction.name,
+      pageId: pageId,
+      appMode: appMode,
+      appId: currentApp.id,
+      onPageLoad: true,
+      appName: currentApp.name,
+      isExampleApp: currentApp.appIsExample,
     });
 
-    yield put(
-      executePluginActionError({
-        actionId: pageAction.id,
-        isPageLoad: true,
-        error: { message: error },
-        data: payload,
-      }),
-    );
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.EXECUTE_ACTION,
-      {
-        failed: true,
-      },
-      pageAction.id,
-    );
-  } else {
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.EXECUTE_ACTION,
-      undefined,
-      pageAction.id,
-    );
-    yield put(
-      executePluginActionSuccess({
+    let payload = EMPTY_RESPONSE;
+    let isError = true;
+    const error = `The action "${pageAction.name}" has failed.`;
+    try {
+      const executePluginActionResponse: ExecutePluginActionResponse = yield call(
+        executePluginActionSaga,
+        pageAction,
+      );
+      payload = executePluginActionResponse.payload;
+      isError = executePluginActionResponse.isError;
+    } catch (e) {
+      log.error(e);
+    }
+
+    if (isError) {
+      AppsmithConsole.addError({
         id: pageAction.id,
-        response: payload,
-        isPageLoad: true,
-      }),
-    );
-    yield take(ReduxActionTypes.SET_EVALUATED_TREE);
+        logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+        text: `Execution failed with status ${payload.statusCode}`,
+        source: {
+          type: ENTITY_TYPE.ACTION,
+          name: pageAction.name,
+          id: pageAction.id,
+        },
+        state: payload.request,
+        messages: [
+          {
+            message: error,
+            type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+            subType: payload.errorType,
+          },
+        ],
+      });
+
+      yield put(
+        executePluginActionError({
+          actionId: pageAction.id,
+          isPageLoad: true,
+          error: { message: error },
+          data: payload,
+        }),
+      );
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.EXECUTE_ACTION,
+        {
+          failed: true,
+        },
+        pageAction.id,
+      );
+    } else {
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.EXECUTE_ACTION,
+        undefined,
+        pageAction.id,
+      );
+      yield put(
+        executePluginActionSuccess({
+          id: pageAction.id,
+          response: payload,
+          isPageLoad: true,
+        }),
+      );
+      yield take(ReduxActionTypes.SET_EVALUATED_TREE);
+    }
   }
 }
 

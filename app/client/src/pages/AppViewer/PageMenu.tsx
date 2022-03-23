@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  CurrentApplicationData,
+  ApplicationPayload,
   PageListPayload,
 } from "constants/ReduxActionConstants";
 import { NavLink } from "react-router-dom";
@@ -23,7 +23,7 @@ import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
 
 type AppViewerHeaderProps = {
   isOpen?: boolean;
-  application?: CurrentApplicationData;
+  application?: ApplicationPayload;
   pages: PageListPayload;
   url?: string;
   setMenuOpen?: (shouldOpen: boolean) => void;

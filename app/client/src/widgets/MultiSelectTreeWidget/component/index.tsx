@@ -205,6 +205,7 @@ function MultiTreeSelectComponent({
       boxShadow={boxShadow}
       compactMode={compactMode}
       isValid={isValid}
+      primaryColor={primaryColor}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
       <DropdownStyles
