@@ -130,7 +130,11 @@ function OAuth({
 
     const search = new URLSearchParams(location.search);
     const status = search.get("response_status");
-    if (status) {
+    const queryIsImport = search.get("importForGit");
+    const queryDatasourceId = search.get("datasourceId");
+    const shouldNotify =
+      !queryIsImport || (queryIsImport && queryDatasourceId === datasourceId);
+    if (status && shouldNotify) {
       const display_message = search.get("display_message");
       const variant = Variant.danger;
 
