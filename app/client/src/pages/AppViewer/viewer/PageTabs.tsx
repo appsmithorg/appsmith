@@ -45,6 +45,12 @@ const StyledBottomBorder = styled.div`
   }
 `;
 
+/**
+ * setting span height to 100%;
+ * because of an firefox where text height is exceeding the parent's,
+ * which causes the ellipses to be rendered when not required.
+ * https://github.com/appsmithorg/appsmith/issues/11480
+ */
 const StyleTabText = styled.div`
   overflow: hidden;
   display: flex;
@@ -55,7 +61,7 @@ const StyleTabText = styled.div`
   color: ${(props) => props.theme.colors.header.tabText};
   height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
   & span {
-    height: 100%;
+    height: 110%; 
     max-width: 138px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -87,6 +93,10 @@ function PageTabName({ name }: { name: string }) {
   );
 
   useEffect(() => {
+    console.log("setting ellipses =============================");
+    console.log(tabNameRef?.current?.clientHeight);
+    console.log(tabNameRef?.current?.offsetHeight);
+    console.log(tabNameRef?.current?.scrollHeight);
     if (isEllipsisActive(tabNameRef?.current)) {
       setEllipsisActive(true);
     }
