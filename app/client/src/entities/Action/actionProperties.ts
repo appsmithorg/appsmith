@@ -1,7 +1,11 @@
 import { Action } from "entities/Action/index";
 import _ from "lodash";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { isHidden } from "components/formControls/utils";
+import {
+  alternateViewTypeInputConfig,
+  isHidden,
+  ViewTypes,
+} from "components/formControls/utils";
 import {
   PaginationSubComponent,
   SortingSubComponent,
@@ -59,6 +63,15 @@ export const getBindingAndReactivePathsOfAction = (
             formConfig.evaluationSubstitutionType,
           );
         }
+      } else if (
+        "alternateViewTypes" in formConfig &&
+        Array.isArray(formConfig.alternateViewTypes) &&
+        formConfig.alternateViewTypes.length > 0 &&
+        formConfig.alternateViewTypes.includes(ViewTypes.JSON)
+      ) {
+        bindingPaths[configPath] = getCorrectEvaluationSubstitutionType(
+          alternateViewTypeInputConfig.evaluationSubstitutionType,
+        );
       } else if (formConfig.controlType === formControlTypes.ARRAY_FIELD) {
         let actionValue = _.get(action, formConfig.configProperty);
         if (Array.isArray(actionValue)) {

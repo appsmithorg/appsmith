@@ -95,12 +95,15 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
 import { AppState } from "reducers";
-import { requestModalConfirmationSaga } from "sagas/UtilSagas";
-import { ModalType } from "reducers/uiReducers/modalActionReducer";
+import { getOrganizationIdForImport } from "selectors/applicationSelectors";
 
-function* fetchDatasourcesSaga() {
+function* fetchDatasourcesSaga(
+  action: ReduxAction<{ orgId?: string } | undefined>,
+) {
   try {
-    const orgId = yield select(getCurrentOrgId);
+    let orgId = yield select(getCurrentOrgId);
+    if (action.payload?.orgId) orgId = action.payload?.orgId;
+
     const response: GenericApiResponse<Datasource[]> = yield DatasourcesApi.fetchDatasources(
       orgId,
     );
@@ -214,23 +217,6 @@ export function* deleteDatasourceSaga(
   actionPayload: ReduxActionWithCallbacks<{ id: string }, unknown, unknown>,
 ) {
   try {
-    const datasource = yield select(getDatasource, actionPayload.payload.id);
-
-    const modalPayload = {
-      name: datasource?.name,
-      modalOpen: true,
-      modalType: ModalType.DELETE_DATASOURCE,
-    };
-
-    // request confirmation from user before deleting datasource.
-    const confirmed = yield call(requestModalConfirmationSaga, modalPayload);
-
-    if (!confirmed) {
-      return yield put({
-        type: ReduxActionTypes.DELETE_DATASOURCE_CANCELLED,
-      });
-    }
-
     const id = actionPayload.payload.id;
     const response: GenericApiResponse<Datasource> = yield DatasourcesApi.deleteDatasource(
       id,
@@ -330,6 +316,7 @@ function* updateDatasourceSaga(
   try {
     const queryParams = getQueryParams();
     const datasourcePayload = _.omit(actionPayload.payload, "name");
+    datasourcePayload.isConfigured = true; // when clicking save button, it should be changed as configured
     const response: GenericApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(
       datasourcePayload,
       datasourcePayload.id,
@@ -404,6 +391,7 @@ function* redirectAuthorizationCodeSaga(
   }>,
 ) {
   const { datasourceId, pageId, pluginType } = actionPayload.payload;
+  const isImport: string = yield select(getOrganizationIdForImport);
 
   if (pluginType === PluginType.API) {
     window.location.href = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code`;
@@ -413,6 +401,7 @@ function* redirectAuthorizationCodeSaga(
       const response: ApiResponse = yield OAuthApi.getAppsmithToken(
         datasourceId,
         pageId,
+        !!isImport,
       );
 
       if (validateResponse(response)) {
@@ -507,7 +496,12 @@ function* handleDatasourceNameChangeFailureSaga(
 }
 
 function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
-  const organizationId = yield select(getCurrentOrgId);
+  let organizationId = yield select(getCurrentOrgId);
+
+  // test button within the import modal
+  if (!organizationId) {
+    organizationId = yield select(getOrganizationIdForImport);
+  }
   const { initialValues, values } = yield select(
     getFormData,
     DATASOURCE_DB_FORM,
@@ -629,6 +623,7 @@ function* createDatasourceFromFormSaga(
     const initialValues = yield call(getConfigInitialValues, formConfig);
 
     const payload = merge(initialValues, actionPayload.payload);
+    payload.isConfigured = false;
 
     const response: GenericApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
       {
@@ -672,7 +667,6 @@ function* updateDraftsSaga() {
 
   if (!values.id) return;
   const datasource = yield select(getDatasource, values.id);
-
   if (_.isEqual(values, datasource)) {
     yield put({
       type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,

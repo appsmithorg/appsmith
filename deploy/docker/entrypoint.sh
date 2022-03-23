@@ -27,8 +27,8 @@ init_env_file() {
     bash "$TEMPLATES_PATH/docker.env.sh" "$APPSMITH_MONGODB_USER" "$APPSMITH_MONGODB_PASSWORD" "$APPSMITH_ENCRYPTION_PASSWORD" "$APPSMITH_ENCRYPTION_SALT" > "$ENV_PATH"
   fi
 
-  printenv | grep -E '^APPSMITH_|^MONGO_' > "$TEMPLATES_PATH/pre-define.env"
-
+  # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
+  printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\"'\"'/; s/=/='/; s/$/'/" > "$TEMPLATES_PATH/pre-define.env"
 
   echo "Load environment configuration"
   set -o allexport
@@ -129,7 +129,6 @@ init_replica_set() {
 
     if appsmithctl check_replica_set; then
       echo "Mongodb cloud Replica Set is enabled"
-      mongo "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
     else
       echo -e "\033[0;31m********************************************************************\033[0m"
       echo -e "\033[0;31m*          MongoDB Replica Set is not enabled                      *\033[0m"

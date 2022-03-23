@@ -30,7 +30,7 @@ export const Colors = {
   DIESEL: "#0C0000",
   SHARK: "#21282C",
   SHARK2: "#232324",
-  MINE_SHAFT: "#262626",
+  _2: "#262626",
   DEEP_SPACE: "#272E32",
   OUTER_SPACE: "#363E44",
   TUNDORA: "#404040",
@@ -146,7 +146,7 @@ export const Colors = {
   GREY_1: "#FAFAFA",
   GREY_2: "#F0F0F0",
   GREY_3: "#EBEBEB",
-  GREY_4: "#716E6E", // seems like incorrect as it is same as GREY_8
+  GREY_4: "#E8E8E8",
   GREY_5: "#E0DEDE",
   GREY_6: "#A9A7A7",
   GREY_7: "#858282",
@@ -154,6 +154,8 @@ export const Colors = {
   GREY_9: "#4B4848",
   GREY_10: "#090707",
   GREY_11: "#9F9F9F",
+  GREY_200: "#E7E7E7",
+  GREY_800: "#393939",
 
   PRIMARY_ORANGE: "#F86A2B",
 
@@ -173,9 +175,12 @@ export const Colors = {
   YELLOW_LIGHT: "#F4AF0A",
   BROWN: "#864C17",
 
+  GRAY_700: "#575757",
+  GRAY_800: "#393939",
   GRAY_900: "#101828",
   SCORPION: "#575757",
 
   COD_GRAY: "#191919",
+  MINE_SHAFT_2: "#333333",
 };
 export type Color = typeof Colors[keyof typeof Colors];

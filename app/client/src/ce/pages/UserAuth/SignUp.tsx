@@ -61,7 +61,7 @@ declare global {
     grecaptcha: any;
   }
 }
-const { disableSignup, googleRecaptchaSiteKey } = getAppsmithConfigs();
+const { disableLoginForm, googleRecaptchaSiteKey } = getAppsmithConfigs();
 
 const validate = (values: SignupFormValues) => {
   const errors: SignupFormValues = {};
@@ -87,7 +87,7 @@ type SignUpFormProps = InjectedFormProps<
 export function SignUp(props: SignUpFormProps) {
   const history = useHistory();
   useEffect(() => {
-    if (disableSignup) {
+    if (disableLoginForm) {
       history.replace(AUTH_LOGIN_URL);
     }
   }, []);

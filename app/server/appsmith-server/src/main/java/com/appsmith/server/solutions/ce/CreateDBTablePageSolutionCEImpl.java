@@ -26,6 +26,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -322,8 +323,9 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                     // index 1 in plugin specified templates
 
                     if (Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) && !CollectionUtils.isEmpty(templateActionList)) {
+                        final Map<String, Object> formData = templateActionList.get(0).getUnpublishedAction().getActionConfiguration().getFormData();
                         mappedColumnsAndTableName.put(
-                                (String) templateActionList.get(0).getUnpublishedAction().getActionConfiguration().getFormData().get("bucket"),
+                                (String) ((Map<?,?>)formData.get("bucket")).get("data"),
                                 tableName
                         );
                     }
@@ -483,7 +485,8 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
         Gson gson = gsonBuilder.registerTypeAdapter(DatasourceStructure.Key.class, new DatasourceStructure.KeyInstanceCreator())
                 .create();
 
-        return gson.fromJson(jsonContent, ApplicationJson.class);
+        ApplicationJson applicationJson = gson.fromJson(jsonContent, ApplicationJson.class);
+        return JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
     }
 
     /**

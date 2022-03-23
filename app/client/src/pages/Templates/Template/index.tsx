@@ -17,6 +17,7 @@ const TemplateWrapper = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[12]}px;
   transition: all 1s ease-out;
   cursor: pointer;
+  background-color: ${Colors.WHITE};
 
   &:hover {
     box-shadow: 0px 20px 24px -4px rgba(16, 24, 40, 0.1),
@@ -38,20 +39,23 @@ const StyledImage = styled.img`
 const TemplateContent = styled.div`
   border-top: 0.73px solid ${Colors.GEYSER_LIGHT};
   padding: 16px 25px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 
   .title {
     ${(props) => getTypographyByKey(props, "h4")}
     color: ${Colors.EBONY_CLAY};
   }
   .categories {
-    ${(props) => getTypographyByKey(props, "p3")}
+    ${(props) => getTypographyByKey(props, "p1")}
     color: var(--appsmith-color-black-800);
     margin-top: ${(props) => props.theme.spaces[1]}px;
   }
   .description {
     margin-top: ${(props) => props.theme.spaces[2]}px;
     color: var(--appsmith-color-black-700);
-    ${(props) => getTypographyByKey(props, "p3")}
+    ${(props) => getTypographyByKey(props, "p2")}
   }
 `;
 
@@ -77,6 +81,11 @@ const StyledButton = styled(Button)`
   }
   height: 31px;
   width: 31px;
+
+  svg {
+    height: 15px;
+    width: 15px;
+  }
 `;
 
 export interface TemplateProps {
@@ -150,7 +159,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
               <Tooltip content={createMessage(FORK_THIS_TEMPLATE)}>
                 <StyledButton
                   className="t--fork-template fork-button"
-                  icon="fork-2"
+                  icon="compasses-line"
                   size={Size.medium}
                   tag="button"
                 />
