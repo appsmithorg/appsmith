@@ -54,7 +54,7 @@ const Container = styled.div`
 const BodyContainer = styled.div`
   display: flex;
   flex-direction: column;
-  height: calc(100% - 18px);
+  height: 100%;
 `;
 
 const CloseBtnContainer = styled.div`
@@ -68,7 +68,7 @@ const ButtonContainer = styled.div`
 `;
 
 const ApplicationWrapper = styled.div`
-  margin-top: ${(props) => props.theme.spaces[7]}px;
+  margin-bottom: ${(props) => props.theme.spaces[7]}px;
   display: flex;
   justify-content: space-between;
 `;
@@ -78,7 +78,8 @@ const TextWrapper = styled.div`
 `;
 
 const AppListContainer = styled.div`
-  height: 160px;
+  height: calc(100% - 40px);
+  margin-top: 16px;
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: none;
@@ -94,12 +95,6 @@ const AppListContainer = styled.div`
     width: 4px;
   }
   position: relative;
-`;
-
-const StyledDialog = styled(Dialog)`
-  && .bp3-dialog-body {
-    margin-top: 0;
-  }
 `;
 
 function RepoLimitExceededErrorModal() {
@@ -167,12 +162,13 @@ function RepoLimitExceededErrorModal() {
   };
 
   return (
-    <StyledDialog
+    <Dialog
       canEscapeKeyClose
       canOutsideClickClose
       className="t--git-repo-limited-modal"
       isOpen={isOpen}
       maxWidth={"900px"}
+      noModalBodyMarginTop
       onClose={onClose}
       width={"550px"}
     >
@@ -300,7 +296,7 @@ function RepoLimitExceededErrorModal() {
           />
         </CloseBtnContainer>
       </Container>
-    </StyledDialog>
+    </Dialog>
   );
 }
 
