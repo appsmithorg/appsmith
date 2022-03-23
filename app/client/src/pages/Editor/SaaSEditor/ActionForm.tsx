@@ -42,8 +42,8 @@ import {
 } from "actions/evaluationActions";
 import { QueryActionConfig } from "entities/Action";
 import { changeQuery } from "actions/queryPaneActions";
-import { integrationEditorURL } from "RouteBuilder";
 import { getUIComponent } from "../QueryEditor/helpers";
+import { integrationEditorURL } from "RouteBuilder";
 
 type StateAndRouteProps = EditorJSONtoFormProps & {
   actionObjectDiff?: any;
@@ -121,7 +121,7 @@ function ActionForm(props: Props) {
         formData.id,
         formData.actionConfiguration,
         formData.datasource.id,
-        formData.pluginId,
+        pluginId,
       );
     }
   }, [formData]);
@@ -274,7 +274,9 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
     datasourceId: string,
     pluginId: string,
   ) => {
-    dispatch(startFormEvaluations(formId, formData, datasourceId, pluginId));
+    return dispatch(
+      startFormEvaluations(formId, formData, datasourceId, pluginId),
+    );
   },
   initFormEvaluation: (
     editorConfig: any,
