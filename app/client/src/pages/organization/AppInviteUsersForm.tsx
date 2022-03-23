@@ -35,7 +35,7 @@ const Title = styled.div`
 
 const ShareWithPublicOption = styled.div`
   display: flex;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   align-items: center;
   justify-content: space-between;
 
