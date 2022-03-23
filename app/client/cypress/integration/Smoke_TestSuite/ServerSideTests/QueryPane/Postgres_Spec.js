@@ -247,14 +247,20 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-    cy.clickButton("Yes");
+    cy.get(".t--delete-datasource")
+      .contains("Are you sure?")
+      .click();
 
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       409,
     );
-    cy.actionContextMenuByEntityName("Public.users_crud");
+    cy.actionContextMenuByEntityName(
+      "Public.users_crud",
+      "Delete",
+      "Are you sure?",
+    );
   });
 
   it("10. Validate Drop of the Newly Created Table from Postgress datasource", () => {
@@ -294,7 +300,9 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click({ force: true });
     cy.get(".t--delete-datasource").click({ force: true });
-    cy.clickButton("Yes");
+    cy.get(".t--delete-datasource")
+      .contains("Are you sure?")
+      .click({ force: true });
 
     // cy.wait("@deleteDatasource").should(
     //   "have.nested.property",

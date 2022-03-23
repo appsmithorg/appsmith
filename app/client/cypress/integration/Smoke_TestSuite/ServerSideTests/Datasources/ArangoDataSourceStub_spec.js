@@ -52,11 +52,7 @@ describe("Arango datasource test cases", function() {
       expect(interception.response.body.responseMeta.status).to.deep.eq(201);
     });
 
-    cy.get(queryEditor.queryMoreAction).click();
-    cy.get(queryEditor.deleteUsingContext).click();
-    cy.wait("@deleteAction").should((interception) => {
-      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
-    });
+    cy.deleteQueryUsingContext();
 
     cy.deleteDatasource(datasourceName);
   });

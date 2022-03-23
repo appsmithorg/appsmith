@@ -55,20 +55,12 @@ describe("Entity explorer datasource structure", function() {
       expect(interception.response.body.responseMeta.status).to.deep.eq(201);
     });
 
-    cy.get(queryEditor.queryMoreAction).click();
-    cy.get(queryEditor.deleteUsingContext).click();
-    cy.wait("@deleteAction").should((interception) => {
-      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
-    });
+    cy.deleteQueryUsingContext();
 
     cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.GlobalSearchEntity("MyQuery");
     cy.get(`.t--entity-name:contains(MyQuery)`).click();
-    cy.get(queryEditor.queryMoreAction).click();
-    cy.get(queryEditor.deleteUsingContext).click();
-    cy.wait("@deleteAction").should((interception) => {
-      expect(interception.response.body.responseMeta.status).to.deep.eq(200);
-    });
+    cy.deleteQueryUsingContext();
 
     cy.get(commonlocators.entityExplorersearch).clear({ force: true });
 

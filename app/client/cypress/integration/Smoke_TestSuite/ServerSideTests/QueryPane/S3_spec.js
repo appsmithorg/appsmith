@@ -438,13 +438,19 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-    cy.clickButton("Yes");
+    cy.get(".t--delete-datasource")
+      .contains("Are you sure?")
+      .click();
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       409,
     );
-    cy.actionContextMenuByEntityName("Assets-test.appsmith.com");
+    cy.actionContextMenuByEntityName(
+      "Assets-test.appsmith.com",
+      "Delete",
+      "Are you sure?",
+    );
   });
 
   it("7. Bug 9069, 9201, 6975, 9922, 3836, 6492, 11833: Upload/Update query is failing in S3 crud pages", function() {
@@ -607,7 +613,11 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     ).should("not.exist"); //verify Deletion of file is success from UI also
 
     //Deleting the page:
-    cy.actionContextMenuByEntityName("Assets-test.appsmith.com");
+    cy.actionContextMenuByEntityName(
+      "Assets-test.appsmith.com",
+      "Delete",
+      "Are you sure?",
+    );
   });
 
   it("8. Verify 'Add to widget [Widget Suggestion]' functionality - S3", () => {
@@ -670,7 +680,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click({ force: true });
     cy.get(".t--delete-datasource").click();
-    cy.clickButton("Yes");
+    cy.get(".t--delete-datasource")
+      .contains("Are you sure?")
+      .click();
 
     // cy.wait("@deleteDatasource").should(
     //   "have.nested.property",

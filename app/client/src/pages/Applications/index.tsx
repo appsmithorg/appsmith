@@ -360,6 +360,7 @@ function OrgMenuItem({ isFetchingApplications, org, selected }: any) {
       ref={menuRef}
       selected={selected}
       text={org.organization.name}
+      tooltipPos={Position.BOTTOM_LEFT}
     />
   );
 }
@@ -922,7 +923,7 @@ function ApplicationsSection(props: any) {
     >
       {organizationsListComponent}
       {getFeatureFlags().GIT_IMPORT && <GitSyncModal isImport />}
-      {getFeatureFlags().GIT_IMPORT && <ReconnectDatasourceModal />}
+      <ReconnectDatasourceModal />
     </ApplicationContainer>
   );
 }

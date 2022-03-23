@@ -198,13 +198,19 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-    cy.get("[data-cy=t--confirm-modal-btn]").click();
+    cy.get(".t--delete-datasource")
+      .contains("Are you sure?")
+      .click();
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       409,
     );
-    cy.actionContextMenuByEntityName("ListingAndReviews");
+    cy.actionContextMenuByEntityName(
+      "ListingAndReviews",
+      "Delete",
+      "Are you sure?",
+    );
   });
 
   it("9. Bug 7399: Validate Form based & Raw command based templates", function() {
@@ -281,7 +287,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       );
     });
     cy.CheckAndUnfoldEntityItem("QUERIES/JS");
-    cy.actionContextMenuByEntityName("Query1");
+    cy.actionContextMenuByEntityName("Query1", "Delete", "Are you sure?");
   });
 
   it("10. Delete the datasource after NewPage deletion is success", () => {
@@ -289,7 +295,9 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-    cy.get("[data-cy=t--confirm-modal-btn]").click();
+    cy.get(".t--delete-datasource")
+      .contains("Are you sure?")
+      .click();
     // cy.wait("@deleteDatasource").should(
     //   "have.nested.property",
     //   "response.body.responseMeta.status",
