@@ -162,7 +162,7 @@ configure_supervisord() {
   if [[ $isUriLocal -eq 0 ]]; then
     cp "$SUPERVISORD_CONF_PATH/mongodb.conf" /etc/supervisor/conf.d/
   fi
-  if [[ "$APPSMITH_REDIS_URL" = "redis://127.0.0.1:6379" ]]; then
+  if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
     cp "$SUPERVISORD_CONF_PATH/redis.conf" /etc/supervisor/conf.d/
     # Enable saving Redis session data to disk more often, so recent sessions aren't cleared on restart.
     sed -i 's/^# save 60 10000$/save 60 1/g' /etc/redis/redis.conf

@@ -241,7 +241,7 @@ export const PaginationItemWrapper = styled.div<{
     border-color: ${Colors.GREEN};
   }
   .bp3-icon svg {
-    fill: ${(props) => (props.disabled ? Colors.GREY_4 : "")};
+    fill: ${(props) => (props.disabled ? Colors.GREY_8 : "")};
   }
 `;
 
@@ -279,7 +279,7 @@ export const ActionWrapper = styled.div<{
     }
     &&& .bp3-disabled {
       background: ${Colors.GREY_1};
-      color: ${Colors.GREY_4};
+      color: ${Colors.GREY_8};
     }
   }
 `;
