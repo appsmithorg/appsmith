@@ -257,6 +257,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   }
 
   getPageView() {
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <WidgetStyleContainer
         {...pick(this.props, [
@@ -272,6 +273,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           disableLink={this.props.disableLink || false}
           fontSize={this.props.fontSize}
           fontStyle={this.props.fontStyle}
+          height={componentHeight}
           isLoading={this.props.isLoading}
           key={this.props.widgetId}
           leftColumn={this.props.leftColumn}
@@ -284,6 +286,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           topRow={this.props.topRow}
           truncateButtonColor={this.props.truncateButtonColor}
           widgetId={this.props.widgetId}
+          width={componentWidth}
         />
       </WidgetStyleContainer>
     );
