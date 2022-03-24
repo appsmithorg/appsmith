@@ -2087,6 +2087,19 @@ Cypress.Commands.add(
   },
 );
 
+Cypress.Commands.add("typeIntoDraftEditor", (selector, text) => {
+  cy.get(selector).then((input) => {
+    var textarea = input.get(0);
+    textarea.dispatchEvent(new Event("focus"));
+
+    var textEvent = document.createEvent("TextEvent");
+    textEvent.initTextEvent("textInput", true, true, null, text);
+    textarea.dispatchEvent(textEvent);
+
+    textarea.dispatchEvent(new Event("blur"));
+  });
+});
+
 Cypress.Commands.add("addQueryFromLightningMenu", (QueryName) => {
   cy.get(commonlocators.dropdownSelectButton)
     .first()

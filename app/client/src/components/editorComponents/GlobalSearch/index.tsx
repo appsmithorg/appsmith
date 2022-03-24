@@ -389,7 +389,7 @@ function GlobalSearch() {
     event?: SelectEvent,
   ) => {
     if (event && event.type === "click") return;
-    window.open(item.path.replace("master", HelpBaseURL), "_blank");
+    window.open(`${HelpBaseURL}/${item.path}`, "_blank");
   };
 
   const handleWidgetClick = (activeItem: SearchItem) => {
