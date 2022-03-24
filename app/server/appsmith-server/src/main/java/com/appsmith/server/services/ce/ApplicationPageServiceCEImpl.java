@@ -400,7 +400,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         // Delete git repo from local and delete the applications from DB
                         return gitFileUtils.detachRemote(repoPath)
                                 .flatMapMany(isCleared -> applicationService
-                                        .findAllApplicationsByDefaultApplicationId(gitData.getDefaultApplicationId()));
+                                        .findAllApplicationsByDefaultApplicationId(gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS));
                     }
                     return Flux.fromIterable(List.of(application));
                 })
