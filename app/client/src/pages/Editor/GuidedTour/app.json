@@ -44,7 +44,8 @@
 				
 			],
 			"isValid":true,
-			"new":true
+			"new":true,
+			"isConfigured": true
 		}
 	],
 	"pageList":[

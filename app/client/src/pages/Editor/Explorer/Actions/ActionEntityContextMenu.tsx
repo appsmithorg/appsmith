@@ -7,7 +7,7 @@ import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { noop } from "lodash";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { getPageListAsOptions } from "selectors/entitiesSelector";
@@ -23,6 +23,7 @@ import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import {
   CONTEXT_COPY,
   CONTEXT_DELETE,
+  CONFIRM_CONTEXT_DELETE,
   CONTEXT_EDIT_NAME,
   CONTEXT_MOVE,
   CONTEXT_NO_PAGE,
@@ -42,6 +43,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   const applicationId = useSelector(getCurrentApplicationId);
   const guidedTourEnabled = useSelector(inGuidedTour);
   const dispatch = useDispatch();
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const copyActionToPage = useCallback(
     (actionId: string, actionName: string, pageId: string) =>
       dispatch(
@@ -153,21 +155,30 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
                 ],
         },
         {
+          confirmDelete: confirmDelete,
+          className: "t--apiFormDeleteBtn single-select",
           value: "delete",
-          label: createMessage(CONTEXT_DELETE),
+          label: confirmDelete
+            ? createMessage(CONFIRM_CONTEXT_DELETE)
+            : createMessage(CONTEXT_DELETE),
           intent: "danger",
-          onSelect: () =>
-            deleteActionFromPage(props.id, props.name, () => {
-              history.push(
-                BUILDER_PAGE_URL({
-                  applicationId,
-                  pageId: params.pageId,
-                }),
-              );
-            }),
+          onSelect: () => {
+            confirmDelete
+              ? deleteActionFromPage(props.id, props.name, () => {
+                  history.push(
+                    BUILDER_PAGE_URL({
+                      applicationId,
+                      pageId: params.pageId,
+                    }),
+                  );
+                  setConfirmDelete(false);
+                })
+              : setConfirmDelete(true);
+          },
         },
       ]}
       selectedValue=""
+      setConfirmDelete={setConfirmDelete}
       toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
   );

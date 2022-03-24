@@ -74,7 +74,7 @@ function RedirectUrlForm(
         <TooltipComponent
           autoFocus={false}
           content={createMessage(REDIRECT_URL_TOOLTIP)}
-          hoverOpenDelay={1000}
+          hoverOpenDelay={0}
           minWidth={"180px"}
           openOnTargetFocus={false}
           position={Position.RIGHT}
