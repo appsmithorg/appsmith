@@ -6,6 +6,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Property;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
@@ -287,5 +288,23 @@ public class PluginUtils {
 
     public static List<String> parseList(String arrayString) throws IOException {
         return objectMapper.readValue(arrayString, ArrayList.class);
+    }
+
+    public static <T> T getValueSafelyFromPropertyList(List<Property> properties, int index, Class<T> type,
+                                                       T defaultValue) {
+        if (CollectionUtils.isEmpty(properties) || index > properties.size() - 1 || properties.get(index) == null
+                || properties.get(index).getValue() == null) {
+            return defaultValue;
+        }
+
+        return (T) properties.get(index).getValue();
+    }
+
+    public static <T> T getValueSafelyFromPropertyList(List<Property> properties, int index, Class<T> type) {
+        return getValueSafelyFromPropertyList(properties, index, type, null);
+    }
+
+    public static Object getValueSafelyFromPropertyList(List<Property> properties, int index) {
+        return getValueSafelyFromPropertyList(properties, index, Object.class);
     }
 }
