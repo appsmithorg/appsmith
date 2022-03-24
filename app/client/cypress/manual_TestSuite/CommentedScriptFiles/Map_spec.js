@@ -1,7 +1,7 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
-const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
-const dsl = require("../../../../fixtures/Mapdsl.json");
-const publishPage = require("../../../../locators/publishWidgetspage.json");
+const commonlocators = require("../../locators/commonlocators.json");
+const viewWidgetsPage = require("../../locators/ViewWidgets.json");
+const dsl = require("../../fixtures/Mapdsl.json");
+const publishPage = require("../../locators/publishWidgetspage.json");
 
 if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
   describe("Map Widget Functionality", function() {
