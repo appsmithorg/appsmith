@@ -113,6 +113,7 @@ class SelectComponent extends React.Component<
   };
   onQueryChange = (filterValue: string) => {
     this.setState({ query: filterValue });
+    this.props.onFilterChange(filterValue);
     this.listRef?.current?.scrollTo(0);
     if (!this.props.serverSideFiltering) return;
     return this.serverSideSearch(filterValue);
