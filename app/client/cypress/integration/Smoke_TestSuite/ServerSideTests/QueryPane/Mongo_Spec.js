@@ -162,7 +162,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.deleteQueryUsingContext();
   });
 
-  it.skip("7. Verify generation of NewPage from collection [Select] + Bug 12162", function() {
+  it("7. Verify generation of NewPage from collection [Select] + Bug 12162", function() {
     //Verifying Select from UI
     cy.NavigateToDSGeneratePage(datasourceName);
     cy.get(generatePage.selectTableDropdown).click();
@@ -206,7 +206,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       });
   });
 
-  it.skip("8. Validate Deletion of the Newly Created Page", () => {
+  it("8. Validate Deletion of the Newly Created Page", () => {
     cy.NavigateToQueryEditor();
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
@@ -226,7 +226,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     );
   });
 
-  it.skip("9. Bug 7399: Validate Form based & Raw command based templates", function() {
+  it("9. Bug 7399: Validate Form based & Raw command based templates", function() {
     let id;
     agHelper.expandCollapseEntity(`${datasourceName}`);
     cy.xpath(queryLocators.listingAndReviewContext)
