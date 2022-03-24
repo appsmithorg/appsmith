@@ -101,6 +101,32 @@ export function DraggableListCard(props: RenderComponentProps) {
     }
   };
 
+  const renderVisibilityIcon = () => {
+    return visibility ? (
+      <StyledVisibleIcon
+        className="t--show-column-btn"
+        height={20}
+        onClick={() => {
+          setVisibility(!visibility);
+          toggleVisibility && toggleVisibility(index);
+        }}
+        width={20}
+      />
+    ) : (
+      <StyledHiddenIcon
+        className="t--show-column-btn"
+        height={20}
+        onClick={() => {
+          setVisibility(!visibility);
+          toggleVisibility && toggleVisibility(index);
+        }}
+        width={20}
+      />
+    );
+  };
+
+  const showDelete = !!item.isDerived || isDelete;
+
   return (
     <ItemWrapper
       className={props.item.isDuplicateLabel ? "has-duplicate-label" : ""}
@@ -127,7 +153,7 @@ export function DraggableListCard(props: RenderComponentProps) {
         }}
         width={20}
       />
-      {!!item.isDerived || isDelete ? (
+      {showDelete && (
         <StyledDeleteIcon
           className="t--delete-column-btn"
           height={20}
@@ -136,27 +162,8 @@ export function DraggableListCard(props: RenderComponentProps) {
           }}
           width={20}
         />
-      ) : visibility ? (
-        <StyledVisibleIcon
-          className="t--show-column-btn"
-          height={20}
-          onClick={() => {
-            setVisibility(!visibility);
-            toggleVisibility && toggleVisibility(index);
-          }}
-          width={20}
-        />
-      ) : (
-        <StyledHiddenIcon
-          className="t--show-column-btn"
-          height={20}
-          onClick={() => {
-            setVisibility(!visibility);
-            toggleVisibility && toggleVisibility(index);
-          }}
-          width={20}
-        />
       )}
+      {!showDelete && toggleVisibility && renderVisibilityIcon()}
     </ItemWrapper>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import {
   ActionButton,
@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getEntities,
   getPluginTypeFromDatasourceId,
+  getIsReconnectingDatasourcesModalOpen,
 } from "selectors/entitiesSelector";
 import {
   testDatasource,
@@ -37,12 +38,19 @@ import {
 } from "@appsmith/constants/messages";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import {
+  CONTEXT_DELETE,
+  CONFIRM_CONTEXT_DELETE,
+  createMessage,
+} from "@appsmith/constants/messages";
+import { debounce } from "lodash";
 
 interface Props {
   datasource: Datasource;
   formData: Datasource;
   getSanitizedFormData: () => Datasource;
   isInvalid: boolean;
+  pageId?: string;
   shouldRender: boolean;
   datasourceButtonConfiguration: string[] | undefined;
 }
@@ -93,6 +101,7 @@ function DatasourceAuth({
   formData,
   getSanitizedFormData,
   isInvalid,
+  pageId: pageIdProp,
   shouldRender,
 }: Props) {
   const authType =
@@ -105,7 +114,21 @@ function DatasourceAuth({
   // hooks
   const dispatch = useDispatch();
   const location = useLocation();
-  const { pageId } = useParams<ExplorerURLParams>();
+  const { pageId: pageIdQuery } = useParams<ExplorerURLParams>();
+
+  const pageId = (pageIdQuery || pageIdProp) as string;
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  useEffect(() => {
+    if (confirmDelete) {
+      delayConfirmDeleteToFalse();
+    }
+  }, [confirmDelete]);
+
+  const delayConfirmDeleteToFalse = debounce(
+    () => setConfirmDelete(false),
+    2200,
+  );
 
   useEffect(() => {
     if (authType === AuthType.OAUTH2) {
@@ -146,11 +169,17 @@ function DatasourceAuth({
     getPluginTypeFromDatasourceId(state, datasourceId),
   );
 
+  // to check if saving during import flow
+  const isReconnectModelOpen: boolean = useSelector(
+    getIsReconnectingDatasourcesModalOpen,
+  );
+
   const isAuthorized =
     datasource?.datasourceConfiguration?.authentication
       ?.authenticationStatus === AuthenticationStatus.SUCCESS;
 
   // Button Operations for respective buttons.
+
   // Handles datasource deletion
   const handleDatasourceDelete = () => {
     dispatch(deleteDatasource({ id: datasourceId }));
@@ -165,7 +194,7 @@ function DatasourceAuth({
     dispatch(testDatasource(getSanitizedFormData()));
   };
 
-  // Handles datasource saving
+  // Handles default auth datasource saving
   const handleDefaultAuthDatasourceSave = () => {
     const isGeneratePageInitiator = getIsGeneratePageInitiator();
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
@@ -177,7 +206,7 @@ function DatasourceAuth({
     dispatch(
       updateDatasource(
         getSanitizedFormData(),
-        !isGeneratePageInitiator
+        !isGeneratePageInitiator && !isReconnectModelOpen
           ? dispatch(
               redirectToNewIntegrations(
                 applicationId,
@@ -211,8 +240,14 @@ function DatasourceAuth({
           // accent="error"
           className="t--delete-datasource"
           loading={isDeleting}
-          onClick={handleDatasourceDelete}
-          text="Delete"
+          onClick={() => {
+            confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
+          }}
+          text={
+            confirmDelete
+              ? createMessage(CONFIRM_CONTEXT_DELETE)
+              : createMessage(CONTEXT_DELETE)
+          }
         />
       ),
       [DatasourceButtonType.TEST]: (

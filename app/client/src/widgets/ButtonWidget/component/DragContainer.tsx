@@ -68,7 +68,12 @@ export function DragContainer(props: DragContainerProps) {
         buttonVariant={props.buttonVariant}
         disabled={props.disabled}
         loading={props.loading}
-        onClick={props.onClick}
+        onClick={(event) => {
+          if (props.disabled) return;
+          if (props.onClick) {
+            props.onClick(event);
+          }
+        }}
         style={props.style}
       >
         {props.children}
