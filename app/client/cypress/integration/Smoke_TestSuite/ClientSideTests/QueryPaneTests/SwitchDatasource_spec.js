@@ -78,13 +78,7 @@ describe("Switch datasource", function() {
   });
 
   it("4. Delete the query and datasources", function() {
-    cy.get(queryEditor.queryMoreAction).click();
-    cy.get(queryEditor.deleteUsingContext).click();
-    cy.wait("@deleteAction").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.deleteQueryUsingContext();
 
     cy.deleteDatasource(postgresDatasourceName);
     cy.deleteDatasource(mongoDatasourceName);

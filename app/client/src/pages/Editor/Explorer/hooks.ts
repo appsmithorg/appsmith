@@ -75,33 +75,72 @@ export const useDatasourcesPageMapInCurrentApplication = () => {
   }, [actions, reducerDatasources]);
 };
 
-export const useAppWideAndOtherDatasource = () => {
+export const useCurrentApplicationDatasource = () => {
   const actions = useSelector(getActions);
   const allDatasources = useSelector(getDatasources);
-  const appWideDatasourcesIds = actions.reduce((acc, action: ActionData) => {
-    if (
-      isStoredDatasource(action.config.datasource) &&
-      action.config.datasource.id
-    ) {
-      acc.add(action.config.datasource.id);
-    }
-    return acc;
-  }, new Set());
-  return allDatasources
-    .sort((ds1, ds2) =>
+  const datasourceIdsUsedInCurrentApplication = actions.reduce(
+    (acc, action: ActionData) => {
+      if (
+        isStoredDatasource(action.config.datasource) &&
+        action.config.datasource.id
+      ) {
+        acc.add(action.config.datasource.id);
+      }
+      return acc;
+    },
+    new Set(),
+  );
+  return allDatasources.filter((ds) =>
+    datasourceIdsUsedInCurrentApplication.has(ds.id),
+  );
+};
+
+export const useOtherDatasourcesInOrganization = () => {
+  const actions = useSelector(getActions);
+  const allDatasources = useSelector(getDatasources);
+  const datasourceIdsUsedInCurrentApplication = actions.reduce(
+    (acc, action: ActionData) => {
+      if (
+        isStoredDatasource(action.config.datasource) &&
+        action.config.datasource.id
+      ) {
+        acc.add(action.config.datasource.id);
+      }
+      return acc;
+    },
+    new Set(),
+  );
+  return allDatasources.filter(
+    (ds) => !datasourceIdsUsedInCurrentApplication.has(ds.id),
+  );
+};
+
+export const useAppWideAndOtherDatasource = () => {
+  const datasourcesUsedInApplication = useCurrentApplicationDatasource();
+  const otherDatasourceInOrg = useOtherDatasourcesInOrganization();
+
+  return {
+    appWideDS: datasourcesUsedInApplication.sort((ds1, ds2) =>
       ds1.name?.toLowerCase()?.localeCompare(ds2.name?.toLowerCase()),
-    )
-    .reduce(
-      (acc: any, ds) => {
-        if (appWideDatasourcesIds.has(ds.id)) {
-          acc.appWideDS = acc.appWideDS.concat(ds);
-        } else {
-          acc.otherDS = acc.otherDS.concat(ds);
-        }
-        return acc;
-      },
-      { appWideDS: [], otherDS: [] },
-    );
+    ),
+    otherDS: otherDatasourceInOrg.sort((ds1, ds2) =>
+      ds1.name?.toLowerCase()?.localeCompare(ds2.name?.toLowerCase()),
+    ),
+  };
+};
+
+const MAX_DATASOURCE_SUGGESTIONS = 3;
+
+export const useDatasourceSuggestions = () => {
+  const datasourcesUsedInApplication = useCurrentApplicationDatasource();
+  const otherDatasourceInOrg = useOtherDatasourcesInOrganization();
+  if (datasourcesUsedInApplication.length >= MAX_DATASOURCE_SUGGESTIONS)
+    return [];
+  otherDatasourceInOrg.reverse();
+  return otherDatasourceInOrg.slice(
+    0,
+    MAX_DATASOURCE_SUGGESTIONS - datasourcesUsedInApplication.length,
+  );
 };
 
 export const useFilteredDatasources = (searchKeyword?: string) => {

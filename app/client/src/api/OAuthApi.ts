@@ -10,8 +10,12 @@ class OAuthApi extends Api {
   static getAppsmithToken(
     datasourceId: string,
     pageId: string,
+    isImport?: boolean,
   ): AxiosPromise<GenericApiResponse<string>> {
-    return Api.post(`${OAuthApi.url}/${datasourceId}/pages/${pageId}/oauth`);
+    const isImportQuery = isImport ? "?importForGit=true" : "";
+    return Api.post(
+      `${OAuthApi.url}/${datasourceId}/pages/${pageId}/oauth${isImportQuery}`,
+    );
   }
 
   // Api endpoint to get access token for datasource authorization
