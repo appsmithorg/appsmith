@@ -5,6 +5,8 @@ import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.git.service.GitExecutorImpl;
@@ -23,9 +25,9 @@ import com.appsmith.server.domains.GitDeployKeys;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
-import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -474,7 +476,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .onErrorResume(e -> {
                     log.error("Error in commit flow: ", e);
                     if (e instanceof RepositoryNotFoundException) {
-                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", e));
+                        return Mono.error(new AppsmithException(AppsmithError.REPOSITORY_NOT_FOUND, defaultApplicationId));
                     } else if (e instanceof AppsmithException) {
                         return Mono.error(e);
                     }
@@ -1195,7 +1197,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         //If the user is trying to check out remote branch, create a new branch if the branch does not exist already
         if (branchName.startsWith("origin/")) {
             String finalBranchName = branchName.replaceFirst("origin/", "");
-            return listBranchForApplication(defaultApplicationId, false, branchName)
+            return listBranches(defaultApplicationId, false, branchName)
                     .flatMap(gitBranchDTOList -> {
                         long branchMatchCount = gitBranchDTOList
                                 .stream()
@@ -1342,7 +1344,17 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     @Override
-    public Mono<List<GitBranchDTO>> listBranchForApplication(String defaultApplicationId, Boolean pruneBranches, String currentBranch) {
+    public Mono<List<GitBranchDTO>> listBranches(String defaultApplicationId, Boolean pruneBranches, String currentBranch) {
+        /*
+          1. Fetch default application
+          2. Check if sync branch required
+            - true =>
+                - fetch remote to get all the branches available in remote
+                - delete stale branches in local and in DB
+            - false => list branches from local repo
+          3. Clone repo and sync with DB if the repo is not found in local
+          4. Send analytics event
+        */
         Mono<List<GitBranchDTO>> branchMono = getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
@@ -1376,19 +1388,23 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 gitApplicationMetadata.getGitAuth().getPublicKey(),
                                 false);
                     }
-                    return Mono.zip(gitBranchDTOMono, Mono.just(application), Mono.just(repoPath))
+                    return Mono.zip(gitBranchDTOMono
                             .onErrorResume(error -> {
-                                if (error instanceof RepositoryNotFoundException) {
+                                if (error instanceof RepositoryNotFoundException
+                                        || (error instanceof AppsmithPluginException
+                                        && error.getMessage().equals(AppsmithPluginError.REPOSITORY_NOT_FOUND.getMessage(defaultApplicationId)))) {
+
                                     Mono<List<GitBranchDTO>> branchListMono = handleRepoNotFoundException(defaultApplicationId);
-                                    return Mono.zip(branchListMono, Mono.just(application), Mono.just(repoPath));
+                                    return branchListMono;
                                 }
                                 return Mono.error(new AppsmithException(
                                         AppsmithError.GIT_ACTION_FAILED,
                                         "branch --list",
                                         error.getMessage()));
-                            }
+                            }),
+                            Mono.just(application),
+                            Mono.just(repoPath)
                     );
-
                 })
                 .flatMap(tuple -> {
                     List<GitBranchDTO> gitBranchListDTOS = tuple.getT1();
@@ -1521,6 +1537,12 @@ public class GitServiceCEImpl implements GitServiceCE {
                     } catch (IOException | GitAPIException e) {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", e.getMessage()));
                     }
+                })
+                .onErrorResume(error -> {
+                    if (error instanceof RepositoryNotFoundException) {
+                        return Mono.error(new AppsmithException(AppsmithError.REPOSITORY_NOT_FOUND, defaultApplicationId));
+                    }
+                    return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, error.getMessage()));
                 })
                 .flatMap(tuple -> {
                     Mono<GitStatusDTO> branchedStatusMono = gitExecutor.getStatus(tuple.getT1(), finalBranchName).cache();

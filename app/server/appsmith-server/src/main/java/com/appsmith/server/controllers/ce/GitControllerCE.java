@@ -4,7 +4,6 @@ import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
@@ -154,7 +153,7 @@ public class GitControllerCE {
                                                         @RequestParam(required = false, defaultValue = "false") Boolean pruneBranches,
                                                         @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to get branch list for application {}", defaultApplicationId);
-        return service.listBranchForApplication(defaultApplicationId, BooleanUtils.isTrue(pruneBranches), branchName)
+        return service.listBranches(defaultApplicationId, BooleanUtils.isTrue(pruneBranches), branchName)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 

@@ -1097,7 +1097,7 @@ public class GitServiceTest {
 
         Application application1 = createApplicationConnectedToGit("listBranchForApplication_applicationWithDefaultBranch_returnsLocalAndRemoteDefaultBranch", null);
 
-        Mono<List<GitBranchDTO>> listMono = gitService.listBranchForApplication(application1.getId(), false, "defaultBranch");
+        Mono<List<GitBranchDTO>> listMono = gitService.listBranches(application1.getId(), false, "defaultBranch");
 
         StepVerifier
                 .create(listMono)
@@ -1117,7 +1117,7 @@ public class GitServiceTest {
         testApplication.setOrganizationId(orgId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
-        Mono<List<GitBranchDTO>> listMono = gitService.listBranchForApplication(application1.getId(), false, "defaultBranch");
+        Mono<List<GitBranchDTO>> listMono = gitService.listBranches(application1.getId(), false, "defaultBranch");
 
         StepVerifier
                 .create(listMono)
@@ -1140,7 +1140,7 @@ public class GitServiceTest {
         testApplication.setOrganizationId(orgId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
-        Mono<List<GitBranchDTO>> listMono = gitService.listBranchForApplication(application1.getId(), false, "defaultBranch");
+        Mono<List<GitBranchDTO>> listMono = gitService.listBranches(application1.getId(), false, "defaultBranch");
 
         StepVerifier
                 .create(listMono)
@@ -1178,7 +1178,7 @@ public class GitServiceTest {
 
         Application application1 = createApplicationConnectedToGit("listBranchForApplication", null);
 
-        Mono<List<GitBranchDTO>> listMono = gitService.listBranchForApplication(application1.getId(), true, "defaultBranchName");
+        Mono<List<GitBranchDTO>> listMono = gitService.listBranches(application1.getId(), true, "defaultBranchName");
 
         StepVerifier
                 .create(listMono)
@@ -1219,7 +1219,7 @@ public class GitServiceTest {
 
         Application application1 = createApplicationConnectedToGit("listBranchForApplication_pruneBranchWithAppsmithDefaultBranchFromRemoteDeleted_Success", "defaultBranch");
 
-        Mono<List<GitBranchDTO>> listMono = gitService.listBranchForApplication(application1.getId(), true, "defaultBranchName");
+        Mono<List<GitBranchDTO>> listMono = gitService.listBranches(application1.getId(), true, "defaultBranchName");
 
         StepVerifier
                 .create(listMono)
@@ -1262,7 +1262,7 @@ public class GitServiceTest {
 
         Application application1 = createApplicationConnectedToGit("listBranchForApplication_pruneBranchDefaultBranchUpdatedInRemote_SuccessWithDbUpdatedDefaultBranch", null);
 
-        Mono<Application> applicationMono = gitService.listBranchForApplication(application1.getId(), true, "defaultBranchName").then(applicationService.getById(application1.getId()));
+        Mono<Application> applicationMono = gitService.listBranches(application1.getId(), true, "defaultBranchName").then(applicationService.getById(application1.getId()));
 
         StepVerifier
                 .create(applicationMono)
@@ -1313,7 +1313,7 @@ public class GitServiceTest {
         branchApplication.setGitApplicationMetadata(gitApplicationMetadata);
         branchApplication = applicationService.save(branchApplication).block();
 
-        Mono<Application> applicationMono = gitService.listBranchForApplication(application1.getId(), true, "defaultBranch")
+        Mono<Application> applicationMono = gitService.listBranches(application1.getId(), true, "defaultBranch")
                 .then(applicationService.getById(branchApplication.getId()));
 
         StepVerifier
@@ -1347,7 +1347,7 @@ public class GitServiceTest {
 
         Application application1 = createApplicationConnectedToGit("listBranchForApplication_pruneBranchNoChangesInRemote_Success", null);
 
-        Mono<List<GitBranchDTO>> listMono = gitService.listBranchForApplication(application1.getId(), true, "defaultBranch");
+        Mono<List<GitBranchDTO>> listMono = gitService.listBranches(application1.getId(), true, "defaultBranch");
 
         StepVerifier
                 .create(listMono)
@@ -1388,7 +1388,7 @@ public class GitServiceTest {
 
         Application application1 = createApplicationConnectedToGit("listBranchForApplication_pruneBranchWithBranchNotExistsInDB_Success", "defaultBranch");
 
-        Mono<List<GitBranchDTO>> listMono = gitService.listBranchForApplication(application1.getId(), true, "defaultBranch");
+        Mono<List<GitBranchDTO>> listMono = gitService.listBranches(application1.getId(), true, "defaultBranch");
 
         StepVerifier
                 .create(listMono)

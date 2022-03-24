@@ -5,6 +5,8 @@ import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.git.configurations.GitServiceConfig;
@@ -34,6 +36,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -395,8 +398,12 @@ public class GitExecutorImpl implements GitExecutor {
                                                  String privateKey,
                                                  String publicKey,
                                                  Boolean refreshBranches) {
-        Stopwatch processStopwatch = new Stopwatch("JGIT listBranches, refreshBranch: " + refreshBranches);
+
         Path baseRepoPath = createRepoPath(repoSuffix);
+        if (!RepositoryHelper.isRepositoryExists(baseRepoPath)) {
+            return  Mono.error(new AppsmithPluginException(AppsmithPluginError.REPOSITORY_NOT_FOUND, baseRepoPath.getParent().getFileName()));
+        }
+        Stopwatch processStopwatch = new Stopwatch("JGIT listBranches, refreshBranch: " + refreshBranches);
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Get branches for the application " + repoSuffix);
             TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
@@ -449,8 +456,11 @@ public class GitExecutorImpl implements GitExecutor {
      */
     @Override
     public Mono<GitStatusDTO> getStatus(Path repoPath, String branchName) {
-        Stopwatch processStopwatch = new Stopwatch("JGIT status");
         return Mono.fromCallable(() -> {
+            if (!RepositoryHelper.isRepositoryExists(repoPath)) {
+                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.REPOSITORY_NOT_FOUND, repoPath));
+            }
+            Stopwatch processStopwatch = new Stopwatch("JGIT status");
             try (Git git = Git.open(repoPath.toFile())) {
                 log.debug(Thread.currentThread().getName() + ": Get status for repo  " + repoPath + ", branch " + branchName);
                 Status status = git.status().call();
@@ -553,9 +563,12 @@ public class GitExecutorImpl implements GitExecutor {
 
     @Override
     public Mono<String> fetchRemote(Path repoSuffix, String publicKey, String privateKey, boolean isRepoPath) {
-        Stopwatch processStopwatch = new Stopwatch("JGIT fetch");
         Path repoPath = Boolean.TRUE.equals(isRepoPath) ? repoSuffix : createRepoPath(repoSuffix);
+        if (!RepositoryHelper.isRepositoryExists(repoPath)) {
+            throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.REPOSITORY_NOT_FOUND, repoPath.getParent().getFileName()));
+        }
         return Mono.fromCallable(() -> {
+            Stopwatch processStopwatch = new Stopwatch("JGIT fetch");
             TransportConfigCallback config = new SshTransportConfigCallback(privateKey, publicKey);
             try (Git git = Git.open(repoPath.toFile())) {
                 log.debug(Thread.currentThread().getName() + ": fetch remote repo " + git.getRepository());
@@ -698,7 +711,11 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     public Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName) throws GitAPIException, IOException {
-        try (Git git = Git.open(createRepoPath(repoSuffix).toFile())){
+        Path repoPath = createRepoPath(repoSuffix);
+        if (!RepositoryHelper.isRepositoryExists(repoPath)) {
+            throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.REPOSITORY_NOT_FOUND, repoPath.getParent().getFileName()));
+        }
+        try (Git git = Git.open(repoPath.toFile())){
             return this.resetToLastCommit(git)
                     .flatMap(ref -> checkoutToBranch(repoSuffix, branchName))
                     .flatMap(checkedOut -> {
