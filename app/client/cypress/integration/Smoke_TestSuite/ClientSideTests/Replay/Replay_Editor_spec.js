@@ -29,7 +29,10 @@ describe("Undo/Redo functionality", function() {
     cy.get(datasourceEditor.password).type(
       datasourceFormData["postgres-password"],
     );
-    cy.get(datasourceEditor.sectionAuthentication).click();
+    cy.get(datasourceEditor.sectionAuthentication)
+      .trigger("click")
+      .wait(1000);
+
     cy.get("body").type(`{${modifierKey}}z`);
     cy.get(
       `${datasourceEditor.sectionAuthentication} .bp3-icon-chevron-up`,
@@ -40,6 +43,7 @@ describe("Undo/Redo functionality", function() {
       .trigger("mouseover");
     cy.get("li:contains(Undo)").click({ multiple: true });
     cy.get(datasourceEditor.username).should("be.empty");
+    cy.get(datasourceEditor.saveBtn).click({ force: true });
   });
 
   it("Checks undo/redo for Api pane", function() {

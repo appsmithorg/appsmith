@@ -15,7 +15,8 @@ export type MenuItemProps = CommonComponentProps & {
   ellipsize?: number;
   selected?: boolean;
   containerClassName?: string;
-  onSelect?: () => void;
+  onSelect?: (e: React.MouseEvent) => void;
+  tooltipPos?: Position; // tooltip position of menu item
 };
 
 const ItemRow = styled.a<{ disabled?: boolean; selected?: boolean }>`
@@ -91,7 +92,10 @@ const IconContainer = styled.span`
 const MenuItem = forwardRef(
   (props: MenuItemProps, ref: Ref<HTMLAnchorElement>) => {
     return props.ellipsize && props.text.length > props.ellipsize ? (
-      <TooltipComponent content={props.text} position={Position.BOTTOM}>
+      <TooltipComponent
+        content={props.text}
+        position={props.tooltipPos || Position.BOTTOM}
+      >
         <MenuItemContent ref={ref} {...props} />
       </TooltipComponent>
     ) : (

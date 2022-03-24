@@ -526,16 +526,16 @@ export const entityDefinitions: Record<string, unknown> = {
   CURRENCY_INPUT_WIDGET: {
     "!doc":
       "An input text field is used to capture a currency value. Inputs are used in forms and can have custom validations.",
-    "!url": "https://docs.appsmith.com/widget-reference/input",
+    "!url": "https://docs.appsmith.com/widget-reference/currency-input",
     text: {
       "!type": "string",
       "!doc": "The formatted text value of the input",
-      "!url": "https://docs.appsmith.com/widget-reference/input",
+      "!url": "https://docs.appsmith.com/widget-reference/currency-input",
     },
     value: {
       "!type": "number",
       "!doc": "The value of the input",
-      "!url": "https://docs.appsmith.com/widget-reference/input",
+      "!url": "https://docs.appsmith.com/widget-reference/currency-input",
     },
     isValid: "bool",
     isVisible: isVisible,
@@ -552,11 +552,16 @@ export const entityDefinitions: Record<string, unknown> = {
   PHONE_INPUT_WIDGET: {
     "!doc":
       "An input text field is used to capture a phone number. Inputs are used in forms and can have custom validations.",
-    "!url": "https://docs.appsmith.com/widget-reference/input",
+    "!url": "https://docs.appsmith.com/widget-reference/phone-input",
     text: {
       "!type": "string",
       "!doc": "The text value of the input",
-      "!url": "https://docs.appsmith.com/widget-reference/input",
+      "!url": "https://docs.appsmith.com/widget-reference/phone-input",
+    },
+    value: {
+      "!type": "string",
+      "!doc": "The unformatted text value of the input",
+      "!url": "https://docs.appsmith.com/widget-reference/phone-input",
     },
     isValid: "bool",
     isVisible: isVisible,
@@ -576,6 +581,15 @@ export const entityDefinitions: Record<string, unknown> = {
     isVisible: isVisible,
     progress: "number",
   },
+  JSON_FORM_WIDGET: (widget: any) => ({
+    "!doc":
+      "JSON Form widget can be used to auto-generate forms by providing a JSON source data.",
+    // TODO: Update the url
+    "!url": "https://docs.appsmith.com/widget-reference",
+    formData: generateTypeDef(widget.formData),
+    sourceData: generateTypeDef(widget.sourceData),
+    fieldState: generateTypeDef(widget.fieldState),
+  }),
 };
 
 export const GLOBAL_DEFS = {

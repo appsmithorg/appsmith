@@ -95,6 +95,10 @@ public class GitFileUtils {
         copyProperties(applicationJson, applicationMetadata, keys);
         applicationReference.setMetadata(applicationMetadata);
 
+        // Remove policies from the themes
+        applicationJson.getEditModeTheme().setPolicies(null);
+        applicationJson.getPublishedTheme().setPolicies(null);
+
         // Pass pages within the application
         Map<String, Object> resourceMap = new HashMap<>();
         applicationJson.getPageList().forEach(newPage -> {
@@ -254,6 +258,8 @@ public class GitFileUtils {
         // Don't commit application name as while importing we are using the repoName as application name
         application.setName(null);
         application.setPublishedPages(null);
+        application.setIsPublic(null);
+        application.setSlug(null);
     }
 
     private void removeUnwantedFieldsFromDatasource(Datasource datasource) {
@@ -262,6 +268,8 @@ public class GitFileUtils {
         datasource.setUpdatedAt(null);
         datasource.setCreatedAt(null);
         datasource.setUserPermissions(null);
+        datasource.setIsConfigured(null);
+        datasource.setInvalids(null);
     }
 
     private void removeUnwantedFieldFromAction(NewAction action) {

@@ -68,7 +68,7 @@ import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
 
-function* failFastApiCalls(
+export function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
   successActions: string[],
   failureActions: string[],
