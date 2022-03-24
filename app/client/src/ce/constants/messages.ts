@@ -997,11 +997,6 @@ export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
 export const CREATE_DATASOURCE_TOOLTIP = () => "Add a new datasource";
 export const ADD_QUERY_JS_TOOLTIP = () => "Create New";
 
-// Add datasource
-export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
-export const GENERATE_APPLICATION_DESCRIPTION = () =>
-  "Quickly generate a page to perform CRUD operations on your database tables";
-
 export const DELETE_ORG_SUCCESSFUL = () => "Organization deleted successfully";
 
 export const UPGRADE_TO_EE = (authLabel: string) =>
