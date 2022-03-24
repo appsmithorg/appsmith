@@ -115,7 +115,7 @@ export const DEFAULT_DATASOURCE = (
 ): EmbeddedRestDatasource => ({
   name: "DEFAULT_REST_DATASOURCE",
   datasourceConfiguration: {
-    url: "",
+    url: "https://mock-api.appsmith.com/users",
   },
   invalids: [],
   isValid: true,
