@@ -141,3 +141,16 @@ export const boxShadowOptions: Record<string, string> = {
 export const colorsPropertyName = "colors";
 
 export const DEFAULT_FONT_SIZE = "1rem";
+
+//Text sizes in theming
+export const THEMEING_TEXT_SIZES = {
+  sm: "0.875rem",
+  base: "1rem",
+  lg: "1.25rem",
+  xl: "1.875rem",
+  "2xl": "3rem",
+  "3xl": "3.75rem",
+};
+
+//Text sizes type
+export type ThemingTextSizes = keyof typeof THEMEING_TEXT_SIZES;

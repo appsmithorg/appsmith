@@ -3,11 +3,7 @@ import { Checkbox, Classes, Label } from "@blueprintjs/core";
 import styled, { keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
-import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
+import { FontStyleTypes, TextSize } from "constants/WidgetConstants";
 import Icon from "components/ads/Icon";
 import { lightenColor } from "widgets/WidgetUtils";
 import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
@@ -49,7 +45,7 @@ export const StyledLabel = styled(Label)<{
   color: ${(props) =>
     props.disabled ? Colors.GREY_8 : props.$labelTextColor || "inherit"};
   font-size: ${(props) =>
-    props.$labelTextSize ? TEXT_SIZES[props.$labelTextSize] : "14px"};
+    props.$labelTextSize ? props.$labelTextSize : "0.875rem"};
   font-weight: ${(props) =>
     props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
   font-style: ${(props) =>

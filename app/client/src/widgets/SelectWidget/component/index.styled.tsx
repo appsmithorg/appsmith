@@ -1,11 +1,7 @@
 import { Classes, ControlGroup, Label } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
+import { FontStyleTypes, TextSize } from "constants/WidgetConstants";
 import { DropdownOption } from "../constants";
 import { Select } from "@blueprintjs/select";
 import {
@@ -45,7 +41,7 @@ export const StyledLabel = styled(Label)<{
       ? Colors.GREY_8
       : "inherit"};
   font-size: ${(props) =>
-    props.$labelTextSize ? TEXT_SIZES[props.$labelTextSize] : "14px"};
+    props.$labelTextSize ? props.$labelTextSize : "0.875rem"};
   font-weight: ${(props) =>
     props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
   font-style: ${(props) =>

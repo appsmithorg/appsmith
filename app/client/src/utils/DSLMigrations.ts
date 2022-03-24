@@ -1628,6 +1628,30 @@ export const migrateStylingPropertiesForTheming = (
         break;
     }
 
+    //migrate label text sizes
+    switch (child.labelTextSize) {
+      case TextSizes.PARAGRAPH2:
+        child.labelTextSize = "0.75rem";
+        addPropertyToDynamicPropertyPathList("labelTextSize", child);
+        break;
+      case TextSizes.PARAGRAPH:
+        child.labelTextSize = "0.875rem";
+        break;
+      case TextSizes.HEADING3:
+        child.labelTextSize = "1rem";
+        break;
+      case TextSizes.HEADING2:
+        child.labelTextSize = "1.125rem";
+        addPropertyToDynamicPropertyPathList("labelTextSize", child);
+        break;
+      case TextSizes.HEADING1:
+        child.labelTextSize = "1.5rem";
+        addPropertyToDynamicPropertyPathList("labelTextSize", child);
+        break;
+      default:
+        child.labelTextSize = "0.875rem";
+    }
+
     /**
      * Add primaryColor color to missing widgets
      */
