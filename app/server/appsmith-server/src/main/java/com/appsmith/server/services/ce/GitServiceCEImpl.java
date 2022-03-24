@@ -1394,8 +1394,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         || (error instanceof AppsmithPluginException
                                         && error.getMessage().equals(AppsmithPluginError.REPOSITORY_NOT_FOUND.getMessage(defaultApplicationId)))) {
 
-                                    Mono<List<GitBranchDTO>> branchListMono = handleRepoNotFoundException(defaultApplicationId);
-                                    return branchListMono;
+                                    return handleRepoNotFoundException(defaultApplicationId);
                                 }
                                 return Mono.error(new AppsmithException(
                                         AppsmithError.GIT_ACTION_FAILED,
