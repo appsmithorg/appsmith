@@ -550,6 +550,7 @@ class ButtonGroupComponent extends React.Component<
       isDisabled,
       minPopoverWidth,
       orientation,
+      widgetId,
     } = this.props;
     const isHorizontal = orientation === "horizontal";
 
@@ -574,11 +575,11 @@ class ButtonGroupComponent extends React.Component<
 
           if (button.buttonType === "MENU" && !isButtonDisabled) {
             const { menuItems } = button;
-
+            const popoverId = `${widgetId}-${button.id}`;
             return (
               <MenuButtonWrapper key={button.id}>
                 <PopoverStyles
-                  id={button.id}
+                  id={popoverId}
                   minPopoverWidth={minPopoverWidth}
                   popoverTargetWidth={this.state.itemWidths[button.id]}
                 />
@@ -593,7 +594,7 @@ class ButtonGroupComponent extends React.Component<
                   fill
                   minimal
                   placement="bottom-end"
-                  popoverClassName={`menu-button-popover menu-button-width-${button.id}`}
+                  popoverClassName={`menu-button-popover menu-button-width-${popoverId}`}
                 >
                   <DragContainer
                     buttonColor={button.buttonColor}
@@ -720,6 +721,7 @@ export interface ButtonGroupComponentProps {
   renderMode: RenderMode;
   width: number;
   minPopoverWidth: number;
+  widgetId: string;
 }
 
 export interface ButtonGroupComponentState {

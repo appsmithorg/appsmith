@@ -550,6 +550,7 @@ class ButtonGroupWidget extends BaseWidget<
         minPopoverWidth={minPopoverWidth}
         orientation={this.props.orientation}
         renderMode={this.props.renderMode}
+        widgetId={this.props.widgetId}
         width={componentWidth}
       />
     );
