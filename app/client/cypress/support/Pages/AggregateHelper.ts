@@ -77,11 +77,11 @@ export class AggregateHelper {
         this.Sleep()
     }
 
-    public NavigateToExplorer() {
-        cy.get(locator._openNavigationTab('explorer')).click()
+    public NavigateToSwitcher(navigationTab : 'explorer' | 'widgets') {
+        cy.get(locator._openNavigationTab(navigationTab)).click()
     }
 
-    public ValidateEntityPresenceInExplorer(entityNameinLeftSidebar: string) {
+    public AssertEntityPresenceInExplorer(entityNameinLeftSidebar: string) {
         cy.xpath(locator._entityNameInExplorer(entityNameinLeftSidebar))
             .should("have.length", 1);
     }
@@ -152,22 +152,22 @@ export class AggregateHelper {
         });
     }
 
-    public WaitUntilEleDisappear(selector: string, msgToCheckforDisappearance: string, timeout = 1000) {
+    public WaitUntilEleDisappear(selector: string, msgToCheckforDisappearance: string) {
         cy.waitUntil(() => cy.get(selector).contains(msgToCheckforDisappearance).should("have.length", 0),
             {
                 errorMsg: msgToCheckforDisappearance + " did not disappear",
                 timeout: 5000,
                 interval: 1000
-            }).then(() => this.Sleep(timeout))
+            }).then(() => this.Sleep())
     }
 
-    public WaitUntilEleAppear(selector: string, timeout = 500) {
+    public WaitUntilEleAppear(selector: string) {
         cy.waitUntil(() => cy.get(selector, { timeout: 50000 }).should("have.length.greaterThan", 0),
             {
                 errorMsg: "Element did not appear",
                 timeout: 5000,
                 interval: 1000
-            }).then(() => this.Sleep(timeout))
+            }).then(() => this.Sleep(500))
     }
 
     public ValidateNetworkExecutionSuccess(aliasName: string, expectedRes = true) {
@@ -178,15 +178,7 @@ export class AggregateHelper {
         )
     }
 
-    public ValidateNetworkStatus(aliasName: string, expectedRes = 200) {
-        cy.wait(aliasName).should(
-            "have.nested.property",
-            "response.body.responseMeta.status",
-            expectedRes,
-        )
-    }
-
-    public ValidateNetworkCallRespPut(aliasName: string, expectedStatus = 200) {
+    public ValidateNetworkStatus(aliasName: string, expectedStatus = 200) {
         cy.wait(aliasName).should(
             "have.nested.property",
             "response.body.responseMeta.status",
@@ -258,7 +250,7 @@ export class AggregateHelper {
     }
 
     public DragDropWidgetNVerify(widgetType: string, x: number, y: number) {
-        cy.get(locator._openNavigationTab('widgets')).click({ force: true })
+        this.NavigateToSwitcher('widgets')
         this.Sleep()
         cy.get(locator._widgetPageIcon(widgetType)).first()
             .trigger("dragstart", { force: true })

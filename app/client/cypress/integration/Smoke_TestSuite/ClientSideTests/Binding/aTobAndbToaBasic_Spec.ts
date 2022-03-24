@@ -24,13 +24,13 @@ describe("Validate basic binding of Input widget to Input widget", () => {
         agHelper.expandCollapseEntity("WIDGETS")
         agHelper.SelectEntityByName("Input1")
         jsEditor.EnterJSContext("defaulttext", dataSet.atobInput + "}}");
-        agHelper.ValidateNetworkCallRespPut('@updateLayout')
+        agHelper.ValidateNetworkStatus('@updateLayout')
     });
 
     it("2. Input widget test with default value for btoa method", function () {
         agHelper.SelectEntityByName("Input2")
         jsEditor.EnterJSContext("defaulttext", dataSet.btoaInput + "}}");
-        agHelper.ValidateNetworkCallRespPut('@updateLayout')
+        agHelper.ValidateNetworkStatus('@updateLayout')
     });
 
     it("3. Publish and validate the data displayed in input widgets value for aToB and bToa", function () {

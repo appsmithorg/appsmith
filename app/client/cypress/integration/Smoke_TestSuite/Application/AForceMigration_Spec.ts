@@ -1,11 +1,12 @@
-// const widgetsPage = require("../../../locators/Widgets.json");
-// import homePage from "../../../locators/HomePage";
+const widgetsPage = require("../../../locators/Widgets.json");
+import homePage from "../../../locators/HomePage";
 
-// describe("Migration Validate", function () {
-//   it("1. Import application and Validate Migration on pageload", function () {
-//     // import application
-//     cy.get(homePage.homeIcon).click();
-//     cy.get(homePage.optionsIcon)
+describe("Migration Validate", function () {
+   it("1. Import application and Validate Table default columns", function () {
+
+
+//    cy.get(homePage.homeIcon).click();
+//      cy.get(homePage.optionsIcon)
 //       .first()
 //       .click();
 //     cy.get(homePage.orgImportAppOption).click({ force: true });
@@ -503,5 +504,5 @@
 //       .invoke("attr", "value")
 //       .should("contain", "#FFC13D");
 //     cy.get(widgetsPage.selectedTextSize).should("have.text", "24px");
-//   });
-// });
+  });
+});

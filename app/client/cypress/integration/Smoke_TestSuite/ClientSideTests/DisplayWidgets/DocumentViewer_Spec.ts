@@ -10,7 +10,7 @@ describe("DocumentViewer Widget Functionality", () => {
   });
 
   it("2. Modify visibility & Publish app & verify", () => {
-    agHelper.NavigateToExplorer();
+    agHelper.NavigateToSwitcher('explorer')
     agHelper.expandCollapseEntity("WIDGETS"); //to expand widgets
     agHelper.SelectEntityByName("DocumentViewer1");
     agHelper.ToggleOrDisable("visible", false);

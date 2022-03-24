@@ -24,13 +24,13 @@ describe("Validate basic binding of Input widget to Input widget", () => {
         agHelper.expandCollapseEntity("WIDGETS")
         agHelper.SelectEntityByName("Input1")
         jsEditor.EnterJSContext("defaulttext", dataSet.defaultInputBinding + "}}");
-        agHelper.ValidateNetworkCallRespPut('@updateLayout')
+        agHelper.ValidateNetworkStatus('@updateLayout')
     });
 
     it("2. Binding second input widget with first input widget and validating", function () {
         agHelper.SelectEntityByName("Input2")
         jsEditor.EnterJSContext("defaulttext", dataSet.momentInput + "}}");
-        agHelper.ValidateNetworkCallRespPut('@updateLayout')
+        agHelper.ValidateNetworkStatus('@updateLayout')
     });
 
     it("3. Publish widget and validate the data displayed in input widgets", function () {

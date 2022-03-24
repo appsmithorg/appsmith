@@ -10,13 +10,13 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
   it("1. Validate JSObject creation & Run", () => {
     jsEditor.CreateJSObject('return "Hello World";');
     agHelper.expandCollapseEntity("QUERIES/JS");
-    agHelper.ValidateEntityPresenceInExplorer("JSObject1");
+    agHelper.AssertEntityPresenceInExplorer("JSObject1");
     jsEditor.validateDefaultJSObjProperties("JSObject1");
   });
 
   it("2. Validate Rename JSObject from Form Header", function() {
     jsEditor.RenameJSObjFromForm("RenamedJSObject");
-    agHelper.ValidateEntityPresenceInExplorer("RenamedJSObject");
+    agHelper.AssertEntityPresenceInExplorer("RenamedJSObject");
     jsEditor.validateDefaultJSObjProperties("RenamedJSObject");
   });
 
@@ -31,20 +31,20 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
       "response.body.responseMeta.status",
       201,
     );
-    agHelper.ValidateEntityPresenceInExplorer("RenamedJSObjectCopy");
+    agHelper.AssertEntityPresenceInExplorer("RenamedJSObjectCopy");
     jsEditor.validateDefaultJSObjProperties("RenamedJSObjectCopy");
   });
 
   it("4. Validate Rename JSObject from Entity Explorer", function() {
     jsEditor.RenameJSObjFromExplorer("RenamedJSObject", "ExplorerRenamed");
-    agHelper.ValidateEntityPresenceInExplorer("ExplorerRenamed");
+    agHelper.AssertEntityPresenceInExplorer("ExplorerRenamed");
     jsEditor.validateDefaultJSObjProperties("ExplorerRenamed");
   });
 
   it("5. Validate Move JSObject", function() {
     const newPageId = "Page2";
     agHelper.AddNewPage();
-    agHelper.ValidateEntityPresenceInExplorer(newPageId);
+    agHelper.AssertEntityPresenceInExplorer(newPageId);
     agHelper.SelectEntityByName(pageId);
     agHelper.expandCollapseEntity("QUERIES/JS");
     agHelper.ActionContextMenuByEntityName(
@@ -53,13 +53,13 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
       newPageId,
     );
     agHelper.SelectEntityByName(newPageId);
-    agHelper.ValidateEntityPresenceInExplorer("RenamedJSObjectCopy");
+    agHelper.AssertEntityPresenceInExplorer("RenamedJSObjectCopy");
     jsEditor.validateDefaultJSObjProperties("RenamedJSObjectCopy");
   });
 
   it("6. Validate Deletion of JSObject", function() {
     agHelper.SelectEntityByName(pageId);
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    agHelper.expandCollapseEntity("QUERIES/JS")
     agHelper.ActionContextMenuByEntityName(
       "ExplorerRenamed",
       "Delete",

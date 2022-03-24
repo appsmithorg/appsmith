@@ -19,7 +19,7 @@ export class JSEditor {
     cy.get(this._newJSobj).click({ force: true });
 
     //cy.waitUntil(() => cy.get(locator._toastMsg).should('not.be.visible')) // fails sometimes
-    agHelper.WaitUntilEleDisappear(locator._toastMsg, 'created successfully', 1000)
+    agHelper.WaitUntilEleDisappear(locator._toastMsg, 'created successfully')
   }
 
   public CreateJSObject(JSCode: string, paste = true, completeReplace = false) {
@@ -143,7 +143,7 @@ export class JSEditor {
     cy.xpath(locator._entityNameEditing(entityName)).type(
       renameVal + "{enter}",
     );
-    agHelper.ValidateEntityPresenceInExplorer(renameVal);
+    agHelper.AssertEntityPresenceInExplorer(renameVal);
     agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
   }
 
