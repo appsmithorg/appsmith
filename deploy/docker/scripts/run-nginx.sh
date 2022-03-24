@@ -40,15 +40,17 @@ ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
 EOF
 
 # Check exist certificate with given custom domain
-if [[ -n ${APPSMITH_CUSTOM_DOMAIN:-} ]]; then
+# Heroku not support for custom domain, only generate HTTP config if deploying on Heroku
+if [[ -n $APPSMITH_CUSTOM_DOMAIN ]] && [[ -z $DYNO ]]; then
 	APP_TEMPLATE="$https_conf"
-	if ! [[ -e "/etc/letsencrypt/live/$APPSMITH_CUSTOM_DOMAIN" ]]; then
-		source "/opt/appsmith/init_ssl_cert.sh"
+  if ! [[ -e "/etc/letsencrypt/live/$APPSMITH_CUSTOM_DOMAIN" ]]; then
+    source "/opt/appsmith/init_ssl_cert.sh"
+    init_ssl_cert "$APPSMITH_CUSTOM_DOMAIN"
 		if ! init_ssl_cert "$APPSMITH_CUSTOM_DOMAIN"; then
 			echo "Status code from init_ssl_cert is $?"
 			APP_TEMPLATE="$http_conf"
 		fi
-	fi
+  fi
 fi
 
 bash "$APP_TEMPLATE" "${APPSMITH_CUSTOM_DOMAIN:-}" > /etc/nginx/sites-available/default
