@@ -16,7 +16,7 @@ import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import Pagination from "./Pagination";
 import { PaginationType, Action } from "entities/Action";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
-import { NameWrapper } from "./Form";
+import { NameWrapper } from "./CommonEditorForm";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 const Form = styled.form`
   display: flex;

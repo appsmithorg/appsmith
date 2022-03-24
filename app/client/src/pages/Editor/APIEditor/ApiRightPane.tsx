@@ -6,7 +6,7 @@ import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import history from "utils/history";
 import { TabComponent } from "components/ads/Tabs";
 import Text, { FontWeight, TextType } from "components/ads/Text";
-import { TabbedViewContainer } from "./Form";
+import { TabbedViewContainer } from "./CommonEditorForm";
 import get from "lodash/get";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
 import ActionRightPane, {

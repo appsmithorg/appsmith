@@ -112,7 +112,7 @@ public class DatabaseChangelog2 {
         plugin.setName("GraphQL");
         plugin.setType(PluginType.API);
         plugin.setPackageName("graphql-plugin");
-        plugin.setUiComponent("ApiEditorForm"); // TODO: make it ApiEditorForm -> GraphQLEditorForm
+        plugin.setUiComponent("GraphQLEditorForm"); // TODO: make it ApiEditorForm -> GraphQLEditorForm
         plugin.setDatasourceComponent("AutoForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
         plugin.setIconLocation("https://upload.wikimedia.org/wikipedia/commons/1/17/GraphQL_Logo.svg"); // TODO: update

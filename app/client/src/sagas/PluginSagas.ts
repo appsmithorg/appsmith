@@ -74,6 +74,11 @@ function* fetchPluginFormConfigsSaga() {
     if (apiPlugin) {
       pluginIdFormsToFetch.add(apiPlugin.id);
     }
+
+    if (graphqlPlugin) {
+      pluginIdFormsToFetch.add(graphqlPlugin.id);
+    }
+
     for (const id of pluginIdFormsToFetch) {
       pluginFormRequests.push(yield call(PluginsApi.fetchFormConfig, id));
     }
@@ -86,10 +91,6 @@ function* fetchPluginFormConfigsSaga() {
 
     if (jsPlugin) {
       pluginIdFormsToFetch.add(jsPlugin.id);
-    }
-
-    if (graphqlPlugin) {
-      pluginIdFormsToFetch.add(graphqlPlugin.id);
     }
     const formConfigs: Record<string, any[]> = {};
     const editorConfigs: FormEditorConfigs = {};

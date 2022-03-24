@@ -11,6 +11,11 @@ export enum HTTP_METHOD {
   PATCH = "PATCH",
 }
 
+export enum GRAPHQL_HTTP_METHOD {
+  GET = "GET",
+  POST = "POST",
+}
+
 export const HTTP_METHODS_COLOR: Record<HTTP_METHOD, string> = {
   GET: "#457AE6",
   POST: "#EABB0C",

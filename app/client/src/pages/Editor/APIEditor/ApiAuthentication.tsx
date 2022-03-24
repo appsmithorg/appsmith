@@ -13,7 +13,6 @@ import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { getQueryParams } from "utils/AppsmithUtils";
 import Text, { TextType } from "components/ads/Text";
 import { AuthType } from "entities/Datasource/RestAPIForm";
-import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { formValueSelector } from "redux-form";
 import { AppState } from "reducers";
 import { ReactComponent as SheildSuccess } from "assets/icons/ads/shield-success.svg";
@@ -66,8 +65,6 @@ const OAuthText = styled.span<ErrorProps>`
 const DescriptionText = styled(Text)`
   margin: 12px auto;
 `;
-
-const apiFormValueSelector = formValueSelector(API_EDITOR_FORM_NAME);
 
 function OAuthLabel(props: ErrorProps) {
   return (
@@ -138,7 +135,8 @@ function ApiAuthentication(props: Props): JSX.Element {
   );
 }
 
-const mapStateToProps = (state: AppState): ReduxStateProps => {
+const mapStateToProps = (state: AppState, ownProps: any): ReduxStateProps => {
+  const apiFormValueSelector = formValueSelector(ownProps.formName);
   const datasourceFromAction = apiFormValueSelector(state, "datasource");
   let datasourceMerged = datasourceFromAction;
   if (datasourceFromAction && "id" in datasourceFromAction) {
