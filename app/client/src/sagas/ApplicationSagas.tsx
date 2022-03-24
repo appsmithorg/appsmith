@@ -426,6 +426,7 @@ export function* duplicateApplicationSaga(
       const { slug } = application;
       const defaultPage = application.pages.find((page) => page.isDefault);
       const pageURL = builderURL({
+        applicationVersion: application.applicationVersion,
         applicationSlug: slug,
         pageSlug: defaultPage?.slug,
         pageId: application.defaultPageId as string,
@@ -621,7 +622,7 @@ export function* forkApplicationSaga(
         (page: ApplicationPagePayload) => page.isDefault,
       );
       const pageURL = builderURL({
-        // Comeback
+        applicationVersion: application.applicationVersion,
         applicationSlug: application.slug as string,
         pageSlug: defaultPage.slug,
         pageId: application.defaultPageId as string,
