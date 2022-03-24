@@ -111,6 +111,7 @@ export const entityDefinitions: Record<string, unknown> = {
     triggeredRow: generateTypeDef(widget.triggeredRow),
     selectedRowIndex: "number",
     tableData: generateTypeDef(widget.tableData),
+    filteredTableData: generateTypeDef(widget.filteredTableData),
     pageNo: "number",
     pageSize: "number",
     isVisible: isVisible,
