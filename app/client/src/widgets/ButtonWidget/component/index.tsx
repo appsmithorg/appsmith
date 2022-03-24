@@ -469,7 +469,6 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
         <Popover2
           autoFocus={false}
           content={<Interweave content={props.tooltip} />}
-          disabled={props.isDisabled}
           hoverOpenDelay={200}
           interactionKind="hover"
           portalClassName="btnTooltipContainer"
