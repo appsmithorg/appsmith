@@ -122,3 +122,6 @@ jobs:
         with:
           name: build
           path: app/client/build/
+          
+      - name: Copy labels from an connected issue to the PR
+        uses: hetunandu/copy-labels-from-issue@v1
