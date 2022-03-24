@@ -70,4 +70,4 @@ const content = fs.readFileSync("'"$index_html_original"'", "utf8").replace(
 fs.writeFileSync("'"$index_html_served"'", content)
 '
 
-exec nginx -g "daemon off;"
+exec nginx -g "daemon off;error_log stderr info;"

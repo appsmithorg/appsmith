@@ -13,6 +13,8 @@ map \$http_x_forwarded_proto \$origin_scheme {
   default \$http_x_forwarded_proto;
   '' \$scheme;
 }
+# redirect log to stdout for supervisor to capture
+access_log /dev/stdout;
 
 server {
   listen ${PORT:-80} default_server;
