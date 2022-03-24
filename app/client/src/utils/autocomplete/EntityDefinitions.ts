@@ -581,6 +581,15 @@ export const entityDefinitions: Record<string, unknown> = {
     isVisible: isVisible,
     progress: "number",
   },
+  JSON_FORM_WIDGET: (widget: any) => ({
+    "!doc":
+      "JSON Form widget can be used to auto-generate forms by providing a JSON source data.",
+    // TODO: Update the url
+    "!url": "https://docs.appsmith.com/widget-reference",
+    formData: generateTypeDef(widget.formData),
+    sourceData: generateTypeDef(widget.sourceData),
+    fieldState: generateTypeDef(widget.fieldState),
+  }),
 };
 
 export const GLOBAL_DEFS = {

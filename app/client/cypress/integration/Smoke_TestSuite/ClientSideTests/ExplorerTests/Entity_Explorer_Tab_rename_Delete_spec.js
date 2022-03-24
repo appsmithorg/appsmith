@@ -44,7 +44,7 @@ describe("Tab widget test", function() {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(3000);
     cy.validateMessage(tabname);
-    cy.deleteEntity();
+    cy.deleteEntityWithoutConfirmation();
     cy.get(commonlocators.entityExplorersearch)
       .clear({ force: true })
       .type("Tab2", { force: true });
