@@ -1,7 +1,12 @@
 import React, { useEffect } from "react";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router-dom";
-import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
+import {
+  change,
+  reduxForm,
+  InjectedFormProps,
+  formValueSelector,
+} from "redux-form";
 import StyledForm from "components/editorComponents/Form";
 import {
   AuthCardHeader,
@@ -63,10 +68,12 @@ export const ForgotPassword = withTheme(
       submitSucceeded,
       submitting,
     } = props;
+    const dispatch = useDispatch();
 
     useEffect(() => {
       if (submitSucceeded) {
         props.reset();
+        dispatch(change(FORGOT_PASSWORD_FORM_NAME, "email", ""));
       }
     }, [props.emailValue]);
 
