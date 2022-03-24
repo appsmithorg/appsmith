@@ -58,6 +58,8 @@ export interface MultiSelectProps
   filterText?: string;
   widgetId: string;
   isFilterable: boolean;
+  onFocus?: (e: React.FocusEvent) => void;
+  onBlur?: (e: React.FocusEvent) => void;
 }
 
 const DEBOUNCE_TIMEOUT = 1000;
@@ -77,8 +79,10 @@ function MultiSelectComponent({
   labelTextColor,
   labelTextSize,
   loading,
+  onBlur,
   onChange,
   onFilterChange,
+  onFocus,
   options,
   placeholder,
   serverSideFiltering,
@@ -297,8 +301,10 @@ function MultiSelectComponent({
         menuItemSelectedIcon={menuItemSelectedIcon}
         mode="multiple"
         notFoundContent="No Results Found"
+        onBlur={onBlur}
         onChange={onChange}
         onDropdownVisibleChange={onOpen}
+        onFocus={onFocus}
         options={filteredOptions}
         placeholder={placeholder || "select option(s)"}
         removeIcon={

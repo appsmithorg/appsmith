@@ -120,7 +120,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
         "File content is not base64 encoded.",
       );
     });
-    cy.validateNSelectDropdown("File Data Type", "Base64", "Text / Binary");
+    cy.validateNSelectDropdown("File Data Type", "Base64", "Text");
 
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
@@ -249,7 +249,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.typeValueNValidate("AutoFile", "File Path");
 
     //Commenting below since below dropdown is removed from Read
-    //cy.validateNSelectDropdown("File Data Type", "Base64", "Text / Binary");
+    //cy.validateNSelectDropdown("File Data Type", "Base64", "Text");
 
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
@@ -343,7 +343,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     );
     cy.typeValueNValidate("assets-test.appsmith.com", "Bucket Name");
     cy.typeValueNValidate("CRUDNewPageFile", "File Path");
-    cy.validateNSelectDropdown("File Data Type", "Base64", "Text / Binary");
+    cy.validateNSelectDropdown("File Data Type", "Base64", "Text");
     cy.typeValueNValidate(
       '{"data": "Hi, this is Automation script adding file for S3 CRUD New Page validation!"}',
       "Content",

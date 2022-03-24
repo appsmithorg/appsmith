@@ -18,7 +18,7 @@
 		"**/Smoke_TestSuite/ClientSideTests/Onboarding/FirstTimeUserOnboarding_spec*.js",
 		"**/Smoke_TestSuite/ClientSideTests/LayoutValidation/AppPageLayout.spec.js",
 		"**/Smoke_TestSuite/ClientSideTests/Templates/Fork_Template_spec.js",
-        "**/Smoke_TestSuite/ClientSideTests/GenerateCRUD/MySQL_Spec.js",
+		"**/Smoke_TestSuite/ClientSideTests/GenerateCRUD/MySQL_Spec.js",
         "**/Smoke_TestSuite/ServerSideTests/Datasources/MySQL_spec.js",
         "**/Smoke_TestSuite/ServerSideTests/Datasources/MySQLNoiseTest_spec.js"
 	],
