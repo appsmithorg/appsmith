@@ -2,7 +2,11 @@ import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
-import { DroppableComponent } from "components/ads/DraggableListComponent";
+import {
+  BaseItemProps,
+  DroppableComponent,
+  RenderComponentProps,
+} from "components/ads/DraggableListComponent";
 import { noop } from "utils/AppsmithUtils";
 import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
@@ -26,20 +30,7 @@ const TabsWrapper = styled.div`
   flex-direction: column;
 `;
 
-type RenderComponentProps = {
-  focusedIndex: number | null | undefined;
-  index: number;
-  isDragging: boolean;
-  item: {
-    label: string;
-    isVisible?: boolean;
-  };
-  deleteOption: (index: number) => void;
-  updateFocus?: (index: number, isFocused: boolean) => void;
-  updateOption: (index: number, value: string) => void;
-  toggleVisibility?: (index: number) => void;
-  onEdit?: (props: any) => void;
-};
+type DroppableItem = BaseItemProps;
 
 function AddTabButtonComponent({ widgetId }: any) {
   const dispatch = useDispatch();
@@ -66,7 +57,7 @@ function AddTabButtonComponent({ widgetId }: any) {
   );
 }
 
-function TabControlComponent(props: RenderComponentProps) {
+function TabControlComponent(props: RenderComponentProps<DroppableItem>) {
   const { index, item } = props;
   const dispatch = useDispatch();
   const deleteOption = () => {

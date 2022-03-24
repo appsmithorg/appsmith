@@ -534,7 +534,7 @@ export function* evaluateArgumentSaga(action: any) {
       (error: any) => error.errorType !== PropertyEvaluationErrorType.LINT,
     );
     if (workerResponse.result) {
-      const validation = validate({ type }, workerResponse.result, {});
+      const validation = validate({ type }, workerResponse.result, {}, "");
       if (!validation.isValid)
         validation.messages?.map((message) => {
           lintErrors.unshift({

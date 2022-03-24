@@ -91,6 +91,5 @@ ENV PATH /opt/appsmith/utils/node_modules/.bin:$PATH
 
 EXPOSE 80
 EXPOSE 443
-EXPOSE 9001
 ENTRYPOINT [ "/opt/appsmith/entrypoint.sh" ]
 CMD ["/usr/bin/supervisord", "-n"]
