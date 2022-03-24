@@ -298,16 +298,14 @@ function ColorPickerComponent(props: ColorPickerProps) {
   const currentFocus = useRef(0);
 
   const handleKeydown = (e: KeyboardEvent) => {
-    // eslint-disable-next-line
-    console.log("bla", "keyDown", e.key);
     if (isOpen) {
       switch (e.key) {
         case "Escape":
-          // eslint-disable-next-line
-          console.log("bla", "keyDown", isOpen, e.key);
-          e.stopPropagation();
           setIsOpen(false);
-          inputGroupRef.current?.focus();
+          setTimeout(() => {
+            inputGroupRef.current?.focus();
+          }, 300);
+          e.stopPropagation();
           break;
         case "Tab":
           currentFocus.current = 0;
@@ -323,7 +321,9 @@ function ColorPickerComponent(props: ColorPickerProps) {
         case "Enter":
         case " ":
           (document.activeElement as any)?.click();
-          inputGroupRef.current?.focus();
+          setTimeout(() => {
+            inputGroupRef.current?.focus();
+          }, 300);
           e.preventDefault();
           break;
         case "ArrowRight": {
