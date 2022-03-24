@@ -330,7 +330,6 @@ export const CellWrapper = styled.div<{
   useLinkToolTip?: boolean;
   isCellVisible?: boolean;
   isTextType?: boolean;
-  allowWrapping?: boolean;
   compactMode?: string;
 }>`
   display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
@@ -345,7 +344,7 @@ export const CellWrapper = styled.div<{
     10px;
   line-height: 28px;
   ${(props) =>
-    props.allowWrapping
+    props.cellProperties?.allowCellWrapping
       ? `
         white-space: break-spaces;
         word-break: break-word;
