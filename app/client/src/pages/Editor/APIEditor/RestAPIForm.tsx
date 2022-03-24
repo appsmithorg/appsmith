@@ -25,6 +25,7 @@ import {
 } from "../../../selectors/entitiesSelector";
 import { isEmpty } from "lodash";
 import CommonEditorForm, { CommonFormProps } from "./CommonEditorForm";
+import Pagination from "./Pagination";
 
 const NoBodyMessage = styled.div`
   margin-top: 20px;
@@ -60,6 +61,13 @@ function ApiEditorForm(props: Props) {
         )
       }
       formName={API_EDITOR_FORM_NAME}
+      paginationUIComponent={
+        <Pagination
+          onTestClick={props.onRunClick}
+          paginationType={props.paginationType}
+          theme={theme}
+        />
+      }
     />
   );
 }

@@ -8,7 +8,6 @@ import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationField, SuggestedWidget } from "api/ActionAPI";
-import Pagination from "./Pagination";
 import { Action, PaginationType } from "entities/Action";
 import {
   setGlobalSearchQuery,
@@ -236,6 +235,7 @@ export interface CommonFormProps {
 type CommonFormPropsWithExtraParams = CommonFormProps & {
   formName: string;
   bodyUIComponent: JSX.Element;
+  paginationUIComponent: JSX.Element;
   handleSubmit: any;
 };
 
@@ -683,13 +683,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                   {
                     key: API_EDITOR_TABS.PAGINATION,
                     title: createMessage(API_EDITOR_TAB_TITLES.PAGINATION),
-                    panelComponent: (
-                      <Pagination
-                        onTestClick={props.onRunClick}
-                        paginationType={props.paginationType}
-                        theme={theme}
-                      />
-                    ),
+                    panelComponent: props.paginationUIComponent,
                   },
                   {
                     key: API_EDITOR_TABS.AUTHENTICATION,
