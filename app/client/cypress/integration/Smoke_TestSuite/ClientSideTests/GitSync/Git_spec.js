@@ -190,7 +190,8 @@ describe("Git sync:", function() {
     cy.get("body").type("{esc}");
   });
 
-  it("clicking '+' icon on bottom bar should open deploy popup", function() {
+  //Skipping until flaky fix
+  it.skip("clicking '+' icon on bottom bar should open deploy popup", function() {
     cy.get(gitSyncLocators.bottomBarCommitButton).click({ force: true });
     cy.get(gitSyncLocators.gitSyncModal).should("exist");
     cy.get("[data-cy=t--tab-DEPLOY]").should("exist");
