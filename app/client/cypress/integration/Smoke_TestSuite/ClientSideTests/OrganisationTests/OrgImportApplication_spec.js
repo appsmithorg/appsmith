@@ -49,19 +49,20 @@ describe("Organization Import Application", function() {
 
             cy.wait("@importNewApplication").then((interception) => {
               const importedApp = interception.response.body.data.application;
+              const { pages } = importedApp;
               const appSlug = importedApp.slug;
+              let defaultPage = pages.find((eachPage) => eachPage.isDefault);
               cy.get(homePage.toastMessage).should(
                 "contain",
                 "Application imported successfully",
               );
               cy.wait("@getPagesForCreateApp").then((interception) => {
                 const pages = interception.response.body.data.pages;
-                let defaultPage = pages.find(
-                  (eachPage) => !!eachPage.isDefault,
-                );
+                const pageSlug =
+                  pages.find((page) => page.isDefault)?.slug ?? "page";
                 cy.url().should(
                   "include",
-                  `/${appSlug}/${defaultPage.slug}-${defaultPage.id}`,
+                  `/${appSlug}/${pageSlug}-${defaultPage.id}`,
                 );
               });
             });
