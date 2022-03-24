@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Text } from "@blueprintjs/core";
 import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
@@ -392,40 +392,54 @@ interface VirtualTextProps {
 
 function VirtualText(props: VirtualTextProps): JSX.Element {
   // TODO: use dynamic values instead
-  const fontSize = 16;
+  const fontSize = 14;
   const lineHeight = 14;
-  const charsPerRow = Math.floor(props.width / fontSize);
+  const charsPerRow = Math.round(props.width / fontSize);
   const [items, setItems] = useState<string[]>([]);
   const [heights, setHeights] = useState<number[]>([]);
-  const [refs, setRefs] = useState<any>([]);
+  const listRef: any = useRef(null);
+  // const [refs, setRefs] = useState<any>([]);
   useEffect(() => {
     function updateItems() {
       const arr: string[] = props.text.split("\n");
 
       if (arr.length) {
         setItems(arr);
-        setRefs(
-          new Array(arr.length).fill(React.createRef<HTMLDivElement | null>()),
-        );
+        // setRefs(
+        //   new Array(arr.length).fill(React.createRef<HTMLDivElement | null>()),
+        // );
         const temp = arr.map((item) => {
+          // console.log("========================");
+          // console.log(`charsPerRow: ${charsPerRow}`);
           const len = item.length;
+          // console.log(`len: ${len}`);
           // eslint-disable-next-line prettier/prettier
-          const height = Math.floor((len / charsPerRow) * lineHeight);
+          const height = Math.floor((len / charsPerRow) * 10);
+          // console.log(`height: ${height}`);
           return height;
         });
+        console.log(temp);
         setHeights(temp);
       }
     }
     updateItems();
+    return () => {
+      console.log(listRef);
+      listRef?.current?.resetAfterIndex(0);
+    };
   }, [props.text]);
   function RowRenderer(itemProps: any) {
     // let divRef: any = React.createRef<HTMLDivElement | null>();
     const item = (
       <div
         key={itemProps.index}
-        ref={(ref) => (refs[itemProps.index].current = ref)}
+        // ref={(ref) => (refs[itemProps.index].current = ref)}
         // ref={refs[itemProps.index]}
-        style={itemProps.style}
+        style={{
+          ...itemProps.style,
+          lineHeight: 1.2,
+          fontSize: `${fontSize}px`,
+        }}
       >
         <Interweave
           content={items[itemProps.index]}
@@ -446,9 +460,11 @@ function VirtualText(props: VirtualTextProps): JSX.Element {
       height={props.height}
       itemCount={items.length}
       itemSize={(index) => {
-        console.log(refs[index]);
-        return refs[index]?.current?.clientHeight;
+        // console.log(refs[index]);
+        // return refs[index]?.current?.clientHeight;
+        return heights[index];
       }}
+      ref={listRef}
       width={"100%"}
     >
       {RowRenderer}
