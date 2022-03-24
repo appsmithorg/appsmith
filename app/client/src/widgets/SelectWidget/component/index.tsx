@@ -206,6 +206,7 @@ class SelectComponent extends React.Component<
         itemCount={items.length}
         itemSize={ITEM_SIZE}
         ref={this.listRef}
+        style={{ height: "auto", maxHeight: 300 }}
         width={"100%"}
       >
         {RowRenderer}
