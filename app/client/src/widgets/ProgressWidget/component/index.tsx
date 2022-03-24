@@ -322,7 +322,15 @@ function RadialSeparators(props: { steps: number }) {
 }
 // Pure circular progress (indeterminate/determinate)
 function CircularProgress(props: ProgressComponentProps) {
-  const { counterClockwise, fillColor, showResult, value, variant } = props;
+  const {
+    counterClockwise,
+    fillColor,
+    showResult,
+    value: originalValue,
+    variant,
+  } = props;
+  const value =
+    originalValue > 100 ? 100 : originalValue < 0 ? 0 : originalValue;
   const pathRadius = VIEWBOX_HEIGHT_HALF - STROKE_WIDTH / 2;
   const pathRatio = value / MAX_VALUE;
 
