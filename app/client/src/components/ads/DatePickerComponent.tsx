@@ -148,6 +148,22 @@ function DatePickerComponent(props: DatePickerComponentProps) {
           }
         }
       }
+    } else {
+      const popoverElement = popoverRef.current;
+      if (popoverElement) {
+        const focusableElements = getKeyboardFocusableElements(popoverElement);
+        if (
+          focusableElements.some(
+            (element) => document.activeElement === element,
+          )
+        ) {
+          if (e.key === "Escape") {
+            e.preventDefault();
+            e.stopPropagation();
+            setDatePickerVisibility(false);
+          }
+        }
+      }
     }
   }
 
