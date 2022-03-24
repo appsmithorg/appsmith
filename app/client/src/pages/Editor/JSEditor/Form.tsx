@@ -240,11 +240,6 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     [jsActions, parseErrors, selectedJSActionOption],
   );
 
-  const handleTabSwitch = (tabIndex: number) => {
-    setMainTabIndex(tabIndex);
-    setshowResponse(false);
-  };
-
   const handleJSActionOptionSelection: DropdownOnSelect = (
     value,
     dropDownOption: JSActionDropdownOption,
@@ -309,7 +304,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
           <SecondaryWrapper>
             <TabbedViewContainer>
               <TabComponent
-                onSelect={handleTabSwitch}
+                onSelect={setMainTabIndex}
                 selectedIndex={mainTabIndex}
                 tabs={[
                   {
