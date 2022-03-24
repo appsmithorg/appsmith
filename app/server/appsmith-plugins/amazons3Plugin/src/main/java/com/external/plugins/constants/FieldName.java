@@ -35,5 +35,6 @@ public class FieldName {
     public static final String LIST_WHERE = LIST + "." + WHERE;
     public static final String LIST_SORT = LIST + "." + SORT;
     public static final String LIST_PAGINATE = LIST + "." + PAGINATE;
+    public static final String SMART_SUBSTITUTION = "smartSubstitution.data";
 }
 
