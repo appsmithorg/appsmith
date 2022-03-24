@@ -51,6 +51,9 @@ import IconSelectControl from "./IconSelectControl";
 import BoxShadowOptionsControl from "./BoxShadowOptionsControl";
 import BorderRadiusOptionsControl from "./BorderRadiusOptionsControl";
 import ButtonBorderRadiusOptionsControl from "./ButtonBorderRadiusControl";
+import FieldConfigurationControl from "components/propertyControls/FieldConfigurationControl";
+import JSONFormComputeControl from "./JSONFormComputeControl";
+import ButtonControl from "./ButtonControl";
 import LabelPositionOptionsControl from "./LabelPositionOptionsControl";
 import LabelAlignmentOptionsControl from "./LabelAlignmentOptionsControl";
 import NumericInputControl, {
@@ -84,6 +87,9 @@ export const PropertyControls = {
   BoxShadowOptionsControl,
   BorderRadiusOptionsControl,
   ButtonBorderRadiusOptionsControl,
+  FieldConfigurationControl,
+  JSONFormComputeControl,
+  ButtonControl,
   LabelPositionOptionsControl,
   LabelAlignmentOptionsControl,
   NumericInputControl,

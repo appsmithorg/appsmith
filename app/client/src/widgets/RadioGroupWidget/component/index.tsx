@@ -320,6 +320,9 @@ class RadioGroupComponent extends React.Component<
 
 export interface RadioGroupComponentProps extends ComponentProps {
   options: RadioOption[];
+  isDisabled?: boolean;
+  isLoading: boolean;
+  label: string;
   onRadioSelectionChange: (updatedOptionValue: string) => void;
   selectedOptionValue: string;
   disabled: boolean;

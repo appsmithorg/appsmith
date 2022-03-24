@@ -1,10 +1,15 @@
 import React from "react";
 import styled from "styled-components";
-import { IntentColors, getBorderCSSShorthand } from "constants/DefaultTheme";
+import {
+  labelStyle,
+  IntentColors,
+  getBorderCSSShorthand,
+} from "constants/DefaultTheme";
 import {
   ControlGroup,
   Classes,
   Label,
+  IRef,
   Alignment,
   Position,
 } from "@blueprintjs/core";
@@ -27,6 +32,7 @@ import {
 } from "@appsmith/constants/messages";
 import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
 import Tooltip from "components/ads/Tooltip";
+import { parseDate } from "./utils";
 
 const StyledControlGroup = styled(ControlGroup)<{
   isValid: boolean;
@@ -334,6 +340,9 @@ class DatePickerComponent extends React.Component<
               }}
               disabled={this.props.isDisabled}
               formatDate={this.formatDate}
+              inputProps={{
+                inputRef: this.props.inputRef,
+              }}
               maxDate={maxDate}
               minDate={minDate}
               onChange={this.onDateSelected}
@@ -398,10 +407,8 @@ class DatePickerComponent extends React.Component<
     if (!dateStr) {
       return null;
     } else {
-      const date = moment(dateStr);
       const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
-      if (date.isValid()) return moment(dateStr, dateFormat).toDate();
-      else return moment().toDate();
+      return parseDate(dateStr, dateFormat);
     }
   };
 
@@ -449,6 +456,7 @@ interface DatePickerComponentProps extends ComponentProps {
   firstDayOfWeek?: number;
   timePrecision: TimePrecision;
   width?: number;
+  inputRef?: IRef<HTMLInputElement>;
 }
 
 interface DatePickerComponentState {

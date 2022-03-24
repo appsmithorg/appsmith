@@ -194,7 +194,7 @@ export const DropdownStyles = createGlobalStyle<{
 }>`
 ${({ dropDownWidth, id }) => `
   .select-popover-width-${id} {
-    width: ${dropDownWidth}px;
+    width: ${dropDownWidth}px !important;
 
     & .${Classes.INPUT_GROUP} {
       width: ${dropDownWidth}px;

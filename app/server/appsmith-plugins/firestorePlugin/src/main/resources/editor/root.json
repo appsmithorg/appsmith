@@ -7,7 +7,7 @@
         {
           "label": "Commands",
           "description": "Choose method you would like to use",
-          "configProperty": "actionConfiguration.formData.command",
+          "configProperty": "actionConfiguration.formData.command.data",
           "controlType": "DROP_DOWN",
           "initialValue": "GET_DOCUMENT",
           "options": [

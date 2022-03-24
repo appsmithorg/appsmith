@@ -301,7 +301,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
           options.map((option: OptionProps) => (
             <Switch
               alignIndicator={alignment}
-              checked={selected.includes(option.value)}
+              checked={(selected || []).includes(option.value)}
               disabled={disabled}
               inline={inline}
               key={option.value}

@@ -19,6 +19,9 @@ export type ExecutionResult = {
 export type TriggerSource = {
   id: string;
   name: string;
+  collectionId?: string;
+  isJSAction?: boolean;
+  actionId?: string;
 };
 
 export type ExecuteTriggerPayload = {
@@ -99,6 +102,9 @@ export enum EventType {
   ON_CAMERA_VIDEO_RECORDING_START = "ON_CAMERA_VIDEO_RECORDING_START",
   ON_CAMERA_VIDEO_RECORDING_STOP = "ON_CAMERA_VIDEO_RECORDING_STOP",
   ON_CAMERA_VIDEO_RECORDING_SAVE = "ON_CAMERA_VIDEO_RECORDING_SAVE",
+  ON_ENTER_KEY_PRESS = "ON_ENTER_KEY_PRESS",
+  ON_BLUR = "ON_BLUR",
+  ON_FOCUS = "ON_FOCUS",
 }
 
 export interface PageAction {
@@ -107,6 +113,8 @@ export interface PageAction {
   name: string;
   jsonPathKeys: string[];
   timeoutInMillisecond: number;
+  clientSideExecution?: boolean;
+  collectionId?: string;
 }
 
 export interface ExecuteErrorPayload extends ErrorActionPayload {
