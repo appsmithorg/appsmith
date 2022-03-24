@@ -139,12 +139,12 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Flux<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId) {
+    public Flux<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId, AclPermission permission) {
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
 
         Criteria applicationIdCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId);
         Criteria deletionCriteria = where(fieldName(QApplication.application.deleted)).ne(true);
-        return queryAll(List.of(applicationIdCriteria, deletionCriteria), AclPermission.MANAGE_APPLICATIONS);
+        return queryAll(List.of(applicationIdCriteria, deletionCriteria), permission);
     }
 
     /**

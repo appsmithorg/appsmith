@@ -51,7 +51,7 @@ import {
 import { Classes as CsClasses } from "components/ads/common";
 import TooltipComponent from "components/ads/Tooltip";
 import {
-  isEllipsisActive,
+  isVerticalEllipsisActive,
   truncateString,
   howMuchTimeBeforeText,
 } from "utils/helpers";
@@ -764,7 +764,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
             isFetching={isFetchingApplications}
             ref={appNameWrapperRef}
           >
-            {isEllipsisActive(appNameWrapperRef?.current) ? (
+            {isVerticalEllipsisActive(appNameWrapperRef?.current) ? (
               <TooltipComponent
                 content={props.application.name}
                 maxWidth="400px"
