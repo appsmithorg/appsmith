@@ -1,4 +1,8 @@
 import { ButtonVariantTypes } from "components/constants";
+import { get } from "lodash";
+import { WidgetProps } from "widgets/BaseWidget";
+import { BlueprintOperationTypes } from "widgets/constants";
+const clone = require("rfdc/default");
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -89,6 +93,45 @@ export const CONFIG = {
           },
         },
       },
+    },
+    blueprint: {
+      operations: [
+        {
+          type: BlueprintOperationTypes.MODIFY_PROPS,
+          fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
+            const groupButtons = clone(widget.groupButtons);
+            const dynamicBindingPathList: any[] = get(
+              widget,
+              "dynamicBindingPathList",
+              [],
+            );
+
+            Object.keys(groupButtons).map((groupButtonKey) => {
+              groupButtons[groupButtonKey].buttonColor =
+                "{{appsmith.theme.colors.primaryColor}}";
+
+              dynamicBindingPathList.push({
+                key: `groupButtons.${groupButtonKey}.buttonColor`,
+              });
+            });
+
+            const updatePropertyMap = [
+              {
+                widgetId: widget.widgetId,
+                propertyName: "dynamicBindingPathList",
+                propertyValue: dynamicBindingPathList,
+              },
+              {
+                widgetId: widget.widgetId,
+                propertyName: "groupButtons",
+                propertyValue: groupButtons,
+              },
+            ];
+
+            return updatePropertyMap;
+          },
+        },
+      ],
     },
   },
   properties: {

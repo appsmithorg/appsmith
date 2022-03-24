@@ -1,6 +1,7 @@
 export type AppTheme = {
   id: string;
   name: string;
+  displayName: string;
   created_by: string;
   created_at: string;
   isSystemTheme?: boolean;

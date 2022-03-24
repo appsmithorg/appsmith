@@ -13,7 +13,6 @@ import { ButtonContainerProps } from "./DragContainer";
 
 export const buttonHoverActiveStyles = css<ButtonContainerProps>`
   ${({ buttonColor, buttonVariant, disabled, loading, theme }) => {
-    console.log({ buttonColor });
     if (!disabled && !loading) {
       return `
         background: ${
