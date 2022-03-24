@@ -177,6 +177,7 @@ export default {
           ColumnTypes.TEXT,
           ColumnTypes.NUMBER,
           ColumnTypes.URL,
+          ColumnTypes.DATE,
         ]);
       },
     },

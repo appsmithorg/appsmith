@@ -31,7 +31,6 @@ interface Props {
   tableWidth?: number;
   columnType?: string;
   className?: string;
-  allowWrapping?: boolean;
   compactMode?: string;
 }
 
@@ -48,7 +47,6 @@ function LinkWrapper(props: Props) {
   }, [ref]);
   return (
     <CellWrapper
-      allowWrapping={props.cellProperties?.allowCellWrapping}
       cellProperties={props.cellProperties}
       compactMode={props.compactMode}
       isCellVisible={props.isCellVisible}
@@ -102,7 +100,6 @@ function AutoToolTipComponent(props: Props) {
   return (
     <ColumnWrapper className={props.className}>
       <CellWrapper
-        allowWrapping={props.allowWrapping}
         cellProperties={props.cellProperties}
         compactMode={props.compactMode}
         isCellVisible={props.isCellVisible}
