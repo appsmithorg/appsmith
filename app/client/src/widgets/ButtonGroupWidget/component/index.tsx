@@ -30,7 +30,7 @@ import {
   getCustomTextColor,
   getCustomJustifyContent,
 } from "widgets/WidgetUtils";
-import { RenderMode } from "constants/WidgetConstants";
+import { RenderMode, RenderModes } from "constants/WidgetConstants";
 import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 import { buttonHoverActiveStyles } from "../../ButtonWidget/component/utils";
 
@@ -108,8 +108,10 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
       : "none"} !important;
 `;
 
-const MenuButtonWrapper = styled.div`
+const MenuButtonWrapper = styled.div<{ renderMode: RenderMode }>`
   flex: 1 1 auto;
+
+  ${({ renderMode }) => renderMode === RenderModes.CANVAS && `height: 100%`};
 
   & > .${Classes.POPOVER2_TARGET} > button {
     width: 100%;
@@ -278,7 +280,6 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
         color: ${theme.colors.button.disabled.textColor} !important;
       }
     }
-    
   `}
 `;
 
@@ -577,7 +578,10 @@ class ButtonGroupComponent extends React.Component<
             const { menuItems } = button;
             const popoverId = `${widgetId}-${button.id}`;
             return (
-              <MenuButtonWrapper key={button.id}>
+              <MenuButtonWrapper
+                key={button.id}
+                renderMode={this.props.renderMode}
+              >
                 <PopoverStyles
                   id={popoverId}
                   minPopoverWidth={minPopoverWidth}
@@ -639,7 +643,6 @@ class ButtonGroupComponent extends React.Component<
               disabled={isButtonDisabled}
               key={button.id}
               onClick={() => {
-                if (isButtonDisabled) return;
                 this.onButtonClick(button.onClick);
               }}
               renderMode={this.props.renderMode}

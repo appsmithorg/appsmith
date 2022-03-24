@@ -254,7 +254,10 @@ function IconButtonComponent(props: IconButtonComponentProps) {
       buttonVariant={buttonVariant}
       disabled={isDisabled}
       hasOnClickAction={hasOnClickAction}
-      onClick={onClick}
+      onClick={() => {
+        if (isDisabled) return;
+        onClick();
+      }}
       renderMode={renderMode}
     >
       <StyledButton

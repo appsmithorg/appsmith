@@ -92,17 +92,16 @@ function PageTabName({ name }: { name: string }) {
     }
   }, [tabNameRef]);
 
-  return ellipsisActive ? (
+  return (
     <TooltipComponent
       boundary="viewport"
       content={name}
+      disabled={!ellipsisActive}
       maxWidth="400px"
       position={Position.BOTTOM}
     >
       {tabNameText}
     </TooltipComponent>
-  ) : (
-    tabNameText
   );
 }
 

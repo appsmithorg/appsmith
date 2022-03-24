@@ -33,7 +33,6 @@ import {
   getGenerateCRUDEnabledPluginMap,
   getIsDeletingDatasource,
 } from "../../../selectors/entitiesSelector";
-import TooltipComponent from "components/ads/Tooltip";
 import { GenerateCRUDEnabledPluginMap, Plugin } from "../../../api/PluginApi";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
@@ -277,13 +276,7 @@ function DatasourceCard(props: DatasourceCardProps) {
           </div>
           {datasource.isConfigured && (
             <ButtonsWrapper className="action-wrapper">
-              <TooltipComponent
-                boundary={"viewport"}
-                content="Currently not supported for page generation"
-                disabled={!!supportTemplateGeneration}
-                hoverOpenDelay={200}
-                position={Position.BOTTOM}
-              >
+              {supportTemplateGeneration && (
                 <GenerateTemplateButton
                   category={Category.tertiary}
                   className="t--generate-template"
@@ -291,8 +284,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                   onClick={routeToGeneratePage}
                   text="GENERATE NEW PAGE"
                 />
-              </TooltipComponent>
-
+              )}
               <NewActionButton
                 datasource={datasource}
                 eventFrom="active-datasources"
