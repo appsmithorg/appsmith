@@ -1,8 +1,6 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
-import { BlueprintOperationTypes } from "widgets/constants";
-import { WidgetProps } from "widgets/BaseWidget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
