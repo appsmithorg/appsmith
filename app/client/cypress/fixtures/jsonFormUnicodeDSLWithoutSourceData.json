@@ -1,0 +1,265 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1168,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 1340,
+    "containerStyle": "none",
+    "snapRows": 125,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 52,
+    "minHeight": 1320,
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "widgetName": "Text1",
+        "displayName": "Text",
+        "iconSVG": "/static/media/icon.97c59b52.svg",
+        "topRow": 0,
+        "bottomRow": 58,
+        "parentRowSpace": 10,
+        "type": "TEXT_WIDGET",
+        "hideCard": false,
+        "animateLoading": true,
+        "parentColumnSpace": 26.890625,
+        "dynamicTriggerPathList": [],
+        "leftColumn": 0,
+        "dynamicBindingPathList": [
+          {
+            "key": "text"
+          }
+        ],
+        "shouldTruncate": false,
+        "truncateButtonColor": "#FFC13D",
+        "text": "{{JSONForm1.formData}}",
+        "key": "fcglufpc9q",
+        "rightColumn": 20,
+        "textAlign": "LEFT",
+        "widgetId": "2cvwkaegxy",
+        "isVisible": true,
+        "fontStyle": "BOLD",
+        "textColor": "#231F20",
+        "shouldScroll": false,
+        "version": 1,
+        "parentId": "0",
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "fontSize": "PARAGRAPH"
+      },
+      {
+        "schema": {
+          "__root_schema__": {
+            "children": {
+              "xn__80a1afdk69b": {
+                "children": {
+                  "xn__mgbuhw": {
+                    "children": {},
+                    "dataType": "string",
+                    "defaultValue": "{{((sourceData, formData, fieldState) => (sourceData[\"суроға\"][\"شارع\"]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                    "fieldType": "Text Input",
+                    "sourceData": "Koramangala",
+                    "isCustomField": false,
+                    "accessor": "شارع",
+                    "identifier": "xn__mgbuhw",
+                    "position": 0,
+                    "originalIdentifier": "شارع",
+                    "iconAlign": "left",
+                    "isDisabled": false,
+                    "isRequired": false,
+                    "isSpellCheck": false,
+                    "isVisible": true,
+                    "label": "شارع"
+                  }
+                },
+                "dataType": "object",
+                "defaultValue": "{{((sourceData, formData, fieldState) => (sourceData[\"суроға\"]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                "fieldType": "Object",
+                "sourceData": {
+                  "شارع": "Koramangala"
+                },
+                "isCustomField": false,
+                "accessor": "суроға",
+                "identifier": "xn__80a1afdk69b",
+                "position": 0,
+                "originalIdentifier": "суроға",
+                "isDisabled": false,
+                "isRequired": false,
+                "isVisible": true,
+                "label": "Суроға"
+              },
+              "xn__12ca5huag4ce3a": {
+                "children": {
+                  "__array_item__": {
+                    "children": {
+                      "xn__ohco9d4d": {
+                        "children": {},
+                        "dataType": "string",
+                        "fieldType": "Text Input",
+                        "sourceData": "MIT",
+                        "isCustomField": false,
+                        "accessor": "କଲେଜ",
+                        "identifier": "xn__ohco9d4d",
+                        "position": 0,
+                        "originalIdentifier": "କଲେଜ",
+                        "iconAlign": "left",
+                        "isDisabled": false,
+                        "isRequired": false,
+                        "isSpellCheck": false,
+                        "isVisible": true,
+                        "label": "କଲେଜ"
+                      }
+                    },
+                    "dataType": "object",
+                    "fieldType": "Object",
+                    "sourceData": {
+                      "କଲେଜ": "MIT"
+                    },
+                    "isCustomField": false,
+                    "accessor": "__array_item__",
+                    "identifier": "__array_item__",
+                    "position": -1,
+                    "originalIdentifier": "__array_item__",
+                    "isDisabled": false,
+                    "isRequired": false,
+                    "isVisible": true,
+                    "label": "Array Item"
+                  }
+                },
+                "dataType": "array",
+                "defaultValue": "{{((sourceData, formData, fieldState) => (sourceData[\"การศึกษา\"]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                "fieldType": "Array",
+                "sourceData": [
+                  {
+                    "କଲେଜ": "MIT"
+                  }
+                ],
+                "isCustomField": false,
+                "accessor": "การศึกษา",
+                "identifier": "xn__12ca5huag4ce3a",
+                "position": 1,
+                "originalIdentifier": "การศึกษา",
+                "backgroundColor": "#FAFAFA",
+                "isCollapsible": true,
+                "isDisabled": false,
+                "isRequired": false,
+                "isVisible": true,
+                "label": "การศึกษา"
+              },
+              "xn__l2bm1c": {
+                "children": {},
+                "dataType": "string",
+                "defaultValue": "{{((sourceData, formData, fieldState) => (sourceData[\"नाम\"]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                "fieldType": "Text Input",
+                "sourceData": "John",
+                "isCustomField": false,
+                "accessor": "नाम",
+                "identifier": "xn__l2bm1c",
+                "position": 3,
+                "originalIdentifier": "नाम",
+                "iconAlign": "left",
+                "isDisabled": false,
+                "isRequired": false,
+                "isSpellCheck": false,
+                "isVisible": true,
+                "label": "नाम"
+              }
+            },
+            "dataType": "object",
+            "defaultValue": "{{((sourceData, formData, fieldState) => (sourceData))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+            "fieldType": "Object",
+            "sourceData": {
+              "नाम": "John",
+              "суроға": {
+                "شارع": "Koramangala"
+              },
+              "การศึกษา": [
+                {
+                  "କଲେଜ": "MIT"
+                }
+              ]
+            },
+            "isCustomField": false,
+            "accessor": "__root_schema__",
+            "identifier": "__root_schema__",
+            "position": -1,
+            "originalIdentifier": "__root_schema__",
+            "isDisabled": false,
+            "isRequired": false,
+            "isVisible": true,
+            "label": ""
+          }
+        },
+        "widgetName": "JSONForm1",
+        "submitButtonStyles": {
+          "buttonColor": "#03B365",
+          "buttonVariant": "PRIMARY"
+        },
+        "dynamicPropertyPathList": [
+          {
+            "key": "schema.__root_schema__.children.date_of_birth.defaultValue"
+          }
+        ],
+        "displayName": "JSON Form",
+        "iconSVG": "/static/media/icon.6bacf7df.svg",
+        "topRow": 3,
+        "bottomRow": 53,
+        "fieldLimitExceeded": false,
+        "parentRowSpace": 10,
+        "title": "Form",
+        "type": "JSON_FORM_WIDGET",
+        "hideCard": false,
+        "animateLoading": true,
+        "parentColumnSpace": 18.0625,
+        "dynamicTriggerPathList": [],
+        "leftColumn": 21,
+        "dynamicBindingPathList": [
+          {
+            "key": "schema.__root_schema__.defaultValue"
+          },
+          {
+            "key": "schema.__root_schema__.children.xn__80a1afdk69b.children.xn__mgbuhw.defaultValue"
+          },
+          {
+            "key": "schema.__root_schema__.children.xn__80a1afdk69b.defaultValue"
+          },
+          {
+            "key": "schema.__root_schema__.children.xn__12ca5huag4ce3a.defaultValue"
+          },
+          {
+            "key": "schema.__root_schema__.children.xn__l2bm1c.defaultValue"
+          }
+        ],
+        "sourceData": "",
+        "showReset": true,
+        "key": "si6k7qupn4",
+        "backgroundColor": "#fff",
+        "rightColumn": 46,
+        "autoGenerateForm": true,
+        "widgetId": "v5ddirn0i0",
+        "resetButtonStyles": {
+          "buttonColor": "#03B365",
+          "buttonVariant": "SECONDARY"
+        },
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "scrollContents": true,
+        "fixedFooter": true,
+        "disabledWhenInvalid": true,
+        "submitButtonLabel": "Submit",
+        "resetButtonLabel": "Reset"
+
+      }
+    ]
+  }
+}
