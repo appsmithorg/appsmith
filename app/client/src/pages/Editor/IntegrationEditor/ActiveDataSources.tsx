@@ -11,8 +11,6 @@ import { keyBy } from "lodash";
 import {
   createMessage,
   EMPTY_ACTIVE_DATA_SOURCES,
-  GENERATE_APPLICATION_TITLE,
-  GENERATE_APPLICATION_DESCRIPTION,
 } from "@appsmith/constants/messages";
 
 const QueryHomePage = styled.div`
@@ -40,21 +38,6 @@ const EmptyActiveDatasource = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-`;
-
-const GenerateInfoBanner = styled.div`
-  width: 518px;
-`;
-
-const GenerateInfoHeader = styled.h5`
-  margin: 32px 0px 8px;
-  font-weight: 500;
-  color: ${(props) => props.theme.colors.textOnGreyBG};
-`;
-
-const GenerateInfoBody = styled.p`
-  font-size: 12px;
-  color: ${(props) => props.theme.colors.searchInput.placeholder};
 `;
 
 type ActiveDataSourcesProps = {
@@ -105,14 +88,6 @@ function ActiveDataSources(props: ActiveDataSourcesProps) {
           />
         );
       })}
-      <GenerateInfoBanner>
-        <GenerateInfoHeader>
-          {createMessage(GENERATE_APPLICATION_TITLE)}
-        </GenerateInfoHeader>
-        <GenerateInfoBody>
-          {createMessage(GENERATE_APPLICATION_DESCRIPTION)}
-        </GenerateInfoBody>
-      </GenerateInfoBanner>
     </QueryHomePage>
   );
 }

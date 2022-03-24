@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.RAW;
 
@@ -92,7 +93,7 @@ public class MongoPluginUtils {
 
         // We reached here. This means either this is a RAW command input or some configuration error has happened
         // in which case, we default to RAW
-        return actionConfiguration.getBody();
+        return (String) PluginUtils.getValueSafelyFromFormData(formData, BODY);
     }
 
     public static String getDatabaseName(DatasourceConfiguration datasourceConfiguration) {

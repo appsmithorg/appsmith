@@ -121,6 +121,9 @@ import SkeletonWidget, {
 import StatboxWidget, {
   CONFIG as STATBOX_WIDGET_CONFIG,
 } from "widgets/StatboxWidget";
+import JSONFormWidget, {
+  CONFIG as JSON_FORM_WIDGET_CONFIG,
+} from "widgets/JSONFormWidget";
 import SwitchGroupWidget, {
   CONFIG as SWITCH_GROUP_WIDGET_CONFIG,
 } from "widgets/SwitchGroupWidget";
@@ -195,6 +198,7 @@ export const ALL_WIDGETS_AND_CONFIG = [
   [InputWidgetV2, INPUT_WIDGET_V2_CONFIG],
   [PhoneInputWidget, PHONE_INPUT_WIDGET_V2_CONFIG],
   [CurrencyInputWidget, CURRENCY_INPUT_WIDGET_V2_CONFIG],
+  [JSONFormWidget, JSON_FORM_WIDGET_CONFIG],
   [ProgressWidget, PROGRESS_WIDGET_CONFIG],
   /*
    * If a newly added widget works well inside the list widget,
