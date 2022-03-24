@@ -1,5 +1,6 @@
 {
   "buttonWidget": ".t--widget-buttonwidget",
+  "iconWidgetBtn": ".t--widget-iconbuttonwidget button",
   "textWidget": ".t--widget-textwidget",
   "richTextEditorWidget": ".t--widget-richtexteditorwidget",
   "datepickerWidget": ".t--widget-datepickerwidget",
@@ -18,6 +19,7 @@
   "multiselecttreewidget": ".t--widget-multiselecttreewidget",
   "singleselecttreewidget": ".t--widget-singleselecttreewidget",
   "tabWidget": ".t--widget-tabswidget",
+  "jsonFormWidget": ".t--widget-jsonformwidget",
   "chartWidget": ".t--widget-chartwidget",
   "horizontalTab": ".t--widget-chartwidget g[class*='-scrollContainer'] rect",
   "tableWidget": ".t--widget-tablewidget",

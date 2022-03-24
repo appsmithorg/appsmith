@@ -46,6 +46,9 @@ export type TextProps = CommonComponentProps & {
 const typeSelector = (props: TextProps & ThemeProp): string => {
   let color = "";
   switch (props.type) {
+    case TextType.P0:
+      color = props.theme.colors.text.normal;
+      break;
     case TextType.P1:
       color = props.theme.colors.text.normal;
       break;

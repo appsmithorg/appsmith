@@ -64,7 +64,6 @@ public class Datasource extends BaseDomain {
      * This field is introduced as part of git sync feature, for the git import we will need to identify the datasource's
      * which are not configured. This way user can configure those datasource, which may have been introduced as part of git import.
      */
-    @Transient
     Boolean isConfigured;
 
     /**

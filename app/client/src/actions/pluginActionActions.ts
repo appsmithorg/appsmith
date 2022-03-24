@@ -279,6 +279,20 @@ export const setActionsToExecuteOnPageLoad = (
   };
 };
 
+export const setJSActionsToExecuteOnPageLoad = (
+  actions: Array<{
+    executeOnLoad: boolean;
+    id: string;
+    name: string;
+    collectionId?: string;
+  }>,
+) => {
+  return {
+    type: ReduxActionTypes.SET_JS_ACTION_TO_EXECUTE_ON_PAGELOAD,
+    payload: actions,
+  };
+};
+
 export const bindDataOnCanvas = (payload: {
   queryId: string;
   applicationId: string;
