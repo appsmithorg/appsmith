@@ -11,6 +11,8 @@ ssl_conf_path="/appsmith-stacks/data/certificate/conf"
 
 APP_TEMPLATE="$http_conf"
 
+mkdir -pv "$ssl_conf_path"
+
 cat <<EOF > "$ssl_conf_path/options-ssl-nginx.conf"
 # This file contains important security parameters. If you modify this file
 # manually, Certbot will be unable to automatically provide future security
