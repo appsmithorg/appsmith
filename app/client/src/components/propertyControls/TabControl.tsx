@@ -3,7 +3,11 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
-import { DroppableComponent } from "components/ads/DraggableListComponent";
+import {
+  BaseItemProps,
+  DroppableComponent,
+  RenderComponentProps,
+} from "components/ads/DraggableListComponent";
 import { getNextEntityName, noop } from "utils/AppsmithUtils";
 import _, { orderBy } from "lodash";
 import * as Sentry from "@sentry/react";
@@ -25,19 +29,9 @@ const TabsWrapper = styled.div`
   flex-direction: column;
 `;
 
-type RenderComponentProps = {
-  focusedIndex: number | null | undefined;
+type DroppableItem = BaseItemProps & {
   index: number;
-  isDragging: boolean;
-  item: {
-    label: string;
-    isVisible?: boolean;
-  };
-  deleteOption: (index: number) => void;
-  updateFocus?: (index: number, isFocused: boolean) => void;
-  updateOption: (index: number, value: string) => void;
-  toggleVisibility?: (index: number) => void;
-  onEdit?: (props: any) => void;
+  widgetId: string;
 };
 
 function AddTabButtonComponent({ widgetId }: any) {
@@ -65,7 +59,7 @@ function AddTabButtonComponent({ widgetId }: any) {
   );
 }
 
-function TabControlComponent(props: RenderComponentProps) {
+function TabControlComponent(props: RenderComponentProps<DroppableItem>) {
   const { index, item } = props;
   const dispatch = useDispatch();
   const deleteOption = () => {
@@ -138,14 +132,17 @@ class TabControl extends BaseControl<ControlProps, State> {
     }
   }
 
-  updateItems = (items: Array<Record<string, any>>) => {
-    const tabsObj = items.reduce((obj: any, each: any, index: number) => {
-      obj[each.id] = {
-        ...each,
-        index,
-      };
-      return obj;
-    }, {});
+  updateItems = (items: DroppableItem[]) => {
+    const tabsObj = items.reduce<Record<string, DroppableItem>>(
+      (obj, each, index) => {
+        obj[each.id] = {
+          ...each,
+          index,
+        };
+        return obj;
+      },
+      {},
+    );
     this.updateProperty(this.props.propertyName, tabsObj);
   };
 
@@ -162,10 +159,7 @@ class TabControl extends BaseControl<ControlProps, State> {
     });
   };
   render() {
-    const tabs: Array<{
-      id: string;
-      label: string;
-    }> = _.isString(this.props.propertyValue)
+    const tabs: DroppableItem[] = _.isString(this.props.propertyValue)
       ? []
       : Object.values(this.props.propertyValue);
 

@@ -115,6 +115,8 @@
   "filePickerOnFilesSelected": ".t--property-control-onfilesselected",
   "dataType": ".t--property-control-datatype .bp3-popover-target",
   "recaptchaVersion": ".t--property-control-googlerecaptchaversion .bp3-popover-target",
+  "jsonFormFieldType": ".t--property-control-fieldtype .bp3-popover-target",
+  "jsonFormAddNewCustomFieldBtn": ".t--property-control-fieldconfiguration .t--add-column-btn",
   "evaluateMsg": ".t--evaluatedPopup-error",
   "globalSearchModal": ".t--global-search-modal",
   "globalSearchInput": ".t--global-search-input",
