@@ -422,9 +422,7 @@ class MultiSelectWidget extends BaseWidget<
     const { componentWidth } = this.getComponentDimensions();
     const values: LabelValueType[] = this.props.selectedOptions
       ? this.props.selectedOptions.map((o) =>
-          isString(o) || isNumber(o)
-            ? { label: o, value: o }
-            : { label: o.label, value: o.value },
+          isString(o) || isNumber(o) ? { value: o } : { value: o.value },
         )
       : [];
     const isInvalid =

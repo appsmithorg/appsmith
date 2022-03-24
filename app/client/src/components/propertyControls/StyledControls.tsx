@@ -327,6 +327,12 @@ export const StyledPropertyPaneButton = styled(Button)`
       stroke: ${Colors.GREY_8};
     }
   }
+
+  &:disabled {
+    background-color: ${Colors.GREY_1};
+    color: var(--appsmith-color-black-400);
+    border-color: ${Colors.MERCURY};
+  }
 `;
 
 export const StyledOptionControlInputGroup = styled(StyledInputGroup)`
