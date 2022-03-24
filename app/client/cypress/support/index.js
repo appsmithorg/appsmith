@@ -16,6 +16,7 @@
 
 import "cypress-real-events/support";
 import "cypress-xpath";
+import "cypress-wait-until";
 /// <reference types="cypress-xpath" />
 
 let appId;
@@ -92,6 +93,8 @@ beforeEach(function() {
   initLocalstorage();
   Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   cy.startServerAndRoutes();
+  //-- Delete local storage data of entity explorer
+  cy.DeleteEntityStateLocalStorage();
 });
 
 after(function() {

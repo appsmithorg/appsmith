@@ -11,7 +11,7 @@ import { Severity } from "entities/AppsmithConsole";
 import { enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
 import { getLintingErrors } from "workers/lint";
-import { completePromise } from "workers/PromisifyAction";
+import { completePromise, confirmationPromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 
 export type EvalResult = {
@@ -23,6 +23,7 @@ export type EvalResult = {
 export enum EvaluationScriptType {
   EXPRESSION = "EXPRESSION",
   ANONYMOUS_FUNCTION = "ANONYMOUS_FUNCTION",
+  ASYNC_ANONYMOUS_FUNCTION = "ASYNC_ANONYMOUS_FUNCTION",
   TRIGGERS = "TRIGGERS",
 }
 
@@ -44,6 +45,14 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   }
   callback(${ScriptTemplate})
   `,
+  [EvaluationScriptType.ASYNC_ANONYMOUS_FUNCTION]: `
+  async function callback (script) {
+    const userFunction = script;
+    const result = await userFunction?.apply(THIS_CONTEXT, ARGUMENTS);
+    return result;
+  }
+  callback(${ScriptTemplate})
+  `,
   [EvaluationScriptType.TRIGGERS]: `
   async function closedFunction () {
     const result = await ${ScriptTemplate};
@@ -58,9 +67,11 @@ const getScriptType = (
   isTriggerBased = false,
 ): EvaluationScriptType => {
   let scriptType = EvaluationScriptType.EXPRESSION;
-  if (evalArgumentsExist) {
+  if (evalArgumentsExist && isTriggerBased) {
+    scriptType = EvaluationScriptType.ASYNC_ANONYMOUS_FUNCTION;
+  } else if (evalArgumentsExist && !isTriggerBased) {
     scriptType = EvaluationScriptType.ANONYMOUS_FUNCTION;
-  } else if (isTriggerBased) {
+  } else if (isTriggerBased && !evalArgumentsExist) {
     scriptType = EvaluationScriptType.TRIGGERS;
   }
   return scriptType;
@@ -136,7 +147,23 @@ export const createGlobalData = (
       Object.keys(resolvedObject).forEach((key: any) => {
         const dataTreeKey = GLOBAL_DATA[datum];
         if (dataTreeKey) {
-          dataTreeKey[key] = resolvedObject[key];
+          const data = dataTreeKey[key]?.data;
+          const isAsync = dataTreeKey?.meta[key]?.isAsync || false;
+          const confirmBeforeExecute =
+            dataTreeKey?.meta[key]?.confirmBeforeExecute || false;
+          if (isAsync && confirmBeforeExecute) {
+            dataTreeKey[key] = confirmationPromise.bind(
+              {},
+              context?.requestId,
+              resolvedObject[key],
+              dataTreeKey.name + "." + key,
+            );
+          } else {
+            dataTreeKey[key] = resolvedObject[key];
+          }
+          if (!!data) {
+            dataTreeKey[key]["data"] = data;
+          }
         }
       });
     });
@@ -344,7 +371,23 @@ export function isFunctionAsync(
         Object.keys(resolvedObject).forEach((key: any) => {
           const dataTreeKey = GLOBAL_DATA[datum];
           if (dataTreeKey) {
-            dataTreeKey[key] = resolvedObject[key];
+            const data = dataTreeKey[key]?.data;
+            const isAsync = dataTreeKey.meta[key]?.isAsync || false;
+            const confirmBeforeExecute =
+              dataTreeKey.meta[key]?.confirmBeforeExecute || false;
+            if (isAsync && confirmBeforeExecute) {
+              dataTreeKey[key] = confirmationPromise.bind(
+                {},
+                "",
+                resolvedObject[key],
+                key,
+              );
+            } else {
+              dataTreeKey[key] = resolvedObject[key];
+            }
+            if (!!data) {
+              dataTreeKey[key].data = data;
+            }
           }
         });
       });
@@ -357,7 +400,6 @@ export function isFunctionAsync(
       // @ts-ignore: No types available
       self[key] = GLOBAL_DATA[key];
     });
-
     try {
       if (typeof userFunction === "function") {
         const returnValue = userFunction();

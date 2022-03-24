@@ -19,7 +19,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppStoreState } from "reducers/entityReducers/appReducer";
 import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
 import { JSCollection } from "entities/JSCollection";
-import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
+import { DefaultPlugin, GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
 import { APP_MODE } from "entities/App";
 import getFeatureFlags from "utils/featureFlags";
 import { ExplorerFileEntity } from "pages/Editor/Explorer/helpers";
@@ -49,6 +49,17 @@ export const getMockDatasources = (state: AppState): MockDatasource[] => {
 export const getIsDeletingDatasource = (state: AppState): boolean => {
   return state.entities.datasources.isDeleting;
 };
+
+export const getDefaultPlugins = (state: AppState): DefaultPlugin[] =>
+  state.entities.plugins.defaultPluginList;
+
+export const getDefaultPluginByPackageName = (
+  state: AppState,
+  packageName: string,
+): DefaultPlugin | undefined =>
+  state.entities.plugins.defaultPluginList.find(
+    (plugin) => plugin.packageName === packageName,
+  );
 
 export const getPluginIdsOfNames = (
   state: AppState,
@@ -169,6 +180,10 @@ export const getDatasource = (
     (datasource) => datasource.id === datasourceId,
   );
 
+export const getDatasourceDrafts = (state: AppState) => {
+  return state.ui.datasourcePane.drafts;
+};
+
 export const getDatasourceDraft = (state: AppState, id: string) => {
   const drafts = state.ui.datasourcePane.drafts;
   if (id in drafts) return drafts[id];
@@ -206,6 +221,9 @@ export const getDBAndRemotePlugins = createSelector(getPlugins, (plugins) =>
       plugin.type === PluginType.DB || plugin.type === PluginType.REMOTE,
   ),
 );
+
+export const getUnconfiguredDatasources = (state: AppState) =>
+  state.entities.datasources.unconfiguredList ?? [];
 
 export const getDatasourceByPluginId = (state: AppState, pluginId: string) =>
   state.entities.datasources.list.filter((d) => d.pluginId === pluginId);
@@ -259,6 +277,16 @@ export const getPluginImages = createSelector(getPlugins, (plugins) => {
   });
 
   return pluginImages;
+});
+
+export const getPluginNames = createSelector(getPlugins, (plugins) => {
+  const pluginNames: Record<string, string> = {};
+
+  plugins.forEach((plugin) => {
+    pluginNames[plugin.id] = plugin?.name;
+  });
+
+  return pluginNames;
 });
 
 export const getPluginTemplates = createSelector(getPlugins, (plugins) => {
@@ -582,6 +610,9 @@ export const getIsOnboardingTasksView = createSelector(
   },
 );
 
+export const getIsReconnectingDatasourcesModalOpen = (state: AppState) =>
+  state.entities.datasources.isReconnectingModalOpen;
+
 export const getIsOnboardingWidgetSelection = (state: AppState) =>
   state.ui.onBoarding.inOnboardingWidgetSelection;
 
@@ -611,6 +642,10 @@ export const selectWidgetsForCurrentPage = createSelector(
 
 export const selectAllPages = (state: AppState) => {
   return state.entities.pageList.pages;
+};
+
+export const getIsListing = (state: AppState) => {
+  return state.entities.datasources.isListing;
 };
 
 export const selectFilesForExplorer = createSelector(

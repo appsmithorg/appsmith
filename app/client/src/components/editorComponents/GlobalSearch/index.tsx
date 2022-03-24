@@ -32,7 +32,6 @@ import {
   getItemTitle,
   getItemPage,
   SEARCH_ITEM_TYPES,
-  useDefaultDocumentationResults,
   DocSearchItem,
   SearchItem,
   algoliaHighlightTag,
@@ -206,7 +205,6 @@ function GlobalSearch() {
   const refinements = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.refinements,
   );
-  const defaultDocs = useDefaultDocumentationResults(modalOpen);
   const params = useParams<ExplorerURLParams>();
   const applicationId = useSelector(getCurrentApplicationId);
 
@@ -322,9 +320,7 @@ function GlobalSearch() {
       ];
     }
     if (isDocumentation(category) || isMenu(category)) {
-      documents = query
-        ? documentationSearchResults
-        : defaultDocs.concat(documentationSearchResults);
+      documents = documentationSearchResults;
     }
     if (isNavigation(category) || isDocumentation(category)) {
       currentSnippets = [];
@@ -393,7 +389,7 @@ function GlobalSearch() {
     event?: SelectEvent,
   ) => {
     if (event && event.type === "click") return;
-    window.open(item.path.replace("master", HelpBaseURL), "_blank");
+    window.open(`${HelpBaseURL}/${item.path}`, "_blank");
   };
 
   const handleWidgetClick = (activeItem: SearchItem) => {

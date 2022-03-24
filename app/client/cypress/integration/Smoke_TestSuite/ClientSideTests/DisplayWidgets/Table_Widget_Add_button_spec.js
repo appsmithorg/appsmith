@@ -40,10 +40,39 @@ describe("Table Widget property pane feature validation", function() {
       .last()
       .invoke("text")
       .then((text) => {
-        const someText = text;
-        expect(someText).to.equal("Successful tobias.funke@reqres.in");
+        expect(text).to.equal("Successful tobias.funke@reqres.in");
+      });
+
+    // Open column details of "id".
+    cy.editColumn("id");
+
+    cy.get(widgetsPage.toggleOnClick).click({ force: true });
+    cy.get(".t--property-control-onclick").then(($el) => {
+      cy.updateCodeInput(
+        $el,
+        "{{showAlert('Successful' + currentRow.email).then(() => showAlert('second alert')) }}",
+      );
+    });
+
+    cy.get(commonlocators.editPropBackButton).click({
+      force: true,
+    });
+
+    // Validating the button action by clicking
+    cy.get(widgetsPage.tableBtn)
+      .last()
+      .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(3000);
+
+    cy.get(widgetsPage.toastActionText)
+      .last()
+      .invoke("text")
+      .then((text) => {
+        expect(text).to.equal("second alert");
       });
   });
+
   it("2. Table Button color validation", function() {
     cy.openPropertyPane("tablewidget");
     // Open column details of "id".
@@ -171,21 +200,24 @@ describe("Table Widget property pane feature validation", function() {
       });
     // validate icon
     cy.get(".t--widget-tablewidget .tbody .bp3-icon-airplane").should("exist");
+    cy.get(".editable-text-container")
+      .eq(1)
+      .click();
     // validate label
     cy.contains("Menu button").should("exist");
 
     const color1 = "rgb(255, 255, 0)";
     cy.get(widgetsPage.menuColor)
-      .click({ force: true })
       .clear()
+      .click({ force: true })
       .type(color1);
     cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color1);
 
     // Changing the color again to reproduce issue #9526
     const color2 = "rgb(255, 0, 0)";
     cy.get(widgetsPage.menuColor)
-      .click({ force: true })
       .clear()
+      .click({ force: true })
       // following wait is required to reproduce #9526
       .wait(500)
       .type(color2);
@@ -297,7 +329,6 @@ describe("Table Widget property pane feature validation", function() {
 
     // Click on the Menu Button
     cy.clickButton("Menu button").wait(1000);
-
     // check Menu Item 3 is disable
     cy.get(".bp3-menu-item")
       .eq(2)
@@ -335,5 +366,23 @@ describe("Table Widget property pane feature validation", function() {
       .last()
       .click({ force: true });
     cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
+    cy.get(".t--property-pane-back-btn").click({ force: true });
+    cy.wait(500);
+    cy.get(".t--property-pane-back-btn").click({ force: true });
+  });
+
+  it("9. Table widget test on button when transparent", () => {
+    cy.openPropertyPane("tablewidget");
+    // Open column details of "id".
+    cy.editColumn("id");
+    // Changing column "Button" color to transparent
+
+    cy.get(widgetsPage.buttonColor).click({ force: true });
+    cy.xpath(widgetsPage.transparent).click();
+    cy.get(".td[data-colindex=5][data-rowindex=0] .bp3-button").should(
+      "have.css",
+      "background-color",
+      "rgba(0, 0, 0, 0)",
+    );
   });
 });

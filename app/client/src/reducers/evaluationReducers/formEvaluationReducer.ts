@@ -9,7 +9,7 @@ export type DynamicValues = {
   hasStarted: boolean;
   hasFetchFailed: boolean;
   data: any;
-  config: { url: string; method: string; params?: string[] };
+  config: { url: string; method: string; params: Record<string, any> };
 };
 
 export type ConditonalObject = Record<string, any>;

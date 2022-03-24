@@ -24,6 +24,7 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getAction } from "selectors/entitiesSelector";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 
 type ExplorerDatasourceEntityProps = {
   plugin: Plugin;
@@ -37,6 +38,7 @@ type ExplorerDatasourceEntityProps = {
 const ExplorerDatasourceEntity = React.memo(
   (props: ExplorerDatasourceEntityProps) => {
     const applicationId = useSelector(getCurrentApplicationId);
+    const guidedTourEnabled = useSelector(inGuidedTour);
     const pageId = useSelector(getCurrentPageId) as string;
     const dispatch = useDispatch();
     const icon = getPluginIcon(props.plugin);
@@ -106,6 +108,10 @@ const ExplorerDatasourceEntity = React.memo(
     } else if (queryAction && isStoredDatasource(queryAction.datasource)) {
       isDefaultExpanded = queryAction.datasource.id === props.datasource.id;
     }
+    // In guided tour we want the datasource structure to be shown only when expanded
+    if (guidedTourEnabled) {
+      isDefaultExpanded = false;
+    }
 
     return (
       <Entity
@@ -116,10 +122,10 @@ const ExplorerDatasourceEntity = React.memo(
           <DataSourceContextMenu
             className={EntityClassNames.CONTEXT_MENU}
             datasourceId={props.datasource.id}
-            entityId={`${props.datasource.id}-${props.pageId}`}
+            entityId={`${props.datasource.id}`}
           />
         }
-        entityId={`${props.datasource.id}-${props.pageId}`}
+        entityId={`${props.datasource.id}`}
         icon={icon}
         isDefaultExpanded={isDefaultExpanded}
         key={props.datasource.id}

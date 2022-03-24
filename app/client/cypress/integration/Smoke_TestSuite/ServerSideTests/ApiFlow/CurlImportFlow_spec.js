@@ -1,6 +1,6 @@
-const ApiEditor = require("../../../../locators/ApiEditor.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const pages = require("../../../../locators/Pages.json");
+import ApiEditor from "../../../../locators/ApiEditor";
 
 describe("Test curl import flow", function() {
   it("Test curl import flow Run and Delete", function() {
@@ -25,8 +25,13 @@ describe("Test curl import flow", function() {
     cy.RunAPI();
     cy.ResponseStatusCheck("200 OK");
     cy.get(ApiEditor.formActionButtons).should("be.visible");
-    cy.get(ApiEditor.ApiActionMenu).click();
+    cy.get(ApiEditor.ApiActionMenu)
+      .first()
+      .click();
     cy.get(ApiEditor.ApiDeleteBtn).click();
+    cy.get(ApiEditor.ApiDeleteBtn)
+      .contains("Are you sure?")
+      .click();
     cy.wait("@deleteAction");
     cy.get("@deleteAction").then((response) => {
       cy.expect(response.response.body.responseMeta.success).to.eq(true);

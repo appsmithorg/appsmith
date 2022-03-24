@@ -1,11 +1,9 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/buttonApiDsl.json");
-const pages = require("../../../../locators/Pages.json");
-const apiPage = require("../../../../locators/ApiEditor.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const publishPage = require("../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const testdata = require("../../../../fixtures/testdata.json");
+import apiPage from "../../../../locators/ApiEditor";
 
 describe("Bind a button and Api usecase", function() {
   let apiData;
@@ -51,6 +49,7 @@ describe("Bind a button and Api usecase", function() {
   });
 
   it("API datasource binding with button name validation", function() {
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.SearchEntityandOpen("Api1");
     cy.get(apiwidget.headerValue)
       .first()

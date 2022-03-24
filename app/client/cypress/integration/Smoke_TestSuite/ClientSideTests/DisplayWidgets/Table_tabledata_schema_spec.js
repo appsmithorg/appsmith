@@ -1,5 +1,5 @@
 const explorer = require("../../../../locators/explorerlocators.json");
-import homePage from "../../../../locators/HomePage.json";
+import homePage from "../../../../locators/HomePage";
 const publish = require("../../../../locators/publishWidgetspage.json");
 
 describe("Table Widget", function() {
@@ -56,7 +56,7 @@ describe("Table Widget", function() {
       .click()
       .wait(1000);
     cy.wait(30000);
-    cy.selectEntityByName("WIDGETS");
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.actionContextMenuByEntityName("Switch1");
     cy.actionContextMenuByEntityName("Table1");
   });

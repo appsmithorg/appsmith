@@ -4,6 +4,7 @@ import { AxiosPromise } from "axios";
 import { AppColorCode } from "constants/DefaultTheme";
 import { AppIconName } from "components/ads/AppIcon";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import { Datasource } from "entities/Datasource";
 
 export type EvaluationVersion = number;
 
@@ -136,6 +137,10 @@ export interface FetchUsersApplicationsOrgsResponse extends ApiResponse {
   };
 }
 
+export interface FetchUnconfiguredDatasourceListResponse extends ApiResponse {
+  data: Array<Datasource>;
+}
+
 export interface ImportApplicationRequest {
   orgId: string;
   applicationFile?: File;
@@ -174,6 +179,15 @@ class ApplicationApi extends Api {
     applicationId: string,
   ): AxiosPromise<FetchApplicationResponse> {
     return Api.get(ApplicationApi.baseURL + "/" + applicationId);
+  }
+
+  static fetchUnconfiguredDatasourceList(payload: {
+    applicationId: string;
+    orgId: string;
+  }): AxiosPromise<FetchUnconfiguredDatasourceListResponse> {
+    return Api.get(
+      `${ApplicationApi.baseURL}/import/${payload.orgId}/datasources?defaultApplicationId=${payload.applicationId}`,
+    );
   }
 
   static fetchApplicationForViewMode(
@@ -257,14 +271,6 @@ class ApplicationApi extends Api {
         onUploadProgress: request.progress,
       },
     );
-  }
-
-  static getSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
-    return Api.get(ApplicationApi.baseURL + "/ssh-keypair/" + applicationId);
-  }
-
-  static generateSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
-    return Api.post(ApplicationApi.baseURL + "/ssh-keypair/" + applicationId);
   }
 }
 

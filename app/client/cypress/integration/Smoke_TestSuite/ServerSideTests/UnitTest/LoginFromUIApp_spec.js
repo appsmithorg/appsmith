@@ -1,4 +1,4 @@
-const homePage = require("../../../../locators/HomePage.json");
+import homePage from "../../../../locators/HomePage";
 const HelpLocators = require("../../../../locators/HelpLocators.json");
 const pages = require("../../../../locators/Pages.json");
 
@@ -20,6 +20,9 @@ describe("Login from UI and check the functionality", function() {
         .trigger("mouseover");
       cy.hoverAndClick();
       cy.get(pages.deletePage)
+        .first()
+        .click({ force: true });
+      cy.get(pages.deletePageConfirm)
         .first()
         .click({ force: true });
       cy.wait(2000);

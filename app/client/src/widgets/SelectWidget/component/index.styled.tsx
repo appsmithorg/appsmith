@@ -12,6 +12,7 @@ import {
   BlueprintCSSTransform,
   createGlobalStyle,
 } from "constants/DefaultTheme";
+import { isEmptyOrNill } from ".";
 
 export const TextLabelWrapper = styled.div<{
   compactMode: boolean;
@@ -139,13 +140,15 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
     }
   }
   .${Classes.BUTTON_TEXT} {
+    word-break: break-word;
     text-overflow: ellipsis;
     text-align: left;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
-    color: ${(props) => (props.value ? Colors.GREY_10 : Colors.GREY_6)};
+    color: ${(props) =>
+      !isEmptyOrNill(props.value) ? Colors.GREY_10 : Colors.GREY_6};
   }
   && {
     .${Classes.ICON} {
@@ -156,28 +159,25 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
 `;
 
 export const DropdownStyles = createGlobalStyle<{
-  parentWidth: number;
   dropDownWidth: number;
   id: string;
 }>`
-${({ dropDownWidth, id, parentWidth }) => `
+${({ dropDownWidth, id }) => `
   .select-popover-width-${id} {
-    min-width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
+    width: ${dropDownWidth}px !important;
 
     & .${Classes.INPUT_GROUP} {
-       width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
+      width: ${dropDownWidth}px;
     }
   }
 `}
   .select-popover-wrapper {
-    width: auto;
     box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
     border-radius: 0;
     background: white;
 
     & .${Classes.INPUT_GROUP} {
       padding: 12px 12px 8px 12px;
-      min-width: 180px;
 
       & > .${Classes.ICON} {
         &:first-child {

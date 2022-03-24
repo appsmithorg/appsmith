@@ -1,12 +1,14 @@
 {
-	"compilerOptions": {
-		"target": "es6",
-		"module": "commonjs",
-		"esModuleInterop": true,
-		"moduleResolution": "node",
-		"sourceMap": true,
-		"outDir": "dist",
-		"allowJs": true
-	},
-	"lib": ["es2015"]
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "outDir": "dist",
+    "allowJs": true
+  },
+  "lib": [
+    "es2015"
+  ]
 }

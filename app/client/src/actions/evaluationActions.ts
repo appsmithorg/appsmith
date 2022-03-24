@@ -45,6 +45,7 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
   ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
   ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS,
+  ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
   // App Data
   ReduxActionTypes.SET_APP_MODE,
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
@@ -116,9 +117,11 @@ export const initFormEvaluations = (
 export const startFormEvaluations = (
   formId: string,
   formData: QueryActionConfig,
+  datasourceId: string,
+  pluginId: string,
 ) => {
   return {
     type: ReduxActionTypes.RUN_FORM_EVALUATION,
-    payload: { formId, actionConfiguration: formData },
+    payload: { formId, actionConfiguration: formData, datasourceId, pluginId },
   };
 };

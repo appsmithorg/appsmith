@@ -1,4 +1,4 @@
-import React from "react";
+import React, { MutableRefObject } from "react";
 import styled from "styled-components";
 import { labelStyle } from "constants/DefaultTheme";
 import { ComponentProps } from "widgets/BaseComponent";
@@ -19,6 +19,7 @@ import {
   TextArea,
   Tag,
   Position,
+  IRef,
 } from "@blueprintjs/core";
 import Tooltip from "components/ads/Tooltip";
 import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
@@ -98,11 +99,14 @@ const InputComponentWrapper = styled((props) => (
         `};
       box-shadow: none;
       border: 1px solid;
-      border-color: ${({ hasError }) =>
-        hasError ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
       border-radius: 0;
       height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
       width: 100%;
+      border-color: ${({ hasError }) => {
+        return hasError
+          ? `${Colors.DANGER_SOLID} !important;`
+          : `${Colors.GREY_3};`;
+      }} 
       ${(props) =>
         props.numeric &&
         `
@@ -205,7 +209,6 @@ const InputComponentWrapper = styled((props) => (
         top: 3px;
       }
       input:not(:first-child) {
-        border-left: 1px solid transparent;
         line-height: 16px;
 
         &:hover:not(:focus) {
@@ -303,7 +306,7 @@ const TextInputWrapper = styled.div`
   flex: 1;
 `;
 
-type InputHTMLType = "TEXT" | "NUMBER" | "PASSWORD" | "EMAIL" | "TEL";
+export type InputHTMLType = "TEXT" | "NUMBER" | "PASSWORD" | "EMAIL" | "TEL";
 
 export const isNumberInputType = (inputHTMLType: InputHTMLType = "TEXT") => {
   return inputHTMLType === "NUMBER";
@@ -389,6 +392,11 @@ class BaseInputComponent extends React.Component<
         autoFocus={this.props.autoFocus}
         className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
         disabled={this.props.disabled}
+        inputRef={(el) => {
+          if (this.props.inputRef && el) {
+            this.props.inputRef.current = el;
+          }
+        }}
         intent={this.props.intent}
         leftIcon={leftIcon}
         majorStepSize={null}
@@ -411,6 +419,7 @@ class BaseInputComponent extends React.Component<
       className={this.props.isLoading ? "bp3-skeleton" : ""}
       disabled={this.props.disabled}
       growVertically={false}
+      inputRef={this.props.inputRef as IRef<HTMLTextAreaElement>}
       intent={this.props.intent}
       maxLength={this.props.maxChars}
       onBlur={() => this.setFocusState(false)}
@@ -431,6 +440,7 @@ class BaseInputComponent extends React.Component<
         autoFocus={this.props.autoFocus}
         className={this.props.isLoading ? "bp3-skeleton" : ""}
         disabled={this.props.disabled}
+        inputRef={this.props.inputRef as IRef<HTMLInputElement>}
         intent={this.props.intent}
         leftIcon={
           this.props.iconName && this.props.iconAlign === "left"
@@ -642,6 +652,9 @@ export interface BaseInputComponentProps extends ComponentProps {
   spellCheck?: boolean;
   maxNum?: number;
   minNum?: number;
+  inputRef?: MutableRefObject<
+    HTMLTextAreaElement | HTMLInputElement | undefined | null
+  >;
 }
 
 export default BaseInputComponent;
