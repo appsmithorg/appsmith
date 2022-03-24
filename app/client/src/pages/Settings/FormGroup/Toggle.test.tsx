@@ -1,26 +1,22 @@
 import { render } from "test/testUtils";
 import React from "react";
-import {
-  SettingTypes,
-  SettingSubtype,
-} from "@appsmith/pages/AdminSettings/config/types";
-import TextInput from "./TextInput";
+import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
+import Toggle from "./Toggle";
 import { SETTINGS_FORM_NAME } from "constants/forms";
 import { reduxForm } from "redux-form";
 
 let container: any = null;
 const setting = {
-  id: "SETTING_TEXT_INPUT_ID",
-  name: "SETTING_TEXT_INPUT_ID",
+  id: "SETTING_TOGGLE_ID",
+  name: "SETTING_TOGGLE_ID",
   category: "test category",
-  controlType: SettingTypes.TEXTINPUT,
-  controlSubType: SettingSubtype.TEXT,
+  controlType: SettingTypes.TOGGLE,
   label: "test label",
 };
 
 function renderComponent() {
-  function TextInputFieldComponent() {
-    return <TextInput setting={setting} />;
+  function ToggleComponent() {
+    return <Toggle setting={setting} />;
   }
   const Parent = reduxForm<any, any>({
     validate: () => {
@@ -28,14 +24,14 @@ function renderComponent() {
     },
     form: SETTINGS_FORM_NAME,
     touchOnBlur: true,
-  })(TextInputFieldComponent);
+  })(ToggleComponent);
 
   render(<Parent />, {
     initialState: {
       form: {
         [SETTINGS_FORM_NAME]: {
           values: {
-            [setting.id]: "test value",
+            [setting.id]: false,
           },
         },
       },
@@ -43,7 +39,7 @@ function renderComponent() {
   });
 }
 
-describe("Text Input", () => {
+describe("Toggle", () => {
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
@@ -53,6 +49,14 @@ describe("Text Input", () => {
     renderComponent();
     const inputEl = document.querySelector("input");
     expect(inputEl?.value).toBeDefined();
-    expect(inputEl?.value).toEqual("test value");
+    expect(inputEl?.value).toEqual("true"); // value = ![setting.id]
+    expect(inputEl?.hasAttribute("checked"));
+  });
+
+  it("when clicked flips the flag", () => {
+    renderComponent();
+    const inputEl = document.querySelector("input");
+    inputEl?.click();
+    expect(inputEl?.value).toEqual("false");
   });
 });
