@@ -92,7 +92,6 @@ export interface IconSelectControlProps extends ControlProps {
 
 export interface IconSelectControlState {
   activeIcon: IconType;
-  popoverTargetWidth: number | undefined;
   isOpen: boolean;
 }
 
@@ -114,7 +113,6 @@ class IconSelectControl extends BaseControl<
   private initialItemIndex: number;
   private filteredItems: Array<IconType>;
   private searchInput: React.RefObject<HTMLInputElement>;
-  private timer?: number;
 
   constructor(props: IconSelectControlProps) {
     super(props);
@@ -125,7 +123,6 @@ class IconSelectControl extends BaseControl<
     this.filteredItems = [];
     this.state = {
       activeIcon: props.propertyValue ?? NONE,
-      popoverTargetWidth: 0,
       isOpen: false,
     };
   }
@@ -149,24 +146,11 @@ class IconSelectControl extends BaseControl<
   );
 
   componentDidMount() {
-    this.timer = setTimeout(() => {
-      const iconSelectTargetElement = this.iconSelectTargetRef.current;
-      this.setState((prevState: IconSelectControlState) => {
-        return {
-          ...prevState,
-          popoverTargetWidth: iconSelectTargetElement?.getBoundingClientRect()
-            .width,
-        };
-      });
-    }, 0);
     // keydown event is attached to body so that it will not interfere with the keydown handler in GlobalHotKeys
     document.body.addEventListener("keydown", this.handleKeydown);
   }
 
   componentWillUnmount() {
-    if (this.timer) {
-      clearTimeout(this.timer);
-    }
     document.body.removeEventListener("keydown", this.handleKeydown);
   }
 
@@ -177,10 +161,13 @@ class IconSelectControl extends BaseControl<
 
   public render() {
     const { defaultIconName, propertyValue: iconName } = this.props;
-    const { activeIcon, popoverTargetWidth } = this.state;
+    const { activeIcon } = this.state;
+    const containerWidth =
+      this.iconSelectTargetRef.current?.getBoundingClientRect?.()?.width || 0;
+
     return (
       <>
-        <IconSelectContainerStyles targetWidth={popoverTargetWidth} />
+        <IconSelectContainerStyles targetWidth={containerWidth} />
         <TypedSelect
           activeItem={activeIcon || defaultIconName || NONE}
           className="icon-select-container"

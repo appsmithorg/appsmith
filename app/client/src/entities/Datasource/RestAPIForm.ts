@@ -1,7 +1,7 @@
 import { Property } from "entities/Action";
 
 export enum AuthType {
-  NONE = "NONE",
+  NONE = "dbAuth",
   OAuth2 = "oAuth2",
   basic = "basic",
   apiKey = "apiKey",

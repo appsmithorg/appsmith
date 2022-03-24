@@ -15,14 +15,16 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
-import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
+import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
+import static com.external.plugins.constants.FieldName.DELETE;
 import static com.external.plugins.constants.FieldName.DELETE_LIMIT;
 import static com.external.plugins.constants.FieldName.DELETE_QUERY;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
+import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
 
 @Getter
 @Setter
@@ -65,7 +67,7 @@ public class Delete extends MongoCommand {
     public Document parseCommand() {
         Document document = new Document();
 
-        document.put("delete", this.collection);
+        document.put(DELETE, this.collection);
 
         Document queryDocument = parseSafely("Query", this.query);
 
@@ -104,10 +106,11 @@ public class Delete extends MongoCommand {
                 "    }\n" +
                 "  ]\n" +
                 "}\n";
+        setValueSafelyInFormData(configMap, BODY, rawQuery);
 
         return Collections.singletonList(new DatasourceStructure.Template(
                 "Delete",
-                rawQuery,
+                null,
                 configMap
         ));
     }

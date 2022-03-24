@@ -101,6 +101,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         if (!StringUtils.hasLength(datasource.getGitSyncId())) {
             datasource.setGitSyncId(datasource.getOrganizationId() + "_" + new ObjectId());
         }
+
         Mono<Datasource> datasourceMono = Mono.just(datasource);
         if (!StringUtils.hasLength(datasource.getName())) {
             datasourceMono = sequenceService
@@ -190,7 +191,6 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
         Mono<Datasource> datasourceMono = repository.findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)));
-
         return datasourceMono
                 .map(dbDatasource -> {
                     copyNestedNonNullProperties(datasource, dbDatasource);
@@ -367,11 +367,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         // Remove branch name as datasources are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
         if (params.getFirst(FieldName.ORGANIZATION_ID) != null) {
-            return findAllByOrganizationId(params.getFirst(FieldName.ORGANIZATION_ID), AclPermission.READ_DATASOURCES)
-                    .map(datasource -> {
-                        datasource.setIsConfigured(Optional.ofNullable(datasource.getDatasourceConfiguration()).isEmpty());
-                        return datasource;
-                    });
+            return findAllByOrganizationId(params.getFirst(FieldName.ORGANIZATION_ID), AclPermission.READ_DATASOURCES);
         }
 
         return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
