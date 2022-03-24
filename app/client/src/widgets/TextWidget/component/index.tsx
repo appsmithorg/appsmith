@@ -109,11 +109,10 @@ export const StyledText = styled(Text)<{
       : "100%"};
   overflow-x: hidden;
   overflow-y: ${(props) =>
-    props.overflow === OverflowTypes.SCROLL
-      ? props.overflow === OverflowTypes.TRUNCATE.valueOf()
-        ? "hidden"
-        : "auto"
-      : "hidden"};
+    props.overflow !== OverflowTypes.SCROLL ||
+    props.overflow === OverflowTypes.TRUNCATE.valueOf()
+      ? "hidden"
+      : "auto"};
   text-overflow: ellipsis;
   text-align: ${(props) => props.textAlign.toLowerCase()};
   display: flex;
