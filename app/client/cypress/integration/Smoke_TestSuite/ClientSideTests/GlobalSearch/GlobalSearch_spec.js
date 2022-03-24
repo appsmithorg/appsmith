@@ -1,6 +1,7 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/MultipleWidgetDsl.json");
+const globalSearchLocators = require("../../../../locators/GlobalSearch.json");
 
 describe("GlobalSearch", function() {
   before(() => {
@@ -9,6 +10,14 @@ describe("GlobalSearch", function() {
 
   beforeEach(() => {
     cy.startRoutesForDatasource();
+  });
+
+  it("Clicking on filter should show the filter menu", () => {
+    cy.get(commonlocators.globalSearchTrigger).click({ force: true });
+    cy.contains(globalSearchLocators.docHint, "Snippets").click();
+    cy.get(globalSearchLocators.filterButton).click();
+    cy.contains("Reset Filter").should("be.visible");
+    cy.get("body").type("{esc}");
   });
 
   it("1. showsAndHidesUsingKeyboardShortcuts", () => {

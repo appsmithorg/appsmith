@@ -1,0 +1,82 @@
+{
+  "newPage": {
+    "id": "testPageId",
+    "applicationId": "testApplicationId",
+    "defaultResources": {
+      "pageId" : "defaultTestPageId",
+      "applicationId": "defaultApplicationId"
+    }
+  },
+  "newAction": {
+    "id": "testActionId",
+    "applicationId": "testApplicationId",
+    "unpublishedAction": {
+      "pageId": "testPageId",
+      "collectionId": "testCollectionId",
+      "defaultResources": {
+        "pageId": "defaultTestPageIdUnpublished",
+        "collectionId": "defaultTestCollectionIdUnpublished"
+      }
+    },
+    "publishedAction": {
+      "pageId": "testPageId",
+      "collectionId": "testCollectionId",
+      "defaultResources": {
+        "pageId": "defaultTestPageIdPublished",
+        "collectionId": "defaultTestCollectionIdPublished"
+      }
+    },
+    "defaultResources": {
+      "actionId": "defaultTestActionId",
+      "applicationId": "defaultApplicationId"
+    }
+  },
+  "actionCollection": {
+    "id": "testCollectionId",
+    "applicationId": "testApplicationId",
+    "organizationId": "testOrganizationId",
+    "unpublishedCollection": {
+      "pageId": "testPageIdUnpublished",
+      "defaultResources": {
+        "pageId": "defaultTestPageIdUnpublished"
+      }
+    },
+    "publishedCollection": {
+      "pageId": "testPageIdPublished",
+      "defaultResources": {
+        "pageId": "defaultTestPageIdPublished"
+      }
+    },
+    "defaultResources": {
+      "collectionId": "defaultTestCollectionId",
+      "applicationId": "defaultApplicationId"
+    }
+  },
+  "application": {
+    "id": "testApplicationId",
+    "pages": [
+      {
+        "id" : "testPageId1",
+        "isDefault": true,
+        "defaultPageId": "defaultTestPageId1"
+      },
+      {
+        "id" : "testPageId2",
+        "isDefault": false,
+        "defaultPageId": "defaultTestPageId2"
+      }
+    ],
+    "publishedPages": [
+      {
+        "id" : "testPageId1",
+        "isDefault": false,
+        "defaultPageId": "defaultTestPageId1"
+      },
+      {
+        "id" : "testPageId2",
+        "isDefault": true,
+        "defaultPageId": "defaultTestPageId2"
+      }
+    ]
+  }
+}

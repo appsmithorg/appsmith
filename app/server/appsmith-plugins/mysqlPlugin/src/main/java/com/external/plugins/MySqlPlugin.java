@@ -66,9 +66,9 @@ import java.util.stream.IntStream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.helpers.PluginUtils.MATCH_QUOTED_WORDS_REGEX;
-import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
+import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
 import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -141,9 +141,8 @@ public class MySqlPlugin extends BasePlugin {
     @Extension
     public static class MySqlPluginExecutor implements PluginExecutor<Connection>, SmartSubstitutionInterface {
 
-        private final Scheduler scheduler = Schedulers.elastic();
-
         private static final int PREPARED_STATEMENT_INDEX = 0;
+        private final Scheduler scheduler = Schedulers.elastic();
 
         /**
          * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
@@ -171,11 +170,11 @@ public class MySqlPlugin extends BasePlugin {
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             if (properties == null || properties.get(PREPARED_STATEMENT_INDEX) == null) {
-                 // In case the prepared statement configuration is missing, default to true
+                // In case the prepared statement configuration is missing, default to true
                 isPreparedStatement = true;
-            } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
+            } else if (properties.get(PREPARED_STATEMENT_INDEX) != null) {
                 Object psValue = properties.get(PREPARED_STATEMENT_INDEX).getValue();
-                if (psValue instanceof  Boolean) {
+                if (psValue instanceof Boolean) {
                     isPreparedStatement = (Boolean) psValue;
                 } else if (psValue instanceof String) {
                     isPreparedStatement = Boolean.parseBoolean((String) psValue);
@@ -186,7 +185,7 @@ public class MySqlPlugin extends BasePlugin {
                 isPreparedStatement = true;
             }
 
-            requestData.put("preparedStatement", TRUE.equals(isPreparedStatement) ? true : false);
+            requestData.put("preparedStatement", TRUE.equals(isPreparedStatement));
 
             String query = actionConfiguration.getBody();
             // Check for query parameter before performing the probably expensive fetch connection from the pool op.
@@ -375,7 +374,7 @@ public class MySqlPlugin extends BasePlugin {
                 IntStream.range(0, parameters.size())
                         .forEachOrdered(i ->
                                 psParams.put(
-                                        getPSParamLabel(i+1),
+                                        getPSParamLabel(i + 1),
                                         new PsParameterDTO(parameters.get(i).getKey(), parameters.get(i).getValue())));
 
             } catch (AppsmithPluginException e) {
@@ -636,8 +635,11 @@ public class MySqlPlugin extends BasePlugin {
                     invalids.add("Missing username for authentication.");
                 }
 
-                if (StringUtils.isEmpty(authentication.getPassword())) {
+                if (StringUtils.isEmpty(authentication.getPassword()) && StringUtils.isEmpty(authentication.getUsername())) {
                     invalids.add("Missing password for authentication.");
+                } else if (StringUtils.isEmpty(authentication.getPassword())) {
+                    // it is valid if it has the username but not the password
+                    authentication.setPassword("");
                 }
 
                 if (StringUtils.isEmpty(authentication.getDatabaseName())) {
@@ -812,7 +814,7 @@ public class MySqlPlugin extends BasePlugin {
                                 + " (" + String.join(", ", columnNames) + ")\n"
                                 + "  VALUES (" + String.join(", ", columnValues) + ");"),
                         new DatasourceStructure.Template("UPDATE", "UPDATE " + tableName + " SET"
-                                + setFragments.toString() + "\n"
+                                + setFragments + "\n"
                                 + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
                         new DatasourceStructure.Template("DELETE", "DELETE FROM " + tableName
                                 + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")

@@ -1,6 +1,6 @@
 import React from "react";
 
-import { ERROR_CODES } from "constants/ApiConstants";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import PageNotFound from "pages/common/PageNotFound";
 import ServerTimeout from "pages/common/ServerTimeout";
 import ServerUnavailable from "pages/common/ServerUnavailable";

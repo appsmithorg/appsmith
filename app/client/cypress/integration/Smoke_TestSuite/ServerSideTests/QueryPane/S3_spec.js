@@ -1,3 +1,5 @@
+/// <reference types="Cypress" />
+
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
@@ -118,7 +120,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
         "File content is not base64 encoded.",
       );
     });
-    cy.validateNSelectDropdown("File Data Type", "Base64", "Text / Binary");
+    cy.validateNSelectDropdown("File Data Type", "Base64", "Text");
 
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
@@ -247,7 +249,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.typeValueNValidate("AutoFile", "File Path");
 
     //Commenting below since below dropdown is removed from Read
-    //cy.validateNSelectDropdown("File Data Type", "Base64", "Text / Binary");
+    //cy.validateNSelectDropdown("File Data Type", "Base64", "Text");
 
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
@@ -341,7 +343,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     );
     cy.typeValueNValidate("assets-test.appsmith.com", "Bucket Name");
     cy.typeValueNValidate("CRUDNewPageFile", "File Path");
-    cy.validateNSelectDropdown("File Data Type", "Base64", "Text / Binary");
+    cy.validateNSelectDropdown("File Data Type", "Base64", "Text");
     cy.typeValueNValidate(
       '{"data": "Hi, this is Automation script adding file for S3 CRUD New Page validation!"}',
       "Content",
@@ -414,7 +416,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     // cy.window().its('navigator.clipboard').invoke('readText').should('contain', 'CRUDNewPageFile')
 
     //Verifying DeleteFile icon from UI
-    cy.xpath(queryLocators.deleteFileicon).click(); //Verifies 8684
+    cy.xpath(queryLocators.deleteFileicon)
+      .eq(0)
+      .click(); //Verifies 8684
     cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating"); //Verifies 8686
 
     expect(
@@ -434,16 +438,22 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-
+    cy.get(".t--delete-datasource")
+      .contains("Are you sure?")
+      .click();
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       409,
     );
-    cy.actionContextMenuByEntityName("Assets-test.appsmith.com");
+    cy.actionContextMenuByEntityName(
+      "Assets-test.appsmith.com",
+      "Delete",
+      "Are you sure?",
+    );
   });
 
-  it("7. Bug 9069, 9201, 6975, 9922: Upload/Update query is failing in S3 crud pages", function() {
+  it("7. Bug 9069, 9201, 6975, 9922, 3836, 6492, 11833: Upload/Update query is failing in S3 crud pages", function() {
     cy.NavigateToDSGeneratePage(datasourceName);
     cy.wait(3000);
     //Verifying List of Files from UI
@@ -470,7 +480,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.ClickGotIt();
 
     //Upload: 1
-    let fixturePath = "GlobeChristmas.jpeg";
+    let fixturePath = "AAAGlobeChristmas.jpeg";
     cy.wait(3000);
     cy.clickButton("Select Files"); //1 files selected
     cy.get(generatePage.uploadFilesS3).attachFile(fixturePath);
@@ -490,8 +500,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
     //Verifying Searching File from UI
     cy.xpath(queryLocators.searchFilefield)
-      .type("GlobeChri")
-      .wait(4000); //for search to finish
+      .type("AAAGlobeChri")
+      .wait(7000); //for search to finish
     expect(
       cy.xpath(
         "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
@@ -507,14 +517,18 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     ).scrollIntoView();
 
     //Verifying DeleteFile icon from UI
-    cy.xpath(
+
+    const deleteIconButtonXPATH =
       "//button/span[@icon='trash']/ancestor::div[contains(@class,'t--widget-iconbuttonwidget')]/preceding-sibling::div[contains(@class, 't--widget-textwidget')]//span[text()='" +
-        fixturePath +
-        "']/ancestor::div[contains(@class, 't--widget-textwidget')]/following-sibling::div[contains(@class,'t--widget-iconbuttonwidget')]",
-    )
-      .should("be.visible")
+      fixturePath +
+      "']/ancestor::div[contains(@class, 't--widget-textwidget')]/following-sibling::div[contains(@class,'t--widget-iconbuttonwidget')]";
+
+    cy.xpath(deleteIconButtonXPATH)
+      .should("exist")
       .last()
+      .scrollIntoView()
       .click(); //Verifies 8684
+
     cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating"); //Verifies 8686
 
     expect(
@@ -524,70 +538,86 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
     });
-    cy.get("span:contains('" + fixturePath + "')", { timeout: 10000 }).should(
-      "not.exist",
-    ); //verify Deletion of file is success from UI also
 
-    //Commenting below since bug # 9922 is open
+    cy.xpath(
+      "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
+        fixturePath +
+        "']",
+      { timeout: 10000 },
+    ).should("not.exist"); //verify Deletion of file is success from UI also
 
-    // //Upload: 2 - Bug verification 9201
-    // fixturePath = "Vase.jpeg";
-    // cy.wait(3000);
-    // cy.clickButton("Select Files"); //1 files selected
-    // cy.get(generatePage.uploadFilesS3).attachFile(fixturePath);
-    // cy.wait(2000);
-    // cy.get(generatePage.uploadBtn).click();
-    // cy.wait(1000);
-    // cy.clickButton("Upload");
-    // cy.wait("@postExecute").should(
-    //   "have.nested.property",
-    //   "response.body.data.isExecutionSuccess",
-    //   true,
-    // );
+    //Upload: 2 - Bug verification 9201
+    fixturePath = "AAAFlowerVase.jpeg";
+    cy.wait(3000);
+    cy.clickButton("Select Files"); //1 files selected
+    cy.get(generatePage.uploadFilesS3).attachFile(fixturePath);
+    cy.wait(2000);
+    cy.get(generatePage.uploadBtn).click();
+    cy.wait(1000);
+    cy.clickButton("Upload");
+    cy.wait("@postExecute").should(
+      "have.nested.property",
+      "response.body.data.isExecutionSuccess",
+      true,
+    );
 
-    // cy.get(commonlocators.toastAction)
-    //   .should("have.length", 1)
-    //   .should("contain.text", "File Uploaded"); //Verifies bug # 6975
+    cy.get(commonlocators.toastAction)
+      .should("have.length", 1)
+      .should("contain.text", "File Uploaded"); //Verifies bug # 6975
 
-    // //Verifying Searching File from UI
-    // cy.xpath(queryLocators.searchFilefield)
-    //   .clear()
-    //   .type("VVase")
-    //   .wait(3000); //for search to finish
-    // expect(
-    //   cy.xpath(
-    //     "//div[@data-cy='overlay-comments-wrapper']//span[text()='" + fixturePath + "']",
-    //   ),
-    // ).to.exist; //Verifies bug # 9922
+    //Verifying Searching File from UI
+    cy.xpath(queryLocators.searchFilefield)
+      .clear()
+      .wait(500)
+      .type("AAAFlower")
+      .wait(7000); //for search to finish
+    expect(
+      cy.xpath(
+        "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
+          fixturePath +
+          "']",
+      ),
+    ).to.exist; //Verifies bug # 9922
 
-    // cy.xpath(
-    //   "//div[@data-cy='overlay-comments-wrapper']//span[text()='" + fixturePath + "']",
-    // ).scrollIntoView();
+    cy.xpath(
+      "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
+        fixturePath +
+        "']",
+    ).scrollIntoView();
 
-    // //Verifying DeleteFile icon from UI
-    // cy.xpath(
-    //   "//button/span[@icon='trash']/ancestor::div[contains(@class,'t--widget-iconbuttonwidget')]/preceding-sibling::div[contains(@class, 't--widget-textwidget')]//span[text()='" +
-    //   fixturePath +
-    //   "']/ancestor::div[contains(@class, 't--widget-textwidget')]/following-sibling::div[contains(@class,'t--widget-iconbuttonwidget')]",
-    // )
-    //   .should("be.visible")
-    //   .last()
-    //   .click(); //Verifies 8684
-    // cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating"); //Verifies 8686
+    cy.wait(3000);
+    //Verifying DeleteFile icon from UI
+    cy.xpath(
+      "//button/span[@icon='trash']/ancestor::div[contains(@class,'t--widget-iconbuttonwidget')]/preceding-sibling::div[contains(@class, 't--widget-textwidget')]//span[text()='" +
+        fixturePath +
+        "']/ancestor::div[contains(@class, 't--widget-textwidget')]/following-sibling::div[contains(@class,'t--widget-iconbuttonwidget')]",
+    )
+      .should("exist")
+      .last()
+      .scrollIntoView()
+      .click(); //Verifies 8684
+    cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating"); //Verifies 8686
 
-    // expect(
-    //   cy.xpath("//span[text()='Are you sure you want to delete the file?']"),
-    // ).to.exist; //verify Delete File dialog appears
-    // cy.clickButton("Confirm").wait(1000); //wait for Delete operation to be successfull, //Verifies 8684
-    // cy.wait("@postExecute").then(({ response }) => {
-    //   expect(response.body.data.isExecutionSuccess).to.eq(true);
-    // });
-    // cy.get("span:contains('" + fixturePath + "')", { timeout: 10000 }).should(
-    //   "not.exist",
-    // ); //verify Deletion of file is success from UI also
+    expect(
+      cy.xpath("//span[text()='Are you sure you want to delete the file?']"),
+    ).to.exist; //verify Delete File dialog appears
+    cy.clickButton("Confirm").wait(3000); //wait for Delete operation to be successfull, //Verifies 8684
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response.body.data.isExecutionSuccess).to.eq(true);
+    });
+    cy.xpath(
+      "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
+        fixturePath +
+        "']",
+      { timeout: 10000 },
+    ).should("not.exist"); //verify Deletion of file is success from UI also
 
     //Deleting the page:
-    cy.actionContextMenuByEntityName("Assets-test.appsmith.com");
+    cy.actionContextMenuByEntityName(
+      "Assets-test.appsmith.com",
+      "Delete",
+      "Are you sure?",
+    );
   });
 
   it("8. Verify 'Add to widget [Widget Suggestion]' functionality - S3", () => {
@@ -601,7 +631,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.xpath(queryLocators.suggestedWidgetDropdown)
       .click()
       .wait(1000);
-    cy.get(commonlocators.dropdownWidget).validateWidgetExists();
+    cy.get(".t--draggable-dropdownwidget").validateWidgetExists();
 
     cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
     cy.get(queryLocators.suggestedTableWidget)
@@ -634,9 +664,13 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       .wait(1500); //wait for table to load!
 
     cy.get(commonlocators.TableRow).validateWidgetExists();
-
-    cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.get("@entity").then((entityN) => {
+      cy.log(entityN);
+      cy.selectEntityByName(entityN);
+    });
     cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.actionContextMenuByEntityName("Table1");
     cy.wait(3000); //waiting for deletion to complete! - else next case fails
   });
@@ -646,6 +680,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click({ force: true });
     cy.get(".t--delete-datasource").click();
+    cy.get(".t--delete-datasource")
+      .contains("Are you sure?")
+      .click();
 
     // cy.wait("@deleteDatasource").should(
     //   "have.nested.property",

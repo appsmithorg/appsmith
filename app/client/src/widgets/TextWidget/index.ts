@@ -1,6 +1,5 @@
-import Widget from "./widget";
 import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -13,8 +12,8 @@ export const CONFIG = {
     textAlign: "LEFT",
     textColor: "#231F20",
     truncateButtonColor: "#FFC13D",
-    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-    columns: 4 * GRID_DENSITY_MIGRATION_V1,
+    rows: 4,
+    columns: 16,
     widgetName: "Text",
     shouldScroll: false,
     shouldTruncate: false,

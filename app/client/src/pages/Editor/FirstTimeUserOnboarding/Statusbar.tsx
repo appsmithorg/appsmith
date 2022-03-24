@@ -33,9 +33,8 @@ import {
   ONBOARDING_STATUS_GET_STARTED,
   createMessage,
   ONBOARDING_STATUS_STEPS_THIRD_ALT,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 
 import { Colors } from "constants/Colors";
 
@@ -45,8 +44,9 @@ const Wrapper = styled.div<{ active: boolean }>`
     props.active ? props.theme.colors.welcomeTourStickySidebarBackground : ""};
   cursor: ${(props) => (props.active ? "default" : "pointer")};
   height: ${(props) => props.theme.onboarding.statusBarHeight}px;
-  padding: 10px 16px;
+  padding: 12px 16px;
   transition: background-color 0.3s ease;
+  border: 1px solid ${Colors.Gallery};
 
   ${(props) =>
     props.active &&
@@ -202,7 +202,6 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
   const isFirstTimeUserOnboardingComplete = useSelector(
     getFirstTimeUserOnboardingComplete,
   );
-  const intiateOnboarding = useIntiateOnboarding();
   if (isGenerateAppPage) {
     return null;
   }
@@ -211,7 +210,6 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
     dispatch({
       type: ReduxActionTypes.END_FIRST_TIME_USER_ONBOARDING,
     });
-    intiateOnboarding();
   };
   if (percentage === 100 && !isFirstTimeUserOnboardingComplete) {
     dispatch({

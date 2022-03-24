@@ -12,8 +12,6 @@ import { Datasource } from "entities/Datasource";
 import { isNameValid } from "utils/helpers";
 import { saveDatasourceName } from "actions/datasourceActions";
 import { Spinner } from "@blueprintjs/core";
-import { checkCurrentStep } from "sagas/OnboardingSagas";
-import { OnboardingStep } from "constants/OnboardingConstants";
 
 const Wrapper = styled.div`
   margin-left: 10px;
@@ -50,11 +48,6 @@ function FormTitle(props: FormTitleProps) {
       error: state.ui.datasourceName.errors[id],
     };
   });
-
-  // For onboarding
-  const hideEditIcon = useSelector((state: AppState) =>
-    checkCurrentStep(state, OnboardingStep.SUCCESSFUL_BINDING, "LESSER"),
-  );
 
   const hasNameConflict = React.useCallback(
     (name: string) => {
@@ -110,8 +103,7 @@ function FormTitle(props: FormTitleProps) {
         defaultValue={currentDatasource ? currentDatasource.name : ""}
         editInteractionKind={EditInteractionKind.SINGLE}
         forceDefault={forceUpdate}
-        hideEditIcon={hideEditIcon}
-        isEditingDefault={props.focusOnMount && !hideEditIcon}
+        isEditingDefault={props.focusOnMount}
         isInvalid={isInvalidDatasourceName}
         maxLength={30}
         onTextChanged={handleDatasourceNameChange}

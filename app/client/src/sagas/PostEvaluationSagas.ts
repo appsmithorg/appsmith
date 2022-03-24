@@ -3,6 +3,7 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
+  getDataTreeWithoutPrivateWidgets,
   getEntityNameAndPropertyPath,
   isAction,
   isJSAction,
@@ -19,10 +20,7 @@ import {
 import { find, get, some } from "lodash";
 import LOG_TYPE from "../entities/AppsmithConsole/logtype";
 import { put, select } from "redux-saga/effects";
-import {
-  ReduxAction,
-  ReduxActionWithoutPayload,
-} from "constants/ReduxActionConstants";
+import { AnyReduxAction } from "constants/ReduxActionConstants";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import AppsmithConsole from "../utils/AppsmithConsole";
@@ -33,7 +31,7 @@ import {
   ERROR_EVAL_ERROR_GENERIC,
   JS_OBJECT_BODY_INVALID,
   VALUE_IS_INVALID,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import log from "loglevel";
 import { AppState } from "reducers";
 import { getAppMode } from "selectors/applicationSelectors";
@@ -138,12 +136,10 @@ function logLatestEvalPropertyErrors(
           // Reformatting eval errors here to a format usable by the debugger
           const errorMessages = errors.map((e) => {
             // Error format required for the debugger
-            const formattedError = {
+            return {
               message: e.errorMessage,
               type: e.errorType,
             };
-
-            return formattedError;
           });
 
           const analyticsData = isWidget(entity)
@@ -335,9 +331,7 @@ export function* logSuccessfulBindings(
   });
 }
 
-export function* postEvalActionDispatcher(
-  actions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
-) {
+export function* postEvalActionDispatcher(actions: Array<AnyReduxAction>) {
   for (const action of actions) {
     yield put(action);
   }
@@ -350,14 +344,14 @@ export function* updateTernDefinitions(
   updates?: DataTreeDiff[],
 ) {
   let shouldUpdate: boolean;
-  // No updates means it was a first Eval
+  // No updates, means it was a first Eval
   if (!updates) {
     shouldUpdate = true;
   } else if (updates.length === 0) {
     // update length is 0 means no significant updates
     shouldUpdate = false;
   } else {
-    // Only when new field is added or deleted, we want to re create the def
+    // Only when new field is added or deleted, we want to re-create the def
     shouldUpdate = some(updates, (update) => {
       return (
         update.event === DataTreeDiffEvent.NEW ||
@@ -367,7 +361,13 @@ export function* updateTernDefinitions(
   }
   if (shouldUpdate) {
     const start = performance.now();
-    const { def, entityInfo } = dataTreeTypeDefCreator(dataTree);
+    // remove private widgets from dataTree used for autocompletion
+    const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(
+      dataTree,
+    );
+    const { def, entityInfo } = dataTreeTypeDefCreator(
+      treeWithoutPrivateWidgets,
+    );
     TernServer.updateDef("DATA_TREE", def, entityInfo);
     const end = performance.now();
     log.debug("Tern", { updates });

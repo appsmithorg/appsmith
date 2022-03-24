@@ -1,7 +1,6 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { RecaptchaTypes } from "components/constants";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -10,8 +9,8 @@ export const CONFIG = {
   hideCard: true,
   needsMeta: true,
   defaults: {
-    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-    columns: 3 * GRID_DENSITY_MIGRATION_V1,
+    rows: 4,
+    columns: 12,
     widgetName: "FormButton",
     text: "Submit",
     isDefaultClickDisabled: true,

@@ -1,6 +1,5 @@
-import Widget from "./widget";
 import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -9,8 +8,8 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     defaultText: "This is the initial <b>content</b> of the editor",
-    rows: 5 * GRID_DENSITY_MIGRATION_V1,
-    columns: 6 * GRID_DENSITY_MIGRATION_V1,
+    rows: 20,
+    columns: 24,
     animateLoading: true,
     isDisabled: false,
     isVisible: true,

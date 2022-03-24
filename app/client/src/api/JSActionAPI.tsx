@@ -10,6 +10,7 @@ export interface JSCollectionCreateUpdateResponse extends ApiResponse {
 export interface MoveJSCollectionRequest {
   collectionId: string;
   destinationPageId: string;
+  name: string;
 }
 export interface UpdateJSObjectNameRequest {
   pageId: string;
@@ -31,6 +32,11 @@ export interface CreateJSCollectionRequest {
   pluginType: PluginType;
 }
 
+export type SetFunctionPropertyPayload = {
+  action: JSAction;
+  propertyName: string;
+  value: any;
+};
 export interface RefactorAction {
   pageId: string;
   actionId: string;

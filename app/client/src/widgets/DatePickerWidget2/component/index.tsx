@@ -5,7 +5,7 @@ import {
   IntentColors,
   getBorderCSSShorthand,
 } from "constants/DefaultTheme";
-import { ControlGroup, Classes, Label } from "@blueprintjs/core";
+import { ControlGroup, Classes, Label, IRef } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
 import moment from "moment-timezone";
@@ -18,7 +18,8 @@ import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import {
   createMessage,
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
+import { parseDate } from "./utils";
 
 const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
   &&& {
@@ -160,6 +161,9 @@ class DatePickerComponent extends React.Component<
               }}
               disabled={this.props.isDisabled}
               formatDate={this.formatDate}
+              inputProps={{
+                inputRef: this.props.inputRef,
+              }}
               maxDate={maxDate}
               minDate={minDate}
               onChange={this.onDateSelected}
@@ -224,10 +228,8 @@ class DatePickerComponent extends React.Component<
     if (!dateStr) {
       return null;
     } else {
-      const date = moment(dateStr);
       const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
-      if (date.isValid()) return moment(dateStr, dateFormat).toDate();
-      else return moment().toDate();
+      return parseDate(dateStr, dateFormat);
     }
   };
 
@@ -235,6 +237,7 @@ class DatePickerComponent extends React.Component<
    * checks if selelectedDate is null or not,
    * sets state and calls props onDateSelected
    * if its null, don't call onDateSelected
+   * update internal state while changing month/year to update calender
    *
    * @param selectedDate
    */
@@ -250,7 +253,7 @@ class DatePickerComponent extends React.Component<
   };
 }
 
-interface DatePickerComponentProps extends ComponentProps {
+export interface DatePickerComponentProps extends ComponentProps {
   label: string;
   dateFormat: string;
   selectedDate?: string;
@@ -266,6 +269,7 @@ interface DatePickerComponentProps extends ComponentProps {
   shortcuts: boolean;
   firstDayOfWeek?: number;
   timePrecision: TimePrecision;
+  inputRef?: IRef<HTMLInputElement>;
 }
 
 interface DatePickerComponentState {

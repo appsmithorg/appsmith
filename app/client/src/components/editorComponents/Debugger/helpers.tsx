@@ -2,7 +2,11 @@ import { Log, Severity } from "entities/AppsmithConsole";
 import React from "react";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { createMessage, OPEN_THE_DEBUGGER, PRESS } from "constants/messages";
+import {
+  createMessage,
+  OPEN_THE_DEBUGGER,
+  PRESS,
+} from "@appsmith/constants/messages";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import {
   matchBuilderPath,
@@ -10,7 +14,7 @@ import {
   matchQueryPath,
 } from "constants/routes";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
-import { isMac } from "utils/helpers";
+import { modText } from "utils/helpers";
 
 const BlankStateWrapper = styled.div`
   overflow: auto;
@@ -31,7 +35,7 @@ export function BlankState(props: {
   placeholderText?: string;
   hasShortCut?: boolean;
 }) {
-  const shortcut = isMac() ? "Cmd + D" : "Ctrl + D";
+  const shortcut = <>{modText()} D</>;
 
   return (
     <BlankStateWrapper>

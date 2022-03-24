@@ -1,5 +1,6 @@
 package com.external.config;
 
+import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
@@ -98,7 +99,7 @@ public class GetValuesMethod implements Method {
             }
         } else if ("RANGE".equalsIgnoreCase(methodConfig.getQueryFormat())) {
             if (methodConfig.getSpreadsheetRange() == null || methodConfig.getSpreadsheetRange().isBlank()) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Data Range");
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field 'Cell Range'");
             }
         } else {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Invalid query format");
@@ -208,7 +209,7 @@ public class GetValuesMethod implements Method {
         ArrayNode preFilteringResponse = this.objectMapper.valueToTree(collectedCells);
 
         if (isWhereConditionConfigured(methodConfig)) {
-            return filterDataService.filterData(preFilteringResponse, methodConfig.getWhereConditions());
+            return filterDataService.filterData(preFilteringResponse, methodConfig.getWhereConditions(), getDataTypeConversionMap());
         }
 
         return preFilteringResponse;

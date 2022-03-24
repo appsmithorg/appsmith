@@ -4,6 +4,7 @@ import { AxiosPromise } from "axios";
 import { AppColorCode } from "constants/DefaultTheme";
 import { AppIconName } from "components/ads/AppIcon";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import { Datasource } from "entities/Datasource";
 
 export type EvaluationVersion = number;
 
@@ -32,8 +33,9 @@ export type GitApplicationMetadata =
       defaultBranchName: string;
       remoteUrl: string;
       repoName: string;
+      browserSupportedUrl?: string;
+      isRepoPrivate?: boolean;
       browserSupportedRemoteUrl: string;
-      isRepoPrivate: boolean;
       defaultApplicationId: string;
     }
   | undefined;
@@ -135,6 +137,10 @@ export interface FetchUsersApplicationsOrgsResponse extends ApiResponse {
   };
 }
 
+export interface FetchUnconfiguredDatasourceListResponse extends ApiResponse {
+  data: Array<Datasource>;
+}
+
 export interface ImportApplicationRequest {
   orgId: string;
   applicationFile?: File;
@@ -143,13 +149,14 @@ export interface ImportApplicationRequest {
 }
 
 class ApplicationApi extends Api {
-  static baseURL = "v1/applications/";
-  static publishURLPath = (applicationId: string) => `publish/${applicationId}`;
+  static baseURL = "v1/applications";
+  static publishURLPath = (applicationId: string) =>
+    `/publish/${applicationId}`;
   static createApplicationPath = (orgId: string) => `?orgId=${orgId}`;
   static changeAppViewAccessPath = (applicationId: string) =>
-    `${applicationId}/changeAccess`;
+    `/${applicationId}/changeAccess`;
   static setDefaultPagePath = (request: SetDefaultPageRequest) =>
-    `${ApplicationApi.baseURL}${request.applicationId}/page/${request.id}/makeDefault`;
+    `${ApplicationApi.baseURL}/${request.applicationId}/page/${request.id}/makeDefault`;
   static publishApplication(
     publishApplicationRequest: PublishApplicationRequest,
   ): AxiosPromise<PublishApplicationResponse> {
@@ -165,19 +172,28 @@ class ApplicationApi extends Api {
   }
 
   static getAllApplication(): AxiosPromise<GetAllApplicationResponse> {
-    return Api.get(ApplicationApi.baseURL + "new");
+    return Api.get(ApplicationApi.baseURL + "/new");
   }
 
   static fetchApplication(
     applicationId: string,
   ): AxiosPromise<FetchApplicationResponse> {
-    return Api.get(ApplicationApi.baseURL + applicationId);
+    return Api.get(ApplicationApi.baseURL + "/" + applicationId);
+  }
+
+  static fetchUnconfiguredDatasourceList(payload: {
+    applicationId: string;
+    orgId: string;
+  }): AxiosPromise<FetchUnconfiguredDatasourceListResponse> {
+    return Api.get(
+      `${ApplicationApi.baseURL}/import/${payload.orgId}/datasources?defaultApplicationId=${payload.applicationId}`,
+    );
   }
 
   static fetchApplicationForViewMode(
     applicationId: string,
   ): AxiosPromise<FetchApplicationResponse> {
-    return Api.get(ApplicationApi.baseURL + `view/${applicationId}`);
+    return Api.get(ApplicationApi.baseURL + `/view/${applicationId}`);
   }
 
   static createApplication(
@@ -210,26 +226,27 @@ class ApplicationApi extends Api {
     request: UpdateApplicationRequest,
   ): AxiosPromise<ApiResponse> {
     const { id, ...rest } = request;
-    return Api.put(ApplicationApi.baseURL + id, rest);
+    return Api.put(ApplicationApi.baseURL + "/" + id, rest);
   }
 
   static deleteApplication(
     request: DeleteApplicationRequest,
   ): AxiosPromise<ApiResponse> {
-    return Api.delete(ApplicationApi.baseURL + request.applicationId);
+    return Api.delete(ApplicationApi.baseURL + "/" + request.applicationId);
   }
 
   static duplicateApplication(
     request: DuplicateApplicationRequest,
   ): AxiosPromise<ApiResponse> {
-    return Api.post(ApplicationApi.baseURL + "clone/" + request.applicationId);
+    return Api.post(ApplicationApi.baseURL + "/clone/" + request.applicationId);
   }
 
   static forkApplication(
     request: ForkApplicationRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.post(
-      "v1/applications/" +
+      ApplicationApi.baseURL +
+        "/" +
         request.applicationId +
         "/fork/" +
         request.organizationId,
@@ -243,20 +260,17 @@ class ApplicationApi extends Api {
     if (request.applicationFile) {
       formData.append("file", request.applicationFile);
     }
-    return Api.post("v1/applications/import/" + request.orgId, formData, null, {
-      headers: {
-        "Content-Type": "multipart/form-data",
+    return Api.post(
+      ApplicationApi.baseURL + "/import/" + request.orgId,
+      formData,
+      null,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress: request.progress,
       },
-      onUploadProgress: request.progress,
-    });
-  }
-
-  static getSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
-    return Api.get(ApplicationApi.baseURL + "ssh-keypair/" + applicationId);
-  }
-
-  static generateSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
-    return Api.post(ApplicationApi.baseURL + "ssh-keypair/" + applicationId);
+    );
   }
 }
 

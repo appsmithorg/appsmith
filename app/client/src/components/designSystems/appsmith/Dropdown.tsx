@@ -64,7 +64,7 @@ const selectStyles = {
 
 export function BaseDropdown(props: DropdownProps) {
   const layer = React.useContext(LayersContext);
-  const { customSelectStyles, input } = props;
+  const { customSelectStyles, input, placeholder } = props;
   const menuPortalStyle = {
     menuPortal: (styles: any) => ({ ...styles, zIndex: layer.max }),
   };
@@ -81,6 +81,7 @@ export function BaseDropdown(props: DropdownProps) {
       {...props}
       classNamePrefix="appsmith-select"
       menuPlacement="auto"
+      placeholder={placeholder}
     />
   );
 }

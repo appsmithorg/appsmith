@@ -501,7 +501,9 @@ class IntegrationsHomeScreen extends React.Component<
                 />
               )}
             </MainTabsContainer>
-            <div />
+            {this.state.activePrimaryMenuId !== PRIMARY_MENU_IDS.ACTIVE && (
+              <div />
+            )}
 
             {currentScreen}
             {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW && (

@@ -1,0 +1,166 @@
+{
+	"dsl": {
+		"widgetName": "MainContainer",
+		"backgroundColor": "none",
+		"rightColumn": 1091,
+		"snapColumns": 64,
+		"detachFromLayout": true,
+		"widgetId": "0",
+		"topRow": 0,
+		"bottomRow": 1290,
+		"containerStyle": "none",
+		"snapRows": 125,
+		"parentRowSpace": 1,
+		"type": "CANVAS_WIDGET",
+		"canExtend": true,
+		"version": 47,
+		"minHeight": 1292,
+		"parentColumnSpace": 1,
+		"dynamicBindingPathList": [
+
+		],
+		"leftColumn": 0,
+		"children": [
+			{
+				"widgetName": "Image1",
+				"displayName": "Image",
+				"iconSVG": "/static/media/icon.52d8fb96.svg",
+				"topRow": 8,
+				"bottomRow": 38,
+				"parentRowSpace": 10,
+				"type": "IMAGE_WIDGET",
+				"hideCard": false,
+				"animateLoading": true,
+				"parentColumnSpace": 16.859375,
+				"dynamicTriggerPathList": [
+
+				],
+				"imageShape": "RECTANGLE",
+				"leftColumn": 8,
+				"dynamicBindingPathList": [
+					{
+						"key": "image"
+					}
+				],
+				"defaultImage": "https://assets.appsmith.com/widgets/default.png",
+				"key": "nyx7m0wdr7",
+				"image": "{{RandomFlora.data}}",
+				"rightColumn": 54,
+				"objectFit": "contain",
+				"widgetId": "cj15t4i2xj",
+				"isVisible": true,
+				"version": 1,
+				"parentId": "0",
+				"renderMode": "CANVAS",
+				"isLoading": false,
+				"maxZoomLevel": 1,
+				"enableDownload": false,
+				"enableRotation": false
+			},
+			{
+				"widgetName": "Text1",
+				"displayName": "Text",
+				"iconSVG": "/static/media/icon.97c59b52.svg",
+				"topRow": 59,
+				"bottomRow": 79,
+				"parentRowSpace": 10,
+				"type": "TEXT_WIDGET",
+				"hideCard": false,
+				"animateLoading": true,
+				"parentColumnSpace": 16.859375,
+				"dynamicTriggerPathList": [
+
+				],
+				"leftColumn": 12,
+				"dynamicBindingPathList": [
+					{
+						"key": "text"
+					}
+				],
+				"text": "{{InspiringQuotes.data.quote.body}}\n--\n{{InspiringQuotes.data.quote.author}}\n",
+				"key": "jd7u8cfobk",
+				"rightColumn": 40,
+				"textAlign": "LEFT",
+				"widgetId": "89gapjd0ab",
+				"isVisible": true,
+				"fontStyle": "BOLD",
+				"textColor": "#231F20",
+				"version": 1,
+				"parentId": "0",
+				"renderMode": "CANVAS",
+				"isLoading": false,
+				"fontSize": "PARAGRAPH"
+			},
+			{
+				"widgetName": "Text2",
+				"displayName": "Text",
+				"iconSVG": "/static/media/icon.97c59b52.svg",
+				"topRow": 39,
+				"bottomRow": 59,
+				"parentRowSpace": 10,
+				"type": "TEXT_WIDGET",
+				"hideCard": false,
+				"animateLoading": true,
+				"parentColumnSpace": 16.859375,
+				"dynamicTriggerPathList": [
+
+				],
+				"leftColumn": 30,
+				"dynamicBindingPathList": [
+					{
+						"key": "text"
+					}
+				],
+				"text": "Hi, here is {{RandomUser.data.results[0].name.first}} & I'm {{RandomUser.data.results[0].dob.age}}'yo\nI live in {{RandomUser.data.results[0].location.country}}\nMy Suggestion : {{Suggestions.data.activity}}\n\nI'm {{Genderize.data.gender}}",
+				"key": "s2t8ibck1v",
+				"rightColumn": 54,
+				"textAlign": "LEFT",
+				"widgetId": "lmps8ycnp3",
+				"isVisible": true,
+				"fontStyle": "BOLD",
+				"textColor": "#231F20",
+				"version": 1,
+				"parentId": "0",
+				"renderMode": "CANVAS",
+				"isLoading": false,
+				"fontSize": "PARAGRAPH"
+			},
+			{
+				"widgetName": "Image2",
+				"displayName": "Image",
+				"iconSVG": "/static/media/icon.52d8fb96.svg",
+				"topRow": 40,
+				"bottomRow": 59,
+				"parentRowSpace": 10,
+				"type": "IMAGE_WIDGET",
+				"hideCard": false,
+				"animateLoading": true,
+				"parentColumnSpace": 16.859375,
+				"dynamicTriggerPathList": [
+
+				],
+				"imageShape": "RECTANGLE",
+				"leftColumn": 8,
+				"dynamicBindingPathList": [
+					{
+						"key": "image"
+					}
+				],
+				"defaultImage": "https://assets.appsmith.com/widgets/default.png",
+				"key": "agtoehwrk0",
+				"image": "{{RandomUser.data.results[0].picture.large}}",
+				"rightColumn": 27,
+				"objectFit": "contain",
+				"widgetId": "pe4eepcumg",
+				"isVisible": true,
+				"version": 1,
+				"parentId": "0",
+				"renderMode": "CANVAS",
+				"isLoading": false,
+				"maxZoomLevel": 1,
+				"enableDownload": false,
+				"enableRotation": false
+			}
+		]
+	}
+}

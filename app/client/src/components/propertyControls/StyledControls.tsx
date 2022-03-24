@@ -107,7 +107,6 @@ export const StyledDropDown = styled(Dropdown)`
 `;
 
 export const StyledMultiSelectDropDown = styled(MultiSelectDropdown)`
-  height: auto;
   background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
 `;
 
@@ -327,6 +326,12 @@ export const StyledPropertyPaneButton = styled(Button)`
       fill: ${Colors.GREY_8};
       stroke: ${Colors.GREY_8};
     }
+  }
+
+  &:disabled {
+    background-color: ${Colors.GREY_1};
+    color: var(--appsmith-color-black-400);
+    border-color: ${Colors.MERCURY};
   }
 `;
 

@@ -21,7 +21,6 @@ Prism.languages["appsmith-binding"] = {
 };
 
 const StyledCode = styled.div<{ skin: Skin }>`
-  position: relative;
   ${(props) => (props.skin === Skin.DARK ? themes.DARK : themes.LIGHT)};
   padding: 0 0px;
 

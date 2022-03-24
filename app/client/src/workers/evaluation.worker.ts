@@ -22,6 +22,8 @@ import evaluate, {
 } from "workers/evaluate";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
 import ReplayEditor from "entities/Replay/ReplayEntity/ReplayEditor";
+import { setFormEvaluationSaga } from "./formEval";
+import { isEmpty } from "lodash";
 
 const CANVAS = "canvas";
 
@@ -86,11 +88,13 @@ ctx.addEventListener(
       }
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
         const {
+          allActionValidationConfig,
           shouldReplay = true,
           unevalTree,
           widgets,
           widgetTypeConfigMap,
         } = requestData;
+
         let dataTree: DataTree = unevalTree;
         let errors: EvalError[] = [];
         let logs: any[] = [];
@@ -102,7 +106,11 @@ ctx.addEventListener(
           if (!dataTreeEvaluator) {
             replayMap = replayMap || {};
             replayMap[CANVAS] = new ReplayCanvas(widgets);
-            dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
+            //allActionValidationConfigs maybe empty
+            dataTreeEvaluator = new DataTreeEvaluator(
+              widgetTypeConfigMap,
+              allActionValidationConfig,
+            );
             const dataTreeResponse = dataTreeEvaluator.createFirstTree(
               unevalTree,
             );
@@ -113,10 +121,24 @@ ctx.addEventListener(
             // If functions exist, it will crash the web worker
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           } else if (dataTreeEvaluator.hasCyclicalDependency) {
+            if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
+              //allActionValidationConfigs may not be set in dataTreeEvaluatior. Therefore, set it explicitly via setter method
+              dataTreeEvaluator.setAllActionValidationConfig(
+                allActionValidationConfig,
+              );
+            }
             if (shouldReplay) {
               replayMap[CANVAS]?.update(widgets);
             }
-            dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
+            dataTreeEvaluator = new DataTreeEvaluator(
+              widgetTypeConfigMap,
+              allActionValidationConfig,
+            );
+            if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
+              dataTreeEvaluator.setAllActionValidationConfig(
+                allActionValidationConfig,
+              );
+            }
             const dataTreeResponse = dataTreeEvaluator.createFirstTree(
               unevalTree,
             );
@@ -125,6 +147,11 @@ ctx.addEventListener(
             jsUpdates = dataTreeResponse.jsUpdates;
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           } else {
+            if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
+              dataTreeEvaluator.setAllActionValidationConfig(
+                allActionValidationConfig,
+              );
+            }
             dataTree = {};
             if (shouldReplay) {
               replayMap[CANVAS]?.update(widgets);
@@ -185,7 +212,12 @@ ctx.addEventListener(
         return { values: cleanValues, errors };
       }
       case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
-        const { callbackData, dataTree, dynamicTrigger } = requestData;
+        const {
+          callbackData,
+          dataTree,
+          dynamicTrigger,
+          globalContext,
+        } = requestData;
         if (!dataTreeEvaluator) {
           return { triggers: [], errors: [] };
         }
@@ -199,6 +231,9 @@ ctx.addEventListener(
           requestId,
           resolvedFunctions,
           callbackData,
+          {
+            globalContext,
+          },
         );
 
         break;
@@ -213,26 +248,10 @@ ctx.addEventListener(
         dataTreeEvaluator = undefined;
         return true;
       }
-      case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE: {
-        const { propertyPath } = requestData;
-        if (!dataTreeEvaluator) {
-          return true;
-        }
-        dataTreeEvaluator.clearPropertyCache(propertyPath);
-        return true;
-      }
-      case EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE_OF_WIDGET: {
-        const { widgetName } = requestData;
-        if (!dataTreeEvaluator) {
-          return true;
-        }
-        dataTreeEvaluator.clearPropertyCacheOfWidget(widgetName);
-        return true;
-      }
       case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
-        const { props, validation, value } = requestData;
+        const { property, props, validation, value } = requestData;
         return removeFunctions(
-          validateWidgetProperty(validation, value, props),
+          validateWidgetProperty(validation, value, props, property),
         );
       }
       case EVAL_WORKER_ACTIONS.UNDO: {
@@ -261,6 +280,7 @@ ctx.addEventListener(
           functionCall,
           evalTree,
           resolvedFunctions,
+          false,
           undefined,
         );
         return { errors, result };
@@ -272,7 +292,7 @@ ctx.addEventListener(
         // TODO find a way to do this for snippets
         return isTrigger
           ? evaluateAsync(expression, evalTree, "SNIPPET", {})
-          : evaluate(expression, evalTree, {});
+          : evaluate(expression, evalTree, {}, false);
       case EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT:
         const { entity, entityId, entityType } = requestData;
         const replayObject = replayMap[entityId];
@@ -286,6 +306,10 @@ ctx.addEventListener(
         const { version } = requestData;
         self.evaluationVersion = version || 1;
         break;
+      case EVAL_WORKER_ACTIONS.INIT_FORM_EVAL:
+        const { currentEvalState, payload, type } = requestData;
+        const response = setFormEvaluationSaga(type, payload, currentEvalState);
+        return response;
       default: {
         console.error("Action not registered on worker", method);
       }

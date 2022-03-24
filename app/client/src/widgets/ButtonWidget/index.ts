@@ -1,12 +1,11 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { Colors } from "constants/Colors";
 import {
   ButtonPlacementTypes,
   ButtonVariantTypes,
   RecaptchaTypes,
 } from "components/constants";
+import { Colors } from "constants/Colors";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -19,8 +18,8 @@ export const CONFIG = {
     buttonColor: Colors.GREEN,
     buttonVariant: ButtonVariantTypes.PRIMARY,
     placement: ButtonPlacementTypes.CENTER,
-    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-    columns: 4 * GRID_DENSITY_MIGRATION_V1,
+    rows: 4,
+    columns: 16,
     widgetName: "Button",
     isDisabled: false,
     isVisible: true,

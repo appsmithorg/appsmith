@@ -9,61 +9,44 @@ import Button, { Category } from "components/ads/Button";
 import { Colors } from "constants/Colors";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import Connected from "./Connected";
-
-import EditButton from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
 import { reduxForm, InjectedFormProps } from "redux-form";
 import { APPSMITH_IP_ADDRESSES } from "constants/DatasourceEditorConstants";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { convertArrayToSentence } from "utils/helpers";
 import { PluginType } from "entities/Action";
-import Boxed from "components/editorComponents/Onboarding/Boxed";
-import { OnboardingStep } from "constants/OnboardingConstants";
 import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
 import { AppState } from "reducers";
 import {
-  ActionButton,
   FormTitleContainer,
   Header,
   JSONtoForm,
   JSONtoFormProps,
   PluginImage,
-  SaveButtonContainer,
 } from "./JSONtoForm";
-import { ButtonVariantTypes } from "components/constants";
+import DatasourceAuth from "../../common/datasourceAuth";
 
 const { cloudHosting } = getAppsmithConfigs();
 
 interface DatasourceDBEditorProps extends JSONtoFormProps {
-  onSave: (formValues: Datasource) => void;
-  onTest: (formValus: Datasource) => void;
-  handleDelete: (id: string) => void;
   setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
   openOmnibarReadMore: (text: string) => void;
-  isSaving: boolean;
-  isDeleting: boolean;
   datasourceId: string;
   applicationId: string;
   pageId: string;
-  isTesting: boolean;
   isNewDatasource: boolean;
   pluginImage: string;
   viewMode: boolean;
   pluginType: string;
   messages?: Array<string>;
+  datasource: Datasource;
+  hiddenHeader?: boolean;
 }
 
 type Props = DatasourceDBEditorProps &
   InjectedFormProps<Datasource, DatasourceDBEditorProps>;
-
-const StyledButton = styled(EditButton)`
-  &&&& {
-    width: 87px;
-    height: 32px;
-  }
-`;
 
 const StyledOpenDocsIcon = styled(Icon)`
   svg {
@@ -90,18 +73,13 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   componentDidUpdate(prevProps: Props) {
     if (prevProps.datasourceId !== this.props.datasourceId) {
       super.componentDidUpdate(prevProps);
-      this.props.setDatasourceEditorMode(this.props.datasourceId, true);
+      if (!this.props.hiddenHeader)
+        this.props.setDatasourceEditorMode(this.props.datasourceId, true);
     }
   }
-
-  save = () => {
-    const normalizedValues = this.normalizeValues();
-    const trimmedValues = this.getTrimmedData(normalizedValues);
-    AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
-      pageId: this.props.pageId,
-      appId: this.props.applicationId,
-    });
-    this.props.onSave(trimmedValues);
+  // returns normalized and trimmed datasource form data
+  getSanitizedData = () => {
+    return this.getTrimmedData(this.normalizeValues());
   };
 
   openOmnibarReadMore = () => {
@@ -110,47 +88,36 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "READ_MORE_DATASOURCE" });
   };
 
-  test = () => {
-    const normalizedValues = this.normalizeValues();
-    const trimmedValues = this.getTrimmedData(normalizedValues);
-    AnalyticsUtil.logEvent("TEST_DATA_SOURCE_CLICK", {
-      pageId: this.props.pageId,
-      appId: this.props.applicationId,
-    });
-
-    this.props.onTest(trimmedValues);
-  };
-
   render() {
-    const { formConfig } = this.props;
+    const { formConfig, viewMode } = this.props;
+
+    // make sure this redux form has been initialized before rendering anything.
+    // the initialized prop below comes from redux-form.
+    // The viewMode condition is added to allow the conditons only run on the editMode
+    if (!this.props.initialized && !viewMode) {
+      return null;
+    }
+
     const content = this.renderDataSourceConfigForm(formConfig);
     return this.renderForm(content);
   }
 
   renderDataSourceConfigForm = (sections: any) => {
-    const {
-      datasourceId,
-      handleDelete,
-      isDeleting,
-      isSaving,
-      isTesting,
-      messages,
-      pluginType,
-    } = this.props;
-    const { viewMode } = this.props;
+    const { datasource, formData, messages, pluginType, viewMode } = this.props;
+
     return (
       <form
         onSubmit={(e) => {
           e.preventDefault();
         }}
       >
-        <Header>
-          <FormTitleContainer>
-            <PluginImage alt="Datasource" src={this.props.pluginImage} />
-            <FormTitle focusOnMount={this.props.isNewDatasource} />
-          </FormTitleContainer>
-          {viewMode && (
-            <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
+        {!this.props.hiddenHeader && (
+          <Header>
+            <FormTitleContainer>
+              <PluginImage alt="Datasource" src={this.props.pluginImage} />
+              <FormTitle focusOnMount={this.props.isNewDatasource} />
+            </FormTitleContainer>
+            {viewMode && (
               <EditDatasourceButton
                 category={Category.tertiary}
                 className="t--edit-datasource"
@@ -162,9 +129,9 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
                 }}
                 text="EDIT"
               />
-            </Boxed>
-          )}
-        </Header>
+            )}
+          </Header>
+        )}
         {messages &&
           messages.map((msg, i) => (
             <Callout
@@ -193,40 +160,20 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             {!_.isNil(sections)
               ? _.map(sections, this.renderMainSection)
               : undefined}
-            <SaveButtonContainer>
-              <ActionButton
-                buttonStyle="DANGER"
-                buttonVariant={ButtonVariantTypes.PRIMARY}
-                // accent="error"
-                className="t--delete-datasource"
-                loading={isDeleting}
-                onClick={() => handleDelete(datasourceId)}
-                text="Delete"
-              />
-
-              <ActionButton
-                // accent="secondary"
-                buttonStyle="PRIMARY"
-                buttonVariant={ButtonVariantTypes.SECONDARY}
-                className="t--test-datasource"
-                loading={isTesting}
-                onClick={this.test}
-                text="Test"
-              />
-              <StyledButton
-                className="t--save-datasource"
-                disabled={this.validate()}
-                filled
-                intent="primary"
-                loading={isSaving}
-                onClick={this.save}
-                size="small"
-                text="Save"
-              />
-            </SaveButtonContainer>
+            {""}
           </>
         ) : (
           <Connected />
+        )}
+        {/* Render datasource form call-to-actions */}
+        {datasource && (
+          <DatasourceAuth
+            datasource={datasource}
+            formData={formData}
+            getSanitizedFormData={_.memoize(this.getSanitizedData)}
+            isInvalid={this.validate()}
+            shouldRender={!viewMode}
+          />
         )}
       </form>
     );
@@ -242,6 +189,8 @@ const mapStateToProps = (state: AppState, props: any) => {
 
   return {
     messages: hintMessages,
+    datasource,
+    isReconnectingModalOpen: state.entities.datasources.isReconnectingModalOpen,
   };
 };
 

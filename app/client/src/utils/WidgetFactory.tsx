@@ -65,8 +65,15 @@ function validatePropertyControl(
   if (_config.validation !== undefined) {
     _config.validation = validateValidationStructure(_config.validation);
   }
+
   if (_config.children) {
     _config.children = _config.children.map(validatePropertyControl);
+  }
+
+  if (_config.panelConfig) {
+    _config.panelConfig.children = _config.panelConfig.children.map(
+      validatePropertyControl,
+    );
   }
   return _config;
 }
@@ -208,7 +215,7 @@ class WidgetFactory {
 
   static getWidgetMetaPropertiesMap(
     widgetType: WidgetType,
-  ): Record<string, string> {
+  ): Record<string, unknown> {
     const map = this.metaPropertiesMap.get(widgetType);
     if (!map) {
       log.error("Widget meta properties not defined: ", widgetType);

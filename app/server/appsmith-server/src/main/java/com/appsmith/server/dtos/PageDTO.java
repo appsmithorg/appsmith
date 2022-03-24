@@ -3,6 +3,7 @@ package com.appsmith.server.dtos;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.Layout;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,6 +41,7 @@ public class PageDTO {
     @JsonIgnore
     protected Set<Policy> policies = new HashSet<>();
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
     Instant deletedAt = null;
 
     Boolean isHidden;

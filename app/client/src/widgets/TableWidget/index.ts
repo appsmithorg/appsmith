@@ -1,12 +1,9 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
-import { WidgetProps } from "widgets/BaseWidget";
-import { cloneDeep, set } from "lodash";
-import {
-  BlueprintOperationTypes,
-  GRID_DENSITY_MIGRATION_V1,
-} from "widgets/constants";
 import { Colors } from "constants/Colors";
+import { cloneDeep, set } from "lodash";
+import { WidgetProps } from "widgets/BaseWidget";
+import { BlueprintOperationTypes } from "widgets/constants";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -14,8 +11,8 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    rows: 7 * GRID_DENSITY_MIGRATION_V1,
-    columns: 8.5 * GRID_DENSITY_MIGRATION_V1,
+    rows: 28,
+    columns: 34,
     animateLoading: true,
     defaultSelectedRow: "0",
     label: "Data",

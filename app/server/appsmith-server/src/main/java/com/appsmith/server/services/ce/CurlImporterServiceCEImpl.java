@@ -5,13 +5,19 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.BaseApiImporter;
 import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.NameValuePair;
@@ -29,6 +35,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.regex.Pattern;
+
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 
 @Slf4j
 public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlImporterServiceCE {
@@ -45,22 +54,33 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
 
     private final PluginService pluginService;
     private final LayoutActionService layoutActionService;
+    private final ResponseUtils responseUtils;
+    private final NewPageService newPageService;
+    private final ObjectMapper objectMapper;
 
-    public CurlImporterServiceCEImpl(PluginService pluginService,
-                                     LayoutActionService layoutActionService) {
+    public CurlImporterServiceCEImpl(
+            PluginService pluginService,
+            LayoutActionService layoutActionService,
+            NewPageService newPageService,
+            ResponseUtils responseUtils,
+            ObjectMapper objectMapper
+    ) {
         this.pluginService = pluginService;
         this.layoutActionService = layoutActionService;
+        this.newPageService = newPageService;
+        this.responseUtils = responseUtils;
+        this.objectMapper = objectMapper;
     }
 
     @Override
-    public Mono<ActionDTO> importAction(Object input, String pageId, String name, String orgId) {
+    public Mono<ActionDTO> importAction(Object input, String pageId, String name, String orgId, String branchName) {
         ActionDTO action;
 
         try {
             if (input == null) {
                 throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.CURL_CODE);
             }
-            action = curlToAction((String) input, pageId, name);
+            action = curlToAction((String) input, name);
         } catch (AppsmithException e) {
             return Mono.error(e);
         }
@@ -69,26 +89,33 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
             return Mono.error(new AppsmithException(AppsmithError.INVALID_CURL_COMMAND));
         }
 
+        Mono<NewPage> pageMono = newPageService.findByBranchNameAndDefaultPageId(branchName, pageId, MANAGE_PAGES);
+
         // Set the default values for datasource (plugin, name) and then create the action
         // with embedded datasource
-        return Mono.zip(Mono.just(action), pluginService.findByPackageName(RESTAPI_PLUGIN))
+        return Mono.zip(Mono.just(action), pluginService.findByPackageName(RESTAPI_PLUGIN), pageMono)
                 .flatMap(tuple -> {
                     final ActionDTO action1 = tuple.getT1();
                     final Plugin plugin = tuple.getT2();
+                    final NewPage newPage = tuple.getT3();
+
                     final Datasource datasource = action1.getDatasource();
                     final DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
                     datasource.setName(datasourceConfiguration.getUrl());
                     datasource.setPluginId(plugin.getId());
                     datasource.setOrganizationId(orgId);
+                    // Set git related resource IDs
+                    action1.setDefaultResources(newPage.getDefaultResources());
+                    action1.setPageId(newPage.getId());
                     return Mono.just(action1);
                 })
-                .flatMap(layoutActionService::createSingleAction);
+                .flatMap(layoutActionService::createSingleAction)
+                .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
-    public ActionDTO curlToAction(String command, String pageId, String name) throws AppsmithException {
+    public ActionDTO curlToAction(String command, String name) throws AppsmithException {
         ActionDTO action = curlToAction(command);
         if (action != null) {
-            action.setPageId(pageId);
             action.setName(name);
         }
         return action;
@@ -311,7 +338,12 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
 
             } else if ("--data-urlencode".equals(state)) {
                 // The `token` is next to `--data-urlencode`.
-                dataParts.add(token);
+                // ignore the '=' at the start as the curl document says https://curl.se/docs/manpage.html#--data-urlencode
+                if (token.startsWith("=")) {
+                    dataParts.add(token.substring(1));
+                } else {
+                    dataParts.add(token);
+                }
 
             } else if (ARG_FORM.equals(state)) {
                 // The token is next to --form
@@ -353,13 +385,11 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
 
         }
 
-        if (contentType == null && !dataParts.isEmpty()) {
-            contentType = MediaType.APPLICATION_FORM_URLENCODED_VALUE;
-            headers.add(new Property(HttpHeaders.CONTENT_TYPE, contentType));
-
-        } else if (contentType == null && !formParts.isEmpty()) {
-            contentType = MediaType.MULTIPART_FORM_DATA_VALUE;
-            headers.add(new Property(HttpHeaders.CONTENT_TYPE, contentType));
+        if (contentType == null) {
+            contentType = guessTheContentType(dataParts, formParts);
+            if (contentType != null) {
+                headers.add(new Property(HttpHeaders.CONTENT_TYPE, contentType));
+            }
         }
 
         if (!headers.isEmpty()) {
@@ -405,6 +435,28 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
         return action;
     }
 
+    private String guessTheContentType(List<String> dataParts, List<String> formParts) {
+        if (!dataParts.isEmpty()) {
+            final String data = dataParts.get(0);
+            final Pattern urlEncodedPattern = Pattern.compile("([A-Za-z0-9%._\\-/]+=[^\\s]+)");
+            // if it's form url encoded?
+            if (urlEncodedPattern.matcher(data).matches()) {
+                return MediaType.APPLICATION_FORM_URLENCODED_VALUE;
+            } else {
+                // or if it's JSON
+                try {
+                    objectMapper.readTree(data);
+                    return MediaType.APPLICATION_JSON_VALUE;
+                } catch (JsonProcessingException e) {
+                    // ignore exception it's not JSON
+                }
+            }
+        } else if (!formParts.isEmpty()) {
+            return MediaType.MULTIPART_FORM_DATA_VALUE;
+        }
+        return null;
+    }
+
     private void trySaveURL(ActionDTO action, String token) throws MalformedURLException, URISyntaxException {
         // If the URL appears to not have a protocol set, prepend the `https` protocol.
         if (!token.matches("\\w+://.*")) {
@@ -447,5 +499,4 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
         }
         return "";
     }
-
 }

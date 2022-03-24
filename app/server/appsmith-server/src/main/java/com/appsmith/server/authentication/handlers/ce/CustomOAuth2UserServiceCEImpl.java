@@ -45,6 +45,7 @@ public class CustomOAuth2UserServiceCEImpl extends DefaultReactiveOAuth2UserServ
         String username = oAuth2User.getName();
 
         return repository.findByEmail(username)
+                .switchIfEmpty(repository.findByCaseInsensitiveEmail(username))
                 .switchIfEmpty(Mono.defer(() -> {
                     User newUser = new User();
                     newUser.setName(oAuth2User.getName());

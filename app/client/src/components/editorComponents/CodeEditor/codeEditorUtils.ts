@@ -66,3 +66,40 @@ export const isActionEntity = (entity: any): entity is DataTreeAction => {
 export const isWidgetEntity = (entity: any): entity is DataTreeWidget => {
   return entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET;
 };
+
+interface Event {
+  eventType: string;
+  eventHandlerFn?: (event: MouseEvent) => void;
+}
+
+export const addEventToHighlightedElement = (
+  element: any,
+  customClassName: string,
+  events?: Event[],
+) => {
+  element = document.getElementsByClassName(
+    customClassName, // the text class name is the classname used for the markText-fn for highlighting the text.
+  )[0];
+
+  if (events) {
+    for (const event of events) {
+      if (element && !!event.eventType && !!event.eventHandlerFn) {
+        // if the highlighted element exists, add an event listener to it.
+        element.addEventListener(event.eventType, event.eventHandlerFn);
+      }
+    }
+  }
+};
+
+export const removeEventFromHighlightedElement = (
+  element: any,
+  events?: Event[],
+) => {
+  if (events) {
+    for (const event of events) {
+      if (element && !!event.eventType && !!event.eventHandlerFn) {
+        element.removeEventListener(event.eventType, event.eventHandlerFn);
+      }
+    }
+  }
+};

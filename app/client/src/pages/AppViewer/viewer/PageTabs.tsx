@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import {
-  CurrentApplicationData,
+  ApplicationPayload,
   PageListPayload,
 } from "constants/ReduxActionConstants";
 import { getApplicationViewerPageURL } from "constants/routes";
@@ -35,6 +35,7 @@ const StyledBottomBorder = styled.div`
   height: 2px;
   width: 100%;
   left: -100%;
+  top: 9px;
   background-color: ${(props) =>
     props.theme.colors.header.activeTabBorderBottom};
   ${PageTab}:hover & {
@@ -75,8 +76,11 @@ function PageTabName({ name }: { name: string }) {
   const [ellipsisActive, setEllipsisActive] = useState(false);
   const tabNameText = (
     <StyleTabText>
-      <div className="relative flex items-center justify-center flex-grow">
-        <span ref={tabNameRef}>{name}</span>
+      <div className="relative flex ">
+        <div className="relative flex items-center justify-center flex-grow">
+          <span ref={tabNameRef}>{name}</span>
+        </div>
+        {ellipsisActive && "..."}
       </div>
       <StyledBottomBorder />
     </StyleTabText>
@@ -88,17 +92,16 @@ function PageTabName({ name }: { name: string }) {
     }
   }, [tabNameRef]);
 
-  return ellipsisActive ? (
+  return (
     <TooltipComponent
       boundary="viewport"
       content={name}
+      disabled={!ellipsisActive}
       maxWidth="400px"
       position={Position.BOTTOM}
     >
       {tabNameText}
     </TooltipComponent>
-  ) : (
-    tabNameText
   );
 }
 
@@ -126,7 +129,7 @@ function PageTabContainer({
 }
 
 type Props = {
-  currentApplicationDetails?: CurrentApplicationData;
+  currentApplicationDetails?: ApplicationPayload;
   appPages: PageListPayload;
   measuredTabsRef: (ref: HTMLElement | null) => void;
   tabsScrollable: boolean;

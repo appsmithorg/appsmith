@@ -23,3 +23,5 @@ docker_apt_gpg_key: https://download.docker.com/linux/{{ ansible_distribution | 
 
 # A list of users who will be added to the docker group.
 docker_users: []
+
+template_file_name: 'docker-compose.yml'

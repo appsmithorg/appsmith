@@ -7,13 +7,12 @@ import {
 import ReactDOM from "react-dom";
 import sortBy from "lodash/sortBy";
 import { PluginType, SlashCommand, SlashCommandPayload } from "entities/Action";
-import { ReactComponent as ApisIcon } from "assets/icons/menu/api-colored.svg";
-import { ReactComponent as JsIcon } from "assets/icons/menu/js-group.svg";
-import { ReactComponent as DataSourcesColoredIcon } from "assets/icons/menu/datasource-colored.svg";
-import { ReactComponent as NewPlus } from "assets/icons/menu/new-plus.svg";
 import { ReactComponent as Binding } from "assets/icons/menu/binding.svg";
 import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
+import AddDatasourceIcon from "remixicon-react/AddBoxLineIcon";
+import { Colors } from "constants/Colors";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -75,9 +74,8 @@ const generateCreateNewCommand = ({
   render: (element: HTMLElement, self: any, data: any) => {
     ReactDOM.render(
       <Command
-        customText={data.customText}
+        icon={iconsByType[data.shortcut as Shortcuts]}
         name={data.displayText}
-        shortcut={data.shortcut}
       />,
       element,
     );
@@ -85,32 +83,31 @@ const generateCreateNewCommand = ({
 });
 
 const iconsByType = {
-  [Shortcuts.BINDING]: <Binding />,
-  [Shortcuts.PLUS]: <NewPlus />,
-  [Shortcuts.FUNCTION]: <Snippet className="snippet-icon" />,
+  [Shortcuts.BINDING]: (
+    <EntityIcon noBorder>
+      <Binding className="shortcut" />
+    </EntityIcon>
+  ),
+  [Shortcuts.PLUS]: (
+    <AddDatasourceIcon
+      className="add-datasource-icon"
+      color={Colors.DOVE_GRAY2}
+      size={18}
+    />
+  ),
+  [Shortcuts.FUNCTION]: (
+    <EntityIcon noBorder>
+      <Snippet className="snippet-icon shortcut" />
+    </EntityIcon>
+  ),
 };
 
-function Command(props: {
-  pluginType?: PluginType;
-  imgSrc?: string;
-  name: string;
-  shortcut: Shortcuts;
-  customText?: string;
-}) {
+function Command(props: { icon: any; name: string }) {
   return (
     <div className="command-container">
       <div className="command">
-        {props.pluginType &&
-          {
-            DB: <DataSourcesColoredIcon />,
-            API: <ApisIcon />,
-            SAAS: <DataSourcesColoredIcon />,
-            REMOTE: <DataSourcesColoredIcon />,
-            JS: <JsIcon />,
-          }[props.pluginType]}
-        {props.imgSrc && <img src={props.imgSrc} />}
-        {props.shortcut && iconsByType[props.shortcut]}
-        <span>{props.name}</span>
+        {props.icon}
+        <span className="ml-1">{props.name}</span>
       </div>
     </div>
   );
@@ -136,7 +133,7 @@ export const generateQuickCommands = (
   propertyPath: any,
 ) => {
   const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
-  const createNewHeader: CommandsCompletion = commandsHeader("Create New");
+  const createNewHeader: CommandsCompletion = commandsHeader("Create a Query");
   recentEntities.reverse();
   const newBinding: CommandsCompletion = generateCreateNewCommand({
     text: "{{}}",
@@ -184,12 +181,18 @@ export const generateQuickCommands = (
       triggerCompletionsPostPick: suggestion.ENTITY_TYPE !== ENTITY_TYPE.ACTION,
       render: (element: HTMLElement, self: any, data: any) => {
         const pluginType = data.data.pluginType as PluginType;
+        let icon = null;
+        if (pluginType === PluginType.JS) {
+          icon = JsFileIconV2;
+        } else if (pluginIdToImageLocation[data.data.pluginId]) {
+          icon = (
+            <EntityIcon>
+              <img src={pluginIdToImageLocation[data.data.pluginId]} />
+            </EntityIcon>
+          );
+        }
         ReactDOM.render(
-          <Command
-            name={data.displayText}
-            pluginType={pluginType}
-            shortcut={data.shortcut}
-          />,
+          <Command icon={icon} name={data.displayText} />,
           element,
         );
       },
@@ -207,12 +210,13 @@ export const generateQuickCommands = (
           args: { datasource: action },
         }),
       render: (element: HTMLElement, self: any, data: any) => {
+        const icon = (
+          <EntityIcon>
+            <img src={pluginIdToImageLocation[data.data.pluginId]} />
+          </EntityIcon>
+        );
         ReactDOM.render(
-          <Command
-            imgSrc={pluginIdToImageLocation[data.data.pluginId]}
-            name={data.displayText}
-            shortcut={data.shortcut}
-          />,
+          <Command icon={icon} name={`New ${data.displayText} query`} />,
           element,
         );
       },

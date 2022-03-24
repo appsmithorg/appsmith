@@ -6,6 +6,7 @@ import {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
+
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
 
@@ -14,6 +15,7 @@ export type PropertyPaneSectionConfig = {
   id?: string;
   children: PropertyPaneConfig[];
   hidden?: (props: any, propertyPath: string) => boolean;
+  isDefaultOpen?: boolean;
   propertySectionPath?: string;
 };
 
@@ -61,6 +63,7 @@ export type PropertyPaneControlConfig = {
   ) => Record<string, Record<string, unknown>>;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
   dependencies?: string[];
+  evaluatedDependencies?: string[]; // dependencies to be picked from the __evaluated__ object
   expected?: CodeEditorExpected;
 };
 
@@ -71,6 +74,8 @@ type ValidationConfigParams = {
   default?: unknown; // default for any type
   unique?: boolean | string[]; // unique in an array (string if a particular path is unique)
   required?: boolean; // required type
+  // required is now used to check if value is an empty string.
+  requiredKey?: boolean; //required key
   regex?: RegExp; // validator regex for text type
   allowedKeys?: Array<{
     // Allowed keys in an object type
@@ -102,3 +107,7 @@ export type ValidationConfig = {
 export type PropertyPaneConfig =
   | PropertyPaneSectionConfig
   | PropertyPaneControlConfig;
+
+export interface ActionValidationConfigMap {
+  [configPropety: string]: ValidationConfig;
+}

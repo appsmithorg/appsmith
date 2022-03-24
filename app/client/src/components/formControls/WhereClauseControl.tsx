@@ -8,6 +8,8 @@ import { FieldArray, getFormValues } from "redux-form";
 import { ControlProps } from "./BaseControl";
 import _ from "lodash";
 import { useSelector } from "react-redux";
+import { getBindingOrConfigPathsForWhereClauseControl } from "entities/Action/actionProperties";
+import { WhereClauseSubComponent } from "./utils";
 
 // Type of the value for each condition
 export type whereClauseValueType = {
@@ -46,14 +48,18 @@ const logicalFieldConfig: any = {
   controlType: "DROP_DOWN",
   initialValue: "EQ",
   options: [],
-  customStyles: { width: "10vh", height: "30px" },
+  customStyles: { width: "5vw" },
 };
 
 // Component for the delete Icon
-const CenteredIcon = styled(Icon)`
+const CenteredIcon = styled(Icon)<{
+  alignSelf?: string;
+  marginBottom?: string;
+}>`
   margin-left: 5px;
-  align-self: end;
-  margin-bottom: 10px;
+  align-self: ${(props) => (props.alignSelf ? props.alignSelf : "end")};
+  margin-bottom: ${(props) =>
+    props.marginBottom ? props.marginBottom : "10px"};
   &.hide {
     opacity: 0;
     pointer-events: none;
@@ -112,11 +118,9 @@ const AddMoreAction = styled.div`
 // Component to display single line of condition, includes 2 inputs and 1 dropdown
 function ConditionComponent(props: any, index: number) {
   // Custom styles have to be passed as props, otherwise the UI will be disproportional
-  const customStyles = {
-    // 15 is subtracted because the width of the operator dropdown is 15px
-    width: `${(props.maxWidth - 15) / 3}vh`,
-    height: "30px",
-  };
+
+  // 5 is subtracted because the width of the operator dropdown is 5vw
+  const unitWidth = (props.maxWidth - 5) / 5;
 
   // Labels are only displayed if the condition is the first one
   let keyLabel = "";
@@ -127,6 +131,20 @@ function ConditionComponent(props: any, index: number) {
     valueLabel = "Value";
     conditionLabel = "Operator";
   }
+
+  const keyPath = getBindingOrConfigPathsForWhereClauseControl(
+    props.field,
+    WhereClauseSubComponent.Key,
+  );
+  const valuePath = getBindingOrConfigPathsForWhereClauseControl(
+    props.field,
+    WhereClauseSubComponent.Value,
+  );
+  const conditionPath = getBindingOrConfigPathsForWhereClauseControl(
+    props.field,
+    WhereClauseSubComponent.Condition,
+  );
+
   return (
     <ConditionBox key={index}>
       {/* Component to input the LHS for single condition */}
@@ -134,8 +152,8 @@ function ConditionComponent(props: any, index: number) {
         config={{
           ...keyFieldConfig,
           label: keyLabel,
-          customStyles,
-          configProperty: `${props.field}.key`,
+          customStyles: { width: `${unitWidth * 2}vw` },
+          configProperty: keyPath,
         }}
         formName={props.formName}
       />
@@ -144,8 +162,8 @@ function ConditionComponent(props: any, index: number) {
         config={{
           ...conditionFieldConfig,
           label: conditionLabel,
-          customStyles,
-          configProperty: `${props.field}.condition`,
+          customStyles: { width: `${unitWidth * 1}vw` },
+          configProperty: conditionPath,
           options: props.comparisonTypes,
           initialValue: props.comparisonTypes[0].value,
         }}
@@ -156,19 +174,19 @@ function ConditionComponent(props: any, index: number) {
         config={{
           ...valueFieldConfig,
           label: valueLabel,
-          customStyles,
-          configProperty: `${props.field}.value`,
+          customStyles: { width: `${unitWidth * 2}vw` },
+          configProperty: valuePath,
         }}
         formName={props.formName}
       />
       {/* Component to render the delete icon */}
       <CenteredIcon
-        name="cross"
+        name="trash"
         onClick={(e) => {
           e.stopPropagation();
           props.onDeletePressed(index);
         }}
-        size={IconSize.SMALL}
+        size={IconSize.XL}
       />
     </ConditionBox>
   );
@@ -214,6 +232,11 @@ function ConditionBlock(props: any) {
   if (props.logicalTypes.length === 1) {
     isDisabled = true;
   }
+  const conditionPath = getBindingOrConfigPathsForWhereClauseControl(
+    props.configProperty,
+    WhereClauseSubComponent.Condition,
+  );
+
   return (
     <PrimaryBox style={{ marginTop }}>
       <SecondaryBox>
@@ -221,7 +244,7 @@ function ConditionBlock(props: any) {
         <FormControl
           config={{
             ...logicalFieldConfig,
-            configProperty: `${props.configProperty}.condition`,
+            configProperty: conditionPath,
             options: props.logicalTypes,
             initialValue: props.logicalTypes[0].value,
             isDisabled,
@@ -235,6 +258,7 @@ function ConditionBlock(props: any) {
               const fieldValue: whereClauseValueType = props.fields.get(index);
               if (!!fieldValue && "children" in fieldValue) {
                 // If the value contains children in it, that means it is a ConditionBlock
+                const maxWidth = props.maxWidth - 7.5;
                 return (
                   <ConditionBox>
                     <FieldArray
@@ -242,7 +266,7 @@ function ConditionBlock(props: any) {
                       key={`${field}.children`}
                       name={`${field}.children`}
                       props={{
-                        maxWidth: props.maxWidth - 15,
+                        maxWidth,
                         configProperty: `${field}`,
                         formName: props.formName,
                         logicalTypes: props.logicalTypes,
@@ -255,12 +279,14 @@ function ConditionBlock(props: any) {
                       rerenderOnEveryChange={false}
                     />
                     <CenteredIcon
-                      name="cross"
+                      alignSelf={"center"}
+                      marginBottom={"-5px"}
+                      name="trash"
                       onClick={(e) => {
                         e.stopPropagation();
                         onDeletePressed(index);
                       }}
-                      size={IconSize.SMALL}
+                      size={IconSize.XL}
                     />
                   </ConditionBox>
                 );
@@ -322,7 +348,7 @@ export default function WhereClauseControl(props: WhereClauseControlProps) {
   } = props;
 
   // Max width is designed in a way that the proportion stays same even after nesting
-  const maxWidth = 105;
+  const maxWidth = 55;
   return (
     <FieldArray
       component={ConditionBlock}

@@ -27,7 +27,6 @@ import {
 } from "actions/jsActionActions";
 import {
   getJSCollection,
-  getJSCollections,
   getPageNameByPageId,
 } from "selectors/entitiesSelector";
 import history from "utils/history";
@@ -48,7 +47,7 @@ import {
   JS_ACTION_MOVE_SUCCESS,
   ERROR_JS_ACTION_MOVE_FAIL,
   ERROR_JS_COLLECTION_RENAME_FAIL,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { validateResponse } from "./ErrorSagas";
 import { DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
 import PageApi from "api/PageApi";
@@ -180,6 +179,7 @@ function* moveJSCollectionSaga(
   action: ReduxAction<{
     id: string;
     destinationPageId: string;
+    name: string;
   }>,
 ) {
   const actionObject: JSCollection = yield select(
@@ -190,6 +190,7 @@ function* moveJSCollectionSaga(
     const response = yield JSActionAPI.moveJSCollection({
       collectionId: actionObject.id,
       destinationPageId: action.payload.destinationPageId,
+      name: action.payload.name,
     });
 
     const isValidResponse = yield validateResponse(response);
@@ -245,7 +246,6 @@ export function* deleteJSCollectionSaga(
 ) {
   try {
     const id = actionPayload.payload.id;
-    const jsActions = yield select(getJSCollections);
 
     const response = yield JSActionAPI.deleteJSCollection(id);
     const isValidResponse = yield validateResponse(response);
@@ -256,25 +256,12 @@ export function* deleteJSCollectionSaga(
         text: createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name),
         variant: Variant.success,
       });
-      if (jsActions.length > 0) {
-        const getIndex = getIndexToBeRedirected(
-          jsActions,
-          actionPayload.payload.id,
-        );
-        if (getIndex) {
-          const jsAction = jsActions[getIndex];
-          history.push(
-            JS_COLLECTION_ID_URL(applicationId, pageId, jsAction.config.id),
-          );
-        } else {
-          history.push(
-            BUILDER_PAGE_URL({
-              applicationId,
-              pageId,
-            }),
-          );
-        }
-      }
+      history.push(
+        BUILDER_PAGE_URL({
+          applicationId,
+          pageId,
+        }),
+      );
       AppsmithConsole.info({
         logType: LOG_TYPE.ENTITY_DELETED,
         text: "JS object was deleted",

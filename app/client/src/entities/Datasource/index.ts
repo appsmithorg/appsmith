@@ -1,6 +1,17 @@
 import { APIResponseError } from "api/ApiResponses";
-import { Property } from "entities/Action";
+import { ActionConfig, Property } from "entities/Action";
 import _ from "lodash";
+
+export enum AuthType {
+  OAUTH2 = "oAuth2",
+  DBAUTH = "dbAuth",
+}
+
+export enum AuthenticationStatus {
+  NONE = "NONE",
+  IN_PROGRESS = "IN_PROGRESS",
+  SUCCESS = "SUCCESS",
+}
 export interface DatasourceAuthentication {
   authType?: string;
   username?: string;
@@ -11,6 +22,7 @@ export interface DatasourceAuthentication {
   addTo?: string;
   bearerToken?: string;
   authenticationStatus?: string;
+  authenticationType?: string;
 }
 
 export interface DatasourceColumns {
@@ -29,6 +41,7 @@ export interface DatasourceStructure {
 }
 
 export interface QueryTemplate {
+  actionConfiguration?: ActionConfig;
   configuration: Record<string, unknown>;
   title: string;
   body: string;
@@ -48,6 +61,7 @@ interface BaseDatasource {
   name: string;
   organizationId: string;
   isValid: boolean;
+  isConfigured?: boolean;
 }
 
 export const isEmbeddedRestDatasource = (
@@ -68,16 +82,19 @@ export interface EmbeddedRestDatasource extends BaseDatasource {
   invalids: Array<string>;
   messages: Array<string>;
 }
+
+export interface DatasourceConfiguration {
+  url: string;
+  authentication?: DatasourceAuthentication;
+  properties?: Property[];
+  headers?: Property[];
+  queryParameters?: Property[];
+  databaseName?: string;
+}
+
 export interface Datasource extends BaseDatasource {
   id: string;
-  datasourceConfiguration: {
-    url: string;
-    authentication?: DatasourceAuthentication;
-    properties?: Property[];
-    headers?: Property[];
-    queryParameters?: Property[];
-    databaseName?: string;
-  };
+  datasourceConfiguration: DatasourceConfiguration;
   invalids?: string[];
   structure?: DatasourceStructure;
   messages?: string[];

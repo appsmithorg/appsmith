@@ -15,4 +15,6 @@ public interface OrganizationRepositoryCE extends BaseRepository<Organization, S
 
     Mono<Void> updateUserRoleNames(String userId, String userName);
 
+    Mono<Long> countByDeletedAtNull();
+
 }

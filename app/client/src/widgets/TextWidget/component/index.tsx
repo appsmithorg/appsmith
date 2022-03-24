@@ -45,6 +45,42 @@ export const TextContainer = styled.div`
     list-style-position: inside;
     margin-left: 15px;
   }
+  h1 {
+    font-size: 2em;
+    margin: 0.67em 0;
+  }
+  h2 {
+    font-size: 1.5em;
+    margin: 0.75em 0;
+  }
+  h3 {
+    font-size: 1.17em;
+    margin: 0.83em 0;
+  }
+  h5 {
+    font-size: 0.83em;
+    margin: 1.5em 0;
+  }
+  h6 {
+    font-size: 0.75em;
+    margin: 1.67em 0;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: bold;
+  }
+  a {
+    color: #106ba3;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 `;
 
 const StyledIcon = styled(Icon)<{ backgroundColor?: string }>`
@@ -69,6 +105,7 @@ export const StyledText = styled(Text)<{
 }>`
   height: ${(props) =>
     props.isTruncated ? `calc(100% - ${ELLIPSIS_HEIGHT}px)` : "100%"};
+  overflow-x: hidden;
   overflow-y: ${(props) =>
     props.scroll ? (props.isTruncated ? "hidden" : "auto") : "hidden"};
   text-overflow: ellipsis;
@@ -92,11 +129,14 @@ export const StyledText = styled(Text)<{
   span {
     width: 100%;
     line-height: 1.2;
+    white-space: pre-wrap;
   }
 `;
 
-const ModalContent = styled.div`
-  background: ${Colors.WHITE};
+const ModalContent = styled.div<{
+  backgroundColor?: string;
+}>`
+  background: ${(props) => props?.backgroundColor || Colors.WHITE};
   padding: 24px;
   padding-top: 16px;
 `;
@@ -119,11 +159,24 @@ const Heading = styled.div`
   }
 `;
 
-const Content = styled.div`
+const Content = styled.div<{
+  fontSize?: TextSize;
+  fontStyle?: string;
+  textAlign: string;
+  textColor?: string;
+}>`
   padding-top: 16px;
-  color: ${Colors.GREY_9};
+  color: ${(props) => props?.textColor};
   max-height: 70vh;
   overflow: auto;
+  text-align: ${(props) => props.textAlign.toLowerCase()};
+  font-style: ${(props) =>
+    props?.fontStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
+  text-decoration: ${(props) =>
+    props?.fontStyle?.includes(FontStyleTypes.UNDERLINE) ? "underline" : ""};
+  font-weight: ${(props) =>
+    props?.fontStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
+  font-size: ${(props) => props?.fontSize && TEXT_SIZES[props?.fontSize]};
 `;
 export interface TextComponentProps extends ComponentProps {
   text?: string;
@@ -262,7 +315,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
           scrollContents
           width={500}
         >
-          <ModalContent>
+          <ModalContent backgroundColor={backgroundColor}>
             <Heading>
               <div className="title">Show More</div>
               <Icon
@@ -272,7 +325,12 @@ class TextComponent extends React.Component<TextComponentProps, State> {
                 size={IconSize.MEDIUM}
               />
             </Heading>
-            <Content>
+            <Content
+              fontSize={fontSize}
+              fontStyle={fontStyle}
+              textAlign={textAlign}
+              textColor={textColor}
+            >
               <Interweave
                 content={text}
                 matchers={

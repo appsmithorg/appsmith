@@ -39,7 +39,17 @@ import WhereClauseControl, {
 import PaginationControl, {
   PaginationControlProps,
 } from "components/formControls/PaginationControl";
+import SortingControl, {
+  SortingControlProps,
+} from "components/formControls/SortingControl";
+import EntitySelectorControl, {
+  EntitySelectorControlProps,
+} from "components/formControls/EntitySelectorControl";
 
+/**
+ * NOTE: If you are adding a component that uses FormControl
+ * then add logic for creating bindingPaths in recursiveFindBindingPaths() at entities/Action/actionProperties.ts
+ */
 class FormControlRegistry {
   static registerFormControlBuilders() {
     FormControlFactory.registerControlBuilder("INPUT_TEXT", {
@@ -119,9 +129,34 @@ class FormControlRegistry {
         return <WhereClauseControl {...controlProps} />;
       },
     });
+    FormControlFactory.registerControlBuilder("ENTITY_SELECTOR", {
+      buildPropertyControl(
+        controlProps: EntitySelectorControlProps,
+      ): JSX.Element {
+        return <EntitySelectorControl {...controlProps} />;
+      },
+    });
+
     FormControlFactory.registerControlBuilder("PAGINATION", {
       buildPropertyControl(controlProps: PaginationControlProps): JSX.Element {
         return <PaginationControl {...controlProps} />;
+      },
+    });
+    FormControlFactory.registerControlBuilder("SORTING", {
+      buildPropertyControl(controlProps: SortingControlProps): JSX.Element {
+        return <SortingControl {...controlProps} />;
+      },
+    });
+    FormControlFactory.registerControlBuilder("PROJECTION", {
+      buildPropertyControl(controlProps: DropDownControlProps): JSX.Element {
+        return (
+          <DropDownControl
+            fetchOptionsCondtionally
+            isMultiSelect
+            isSearchable
+            {...controlProps}
+          />
+        );
       },
     });
   }

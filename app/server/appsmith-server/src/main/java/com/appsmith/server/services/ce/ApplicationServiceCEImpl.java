@@ -1,7 +1,6 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Policy;
-import com.appsmith.git.helpers.StringOutputStream;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.Assets;
@@ -14,11 +13,13 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
@@ -28,9 +29,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.KeyPair;
+import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -267,9 +266,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     public Mono<Application> changeViewAccess(String defaultApplicationId,
                                               String branchName,
                                               ApplicationAccessDTO applicationAccessDTO) {
-        return this.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MAKE_PUBLIC_APPLICATIONS)
+        // For git connected application update the policy for all the branch's
+        return findAllApplicationsByDefaultApplicationId(defaultApplicationId, MAKE_PUBLIC_APPLICATIONS)
+                .switchIfEmpty(this.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MAKE_PUBLIC_APPLICATIONS))
                 .flatMap(branchedApplication -> changeViewAccess(branchedApplication.getId(), applicationAccessDTO))
-                .map(responseUtils::updateApplicationWithDefaultResources);
+                .then(repository.findById(defaultApplicationId, MAKE_PUBLIC_APPLICATIONS)
+                        .map(responseUtils::updateApplicationWithDefaultResources));
     }
 
     @Override
@@ -311,18 +313,23 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
         Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
         Map<String, Policy> datasourcePolicyMap = policyUtils.generatePolicyFromPermission(Set.of(EXECUTE_DATASOURCES), user);
+        Map<String, Policy> themePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
+                applicationPolicyMap, Application.class, Theme.class
+        );
 
         final Flux<NewPage> updatedPagesFlux = policyUtils
                 .updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, isPublic);
         // Use the same policy map as actions for action collections since action collections have the same kind of permissions
         final Flux<ActionCollection> updatedActionCollectionsFlux = policyUtils
                 .updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicyMap, isPublic);
-
+        Flux<Theme> updatedThemesFlux = policyUtils.updateThemePolicies(application, themePolicyMap, isPublic);
         final Flux<NewAction> updatedActionsFlux = updatedPagesFlux
                 .collectList()
                 .thenMany(updatedActionCollectionsFlux)
                 .collectList()
                 .then(Mono.justOrEmpty(application.getId()))
+                .thenMany(updatedThemesFlux)
+                .collectList()
                 .flatMapMany(applicationId -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, isPublic));
 
         return updatedActionsFlux
@@ -393,26 +400,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
      */
     @Override
     public Mono<GitAuth> createOrUpdateSshKeyPair(String applicationId) {
-        JSch jsch = new JSch();
-        KeyPair kpair;
-        try {
-            kpair = KeyPair.genKeyPair(jsch, KeyPair.RSA, 2048);
-        } catch (JSchException e) {
-            log.error("failed to generate RSA key pair", e);
-            throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Failed to generate SSH Keypair");
-        }
-
-        StringOutputStream privateKeyOutput = new StringOutputStream();
-        StringOutputStream publicKeyOutput = new StringOutputStream();
-
-        kpair.writePrivateKey(privateKeyOutput);
-        kpair.writePublicKey(publicKeyOutput, "appsmith");
-
-        GitAuth gitAuth = new GitAuth();
-        gitAuth.setPublicKey(publicKeyOutput.toString());
-        gitAuth.setPrivateKey(privateKeyOutput.toString());
-        gitAuth.setGeneratedAt(Instant.now());
-        gitAuth.setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
+        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey();
 
         return repository.findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
@@ -500,12 +488,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         if (StringUtils.isEmpty(branchName)) {
             return repository.findById(defaultApplicationId, aclPermission)
                     .switchIfEmpty(Mono.error(
-                            new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
+                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
                     );
         }
         return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, aclPermission)
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + "," + branchName))
                 );
     }
 
@@ -536,7 +524,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         }
         return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, permission)
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + ", " + branchName))
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + ", " + branchName))
                 )
                 .map(Application::getId);
     }
@@ -550,13 +538,18 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
      * @return Application flux which match the condition
      */
     @Override
-    public Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId) {
-        return repository.getApplicationByGitDefaultApplicationId(defaultApplicationId);
+    public Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId, AclPermission permission) {
+        return repository.getApplicationByGitDefaultApplicationId(defaultApplicationId, permission);
     }
 
     @Override
-    public Mono<Long> getGitConnectedApplicationCount(String organizationId) {
-        return repository.getGitConnectedApplicationCount(organizationId);
+    public Mono<Long> getGitConnectedApplicationsCountWithPrivateRepoByOrgId(String organizationId) {
+        return repository.getGitConnectedApplicationWithPrivateRepoCount(organizationId);
+    }
+
+    @Override
+    public Flux<Application> getGitConnectedApplicationsByOrganizationId(String organizationId) {
+        return repository.getGitConnectedApplicationByOrganizationId(organizationId);
     }
 
     public String getRandomAppCardColor() {
@@ -564,4 +557,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         return ApplicationConstants.APP_CARD_COLORS[randomColorIndex];
     }
 
+    @Override
+    public Mono<UpdateResult> setAppTheme(String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
+        return repository.setAppTheme(applicationId, editModeThemeId, publishedModeThemeId, aclPermission);
+    }
 }

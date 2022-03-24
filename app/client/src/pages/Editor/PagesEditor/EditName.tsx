@@ -13,7 +13,7 @@ import { Page } from "constants/ReduxActionConstants";
 import EditNameInput from "pages/Editor/Explorer/Entity/Name";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import TooltipComponent from "components/ads/Tooltip";
-import { createMessage, GO_TO_PAGE } from "constants/messages";
+import { createMessage, GO_TO_PAGE } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core";
 
@@ -26,13 +26,13 @@ export const EditNameContainer = styled.div`
   padding-left: 4px;
 
   & > .page-list-item-edit-icon {
-    display: none;
+    visibility: hidden; /* Hide the visiblity when not hovered */
     margin-left: 8px;
     align-items: center;
   }
 
   &:hover .page-list-item-edit-icon {
-    display: flex;
+    visibility: visible; /* on Hover display the element */
   }
 
   & > div {

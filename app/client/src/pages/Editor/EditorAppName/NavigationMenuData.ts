@@ -15,7 +15,7 @@ import { APPLICATIONS_URL, PAGE_LIST_EDITOR_URL } from "constants/routes";
 import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
 import { useCallback } from "react";
 import { ExplorerURLParams } from "../Explorer/helpers";
-import { getExportAppAPIRoute } from "constants/ApiConstants";
+import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 
 import {
   isPermitted,
@@ -32,10 +32,11 @@ import {
   DEPLOY_MENU_OPTION,
   CONNECT_TO_GIT_OPTION,
   CURRENT_DEPLOY_PREVIEW_OPTION,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { redoAction, undoAction } from "actions/pageActions";
 import { redoShortCut, undoShortCut } from "utils/helpers";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;
@@ -56,13 +57,18 @@ export const GetNavigationMenuData = ({
 
   const isGitConnected = useSelector(getIsGitConnected);
 
-  const openGitConnectionPopup = () =>
+  const openGitConnectionPopup = () => {
+    AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
+      source: "Application name menu (top left)",
+    });
+
     dispatch(
       setIsGitSyncModalOpen({
         isOpen: true,
         tab: GitSyncModalTab.GIT_CONNECTION,
       }),
     );
+  };
 
   const applicationId = useSelector(getCurrentApplicationId);
 
@@ -103,6 +109,7 @@ export const GetNavigationMenuData = ({
       type: MenuTypes.MENU,
       isVisible: true,
       isOpensNewWindow: true,
+      className: "t--app-name-menu-deploy",
     },
     {
       text: createMessage(CURRENT_DEPLOY_PREVIEW_OPTION),
@@ -110,6 +117,7 @@ export const GetNavigationMenuData = ({
       type: MenuTypes.MENU,
       isVisible: true,
       isOpensNewWindow: true,
+      className: "t--app-name-menu-deploy-current-version",
     },
   ];
 
@@ -120,12 +128,13 @@ export const GetNavigationMenuData = ({
       type: MenuTypes.MENU,
       isVisible: true,
       isOpensNewWindow: false,
+      className: "t--app-name-menu-deploy-connect-to-git",
     });
   }
 
   return [
     {
-      text: "Rename",
+      text: "Edit Name",
       onClick: editMode,
       type: MenuTypes.MENU,
       isVisible: true,
@@ -185,6 +194,7 @@ export const GetNavigationMenuData = ({
       type: MenuTypes.PARENT,
       isVisible: true,
       children: deployOptions,
+      className: "t--app-name-menu-deploy-parent",
     },
     {
       text: "Help",
