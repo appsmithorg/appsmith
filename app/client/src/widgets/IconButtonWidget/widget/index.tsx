@@ -7,8 +7,12 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import IconButtonComponent from "../component";
+import { IconNames } from "@blueprintjs/icons";
 import { ButtonVariant, ButtonVariantTypes } from "components/constants";
 
+const ICON_NAMES = Object.keys(IconNames).map(
+  (name: string) => IconNames[name as keyof typeof IconNames],
+);
 export interface IconButtonWidgetProps extends WidgetProps {
   iconName?: IconName;
   backgroundColor: string;
@@ -32,9 +36,17 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             label: "Icon",
             helpText: "Sets the icon to be used for the icon button",
             controlType: "ICON_SELECT",
-            isBindProperty: false,
+            defaultIconName: "plus",
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ICON_NAMES,
+                default: IconNames.PLUS,
+              },
+            },
           },
           {
             propertyName: "isDisabled",
@@ -94,7 +106,12 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
           },
           {
             propertyName: "buttonVariant",
@@ -183,6 +200,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         isDisabled={isDisabled}
         isVisible={isVisible}
         onClick={this.handleClick}
+        renderMode={this.props.renderMode}
         widgetId={widgetId}
         width={
           (this.props.rightColumn - this.props.leftColumn) *

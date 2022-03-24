@@ -311,38 +311,40 @@ class MultiSelectWidget extends BaseWidget<
             defaultValue: "PARAGRAPH",
             options: [
               {
-                label: "Heading 1",
-                value: "HEADING1",
-                subText: "24px",
-                icon: "HEADING_ONE",
+                label: "sm",
+                value: "0.875rem",
+                subText: "0.875rem",
               },
               {
-                label: "Heading 2",
-                value: "HEADING2",
-                subText: "18px",
-                icon: "HEADING_TWO",
+                label: "base",
+                value: "1rem",
+                subText: "1rem",
               },
               {
-                label: "Heading 3",
-                value: "HEADING3",
-                subText: "16px",
-                icon: "HEADING_THREE",
+                label: "lg",
+                value: "1.25rem",
+                subText: "1.25rem",
               },
               {
-                label: "Paragraph",
-                value: "PARAGRAPH",
-                subText: "14px",
-                icon: "PARAGRAPH",
+                label: "xl",
+                value: "1.875rem",
+                subText: "1.875rem",
               },
               {
-                label: "Paragraph 2",
-                value: "PARAGRAPH2",
-                subText: "12px",
-                icon: "PARAGRAPH_TWO",
+                label: "2xl",
+                value: "3rem",
+                subText: "3rem",
+              },
+              {
+                label: "3xl",
+                value: "3.75rem",
+                subText: "3.75rem",
               },
             ],
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "labelStyle",
@@ -451,6 +453,8 @@ class MultiSelectWidget extends BaseWidget<
             : { label: o.label, value: o.value },
         )
       : [];
+    const isInvalid =
+      "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     return (
       <MultiSelectComponent
         allowSelectAll={this.props.allowSelectAll}
@@ -470,7 +474,7 @@ class MultiSelectWidget extends BaseWidget<
         }}
         filterText={this.props.filterText}
         isFilterable={this.props.isFilterable}
-        isValid={this.props.isValid}
+        isValid={!isInvalid}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
@@ -490,10 +494,6 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   onOptionChange = (value: DefaultValueType) => {
-    if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
-    }
-
     this.props.updateWidgetMetaProperty("selectedOptions", value, {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,
@@ -501,6 +501,9 @@ class MultiSelectWidget extends BaseWidget<
         type: EventType.ON_OPTION_CHANGE,
       },
     });
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
   };
 
   onFilterChange = (value: string) => {
@@ -521,10 +524,11 @@ class MultiSelectWidget extends BaseWidget<
     return "MULTI_SELECT_WIDGET_V2";
   }
 }
-
-export interface DropdownOption {
+export interface OptionValue {
   label: string;
   value: string;
+}
+export interface DropdownOption extends OptionValue {
   disabled?: boolean;
 }
 
@@ -536,7 +540,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   options?: DropdownOption[];
   onOptionChange: string;
   onFilterChange: string;
-  defaultOptionValue: string | string[];
+  defaultOptionValue: string | string[] | OptionValue[];
   isRequired: boolean;
   isLoading: boolean;
   selectedOptions: LabelValueType[];
@@ -547,6 +551,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   onFilterUpdate: string;
   allowSelectAll?: boolean;
   isFilterable: boolean;
+  isDirty?: boolean;
 }
 
 export default MultiSelectWidget;

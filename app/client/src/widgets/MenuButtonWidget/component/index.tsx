@@ -30,21 +30,8 @@ import {
   WidgetContainerDiff,
   lightenColor,
 } from "widgets/WidgetUtils";
-
-type MenuButtonContainerProps = {
-  disabled?: boolean;
-};
-
-export const MenuButtonContainer = styled.div<MenuButtonContainerProps>`
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  ${({ disabled }) => disabled && "cursor: not-allowed;"}
-
-  & > .${Classes.POPOVER2_TARGET} {
-    height: 100%;
-  }
-`;
+import { RenderMode } from "constants/WidgetConstants";
+import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 
 const PopoverStyles = createGlobalStyle<{
   parentWidth: number;
@@ -59,13 +46,18 @@ const PopoverStyles = createGlobalStyle<{
     box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
     margin-top: 8px !important;
     border-radius: ${({ borderRadius }) =>
-      borderRadius === `1.5rem` ? `0.375rem` : borderRadius};
+      borderRadius >= `1.5rem` ? `0.375rem` : borderRadius};
     box-shadow: none;
     overflow: hidden;
   }
 
   .menu-button-popover .${BClasses.MENU_ITEM} {
     padding: 9px 12px;
+    border-radius: 0;
+  }
+
+  & > .${Classes.POPOVER2_TARGET} {
+    height: 100%;
   }
 
   ${({ id, menuDropDownWidth, parentWidth }) => `
@@ -107,7 +99,6 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
   box-shadow: none !important;
 
   ${({ buttonColor, buttonVariant, theme }) => `
-    &:enabled {
       background: ${
         getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
           ? getCustomBackgroundColor(buttonVariant, buttonColor)
@@ -115,9 +106,8 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
           ? theme.colors.button.primary.primary.bgColor
           : "none"
       } !important;
-    }
 
-    &:hover:enabled, &:active:enabled {
+    &:hover, &:active {
       background: ${
         getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
           ? getCustomHoverColor(theme, buttonVariant, buttonColor)
@@ -132,7 +122,6 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
     &:disabled {
       background-color: ${theme.colors.button.disabled.bgColor} !important;
       color: ${theme.colors.button.disabled.textColor} !important;
-      pointer-events: none;
       border-color: ${theme.colors.button.disabled.bgColor} !important;
       > span {
         color: ${theme.colors.button.disabled.textColor} !important;
@@ -325,6 +314,7 @@ export interface PopoverTargetButtonProps {
   isDisabled?: boolean;
   label?: string;
   placement?: ButtonPlacement;
+  renderMode?: RenderMode;
 }
 
 function PopoverTargetButton(props: PopoverTargetButtonProps) {
@@ -338,6 +328,7 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
     isDisabled,
     label,
     placement,
+    renderMode,
   } = props;
 
   const isRightAlign = iconAlign === Alignment.RIGHT;
@@ -359,19 +350,26 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
   }
 
   return (
-    <BaseButton
-      alignText={getAlignText(isRightAlign, iconName)}
-      borderRadius={borderRadius}
-      boxShadow={boxShadow}
+    <DragContainer
       buttonColor={buttonColor}
       buttonVariant={buttonVariant}
       disabled={isDisabled}
-      fill
-      icon={isRightAlign ? undefined : iconName}
-      placement={placement}
-      rightIcon={isRightAlign ? iconName : undefined}
-      text={label}
-    />
+      renderMode={renderMode}
+    >
+      <BaseButton
+        alignText={getAlignText(isRightAlign, iconName)}
+        borderRadius={borderRadius}
+        boxShadow={boxShadow}
+        buttonColor={buttonColor}
+        buttonVariant={buttonVariant}
+        disabled={isDisabled}
+        fill
+        icon={isRightAlign ? undefined : iconName}
+        placement={placement}
+        rightIcon={isRightAlign ? iconName : undefined}
+        text={label}
+      />
+    </DragContainer>
   );
 }
 
@@ -409,6 +407,7 @@ export interface MenuButtonComponentProps {
   width: number;
   widgetId: string;
   menuDropDownWidth: number;
+  renderMode?: RenderMode;
 }
 
 function MenuButtonComponent(props: MenuButtonComponentProps) {
@@ -426,12 +425,13 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     menuVariant,
     onItemClicked,
     placement,
+    renderMode,
     widgetId,
     width,
   } = props;
 
   return (
-    <MenuButtonContainer disabled={isDisabled}>
+    <>
       <PopoverStyles
         borderRadius={borderRadius}
         id={widgetId}
@@ -464,9 +464,10 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
           isDisabled={isDisabled}
           label={label}
           placement={placement}
+          renderMode={renderMode}
         />
       </Popover2>
-    </MenuButtonContainer>
+    </>
   );
 }
 

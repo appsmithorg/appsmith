@@ -3,13 +3,10 @@ import { Checkbox, Classes, Label } from "@blueprintjs/core";
 import styled, { keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
-import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
+import { FontStyleTypes, TextSize } from "constants/WidgetConstants";
 import Icon from "components/ads/Icon";
 import { lightenColor } from "widgets/WidgetUtils";
+import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
 
 export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
   transform: rotate(${({ expanded }) => (expanded ? 0 : 270)}deg);
@@ -47,7 +44,7 @@ export const StyledLabel = styled(Label)<{
   color: ${(props) =>
     props.disabled ? Colors.GREY_8 : props.$labelTextColor || "inherit"};
   font-size: ${(props) =>
-    props.$labelTextSize ? TEXT_SIZES[props.$labelTextSize] : "14px"};
+    props.$labelTextSize ? props.$labelTextSize : "0.875rem"};
   font-weight: ${(props) =>
     props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
   font-style: ${(props) =>
@@ -77,17 +74,14 @@ const rcSelectDropdownSlideUpOut = keyframes`
 `;
 
 export const DropdownStyles = createGlobalStyle<{
-  parentWidth: number;
   dropDownWidth: number;
   id: string;
   primaryColor: string;
   borderRadius: string;
 }>`
-${({ dropDownWidth, id, parentWidth }) => `
+${({ dropDownWidth, id }) => `
   .multiselecttree-popover-width-${id} {
-    min-width: ${
-      parentWidth > dropDownWidth ? parentWidth : dropDownWidth
-    }px !important;
+    min-width: ${dropDownWidth}px !important;
   }
 `}
 .rc-tree-select-dropdown-hidden {
@@ -269,10 +263,15 @@ cursor: not-allowed;
   background: #fff;
   width: 100%;
   border-radius: ${({ borderRadius }) =>
-    borderRadius === `1.5rem` ? `0.375rem` : borderRadius};
+    borderRadius >= `1.5rem` ? `0.375rem` : borderRadius};
   overflow: hidden;
   margin-top: 5px;
   background: white;
+
+  > div {
+    min-width: ${({ dropDownWidth }) => dropDownWidth}px;
+  }
+
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
     &&&& .${Classes.ALIGN_LEFT} {
         font-size: 16px;
@@ -300,12 +299,31 @@ cursor: not-allowed;
 						box-shadow: none;
 						outline: none !important;
     }
+    .${Classes.INPUT} {
+      height: 32px !important;
+      padding-left: 29px !important;
+      font-size: 14px;
+      border: 1px solid ${Colors.GREY_3};
+      color: ${Colors.GREY_10};
+      box-shadow: 0px 0px 0px 0px;
+      border-radius: ${({ borderRadius }) =>
+        borderRadius === "1.5rem" ? `0.375rem` : borderRadius};
+      &:focus {
+        border: 1px solid  ${(props) => props.primaryColor};
+          box-shadow: 0px 0px 0px 3px ${(props) =>
+            lightenColor(props.primaryColor)};
+      }
+    }
+    ${CommonSelectFilterStyle}
     .rc-tree-select-item {
 	font-size: 16px;
 	line-height: 1.5;
 	padding: 5px 16px;
 	align-items: center;
 	cursor: pointer;
+}
+.rc-tree-select-tree-list-holder-inner {
+  overflow: hidden;
 }
 .rc-tree-select-item-option-state {
 	.bp3-control.bp3-checkbox {
@@ -382,7 +400,11 @@ cursor: not-allowed;
 	text-decoration: none;
 	vertical-align: top;
 	cursor: pointer;
-  flex: 1
+  overflow-wrap: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1 1 0;
 }
 
 .rc-tree-select-tree-checkbox-indeterminate .rc-tree-select-tree-checkbox-inner {
@@ -581,6 +603,8 @@ cursor: not-allowed;
   margin-left: 10px;
   font-size: 14px !important;
   color: ${Colors.GREY_8};
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .rc-tree-select-tree-indent {
 	display: inline-block;
@@ -601,6 +625,7 @@ export const TreeSelectContainer = styled.div<{
   isValid: boolean;
   borderRadius: string;
   boxShadow?: string;
+  primaryColor: string;
 }>`
   display: flex;
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
@@ -769,7 +794,6 @@ export const TreeSelectContainer = styled.div<{
       }
       .rc-tree-select-selection-overflow {
         display: flex;
-        flex-wrap: wrap;
         width: 100%;
         align-items: center;
       }
@@ -877,6 +901,19 @@ export const TreeSelectContainer = styled.div<{
       }
     }
   }
+  && .rc-tree-select-show-arrow.rc-tree-select-focused {
+    .rc-tree-select-selector {
+      outline: 0px;
+      ${(props) =>
+        props.isValid
+          ? `
+      border: 1px solid  ${props.primaryColor};
+      box-shadow: 0px 0px 0px 3px ${lightenColor(
+        props.primaryColor,
+      )} !important;`
+          : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
+    }
+  }
   .rc-tree-select-show-arrow {
     .rc-tree-select-clear {
       top: 0;
@@ -919,6 +956,7 @@ export const TreeSelectContainer = styled.div<{
       }
     }
   }
+
   .rc-tree-select-show-arrow.rc-tree-select-focused {
     .rc-tree-select-selector {
       outline: 0px;
@@ -931,9 +969,21 @@ export const TreeSelectContainer = styled.div<{
     }
   }
 `;
+
 export const StyledCheckbox = styled(Checkbox)`
-  &&.${Classes.CHECKBOX}.${Classes.CONTROL} {
-    margin: 0;
+  &&&.${Classes.CHECKBOX}.${Classes.CONTROL} {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 38px;
+    padding-bottom: 0;
+    color: ${Colors.GREY_8};
+    display: flex;
+    align-items: center;
+    &:hover {
+      background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+      color: ${Colors.GREY_9};
+    }
   }
 `;
 

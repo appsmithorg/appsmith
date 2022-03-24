@@ -5,7 +5,7 @@ import { MarkerProps } from "../constants";
 import PickMyLocation from "./PickMyLocation";
 import styled from "styled-components";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
-import { getBorderCSSShorthand } from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
 
 interface MapComponentProps {
   apiKey: string;
@@ -38,21 +38,30 @@ interface MapComponentProps {
   boxShadow?: string;
 }
 
-const MapWrapper = styled.div`
-  position: relative;
+const MapContainerWrapper = styled.div`
   width: 100%;
   height: 100%;
 `;
 
-const MapContainerWrapper = styled.div<{
+const MapWrapper = styled.div<{
   borderRadius: string;
   boxShadow?: string;
 }>`
+  position: relative;
   width: 100%;
   height: 100%;
   border-radius: ${({ borderRadius }) => borderRadius};
-  border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+  border: ${({ boxShadow }) =>
+    boxShadow === "none" ? `1px solid` : `0px solid`};
+  border-color: ${Colors.GREY_3};
+  overflow: hidden;
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+
+  ${({ borderRadius }) =>
+    borderRadius >= "1.5rem"
+      ? `& div.gmnoprint:not([data-control-width]) {
+    margin-right: 10px !important;`
+      : ""}
 `;
 
 const StyledInput = styled.input`
@@ -201,18 +210,17 @@ function MapComponent(props: MapComponentProps) {
     `https://maps.googleapis.com/maps/api/js?key=${props.apiKey}&v=3.exp&libraries=geometry,drawing,places`,
     AddScriptTo.HEAD,
   );
-  const MapContainerWrapperMemoized = useMemo(
-    () => (
-      <MapContainerWrapper
-        borderRadius={props.borderRadius}
-        boxShadow={props.boxShadow}
-      />
-    ),
-    [props.borderRadius, props.boxShadow],
-  );
+  const MapContainerWrapperMemoized = useMemo(() => <MapContainerWrapper />, [
+    props.borderRadius,
+    props.boxShadow,
+  ]);
 
   return (
-    <MapWrapper onMouseLeave={props.enableDrag}>
+    <MapWrapper
+      borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
+      onMouseLeave={props.enableDrag}
+    >
       {status === ScriptStatus.READY && (
         <MyMapComponent
           containerElement={MapContainerWrapperMemoized}

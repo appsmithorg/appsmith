@@ -78,7 +78,7 @@ function CanvasContainer() {
       className={classNames({
         [`${getCanvasClassName()} scrollbar-thin`]: true,
         "mt-0": !shouldHaveTopMargin,
-        "mt-9": shouldHaveTopMargin,
+        "mt-8": shouldHaveTopMargin,
       })}
       key={currentPageId}
       style={{

@@ -2,11 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { labelStyle } from "constants/DefaultTheme";
 import { ComponentProps } from "widgets/BaseComponent";
-import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
+import { FontStyleTypes } from "constants/WidgetConstants";
 import {
   Alignment,
   Intent,
@@ -79,6 +75,24 @@ const InputComponentWrapper = styled((props) => (
   align-items: center;
   justify-content: flex-end;
   gap: ${(props) => (props.compactMode ? "10px" : "5px")};
+
+  .bp3-input-group {
+    display: flex;
+    > {
+      &:first-child:not(input) {
+        position: static;
+        background: ${(props) =>
+          props.disabled ? Colors.GREY_1 : Colors.WHITE};
+        color: ${(props) => (props.disabled ? Colors.GREY_7 : Colors.GREY_10)};
+        border-right: 0;
+      }
+      input:not(:first-child) {
+        padding-left: 0px;
+        z-index: 16;
+        line-height: 16px;
+      }
+    }
+  }
 
   .currency-type-filter,
   .country-type-filter {
@@ -625,7 +639,7 @@ class BaseInputComponent extends React.Component<
         inputType={this.props.inputType}
         labelStyle={labelStyle}
         labelTextColor={labelTextColor}
-        labelTextSize={labelTextSize ? TEXT_SIZES[labelTextSize] : "inherit"}
+        labelTextSize={labelTextSize ?? "inherit"}
         multiline={(!!this.props.multiline).toString()}
         numeric={isNumberInputType(this.props.inputHTMLType)}
         primaryColor={this.props.primaryColor}
@@ -703,7 +717,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   defaultValue?: string | number;
   label: string;
   labelTextColor?: string;
-  labelTextSize?: TextSize;
+  labelTextSize?: string;
   labelStyle?: string;
   tooltip?: string;
   leftIcon?: IconName | JSX.Element;

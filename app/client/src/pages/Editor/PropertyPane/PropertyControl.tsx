@@ -469,16 +469,20 @@ const PropertyControl = memo((props: Props) => {
             )}
             {isPropertyDeviatedFromTheme && (
               <>
-                <TooltipComponent content="Value deviated from theme">
+                <TooltipComponent
+                  content="Value deviated from theme"
+                  openOnTargetFocus={false}
+                >
                   <div className="w-2 h-2 rounded-full bg-primary-500" />
                 </TooltipComponent>
                 <button
-                  className="hidden ml-auto group-hover:block"
+                  className="hidden ml-auto focus:ring-2 group-hover:block reset-button"
                   onClick={resetPropertyValueToTheme}
                 >
                   <TooltipComponent
                     boundary="viewport"
                     content="Reset value"
+                    openOnTargetFocus={false}
                     position="top-right"
                   >
                     <ResetIcon className="w-5 h-5" />

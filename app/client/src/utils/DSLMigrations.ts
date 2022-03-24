@@ -44,7 +44,10 @@ import {
   ButtonVariantTypes,
 } from "../components/constants";
 import { Colors } from "../constants/Colors";
-import { migrateResizableModalWidgetProperties } from "./migrations/ModalWidget";
+import {
+  migrateModalIconButtonWidget,
+  migrateResizableModalWidgetProperties,
+} from "./migrations/ModalWidget";
 import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxGroupWidget";
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
 import { DSLWidget } from "widgets/constants";
@@ -1058,6 +1061,11 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 52) {
+    currentDSL = migrateModalIconButtonWidget(currentDSL);
+    currentDSL.version = 53;
+  }
+
+  if (currentDSL.version === 53) {
     currentDSL = migrateStylingPropertiesForTheming(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
@@ -1618,6 +1626,30 @@ export const migrateStylingPropertiesForTheming = (
         child.fontSize = "1.5rem";
         addPropertyToDynamicPropertyPathList("fontSize", child);
         break;
+    }
+
+    //migrate label text sizes
+    switch (child.labelTextSize) {
+      case TextSizes.PARAGRAPH2:
+        child.labelTextSize = "0.75rem";
+        addPropertyToDynamicPropertyPathList("labelTextSize", child);
+        break;
+      case TextSizes.PARAGRAPH:
+        child.labelTextSize = "0.875rem";
+        break;
+      case TextSizes.HEADING3:
+        child.labelTextSize = "1rem";
+        break;
+      case TextSizes.HEADING2:
+        child.labelTextSize = "1.125rem";
+        addPropertyToDynamicPropertyPathList("labelTextSize", child);
+        break;
+      case TextSizes.HEADING1:
+        child.labelTextSize = "1.5rem";
+        addPropertyToDynamicPropertyPathList("labelTextSize", child);
+        break;
+      default:
+        child.labelTextSize = "0.875rem";
     }
 
     /**

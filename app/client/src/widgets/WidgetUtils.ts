@@ -6,6 +6,7 @@ import { IconName } from "@blueprintjs/icons";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
+  TextSizes,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import generate from "nanoid/generate";
@@ -215,42 +216,27 @@ export const getComplementaryGrayscaleColor = (color = "#fff", alpha = 1) => {
 };
 
 /**
- * lightens the color by given amount
+ * lightens the color
  *
  * @param borderRadius
  * @returns
  */
 export const lightenColor = (color = "#fff") => {
-  const tinyAccentColor = tinycolor(color);
-  const brightness = tinycolor(color)
-    .greyscale()
-    .getBrightness();
+  const { h, s } = tinycolor(color).toHsl();
 
-  const percentageBrightness = (brightness / 255) * 100;
-  let nextBrightness = 0;
+  const newColor = tinycolor(`hsl ${h} ${s} 0.93}`).toHex();
 
-  switch (true) {
-    case percentageBrightness > 70:
-      nextBrightness = 15;
-      break;
-    case percentageBrightness > 60:
-      nextBrightness = 25;
-      break;
-    case percentageBrightness > 50:
-      nextBrightness = 35;
-      break;
-    case percentageBrightness > 40:
-      nextBrightness = 45;
-      break;
-    default:
-      nextBrightness = 65;
-  }
+  return `#${newColor}`;
+};
 
-  if (brightness > 180) {
-    return tinyAccentColor.darken(10).toString();
-  } else {
-    return tinyAccentColor.lighten(nextBrightness).toString();
-  }
+/**
+ * darken the color
+ *
+ * @param borderRadius
+ * @returns
+ */
+export const darkenColor = (color = "#fff", amount = 10) => {
+  return tinycolor(color).darken(amount);
 };
 
 /**
@@ -308,3 +294,26 @@ export const PopoverStyles = createGlobalStyle<{
     }
   `}
 `;
+
+/**
+ * Maps the old font sizes such as HEADING1, HEADING2 etc. to the new theming fontSizes(in rems).
+ * @param fontSize
+ * @returns
+ */
+export const fontSizeUtility = (fontSize: string | undefined) => {
+  switch (fontSize) {
+    case TextSizes.PARAGRAPH2:
+      return "0.75rem";
+    case TextSizes.PARAGRAPH:
+      return "0.875rem";
+    case TextSizes.HEADING3:
+      return "1rem";
+    case TextSizes.HEADING2:
+      return "1.125rem";
+    case TextSizes.HEADING1:
+      return "1.5rem";
+
+    default:
+      return fontSize;
+  }
+};

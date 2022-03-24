@@ -93,7 +93,7 @@ type DeployedKeyUIProps = {
 };
 
 const NotificationBannerContainer = styled.div`
-  max-width: 456px;
+  max-width: calc(100% - 30px);
 `;
 
 function CopySSHKey(showCopied: boolean, copyToClipboard: () => void) {

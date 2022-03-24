@@ -1,11 +1,7 @@
 import { Classes, ControlGroup, Label } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
+import { FontStyleTypes, TextSize } from "constants/WidgetConstants";
 import { DropdownOption } from "../constants";
 import { Select } from "@blueprintjs/select";
 import {
@@ -45,7 +41,7 @@ export const StyledLabel = styled(Label)<{
       ? Colors.GREY_8
       : "inherit"};
   font-size: ${(props) =>
-    props.$labelTextSize ? TEXT_SIZES[props.$labelTextSize] : "14px"};
+    props.$labelTextSize ? props.$labelTextSize : "0.875rem"};
   font-weight: ${(props) =>
     props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
   font-style: ${(props) =>
@@ -104,12 +100,13 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
     height: 100%;
     align-items: center;
     justify-content: space-between;
-    box-shadow: none;
+    box-shadow: ${(props) => props.boxShadow} !important;
     background: white;
     min-height: 32px;
     padding-left: 12px;
     padding: 0px 10px;
     border-radius: ${(props) => props.borderRadius} !important;
+    box-shadow: ${(props) => props.boxShadow} !important;
     border: 1px solid;
     border-color: ${(props) =>
       props.hasError ? Colors.DANGER_SOLID : Colors.GREY_3};
@@ -153,6 +150,7 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
     }
   }
   .${Classes.BUTTON_TEXT} {
+    word-break: break-word;
     text-overflow: ellipsis;
     text-align: left;
     overflow: hidden;
@@ -171,33 +169,32 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
 `;
 
 export const DropdownStyles = createGlobalStyle<{
-  parentWidth: number;
   dropDownWidth: number;
   id: string;
   borderRadius: string;
   primaryColor?: string;
 }>`
-${({ dropDownWidth, id, parentWidth }) => `
+${({ dropDownWidth, id }) => `
   .select-popover-width-${id} {
-    min-width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
+    width: ${dropDownWidth}px;
+
     & .${Classes.INPUT_GROUP} {
-       width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
+      width: ${dropDownWidth}px;
     }
   }
 `}
   .select-popover-wrapper {
-    width: auto;
     box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
-    border-radius: ${(props) => props.borderRadius} !important;
+    border-radius: ${({ borderRadius }) =>
+      borderRadius === "1.5rem" ? `0.375rem` : borderRadius};
     overflow: hidden;
     background: white;
     & .${Classes.INPUT_GROUP} {
       padding: 12px 12px 8px 12px;
-      min-width: 180px;
       & > .${Classes.ICON} {
         &:first-child {
           left: 12px;
-          top: 14px;
+          top: 12px;
           margin: 9px;
           color: ${Colors.GREY_7};
           & > svg {

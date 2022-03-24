@@ -1,13 +1,9 @@
 import React from "react";
 import { Checkbox, Classes, Label } from "@blueprintjs/core";
-import styled, { keyframes } from "styled-components";
+import styled, { css, keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
-import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
+import { FontStyleTypes, TextSize } from "constants/WidgetConstants";
 import { lightenColor } from "widgets/WidgetUtils";
 
 const Input = styled.input`
@@ -15,6 +11,71 @@ const Input = styled.input`
   width: 0;
   opacity: 0;
   z-index: -1;
+`;
+
+export const CommonSelectFilterStyle = css`
+  &&&& .${Classes.ALIGN_LEFT} {
+    font-size: 14px;
+    padding-left: 42px;
+    margin-bottom: 0;
+    .${Classes.CONTROL_INDICATOR} {
+      margin-right: 20px;
+    }
+    &.all-options.selected {
+      background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+      color: ${Colors.GREY_10} !important;
+    }
+  }
+
+  &&&& .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
+    background: transparent;
+    box-shadow: none;
+    border-width: 1px;
+    border-style: solid;
+    border-color: ${Colors.GREY_3};
+    border-radius: 0px;
+    &::before {
+      width: auto;
+      height: 1em;
+    }
+  }
+
+  & .${Classes.INPUT_GROUP} {
+    padding: 12px 12px 8px 12px;
+
+    & > .${Classes.ICON} {
+      &:first-child {
+        left: 12px;
+        top: 12px;
+        margin: 9px;
+        color: ${Colors.GREY_7};
+
+        & > svg {
+          width: 14px;
+          height: 14px;
+        }
+      }
+    }
+    & > .${Classes.INPUT_ACTION} {
+      &:last-child {
+        right: 13px;
+        top: 13px;
+
+        .${Classes.BUTTON} {
+          min-height: 34px;
+          min-width: 35px;
+          margin: 0px;
+          color: ${Colors.GREY_6} !important;
+
+          &:hover {
+            color: ${Colors.GREY_10} !important;
+            background: ${Colors.GREY_2};
+            border-radius: 0;
+          }
+        }
+      }
+    }
+  }
 `;
 
 const Indicator = styled.div`
@@ -70,17 +131,14 @@ const rcSelectDropdownSlideUpOut = keyframes`
 `;
 
 export const DropdownStyles = createGlobalStyle<{
-  parentWidth: number;
   dropDownWidth: number;
   id: string;
   primaryColor?: string;
   borderRadius: string;
 }>`
-${({ dropDownWidth, id, parentWidth }) => `
+${({ dropDownWidth, id }) => `
   .multiselect-popover-width-${id} {
-    min-width: ${
-      parentWidth > dropDownWidth ? parentWidth : dropDownWidth
-    }px !important;
+    min-width: ${dropDownWidth}px !important;
   }
 `}
 .rc-select-dropdown-hidden {
@@ -213,7 +271,8 @@ ${({ dropDownWidth, id, parentWidth }) => `
   border-radius: 0px;
   margin-top: 5px;
   background: white;
-  border-radius: ${({ borderRadius }) => borderRadius};
+  border-radius: ${({ borderRadius }) =>
+    borderRadius === "1.5rem" ? `0.375rem` : borderRadius};
   overflow: hidden;
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
    overflow-x: auto;
@@ -258,7 +317,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
     & > .${Classes.ICON} {
       &:first-child {
         left: 12px;
-        top: 14px;
+        top: 12px;
         margin: 9px;
         color: ${Colors.GREY_7};
 
@@ -288,13 +347,14 @@ ${({ dropDownWidth, id, parentWidth }) => `
       }
     }
     .${Classes.INPUT} {
-      height: 36px;
+      height: 32px;
       padding-left: 29px !important;
       font-size: 14px;
       border: 1px solid ${Colors.GREY_3};
       color: ${Colors.GREY_10};
       box-shadow: 0px 0px 0px 0px;
-      border-radius: ${(props) => props.borderRadius};
+      border-radius: ${({ borderRadius }) =>
+        borderRadius === "1.5rem" ? `0.375rem` : borderRadius};
       &:focus {
         border: 1px solid  ${(props) => props.primaryColor};
           box-shadow: 0px 0px 0px 3px ${(props) =>
@@ -302,6 +362,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
       }
     }
   }
+    ${CommonSelectFilterStyle}
   .rc-select-item {
     font-size: 14px;
     padding: 5px 16px;
@@ -438,7 +499,6 @@ export const MultiSelectContainer = styled.div<{
       }
       .rc-select-selection-overflow {
         display: flex;
-        flex-wrap: wrap;
         width: 100%;
         align-items: center;
       }
@@ -559,7 +619,9 @@ export const MultiSelectContainer = styled.div<{
         props.isValid
           ? `
           border: 1px solid  ${props.primaryColor};
-          box-shadow: 0px 0px 0px 3px ${lightenColor(props.primaryColor)};`
+          box-shadow: 0px 0px 0px 3px ${lightenColor(
+            props.primaryColor,
+          )} !important;`
           : `border: 1px solid ${Colors.DANGER_SOLID};`}
     }
   }
@@ -628,7 +690,7 @@ export const StyledLabel = styled(Label)<{
       ? Colors.GREY_8
       : "inherit"};
   font-size: ${(props) =>
-    props.$labelTextSize ? TEXT_SIZES[props.$labelTextSize] : "14px"};
+    props.$labelTextSize ? props.$labelTextSize : "0.875rem"};
   font-weight: ${(props) =>
     props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
   font-style: ${(props) =>

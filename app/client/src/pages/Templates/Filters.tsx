@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { Collapse } from "@blueprintjs/core";
@@ -6,15 +6,13 @@ import { Classes } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
 import Icon, { IconSize } from "components/ads/Icon";
 import { filterTemplates } from "actions/templateActions";
-import { getWidgetCards } from "selectors/editorSelectors";
 import { createMessage, MORE, SHOW_LESS } from "@appsmith/constants/messages";
 import {
+  getFilterListSelector,
   getTemplateFilterSelector,
-  templatesDatasourceFiltersSelector,
 } from "selectors/templatesSelectors";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { thinScrollbar } from "constants/DefaultTheme";
-import { functions, useCases } from "./constants";
 import { Colors } from "constants/Colors";
 
 const FilterWrapper = styled.div`
@@ -23,7 +21,7 @@ const FilterWrapper = styled.div`
   ${thinScrollbar}
 
   .more {
-    padding-left: ${(props) => props.theme.spaces[4]}px;
+    padding-left: ${(props) => props.theme.spaces[11]}px;
     margin-top: ${(props) => props.theme.spaces[2]}px;
     cursor: pointer;
   }
@@ -92,7 +90,7 @@ const FilterCategoryWrapper = styled.div`
   padding-bottom: ${(props) => props.theme.spaces[13] - 2}px;
 `;
 
-type Filter = {
+export type Filter = {
   label: string;
   value?: string;
 };
@@ -108,28 +106,6 @@ interface FilterCategoryProps {
   filterList: Filter[];
   selectedFilters: string[];
 }
-
-const useGetFilterList = (): Record<string, Filter[]> => {
-  const widgetConfigs = useSelector(getWidgetCards);
-  const widgets = useMemo(() => {
-    return widgetConfigs.map((widget) => {
-      return {
-        label: widget.displayName,
-        value: widget.type,
-      };
-    });
-  }, [widgetConfigs]);
-  const datasources = useSelector(templatesDatasourceFiltersSelector);
-
-  const filters = {
-    functions,
-    useCases,
-    widgets,
-    datasources,
-  };
-
-  return filters;
-};
 
 function FilterItem({ item, onSelect, selected }: FilterItemProps) {
   const onClick = () => {
@@ -154,6 +130,9 @@ function FilterCategory({
 }: FilterCategoryProps) {
   const [expand, setExpand] = useState(false);
   const dispatch = useDispatch();
+  // This indicates how many filter items do we want to show, the rest are hidden
+  // behind show more.
+  const FILTERS_TO_SHOW = 3;
   const onSelect = (item: string, type: string) => {
     if (type === "add") {
       dispatch(filterTemplates(label, [...selectedFilters, item]));
@@ -178,10 +157,11 @@ function FilterCategory({
   return (
     <FilterCategoryWrapper>
       <StyledFilterCategory type={TextType.SIDE_HEAD}>
-        {label.toLocaleUpperCase()}
+        {label.toLocaleUpperCase()}{" "}
+        {!!selectedFilters.length && `(${selectedFilters.length})`}
       </StyledFilterCategory>
       <ListWrapper>
-        {filterList.slice(0, 3).map((filter) => {
+        {filterList.slice(0, FILTERS_TO_SHOW).map((filter) => {
           return (
             <FilterItem
               item={filter}
@@ -192,7 +172,7 @@ function FilterCategory({
           );
         })}
         <Collapse isOpen={expand}>
-          {filterList.slice(3).map((filter) => {
+          {filterList.slice(FILTERS_TO_SHOW).map((filter) => {
             return (
               <FilterItem
                 item={filter}
@@ -203,24 +183,25 @@ function FilterCategory({
             );
           })}
         </Collapse>
-
-        <Text
-          className={`more ${selectedFilters.length && expand && "hide"}`}
-          onClick={toggleExpand}
-          type={TextType.BUTTON_SMALL}
-          underline
-        >
-          {expand
-            ? `- ${createMessage(SHOW_LESS)}`
-            : `+ ${filterList.slice(3).length} ${createMessage(MORE)}`}
-        </Text>
+        {!!filterList.slice(FILTERS_TO_SHOW).length && (
+          <Text
+            className={`more ${selectedFilters.length && expand && "hide"}`}
+            onClick={toggleExpand}
+            type={TextType.BUTTON_SMALL}
+            underline
+          >
+            {expand
+              ? `- ${createMessage(SHOW_LESS)}`
+              : `+ ${filterList.slice(3).length} ${createMessage(MORE)}`}
+          </Text>
+        )}
       </ListWrapper>
     </FilterCategoryWrapper>
   );
 }
 
 function Filters() {
-  const filters = useGetFilterList();
+  const filters = useSelector(getFilterListSelector);
   const selectedFilters = useSelector(getTemplateFilterSelector);
 
   return (

@@ -138,7 +138,9 @@ export function ThemeCard(props: ThemeCard) {
       <div className="space-y-1 group">
         {selectable && (
           <div className="flex items-center justify-between">
-            <h3 className="text-sm text-gray-600 ">{props.theme.name}</h3>
+            <h3 className="text-sm text-gray-600 break-all">
+              {props.theme.name}
+            </h3>
             {deletable && (
               <button
                 className="p-1 opacity-0 group-hover:block hover:bg-gray-100 group-hover:opacity-100"

@@ -51,8 +51,7 @@ function ThemeSelector() {
         </button>
         <SettingSection
           className="px-3 py-3 border-t border-b"
-          collapsible={false}
-          isOpen
+          isOpen={false}
           title="Current Theme"
         >
           <ThemeCard theme={selectedTheme} />

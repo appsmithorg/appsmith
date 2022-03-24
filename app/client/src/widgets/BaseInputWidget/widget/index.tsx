@@ -2,7 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
-import { WidgetType, TextSize } from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import {
   EventType,
   ExecutionResult,
@@ -217,38 +217,40 @@ class BaseInputWidget<
             controlType: "DROP_DOWN",
             options: [
               {
-                label: "Heading 1",
-                value: "HEADING1",
-                subText: "24px",
-                icon: "HEADING_ONE",
+                label: "sm",
+                value: "0.875rem",
+                subText: "0.875rem",
               },
               {
-                label: "Heading 2",
-                value: "HEADING2",
-                subText: "18px",
-                icon: "HEADING_TWO",
+                label: "base",
+                value: "1rem",
+                subText: "1rem",
               },
               {
-                label: "Heading 3",
-                value: "HEADING3",
-                subText: "16px",
-                icon: "HEADING_THREE",
+                label: "lg",
+                value: "1.25rem",
+                subText: "1.25rem",
               },
               {
-                label: "Paragraph",
-                value: "PARAGRAPH",
-                subText: "14px",
-                icon: "PARAGRAPH",
+                label: "xl",
+                value: "1.875rem",
+                subText: "1.875rem",
               },
               {
-                label: "Paragraph 2",
-                value: "PARAGRAPH2",
-                subText: "12px",
-                icon: "PARAGRAPH_TWO",
+                label: "2xl",
+                value: "3rem",
+                subText: "3rem",
+              },
+              {
+                label: "3xl",
+                value: "3.75rem",
+                subText: "3.75rem",
               },
             ],
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "labelStyle",
@@ -336,20 +338,15 @@ class BaseInputWidget<
     this.props.updateWidgetMetaProperty("isFocused", focusState);
   }
 
+  resetWidgetText() {
+    this.props.updateWidgetMetaProperty("text", "");
+  }
+
   onSubmitSuccess = (result: ExecutionResult) => {
     if (result.success && this.props.resetOnSubmit) {
       //Resets isDirty
       super.resetChildrenMetaProperty(this.props.widgetId);
-      this.props.updateWidgetMetaProperty("text", "");
-
-      /*
-       *  Value is a derived property in CURRENCY_INPUT_WIDGET &
-       *  INPUT_WIDGET_V2, so only reset value in
-       *  PHONE_INPUT_WIDGET, where its not derived value.
-       */
-      if (this.props.type === "PHONE_INPUT_WIDGET") {
-        this.props.updateWidgetMetaProperty("value", undefined);
-      }
+      this.resetWidgetText();
     }
   };
 
@@ -361,7 +358,19 @@ class BaseInputWidget<
     const { isValid, onSubmit } = this.props;
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
     if (isEnterKey && typeof onSubmit === "string" && onSubmit && isValid) {
-      super.executeAction({
+      /**
+       * Originally super.executeAction was used to trigger the ON_SUBMIT action and
+       * updateMetaProperty to update the text.
+       * Since executeAction is not queued and updateMetaProperty is,
+       * the user would observe that the data tree only gets partially updated with text
+       * before the ON_SUBMIT would get triggered,
+       * if they type {enter} really fast after typing some input text.
+       * So we're using updateMetaProperty to trigger the ON_SUBMIT to let the data tree update
+       * before we actually execute the action.
+       * Since updateMetaProperty expects a meta property to be updated,
+       * we are redundantly updating the common meta property, isDirty which is common on its child widgets here. But the main part is the action execution payload.
+       */
+      this.props.updateWidgetMetaProperty("isDirty", this.props.isDirty, {
         triggerPropertyName: "onSubmit",
         dynamicString: onSubmit,
         event: {
@@ -429,7 +438,7 @@ export interface BaseInputWidgetProps extends WidgetProps {
   placeholderText?: string;
   label: string;
   labelTextColor?: string;
-  labelTextSize?: TextSize;
+  labelTextSize?: string;
   labelStyle?: string;
   inputValidators: BaseInputValidator[];
   isValid: boolean;

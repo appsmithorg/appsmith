@@ -133,8 +133,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
                 },
               },
             },
-            evaluationSubstitutionType:
-              EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
             helpText: "Sets a Label Text",
@@ -238,38 +236,40 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             defaultValue: "PARAGRAPH",
             options: [
               {
-                label: "Heading 1",
-                value: "HEADING1",
-                subText: "24px",
-                icon: "HEADING_ONE",
+                label: "sm",
+                value: "0.875rem",
+                subText: "0.875rem",
               },
               {
-                label: "Heading 2",
-                value: "HEADING2",
-                subText: "18px",
-                icon: "HEADING_TWO",
+                label: "base",
+                value: "1rem",
+                subText: "1rem",
               },
               {
-                label: "Heading 3",
-                value: "HEADING3",
-                subText: "16px",
-                icon: "HEADING_THREE",
+                label: "lg",
+                value: "1.25rem",
+                subText: "1.25rem",
               },
               {
-                label: "Paragraph",
-                value: "PARAGRAPH",
-                subText: "14px",
-                icon: "PARAGRAPH",
+                label: "xl",
+                value: "1.875rem",
+                subText: "1.875rem",
               },
               {
-                label: "Paragraph 2",
-                value: "PARAGRAPH2",
-                subText: "12px",
-                icon: "PARAGRAPH_TWO",
+                label: "2xl",
+                value: "3rem",
+                subText: "3rem",
+              },
+              {
+                label: "3xl",
+                value: "3.75rem",
+                subText: "3.75rem",
               },
             ],
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "labelStyle",
@@ -428,10 +428,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   onOptionSelected = (selectedOption: DropdownOption) => {
     let isChanged = true;
 
-    if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
-    }
-
     // Check if the value has changed. If no option
     // selected till now, there is a change
     if (this.props.selectedOptionValue) {
@@ -447,6 +443,9 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
           type: EventType.ON_OPTION_CHANGE,
         },
       });
+      if (!this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", true);
+      }
     }
   };
 
@@ -490,7 +489,7 @@ export interface SelectWidgetProps extends WidgetProps {
   label?: any;
   isRequired: boolean;
   isFilterable: boolean;
-  defaultValue: string;
+  defaultValue: string | { value: string; label: string };
   selectedOptionLabel: string;
   serverSideFiltering: boolean;
   onFilterUpdate: string;
