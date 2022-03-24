@@ -2,19 +2,9 @@ import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
 import FormControl from "pages/Editor/FormControl";
-import FormLabel from "components/editorComponents/FormLabel";
-import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { getBindingOrConfigPathsForPaginationControl } from "entities/Action/actionProperties";
 import { PaginationSubComponent } from "components/formControls/utils";
-
-export const StyledFormLabel = styled(FormLabel)`
-  margin-top: 5px;
-  font-weight: 400;
-  font-size: 12px;
-  color: ${Colors.GREY_7};
-  line-height: 16px;
-`;
 
 export const FormControlContainer = styled.div`
   display: flex;
@@ -79,12 +69,12 @@ export function Pagination(props: {
             label: "Limit",
             customStyles,
             configProperty: limitPath,
+            info: "Limits the number of rows returned.",
             initialValue:
               typeof initialValue === "object" ? initialValue.limit : null,
           }}
           formName={formName}
         />
-        <StyledFormLabel>Limits the number of rows returned.</StyledFormLabel>
       </FormControlContainer>
 
       {/*  form control for Offset field */}
@@ -95,14 +85,12 @@ export function Pagination(props: {
             label: "Offset",
             customStyles,
             configProperty: offsetPath,
+            info: "No of rows that are skipped before starting to count.",
             initialValue:
               typeof initialValue === "object" ? initialValue.offset : null,
           }}
           formName={formName}
         />
-        <StyledFormLabel>
-          No of rows that are skipped before starting to count.
-        </StyledFormLabel>
       </FormControlContainer>
     </div>
   );

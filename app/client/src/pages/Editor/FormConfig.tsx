@@ -29,6 +29,8 @@ const FormConfigWrapper = styled.div<{ controlType: string }>`
       ? "0px;"
       : "40px;"};
 `;
+
+const StyledTooltip = styled(Tooltip)``;
 interface FormConfigProps extends FormControlProps {
   children: JSX.Element;
   configErrors: EvaluationError[];
@@ -119,12 +121,7 @@ function renderFormConfigTop(props: { config: ControlProps }) {
               )}
               {tooltipText && (
                 <Tooltip content={tooltipText} hoverOpenDelay={1000}>
-                  <FormIcons.HELP_ICON height={16} width={16} />
-                  {tooltipText && (
-                    <Tooltip content={tooltipText} hoverOpenDelay={1000}>
-                      <StyledIcon name="help-outline" size={IconSize.XL} />
-                    </Tooltip>
-                  )}{" "}
+                  <StyledIcon name="help-outline" size={IconSize.XL} />
                 </Tooltip>
               )}
             </p>
