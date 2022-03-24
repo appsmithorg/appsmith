@@ -6,19 +6,30 @@ import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.s
 import { Colors } from "constants/Colors";
 import { InlineCellEditor } from "./InlineCellEditor";
 import { EditableCellActions } from "widgets/TableWidgetV2/constants";
-import { TABLE_SIZES } from "../Constants";
+import { ALIGN_ITEMS, CellLayoutProperties, TABLE_SIZES } from "../Constants";
 
-const Container = styled.div`
+const Container = styled.div<{ cellProperties: CellLayoutProperties }>`
   height: 100%;
   width: 100%;
+  display: flex;
+  align-items: ${(props) =>
+    props.cellProperties.verticalAlignment &&
+    ALIGN_ITEMS[props.cellProperties.verticalAlignment]};
 `;
 
-const Wrapper = styled.div<{ isCellEditMode?: boolean }>`
+const Wrapper = styled.div<{
+  allowWrapping: boolean;
+  compactMode: string;
+  isCellEditMode?: boolean;
+}>`
   display: flex;
   align-items: center;
-  height: 100%;
   width: 100%;
   opacity: ${(props) => (props.isCellEditMode ? 0 : 1)};
+  height: ${(props) =>
+    props.allowWrapping
+      ? `100%`
+      : `${TABLE_SIZES[props.compactMode].ROW_HEIGHT}px`};
 `;
 
 const StyledAutoToolTipComponent = styled(AutoToolTipComponent)`
@@ -87,6 +98,7 @@ export function TextCell({
   if (isCellEditMode) {
     editor = (
       <InlineCellEditor
+        cellProperties={cellProperties}
         compactMode={compactMode}
         multiline={
           !!contentRef.current?.offsetHeight &&
@@ -101,14 +113,15 @@ export function TextCell({
   }
 
   return (
-    <Container>
+    <Container cellProperties={cellProperties}>
       <Wrapper
+        allowWrapping={cellProperties.allowCellWrapping}
+        compactMode={compactMode}
         isCellEditMode={isCellEditMode}
         onDoubleClick={onEdit}
         ref={contentRef}
       >
         <StyledAutoToolTipComponent
-          allowWrapping={cellProperties.allowCellWrapping}
           cellProperties={cellProperties}
           className={isCellEditable ? "editable-cell" : ""}
           columnType={columnType}

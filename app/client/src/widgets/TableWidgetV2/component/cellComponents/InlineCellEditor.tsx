@@ -3,20 +3,36 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import BaseInputComponent from "widgets/BaseInputWidget/component";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
-import { TABLE_SIZES } from "../Constants";
+import { CellLayoutProperties, TABLE_SIZES } from "../Constants";
 
-const Wrapper = styled.div<{ compactMode: string }>`
+const Wrapper = styled.div<{
+  cellProperties: CellLayoutProperties;
+  compactMode: string;
+}>`
   padding: 1px;
   border: 1px solid ${Colors.GREEN_1};
   box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
-  height: 100%;
   background: #fff;
   position: absolute;
-  top: 0;
   width: 100%;
-  height: 100%;
   left: 0;
   overflow: hidden;
+  height: ${(props) =>
+    props.cellProperties.allowCellWrapping
+      ? `100%`
+      : `${TABLE_SIZES[props.compactMode].ROW_HEIGHT}px`};
+  ${(props) => {
+    switch (props.cellProperties.verticalAlignment) {
+      case "TOP":
+        return `top: 0;`;
+      case "BOTTOM":
+        return `bottom: 0;`;
+      case "CENTER":
+        return `
+          top: calc(50% - (${TABLE_SIZES[props.compactMode].ROW_HEIGHT}/2)px);
+        `;
+    }
+  }}
 
   &&&&& {
     .bp3-input,
@@ -46,7 +62,8 @@ const Wrapper = styled.div<{ compactMode: string }>`
   }
 `;
 
-type renderInlineEditorPropsType = {
+type InlineEditorPropsType = {
+  cellProperties: CellLayoutProperties;
   compactMode: string;
   multiline: boolean;
   onChange: (text: string) => void;
@@ -56,13 +73,14 @@ type renderInlineEditorPropsType = {
 };
 
 export function InlineCellEditor({
+  cellProperties,
   compactMode,
   multiline,
   onChange,
   onDiscard,
   onSave,
   value,
-}: renderInlineEditorPropsType) {
+}: InlineEditorPropsType) {
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null);
   const [cursorPos, setCursorPos] = useState(value.length);
   const onFocusChange = useCallback((focus: boolean) => !focus && onSave(), [
@@ -106,7 +124,7 @@ export function InlineCellEditor({
   }, [cursorPos, inputRef.current]);
 
   return (
-    <Wrapper compactMode={compactMode}>
+    <Wrapper cellProperties={cellProperties} compactMode={compactMode}>
       <BaseInputComponent
         autoFocus
         compactMode
