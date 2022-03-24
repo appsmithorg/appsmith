@@ -16,7 +16,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   padding: ${(props) => props.theme.spaces[11]}px;
-  background-color: rgba(248, 248, 248, 0.5);
+  background-color: ${Colors.SEA_SHELL};
   transition: all 1s ease-out;
   margin-bottom: ${(props) => props.theme.spaces[12]}px;
 
@@ -43,7 +43,7 @@ const Wrapper = styled.div`
 `;
 
 const StyledImage = styled.img`
-  height: 147px;
+  height: 270px;
   object-fit: cover;
 `;
 

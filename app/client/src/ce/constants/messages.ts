@@ -1113,7 +1113,7 @@ export const REQUEST_TEMPLATE = () => "Request for a template";
 export const SEARCH_TEMPLATES = () => "Search templates";
 export const INTRODUCING_TEMPLATES = () => "Introducing Templates";
 export const TEMPLATE_NOTIFICATION_DESCRIPTION = () =>
-  "You can browse, fork, and make them your own here";
+  "Use these templates to learn, create, and build apps even faster";
 export const GO_BACK = () => "GO BACK";
 export const OVERVIEW = () => "Overview";
 export const FUNCTION = () => "Function";

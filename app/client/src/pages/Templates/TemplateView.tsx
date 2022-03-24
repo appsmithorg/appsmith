@@ -15,7 +15,6 @@ import {
   isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
 import ForkTemplate from "./ForkTemplate";
-import LeftPaneTemplateList from "./LeftPaneTemplateList";
 import { getSimilarTemplatesInit } from "actions/templateActions";
 import { AppState } from "reducers";
 import { Icon, IconSize } from "components/ads";
@@ -37,37 +36,36 @@ import {
   SIMILAR_TEMPLATES,
 } from "@appsmith/constants/messages";
 
+const breakpointColumnsObject = {
+  default: 4,
+  1600: 3,
+  1100: 2,
+  700: 1,
+};
+
 const Wrapper = styled.div`
-  width: calc(100% - ${(props) => props.theme.homePage.sidebar}px);
   overflow: auto;
   position: relative;
-
-  .breadcrumb-placeholder {
-    margin-top: ${(props) => props.theme.spaces[12]}px;
-    height: 16px;
-    width: 195px;
-  }
-  .title-placeholder {
-    margin-top: ${(props) => props.theme.spaces[11]}px;
-    height: 28px;
-    width: 269px;
-  }
-  .iframe-placeholder {
-    margin-top: ${(props) => props.theme.spaces[12]}px;
-    height: 500px;
-    width: 100%;
-  }
 `;
 
 const TemplateViewWrapper = styled.div`
-  padding-right: ${(props) => props.theme.spaces[12]}px;
-  padding-left: ${(props) => props.theme.spaces[12]}px;
+  padding-right: 132px;
+  padding-left: 132px;
   padding-top: ${(props) => props.theme.spaces[12]}px;
   padding-bottom: 80px;
 `;
 
+const HeaderWrapper = styled.div`
+  display: flex;
+  align-items: center;
+
+  .left,
+  .right {
+    flex: 1;
+  }
+`;
+
 const Title = styled(Text)`
-  margin-top: ${(props) => props.theme.spaces[5]}px;
   display: inline-block;
 `;
 
@@ -99,7 +97,7 @@ const Section = styled.div`
   padding-top: ${(props) => props.theme.spaces[12]}px;
 
   .section-content {
-    margin-top: ${(props) => props.theme.spaces[5]}px;
+    margin-top: ${(props) => props.theme.spaces[3]}px;
   }
 
   .template-fork-button {
@@ -137,8 +135,8 @@ const TemplateDatasources = styled.div`
 `;
 
 const SimilarTemplatesWrapper = styled.div`
-  padding-right: ${(props) => props.theme.spaces[12]}px;
-  padding-left: ${(props) => props.theme.spaces[12]}px;
+  padding-right: 132px;
+  padding-left: 132px;
   background-color: rgba(248, 248, 248, 0.5);
 
   .grid {
@@ -190,6 +188,7 @@ const BackButtonWrapper = styled.div`
   display: flex;
   align-items: center;
   gap: ${(props) => props.theme.spaces[2]}px;
+  width: 100px;
 `;
 
 const TopSectionBackground = styled.div`
@@ -203,24 +202,33 @@ const TopSectionBackground = styled.div`
   background-color: rgba(248, 248, 248, 0.5);
 `;
 
+const LoadingWrapper = styled.div`
+  width: calc(100vw);
+  .title-placeholder {
+    margin-top: ${(props) => props.theme.spaces[11]}px;
+    height: 28px;
+    width: 100%;
+  }
+  .iframe-placeholder {
+    margin-top: ${(props) => props.theme.spaces[12]}px;
+    height: 500px;
+    width: 100%;
+  }
+`;
+
 function TemplateViewLoader() {
   return (
-    <Wrapper>
+    <LoadingWrapper>
       <TemplateViewWrapper>
-        <div className={`breadcrumb-placeholder ${Classes.SKELETON}`} />
         <div className={`title-placeholder ${Classes.SKELETON}`} />
         <div className={`iframe-placeholder ${Classes.SKELETON}`} />
       </TemplateViewWrapper>
-    </Wrapper>
+    </LoadingWrapper>
   );
 }
 
 function TemplateNotFound() {
-  return (
-    <Wrapper>
-      <EntityNotFoundPane />;
-    </Wrapper>
-  );
+  return <EntityNotFoundPane />;
 }
 
 function TemplateView() {
@@ -255,7 +263,6 @@ function TemplateView() {
 
   return (
     <PageWrapper>
-      <LeftPaneTemplateList />
       {isFetchingTemplates ? (
         <TemplateViewLoader />
       ) : !currentTemplate ? (
@@ -264,14 +271,18 @@ function TemplateView() {
         <Wrapper ref={containerRef}>
           <TopSectionBackground />
           <TemplateViewWrapper>
-            <BackButtonWrapper onClick={goToTemplateListView}>
-              <Icon name="view-less" size={IconSize.XL} />
-              <Text type={TextType.P4}>{createMessage(GO_BACK)}</Text>
-            </BackButtonWrapper>
-
-            <Title type={TextType.DANGER_HEADING}>
-              {currentTemplate.title}
-            </Title>
+            <HeaderWrapper>
+              <div className="left">
+                <BackButtonWrapper onClick={goToTemplateListView}>
+                  <Icon name="view-less" size={IconSize.XL} />
+                  <Text type={TextType.P4}>{createMessage(GO_BACK)}</Text>
+                </BackButtonWrapper>
+              </div>
+              <Title type={TextType.DANGER_HEADING}>
+                {currentTemplate.title}
+              </Title>
+              <div className="right" />
+            </HeaderWrapper>
             <IframeWrapper>
               <IframeTopBar>
                 <div className="round red" />
@@ -374,7 +385,7 @@ function TemplateView() {
                   {createMessage(SIMILAR_TEMPLATES)}
                 </Text>
                 <Masonry
-                  breakpointCols={3}
+                  breakpointCols={breakpointColumnsObject}
                   className="grid"
                   columnClassName="grid_column"
                 >
