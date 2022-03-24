@@ -245,6 +245,7 @@ public class GitExecutorImpl implements GitExecutor {
             String branchName = git.getRepository().getBranch();
 
             repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
+            git.getRepository().close();
             git.close();
             processStopwatch.stopAndLogTimeInMillis();
             return branchName;
@@ -317,7 +318,8 @@ public class GitExecutorImpl implements GitExecutor {
             // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
             // open the repo
             Path baseRepoPath = createRepoPath(repoSuffix);
-            try (Git git = Git.open(baseRepoPath.toFile())) {
+            Git git = Git.open(baseRepoPath.toFile());
+            try {
                 if (StringUtils.equalsIgnoreCase(branchName, git.getRepository().getBranch())) {
                     return Boolean.TRUE;
                 }
@@ -331,6 +333,9 @@ public class GitExecutorImpl implements GitExecutor {
                 processStopwatch.stopAndLogTimeInMillis();
                 git.close();
                 return StringUtils.equalsIgnoreCase(checkedOutBranch, "refs/heads/"+branchName);
+            } catch (Exception e) {
+                git.close();
+                throw new Exception(e);
             }
         })
         .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
