@@ -74,6 +74,7 @@ export function Pagination(props: {
               typeof initialValue === "object" ? initialValue.limit : null,
           }}
           formName={formName}
+          isComposite
         />
       </FormControlContainer>
 
@@ -90,6 +91,7 @@ export function Pagination(props: {
               typeof initialValue === "object" ? initialValue.offset : null,
           }}
           formName={formName}
+          isComposite
         />
       </FormControlContainer>
     </div>

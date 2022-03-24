@@ -156,6 +156,7 @@ function ConditionComponent(props: any, index: number) {
           configProperty: keyPath,
         }}
         formName={props.formName}
+        isComposite
       />
       {/* Component to select the operator for the 2 inputs */}
       <FormControl
@@ -168,6 +169,7 @@ function ConditionComponent(props: any, index: number) {
           initialValue: props.comparisonTypes[0].value,
         }}
         formName={props.formName}
+        isComposite
       />
       {/* Component to input the RHS for single component */}
       <FormControl
@@ -178,6 +180,7 @@ function ConditionComponent(props: any, index: number) {
           configProperty: valuePath,
         }}
         formName={props.formName}
+        isComposite
       />
       {/* Component to render the delete icon */}
       <CenteredIcon
@@ -250,6 +253,7 @@ function ConditionBlock(props: any) {
             isDisabled,
           }}
           formName={props.formName}
+          isComposite
         />
         <ConditionWrapper>
           {props.fields &&
@@ -350,21 +354,23 @@ export default function WhereClauseControl(props: WhereClauseControlProps) {
   // Max width is designed in a way that the proportion stays same even after nesting
   const maxWidth = 55;
   return (
-    <FieldArray
-      component={ConditionBlock}
-      key={`${configProperty}.children`}
-      name={`${configProperty}.children`}
-      props={{
-        configProperty,
-        maxWidth,
-        formName,
-        logicalTypes,
-        comparisonTypes,
-        nestedLevels,
-        currentNestingLevel: 0,
-      }}
-      rerenderOnEveryChange={false}
-    />
+    <div style={{ marginBottom: "40px" }}>
+      <FieldArray
+        component={ConditionBlock}
+        key={`${configProperty}.children`}
+        name={`${configProperty}.children`}
+        props={{
+          configProperty,
+          maxWidth,
+          formName,
+          logicalTypes,
+          comparisonTypes,
+          nestedLevels,
+          currentNestingLevel: 0,
+        }}
+        rerenderOnEveryChange={false}
+      />
+    </div>
   );
 }
 

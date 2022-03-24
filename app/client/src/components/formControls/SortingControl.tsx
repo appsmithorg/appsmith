@@ -50,6 +50,7 @@ const SortingContainer = styled.div`
   flex-direction: column;
   width: min-content;
   justify-content: space-between;
+  margin-bottom: 40px;
 `;
 
 // container for the two sorting dropdown
@@ -163,6 +164,7 @@ function SortingComponent(props: any) {
                     nestedFormControl: true,
                   }}
                   formName={props.formName}
+                  isComposite
                 />
               </ColumnDropdownContainer>
               <OrderDropdownContainer>
@@ -174,6 +176,7 @@ function SortingComponent(props: any) {
                     nestedFormControl: true,
                   }}
                   formName={props.formName}
+                  isComposite
                 />
               </OrderDropdownContainer>
               {/* Component to render the delete icon */}

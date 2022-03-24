@@ -23,14 +23,19 @@ const StyledIcon = styled(Icon)`
   margin-left: 4px;
 `;
 
-const FormConfigWrapper = styled.div<{ controlType: string }>`
+const FormConfigWrapper = styled.div<{
+  controlType: string;
+  isComposite?: boolean;
+}>`
   margin-bottom: ${(props) =>
-    props.controlType === "SWITCH" || props.controlType === "CHECKBOX"
+    props.controlType === "SWITCH" ||
+    props.controlType === "CHECKBOX" ||
+    props.controlType === "SORTING" ||
+    props?.isComposite
       ? "0px;"
       : "40px;"};
 `;
 
-const StyledTooltip = styled(Tooltip)``;
 interface FormConfigProps extends FormControlProps {
   children: JSX.Element;
   configErrors: EvaluationError[];
@@ -62,7 +67,10 @@ export default function FormConfig(props: FormConfigProps) {
   }
 
   return (
-    <FormConfigWrapper controlType={props.config.controlType}>
+    <FormConfigWrapper
+      controlType={props.config.controlType}
+      isComposite={props.isComposite}
+    >
       <div
         style={{
           // TODO: replace condition with props.config.dataType === "TOGGLE"

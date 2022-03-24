@@ -18,6 +18,7 @@ export interface FormControlProps {
   config: ControlProps;
   formName: string;
   multipleConfig?: ControlProps[];
+  isComposite?: boolean; //required to handle margins for composite components
 }
 
 function FormControl(props: FormControlProps) {
@@ -59,6 +60,7 @@ function FormControl(props: FormControlProps) {
           config={props.config}
           configErrors={configErrors}
           formName={props.formName}
+          isComposite={props.isComposite}
           multipleConfig={props?.multipleConfig}
         >
           <div className={`t--form-control-${props.config.controlType}`}>
