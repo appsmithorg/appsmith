@@ -222,7 +222,8 @@ public class MongoPlugin extends BasePlugin {
 
             Boolean smartBsonSubstitution = TRUE;
 
-            Object smartSubstitutionObject = formData.getOrDefault(SMART_SUBSTITUTION, TRUE);
+            Object smartSubstitutionObject = getValueSafelyFromFormData(formData, SMART_SUBSTITUTION, Object.class,
+                    TRUE);
             if (smartSubstitutionObject instanceof Boolean) {
                 smartBsonSubstitution = (Boolean) smartSubstitutionObject;
             } else if (smartSubstitutionObject instanceof String) {
