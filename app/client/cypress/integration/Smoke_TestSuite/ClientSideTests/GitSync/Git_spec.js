@@ -202,7 +202,7 @@ describe("Git sync:", function() {
   });
 
   after(() => {
-    cy.deleteTestGithubRepo(repoName);
+    /*  cy.deleteTestGithubRepo(repoName);
 
     // TODO remove when app deletion with conflicts is fixed
     cy.get(homePage.homeIcon).click({ force: true });
@@ -224,6 +224,6 @@ describe("Git sync:", function() {
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
-    );
+    ); */
   });
 });
