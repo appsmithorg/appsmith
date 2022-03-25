@@ -826,7 +826,7 @@ export default [
                       ColumnTypes.MENU_BUTTON,
                     ]);
                   },
-                  updateHook: updateIconAlignment,
+                  updateHook: updateDerivedColumnsHook,
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
@@ -834,7 +834,6 @@ export default [
                   ],
                   controlType: "ICON_SELECT",
                   customJSControl: "COMPUTE_VALUE",
-                  defaultIconName: "add",
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,
@@ -844,7 +843,6 @@ export default [
                       type: ValidationTypes.TEXT,
                       params: {
                         allowedValues: ICON_NAMES,
-                        default: IconNames.ADD,
                       },
                     },
                   },
@@ -866,7 +864,7 @@ export default [
                   ],
                   isBindProperty: false,
                   isTriggerProperty: false,
-                  updateHook: updateDerivedColumnsHook,
+                  updateHook: updateIconAlignment,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.MENU_BUTTON,
