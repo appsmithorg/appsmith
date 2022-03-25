@@ -445,13 +445,8 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       codeEditorVisibleOverflow,
       datasource,
       input: { value },
-      orgId,
-      pluginId,
     } = this.props;
     const datasourceUrl = get(datasource, "datasourceConfiguration.url", "");
-    if (datasourceUrl === "") {
-      this.props.updateDatasource({ ...DEFAULT_DATASOURCE(pluginId, orgId) });
-    }
     const displayValue = `${datasourceUrl}${value}`;
     const input = {
       ...this.props.input,
