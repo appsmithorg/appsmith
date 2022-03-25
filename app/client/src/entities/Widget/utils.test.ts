@@ -123,6 +123,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         selectedRows: EvaluationSubstitutionType.TEMPLATE,
         tableData: EvaluationSubstitutionType.SMART_SUBSTITUTE,
         textColor: EvaluationSubstitutionType.TEMPLATE,
+        textSize: EvaluationSubstitutionType.TEMPLATE,
         defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
         defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
@@ -255,6 +256,9 @@ describe("getAllPathsFromPropertyConfig", () => {
         textColor: {
           type: "TEXT",
         },
+        textSize: {
+          type: "TEXT",
+        },
         "primaryColumns.status.borderRadius": {
           type: "TEXT",
         },
@@ -367,30 +371,12 @@ describe("getAllPathsFromPropertyConfig", () => {
           type: ValidationTypes.TABLE_PROPERTY,
           params: {
             type: ValidationTypes.TEXT,
-            params: {
-              allowedValues: [
-                "HEADING1",
-                "HEADING2",
-                "HEADING3",
-                "PARAGRAPH",
-                "PARAGRAPH2",
-              ],
-            },
           },
         },
         "primaryColumns.createdAt.textSize": {
           type: ValidationTypes.TABLE_PROPERTY,
           params: {
             type: ValidationTypes.TEXT,
-            params: {
-              allowedValues: [
-                "HEADING1",
-                "HEADING2",
-                "HEADING3",
-                "PARAGRAPH",
-                "PARAGRAPH2",
-              ],
-            },
           },
         },
         "primaryColumns.createdAt.fontStyle": {

@@ -1,6 +1,5 @@
 import { isString } from "lodash";
 import moment from "moment";
-import { TextSize } from "constants/WidgetConstants";
 import { IconName } from "@blueprintjs/icons";
 import { Alignment } from "@blueprintjs/core";
 import {
@@ -77,7 +76,7 @@ export enum SortOrderTypes {
 export interface TableStyles {
   cellBackground?: string;
   textColor?: string;
-  textSize?: TextSize;
+  textSize?: string;
   fontStyle?: string;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
@@ -99,7 +98,7 @@ export interface ReactTableFilter {
 export interface CellLayoutProperties {
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
-  textSize?: TextSize;
+  textSize?: string;
   fontStyle?: string;
   textColor?: string;
   cellBackground?: string;
@@ -175,7 +174,7 @@ export interface ColumnProperties {
   cellBackground?: string;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
-  textSize?: TextSize;
+  textSize?: string;
   fontStyle?: string;
   textColor?: string;
   enableFilter?: boolean;

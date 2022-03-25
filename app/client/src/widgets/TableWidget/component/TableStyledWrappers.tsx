@@ -2,8 +2,8 @@ import styled, { css } from "styled-components";
 import { TableSizes, CellLayoutProperties, CellAlignment } from "./Constants";
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar } from "constants/DefaultTheme";
-import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
-import { lightenColor } from "widgets/WidgetUtils";
+import { FontStyleTypes } from "constants/WidgetConstants";
+import { fontSizeUtility, lightenColor } from "widgets/WidgetUtils";
 
 export const TableWrapper = styled.div<{
   width: number;
@@ -357,7 +357,7 @@ export const TableStyles = css<{
   background: ${(props) => props?.cellProperties?.cellBackground};
   font-size: ${(props) =>
     props?.cellProperties?.textSize &&
-    TEXT_SIZES[props?.cellProperties?.textSize]};
+    fontSizeUtility(props?.cellProperties?.textSize)};
 `;
 
 export const DraggableHeaderWrapper = styled.div<{

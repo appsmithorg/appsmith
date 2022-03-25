@@ -788,7 +788,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       isVisibleSearch;
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();
-
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
