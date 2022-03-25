@@ -23,6 +23,7 @@ import {
   RATING_TITLE,
 } from "@appsmith/constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
 
 const Container = styled.div`
   background-color: ${(props) => props.theme.colors.guidedTour.card.background};
@@ -126,7 +127,7 @@ function CongratulationsView() {
               emptySymbol={
                 <Icon
                   className={"t--guided-tour-rating star"}
-                  fillColor={"#858282"}
+                  fillColor={Colors.GREY_7}
                   name="star-line"
                   size={IconSize.XXXXL}
                 />
