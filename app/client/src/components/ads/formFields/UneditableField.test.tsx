@@ -1,10 +1,6 @@
-import { render, screen } from "test/testUtils";
+import { render } from "test/testUtils";
 import React from "react";
 import UneditableField from "./UneditableField";
-import {
-  SettingTypes,
-  SettingSubtype,
-} from "@appsmith/pages/AdminSettings/config/types";
 import { REDIRECT_URL_FORM } from "constants/forms";
 import { reduxForm } from "redux-form";
 
