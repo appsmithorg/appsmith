@@ -26,7 +26,7 @@ describe("Create new org and invite user & validate all roles", () => {
         homePage.LogOutviaAPI()
     });
 
-    it("2. Login as Invited user and then validate Viewer role", function () {
+    it("2. Login as Invited user and validate Viewer role", function () {
         homePage.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"), 'App Viewer')
         homePage.FilterApplication(appid, orgid)
         cy.get(homePage._applicationCard).first().trigger("mouseover");
@@ -42,7 +42,7 @@ describe("Create new org and invite user & validate all roles", () => {
         homePage.LogOutviaAPI()
     });
 
-    it("4. Login as Invited user and then validate Developer role", function () {
+    it("4. Login as Invited user and validate Developer role", function () {
         homePage.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"), 'Developer')
         homePage.FilterApplication(appid, orgid)
         cy.get(homePage._applicationCard).first().trigger("mouseover");
@@ -59,7 +59,7 @@ describe("Create new org and invite user & validate all roles", () => {
         homePage.LogOutviaAPI()
     });
 
-    it("6. Login as Invited user and then validate Administrator role", function () {
+    it("6. Login as Invited user and validate Administrator role", function () {
         homePage.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"), 'Administrator')
         homePage.FilterApplication(appid, orgid)
         cy.get(homePage._applicationCard).first().trigger("mouseover");

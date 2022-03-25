@@ -13,7 +13,7 @@ export class CommonLocators {
     _codeMirrorTextArea = ".CodeMirror textarea"
     _codeMirrorCode = ".CodeMirror-code"
     _codeEditorTargetTextArea = ".CodeEditorTarget textarea"
-    _codeEditorTarget = "//div[@class='CodeEditorTarget']"
+    _codeEditorTarget = "div.CodeEditorTarget"
     _entityExplorersearch = "#entity-explorer-search"
     _propertyControl = ".t--property-control-"
     _textWidget = ".t--draggable-textwidget span"
@@ -32,12 +32,12 @@ export class CommonLocators {
     _entityNameInExplorer = (entityNameinLeftSidebar: string) => "//div[contains(@class, 't--entity-name')][text()='" + entityNameinLeftSidebar + "']"
     _expandCollapseArrow = (entityNameinLeftSidebar: string) => "//div[text()='" + entityNameinLeftSidebar + "']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]"
     _entityProperties = (entityNameinLeftSidebar: string) => "//div[text()='" + entityNameinLeftSidebar + "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//div[contains(@class, 't--entity-property')]//code"
-    _contextMenu = (entityNameinLeftSidebar: string) => "//div[text()='" + entityNameinLeftSidebar + "']/ancestor::div[contains(@class, 't--entity')]//span[contains(@class, 'entity-context-menu')]//div"
-    _contextMenuItem = (item: string) => "//div[text()='" + item + "']/parent::a[contains(@class, 'single-select')]"
+    _contextMenu = (entityNameinLeftSidebar: string) => "//div[text()='" + entityNameinLeftSidebar + "']/ancestor::div[1]/following-sibling::div//div[contains(@class, 'entity-context-menu-icon')]"
+    _contextMenuItem = (item: string) => "//div[text()='" + item + "']/ancestor::a[contains(@class, 'single-select')]"
     _entityNameEditing = (entityNameinLeftSidebar: string) => "//span[text()='" + entityNameinLeftSidebar + "']/parent::div[contains(@class, 't--entity-name editing')]/input"
     _jsToggle = (controlToToggle: string) => ".t--property-control-" + controlToToggle + " .t--js-toggle"
     _spanButton = (btnVisibleText: string) => "//span[text()='" + btnVisibleText + "']/parent::button"
-    _selectDropdown = (ddName: string) => "//div[contains(@class, 't--property-control-" + ddName + "')]//button"
+    _selectPropDropdown = (ddName: string) => "//div[contains(@class, 't--property-control-" + ddName + "')]//button"
     _dropDownValue = (ddOption: string) => ".single-select:contains('" + ddOption + "')"
     _actionTextArea = (actionName: string) => "//label[text()='" + actionName + "']/following-sibling::div//div[contains(@class, 'CodeMirror')]//textarea"
     _existingDefaultTextInput = ".t--property-control-defaulttext .CodeMirror-code"
@@ -46,8 +46,12 @@ export class CommonLocators {
     _widgetInDeployed = (widgetType: string) => `.t--widget-${widgetType}`
     _propertyToggle = (controlToToggle: string) => ".t--property-control-" + controlToToggle + " input[type='checkbox']"
     _openNavigationTab = (tabToOpen: string) => `#switcher--${tabToOpen}`
+    _selectWidgetDropdown = (widgetType: string) => "//div[contains(@class, 't--draggable-" + widgetType + "')]//button"
     _createNewPlgin = (pluginName: string) => ".t--plugin-name:contains('" + pluginName + "')"
     _inputFieldByName = (fieldName: string) => "//p[text()='" + fieldName + "']/parent::label/following-sibling::div"
     _evaluatedCurrentValue = "div:last-of-type .t--CodeEditor-evaluatedValue > div:last-of-type pre"
+    _tableRowColumn = (rowNum: number, colNum: number) => `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div div`
+    _crossBtn = "span.cancel-icon"
+    _createNew = ".t--entity-add-btn.group.files"
 
 }

@@ -49,6 +49,7 @@ export interface Setting {
   isDisabled?: (values: Record<string, any>) => boolean;
   calloutType?: "Info" | "Warning";
   advanced?: Setting[];
+  isRequired?: boolean;
 }
 
 export interface Category {
@@ -69,6 +70,12 @@ export const SettingCategories = {
   FORM_AUTH: "form-login",
   GOOGLE_AUTH: "google-auth",
   GITHUB_AUTH: "github-auth",
+};
+
+export const SettingSubCategories = {
+  GOOGLE: "google signup",
+  GITHUB: "github signup",
+  FORMLOGIN: "form login",
 };
 
 export type AdminConfigType = {

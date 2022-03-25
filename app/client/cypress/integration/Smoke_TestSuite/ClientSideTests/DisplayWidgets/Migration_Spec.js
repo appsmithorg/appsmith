@@ -1,3 +1,5 @@
+/// <reference types="Cypress" />
+
 const widgetsPage = require("../../../../locators/Widgets.json");
 import homePage from "../../../../locators/HomePage";
 
@@ -13,16 +15,16 @@ describe("Migration Validate", function() {
     cy.xpath(homePage.uploadLogo)
       .attachFile("TableMigrationAppExported.json")
       .wait(500);
-    cy.get(homePage.orgImportAppButton)
-      .trigger("click")
-      .wait(500);
+    // cy.get(homePage.orgImportAppButton)
+    //   .trigger("click")
+    //   .wait(500);
     cy.get(homePage.orgImportAppModal).should("not.exist");
 
     cy.wait("@importNewApplication").then((interception) => {
-      let appId = interception.response.body.data.id;
-      let defaultPage = interception.response.body.data.pages.find(
-        (eachPage) => !!eachPage.isDefault,
-      );
+      // let appId = interception.response.body.data.id;
+      // let defaultPage = interception.response.body.data.pages.find(
+      //   (eachPage) => !!eachPage.isDefault,
+      // );
 
       cy.get(homePage.toastMessage).should(
         "contain",
@@ -43,7 +45,7 @@ describe("Migration Validate", function() {
 
       //Validating Latitude & Longitude are hidden columns:
       cy.xpath(
-        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']/div[text()='latitude']",
+        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//div[text()='latitude']/parent::div/parent::div",
       )
         .invoke("attr", "class")
         .then((classes) => {
@@ -52,7 +54,7 @@ describe("Migration Validate", function() {
         });
 
       cy.xpath(
-        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']/div[text()='longitude']",
+        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//div[text()='longitude']/parent::div/parent::div",
       )
         .invoke("attr", "class")
         .then((classes) => {
@@ -74,7 +76,7 @@ describe("Migration Validate", function() {
 
       //Validating Id column sorting happens as Datatype is Number in app!
       cy.xpath(
-        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']/div[text()='id']",
+        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//div[text()='id']",
       )
         .click()
         .wait(2000);
@@ -93,7 +95,7 @@ describe("Migration Validate", function() {
 
       //Revert the Id column sorting!
       cy.xpath(
-        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']/div[text()='id']",
+        "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//div[text()='id']",
       )
         .click()
         .wait(2000);
@@ -112,7 +114,7 @@ describe("Migration Validate", function() {
 
       //Validating image column is present:
       cy.getTableDataSelector("0", "10").then((selector) => {
-        cy.get(selector + " div div")
+        cy.get(selector + " div")
           .invoke("attr", "class")
           .then((classes) => {
             cy.log("classes are:" + classes);
@@ -163,10 +165,11 @@ describe("Migration Validate", function() {
           () =>
             cy
               .xpath("//div[contains(@class, ' t--widget-textwidget')][2]", {
-                timeout: 30000,
+                timeout: 50000,
               })
               .eq(0)
-              .should("contain.text", "State:"),
+              .contains("State:", { timeout: 30000 })
+              .should("exist"),
           {
             errorMsg: "Execute call did not complete evn after 10 secs",
             timeout: 20000,
@@ -215,7 +218,7 @@ describe("Migration Validate", function() {
       // cy.get("div.tableWrap").should("be.visible"); //wait for page load!
 
       cy.waitUntil(
-        () => cy.get("div.tableWrap", { timeout: 30000 }).should("be.visible"),
+        () => cy.get("div.tableWrap", { timeout: 50000 }).should("be.visible"),
         {
           errorMsg: "Page is not loaded evn after 10 secs",
           timeout: 30000,
@@ -239,10 +242,11 @@ describe("Migration Validate", function() {
           () =>
             cy
               .xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
-                timeout: 30000,
+                timeout: 50000,
               })
               .eq(0)
-              .should("contain.text", "CreditLimit:"),
+              .contains("CreditLimit:", { timeout: 30000 })
+              .should("exist"),
           {
             errorMsg: "Execute call did not complete evn after 10 secs",
             timeout: 20000,
@@ -276,10 +280,11 @@ describe("Migration Validate", function() {
           () =>
             cy
               .xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
-                timeout: 30000,
+                timeout: 50000,
               })
               .eq(0)
-              .should("contain.text", "CreditLimit:"),
+              .contains("CreditLimit:", { timeout: 30000 })
+              .should("exist"),
           {
             errorMsg: "Execute call did not complete evn after 10 secs",
             timeout: 20000,
@@ -341,10 +346,11 @@ describe("Migration Validate", function() {
           () =>
             cy
               .xpath("//div[contains(@class, ' t--widget-textwidget')][2]", {
-                timeout: 30000,
+                timeout: 50000,
               })
               .eq(0)
-              .should("contain.text", "State:"),
+              .contains("State:", { timeout: 30000 })
+              .should("exist"),
           {
             errorMsg: "Execute call did not complete evn after 10 secs",
             timeout: 20000,
@@ -393,7 +399,7 @@ describe("Migration Validate", function() {
       //cy.get("div.tableWrap").should("be.visible");
 
       cy.waitUntil(
-        () => cy.get("div.tableWrap", { timeout: 30000 }).should("be.visible"),
+        () => cy.get("div.tableWrap", { timeout: 50000 }).should("be.visible"),
         {
           errorMsg: "Page is not loaded evn after 10 secs",
           timeout: 30000,
@@ -418,10 +424,11 @@ describe("Migration Validate", function() {
           () =>
             cy
               .xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
-                timeout: 30000,
+                timeout: 50000,
               })
               .eq(0)
-              .should("contain.text", "CreditLimit:"),
+              .contains("CreditLimit:", { timeout: 30000 })
+              .should("exist"),
           {
             errorMsg: "Execute call did not complete evn after 10 secs",
             timeout: 20000,
@@ -455,10 +462,11 @@ describe("Migration Validate", function() {
           () =>
             cy
               .xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
-                timeout: 30000,
+                timeout: 50000,
               })
               .eq(0)
-              .should("contain.text", "CreditLimit:"),
+              .contains("CreditLimit:", { timeout: 30000 })
+              .should("exist"),
           {
             errorMsg: "Execute call did not complete evn after 10 secs",
             timeout: 20000,
@@ -480,7 +488,7 @@ describe("Migration Validate", function() {
     //Page 2 Validations:
 
     cy.selectEntityByName("Change color and font");
-    cy.selectEntityByName("WIDGETS");
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("Table1");
 
     cy.get(widgetsPage.bold)
@@ -816,7 +824,7 @@ describe("Migration Validate", function() {
   //           cy
   //             .xpath("//div[contains(@class, ' t--widget-textwidget')][2]")
   //             .eq(0)
-  //             .should("contain.text", "State:"),
+  // .contains("State:").should('be.visible'),
   //         {
   //           errorMsg: "Execute call did not complete evn after 10 secs",
   //           timeout: 20000,

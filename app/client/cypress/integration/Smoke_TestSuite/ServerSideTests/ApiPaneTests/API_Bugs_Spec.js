@@ -7,12 +7,15 @@ const testdata = require("../../../../fixtures/testdata.json");
 describe("Rest Bugs tests", function() {
   it("Bug 5550: Not able to run APIs in parallel", function() {
     cy.addDsl(dslParallel);
+    cy.wait(5000); //settling time for dsl!
+    cy.get(".bp3-spinner").should("not.exist");
 
     //Api 1
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("CatImage");
     cy.enterDatasource("https://api.thecatapi.com/v1/images/search");
-    cy.wait(1000);
+    cy.assertPageSave();
+    cy.get("body").click(0, 0);
 
     //Api 2
     cy.NavigateToAPI_Panel();
@@ -20,13 +23,17 @@ describe("Rest Bugs tests", function() {
     cy.enterDatasource(
       "https://cat-fact.herokuapp.com/facts/random?animal_type=cat",
     );
-    cy.wait(1000);
+    cy.assertPageSave();
+
+    cy.get("body").click(0, 0);
 
     //Api 3
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("DogImage");
     cy.enterDatasource("https://dog.ceo/api/breeds/image/random");
-    cy.wait(1000); //important - needed for autosave of API before running
+    cy.assertPageSave();
+    //important - needed for autosave of API before running
+    cy.get("body").click(0, 0);
 
     //Api 4
     cy.NavigateToAPI_Panel();
@@ -34,7 +41,8 @@ describe("Rest Bugs tests", function() {
     cy.enterDatasource(
       "https://cat-fact.herokuapp.com/facts/random?animal_type=dog",
     );
-    cy.wait(1000);
+    cy.assertPageSave();
+    cy.get("body").click(0, 0);
 
     cy.contains(commonlocators.entityName, "Page1").click({ force: true });
     cy.clickButton("Get Facts!");
@@ -118,9 +126,10 @@ describe("Rest Bugs tests", function() {
     cy.WaitAutoSave();
     cy.onlyQueryRun();
     cy.ResponseStatusCheck(testdata.successStatusCode);
-    cy.selectEntityByName("WIDGETS");
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("Table1"); //expand
     cy.selectEntityByName("Table1"); //collapse
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.selectEntityByName("Currencies");
     cy.get(".t--dataSourceField").then(($el) => {
       cy.updateCodeInput($el, "https://api.coinbase.com/v2/");

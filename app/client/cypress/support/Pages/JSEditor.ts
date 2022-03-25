@@ -6,17 +6,14 @@ const agHelper = new AggregateHelper();
 const locator = new CommonLocators();
 
 export class JSEditor {
-  private _runButton =
-    "//li//*[local-name() = 'svg' and @class='run-button']/parent::li";
-  private _outputConsole = ".CodeEditorTarget";
+  private _runButton = "//li//*[local-name() = 'svg' and @class='run-button']";
   private _jsObjName = ".t--js-action-name-edit-field span";
   private _jsObjTxt = ".t--js-action-name-edit-field input";
-  private _addEntityJSEditor = ".t--entity-add-btn.group.files"
   private _newJSobj = "span:contains('New JS Object')"
   private _bindingsClose = ".t--entity-property-close"
 
   public NavigateToJSEditor() {
-    cy.get(this._addEntityJSEditor)
+    cy.get(locator._createNew)
       .last()
       .click({ force: true });
     cy.get(this._newJSobj).click({ force: true });
@@ -25,12 +22,34 @@ export class JSEditor {
     agHelper.WaitUntilEleDisappear(locator._toastMsg, 'created successfully', 1000)
   }
 
-  public CreateJSObject(JSCode: string, paste = true) {
+  public CreateJSObject(JSCode: string, paste = true, completeReplace = false) {
     this.NavigateToJSEditor();
-    cy.get(locator._codeMirrorTextArea)
+
+    if (!completeReplace) {
+      cy.get(locator._codeMirrorTextArea)
+        .first()
+        .focus()
+        .type("{downarrow}{downarrow}{downarrow}{downarrow}  ")
+    }
+    else {
+      cy.get(locator._codeMirrorTextArea)
       .first()
       .focus()
-      .type("{downarrow}{downarrow}{downarrow}{downarrow}  ")
+      .type("{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}")
+      .type("{shift}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}", { force: true })
+      .type("{backspace}",{ force: true });
+
+      // .type("{uparrow}", { force: true })
+      // .type("{ctrl}{shift}{downarrow}", { force: true })
+      // .type("{del}",{ force: true });
+
+      // cy.get(locator._codeEditorTarget).contains('export').click().closest(locator._codeEditorTarget)
+      //   .type("{uparrow}", { force: true })
+      //   .type("{ctrl}{shift}{downarrow}", { force: true })
+      //   .type("{backspace}",{ force: true });
+      //.type("{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow} ")
+
+      }
 
     cy.get(locator._codeMirrorTextArea)
       .first()
@@ -46,8 +65,10 @@ export class JSEditor {
         }
       });
 
+    agHelper.WaitAutoSave()//Ample wait due to open bug # 10284
     agHelper.Sleep(5000)//Ample wait due to open bug # 10284
-    //clicking 2 times each with interval of 1 second!
+
+    //clicking 1 times & waits for 3 second for result to be populated!
     Cypress._.times(1, () => {
       cy.xpath(this._runButton)
         .first()
@@ -62,14 +83,22 @@ export class JSEditor {
   public EnterJSContext(endp: string, value: string, paste = true, toToggleOnJS = false) {
     if (toToggleOnJS) {
       cy.get(locator._jsToggle(endp))
-        .first()
-        .click({ force: true });
+        .invoke("attr", "class")
+        .then((classes: any) => {
+          if (!classes.includes("is-active")) {
+            cy.get(locator._jsToggle(endp))
+              .first()
+              .click({ force: true });
+          }
+        });
     }
     cy.get(locator._propertyControl + endp + " " + locator._codeMirrorTextArea)
       .first()
       .focus()
       .type("{uparrow}", { force: true })
-      .type("{ctrl}{shift}{downarrow}", { force: true });
+      .type("{ctrl}{shift}{downarrow}", { force: true })
+      .type("{del}", { force: true });
+
     cy.focused().then(($cm: any) => {
       if ($cm.contents != "") {
         cy.log("The field is not empty");
@@ -140,5 +169,5 @@ export class JSEditor {
     });
     cy.get(this._bindingsClose).click({ force: true });
   }
-  
+
 }

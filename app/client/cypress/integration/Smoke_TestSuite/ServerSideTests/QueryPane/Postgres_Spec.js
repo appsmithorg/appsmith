@@ -173,10 +173,11 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       .type("APPROVED");
 
     cy.get(generatePage.updateBtn)
-      .closest("button")
-      .click()
-      .wait(2000); //Wait for update call to be success
+      .closest("div")
+      .eq(1)
+      .click();
 
+    cy.wait(8000); //Wait for update call to be success
     cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -191,23 +192,33 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       .scrollIntoView()
       .should("be.visible")
       .click({ force: true });
-    cy.xpath(generatePage.currentStatusField).should("have.value", "APPROVED"); //Verifying update is success
+
+    cy.getTableDataSelector("1", "2").then((selector) => {
+      cy.get(selector + " span span span").should("have.text", "APPROVED");
+    }); //Verifying update is success
 
     //verifying Insert from UI
-    cy.xpath(generatePage.addRowIcon).click();
+    cy.xpath(generatePage.addRowIcon)
+      .scrollIntoView()
+      .click();
     cy.xpath(generatePage.idField).type("31");
     cy.xpath(generatePage.nameField).type("CRUD User31");
     cy.xpath(generatePage.statusField).type("REJECTED");
     cy.xpath(generatePage.genderField).type("Male");
     cy.xpath(generatePage.emailField)
       .type("curduser31@ihg.com")
-      .wait(1000); //Waiting for Submit button to get enabled
+      .wait(2000); //Waiting for Submit button to get enabled
     cy.get(generatePage.submitBtn)
+      .closest("div")
       .first()
       .click();
+    cy.wait(5000);
 
-    cy.xpath(generatePage.sortByDropdown).click(); //Sorting by descending to verify newly added record - also sorting is verified
+    cy.get(generatePage.sortByDropdown)
+      .last()
+      .click(); //Sorting by descending to verify newly added record - also sorting is verified
     cy.xpath(generatePage.descending).click();
+    cy.wait(2000); //for descending to take effect!
     cy.xpath(generatePage.currentNameField).should("have.value", "CRUD User31"); //Verifying Addition is success
 
     //Verifying Delete from UI
@@ -216,6 +227,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       .should("be.visible")
       .click({ force: true });
     cy.get(generatePage.confirmBtn)
+      .closest("div")
       .click()
       .wait(2000); //Wait for update call to be success
 
@@ -235,14 +247,20 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-    cy.clickButton("Confirm");
+    cy.get(".t--delete-datasource")
+      .contains("Are you sure?")
+      .click();
 
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       409,
     );
-    cy.actionContextMenuByEntityName("Public.users_crud");
+    cy.actionContextMenuByEntityName(
+      "Public.users_crud",
+      "Delete",
+      "Are you sure?",
+    );
   });
 
   it("10. Validate Drop of the Newly Created Table from Postgress datasource", () => {
@@ -277,12 +295,14 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.deleteQueryUsingContext();
   });
 
-  it("11. Deletes the datasource", () => {
+  it("12. Deletes the datasource", () => {
     cy.NavigateToQueryEditor();
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click({ force: true });
     cy.get(".t--delete-datasource").click({ force: true });
-    cy.clickButton("Confirm");
+    cy.get(".t--delete-datasource")
+      .contains("Are you sure?")
+      .click({ force: true });
 
     // cy.wait("@deleteDatasource").should(
     //   "have.nested.property",

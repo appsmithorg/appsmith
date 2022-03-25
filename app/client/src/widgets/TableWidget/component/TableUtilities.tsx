@@ -69,6 +69,7 @@ export const renderCell = (
             cellProperties={cellProperties}
             isCellVisible={isCellVisible}
             isHidden={isHidden}
+            isPadding
           />
         );
       } else if (!isString(value)) {
@@ -77,6 +78,7 @@ export const renderCell = (
             cellProperties={cellProperties}
             isCellVisible={isCellVisible}
             isHidden={isHidden}
+            isPadding
           >
             <div>Invalid Image </div>
           </CellWrapper>
@@ -91,6 +93,7 @@ export const renderCell = (
           cellProperties={cellProperties}
           isCellVisible={isCellVisible}
           isHidden={isHidden}
+          isPadding
         >
           {value
             .toString()
@@ -132,6 +135,7 @@ export const renderCell = (
             cellProperties={cellProperties}
             isCellVisible={isCellVisible}
             isHidden={isHidden}
+            isPadding
           />
         );
       } else if (isString(value) && youtubeRegex.test(value)) {
@@ -141,6 +145,7 @@ export const renderCell = (
             className="video-cell"
             isCellVisible={isCellVisible}
             isHidden={isHidden}
+            isPadding
           >
             <PopoverVideo url={value} />
           </CellWrapper>
@@ -151,6 +156,7 @@ export const renderCell = (
             cellProperties={cellProperties}
             isCellVisible={isCellVisible}
             isHidden={isHidden}
+            isPadding
           >
             Invalid Video Link
           </CellWrapper>
@@ -195,13 +201,20 @@ export const renderIconButton = (
   cellProperties: CellLayoutProperties,
 ) => {
   if (!props.columnActions)
-    return <CellWrapper cellProperties={cellProperties} isHidden={isHidden} />;
+    return (
+      <CellWrapper
+        cellProperties={cellProperties}
+        isHidden={isHidden}
+        isPadding
+      />
+    );
 
   return (
     <CellWrapper
       cellProperties={cellProperties}
       isCellVisible={props.isCellVisible}
       isHidden={isHidden}
+      isPadding
     >
       {props.columnActions.map((action: ColumnAction, index: number) => {
         return (
@@ -308,6 +321,7 @@ export const renderActions = (
         cellProperties={cellProperties}
         isCellVisible={props.isCellVisible}
         isHidden={isHidden}
+        isPadding
       />
     );
 
@@ -316,6 +330,7 @@ export const renderActions = (
       cellProperties={cellProperties}
       isCellVisible={props.isCellVisible}
       isHidden={isHidden}
+      isPadding
     >
       {props.columnActions.map((action: ColumnAction, index: number) => {
         return (
@@ -346,6 +361,7 @@ export const renderMenuButton = (
       cellProperties={cellProperties}
       isCellVisible={props.isCellVisible}
       isHidden={isHidden}
+      isPadding
     >
       <MenuButton {...props} />
     </CellWrapper>
@@ -586,8 +602,9 @@ export function TableHeaderCell(props: {
   column: any;
   editMode?: boolean;
   isSortable?: boolean;
+  width: number;
 }) {
-  const { column, editMode, isSortable } = props;
+  const { column, editMode, isSortable, width } = props;
   const handleSortColumn = () => {
     if (props.isResizingColumn) return;
     let columnIndex = props.columnIndex;
@@ -610,7 +627,13 @@ export function TableHeaderCell(props: {
         className={!props.isHidden ? `draggable-header` : "hidden-header"}
         horizontalAlignment={column.columnProperties.horizontalAlignment}
       >
-        {props.columnName}
+        <AutoToolTipComponent
+          noPadding
+          tableWidth={width}
+          title={props.columnName}
+        >
+          {props.columnName}
+        </AutoToolTipComponent>
       </DraggableHeaderWrapper>
       {props.isAscOrder !== undefined ? (
         <div>

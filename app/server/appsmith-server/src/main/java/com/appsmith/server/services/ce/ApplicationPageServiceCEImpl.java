@@ -29,6 +29,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
@@ -308,6 +309,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         // For all new applications being created, set it to use the latest evaluation version.
         application.setEvaluationVersion(EVALUATION_VERSION);
+        application.setApplicationVersion(ApplicationVersion.LATEST_VERSION);
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
         Mono<Application> applicationWithPoliciesMono = setApplicationPolicies(userMono, orgId, application);
@@ -400,7 +402,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         // Delete git repo from local and delete the applications from DB
                         return gitFileUtils.detachRemote(repoPath)
                                 .flatMapMany(isCleared -> applicationService
-                                        .findAllApplicationsByDefaultApplicationId(gitData.getDefaultApplicationId()));
+                                        .findAllApplicationsByDefaultApplicationId(gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS));
                     }
                     return Flux.fromIterable(List.of(application));
                 })
@@ -412,9 +414,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     public Mono<Application> deleteApplicationByResource(Application application) {
-        log.debug("Archiving pages for applicationId: {}", application.getId());
-        return Mono.when(newPageService.archivePagesByApplicationId(application.getId(), MANAGE_PAGES),
-                        newActionService.archiveActionsByApplicationId(application.getId(), MANAGE_ACTIONS))
+        log.debug("Archiving pages, actions and actionCollections for applicationId: {}", application.getId());
+        return newPageService.archivePagesByApplicationId(application.getId(), MANAGE_PAGES)
+                .then(actionCollectionService.archiveActionCollectionByApplicationId(application.getId(), MANAGE_ACTIONS))
+                .then(newActionService.archiveActionsByApplicationId(application.getId(), MANAGE_ACTIONS))
                 .thenReturn(application)
                 .flatMap(applicationService::archive)
                 .flatMap(analyticsService::sendDeleteEvent);
@@ -687,6 +690,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     newApplication.setName(newName);
                     newApplication.setLastEditedAt(Instant.now());
                     newApplication.setEvaluationVersion(sourceApplication.getEvaluationVersion());
+
+                    if(sourceApplication.getApplicationVersion() != null) {
+                        newApplication.setApplicationVersion(sourceApplication.getApplicationVersion());
+                    } else {
+                        newApplication.setApplicationVersion(ApplicationVersion.EARLIEST_VERSION);
+                    }
+
                     Mono<User> userMono = sessionUserService.getCurrentUser().cache();
                     // First set the correct policies for the new cloned application
                     return setApplicationPolicies(userMono, sourceApplication.getOrganizationId(), newApplication)
@@ -879,7 +889,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     publishedPageIds.addAll(editedPageIds);
                     publishedPageIds.removeAll(editedPageIds);
 
-                    Mono<List<Boolean>> archivePageListMono;
+                    Mono<List<NewPage>> archivePageListMono;
                     if (!publishedPageIds.isEmpty()) {
                         archivePageListMono = Flux.fromStream(publishedPageIds.stream())
                                 .flatMap(id -> commentThreadRepository.archiveByPageId(id, ApplicationMode.PUBLISHED)
@@ -916,9 +926,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         Flux<NewAction> publishedActionsFlux = newActionService
                 .findAllByApplicationIdAndViewMode(applicationId, false, MANAGE_ACTIONS, null)
                 .flatMap(newAction -> {
-                    // If the action was deleted in edit mode, now this can be safely deleted from the repository
+                    // If the action was deleted in edit mode, now this document can be safely archived
                     if (newAction.getUnpublishedAction().getDeletedAt() != null) {
-                        return newActionService.delete(newAction.getId())
+                        return newActionService.archive(newAction)
                                 .then(Mono.empty());
                     }
                     // Publish the action by copying the unpublished actionDTO to published actionDTO
@@ -933,7 +943,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(collection -> {
                     // If the collection was deleted in edit mode, now this can be safely deleted from the repository
                     if (collection.getUnpublishedCollection().getDeletedAt() != null) {
-                        return actionCollectionService.delete(collection.getId())
+                        return actionCollectionService.archiveById(collection.getId())
                                 .then(Mono.empty());
                     }
                     // Publish the collection by copying the unpublished collectionDTO to published collectionDTO

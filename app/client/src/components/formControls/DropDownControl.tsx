@@ -53,32 +53,83 @@ function renderDropdown(
     width: string;
   } & DropDownControlProps,
 ): JSX.Element {
-  let selectedValue = props.input?.value;
-  if (_.isUndefined(props.input?.value)) {
-    selectedValue = props?.initialValue;
+  let selectedValue: string | string[];
+  if (_.isNil(props.input?.value)) {
+    if (props.isMultiSelect)
+      selectedValue = props?.initialValue ? (props.initialValue as string) : [];
+    else
+      selectedValue = props?.initialValue
+        ? (props.initialValue as string[])
+        : "";
+  } else {
+    selectedValue = props.input?.value;
+    if (props.isMultiSelect) {
+      if (!Array.isArray(selectedValue)) {
+        selectedValue = [selectedValue];
+      } else {
+        selectedValue = [...new Set(selectedValue)];
+      }
+    }
   }
   let options: DropdownOption[] = [];
-  let selectedOption = {};
+  let selectedOptions: DropdownOption[] = [];
   if (typeof props.options === "object" && Array.isArray(props.options)) {
     options = props.options;
-    selectedOption =
-      options.find(
-        (option: DropdownOption) => option.value === selectedValue,
-      ) || {};
+    selectedOptions =
+      options.filter((option: DropdownOption) => {
+        if (props.isMultiSelect)
+          return selectedValue.includes(option.value as string);
+        else return selectedValue === option.value;
+      }) || [];
   }
+  // Function to handle selction of options
+  const onSelectOptions = (value: string | undefined) => {
+    if (!_.isNil(value)) {
+      if (props.isMultiSelect) {
+        if (Array.isArray(selectedValue)) {
+          if (!selectedValue.includes(value))
+            (selectedValue as string[]).push(value);
+        } else {
+          selectedValue = [selectedValue as string, value];
+        }
+      } else selectedValue = value;
+      props.input?.onChange(selectedValue);
+    }
+  };
+
+  // Function to handle deselction of options
+  const onRemoveOptions = (value: string | undefined) => {
+    if (!_.isNil(value)) {
+      if (props.isMultiSelect) {
+        if (Array.isArray(selectedValue)) {
+          if (selectedValue.includes(value))
+            (selectedValue as string[]).splice(
+              (selectedValue as string[]).indexOf(value),
+              1,
+            );
+        } else {
+          selectedValue = [];
+        }
+      } else selectedValue = "";
+      props.input?.onChange(selectedValue);
+    }
+  };
+
   return (
     <Dropdown
       boundary="window"
       disabled={props.disabled}
       dontUsePortal={false}
       dropdownMaxHeight="250px"
+      enableSearch={props.isSearchable}
       isLoading={props.isLoading}
       isMultiSelect={props?.isMultiSelect}
-      onSelect={props.input?.onChange}
+      onSelect={onSelectOptions}
       optionWidth={props.width}
       options={options}
       placeholder={props?.placeholderText}
-      selected={selectedOption}
+      removeSelectedOption={onRemoveOptions}
+      selected={props.isMultiSelect ? selectedOptions : selectedOptions[0]}
       showLabelOnly
       width={props.width}
     />

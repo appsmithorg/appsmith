@@ -19,7 +19,8 @@ import "cypress-xpath";
 import "cypress-wait-until";
 /// <reference types="cypress-xpath" />
 
-let appId;
+let appName;
+let applicationId;
 
 // Import commands.js using ES2015 syntax:
 import "./commands";
@@ -79,9 +80,8 @@ before(function() {
   cy.get(".t--applications-container .createnew").should("be.visible");
   cy.get(".t--applications-container .createnew").should("be.enabled");
   cy.generateUUID().then((id) => {
-    appId = id;
     cy.CreateAppInFirstListedOrg(id);
-    localStorage.setItem("AppName", appId);
+    localStorage.setItem("AppName", id);
   });
 
   cy.fixture("example").then(function(data) {
@@ -93,6 +93,8 @@ beforeEach(function() {
   initLocalstorage();
   Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   cy.startServerAndRoutes();
+  //-- Delete local storage data of entity explorer
+  cy.DeleteEntityStateLocalStorage();
 });
 
 after(function() {
