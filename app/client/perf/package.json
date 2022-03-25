@@ -12,7 +12,7 @@
     "@supabase/supabase-js": "^1.30.2",
     "median": "^0.0.2",
     "node-stdev": "^1.0.1",
-    "puppeteer": "^12.0.1",
+    "puppeteer": "^13.5.1",
     "sanitize-filename": "^1.6.3",
     "tracelib": "^1.0.1"
   }
