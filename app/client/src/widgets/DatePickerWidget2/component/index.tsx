@@ -5,7 +5,7 @@ import {
   IntentColors,
   getBorderCSSShorthand,
 } from "constants/DefaultTheme";
-import { ControlGroup, Classes, Label } from "@blueprintjs/core";
+import { ControlGroup, Classes, Label, IRef } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
 import moment from "moment-timezone";
@@ -161,6 +161,9 @@ class DatePickerComponent extends React.Component<
               }}
               disabled={this.props.isDisabled}
               formatDate={this.formatDate}
+              inputProps={{
+                inputRef: this.props.inputRef,
+              }}
               maxDate={maxDate}
               minDate={minDate}
               onChange={this.onDateSelected}
@@ -250,7 +253,7 @@ class DatePickerComponent extends React.Component<
   };
 }
 
-interface DatePickerComponentProps extends ComponentProps {
+export interface DatePickerComponentProps extends ComponentProps {
   label: string;
   dateFormat: string;
   selectedDate?: string;
@@ -266,6 +269,7 @@ interface DatePickerComponentProps extends ComponentProps {
   shortcuts: boolean;
   firstDayOfWeek?: number;
   timePrecision: TimePrecision;
+  inputRef?: IRef<HTMLInputElement>;
 }
 
 interface DatePickerComponentState {

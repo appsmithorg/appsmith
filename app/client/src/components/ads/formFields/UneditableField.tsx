@@ -20,9 +20,15 @@ const InputCopyWrapper = styled.div`
   display: flex;
   align-items: center;
 
+  input {
+    width: 40rem;
+  }
+
   svg {
     margin-left: 12px;
     cursor: pointer;
+    position: absolute;
+    right: -24px;
   }
 `;
 

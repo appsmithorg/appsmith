@@ -404,7 +404,7 @@ jobs:
           name: rts-build-deps
           path: app/rts/node_modules/
 
-  fat-conatiner-test:
+  fat-container-test:
     needs: [buildClient, buildServer, buildRts]
     # Only run if the build step is successful
     # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
