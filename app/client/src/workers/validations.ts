@@ -948,6 +948,19 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         messages: ["Invalid validation"],
       };
 
+    // Is JS mode enabled
+    let isDynamic = false;
+    if (
+      props.dynamicPropertyPathList &&
+      isArray(props.dynamicPropertyPathList)
+    ) {
+      if (
+        _.find(props.dynamicPropertyPathList, { key: propertyPath }) !==
+        undefined
+      )
+        isDynamic = true;
+    }
+
     // Validate when JS mode is disabled
     const result = VALIDATORS[config.params.type as ValidationTypes](
       config.params as ValidationConfig,
@@ -955,7 +968,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       props,
       propertyPath,
     );
-    if (result.isValid) return result;
+    if (!isDynamic && result.isValid) return result;
 
     // Validate when JS mode is enabled
     const resultValue = [];
@@ -989,6 +1002,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,
+    propertyPath: string,
   ) => {
     if (value === undefined || value === null || value === "" || value === []) {
       if (config?.params?.required) {
@@ -1030,7 +1044,12 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       values = Array.from(new Set(value));
     }
 
-    const result = VALIDATORS[ValidationTypes.ARRAY](config, values, props);
+    const result = VALIDATORS[ValidationTypes.ARRAY](
+      config,
+      values,
+      props,
+      propertyPath,
+    );
     if (isArray(result.parsed)) result.parsed = result.parsed.join(",");
     return result;
   },
