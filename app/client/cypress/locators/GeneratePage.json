@@ -17,7 +17,7 @@
   "genderField": "//input[@placeholder='gender']",
   "emailField": "//input[@placeholder='email']",
   "submitBtn": "span:contains('Submit')",
-  "sortByDropdown": "//div[@type='CANVAS_WIDGET']/div[contains(@class, 't--widget-dropdownwidget')][2]",
+  "sortByDropdown": "span[name='dropdown']",
   "ascending": "//div[text()='Ascending']",
   "descending": "//div[text()='Descending']",
   "currentNameField": "//div[@type='FORM_WIDGET']//span[text()='name:']//ancestor::div[contains(@class,'t--widget-textwidget')]/following-sibling::div[contains(@class, 't--widget-inputwidgetv2')][1]//input",
@@ -25,5 +25,6 @@
   "confirmBtn": "span:contains('Confirm')",
   "deleteMenuItem": "//div[text()='Delete']/parent::a[contains(@class, 'single-select')]",
   "uploadFilesS3":"div.uppy-Dashboard-AddFiles input",
-  "uploadBtn": "button.uppy-StatusBar-actionBtn--upload"
+  "uploadBtn": "button.uppy-StatusBar-actionBtn--upload",
+  "selectedRow": ".tr.selected-row"
 }

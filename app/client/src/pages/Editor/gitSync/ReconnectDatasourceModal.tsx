@@ -388,7 +388,7 @@ function ReconnectDatasourceModal() {
   }, [importedApplication, queryIsImport]);
 
   useEffect(() => {
-    if (pageId && appId) {
+    if (pageId && appId && datasources.length) {
       setAppURL(
         BUILDER_PAGE_URL({
           applicationId: appId,
@@ -396,7 +396,7 @@ function ReconnectDatasourceModal() {
         }),
       );
     }
-  }, [pageId, appId]);
+  }, [pageId, appId, datasources]);
 
   // checking of full configured
   useEffect(() => {

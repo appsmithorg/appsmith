@@ -111,6 +111,7 @@ export const entityDefinitions: Record<string, unknown> = {
     triggeredRow: generateTypeDef(widget.triggeredRow),
     selectedRowIndex: "number",
     tableData: generateTypeDef(widget.tableData),
+    filteredTableData: generateTypeDef(widget.filteredTableData),
     pageNo: "number",
     pageSize: "number",
     isVisible: isVisible,
@@ -134,7 +135,7 @@ export const entityDefinitions: Record<string, unknown> = {
     "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     isVisible: isVisible,
     filterText: {
-      "!type": "[string]",
+      "!type": "string",
       "!doc": "The filter text for Server side filtering",
     },
     selectedOptionValue: {
@@ -145,16 +146,6 @@ export const entityDefinitions: Record<string, unknown> = {
     selectedOptionLabel: {
       "!type": "string",
       "!doc": "The selected option label in a single select dropdown",
-      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
-    },
-    selectedOptionValues: {
-      "!type": "[string]",
-      "!doc": "The array of values selected in a multi select dropdown",
-      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
-    },
-    selectedOptionLabels: {
-      "!type": "[string]",
-      "!doc": "The array of selected option labels in a multi select dropdown",
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     },
     isDisabled: "bool",
@@ -166,7 +157,7 @@ export const entityDefinitions: Record<string, unknown> = {
     "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     isVisible: isVisible,
     filterText: {
-      "!type": "[string]",
+      "!type": "string",
       "!doc": "The filter text for Server side filtering",
     },
     selectedOptionValue: {
@@ -179,16 +170,6 @@ export const entityDefinitions: Record<string, unknown> = {
       "!doc": "The selected option label in a single select dropdown",
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     },
-    selectedOptionValues: {
-      "!type": "[string]",
-      "!doc": "The array of values selected in a multi select dropdown",
-      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
-    },
-    selectedOptionLabels: {
-      "!type": "[string]",
-      "!doc": "The array of selected option labels in a multi select dropdown",
-      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
-    },
     isDisabled: "bool",
     options: "[dropdownOption]",
   },
@@ -198,7 +179,7 @@ export const entityDefinitions: Record<string, unknown> = {
     "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     isVisible: isVisible,
     filterText: {
-      "!type": "[string]",
+      "!type": "string",
       "!doc": "The filter text for Server side filtering",
     },
     selectedOptionValues: {
@@ -220,7 +201,7 @@ export const entityDefinitions: Record<string, unknown> = {
     "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     isVisible: isVisible,
     filterText: {
-      "!type": "[string]",
+      "!type": "string",
       "!doc": "The filter text for Server side filtering",
     },
     selectedOptionValues: {
@@ -582,6 +563,15 @@ export const entityDefinitions: Record<string, unknown> = {
     isVisible: isVisible,
     progress: "number",
   },
+  JSON_FORM_WIDGET: (widget: any) => ({
+    "!doc":
+      "JSON Form widget can be used to auto-generate forms by providing a JSON source data.",
+    // TODO: Update the url
+    "!url": "https://docs.appsmith.com/widget-reference",
+    formData: generateTypeDef(widget.formData),
+    sourceData: generateTypeDef(widget.sourceData),
+    fieldState: generateTypeDef(widget.fieldState),
+  }),
 };
 
 export const GLOBAL_DEFS = {

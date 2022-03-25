@@ -214,7 +214,9 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       .click();
     cy.wait(5000);
 
-    cy.xpath(generatePage.sortByDropdown).click(); //Sorting by descending to verify newly added record - also sorting is verified
+    cy.get(generatePage.sortByDropdown)
+      .last()
+      .click(); //Sorting by descending to verify newly added record - also sorting is verified
     cy.xpath(generatePage.descending).click();
     cy.wait(2000); //for descending to take effect!
     cy.xpath(generatePage.currentNameField).should("have.value", "CRUD User31"); //Verifying Addition is success
@@ -245,14 +247,20 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-    cy.clickButton("Yes");
+    cy.get(".t--delete-datasource")
+      .contains("Are you sure?")
+      .click();
 
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       409,
     );
-    cy.actionContextMenuByEntityName("Public.users_crud");
+    cy.actionContextMenuByEntityName(
+      "Public.users_crud",
+      "Delete",
+      "Are you sure?",
+    );
   });
 
   it("10. Validate Drop of the Newly Created Table from Postgress datasource", () => {
@@ -292,7 +300,9 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click({ force: true });
     cy.get(".t--delete-datasource").click({ force: true });
-    cy.clickButton("Yes");
+    cy.get(".t--delete-datasource")
+      .contains("Are you sure?")
+      .click({ force: true });
 
     // cy.wait("@deleteDatasource").should(
     //   "have.nested.property",
