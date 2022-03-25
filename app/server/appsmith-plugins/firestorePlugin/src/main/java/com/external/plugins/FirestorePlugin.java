@@ -130,18 +130,18 @@ public class FirestorePlugin extends BasePlugin {
                 ActionConfiguration actionConfiguration) {
 
             Object smartSubstitutionObject = actionConfiguration.getFormData().getOrDefault(SMART_SUBSTITUTION, TRUE);
-            Boolean smartBsonSubstitution = TRUE;
+            Boolean smartJsonSubstitution = TRUE;
             if (smartSubstitutionObject instanceof Boolean) {
-                smartBsonSubstitution = (Boolean) smartSubstitutionObject;
+                smartJsonSubstitution = (Boolean) smartSubstitutionObject;
             } else if (smartSubstitutionObject instanceof String) {
                 // Older UI configuration used to set this value as a string which may/may not be castable to a boolean
                 // directly. This is to ensure we are backward compatible
-                smartBsonSubstitution = Boolean.parseBoolean((String) smartSubstitutionObject);
+                smartJsonSubstitution = Boolean.parseBoolean((String) smartSubstitutionObject);
             }
 
             // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
-            if (TRUE.equals(smartBsonSubstitution)) {
+            if (TRUE.equals(smartJsonSubstitution)) {
                 String query = getValueSafelyFromFormData(actionConfiguration.getFormData(), BODY, String.class);
                 if (query != null) {
 
