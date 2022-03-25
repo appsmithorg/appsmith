@@ -33,7 +33,7 @@ const ImageWrapper = styled.div`
 
 const StyledImage = styled.img`
   box-shadow: 0px 17.52px 24.82px rgba(0, 0, 0, 0.09);
-  object-fit: cover;
+  object-fit: contain;
   width: 100%;
   height: 270px;
 `;
