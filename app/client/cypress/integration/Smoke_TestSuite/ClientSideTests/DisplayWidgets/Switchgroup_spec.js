@@ -4,9 +4,10 @@ const explorer = require("../../../../locators/explorerlocators.json");
 describe("Switchgroup Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
+    cy.wait(5000);
   });
 
-  it("Add a new switch group widget with others", () => {
+  it("1. Add a new switch group widget with others", () => {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("switchgroupwidget", { x: 300, y: 300 });
     cy.get(".t--widget-switchgroupwidget").should("exist");
@@ -20,7 +21,7 @@ describe("Switchgroup Widget Functionality", function() {
     );
   });
 
-  it("should check that empty value is allowed in options", () => {
+  it("2. Should check that empty value is allowed in options", () => {
     cy.openPropertyPane("switchgroupwidget");
     cy.updateCodeInput(
       ".t--property-control-options",
@@ -44,7 +45,7 @@ describe("Switchgroup Widget Functionality", function() {
     );
   });
 
-  it("should check that more thatn empty value is not allowed in options", () => {
+  it("3. Should check that more thatn empty value is not allowed in options", () => {
     cy.openPropertyPane("switchgroupwidget");
     cy.updateCodeInput(
       ".t--property-control-options",
@@ -68,7 +69,7 @@ describe("Switchgroup Widget Functionality", function() {
     );
   });
 
-  it("setting selectedValues to undefined does not crash the app", () => {
+  it("4. Setting selectedValues to undefined does not crash the app", () => {
     // Reset options for switch group
     cy.openPropertyPane("switchgroupwidget");
     cy.updateCodeInput(
@@ -99,11 +100,12 @@ describe("Switchgroup Widget Functionality", function() {
       .find(".t--js-toggle")
       .click();
     // wait for a cyclic dependency error to occur
-    cy.wait(2000);
+    cy.validateToastMessage("Cyclic dependency found while evaluating");
     // check if a crash messsge is appeared
     cy.get(".t--widget-switchgroupwidget")
       .contains("Oops, Something went wrong.")
       .should("not.exist");
+    cy.wait(1000);
     // check if the evaluation is disabled
     cy.get(".t--widget-textwidget").should(
       "contain",
