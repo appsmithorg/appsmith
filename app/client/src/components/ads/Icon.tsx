@@ -71,6 +71,7 @@ import { ReactComponent as SettingIcon } from "assets/icons/control/settings.svg
 import { ReactComponent as DropdownIcon } from "assets/icons/ads/dropdown.svg";
 import { ReactComponent as HelpOutlineIcon } from "assets/icons/form/help-outline.svg";
 import { ReactComponent as HelpFillIcon } from "assets/icons/form/help-fill.svg";
+import { ReactComponent as ChatIcon } from "assets/icons/ads/app-icons/chat.svg";
 
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
@@ -311,6 +312,7 @@ const ICON_LOOKUP = {
   "view-less": <LeftArrowIcon />,
   "warning-line": <WarningLineIcon />,
   "warning-triangle": <WarningTriangleIcon />,
+  "chat-help": <ChatIcon />,
   billing: <BillingIcon />,
   book: <BookIcon />,
   bug: <BugIcon />,
