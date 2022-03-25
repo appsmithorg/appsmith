@@ -1,5 +1,5 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { cloneDeep } from "lodash";
+import { cloneDeep, isUndefined } from "lodash";
 import { Rect } from "utils/WidgetPropsUtils";
 import {
   CollidingSpace,
@@ -44,14 +44,19 @@ export function shouldReplaceOldMovement(
   const { directionIndicator, isHorizontal } = getAccessor(direction);
 
   const distanceKey = isHorizontal ? "X" : "Y";
+  const dimensionKey = isHorizontal ? "width" : "height";
 
   const oldDistance = oldMovement[distanceKey],
     newDistance = newMovement[distanceKey];
 
-  //if either one is undefined and other one is a number it should replace
+  const oldDimension = oldMovement[dimensionKey] || 0,
+    newDimension = newMovement[dimensionKey] || 0;
+
+  //if either one is undefined and other one is a number, or if both are undefined it should replace
   if (
     (oldDistance === undefined && newDistance !== undefined) ||
-    (oldDistance !== undefined && newDistance === undefined)
+    (oldDistance !== undefined && newDistance === undefined) ||
+    (oldDistance === undefined && newDistance === undefined)
   )
     return true;
 
@@ -59,7 +64,12 @@ export function shouldReplaceOldMovement(
     return false;
   }
 
-  return compareNumbers(newDistance, oldDistance, directionIndicator > 0);
+  // if old movement is in the opposite direction return false
+  if (oldDistance > 0 !== newDistance > 0) return false;
+
+  return newDistance === oldDistance
+    ? compareNumbers(newDimension, oldDimension, directionIndicator > 0)
+    : compareNumbers(newDistance, oldDistance, directionIndicator > 0);
 }
 
 /**
@@ -367,6 +377,7 @@ export function getCollidingSpaceMap(
       }
     }
   }
+
   return {
     isColliding,
     collidingSpaceMap,
@@ -386,6 +397,7 @@ export function getCollidingSpaceMap(
  * @param direction
  * @param gridProps
  * @param prevReflowState
+ * @param globalCollisionMap
  * @param occupiedSpaces
  * @param occupiedSpaces
  * @param isDirectCollidingSpace
@@ -398,6 +410,7 @@ export function getCollidingSpacesInDirection(
   direction: ReflowDirection,
   gridProps: GridProps,
   prevReflowState: PrevReflowState,
+  globalCollisionMap: CollisionMap,
   occupiedSpaces?: OccupiedSpace[],
   isDirectCollidingSpace = false,
 ) {
@@ -447,6 +460,21 @@ export function getCollidingSpacesInDirection(
       currentCollidingValue = collidingValue;
       isCurrentHorizontal = !!isHorizontal;
     }
+
+    const currentAccessor = getAccessor(currentDirection);
+    const collidingSpace = globalCollisionMap[occupiedSpace.id];
+
+    // If the space already collides with a moving/dragging space and it's collisionValue is farther than current's Then don't add.
+    if (
+      collidingSpace &&
+      collidingSpace.direction === currentDirection &&
+      compareNumbers(
+        collidingSpace.collidingValue,
+        currentCollidingValue,
+        currentAccessor.directionIndicator > 0,
+      )
+    )
+      continue;
 
     if (shouldAddToArray) {
       collidingSpaces.push({
@@ -548,6 +576,19 @@ export function ShouldAddToCollisionSpacesArray(
     return { shouldAddToArray };
   }
 
+  const reflowedSpacePosition = {
+    ...newSpacePosition,
+    [accessor.oppositeDirection]: newSpacePosition.collidingValue,
+  };
+
+  // if it does not collide in it's current reflowed position then it should not be added to the branch
+  if (
+    !isDirectCollidingSpace &&
+    globalDirection !== direction &&
+    !areOverlapping(reflowedSpacePosition, collidingSpace)
+  )
+    return { shouldAddToArray: false };
+
   // if this particular space does not collide directly with dragging spaces then can directly be added to list
   if (!isDirectCollidingSpace) return { shouldAddToArray: true };
 
@@ -581,14 +622,21 @@ export function ShouldAddToCollisionSpacesArray(
     [oppositeDirection]: newSpacePosition.collidingValue,
   };
 
+  const correctedDirection = getCorrectedDirection(
+    collidingSpace,
+    prevStaticSpace,
+    globalDirection,
+  );
+  const correctedAccessor = getAccessor(correctedDirection);
+
   // if this cant be added in mentioned direction but still intersects, then we determine the correct direction
-  if (!shouldAddToArray && areOverlapping(collidingSpace, currentStaticSpace)) {
-    const correctedDirection = getCorrectedDirection(
-      collidingSpace,
-      prevStaticSpace,
-      globalDirection,
-    );
-    const correctedAccessor = getAccessor(correctedDirection);
+  // but if it says the currentDirection is same as old one, it should not add
+  if (
+    !shouldAddToArray &&
+    areOverlapping(collidingSpace, currentStaticSpace) &&
+    correctedDirection !== direction &&
+    correctedAccessor.isHorizontal !== isHorizontal
+  ) {
     let collidingValue = newSpacePosition.collidingValue;
     if (isHorizontal !== correctedAccessor.isHorizontal) {
       collidingValue = currentStaticSpace[correctedAccessor.direction];
@@ -1329,6 +1377,59 @@ export function getModifiedOccupiedSpacesMap(
 }
 
 /**
+ * Modifies a single CollidingSpace to previous opposite orientation run's position only in a particular orientation
+ * eg, if the current orientation is horizontal, then the collidingSpace's top and bottom positions are modified
+ * to match previously reflowed values
+ *
+ * @param collidingSpace
+ * @param OGOccupiedSpacesMap
+ * @param prevMovementMap
+ * @param isHorizontal
+ * @param gridProps
+ * @param directionMax
+ * @param directionMin
+ * @returns modified collidingSpace positions
+ */
+export function getModifiedCollidingSpace(
+  collidingSpace: CollidingSpace,
+  OGOccupiedSpacesMap: SpaceMap,
+  prevMovementMap: ReflowedSpaceMap | undefined,
+  isHorizontal: boolean,
+  gridProps: GridProps,
+  directionMax: SpaceAttributes,
+  directionMin: SpaceAttributes,
+) {
+  if (!prevMovementMap) return { ...collidingSpace };
+
+  const displaceMentAccessor = isHorizontal ? "Y" : "X";
+  const dimensionAccessor = isHorizontal ? "height" : "width";
+  const gridGap = isHorizontal
+    ? gridProps.parentRowSpace
+    : gridProps.parentColumnSpace;
+
+  const spaceId = collidingSpace.id;
+  const OGCollidingSpacePosition = OGOccupiedSpacesMap[spaceId];
+
+  const movement =
+    (prevMovementMap[spaceId] &&
+      prevMovementMap[spaceId][displaceMentAccessor]) ||
+    0;
+  const dimension =
+    prevMovementMap[spaceId] && prevMovementMap[spaceId][dimensionAccessor];
+  const currentCollidingSpace = {
+    ...collidingSpace,
+    [directionMin]:
+      OGCollidingSpacePosition[directionMin] + Math.round(movement / gridGap),
+    [directionMax]: dimension
+      ? OGCollidingSpacePosition[directionMin] +
+        Math.round((movement + dimension) / gridGap)
+      : OGCollidingSpacePosition[directionMax] + Math.round(movement / gridGap),
+  };
+
+  return currentCollidingSpace;
+}
+
+/**
  * Check if the new CollidingSpaces are colliding with the new Space positions,
  * if so it is to be added to the Collision map of that new Space position's colliding map
  *
@@ -1369,6 +1470,13 @@ export function checkReCollisionWithOtherNewSpacePositions(
 
   for (const newSpacePosition of newSpacePositions) {
     if (areOverlapping(newSpacePosition, collidingSpace)) {
+      //If it is already colliding directly with a moving/Dragging space then no need to check
+      if (
+        collidingSpaceMap[collidingSpace.id] &&
+        collidingSpaceMap[collidingSpace.id].collidingId === newSpacePosition.id
+      )
+        continue;
+
       let currentDirection = getCorrectedDirection(
         collidingSpace,
         prevSpacesMap && prevSpacesMap[newSpacePosition.id],
@@ -1461,12 +1569,11 @@ function getCollisionStatusBasedOnPrevValue(
   collidingValue?: number;
   isHorizontal?: boolean;
 } {
-  //If it is already been processed in this run then do't add
-  if (prevCollisionMap.children[collidingSpace.id].processed)
-    return { shouldAddToArray: false };
-
-  prevCollisionMap.children[collidingSpace.id].processed = true;
   const prevCollisionSpace = prevCollisionMap.children[collidingSpace.id];
+  const reflowedSpacePosition = {
+    ...staticSpace,
+    [accessor.oppositeDirection]: staticSpace.collidingValue,
+  };
 
   // If it previously as well collided in the current direction, then add to the Colliding spaces List
   if (prevCollisionSpace.direction === direction) {
@@ -1491,6 +1598,8 @@ function getCollisionStatusBasedOnPrevValue(
       collidingValue: staticSpace.collidingValue,
       isHorizontal: prevCollisionSpace.isHorizontal,
     };
+  } else if (!areOverlapping(reflowedSpacePosition, collidingSpace)) {
+    return { shouldAddToArray: false };
   } else {
     const localAccessor = getAccessor(prevCollisionSpace.direction);
     const dimensionAccessor = localAccessor.isHorizontal ? "width" : "height";
@@ -1698,4 +1807,41 @@ export function getBottomMostRow(newPositions: OccupiedSpace[]): number {
     maxBottomRow = Math.max(maxBottomRow, newPosition.bottom);
   }
   return maxBottomRow;
+}
+
+/**
+ * Returns a boolean to indicate if the colliding Space is to be processed if it is already processed once
+ *
+ * @param collidingSpace
+ * @param globalProcessedNodes
+ * @returns boolean, if true will process the colliding Space while generating a Tree.
+ */
+export function shouldProcessNodeForTree(
+  collidingSpace: CollidingSpace,
+  globalProcessedNodes: CollisionTreeCache,
+) {
+  if (!globalProcessedNodes[collidingSpace.id]) return true;
+
+  const direction = collidingSpace.direction;
+  const oppositeDirection = getOppositeDirection(direction);
+
+  // If the current node is already processed in the opposite direction the return false
+  if (!isUndefined(globalProcessedNodes[collidingSpace.id][oppositeDirection]))
+    return false;
+
+  const { directionIndicator } = getAccessor(direction);
+
+  // if the current node is not processed return true or if it is processed but
+  // the current colliding value is greater than previous' return true
+  if (
+    isUndefined(
+      globalProcessedNodes[collidingSpace.id][collidingSpace.direction],
+    ) ||
+    compareNumbers(
+      collidingSpace.collidingValue,
+      globalProcessedNodes[collidingSpace.id][direction],
+      directionIndicator > 0,
+    )
+  )
+    return true;
 }

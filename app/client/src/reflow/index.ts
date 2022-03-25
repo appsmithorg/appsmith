@@ -273,6 +273,14 @@ function getOrientationalMovementInfo(
     changeExitContainerDirection(collidingSpaceMap, exitContainerId, direction);
   }
 
+  //if it is the first orientation, we use the original positions of the occupiedSpaces
+  const currentOccupiedSpaces = !!primaryCollisionMap
+    ? sortedOccupiedSpaces
+    : getSortedOccupiedSpaces(occupiedSpacesMap, accessors);
+  const currentOccupiedSpacesMap = !!primaryCollisionMap
+    ? orientationOccupiedSpacesMap
+    : occupiedSpacesMap;
+
   const {
     movementMap,
     movementVariablesMap,
@@ -280,8 +288,8 @@ function getOrientationalMovementInfo(
   } = getMovementMap(
     newSpacePositions,
     newSpacePositionsMap,
-    sortedOccupiedSpaces,
-    orientationOccupiedSpacesMap,
+    currentOccupiedSpaces,
+    currentOccupiedSpacesMap,
     occupiedSpacesMap,
     collidingSpaces,
     collidingSpaceMap,

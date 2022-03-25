@@ -34,7 +34,8 @@ import {
   getResizedDimensions,
   shouldReplaceOldMovement,
   sortCollidingSpacesByDistance,
-  compareNumbers,
+  getModifiedCollidingSpace,
+  shouldProcessNodeForTree,
 } from "./reflowUtils";
 
 /**
@@ -86,6 +87,7 @@ export function getMovementMap(
     globalIsHorizontal,
     collidingSpaceMap,
     gridProps,
+    primaryMovementMap || prevReflowState.prevMovementMap,
     prevReflowState,
     !!primaryMovementMap,
     primarySecondOrderCollisionMap,
@@ -171,6 +173,7 @@ export function getMovementMap(
  * @param globalDirection ReflowDirection, direction of reflow
  * @param globalIsHorizontal boolean to identify if the current orientation is horizontal
  * @param gridProps properties of the canvas's grid
+ * @param prevMovementMap is previous run's movement map if this is the first orientation, or is primary orientation's movement map if it is the second orientation run
  * @param prevReflowState this contains a map of reference to the key values of previous reflow method call to back trace widget movements
  * @param isSecondRun boolean to indicate if it is being run for the second time
  * @returns array of collision Tree
@@ -185,6 +188,7 @@ export function getCollisionTree(
   globalIsHorizontal: boolean,
   collidingSpaceMap: CollisionMap,
   gridProps: GridProps,
+  prevMovementMap: ReflowedSpaceMap,
   prevReflowState: PrevReflowState,
   isSecondRun: boolean,
   primarySecondOrderCollisionMap?: SecondOrderCollisionMap,
@@ -201,15 +205,7 @@ export function getCollisionTree(
 
   for (let i = 0; i < collidingSpaces.length; i++) {
     const collidingSpace = collidingSpaces[i];
-    const { directionIndicator } = getAccessor(collidingSpace.direction);
-    if (
-      !globalProcessedNodes[collidingSpace.id] ||
-      compareNumbers(
-        collidingSpace.collidingValue,
-        globalProcessedNodes[collidingSpace.id][collidingSpace.direction],
-        directionIndicator > 0,
-      )
-    ) {
+    if (shouldProcessNodeForTree(collidingSpace, globalProcessedNodes)) {
       // This is required if we suddenly switch orientations, like from horizontal to vertical or vice versa
       const {
         currentAccessors,
@@ -224,7 +220,7 @@ export function getCollisionTree(
         OGOccupiedSpacesMap,
         ReflowDirection.UNSET,
         globalIsHorizontal,
-        prevReflowState.prevMovementMap,
+        prevMovementMap,
         gridProps,
       );
 
@@ -242,6 +238,7 @@ export function getCollisionTree(
         collidingSpaceMap,
         gridProps,
         i,
+        prevMovementMap,
         prevReflowState,
         true,
         isSecondRun,
@@ -289,6 +286,7 @@ export function getCollisionTree(
  * @param collidingSpaceMap Map of Colliding spaces of the dragging/resizing space
  * @param gridProps properties of the canvas's grid
  * @param insertionIndex current index at which any new direct collision of new space positions will be added
+ * @param prevMovementMap is previous run's movement map if this is the first orientation, or is primary orientation's movement map if it is the second orientation run
  * @param prevReflowState this contains a map of reference to the key values of previous reflow method call to back trace widget movements
  * @param isDirectCollidingSpace boolean if the space is direct collision of the new space positions
  * @param isSecondRun boolean to indicate if it is being run for the second time
@@ -310,6 +308,7 @@ function getCollisionTreeHelper(
   collidingSpaceMap: CollisionMap,
   gridProps: GridProps,
   insertionIndex: number,
+  prevMovementMap: ReflowedSpaceMap,
   prevReflowState: PrevReflowState,
   isDirectCollidingSpace: boolean,
   isSecondRun: boolean,
@@ -358,6 +357,7 @@ function getCollisionTreeHelper(
     direction,
     gridProps,
     prevReflowState,
+    collidingSpaceMap,
     occupiedSpaces,
     isDirectCollidingSpace,
   );
@@ -394,18 +394,12 @@ function getCollisionTreeHelper(
       OGOccupiedSpacesMap,
       direction,
       accessors.isHorizontal,
-      prevReflowState.prevMovementMap,
+      prevMovementMap,
       gridProps,
     );
+
     if (
-      !globalProcessedNodes[modifiedCollidingSpace.id] ||
-      compareNumbers(
-        modifiedCollidingSpace.collidingValue,
-        globalProcessedNodes[modifiedCollidingSpace.id][
-          modifiedCollidingSpace.direction
-        ],
-        currentAccessors.directionIndicator > 0,
-      )
+      shouldProcessNodeForTree(modifiedCollidingSpace, globalProcessedNodes)
     ) {
       //Recursively call to build the tree
       const currentCollisionTree = getCollisionTreeHelper(
@@ -421,6 +415,7 @@ function getCollisionTreeHelper(
         collidingSpaceMap,
         gridProps,
         insertionIndex,
+        prevMovementMap,
         prevReflowState,
         false,
         isSecondRun,
@@ -478,7 +473,16 @@ export function getModifiedArgumentsForCollisionTree(
   const currentAccessors = getAccessor(currentDirection);
   let currentOccSpaces = occupiedSpaces;
   let currentOccSpacesMap = { ...occupiedSpacesMap };
-  let currentCollidingSpace = { ...collidingSpace };
+  // modify the collidingSpace position's values to be in the other orientation
+  let currentCollidingSpace = getModifiedCollidingSpace(
+    collidingSpace,
+    OGOccupiedSpacesMap,
+    prevMovementMap,
+    currentAccessors.isHorizontal,
+    gridProps,
+    currentAccessors.perpendicularMax,
+    currentAccessors.perpendicularMin,
+  );
 
   //modify the occupied spaces to be in the other orientation,
   // if the current orientation of the colliding space is different from the parent space
@@ -489,15 +493,14 @@ export function getModifiedArgumentsForCollisionTree(
         prevMovementMap,
         currentAccessors.isHorizontal,
         gridProps,
-        currentAccessors.parallelMax,
-        currentAccessors.parallelMin,
+        currentAccessors.perpendicularMax,
+        currentAccessors.perpendicularMin,
       );
+      currentCollidingSpace = {
+        ...currentCollidingSpace,
+        ...currentOccSpacesMap[collidingSpace.id],
+      };
     }
-
-    currentCollidingSpace = {
-      ...currentCollidingSpace,
-      ...currentOccSpacesMap[collidingSpace.id],
-    };
 
     filterCommonSpaces(
       {

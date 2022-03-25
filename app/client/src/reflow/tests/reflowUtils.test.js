@@ -58,7 +58,7 @@ describe("Test reflow util methods", () => {
         };
       expect(
         shouldReplaceOldMovement(oldMovement, newMovement, ReflowDirection.TOP),
-      ).toBe(false);
+      ).toBe(true);
     });
   });
 
@@ -472,6 +472,7 @@ describe("Test reflow util methods", () => {
           newPositions,
           ReflowDirection.LEFT,
           ReflowDirection.LEFT,
+          {},
           {},
           {},
           occupiedSpaces,

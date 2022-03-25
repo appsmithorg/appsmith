@@ -161,6 +161,7 @@ describe("Test reflow helper methods", () => {
           collidingSpacesMap,
           gridProps,
           {},
+          {},
         ).collisionTrees,
       ).toEqual(collisionTrees);
     });
@@ -258,6 +259,7 @@ describe("Test reflow helper methods", () => {
           false,
           collidingSpacesMap,
           gridProps,
+          {},
           {},
         ).collisionTrees,
       ).toEqual(collisionTrees);
@@ -369,6 +371,7 @@ describe("Test reflow helper methods", () => {
           false,
           collidingSpacesMap,
           gridProps,
+          {},
           {},
         ).collisionTrees,
       ).toEqual(collisionTrees);
@@ -569,7 +572,11 @@ describe("Test reflow helper methods", () => {
       collidingId: "0",
       direction: ReflowDirection.BOTTOM,
     };
-
+    const gridProps = {
+      parentRowSpace: 10,
+      parentColumnSpace: 10,
+      maxGridCOLUMNS: 200,
+    };
     it("should return the same values if colliding in the same direction as parent", () => {
       const currentAccessors = getAccessor(ReflowDirection.BOTTOM),
         currentDirection = ReflowDirection.BOTTOM;
@@ -587,6 +594,57 @@ describe("Test reflow helper methods", () => {
         currentAccessors,
         currentDirection,
         currentOccSpaces: Object.values(occupiedSpacesMap),
+        currentCollidingSpace: collidingSpace,
+      });
+    });
+    it("should return modified values for other direction, based on previous movementMap", () => {
+      const currentAccessors = getAccessor(ReflowDirection.BOTTOM),
+        currentDirection = ReflowDirection.BOTTOM;
+      const prevMovementMap = {
+        "1": {
+          Y: 250,
+          height: 200,
+        },
+        "3": {
+          X: 100,
+          width: 300,
+        },
+        "5": {
+          X: 170,
+          Y: 210,
+          width: 400,
+          height: 300,
+        },
+      };
+      const currentOccSpacesMap = {
+        ...occupiedSpacesMap,
+        "3": {
+          ...occupiedSpacesMap["3"],
+          left: 20,
+          right: 50,
+        },
+        "5": {
+          ...occupiedSpacesMap["5"],
+          left: 37,
+          right: 77,
+        },
+      };
+      expect(
+        getModifiedArgumentsForCollisionTree(
+          collidingSpace,
+          Object.values(occupiedSpacesMap),
+          occupiedSpacesMap,
+          occupiedSpacesMap,
+          ReflowDirection.RIGHT,
+          true,
+          prevMovementMap,
+          gridProps,
+        ),
+      ).toEqual({
+        currentOccSpacesMap,
+        currentAccessors,
+        currentDirection,
+        currentOccSpaces: Object.values(currentOccSpacesMap),
         currentCollidingSpace: collidingSpace,
       });
     });
