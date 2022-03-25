@@ -259,13 +259,12 @@ export const trimTrailingSlash = (path: string) => {
  * @param element
  */
 export const isEllipsisActive = (element: HTMLElement | null) => {
-  return (
-    element &&
-    (element.clientWidth < element.scrollWidth ||
-      element.offsetHeight < element.scrollHeight)
-  );
+  return element && element.clientWidth < element.scrollWidth;
 };
 
+export const isVerticalEllipsisActive = (element: HTMLElement | null) => {
+  return element && element.clientHeight < element.scrollHeight;
+};
 /**
  * converts array to sentences
  * for e.g - ['Pawan', 'Abhinav', 'Hetu'] --> 'Pawan, Abhinav and Hetu'
@@ -546,17 +545,19 @@ export const truncateString = (
  *
  * @returns
  */
-export const modText = () => (isMac() ? <span>&#8984;</span> : "CTRL");
+export const modText = () => (isMac() ? <span>&#8984;</span> : "Ctrl +");
+export const altText = () => (isMac() ? <span>&#8997;</span> : "Alt +");
+export const shiftText = () => (isMac() ? <span>&#8682;</span> : "Shift +");
 
-export const undoShortCut = () => <span>{modText()}+Z</span>;
+export const undoShortCut = () => <span>{modText()} Z</span>;
 
 export const redoShortCut = () =>
   isMac() ? (
     <span>
-      {modText()}+<span>&#8682;</span>+Z
+      {modText()} {shiftText()} Z
     </span>
   ) : (
-    <span>{modText()}+Y</span>
+    <span>{modText()} Y</span>
   );
 
 /**

@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import {
-  CurrentApplicationData,
+  ApplicationPayload,
   PageListPayload,
 } from "constants/ReduxActionConstants";
 import { getApplicationViewerPageURL } from "constants/routes";
@@ -92,17 +92,16 @@ function PageTabName({ name }: { name: string }) {
     }
   }, [tabNameRef]);
 
-  return ellipsisActive ? (
+  return (
     <TooltipComponent
       boundary="viewport"
       content={name}
+      disabled={!ellipsisActive}
       maxWidth="400px"
       position={Position.BOTTOM}
     >
       {tabNameText}
     </TooltipComponent>
-  ) : (
-    tabNameText
   );
 }
 
@@ -130,7 +129,7 @@ function PageTabContainer({
 }
 
 type Props = {
-  currentApplicationDetails?: CurrentApplicationData;
+  currentApplicationDetails?: ApplicationPayload;
   appPages: PageListPayload;
   measuredTabsRef: (ref: HTMLElement | null) => void;
   tabsScrollable: boolean;
