@@ -1,7 +1,4 @@
-import {
-  APPLICATIONS_URL,
-  getAdminSettingsCategoryUrl,
-} from "constants/routes";
+import { APPLICATIONS_URL, adminSettingsCategoryUrl } from "constants/routes";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 
 export const BreadcrumbCategories = {
@@ -10,45 +7,45 @@ export const BreadcrumbCategories = {
     text: "Homepage",
   },
   [SettingCategories.GENERAL]: {
-    href: getAdminSettingsCategoryUrl(SettingCategories.GENERAL),
+    href: adminSettingsCategoryUrl(SettingCategories.GENERAL),
     text: "General",
   },
   [SettingCategories.EMAIL]: {
-    href: getAdminSettingsCategoryUrl(SettingCategories.EMAIL),
+    href: adminSettingsCategoryUrl(SettingCategories.EMAIL),
     text: "Email",
   },
   [SettingCategories.GOOGLE_MAPS]: {
-    href: getAdminSettingsCategoryUrl(SettingCategories.GOOGLE_MAPS),
+    href: adminSettingsCategoryUrl(SettingCategories.GOOGLE_MAPS),
     text: "Google Maps",
   },
   [SettingCategories.VERSION]: {
-    href: getAdminSettingsCategoryUrl(SettingCategories.VERSION),
+    href: adminSettingsCategoryUrl(SettingCategories.VERSION),
     text: "Version",
   },
   [SettingCategories.ADVANCED]: {
-    href: getAdminSettingsCategoryUrl(SettingCategories.ADVANCED),
+    href: adminSettingsCategoryUrl(SettingCategories.ADVANCED),
     text: "Advanced",
   },
   [SettingCategories.AUTHENTICATION]: {
-    href: getAdminSettingsCategoryUrl(SettingCategories.AUTHENTICATION),
+    href: adminSettingsCategoryUrl(SettingCategories.AUTHENTICATION),
     text: "Authentication",
   },
   [SettingCategories.FORM_AUTH]: {
-    href: getAdminSettingsCategoryUrl(
+    href: adminSettingsCategoryUrl(
       SettingCategories.AUTHENTICATION,
       SettingCategories.FORM_AUTH,
     ),
     text: "Form Login",
   },
   [SettingCategories.GOOGLE_AUTH]: {
-    href: getAdminSettingsCategoryUrl(
+    href: adminSettingsCategoryUrl(
       SettingCategories.AUTHENTICATION,
       SettingCategories.GOOGLE_AUTH,
     ),
     text: "Google Authentication",
   },
   [SettingCategories.GITHUB_AUTH]: {
-    href: getAdminSettingsCategoryUrl(
+    href: adminSettingsCategoryUrl(
       SettingCategories.AUTHENTICATION,
       SettingCategories.GITHUB_AUTH,
     ),
