@@ -38,7 +38,6 @@ const Wrapper = styled.div`
   padding-left: ${(props) => props.theme.spaces[7]}px;
   padding-top: ${(props) => props.theme.spaces[11]}px;
   flex-direction: column;
-  box-shadow: 1px 0px 0px ${Colors.GALLERY_2};
 `;
 
 const SecondWrapper = styled.div`
