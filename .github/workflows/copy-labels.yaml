@@ -1,0 +1,9 @@
+on:
+  pull_request:
+    types: [opened, labeled, unlabeled, assigned, edited, reopened, synchronize, ready_for_review]
+jobs:
+  copy-labels-from-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Copy labels from an connected issue to the PR
+        uses: hetunandu/copy-labels-from-issue@v1
