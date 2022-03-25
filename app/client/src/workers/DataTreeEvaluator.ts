@@ -324,7 +324,7 @@ export default class DataTreeEvaluator {
     const evalStart = performance.now();
 
     // Remove anything from the sort order that is not a dynamic leaf since only those need evaluation
-    let evaluationOrder = subTreeSortOrder.filter((propertyPath) => {
+    const evaluationOrder = subTreeSortOrder.filter((propertyPath) => {
       // We are setting all values from our uneval tree to the old eval tree we have
       // So that the actual uneval value can be evaluated
       if (isDynamicLeaf(localUnEvalTree, propertyPath)) {
@@ -338,19 +338,6 @@ export default class DataTreeEvaluator {
       return false;
     });
 
-    let dependencyMap = {};
-    Object.keys(unEvalTree).forEach((entityName) => {
-      const entity = unEvalTree[entityName];
-      if (isAction(entity) || isWidget(entity) || isJSAction(entity)) {
-        const entityListedDependencies = this.listEntityDependencies(
-          entity,
-          entityName,
-        );
-        dependencyMap = { ...dependencyMap, ...entityListedDependencies };
-      }
-    });
-    const allBindingPaths = Object.keys(dependencyMap);
-    evaluationOrder = evaluationOrder.concat(allBindingPaths);
     this.logs.push({
       sortedDependencies: this.sortedDependencies,
       inverse: this.inverseDependencyMap,
@@ -1495,10 +1482,30 @@ export default class DataTreeEvaluator {
         if (!isAction(entity) && !isWidget(entity)) {
           continue;
         }
+        const entityDynamicBindingPathList = getEntityDynamicBindingPathList(
+          entity,
+        );
+        const entityDynamicBindingPaths: string[] = entityDynamicBindingPathList.map(
+          (path) => {
+            return path.key;
+          },
+        );
         const parentPropertyPath = convertPathToString(d.path);
         Object.keys(entity.bindingPaths).forEach((relativePath) => {
           const childPropertyPath = `${entityName}.${relativePath}`;
-          if (isChildPropertyPath(parentPropertyPath, childPropertyPath)) {
+          // Check if relative path has dynamic binding
+          if (
+            isAction(entity) &&
+            entityDynamicBindingPaths &&
+            entityDynamicBindingPaths.length &&
+            entityDynamicBindingPaths.includes(relativePath)
+          ) {
+            changePaths.add(childPropertyPath);
+          }
+          if (
+            !childPropertyPath.includes(".bindingPaths") &&
+            isChildPropertyPath(parentPropertyPath, childPropertyPath)
+          ) {
             changePaths.add(childPropertyPath);
           }
         });
