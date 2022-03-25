@@ -14,16 +14,13 @@ import { ApplicationVersion } from "actions/applicationActions";
 
 const fetchParamsToPersist = () => {
   const existingParams = getQueryParamsObject() || {};
-
   // not persisting the entire query currently, since that's the current behaviour
   const { branch, embed } = existingParams;
   let params = { branch, embed } as any;
-
   // test param to make sure a query param is present in the URL during dev and tests
   if ((window as any).Cypress) {
     params = { a: "b", ...params };
   }
-
   return params;
 };
 
