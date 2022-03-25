@@ -3177,7 +3177,7 @@ Cypress.Commands.add("assertEvaluatedValuePopup", (expectedType) => {
 });
 
 Cypress.Commands.add("validateToastMessage", (value) => {
-  cy.get(commonlocators.toastMsg).should("have.text", value);
+  cy.get(commonlocators.toastMsg).should("contain.text", value);
 });
 
 Cypress.Commands.add("NavigateToPaginationTab", () => {
