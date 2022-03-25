@@ -33,7 +33,7 @@ import {
 } from "selectors/applicationSelectors";
 import EditorAppName from "./EditorAppName";
 import ProfileDropdown from "pages/common/ProfileDropdown";
-import { getCurrentUser } from "selectors/usersSelectors";
+import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import Button, { Size } from "components/ads/Button";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -52,7 +52,6 @@ import { useLocation } from "react-router";
 import { showConnectGitModal } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
-import getFeatureFlags from "utils/featureFlags";
 
 import { retryPromise } from "utils/AppsmithUtils";
 import { fetchUsersForOrg } from "actions/orgActions";
@@ -298,9 +297,11 @@ export function EditorHeader(props: EditorHeaderProps) {
     showAppInviteUsersDialogSelector,
   );
 
+  const featureFlags = useSelector(selectFeatureFlags);
+
   const handleClickDeploy = useCallback(
     (fromDeploy?: boolean) => {
-      if (getFeatureFlags().GIT && isGitConnected) {
+      if (featureFlags.GIT && isGitConnected) {
         dispatch(showConnectGitModal());
         AnalyticsUtil.logEvent("GS_DEPLOY_GIT_CLICK", {
           source: fromDeploy
@@ -311,7 +312,7 @@ export function EditorHeader(props: EditorHeaderProps) {
         handlePublish();
       }
     },
-    [getFeatureFlags().GIT, dispatch, handlePublish],
+    [featureFlags.GIT, dispatch, handlePublish],
   );
 
   /**

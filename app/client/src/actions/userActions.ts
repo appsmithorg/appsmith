@@ -11,6 +11,7 @@ import {
   UpdateUserRequest,
   VerifyTokenRequest,
 } from "api/UserApi";
+import FeatureFlag from "entities/FeatureFlag";
 
 export const logoutUser = (payload?: { redirectURL: string }) => ({
   type: ReduxActionTypes.LOGOUT_USER_INIT,
@@ -108,8 +109,9 @@ export const fetchFeatureFlagsInit = () => ({
   type: ReduxActionTypes.FETCH_FEATURE_FLAGS_INIT,
 });
 
-export const fetchFeatureFlagsSuccess = () => ({
+export const fetchFeatureFlagsSuccess = (payload: FeatureFlag) => ({
   type: ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS,
+  payload,
 });
 
 export const fetchFeatureFlagsError = (error: any) => ({

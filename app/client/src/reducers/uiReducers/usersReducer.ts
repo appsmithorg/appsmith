@@ -11,6 +11,7 @@ import {
   DefaultCurrentUserDetails,
   User,
 } from "constants/userConstants";
+import FeatureFlag from "entities/FeatureFlag";
 
 const initialState: UsersReduxState = {
   loadingStates: {
@@ -22,7 +23,10 @@ const initialState: UsersReduxState = {
   error: "",
   current: undefined,
   currentUser: undefined,
-  featureFlagFetched: false,
+  featureFlags: {
+    data: {},
+    isFetched: false,
+  },
 };
 
 const usersReducer = createReducer(initialState, {
@@ -155,15 +159,24 @@ const usersReducer = createReducer(initialState, {
       photoId: action.payload.photoId,
     },
   }),
-  [ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS]: (state: UsersReduxState) => ({
+  [ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS]: (
+    state: UsersReduxState,
+    action: ReduxAction<FeatureFlag>,
+  ) => ({
     ...state,
-    featureFlagFetched: true,
+    featureFlag: {
+      data: action.payload,
+      isFetched: true,
+    },
   }),
   [ReduxActionErrorTypes.FETCH_FEATURE_FLAGS_ERROR]: (
     state: UsersReduxState,
   ) => ({
     ...state,
-    featureFlagFetched: true,
+    featureFlag: {
+      data: {},
+      isFetched: true,
+    },
   }),
   [ReduxActionTypes.UPDATE_USERS_COMMENTS_ONBOARDING_STATE]: (
     state: UsersReduxState,
@@ -195,7 +208,10 @@ export interface UsersReduxState {
   currentUser?: User;
   error: string;
   propPanePreferences?: PropertyPanePositionConfig;
-  featureFlagFetched: boolean;
+  featureFlags: {
+    isFetched: boolean;
+    data: FeatureFlag;
+  };
 }
 
 export default usersReducer;

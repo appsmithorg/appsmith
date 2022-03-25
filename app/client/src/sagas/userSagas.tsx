@@ -37,7 +37,6 @@ import {
   invitedUserSignupSuccess,
   fetchFeatureFlagsSuccess,
   fetchFeatureFlagsError,
-  fetchFeatureFlagsInit,
 } from "actions/userActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
@@ -125,11 +124,6 @@ export function* getCurrentUserSaga() {
         response.data.username !== ANONYMOUS_USERNAME
       ) {
         enableTelemetry && AnalyticsUtil.identifyUser(response.data);
-        // make fetch feature call only if logged in
-        yield put(fetchFeatureFlagsInit());
-      } else {
-        // reset the flagsFetched flag
-        yield put(fetchFeatureFlagsSuccess());
       }
       yield put({
         type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
@@ -441,8 +435,8 @@ function* fetchFeatureFlags() {
     const response: ApiResponse = yield call(UserApi.fetchFeatureFlags);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      (window as any).FEATURE_FLAGS = response.data;
-      yield put(fetchFeatureFlagsSuccess());
+      // (window as any).FEATURE_FLAGS = response.data;
+      yield put(fetchFeatureFlagsSuccess(response.data));
     }
   } catch (error) {
     log.error(error);
