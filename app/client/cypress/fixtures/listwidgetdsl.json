@@ -104,7 +104,7 @@
                                           },
                                           {
                                               "isVisible": true,
-                                              "text": "{{currentItem.num}}",
+                                              "text": "{{currentItem.email}}",
                                               "fontSize": "PARAGRAPH",
                                               "fontStyle": "BOLD",
                                               "textAlign": "LEFT",
@@ -241,7 +241,7 @@
                   },
                   "Text2": {
                       "isVisible": true,
-                      "text": "{{List1.listData.map((currentItem) => currentItem.num)}}",
+                      "text": "{{List1.listData.map((currentItem) => currentItem.email)}}",
                       "fontSize": "PARAGRAPH",
                       "fontStyle": "BOLD",
                       "textAlign": "LEFT",
