@@ -2,7 +2,6 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 import homePage from "../../../../locators/HomePage";
-const explorer = require("../../../../locators/explorerlocators.json");
 import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
 
 let datasourceName;
@@ -163,7 +162,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.deleteQueryUsingContext();
   });
 
-  it("7. Verify generation of NewPage from collection [Select]", function() {
+  it("7. Verify generation of NewPage from collection [Select] + Bug 12162", function() {
     //Verifying Select from UI
     cy.NavigateToDSGeneratePage(datasourceName);
     cy.get(generatePage.selectTableDropdown).click();
@@ -191,6 +190,20 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     ); //This verifies the Select on the table, ie page is created fine
 
     cy.ClickGotIt();
+
+    //Check if table is loaded & CRUD is success
+
+    cy.get(generatePage.selectedRow).should("exist");
+    cy.get(generatePage.updateBtn)
+      .closest("button")
+      .then((selector) => {
+        cy.get(selector)
+          .invoke("attr", "class")
+          .then((classes) => {
+            cy.log("classes are:" + classes);
+            expect(classes).not.contain("bp3-disabled");
+          });
+      });
   });
 
   it("8. Validate Deletion of the Newly Created Page", () => {
@@ -198,13 +211,19 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-    cy.get("[data-cy=t--confirm-modal-btn]").click();
+    cy.get(".t--delete-datasource")
+      .contains("Are you sure?")
+      .click();
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       409,
     );
-    cy.actionContextMenuByEntityName("ListingAndReviews");
+    cy.actionContextMenuByEntityName(
+      "ListingAndReviews",
+      "Delete",
+      "Are you sure?",
+    );
   });
 
   it("9. Bug 7399: Validate Form based & Raw command based templates", function() {
@@ -281,7 +300,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       );
     });
     cy.CheckAndUnfoldEntityItem("QUERIES/JS");
-    cy.actionContextMenuByEntityName("Query1");
+    cy.actionContextMenuByEntityName("Query1", "Delete", "Are you sure?");
   });
 
   it("10. Delete the datasource after NewPage deletion is success", () => {
@@ -289,7 +308,9 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-    cy.get("[data-cy=t--confirm-modal-btn]").click();
+    cy.get(".t--delete-datasource")
+      .contains("Are you sure?")
+      .click();
     // cy.wait("@deleteDatasource").should(
     //   "have.nested.property",
     //   "response.body.responseMeta.status",

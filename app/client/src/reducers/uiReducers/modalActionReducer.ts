@@ -20,7 +20,6 @@ const modalActionReducer = createReducer(initialState, {
 // different types of operations that involve using modals
 export enum ModalType {
   RUN_ACTION = "RUN_ACTION",
-  DELETE_DATASOURCE = "DELETE_DATASOURCE",
 }
 
 // some meta-data about the Modal.
