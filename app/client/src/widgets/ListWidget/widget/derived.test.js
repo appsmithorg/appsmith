@@ -53,27 +53,82 @@ describe("Validates Derived Properties", () => {
 
   it("validates pageSize property", () => {
     const { getPageSize } = derivedProperty;
+    const DEFAULT_LIST_ITEM_HEIGHT = 16;
+    const DEFAULT_LIST_HEIGHT = 86;
     const input1 = {
-      bottomRow: 86,
-      children: [{ children: [{ bottomRow: 16 }] }],
-      templateBottomRow: 16,
+      bottomRow: DEFAULT_LIST_HEIGHT,
+      templateBottomRow: DEFAULT_LIST_ITEM_HEIGHT,
       gridGap: 0,
       parentRowSpace: 10,
       topRow: 9,
+      listData: [{}, {}],
     };
-    // resize ListWidget so bottomRow changes
+    // decrease ListWidget height (bottomRow changes)
     const input2 = {
       ...input1,
       bottomRow: 56,
     };
 
+    // increase ListWidget height (bottomRow changes)
+    const input3 = {
+      ...input1,
+      bottomRow: 340,
+    };
+
+    // increase ListItem height (templateBottomRow changes)
+    const input4 = {
+      ...input1,
+      templateBottomRow: DEFAULT_LIST_ITEM_HEIGHT * 2,
+      bottomRow: 340,
+    };
+
+    // undefined listData
+    const input5 = {
+      ...input1,
+      listData: undefined,
+    };
+
+    // empty listData
+    const input6 = {
+      ...input1,
+      listData: [],
+    };
+
+    // empty listData
+    const input6 = {
+      ...input1,
+      listData: [],
+    };
+
+    // server side pagination enabled
+    const input7 = {
+      ...input1,
+      listData: [],
+      serverSidePaginationEnabled: true,
+    };
+
     const expected1 = 4;
     const expected2 = 2;
+    const expected3 = 20;
+    const expected4 = 10;
+    const expected5 = 4;
+    const expected6 = 4;
+    const expected7 = 4;
 
-    let result1 = getPageSize(input1, moment, _);
-    let result2 = getPageSize(input2, moment, _);
+    const result1 = getPageSize(input1, moment, _);
+    const result2 = getPageSize(input2, moment, _);
+    const result3 = getPageSize(input3, moment, _);
+    const result4 = getPageSize(input4, moment, _);
+    const result5 = getPageSize(input5, moment, _);
+    const result6 = getPageSize(input6, moment, _);
+    const result7 = getPageSize(input7, moment, _);
 
     expect(result1).toStrictEqual(expected1);
     expect(result2).toStrictEqual(expected2);
+    expect(result3).toStrictEqual(expected3);
+    expect(result4).toStrictEqual(expected4);
+    expect(result5).toStrictEqual(expected5);
+    expect(result6).toStrictEqual(expected6);
+    expect(result7).toStrictEqual(expected7);
   });
 });

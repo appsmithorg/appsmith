@@ -222,7 +222,8 @@ public class MongoPlugin extends BasePlugin {
 
             Boolean smartBsonSubstitution = TRUE;
 
-            Object smartSubstitutionObject = formData.getOrDefault(SMART_SUBSTITUTION, TRUE);
+            Object smartSubstitutionObject = getValueSafelyFromFormData(formData, SMART_SUBSTITUTION, Object.class,
+                    TRUE);
             if (smartSubstitutionObject instanceof Boolean) {
                 smartBsonSubstitution = (Boolean) smartSubstitutionObject;
             } else if (smartSubstitutionObject instanceof String) {
@@ -231,7 +232,7 @@ public class MongoPlugin extends BasePlugin {
                 smartBsonSubstitution = Boolean.parseBoolean((String) smartSubstitutionObject);
             }
 
-            // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
+            // Smartly substitute in formData.body and replace all the bindings with values.
             if (TRUE.equals(smartBsonSubstitution)) {
 
                 // If not raw, then it must be form input.
