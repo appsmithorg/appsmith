@@ -20,7 +20,6 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
             propertyName: "isIndeterminate",
             label: "Infinite Loading",
             controlType: "SWITCH",
-            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
