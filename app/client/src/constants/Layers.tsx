@@ -57,6 +57,7 @@ export const Layers = {
   sideStickyBar: Indices.Layer7,
   evaluationPopper: Indices.Layer3,
   concurrentEditorWarning: Indices.Layer2,
+  manualUpgrade: Indices.Layer10,
 };
 
 export const tailwindLayers = {
