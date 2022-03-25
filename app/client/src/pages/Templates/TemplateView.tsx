@@ -192,17 +192,6 @@ const BackButtonWrapper = styled.div`
   width: 100px;
 `;
 
-const TopSectionBackground = styled.div`
-  position: absolute;
-  height: 698px;
-  width: 100%;
-  z-index: -1;
-  top: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(248, 248, 248, 0.5);
-`;
-
 const LoadingWrapper = styled.div`
   width: calc(100vw);
   .title-placeholder {
