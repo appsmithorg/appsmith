@@ -84,24 +84,6 @@ describe("Button Group Widget Functionality", function() {
       .should("have.css", "flex-direction", "row-reverse");
   });
 
-  it("After being mounted, A menu button popover width should always be the same as the target width", () => {
-    cy.closePropertyPane();
-    // Get the default menu button
-    cy.get(`.t--widget-${widgetName} div.t--buttongroup-widget`)
-      .children()
-      .last()
-      .as("target");
-    // Open popover
-    cy.get("@target").click();
-    // Get the target width
-    cy.get("@target")
-      .invoke("outerWidth")
-      .then((targetWidth) => {
-        // Check if popover width is set to its target width
-        cy.get(".bp3-popover2").should("have.css", "width", `${targetWidth}px`);
-      });
-  });
-
   after(() => {
     // clean up after done
   });
