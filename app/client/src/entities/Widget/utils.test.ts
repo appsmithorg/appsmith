@@ -389,13 +389,19 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.createdAt.fontStyle": {
           type: ValidationTypes.TABLE_PROPERTY,
           params: {
-            type: ValidationTypes.TEXT,
+            type: ValidationTypes.CSV,
+            params: {
+              allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
+            },
           },
         },
         "primaryColumns.name.fontStyle": {
           type: ValidationTypes.TABLE_PROPERTY,
           params: {
-            type: ValidationTypes.TEXT,
+            type: ValidationTypes.CSV,
+            params: {
+              allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
+            },
           },
         },
         "primaryColumns.createdAt.verticalAlignment": {
