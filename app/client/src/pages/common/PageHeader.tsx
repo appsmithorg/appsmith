@@ -159,7 +159,7 @@ export function PageHeader(props: PageHeaderProps) {
       tabs.some((tab) => tab.matcher(location.pathname)) &&
       !!featureFlags.APP_TEMPLATE
     );
-  }, [location.pathname]);
+  }, [featureFlags, location.pathname]);
 
   return (
     <StyledPageHeader

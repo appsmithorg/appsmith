@@ -435,7 +435,6 @@ function* fetchFeatureFlags() {
     const response: ApiResponse = yield call(UserApi.fetchFeatureFlags);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      // (window as any).FEATURE_FLAGS = response.data;
       yield put(fetchFeatureFlagsSuccess(response.data));
     }
   } catch (error) {

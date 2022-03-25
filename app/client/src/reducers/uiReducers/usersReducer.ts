@@ -23,7 +23,7 @@ const initialState: UsersReduxState = {
   error: "",
   current: undefined,
   currentUser: undefined,
-  featureFlags: {
+  featureFlag: {
     data: {},
     isFetched: false,
   },
@@ -208,7 +208,7 @@ export interface UsersReduxState {
   currentUser?: User;
   error: string;
   propPanePreferences?: PropertyPanePositionConfig;
-  featureFlags: {
+  featureFlag: {
     isFetched: boolean;
     data: FeatureFlag;
   };

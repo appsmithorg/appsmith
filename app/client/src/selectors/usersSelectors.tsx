@@ -11,7 +11,7 @@ export const getProppanePreference = (
   state: AppState,
 ): PropertyPanePositionConfig | undefined => state.ui.users.propPanePreferences;
 export const getFeatureFlagsFetched = (state: AppState) =>
-  state.ui.users.featureFlags.isFetched;
+  state.ui.users.featureFlag.isFetched;
 
 export const selectFeatureFlags = (state: AppState) =>
-  state.ui.users.featureFlags.data;
+  state.ui.users.featureFlag.data;
