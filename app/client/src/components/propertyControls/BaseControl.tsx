@@ -22,6 +22,11 @@ abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
       this.props.deleteProperties(propertyPaths);
     }
   }
+  batchUpdateProperties = (updates: Record<string, unknown>) => {
+    if (this.props.onBatchUpdateProperties) {
+      this.props.onBatchUpdateProperties(updates);
+    }
+  };
 }
 
 export interface ControlBuilder<T extends ControlProps> {
@@ -46,6 +51,7 @@ export interface ControlData
 }
 export interface ControlFunctions {
   onPropertyChange?: (propertyName: string, propertyValue: string) => void;
+  onBatchUpdateProperties?: (updates: Record<string, unknown>) => void;
   openNextPanel: (props: any) => void;
   deleteProperties: (propertyPaths: string[]) => void;
   theme: EditorTheme;
