@@ -207,13 +207,7 @@ function DatasourceAuth({
       updateDatasource(
         getSanitizedFormData(),
         !isGeneratePageInitiator && !isReconnectModelOpen
-          ? dispatch(
-              redirectToNewIntegrations(
-                applicationId,
-                pageId,
-                getQueryParams(),
-              ),
-            )
+          ? dispatch(redirectToNewIntegrations(pageId, getQueryParams()))
           : undefined,
       ),
     );
