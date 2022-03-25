@@ -282,7 +282,7 @@ public class GitFileUtils {
         action.setPublishedAction(null);
         action.setUserPermissions(null);
         ActionDTO unpublishedAction = action.getUnpublishedAction();
-        if(action.getPluginType().toString().equals("SAAS")) {
+        if(action.getPluginType().toString().equals("SAAS") || action.getPluginType().toString().equals("REMOTE")) {
             action.getUnpublishedAction().setActionConfiguration(new ActionConfiguration());
         }
         if (unpublishedAction != null) {
