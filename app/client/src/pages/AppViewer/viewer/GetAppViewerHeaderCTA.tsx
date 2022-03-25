@@ -14,6 +14,7 @@ import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 import { TriggerButton } from "pages/Applications/ForkModalStyles";
 import { Size } from "components/ads/Button";
 import { getAllApplications } from "actions/applicationActions";
+import history from "utils/history";
 
 const Cta = styled(Button)`
   ${(props) => getTypographyByKey(props, "btnLarge")}
@@ -48,9 +49,12 @@ function GetAppViewerHeaderCTA(props: any) {
     CTA = (
       <Cta
         className="t--back-to-editor"
-        href={url}
         icon="chevron-left"
         iconPosition={IconPositions.left}
+        onClick={(e) => {
+          e.stopPropagation();
+          history.push(url);
+        }}
         text={createMessage(EDIT_APP)}
       />
     );
