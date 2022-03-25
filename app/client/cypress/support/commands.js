@@ -1695,6 +1695,16 @@ Cypress.Commands.add("deleteColumn", (colId) => {
   cy.wait(1000);
 });
 
+Cypress.Commands.add("openFieldConfiguration", (fieldIdentifier) => {
+  cy.get(
+    "[data-rbd-draggable-id='" + fieldIdentifier + "'] .t--edit-column-btn",
+  ).click({
+    force: true,
+  });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000);
+});
+
 Cypress.Commands.add("makeColumnVisible", (colId) => {
   cy.get("[data-rbd-draggable-id='" + colId + "'] .t--show-column-btn").click({
     force: true,
@@ -2076,6 +2086,19 @@ Cypress.Commands.add(
       .click({ force: true });
   },
 );
+
+Cypress.Commands.add("typeIntoDraftEditor", (selector, text) => {
+  cy.get(selector).then((input) => {
+    var textarea = input.get(0);
+    textarea.dispatchEvent(new Event("focus"));
+
+    var textEvent = document.createEvent("TextEvent");
+    textEvent.initTextEvent("textInput", true, true, null, text);
+    textarea.dispatchEvent(textEvent);
+
+    textarea.dispatchEvent(new Event("blur"));
+  });
+});
 
 Cypress.Commands.add("addQueryFromLightningMenu", (QueryName) => {
   cy.get(commonlocators.dropdownSelectButton)
@@ -3154,7 +3177,7 @@ Cypress.Commands.add("assertEvaluatedValuePopup", (expectedType) => {
 });
 
 Cypress.Commands.add("validateToastMessage", (value) => {
-  cy.get(commonlocators.toastMsg).should("have.text", value);
+  cy.get(commonlocators.toastMsg).should("contain.text", value);
 });
 
 Cypress.Commands.add("NavigateToPaginationTab", () => {

@@ -2,6 +2,22 @@
 
 set -e
 
+function get_maximum_heap(){ 
+    resource=$(ulimit -u)
+    echo "Resource : $resource"
+    if [[ "$resource" -le 256 ]]; then
+        maximum_heap=128
+    elif [[ "$resource" -le 512 ]]; then
+        maximum_heap=256
+    fi
+}
+
+function setup_backend_heap_arg(){
+    if [[ ! -z ${maximum_heap} ]]; then
+      export APPSMITH_JAVA_HEAP_ARG="-Xmx${maximum_heap}m"
+    fi
+}
+
 init_env_file() {
   CONF_PATH="/appsmith-stacks/configuration"
   ENV_PATH="$CONF_PATH/docker.env"
@@ -24,7 +40,11 @@ init_env_file() {
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ""
     )
-    bash "$TEMPLATES_PATH/docker.env.sh" "$APPSMITH_MONGODB_USER" "$APPSMITH_MONGODB_PASSWORD" "$APPSMITH_ENCRYPTION_PASSWORD" "$APPSMITH_ENCRYPTION_SALT" > "$ENV_PATH"
+    APPSMITH_AUTH_PASSWORD=$(
+      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+      echo ''
+    )
+    bash "$TEMPLATES_PATH/docker.env.sh" "$APPSMITH_MONGODB_USER" "$APPSMITH_MONGODB_PASSWORD" "$APPSMITH_ENCRYPTION_PASSWORD" "$APPSMITH_ENCRYPTION_SALT" "$APPSMITH_AUTH_PASSWORD" > "$ENV_PATH"
   fi
 
   # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
@@ -159,16 +179,18 @@ configure_supervisord() {
   cp -f "$SUPERVISORD_CONF_PATH/application_process/"*.conf /etc/supervisor/conf.d
 
   # Disable services based on configuration
-  if [[ $isUriLocal -eq 0 ]]; then
-    cp "$SUPERVISORD_CONF_PATH/mongodb.conf" /etc/supervisor/conf.d/
-  fi
-  if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
-    cp "$SUPERVISORD_CONF_PATH/redis.conf" /etc/supervisor/conf.d/
-    # Enable saving Redis session data to disk more often, so recent sessions aren't cleared on restart.
-    sed -i 's/^# save 60 10000$/save 60 1/g' /etc/redis/redis.conf
-  fi
-  if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
-    cp "$SUPERVISORD_CONF_PATH/cron.conf" /etc/supervisor/conf.d/
+  if [[ -z "${DYNO}" ]]; then
+    if [[ $isUriLocal -eq 0 ]]; then
+      cp "$SUPERVISORD_CONF_PATH/mongodb.conf" /etc/supervisor/conf.d/
+    fi
+    if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
+      cp "$SUPERVISORD_CONF_PATH/redis.conf" /etc/supervisor/conf.d/
+      # Enable saving Redis session data to disk more often, so recent sessions aren't cleared on restart.
+      sed -i 's/^# save 60 10000$/save 60 1/g' /etc/redis/redis.conf
+    fi
+    if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
+      cp "$SUPERVISORD_CONF_PATH/cron.conf" /etc/supervisor/conf.d/
+    fi
   fi
 }
 
@@ -176,11 +198,22 @@ configure_supervisord() {
 init_env_file
 unset_unused_variables
 check_mongodb_uri
-init_mongodb
-init_replica_set
+if [[ -z "${DYNO}" ]]; then
+  # Don't run MongoDB if running in a Heroku dyno.
+  init_mongodb
+  init_replica_set
+fi
 mount_letsencrypt_directory
+# These functions are used to limit heap size for Backend process when deployed on Heroku
+get_maximum_heap
+setup_backend_heap_arg
 configure_supervisord
 
+CREDENTIAL_PATH="/etc/nginx/passwords"
+if ! [[ -e "$CREDENTIAL_PATH" ]]; then
+  echo "Generating Basic Authentication file"
+  printf "$APPSMITH_SUPERVISOR_USER:$(openssl passwd -apr1 $APPSMITH_SUPERVISOR_PASSWORD)" > "$CREDENTIAL_PATH"
+fi
 # Ensure the restore path exists in the container, so an archive can be copied to it, if need be.
 mkdir -p /appsmith-stacks/data/{backup,restore}
 

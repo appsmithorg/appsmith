@@ -50,6 +50,7 @@ const PropertyControl = memo((props: Props) => {
   const propsSelector = getWidgetPropsForPropertyName(
     props.propertyName,
     props.dependencies,
+    props.evaluatedDependencies,
   );
 
   const widgetProperties: WidgetProperties = useSelector(
@@ -432,6 +433,7 @@ const PropertyControl = memo((props: Props) => {
             config,
             {
               onPropertyChange: onPropertyChange,
+              onBatchUpdateProperties: onBatchUpdateProperties,
               openNextPanel: openPanel,
               deleteProperties: onDeleteProperties,
               theme: props.theme,
