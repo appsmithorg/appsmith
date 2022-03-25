@@ -79,6 +79,11 @@ const StyledFilterItem = styled.div<{ selected: boolean }>`
 const StyledFilterCategory = styled(Text)`
   margin-bottom: ${(props) => props.theme.spaces[4]}px;
   padding-left: ${(props) => props.theme.spaces[6]}px;
+
+  &.title {
+    margin-bottom: 28px;
+    display: inline-block;
+  }
 `;
 
 const ListWrapper = styled.div`
@@ -155,7 +160,7 @@ function FilterCategory({
 
   return (
     <FilterCategoryWrapper>
-      <StyledFilterCategory type={TextType.SIDE_HEAD}>
+      <StyledFilterCategory type={TextType.P4}>
         {label.toLocaleUpperCase()}{" "}
         {!!selectedFilters.length && `(${selectedFilters.length})`}
       </StyledFilterCategory>
@@ -207,6 +212,9 @@ function Filters() {
     <Wrapper>
       <SecondWrapper>
         <FilterWrapper>
+          <StyledFilterCategory className={"title"} type={TextType.P4}>
+            FILTERS
+          </StyledFilterCategory>
           {Object.keys(filters).map((filter) => {
             return (
               <FilterCategory
