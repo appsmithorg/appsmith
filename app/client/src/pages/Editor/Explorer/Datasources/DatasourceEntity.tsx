@@ -5,7 +5,6 @@ import DataSourceContextMenu from "./DataSourceContextMenu";
 import { getPluginIcon } from "../ExplorerIcons";
 import { getQueryIdFromURL } from "../helpers";
 import Entity, { EntityClassNames } from "../Entity";
-import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import history from "utils/history";
 import {
   fetchDatasourceStructure,
@@ -17,13 +16,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { DatasourceStructureContainer } from "./DatasourceStructureContainer";
 import { isStoredDatasource, PluginType } from "entities/Action";
-import { SAAS_EDITOR_DATASOURCE_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import { getQueryParams } from "utils/AppsmithUtils";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
 import { getAction } from "selectors/entitiesSelector";
+import {
+  datasourcesEditorIdURL,
+  saasEditorDatasourceIdURL,
+} from "RouteBuilder";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 
 type ExplorerDatasourceEntityProps = {
@@ -37,38 +35,32 @@ type ExplorerDatasourceEntityProps = {
 
 const ExplorerDatasourceEntity = React.memo(
   (props: ExplorerDatasourceEntityProps) => {
-    const applicationId = useSelector(getCurrentApplicationId);
     const guidedTourEnabled = useSelector(inGuidedTour);
-    const pageId = useSelector(getCurrentPageId) as string;
     const dispatch = useDispatch();
     const icon = getPluginIcon(props.plugin);
     const switchDatasource = useCallback(() => {
       if (props.plugin && props.plugin.type === PluginType.SAAS) {
         history.push(
-          SAAS_EDITOR_DATASOURCE_ID_URL(
-            applicationId,
-            pageId,
-            props.plugin.packageName,
-            props.datasource.id,
-            {
+          saasEditorDatasourceIdURL({
+            pluginPackageName: props.plugin.packageName,
+            datasourceId: props.datasource.id,
+            params: {
               viewMode: true,
             },
-          ),
+          }),
         );
       } else {
         dispatch(
           setDatsourceEditorMode({ id: props.datasource.id, viewMode: true }),
         );
         history.push(
-          DATA_SOURCES_EDITOR_ID_URL(
-            applicationId,
-            pageId,
-            props.datasource.id,
-            getQueryParams(),
-          ),
+          datasourcesEditorIdURL({
+            datasourceId: props.datasource.id,
+            params: getQueryParams(),
+          }),
         );
       }
-    }, [applicationId, pageId, props.datasource.id]);
+    }, [props.datasource.id]);
 
     const queryId = getQueryIdFromURL();
     const queryAction = useSelector((state: AppState) =>
