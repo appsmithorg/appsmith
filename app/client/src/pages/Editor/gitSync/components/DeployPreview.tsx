@@ -3,14 +3,11 @@ import React from "react";
 import styled from "styled-components";
 import { ReactComponent as CloudyIcon } from "assets/icons/ads/cloudy-line.svg";
 import { ReactComponent as RightArrow } from "assets/icons/ads/arrow-right-line.svg";
-
-// import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getApplicationViewerPageURL } from "constants/routes";
 import { useSelector } from "store";
 import {
-  getApplicationLastDeployedAt,
-  getCurrentApplicationId,
   getCurrentPageId,
+  selectURLSlugs,
+  getApplicationLastDeployedAt,
 } from "selectors/editorSelectors";
 import {
   createMessage,
@@ -22,6 +19,7 @@ import { Colors } from "constants/Colors";
 import SuccessTick from "pages/common/SuccessTick";
 import { howMuchTimeBeforeText } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { viewerURL } from "RouteBuilder";
 
 const Container = styled.div`
   display: flex;
@@ -65,15 +63,19 @@ const CloudIconWrapper = styled.div`
 `;
 
 export default function DeployPreview(props: { showSuccess: boolean }) {
-  const applicationId = useSelector(getCurrentApplicationId);
-  const pageId = useSelector(getCurrentPageId);
+  const pageId = useSelector(getCurrentPageId) as string;
   const lastDeployedAt = useSelector(getApplicationLastDeployedAt);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   const showDeployPreview = () => {
     AnalyticsUtil.logEvent("GS_LAST_DEPLOYED_PREVIEW_LINK_CLICK", {
       source: "GIT_DEPLOY_MODAL",
     });
-    const path = getApplicationViewerPageURL({ applicationId, pageId });
+    const path = viewerURL({
+      applicationSlug,
+      pageSlug,
+      pageId,
+    });
     window.open(path, "_blank");
   };
 

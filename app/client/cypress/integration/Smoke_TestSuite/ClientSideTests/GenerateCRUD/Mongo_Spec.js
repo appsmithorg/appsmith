@@ -33,11 +33,11 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
 
     //TestData source
 
-    cy.get(".t--test-datasource").click();
+    cy.get(".t--test-datasource").click({ force: true });
     cy.wait("@testDatasource");
 
     //Save source
-    cy.get(".t--save-datasource").click();
+    cy.get(".t--save-datasource").click({ force: true });
 
     //Verify page after save clicked
     cy.get("@createDatasource").then((httpResponse) => {
@@ -124,11 +124,11 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
     });
 
     //TestData source
-    cy.get(".t--test-datasource").click();
+    cy.get(".t--test-datasource").click({ force: true });
     cy.wait("@testDatasource");
 
     //Save source
-    cy.get(".t--save-datasource").click();
+    cy.get(".t--save-datasource").click({ force: true });
 
     //Generate Stub for tables dropdown values also
     cy.wait("@getDatasourceStructure").should(
