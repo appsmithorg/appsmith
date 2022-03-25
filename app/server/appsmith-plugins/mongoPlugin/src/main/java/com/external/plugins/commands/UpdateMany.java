@@ -45,6 +45,7 @@ public class UpdateMany extends MongoCommand {
 
         if (validConfigurationPresentInFormData(formData, UPDATE_OPERATION)) {
             this.update = (String) getValueSafelyFromFormData(formData, UPDATE_OPERATION);
+            this.update = "{\"updateKey\":" + this.update + "}";
         }
 
         // Default for this is 1 to indicate updating only one document at a time.
@@ -87,7 +88,7 @@ public class UpdateMany extends MongoCommand {
 
         Document update = new Document();
         update.put("q", queryDocument);
-        update.put("u", updateDocument);
+        update.put("u", updateDocument.get("updateKey"));
         update.put("multi", multi);
 
         List<Document> updates = new ArrayList<>();
