@@ -331,6 +331,7 @@ function* setWidgetDynamicPropertySaga(
   const propertyValue = _.get(widget, propertyPath);
 
   let dynamicPropertyPathList = getWidgetDynamicPropertyPathList(widget);
+  let dynamicBindingPathList = getEntityDynamicBindingPathList(widget);
   if (isDynamic) {
     const keyExists =
       dynamicPropertyPathList.findIndex((path) => path.key === propertyPath) >
@@ -345,6 +346,9 @@ function* setWidgetDynamicPropertySaga(
     dynamicPropertyPathList = _.reject(dynamicPropertyPathList, {
       key: propertyPath,
     });
+    dynamicBindingPathList = _.reject(dynamicBindingPathList, {
+      key: propertyPath,
+    });
     const { parsed } = yield call(
       validateProperty,
       propertyPath,
@@ -354,7 +358,7 @@ function* setWidgetDynamicPropertySaga(
     widget = set(widget, propertyPath, parsed);
   }
   widget.dynamicPropertyPathList = dynamicPropertyPathList;
-
+  widget.dynamicBindingPathList = dynamicBindingPathList;
   const stateWidgets = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: widget };
 

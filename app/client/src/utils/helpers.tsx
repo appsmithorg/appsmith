@@ -642,6 +642,9 @@ export const captureInvalidDynamicBindingPath = (
      * Checks if dynamicBindingPathList contains a property path that doesn't have a binding
      */
     if (!isDynamicValue(pathValue)) {
+      alert(
+        `INVALID_DynamicPathBinding_CLIENT_ERROR: Invalid dynamic path binding list: ${currentDSL.widgetName}.${dBindingPath.key}`,
+      );
       Sentry.captureException(
         new Error(
           `INVALID_DynamicPathBinding_CLIENT_ERROR: Invalid dynamic path binding list: ${currentDSL.widgetName}.${dBindingPath.key}`,
