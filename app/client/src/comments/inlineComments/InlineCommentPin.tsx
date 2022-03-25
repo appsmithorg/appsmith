@@ -38,7 +38,7 @@ const CommentTriggerContainer = styled.div<{
   xOffset: number;
   yOffset: number;
 }>`
-  position: absolute;
+  position: ${(props) => (props.positionAbsolutely ? "absolute" : "fixed")};
   ${(props) => getPosition(props)}
   z-index: 1;
 `;
