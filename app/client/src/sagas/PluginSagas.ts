@@ -176,6 +176,10 @@ export function* checkAndGetPluginFormConfigsSaga(pluginId: string) {
         formConfigResponse.data.dependencies =
           defaultActionDependenciesConfig[plugin.type];
       }
+      if (!formConfigResponse.data.formButton) {
+        formConfigResponse.data.formButton =
+          defaultDatasourceFormButtonConfig[plugin.type];
+      }
       yield put(
         fetchPluginFormConfigSuccess({
           id: pluginId,
