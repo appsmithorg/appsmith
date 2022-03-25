@@ -1,4 +1,4 @@
-name: Copy labels from an connected issue to the PR
+name: Copy labels from a connected issue to the PR
 
 on:
   pull_request:
