@@ -1105,36 +1105,6 @@ export default [
                   isTriggerProperty: false,
                 },
                 {
-                  propertyName: "buttonLabelColor",
-                  label: "Label Color",
-                  controlType: "COLOR_PICKER",
-                  isJSConvertible: true,
-                  customJSControl: "COMPUTE_VALUE",
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    return hideByColumnType(props, propertyPath, [
-                      ColumnTypes.BUTTON,
-                    ]);
-                  },
-                  dependencies: [
-                    "primaryColumns",
-                    "derivedColumns",
-                    "columnOrder",
-                  ],
-                  updateHook: updateDerivedColumnsHook,
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                  validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
-                    params: {
-                      type: ValidationTypes.TEXT,
-                      params: {
-                        regex: /^(?![<|{{]).+/,
-                      },
-                    },
-                  },
-                },
-
-                {
                   propertyName: "menuColor",
                   helpText:
                     "Sets the custom color preset based on the menu button variant",

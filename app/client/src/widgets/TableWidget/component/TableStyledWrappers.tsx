@@ -268,6 +268,9 @@ export const ActionWrapper = styled.div<{
 }>`
   margin: 0 5px 0 0;
   &&&&&& {
+    .bp3-button {
+      min-width: 50px;
+    }
     .bp3-button span {
       font-weight: 500;
       text-decoration: none;

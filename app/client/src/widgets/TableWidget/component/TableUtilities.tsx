@@ -458,7 +458,7 @@ function TableAction(props: {
           filled
           loading={loading}
           onClick={handleClick}
-          size="small"
+          small
           text={props.action.label}
         />
       ) : null}
