@@ -1402,12 +1402,12 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: "z",
-        messages: ["Disallowed value: x"],
+        messages: ["Value is not allowed in this array: x"],
       },
       {
         isValid: false,
         parsed: "z",
-        messages: ["Disallowed value: x"],
+        messages: ["Value is not allowed in this array: x"],
       },
       {
         isValid: true,
@@ -1417,7 +1417,7 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: "z",
-        messages: ["Disallowed value: x"],
+        messages: ["Value is not allowed in this array: x"],
       },
       {
         isValid: true,
@@ -1431,7 +1431,7 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: "z",
-        messages: ["Disallowed value: q"],
+        messages: ["Value is not allowed in this array: q"],
       },
     ];
     inputs.forEach((input, i) => {
