@@ -38,6 +38,7 @@ import {
   getUnconfiguredDatasources,
 } from "selectors/entitiesSelector";
 import {
+  ApplicationVersion,
   initDatasourceConnectionDuringImportRequest,
   resetDatasourceConfigForImportFetchedFlag,
   setIsReconnectingDatasourcesModalOpen,
@@ -47,13 +48,13 @@ import { Datasource } from "entities/Datasource";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import { initialize } from "redux-form";
 import TooltipComponent from "components/ads/Tooltip";
-import { BUILDER_PAGE_URL } from "constants/routes";
 import DatasourceForm from "../DataSourceEditor";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useQuery } from "../utils";
 import ListItemWrapper from "./components/DatasourceListItem";
 import { getDefaultPageId } from "sagas/ApplicationSagas";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { builderURL } from "RouteBuilder";
 
 const Container = styled.div`
   height: 765px;
@@ -390,7 +391,10 @@ function ReconnectDatasourceModal() {
   useEffect(() => {
     if (pageId && appId && datasources.length) {
       setAppURL(
-        BUILDER_PAGE_URL({
+        builderURL({
+          applicationVersion:
+            importedApplication.applicationVersion ??
+            ApplicationVersion.SLUG_URL,
           applicationId: appId,
           pageId: pageId,
         }),

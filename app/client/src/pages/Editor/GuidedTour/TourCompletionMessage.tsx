@@ -10,8 +10,6 @@ import {
 import { getQueryParams } from "utils/AppsmithUtils";
 import { useDispatch } from "react-redux";
 import { showPostCompletionMessage } from "actions/onboardingActions";
-import { useSelector } from "store";
-import { getEditorURL } from "selectors/appViewSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
@@ -24,6 +22,7 @@ import {
 } from "@appsmith/constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
+import { builderURL } from "RouteBuilder";
 
 const Container = styled.div`
   background-color: ${(props) => props.theme.colors.guidedTour.card.background};
@@ -79,7 +78,6 @@ function CongratulationsView() {
   const [ratingComplete, setRatingComplete] = useState(false);
   const [show, setShow] = useState(false);
   const dispatch = useDispatch();
-  const editorUrl = useSelector(getEditorURL);
 
   const onValueChanged = (value: number) => {
     AnalyticsUtil.logEvent("GUIDED_TOUR_RATING", {
@@ -157,7 +155,7 @@ function CongratulationsView() {
           <Button
             className="t--start-building"
             height="38"
-            href={editorUrl}
+            href={builderURL()}
             onClick={hideMessage}
             size={Size.large}
             text={createMessage(END_BUTTON_TEXT)}

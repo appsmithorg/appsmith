@@ -33,4 +33,12 @@ export const PopoverStyles = createGlobalStyle`
   .auth-type-dropdown .ads-dropdown-options-wrapper {
     padding: 0;
   }
+  .manual-upgrades {
+    z-index: 10 !important;
+    .manual-upgrades-overlay {
+      .bp3-overlay-backdrop {
+        opacity: 0.3;
+      }
+    }
+  }
 `;
