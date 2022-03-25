@@ -53,6 +53,7 @@ const TemplateViewWrapper = styled.div`
   padding-left: 132px;
   padding-top: ${(props) => props.theme.spaces[12]}px;
   padding-bottom: 80px;
+  background-color: ${Colors.WHITE};
 `;
 
 const HeaderWrapper = styled.div`
@@ -257,8 +258,8 @@ function TemplateView() {
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
-      dispatch(getSimilarTemplatesInit(params.templateId));
     }
+    dispatch(getSimilarTemplatesInit(params.templateId));
   }, [params.templateId]);
 
   return (
@@ -269,7 +270,6 @@ function TemplateView() {
         <TemplateNotFound />
       ) : (
         <Wrapper ref={containerRef}>
-          <TopSectionBackground />
           <TemplateViewWrapper>
             <HeaderWrapper>
               <div className="left">

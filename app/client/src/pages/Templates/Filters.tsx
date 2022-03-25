@@ -81,8 +81,9 @@ const StyledFilterCategory = styled(Text)`
   padding-left: ${(props) => props.theme.spaces[6]}px;
 
   &.title {
-    margin-bottom: 28px;
+    margin-bottom: ${(props) => props.theme.spaces[12] - 2}px;
     display: inline-block;
+    font-size: ${(props) => props.theme.fontSizes[3]}px;
   }
 `;
 

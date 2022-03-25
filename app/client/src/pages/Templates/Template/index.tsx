@@ -26,8 +26,7 @@ const TemplateWrapper = styled.div`
 `;
 
 const ImageWrapper = styled.div`
-  padding: ${(props) =>
-    `${props.theme.spaces[9]}px ${props.theme.spaces[11]}px`};
+  padding: ${(props) => props.theme.spaces[9]}px;
   overflow: hidden;
 `;
 
@@ -35,7 +34,7 @@ const StyledImage = styled.img`
   box-shadow: 0px 17.52px 24.82px rgba(0, 0, 0, 0.09);
   object-fit: contain;
   width: 100%;
-  height: 270px;
+  height: 235px;
 `;
 
 const TemplateContent = styled.div`

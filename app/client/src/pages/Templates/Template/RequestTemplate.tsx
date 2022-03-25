@@ -43,7 +43,7 @@ const Wrapper = styled.div`
 `;
 
 const StyledImage = styled.img`
-  height: 270px;
+  height: 170px;
   object-fit: cover;
 `;
 

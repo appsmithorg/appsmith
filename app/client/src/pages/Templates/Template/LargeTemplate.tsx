@@ -29,8 +29,6 @@ const LargeTemplate = styled(TemplateLayout)`
   }
 
   .image-wrapper {
-    padding: ${(props) =>
-      `${props.theme.spaces[9]}px ${props.theme.spaces[11]}px ${props.theme.spaces[0]}px`};
     transition: all 1s ease-out;
     width: 100%;
     height: 270px;
