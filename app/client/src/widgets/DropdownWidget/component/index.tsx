@@ -20,7 +20,12 @@ import { Colors } from "constants/Colors";
 import { TextSize } from "constants/WidgetConstants";
 import { StyledLabel, StyledTooltip, TextLabelWrapper } from "./index.styled";
 import Fuse from "fuse.js";
-import { WidgetContainerDiff } from "widgets/WidgetUtils";
+import {
+  addLabelTooltipEventListeners,
+  hasLabelEllipsis,
+  removeLabelTooltipEventListeners,
+  WidgetContainerDiff,
+} from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 import { LabelPosition } from "components/constants";
 
@@ -264,7 +269,7 @@ const DEBOUNCE_TIMEOUT = 800;
 
 interface DropDownComponentState {
   activeItemIndex: number | undefined;
-  hasLabelEllipsis: boolean;
+  isLabelTooltipOpen: boolean;
 }
 class DropDownComponent extends React.Component<
   DropDownComponentProps,
@@ -273,13 +278,19 @@ class DropDownComponent extends React.Component<
   state: DropDownComponentState = {
     // used to show focused item for keyboard up down key interection
     activeItemIndex: -1,
-    hasLabelEllipsis: false,
+    isLabelTooltipOpen: false,
   };
 
   componentDidMount = () => {
     // set default selectedIndex as focused index
     this.setState({ activeItemIndex: this.props.selectedIndex });
-    this.setState({ hasLabelEllipsis: this.checkHasLabelEllipsis() });
+    if (this.props.labelText) {
+      addLabelTooltipEventListeners(
+        `.appsmith_widget_${this.props.widgetId} .select-label`,
+        this.handleMouseEnterOnLabel,
+        this.handleMouseLeaveOnLabel,
+      );
+    }
   };
 
   componentDidUpdate = (prevProps: DropDownComponentProps) => {
@@ -288,14 +299,33 @@ class DropDownComponent extends React.Component<
       this.setState({ activeItemIndex: this.props.selectedIndex });
     }
 
-    if (
-      prevProps.width !== this.props.width ||
-      prevProps.labelText !== this.props.labelText ||
-      prevProps.labelPosition !== this.props.labelPosition ||
-      prevProps.labelWidth !== this.props.labelWidth
-    ) {
-      this.setState({ hasLabelEllipsis: this.checkHasLabelEllipsis() });
+    if (!prevProps.labelText && this.props.labelText) {
+      addLabelTooltipEventListeners(
+        `.appsmith_widget_${this.props.widgetId} .select-label`,
+        this.handleMouseEnterOnLabel,
+        this.handleMouseLeaveOnLabel,
+      );
     }
+  };
+
+  componentWillUnmount() {
+    removeLabelTooltipEventListeners(
+      `.appsmith_widget_${this.props.widgetId} .select-label`,
+      this.handleMouseEnterOnLabel,
+      this.handleMouseLeaveOnLabel,
+    );
+  }
+
+  handleMouseEnterOnLabel = () => {
+    if (
+      hasLabelEllipsis(`.appsmith_widget_${this.props.widgetId} .select-label`)
+    ) {
+      this.setState({ isLabelTooltipOpen: true });
+    }
+  };
+
+  handleMouseLeaveOnLabel = () => {
+    this.setState({ isLabelTooltipOpen: false });
   };
 
   handleActiveItemChange = (activeItem: DropdownOption | null) => {
@@ -305,18 +335,6 @@ class DropDownComponent extends React.Component<
       activeItem?.label,
     ]);
     this.setState({ activeItemIndex });
-  };
-
-  checkHasLabelEllipsis = () => {
-    const labelElement = document.querySelector(
-      `.appsmith_widget_${this.props.widgetId} .select-label`,
-    );
-
-    if (labelElement) {
-      return labelElement.scrollWidth > labelElement.clientWidth;
-    }
-
-    return false;
   };
 
   render() {
@@ -366,29 +384,12 @@ class DropDownComponent extends React.Component<
             position={labelPosition}
             width={labelWidth}
           >
-            {this.state.hasLabelEllipsis ? (
-              <StyledTooltip
-                content={labelText}
-                hoverOpenDelay={200}
-                position={Position.TOP}
-              >
-                <StyledLabel
-                  $compactMode={compactMode}
-                  $disabled={!!disabled}
-                  $labelStyle={labelStyle}
-                  $labelText={labelText}
-                  $labelTextColor={labelTextColor}
-                  $labelTextSize={labelTextSize}
-                  className={`select-label ${
-                    isLoading
-                      ? Classes.SKELETON
-                      : Classes.TEXT_OVERFLOW_ELLIPSIS
-                  }`}
-                >
-                  {labelText}
-                </StyledLabel>
-              </StyledTooltip>
-            ) : (
+            <StyledTooltip
+              content={labelText}
+              hoverOpenDelay={200}
+              isOpen={this.state.isLabelTooltipOpen}
+              position={Position.TOP}
+            >
               <StyledLabel
                 $compactMode={compactMode}
                 $disabled={!!disabled}
@@ -402,7 +403,7 @@ class DropDownComponent extends React.Component<
               >
                 {labelText}
               </StyledLabel>
-            )}
+            </StyledTooltip>
           </TextLabelWrapper>
         )}
         <StyledControlGroup
@@ -518,7 +519,7 @@ export interface DropDownComponentProps extends ComponentProps {
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
-  labelWidth: number;
+  labelWidth?: number;
   compactMode: boolean;
   selectedIndex?: number;
   options: DropdownOption[];

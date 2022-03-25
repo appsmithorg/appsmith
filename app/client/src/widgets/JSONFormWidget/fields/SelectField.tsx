@@ -161,6 +161,7 @@ function SelectField({
           isFilterable={schemaItem.isFilterable}
           isLoading={false}
           isValid={isValueValid}
+          labelText=""
           onFilterChange={onFilterChange}
           onOptionSelected={onOptionSelected}
           options={options}

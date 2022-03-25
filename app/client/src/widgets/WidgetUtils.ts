@@ -252,3 +252,40 @@ export const sanitizeKey = (key: string, options?: SanitizeOptions) => {
 
   return sanitizedKey;
 };
+
+// Label related functions
+// Add event listeners for label tooltip
+export const addLabelTooltipEventListeners = (
+  $selector: string,
+  onMouseEnter: () => void,
+  onMouseLeave: () => void,
+) => {
+  const labelElement = document.querySelector($selector);
+  if (labelElement) {
+    labelElement.addEventListener("mouseenter", onMouseEnter);
+    labelElement.addEventListener("mouseleave", onMouseLeave);
+  }
+};
+
+// Remove event listeners for label tooltip
+export const removeLabelTooltipEventListeners = (
+  $selector: string,
+  onMouseEnter: () => void,
+  onMouseLeave: () => void,
+) => {
+  const labelElement = document.querySelector($selector);
+  if (labelElement) {
+    labelElement.removeEventListener("mouseenter", onMouseEnter);
+    labelElement.removeEventListener("mouseleave", onMouseLeave);
+  }
+};
+
+export const hasLabelEllipsis = ($selector: string): boolean => {
+  const labelElement = document.querySelector($selector);
+
+  if (labelElement) {
+    return labelElement.scrollWidth > labelElement.clientWidth;
+  }
+
+  return false;
+};

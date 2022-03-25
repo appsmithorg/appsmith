@@ -38,6 +38,11 @@ import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import Icon from "components/ads/Icon";
 import { InputType } from "widgets/InputWidget/constants";
 import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
+import {
+  addLabelTooltipEventListeners,
+  hasLabelEllipsis,
+  removeLabelTooltipEventListeners,
+} from "widgets/WidgetUtils";
 
 /**
  * All design system component specific logic goes here.
@@ -60,6 +65,7 @@ const InputComponentWrapper = styled((props) => (
       "multiline",
       "numeric",
       "inputType",
+      "tooltip",
     ])}
   />
 ))<{
@@ -71,6 +77,7 @@ const InputComponentWrapper = styled((props) => (
   inputType: InputType;
   compactMode: boolean;
   labelPosition: LabelPosition;
+  tooltip?: string;
 }>`
   flex-direction: ${({ compactMode, labelPosition }) => {
     if (labelPosition === LabelPosition.Left) return "row";
@@ -210,14 +217,15 @@ const InputComponentWrapper = styled((props) => (
         : `flex-start`};
     label {
       ${labelStyle}
-      ${({ compactMode, labelPosition }) =>
+      ${({ compactMode, labelPosition, tooltip }) =>
         labelPosition === LabelPosition.Top
-          ? `margin-bottom: 5px; margin-right: 0px`
+          ? `margin-bottom: 5px; ${
+              tooltip ? `margin-right: 5px` : `margin-right: 0px`
+            }`
           : compactMode || labelPosition === LabelPosition.Left
           ? `margin-bottom: 0px; margin-right: 5px`
           : `margin-bottom: 5px; margin-right: 0px`};
 
-      // text-align: right;
       align-self: flex-start;
       color: ${(props) => props.labelTextColor || "inherit"};
       font-size: ${(props) => props.labelTextSize};
@@ -396,7 +404,7 @@ class BaseInputComponent extends React.Component<
 > {
   constructor(props: BaseInputComponentProps) {
     super(props);
-    this.state = { showPassword: false, hasLabelEllipsis: false };
+    this.state = { showPassword: false, isLabelTooltipOpen: false };
   }
 
   componentDidMount() {
@@ -417,25 +425,22 @@ class BaseInputComponent extends React.Component<
       }
     }
 
-    const hasLabelEllipsis = this.checkHasLabelEllipsis();
-    if (this.state.hasLabelEllipsis !== hasLabelEllipsis) {
-      this.setState({ hasLabelEllipsis });
+    if (this.props.label) {
+      addLabelTooltipEventListeners(
+        `.appsmith_widget_${this.props.widgetId} .t--input-widget-label`,
+        this.handleMouseEnterOnLabel,
+        this.handleMouseLeaveOnLabel,
+      );
     }
   }
 
   componentDidUpdate(prevProps: BaseInputComponentProps) {
-    if (
-      prevProps.width !== this.props.width ||
-      prevProps.height !== this.props.height ||
-      prevProps.label !== this.props.label ||
-      prevProps.labelPosition !== this.props.labelPosition ||
-      prevProps.labelWidth !== this.props.labelWidth ||
-      prevProps.tooltip !== this.props.tooltip
-    ) {
-      const hasLabelEllipsis = this.checkHasLabelEllipsis();
-      if (this.state.hasLabelEllipsis !== hasLabelEllipsis) {
-        this.setState({ hasLabelEllipsis });
-      }
+    if (!prevProps.label && this.props.label) {
+      addLabelTooltipEventListeners(
+        `.appsmith_widget_${this.props.widgetId} .t--input-widget-label`,
+        this.handleMouseEnterOnLabel,
+        this.handleMouseLeaveOnLabel,
+      );
     }
   }
 
@@ -456,19 +461,13 @@ class BaseInputComponent extends React.Component<
         );
       }
     }
-  }
 
-  checkHasLabelEllipsis = () => {
-    const labelElement = document.querySelector(
+    removeLabelTooltipEventListeners(
       `.appsmith_widget_${this.props.widgetId} .t--input-widget-label`,
+      this.handleMouseEnterOnLabel,
+      this.handleMouseLeaveOnLabel,
     );
-
-    if (labelElement) {
-      return labelElement.scrollWidth > labelElement.clientWidth;
-    }
-
-    return false;
-  };
+  }
 
   setFocusState = (isFocused: boolean) => {
     this.props.onFocusChange(isFocused);
@@ -642,6 +641,20 @@ class BaseInputComponent extends React.Component<
     this.props.onStep && this.props.onStep(-1);
   };
 
+  handleMouseEnterOnLabel = () => {
+    if (
+      hasLabelEllipsis(
+        `.appsmith_widget_${this.props.widgetId} .t--input-widget-label`,
+      )
+    ) {
+      this.setState({ isLabelTooltipOpen: true });
+    }
+  };
+
+  handleMouseLeaveOnLabel = () => {
+    this.setState({ isLabelTooltipOpen: false });
+  };
+
   render() {
     const {
       compactMode,
@@ -678,6 +691,7 @@ class BaseInputComponent extends React.Component<
         labelTextSize={labelTextSize ? TEXT_SIZES[labelTextSize] : "inherit"}
         multiline={(!!multiline).toString()}
         numeric={isNumberInputType(inputHTMLType)}
+        tooltip={tooltip}
       >
         {showLabelHeader && (
           <TextLabelWrapper
@@ -687,18 +701,16 @@ class BaseInputComponent extends React.Component<
             position={labelPosition}
             width={labelWidth}
           >
-            {label &&
-              (this.state.hasLabelEllipsis ? (
-                <StyledTooltip
-                  content={label}
-                  hoverOpenDelay={200}
-                  position={Position.TOP}
-                >
-                  <LabelComponent isLoading={isLoading} label={label} />
-                </StyledTooltip>
-              ) : (
+            {label && (
+              <StyledTooltip
+                content={label}
+                hoverOpenDelay={200}
+                isOpen={this.state.isLabelTooltipOpen}
+                position={Position.TOP}
+              >
                 <LabelComponent isLoading={isLoading} label={label} />
-              ))}
+              </StyledTooltip>
+            )}
             {tooltip && (
               <Tooltip
                 content={tooltip}
@@ -734,7 +746,7 @@ class BaseInputComponent extends React.Component<
 
 export interface InputComponentState {
   showPassword?: boolean;
-  hasLabelEllipsis: boolean;
+  isLabelTooltipOpen: boolean;
 }
 
 export interface BaseInputComponentProps extends ComponentProps {
@@ -783,8 +795,6 @@ export interface BaseInputComponentProps extends ComponentProps {
   inputRef?: MutableRefObject<
     HTMLTextAreaElement | HTMLInputElement | undefined | null
   >;
-  height: number;
-  width: number;
 }
 
 export default BaseInputComponent;

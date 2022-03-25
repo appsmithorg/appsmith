@@ -325,8 +325,6 @@ class CurrencyInputWidget extends BaseInputWidget<
       conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
     }
 
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
-
     return (
       <CurrencyInputComponent
         allowCurrencyChange={this.props.allowCurrencyChange}
@@ -343,7 +341,6 @@ class CurrencyInputWidget extends BaseInputWidget<
         defaultValue={this.props.defaultText}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}
         disabled={this.props.isDisabled}
-        height={componentHeight}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputType={this.props.inputType}
@@ -369,7 +366,6 @@ class CurrencyInputWidget extends BaseInputWidget<
         tooltip={this.props.tooltip}
         value={value}
         widgetId={this.props.widgetId}
-        width={componentWidth}
         {...conditionalProps}
       />
     );

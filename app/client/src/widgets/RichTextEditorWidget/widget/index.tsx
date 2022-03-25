@@ -300,8 +300,6 @@ class RichTextEditorWidget extends BaseWidget<
       value = converter.makeHtml(value);
     }
 
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
-
     return (
       <Suspense fallback={<Skeleton />}>
         <RichTextEditorComponent
@@ -312,7 +310,6 @@ class RichTextEditorWidget extends BaseWidget<
               1
             )
           }
-          height={componentHeight}
           isDisabled={this.props.isDisabled}
           isMarkdown={this.props.inputType === RTEFormats.MARKDOWN}
           isToolbarHidden={!!this.props.isToolbarHidden}
@@ -332,7 +329,6 @@ class RichTextEditorWidget extends BaseWidget<
           placeholder={this.props.placeholder}
           value={value}
           widgetId={this.props.widgetId}
-          width={componentWidth}
         />
       </Suspense>
     );

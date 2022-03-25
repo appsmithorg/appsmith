@@ -10,6 +10,11 @@ import {
 } from "constants/WidgetConstants";
 import Tooltip from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
+import {
+  addLabelTooltipEventListeners,
+  hasLabelEllipsis,
+  removeLabelTooltipEventListeners,
+} from "widgets/WidgetUtils";
 
 const StyledRTEditor = styled.div<{
   compactMode: boolean;
@@ -137,12 +142,10 @@ export interface RichtextEditorComponentProps {
   labelText: string;
   labelPosition?: LabelPosition;
   labelAlignment?: Alignment;
-  labelWidth: number;
+  labelWidth?: number;
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
-  height: number;
-  width: number;
   isValid?: boolean;
   onValueChange: (valueAsString: string) => void;
 }
@@ -150,7 +153,6 @@ const initValue = "<p></p>";
 export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const {
     compactMode,
-    height,
     isDisabled,
     labelAlignment,
     labelPosition,
@@ -160,10 +162,10 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     labelTextSize,
     labelWidth,
     widgetId,
-    width,
   } = props;
 
-  const [hasLabelEllipsis, setHasLabelEllipsis] = useState(false);
+  const [isLabelTooltipEnabled, setIsLabelTooltipEnabled] = useState(false);
+  const [isLabelTooltipOpen, setIsLabelTooltipOpen] = useState(false);
 
   const [value, setValue] = React.useState<string>(props.value as string);
   const editorRef = useRef<any>(null);
@@ -186,19 +188,37 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   }, [props.value]);
 
   useEffect(() => {
-    setHasLabelEllipsis(checkHasLabelEllipsis());
-  }, [height, width, labelText, labelPosition, labelWidth]);
-
-  const checkHasLabelEllipsis = useCallback(() => {
-    const labelElement = document.querySelector(
-      `.appsmith_widget_${widgetId} .rich-text-editor-label`,
-    );
-
-    if (labelElement) {
-      return labelElement.scrollWidth > labelElement.clientWidth;
+    if (labelText && !isLabelTooltipEnabled) {
+      addLabelTooltipEventListeners(
+        `.appsmith_widget_${widgetId} .rich-text-editor-label`,
+        handleMouseEnterOnLabel,
+        handleMouseLeaveOnLabel,
+      );
+      setIsLabelTooltipEnabled(true);
+    } else if (!labelText && isLabelTooltipEnabled) {
+      setIsLabelTooltipEnabled(false);
     }
+  }, [labelText]);
 
-    return false;
+  useEffect(() => {
+    return () =>
+      removeLabelTooltipEventListeners(
+        `.appsmith_widget_${widgetId} .rich-text-editor-label`,
+        handleMouseEnterOnLabel,
+        handleMouseLeaveOnLabel,
+      );
+  }, []);
+
+  const handleMouseEnterOnLabel = useCallback(() => {
+    if (
+      hasLabelEllipsis(`.appsmith_widget_${widgetId} .rich-text-editor-label`)
+    ) {
+      setIsLabelTooltipOpen(true);
+    }
+  }, []);
+
+  const handleMouseLeaveOnLabel = useCallback(() => {
+    setIsLabelTooltipOpen(false);
   }, []);
 
   const onEditorChange = (newValue: string) => {
@@ -225,25 +245,12 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
           position={labelPosition}
           width={labelWidth}
         >
-          {hasLabelEllipsis ? (
-            <StyledTooltip
-              content={labelText}
-              hoverOpenDelay={200}
-              position={Position.TOP}
-            >
-              <StyledLabel
-                $disabled={isDisabled}
-                $labelStyle={labelStyle}
-                $labelText={labelText}
-                $labelTextColor={labelTextColor}
-                $labelTextSize={labelTextSize}
-                className={`rich-text-editor-label ${Classes.TEXT_OVERFLOW_ELLIPSIS}`}
-                disabled={isDisabled}
-              >
-                {labelText}
-              </StyledLabel>
-            </StyledTooltip>
-          ) : (
+          <StyledTooltip
+            content={labelText}
+            hoverOpenDelay={200}
+            isOpen={isLabelTooltipOpen}
+            position={Position.TOP}
+          >
             <StyledLabel
               $disabled={isDisabled}
               $labelStyle={labelStyle}
@@ -255,7 +262,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
             >
               {labelText}
             </StyledLabel>
-          )}
+          </StyledTooltip>
         </TextLabelWrapper>
       )}
       <RichTextEditorInputWrapper>

@@ -405,8 +405,6 @@ class BaseInputWidget<
   }
 
   getPageView() {
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
-
     return (
       <BaseInputComponent
         allowNumericCharactersOnly={this.props.allowNumericCharactersOnly}
@@ -417,7 +415,6 @@ class BaseInputWidget<
         disabled={this.props.isDisabled}
         errorMessage={this.props.errorMessage}
         fill={this.props.fill}
-        height={componentHeight}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputHTMLType="TEXT"
@@ -445,7 +442,6 @@ class BaseInputWidget<
         tooltip={this.props.tooltip}
         value={this.props.value}
         widgetId={this.props.widgetId}
-        width={componentWidth}
       />
     );
   }

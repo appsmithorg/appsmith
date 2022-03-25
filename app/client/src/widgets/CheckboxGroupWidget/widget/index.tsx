@@ -446,8 +446,6 @@ class CheckboxGroupWidget extends BaseWidget<
   }
 
   getPageView() {
-    const { componentWidth } = this.getComponentDimensions();
-
     return (
       <CheckboxGroupComponent
         compactMode={
@@ -479,7 +477,6 @@ class CheckboxGroupWidget extends BaseWidget<
         rowSpace={this.props.parentRowSpace}
         selectedValues={this.props.selectedValues}
         widgetId={this.props.widgetId}
-        width={componentWidth}
       />
     );
   }

@@ -818,8 +818,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         : // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
           GRID_DENSITY_MIGRATION_V1;
 
-    const { componentWidth } = this.getComponentDimensions();
-
     return (
       <InputComponent
         allowCurrencyChange={this.props.allowCurrencyChange}
@@ -867,7 +865,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         tooltip={this.props.tooltip}
         value={value}
         widgetId={this.props.widgetId}
-        width={componentWidth}
         {...conditionalProps}
       />
     );

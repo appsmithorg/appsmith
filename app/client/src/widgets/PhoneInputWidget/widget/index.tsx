@@ -281,8 +281,6 @@ class PhoneInputWidget extends BaseInputWidget<
       conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
     }
 
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
-
     return (
       <PhoneInputComponent
         allowDialCodeChange={this.props.allowDialCodeChange}
@@ -299,7 +297,6 @@ class PhoneInputWidget extends BaseInputWidget<
         dialCode={this.props.dialCode}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}
         disabled={this.props.isDisabled}
-        height={componentHeight}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputType={this.props.inputType}
@@ -323,7 +320,6 @@ class PhoneInputWidget extends BaseInputWidget<
         tooltip={this.props.tooltip}
         value={value}
         widgetId={this.props.widgetId}
-        width={componentWidth}
         {...conditionalProps}
       />
     );

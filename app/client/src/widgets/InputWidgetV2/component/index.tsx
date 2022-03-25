@@ -48,7 +48,6 @@ class InputComponent extends React.Component<InputComponentProps> {
         disabled={this.props.disabled}
         errorMessage={this.props.errorMessage}
         fill={this.props.fill}
-        height={this.props.height}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputHTMLType={getInputHTMLType(this.props.inputType)}
@@ -77,7 +76,6 @@ class InputComponent extends React.Component<InputComponentProps> {
         tooltip={this.props.tooltip}
         value={this.props.value}
         widgetId={this.props.widgetId}
-        width={this.props.width}
       />
     );
   }

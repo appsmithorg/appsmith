@@ -19,6 +19,11 @@ import Tooltip from "components/ads/Tooltip";
 // Alternatively, they need to be replicated.
 import { StyledCheckbox } from "widgets/CheckboxWidget/component";
 import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
+import {
+  addLabelTooltipEventListeners,
+  hasLabelEllipsis,
+  removeLabelTooltipEventListeners,
+} from "widgets/WidgetUtils";
 
 export interface InputContainerProps {
   inline?: boolean;
@@ -217,8 +222,7 @@ export interface CheckboxGroupComponentProps extends ComponentProps {
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
-  labelWidth: number;
-  width: number;
+  labelWidth?: number;
 }
 function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
   const {
@@ -241,26 +245,43 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
     rowSpace,
     selectedValues,
     widgetId,
-    width,
   } = props;
 
-  const [hasLabelEllipsis, setHasLabelEllipsis] = useState(false);
+  const [isLabelTooltipEnabled, setIsLabelTooltipEnabled] = useState(false);
+  const [isLabelTooltipOpen, setIsLabelTooltipOpen] = useState(false);
 
   useEffect(() => {
-    setHasLabelEllipsis(checkHasLabelEllipsis());
-  }, [width, labelText, labelPosition, labelWidth]);
-
-  const checkHasLabelEllipsis = useCallback(() => {
-    const labelElement = document.querySelector(
-      `.appsmith_widget_${widgetId} .checkboxgroup-label`,
-    );
-
-    if (labelElement) {
-      return labelElement.scrollWidth > labelElement.clientWidth;
+    if (labelText && !isLabelTooltipEnabled) {
+      addLabelTooltipEventListeners(
+        `.appsmith_widget_${widgetId} .checkboxgroup-label`,
+        handleMouseEnterOnLabel,
+        handleMouseLeaveOnLabel,
+      );
+      setIsLabelTooltipEnabled(true);
+    } else if (!labelText && isLabelTooltipEnabled) {
+      setIsLabelTooltipEnabled(false);
     }
+  }, [labelText]);
 
-    return false;
+  useEffect(() => {
+    return () =>
+      removeLabelTooltipEventListeners(
+        `.appsmith_widget_${widgetId} .checkboxgroup-label`,
+        handleMouseEnterOnLabel,
+        handleMouseLeaveOnLabel,
+      );
   }, []);
+
+  const handleMouseEnterOnLabel = useCallback(() => {
+    if (hasLabelEllipsis(`.appsmith_widget_${widgetId} .checkboxgroup-label`)) {
+      setIsLabelTooltipOpen(true);
+    }
+  }, []);
+
+  const handleMouseLeaveOnLabel = useCallback(() => {
+    setIsLabelTooltipOpen(false);
+  }, []);
+
   const selectAllChecked = selectedValues.length === options.length;
   const selectAllIndeterminate =
     !selectAllChecked && selectedValues.length >= 1;
@@ -290,23 +311,12 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
           position={labelPosition}
           width={labelWidth}
         >
-          {hasLabelEllipsis ? (
-            <StyledTooltip
-              content={labelText}
-              hoverOpenDelay={200}
-              position={Position.TOP}
-            >
-              <StyledLabel
-                className={`checkboxgroup-label ${Classes.TEXT_OVERFLOW_ELLIPSIS}`}
-                disabled={isDisabled}
-                labelStyle={labelStyle}
-                labelTextColor={labelTextColor}
-                labelTextSize={labelTextSize}
-              >
-                {labelText}
-              </StyledLabel>
-            </StyledTooltip>
-          ) : (
+          <StyledTooltip
+            content={labelText}
+            hoverOpenDelay={200}
+            isOpen={isLabelTooltipOpen}
+            position={Position.TOP}
+          >
             <StyledLabel
               className={`checkboxgroup-label ${Classes.TEXT_OVERFLOW_ELLIPSIS}`}
               disabled={isDisabled}
@@ -316,7 +326,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
             >
               {labelText}
             </StyledLabel>
-          )}
+          </StyledTooltip>
         </LabelContainer>
       )}
       <InputContainer

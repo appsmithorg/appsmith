@@ -32,7 +32,12 @@ import {
   InputGroup,
   Position,
 } from "@blueprintjs/core";
-import { WidgetContainerDiff } from "widgets/WidgetUtils";
+import {
+  addLabelTooltipEventListeners,
+  hasLabelEllipsis,
+  removeLabelTooltipEventListeners,
+  WidgetContainerDiff,
+} from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
@@ -55,7 +60,7 @@ export interface TreeSelectProps
   labelText: string;
   labelPosition?: LabelPosition;
   labelAlignment?: Alignment;
-  labelWidth: number;
+  labelWidth?: number;
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
@@ -130,8 +135,9 @@ function SingleSelectTreeComponent({
   width,
 }: TreeSelectProps): JSX.Element {
   const [key, setKey] = useState(Math.random());
-  const [hasLabelEllipsis, setHasLabelEllipsis] = useState(false);
   const [filter, setFilter] = useState(filterText ?? "");
+  const [isLabelTooltipEnabled, setIsLabelTooltipEnabled] = useState(false);
+  const [isLabelTooltipOpen, setIsLabelTooltipOpen] = useState(false);
 
   const labelRef = useRef<HTMLDivElement>(null);
   const _menu = useRef<HTMLElement | null>(null);
@@ -144,19 +150,35 @@ function SingleSelectTreeComponent({
   }, [expandAll]);
 
   useEffect(() => {
-    setHasLabelEllipsis(checkHasLabelEllipsis());
-  }, [width, labelText, labelPosition, labelWidth]);
-
-  const checkHasLabelEllipsis = useCallback(() => {
-    const labelElement = document.querySelector(
-      `.appsmith_widget_${widgetId} .tree-select-label`,
-    );
-
-    if (labelElement) {
-      return labelElement.scrollWidth > labelElement.clientWidth;
+    if (labelText && !isLabelTooltipEnabled) {
+      addLabelTooltipEventListeners(
+        `.appsmith_widget_${widgetId} .tree-select-label`,
+        handleMouseEnterOnLabel,
+        handleMouseLeaveOnLabel,
+      );
+      setIsLabelTooltipEnabled(true);
+    } else if (!labelText && isLabelTooltipEnabled) {
+      setIsLabelTooltipEnabled(false);
     }
+  }, [labelText]);
 
-    return false;
+  useEffect(() => {
+    return () =>
+      removeLabelTooltipEventListeners(
+        `.appsmith_widget_${widgetId} .tree-select-label`,
+        handleMouseEnterOnLabel,
+        handleMouseLeaveOnLabel,
+      );
+  }, []);
+
+  const handleMouseEnterOnLabel = useCallback(() => {
+    if (hasLabelEllipsis(`.appsmith_widget_${widgetId} .tree-select-label`)) {
+      setIsLabelTooltipOpen(true);
+    }
+  }, []);
+
+  const handleMouseLeaveOnLabel = useCallback(() => {
+    setIsLabelTooltipOpen(false);
   }, []);
 
   const getDropdownPosition = useCallback(() => {
@@ -238,28 +260,12 @@ function SingleSelectTreeComponent({
           ref={labelRef}
           width={labelWidth}
         >
-          {hasLabelEllipsis ? (
-            <StyledTooltip
-              content={labelText}
-              hoverOpenDelay={200}
-              position={Position.TOP}
-            >
-              <StyledLabel
-                $compactMode={compactMode}
-                $disabled={disabled}
-                $labelStyle={labelStyle}
-                $labelText={labelText}
-                $labelTextColor={labelTextColor}
-                $labelTextSize={labelTextSize}
-                className={`tree-select-label ${
-                  loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
-                }`}
-                disabled={disabled}
-              >
-                {labelText}
-              </StyledLabel>
-            </StyledTooltip>
-          ) : (
+          <StyledTooltip
+            content={labelText}
+            hoverOpenDelay={200}
+            isOpen={isLabelTooltipOpen}
+            position={Position.TOP}
+          >
             <StyledLabel
               $compactMode={compactMode}
               $disabled={disabled}
@@ -274,7 +280,7 @@ function SingleSelectTreeComponent({
             >
               {labelText}
             </StyledLabel>
-          )}
+          </StyledTooltip>
         </TextLabelWrapper>
       )}
       <InputContainer compactMode={compactMode} labelPosition={labelPosition}>

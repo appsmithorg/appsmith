@@ -47,6 +47,11 @@ import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import Icon from "components/ads/Icon";
 import { limitDecimalValue, getSeparators } from "./utilities";
 import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
+import {
+  addLabelTooltipEventListeners,
+  hasLabelEllipsis,
+  removeLabelTooltipEventListeners,
+} from "widgets/WidgetUtils";
 
 /**
  * All design system component specific logic goes here.
@@ -68,6 +73,7 @@ const InputComponentWrapper = styled((props) => (
       "multiline",
       "numeric",
       "inputType",
+      "tooltip",
     ])}
   />
 ))<{
@@ -77,6 +83,7 @@ const InputComponentWrapper = styled((props) => (
   allowCurrencyChange?: boolean;
   disabled?: boolean;
   inputType: InputType;
+  tooltip?: string;
 }>`
   flex-direction: ${(props) =>
     props.labelPosition === LabelPosition.Left
@@ -233,14 +240,15 @@ const InputComponentWrapper = styled((props) => (
     label {
       ${labelStyle}
 
-      ${({ compactMode, labelPosition }) =>
+      ${({ compactMode, labelPosition, tooltip }) =>
         labelPosition === LabelPosition.Top
-          ? `margin-right: 0px`
+          ? `margin-bottom: 5px; ${
+              tooltip ? `margin-right: 5px` : `margin-right: 0px`
+            }`
           : compactMode || labelPosition === LabelPosition.Left
-          ? `margin-right: 5px`
-          : `margin-right: 0px`};
+          ? `margin-bottom: 0px; margin-right: 5px`
+          : `margin-bottom: 5px; margin-right: 0px`};
 
-      text-align: right;
       align-self: flex-start;
       color: ${(props) =>
         props.disabled ? Colors.GREY_8 : props.labelTextColor || "inherit"};
@@ -373,7 +381,7 @@ class InputComponent extends React.Component<
   decimalSeparator: string;
   constructor(props: InputComponentProps) {
     super(props);
-    this.state = { showPassword: false, hasLabelEllipsis: false };
+    this.state = { showPassword: false, isLabelTooltipOpen: false };
     const separators = getSeparators();
     this.groupSeparator = separators.groupSeparator;
     this.decimalSeparator = separators.decimalSeparator;
@@ -390,7 +398,13 @@ class InputComponent extends React.Component<
       }
     }
 
-    this.setState({ hasLabelEllipsis: this.checkHasLabelEllipsis() });
+    if (this.props.label) {
+      addLabelTooltipEventListeners(
+        `.appsmith_widget_${this.props.widgetId} .t--input-widget-label`,
+        this.handleMouseEnterOnLabel,
+        this.handleMouseLeaveOnLabel,
+      );
+    }
   }
 
   componentDidUpdate(prevProps: InputComponentProps) {
@@ -406,14 +420,12 @@ class InputComponent extends React.Component<
         element[1].addEventListener("click", this.onDecrementButtonClick);
       }
     }
-    if (
-      prevProps.width !== this.props.width ||
-      prevProps.label !== this.props.label ||
-      prevProps.labelPosition !== this.props.labelPosition ||
-      prevProps.labelWidth !== this.props.labelWidth ||
-      prevProps.tooltip !== this.props.tooltip
-    ) {
-      this.setState({ hasLabelEllipsis: this.checkHasLabelEllipsis() });
+    if (!prevProps.label && this.props.label) {
+      addLabelTooltipEventListeners(
+        `.appsmith_widget_${this.props.widgetId} .t--input-widget-label`,
+        this.handleMouseEnterOnLabel,
+        this.handleMouseLeaveOnLabel,
+      );
     }
   }
 
@@ -427,18 +439,26 @@ class InputComponent extends React.Component<
         element[1].removeEventListener("click", this.onDecrementButtonClick);
       }
     }
+
+    removeLabelTooltipEventListeners(
+      `.appsmith_widget_${this.props.widgetId} .t--input-widget-label`,
+      this.handleMouseEnterOnLabel,
+      this.handleMouseLeaveOnLabel,
+    );
   }
 
-  checkHasLabelEllipsis = () => {
-    const labelElement = document.querySelector(
-      `.appsmith_widget_${this.props.widgetId} .t--input-widget-label`,
-    );
-
-    if (labelElement) {
-      return labelElement.scrollWidth > labelElement.clientWidth;
+  handleMouseEnterOnLabel = () => {
+    if (
+      hasLabelEllipsis(
+        `.appsmith_widget_${this.props.widgetId} .t--input-widget-label`,
+      )
+    ) {
+      this.setState({ isLabelTooltipOpen: true });
     }
+  };
 
-    return false;
+  handleMouseLeaveOnLabel = () => {
+    this.setState({ isLabelTooltipOpen: false });
   };
 
   updateValueOnButtonClick = (type: number) => {
@@ -723,6 +743,7 @@ class InputComponent extends React.Component<
         labelTextSize={labelTextSize ? TEXT_SIZES[labelTextSize] : "inherit"}
         multiline={multiline.toString()}
         numeric={isNumberInputType(inputType)}
+        tooltip={tooltip}
       >
         {showLabelHeader && (
           <TextLabelWrapper
@@ -732,26 +753,13 @@ class InputComponent extends React.Component<
             position={labelPosition}
             width={labelWidth}
           >
-            {label &&
-              (this.state.hasLabelEllipsis ? (
-                <StyledTooltip
-                  content={label}
-                  hoverOpenDelay={200}
-                  position={Position.TOP}
-                >
-                  <Label
-                    className={`
-                  t--input-widget-label ${
-                    isLoading
-                      ? Classes.SKELETON
-                      : Classes.TEXT_OVERFLOW_ELLIPSIS
-                  }
-                `}
-                  >
-                    {label}
-                  </Label>
-                </StyledTooltip>
-              ) : (
+            {label && (
+              <StyledTooltip
+                content={label}
+                hoverOpenDelay={200}
+                isOpen={this.state.isLabelTooltipOpen}
+                position={Position.TOP}
+              >
                 <Label
                   className={`
                   t--input-widget-label ${
@@ -763,7 +771,8 @@ class InputComponent extends React.Component<
                 >
                   {label}
                 </Label>
-              ))}
+              </StyledTooltip>
+            )}
             {tooltip && (
               <Tooltip
                 content={tooltip}
@@ -799,7 +808,7 @@ class InputComponent extends React.Component<
 
 export interface InputComponentState {
   showPassword?: boolean;
-  hasLabelEllipsis?: boolean;
+  isLabelTooltipOpen: boolean;
 }
 
 export interface InputComponentProps extends ComponentProps {
@@ -820,7 +829,7 @@ export interface InputComponentProps extends ComponentProps {
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
-  labelWidth: number;
+  labelWidth?: number;
   tooltip?: string;
   leftIcon?: IconName;
   allowNumericCharactersOnly?: boolean;
@@ -853,7 +862,6 @@ export interface InputComponentProps extends ComponentProps {
       | React.KeyboardEvent<HTMLTextAreaElement>
       | React.KeyboardEvent<HTMLInputElement>,
   ) => void;
-  width: number;
 }
 
 export default InputComponent;

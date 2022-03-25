@@ -46,7 +46,6 @@ class CurrencyInputComponent extends React.Component<
         disabled={this.props.disabled}
         errorMessage={this.props.errorMessage}
         fill={this.props.fill}
-        height={this.props.height}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputHTMLType="NUMBER"
@@ -82,7 +81,6 @@ class CurrencyInputComponent extends React.Component<
         tooltip={this.props.tooltip}
         value={this.props.value}
         widgetId={this.props.widgetId}
-        width={this.props.width}
       />
     );
   }

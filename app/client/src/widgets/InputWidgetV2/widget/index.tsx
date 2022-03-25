@@ -456,8 +456,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         : // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
           GRID_DENSITY_MIGRATION_V1;
 
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
-
     return (
       <InputComponent
         autoFocus={this.props.autoFocus}
@@ -472,7 +470,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         defaultValue={this.props.defaultText}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}
         disabled={this.props.isDisabled}
-        height={componentHeight}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputType={this.props.inputType}
@@ -502,7 +499,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         tooltip={this.props.tooltip}
         value={value}
         widgetId={this.props.widgetId}
-        width={componentWidth}
         {...conditionalProps}
       />
     );

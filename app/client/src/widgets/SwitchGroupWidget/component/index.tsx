@@ -12,6 +12,11 @@ import {
   TEXT_SIZES,
 } from "constants/WidgetConstants";
 import Tooltip from "components/ads/Tooltip";
+import {
+  addLabelTooltipEventListeners,
+  hasLabelEllipsis,
+  removeLabelTooltipEventListeners,
+} from "widgets/WidgetUtils";
 
 export interface SwitchGroupContainerProps {
   compactMode: boolean;
@@ -108,11 +113,6 @@ export const InputContainer = styled.div<ThemeProp & InputContainerProps>`
   }
 `;
 
-export interface StyledSwitchProps {
-  alignIndicator: Alignment;
-  inline: boolean;
-}
-
 export interface LabelContainerProps {
   inline: boolean;
   optionCount: number;
@@ -200,14 +200,43 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
     width,
   } = props;
 
-  const [hasLabelEllipsis, setHasLabelEllipsis] = useState(false);
+  const [isLabelTooltipEnabled, setIsLabelTooltipEnabled] = useState(false);
+  const [isLabelTooltipOpen, setIsLabelTooltipOpen] = useState(false);
   const [scrollable, setScrollable] = useState(false);
 
   const containerRef = React.createRef<HTMLDivElement>();
 
   useEffect(() => {
-    setHasLabelEllipsis(checkHasLabelEllipsis());
-  }, [width, height, labelText, labelPosition, labelWidth]);
+    if (labelText && !isLabelTooltipEnabled) {
+      addLabelTooltipEventListeners(
+        `.appsmith_widget_${widgetId} .switchgroup-label`,
+        handleMouseEnterOnLabel,
+        handleMouseLeaveOnLabel,
+      );
+      setIsLabelTooltipEnabled(true);
+    } else if (!labelText && isLabelTooltipEnabled) {
+      setIsLabelTooltipEnabled(false);
+    }
+  }, [labelText]);
+
+  useEffect(() => {
+    return () =>
+      removeLabelTooltipEventListeners(
+        `.appsmith_widget_${widgetId} .switchgroup-label`,
+        handleMouseEnterOnLabel,
+        handleMouseLeaveOnLabel,
+      );
+  }, []);
+
+  const handleMouseEnterOnLabel = useCallback(() => {
+    if (hasLabelEllipsis(`.appsmith_widget_${widgetId} .switchgroup-label`)) {
+      setIsLabelTooltipOpen(true);
+    }
+  }, []);
+
+  const handleMouseLeaveOnLabel = useCallback(() => {
+    setIsLabelTooltipOpen(false);
+  }, []);
 
   useEffect(() => {
     const containerElement = containerRef.current;
@@ -229,18 +258,6 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
     labelWidth,
   ]);
 
-  const checkHasLabelEllipsis = useCallback(() => {
-    const labelElement = document.querySelector(
-      `.appsmith_widget_${widgetId} .switchgroup-label`,
-    );
-
-    if (labelElement) {
-      return labelElement.scrollWidth > labelElement.clientWidth;
-    }
-
-    return false;
-  }, []);
-
   const optionCount = (options || []).length;
 
   return (
@@ -259,23 +276,12 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
           position={labelPosition}
           width={labelWidth}
         >
-          {hasLabelEllipsis ? (
-            <StyledTooltip
-              content={labelText}
-              hoverOpenDelay={200}
-              position={Position.TOP}
-            >
-              <StyledLabel
-                className={`switchgroup-label ${Classes.TEXT_OVERFLOW_ELLIPSIS}`}
-                disabled={disabled}
-                labelStyle={labelStyle}
-                labelTextColor={labelTextColor}
-                labelTextSize={labelTextSize}
-              >
-                {labelText}
-              </StyledLabel>
-            </StyledTooltip>
-          ) : (
+          <StyledTooltip
+            content={labelText}
+            hoverOpenDelay={200}
+            isOpen={isLabelTooltipOpen}
+            position={Position.TOP}
+          >
             <StyledLabel
               className={`switchgroup-label ${Classes.TEXT_OVERFLOW_ELLIPSIS}`}
               disabled={disabled}
@@ -285,7 +291,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
             >
               {labelText}
             </StyledLabel>
-          )}
+          </StyledTooltip>
         </LabelContainer>
       )}
       <InputContainer
@@ -330,7 +336,7 @@ export interface SwitchGroupComponentProps {
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
-  labelWidth: number;
+  labelWidth?: number;
   widgetId: string;
   height: number;
   width: number;

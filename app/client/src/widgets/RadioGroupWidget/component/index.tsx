@@ -19,6 +19,11 @@ import { BlueprintControlTransform } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
 import Tooltip from "components/ads/Tooltip";
+import {
+  addLabelTooltipEventListeners,
+  hasLabelEllipsis,
+  removeLabelTooltipEventListeners,
+} from "widgets/WidgetUtils";
 
 export interface RadioGroupContainerProps {
   compactMode: boolean;
@@ -178,13 +183,19 @@ class RadioGroupComponent extends React.Component<
     super(props);
     this.containerRef = React.createRef();
     this.state = {
-      hasLabelEllipsis: false,
+      isLabelTooltipOpen: false,
       scrollable: false,
     };
   }
 
   componentDidMount() {
-    this.setState({ hasLabelEllipsis: this.checkHasLabelEllipsis() });
+    if (this.props.labelText) {
+      addLabelTooltipEventListeners(
+        `.appsmith_widget_${this.props.widgetId} .radiogroup-label`,
+        this.handleMouseEnterOnLabel,
+        this.handleMouseLeaveOnLabel,
+      );
+    }
   }
 
   componentDidUpdate(prevProps: RadioGroupComponentProps) {
@@ -199,7 +210,6 @@ class RadioGroupComponent extends React.Component<
     ) {
       const containerElement = this.containerRef.current;
       this.setState({
-        hasLabelEllipsis: this.checkHasLabelEllipsis(),
         scrollable: containerElement
           ? containerElement.scrollHeight > containerElement.clientHeight
             ? true
@@ -207,18 +217,35 @@ class RadioGroupComponent extends React.Component<
           : false,
       });
     }
+    if (!prevProps.labelText && this.props.labelText) {
+      addLabelTooltipEventListeners(
+        `.appsmith_widget_${this.props.widgetId} .radiogroup-label`,
+        this.handleMouseEnterOnLabel,
+        this.handleMouseLeaveOnLabel,
+      );
+    }
   }
 
-  checkHasLabelEllipsis = () => {
-    const labelElement = document.querySelector(
+  componentWillUnmount() {
+    removeLabelTooltipEventListeners(
       `.appsmith_widget_${this.props.widgetId} .radiogroup-label`,
+      this.handleMouseEnterOnLabel,
+      this.handleMouseLeaveOnLabel,
     );
+  }
 
-    if (labelElement) {
-      return labelElement.scrollWidth > labelElement.clientWidth;
+  handleMouseEnterOnLabel = () => {
+    if (
+      hasLabelEllipsis(
+        `.appsmith_widget_${this.props.widgetId} .radiogroup-label`,
+      )
+    ) {
+      this.setState({ isLabelTooltipOpen: true });
     }
+  };
 
-    return false;
+  handleMouseLeaveOnLabel = () => {
+    this.setState({ isLabelTooltipOpen: false });
   };
 
   render() {
@@ -257,23 +284,12 @@ class RadioGroupComponent extends React.Component<
             position={labelPosition}
             width={labelWidth}
           >
-            {this.state.hasLabelEllipsis ? (
-              <StyledTooltip
-                content={labelText}
-                hoverOpenDelay={200}
-                position={Position.TOP}
-              >
-                <StyledLabel
-                  className={`radiogroup-label ${Classes.TEXT_OVERFLOW_ELLIPSIS}`}
-                  disabled={disabled}
-                  labelStyle={labelStyle}
-                  labelTextColor={labelTextColor}
-                  labelTextSize={labelTextSize}
-                >
-                  {labelText}
-                </StyledLabel>
-              </StyledTooltip>
-            ) : (
+            <StyledTooltip
+              content={labelText}
+              hoverOpenDelay={200}
+              isOpen={this.state.isLabelTooltipOpen}
+              position={Position.TOP}
+            >
               <StyledLabel
                 className={`radiogroup-label ${Classes.TEXT_OVERFLOW_ELLIPSIS}`}
                 disabled={disabled}
@@ -283,7 +299,7 @@ class RadioGroupComponent extends React.Component<
               >
                 {labelText}
               </StyledLabel>
-            )}
+            </StyledTooltip>
           </LabelContainer>
         )}
         <StyledRadioGroup
@@ -320,9 +336,6 @@ class RadioGroupComponent extends React.Component<
 
 export interface RadioGroupComponentProps extends ComponentProps {
   options: RadioOption[];
-  isDisabled?: boolean;
-  isLoading: boolean;
-  label: string;
   onRadioSelectionChange: (updatedOptionValue: string) => void;
   selectedOptionValue: string;
   disabled: boolean;
@@ -336,14 +349,14 @@ export interface RadioGroupComponentProps extends ComponentProps {
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
-  labelWidth: number;
+  labelWidth?: number;
   widgetId: string;
-  height: number;
-  width: number;
+  height?: number;
+  width?: number;
 }
 
 interface RadioGroupComponentState {
-  hasLabelEllipsis: boolean;
+  isLabelTooltipOpen: boolean;
   scrollable: boolean;
 }
 

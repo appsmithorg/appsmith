@@ -18,7 +18,12 @@ import {
 import debounce from "lodash/debounce";
 import Icon from "components/ads/Icon";
 import { Alignment, Classes, Position } from "@blueprintjs/core";
-import { WidgetContainerDiff } from "widgets/WidgetUtils";
+import {
+  addLabelTooltipEventListeners,
+  hasLabelEllipsis,
+  removeLabelTooltipEventListeners,
+  WidgetContainerDiff,
+} from "widgets/WidgetUtils";
 import _ from "lodash";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
@@ -44,7 +49,7 @@ export interface MultiSelectProps
   labelText: string;
   labelPosition?: LabelPosition;
   labelAlignment?: Alignment;
-  labelWidth: number;
+  labelWidth?: number;
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
@@ -85,7 +90,8 @@ function MultiSelectComponent({
   width,
 }: MultiSelectProps): JSX.Element {
   const [isSelectAll, setIsSelectAll] = useState(false);
-  const [hasLabelEllipsis, setHasLabelEllipsis] = useState(false);
+  const [isLabelTooltipEnabled, setIsLabelTooltipEnabled] = useState(false);
+  const [isLabelTooltipOpen, setIsLabelTooltipOpen] = useState(false);
 
   const _menu = useRef<HTMLElement | null>(null);
 
@@ -104,19 +110,35 @@ function MultiSelectComponent({
   }, [options, value]);
 
   useEffect(() => {
-    setHasLabelEllipsis(checkHasLabelEllipsis());
-  }, [width, labelText, labelPosition, labelWidth]);
-
-  const checkHasLabelEllipsis = useCallback(() => {
-    const labelElement = document.querySelector(
-      `.appsmith_widget_${widgetId} .multiselect-label`,
-    );
-
-    if (labelElement) {
-      return labelElement.scrollWidth > labelElement.clientWidth;
+    if (labelText && !isLabelTooltipEnabled) {
+      addLabelTooltipEventListeners(
+        `.appsmith_widget_${widgetId} .multiselect-label`,
+        handleMouseEnterOnLabel,
+        handleMouseLeaveOnLabel,
+      );
+      setIsLabelTooltipEnabled(true);
+    } else if (!labelText && isLabelTooltipEnabled) {
+      setIsLabelTooltipEnabled(false);
     }
+  }, [labelText]);
 
-    return false;
+  useEffect(() => {
+    return () =>
+      removeLabelTooltipEventListeners(
+        `.appsmith_widget_${widgetId} .multiselect-label`,
+        handleMouseEnterOnLabel,
+        handleMouseLeaveOnLabel,
+      );
+  }, []);
+
+  const handleMouseEnterOnLabel = useCallback(() => {
+    if (hasLabelEllipsis(`.appsmith_widget_${widgetId} .multiselect-label`)) {
+      setIsLabelTooltipOpen(true);
+    }
+  }, []);
+
+  const handleMouseLeaveOnLabel = useCallback(() => {
+    setIsLabelTooltipOpen(false);
   }, []);
 
   const getDropdownPosition = useCallback(() => {
@@ -203,27 +225,12 @@ function MultiSelectComponent({
           position={labelPosition}
           width={labelWidth}
         >
-          {hasLabelEllipsis ? (
-            <StyledTooltip
-              content={labelText}
-              hoverOpenDelay={200}
-              position={Position.TOP}
-            >
-              <StyledLabel
-                $compactMode={compactMode}
-                $disabled={disabled}
-                $labelStyle={labelStyle}
-                $labelText={labelText}
-                $labelTextColor={labelTextColor}
-                $labelTextSize={labelTextSize}
-                className={`multiselect-label ${
-                  loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
-                }`}
-              >
-                {labelText}
-              </StyledLabel>
-            </StyledTooltip>
-          ) : (
+          <StyledTooltip
+            content={labelText}
+            hoverOpenDelay={200}
+            isOpen={isLabelTooltipOpen}
+            position={Position.TOP}
+          >
             <StyledLabel
               $compactMode={compactMode}
               $disabled={disabled}
@@ -237,7 +244,7 @@ function MultiSelectComponent({
             >
               {labelText}
             </StyledLabel>
-          )}
+          </StyledTooltip>
         </TextLabelWrapper>
       )}
       <Select

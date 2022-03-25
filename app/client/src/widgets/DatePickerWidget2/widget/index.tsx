@@ -371,7 +371,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   }
 
   getPageView() {
-    const { componentWidth } = this.getComponentDimensions();
     return (
       <DatePickerComponent
         closeOnSelection={this.props.closeOnSelection}
@@ -403,7 +402,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         shortcuts={this.props.shortcuts}
         timePrecision={this.props.timePrecision}
         widgetId={this.props.widgetId}
-        width={componentWidth}
       />
     );
   }

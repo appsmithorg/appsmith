@@ -1,10 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import {
-  labelStyle,
-  IntentColors,
-  getBorderCSSShorthand,
-} from "constants/DefaultTheme";
+import { IntentColors, getBorderCSSShorthand } from "constants/DefaultTheme";
 import {
   ControlGroup,
   Classes,
@@ -33,6 +29,11 @@ import {
 import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
 import Tooltip from "components/ads/Tooltip";
 import { parseDate } from "./utils";
+import {
+  addLabelTooltipEventListeners,
+  hasLabelEllipsis,
+  removeLabelTooltipEventListeners,
+} from "widgets/WidgetUtils";
 
 const StyledControlGroup = styled(ControlGroup)<{
   isValid: boolean;
@@ -187,12 +188,18 @@ class DatePickerComponent extends React.Component<
     super(props);
     this.state = {
       selectedDate: props.selectedDate,
-      hasLabelEllipsis: false,
+      isLabelTooltipOpen: false,
     };
   }
 
   componentDidMount() {
-    this.setState({ hasLabelEllipsis: this.checkHasLabelEllipsis() });
+    if (this.props.labelText) {
+      addLabelTooltipEventListeners(
+        `.appsmith_widget_${this.props.widgetId} .datepicker-label`,
+        this.handleMouseEnterOnLabel,
+        this.handleMouseLeaveOnLabel,
+      );
+    }
   }
 
   componentDidUpdate(prevProps: DatePickerComponentProps) {
@@ -206,26 +213,35 @@ class DatePickerComponent extends React.Component<
       this.setState({ selectedDate: this.props.selectedDate });
     }
 
-    if (
-      prevProps.width !== this.props.width ||
-      prevProps.labelText !== this.props.labelText ||
-      prevProps.labelPosition !== this.props.labelPosition ||
-      prevProps.labelWidth !== this.props.labelWidth
-    ) {
-      this.setState({ hasLabelEllipsis: this.checkHasLabelEllipsis() });
+    if (!prevProps.labelText && this.props.labelText) {
+      addLabelTooltipEventListeners(
+        `.appsmith_widget_${this.props.widgetId} .datepicker-label`,
+        this.handleMouseEnterOnLabel,
+        this.handleMouseLeaveOnLabel,
+      );
     }
   }
 
-  checkHasLabelEllipsis = () => {
-    const labelElement = document.querySelector(
+  componentWillUnmount() {
+    removeLabelTooltipEventListeners(
       `.appsmith_widget_${this.props.widgetId} .datepicker-label`,
+      this.handleMouseEnterOnLabel,
+      this.handleMouseLeaveOnLabel,
     );
+  }
 
-    if (labelElement) {
-      return labelElement.scrollWidth > labelElement.clientWidth;
+  handleMouseEnterOnLabel = () => {
+    if (
+      hasLabelEllipsis(
+        `.appsmith_widget_${this.props.widgetId} .datepicker-label`,
+      )
+    ) {
+      this.setState({ isLabelTooltipOpen: true });
     }
+  };
 
-    return false;
+  handleMouseLeaveOnLabel = () => {
+    this.setState({ isLabelTooltipOpen: false });
   };
 
   getValidDate = (date: string, format: string) => {
@@ -285,29 +301,12 @@ class DatePickerComponent extends React.Component<
             position={labelPosition}
             width={labelWidth}
           >
-            {this.state.hasLabelEllipsis ? (
-              <StyledTooltip
-                content={labelText}
-                hoverOpenDelay={200}
-                position={Position.TOP}
-              >
-                <StyledLabel
-                  $disabled={isDisabled}
-                  $labelStyle={labelStyle}
-                  $labelText={labelText}
-                  $labelTextColor={labelTextColor}
-                  $labelTextSize={labelTextSize}
-                  className={`datepicker-label ${
-                    isLoading
-                      ? Classes.SKELETON
-                      : Classes.TEXT_OVERFLOW_ELLIPSIS
-                  }`}
-                  disabled={isDisabled}
-                >
-                  {labelText}
-                </StyledLabel>
-              </StyledTooltip>
-            ) : (
+            <StyledTooltip
+              content={labelText}
+              hoverOpenDelay={200}
+              isOpen={this.state.isLabelTooltipOpen}
+              position={Position.TOP}
+            >
               <StyledLabel
                 $disabled={isDisabled}
                 $labelStyle={labelStyle}
@@ -321,7 +320,7 @@ class DatePickerComponent extends React.Component<
               >
                 {labelText}
               </StyledLabel>
-            )}
+            </StyledTooltip>
           </TextLabelWrapper>
         )}
         <DateInputWrapper
@@ -455,13 +454,12 @@ interface DatePickerComponentProps extends ComponentProps {
   shortcuts: boolean;
   firstDayOfWeek?: number;
   timePrecision: TimePrecision;
-  width?: number;
   inputRef?: IRef<HTMLInputElement>;
 }
 
 interface DatePickerComponentState {
   selectedDate?: string;
-  hasLabelEllipsis: boolean;
+  isLabelTooltipOpen: boolean;
 }
 
 export default DatePickerComponent;

@@ -199,6 +199,7 @@ function MultiSelectField({
           filterText={filterText}
           isFilterable={schemaItem.isFilterable}
           isValid={isDirty ? isValueValid : true}
+          labelText=""
           loading={false}
           onBlur={onBlurHandler}
           onChange={onOptionChange}
