@@ -139,7 +139,7 @@ export function ThemeCard(props: ThemeCard) {
         {selectable && (
           <div className="flex items-center justify-between">
             <h3 className="text-sm text-gray-600 break-all">
-              {props.theme.name}
+              {props.theme.displayName}
             </h3>
             {deletable && (
               <button

@@ -239,7 +239,9 @@
         "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
-      "TEXT_WIDGET": {},
+      "TEXT_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+      },
       "VIDEO_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
@@ -508,7 +510,9 @@
         "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
-      "TEXT_WIDGET": {},
+      "TEXT_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+      },
       "VIDEO_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
@@ -777,7 +781,9 @@
         "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
-      "TEXT_WIDGET": {},
+      "TEXT_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+      },
       "VIDEO_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
@@ -1046,7 +1052,9 @@
         "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
-      "TEXT_WIDGET": {},
+      "TEXT_WIDGET": {
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+      },
       "VIDEO_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
