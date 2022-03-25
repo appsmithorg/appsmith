@@ -35,6 +35,9 @@ class AppHeader extends React.Component<Props, any> {
     return (
       <Switch>
         <Route component={PageHeader} path={ADMIN_SETTINGS_CATEGORY_PATH} />
+        <Route component={LoginHeader} path={USER_AUTH_URL} />
+        <Route path={SETUP} />
+        <Route path={SIGNUP_SUCCESS_URL} />
         <Route component={AppEditorHeader} path={BUILDER_PATH} />
         <Route component={AppEditorHeader} path={BUILDER_PATH_DEPRECATED} />
         <Route component={AppViewerHeader} exact path={VIEWER_PATH} />
@@ -43,9 +46,6 @@ class AppHeader extends React.Component<Props, any> {
           exact
           path={VIEWER_PATH_DEPRECATED}
         />
-        <Route component={LoginHeader} path={USER_AUTH_URL} />
-        <Route path={SETUP} />
-        <Route path={SIGNUP_SUCCESS_URL} />
         <Route component={PageHeader} path={BASE_URL} />
       </Switch>
     );
