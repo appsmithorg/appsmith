@@ -19,3 +19,5 @@ export const VIEWBOX_CENTER_Y = 50;
 export const STROKE_WIDTH = 8;
 export const MAX_VALUE = 100;
 export const LINEAR_PROGRESS_HEIGHT_RATIO = 15;
+export const INDETERMINATE_SIZE = 44;
+export const INDETERMINATE_THICKNESS = 3.6;

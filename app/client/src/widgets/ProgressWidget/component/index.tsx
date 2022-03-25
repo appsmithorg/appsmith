@@ -3,6 +3,8 @@ import styled, { css, keyframes } from "styled-components";
 
 import { Colors } from "constants/Colors";
 import {
+  INDETERMINATE_SIZE,
+  INDETERMINATE_THICKNESS,
   LINEAR_PROGRESS_HEIGHT_RATIO,
   MAX_VALUE,
   ProgressType,
@@ -240,7 +242,7 @@ export const Circle = styled.circle<{
     stroke-dashoffset: 0;
     stroke-linecap: round;
     stroke: ${fillColor};
-    stroke-width: 5;
+    stroke-width: ${INDETERMINATE_THICKNESS};
   `}
 `;
 
@@ -365,16 +367,29 @@ function CircularProgress(props: ProgressComponentProps) {
     <SvgContainer
       data-cy="circular"
       variant={variant}
-      viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`}
+      viewBox={
+        variant === ProgressVariant.INDETERMINATE
+          ? `${INDETERMINATE_SIZE / 2} ${INDETERMINATE_SIZE /
+              2} ${INDETERMINATE_SIZE} ${INDETERMINATE_SIZE}`
+          : `0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`
+      }
     >
       <Circle
-        cx={VIEWBOX_CENTER_X}
-        cy={VIEWBOX_CENTER_Y}
+        cx={
+          variant === ProgressVariant.INDETERMINATE
+            ? INDETERMINATE_SIZE
+            : VIEWBOX_CENTER_X
+        }
+        cy={
+          variant === ProgressVariant.INDETERMINATE
+            ? INDETERMINATE_SIZE
+            : VIEWBOX_CENTER_Y
+        }
         fillColor={fillColor}
         r={
-          variant === ProgressVariant.DETERMINATE
-            ? VIEWBOX_HEIGHT_HALF
-            : VIEWBOX_HEIGHT_HALF - 30
+          variant === ProgressVariant.INDETERMINATE
+            ? (INDETERMINATE_SIZE - INDETERMINATE_THICKNESS) / 2
+            : VIEWBOX_HEIGHT_HALF
         }
         variant={variant}
       />
