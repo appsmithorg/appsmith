@@ -13,11 +13,11 @@ describe("Entity explorer tests related to copy query", function() {
     cy.startRoutesForDatasource();
   });
 
-  afterEach(function() {
-    if (this.currentTest.state === "failed") {
-      Cypress.runner.stop();
-    }
-  });
+  // afterEach(function() {
+  //   if (this.currentTest.state === "failed") {
+  //     Cypress.runner.stop();
+  //   }
+  // });
 
   it("1. Create a query with dataSource in explorer, Create new Page", function() {
     cy.Createpage(pageid);
@@ -99,10 +99,13 @@ describe("Entity explorer tests related to copy query", function() {
       cy.log("sliced id :" + updatedName);
       cy.CheckAndUnfoldEntityItem("QUERIES/JS");
       cy.EditEntityNameByDoubleClick(datasourceName, updatedName);
-      cy.wait(2000);
-      cy.hoverAndClick();
-      cy.get(apiwidget.delete).click({ force: true });
-      cy.get(apiwidget.deleteConfirm).click({ force: true });
+      cy.wait(1000);
+      agHelper.ActionContextMenuByEntityName(
+        updatedName,
+        "Delete",
+        "Are you sure?",
+      );
+      cy.wait(1000);
       //This is check to make sure if a datasource is active 409
       cy.wait("@deleteDatasource").should(
         "have.nested.property",
