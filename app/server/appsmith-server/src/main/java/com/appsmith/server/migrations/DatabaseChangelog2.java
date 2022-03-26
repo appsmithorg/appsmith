@@ -1,8 +1,12 @@
 package com.appsmith.server.migrations;
 
+import com.appsmith.server.domains.Application;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.dtos.ActionDTO;
@@ -27,6 +31,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
@@ -39,31 +44,30 @@ public class DatabaseChangelog2 {
         mongockTemplate.updateFirst(
                 query(where(fieldName(QPlugin.plugin.packageName)).is("mysql-plugin")),
                 Update.update(fieldName(QPlugin.plugin.name), "MySQL"),
-                Plugin.class
-        );
+                Plugin.class);
 
         mongockTemplate.updateFirst(
                 query(where(fieldName(QPlugin.plugin.packageName)).is("mssql-plugin")),
                 Update.update(fieldName(QPlugin.plugin.name), "Microsoft SQL Server"),
-                Plugin.class
-        );
+                Plugin.class);
 
         mongockTemplate.updateFirst(
                 query(where(fieldName(QPlugin.plugin.packageName)).is("elasticsearch-plugin")),
                 Update.update(fieldName(QPlugin.plugin.name), "Elasticsearch"),
-                Plugin.class
-        );
+                Plugin.class);
     }
 
     @ChangeSet(order = "002", id = "deprecate-archivedAt-in-action", author = "")
     public void deprecateArchivedAtForNewAction(MongockTemplate mongockTemplate) {
         // Update actions
         final Query actionQuery = query(where(fieldName(QNewAction.newAction.applicationId)).exists(true))
-                .addCriteria(where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.archivedAt)).exists(true));
+                .addCriteria(where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+                        + fieldName(QNewAction.newAction.unpublishedAction.archivedAt)).exists(true));
 
         actionQuery.fields()
                 .include(fieldName(QNewAction.newAction.id))
-                .include(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.archivedAt));
+                .include(fieldName(QNewAction.newAction.unpublishedAction) + "."
+                        + fieldName(QNewAction.newAction.unpublishedAction.archivedAt));
 
         List<NewAction> actions = mongockTemplate.find(actionQuery, NewAction.class);
 
@@ -75,16 +79,16 @@ public class DatabaseChangelog2 {
             if (unpublishedAction != null) {
                 final Instant archivedAt = unpublishedAction.getArchivedAt();
                 update.set(
-                        fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.deletedAt),
-                        archivedAt
-                );
-                update.unset(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.archivedAt));
+                        fieldName(QNewAction.newAction.unpublishedAction) + "."
+                                + fieldName(QNewAction.newAction.unpublishedAction.deletedAt),
+                        archivedAt);
+                update.unset(fieldName(QNewAction.newAction.unpublishedAction) + "."
+                        + fieldName(QNewAction.newAction.unpublishedAction.archivedAt));
             }
             mongockTemplate.updateFirst(
                     query(where(fieldName(QNewAction.newAction.id)).is(action.getId())),
                     update,
-                    NewAction.class
-            );
+                    NewAction.class);
         }
     }
 
@@ -93,7 +97,8 @@ public class DatabaseChangelog2 {
      * we need to be migrating all existing data to the data and formData path.
      * Anything that was already raw would not be within formData,
      * so we can blindly switch the contents of formData into inner objects
-     * Example: formData.limit will transform to formData.limit.data and formData.limit.formData
+     * Example: formData.limit will transform to formData.limit.data and
+     * formData.limit.formData
      *
      * @param mongockTemplate
      */
@@ -103,8 +108,7 @@ public class DatabaseChangelog2 {
         // Get all plugin references to Mongo, S3 and Firestore actions
         List<Plugin> uqiPlugins = mongockTemplate.find(
                 query(where("packageName").in("mongo-plugin", "amazons3-plugin", "firestore-plugin")),
-                Plugin.class
-        );
+                Plugin.class);
 
         final Map<String, String> pluginMap = uqiPlugins.stream()
                 .collect(Collectors.toMap(Plugin::getId, Plugin::getPackageName));
@@ -120,8 +124,7 @@ public class DatabaseChangelog2 {
 
         List<NewAction> uqiActions = mongockTemplate.find(
                 actionQuery,
-                NewAction.class
-        );
+                NewAction.class);
 
         // Retrieve the formData path for all actions
         for (NewAction uqiActionWithId : uqiActions) {
@@ -129,8 +132,7 @@ public class DatabaseChangelog2 {
             // Fetch one action at a time to avoid OOM.
             final NewAction uqiAction = mongockTemplate.findOne(
                     query(where(fieldName(QNewAction.newAction.id)).is(uqiActionWithId.getId())),
-                    NewAction.class
-            );
+                    NewAction.class);
 
             assert uqiAction != null;
             ActionDTO unpublishedAction = uqiAction.getUnpublishedAction();
@@ -225,7 +227,7 @@ public class DatabaseChangelog2 {
             if (!(command instanceof String)) {
                 throw new AppsmithException(AppsmithError.MIGRATION_ERROR);
             }
-            
+
             publishedFormData
                     .keySet()
                     .stream()
@@ -267,8 +269,10 @@ public class DatabaseChangelog2 {
 
         /**
          * Migrate the dynamic binding path list for unpublished action.
-         * Please note that there is no requirement to migrate the dynamic binding path list for published actions
-         * since the `on page load` actions do not get computed on published actions data. They are only computed
+         * Please note that there is no requirement to migrate the dynamic binding path
+         * list for published actions
+         * since the `on page load` actions do not get computed on published actions
+         * data. They are only computed
          * on unpublished actions data and copied over for the view mode.
          */
         List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
@@ -350,7 +354,8 @@ public class DatabaseChangelog2 {
         convertToFormDataObject(f, "bucket", formData.get("bucket"));
         convertToFormDataObject(f, "smartSubstitution", formData.get("smartSubstitution"));
         switch ((String) command) {
-            // No case for delete single and multiple since they only had bucket that needed migration
+            // No case for delete single and multiple since they only had bucket that needed
+            // migration
             case "LIST":
                 final Map listMap = (Map) formData.get("list");
                 if (listMap == null) {
@@ -372,7 +377,7 @@ public class DatabaseChangelog2 {
                 if (createMap == null) {
                     break;
                 }
-                final Map<String,Object> newCreateMap = new HashMap<>();
+                final Map<String, Object> newCreateMap = new HashMap<>();
                 f.put("create", newCreateMap);
                 convertToFormDataObject(newCreateMap, "dataType", createMap.get("dataType"));
                 convertToFormDataObject(newCreateMap, "expiry", createMap.get("expiry"));
@@ -382,7 +387,7 @@ public class DatabaseChangelog2 {
                 if (readMap == null) {
                     break;
                 }
-                final Map<String,Object> newReadMap = new HashMap<>();
+                final Map<String, Object> newReadMap = new HashMap<>();
                 f.put("read", newReadMap);
                 convertToFormDataObject(newReadMap, "dataType", readMap.get("usingBase64Encoding"));
                 break;
@@ -410,8 +415,10 @@ public class DatabaseChangelog2 {
 
         /**
          * Migrate the dynamic binding path list for unpublished action.
-         * Please note that there is no requirement to migrate the dynamic binding path list for published actions
-         * since the `on page load` actions do not get computed on published actions data. They are only computed
+         * Please note that there is no requirement to migrate the dynamic binding path
+         * list for published actions
+         * since the `on page load` actions do not get computed on published actions
+         * data. They are only computed
          * on unpublished actions data and copied over for the view mode.
          */
         List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
@@ -438,7 +445,8 @@ public class DatabaseChangelog2 {
                     .stream()
                     .forEach(dynamicBindingPath -> {
                         final String currentBinding = dynamicBindingPath.getKey();
-                        final Optional<String> matchingBinding = dynamicBindingMapper.keySet().stream().filter(currentBinding::startsWith).findFirst();
+                        final Optional<String> matchingBinding = dynamicBindingMapper.keySet().stream()
+                                .filter(currentBinding::startsWith).findFirst();
                         if (matchingBinding.isPresent()) {
                             final String newBindingPrefix = dynamicBindingMapper.get(matchingBinding.get());
                             dynamicBindingPath.setKey(currentBinding.replace(matchingBinding.get(), newBindingPrefix));
@@ -487,7 +495,7 @@ public class DatabaseChangelog2 {
                 if (countMap == null) {
                     break;
                 }
-                final Map<String,Object> newCountMap = new HashMap<>();
+                final Map<String, Object> newCountMap = new HashMap<>();
                 f.put("count", newCountMap);
                 convertToFormDataObject(newCountMap, "query", countMap.get("query"));
                 break;
@@ -496,7 +504,7 @@ public class DatabaseChangelog2 {
                 if (deleteMap == null) {
                     break;
                 }
-                final Map<String,Object> newDeleteMap = new HashMap<>();
+                final Map<String, Object> newDeleteMap = new HashMap<>();
                 f.put("delete", newDeleteMap);
                 convertToFormDataObject(newDeleteMap, "query", deleteMap.get("query"));
                 convertToFormDataObject(newDeleteMap, "limit", deleteMap.get("limit"));
@@ -506,7 +514,7 @@ public class DatabaseChangelog2 {
                 if (distinctMap == null) {
                     break;
                 }
-                final Map<String,Object> newDistinctMap = new HashMap<>();
+                final Map<String, Object> newDistinctMap = new HashMap<>();
                 f.put("distinct", newDistinctMap);
                 convertToFormDataObject(newDistinctMap, "query", distinctMap.get("query"));
                 convertToFormDataObject(newDistinctMap, "key", distinctMap.get("key"));
@@ -516,7 +524,7 @@ public class DatabaseChangelog2 {
                 if (findMap == null) {
                     break;
                 }
-                final Map<String,Object> newFindMap = new HashMap<>();
+                final Map<String, Object> newFindMap = new HashMap<>();
                 f.put("find", newFindMap);
                 convertToFormDataObject(newFindMap, "query", findMap.get("query"));
                 convertToFormDataObject(newFindMap, "sort", findMap.get("sort"));
@@ -529,7 +537,7 @@ public class DatabaseChangelog2 {
                 if (insertMap == null) {
                     break;
                 }
-                final Map<String,Object> newInsertMap = new HashMap<>();
+                final Map<String, Object> newInsertMap = new HashMap<>();
                 f.put("insert", newInsertMap);
                 convertToFormDataObject(newInsertMap, "documents", insertMap.get("documents"));
                 break;
@@ -538,7 +546,7 @@ public class DatabaseChangelog2 {
                 if (updateMap == null) {
                     break;
                 }
-                final Map<String,Object> newUpdateManyMap = new HashMap<>();
+                final Map<String, Object> newUpdateManyMap = new HashMap<>();
                 f.put("updateMany", newUpdateManyMap);
                 convertToFormDataObject(newUpdateManyMap, "query", updateMap.get("query"));
                 convertToFormDataObject(newUpdateManyMap, "update", updateMap.get("update"));
@@ -566,11 +574,12 @@ public class DatabaseChangelog2 {
             publishedAction.getActionConfiguration().setFormData(newPublishedFormDataMap);
         }
 
-
         /**
          * Migrate the dynamic binding path list for unpublished action.
-         * Please note that there is no requirement to migrate the dynamic binding path list for published actions
-         * since the `on page load` actions do not get computed on published actions data. They are only computed
+         * Please note that there is no requirement to migrate the dynamic binding path
+         * list for published actions
+         * since the `on page load` actions do not get computed on published actions
+         * data. They are only computed
          * on unpublished actions data and copied over for the view mode.
          */
         List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
@@ -600,7 +609,8 @@ public class DatabaseChangelog2 {
                     .stream()
                     .forEach(dynamicBindingPath -> {
                         final String currentBinding = dynamicBindingPath.getKey();
-                        final Optional<String> matchingBinding = dynamicBindingMapper.keySet().stream().filter(currentBinding::startsWith).findFirst();
+                        final Optional<String> matchingBinding = dynamicBindingMapper.keySet().stream()
+                                .filter(currentBinding::startsWith).findFirst();
                         if (matchingBinding.isPresent()) {
                             final String newBindingPrefix = dynamicBindingMapper.get(matchingBinding.get());
                             dynamicBindingPath.setKey(currentBinding.replace(matchingBinding.get(), newBindingPrefix));
@@ -609,5 +619,38 @@ public class DatabaseChangelog2 {
         }
     }
 
-}
+    /**
+     * Insert isConfigured boolean to check if the datasource is correctly
+     * configured. This field will be used during
+     * the file or git import to maintain the datasource configuration state
+     *
+     * @param mongockTemplate
+     */
+    @ChangeSet(order = "004", id = "add-isConfigured-flag-for-all-datasources", author = "")
+    public void updateIsConfiguredFlagForAllTheExistingDatasources(MongockTemplate mongockTemplate) {
+        final Query datasourceQuery = query(where(fieldName(QDatasource.datasource.deleted)).ne(true))
+                .addCriteria(where(fieldName(QDatasource.datasource.invalids)).size(0));
+        datasourceQuery.fields()
+                .include(fieldName(QDatasource.datasource.id));
 
+        List<Datasource> datasources = mongockTemplate.find(datasourceQuery, Datasource.class);
+        for (Datasource datasource : datasources) {
+            final Update update = new Update();
+            update.set(fieldName(QDatasource.datasource.isConfigured), TRUE);
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QDatasource.datasource.id)).is(datasource.getId())),
+                    update,
+                    Datasource.class);
+        }
+    }
+
+    @ChangeSet(order = "005", id = "set-application-version", author = "")
+    public void setDefaultApplicationVersion(MongockTemplate mongockTemplate) {
+        mongockTemplate.updateMulti(
+                Query.query(where(fieldName(QApplication.application.deleted)).is(false)),
+                Update.update(fieldName(QApplication.application.applicationVersion),
+                        ApplicationVersion.EARLIEST_VERSION),
+                Application.class);
+    }
+
+}

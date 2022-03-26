@@ -32,6 +32,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import javax.mail.MessagingException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -333,6 +334,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     Properties props = mailSender.getJavaMailProperties();
                     props.put("mail.transport.protocol", "smtp");
                     props.put("mail.smtp.starttls.enable", "true");
+                    props.put("mail.smtp.timeout", 7000); // 7 seconds
 
                     if(!StringUtils.isEmpty(requestDTO.getUsername())) {
                         props.put("mail.smtp.auth", "true");
@@ -348,11 +350,18 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     message.setTo(user.getEmail());
                     message.setSubject("Test email from Appsmith");
                     message.setText("This is a test email from Appsmith, initiated from Admin Settings page. If you are seeing this, your email configuration is working!\n");
+
+                    try {
+                        mailSender.testConnection();
+                    } catch (MessagingException e) {
+                        throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, e.getMessage().trim());
+                    }
+
                     try {
                         mailSender.send(message);
                     } catch (MailException mailException) {
                         log.error("failed to send test email", mailException);
-                        throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "check log for details");
+                        throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, mailException.getMessage());
                     }
                     return Mono.just(Boolean.TRUE);
                 });
