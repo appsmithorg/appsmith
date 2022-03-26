@@ -176,8 +176,6 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.status.buttonColor":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.status.buttonLabelColor":
-          EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
       },
@@ -452,15 +450,6 @@ describe("getAllPathsFromPropertyConfig", () => {
           },
         },
         "primaryColumns.status.buttonColor": {
-          type: ValidationTypes.TABLE_PROPERTY,
-          params: {
-            type: ValidationTypes.TEXT,
-            params: {
-              regex: /^(?![<|{{]).+/,
-            },
-          },
-        },
-        "primaryColumns.status.buttonLabelColor": {
           type: ValidationTypes.TABLE_PROPERTY,
           params: {
             type: ValidationTypes.TEXT,
