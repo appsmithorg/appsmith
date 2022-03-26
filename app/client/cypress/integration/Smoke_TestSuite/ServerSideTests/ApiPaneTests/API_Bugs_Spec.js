@@ -121,6 +121,8 @@ describe("Rest Bugs tests", function() {
 
   it("Bug 4775: No Cyclical dependency when Api returns an error", function() {
     cy.addDsl(dslTable);
+    cy.wait(5000); //settling time for dsl!
+    cy.get(".bp3-spinner").should("not.exist");
     //Api 1
     cy.CreateAPI("Currencies");
     cy.enterDatasource("https://api.coinbase.com/v2/currencies");
