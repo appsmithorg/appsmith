@@ -672,8 +672,8 @@ export const captureInvalidDynamicBindingPath = (
  */
 export const isEmptyOrNill = (value: any) => {
   return isNil(value) || (isString(value) && value === "");
-}
-  
+};
+
 export const isURLDeprecated = (url: string) => {
   return !!matchPath(url, {
     path: [
