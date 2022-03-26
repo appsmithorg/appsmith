@@ -4,6 +4,7 @@ import QuickGitActions from "pages/Editor/gitSync/QuickGitActions";
 import { Layers } from "constants/Layers";
 import { DebuggerTrigger } from "components/editorComponents/Debugger";
 import { Colors } from "constants/Colors";
+import ManualUpgrades from "./ManualUpgrades";
 
 const Container = styled.div`
   width: 100%;
@@ -19,7 +20,10 @@ export default function BottomBar(props: { className?: string }) {
   return (
     <Container className={props.className ?? ""}>
       <QuickGitActions />
-      <DebuggerTrigger />
+      <div className="w-20 flex justify-between items-center">
+        <ManualUpgrades />
+        <DebuggerTrigger />
+      </div>
     </Container>
   );
 }

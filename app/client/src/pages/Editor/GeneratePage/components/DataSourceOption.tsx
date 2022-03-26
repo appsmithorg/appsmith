@@ -25,9 +25,7 @@ const OptionWrapper = styled.div<{
   width?: string;
 }>`
   padding: ${(props) =>
-    props.selected
-      ? `${props.theme.spaces[1]}px 0px`
-      : `${props.theme.spaces[3]}px ${props.theme.spaces[5]}px`};
+    `${props.theme.spaces[3]}px ${props.theme.spaces[5]}px`};
   ${(props) => (!props.disabled ? "cursor: pointer" : "")};
   display: flex;
   align-items: center;
