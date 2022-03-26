@@ -54,7 +54,6 @@ const customRender = (
     reduxStore = testStoreWithTestMiddleWare(reduxStore.getState());
     testSagaMiddleware.run(() => rootSaga(state.sagasToRun));
   }
-
   const defaultTheme = getCurrentThemeDetails(reduxStore.getState());
   return render(
     <BrowserRouter>
