@@ -172,6 +172,24 @@ configure_supervisord() {
   fi
 }
 
+# This is a workaround to get Redis working on diffent memory pagesize
+# https://github.com/appsmithorg/appsmith/issues/11773
+check_redis_compatible_page_size() {
+  if [ $(getconf PAGE_SIZE) -gt 4096 ]; then
+    echo "Compile Redis stable with page size of $(getconf PAGE_SIZE)"
+    echo "Downloading Redis source..."
+    curl https://download.redis.io/redis-stable.tar.gz -L | tar xvz
+    cd redis-stable/
+    echo "Compiling Redis from source..."
+    make && make install
+    echo "Cleaning up Redis source..."
+    cd ..
+    rm -rf redis-stable/
+  else
+    echo "Redis is compatible with page size of $(getconf PAGE_SIZE)"
+  fi
+}
+
 # Main Section
 init_env_file
 unset_unused_variables
@@ -179,6 +197,7 @@ check_mongodb_uri
 init_mongodb
 init_replica_set
 mount_letsencrypt_directory
+check_redis_compatible_page_size
 configure_supervisord
 
 # Ensure the restore path exists in the container, so an archive can be copied to it, if need be.
