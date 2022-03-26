@@ -44,5 +44,6 @@
     "mockDatabaseName": "fakeapi",
     "mockDatabaseUsername": "fakeapi",
     "mockDatabasePassword": "LimitedAccess123#",
-    "readonly":"readonly"
+    "readonly":"readonly",
+    "authenticatedApiUrl": "https://fakeapi.com"
 }

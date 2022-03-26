@@ -8,15 +8,6 @@ import {
 import history from "utils/history";
 import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { Datasource } from "entities/Datasource";
-import {
-  SAAS_EDITOR_DATASOURCE_ID_URL,
-  SAAS_EDITOR_API_ID_URL,
-} from "pages/Editor/SaaSEditor/constants";
-
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
 import { Action, PluginType } from "entities/Action";
 import { SAAS_EDITOR_FORM } from "constants/forms";
 import { getFormData } from "selectors/formSelectors";
@@ -26,6 +17,8 @@ import { autofill } from "redux-form";
 import { get } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { Plugin } from "api/PluginApi";
+import { saasEditorApiIdURL, saasEditorDatasourceIdURL } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
@@ -33,31 +26,28 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   // Only look at SAAS plugins
   if (plugin.type !== PluginType.SAAS) return;
 
-  const pageId = yield select(getCurrentPageId);
-  const applicationId = yield select(getCurrentApplicationId);
-
   history.push(
-    SAAS_EDITOR_DATASOURCE_ID_URL(
-      applicationId,
-      pageId,
-      plugin.packageName,
-      actionPayload.payload.id,
-      { from: "datasources" },
-    ),
+    saasEditorDatasourceIdURL({
+      pluginPackageName: plugin.packageName,
+      datasourceId: actionPayload.payload.id,
+      params: { from: "datasources" },
+    }),
   );
 }
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   const { id, pluginId } = actionPayload.payload;
-  const plugin = yield select(getPlugin, pluginId);
+  const plugin: Plugin = yield select(getPlugin, pluginId);
 
   if (plugin.type !== "SAAS") return;
-  const applicationId = yield select(getCurrentApplicationId);
-  const pageId = yield select(getCurrentPageId);
   history.push(
-    SAAS_EDITOR_API_ID_URL(applicationId, pageId, plugin.packageName, id, {
-      editName: "true",
-      from: "datasources",
+    saasEditorApiIdURL({
+      pluginPackageName: plugin.packageName,
+      apiId: id,
+      params: {
+        editName: "true",
+        from: "datasources",
+      },
     }),
   );
 }
