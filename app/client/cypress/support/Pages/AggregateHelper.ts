@@ -29,6 +29,7 @@ export class AggregateHelper {
             });
         });
         this.Sleep(5000)//settling time for dsl
+        cy.get(locator._loading).should("not.exist");//Checks the spinner is gone & dsl loaded!
     }
 
     public NavigateToDSCreateNew() {
@@ -74,7 +75,7 @@ export class AggregateHelper {
         this.Sleep()
     }
 
-    public NavigateToSwitcher(navigationTab : 'explorer' | 'widgets') {
+    public NavigateToSwitcher(navigationTab: 'explorer' | 'widgets') {
         cy.get(locator._openNavigationTab(navigationTab)).click()
     }
 
@@ -126,6 +127,12 @@ export class AggregateHelper {
             "response.body.responseMeta.status",
             201,
         );
+    }
+
+    public ValidateToastMessage(text: string, length = 1, index = 1) {
+        cy.get(locator._toastMsg)
+            .should("have.length", length)
+            .should("contain.text", text);
     }
 
     public ClickButton(btnVisibleText: string) {
@@ -311,10 +318,7 @@ export class AggregateHelper {
         );
     }
 
-    public ActionContextMenuByEntityName(
-        entityNameinLeftSidebar: string,
-        action = "Delete",
-        subAction = "") {
+    public ActionContextMenuByEntityName(entityNameinLeftSidebar: string, action = "Delete", subAction = "") {
         this.Sleep();
         cy.xpath(locator._contextMenu(entityNameinLeftSidebar))
             .last()
@@ -325,6 +329,19 @@ export class AggregateHelper {
         if (subAction) {
             cy.xpath(locator._contextMenuItem(subAction))
                 .click({ force: true })
+            this.Sleep(500)
+        }
+    }
+
+    public ActionContextMenuWithInPane(action: 'Copy to page' | 'Move to page' | 'Delete', subAction = "") {
+        cy.get(locator._contextMenuInPane).click()
+        cy.xpath(locator._visibleTextDiv(action)).should('be.visible').click()
+        if (action == 'Delete') {
+            cy.xpath(locator._visibleTextDiv('Are you sure?')).click()
+            this.ValidateNetworkStatus("@deleteAction");
+        }
+        if (subAction) {
+            cy.xpath(locator._visibleTextDiv(subAction)).click()
             this.Sleep(500)
         }
     }
@@ -379,5 +396,11 @@ export class AggregateHelper {
 
     public ReadTableRowColumnData(rowNum: number, colNum: number) {
         return cy.get(locator._tableRowColumn(rowNum, colNum)).invoke("text");
+    }
+
+    public UploadFile(fixtureName: string){
+        cy.get(locator._uploadFiles).attachFile(fixtureName);
+        cy.get(locator._uploadBtn).click();
+        this.ValidateNetworkExecutionSuccess("@postExecute");
     }
 }

@@ -25,10 +25,16 @@ export class CommonLocators {
     _newPage = ".pages .t--entity-add-btn"
     _toastMsg = ".t--toast-action"
     _empty = "span[name='no-response']"
+    _contextMenuInPane = "span[name='context-menu']"
+    _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']"
     _openWidget = ".widgets .t--entity-add-btn"
     _dropHere = "#comment-overlay-wrapper-0"
     _activeTab = "span:contains('Active')"
     _createQuery = ".t--create-query"
+    _crossBtn = "span.cancel-icon"
+    _createNew = ".t--entity-add-btn.group.files"
+    _uploadFiles = "div.uppy-Dashboard-AddFiles input"
+    _uploadBtn = "button.uppy-StatusBar-actionBtn--upload"
     _entityNameInExplorer = (entityNameinLeftSidebar: string) => "//div[contains(@class, 't--entity-name')][text()='" + entityNameinLeftSidebar + "']"
     _expandCollapseArrow = (entityNameinLeftSidebar: string) => "//div[text()='" + entityNameinLeftSidebar + "']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]"
     _entityProperties = (entityNameinLeftSidebar: string) => "//div[text()='" + entityNameinLeftSidebar + "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//div[contains(@class, 't--entity-property')]//code"
@@ -51,7 +57,5 @@ export class CommonLocators {
     _inputFieldByName = (fieldName: string) => "//p[text()='" + fieldName + "']/parent::label/following-sibling::div"
     _evaluatedCurrentValue = "div:last-of-type .t--CodeEditor-evaluatedValue > div:last-of-type pre"
     _tableRowColumn = (rowNum: number, colNum: number) => `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div div`
-    _crossBtn = "span.cancel-icon"
-    _createNew = ".t--entity-add-btn.group.files"
 
 }

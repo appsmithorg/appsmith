@@ -20,10 +20,8 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
     jsEditor.EnterJSContext('onclick', "{{storeValue('date', Date()).then(() => showAlert(appsmith.store.date))}}", true, true);
     agHelper.ClickButton('Submit')
     cy.log("Date is:" + date)
-    cy.get(locator._toastMsg)
-      .should("have.length", 1)
-      .should("contain.text", date);
-  })
+    agHelper.ValidateToastMessage(date)
+  });
 
   it("2. Verify resolve & chaining via direct Promises", () => {
     cy.fixture("promisesBtnDsl").then((val: any) => {
@@ -43,9 +41,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
           }).catch(err => { showAlert(err, 'error') });
         }}`, true, true);
     agHelper.ClickButton('Submit')
-    cy.get(locator._toastMsg)
-      .should("have.length", 1)
-      .should("contain.text", "We are on planet Earth");
+    agHelper.ValidateToastMessage('We are on planet Earth')
   });
 
   it("3. Verify Async Await in direct Promises", () => {
@@ -132,9 +128,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
       jsEditor.EnterJSContext('onclick', "{{" + jsObjName + ".myFun1()}}", true, true);
     })
     agHelper.ClickButton("Submit");
-    cy.get(locator._toastMsg)
-      .should("have.length", 1)
-      .should("contain.text", "Today's quote for You");
+    agHelper.ValidateToastMessage("Today's quote for You")
   });
 
   it("6. Verify Promise.race via direct Promises", () => {
@@ -221,7 +215,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     })()
   }} `, true, true);
     agHelper.ClickButton('Submit')
-    cy.get(locator._toastMsg).should("have.length", 1).should("have.text", "cat,dog,camel,rabbit,rat")
+    agHelper.ValidateToastMessage("cat,dog,camel,rabbit,rat")
   });
 
   it("9. Bug 10150: Verify Promise.all via JSObjects", () => {
@@ -302,10 +296,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
     agHelper.DeployApp();
     cy.get(locator._inputWidgetInDeployed).type("Update value");
     agHelper.ClickButton("Submit");
-    cy.get(locator._toastMsg)
-      .should("have.length", 1)
-      .should("contain.text", "Test");
-
+    agHelper.ValidateToastMessage("Test")
     agHelper.NavigateBacktoEditor()
   })
 
@@ -321,7 +312,7 @@ InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " 
       jsEditor.EnterJSContext('onclick', "{{" + jsObjName + ".myFun1()}}", true, true);
     });
     agHelper.ClickButton('Submit')
-    cy.get(locator._toastMsg).should("have.length", 1).should("contain.text", "Today's quote for You");
+    agHelper.ValidateToastMessage("Today's quote for You")
   });
 
 })
