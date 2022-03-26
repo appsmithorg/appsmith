@@ -5,7 +5,8 @@ const pages = require("../../../../locators/Pages.json");
 const testdata = require("../../../../fixtures/testdata.json");
 
 describe("Rest Bugs tests", function() {
-  it("Bug 5550: Not able to run APIs in parallel", function() {
+  //Skipping until api endpoint fixed
+  it.skip("Bug 5550: Not able to run APIs in parallel", function() {
     cy.addDsl(dslParallel);
     cy.wait(5000); //settling time for dsl!
     cy.get(".bp3-spinner").should("not.exist");
