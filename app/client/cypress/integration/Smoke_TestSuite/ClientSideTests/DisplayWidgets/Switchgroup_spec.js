@@ -98,7 +98,8 @@ describe("Switchgroup Widget Functionality", function() {
 
     cy.get(".t--property-control-options")
       .find(".t--js-toggle")
-      .click();
+      .trigger("click")
+      .wait(1000);
     // wait for a cyclic dependency error to occur
     cy.validateToastMessage("Cyclic dependency found while evaluating");
     // check if a crash messsge is appeared
