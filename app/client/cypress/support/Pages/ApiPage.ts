@@ -26,6 +26,7 @@ export class ApiPage {
     _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']"
     _noBodyMessageDiv = "#NoBodyMessageDiv"
     _noBodyMessage = "This request does not have a body"
+    _imageSrc = "//img/parent::*[contains(@class,'StyledImage')]/img"
 
     CreateApi(apiName: string = "") {
         cy.get(locator._createNew).click({ force: true });

@@ -89,7 +89,7 @@ describe("Validate API request body panel", () => {
     });
 
     it("7. Checks MultiPart form data for a File Type upload", () => {
-        let imageNameToUpload = "NightView.jpeg";
+        let imageNameToUpload = "ConcreteHouse.jpg";
         cy.fixture('multiPartFormDataDsl').then((val: any) => {
             agHelper.AddDsl(val)
         });
@@ -105,6 +105,9 @@ describe("Validate API request body panel", () => {
         agHelper.ClickButton('Select Files');
         agHelper.UploadFile(imageNameToUpload)
         agHelper.ValidateToastMessage("Image uploaded to Cloudinary successfully")
+        cy.xpath(apiPage._imageSrc).invoke('attr', 'src').then($src => {
+            expect($src).not.eq("https://assets.appsmith.com/widgets/default.png")
+        })
     });
 
 });

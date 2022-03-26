@@ -399,7 +399,7 @@ export class AggregateHelper {
     }
 
     public UploadFile(fixtureName: string){
-        cy.get(locator._uploadFiles).attachFile(fixtureName);
+        cy.get(locator._uploadFiles).attachFile(fixtureName).wait(1000);
         cy.get(locator._uploadBtn).click();
         this.ValidateNetworkExecutionSuccess("@postExecute");
     }
