@@ -51,7 +51,7 @@ export class ApiPage {
     CreateAndFillApi(url: string, apiname: string = "", queryTimeout = 30000) {
         this.CreateApi(apiname)
         this.EnterURL(url)
-        agHelper.WaitAutoSave()
+        agHelper.AssertAutoSave()
         agHelper.Sleep(2000);// Added because api name edit takes some time to reflect in api sidebar after the call passes.
         cy.get(this._apiRunBtn).should("not.be.disabled");
         this.SetAPITimeout(queryTimeout)
@@ -62,7 +62,7 @@ export class ApiPage {
             .first()
             .click({ force: true })
             .type(url, { parseSpecialCharSequences: false });
-        agHelper.WaitAutoSave()
+        agHelper.AssertAutoSave()
     }
 
     EnterHeader(hKey: string, hValue: string) {
@@ -77,7 +77,7 @@ export class ApiPage {
             .click({ force: true })
             .type(hValue, { parseSpecialCharSequences: false })
             .type("{esc}");
-        agHelper.WaitAutoSave()
+        agHelper.AssertAutoSave()
     }
 
     EnterParams(pKey: string, pValue: string) {
@@ -92,7 +92,7 @@ export class ApiPage {
             .click({ force: true })
             .type(pValue, { parseSpecialCharSequences: false })
             .type("{esc}");
-        agHelper.WaitAutoSave()
+        agHelper.AssertAutoSave()
     }
 
     EnterBodyFormData(subTab: 'FORM_URLENCODED' | 'MULTIPART_FORM_DATA', bKey: string, bValue: string, type = "") {
@@ -113,7 +113,7 @@ export class ApiPage {
             .type(bValue, { parseSpecialCharSequences: false })
             .type("{esc}");
 
-        agHelper.WaitAutoSave()
+        agHelper.AssertAutoSave()
     }
 
     RunAPI() {

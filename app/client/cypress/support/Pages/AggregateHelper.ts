@@ -63,7 +63,7 @@ export class AggregateHelper {
             .blur();
     }
 
-    public WaitAutoSave() {
+    public AssertAutoSave() {
         // wait for save query to trigger & n/w call to finish occuring
         cy.get(locator._saveStatusSuccess, { timeout: 40000 }).should("exist");
     }
@@ -95,7 +95,7 @@ export class AggregateHelper {
         cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
         // Wait before publish
         this.Sleep(2000)
-        this.WaitAutoSave()
+        this.AssertAutoSave()
         // Stubbing window.open to open in the same tab
         cy.window().then((window) => {
             cy.stub(window, "open").callsFake((url) => {
@@ -237,7 +237,7 @@ export class AggregateHelper {
                         });
                     }
                 });
-            this.WaitAutoSave()
+            this.AssertAutoSave()
         })
     }
 
@@ -262,7 +262,7 @@ export class AggregateHelper {
             .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
             .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
             .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
-        this.WaitAutoSave()//settling time for widget on canvas!
+        this.AssertAutoSave()//settling time for widget on canvas!
         cy.get(locator._widgetInCanvas(widgetType)).should('exist')
     }
 
@@ -277,7 +277,7 @@ export class AggregateHelper {
                 .uncheck({ force: true })
                 .should("not.checked");
         }
-        this.WaitAutoSave()
+        this.AssertAutoSave()
     }
 
     public NavigateBacktoEditor() {

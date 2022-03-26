@@ -5,10 +5,9 @@ const pages = require("../../../../locators/Pages.json");
 const testdata = require("../../../../fixtures/testdata.json");
 
 describe("Rest Bugs tests", function() {
-  //Skipping until api endpoint fixed
-  it.skip("Bug 5550: Not able to run APIs in parallel", function() {
+  it("Bug 5550: Not able to run APIs in parallel", function() {
     cy.addDsl(dslParallel);
-    cy.wait(5000); //settling time for dsl!
+    cy.wait(8000); //settling time for dsl!
     cy.get(".bp3-spinner").should("not.exist");
 
     //Api 1
@@ -20,55 +19,53 @@ describe("Rest Bugs tests", function() {
 
     //Api 2
     cy.NavigateToAPI_Panel();
-    cy.CreateAPI("CatFacts");
-    cy.enterDatasource(
-      "https://cat-fact.herokuapp.com/facts/random?animal_type=cat",
-    );
-    cy.assertPageSave();
-
-    cy.get("body").click(0, 0);
-
-    //Api 3
-    cy.NavigateToAPI_Panel();
     cy.CreateAPI("DogImage");
     cy.enterDatasource("https://dog.ceo/api/breeds/image/random");
     cy.assertPageSave();
     //important - needed for autosave of API before running
     cy.get("body").click(0, 0);
 
+    //Api 3
+    cy.NavigateToAPI_Panel();
+    cy.CreateAPI("NumberFact");
+    cy.enterDatasource("http://numbersapi.com/random/math");
+    cy.assertPageSave();
+    cy.get("body").click(0, 0);
+
     //Api 4
     cy.NavigateToAPI_Panel();
-    cy.CreateAPI("DogFacts");
+    cy.CreateAPI("CocktailDB");
     cy.enterDatasource(
-      "https://cat-fact.herokuapp.com/facts/random?animal_type=dog",
+      "https://www.thecocktaildb.com/api/json/v1/1/search.php?s=margarita",
     );
     cy.assertPageSave();
     cy.get("body").click(0, 0);
 
-    cy.contains(commonlocators.entityName, "Page1").click({ force: true });
-    cy.clickButton("Get Facts!");
+    cy.contains(commonlocators.entityName, "Page1")
+      .click({ force: true })
+      .wait(2000);
+    cy.clickButton("Invoke APIs!");
     cy.wait(12000); // for all api calls to complete!
 
     cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
-      expect(response.body.data.body[0].url.length).to.be.above(0);
+      expect(response.body.data.body[0].url.length).to.be.above(0); //Cat image
     });
 
     cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
-      expect(response.body.data.body.type).to.eq("cat");
+      expect(response.body.data.body.message.length).to.be.above(0); //Dog Image
     });
 
     cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
-      expect(response.body.data.body.message.length).to.be.above(0);
+      expect(response.body.data.body.length).to.be.above(0); //Number fact
     });
 
     cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
       //cy.log("Response is :"+ JSON.stringify(response.body))
-
       expect(response.body.data.isExecutionSuccess).to.eq(true);
-      expect(response.body.data.body.type).to.eq("dog");
+      expect(response.body.data.request.url.length).to.be.above(0); //Cocktail
     });
 
     //Spread to check later!

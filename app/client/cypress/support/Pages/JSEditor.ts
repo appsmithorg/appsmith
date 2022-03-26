@@ -65,7 +65,7 @@ export class JSEditor {
         }
       });
 
-    agHelper.WaitAutoSave()//Ample wait due to open bug # 10284
+    agHelper.AssertAutoSave()//Ample wait due to open bug # 10284
     agHelper.Sleep(5000)//Ample wait due to open bug # 10284
 
     //clicking 1 times & waits for 3 second for result to be populated!
@@ -125,7 +125,7 @@ export class JSEditor {
           }
         });
     });
-    agHelper.WaitAutoSave()//Allowing time for Evaluate value to capture value
+    agHelper.AssertAutoSave()//Allowing time for Evaluate value to capture value
   }
 
   public RenameJSObjFromForm(renameVal: string) {

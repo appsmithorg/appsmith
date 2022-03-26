@@ -89,7 +89,7 @@ describe("Validate API request body panel", () => {
     });
 
     it("7. Checks MultiPart form data for a File Type upload", () => {
-        let imageNameToUpload = "NightView.jpg";
+        let imageNameToUpload = "NightView.jpeg";
         cy.fixture('multiPartFormDataDsl').then((val: any) => {
             agHelper.AddDsl(val)
         });
