@@ -93,7 +93,7 @@ function renderFormConfigTop(props: { config: ControlProps }) {
   return (
     <React.Fragment key={props.config.label}>
       {!nestedFormControl && // if the form control is a nested form control hide its label
-        (label.length > 0 || encrypted || tooltipText || subtitle) && (
+        (label?.length > 0 || encrypted || tooltipText || subtitle) && (
           <FormLabel config={props.config}>
             <p className="label-icon-wrapper">
               {label} {isRequired && "*"}
