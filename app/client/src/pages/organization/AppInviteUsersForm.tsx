@@ -9,13 +9,13 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "../Applications/permissionHelpers";
-import { getApplicationViewerPageURL } from "constants/routes";
 import OrgInviteUsersForm, { InviteButtonWidth } from "./OrgInviteUsersForm";
 import { getCurrentUser } from "selectors/usersSelectors";
 import Text, { TextType } from "components/ads/Text";
 import Toggle from "components/ads/Toggle";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { Colors } from "constants/Colors";
+import { viewerURL } from "RouteBuilder";
 
 const CommonTitleTextStyle = css`
   color: ${Colors.CHARCOAL};
@@ -74,13 +74,12 @@ function AppInviteUsersForm(props: any) {
     PERMISSION_TYPE.MAKE_PUBLIC_APPLICATION,
   );
 
-  const getViewApplicationURL = () => {
-    const appViewEndPoint = getApplicationViewerPageURL({
-      applicationId: applicationId,
+  const appViewEndPoint = React.useMemo(() => {
+    const url = viewerURL({
       pageId: defaultPageId,
     });
-    return window.location.origin.toString() + appViewEndPoint;
-  };
+    return window.location.origin.toString() + url;
+  }, [defaultPageId]);
 
   useEffect(() => {
     if (currentUser?.name !== ANONYMOUS_USERNAME && canInviteToOrg) {
@@ -115,7 +114,7 @@ function AppInviteUsersForm(props: any) {
       </Title>
       <StyledCopyToClipBoard
         btnWidth={InviteButtonWidth}
-        copyText={getViewApplicationURL()}
+        copyText={appViewEndPoint}
       />
 
       {canInviteToOrg && (
