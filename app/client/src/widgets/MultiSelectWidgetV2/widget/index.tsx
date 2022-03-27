@@ -26,6 +26,9 @@ export function defaultOptionValueValidation(
   let parsed: any[] = [];
   let message = "";
 
+  const DEFAULT_ERROR_MESSAGE =
+    "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
+
   /*
    * Function to check if the object has `label` and `value`
    */
@@ -102,8 +105,7 @@ export function defaultOptionValueValidation(
        * When value is [true, false], [undefined, undefined] etc.
        */
       parsed = [];
-      message =
-        "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
+      message = DEFAULT_ERROR_MESSAGE;
     }
 
     return {
@@ -130,8 +132,7 @@ export function defaultOptionValueValidation(
      * When value is undefined, null, {} etc.
      */
     parsed = [];
-    message =
-      "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
+    message = DEFAULT_ERROR_MESSAGE;
   }
 
   return {
