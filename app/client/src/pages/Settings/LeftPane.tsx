@@ -1,5 +1,5 @@
 import { Colors } from "constants/Colors";
-import { getAdminSettingsCategoryUrl } from "constants/routes";
+import { adminSettingsCategoryUrl } from "constants/routes";
 import React from "react";
 import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
@@ -84,8 +84,8 @@ function Categories({
             className={`t--settings-category-${config.slug}`}
             to={
               !parentCategory
-                ? getAdminSettingsCategoryUrl(config.slug)
-                : getAdminSettingsCategoryUrl(parentCategory.slug, config.slug)
+                ? adminSettingsCategoryUrl(config.slug)
+                : adminSettingsCategoryUrl(parentCategory.slug, config.slug)
             }
           >
             {config.title}

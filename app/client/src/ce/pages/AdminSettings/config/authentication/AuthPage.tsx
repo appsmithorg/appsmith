@@ -13,7 +13,7 @@ import {
   UPGRADE_TO_EE,
   AUTHENTICATION_METHOD_ENABLED,
 } from "@appsmith/constants/messages";
-import { getAdminSettingsCategoryUrl } from "constants/routes";
+import { adminSettingsCategoryUrl } from "constants/routes";
 import { Callout, CalloutType } from "components/ads/CalloutV2";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -208,7 +208,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                   onClick={() =>
                     !method.needsUpgrade || method.isConnected
                       ? history.push(
-                          getAdminSettingsCategoryUrl(
+                          adminSettingsCategoryUrl(
                             SettingCategories.AUTHENTICATION,
                             method.category,
                           ),
