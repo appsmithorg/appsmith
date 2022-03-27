@@ -1,6 +1,4 @@
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
-import homePage from "../../../../locators/HomePage";
-const commonLocators = require("../../../../locators/commonlocators.json");
 const pagename = "ChildPage";
 const tempBranch = "tempBranch";
 const tempBranch0 = "tempBranch0";
