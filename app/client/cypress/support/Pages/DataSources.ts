@@ -1,11 +1,9 @@
-import { CommonLocators } from "../Objects/CommonLocators";
 import datasourceFormData from "../../fixtures/datasources.json";
-import { AggregateHelper } from "./AggregateHelper";
-
-const agHelper = new AggregateHelper();
-const locator = new CommonLocators();
-
+import { ObjectsRegistry } from "../Objects/Registry"
 export class DataSources {
+
+    public agHelper = ObjectsRegistry.AggregateHelper
+    public locator = ObjectsRegistry.CommonLocators;
 
     private _host = "input[name='datasourceConfiguration.endpoints[0].host']"
     private _port = "input[name='datasourceConfiguration.endpoints[0].port']"
@@ -19,7 +17,7 @@ export class DataSources {
     _templateMenu = ".t--template-menu"
 
     public CreatePlugIn(pluginName: string) {
-        cy.get(locator._createNewPlgin(pluginName)).click();
+        cy.get(this.locator._createNewPlgin(pluginName)).click();
     }
 
     public FillPostgresDSForm(shouldAddTrailingSpaces = false) {
@@ -56,16 +54,16 @@ export class DataSources {
     }
 
     public NavigateToActiveDSQueryPane(datasourceName: string) {
-        agHelper.NavigateToDSAdd()
-        agHelper.GetNClick(locator._activeTab)
+        this.agHelper.NavigateToDSAdd()
+        this.agHelper.GetNClick(this.locator._activeTab)
         cy.get(this._datasourceCard)
             .contains(datasourceName)
             .scrollIntoView()
             .should("be.visible")
             .closest(this._datasourceCard)
             .within(() => {
-                cy.get(locator._createQuery).click({ force: true });
+                cy.get(this.locator._createQuery).click({ force: true });
             })
-        agHelper.Sleep(2000); //for the CreateQuery page to load
+        this.agHelper.Sleep(2000); //for the CreateQuery page to load
     }
 }

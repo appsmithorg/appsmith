@@ -1,12 +1,10 @@
-import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
-import { JSEditor } from "../../../../support/Pages/JSEditor";
-import { CommonLocators } from "../../../../support/Objects/CommonLocators";
-
-const agHelper = new AggregateHelper();
-const jsEditor = new JSEditor();
-const locator = new CommonLocators();
+import { ObjectsRegistry } from "../../../../support/Objects/Registry"
 
 let dataSet: any;
+let agHelper = ObjectsRegistry.AggregateHelper,
+    ee = ObjectsRegistry.EntityExplorer,
+    jsEditor = ObjectsRegistry.JSEditor,
+    locator = ObjectsRegistry.CommonLocators;
 
 describe("Loadash basic test with input Widget", () => {
 
@@ -21,14 +19,14 @@ describe("Loadash basic test with input Widget", () => {
     });
 
     it("1. Input widget test with default value for atob method", () => {
-        agHelper.expandCollapseEntity("WIDGETS")
-        agHelper.SelectEntityByName("Input1")
+        ee.expandCollapseEntity("WIDGETS")
+        ee.SelectEntityByName("Input1")
         jsEditor.EnterJSContext("defaulttext", dataSet.defaultInputBinding + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
     });
 
     it("2. Input widget test with default value for btoa method", function () {
-        agHelper.SelectEntityByName("Input2")
+        ee.SelectEntityByName("Input2")
         jsEditor.EnterJSContext("defaulttext", dataSet.loadashInput + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
     });

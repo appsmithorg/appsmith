@@ -1,10 +1,7 @@
-import { AggregateHelper } from "./AggregateHelper";
-import { CommonLocators } from "../Objects/CommonLocators";
-
-const agHelper = new AggregateHelper();
-const locator = new CommonLocators()
-
+import { ObjectsRegistry } from "../Objects/Registry"
 export class ApiPage {
+    public agHelper = ObjectsRegistry.AggregateHelper
+    public locator = ObjectsRegistry.CommonLocators;
 
     private _createapi = ".t--createBlankApiCard"
     private _resourceUrl = ".t--dataSourceField"
@@ -29,13 +26,13 @@ export class ApiPage {
     _imageSrc = "//img/parent::*[contains(@class,'StyledImage')]/img"
 
     CreateApi(apiName: string = "") {
-        cy.get(locator._createNew).click({ force: true });
+        cy.get(this.locator._createNew).click({ force: true });
         cy.get(this._blankAPI).click({ force: true });
-        agHelper.ValidateNetworkStatus("@createNewApi", 201)
+        this.agHelper.ValidateNetworkStatus("@createNewApi", 201)
 
         // cy.get("@createNewApi").then((response: any) => {
         //     expect(response.response.body.responseMeta.success).to.eq(true);
-        //     cy.get(agHelper._actionName)
+        //     cy.get(this.agHelper._actionName)
         //         .click()
         //         .invoke("text")
         //         .then((text) => {
@@ -45,15 +42,15 @@ export class ApiPage {
         // }); // to check if Api1 = Api1 when Create Api invoked
 
         if (apiName)
-            agHelper.RenameWithInPane(apiName)
+            this.agHelper.RenameWithInPane(apiName)
         cy.get(this._resourceUrl).should("be.visible");
     }
 
     CreateAndFillApi(url: string, apiname: string = "", queryTimeout = 30000) {
         this.CreateApi(apiname)
         this.EnterURL(url)
-        agHelper.AssertAutoSave()
-        agHelper.Sleep(2000);// Added because api name edit takes some time to reflect in api sidebar after the call passes.
+        this.agHelper.AssertAutoSave()
+        this.agHelper.Sleep(2000);// Added because api name edit takes some time to reflect in api sidebar after the call passes.
         cy.get(this._apiRunBtn).should("not.be.disabled");
         this.SetAPITimeout(queryTimeout)
     }
@@ -63,7 +60,7 @@ export class ApiPage {
             .first()
             .click({ force: true })
             .type(url, { parseSpecialCharSequences: false });
-        agHelper.AssertAutoSave()
+        this.agHelper.AssertAutoSave()
     }
 
     EnterHeader(hKey: string, hValue: string) {
@@ -78,7 +75,7 @@ export class ApiPage {
             .click({ force: true })
             .type(hValue, { parseSpecialCharSequences: false })
             .type("{esc}");
-        agHelper.AssertAutoSave()
+        this.agHelper.AssertAutoSave()
     }
 
     EnterParams(pKey: string, pValue: string) {
@@ -93,7 +90,7 @@ export class ApiPage {
             .click({ force: true })
             .type(pValue, { parseSpecialCharSequences: false })
             .type("{esc}");
-        agHelper.AssertAutoSave()
+        this.agHelper.AssertAutoSave()
     }
 
     EnterBodyFormData(subTab: 'FORM_URLENCODED' | 'MULTIPART_FORM_DATA', bKey: string, bValue: string, type = "") {
@@ -114,12 +111,12 @@ export class ApiPage {
             .type(bValue, { parseSpecialCharSequences: false })
             .type("{esc}");
 
-        agHelper.AssertAutoSave()
+        this.agHelper.AssertAutoSave()
     }
 
     RunAPI() {
         cy.get(this._apiRunBtn).click({ force: true });
-        agHelper.ValidateNetworkExecutionSuccess("@postExecute")
+        this.agHelper.ValidateNetworkExecutionSuccess("@postExecute")
     }
 
     SetAPITimeout(timeout: number) {
@@ -147,14 +144,14 @@ export class ApiPage {
 
     ValidateQueryParams(param: { key: string; value: string; }) {
         this.SelectAPITab('Params')
-        agHelper.ValidateCodeEditorContent(this._paramKey(0), param.key)
-        agHelper.ValidateCodeEditorContent(this._paramValue(0), param.value)
+        this.agHelper.ValidateCodeEditorContent(this._paramKey(0), param.key)
+        this.agHelper.ValidateCodeEditorContent(this._paramValue(0), param.value)
     }
 
     ValidateHeaderParams(header: { key: string; value: string; }) {
         this.SelectAPITab('Headers')
-        agHelper.ValidateCodeEditorContent(this._headerKey(0), header.key)
-        agHelper.ValidateCodeEditorContent(this._headerValue(0), header.value)
+        this.agHelper.ValidateCodeEditorContent(this._headerKey(0), header.key)
+        this.agHelper.ValidateCodeEditorContent(this._headerValue(0), header.value)
     }
 
     ReadApiResponsebyKey(key: string) {

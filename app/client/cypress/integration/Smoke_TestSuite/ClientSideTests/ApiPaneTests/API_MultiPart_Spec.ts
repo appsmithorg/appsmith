@@ -1,10 +1,9 @@
-import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
-import { JSEditor } from "../../../../support/Pages/JSEditor";
-import { ApiPage } from "../../../../support/Pages/ApiPage";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry"
 
-const agHelper = new AggregateHelper();
-const jsEditor = new JSEditor();
-const apiPage = new ApiPage();
+let agHelper = ObjectsRegistry.AggregateHelper,
+    ee = ObjectsRegistry.EntityExplorer,
+    jsEditor = ObjectsRegistry.JSEditor,
+    apiPage = ObjectsRegistry.ApiPage;
 
 describe("Validate API request body panel", () => {
     it("1. Check whether input and type dropdown selector exist when multi-part is selected", () => {
@@ -93,14 +92,14 @@ describe("Validate API request body panel", () => {
         cy.fixture('multiPartFormDataDsl').then((val: any) => {
             agHelper.AddDsl(val)
         });
-        agHelper.expandCollapseEntity("WIDGETS")//to expand widgets
-        agHelper.SelectEntityByName("FilePicker1");
+        ee.expandCollapseEntity("WIDGETS")//to expand widgets
+        ee.SelectEntityByName("FilePicker1");
         jsEditor.EnterJSContext('onfilesselected', `{{Api1.run().then(()=> showAlert('Image uploaded to Cloudinary successfully', 'success'));
         resetWidget('FilePicker1', true)}}`, true, true);
         apiPage.CreateAndFillApi('https://api.cloudinary.com/v1_1/appsmithautomationcloud/image/upload?upload_preset=fbbhg4xu')
         apiPage.SelectAPIVerb('POST')
         apiPage.EnterBodyFormData('MULTIPART_FORM_DATA', 'file', '{{FilePicker1.files[0]}}', 'File')
-        agHelper.SelectEntityByName("Image1");
+        ee.SelectEntityByName("Image1");
         jsEditor.EnterJSContext('image', '{{Api1.data.url}}')
         agHelper.ClickButton('Select Files');
         agHelper.UploadFile(imageNameToUpload)
