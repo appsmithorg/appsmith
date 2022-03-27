@@ -104,6 +104,7 @@ describe("Validate API request body panel", () => {
         agHelper.ClickButton('Select Files');
         agHelper.UploadFile(imageNameToUpload)
         agHelper.ValidateToastMessage("Image uploaded to Cloudinary successfully")
+        agHelper.Sleep()
         cy.xpath(apiPage._imageSrc).invoke('attr', 'src').then($src => {
             expect($src).not.eq("https://assets.appsmith.com/widgets/default.png")
         })
