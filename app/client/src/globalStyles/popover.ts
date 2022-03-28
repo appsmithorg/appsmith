@@ -25,7 +25,7 @@ export const PopoverStyles = createGlobalStyle`
   }
   .templates-notification .bp3-popover2-arrow {
     // !important because top is specified as an inline style in the lib
-    top: -9px !important;
+    top: -8px !important;
   }
   .templates-notification .bp3-popover2-arrow-fill {
     fill: ${Colors.SEA_SHELL};

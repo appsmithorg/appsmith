@@ -27,7 +27,7 @@ const NotificationWrapper = styled.div`
     `${props.theme.spaces[4]}px ${props.theme.spaces[8]}px`};
   display: flex;
   flex-direction: row;
-  max-width: 374px;
+  max-width: 376px;
 
   .${Classes.ICON} {
     align-items: unset;
