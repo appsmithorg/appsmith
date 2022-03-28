@@ -427,6 +427,7 @@ export function* duplicateApplicationSaga(
       const defaultPage = application.pages.find((page) => page.isDefault);
       const pageURL = builderURL({
         applicationVersion: application.applicationVersion,
+        applicationId: application.id,
         applicationSlug: slug,
         pageSlug: defaultPage?.slug,
         pageId: application.defaultPageId as string,
@@ -623,6 +624,7 @@ export function* forkApplicationSaga(
       );
       const pageURL = builderURL({
         applicationVersion: application.applicationVersion,
+        applicationId: application.id,
         applicationSlug: application.slug as string,
         pageSlug: defaultPage.slug,
         pageId: application.defaultPageId as string,
@@ -675,7 +677,7 @@ export function* importApplicationSaga(
       );
       if (currentOrg.length > 0) {
         const {
-          application: { applicationVersion, pages, slug: applicationSlug },
+          application: { applicationVersion, id, pages, slug: applicationSlug },
           isPartialImport,
         }: {
           application: {
@@ -707,6 +709,7 @@ export function* importApplicationSaga(
           const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
           const pageURL = builderURL({
             applicationSlug: applicationSlug ?? PLACEHOLDER_APP_SLUG,
+            applicationId: id,
             applicationVersion:
               applicationVersion ?? ApplicationVersion.SLUG_URL,
             pageSlug: defaultPage[0].slug || PLACEHOLDER_PAGE_SLUG,
