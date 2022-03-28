@@ -6,15 +6,14 @@ const path = require("path");
 
 const {
   delay,
-  login,
   getFormattedTime,
+  login,
   sortObjectKeys,
 } = require("./utils/utils");
 const selectors = {
   appMoreIcon: "span.t--options-icon",
   orgImportAppOption: '[data-cy*="t--org-import-app"]',
   fileInput: "#fileInput",
-  importButton: '[data-cy*="t--org-import-app-button"]',
   createNewApp: ".createnew",
 };
 module.exports = class Perf {
@@ -26,7 +25,7 @@ module.exports = class Perf {
       ...launchOptions,
     };
 
-    if (process.env.PERF_TEST_ENV === "dev") {
+    if (process.env.PERF_TEST_ENV === "dev" || true) {
       this.launchOptions.executablePath =
         "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
       this.launchOptions.devtools = true;
@@ -109,10 +108,13 @@ module.exports = class Perf {
     await this.page.waitForNavigation();
 
     const currentUrl = this.page.url();
-    const pageId = currentURL.split("/")[4]?.split("-").pop();
+    const pageId = currentURL
+      .split("/")[4]
+      ?.split("-")
+      .pop();
 
     await this.page.evaluate(
-      async ({ pageId, dsl }) => {
+      async ({ dsl, pageId }) => {
         const layoutId = await fetch(`/api/v1/pages/${pageId}`)
           .then((response) => response.json())
           .then((data) => data.data.layouts[0].id);
@@ -153,7 +155,6 @@ module.exports = class Perf {
 
     const elementHandle = await this.page.$(selectors.fileInput);
     await elementHandle.uploadFile(jsonPath);
-    await this.page.click(selectors.importButton);
 
     await this.page.waitForNavigation();
     await this.page.reload();
@@ -161,7 +162,7 @@ module.exports = class Perf {
 
   generateReport = async () => {
     const report = {};
-    this.traces.forEach(({ path, action }) => {
+    this.traces.forEach(({ action, path }) => {
       report[action] = {};
       const trace = require(path);
       const tasks = new Tracelib.default(trace.traceEvents);

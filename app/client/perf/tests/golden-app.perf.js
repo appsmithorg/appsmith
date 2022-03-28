@@ -1,8 +1,7 @@
 const path = require("path");
 const Perf = require("../src/perf.js");
 const dsl = require("./dsl/simple-typing").dsl;
-const { actions } = require("./actions");
-const { delay, makeid } = require("../src/utils/utils");
+const { delay } = require("../src/utils/utils");
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 const SEL = {
@@ -30,12 +29,6 @@ async function testTyping() {
   const perf = new Perf();
   await perf.launch();
   const page = perf.getPage();
-  // await page.goto(
-  //   "https://dev.appsmith.com/applications/61f8d29164802f7676ae8631/pages/61f8d29164802f7676ae8637/edit",
-  //   {
-  //     waitUntil: "networkidle0",
-  //   },
-  // );
 
   await perf.importApplication(`${APP_ROOT}/tests/dsl/blog-admin-app.json`);
 
