@@ -24,8 +24,8 @@ import { noop, retryPromise } from "utils/AppsmithUtils";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { ReactTableFilter, OperatorTypes } from "../component/Constants";
 import {
+  ColumnTypes,
   COLUMN_MIN_WIDTH,
-  COLUMN_TYPES,
   DEFAULT_BUTTON_COLOR,
   DEFAULT_BUTTON_LABEL,
   DEFAULT_BUTTON_LABEL_COLOR,
@@ -52,7 +52,6 @@ import {
 import {
   ColumnProperties,
   ReactTableColumnProps,
-  ColumnTypes,
   CompactModeTypes,
   SortOrderTypes,
 } from "../component/Constants";
@@ -65,7 +64,7 @@ import equal from "fast-deep-equal/es6";
 import { getSanitizedKey } from "widgets/WidgetUtils";
 import { renderDefault } from "../component/renderHelpers/DefaultRenderer";
 import { renderButton } from "../component/renderHelpers/ButtonRenderer";
-import { renderDropdown } from "../component/renderHelpers/DropdownRenderer";
+import { renderSelect } from "../component/renderHelpers/SelectRenderer";
 import {
   renderMenuButton,
   RenderMenuButtonProps,
@@ -187,8 +186,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             isSelected = selectedRowIndex === rowIndex;
           }
 
+          const isColumnEditable = column.isEditable;
+
           switch (column.columnType) {
-            case COLUMN_TYPES.BUTTON:
+            case ColumnTypes.BUTTON:
               const buttonProps = {
                 compactMode,
                 isSelected: isSelected,
@@ -216,24 +217,39 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
               };
               return renderButton(buttonProps, isHidden, cellProperties);
 
-            case COLUMN_TYPES.DROPDOWN:
-              let options = [];
+            case ColumnTypes.SELECT:
+              const onSelect = (value: string) => {
+                this.updateTransientTableData({
+                  __original_index__: this.getRowOriginalIndex(rowIndex),
+                  [props.cell.column.columnProperties.alias]: value,
+                });
 
-              try {
-                options = JSON.parse(column.dropdownOptions || "");
-              } catch (e) {}
+                if (column.onOptionChange) {
+                  this.onColumnEvent({
+                    rowIndex,
+                    action: column.onOptionChange,
+                    triggerPropertyName: "onOptionChange",
+                    eventType: EventType.ON_OPTION_CHANGE,
+                  });
+                }
+              };
 
-              return renderDropdown({
-                options: options,
-                onItemSelect: this.onDropdownOptionSelect,
+              return renderSelect({
+                cellProperties: cellProperties,
+                compactMode,
+                options: column.selectOptions,
+                onItemSelect: onSelect,
                 isCellVisible: cellProperties.isCellVisible ?? true,
-                onOptionChange: column.onOptionChange || "",
-                selectedIndex: isNumber(props.cell.value)
-                  ? props.cell.value
-                  : undefined,
+                isEditable: isColumnEditable,
+                isHidden,
+                tableWidth: componentWidth,
+                value: props.cell.value,
+                width:
+                  this.props.columnWidthMap?.[column.id] ||
+                  DEFAULT_COLUMN_WIDTH,
               });
 
-            case COLUMN_TYPES.IMAGE:
+            case ColumnTypes.IMAGE:
               const onClick = column.onClick
                 ? () =>
                     this.onColumnEvent({
@@ -254,7 +270,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                 isSelected: isSelected,
               });
 
-            case COLUMN_TYPES.MENUBUTTON:
+            case ColumnTypes.MENU_BUTTON:
               const menuButtonProps: RenderMenuButtonProps = {
                 compactMode,
                 isSelected: isSelected,
@@ -287,7 +303,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                 cellProperties,
               );
 
-            case COLUMN_TYPES.ICONBUTTON:
+            case ColumnTypes.ICON_BUTTON:
               const iconButtonProps = {
                 compactMode,
                 isSelected: isSelected,
@@ -332,7 +348,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
               });
 
             default:
-              const isColumnEditable = column.isEditable;
               const isCellEditMode =
                 props.cell.column.alias === this.props.editableCell.column &&
                 rowIndex === this.props.editableCell.index;

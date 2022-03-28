@@ -327,7 +327,12 @@ function MenuButtonTableComponent(props: MenuButtonComponentProps) {
   } = props;
 
   return (
-    <MenuButtonContainer>
+    <MenuButtonContainer
+      onClick={(e) => {
+        //Stop propagating event so selectedRow will remain unchanged
+        e.stopPropagation();
+      }}
+    >
       <PopoverStyles />
       <Popover2
         content={
