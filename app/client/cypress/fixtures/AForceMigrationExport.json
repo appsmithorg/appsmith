@@ -2,14 +2,16 @@
 	"clientSchemaVersion": 1,
 	"serverSchemaVersion": 3,
 	"exportedApplication": {
-		"name": "Community Isssues",
+		"name": "Community Issues",
 		"isPublic": false,
 		"appIsExample": false,
 		"unreadCommentThreads": 0,
 		"color": "#CCCCCC",
 		"icon": "arrow-right",
-		"slug": "community-isssues",
+		"slug": "community-issues",
 		"evaluationVersion": 2,
+		"applicationVersion": 1,
+		"isManualUpdate": false,
 		"new": true
 	},
 	"datasourceList": [
@@ -52,7 +54,7 @@
 						"dsl": {
 							"widgetName": "MainContainer",
 							"backgroundColor": "none",
-							"rightColumn": 1094,
+							"rightColumn": 1082,
 							"snapColumns": 64,
 							"detachFromLayout": true,
 							"widgetId": "0",
@@ -3536,11 +3538,12 @@
 										"created_at": 129,
 										"count": 69.00000000000001,
 										"customColumn1": 102,
-										"answer": 76,
+										"answer": 91,
 										"total_reactions": 60,
-										"unique_commentors": 106,
+										"unique_commentors": 119,
 										"states": 108,
-										"customColumn2": 110
+										"customColumn2": 77,
+										"state": 111
 									},
 									"widgetName": "Table1",
 									"defaultPageSize": 0,
@@ -4047,6 +4050,16 @@
 
 									],
 									"timeoutInMillisecond": 10000
+								},
+								{
+									"id": "Issues_search_github_issues",
+									"name": "search_github_issues",
+									"confirmBeforeExecute": false,
+									"pluginType": "DB",
+									"jsonPathKeys": [
+										"\"%\" + this.params.searchText + \"%\""
+									],
+									"timeoutInMillisecond": 10000
 								}
 							],
 							[
@@ -4063,6 +4076,16 @@
 							],
 							[
 								{
+									"id": "Issues_fetch_labels",
+									"name": "fetch_labels",
+									"confirmBeforeExecute": false,
+									"pluginType": "API",
+									"jsonPathKeys": [
+
+									],
+									"timeoutInMillisecond": 10000
+								},
+								{
 									"id": "Issues_fetch_issues",
 									"name": "fetch_issues",
 									"confirmBeforeExecute": false,
@@ -4076,26 +4099,6 @@
 										"status_filter.selectedOptionValue && status_filter.selectedOptionValue !== \"ALL\" ? \"and '\" + status_filter.selectedOptionValue + \"' =ANY(global_issues.states)\" : \"\"",
 										"pod_filter.selectedOptionValue && pod_filter.selectedOptionValue !== \"ALL\" ? \"and '\" + pod_filter.selectedOptionValue +  \"'=ANY(global_issues.labels)\" : \"\"",
 										"sort_select.selectedOptionValue === \"GITHUB\" ? \"total_reactions desc, count desc, upvote_id desc\" : sort_select.selectedOptionValue === \"VOTES\" ? \"count desc, upvote_id desc, total_reactions desc\" : sort_select.selectedOptionValue === \"COMMENTORS\" ? \"unique_commentors desc, total_reactions desc, count desc, upvote_id desc\" : \"updated_at desc\""
-									],
-									"timeoutInMillisecond": 10000
-								},
-								{
-									"id": "Issues_fetch_labels",
-									"name": "fetch_labels",
-									"confirmBeforeExecute": false,
-									"pluginType": "API",
-									"jsonPathKeys": [
-
-									],
-									"timeoutInMillisecond": 10000
-								},
-								{
-									"id": "Issues_search_github_issues",
-									"name": "search_github_issues",
-									"confirmBeforeExecute": false,
-									"pluginType": "DB",
-									"jsonPathKeys": [
-										"\"%\" + this.params.searchText + \"%\""
 									],
 									"timeoutInMillisecond": 10000
 								}

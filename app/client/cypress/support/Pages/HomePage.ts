@@ -37,11 +37,13 @@ export class HomePage {
     private _userRoleDropDown = (email: string, role: string) => "//td[text()='" + email + "']/following-sibling::td//span[text()='" + role + "']"
     //private _userRoleDropDown = (email: string) => "//td[text()='" + email + "']/following-sibling::td"
     private _leaveOrgConfirmModal = ".t--member-delete-confirmation-modal"
+    private _orgImportAppModal = ".t--import-application-modal"
     private _leaveOrgConfirmButton = "[data - cy= t--org-leave - button]"
     private _lastOrgInHomePage = "//div[contains(@class, 't--org-section')][last()]//span/span"
     _editPageLanding = "//h2[text()='Drag and drop a widget here']"
     _usersEmailList = "[data-colindex='1']"
-
+    private _orgImport = "[data-cy=t--org-import-app]"
+    private _uploadFile = "//div/form/input"
 
     public CreateNewOrg(orgNewName: string) {
         let oldName: string = ""
@@ -128,7 +130,6 @@ export class HomePage {
         );
         cy.get(this.locator._loading).should("not.exist");
     }
-
 
     //Maps to CreateAppForOrg in command.js
     public CreateAppInOrg(orgName: string, appname: string) {
@@ -257,6 +258,18 @@ export class HomePage {
         cy.get(this._visibleTextSpan(newRole)).last().click({ force: true });
         this.agHelper.Sleep()
         this.NavigateToHome()
+    }
+
+    public ImportApp(fixtureJson: string) {
+        cy.get(this._homeIcon).click();
+        cy.get(this._optionsIcon).first().click();
+        cy.get(this._orgImport).click({ force: true });
+        cy.get(this._orgImportAppModal).should("be.visible");
+        cy.xpath(this._uploadFile).attachFile(fixtureJson).wait(500);
+        cy.get(this._orgImportAppModal).should("not.exist");
+        this.agHelper.ValidateToastMessage("Application imported successfully")
+        this.agHelper.Sleep(5000)//for imported app to settle!
+        cy.get(this.locator._loading).should("not.exist");
     }
 }
 

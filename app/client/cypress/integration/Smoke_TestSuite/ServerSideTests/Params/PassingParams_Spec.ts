@@ -5,7 +5,8 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   dataSources = ObjectsRegistry.DataSources,
   jsEditor = ObjectsRegistry.JSEditor,
   locator = ObjectsRegistry.CommonLocators,
-  ee = ObjectsRegistry.EntityExplorer;
+  ee = ObjectsRegistry.EntityExplorer,
+  table = ObjectsRegistry.Table;
 
 describe("[Bug] - 10784 - Passing params from JS to SQL query should not break", () => {
   before(() => {
@@ -49,7 +50,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
 
@@ -58,7 +59,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     agHelper.ClickButton("Submit");
     agHelper.Sleep(2000);
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });
@@ -88,7 +89,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
 
@@ -97,7 +98,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     agHelper.ClickButton("Submit");
     agHelper.Sleep(2000);
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
   });
@@ -127,7 +128,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
 
@@ -136,7 +137,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     agHelper.ClickButton("Submit");
     agHelper.Sleep(2000);
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
   });
@@ -166,7 +167,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
 
@@ -175,7 +176,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     agHelper.ClickButton("Submit");
     agHelper.Sleep(2000);
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });
@@ -205,7 +206,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
 
@@ -214,7 +215,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     agHelper.ClickButton("Submit");
     agHelper.Sleep(2000);
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
   });
@@ -244,7 +245,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
 
@@ -253,7 +254,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     agHelper.ClickButton("Submit");
     agHelper.Sleep(2000);
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
   });
@@ -283,7 +284,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
 
@@ -292,7 +293,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     agHelper.ClickButton("Submit");
     agHelper.Sleep(2000);
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });
@@ -322,7 +323,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
 
@@ -331,7 +332,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     agHelper.ClickButton("Submit");
     agHelper.Sleep(2000);
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
   });
@@ -361,7 +362,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
 
@@ -370,7 +371,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     agHelper.ClickButton("Submit");
     agHelper.Sleep(2000);
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
   });
@@ -405,7 +406,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     agHelper.ClickButton("Submit");
     agHelper.Sleep(2000);
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
   });

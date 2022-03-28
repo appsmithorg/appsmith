@@ -5,6 +5,7 @@ import { CommonLocators } from "./CommonLocators";
 import { ApiPage } from "../Pages/ApiPage";
 import { HomePage } from "../Pages/HomePage";
 import { DataSources } from "../Pages/DataSources";
+import { Table } from "../Pages/Table";
 
 export class ObjectsRegistry {
 
@@ -62,5 +63,13 @@ export class ObjectsRegistry {
             ObjectsRegistry.dataSources__ = new DataSources()
         }
         return ObjectsRegistry.dataSources__;
+    }
+
+    private static table__: Table;
+    static get Table(): Table {
+        if (ObjectsRegistry.table__ === undefined) {
+            ObjectsRegistry.table__ = new Table()
+        }
+        return ObjectsRegistry.table__;
     }
 }

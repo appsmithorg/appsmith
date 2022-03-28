@@ -333,10 +333,6 @@ export class AggregateHelper {
             });
     }
 
-    public ReadTableRowColumnData(rowNum: number, colNum: number) {
-        return cy.get(this.locator._tableRowColumn(rowNum, colNum)).invoke("text");
-    }
-
     public UploadFile(fixtureName: string, execStat = true) {
         cy.get(this.locator._uploadFiles).attachFile(fixtureName).wait(1000);
         cy.get(this.locator._uploadBtn).click().wait(3000);
