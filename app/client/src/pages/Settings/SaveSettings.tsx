@@ -52,31 +52,34 @@ type SaveAdminSettingsProps = {
 };
 
 const saveAdminSettings = (props: SaveAdminSettingsProps) => {
-  const checkForEnabling = () => {
-    let disabled = false;
-    const requiredFields = props.settingsDetails.filter((eachSetting) => {
+  const {
+    isSaving,
+    onClear,
+    onSave,
+    settings,
+    settingsConfig,
+    settingsDetails,
+    valid,
+  } = props;
+
+  const isDisabled = () => {
+    const requiredFields = settingsDetails.filter((eachSetting) => {
       if (
         eachSetting.isRequired &&
         !eachSetting.isHidden &&
-        (((props.settingsConfig[eachSetting.id]?.toString().trim() === "" ||
-          props.settingsConfig[eachSetting.id] === undefined) &&
-          !props.settings[eachSetting.id]) ||
-          (!props.settingsConfig[eachSetting.id] &&
-            props.settings[eachSetting.id]?.trim() === ""))
+        (((settingsConfig[eachSetting.id]?.toString().trim() === "" ||
+          settingsConfig[eachSetting.id] === undefined) &&
+          !settings[eachSetting.id]) ||
+          (!settingsConfig[eachSetting.id] &&
+            settings[eachSetting.id]?.trim() === ""))
       ) {
         return eachSetting.id;
       }
     });
 
-    if (
-      requiredFields.length > 0 ||
-      Object.keys(props.settings).length == 0 ||
-      !props.valid
-    ) {
-      disabled = true;
-    }
-
-    return disabled;
+    return (
+      requiredFields.length > 0 || Object.keys(settings).length == 0 || !valid
+    );
   };
 
   return (
@@ -84,17 +87,17 @@ const saveAdminSettings = (props: SaveAdminSettingsProps) => {
       <StyledSaveButton
         category={Category.primary}
         className="t--admin-settings-save-button"
-        disabled={checkForEnabling()}
-        isLoading={props.isSaving}
-        onClick={props.onSave}
+        disabled={isDisabled()}
+        isLoading={isSaving}
+        onClick={onSave}
         tag="button"
         text={createMessage(() => "Save & Restart")}
       />
       <StyledClearButton
         category={Category.tertiary}
         className="t--admin-settings-reset-button"
-        disabled={Object.keys(props.settings).length == 0}
-        onClick={props.onClear}
+        disabled={Object.keys(settings).length == 0}
+        onClick={onClear}
         tag="button"
         text={createMessage(() => "Reset")}
       />
