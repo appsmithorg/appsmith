@@ -60,7 +60,6 @@ describe("Git sync:", function() {
       widgetsPage.buttonWidget,
       commonlocators.buttonInner,
     );
-
     cy.get(homePage.publishButton).click();
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
     cy.get(gitSyncLocators.commitButton).click();
@@ -118,6 +117,7 @@ describe("Git sync:", function() {
     cy.commitAndPush();
     cy.merge(mainBranch);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
+    cy.wait(8000);
     cy.switchGitBranch(mainBranch);
     cy.contains("NewPage");
   });
@@ -185,9 +185,8 @@ describe("Git sync:", function() {
     cy.get(gitSyncLocators.gitPullCount);
 
     cy.get(gitSyncLocators.bottomBarPullButton).click();
-
     cy.contains(Cypress.env("MESSAGES").GIT_CONFLICTING_INFO());
-    cy.get("body").type("{esc}");
+    cy.xpath("//span[@name='close-modal']").click({ force: true });
   });
 
   it("clicking '+' icon on bottom bar should open deploy popup", function() {
@@ -214,7 +213,6 @@ describe("Git sync:", function() {
       201,
     );
     cy.get("#loading").should("not.exist");
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
 
     cy.AppSetupForRename();

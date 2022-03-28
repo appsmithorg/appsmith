@@ -3,7 +3,11 @@ import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
 import { Org } from "./orgConstants";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
-import { GitApplicationMetadata } from "api/ApplicationApi";
+import {
+  ApplicationPagePayload,
+  GitApplicationMetadata,
+} from "api/ApplicationApi";
+import { ApplicationVersion } from "actions/applicationActions";
 
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
@@ -950,6 +954,7 @@ export interface Page {
   isDefault: boolean;
   latest?: boolean;
   isHidden?: boolean;
+  slug?: string;
 }
 
 export interface ClonePageSuccessPayload {
@@ -967,10 +972,11 @@ export interface ApplicationPayload {
   color?: string;
   icon?: string;
   organizationId: string;
-  defaultPageId?: string;
+  defaultPageId: string;
   isPublic?: boolean;
   userPermissions?: string[];
   appIsExample: boolean;
+  slug?: string;
   forkingEnabled?: boolean;
   appLayout?: AppLayoutConfig;
   gitApplicationMetadata?: GitApplicationMetadata;
@@ -978,6 +984,8 @@ export interface ApplicationPayload {
   applicationId?: string;
   modifiedBy?: string;
   modifiedAt?: string;
+  pages: ApplicationPagePayload[];
+  applicationVersion: ApplicationVersion;
 }
 
 export type OrganizationDetails = {
@@ -992,9 +1000,3 @@ export interface LoadWidgetEditorPayload {
 export interface LoadWidgetSidebarPayload {
   cards: { [id: string]: WidgetCardProps[] };
 }
-
-export type InitializeEditorPayload = {
-  applicationId: string;
-  pageId: string;
-  branch?: string;
-};

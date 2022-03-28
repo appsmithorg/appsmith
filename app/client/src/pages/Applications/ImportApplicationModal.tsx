@@ -74,8 +74,8 @@ const Row = styled.div`
   justify-content: space-between;
 `;
 
-const FileImportCard = styled.div`
-  width: 320px;
+const FileImportCard = styled.div<{ gitEnabled?: boolean }>`
+  width: ${(props) => (props.gitEnabled ? "320px" : "100%")};
   height: 200px;
   border: 1px solid ${Colors.GREY_4};
   display: flex;
@@ -281,7 +281,10 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
         </Text>
       </TextWrapper>
       <Row>
-        <FileImportCard className="t--import-json-card">
+        <FileImportCard
+          className="t--import-json-card"
+          gitEnabled={isGitImportFeatureEnabled}
+        >
           <FilePickerV2
             containerClickable
             description={createMessage(IMPORT_APP_FROM_FILE_MESSAGE)}
