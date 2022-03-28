@@ -19,10 +19,12 @@ import {
   getSpacesMapFromArray,
   buildArrayToCollisionMap,
   getModifiedOccupiedSpacesMap,
+  getModifiedCollidingSpace,
   checkReCollisionWithOtherNewSpacePositions,
   getCalculatedDirection,
   getBottomMostRow,
   initializeMovementLimitMap,
+  shouldProcessNodeForTree,
 } from "../reflowUtils";
 import { HORIZONTAL_RESIZE_LIMIT, VERTICAL_RESIZE_LIMIT } from "../reflowTypes";
 
@@ -1487,6 +1489,76 @@ describe("Test reflow util methods", () => {
       ).toEqual(modifiedOccupiedSpacesMap);
     });
   });
+  describe("Test getModifiedCollidingSpace method", () => {
+    const collidingSpace = {
+      id: "1238",
+      left: 90,
+      top: 60,
+      right: 130,
+      bottom: 90,
+    };
+    const occupiedSpaceMap = {
+      "1238": {
+        id: "1238",
+        left: 90,
+        top: 60,
+        right: 130,
+        bottom: 90,
+      },
+    };
+    const gridProps = {
+      parentColumnSpace: 10,
+      parentRowSpace: 10,
+    };
+    const prevMovementMap = {
+      "1238": {
+        X: -100,
+        Y: -80,
+        width: 400,
+        height: 200,
+      },
+    };
+    it("should return horizontally modified colliding Space", () => {
+      const modifiedCollidingSpace = {
+        id: "1238",
+        left: 80,
+        top: 60,
+        right: 120,
+        bottom: 90,
+      };
+      expect(
+        getModifiedCollidingSpace(
+          collidingSpace,
+          occupiedSpaceMap,
+          prevMovementMap,
+          false,
+          gridProps,
+          SpaceAttributes.right,
+          SpaceAttributes.left,
+        ),
+      ).toEqual(modifiedCollidingSpace);
+    });
+    it("should return vertically modified colliding Space", () => {
+      const modifiedOccupiedSpacesMap = {
+        id: "1238",
+        left: 90,
+        top: 52,
+        right: 130,
+        bottom: 72,
+      };
+      expect(
+        getModifiedCollidingSpace(
+          collidingSpace,
+          occupiedSpaceMap,
+          prevMovementMap,
+          true,
+          gridProps,
+          SpaceAttributes.bottom,
+          SpaceAttributes.top,
+        ),
+      ).toEqual(modifiedOccupiedSpacesMap);
+    });
+  });
   describe("Test checkReCollisionWithOtherNewSpacePositions", () => {
     const newSpacePositions = [
       {
@@ -1767,6 +1839,59 @@ describe("Test reflow util methods", () => {
     it("should return a map with all the spaces with canHorizontalMove and canVerticalMove set as true", () => {
       expect(initializeMovementLimitMap(occupiedSpaces)).toEqual(
         initialMovementLimitMap,
+      );
+    });
+  });
+  describe("test shouldProcessNodeForTree", () => {
+    const collidingSpace = {
+      id: "1234",
+      collidingValue: 10,
+      direction: ReflowDirection.BOTTOM,
+    };
+    it("should be true if the processed nodes object is undefined", () => {
+      const processedNodes = {};
+      expect(shouldProcessNodeForTree(collidingSpace, processedNodes)).toBe(
+        true,
+      );
+    });
+    it("should be false if the current node has a value in the opposite direction", () => {
+      const processedNodes = {
+        "1234": {
+          TOP: 15,
+        },
+      };
+      expect(shouldProcessNodeForTree(collidingSpace, processedNodes)).toBe(
+        false,
+      );
+    });
+    it("should be true if the current node is not processed in the current direction", () => {
+      const processedNodes = {
+        "1234": {
+          LEFT: 15,
+        },
+      };
+      expect(shouldProcessNodeForTree(collidingSpace, processedNodes)).toBe(
+        true,
+      );
+    });
+    it("should be false if the current node is processed in the current direction if the current node's colliding value is lesser", () => {
+      const processedNodes = {
+        "1234": {
+          BOTTOM: 15,
+        },
+      };
+      expect(shouldProcessNodeForTree(collidingSpace, processedNodes)).toBe(
+        false,
+      );
+    });
+    it("should be true if the current node is processed in the current direction if the current node's colliding value is greater", () => {
+      const processedNodes = {
+        "1234": {
+          BOTTOM: 5,
+        },
+      };
+      expect(shouldProcessNodeForTree(collidingSpace, processedNodes)).toBe(
+        true,
       );
     });
   });

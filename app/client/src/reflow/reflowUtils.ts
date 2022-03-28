@@ -1844,4 +1844,6 @@ export function shouldProcessNodeForTree(
     )
   )
     return true;
+
+  return false;
 }
