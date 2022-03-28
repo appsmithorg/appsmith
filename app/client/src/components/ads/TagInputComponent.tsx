@@ -162,7 +162,6 @@ function TagInputComponent(props: TagInputProps) {
           type: props.type,
           value: currentValue,
           onBlur: handleInputBlur,
-          required: props.isRequired || false,
         }}
         large={false}
         onChange={onTagsChange}
@@ -170,12 +169,10 @@ function TagInputComponent(props: TagInputProps) {
         onKeyDown={onKeyDown}
         placeholder={props.placeholder}
         separator={props.separator || ","}
-        tagProps={(tag) => {
-          return {
-            className: tag + "_tag",
-            round: true,
-          };
-        }}
+        tagProps={(tag) => ({
+          className: tag + "_tag",
+          round: true,
+        })}
         values={inputValues || [""]}
       />
     </TagInputWrapper>

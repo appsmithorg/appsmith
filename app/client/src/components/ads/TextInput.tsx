@@ -78,7 +78,6 @@ export type TextInputProps = CommonComponentProps & {
   isCopy?: boolean;
   border?: boolean;
   style?: any;
-  required?: boolean;
 };
 
 type boxReturnType = {
@@ -156,7 +155,6 @@ const StyledInput = styled((props) => {
     "border",
     "asyncControl",
     "handleCopy",
-    "isRequired",
   ];
 
   const HtmlTag = props.useTextArea ? "textarea" : "input";

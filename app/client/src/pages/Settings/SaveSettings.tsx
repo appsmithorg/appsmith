@@ -41,7 +41,7 @@ const SettingsButtonWrapper = styled.div`
   background-color: ${(props) => props.theme.colors.homepageBackground};
 `;
 
-const saveAdminSettings = (props: {
+type SaveAdminSettingsProps = {
   isSaving?: boolean;
   onSave?: () => void;
   onClear?: () => void;
@@ -49,7 +49,9 @@ const saveAdminSettings = (props: {
   settingsConfig: Record<string, string | boolean>;
   settingsDetails: Setting[];
   valid: boolean;
-}) => {
+};
+
+const saveAdminSettings = (props: SaveAdminSettingsProps) => {
   const checkForEnabling = () => {
     let disabled = false;
     const requiredFields = props.settingsDetails.filter((eachSetting) => {

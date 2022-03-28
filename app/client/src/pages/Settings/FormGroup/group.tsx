@@ -60,8 +60,8 @@ const GroupBody = styled.div`
           border: 1.2px solid ${Colors.ALTO2};
           box-shadow: none;
           .bp3-tag {
-            background: #f8f8f8;
-            color: #000;
+            background: var(--appsmith-color-black-50);
+            color: ${Colors.BLACK};
             svg:hover {
               cursor: pointer;
               path {
