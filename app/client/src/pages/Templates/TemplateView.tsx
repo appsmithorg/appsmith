@@ -20,7 +20,7 @@ import { getSimilarTemplatesInit } from "actions/templateActions";
 import { AppState } from "reducers";
 import { Icon, IconSize } from "components/ads";
 import history from "utils/history";
-import { TEMPLATES_URL } from "constants/routes";
+import { TEMPLATES_PATH } from "constants/routes";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import {
@@ -231,7 +231,7 @@ function TemplateView() {
   };
 
   const goToTemplateListView = () => {
-    history.push(TEMPLATES_URL);
+    history.push(TEMPLATES_PATH);
   };
 
   useEffect(() => {
