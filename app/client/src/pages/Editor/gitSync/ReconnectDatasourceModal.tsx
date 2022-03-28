@@ -395,6 +395,7 @@ function ReconnectDatasourceModal() {
           applicationVersion:
             importedApplication.applicationVersion ??
             ApplicationVersion.SLUG_URL,
+          applicationSlug: importedApplication.slug,
           applicationId: appId,
           pageId: pageId,
         }),
@@ -505,7 +506,6 @@ function ReconnectDatasourceModal() {
                   AnalyticsUtil.logEvent(
                     "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK",
                   );
-                  window.open(appURL, "_self");
                 }}
                 size={Size.medium}
                 text={createMessage(SKIP_TO_APPLICATION)}
