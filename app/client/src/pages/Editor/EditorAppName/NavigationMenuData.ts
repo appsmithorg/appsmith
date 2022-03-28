@@ -10,7 +10,7 @@ import {
   useHideComments,
 } from "pages/Editor/ToggleModeButton";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { APPLICATIONS_URL, PAGE_LIST_EDITOR_URL } from "constants/routes";
+import { APPLICATIONS_URL } from "constants/routes";
 
 import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
 import { useCallback } from "react";
@@ -36,6 +36,7 @@ import {
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { redoAction, undoAction } from "actions/pageActions";
 import { redoShortCut, undoShortCut } from "utils/helpers";
+import { pageListEditorURL } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type NavigationMenuDataProps = ThemeProp & {
@@ -163,7 +164,7 @@ export const GetNavigationMenuData = ({
     {
       text: "Pages",
       onClick: () => {
-        history.push(PAGE_LIST_EDITOR_URL(applicationId, params.pageId));
+        history.push(pageListEditorURL({ pageId: params.pageId }));
       },
       type: MenuTypes.MENU,
       isVisible: true,
