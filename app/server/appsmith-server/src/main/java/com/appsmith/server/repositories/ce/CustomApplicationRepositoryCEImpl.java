@@ -200,11 +200,6 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     public Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId) {
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
 
-        Criteria applicationIdCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId);
-        Criteria deletionCriteria = where(fieldName(QApplication.application.deleted)).ne(true);
-        boolean branchCriteria = where("this." + gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.branchName))
-                .equals("this." +gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultBranchName));
-
         Query query = new Query();
         query.addCriteria(where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId));
         query.addCriteria(where(fieldName(QApplication.application.deleted)).ne(true));
