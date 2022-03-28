@@ -428,8 +428,8 @@ export function* duplicateApplicationSaga(
       const pageURL = builderURL({
         applicationVersion: application.applicationVersion,
         applicationId: application.id,
-        applicationSlug: slug,
-        pageSlug: defaultPage?.slug,
+        applicationSlug: slug || PLACEHOLDER_APP_SLUG,
+        pageSlug: defaultPage?.slug || PLACEHOLDER_PAGE_SLUG,
         pageId: application.defaultPageId as string,
       });
       history.push(pageURL);
@@ -625,8 +625,8 @@ export function* forkApplicationSaga(
       const pageURL = builderURL({
         applicationVersion: application.applicationVersion,
         applicationId: application.id,
-        applicationSlug: application.slug as string,
-        pageSlug: defaultPage.slug,
+        applicationSlug: application.slug || PLACEHOLDER_APP_SLUG,
+        pageSlug: defaultPage.slug || PLACEHOLDER_PAGE_SLUG,
         pageId: application.defaultPageId as string,
       });
       history.push(pageURL);
