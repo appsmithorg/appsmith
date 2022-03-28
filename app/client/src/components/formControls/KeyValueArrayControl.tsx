@@ -195,12 +195,14 @@ class KeyValueArrayControl extends BaseControl<KeyValueArrayControlProps> {
     const name = getFieldName(this.props.configProperty);
 
     return (
-      <FieldArray
-        component={KeyValueRow}
-        rerenderOnEveryChange={false}
-        {...this.props}
-        name={name ? name[0] : ""}
-      />
+      <div style={{ marginBottom: "40px" }}>
+        <FieldArray
+          component={KeyValueRow}
+          rerenderOnEveryChange={false}
+          {...this.props}
+          name={name ? name[0] : ""}
+        />
+      </div>
     );
   }
 
