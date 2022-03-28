@@ -128,12 +128,13 @@ const applicationsReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE]: (
     state: ApplicationsReduxState,
-    action: ReduxAction<{ name: string }>,
+    action: ReduxAction<{ name: string; slug: string }>,
   ) => ({
     ...state,
     currentApplication: {
       ...state.currentApplication,
-      name: action.payload,
+      name: action.payload.name,
+      slug: action.payload.slug,
     },
   }),
   [ReduxActionTypes.CURRENT_APPLICATION_LAYOUT_UPDATE]: (
@@ -379,6 +380,10 @@ const applicationsReducer = createReducer(initialState, {
     return {
       ...state,
       userOrgs: _organizations,
+      currentApplication: {
+        ...state.currentApplication,
+        applicationVersion: action.payload.applicationVersion,
+      },
       isSavingAppName: false,
       isErrorSavingAppName: false,
     };
