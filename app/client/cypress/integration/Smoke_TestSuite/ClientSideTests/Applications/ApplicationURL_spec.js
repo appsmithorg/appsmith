@@ -1,5 +1,5 @@
 import homePage from "../../../../locators/HomePage";
-
+const explorer = require("../../../../locators/explorerlocators.json");
 describe("Slug URLs", () => {
   let applicationName;
   it("Checks URL redirection from legacy URLs to slug URLs", () => {
@@ -47,7 +47,14 @@ describe("Slug URLs", () => {
 
   it("Checks if page slug updates on the URL when page name changes", () => {
     cy.GlobalSearchEntity("Page1");
-    cy.RenameEntity("Page renamed");
+    // cy.RenameEntity("Page renamed");
+    cy.get(`.t--entity-item:contains(Page1)`).within(() => {
+      cy.get(".t--context-menu").click({ force: true });
+    });
+    cy.selectAction("Edit Name");
+    cy.get(explorer.editEntity)
+      .last()
+      .type("Page renamed", { force: true });
     cy.get("body").click(0, 0);
     cy.wait("@updatePage").should(
       "have.nested.property",
