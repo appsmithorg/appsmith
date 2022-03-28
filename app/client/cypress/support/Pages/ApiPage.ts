@@ -23,8 +23,9 @@ export class ApiPage {
     _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']"
     _noBodyMessageDiv = "#NoBodyMessageDiv"
     _noBodyMessage = "This request does not have a body"
-    _imageSrc = "//div[contains(@class,'StyledImage')]"
-    private _trashDelete = "//span[contains(@class, 'IconWrapper')][@name='delete']";
+    _imageSrc = "//img/parent::div"
+    private _trashDelete = "span[name='delete']"
+
 
     CreateApi(apiName: string = "", apiVerb: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' = 'GET',) {
         cy.get(this.locator._createNew).click({ force: true });
@@ -101,7 +102,7 @@ export class ApiPage {
         this.SelectSubTab(subTab)
         if (toTrash)
         {
-            cy.xpath(this._trashDelete).click()
+            cy.get(this._trashDelete).click()
             cy.xpath(this._visibleTextSpan('Add more')).click()
         }
         cy.get(this._bodyKey(0))
