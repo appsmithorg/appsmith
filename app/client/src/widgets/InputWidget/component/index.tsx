@@ -1,4 +1,4 @@
-import React from "react";
+import React, { MutableRefObject } from "react";
 import styled from "styled-components";
 import { labelStyle } from "constants/DefaultTheme";
 import { ComponentProps } from "widgets/BaseComponent";
@@ -15,6 +15,7 @@ import {
   TextArea,
   Tag,
   Position,
+  IRef,
 } from "@blueprintjs/core";
 import Tooltip from "components/ads/Tooltip";
 import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
@@ -575,6 +576,7 @@ class InputComponent extends React.Component<
       className={this.props.isLoading ? "bp3-skeleton" : ""}
       disabled={this.props.disabled}
       growVertically={false}
+      inputRef={this.props.inputRef as IRef<HTMLTextAreaElement>}
       intent={this.props.intent}
       maxLength={this.props.maxChars}
       onBlur={() => this.setFocusState(false)}
@@ -595,6 +597,7 @@ class InputComponent extends React.Component<
         autoFocus={this.props.autoFocus}
         className={this.props.isLoading ? "bp3-skeleton" : ""}
         disabled={this.props.disabled}
+        inputRef={this.props.inputRef as IRef<HTMLInputElement>}
         intent={this.props.intent}
         leftIcon={
           this.props.iconName && this.props.iconAlign === "left"
@@ -768,6 +771,10 @@ export interface InputComponentProps extends ComponentProps {
   showError: boolean;
   onFocusChange: (state: boolean) => void;
   disableNewLineOnPressEnterKey?: boolean;
+  inputRef?: MutableRefObject<
+    HTMLTextAreaElement | HTMLInputElement | null | undefined
+  >;
+  name?: string;
   onKeyDown?: (
     e:
       | React.KeyboardEvent<HTMLTextAreaElement>

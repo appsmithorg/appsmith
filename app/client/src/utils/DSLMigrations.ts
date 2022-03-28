@@ -34,7 +34,7 @@ import { getCanvasSnapRows } from "./WidgetPropsUtils";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { FetchPageResponse } from "api/PageApi";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import defaultTemplate from "templates/default";
+// import defaultTemplate from "templates/default";
 import { renameKeyInObject } from "./helpers";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButtonWidget";
@@ -1493,7 +1493,8 @@ export const migrateToNewLayout = (dsl: ContainerWidgetProps<WidgetProps>) => {
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
 ) => {
-  const currentDSL = fetchPageResponse?.data.layouts[0].dsl || defaultTemplate;
+  const currentDSL = fetchPageResponse?.data.layouts[0].dsl;
+  if (!currentDSL) return false;
   return currentDSL.version !== LATEST_PAGE_VERSION;
 };
 
@@ -1604,6 +1605,88 @@ export const migrateStylingPropertiesForTheming = (
         break;
       default:
         child.boxShadow = "none";
+    }
+
+    // migrate table text sizes
+    /**
+     * Migrates the textSize property present at the table level.
+     */
+    switch (child.textSize) {
+      case TextSizes.PARAGRAPH2:
+        child.textSize = "0.75rem";
+        addPropertyToDynamicPropertyPathList("textSize", child);
+        break;
+      case TextSizes.PARAGRAPH:
+        child.textSize = "0.875rem";
+        break;
+      case TextSizes.HEADING3:
+        child.textSize = "1rem";
+        break;
+      case TextSizes.HEADING2:
+        child.textSize = "1.125rem";
+        addPropertyToDynamicPropertyPathList("textSize", child);
+        break;
+      case TextSizes.HEADING1:
+        child.textSize = "1.5rem";
+        addPropertyToDynamicPropertyPathList("textSize", child);
+        break;
+      default:
+        child.textSize = "0.875rem";
+    }
+    if (child.hasOwnProperty("primaryColumns")) {
+      Object.keys(child.primaryColumns).forEach((key: string) => {
+        /**
+         * Migrates the textSize property present at the primaryColumn and derivedColumn level.
+         */
+        const column = child.primaryColumns[key];
+        const isDerivedColumn =
+          child.hasOwnProperty("derivedColumns") && key in child.derivedColumns;
+        const derivedColumn = child.derivedColumns[key];
+        switch (column.textSize) {
+          case TextSizes.PARAGRAPH2:
+            column.textSize = "0.75rem";
+            if (isDerivedColumn) {
+              derivedColumn.textSize = "0.75rem";
+            }
+            addPropertyToDynamicPropertyPathList(
+              `primaryColumns.${key}.textSize`,
+              child,
+            );
+            break;
+          case TextSizes.PARAGRAPH:
+            column.textSize = "0.875rem";
+            if (isDerivedColumn) {
+              derivedColumn.textSize = "0.875rem";
+            }
+            break;
+          case TextSizes.HEADING3:
+            column.textSize = "1rem";
+            if (isDerivedColumn) {
+              derivedColumn.textSize = "1rem";
+            }
+            break;
+          case TextSizes.HEADING2:
+            column.textSize = "1.125rem";
+            if (isDerivedColumn) {
+              derivedColumn.textSize = "1.125rem";
+            }
+            addPropertyToDynamicPropertyPathList(
+              `primaryColumns.${key}.textSize`,
+              child,
+            );
+            break;
+          case TextSizes.HEADING1:
+            column.textSize = "1.5rem";
+            if (isDerivedColumn) {
+              derivedColumn.textSize = "1.5rem";
+            }
+            addPropertyToDynamicPropertyPathList(
+              `primaryColumns.${key}.textSize`,
+              child,
+            );
+            break;
+        }
+      });
     }
 
     // migrate font size

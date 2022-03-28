@@ -304,7 +304,7 @@ interface ButtonComponentProps extends ComponentProps {
 function RecaptchaV2Component(
   props: {
     children: any;
-    onClick?: (event: React.MouseEvent<HTMLElement>) => void;
+    isDisabled?: boolean;
     recaptchaType?: RecaptchaType;
     handleError: (event: React.MouseEvent<HTMLElement>, error: string) => void;
   } & RecaptchaProps,
@@ -315,6 +315,7 @@ function RecaptchaV2Component(
     props.handleRecaptchaV2Loading && props.handleRecaptchaV2Loading(isloading);
   };
   const handleBtnClick = async (event: React.MouseEvent<HTMLElement>) => {
+    if (props.isDisabled) return;
     if (isInvalidKey) {
       // Handle incorrent google recaptcha site key
       props.handleError(event, createMessage(GOOGLE_RECAPTCHA_KEY_ERROR));
@@ -353,7 +354,7 @@ function RecaptchaV2Component(
 function RecaptchaV3Component(
   props: {
     children: any;
-    onClick?: (event: React.MouseEvent<HTMLElement>) => void;
+    isDisabled?: boolean;
     recaptchaType?: RecaptchaType;
     handleError: (event: React.MouseEvent<HTMLElement>, error: string) => void;
   } & RecaptchaProps,
@@ -364,6 +365,7 @@ function RecaptchaV3Component(
   };
 
   const handleBtnClick = (event: React.MouseEvent<HTMLElement>) => {
+    if (props.isDisabled) return;
     if (status === ScriptStatus.READY) {
       (window as any).grecaptcha.ready(() => {
         try {
@@ -406,6 +408,7 @@ function RecaptchaV3Component(
 function BtnWrapper(
   props: {
     children: any;
+    isDisabled?: boolean;
     onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   } & RecaptchaProps,
 ) {
@@ -437,6 +440,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
       clickWithRecaptcha={props.clickWithRecaptcha}
       googleRecaptchaKey={props.googleRecaptchaKey}
       handleRecaptchaV2Loading={props.handleRecaptchaV2Loading}
+      isDisabled={props.isDisabled}
       onClick={props.onClick}
       recaptchaType={props.recaptchaType}
     >
@@ -465,7 +469,6 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
         <Popover2
           autoFocus={false}
           content={<Interweave content={props.tooltip} />}
-          disabled={props.isDisabled}
           hoverOpenDelay={200}
           interactionKind="hover"
           portalClassName="btnTooltipContainer"

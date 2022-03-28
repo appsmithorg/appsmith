@@ -10,7 +10,6 @@ import {
   toString,
   isBoolean,
   omit,
-  floor,
   isEmpty,
   isEqual,
 } from "lodash";
@@ -32,13 +31,15 @@ import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import ListPagination, {
   ServerSideListPagination,
 } from "../component/ListPagination";
-import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
+import { GridDefaults } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
 import { DSLWidget } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { escapeSpecialChars } from "../../WidgetUtils";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
+
+const clone = require("rfdc/default");
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
@@ -695,7 +696,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       this.props.listData
     ) {
       const { page } = this.state;
-      const children = removeFalsyEntries(this.props.children);
+      const children = removeFalsyEntries(clone(this.props.children));
       const childCanvas = children[0];
 
       const canvasChildren = childCanvas.children;
@@ -768,44 +769,19 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    * can data be paginated
    */
   shouldPaginate = () => {
-    let gridGap = this.getGridGap();
-    const { children, listData, serverSidePaginationEnabled } = this.props;
+    const { listData, pageSize, serverSidePaginationEnabled } = this.props;
 
     if (serverSidePaginationEnabled) {
-      return { shouldPaginate: true, perPage: this.props.pageSize };
+      return { shouldPaginate: true, perPage: pageSize };
     }
 
     if (!listData?.length) {
       return { shouldPaginate: false, perPage: 0 };
     }
-    const { componentHeight } = this.getComponentDimensions();
-    const templateBottomRow = get(children, "0.children.0.bottomRow");
-    const templateHeight =
-      templateBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
-    try {
-      gridGap = parseInt(gridGap);
+    const shouldPaginate = pageSize < listData.length;
 
-      if (!isNumber(gridGap) || isNaN(gridGap)) {
-        gridGap = 0;
-      }
-    } catch {
-      gridGap = 0;
-    }
-
-    const shouldPaginate =
-      templateHeight * listData.length +
-        parseInt(gridGap) * (listData.length - 1) >
-      componentHeight;
-
-    const totalSpaceAvailable =
-      componentHeight - (LIST_WIDGET_PAGINATION_HEIGHT + WIDGET_PADDING * 2);
-    const spaceTakenByOneContainer =
-      templateHeight + (gridGap * (listData.length - 1)) / listData.length;
-
-    const perPage = totalSpaceAvailable / spaceTakenByOneContainer;
-
-    return { shouldPaginate, perPage: isNaN(perPage) ? 0 : floor(perPage) };
+    return { shouldPaginate, perPage: pageSize };
   };
 
   /**

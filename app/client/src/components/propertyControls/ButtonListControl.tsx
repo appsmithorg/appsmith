@@ -176,6 +176,7 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
       "Group Button ",
       groupButtonsArray.map((groupButton: any) => groupButton.label),
     );
+
     groupButtons = {
       ...groupButtons,
       [newGroupButtonId]: {
@@ -187,6 +188,8 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
         widgetId: generateReactKey(),
         isDisabled: false,
         isVisible: true,
+        buttonColor: this.props.widgetProperties.childStylesheets.BUTTON
+          .buttonColor,
       },
     };
 

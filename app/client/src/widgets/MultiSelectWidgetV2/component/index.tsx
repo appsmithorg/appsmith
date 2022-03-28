@@ -61,6 +61,8 @@ export interface MultiSelectProps
   borderRadius: string;
   boxShadow?: string;
   primaryColor?: string;
+  onFocus?: (e: React.FocusEvent) => void;
+  onBlur?: (e: React.FocusEvent) => void;
 }
 
 const DEBOUNCE_TIMEOUT = 1000;
@@ -82,8 +84,10 @@ function MultiSelectComponent({
   labelTextColor,
   labelTextSize,
   loading,
+  onBlur,
   onChange,
   onFilterChange,
+  onFocus,
   options,
   placeholder,
   primaryColor,
@@ -312,8 +316,10 @@ function MultiSelectComponent({
         menuItemSelectedIcon={menuItemSelectedIcon}
         mode="multiple"
         notFoundContent="No Results Found"
+        onBlur={onBlur}
         onChange={onChange}
         onDropdownVisibleChange={onOpen}
+        onFocus={onFocus}
         options={filteredOptions}
         placeholder={placeholder || "select option(s)"}
         removeIcon={

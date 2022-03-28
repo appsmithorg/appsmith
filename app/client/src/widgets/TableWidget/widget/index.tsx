@@ -230,7 +230,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               borderRadius:
                 cellProperties.borderRadius || this.props.borderRadius,
               boxShadow: cellProperties.boxShadow,
-              iconName: cellProperties.iconName,
+              iconName: cellProperties.iconName || "add",
               iconAlign: cellProperties.iconAlign,
               isCellVisible: cellProperties.isCellVisible ?? true,
               label: cellProperties.menuButtonLabel ?? "Open menu",
@@ -788,7 +788,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       isVisibleSearch;
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();
-
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent

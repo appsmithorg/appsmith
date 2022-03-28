@@ -3,7 +3,7 @@ import { Link, RouteComponentProps } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getIsFetchingPage } from "selectors/appViewSelectors";
 import styled from "styled-components";
-import { AppViewerRouteParams, BUILDER_PAGE_URL } from "constants/routes";
+import { AppViewerRouteParams } from "constants/routes";
 import { theme } from "constants/DefaultTheme";
 import { Icon, NonIdealState, Spinner } from "@blueprintjs/core";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
@@ -11,6 +11,7 @@ import AppPage from "./AppPage";
 import {
   getCanvasWidgetDsl,
   getCurrentPageName,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import RequestConfirmationModal from "pages/Editor/RequestConfirmationModal";
 import { getCurrentApplication } from "selectors/applicationSelectors";
@@ -19,6 +20,7 @@ import {
   PERMISSION_TYPE,
 } from "../Applications/permissionHelpers";
 import { fetchPublishedPage } from "actions/pageActions";
+import { builderURL } from "RouteBuilder";
 
 const Section = styled.section<{
   height: number;
@@ -41,6 +43,7 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
   const currentApplication = useSelector(getCurrentApplication);
   const { match } = props;
   const { pageId } = match.params;
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   useEffect(() => {
     pageId && dispatch(fetchPublishedPage(pageId));
@@ -59,9 +62,10 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
         <p>
           Please add widgets to this page in the&nbsp;
           <Link
-            to={BUILDER_PAGE_URL({
-              applicationId: currentApplication.applicationId,
-              pageId: match.params.pageId,
+            to={builderURL({
+              applicationSlug: applicationSlug,
+              pageSlug: pageSlug,
+              pageId: props.match.params.pageId as string,
             })}
           >
             Appsmith Editor

@@ -25,6 +25,7 @@ const initialState: AppThemingState = {
   selectedTheme: {
     id: "",
     name: "",
+    displayName: "",
     created_by: "",
     created_at: "",
     config: {
