@@ -59,6 +59,8 @@ export interface MultiSelectProps
   primaryColor: string;
   allowSelectAll?: boolean;
   widgetId: string;
+  onFocus?: (e: React.FocusEvent) => void;
+  onBlur?: (e: React.FocusEvent) => void;
 }
 
 const DEBOUNCE_TIMEOUT = 800;
@@ -78,8 +80,10 @@ function MultiSelectComponent({
   labelTextColor,
   labelTextSize,
   loading,
+  onBlur,
   onChange,
   onFilterChange,
+  onFocus,
   options,
   placeholder,
   primaryColor,
@@ -228,8 +232,10 @@ function MultiSelectComponent({
         menuItemSelectedIcon={menuItemSelectedIcon}
         mode="multiple"
         notFoundContent="No Results Found"
+        onBlur={onBlur}
         onChange={onChange}
         onDropdownVisibleChange={onClose}
+        onFocus={onFocus}
         onSearch={serverSideSearch}
         options={options}
         placeholder={placeholder || "select option(s)"}

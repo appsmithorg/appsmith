@@ -106,9 +106,10 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
 }
 
 export interface RadioGroupComponentProps extends ComponentProps {
+  isDisabled?: boolean;
   label: string;
-  options: RadioOption[];
   onRadioSelectionChange: (updatedOptionValue: string) => void;
+  options: RadioOption[];
   selectedOptionValue: string;
   isLoading: boolean;
   backgroundColor: string;

@@ -87,7 +87,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
           <StyledSwitch
             alignIndicator={alignment}
             backgroundColor={backgroundColor}
-            checked={selected.includes(option.value)}
+            checked={(selected || []).includes(option.value)}
             disabled={disabled}
             inline={inline}
             key={option.value}

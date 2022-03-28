@@ -5,13 +5,14 @@ import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import { AlignWidget } from "widgets/constants";
 
-interface SwitchComponentProps extends ComponentProps {
+export interface SwitchComponentProps extends ComponentProps {
   label: string;
   isSwitchedOn: boolean;
   onChange: (isSwitchedOn: boolean) => void;
   isLoading: boolean;
   alignWidget: AlignWidget;
   backgroundColor: string;
+  inputRef?: (ref: HTMLInputElement | null) => any;
 }
 
 const SwitchComponentContainer = styled.div<{
@@ -50,6 +51,7 @@ export const StyledSwitch = styled(Switch)<{
 export function SwitchComponent({
   alignWidget,
   backgroundColor,
+  inputRef,
   isDisabled,
   isLoading,
   isSwitchedOn,
@@ -78,6 +80,7 @@ export function SwitchComponent({
               }`
         }
         disabled={isDisabled}
+        inputRef={inputRef}
         label={label}
         onChange={() => onChange(!isSwitchedOn)}
       />

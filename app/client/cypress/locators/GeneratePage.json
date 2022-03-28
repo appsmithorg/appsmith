@@ -25,5 +25,6 @@
   "confirmBtn": "span:contains('Confirm')",
   "deleteMenuItem": "//div[text()='Delete']/parent::a[contains(@class, 'single-select')]",
   "uploadFilesS3":"div.uppy-Dashboard-AddFiles input",
-  "uploadBtn": "button.uppy-StatusBar-actionBtn--upload"
+  "uploadBtn": "button.uppy-StatusBar-actionBtn--upload",
+  "selectedRow": ".tr.selected-row"
 }

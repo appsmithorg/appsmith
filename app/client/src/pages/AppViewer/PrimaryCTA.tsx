@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import Button from "./AppViewerButton";
-import { AUTH_LOGIN_URL, getApplicationViewerPageURL } from "constants/routes";
+import { AUTH_LOGIN_URL } from "constants/routes";
 import {
   PERMISSION_TYPE,
   isPermitted,
@@ -22,6 +22,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 import { getAllApplications } from "actions/applicationActions";
+import { viewerURL } from "RouteBuilder";
 
 /**
  * ---------------------------------------------------------------------------------------------------
@@ -53,9 +54,7 @@ function PrimaryCTA(props: Props) {
 
   // get the fork url
   const forkURL = useMemo(() => {
-    return `${LOGIN_URL}?redirectUrl=${
-      window.location.origin
-    }${getApplicationViewerPageURL({
+    return `${LOGIN_URL}?redirectUrl=${window.location.origin}${viewerURL({
       applicationId: currentApplication?.applicationId,
       pageId: currentPageID,
       suffix: "fork",
