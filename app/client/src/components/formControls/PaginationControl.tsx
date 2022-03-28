@@ -44,7 +44,7 @@ export function Pagination(props: {
   label: string;
   isValid: boolean;
   validationMessage?: string;
-  placeholder?: string;
+  placeholder?: Record<string, string>;
   isRequired?: boolean;
   name: string;
   disabled?: boolean;
@@ -53,7 +53,14 @@ export function Pagination(props: {
   formName: string;
   initialValue?: Record<string, string>;
 }) {
-  const { configProperty, customStyles, formName, initialValue, name } = props;
+  const {
+    configProperty,
+    customStyles,
+    formName,
+    initialValue,
+    name,
+    placeholder,
+  } = props;
 
   const offsetPath = getBindingOrConfigPathsForPaginationControl(
     PaginationSubComponent.Offset,
@@ -79,6 +86,8 @@ export function Pagination(props: {
             label: "Limit",
             customStyles,
             configProperty: limitPath,
+            placeholderText:
+              typeof placeholder === "object" ? placeholder.limit : "",
             initialValue:
               typeof initialValue === "object" ? initialValue.limit : null,
           }}
@@ -95,6 +104,8 @@ export function Pagination(props: {
             label: "Offset",
             customStyles,
             configProperty: offsetPath,
+            placeholderText:
+              typeof placeholder === "object" ? placeholder.offset : "",
             initialValue:
               typeof initialValue === "object" ? initialValue.offset : null,
           }}
@@ -141,7 +152,7 @@ class PaginationControl extends BaseControl<PaginationControlProps> {
 }
 
 export interface PaginationControlProps extends ControlProps {
-  placeholderText: string;
+  placeholderText: Record<string, string>;
   disabled?: boolean;
 }
 
