@@ -33,6 +33,7 @@ import {
 import Button, { Category, Size } from "components/ads/Button";
 import {
   getDatasourceDrafts,
+  getIsDatasourceTesting,
   getIsListing,
   getIsReconnectingDatasourcesModalOpen,
   getPluginImages,
@@ -272,6 +273,7 @@ function ReconnectDatasourceModal() {
   const pluginNames = useSelector(getPluginNames);
   const datasourceDrafts = useSelector(getDatasourceDrafts);
   const isLoading = useSelector(getIsListing);
+  const isDatasourceTesting = useSelector(getIsDatasourceTesting);
 
   // getting query from redirection url
   const userOrgs = useSelector(getUserApplicationsOrgsList);
@@ -289,6 +291,7 @@ function ReconnectDatasourceModal() {
   const [appURL, setAppURL] = useState("");
   const [datasouce, setDatasource] = useState<Datasource | null>(null);
   const [isImport, setIsImport] = useState(queryIsImport);
+  const [isTesting, setIsTesting] = useState(false);
 
   // when redirecting from oauth, processing the status
   if (isImport) {
@@ -356,6 +359,12 @@ function ReconnectDatasourceModal() {
     }
   }, [organizationId, isModalOpen]);
 
+  useEffect(() => {
+    if (isModalOpen && isDatasourceTesting) {
+      setIsTesting(true);
+    }
+  }, [isModalOpen, isDatasourceTesting]);
+
   const handleClose = useCallback(() => {
     dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
     dispatch(setOrgIdForImport(""));
@@ -364,6 +373,7 @@ function ReconnectDatasourceModal() {
   }, [dispatch, setIsReconnectingDatasourcesModalOpen, isModalOpen]);
 
   const onSelectDatasource = useCallback((ds: Datasource) => {
+    setIsTesting(false);
     setSelectedDatasourceId(ds.id);
     setDatasource(ds);
     AnalyticsUtil.logEvent("RECONNECTING_DATASOURCE_ITEM_CLICK", {
@@ -426,7 +436,7 @@ function ReconnectDatasourceModal() {
       setAppURL(
         builderURL({
           applicationVersion:
-            importedApplication.applicationVersion ??
+            importedApplication?.applicationVersion ??
             ApplicationVersion.SLUG_URL,
           applicationId: appId,
           pageId: pageId,
@@ -437,7 +447,7 @@ function ReconnectDatasourceModal() {
 
   // checking of full configured
   useEffect(() => {
-    if (isModalOpen) {
+    if (isModalOpen && !isTesting) {
       const id = selectedDatasourceId;
       const pending = datasources.filter((ds: Datasource) => !ds.isConfigured);
       if (pending.length > 0) {
@@ -455,7 +465,7 @@ function ReconnectDatasourceModal() {
         window.open(appURL, "_self");
       }
     }
-  }, [datasources, appURL, isModalOpen]);
+  }, [datasources, appURL, isModalOpen, isTesting]);
 
   const mappedDataSources = datasources.map((ds: Datasource) => {
     return (
