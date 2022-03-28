@@ -56,11 +56,11 @@ const saveAdminSettings = (props: {
       if (
         eachSetting.isRequired &&
         !eachSetting.isHidden &&
-        (((props.settingsConfig[eachSetting.id] === "" ||
+        (((props.settingsConfig[eachSetting.id]?.toString().trim() === "" ||
           props.settingsConfig[eachSetting.id] === undefined) &&
           !props.settings[eachSetting.id]) ||
           (!props.settingsConfig[eachSetting.id] &&
-            props.settings[eachSetting.id] === ""))
+            props.settings[eachSetting.id]?.trim() === ""))
       ) {
         return eachSetting.id;
       }
