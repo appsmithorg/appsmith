@@ -11,11 +11,14 @@ import Template from "./Template";
 import DatasourceChip from "./DatasourceChip";
 import WidgetInfo from "./WidgetInfo";
 import {
-  getTemplateById,
-  isFetchingTemplatesSelector,
+  getActiveTemplateSelector,
+  isFetchingTemplateSelector,
 } from "selectors/templatesSelectors";
 import ForkTemplate from "./ForkTemplate";
-import { getSimilarTemplatesInit } from "actions/templateActions";
+import {
+  getSimilarTemplatesInit,
+  getTemplateInformation,
+} from "actions/templateActions";
 import { AppState } from "reducers";
 import { Icon, IconSize } from "components/ads";
 import history from "utils/history";
@@ -34,6 +37,7 @@ import {
   WIDGET_USED,
   DATASOURCES,
   SIMILAR_TEMPLATES,
+  VIEW_ALL_TEMPLATES,
 } from "@appsmith/constants/messages";
 
 const breakpointColumnsObject = {
@@ -184,12 +188,12 @@ const PageWrapper = styled.div`
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
 `;
 
-const BackButtonWrapper = styled.div`
+const BackButtonWrapper = styled.div<{ width?: number }>`
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: ${(props) => props.theme.spaces[2]}px;
-  width: 100px;
+  ${(props) => props.width && `width: ${props.width};`}
 `;
 
 const LoadingWrapper = styled.div`
@@ -204,6 +208,12 @@ const LoadingWrapper = styled.div`
     height: 500px;
     width: 100%;
   }
+`;
+
+const SimilarTemplatesTitleWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 function TemplateViewLoader() {
@@ -226,9 +236,9 @@ function TemplateView() {
   const similarTemplates = useSelector(
     (state: AppState) => state.ui.templates.similarTemplates,
   );
-  const isFetchingTemplates = useSelector(isFetchingTemplatesSelector);
+  const isFetchingTemplate = useSelector(isFetchingTemplateSelector);
   const params = useParams<{ templateId: string }>();
-  const currentTemplate = useSelector(getTemplateById(params.templateId));
+  const currentTemplate = useSelector(getActiveTemplateSelector);
   const [showForkModal, setShowForkModal] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -245,15 +255,16 @@ function TemplateView() {
   };
 
   useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    dispatch(getTemplateInformation(params.templateId));
     dispatch(getSimilarTemplatesInit(params.templateId));
+    if (containerRef.current) {
+      containerRef.current.scrollTo({ top: 0 });
+    }
   }, [params.templateId]);
 
   return (
     <PageWrapper>
-      {isFetchingTemplates ? (
+      {isFetchingTemplate ? (
         <TemplateViewLoader />
       ) : !currentTemplate ? (
         <TemplateNotFound />
@@ -370,9 +381,17 @@ function TemplateView() {
           {!!similarTemplates.length && (
             <SimilarTemplatesWrapper>
               <Section>
-                <Text type={TextType.H1} weight={FontWeight.BOLD}>
-                  {createMessage(SIMILAR_TEMPLATES)}
-                </Text>
+                <SimilarTemplatesTitleWrapper>
+                  <Text type={TextType.H1} weight={FontWeight.BOLD}>
+                    {createMessage(SIMILAR_TEMPLATES)}
+                  </Text>
+                  <BackButtonWrapper onClick={goToTemplateListView}>
+                    <Text type={TextType.P4}>
+                      {createMessage(VIEW_ALL_TEMPLATES)}
+                    </Text>
+                    <Icon name="view-all" size={IconSize.XL} />
+                  </BackButtonWrapper>
+                </SimilarTemplatesTitleWrapper>
                 <Masonry
                   breakpointCols={breakpointColumnsObject}
                   className="grid"

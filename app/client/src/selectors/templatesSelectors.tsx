@@ -51,10 +51,15 @@ export const getTemplateFiltersLength = createSelector(
 
 export const isFetchingTemplatesSelector = (state: AppState) =>
   state.ui.templates.gettingAllTemplates;
+export const isFetchingTemplateSelector = (state: AppState) =>
+  state.ui.templates.gettingTemplate;
 
 export const getTemplateById = (id: string) => (state: AppState) => {
   return state.ui.templates.templates.find((template) => template.id === id);
 };
+
+export const getActiveTemplateSelector = (state: AppState) =>
+  state.ui.templates.activeTemplate;
 
 export const getFilteredTemplateList = createSelector(
   getTemplatesSelector,
