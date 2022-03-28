@@ -21,6 +21,8 @@ import _, { get } from "lodash";
 import { Title } from "./components/StyledComponents";
 import {
   createMessage,
+  OAUTH_AUTHORIZATION_APPSMITH_ERROR,
+  OAUTH_AUTHORIZATION_FAILED,
   RECONNECT_DATASOURCE_SUCCESS_MESSAGE1,
   RECONNECT_DATASOURCE_SUCCESS_MESSAGE2,
   RECONNECT_MISSING_DATASOURCE_CREDENTIALS,
@@ -54,6 +56,8 @@ import { useQuery } from "../utils";
 import ListItemWrapper from "./components/DatasourceListItem";
 import { getDefaultPageId } from "sagas/ApplicationSagas";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { Toaster, Variant } from "components/ads";
+import { getOAuthAccessToken } from "actions/datasourceActions";
 import { builderURL } from "RouteBuilder";
 
 const Container = styled.div`
@@ -227,6 +231,11 @@ const DBFormWrapper = styled.div`
   }
 `;
 
+enum AuthorizationStatus {
+  SUCCESS = "success",
+  APPSMITH_ERROR = "appsmith_error",
+}
+
 function TooltipContent() {
   return (
     <TooltipWrapper>
@@ -279,6 +288,30 @@ function ReconnectDatasourceModal() {
   const [appId, setAppId] = useState<string | null>(queryAppId);
   const [appURL, setAppURL] = useState("");
   const [datasouce, setDatasource] = useState<Datasource | null>(null);
+  const [isImport, setIsImport] = useState(queryIsImport);
+
+  // when redirecting from oauth, processing the status
+  if (isImport) {
+    setIsImport(false);
+    const status = queryParams.get("response_status");
+    const display_message = queryParams.get("display_message");
+    const variant = Variant.danger;
+
+    if (status !== AuthorizationStatus.SUCCESS) {
+      const message =
+        status === AuthorizationStatus.APPSMITH_ERROR
+          ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
+          : OAUTH_AUTHORIZATION_FAILED;
+      Toaster.show({ text: display_message || message, variant });
+    } else if (queryDatasourceId) {
+      dispatch(getOAuthAccessToken(queryDatasourceId));
+    }
+    AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
+      queryAppId,
+      queryDatasourceId,
+      queryPageId,
+    });
+  }
 
   // should open reconnect datasource modal
   useEffect(() => {
@@ -429,7 +462,9 @@ function ReconnectDatasourceModal() {
       <ListItemWrapper
         ds={ds}
         key={ds.id}
-        onClick={onSelectDatasource}
+        onClick={() => {
+          onSelectDatasource(ds);
+        }}
         plugin={{
           name: pluginNames[ds.pluginId],
           image: pluginImages[ds.pluginId],
