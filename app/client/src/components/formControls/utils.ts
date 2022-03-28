@@ -218,8 +218,12 @@ export const getConfigInitialValues = (
       }
     }
     if ("children" in section) {
-      section.children.forEach((section: any) => {
-        parseConfig(section);
+      section.children.forEach((childSection: any) => {
+        parseConfig(childSection);
+      });
+    } else if ("schema" in section) {
+      section.schema.forEach((childSection: any) => {
+        parseConfig(childSection);
       });
     } else if (
       "configProperty" in section &&
