@@ -1908,17 +1908,14 @@ Cypress.Commands.add("Createpage", (pageName) => {
 });
 
 Cypress.Commands.add("Deletepage", (Pagename) => {
-  cy.get(pages.pagesIcon).click({ force: true });
-  cy.get(".t--page-sidebar-" + Pagename + "");
-  cy.get(
-    ".t--page-sidebar-" +
-      Pagename +
-      ">.t--page-sidebar-menu-actions>.bp3-popover-target",
-  ).click({ force: true });
-  cy.get(pages.Menuaction).click({ force: true });
-  cy.get(pages.Delete).click({ force: true });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
+  cy.CheckAndUnfoldEntityItem("PAGES");
+  cy.get(`.t--entity-item:contains(${Pagename})`).within(() => {
+    cy.get(".t--context-menu").click({ force: true });
+  });
+  cy.selectAction("Delete");
+  cy.selectAction("Are you sure?");
+  cy.wait("@deletePage");
+  cy.get("@deletePage").should("have.property", "status", 200);
 });
 
 Cypress.Commands.add("generateUUID", () => {
@@ -3533,6 +3530,29 @@ Cypress.Commands.add("skipCommentsOnboarding", () => {
   cy.get("button[type='submit']").click();
 });
 
+Cypress.Commands.add("revokeAccessGit", (appName) => {
+  cy.xpath("//span[text()= `${appName}`]")
+    .parent()
+    .next()
+    .click();
+  cy.get(gitSyncLocators.disconnectAppNameInput).type(appName);
+  cy.get(gitSyncLocators.disconnectButton).click();
+  cy.route("POST", "api/v1/git/disconnect/*").as("disconnect");
+  cy.get(gitSyncLocators.disconnectButton).click();
+  cy.wait("@disconnect").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.window()
+    .its("store")
+    .invoke("getState")
+    .then((state) => {
+      const { id, name } = state.ui.gitSync.disconnectingGitApp;
+      expect(name).to.eq("");
+      expect(id).to.eq("");
+    });
+});
 Cypress.Commands.add(
   "connectToGitRepo",
   (repo, shouldCommit = true, assertConnectFailure) => {

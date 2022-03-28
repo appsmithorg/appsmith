@@ -13,7 +13,6 @@ import {
   UPGRADE_TO_EE,
   AUTHENTICATION_METHOD_ENABLED,
 } from "@appsmith/constants/messages";
-import { adminSettingsCategoryUrl } from "constants/routes";
 import { Callout, CalloutType } from "components/ads/CalloutV2";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -23,6 +22,7 @@ import { Colors } from "constants/Colors";
 import Icon from "components/ads/Icon";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
+import { adminSettingsCategoryUrl } from "RouteBuilder";
 
 const { intercomAppID } = getAppsmithConfigs();
 
@@ -208,10 +208,10 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                   onClick={() =>
                     !method.needsUpgrade || method.isConnected
                       ? history.push(
-                          adminSettingsCategoryUrl(
-                            SettingCategories.AUTHENTICATION,
-                            method.category,
-                          ),
+                          adminSettingsCategoryUrl({
+                            category: SettingCategories.AUTHENTICATION,
+                            subCategory: method.category,
+                          }),
                         )
                       : triggerIntercom(method.label)
                   }
