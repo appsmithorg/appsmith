@@ -2,8 +2,9 @@ import homePage from "../../../../locators/HomePage";
 
 describe("Slug URLs", () => {
   let applicationName;
+  let applicationId;
   it("Checks URL redirection from legacy URLs to slug URLs", () => {
-    const applicationId = localStorage.getItem("applicationId");
+    applicationId = localStorage.getItem("applicationId");
     cy.location("pathname").then((pathname) => {
       const pageId = pathname
         .split("/")[2]
@@ -64,18 +65,13 @@ describe("Slug URLs", () => {
       );
     });
   });
-});
 
-describe("Checks update feature on old application", () => {
   it("Check the url of old applications and upgrades version", () => {
-    cy.wait(4000);
-    const applicationId = localStorage.getItem("applicationId");
     cy.request("PUT", `/api/v1/applications/${applicationId}`, {
       applicationVersion: 1,
     }).then((response) => {
       const application = response.body.data;
       expect(application.applicationVersion).to.equal(1);
-      const applicationName = localStorage.getItem("AppName");
       cy.NavigateToHome();
       cy.reload();
 

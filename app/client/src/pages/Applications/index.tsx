@@ -525,6 +525,7 @@ function ApplicationsSection(props: any) {
   };
 
   useEffect(() => {
+    // Clears URL params cache
     updateURLFactory(DEFAULT_BASE_URL_BUILDER_PARAMS);
   }, []);
 
