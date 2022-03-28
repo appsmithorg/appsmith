@@ -340,6 +340,12 @@ export function* updateApplicationSaga(
     // as the redux store updates the app only on success.
     // we have to run this
     if (isValidResponse) {
+      if (request && request.applicationVersion) {
+        if (request.applicationVersion === ApplicationVersion.SLUG_URL) {
+          request.callback?.();
+          return;
+        }
+      }
       if (request) {
         yield put({
           type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
@@ -354,11 +360,6 @@ export function* updateApplicationSaga(
         updateSlugNamesInURL({
           applicationSlug: response.data.slug,
         });
-      }
-      if (request.applicationVersion) {
-        if (request.applicationVersion === ApplicationVersion.SLUG_URL) {
-          request.callback?.();
-        }
       }
     }
   } catch (error) {
