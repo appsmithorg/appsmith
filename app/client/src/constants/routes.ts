@@ -118,30 +118,3 @@ export const INTEGRATION_EDITOR_MODES = {
   AUTO: "auto",
   MOCK: "mock",
 };
-
-export function convertToQueryParams(
-  params: Record<string, string> = {},
-): string {
-  const paramKeys = Object.keys(params);
-  const queryParams: string[] = [];
-  if (paramKeys) {
-    paramKeys.forEach((paramKey: string) => {
-      const value = params[paramKey];
-      if (paramKey && value) {
-        queryParams.push(`${paramKey}=${value}`);
-      }
-    });
-  }
-  return queryParams.length ? "?" + queryParams.join("&") : "";
-}
-export function adminSettingsCategoryUrl(
-  category: string,
-  subCategory?: string,
-) {
-  return `${ADMIN_SETTINGS_PATH}/${category}${
-    subCategory ? "/" + subCategory : ""
-  }`;
-}
-
-export const TEMPLATE_ID_URL = (templateId = ":templateId"): string =>
-  `${TEMPLATES_PATH}/${templateId}`;

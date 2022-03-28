@@ -45,73 +45,6 @@ function RedDot() {
   );
 }
 
-function ManualUpgrades() {
-  const [updateDismissed, setUpdateDismissed] = useLocalStorage(
-    "updateDismissed",
-    "",
-  );
-  const applicationVersion = useSelector(selectApplicationVersion);
-  const latestVersion = React.useMemo(
-    () => updates.reduce((max, u) => (max > u.version ? max : u.version), 0),
-    [],
-  );
-  const [showModal, setShowModal] = React.useState(false);
-
-  const defaultProps =
-    !updateDismissed && applicationVersion < latestVersion
-      ? {
-          isOpen: true,
-        }
-      : {};
-
-  const tooltipContent =
-    applicationVersion < latestVersion ? (
-      <div className="text-sm">
-        {`${latestVersion - applicationVersion} pending update(s)`}
-        <ul className="mt-1">
-          {updates.slice(applicationVersion - 1).map((u) => (
-            <li key={u.name}>{u.shortDesc}</li>
-          ))}
-        </ul>
-      </div>
-    ) : (
-      "No new updates"
-    );
-
-  return (
-    <div className="t--upgrade relative">
-      {applicationVersion < latestVersion && <RedDot />}
-      <TooltipComponent
-        autoFocus={!updateDismissed && applicationVersion < latestVersion}
-        content={tooltipContent}
-        modifiers={{
-          preventOverflow: { enabled: true },
-        }}
-        {...defaultProps}
-      >
-        <Icon
-          disabled={applicationVersion < latestVersion}
-          fillColor={Colors.SCORPION}
-          name="upgrade"
-          onClick={() => {
-            setUpdateDismissed("true");
-            setShowModal(applicationVersion < latestVersion);
-          }}
-          size={IconSize.XXXL}
-        />
-      </TooltipComponent>
-      <UpdatesModal
-        applicationVersion={applicationVersion}
-        closeModal={() => {
-          setShowModal(false);
-        }}
-        latestVersion={latestVersion}
-        showModal={showModal}
-      />
-    </div>
-  );
-}
-
 const StyledList = styled.ul`
   list-style: disc;
   margin-left: 16px;
@@ -225,6 +158,73 @@ function UpdatesModal({
         </div>
       </div>
     </ModalComponent>
+  );
+}
+
+function ManualUpgrades() {
+  const [updateDismissed, setUpdateDismissed] = useLocalStorage(
+    "updateDismissed",
+    "",
+  );
+  const applicationVersion = useSelector(selectApplicationVersion);
+  const latestVersion = React.useMemo(
+    () => updates.reduce((max, u) => (max > u.version ? max : u.version), 0),
+    [],
+  );
+  const [showModal, setShowModal] = React.useState(false);
+
+  const defaultProps =
+    !updateDismissed && applicationVersion < latestVersion
+      ? {
+          isOpen: true,
+        }
+      : {};
+
+  const tooltipContent =
+    applicationVersion < latestVersion ? (
+      <div className="text-sm">
+        {`${latestVersion - applicationVersion} pending update(s)`}
+        <ul className="mt-1">
+          {updates.slice(applicationVersion - 1).map((u) => (
+            <li key={u.name}>{u.shortDesc}</li>
+          ))}
+        </ul>
+      </div>
+    ) : (
+      "No new updates"
+    );
+
+  return (
+    <div className="t--upgrade relative">
+      {applicationVersion < latestVersion && <RedDot />}
+      <TooltipComponent
+        autoFocus={!updateDismissed && applicationVersion < latestVersion}
+        content={tooltipContent}
+        modifiers={{
+          preventOverflow: { enabled: true },
+        }}
+        {...defaultProps}
+      >
+        <Icon
+          disabled={applicationVersion < latestVersion}
+          fillColor={Colors.SCORPION}
+          name="upgrade"
+          onClick={() => {
+            setUpdateDismissed("true");
+            setShowModal(applicationVersion < latestVersion);
+          }}
+          size={IconSize.XXXL}
+        />
+      </TooltipComponent>
+      <UpdatesModal
+        applicationVersion={applicationVersion}
+        closeModal={() => {
+          setShowModal(false);
+        }}
+        latestVersion={latestVersion}
+        showModal={showModal}
+      />
+    </div>
   );
 }
 
