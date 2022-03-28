@@ -1,14 +1,10 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import {
   ButtonBorderRadiusTypes,
   ButtonVariantTypes,
 } from "components/constants";
-import {
-  ColumnTypes,
-  hideByColumnType,
-  updateIconAlignment,
-} from "../../propertyUtils";
+import { hideByColumnType, updateIconAlignment } from "../../propertyUtils";
 import { IconNames } from "@blueprintjs/icons";
 
 const ICON_NAMES = Object.keys(IconNames).map(

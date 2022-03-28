@@ -1,6 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { ColumnTypes, hideByColumnType } from "../../propertyUtils";
+import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import { hideByColumnType } from "../../propertyUtils";
 
 export default {
   sectionName: "Menu Items",
