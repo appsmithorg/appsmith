@@ -110,7 +110,6 @@ public class GitExecutorImpl implements GitExecutor {
                         .setCommitter(finalAuthorName, finalAuthorEmail)
                         .call();
                 processStopwatch.stopAndLogTimeInMillis();
-                git.close();
                 return "Committed successfully!";
             }
         })
@@ -158,7 +157,6 @@ public class GitExecutorImpl implements GitExecutor {
                     processStopwatch.stopAndLogTimeInMillis();
                     commitLogs.add(gitLog);
                 });
-                git.close();
                 return commitLogs;
             }
         })
@@ -206,7 +204,6 @@ public class GitExecutorImpl implements GitExecutor {
                 // We can support username and password in future if needed
                 // pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider("username", "password"));
                 processStopwatch.stopAndLogTimeInMillis();
-                git.close();
                 return result.substring(0, result.length() - 1);
             }
         })
@@ -245,7 +242,6 @@ public class GitExecutorImpl implements GitExecutor {
             String branchName = git.getRepository().getBranch();
 
             repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
-            git.getRepository().close();
             git.close();
             processStopwatch.stopAndLogTimeInMillis();
             return branchName;
@@ -273,9 +269,7 @@ public class GitExecutorImpl implements GitExecutor {
 
                 repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
                 processStopwatch.stopAndLogTimeInMillis();
-                String branch = git.getRepository().getBranch();
-                git.close();
-                return branch;
+                return git.getRepository().getBranch();
             }
         })
         .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
@@ -301,7 +295,6 @@ public class GitExecutorImpl implements GitExecutor {
                 if(deleteBranchList.isEmpty()) {
                     return Boolean.FALSE;
                 }
-                git.close();
                 return Boolean.TRUE;
             }
         })
@@ -331,7 +324,6 @@ public class GitExecutorImpl implements GitExecutor {
                         .call()
                         .getName();
                 processStopwatch.stopAndLogTimeInMillis();
-                git.close();
                 return StringUtils.equalsIgnoreCase(checkedOutBranch, "refs/heads/"+branchName);
             } catch (Exception e) {
                 git.close();
@@ -384,7 +376,6 @@ public class GitExecutorImpl implements GitExecutor {
                         throw new org.eclipse.jgit.errors.CheckoutConflictException(mergeConflictFiles.toString());
                     }
                     processStopwatch.stopAndLogTimeInMillis();
-                    git.close();
                     return mergeStatus;
             })
             .onErrorResume(error -> {
@@ -520,7 +511,6 @@ public class GitExecutorImpl implements GitExecutor {
                             });
                 }
                 processStopwatch.stopAndLogTimeInMillis();
-                git.close();
                 return Mono.just(response);
             }
         })
@@ -541,7 +531,6 @@ public class GitExecutorImpl implements GitExecutor {
 
                     MergeResult mergeResult = git.merge().include(git.getRepository().findRef(sourceBranch)).setStrategy(MergeStrategy.RECURSIVE).call();
                     processStopwatch.stopAndLogTimeInMillis();
-                    git.close();
                     return mergeResult.getMergeStatus().name();
                 } catch (GitAPIException e) {
                     //On merge conflicts abort the merge => git merge --abort
@@ -580,7 +569,6 @@ public class GitExecutorImpl implements GitExecutor {
                         .call()
                         .getMessages();
                 processStopwatch.stopAndLogTimeInMillis();
-                git.close();
                 return fetchMessages;
             }
         })
@@ -608,7 +596,6 @@ public class GitExecutorImpl implements GitExecutor {
                         MergeStatusDTO mergeStatus = new MergeStatusDTO();
                         mergeStatus.setMergeAble(false);
                         mergeStatus.setConflictingFiles(((CheckoutConflictException) e).getConflictingPaths());
-                        git.close();
                         processStopwatch.stopAndLogTimeInMillis();
                         return mergeStatus;
                     }
@@ -682,7 +669,6 @@ public class GitExecutorImpl implements GitExecutor {
                 config.setString("branch", branchName, "merge", "refs/heads/" + branchName);
                 config.save();
                 String branch = git.getRepository().getBranch();
-                git.close();
                 return branch;
             }
         }).subscribeOn(scheduler);
