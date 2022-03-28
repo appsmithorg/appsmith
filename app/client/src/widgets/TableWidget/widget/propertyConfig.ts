@@ -1731,6 +1731,15 @@ export default [
         isBindProperty: true,
         isTriggerProperty: true,
       },
+      {
+        helpText: "Triggers an action when the table filters are changed",
+        propertyName: "onFilterUpdate",
+        label: "onFilterUpdate",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+      },
     ],
   },
   {

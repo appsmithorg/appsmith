@@ -21,6 +21,7 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   onRowSelected?: string;
   onSearchTextChanged: string;
   onSort: string;
+  onFilterUpdate?: string;
   selectedRowIndex?: number;
   selectedRowIndices: number[];
   serverSidePaginationEnabled?: boolean;

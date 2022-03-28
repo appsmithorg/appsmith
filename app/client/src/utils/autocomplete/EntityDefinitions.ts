@@ -121,6 +121,7 @@ export const entityDefinitions: Record<string, unknown> = {
       column: "string",
       order: ["asc", "desc"],
     },
+    filters: generateTypeDef(widget.filters),
   }),
   VIDEO_WIDGET: {
     "!doc":
