@@ -64,6 +64,9 @@ const SettingColumn = styled.div<{ grow?: boolean; isHeading?: boolean }>`
     props.isHeading &&
     `
   text-transform: uppercase;
+  font-weight: ${props.theme.fontWeights[2]};
+  font-size: ${props.theme.fontSizes[2]}px
+  margin-right: 9px;
   `}
 
   ${StyledIcon} {
@@ -93,7 +96,8 @@ const SettingsContainer = styled.div`
   & > h3 {
     margin: 20px 0;
     text-transform: capitalize;
-    font-size: ${(props) => props.theme.fontSizes[4]}px;
+    font-size: ${(props) => props.theme.fontSizes[5]}px;
+    font-weight: ${(props) => props.theme.fontWeights[2]};
   }
 `;
 

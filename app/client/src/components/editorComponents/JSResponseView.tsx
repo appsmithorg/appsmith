@@ -50,6 +50,7 @@ import { TAB_MIN_HEIGHT } from "components/ads/Tabs";
 import { theme } from "constants/DefaultTheme";
 import { Button, Size, IconSize } from "components/ads";
 import { isMac } from "utils/helpers";
+import { TAB_MIN_HEIGHT } from "components/ads/Tabs";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -128,6 +129,7 @@ const TabbedViewWrapper = styled.div`
   &&& {
     ul.react-tabs__tab-list {
       padding: 0px ${(props) => props.theme.spaces[12]}px;
+      height: ${TAB_MIN_HEIGHT};
     }
   }
 `;
@@ -262,14 +264,14 @@ function JSResponseView(props: Props) {
   }, []);
 
   useEffect(() => {
-    if (
+    if (currentFunction && isExecuting[currentFunction.id]) {
+      setResponseStatus(JSResponseState.IsExecuting);
+    } else if (
       !currentFunction ||
       !showResponse ||
       !responses.hasOwnProperty(currentFunction.id)
     ) {
       setResponseStatus(JSResponseState.NoResponse);
-    } else if (isExecuting[currentFunction.id]) {
-      setResponseStatus(JSResponseState.IsExecuting);
     } else {
       setResponseStatus(JSResponseState.ShowResponse);
     }

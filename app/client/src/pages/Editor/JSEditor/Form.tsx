@@ -154,6 +154,8 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   const { pageId } = useParams<ExplorerURLParams>();
   const [disableRunFunctionality, setDisableRunFunctionality] = useState(false);
   const [showResponse, setshowResponse] = useState(false);
+  // Currently active response (only changes upon execution)
+  const [activeResponse, setActiveResponse] = useState<JSAction | null>(null);
   const parseErrors = useSelector(
     (state: AppState) =>
       getJSCollectionParseErrors(state, currentJSCollection.name),
@@ -176,16 +178,6 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     JSActionDropdownOption
   >(getJSActionOption(activeJSAction, jsActions));
 
-  const handleEditorChange = (valueOrEvent: ChangeEvent<any> | string) => {
-    const value: string =
-      typeof valueOrEvent === "string"
-        ? valueOrEvent
-        : valueOrEvent.target.value;
-
-    showResponse && setshowResponse(false);
-    dispatch(updateJSCollectionBody(value, currentJSCollection.id));
-  };
-
   const isExecutingCurrentJSAction = useSelector((state: AppState) =>
     getIsExecutingJSAction(
       state,
@@ -194,8 +186,20 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     ),
   );
 
+  // Triggered when there is a change in the code editor
+  const handleEditorChange = (valueOrEvent: ChangeEvent<any> | string) => {
+    const value: string =
+      typeof valueOrEvent === "string"
+        ? valueOrEvent
+        : valueOrEvent.target.value;
+
+    dispatch(updateJSCollectionBody(value, currentJSCollection.id));
+  };
+
+  // Executes JS action
   const executeJSAction = (jsAction: JSAction) => {
     setshowResponse(true);
+    setActiveResponse(jsAction);
     setSelectedJSActionOption(convertJSActionToDropdownOption(jsAction));
     dispatch(
       setActiveJSAction({
@@ -214,10 +218,11 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
 
   const handleActiveActionChange = useCallback(
     (jsAction: JSAction) => {
-      if (!jsAction) return;
-      if (jsAction.id !== selectedJSActionOption.data?.id) {
+      if (!jsAction || !selectedJSActionOption.data) return;
+
+      // only update when there is a new active action
+      if (jsAction.id !== selectedJSActionOption.data.id) {
         setSelectedJSActionOption(convertJSActionToDropdownOption(jsAction));
-        setshowResponse(false);
         dispatch(
           setActiveJSAction({
             jsCollectionId: currentJSCollection.id || "",
@@ -244,7 +249,6 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     value,
     dropDownOption: JSActionDropdownOption,
   ) => {
-    setshowResponse(false);
     dropDownOption.data &&
       setSelectedJSActionOption(
         convertJSActionToDropdownOption(dropDownOption.data),
@@ -265,7 +269,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
       setDisableRunFunctionality(false);
     }
     setSelectedJSActionOption(getJSActionOption(activeJSAction, jsActions));
-  }, [parseErrors, jsActions]);
+  }, [parseErrors, jsActions, activeJSActionId]);
 
   return (
     <FormWrapper>
@@ -343,7 +347,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
               />
             </TabbedViewContainer>
             <JSResponseView
-              currentFunction={selectedJSActionOption.data}
+              currentFunction={activeResponse}
               disabled={disableRunFunctionality}
               errors={parseErrors}
               isLoading={isExecutingCurrentJSAction}

@@ -30,20 +30,20 @@ const isPropertyNode = (node: Node): node is PropertyNode => {
   return node.type === NodeTypes.Property;
 };
 
-const getAST = (code: string, sourceType: SourceType) =>
+export const getAST = (code: string, sourceType: SourceType) =>
   parse(code, {
     ecmaVersion: ECMA_VERSION,
     sourceType: sourceType,
     locations: true, // Adds location data to each node
   });
 
-const isCursorWithinNode = (
-  location: acorn.SourceLocation,
+export const isCursorWithinNode = (
+  nodeLocation: acorn.SourceLocation,
   cursorLineNumber: number,
 ) => {
   return (
-    location.start.line <= cursorLineNumber &&
-    location.end.line >= cursorLineNumber
+    nodeLocation.start.line <= cursorLineNumber &&
+    nodeLocation.end.line >= cursorLineNumber
   );
 };
 
@@ -150,15 +150,18 @@ export const getActionFromJsCollection = (
   return jsCollection.actions.find((action) => action.id === actionId) || null;
 };
 
+/**
+ * Returns dropdown option based on priority and availability
+ */
 export const getJSActionOption = (
   activeJSAction: JSAction | null,
   jsActions: JSAction[],
 ): JSActionDropdownOption => {
-  let initialJSActionOption = NO_FUNCTION_DROPDOWN_OPTION;
+  let jsActionOption = NO_FUNCTION_DROPDOWN_OPTION;
   if (activeJSAction) {
-    initialJSActionOption = convertJSActionToDropdownOption(activeJSAction);
+    jsActionOption = convertJSActionToDropdownOption(activeJSAction);
   } else if (jsActions.length) {
-    initialJSActionOption = convertJSActionToDropdownOption(jsActions[0]);
+    jsActionOption = convertJSActionToDropdownOption(jsActions[0]);
   }
-  return initialJSActionOption;
+  return jsActionOption;
 };
