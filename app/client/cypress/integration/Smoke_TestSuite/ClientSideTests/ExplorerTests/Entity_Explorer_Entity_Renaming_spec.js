@@ -17,7 +17,7 @@ describe("Api Naming conflict on a page test", function() {
     // create another API
     cy.NavigateToAPI_Panel();
     cy.CreateAPI(secondApiName);
-
+    helper.expandCollapseEntity("QUERIES/JS", true);
     // try to rename one of the APIs with an existing API name
     cy.get(`.t--entity-item:contains(${secondApiName})`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
