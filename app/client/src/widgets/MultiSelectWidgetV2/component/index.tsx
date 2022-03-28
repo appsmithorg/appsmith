@@ -28,7 +28,7 @@ import Icon from "components/ads/Icon";
 import { Button, Classes, InputGroup } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
-import { isNil, findIndex, uniqBy } from "lodash";
+import { uniqBy } from "lodash";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <MenuItemCheckBox checked={props.isSelected} />;
@@ -148,24 +148,6 @@ function MultiSelectComponent({
       return emptyFalseArr;
     return filteredOptions.map((x) => value.some((y) => y.value === x.value));
   };
-
-  useEffect(() => {
-    if (options.length && value.length) {
-      const availableOptions: any[] = value
-        .map((x) => {
-          const index = findIndex(options, ["value", x.value]);
-          if (index !== -1)
-            return { ...options[index], key: options[index].value };
-        })
-        .filter((e) => !isNil(e));
-      // If none of the default values are available
-      if (!availableOptions.length) {
-        onChange([]);
-      } else if (availableOptions.length !== value.length) {
-        onChange(availableOptions);
-      }
-    }
-  }, [options]);
 
   // SelectAll if all options are in Value
   useEffect(() => {

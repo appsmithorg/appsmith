@@ -2,7 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isArray, isString, isNumber } from "lodash";
+import { findIndex, isArray, isNil, isString, isNumber } from "lodash";
 import {
   ValidationResponse,
   ValidationTypes,
@@ -420,11 +420,7 @@ class MultiSelectWidget extends BaseWidget<
     const options = isArray(this.props.options) ? this.props.options : [];
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
     const { componentWidth } = this.getComponentDimensions();
-    const values: LabelValueType[] = this.props.selectedOptions
-      ? this.props.selectedOptions.map((o) =>
-          isString(o) || isNumber(o) ? { value: o } : { value: o.value },
-        )
-      : [];
+    const values = this.getValidSelections();
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     return (
@@ -461,6 +457,27 @@ class MultiSelectWidget extends BaseWidget<
       />
     );
   }
+
+  getValidSelections = (): LabelValueType[] => {
+    const { options, selectedOptions } = this.props;
+    const values: LabelValueType[] = selectedOptions
+      ? selectedOptions.map((o) =>
+          isString(o) || isNumber(o) ? { value: o } : { value: o.value },
+        )
+      : [];
+    if (options?.length && values?.length) {
+      const availableOptions: any[] = values
+        .map((x) => {
+          const index = findIndex(options, ["value", x.value]);
+          if (index !== -1)
+            return { ...options[index], key: options[index].value };
+        })
+        .filter((e) => !isNil(e));
+      if (!availableOptions.length) return [];
+      return availableOptions;
+    }
+    return [];
+  };
 
   onOptionChange = (value: DefaultValueType) => {
     this.props.updateWidgetMetaProperty("selectedOptions", value, {
