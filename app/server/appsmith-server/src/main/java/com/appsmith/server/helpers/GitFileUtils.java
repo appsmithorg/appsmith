@@ -217,10 +217,10 @@ public class GitFileUtils {
      * @param editModeUrl    URL to deployed version of the application edit mode
      * @return Path where the Application is stored
      */
-    public Mono<Path> initializeGitRepo(Path baseRepoSuffix,
-                                        String viewModeUrl,
-                                        String editModeUrl) throws IOException {
-        return fileUtils.initializeGitRepo(baseRepoSuffix,viewModeUrl, editModeUrl)
+    public Mono<Path> initializeReadme(Path baseRepoSuffix,
+                                       String viewModeUrl,
+                                       String editModeUrl) throws IOException {
+        return fileUtils.initializeReadme(baseRepoSuffix,viewModeUrl, editModeUrl)
                 .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e)));
     }
 

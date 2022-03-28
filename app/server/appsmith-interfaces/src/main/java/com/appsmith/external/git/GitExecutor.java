@@ -18,13 +18,14 @@ public interface GitExecutor {
     /**
      * This method will handle the git-commit functionality. Under the hood it checks if the repo has already been
      * initialised
-     * @param repoPath parent path to repo
+     * @param repoPath      parent path to repo
      * @param commitMessage message which will be registered for this commit
-     * @param authorName author details
-     * @param authorEmail author details
+     * @param authorName    author details
+     * @param authorEmail   author details
+     * @param doAmend       To amend with the previous commit
      * @return if the commit was successful
      */
-    Mono<String> commitApplication(Path repoPath, String commitMessage, String authorName, String authorEmail, boolean isSuffixedPath);
+    Mono<String> commitApplication(Path repoPath, String commitMessage, String authorName, String authorEmail, boolean isSuffixedPath, boolean doAmend);
 
     /**
      * Method to get the commit history

@@ -32,6 +32,8 @@ public interface GitServiceCE {
 
     Mono<Application> updateGitMetadata(String applicationId, GitApplicationMetadata gitApplicationMetadata);
 
+    Mono<String> commitApplication(GitCommitDTO commitDTO, String defaultApplicationId, String branchName, boolean doAmend);
+
     Mono<String> commitApplication(GitCommitDTO commitDTO, String defaultApplicationId, String branchName);
 
     Mono<List<GitLogDTO>> getCommitHistory(String defaultApplicationId, String branchName);

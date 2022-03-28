@@ -338,10 +338,11 @@ public class GitServiceCEImpl implements GitServiceCE {
      *
      * @param commitDTO            information required for making a commit
      * @param defaultApplicationId application branch on which the commit needs to be done
+     * @param doAmend              if we want to amend the commit with the earlier one
      * @return success message
      */
     @Override
-    public Mono<String> commitApplication(GitCommitDTO commitDTO, String defaultApplicationId, String branchName) {
+    public Mono<String> commitApplication(GitCommitDTO commitDTO, String defaultApplicationId, String branchName, boolean doAmend) {
 
         /*
         1. Check if application exists and user have sufficient permissions
@@ -514,7 +515,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     }
                     result.append("Commit Result : ");
                     return Mono.zip(
-                            gitExecutor.commitApplication(baseRepoPath, commitMessage, authorProfile.getAuthorName(), authorProfile.getAuthorEmail(), false)
+                            gitExecutor.commitApplication(baseRepoPath, commitMessage, authorProfile.getAuthorName(), authorProfile.getAuthorEmail(), false, doAmend)
                                     .onErrorResume(error -> {
                                         if (error instanceof EmptyCommitException) {
                                             return Mono.just(EMPTY_COMMIT_ERROR_MESSAGE);
@@ -568,6 +569,11 @@ public class GitServiceCEImpl implements GitServiceCE {
         return Mono.create(sink -> commitMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
         );
+    }
+
+    @Override
+    public Mono<String> commitApplication(GitCommitDTO commitDTO, String defaultApplicationId, String branchName) {
+        return this.commitApplication(commitDTO, defaultApplicationId, branchName, false);
     }
 
     /**
@@ -791,7 +797,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     //Initialize the repo with readme file
                     try {
                         return Mono.zip(
-                                fileUtils.initializeGitRepo(
+                                fileUtils.initializeReadme(
                                         Paths.get(application.getOrganizationId(), defaultApplicationId, repoName, "README.md"),
                                         originHeader + viewModeUrl,
                                         originHeader + editModeUrl
@@ -805,8 +811,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         currentUserMono
                                 )
                                 .flatMap(tuple -> {
+
                                     UserData userData = tuple.getT2();
-                                    // Commit and push application to check if the SSH key has the write access
                                     GitProfile profile = userData.getGitProfileByKey(defaultApplicationId);
                                     if (profile == null
                                             || StringUtils.isEmptyOrNull(profile.getAuthorName())
@@ -814,12 +820,12 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                                         profile = userData.getGitProfileByKey(DEFAULT);
                                     }
-
                                     return gitExecutor.commitApplication(
                                             tuple.getT1(),
                                             DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.CONNECT_FLOW.getReason(),
                                             profile.getAuthorName(),
                                             profile.getAuthorEmail(),
+                                            false,
                                             false
                                     );
                                 })
@@ -827,14 +833,13 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     Path baseRepoSuffix =
                                             Paths.get(application.getOrganizationId(), defaultApplicationId, repoName);
 
-                                    GitAuth gitAuth = application.getGitApplicationMetadata().getGitAuth();
-                                    return gitExecutor.pushApplication(
-                                            baseRepoSuffix,
-                                            application.getGitApplicationMetadata().getRemoteUrl(),
-                                            gitAuth.getPublicKey(),
-                                            gitAuth.getPrivateKey(),
-                                            application.getGitApplicationMetadata().getBranchName()
-                                    )
+                                    // Commit and push application to check if the SSH key has the write access
+                                    GitCommitDTO commitDTO = new GitCommitDTO();
+                                    commitDTO.setDoPush(true);
+                                    commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.CONNECT_FLOW.getReason());
+
+
+                                    return this.commitApplication(commitDTO, defaultApplicationId, application.getGitApplicationMetadata().getBranchName(), true)
                                     .onErrorResume(error ->
                                             // If the push fails remove all the cloned files from local repo
                                             fileUtils.detachRemote(baseRepoSuffix)
@@ -2216,7 +2221,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                         GitAuth auth,
                                                         GitApplicationMetadata gitApplicationMetadata,
                                                         DEFAULT_COMMIT_REASONS reason) {
-        return gitExecutor.commitApplication(repoSuffix, DEFAULT_COMMIT_MESSAGE + reason.getReason(), APPSMITH_BOT_USERNAME, emailConfig.getSupportEmailAddress(), true)
+        return gitExecutor.commitApplication(repoSuffix, DEFAULT_COMMIT_MESSAGE + reason.getReason(), APPSMITH_BOT_USERNAME, emailConfig.getSupportEmailAddress(), true, false)
                 .onErrorResume(error -> {
                     if (error instanceof EmptyCommitException) {
                         return Mono.just(EMPTY_COMMIT_ERROR_MESSAGE);

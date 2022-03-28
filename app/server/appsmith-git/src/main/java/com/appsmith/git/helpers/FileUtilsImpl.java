@@ -285,9 +285,9 @@ public class FileUtilsImpl implements FileInterface {
      * @throws IOException
      */
     @Override
-    public Mono<Path> initializeGitRepo(Path baseRepoSuffix,
-                                        String viewModeUrl,
-                                        String editModeUrl) throws IOException {
+    public Mono<Path> initializeReadme(Path baseRepoSuffix,
+                                       String viewModeUrl,
+                                       String editModeUrl) throws IOException {
         ClassLoader classLoader = getClass().getClassLoader();
         InputStream inputStream = classLoader.getResourceAsStream(gitServiceConfig.getReadmeTemplatePath());
 

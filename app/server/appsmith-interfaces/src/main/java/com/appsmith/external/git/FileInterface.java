@@ -58,7 +58,7 @@ public interface FileInterface {
      * @param editModeUrl    URL to deployed version of the application edit mode
      * @return Path where the Application is stored
      */
-    Mono<Path> initializeGitRepo(Path baseRepoSuffix, String viewModeUrl, String editModeUrl) throws IOException;
+    Mono<Path> initializeReadme(Path baseRepoSuffix, String viewModeUrl, String editModeUrl) throws IOException;
 
     /**
      * When the user clicks on detach remote, we need to remove the repo from the file system
