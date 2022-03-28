@@ -64,7 +64,7 @@ export interface ControlData {
   isRequired?: boolean;
   conditionals?: ConditonalObject; // Object that contains the conditionals config
   hidden?: HiddenType;
-  placeholderText?: string;
+  placeholderText?: string | Record<string, string>;
   schema?: any;
   errorText?: string;
   showError?: boolean;
