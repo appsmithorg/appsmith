@@ -24,8 +24,9 @@ export class ApiPage {
     _noBodyMessageDiv = "#NoBodyMessageDiv"
     _noBodyMessage = "This request does not have a body"
     _imageSrc = "//img/parent::*[contains(@class,'StyledImage')]/img"
+    private _trashDelete = "//span[contains(@class, 'IconWrapper')][@name='delete']";
 
-    CreateApi(apiName: string = "") {
+    CreateApi(apiName: string = "", apiVerb: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' = 'GET',) {
         cy.get(this.locator._createNew).click({ force: true });
         cy.get(this._blankAPI).click({ force: true });
         this.agHelper.ValidateNetworkStatus("@createNewApi", 201)
@@ -44,10 +45,12 @@ export class ApiPage {
         if (apiName)
             this.agHelper.RenameWithInPane(apiName)
         cy.get(this._resourceUrl).should("be.visible");
+        if (apiVerb != 'GET')
+            this.SelectAPIVerb(apiVerb)
     }
 
-    CreateAndFillApi(url: string, apiname: string = "", queryTimeout = 30000) {
-        this.CreateApi(apiname)
+    CreateAndFillApi(url: string, apiname: string = "", apiVerb: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' = 'GET', queryTimeout = 30000) {
+        this.CreateApi(apiname, apiVerb)
         this.EnterURL(url)
         this.agHelper.AssertAutoSave()
         this.agHelper.Sleep(2000);// Added because api name edit takes some time to reflect in api sidebar after the call passes.
@@ -93,9 +96,14 @@ export class ApiPage {
         this.agHelper.AssertAutoSave()
     }
 
-    EnterBodyFormData(subTab: 'FORM_URLENCODED' | 'MULTIPART_FORM_DATA', bKey: string, bValue: string, type = "") {
+    EnterBodyFormData(subTab: 'FORM_URLENCODED' | 'MULTIPART_FORM_DATA', bKey: string, bValue: string, type = "", toTrash = false) {
         this.SelectAPITab('Body')
         this.SelectSubTab(subTab)
+        if (toTrash)
+        {
+            cy.xpath(this._trashDelete).click()
+            cy.xpath(this._visibleTextSpan('Add more')).click()
+        }
         cy.get(this._bodyKey(0))
             .first()
             .click({ force: true })

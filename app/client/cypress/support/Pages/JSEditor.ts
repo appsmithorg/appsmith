@@ -23,7 +23,7 @@ export class JSEditor {
     this.agHelper.WaitUntilEleDisappear(this.locator._toastMsg, 'created successfully')
   }
 
-  public CreateJSObject(JSCode: string, paste = true, completeReplace = false) {
+  public CreateJSObject(JSCode: string, paste = true, completeReplace = false, toRun = true) {
     this.NavigateToJSEditor();
 
     if (!completeReplace) {
@@ -34,11 +34,11 @@ export class JSEditor {
     }
     else {
       cy.get(this.locator._codeMirrorTextArea)
-      .first()
-      .focus()
-      .type("{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}")
-      .type("{shift}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}", { force: true })
-      .type("{backspace}",{ force: true });
+        .first()
+        .focus()
+        .type("{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}")
+        .type("{shift}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}", { force: true })
+        .type("{backspace}", { force: true });
 
       // .type("{uparrow}", { force: true })
       // .type("{ctrl}{shift}{downarrow}", { force: true })
@@ -50,7 +50,7 @@ export class JSEditor {
       //   .type("{backspace}",{ force: true });
       //.type("{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow} ")
 
-      }
+    }
 
     cy.get(this.locator._codeMirrorTextArea)
       .first()
@@ -69,15 +69,17 @@ export class JSEditor {
     this.agHelper.AssertAutoSave()//Ample wait due to open bug # 10284
     this.agHelper.Sleep(5000)//Ample wait due to open bug # 10284
 
-    //clicking 1 times & waits for 3 second for result to be populated!
-    Cypress._.times(1, () => {
-      cy.xpath(this._runButton)
-        .first()
-        .click()
-        .wait(3000)
-    })
-    cy.get(this.locator._empty).should('not.exist')
-    cy.get(this.locator._toastMsg).should("have.length", 0)
+    if (toRun) {
+      //clicking 1 times & waits for 3 second for result to be populated!
+      Cypress._.times(1, () => {
+        cy.xpath(this._runButton)
+          .first()
+          .click()
+          .wait(3000)
+      })
+      cy.get(this.locator._empty).should('not.exist')
+      cy.get(this.locator._toastMsg).should("have.length", 0)
+    }
     this.GetJSObjectName()
   }
 

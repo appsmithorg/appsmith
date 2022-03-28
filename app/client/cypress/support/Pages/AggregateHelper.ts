@@ -337,9 +337,29 @@ export class AggregateHelper {
         return cy.get(this.locator._tableRowColumn(rowNum, colNum)).invoke("text");
     }
 
-    public UploadFile(fixtureName: string) {
+    public UploadFile(fixtureName: string, execStat = true) {
         cy.get(this.locator._uploadFiles).attachFile(fixtureName).wait(1000);
-        cy.get(this.locator._uploadBtn).click();
-        this.ValidateNetworkExecutionSuccess("@postExecute");
+        cy.get(this.locator._uploadBtn).click().wait(3000);
+        this.ValidateNetworkExecutionSuccess("@postExecute", execStat);
+    }
+
+    public assertDebugError(label: string, messgae: string) {
+        cy.get(this.locator._debuggerIcon)
+            .should("be.visible")
+            .click({ force: true });
+        cy.get(this.locator._errorTab)
+            .should("be.visible")
+            .click({ force: true });
+        cy.get(this.locator._debuggerLabel).eq(0)
+            .invoke("text")
+            .then(($text) => {
+                expect($text).to.eq(label);
+            });
+        cy.get(this.locator._debugErrorMsg).eq(0)
+            .invoke("text")
+            .then(($text) => {
+                expect($text).contains(messgae);
+            });
+
     }
 }
