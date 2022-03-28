@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { submit } from "redux-form";
-import ApiEditorForm from "./Form";
+import RestApiEditorForm from "./RestAPIForm";
 import RapidApiEditorForm from "./RapidApiEditorForm";
 import { deleteAction, runAction } from "actions/pluginActionActions";
 import { PaginationField } from "api/ActionAPI";
@@ -195,7 +195,7 @@ class ApiEditor extends React.Component<Props> {
     return (
       <div style={formStyles}>
         {formUiComponent === "ApiEditorForm" && (
-          <ApiEditorForm
+          <RestApiEditorForm
             apiName={this.props.apiName}
             appName={
               this.props.currentApplication

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import TooltipComponent from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
-import { BindingText } from "pages/Editor/APIEditor/Form";
+import { BindingText } from "pages/Editor/APIEditor/CommonEditorForm";
 import { extraLibraries } from "utils/DynamicBindingUtils";
 import CollapseToggle from "./Entity/CollapseToggle";
 import Collapse from "./Entity/Collapse";

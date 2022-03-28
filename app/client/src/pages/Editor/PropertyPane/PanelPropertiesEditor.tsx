@@ -14,7 +14,7 @@ import { get, isNumber, isPlainObject, isString } from "lodash";
 import { IPanelProps } from "@blueprintjs/core";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import PropertyPaneTitle from "../PropertyPaneTitle";
-import { BindingText } from "../APIEditor/Form";
+import { BindingText } from "../APIEditor/CommonEditorForm";
 
 import { ControlIcons } from "icons/ControlIcons";
 
