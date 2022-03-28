@@ -5,11 +5,15 @@ import {
   CellAlignmentTypes,
   CellLayoutProperties,
   ColumnProperties,
-  ColumnTypes,
   TableStyles,
   VerticalAlignmentTypes,
 } from "../component/Constants";
-import { ORIGINAL_INDEX_KEY } from "../constants";
+import {
+  ColumnTypes,
+  DEFAULT_COLUMN_WIDTH,
+  ORIGINAL_INDEX_KEY,
+} from "../constants";
+import { SelectColumnOptionsValidations } from "./propertyUtils";
 
 type TableData = Array<Record<string, unknown>>;
 
@@ -161,7 +165,7 @@ export function getDefaultColumnProperties(
   const columnProps = {
     allowCellWrapping: false,
     index: index,
-    width: 150,
+    width: DEFAULT_COLUMN_WIDTH,
     originalId: id,
     id: sanitizedId,
     alias: id,
@@ -333,9 +337,21 @@ export const getCellProperties = (
   return {} as CellLayoutProperties;
 };
 
-export function isColumnTypeEditable(column: ColumnProperties) {
-  return (
-    column.columnType === ColumnTypes.TEXT ||
-    column.columnType === ColumnTypes.NUMBER
-  );
+const EdtiableColumnTypes: string[] = [
+  ColumnTypes.TEXT,
+  ColumnTypes.NUMBER,
+  ColumnTypes.SELECT,
+];
+
+export function isColumnTypeEditable(columnType: string) {
+  return EdtiableColumnTypes.includes(columnType);
+}
+
+/*
+ * Nested propeties are not validated when application is refreshed
+ * TODO(Balai): Should confirm and create an issue to address this.
+ */
+export function getSelectColumnTypeOptions(value: unknown) {
+  const result = SelectColumnOptionsValidations(value, {}, _);
+  return result.parsed;
 }

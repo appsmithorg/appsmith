@@ -1,20 +1,8 @@
 import { Alignment } from "@blueprintjs/core";
 import { ColumnProperties } from "../component/Constants";
-import { TableWidgetProps } from "../constants";
+import { ColumnTypes, TableWidgetProps } from "../constants";
 import _, { get } from "lodash";
 import { Colors } from "constants/Colors";
-
-export enum ColumnTypes {
-  TEXT = "text",
-  URL = "url",
-  NUMBER = "number",
-  IMAGE = "image",
-  VIDEO = "video",
-  DATE = "date",
-  BUTTON = "button",
-  ICON_BUTTON = "iconButton",
-  MENU_BUTTON = "menuButton",
-}
 
 export function totalRecordsCountValidation(
   value: unknown,
@@ -317,4 +305,59 @@ export const hideByColumnType = (
 
   const columnType = get(props, `${baseProperty}.columnType`, "");
   return !columnTypes.includes(columnType);
+};
+
+export const SelectColumnOptionsValidations = (
+  value: unknown,
+  props: any,
+  _?: any,
+) => {
+  let isValid = true;
+  let parsed = value;
+  let message = "";
+  const expectedMessage = "value should be an array of string";
+
+  if (typeof value === "string" && value.trim() !== "") {
+    /*
+     * when value is a string
+     */
+    try {
+      /*
+       * when the value is an array of string
+       */
+      value = JSON.parse(value);
+    } catch (e) {
+      /*
+       * when the value is an comma seperated strings
+       */
+      value = (value as string).split(",").map((str) => str.trim());
+    }
+  }
+  /*
+   * when value is null, undefined and empty string
+   */
+  if (_.isNil(value) || value === "") {
+    isValid = true;
+    parsed = [];
+  } else if (_.isArray(value)) {
+    const hasStringOrNumber = (value as []).every(
+      (item) => _.isString(item) || _.isFinite(item),
+    );
+    isValid = hasStringOrNumber;
+    parsed = value;
+    message = hasStringOrNumber ? "" : expectedMessage;
+  } else if (typeof value === "number") {
+    isValid = true;
+    parsed = [value];
+  } else {
+    isValid = false;
+    parsed = value;
+    message = expectedMessage;
+  }
+
+  return {
+    isValid,
+    parsed,
+    messages: [message],
+  };
 };

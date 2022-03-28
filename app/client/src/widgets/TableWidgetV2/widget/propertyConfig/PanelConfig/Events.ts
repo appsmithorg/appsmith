@@ -1,10 +1,6 @@
-import { TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { get } from "lodash";
-import {
-  ColumnTypes,
-  getBasePropertyPath,
-  hideByColumnType,
-} from "../../propertyUtils";
+import { getBasePropertyPath, hideByColumnType } from "../../propertyUtils";
 
 export default {
   sectionName: "Events",
@@ -72,7 +68,23 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
-        return columnType !== ColumnTypes.TEXT;
+        const isEditable = get(props, `${baseProperty}.isEditable`, "");
+        return columnType !== ColumnTypes.TEXT || !isEditable;
+      },
+      dependencies: ["primaryColumns"],
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: true,
+    },
+    {
+      propertyName: "onOptionChange",
+      label: "onOptionChange",
+      controlType: "ACTION_SELECTOR",
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        const baseProperty = getBasePropertyPath(propertyPath);
+        const columnType = get(props, `${baseProperty}.columnType`, "");
+        const isEditable = get(props, `${baseProperty}.isEditable`, "");
+        return columnType !== ColumnTypes.SELECT || !isEditable;
       },
       dependencies: ["primaryColumns"],
       isJSConvertible: true,

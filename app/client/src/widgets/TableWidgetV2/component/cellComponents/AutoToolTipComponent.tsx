@@ -1,9 +1,10 @@
 import React, { createRef, useEffect, useState } from "react";
 import { Tooltip } from "@blueprintjs/core";
-import { CellWrapper } from "./TableStyledWrappers";
-import { CellLayoutProperties, ColumnTypes } from "./Constants";
+import { CellWrapper } from "../TableStyledWrappers";
+import { CellLayoutProperties } from "../Constants";
 import { ReactComponent as OpenNewTabIcon } from "assets/icons/control/open-new-tab.svg";
 import styled from "styled-components";
+import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 
 const TooltipContentWrapper = styled.div<{ width: number }>`
   word-break: break-all;
@@ -53,7 +54,8 @@ function LinkWrapper(props: Props) {
       isHidden={props.isHidden}
       isHyperLink
       isTextType
-      onClick={() => {
+      onClick={(e: React.MouseEvent<HTMLDivElement>) => {
+        e.stopPropagation();
         window.open(props.title, "_blank");
       }}
       useLinkToolTip={useToolTip}

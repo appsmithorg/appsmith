@@ -64,15 +64,6 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
   },
 };
 
-export enum ColumnTypes {
-  DATE = "date",
-  VIDEO = "video",
-  IMAGE = "image",
-  TEXT = "text",
-  NUMBER = "number",
-  URL = "url",
-}
-
 export enum OperatorTypes {
   OR = "OR",
   AND = "AND",

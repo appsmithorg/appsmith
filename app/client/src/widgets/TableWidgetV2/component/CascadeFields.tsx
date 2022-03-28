@@ -9,11 +9,10 @@ import { Directions } from "utils/helpers";
 import { Colors } from "constants/Colors";
 import { ControlIcons } from "icons/ControlIcons";
 import { Skin } from "constants/DefaultTheme";
-import AutoToolTipComponent from "./AutoToolTipComponent";
+import AutoToolTipComponent from "./cellComponents/AutoToolTipComponent";
 import {
   OperatorTypes,
   Condition,
-  ColumnTypes,
   Operator,
   ReactTableFilter,
 } from "./Constants";
@@ -23,6 +22,7 @@ import { RenderOptionWrapper } from "./TableStyledWrappers";
 //TODO(abhinav): Fix this cross import between widgets
 import DatePickerComponent from "widgets/DatePickerWidget2/component";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
+import { ColumnTypes, ReadOnlyColumnTypes } from "../constants";
 
 const StyledRemoveIcon = styled(
   ControlIcons.CLOSE_CIRCLE_CONTROL as AnyStyledComponent,
@@ -102,7 +102,7 @@ const AutoToolTipComponentWrapper = styled(AutoToolTipComponent)`
   margin-right: 5px;
 `;
 
-const typeOperatorsMap: Record<ColumnTypes, DropdownOption[]> = {
+const typeOperatorsMap: Record<ReadOnlyColumnTypes, DropdownOption[]> = {
   [ColumnTypes.TEXT]: [
     { label: "contains", value: "contains", type: "input" },
     { label: "does not contain", value: "doesNotContain", type: "input" },
@@ -162,20 +162,22 @@ const operatorOptions: DropdownOption[] = [
   { label: "AND", value: OperatorTypes.AND, type: "" },
 ];
 
-const columnTypeNameMap: Record<ColumnTypes, string> = {
-  [ColumnTypes.TEXT]: "Text",
-  [ColumnTypes.VIDEO]: "Video",
-  [ColumnTypes.IMAGE]: "Image",
-  [ColumnTypes.NUMBER]: "Num",
-  [ColumnTypes.DATE]: "Date",
-  [ColumnTypes.URL]: "Url",
+const columnTypeNameMap: Record<ReadOnlyColumnTypes, string> = {
+  [ReadOnlyColumnTypes.TEXT]: "Text",
+  [ReadOnlyColumnTypes.VIDEO]: "Video",
+  [ReadOnlyColumnTypes.IMAGE]: "Image",
+  [ReadOnlyColumnTypes.NUMBER]: "Num",
+  [ReadOnlyColumnTypes.DATE]: "Date",
+  [ReadOnlyColumnTypes.URL]: "Url",
 };
 
 function RenderOption(props: { type: string; title: string; active: boolean }) {
   return (
     <RenderOptionWrapper selected={props.active}>
       <div className="title">{props.title}</div>
-      <div className="type">{columnTypeNameMap[props.type as ColumnTypes]}</div>
+      <div className="type">
+        {columnTypeNameMap[props.type as ReadOnlyColumnTypes]}
+      </div>
     </RenderOptionWrapper>
   );
 }
@@ -301,7 +303,8 @@ const getConditions = (props: CascadeFieldProps) => {
     return columnValue === column.value;
   });
   if (filteredColumn.length) {
-    const type: ColumnTypes = filteredColumn[0].type as ColumnTypes;
+    const type: ReadOnlyColumnTypes = filteredColumn[0]
+      .type as ReadOnlyColumnTypes;
     return typeOperatorsMap[type];
   } else {
     return new Array<DropdownOption>(0);
@@ -381,7 +384,7 @@ function CaseCaseFieldReducer(
 ) {
   switch (action.type) {
     case CascadeFieldActionTypes.SELECT_COLUMN:
-      const type: ColumnTypes = action.payload.type;
+      const type: ReadOnlyColumnTypes = action.payload.type;
       return {
         ...state,
         column: action.payload.value,

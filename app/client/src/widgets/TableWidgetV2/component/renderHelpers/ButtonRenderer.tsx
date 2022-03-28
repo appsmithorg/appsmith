@@ -35,7 +35,8 @@ function TableButton(props: {
           filled
           intent="PRIMARY_BUTTON"
           loading={loading}
-          onClick={() => {
+          onClick={(e) => {
+            e?.stopPropagation();
             setLoading(true);
             props.onCommandClick(props.action.dynamicTrigger, onComplete);
           }}

@@ -1,8 +1,11 @@
 import React from "react";
 import { isNumber, isNil } from "lodash";
 
-import { ColumnTypes, CellLayoutProperties } from "../Constants";
-import { EditableCellActions } from "widgets/TableWidgetV2/constants";
+import { CellLayoutProperties } from "../Constants";
+import {
+  ColumnTypes,
+  EditableCellActions,
+} from "widgets/TableWidgetV2/constants";
 import { TextCell } from "../cellComponents/TextCell";
 
 export type RenderDefaultPropsType = {
