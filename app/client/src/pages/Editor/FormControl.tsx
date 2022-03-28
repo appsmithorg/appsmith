@@ -63,7 +63,10 @@ function FormControl(props: FormControlProps) {
           isComposite={props.isComposite}
           multipleConfig={props?.multipleConfig}
         >
-          <div className={`t--form-control-${props.config.controlType}`}>
+          <div
+            className={`t--form-control-${props.config.controlType}`}
+            data-replay-id={btoa(props.config.configProperty)}
+          >
             {viewTypes.length > 0 && viewTypes.includes(ViewTypes.JSON) ? (
               <ToggleComponentToJson
                 configProperty={props.config.configProperty}
