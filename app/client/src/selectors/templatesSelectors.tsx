@@ -5,10 +5,6 @@ import { createSelector } from "reselect";
 import { getOrganizationCreateApplication } from "./applicationSelectors";
 import { getWidgetCards } from "./editorSelectors";
 import { getDefaultPlugins } from "./entitiesSelector";
-import {
-  functions as allIndustries,
-  useCases as allUseCases,
-} from "pages/Templates/constants";
 import { Filter } from "pages/Templates/Filters";
 
 const fuzzySearchOptions = {
@@ -118,8 +114,6 @@ export const getFilterListSelector = createSelector(
   (widgetConfigs, allDatasources, templates) => {
     const filters: Record<string, Filter[]> = {
       datasources: [],
-      useCases: [],
-      functions: [],
       widgets: [],
     };
 
@@ -158,8 +152,6 @@ export const getFilterListSelector = createSelector(
     templates.map((template) => {
       filterFilters("datasources", allDatasources, template);
       filterFilters("widgets", allWidgets, template);
-      filterFilters("useCases", allUseCases, template);
-      filterFilters("functions", allIndustries, template);
     });
 
     return filters;

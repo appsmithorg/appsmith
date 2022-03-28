@@ -133,11 +133,11 @@ function FilterCategory({
   label,
   selectedFilters,
 }: FilterCategoryProps) {
-  const [expand, setExpand] = useState(false);
+  const [expand, setExpand] = useState(!!selectedFilters.length);
   const dispatch = useDispatch();
   // This indicates how many filter items do we want to show, the rest are hidden
   // behind show more.
-  const FILTERS_TO_SHOW = 3;
+  const FILTERS_TO_SHOW = 4;
   const onSelect = (item: string, type: string) => {
     if (type === "add") {
       dispatch(filterTemplates(label, [...selectedFilters, item]));
@@ -197,7 +197,9 @@ function FilterCategory({
           >
             {expand
               ? `- ${createMessage(SHOW_LESS)}`
-              : `+ ${filterList.slice(3).length} ${createMessage(MORE)}`}
+              : `+ ${filterList.slice(FILTERS_TO_SHOW).length} ${createMessage(
+                  MORE,
+                )}`}
           </Text>
         )}
       </ListWrapper>

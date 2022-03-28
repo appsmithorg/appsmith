@@ -47,11 +47,12 @@ const StyledImage = styled.img`
   object-fit: cover;
 `;
 
+const REQUEST_TEMPLATE_URL =
+  "https://app.appsmith.com/applications/6241b5a8c99df2369931a653/pages/6241b5a8c99df2369931a656";
+
 function RequestTemplate() {
   const onClick = () => {
-    window.open(
-      "https://github.com/appsmithorg/appsmith/issues/new?assignees=Kocharrahul8&labels=Example+Apps&template=Templates.yaml&title=%5BTemplate%5D%3A+",
-    );
+    window.open(REQUEST_TEMPLATE_URL);
   };
 
   return (
