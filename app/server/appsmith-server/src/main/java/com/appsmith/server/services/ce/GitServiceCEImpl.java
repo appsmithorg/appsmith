@@ -134,12 +134,6 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final static String GIT_PROFILE_ERROR = "Unable to find git author configuration for logged-in user. You can" +
             " set up a git profile from the user profile section.";
 
-    private final static String REDIS_FILE_LOCK_VALUE= "inUse";
-
-    private final static String REDIS_FILE_RELEASE_VALUE = "isFree";
-
-    private final static Duration FILE_LOCK_TIME_LIMIT = Duration.ofSeconds(20);
-
     private enum DEFAULT_COMMIT_REASONS {
         CONFLICT_STATE("for conflicted state"),
         CONNECT_FLOW("initial commit"),
@@ -569,8 +563,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                     Application childApplication = tuple.getT2();
                     // Update json schema versions so that we can detect if the next update was made by DB migration or by the user
                     Application update = new Application();
+                    // Reset migration related fields before commit to detect the updates correctly between the commits
                     update.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
                     update.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+                    update.setIsManualUpdate(false);
 
                     Path baseRepoSuffix = Paths.get(childApplication.getOrganizationId(),
                             childApplication.getGitApplicationMetadata().getDefaultApplicationId(),
