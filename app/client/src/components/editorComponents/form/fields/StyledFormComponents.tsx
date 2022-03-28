@@ -77,12 +77,12 @@ const FormInputSwitchToJsonButton = styled.button`
   line-height: 14px;
   letter-spacing: 0.8px;
   text-transform: uppercase;
-  color: #6a86ce;
+  color: ${(props) => (props.disabled ? "gray" : "#6a86ce")};
   margin: 0 0 8px 0;
   border: none;
   padding-left: 0px;
   display: block;
-  cursor: pointer;
+  cursor: ${(props) => (props.disabled ? "default" : "pointer")};
   background-color: #fff;
 `;
 
