@@ -22,7 +22,7 @@ const renderComponent = (
         setting.id}`}
       setting={setting}
     >
-      <TagInputComponent {...componentProps} />
+      <TagInputComponent {...componentProps} isRequired={setting.isRequired} />
     </FormGroup>
   );
 };

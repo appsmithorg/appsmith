@@ -89,7 +89,7 @@ export function SettingsForm(
 ) {
   const params = useParams() as any;
   const { category, subCategory } = params;
-  const settings = useSettings(category, subCategory);
+  const settingsDetails = useSettings(category, subCategory);
   const details = getSettingDetail(category, subCategory);
   const dispatch = useDispatch();
   const isSavable = AdminConfig.savableCategories.includes(
@@ -159,7 +159,7 @@ export function SettingsForm(
         </HeaderWrapper>
         <Group
           category={category}
-          settings={settings}
+          settings={settingsDetails}
           subCategory={subCategory}
         />
         {isSavable && (
@@ -168,12 +168,14 @@ export function SettingsForm(
             onClear={onClear}
             onSave={onSave}
             settings={props.settings}
+            settingsConfig={props.settingsConfig}
+            settingsDetails={settingsDetails}
             valid={props.valid}
           />
         )}
         {details?.isConnected && (
           <DisconnectService
-            disconnect={() => disconnect(settings)}
+            disconnect={() => disconnect(settingsDetails)}
             subHeader={createMessage(DISCONNECT_SERVICE_SUBHEADER)}
             warning={`${pageTitle} ${createMessage(
               DISCONNECT_SERVICE_WARNING,

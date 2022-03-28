@@ -18,7 +18,12 @@ const renderComponent = (
 
   return (
     <>
-      <InputComponent {...componentProps} {...componentProps.input} fill />
+      <InputComponent
+        {...componentProps}
+        {...componentProps.input}
+        fill
+        required={componentProps.isRequired || false}
+      />
       {!componentProps.hideErrorMessage &&
         showError &&
         componentProps.meta.error && (
@@ -37,6 +42,7 @@ export type FormTextFieldProps = {
   disabled?: boolean;
   autoFocus?: boolean;
   hideErrorMessage?: boolean;
+  isRequired?: boolean;
 };
 
 function FormTextField(props: FormTextFieldProps) {

@@ -11,6 +11,7 @@ export default function TextInput({ setting }: SettingComponentProps) {
       setting={setting}
     >
       <FormTextField
+        isRequired={setting.isRequired}
         name={setting.name || setting.id || ""}
         placeholder={createMessage(() => setting.placeholder || "")}
         type={setting.controlSubType}

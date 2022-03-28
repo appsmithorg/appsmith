@@ -49,6 +49,7 @@ type TagInputProps = {
   /** TagInput value and onChange handler */
   input: {
     value?: string;
+    required?: boolean;
     onChange?: (value: string) => void;
   };
   /** TagInput type of individual entries (HTML input types) */
@@ -59,6 +60,7 @@ type TagInputProps = {
   intent?: Intent;
   hasError?: boolean;
   customError?: (values: any) => void;
+  isRequired?: boolean;
 };
 
 /**
@@ -160,6 +162,7 @@ function TagInputComponent(props: TagInputProps) {
           type: props.type,
           value: currentValue,
           onBlur: handleInputBlur,
+          required: props.isRequired || false,
         }}
         large={false}
         onChange={onTagsChange}
@@ -167,8 +170,11 @@ function TagInputComponent(props: TagInputProps) {
         onKeyDown={onKeyDown}
         placeholder={props.placeholder}
         separator={props.separator || ","}
-        tagProps={{
-          round: true,
+        tagProps={(tag) => {
+          return {
+            className: tag + "_tag",
+            round: true,
+          };
         }}
         values={inputValues || [""]}
       />

@@ -2,6 +2,7 @@ import Button, { Category } from "components/ads/Button";
 import { createMessage } from "@appsmith/constants/messages";
 import React from "react";
 import styled from "styled-components";
+import { Setting } from "@appsmith/pages/AdminSettings/config/types";
 
 const StyledButton = styled(Button)`
   height: 24px;
@@ -45,14 +46,43 @@ const saveAdminSettings = (props: {
   onSave?: () => void;
   onClear?: () => void;
   settings: Record<string, string>;
+  settingsConfig: Record<string, string | boolean>;
+  settingsDetails: Setting[];
   valid: boolean;
 }) => {
+  const checkForEnabling = () => {
+    let disabled = false;
+    const requiredFields = props.settingsDetails.filter((eachSetting) => {
+      if (
+        eachSetting.isRequired &&
+        !eachSetting.isHidden &&
+        (((props.settingsConfig[eachSetting.id] === "" ||
+          props.settingsConfig[eachSetting.id] === undefined) &&
+          !props.settings[eachSetting.id]) ||
+          (!props.settingsConfig[eachSetting.id] &&
+            props.settings[eachSetting.id] === ""))
+      ) {
+        return eachSetting.id;
+      }
+    });
+
+    if (
+      requiredFields.length > 0 ||
+      Object.keys(props.settings).length == 0 ||
+      !props.valid
+    ) {
+      disabled = true;
+    }
+
+    return disabled;
+  };
+
   return (
     <SettingsButtonWrapper>
       <StyledSaveButton
         category={Category.primary}
         className="t--admin-settings-save-button"
-        disabled={Object.keys(props.settings).length == 0 || !props.valid}
+        disabled={checkForEnabling()}
         isLoading={props.isSaving}
         onClick={props.onSave}
         tag="button"
