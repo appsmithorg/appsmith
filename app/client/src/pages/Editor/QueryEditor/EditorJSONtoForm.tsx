@@ -797,6 +797,7 @@ export function EditorJSONtoForm(props: Props) {
                 input={{
                   value: JSON.stringify(output, null, 2),
                 }}
+                isReadOnly
               />
             ))}
           {!output && !error && (
