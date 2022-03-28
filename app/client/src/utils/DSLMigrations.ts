@@ -1607,44 +1607,45 @@ export const migrateStylingPropertiesForTheming = (
     }
 
     // migrate table text sizes
+    /**
+     * Migrates the textSize property present at the table level.
+     */
+    switch (child.textSize) {
+      case TextSizes.PARAGRAPH2:
+        child.textSize = "0.75rem";
+        addPropertyToDynamicPropertyPathList("textSize", child);
+        break;
+      case TextSizes.PARAGRAPH:
+        child.textSize = "0.875rem";
+        break;
+      case TextSizes.HEADING3:
+        child.textSize = "1rem";
+        break;
+      case TextSizes.HEADING2:
+        child.textSize = "1.125rem";
+        addPropertyToDynamicPropertyPathList("textSize", child);
+        break;
+      case TextSizes.HEADING1:
+        child.textSize = "1.5rem";
+        addPropertyToDynamicPropertyPathList("textSize", child);
+        break;
+      default:
+        child.textSize = "0.875rem";
+    }
     if (child.hasOwnProperty("primaryColumns")) {
-      /**
-       * Migrates the textSize property present at the table level.
-       */
-      switch (child.textSize) {
-        case TextSizes.PARAGRAPH2:
-          child.textSize = "0.75rem";
-          addPropertyToDynamicPropertyPathList("textSize", child);
-          break;
-        case TextSizes.PARAGRAPH:
-          child.textSize = "0.875rem";
-          break;
-        case TextSizes.HEADING3:
-          child.textSize = "1rem";
-          break;
-        case TextSizes.HEADING2:
-          child.textSize = "1.125rem";
-          addPropertyToDynamicPropertyPathList("textSize", child);
-          break;
-        case TextSizes.HEADING1:
-          child.textSize = "1.5rem";
-          addPropertyToDynamicPropertyPathList("textSize", child);
-          break;
-        default:
-          child.textSize = "0.875rem";
-      }
       Object.keys(child.primaryColumns).forEach((key: string) => {
         /**
          * Migrates the textSize property present at the primaryColumn and derivedColumn level.
          */
-        const primaryColumn = child.primaryColumns[key];
-        const derivedColumnCheck =
+        const column = child.primaryColumns[key];
+        const isDerivedColumn =
           child.hasOwnProperty("derivedColumns") && key in child.derivedColumns;
-        switch (primaryColumn.textSize) {
+        const derivedColumn = child.derivedColumns[key];
+        switch (column.textSize) {
           case TextSizes.PARAGRAPH2:
-            primaryColumn.textSize = "0.75rem";
-            if (derivedColumnCheck) {
-              child.derivedColumns[key].textSize = "0.75rem";
+            column.textSize = "0.75rem";
+            if (isDerivedColumn) {
+              derivedColumn.textSize = "0.75rem";
             }
             addPropertyToDynamicPropertyPathList(
               `primaryColumns.${key}.textSize`,
@@ -1652,21 +1653,21 @@ export const migrateStylingPropertiesForTheming = (
             );
             break;
           case TextSizes.PARAGRAPH:
-            primaryColumn.textSize = "0.875rem";
-            if (derivedColumnCheck) {
-              child.derivedColumns[key].textSize = "0.875rem";
+            column.textSize = "0.875rem";
+            if (isDerivedColumn) {
+              derivedColumn.textSize = "0.875rem";
             }
             break;
           case TextSizes.HEADING3:
-            primaryColumn.textSize = "1rem";
-            if (derivedColumnCheck) {
-              child.derivedColumns[key].textSize = "1rem";
+            column.textSize = "1rem";
+            if (isDerivedColumn) {
+              derivedColumn.textSize = "1rem";
             }
             break;
           case TextSizes.HEADING2:
-            primaryColumn.textSize = "1.125rem";
-            if (derivedColumnCheck) {
-              child.derivedColumns[key].textSize = "1.125rem";
+            column.textSize = "1.125rem";
+            if (isDerivedColumn) {
+              derivedColumn.textSize = "1.125rem";
             }
             addPropertyToDynamicPropertyPathList(
               `primaryColumns.${key}.textSize`,
@@ -1674,9 +1675,9 @@ export const migrateStylingPropertiesForTheming = (
             );
             break;
           case TextSizes.HEADING1:
-            primaryColumn.textSize = "1.5rem";
-            if (derivedColumnCheck) {
-              child.derivedColumns[key].textSize = "1.5rem";
+            column.textSize = "1.5rem";
+            if (isDerivedColumn) {
+              derivedColumn.textSize = "1.5rem";
             }
             addPropertyToDynamicPropertyPathList(
               `primaryColumns.${key}.textSize`,
