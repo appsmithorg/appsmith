@@ -23,7 +23,7 @@ export class ApiPage {
     _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']"
     _noBodyMessageDiv = "#NoBodyMessageDiv"
     _noBodyMessage = "This request does not have a body"
-    _imageSrc = "//img/parent::*[contains(@class,'StyledImage')]/img"
+    _imageSrc = "//div[contains(@class,'StyledImage')]"
     private _trashDelete = "//span[contains(@class, 'IconWrapper')][@name='delete']";
 
     CreateApi(apiName: string = "", apiVerb: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' = 'GET',) {

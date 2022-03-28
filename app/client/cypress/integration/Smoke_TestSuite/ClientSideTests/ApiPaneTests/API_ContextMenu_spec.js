@@ -14,11 +14,7 @@ describe("API Panel Test Functionality ", function() {
     cy.assertPageSave();
     cy.get("body").click(0, 0);
     ee.expandCollapseEntity("QUERIES/JS");
-    helper.ActionContextMenuByEntityName(
-      "FirstAPI",
-      "Copy to page",
-      "SecondPage",
-    );
+    ee.ActionContextMenuByEntityName("FirstAPI", "Copy to page", "SecondPage");
     // click on learn how link
     cy.get(".t--learn-how-apis-link").click();
     // this should open in a global search modal
