@@ -15,6 +15,7 @@ import { WidgetType } from "./WidgetFactory";
 import { DSLWidget } from "widgets/constants";
 import { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -38,7 +39,7 @@ export const extractCurrentDSL = (
   const currentDSL = fetchPageResponse?.data.layouts[0].dsl || {
     ...defaultDSL,
   };
-  return transformDSL(currentDSL, newPage);
+  return transformDSL(currentDSL as ContainerWidgetProps<WidgetProps>, newPage);
 };
 
 /**
