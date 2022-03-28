@@ -159,8 +159,9 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
             this.state.duplicateColumnIds,
             column.id,
           ),
-          isChecked: isColumnTypeEditable(column) ? column.isEditable : false,
-          isCheckboxDisabled: !isColumnTypeEditable(column),
+          isChecked:
+            isColumnTypeEditable(column.columnType) && column.isEditable,
+          isCheckboxDisabled: !isColumnTypeEditable(column.columnType),
         };
       },
     );
@@ -392,7 +393,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     const columns: Record<string, ColumnProperties> = this.props.propertyValue;
 
     return !Object.values(columns).find(
-      (column) => !column.isEditable && isColumnTypeEditable(column),
+      (column) => !column.isEditable && isColumnTypeEditable(column.columnType),
     );
   };
 
@@ -402,7 +403,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
       this.props.propertyValue || {};
 
     Object.values(columns).forEach((column) => {
-      if (isColumnTypeEditable(column)) {
+      if (isColumnTypeEditable(column.columnType)) {
         this.updateProperty(
           `${this.props.propertyName}.${column.id}.isEditable`,
           !isEditable,
@@ -426,7 +427,9 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
   checkAndUpdateIfEditableColumnPresent = () => {
     const hasEditableColumn = !!Object.values(
       this.props.propertyValue,
-    ).find((column) => isColumnTypeEditable(column as ColumnProperties));
+    ).find((column) =>
+      isColumnTypeEditable((column as ColumnProperties).columnType),
+    );
 
     if (hasEditableColumn !== this.state.hasEditableColumn) {
       this.setState({

@@ -81,12 +81,26 @@ export const DEFAULT_COLUMN_WIDTH = 150;
 
 export const COLUMN_MIN_WIDTH = 60;
 
-export enum COLUMN_TYPES {
-  BUTTON = "button",
-  DROPDOWN = "dropdown",
+export enum ColumnTypes {
+  TEXT = "text",
+  URL = "url",
+  NUMBER = "number",
   IMAGE = "image",
-  MENUBUTTON = "menuButton",
-  ICONBUTTON = "iconButton",
+  VIDEO = "video",
+  DATE = "date",
+  BUTTON = "button",
+  ICON_BUTTON = "iconButton",
+  MENU_BUTTON = "menuButton",
+  SELECT = "select",
+}
+
+export enum ReadOnlyColumnTypes {
+  TEXT = "text",
+  URL = "url",
+  NUMBER = "number",
+  IMAGE = "image",
+  VIDEO = "video",
+  DATE = "date",
 }
 
 export const DEFAULT_BUTTON_COLOR = "rgb(3, 179, 101)";

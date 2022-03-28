@@ -22,7 +22,6 @@ export const renderImage = (args: renderImageType) => {
     cellProperties,
     isCellVisible,
     onClick = noop,
-    isSelected,
   } = args;
 
   if (!value) {
@@ -71,9 +70,7 @@ export const renderImage = (args: renderImageType) => {
                 className="image-cell-wrapper"
                 key={index}
                 onClick={(e) => {
-                  if (isSelected) {
-                    e.stopPropagation();
-                  }
+                  e.stopPropagation();
                   onClick();
                 }}
               >

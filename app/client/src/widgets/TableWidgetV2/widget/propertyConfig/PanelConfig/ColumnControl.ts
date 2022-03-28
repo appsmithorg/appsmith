@@ -1,15 +1,16 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { get } from "lodash";
 import {
-  ColumnTypes,
   getBasePropertyPath,
   hideByColumnType,
+  SelectColumnOptionsValidations,
   uniqueColumnAliasValidation,
   updateColumnAccessorHook,
   updateColumnLevelEditability,
 } from "../../propertyUtils";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { isColumnTypeEditable } from "../../utilities";
 
 export default {
   sectionName: "Column Control",
@@ -55,6 +56,10 @@ export default {
         {
           label: "Icon Button",
           value: "iconButton",
+        },
+        {
+          label: "Select",
+          value: "select",
         },
       ],
       dependencies: ["primaryColumns", "columnOrder"],
@@ -200,10 +205,9 @@ export default {
         },
       },
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.TEXT,
-          ColumnTypes.NUMBER,
-        ]);
+        const baseProperty = getBasePropertyPath(propertyPath);
+        const columnType = get(props, `${baseProperty}.columnType`, "");
+        return !isColumnTypeEditable(columnType);
       },
     },
     {
@@ -248,6 +252,25 @@ export default {
       dependencies: ["primaryColumns", "columnOrder"],
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
+      },
+    },
+    {
+      propertyName: "selectOptions",
+      helpText: "Options to be shown on the select dropdown",
+      label: "Select Options",
+      controlType: "INPUT_TEXT",
+      isJSConvertible: false,
+      isBindProperty: true,
+      validation: {
+        type: ValidationTypes.FUNCTION,
+        params: {
+          fnString: SelectColumnOptionsValidations.toString(),
+        },
+      },
+      isTriggerProperty: false,
+      dependencies: ["primaryColumns"],
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [ColumnTypes.SELECT]);
       },
     },
     {
