@@ -665,11 +665,20 @@ export function EditorJSONtoForm(props: Props) {
     let enabled = true;
     if (!!section) {
       // If the section is a nested component, recursively check for conditional statements
-      if ("schema" in section && section.schema.length > 0) {
+      if (
+        "schema" in section &&
+        Array.isArray(section.schema) &&
+        section.schema.length > 0
+      ) {
         section.schema.forEach((subSection: any) => {
           const conditionalOutput = extractConditionalOutput({
             ...subSection,
           });
+          if (!checkIfSectionCanRender(conditionalOutput)) {
+            subSection.hidden = true;
+          } else {
+            subSection.hidden = false;
+          }
           enabled = checkIfSectionIsEnabled(conditionalOutput);
           subSection = modifySectionConfig(subSection, enabled);
         });
