@@ -175,8 +175,10 @@ configure_supervisord() {
 # This is a workaround to get Redis working on diffent memory pagesize
 # https://github.com/appsmithorg/appsmith/issues/11773
 check_redis_compatible_page_size() {
-  if [ $(getconf PAGE_SIZE) -gt 4096 ]; then
-    echo "Compile Redis stable with page size of $(getconf PAGE_SIZE)"
+  local page_size
+  page_size="$(getconf PAGE_SIZE)"
+  if [[ $page_size -gt 4096 ]]; then
+    echo "Compile Redis stable with page size of $page_size"
     echo "Downloading Redis source..."
     curl https://download.redis.io/redis-stable.tar.gz -L | tar xvz
     cd redis-stable/
