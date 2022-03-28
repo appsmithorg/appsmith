@@ -188,7 +188,7 @@ check_redis_compatible_page_size() {
     cd ..
     rm -rf redis-stable/
   else
-    echo "Redis is compatible with page size of $(getconf PAGE_SIZE)"
+    echo "Redis is compatible with page size of $page_size"
   fi
 }
 
