@@ -57,10 +57,10 @@ public class RowsAppendMethod implements Method {
         }
         JsonNode bodyNode;
         try {
-            bodyNode = this.objectMapper.readTree(methodConfig.getRowObject());
+            bodyNode = this.objectMapper.readTree(methodConfig.getRowObjects());
         } catch (JsonProcessingException e) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObject(),
+                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObjects(),
                     "Unable to parse request body. Expected a row object.");
         }
 
@@ -80,7 +80,7 @@ public class RowsAppendMethod implements Method {
 
         RowObject rowObjectFromBody = null;
         try {
-            rowObjectFromBody = this.getRowObjectFromBody(this.objectMapper.readTree(methodConfig.getRowObject()));
+            rowObjectFromBody = this.getRowObjectFromBody(this.objectMapper.readTree(methodConfig.getRowObjects()));
         } catch (JsonProcessingException e) {
             // Should never enter here
         }

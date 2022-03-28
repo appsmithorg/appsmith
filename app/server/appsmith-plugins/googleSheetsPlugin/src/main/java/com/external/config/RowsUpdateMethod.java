@@ -53,11 +53,11 @@ public class RowsUpdateMethod implements Method {
                         "Unexpected format for table header index. Please use a number starting from 1");
             }
         }
-        final String body = methodConfig.getRowObject();
+        final String body = methodConfig.getRowObjects();
         try {
             this.getRowObjectFromBody(this.objectMapper.readTree(body));
         } catch (JsonProcessingException e) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObject(),
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObjects(),
                     "Unable to parse request body. Expected a row object.");
         }
         return true;
@@ -70,7 +70,7 @@ public class RowsUpdateMethod implements Method {
                 .build();
         final RowsGetMethod rowsGetMethod = new RowsGetMethod(this.objectMapper);
 
-        final String body = methodConfig.getRowObject();
+        final String body = methodConfig.getRowObjects();
         RowObject rowObjectFromBody = null;
         try {
             rowObjectFromBody = this.getRowObjectFromBody(this.objectMapper.readTree(body));

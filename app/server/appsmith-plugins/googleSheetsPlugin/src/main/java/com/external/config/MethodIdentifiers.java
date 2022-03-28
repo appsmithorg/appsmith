@@ -1,18 +1,19 @@
 package com.external.config;
 
 public class MethodIdentifiers {
-    public static final String ROWS_GET = "ROWS_GET";
-    public static final String GET_STRUCTURE = "GET_STRUCTURE";
-    public static final String ROWS_APPEND = "ROWS_APPEND";
-    public static final String ROWS_BULK_APPEND = "ROWS_BULK_APPEND";
-    public static final String ROWS_UPDATE = "ROWS_UPDATE";
-    public static final String ROWS_BULK_UPDATE = "ROWS_BULK_UPDATE";
+    public static final String ROWS_FETCH_MANY = "ROWS_FETCH_MANY";
+    public static final String ROWS_INSERT_ONE = "ROWS_INSERT_ONE";
+    public static final String ROWS_INSERT_MANY = "ROWS_INSERT_MANY";
+    public static final String ROWS_UPDATE_ONE = "ROWS_UPDATE_ONE";
+    public static final String ROWS_UPDATE_MANY = "ROWS_UPDATE_MANY";
+    public static final String ROWS_DELETE_ONE = "ROWS_DELETE_ONE";
+    public static final String SPREADSHEET_INSERT_ONE = "SPREADSHEET_INSERT_ONE";
+    public static final String SHEET_DELETE_ONE = "SHEET_DELETE_ONE";
+    public static final String SPREADSHEET_DELETE_ONE = "SPREADSHEET_DELETE_ONE";
+    public static final String SPREADSHEET_FETCH_MANY = "SPREADSHEET_FETCH_MANY";
+    public static final String SPREADSHEET_FETCH_DETAILS = "SPREADSHEET_FETCH_DETAILS";
+
+    public static final String GET_STRUCTURE = "_GET_STRUCTURE";
     public static final String CLEAR = "CLEAR";
-    public static final String FILE_CREATE = "FILE_CREATE";
     public static final String COPY = "COPY";
-    public static final String SHEET_DELETE = "SHEET_DELETE";
-    public static final String FILE_DELETE = "FILE_DELETE";
-    public static final String FILE_LIST = "FILE_LIST";
-    public static final String FILE_INFO = "FILE_INFO";
-    public static final String ROWS_DELETE = "ROWS_DELETE";
 }

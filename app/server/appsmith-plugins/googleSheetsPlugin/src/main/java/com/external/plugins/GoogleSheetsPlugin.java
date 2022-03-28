@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDataOrDefault;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
@@ -137,10 +136,10 @@ public class GoogleSheetsPlugin extends BasePlugin {
             errorResult.setIsExecutionSuccess(false);
 
             // Check if method is defined
-            final Map<String, Object> properties = actionConfiguration.getFormData();
-            final Method method = CollectionUtils.isEmpty(properties)
+            final Map<String, Object> formData = actionConfiguration.getFormData();
+            final Method method = CollectionUtils.isEmpty(formData)
                     ? null
-                    : GoogleSheetsMethodStrategy.getMethod(getValueSafelyFromFormData(properties, FieldName.COMMAND, String.class), objectMapper);
+                    : GoogleSheetsMethodStrategy.getMethod(formData, objectMapper);
 
             if (method == null) {
                 return Mono.error(new AppsmithPluginException(
@@ -150,7 +149,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
             }
 
             // Convert unreadable map to a DTO
-            MethodConfig methodConfig = new MethodConfig(properties);
+            MethodConfig methodConfig = new MethodConfig(formData);
 
             // Initializing webClient to be used for http call
             WebClient.Builder webClientBuilder = WebClient.builder();

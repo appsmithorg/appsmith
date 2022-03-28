@@ -39,7 +39,6 @@ public class MethodConfig {
     String rowLimit;
     String sheetName;
     String deleteFormat;
-    String rowObject;
     String rowObjects;
     Object body;
     Condition whereConditions;
@@ -66,7 +65,6 @@ public class MethodConfig {
         this.rowIndex = getValueSafelyFromFormData(formData, FieldName.ROW_INDEX, String.class);
         this.sheetName = getValueSafelyFromFormData(formData, FieldName.SHEET_NAME, String.class);
         this.deleteFormat = getValueSafelyFromFormData(formData, FieldName.DELETE_FORMAT, String.class);
-        this.rowObject = getValueSafelyFromFormData(formData, FieldName.ROW_OBJECT, String.class);
         this.rowObjects = getValueSafelyFromFormData(formData, FieldName.ROW_OBJECTS, String.class);
 
         if (validConfigurationPresentInFormData(formData, FieldName.WHERE)) {
