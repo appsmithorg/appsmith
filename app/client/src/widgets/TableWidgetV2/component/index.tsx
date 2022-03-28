@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo } from "react";
 import Table from "./Table";
 import {
-  ColumnTypes,
   CompactMode,
   ReactTableColumnProps,
   ReactTableFilter,
@@ -10,7 +9,7 @@ import { Row } from "react-table";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isEqual } from "lodash";
-import { EditableCell } from "../constants";
+import { ColumnTypes, EditableCell } from "../constants";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;

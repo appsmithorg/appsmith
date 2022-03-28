@@ -443,11 +443,19 @@ export default {
       searchKey = "";
     }
 
+    /*
+     * We need to omit hidden column values from being included
+     * in the search
+     */
+    const hiddenColumns = Object.values(props.primaryColumns)
+      .filter((column) => !column.isVisible)
+      .map((column) => column.alias);
+
     const finalTableData = sortedTableData.filter((row) => {
       let isSearchKeyFound = true;
 
       if (searchKey) {
-        isSearchKeyFound = Object.values(row)
+        isSearchKeyFound = Object.values(_.omit(row, hiddenColumns))
           .join(", ")
           .toLowerCase()
           .includes(searchKey);

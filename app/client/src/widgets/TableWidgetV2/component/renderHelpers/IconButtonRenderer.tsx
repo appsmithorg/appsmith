@@ -66,7 +66,10 @@ function IconButton(props: {
         disabled={props.disabled}
         icon={props.iconName}
         loading={loading}
-        onClick={handleClick}
+        onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+          e.stopPropagation();
+          handleClick();
+        }}
       />
     </div>
   );

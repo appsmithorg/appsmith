@@ -1,6 +1,6 @@
 import React, { useCallback, useRef } from "react";
 import styled, { css } from "styled-components";
-import AutoToolTipComponent from "../AutoToolTipComponent";
+import AutoToolTipComponent from "./AutoToolTipComponent";
 import { RenderDefaultPropsType } from "../renderHelpers/DefaultRenderer";
 import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.svg";
 import { Colors } from "constants/Colors";
