@@ -383,7 +383,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         .removeIf(datasource -> !dbNamesUsedInActions.contains(datasource.getName()));
 
                                 // Save decrypted fields for datasources for internally used sample apps and templates only
-                                if(true) {
+                                if(SerialiseApplicationObjective.SAMPLE_APP.equals(serialiseFor)) {
                                     // Save decrypted fields for datasources
                                     Map<String, DecryptedSensitiveFields> decryptedFields = new HashMap<>();
                                     applicationJson.getDatasourceList().forEach(datasource -> {
@@ -455,7 +455,12 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
     public Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName, String isSampleApp) {
         return applicationService.findBranchedApplicationId(branchName, applicationId, EXPORT_APPLICATIONS)
-                .flatMap(branchedAppId -> exportApplicationById(branchedAppId, SerialiseApplicationObjective.SHARE));
+                .flatMap(branchedAppId -> {
+                    if(StringUtils.isEmpty(isSampleApp)) {
+                        return exportApplicationById(branchedAppId, SerialiseApplicationObjective.SHARE);
+                    }
+                    return exportApplicationById(branchedAppId, SerialiseApplicationObjective.SAMPLE_APP);
+                });
     }
 
     /**

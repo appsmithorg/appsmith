@@ -203,7 +203,7 @@ public class ApplicationServiceTest {
                         return applicationService.save(application);
                     })
                     // Assign the branchName to all the resources connected to the application
-                    .flatMap(application -> importExportApplicationService.exportApplicationById(application.getId(), gitData.getBranchName()))
+                    .flatMap(application -> importExportApplicationService.exportApplicationById(application.getId(), gitData.getBranchName(), null))
                     .flatMap(applicationJson -> importExportApplicationService.importApplicationInOrganization(orgId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
                     .block();
 
