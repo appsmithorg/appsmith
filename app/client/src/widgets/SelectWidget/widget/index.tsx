@@ -356,10 +356,18 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
-
-    const selectedIndex = findIndex(this.props.options, {
+    let label = this.props.selectedOptionLabel,
+      value = this.props.selectedOptionValue;
+    let selectedIndex: number | undefined = findIndex(this.props.options, {
       value: this.props.selectedOptionValue,
     });
+    if (selectedIndex === -1) {
+      // If the provided value (default value) is not available in the options,
+      // then clear the selection.
+      label = "";
+      value = "";
+      selectedIndex = undefined;
+    }
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <SelectComponent
@@ -378,7 +386,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         isFilterable={this.props.isFilterable}
         isLoading={this.props.isLoading}
         isValid={this.props.isValid}
-        label={this.props.selectedOptionLabel}
+        label={label}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
@@ -387,9 +395,9 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         onOptionSelected={this.onOptionSelected}
         options={options}
         placeholder={this.props.placeholderText}
-        selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
+        selectedIndex={selectedIndex}
         serverSideFiltering={this.props.serverSideFiltering}
-        value={this.props.selectedOptionValue}
+        value={value}
         widgetId={this.props.widgetId}
         width={componentWidth}
       />
