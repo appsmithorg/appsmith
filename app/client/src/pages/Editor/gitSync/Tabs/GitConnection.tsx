@@ -127,6 +127,7 @@ const StickyMenuWrapper = styled.div`
   height: fit-content;
   z-index: 9999;
   background: white;
+  margin-right: 10px;
 `;
 
 const TooltipWrapper = styled.div`
