@@ -20,7 +20,7 @@ const inputFieldConfig: any = {
 
 // Component for the icons
 const CenteredIcon = styled(Icon)<{ noMarginLeft?: boolean }>`
-  margin: 13px;
+  padding: 12px 12px 32px 12px;
   align-self: end;
   &.hide {
     opacity: 0;
@@ -49,13 +49,18 @@ function EntitySelectorComponent(props: any) {
     width: `${width}vw`,
   };
 
+  const visibleSchemas = schema.filter(
+    (singleSchema: any) => !singleSchema.hidden,
+  );
+
   return (
     <EntitySelectorContainer key={`ES_${configProperty}`}>
-      {schema &&
-        schema.length > 0 &&
-        schema.map((singleSchema: any, index: number) => {
+      {visibleSchemas &&
+        visibleSchemas.length > 0 &&
+        visibleSchemas.map((singleSchema: any, index: number) => {
           return (
-            allowedControlTypes.includes(singleSchema.controlType) && (
+            allowedControlTypes.includes(singleSchema.controlType) &&
+            !singleSchema.hidden && (
               <React.Fragment key={`ES_FRAG_${singleSchema.configProperty}`}>
                 {singleSchema.controlType === "DROP_DOWN" ? (
                   <FormControl
@@ -78,7 +83,7 @@ function EntitySelectorComponent(props: any) {
                     formName={props.formName}
                   />
                 )}
-                {index < schema.length - 1 && (
+                {index < visibleSchemas.length - 1 && (
                   <CenteredIcon
                     key={`ES_ICON_${configProperty}`}
                     name="double-arrow-right"
