@@ -68,6 +68,7 @@ describe("Slug URLs", () => {
 
 describe("Checks update feature on old application", () => {
   it("Check the url of old applications and upgrades version", () => {
+    cy.wait(4000);
     const applicationId = localStorage.getItem("applicationId");
     cy.request("PUT", `/api/v1/applications/${applicationId}`, {
       applicationVersion: 1,
