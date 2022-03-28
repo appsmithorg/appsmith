@@ -710,7 +710,12 @@ export default [
                     params: {
                       type: ValidationTypes.CSV,
                       params: {
-                        allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
+                        allowedValues: [
+                          "BOLD",
+                          "ITALIC",
+                          "UNDERLINE",
+                          "REGULAR",
+                        ],
                       },
                     },
                   },
