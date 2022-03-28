@@ -3,8 +3,11 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
   APPLICATIONS_URL,
-  extractAppIdAndPageIdFromUrl,
+  BUILDER_PATH,
+  BUILDER_PATH_DEPRECATED,
   SIGNUP_SUCCESS_URL,
+  VIEWER_PATH,
+  VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import { requiresAuth } from "pages/UserAuth/requiresAuthHOC";
 import React from "react";
@@ -20,6 +23,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import Landing from "./Welcome";
 import { error } from "loglevel";
+import { matchPath } from "react-router";
 
 export function SignupSuccess() {
   const dispatch = useDispatch();
@@ -35,15 +39,31 @@ export function SignupSuccess() {
   const redirectUsingQueryParam = useCallback(() => {
     if (redirectUrl) {
       try {
+        const redirectURLObject = new URL(redirectUrl);
         if (
           window.location.pathname == SIGNUP_SUCCESS_URL &&
           shouldEnableFirstTimeUserOnboarding === "true"
         ) {
-          const { applicationId, pageId } = extractAppIdAndPageIdFromUrl(
-            redirectUrl,
-          );
-          if (applicationId && pageId) {
-            dispatch(firstTimeUserOnboardingInit(applicationId, pageId));
+          const match = matchPath<{
+            applicationSlug: string;
+            pageSlug: string;
+            pageId: string;
+            applicationId: string;
+          }>(redirectURLObject.pathname, {
+            path: [
+              BUILDER_PATH,
+              BUILDER_PATH_DEPRECATED,
+              VIEWER_PATH,
+              VIEWER_PATH_DEPRECATED,
+            ],
+            strict: false,
+            exact: false,
+          });
+          const { applicationId, pageId } = match?.params || {};
+          if (applicationId || pageId) {
+            dispatch(
+              firstTimeUserOnboardingInit(applicationId, pageId as string),
+            );
           }
         } else if (getIsSafeRedirectURL(redirectUrl)) {
           window.location.replace(redirectUrl);

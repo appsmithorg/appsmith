@@ -75,8 +75,8 @@ function OAuth({
     datasources: { isDeleting, loading: isSaving },
   } = useSelector(getEntities);
   const isAuthorized =
-    datasource.datasourceConfiguration.authentication?.authenticationStatus ===
-    AuthenticationStatus.SUCCESS;
+    datasource?.datasourceConfiguration?.authentication
+      ?.authenticationStatus === AuthenticationStatus.SUCCESS;
 
   const pluginType = useSelector((state: AppState) =>
     getPluginTypeFromDatasourceId(state, datasourceId),
