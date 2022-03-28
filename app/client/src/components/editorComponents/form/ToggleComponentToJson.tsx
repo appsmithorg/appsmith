@@ -16,6 +16,7 @@ type Props = {
   children?: JSX.Element;
   formName: string;
   formValues: any;
+  disabled: boolean | undefined;
   renderCompFunction: (config?: ControlProps) => JSX.Element;
   change: (formName: string, id: string, value: any) => void;
 };
@@ -33,7 +34,11 @@ function ToggleComponentToJson(props: Props) {
 
   return (
     <>
-      <FormInputSwitchToJsonButton onClick={handleViewTypeSwitch} type="button">
+      <FormInputSwitchToJsonButton
+        disabled={props.disabled}
+        onClick={handleViewTypeSwitch}
+        type="button"
+      >
         {`SWITCH TO ${
           props.viewType === ViewTypes.JSON ? "GUI" : "JSON"
         } EDITOR`}
