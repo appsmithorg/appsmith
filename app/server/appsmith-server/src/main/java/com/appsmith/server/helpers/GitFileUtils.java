@@ -229,8 +229,8 @@ public class GitFileUtils {
      * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
      * @return success on remove of file system
      */
-    public Mono<Boolean> detachRemote(Path baseRepoSuffix) {
-        return fileUtils.detachRemote(baseRepoSuffix);
+    public Mono<Boolean> deleteLocalRepo(Path baseRepoSuffix) {
+        return fileUtils.deleteLocalRepo(baseRepoSuffix);
     }
 
     public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException {

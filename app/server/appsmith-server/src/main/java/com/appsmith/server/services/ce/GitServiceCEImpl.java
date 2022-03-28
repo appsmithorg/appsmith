@@ -693,40 +693,41 @@ public class GitServiceCEImpl implements GitServiceCE {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                     } else {
                         String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
-                        Path repoPath = Paths.get(application.getOrganizationId(), defaultApplicationId, repoName);
+                        Path repoSuffix = Paths.get(application.getOrganizationId(), defaultApplicationId, repoName);
                         Mono<String> defaultBranchMono = gitExecutor.cloneApplication(
-                                repoPath,
+                                repoSuffix,
                                 gitConnectDTO.getRemoteUrl(),
                                 gitApplicationMetadata.getGitAuth().getPrivateKey(),
                                 gitApplicationMetadata.getGitAuth().getPublicKey()
                         )
                         .onErrorResume(error -> {
                             log.error("Error while cloning the remote repo, ", error);
-                            return addAnalyticsForGitOperation(
-                                    AnalyticsEvents.GIT_CONNECT.getEventName(),
-                                    application,
-                                    error.getClass().getName(),
-                                    error.getMessage(),
-                                    application.getGitApplicationMetadata().getIsRepoPrivate()
-                            )
-                            .flatMap(app -> {
-                                if (error instanceof TransportException) {
-                                    return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
-                                }
-                                if (error instanceof InvalidRemoteException) {
-                                    return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, error.getMessage()));
-                                }
-                                if (error instanceof TimeoutException) {
-                                    return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
-                                }
-                                return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, error.getMessage()));
-                            });
+                            return fileUtils.deleteLocalRepo(repoSuffix)
+                                    .then(addAnalyticsForGitOperation(
+                                            AnalyticsEvents.GIT_CONNECT.getEventName(),
+                                            application,
+                                            error.getClass().getName(),
+                                            error.getMessage(),
+                                            application.getGitApplicationMetadata().getIsRepoPrivate()
+                                    ))
+                                    .flatMap(app -> {
+                                        if (error instanceof TransportException) {
+                                            return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
+                                        }
+                                        if (error instanceof InvalidRemoteException) {
+                                            return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, error.getMessage()));
+                                        }
+                                        if (error instanceof TimeoutException) {
+                                            return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
+                                        }
+                                        return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, error.getMessage()));
+                                    });
                         });
                         return Mono.zip(
                                 Mono.just(application),
                                 defaultBranchMono,
                                 Mono.just(repoName),
-                                Mono.just(repoPath)
+                                Mono.just(repoSuffix)
                         );
                     }
                 })
@@ -840,23 +841,25 @@ public class GitServiceCEImpl implements GitServiceCE {
 
 
                                     return this.commitApplication(commitDTO, defaultApplicationId, application.getGitApplicationMetadata().getBranchName(), true)
-                                    .onErrorResume(error ->
-                                            // If the push fails remove all the cloned files from local repo
-                                            fileUtils.detachRemote(baseRepoSuffix)
-                                                    .flatMap(isDeleted -> {
-                                                        if (error instanceof TransportException) {
-                                                            return addAnalyticsForGitOperation(
+                                            .onErrorResume(error ->
+                                                // If the push fails remove all the cloned files from local repo
+                                                this.detachRemote(defaultApplicationId)
+                                                        .flatMap(isDeleted -> {
+                                                            if (error instanceof TransportException) {
+                                                                return addAnalyticsForGitOperation(
                                                                     AnalyticsEvents.GIT_CONNECT.getEventName(),
                                                                     application,
                                                                     error.getClass().getName(),
                                                                     error.getMessage(),
                                                                     application.getGitApplicationMetadata().getIsRepoPrivate()
-                                                            )
-                                                            .then(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION, error.getMessage())));
+                                                                )
+                                                                .then(Mono.error(new AppsmithException(
+                                                                        AppsmithError.INVALID_GIT_SSH_CONFIGURATION, error.getMessage()))
+                                                                );
                                                         }
                                                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", error.getMessage()));
                                                     })
-                                    );
+                                            );
                                 })
                                 .then(addAnalyticsForGitOperation(
                                         AnalyticsEvents.GIT_CONNECT.getEventName(),
@@ -938,11 +941,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 )
                                 .flatMap(application1 -> {
                                     if (error instanceof TransportException) {
-                                        return Mono.error(new AppsmithException(
-                                                AppsmithError.GIT_ACTION_FAILED,
-                                                "push",
-                                                " Uh oh! you haven't provided the write permission to deploy keys. " +
-                                                "Appsmith needs write access to push to remote, please provide one to proceed"));
+                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                                     }
                                     return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", error.getMessage()));
                                 })
@@ -1001,24 +1000,24 @@ public class GitServiceCEImpl implements GitServiceCE {
                     //Remove the git contents from file system
                     GitApplicationMetadata gitApplicationMetadata = defaultApplication.getGitApplicationMetadata();
                     String repoName = gitApplicationMetadata.getRepoName();
-                    Path repoPath = Paths.get(defaultApplication.getOrganizationId(), gitApplicationMetadata.getDefaultApplicationId(), repoName);
+                    Path repoSuffix = Paths.get(defaultApplication.getOrganizationId(), gitApplicationMetadata.getDefaultApplicationId(), repoName);
                     String defaultApplicationBranchName = gitApplicationMetadata.getBranchName();
                     String remoteUrl = gitApplicationMetadata.getRemoteUrl();
                     String privateKey = gitApplicationMetadata.getGitAuth().getPrivateKey();
                     String publicKey = gitApplicationMetadata.getGitAuth().getPublicKey();
                     return Mono.zip(
-                            gitExecutor.listBranches(repoPath,
+                            gitExecutor.listBranches(repoSuffix,
                                     remoteUrl,
                                     privateKey,
                                     publicKey,
                                     false),
                             Mono.just(defaultApplication),
-                            Mono.just(repoPath),
+                            Mono.just(repoSuffix),
                             Mono.just(defaultApplicationBranchName));
                 })
                 .flatMap(tuple -> {
                     Application defaultApplication = tuple.getT2();
-                    Path repoPath = tuple.getT3();
+                    Path repoSuffix = tuple.getT3();
                     List<String> branch = tuple.getT1()
                             .stream()
                             .map(GitBranchDTO::getBranchName)
@@ -1032,7 +1031,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     if (!CollectionUtils.isNullOrEmpty(defaultApplication.getPublishedPages())) {
                         defaultApplication.getPublishedPages().forEach(page -> page.setDefaultPageId(page.getId()));
                     }
-                    return fileUtils.detachRemote(repoPath)
+                    return fileUtils.deleteLocalRepo(repoSuffix)
                             .flatMap(status -> Flux.fromIterable(branch)
                                     .flatMap(gitBranch ->
                                             applicationService
@@ -1878,11 +1877,11 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(tuple -> {
                     GitAuth gitAuth = tuple.getT1();
                     Application application = tuple.getT2();
-                    Path repoPath = Paths.get(application.getOrganizationId(), application.getId(), repoName);
+                    Path repoSuffix = Paths.get(application.getOrganizationId(), application.getId(), repoName);
                     Mono<Map<String, GitProfile>> profileMono = updateOrCreateGitProfileForCurrentUser(gitConnectDTO.getGitProfile(), application.getId());
 
                     Mono<String> defaultBranchMono = gitExecutor.cloneApplication(
-                            repoPath,
+                            repoSuffix,
                             gitConnectDTO.getRemoteUrl(),
                             gitAuth.getPrivateKey(),
                             gitAuth.getPublicKey()
@@ -1894,7 +1893,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 error.getClass().getName(),
                                 error.getMessage(),
                                 false)
-                                .flatMap(user -> fileUtils.detachRemote(repoPath)
+                                .flatMap(user -> fileUtils.deleteLocalRepo(repoSuffix)
                                         .then(applicationPageService.deleteApplication(application.getId())))
                                 .flatMap(application1 -> {
                                     if (error instanceof TransportException) {
@@ -2167,7 +2166,8 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     private Mono<Application> deleteApplicationCreatedFromGitImport(String applicationId, String organizationId, String repoName) {
-        return fileUtils.detachRemote(Paths.get(organizationId, applicationId, repoName))
+        Path repoSuffix = Paths.get(organizationId, applicationId, repoName);
+        return fileUtils.deleteLocalRepo(repoSuffix)
                 .then(applicationPageService.deleteApplication(applicationId));
     }
 
