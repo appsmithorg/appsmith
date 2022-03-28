@@ -392,11 +392,8 @@ export const ACTION_CONFIGURATION_UPDATED = () => "Configuration updated";
 export const WIDGET_PROPERTIES_UPDATED = () => "Widget properties were updated";
 export const EMPTY_RESPONSE_FIRST_HALF = () => "🙌 Click on";
 export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
-export const JS_SHORTCUT_FIRST_HALF = () =>
-  "You can also run functions using the";
-export const JS_SHORTCUT_LAST_HALF = () => "keyboard shortcut";
 export const EMPTY_JS_RESPONSE_LAST_HALF = () =>
-  "to view response of the selected function";
+  "to view response of selected function";
 export const INVALID_EMAIL = () => "Please enter a valid email";
 export const DEBUGGER_INTERCOM_TEXT = (text: string) =>
   `Hi, \nI'm facing the following error on Appsmith, can you please help? \n\n${text}`;

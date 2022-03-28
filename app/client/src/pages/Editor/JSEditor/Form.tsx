@@ -355,18 +355,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
               onButtonClick={handleRunAction}
               showResponse={showResponse}
               theme={theme}
-            >
-              <JSFunctionRun
-                disabled={disableRunFunctionality}
-                isLoading={isExecutingCurrentJSAction}
-                jsCollection={currentJSCollection}
-                onButtonClick={handleRunAction}
-                onSelect={handleJSActionOptionSelection}
-                options={convertJSActionsToDropdownOptions(jsActions)}
-                selected={selectedJSActionOption}
-                showTooltip={!selectedJSActionOption.data}
-              />
-            </JSResponseView>
+            />
           </SecondaryWrapper>
         </Form>
       </JSObjectHotKeys>

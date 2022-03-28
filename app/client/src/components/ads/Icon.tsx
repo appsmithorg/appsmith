@@ -15,7 +15,6 @@ import { ReactComponent as ShineIcon } from "assets/icons/ads/shine.svg";
 import { ReactComponent as SuccessIcon } from "assets/icons/ads/success.svg";
 import SearchIcon from "remixicon-react/SearchLineIcon";
 import { ReactComponent as CloseIcon } from "assets/icons/ads/close.svg";
-import { ReactComponent as NoJSResponseIcon } from "assets/svg/no-js-response.svg";
 // import { ReactComponent as WarningIcon } from "assets/icons/ads/warning.svg";
 import { ReactComponent as WarningTriangleIcon } from "assets/icons/ads/warning-triangle.svg";
 import { ReactComponent as ShareIcon2 } from "assets/icons/ads/share-2.svg";
@@ -382,7 +381,6 @@ const ICON_LOOKUP = {
   widget: <WidgetIcon />,
   workspace: <WorkspaceIcon />,
   upgrade: <DvdLineIcon />,
-  "no-js-response": <NoJSResponseIcon />,
 };
 
 export const IconCollection = Object.keys(ICON_LOOKUP);
