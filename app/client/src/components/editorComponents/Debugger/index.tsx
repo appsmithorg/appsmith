@@ -47,8 +47,8 @@ const TriggerContainer = styled.div<{
   .debugger-count {
     color: ${Colors.WHITE};
     ${(props) => getTypographyByKey(props, "btnSmall")}
-    height: 20px;
-    width: 20px;
+    height: 16px;
+    width: 16px;
     background-color: ${(props) =>
       props.errorCount + props.warningCount > 0
         ? props.errorCount === 0
@@ -59,8 +59,9 @@ const TriggerContainer = styled.div<{
     display: flex;
     align-items: center;
     justify-content: center;
-    top: 0;
+    top: -8px;
     left: 100%;
+    font-size: 10px;
     border-radius: 50%;
   }
 `;

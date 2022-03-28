@@ -323,8 +323,9 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                     // index 1 in plugin specified templates
 
                     if (Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) && !CollectionUtils.isEmpty(templateActionList)) {
+                        final Map<String, Object> formData = templateActionList.get(0).getUnpublishedAction().getActionConfiguration().getFormData();
                         mappedColumnsAndTableName.put(
-                                (String) templateActionList.get(0).getUnpublishedAction().getActionConfiguration().getFormData().get("bucket"),
+                                (String) ((Map<?,?>)formData.get("bucket")).get("data"),
                                 tableName
                         );
                     }

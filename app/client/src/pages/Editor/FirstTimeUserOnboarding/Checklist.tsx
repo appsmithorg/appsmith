@@ -13,12 +13,7 @@ import {
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { useIsWidgetActionConnectionPresent } from "pages/Editor/utils";
 import { getEvaluationInverseDependencyMap } from "selectors/dataTreeSelectors";
-import {
-  APPLICATIONS_URL,
-  BUILDER_PAGE_URL,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-} from "constants/routes";
+import { APPLICATIONS_URL, INTEGRATION_TABS } from "constants/routes";
 import {
   getApplicationLastDeployedAt,
   getCurrentApplicationId,
@@ -56,6 +51,7 @@ import { Datasource } from "entities/Datasource";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { triggerWelcomeTour } from "./Utils";
+import { builderURL, integrationEditorURL } from "RouteBuilder";
 
 const Wrapper = styled.div`
   padding: ${(props) => props.theme.spaces[7]}px 55px;
@@ -239,7 +235,7 @@ export default function OnboardingChecklist() {
     getEnableFirstTimeUserOnboarding,
   );
   if (!isFirstTimeUserOnboardingEnabled && !isCompleted) {
-    return <Redirect to={BUILDER_PAGE_URL({ applicationId, pageId })} />;
+    return <Redirect to={builderURL()} />;
   }
   const {
     completedTasks,
@@ -262,7 +258,7 @@ export default function OnboardingChecklist() {
         }),
       );
     } else {
-      history.push(BUILDER_PAGE_URL({ applicationId, pageId }));
+      history.push(builderURL());
     }
     AnalyticsUtil.logEvent("SIGNPOSTING_CONNECT_WIDGET_CLICK");
   };
@@ -270,9 +266,7 @@ export default function OnboardingChecklist() {
     <Wrapper data-testid="checklist-wrapper">
       <Backbutton
         className="t--checklist-back"
-        onClick={() =>
-          history.push(BUILDER_PAGE_URL({ applicationId, pageId }))
-        }
+        onClick={() => history.push(builderURL())}
       >
         <Icon color={Colors.DIESEL} icon="chevron-left" iconSize={16} />
         <Text style={{ lineHeight: "14px" }} type={TextType.P1}>
@@ -355,11 +349,9 @@ export default function OnboardingChecklist() {
                   from: "CHECKLIST",
                 });
                 history.push(
-                  INTEGRATION_EDITOR_URL(
-                    applicationId,
-                    pageId,
-                    INTEGRATION_TABS.NEW,
-                  ),
+                  integrationEditorURL({
+                    selectedTab: INTEGRATION_TABS.NEW,
+                  }),
                 );
               }}
               text={createMessage(
@@ -407,11 +399,9 @@ export default function OnboardingChecklist() {
                   from: "CHECKLIST",
                 });
                 history.push(
-                  INTEGRATION_EDITOR_URL(
-                    applicationId,
-                    pageId,
-                    INTEGRATION_TABS.ACTIVE,
-                  ),
+                  integrationEditorURL({
+                    selectedTab: INTEGRATION_TABS.ACTIVE,
+                  }),
                 );
               }}
               tag="button"
@@ -460,7 +450,7 @@ export default function OnboardingChecklist() {
                 });
                 dispatch(toggleInOnboardingWidgetSelection(true));
                 dispatch(forceOpenWidgetPanel(true));
-                history.push(BUILDER_PAGE_URL({ applicationId, pageId }));
+                history.push(builderURL());
               }}
               text={createMessage(
                 () => ONBOARDING_CHECKLIST_ACTIONS.ADD_WIDGETS,
