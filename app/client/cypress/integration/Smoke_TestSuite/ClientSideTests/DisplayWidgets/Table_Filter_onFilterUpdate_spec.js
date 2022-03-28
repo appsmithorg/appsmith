@@ -16,8 +16,6 @@ describe("Table Widget Filter Functionality", function() {
   });
 
   it("onFilterUpdate: it should be triggered when the table filters are changed", function() {
-    // cy.get(publish.backToEditor).click();
-    cy.wait(2000);
     cy.openPropertyPane("tablewidget");
     // Set the onFilterUpdate action
     cy.get(".t--property-control-onfilterupdate .t--js-toggle")
