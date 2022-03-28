@@ -69,6 +69,7 @@ function FormControl(props: FormControlProps) {
             {viewTypes.length > 0 && viewTypes.includes(ViewTypes.JSON) ? (
               <ToggleComponentToJson
                 configProperty={props.config.configProperty}
+                disabled={props.config.disabled}
                 formName={props.formName}
                 formValues={formValues}
                 renderCompFunction={FormControlRenderMethod}
