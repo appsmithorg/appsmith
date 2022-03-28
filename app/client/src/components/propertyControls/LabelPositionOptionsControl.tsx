@@ -6,27 +6,32 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { ThemeProp } from "components/ads/common";
 import { LabelPosition } from "components/constants";
 import { replayHighlightClass } from "globalStyles/portals";
+import { Colors } from "constants/Colors";
 
 const StyledButtonGroup = styled(ButtonGroup)`
   height: 33px;
 `;
 
 const StyledButton = styled(Button)<ThemeProp & IButtonProps>`
-  border: ${(props) =>
-    props.active ? `1px solid #6A86CE` : `1px solid #A9A7A7`};
-  border-radius: 0;
-  box-shadow: none !important;
-  background-image: none !important;
-  background-color: #ffffff !important;
-  & > div {
-    display: flex;
-  }
-  &.bp3-active {
-    box-shadow: none !important;
-    background-color: #ffffff !important;
-  }
-  &:hover {
-    background-color: #ffffff !important;
+  &&& {
+    border-radius: 0;
+    box-shadow: none;
+    background-image: none;
+    background: none;
+    border: 1px solid
+      ${(props) => (props.active ? Colors.GREY_10 : Colors.GREY_5)};
+    font-size: 14px;
+
+    &:hover,
+    &:active,
+    &.bp3-active {
+      background: ${Colors.GREY_3};
+    }
+
+    & > div {
+      display: flex;
+      cursor: pointer;
+    }
   }
 `;
 
@@ -62,7 +67,6 @@ class LabelPositionOptionsControl extends BaseControl<
             <StyledButton
               active={active}
               key={option}
-              large
               onClick={() => this.toggleOption(option)}
               text={option}
             />

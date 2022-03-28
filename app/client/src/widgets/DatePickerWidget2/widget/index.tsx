@@ -243,7 +243,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             helpText:
               "Sets the label width of the widget as the number of columns",
             propertyName: "labelWidth",
-            label: "Width",
+            label: "Width (in columns)",
             controlType: "NUMERIC_INPUT",
             isJSConvertible: true,
             isBindProperty: true,

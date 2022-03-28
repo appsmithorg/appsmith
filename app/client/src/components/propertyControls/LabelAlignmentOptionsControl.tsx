@@ -11,26 +11,31 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlIcons } from "icons/ControlIcons";
 import { ThemeProp } from "components/ads/common";
 import { replayHighlightClass } from "globalStyles/portals";
+import { Colors } from "constants/Colors";
 
 const StyledButtonGroup = styled(ButtonGroup)`
   height: 33px;
 `;
 
 const StyledButton = styled(Button)<ThemeProp & IButtonProps>`
-  border: ${(props) => (props.active ? `1px solid #6A86CE` : `none`)};
-  border-radius: 0;
-  background-color: #ffffff !important;
+  &&& {
+    box-shadow: none;
+    background-image: none;
+    background: none;
+    border-radius: 0;
+    border: 1px solid
+      ${(props) => (props.active ? Colors.GREY_10 : Colors.GREY_5)};
 
-  & > div {
-    display: flex;
-  }
+    &:hover,
+    &:active,
+    &.bp3-active {
+      background: ${Colors.GREY_3};
+    }
 
-  &.bp3-active {
-    box-shadow: none !important;
-    background-color: #ffffff !important;
-  }
-  &:hover {
-    background-color: #ffffff !important;
+    & > div {
+      display: flex;
+      cursor: pointer;
+    }
   }
 `;
 
