@@ -30,9 +30,6 @@ import {
   WidgetProperties,
 } from "selectors/propertyPaneSelectors";
 import { getWidgetEnhancementSelector } from "selectors/widgetEnhancementSelectors";
-import Boxed from "components/editorComponents/Onboarding/Boxed";
-import { OnboardingStep } from "constants/OnboardingConstants";
-import Indicator from "components/editorComponents/Onboarding/Indicator";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -53,6 +50,7 @@ const PropertyControl = memo((props: Props) => {
   const propsSelector = getWidgetPropsForPropertyName(
     props.propertyName,
     props.dependencies,
+    props.evaluatedDependencies,
   );
 
   const widgetProperties: WidgetProperties = useSelector(
@@ -406,6 +404,7 @@ const PropertyControl = memo((props: Props) => {
       return (
         <ControlWrapper
           className={`t--property-control-${className}`}
+          data-guided-tour-iid={propertyName}
           id={uniqId}
           key={config.id}
           orientation={
@@ -414,47 +413,38 @@ const PropertyControl = memo((props: Props) => {
               : "VERTICAL"
           }
         >
-          <Boxed
-            show={
-              propertyName !== "isRequired" && propertyName !== "isDisabled"
-            }
-            step={OnboardingStep.DEPLOY}
-          >
-            <ControlPropertyLabelContainer>
-              <PropertyHelpLabel
-                label={label}
-                theme={props.theme}
-                tooltip={props.helpText}
-              />
-              {isConvertible && (
-                <JSToggleButton
-                  active={isDynamic}
-                  className={`t--js-toggle ${isDynamic ? "is-active" : ""}`}
-                  onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
-                >
-                  <ControlIcons.JS_TOGGLE />
-                </JSToggleButton>
-              )}
-            </ControlPropertyLabelContainer>
-            <Indicator
-              show={propertyName === "onSubmit"}
-              step={OnboardingStep.ADD_INPUT_WIDGET}
-            >
-              {PropertyControlFactory.createControl(
-                config,
-                {
-                  onPropertyChange: onPropertyChange,
-                  openNextPanel: openPanel,
-                  deleteProperties: onDeleteProperties,
-                  theme: props.theme,
-                },
-                isDynamic,
-                getCustomJSControl(),
-                additionAutocomplete,
-                hideEvaluatedValue(),
-              )}
-            </Indicator>
-          </Boxed>
+          <ControlPropertyLabelContainer>
+            <PropertyHelpLabel
+              label={label}
+              theme={props.theme}
+              tooltip={props.helpText}
+            />
+            {isConvertible && (
+              <JSToggleButton
+                active={isDynamic}
+                className={`focus:ring-2 t--js-toggle ${
+                  isDynamic ? "is-active" : ""
+                }`}
+                onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
+              >
+                <ControlIcons.JS_TOGGLE />
+              </JSToggleButton>
+            )}
+          </ControlPropertyLabelContainer>
+          {PropertyControlFactory.createControl(
+            config,
+            {
+              onPropertyChange: onPropertyChange,
+              onBatchUpdateProperties: onBatchUpdateProperties,
+              openNextPanel: openPanel,
+              deleteProperties: onDeleteProperties,
+              theme: props.theme,
+            },
+            isDynamic,
+            getCustomJSControl(),
+            additionAutocomplete,
+            hideEvaluatedValue(),
+          )}
         </ControlWrapper>
       );
     } catch (e) {

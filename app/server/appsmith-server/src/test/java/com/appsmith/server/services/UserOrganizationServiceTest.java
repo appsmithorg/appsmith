@@ -9,6 +9,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -26,6 +27,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -70,6 +72,9 @@ class UserOrganizationServiceTest {
 
     @Autowired
     private PolicyGenerator policyGenerator;
+
+    @Autowired
+    private UserDataService userDataService;
 
     private Organization organization;
     private User user;
@@ -125,13 +130,25 @@ class UserOrganizationServiceTest {
         currentUser.getOrganizationIds().add(organization.getId());
         userRepository.save(currentUser).block();
 
+        // add org id and recent apps to user data
+        Application application = new Application();
+        application.setOrganizationId(organization.getId());
+
+        Mono<UserData> saveUserDataMono = applicationRepository.save(application).flatMap(savedApplication -> {
+            // add app id and org id to recent list
+            UserData userData = new UserData();
+            userData.setRecentlyUsedAppIds(List.of(savedApplication.getId()));
+            userData.setRecentlyUsedOrgIds(List.of(organization.getId()));
+            return userDataService.updateForUser(currentUser, userData);
+        });
+
         UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), ORGANIZATION_DEVELOPER);
 
-        Organization updatedOrganization = userOrganizationService.addUserToOrganizationGivenUserObject(
-                this.organization, currentUser, userRole
-        ).block();
+        Mono<User> userMono = userOrganizationService
+                .addUserToOrganizationGivenUserObject(this.organization, currentUser, userRole)
+                .then(saveUserDataMono)
+                .then(userOrganizationService.leaveOrganization(this.organization.getId()));
 
-        Mono<User> userMono = userOrganizationService.leaveOrganization(this.organization.getId());
         StepVerifier.create(userMono).assertNext(user -> {
             assertEquals("api_user", user.getEmail());
             assertEquals(organizationIdsBefore, user.getOrganizationIds());
@@ -146,6 +163,11 @@ class UserOrganizationServiceTest {
                     "user's orgId list should not have left org id",
                     user1.getOrganizationIds().contains(this.organization.getId())
             );
+        }).verifyComplete();
+
+        StepVerifier.create(userDataService.getForUser(currentUser)).assertNext(userData -> {
+            assertThat(CollectionUtils.isEmpty(userData.getRecentlyUsedOrgIds())).isTrue();
+            assertThat(CollectionUtils.isEmpty(userData.getRecentlyUsedAppIds())).isTrue();
         }).verifyComplete();
     }
 
@@ -255,10 +277,10 @@ class UserOrganizationServiceTest {
         StepVerifier.create(commentThreadMono).assertNext(commentThread -> {
             Set<Policy> policies = commentThread.getPolicies();
             assertThat(policyUtils.isPermissionPresentForUser(
-                    policies, AclPermission.READ_THREAD.getValue(), "test_developer"
+                    policies, AclPermission.READ_THREADS.getValue(), "test_developer"
             )).isTrue();
             assertThat(policyUtils.isPermissionPresentForUser(
-                    policies, AclPermission.READ_THREAD.getValue(), "api_user"
+                    policies, AclPermission.READ_THREADS.getValue(), "api_user"
             )).isTrue();
         }).verifyComplete();
     }
@@ -286,10 +308,10 @@ class UserOrganizationServiceTest {
         StepVerifier.create(commentThreadMono).assertNext(commentThread -> {
             Set<Policy> policies = commentThread.getPolicies();
             assertThat(policyUtils.isPermissionPresentForUser(
-                    policies, AclPermission.READ_THREAD.getValue(), "test_developer"
+                    policies, AclPermission.READ_THREADS.getValue(), "test_developer"
             )).isFalse();
             assertThat(policyUtils.isPermissionPresentForUser(
-                    policies, AclPermission.READ_THREAD.getValue(), "api_user"
+                    policies, AclPermission.READ_THREADS.getValue(), "api_user"
             )).isTrue();
         }).verifyComplete();
     }
@@ -324,13 +346,13 @@ class UserOrganizationServiceTest {
         StepVerifier.create(saveUserMono.then(commentThreadMono)).assertNext(commentThread -> {
             Set<Policy> policies = commentThread.getPolicies();
             assertThat(policyUtils.isPermissionPresentForUser(
-                    policies, AclPermission.READ_THREAD.getValue(), "test_developer"
+                    policies, AclPermission.READ_THREADS.getValue(), "test_developer"
             )).isTrue();
             assertThat(policyUtils.isPermissionPresentForUser(
-                    policies, AclPermission.READ_THREAD.getValue(), "new_test_user"
+                    policies, AclPermission.READ_THREADS.getValue(), "new_test_user"
             )).isTrue();
             assertThat(policyUtils.isPermissionPresentForUser(
-                    policies, AclPermission.READ_THREAD.getValue(), "api_user"
+                    policies, AclPermission.READ_THREADS.getValue(), "api_user"
             )).isTrue();
         }).verifyComplete();
     }

@@ -15,23 +15,26 @@ import {
   getIsPublishingApplication,
   getPublishingError,
 } from "selectors/editorSelectors";
-import { initEditor, resetEditorRequest } from "actions/initActions";
+import {
+  initEditor,
+  InitializeEditorPayload,
+  resetEditorRequest,
+} from "actions/initActions";
 import { editorInitializer } from "utils/EditorUtils";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
-import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
+import RequestConfirmationModal from "pages/Editor/RequestConfirmationModal";
 import * as Sentry from "@sentry/react";
-import Welcome from "./Welcome";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
 import { handlePathUpdated } from "actions/recentEntityActions";
-import AppComments from "comments/AppComments/AppComments";
 import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
 import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
+import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
 
 import history from "utils/history";
 import { fetchPage, updateCurrentPage } from "actions/pageActions";
@@ -45,17 +48,21 @@ import {
   collabStartSharingPointerEvent,
   collabStopSharingPointerEvent,
 } from "actions/appCollabActions";
+import { loading } from "selectors/onboardingSelectors";
+import GuidedTourModal from "./GuidedTour/DeviationModal";
+import { getPageLevelSocketRoomId } from "sagas/WebsocketSagas/utils";
+import RepoLimitExceededErrorModal from "./gitSync/RepoLimitExceededErrorModal";
 
 type EditorProps = {
   currentApplicationId?: string;
   currentApplicationName?: string;
-  initEditor: (applicationId: string, pageId: string, branch?: string) => void;
+  initEditor: (payload: InitializeEditorPayload) => void;
   isPublishing: boolean;
   isEditorLoading: boolean;
   isEditorInitialized: boolean;
   isEditorInitializeError: boolean;
   errorPublishing: boolean;
-  creatingOnboardingDatabase: boolean;
+  loadingGuidedTour: boolean;
   user?: User;
   lightTheme: Theme;
   resetEditorRequest: () => void;
@@ -67,6 +74,7 @@ type EditorProps = {
   isPageLevelSocketConnected: boolean;
   collabStartSharingPointerEvent: (pageId: string) => void;
   collabStopSharingPointerEvent: (pageId?: string) => void;
+  pageLevelSocketRoomId: string;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -89,14 +97,15 @@ class Editor extends Component<Props> {
     const branch = getSearchQuery(search, "branch");
 
     const { applicationId, pageId } = this.props.match.params;
-    if (applicationId) {
-      this.props.initEditor(applicationId, pageId, branch);
-    }
+    if (applicationId || pageId)
+      this.props.initEditor({ applicationId, pageId, branch });
     this.props.handlePathUpdated(window.location);
     this.unlisten = history.listen(this.handleHistoryChange);
 
     if (this.props.isPageLevelSocketConnected && pageId) {
-      this.props.collabStartSharingPointerEvent(pageId);
+      this.props.collabStartSharingPointerEvent(
+        getPageLevelSocketRoomId(pageId, branch),
+      );
     }
   }
 
@@ -128,8 +137,7 @@ class Editor extends Component<Props> {
       nextProps.errorPublishing !== this.props.errorPublishing ||
       nextProps.isEditorInitializeError !==
         this.props.isEditorInitializeError ||
-      nextProps.creatingOnboardingDatabase !==
-        this.props.creatingOnboardingDatabase ||
+      nextProps.loadingGuidedTour !== this.props.loadingGuidedTour ||
       nextState.registered !== this.state.registered ||
       (nextProps.isPageLevelSocketConnected &&
         !this.props.isPageLevelSocketConnected)
@@ -147,8 +155,8 @@ class Editor extends Component<Props> {
     const isPageIdUpdated = pageId !== prevPageId;
 
     // to prevent re-init during connect
-    if (prevBranch && isBranchUpdated && applicationId) {
-      this.props.initEditor(applicationId, pageId, branch);
+    if (prevBranch && isBranchUpdated && (applicationId || pageId)) {
+      this.props.initEditor({ pageId, branch, applicationId });
     } else {
       /**
        * First time load is handled by init sagas
@@ -162,15 +170,23 @@ class Editor extends Component<Props> {
     }
 
     if (this.props.isPageLevelSocketConnected && isPageIdUpdated) {
-      this.props.collabStartSharingPointerEvent(pageId);
+      this.props.collabStartSharingPointerEvent(
+        getPageLevelSocketRoomId(pageId, branch),
+      );
     }
   }
 
   componentWillUnmount() {
     const { pageId } = this.props.match.params || {};
+    const {
+      location: { search },
+    } = this.props;
+    const branch = getSearchQuery(search, "branch");
     this.props.resetEditorRequest();
     if (typeof this.unlisten === "function") this.unlisten();
-    this.props.collabStopSharingPointerEvent(pageId);
+    this.props.collabStopSharingPointerEvent(
+      getPageLevelSocketRoomId(pageId, branch),
+    );
   }
 
   handleHistoryChange = (location: any) => {
@@ -178,11 +194,11 @@ class Editor extends Component<Props> {
   };
 
   public render() {
-    if (this.props.creatingOnboardingDatabase) {
-      return <Welcome />;
-    }
-
-    if (!this.props.isEditorInitialized || !this.state.registered) {
+    if (
+      !this.props.isEditorInitialized ||
+      !this.state.registered ||
+      this.props.loadingGuidedTour
+    ) {
       return (
         <CenteredWrapper style={{ height: "calc(100vh - 35px)" }}>
           <Spinner />
@@ -206,14 +222,16 @@ class Editor extends Component<Props> {
             </Helmet>
             <GlobalHotKeys>
               <MainContainer />
-              <AppComments />
               <AddCommentTourComponent />
               <CommentShowCaseCarousel />
               <GitSyncModal />
+              <DisconnectGitModal />
               <ConcurrentPageEditorToast />
+              <GuidedTourModal />
+              <RepoLimitExceededErrorModal />
             </GlobalHotKeys>
           </div>
-          <ConfirmRunModal />
+          <RequestConfirmationModal />
         </DndProvider>
       </ThemeProvider>
     );
@@ -229,16 +247,16 @@ const mapStateToProps = (state: AppState) => ({
   isEditorLoading: getIsEditorLoading(state),
   isEditorInitialized: getIsEditorInitialized(state),
   user: getCurrentUser(state),
-  creatingOnboardingDatabase: state.ui.onBoarding.showOnboardingLoader,
   currentApplicationName: state.ui.applications.currentApplication?.name,
   currentPageId: getCurrentPageId(state),
   isPageLevelSocketConnected: getIsPageLevelSocketConnected(state),
+  loadingGuidedTour: loading(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    initEditor: (applicationId: string, pageId: string, branch?: string) =>
-      dispatch(initEditor(applicationId, pageId, branch)),
+    initEditor: (payload: InitializeEditorPayload) =>
+      dispatch(initEditor(payload)),
     resetEditorRequest: () => dispatch(resetEditorRequest()),
     handlePathUpdated: (location: typeof window.location) =>
       dispatch(handlePathUpdated(location)),

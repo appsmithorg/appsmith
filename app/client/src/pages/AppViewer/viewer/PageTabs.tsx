@@ -2,23 +2,21 @@ import React, { useRef, useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import {
-  CurrentApplicationData,
+  ApplicationPayload,
   PageListPayload,
 } from "constants/ReduxActionConstants";
-import { getApplicationViewerPageURL } from "constants/routes";
+import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { isEllipsisActive } from "utils/helpers";
 import TooltipComponent from "components/ads/Tooltip";
-import { getTypographyByKey, hideScrollbar } from "constants/DefaultTheme";
+import { getTypographyByKey } from "constants/DefaultTheme";
 import { Position } from "@blueprintjs/core";
 
-import { trimQueryString } from "utils/helpers";
+import { getAppMode } from "selectors/applicationSelectors";
+import { useSelector } from "react-redux";
 
-const TabsContainer = styled.div`
-  width: 100%;
-  display: flex;
-  overflow: auto;
-  ${hideScrollbar}
-`;
+import { trimQueryString } from "utils/helpers";
+import { getPageURL } from "utils/AppsmithUtils";
+import { viewerURL } from "RouteBuilder";
 
 const PageTab = styled(NavLink)`
   display: flex;
@@ -38,6 +36,7 @@ const StyledBottomBorder = styled.div`
   height: 2px;
   width: 100%;
   left: -100%;
+  top: 9px;
   background-color: ${(props) =>
     props.theme.colors.header.activeTabBorderBottom};
   ${PageTab}:hover & {
@@ -57,10 +56,13 @@ const StyleTabText = styled.div`
   color: ${(props) => props.theme.colors.header.tabText};
   height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
   & span {
+    height: 100%;
     max-width: 138px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
   }
   ${PageTab}.is-active & {
     color: ${(props) => props.theme.colors.header.activeTabText};
@@ -70,22 +72,17 @@ const StyleTabText = styled.div`
   }
 `;
 
-const CenterTabNameContainer = styled.div`
-  position: relative;
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
 function PageTabName({ name }: { name: string }) {
   const tabNameRef = useRef<HTMLSpanElement>(null);
   const [ellipsisActive, setEllipsisActive] = useState(false);
   const tabNameText = (
     <StyleTabText>
-      <CenterTabNameContainer>
-        <span ref={tabNameRef}>{name}</span>
-      </CenterTabNameContainer>
+      <div className="relative flex ">
+        <div className="relative flex items-center justify-center flex-grow">
+          <span ref={tabNameRef}>{name}</span>
+        </div>
+        {ellipsisActive && "..."}
+      </div>
       <StyledBottomBorder />
     </StyleTabText>
   );
@@ -96,17 +93,16 @@ function PageTabName({ name }: { name: string }) {
     }
   }, [tabNameRef]);
 
-  return ellipsisActive ? (
+  return (
     <TooltipComponent
       boundary="viewport"
       content={name}
+      disabled={!ellipsisActive}
       maxWidth="400px"
       position={Position.BOTTOM}
     >
       {tabNameText}
     </TooltipComponent>
-  ) : (
-    tabNameText
   );
 }
 
@@ -134,7 +130,7 @@ function PageTabContainer({
 }
 
 type Props = {
-  currentApplicationDetails?: CurrentApplicationData;
+  currentApplicationDetails?: ApplicationPayload;
   appPages: PageListPayload;
   measuredTabsRef: (ref: HTMLElement | null) => void;
   tabsScrollable: boolean;
@@ -143,8 +139,9 @@ type Props = {
 
 export function PageTabs(props: Props) {
   const { appPages, currentApplicationDetails } = props;
-  const { pathname } = useLocation();
   const location = useLocation();
+  const { pathname } = location;
+  const appMode = useSelector(getAppMode);
   const [query, setQuery] = useState("");
 
   useEffect(() => {
@@ -152,14 +149,19 @@ export function PageTabs(props: Props) {
   }, [location]);
 
   return (
-    <TabsContainer ref={props.measuredTabsRef}>
+    <div
+      className="flex w-full overflow-auto scrollbar-none"
+      ref={props.measuredTabsRef}
+    >
       {appPages.map((page) => (
         <PageTabContainer
           isTabActive={
             pathname ===
             trimQueryString(
-              getApplicationViewerPageURL({
-                applicationId: currentApplicationDetails?.id,
+              viewerURL({
+                applicationSlug:
+                  currentApplicationDetails?.slug || PLACEHOLDER_APP_SLUG,
+                pageSlug: page.slug || PLACEHOLDER_PAGE_SLUG,
                 pageId: page.pageId,
               }),
             )
@@ -172,12 +174,7 @@ export function PageTabs(props: Props) {
             activeClassName="is-active"
             className="t--page-switch-tab"
             to={{
-              pathname: trimQueryString(
-                getApplicationViewerPageURL({
-                  applicationId: currentApplicationDetails?.id,
-                  pageId: page.pageId,
-                }),
-              ),
+              pathname: getPageURL(page, appMode, currentApplicationDetails),
               search: query,
             }}
           >
@@ -185,7 +182,7 @@ export function PageTabs(props: Props) {
           </PageTab>
         </PageTabContainer>
       ))}
-    </TabsContainer>
+    </div>
   );
 }
 

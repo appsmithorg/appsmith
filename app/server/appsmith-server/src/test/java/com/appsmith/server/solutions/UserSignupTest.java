@@ -55,18 +55,9 @@ public class UserSignupTest {
     private UserSignup userSignup;
 
     @Before
-    public void setUp() {
-        userSignup = new UserSignup(
-                userService,
-                userDataService,
-                captchaService,
-                authenticationSuccessHandler,
-                configService,
-                analyticsService,
-                policyUtils,
-                envManager,
-                commonConfig
-        );
+    public void setup() {
+        userSignup = new UserSignupImpl(userService, userDataService, captchaService, authenticationSuccessHandler,
+                configService, analyticsService, policyUtils, envManager, commonConfig);
     }
 
     private String createRandomString(int length) {

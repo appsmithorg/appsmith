@@ -2,7 +2,7 @@
 Expand the name of the chart.
 */}}
 {{- define "appsmith.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- default .Chart.Name .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
@@ -14,7 +14,7 @@ If release name contains chart name it will be used as a full name.
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
-{{- $name := default .Chart.Name .Values.nameOverride }}
+{{- $name := default .Chart.Name .Values.fullnameOverride }}
 {{- if contains $name .Release.Name }}
 {{- .Release.Name | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -77,8 +77,58 @@ Allow the release namespace to be overridden for multi-namespace deployments in 
 {{- end -}}
 
 {{/*
-Return the appropriate apiVersion for the object
+Kubernetes standard labels
 */}}
-{{- define "apiVersion" -}}
-{{- default "storage.k8s.io/v1" .Values.apiVersion -}}
+{{- define "labels.standard" -}}
+app.kubernetes.io/name: {{ include "names.name" . }}
+helm.sh/chart: {{ include "names.chart" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
+
+{{/*
+Expand the name of the chart.
+*/}}
+{{- define "names.name" -}}
+{{- default .Chart.Name .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Create chart name and version as used by the chart label.
+*/}}
+{{- define "names.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Return  the proper Storage Class
+*/}}
+{{- define "storage.class" -}}
+
+{{- $storageClass := .persistence.storageClass -}}
+{{- if .global -}}
+    {{- if .global.storageClass -}}
+        {{- $storageClass = .global.storageClass -}}
+    {{- end -}}
+{{- end -}}
+
+{{- if $storageClass -}}
+  {{- if (eq "-" $storageClass) -}}
+      {{- printf "storageClassName: \"\"" -}}
+  {{- else }}
+      {{- printf "storageClassName: %s" $storageClass -}}
+  {{- end -}}
+{{- end -}}
+
+{{- end -}}
+
+{{/*
+Renders a value that contains template.
+*/}}
+{{- define "tplvalues.render" -}}
+    {{- if typeIs "string" .value }}
+        {{- tpl .value .context }}
+    {{- else }}
+        {{- tpl (.value | toYaml) .context }}
+    {{- end }}
 {{- end -}}

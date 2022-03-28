@@ -3,7 +3,7 @@ import { Link, RouteComponentProps } from "react-router-dom";
 import { connect } from "react-redux";
 import { getIsFetchingPage } from "selectors/appViewSelectors";
 import styled from "styled-components";
-import { AppViewerRouteParams, BUILDER_PAGE_URL } from "constants/routes";
+import { AppViewerRouteParams } from "constants/routes";
 import { AppState } from "reducers";
 import { theme } from "constants/DefaultTheme";
 import { Icon, NonIdealState, Spinner } from "@blueprintjs/core";
@@ -13,9 +13,9 @@ import {
   getCanvasWidgetDsl,
   getCurrentApplicationId,
   getCurrentPageName,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
-import EndTourHelper from "components/editorComponents/Onboarding/EndTourHelper";
-import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
+import RequestConfirmationModal from "pages/Editor/RequestConfirmationModal";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import {
   isPermitted,
@@ -23,6 +23,7 @@ import {
 } from "../Applications/permissionHelpers";
 import { fetchPublishedPage } from "actions/pageActions";
 import { DSLWidget } from "widgets/constants";
+import { builderURL } from "RouteBuilder";
 
 const Section = styled.section`
   background: ${(props) => props.theme.colors.artboard};
@@ -41,6 +42,8 @@ type AppViewerPageContainerProps = {
   fetchPage: (pageId: string, bustCache?: boolean) => void;
   currentAppPermissions?: string[];
   applicationId: string;
+  applicationSlug: string;
+  pageSlug: string;
 } & RouteComponentProps<AppViewerRouteParams>;
 
 class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
@@ -66,9 +69,10 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
         <p>
           Please add widgets to this page in the&nbsp;
           <Link
-            to={BUILDER_PAGE_URL({
-              applicationId: this.props.applicationId,
-              pageId: this.props.match.params.pageId,
+            to={builderURL({
+              applicationSlug: this.props.applicationSlug,
+              pageSlug: this.props.pageSlug,
+              pageId: this.props.match.params.pageId as string,
             })}
           >
             Appsmith Editor
@@ -77,7 +81,7 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
       );
     }
     const pageNotFound = (
-      <Centered>
+      <Centered isInheritedHeight>
         <NonIdealState
           description={appsmithEditorLink}
           icon={
@@ -92,7 +96,7 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
       </Centered>
     );
     const pageLoading = (
-      <Centered>
+      <Centered isInheritedHeight>
         <Spinner />
       </Centered>
     );
@@ -111,8 +115,7 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
             pageId={this.props.match.params.pageId}
             pageName={this.props.currentPageName}
           />
-          <ConfirmRunModal />
-          <EndTourHelper />
+          <RequestConfirmationModal />
         </Section>
       );
     }
@@ -121,6 +124,7 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
 
 const mapStateToProps = (state: AppState) => {
   const currentApp = getCurrentApplication(state);
+  const { applicationSlug, pageSlug } = selectURLSlugs(state);
   return {
     isFetchingPage: getIsFetchingPage(state),
     widgets: getCanvasWidgetDsl(state),
@@ -128,6 +132,8 @@ const mapStateToProps = (state: AppState) => {
     currentAppName: currentApp?.name,
     currentAppPermissions: currentApp?.userPermissions,
     applicationId: getCurrentApplicationId(state),
+    applicationSlug,
+    pageSlug,
   };
 };
 

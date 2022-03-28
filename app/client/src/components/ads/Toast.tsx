@@ -1,5 +1,10 @@
 import React from "react";
-import { CommonComponentProps, Classes, Variant } from "./common";
+import {
+  CommonComponentProps,
+  Classes,
+  Variant,
+  ToastTypeOptions,
+} from "./common";
 import styled from "styled-components";
 import Icon, { IconSize } from "./Icon";
 import Text, { TextType } from "./Text";
@@ -207,7 +212,8 @@ export const Toaster = {
     }
     if (config.variant && !Object.values(Variant).includes(config.variant)) {
       log.error(
-        "Toast type needs to be a one of " + Object.values(Variant).join(", "),
+        "Toast type needs to be a one of " +
+          Object.values(ToastTypeOptions).join(", "),
       );
       return;
     }

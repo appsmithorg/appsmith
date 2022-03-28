@@ -19,15 +19,19 @@ export type ExecutionResult = {
 export type TriggerSource = {
   id: string;
   name: string;
+  collectionId?: string;
+  isJSAction?: boolean;
+  actionId?: string;
 };
 
 export type ExecuteTriggerPayload = {
   dynamicString: string;
   event: ExecuteActionPayloadEvent;
-  responseData?: Array<any>;
+  callbackData?: Array<any>;
   triggerPropertyName?: string;
   source?: TriggerSource;
   widgetId?: string;
+  globalContext?: Record<string, unknown>;
 };
 
 export type ContentType =
@@ -83,6 +87,7 @@ export enum EventType {
   ON_AUDIO_PAUSE = "ON_AUDIO_PAUSE",
   ON_RATE_CHANGED = "ON_RATE_CHANGED",
   ON_IFRAME_URL_CHANGED = "ON_IFRAME_URL_CHANGED",
+  ON_IFRAME_SRC_DOC_CHANGED = "ON_IFRAME_SRC_DOC_CHANGED",
   ON_IFRAME_MESSAGE_RECEIVED = "ON_IFRAME_MESSAGE_RECEIVED",
   ON_SNIPPET_EXECUTE = "ON_SNIPPET_EXECUTE",
   ON_SORT = "ON_SORT",
@@ -90,6 +95,16 @@ export enum EventType {
   ON_LIST_PAGE_CHANGE = "ON_LIST_PAGE_CHANGE",
   ON_RECORDING_START = "ON_RECORDING_START",
   ON_RECORDING_COMPLETE = "ON_RECORDING_COMPLETE",
+  ON_SWITCH_GROUP_SELECTION_CHANGE = "ON_SWITCH_GROUP_SELECTION_CHANGE",
+  ON_JS_FUNCTION_EXECUTE = "ON_JS_FUNCTION_EXECUTE",
+  ON_CAMERA_IMAGE_CAPTURE = "ON_CAMERA_IMAGE_CAPTURE",
+  ON_CAMERA_IMAGE_SAVE = "ON_CAMERA_IMAGE_SAVE",
+  ON_CAMERA_VIDEO_RECORDING_START = "ON_CAMERA_VIDEO_RECORDING_START",
+  ON_CAMERA_VIDEO_RECORDING_STOP = "ON_CAMERA_VIDEO_RECORDING_STOP",
+  ON_CAMERA_VIDEO_RECORDING_SAVE = "ON_CAMERA_VIDEO_RECORDING_SAVE",
+  ON_ENTER_KEY_PRESS = "ON_ENTER_KEY_PRESS",
+  ON_BLUR = "ON_BLUR",
+  ON_FOCUS = "ON_FOCUS",
 }
 
 export interface PageAction {
@@ -98,6 +113,8 @@ export interface PageAction {
   name: string;
   jsonPathKeys: string[];
   timeoutInMillisecond: number;
+  clientSideExecution?: boolean;
+  collectionId?: string;
 }
 
 export interface ExecuteErrorPayload extends ErrorActionPayload {
@@ -109,10 +126,11 @@ export interface ExecuteErrorPayload extends ErrorActionPayload {
 // Group 1 = datasource (https://www.domain.com)
 // Group 2 = path (/nested/path)
 // Group 3 = params (?param=123&param2=12)
-export const urlGroupsRegexExp = /^(https?:\/{2}\S+?)(\/[\s\S]*?)(\?(?![^{]*})[\s\S]*)?$/;
+export const urlGroupsRegexExp = /^(https?:\/{2}\S+?)(\/[\s\S]*?)?(\?(?![^{]*})[\s\S]*)?$/;
 
 export const EXECUTION_PARAM_KEY = "executionParams";
-export const EXECUTION_PARAM_REFERENCE_REGEX = /this.params/g;
+export const EXECUTION_PARAM_REFERENCE_REGEX = /this.params|this\?.params/g;
+export const THIS_DOT_PARAMS_KEY = "params";
 
 export const RESP_HEADER_DATATYPE = "X-APPSMITH-DATATYPE";
 export const API_REQUEST_HEADERS: APIHeaders = {

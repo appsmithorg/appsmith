@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import styled from "styled-components";
 import {
-  CurrentApplicationData,
+  ApplicationPayload,
   PageListPayload,
 } from "constants/ReduxActionConstants";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -43,7 +43,7 @@ const ScrollBtnContainer = styled.div<{ visible: boolean }>`
 `;
 
 type AppViewerHeaderProps = {
-  currentApplicationDetails?: CurrentApplicationData;
+  currentApplicationDetails?: ApplicationPayload;
   pages: PageListPayload;
 };
 
@@ -118,7 +118,7 @@ export function PageTabsContainer(props: AppViewerHeaderProps) {
   }, [isScrolling, isScrollingLeft]);
 
   return appPages.length > 1 ? (
-    <Container>
+    <Container className="h-9">
       <ScrollBtnContainer
         onMouseDown={() => startScrolling(true)}
         onMouseLeave={stopScrolling}

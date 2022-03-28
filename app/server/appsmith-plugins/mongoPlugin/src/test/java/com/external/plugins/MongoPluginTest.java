@@ -27,6 +27,8 @@ import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 import org.bson.Document;
+import org.bson.types.BSONTimestamp;
+import org.bson.types.Decimal128;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -37,6 +39,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,8 +53,11 @@ import static com.appsmith.external.constants.DisplayDataType.JSON;
 import static com.appsmith.external.constants.DisplayDataType.RAW;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
-import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINE;
+import static com.external.plugins.constants.FieldName.AGGREGATE_LIMIT;
+import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINES;
+import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COLLECTION;
+import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.COUNT_QUERY;
 import static com.external.plugins.constants.FieldName.DELETE_LIMIT;
 import static com.external.plugins.constants.FieldName.DELETE_QUERY;
@@ -63,10 +69,9 @@ import static com.external.plugins.constants.FieldName.FIND_QUERY;
 import static com.external.plugins.constants.FieldName.FIND_SORT;
 import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
-import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.UPDATE_LIMIT;
-import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
 import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
+import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -89,6 +94,7 @@ public class MongoPluginTest {
     private static String address;
     private static Integer port;
     private JsonNode value;
+    private static MongoClient mongoClient;
 
     @SuppressWarnings("rawtypes")
     @ClassRule
@@ -99,14 +105,14 @@ public class MongoPluginTest {
     public static void setUp() {
         address = mongoContainer.getContainerIpAddress();
         port = mongoContainer.getFirstMappedPort();
-        String uri = "mongodb://" + address + ":" + Integer.toString(port);
-        final MongoClient mongoClient = MongoClients.create(uri);
+        String uri = "mongodb://" + address + ":" + port;
+        mongoClient = MongoClients.create(uri);
 
         Flux.from(mongoClient.getDatabase("test").listCollectionNames()).collectList().
                 flatMap(collectionNamesList -> {
-                    final MongoCollection<Document> usersCollection = mongoClient.getDatabase("test").getCollection(
-                            "users");
                     if (collectionNamesList.size() == 0) {
+                        final MongoCollection<Document> usersCollection = mongoClient.getDatabase("test").getCollection(
+                                "users");
                         Mono.from(usersCollection.insertMany(List.of(
                                 new Document(Map.of(
                                         "name", "Cierra Vega",
@@ -117,12 +123,21 @@ public class MongoPluginTest {
                                         "netWorth", new BigDecimal("123456.789012"),
                                         "updatedByCommand", false
                                 )),
-                                new Document(Map.of("name", "Alden Cantrell", "gender", "M", "age", 30)),
+                                new Document(Map.of(
+                                        "name", "Alden Cantrell",
+                                        "gender", "M",
+                                        "age", 30,
+                                        "dob", new Date(0),
+                                        "netWorth", Decimal128.parse("123456.789012"),
+                                        "updatedByCommand", false,
+                                        "aLong", 9_000_000_000_000_000_000L,
+                                        "ts", new BSONTimestamp(1421006159, 4)
+                                )),
                                 new Document(Map.of("name", "Kierra Gentry", "gender", "F", "age", 40))
                         ))).block();
                     }
 
-                    return Mono.just(usersCollection);
+                    return Mono.empty();
                 }).block();
     }
 
@@ -183,13 +198,23 @@ public class MongoPluginTest {
                 })
                 .verifyComplete();
     }
+    @Test
+    public void testDatasourceFailWithInvalidDefaultDatabaseName() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getConnection().setDefaultDatabaseName("abcd");
+        StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertFalse(datasourceTestResult.isSuccess());
+                })
+                .verifyComplete();
+    }
 
     /*
-     * 1. Test that when a query is attempted to run on mongodb but refused because of lack of authorization, then
-     *    also, it indicates a successful connection establishment.
+     * 1. Test that when a query is attempted to run on mongodb but refused because of lack of authorization.
      */
     @Test
-    public void testDatasourceWithUnauthorizedException() throws NoSuchFieldException {
+    public void testDatasourceWithUnauthorizedException() {
         /*
          * 1. Create mock exception of type: MongoCommandException.
          *      - mock method getErrorCodeName() to return String "Unauthorized".
@@ -197,6 +222,8 @@ public class MongoPluginTest {
         MongoCommandException mockMongoCommandException = mock(MongoCommandException.class);
         when(mockMongoCommandException.getErrorCodeName()).thenReturn("Unauthorized");
         when(mockMongoCommandException.getMessage()).thenReturn("Mock Unauthorized Exception");
+        when(mockMongoCommandException.getErrorMessage()).thenReturn("Mock error  : Expected 'something' , but got something else.\n" +
+                "Doc = [{find mockAction} {filter mockFilter} {limit 10} {$db mockDB} ...]");
 
         /*
          * 1. Spy MongoPluginExecutor class.
@@ -211,13 +238,13 @@ public class MongoPluginTest {
         doReturn(Mono.error(mockMongoCommandException)).when(spyMongoPluginExecutor).datasourceCreate(any());
 
         /*
-         * 1. Test that MongoCommandException with error code "Unauthorized" is caught and no error is reported.
+         * 1. Test that MongoCommandException with error code "Unauthorized" is not successful because of invalid credentials.
          */
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         StepVerifier
                 .create(spyMongoPluginExecutor.testDatasource(dsConfig))
                 .assertNext(datasourceTestResult -> {
-                    assertTrue(datasourceTestResult.isSuccess());
+                    assertFalse(datasourceTestResult.isSuccess());
                 })
                 .verifyComplete();
     }
@@ -228,16 +255,16 @@ public class MongoPluginTest {
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("{\n" +
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: \"users\",\n" +
                 "      filter: { \"age\": { \"$gte\": 30 } },\n" +
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
-
-        Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
         actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
@@ -261,7 +288,7 @@ public class MongoPluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            actionConfiguration.getBody(), null, null, null));
+                            getValueSafelyFromFormData(actionConfiguration.getFormData(), BODY), null, null, null));
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -273,16 +300,16 @@ public class MongoPluginTest {
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("{\n" +
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: \"users\",\n" +
                 "      filter: { $is: {} },\n" +
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
-
-        Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
         actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
@@ -302,7 +329,7 @@ public class MongoPluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            actionConfiguration.getBody(), null, null, null));
+                            getValueSafelyFromFormData(actionConfiguration.getFormData(), BODY), null, null, null));
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -314,7 +341,11 @@ public class MongoPluginTest {
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("{\n" +
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      insert: \"users\",\n" +
                 "      documents: [\n" +
                 "        {\n" +
@@ -325,10 +356,6 @@ public class MongoPluginTest {
                 "        },\n" +
                 "      ],\n" +
                 "    }");
-
-        Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
         actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
@@ -365,7 +392,11 @@ public class MongoPluginTest {
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("{\n" +
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
                 "  findAndModify: \"users\",\n" +
                 "  query: " +
                 "{ " +
@@ -373,10 +404,6 @@ public class MongoPluginTest {
                 " },\n" +
                 "  update: { $set: { gender: \"F\" }}\n" +
                 "}");
-
-        Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
         actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
@@ -406,14 +433,14 @@ public class MongoPluginTest {
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("{\n" +
-                "      find: \"users\",\n" +
-                "      limit: 1,\n" +
-                "    }");
 
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
+                "      find: \"users\",\n" +
+                "      limit: 1,\n" +
+                "    }");
         actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
@@ -439,6 +466,7 @@ public class MongoPluginTest {
                 .verifyComplete();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testStructure() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
@@ -475,58 +503,47 @@ public class MongoPluginTest {
 
                     //Assert Find command
                     DatasourceStructure.Template findTemplate = templates.get(0);
-                    assertEquals(findTemplate.getTitle(), "Find");
-                    assertEquals(findTemplate.getBody(), "{\n" +
-                            "  \"find\": \"users\",\n" +
-                            "  \"filter\": {\n" +
-                            "    \"gender\": \"F\"\n" +
-                            "  },\n" +
-                            "  \"sort\": {\n" +
-                            "    \"_id\": 1\n" +
-                            "  },\n" +
-                            "  \"limit\": 10\n" +
-                            "}\n");
-                    assertEquals( ((Map<String, Object>) findTemplate.getConfiguration()).get(COMMAND), "FIND");
+                    assertEquals("Find", findTemplate.getTitle());
+                    assertEquals("{\n" +
+                                    "  \"find\": \"users\",\n" +
+                                    "  \"filter\": {\n" +
+                                    "    \"gender\": \"F\"\n" +
+                                    "  },\n" +
+                                    "  \"sort\": {\n" +
+                                    "    \"_id\": 1\n" +
+                                    "  },\n" +
+                                    "  \"limit\": 10\n" +
+                                    "}\n",
+                            getValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), BODY));
+                    assertEquals("FIND", getValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), COMMAND));
 
-                    assertEquals(getValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), FIND_QUERY),
-                            "{ \"gender\": \"F\"}");
-                    assertEquals(getValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), FIND_SORT),
-                            "{\"_id\": 1}");
+                    assertEquals("{ \"gender\": \"F\"}",
+                            getValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), FIND_QUERY));
+                    assertEquals("{\"_id\": 1}",
+                            getValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), FIND_SORT));
 
                     //Assert Find By Id command
                     DatasourceStructure.Template findByIdTemplate = templates.get(1);
-                    assertEquals(findByIdTemplate.getTitle(), "Find by ID");
-                    assertEquals(findByIdTemplate.getBody(), "{\n" +
-                            "  \"find\": \"users\",\n" +
-                            "  \"filter\": {\n" +
-                            "    \"_id\": ObjectId(\"id_to_query_with\")\n" +
-                            "  }\n" +
-                            "}\n");
-                    assertEquals( ((Map<String, Object>) findByIdTemplate.getConfiguration()).get(COMMAND), "FIND");
-                    assertEquals(getValueSafelyFromFormData((Map<String, Object>) findByIdTemplate.getConfiguration(), FIND_QUERY),
-                            "{\"_id\": ObjectId(\"id_to_query_with\")}");
+                    assertEquals("Find by ID", findByIdTemplate.getTitle());
+                    assertEquals("{\n" +
+                                    "  \"find\": \"users\",\n" +
+                                    "  \"filter\": {\n" +
+                                    "    \"_id\": ObjectId(\"id_to_query_with\")\n" +
+                                    "  }\n" +
+                                    "}\n",
+                            getValueSafelyFromFormData((Map<String, Object>) findByIdTemplate.getConfiguration(), BODY));
+                    assertEquals("FIND", getValueSafelyFromFormData((Map<String, Object>) findByIdTemplate.getConfiguration(), COMMAND));
+                    assertEquals("{\"_id\": ObjectId(\"id_to_query_with\")}",
+                            getValueSafelyFromFormData((Map<String, Object>) findByIdTemplate.getConfiguration(), FIND_QUERY));
 
                     // Assert Insert command
                     DatasourceStructure.Template insertTemplate = templates.get(2);
-                    assertEquals(insertTemplate.getTitle(), "Insert");
-                    assertEquals(insertTemplate.getBody(), "{\n" +
-                            "  \"insert\": \"users\",\n" +
-                            "  \"documents\": [\n" +
-                            "    {\n" +
-                            "      \"_id\": ObjectId(\"a_valid_object_id_hex\"),\n" +
-                            "      \"age\": 1,\n" +
-                            "      \"dob\": new Date(\"2019-07-01\"),\n" +
-                            "      \"gender\": \"new value\",\n" +
-                            "      \"luckyNumber\": NumberLong(\"1\"),\n" +
-                            "      \"name\": \"new value\",\n" +
-                            "      \"netWorth\": NumberDecimal(\"1\"),\n" +
-                            "      \"updatedByCommand\": {},\n" +
-                            "    }\n" +
-                            "  ]\n" +
-                            "}\n");
-                    assertEquals(((Map<String, Object>) insertTemplate.getConfiguration()).get(COMMAND), "INSERT");
-                    assertEquals(getValueSafelyFromFormData((Map<String, Object>) insertTemplate.getConfiguration(), INSERT_DOCUMENT),
-                            "[{      \"_id\": ObjectId(\"a_valid_object_id_hex\"),\n" +
+                    assertEquals("Insert", insertTemplate.getTitle());
+                    assertEquals("{\n" +
+                                    "  \"insert\": \"users\",\n" +
+                                    "  \"documents\": [\n" +
+                                    "    {\n" +
+                                    "      \"_id\": ObjectId(\"a_valid_object_id_hex\"),\n" +
                                     "      \"age\": 1,\n" +
                                     "      \"dob\": new Date(\"2019-07-01\"),\n" +
                                     "      \"gender\": \"new value\",\n" +
@@ -534,12 +551,26 @@ public class MongoPluginTest {
                                     "      \"name\": \"new value\",\n" +
                                     "      \"netWorth\": NumberDecimal(\"1\"),\n" +
                                     "      \"updatedByCommand\": {},\n" +
-                                    "}]");
+                                    "    }\n" +
+                                    "  ]\n" +
+                                    "}\n",
+                            getValueSafelyFromFormData((Map<String, Object>) insertTemplate.getConfiguration(), BODY));
+                    assertEquals("INSERT", getValueSafelyFromFormData((Map<String, Object>) insertTemplate.getConfiguration(), COMMAND));
+                    assertEquals("[{      \"_id\": ObjectId(\"a_valid_object_id_hex\"),\n" +
+                                    "      \"age\": 1,\n" +
+                                    "      \"dob\": new Date(\"2019-07-01\"),\n" +
+                                    "      \"gender\": \"new value\",\n" +
+                                    "      \"luckyNumber\": NumberLong(\"1\"),\n" +
+                                    "      \"name\": \"new value\",\n" +
+                                    "      \"netWorth\": NumberDecimal(\"1\"),\n" +
+                                    "      \"updatedByCommand\": {},\n" +
+                                    "}]",
+                            getValueSafelyFromFormData((Map<String, Object>) insertTemplate.getConfiguration(), INSERT_DOCUMENT));
 
                     // Assert Update command
                     DatasourceStructure.Template updateTemplate = templates.get(3);
-                    assertEquals(updateTemplate.getTitle(), "Update");
-                    assertEquals(updateTemplate.getBody(), "{\n" +
+                    assertEquals("Update", updateTemplate.getTitle());
+                    assertEquals("{\n" +
                             "  \"update\": \"users\",\n" +
                             "  \"updates\": [\n" +
                             "    {\n" +
@@ -549,17 +580,17 @@ public class MongoPluginTest {
                             "      \"u\": { \"$set\": { \"gender\": \"new value\" } }\n" +
                             "    }\n" +
                             "  ]\n" +
-                            "}\n");
-                    assertEquals(((Map<String, Object>) updateTemplate.getConfiguration()).get(COMMAND), "UPDATE");
-                    assertEquals(getValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), UPDATE_QUERY),
-                            "{ \"_id\": ObjectId(\"id_of_document_to_update\") }");
-                    assertEquals(getValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), UPDATE_OPERATION),
-                            "{ \"$set\": { \"gender\": \"new value\" } }");
+                            "}\n", getValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), BODY));
+                    assertEquals("UPDATE", getValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), COMMAND));
+                    assertEquals("{ \"_id\": ObjectId(\"id_of_document_to_update\") }",
+                            getValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), UPDATE_QUERY));
+                    assertEquals("{ \"$set\": { \"gender\": \"new value\" } }",
+                            getValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), UPDATE_OPERATION));
 
                     // Assert Delete Command
                     DatasourceStructure.Template deleteTemplate = templates.get(4);
-                    assertEquals(deleteTemplate.getTitle(), "Delete");
-                    assertEquals(deleteTemplate.getBody(), "{\n" +
+                    assertEquals("Delete", deleteTemplate.getTitle());
+                    assertEquals("{\n" +
                             "  \"delete\": \"users\",\n" +
                             "  \"deletes\": [\n" +
                             "    {\n" +
@@ -569,12 +600,53 @@ public class MongoPluginTest {
                             "      \"limit\": 1\n" +
                             "    }\n" +
                             "  ]\n" +
-                            "}\n");
-                    assertEquals(((Map<String, Object>) deleteTemplate.getConfiguration()).get(COMMAND), "DELETE");
-                    assertEquals(getValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), DELETE_QUERY),
-                            "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
-                    assertEquals(getValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), DELETE_LIMIT),
-                            "SINGLE");
+                            "}\n", getValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), BODY));
+                    assertEquals("DELETE", getValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), COMMAND));
+                    assertEquals("{ \"_id\": ObjectId(\"id_of_document_to_delete\") }",
+                            getValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), DELETE_QUERY));
+                    assertEquals("SINGLE",
+                            getValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), DELETE_LIMIT));
+
+                    // Assert Count Command
+                    DatasourceStructure.Template countTemplate = templates.get(5);
+                    assertEquals("Count", countTemplate.getTitle());
+                    assertEquals("{\n" +
+                            "  \"count\": \"users\",\n" +
+                            "  \"query\": " + "{\"_id\": {\"$exists\": true}} \n" +
+                            "}\n", getValueSafelyFromFormData((Map<String, Object>) countTemplate.getConfiguration(), BODY));
+                    assertEquals("COUNT", getValueSafelyFromFormData((Map<String, Object>) countTemplate.getConfiguration(), COMMAND));
+                    assertEquals("{\"_id\": {\"$exists\": true}}",
+                            getValueSafelyFromFormData((Map<String, Object>) countTemplate.getConfiguration(), COUNT_QUERY));
+
+                    // Assert Distinct Command
+                    DatasourceStructure.Template distinctTemplate = templates.get(6);
+                    assertEquals("Distinct", distinctTemplate.getTitle());
+                    assertEquals("{\n" +
+                            "  \"distinct\": \"users\",\n" +
+                            "  \"query\": { \"_id\": ObjectId(\"id_of_document_to_distinct\") }," +
+                            "  \"key\": \"_id\"," +
+                            "}\n", getValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), BODY));
+                    assertEquals("DISTINCT", getValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), COMMAND));
+                    assertEquals("{ \"_id\": ObjectId(\"id_of_document_to_distinct\") }",
+                            getValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), DISTINCT_QUERY));
+                    assertEquals("_id",
+                            getValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), DISTINCT_KEY));
+
+                    // Assert Aggregate Command
+                    DatasourceStructure.Template aggregateTemplate = templates.get(7);
+                    assertEquals("Aggregate", aggregateTemplate.getTitle());
+                    assertEquals("{\n" +
+                            "  \"aggregate\": \"users\",\n" +
+                            "  \"pipeline\": " + "[ {\"$sort\" : {\"_id\": 1} } ],\n" +
+                            "  \"limit\": 10,\n" +
+                            "  \"explain\": \"true\"\n" +
+                            "}\n", getValueSafelyFromFormData((Map<String, Object>) aggregateTemplate.getConfiguration(), BODY));
+
+                    assertEquals("AGGREGATE", getValueSafelyFromFormData((Map<String, Object>) aggregateTemplate.getConfiguration(), COMMAND));
+                    assertEquals("[ {\"$sort\" : {\"_id\": 1} } ]",
+                            getValueSafelyFromFormData((Map<String, Object>) aggregateTemplate.getConfiguration(), AGGREGATE_PIPELINES));
+
+
                 })
                 .verifyComplete();
     }
@@ -762,16 +834,16 @@ public class MongoPluginTest {
         datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("{\n" +
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: \"users\",\n" +
                 "      filter: { age: { $gte: 30 } },\n" +
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
-
-        Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
         actionConfiguration.setFormData(configMap);
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
@@ -801,16 +873,16 @@ public class MongoPluginTest {
         datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DISABLED);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("{\n" +
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: \"users\",\n" +
                 "      filter: { age: { $gte: 30 } },\n" +
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
-
-        Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
         actionConfiguration.setFormData(configMap);
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
@@ -840,16 +912,16 @@ public class MongoPluginTest {
         datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.ENABLED);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("{\n" +
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: \"users\",\n" +
                 "      filter: { age: { $gte: 30 } },\n" +
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
-
-        Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
         actionConfiguration.setFormData(configMap);
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
@@ -875,16 +947,16 @@ public class MongoPluginTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("{\n" +
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: {{Input4.text}},\n" +
                 "      filter: \"{{Input1.text}}\",\n" +
                 "      sort: { id: {{Input2.text}} },\n" +
                 "      limit: {{Input3.text}}\n" +
                 "    }");
-
-        Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
         actionConfiguration.setFormData(configMap);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
@@ -966,16 +1038,16 @@ public class MongoPluginTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("{\n" +
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
                 "      find: {{Input4.text}},\n" +
                 "      filter: { age: { {{Input1.text}} : 30 } },\n" +
                 "      sort: { id: {{Input2.text}} },\n" +
                 "      limit: {{Input3.text}}\n" +
                 "    }");
-
-        Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "RAW");
         actionConfiguration.setFormData(configMap);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
@@ -1414,7 +1486,8 @@ public class MongoPluginTest {
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
         setValueSafelyInFormData(configMap, COMMAND, "AGGREGATE");
         setValueSafelyInFormData(configMap, COLLECTION, "users");
-        setValueSafelyInFormData(configMap, AGGREGATE_PIPELINE, "[ {$sort :{ _id  : 1 }}, { $project: { age : 1}}, {$count: \"userCount\"} ]");
+        setValueSafelyInFormData(configMap, AGGREGATE_PIPELINES, "[ {$sort :{ _id  : 1 }}, { $project: { age : 1}}]");
+        setValueSafelyInFormData(configMap, AGGREGATE_LIMIT, "2");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1425,10 +1498,42 @@ public class MongoPluginTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    JsonNode value = ((ArrayNode) result.getBody()).get(0).get("userCount");
-                    assertEquals(value.asInt(), 3);
+                    int numOfOutputResults = ((ArrayNode) result.getBody()).size();
+                    assertEquals(numOfOutputResults, 2); // This would be 3 if `LIMIT` was not set to 2.
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testAggregateCommandWithInvalidQuery() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setValueSafelyInFormData(configMap, COMMAND, "AGGREGATE");
+        setValueSafelyInFormData(configMap, COLLECTION, "users");
+        // Invalid JSON object (issue: #5326)
+        setValueSafelyInFormData(configMap, AGGREGATE_PIPELINES, "{$sort :{ _id  : 1 }}abcd");
+        setValueSafelyInFormData(configMap, AGGREGATE_LIMIT, "2");
+
+        actionConfiguration.setFormData(configMap);
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .expectErrorMatches(throwable -> {
+                    boolean sameClass = throwable.getClass().equals(AppsmithPluginException.class);
+                    if (sameClass) {
+                        var ape = ((AppsmithPluginException) throwable);
+                        return ape.getError().equals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR)
+                                && ape.getArgs()[0].equals("Pipeline stage is not a valid JSON object.");
+                    }
+                    return false;
+                })
+                .verify();
     }
 
     @Test
@@ -1697,16 +1802,16 @@ public class MongoPluginTest {
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        // Set bad attribute for limit key
-        actionConfiguration.setBody("{\n" +
-                "      find: \"users\",\n" +
-                "      filter: \"filter\",\n" +
-                "      limit: 10,\n" +
-                "    }");
 
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        // Set bad attribute for limit key
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
+                "      find: \"users\",\n" +
+                "      filter: \"filter\",\n" +
+                "      limit: 10,\n" +
+                "    }");
         actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
@@ -1731,15 +1836,15 @@ public class MongoPluginTest {
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        // Set bad attribute for limit key
-        actionConfiguration.setBody("{\n" +
-                "      find: \"users\",\n" +
-                "      limit: [10],\n" +
-                "    }");
 
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        // Set bad attribute for limit key
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
+                "      find: \"users\",\n" +
+                "      limit: [10],\n" +
+                "    }");
         actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
@@ -1764,15 +1869,15 @@ public class MongoPluginTest {
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        // Set unrecognized key limitx
-        actionConfiguration.setBody("{\n" +
-                "      find: \"users\",\n" +
-                "      limitx: 10,\n" +
-                "    }");
 
         Map<String, Object> configMap = new HashMap<>();
         setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        // Set unrecognized key limitx
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
+                "      find: \"users\",\n" +
+                "      limitx: 10,\n" +
+                "    }");
         actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
@@ -1813,6 +1918,387 @@ public class MongoPluginTest {
                     // Verify readable error.
                     String expectedReadableError = "Exception authenticating MongoCredential.";
                     assertEquals(expectedReadableError, datasourceTestResult.getInvalids().toArray()[0]);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSmartSubstitutionWithObjectIdInDoubleQuotes() {
+        final MongoCollection<Document> usersCollection = mongoClient.getDatabase("test").getCollection("users");
+        List<String> documentIds = new ArrayList<>();
+        Flux.from(usersCollection.find())
+                .map(doc -> documentIds.add(doc.get("_id").toString()))
+                .collectList()
+                .block();
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        String findQuery = "{\n" +
+                "   \"find\": \"users\",\n" +
+                "   \"filter\": {\n" +
+                "           \"_id\": {\n" +
+                "               $in: {{Input1.text}}\n" +
+                "            }\n" +
+                "    }\n" +
+                "}";
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+
+        StringBuilder sb = new StringBuilder();
+        documentIds.stream()
+                .forEach(id -> sb.append(" \"ObjectId(\\\"" + id + "\\\")\","));
+        sb.setLength(sb.length() - 1);
+        String objectIdsAsArray = "[" + sb + "]";
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, findQuery);
+        actionConfiguration.setFormData(configMap);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("Input1.text");
+        param1.setValue(objectIdsAsArray);
+        params.add(param1);
+        executeActionDTO.setParams(params);
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                executeActionDTO, dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(3, ((ArrayNode) result.getBody()).size());
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    public void testSmartSubstitutionWithObjectIdInSingleQuotes() {
+        final MongoCollection<Document> usersCollection = mongoClient.getDatabase("test").getCollection("users");
+        List<String> documentIds = new ArrayList<>();
+        Flux.from(usersCollection.find())
+                .map(doc -> documentIds.add(doc.get("_id").toString()))
+                .collectList()
+                .block();
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        String findQuery = "{\n" +
+                "   \"find\": \"users\",\n" +
+                "   \"filter\": {\n" +
+                "           \"_id\": {\n" +
+                "               $in: {{Input1.text}}\n" +
+                "            }\n" +
+                "    }\n" +
+                "}";
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        StringBuilder sb = new StringBuilder();
+        documentIds.stream()
+                .forEach(id -> sb.append(" \'ObjectId(\\\"" + id + "\\\")\',"));
+        sb.setLength(sb.length() - 1);
+        String objectIdsAsArray = "[" + sb + "]";
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, findQuery);
+        actionConfiguration.setFormData(configMap);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("Input1.text");
+        param1.setValue(objectIdsAsArray);
+        params.add(param1);
+        executeActionDTO.setParams(params);
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                executeActionDTO, dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(3, ((ArrayNode) result.getBody()).size());
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    public void testBuildClientURI_withoutUserInfoAndAuthSource() {
+
+        final String testUri = "mongodb://host:port/db?param";
+        final String resultUri = "mongodb://host:port/db?param&authSource=admin";
+
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        final DBAuth dbAuth = new DBAuth();
+        datasourceConfiguration.setAuthentication(dbAuth);
+        datasourceConfiguration.setProperties(List.of(
+                new Property("0", "Yes"),
+                new Property("1", testUri)
+        ));
+        final String clientURI = pluginExecutor.buildClientURI(datasourceConfiguration);
+        assertEquals(resultUri, clientURI);
+    }
+
+    @Test
+    public void testBuildClientURI_withUserInfoAndAuthSource() {
+
+        final String testUri = "mongodb://user:pass@host:port/db?param&authSource=notAdmin";
+        final String resultUri = "mongodb://user:newPass@host:port/db?param&authSource=notAdmin";
+
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        final DBAuth dbAuth = new DBAuth();
+        dbAuth.setPassword("newPass");
+        datasourceConfiguration.setAuthentication(dbAuth);
+        datasourceConfiguration.setProperties(List.of(
+                new Property("0", "Yes"),
+                new Property("1", testUri)
+        ));
+        final String clientURI = pluginExecutor.buildClientURI(datasourceConfiguration);
+        assertEquals(resultUri, clientURI);
+    }
+
+    @Test
+    public void testBuildClientURI_withoutDbInfoAndPortsAndParams() {
+
+        final String testUri = "mongodb://user:pass@host";
+        final String resultUri = "mongodb://user:newPass@host/?authSource=admin";
+
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        final DBAuth dbAuth = new DBAuth();
+        dbAuth.setPassword("newPass");
+        datasourceConfiguration.setAuthentication(dbAuth);
+        datasourceConfiguration.setProperties(List.of(
+                new Property("0", "Yes"),
+                new Property("1", testUri)
+        ));
+        final String clientURI = pluginExecutor.buildClientURI(datasourceConfiguration);
+        assertEquals(resultUri, clientURI);
+    }
+
+    @Test
+    public void testSmartSubstitutionWithMongoTypesWithRawCommand1() {
+        final MongoCollection<Document> usersCollection = mongoClient.getDatabase("test").getCollection("users");
+        List<String> documentIds = new ArrayList<>();
+        Flux.from(usersCollection.find())
+                .filter(doc -> doc.containsKey("aLong"))
+                .map(doc -> documentIds.add(doc.get("_id").toString()))
+                .collectList()
+                .block();
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        final String findQuery = "" +
+                "{\n" +
+                "   \"find\": \"users\",\n" +
+                "   \"filter\": {\n" +
+                "       \"_id\":{ $in: {{Input0}} },\n" +
+                "       \"dob\":{ $in: {{Input1}} },\n" +
+                "       \"netWorth\":{ $in: {{Input2}} },\n" +
+                "       \"aLong\": {{Input3}},\n" +
+                "       \"ts\":{ $in: {{Input4}} },\n" +
+                "   },\n" +
+                "}";
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, findQuery);
+        actionConfiguration.setFormData(configMap);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        final List<Param> params = new ArrayList<>();
+        final Param id = new Param("Input0", "[\"ObjectId('" + documentIds.get(0) + "')\"]" );
+        params.add(id);
+        final Param dob = new Param("Input1", "[\"ISODate('1970-01-01T00:00:00.000Z')\"]");
+        params.add(dob);
+        final Param netWorth = new Param("Input2", "['NumberDecimal(\"123456.789012\")']");
+        params.add(netWorth);
+        final Param aLong = new Param("Input3", "\"NumberLong(9000000000000000000)\"");
+        params.add(aLong);
+        final Param ts = new Param("Input4", "[\"Timestamp(1421006159, 4)\"]");
+        params.add(ts);
+        executeActionDTO.setParams(params);
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                executeActionDTO, dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(1, ((ArrayNode) result.getBody()).size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testBsonSmartSubstitutionWithMongoTypesWithFindCommand() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "FIND");
+        setValueSafelyInFormData(configMap, FIND_QUERY, "\"{{Input1.text}}\"");
+        setValueSafelyInFormData(configMap, FIND_SORT, "{ id: {{Input2.text}} }");
+        setValueSafelyInFormData(configMap, FIND_LIMIT, "{{Input3.text}}");
+        setValueSafelyInFormData(configMap, COLLECTION, "{{Input4.text}}");
+
+        actionConfiguration.setFormData(configMap);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("Input1.text");
+        param1.setValue("{ " +
+                "\"dob\": { \"$gte\": \"ISODate('2000-01-01T00:00:00.000Z')\" }, " +
+                "\"netWorth\": { \"$in\": [\"NumberDecimal(123456.789012)\"] } " +
+                "}");
+        params.add(param1);
+        Param param3 = new Param();
+        param3.setKey("Input2.text");
+        param3.setValue("1");
+        params.add(param3);
+        Param param4 = new Param();
+        param4.setKey("Input3.text");
+        param4.setValue("10");
+        params.add(param4);
+        Param param5 = new Param();
+        param5.setKey("Input4.text");
+        param5.setValue("users");
+        params.add(param5);
+        executeActionDTO.setParams(params);
+
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(1, ((ArrayNode) result.getBody()).size());
+                })
+                .verifyComplete();
+    }
+
+
+    @Test
+    public void testSmartSubstitutionWithMongoTypes2() {
+        final MongoCollection<Document> usersCollection = mongoClient.getDatabase("test").getCollection("users");
+        List<String> documentIds = new ArrayList<>();
+        Flux.from(usersCollection.find())
+                .filter(doc -> doc.containsKey("aLong"))
+                .map(doc -> documentIds.add(doc.get("_id").toString()))
+                .collectList()
+                .block();
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        final String findQuery = "" +
+                "{\n" +
+                "   \"find\": \"users\",\n" +
+                "   \"filter\": {\n" +
+                "       \"_id\": {{Input0}},\n" +
+                "       \"dob\": {{Input1}},\n" +
+                "       \"netWorth\": {{Input2}},\n" +
+                "       \"aLong\": {{Input3}},\n" +
+                "       \"ts\": {{Input4}},\n" +
+                "   },\n" +
+                "}";
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, findQuery);
+        actionConfiguration.setFormData(configMap);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        final List<Param> params = new ArrayList<>();
+        final Param id = new Param("Input0", "\"ObjectId(\\\"" + documentIds.get(0) + "\\\")\"");
+        params.add(id);
+        final Param dob = new Param("Input1", "\"ISODate(\\\"1970-01-01T00:00:00.000Z\\\")\"");
+        params.add(dob);
+        final Param netWorth = new Param("Input2", "\"NumberDecimal(\\\"123456.789012\\\")\"");
+        params.add(netWorth);
+        final Param aLong = new Param("Input3", "\"NumberLong(9000000000000000000)\"");
+        params.add(aLong);
+        final Param ts = new Param("Input4", "\"Timestamp(1421006159, 4)\"");
+        params.add(ts);
+        executeActionDTO.setParams(params);
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                executeActionDTO, dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(1, ((ArrayNode) result.getBody()).size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSmartSubstitutionWithMongoTypes3() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        final String findQuery = "" +
+                "{\n" +
+                "   \"find\": \"users\",\n" +
+                "   \"filter\": {{Input1}}\n" +
+                "}";
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, findQuery);
+        actionConfiguration.setFormData(configMap);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        final List<Param> params = new ArrayList<>();
+        final Param dob = new Param("Input1", "{\"dob\": \"ISODate(\\\"1970-01-01T00:00:00.000Z\\\")\"}");
+        params.add(dob);
+        executeActionDTO.setParams(params);
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                executeActionDTO, dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(1, ((ArrayNode) result.getBody()).size());
                 })
                 .verifyComplete();
     }

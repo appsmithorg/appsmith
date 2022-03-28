@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.DataType;
 import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -24,7 +25,9 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.external.plugins.constants.MongoSpecialDataTypes;
 import com.external.plugins.utils.MongoErrorUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.MongoCommandException;
@@ -40,6 +43,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
+import org.reactivestreams.Publisher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -57,24 +61,23 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.external.plugins.utils.MongoPluginUtils.convertMongoFormInputToRawCommand;
-import static com.external.plugins.utils.MongoPluginUtils.generateTemplatesAndStructureForACollection;
-import static com.external.plugins.utils.MongoPluginUtils.getDatabaseName;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
-import static com.external.plugins.utils.MongoPluginUtils.isRawCommand;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
-import static com.external.plugins.utils.MongoPluginUtils.urlEncode;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
-import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINE;
+import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINES;
+import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COUNT_QUERY;
 import static com.external.plugins.constants.FieldName.DELETE_QUERY;
 import static com.external.plugins.constants.FieldName.DISTINCT_QUERY;
@@ -83,8 +86,13 @@ import static com.external.plugins.constants.FieldName.FIND_QUERY;
 import static com.external.plugins.constants.FieldName.FIND_SORT;
 import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
-import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
 import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
+import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
+import static com.external.plugins.utils.MongoPluginUtils.convertMongoFormInputToRawCommand;
+import static com.external.plugins.utils.MongoPluginUtils.generateTemplatesAndStructureForACollection;
+import static com.external.plugins.utils.MongoPluginUtils.getDatabaseName;
+import static com.external.plugins.utils.MongoPluginUtils.isRawCommand;
+import static com.external.plugins.utils.MongoPluginUtils.urlEncode;
 import static java.lang.Boolean.TRUE;
 
 public class MongoPlugin extends BasePlugin {
@@ -111,25 +119,45 @@ public class MongoPlugin extends BasePlugin {
 
     /*
      * - The regex matches the following two pattern types:
-     *   - mongodb+srv://user:pass@some-url/some-db....
-     *   - mongodb://user:pass@some-url:port,some-url:port,../some-db....
-     * - It has been grouped like this: (mongodb+srv://)((user):(pass))(@some-url/(some-db....))
+     *   - mongodb+srv://user:pass@some-url/some-db...
+     *   - mongodb://user:pass@some-url:port,some-url:port,.../some-db...
+     * - It has been grouped like this: (mongodb+srv://)(user):(pass)@(some-url)/(some-db...)?(params...)
      */
-    private static final String MONGO_URI_REGEX = "^(mongodb(\\+srv)?:\\/\\/)((.+):(.+))(@.+\\/(.+))$";
+    private static final String MONGO_URI_REGEX = "^(mongodb(?:\\+srv)?:\\/\\/)(?:(.+):(.+)@)?([^\\/\\?]+)\\/?([^\\?]+)?\\??(.+)?$";
+
+    /**
+     * We use this regex to find usage of special Mongo data types like ObjectId(...) wrapped inside double quotes
+     * e.g. "ObjectId(...)". Case for single quotes e.g. 'ObjectId(...)' is not added because the way client sends
+     * back the data to the API server it would be extremely uncommon to encounter this case.
+     *
+     * In the given regex E is replaced by the name of special data types before doing the match / find operation.
+     * e.g. E will be replaced with ObjectId to find the occurrence of "ObjectId(...)" pattern.
+     *
+     * Example: for "[\"ObjectId('xyz')\"]":
+     *   o group 1 will match "ObjectId(...)"
+     *   o group 2 will match ObjectId(...)
+     *   o group 3 will match 'xyz'
+     *   o group 4 will match xyz
+     */
+    private static final String MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE = "(\\\"(E\\((.*?((\\w|-|:|\\.|,|\\s)+).*?)?\\))\\\")";
 
     private static final int REGEX_GROUP_HEAD = 1;
 
-    private static final int REGEX_GROUP_USERNAME = 4;
+    private static final int REGEX_GROUP_USERNAME = 2;
 
-    private static final int REGEX_GROUP_PASSWORD = 5;
+    private static final int REGEX_GROUP_PASSWORD = 3;
+
+    private static final int REGEX_HOST_PORT = 4;
+
+    private static final int REGEX_GROUP_DBNAME = 5;
 
     private static final int REGEX_GROUP_TAIL = 6;
-
-    private static final int REGEX_GROUP_DBNAME = 7;
 
     private static final String KEY_USERNAME = "username";
 
     private static final String KEY_PASSWORD = "password";
+
+    private static final String KEY_HOST_PORT = "hostPort";
 
     private static final String KEY_URI_HEAD = "uriHead";
 
@@ -145,7 +173,8 @@ public class MongoPlugin extends BasePlugin {
 
     private static final Integer MONGO_COMMAND_EXCEPTION_UNAUTHORIZED_ERROR_CODE = 13;
 
-    private static final Set<String> bsonFields = new HashSet<>(Arrays.asList(AGGREGATE_PIPELINE,
+    private static final Set<String> bsonFields = new HashSet<>(Arrays.asList(
+            AGGREGATE_PIPELINES,
             COUNT_QUERY,
             DELETE_QUERY,
             DISTINCT_QUERY,
@@ -193,7 +222,8 @@ public class MongoPlugin extends BasePlugin {
 
             Boolean smartBsonSubstitution = TRUE;
 
-            Object smartSubstitutionObject = formData.getOrDefault(SMART_SUBSTITUTION, TRUE);
+            Object smartSubstitutionObject = getValueSafelyFromFormData(formData, SMART_SUBSTITUTION, Object.class,
+                    TRUE);
             if (smartSubstitutionObject instanceof Boolean) {
                 smartBsonSubstitution = (Boolean) smartSubstitutionObject;
             } else if (smartSubstitutionObject instanceof String) {
@@ -202,7 +232,7 @@ public class MongoPlugin extends BasePlugin {
                 smartBsonSubstitution = Boolean.parseBoolean((String) smartSubstitutionObject);
             }
 
-            // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
+            // Smartly substitute in formData.body and replace all the bindings with values.
             if (TRUE.equals(smartBsonSubstitution)) {
 
                 // If not raw, then it must be form input.
@@ -211,11 +241,12 @@ public class MongoPlugin extends BasePlugin {
                             executeActionDTO.getParams(), parameters);
                 } else {
                     // For raw queries do smart replacements in BSON body
-                    if (actionConfiguration.getBody() != null) {
+                    final Object body = getValueSafelyFromFormData(formData, BODY);
+                    if (body != null) {
                         try {
-                            String updatedRawQuery = smartSubstituteBSON(actionConfiguration.getBody(),
+                            String updatedRawQuery = smartSubstituteBSON((String) body,
                                     executeActionDTO.getParams(), parameters);
-                            actionConfiguration.setBody(updatedRawQuery);
+                            setValueSafelyInFormData(formData, BODY, updatedRawQuery);
                         } catch (AppsmithPluginException e) {
                             ActionExecutionResult errorResult = new ActionExecutionResult();
                             errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
@@ -232,8 +263,10 @@ public class MongoPlugin extends BasePlugin {
             // In case the input type is form instead of raw, parse the same into BSON command
             String parsedRawCommand = convertMongoFormInputToRawCommand(actionConfiguration);
             if (parsedRawCommand != null) {
-                actionConfiguration.setBody(parsedRawCommand);
+                setValueSafelyInFormData(formData, BODY, parsedRawCommand);
             }
+
+            actionConfiguration.setFormData(formData);
 
             return this.executeCommon(mongoClient, datasourceConfiguration, actionConfiguration, parameters);
         }
@@ -260,7 +293,9 @@ public class MongoPlugin extends BasePlugin {
 
             MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
 
-            String query = actionConfiguration.getBody();
+            final Map<String, Object> formData = actionConfiguration.getFormData();
+
+            String query = (String) getValueSafelyFromFormData(formData, BODY);
             Bson command = Document.parse(query);
 
             Mono<Document> mongoOutputMono = Mono.from(database.runCommand(command));
@@ -406,6 +441,92 @@ public class MongoPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
+        /**
+         * This method is part of the pre-processing of the replacement value before the final substitution that
+         * happens as part of smart substitution process.
+         *
+         * @param replacementValue - value to be substituted
+         * @param dataType
+         * @return - updated replacement value
+         */
+        @Override
+        public String sanitizeReplacement(String replacementValue, DataType dataType) {
+            replacementValue = removeOrAddQuotesAroundMongoDBSpecialTypes(replacementValue);
+
+            if (DataType.BSON_SPECIAL_DATA_TYPES.equals(dataType)) {
+                /**
+                 * For all other data types the replacementValue is prepared for replacement (by using Matcher
+                 * .quoteReplacement(...)) during the common handling of data types in
+                 * `jsonSmartReplacementPlaceholderWithValue(...)` method before reaching this program point. For
+                 * BSON_SPECIAL_DATA_TYPES it is skipped in the common handling flow because we want to modify
+                 * (removeOrAddQuotesAroundMongoDBSpecialTypes(...)) the replacement value further before the final
+                 * replacement happens.
+                 */
+                replacementValue = Matcher.quoteReplacement(replacementValue);
+            }
+
+            return replacementValue;
+        }
+
+        /**
+         * This method is meant to remove extra quotes around the MongoDB special types like `ObjectId(...)` string.
+         * E.g. if the input query is "... {$in: [\"ObjectId(\"123\")\"]}" then the output query will be "... {$in:
+         * [ObjectId(\"123\")]}".
+         * Please note that it may also add quotes around the data type arguments if required. e.g. "ObjectId(xyz)"
+         * -> "ObjectId(\"xyz\")"
+         *
+         * @param query - input query
+         * @return - query obtained after removing/adding quotes around MongoDB special types string.
+         */
+        private String removeOrAddQuotesAroundMongoDBSpecialTypes(String query) {
+            // Iterating over MongoDB types and creating a regex for every one of them
+            for (MongoSpecialDataTypes specialType : MongoSpecialDataTypes.values()) {
+                final String regex = MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE.replace("E", specialType.name());
+
+                Map<String, String> objectIdMap = new LinkedHashMap<>();
+
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(query);
+                while (matcher.find()) {
+                    /**
+                     * `If` branch will match when any special data type is found wrapped within double quotes e.g.
+                     * "ObjectId('someId')":
+                     *   o Group 1 = "ObjectId('someId')"
+                     *   o Group 2 = ObjectId(someId)
+                     *   o Group 3 = 'someId'
+                     *   o Group 4 = someId
+                     */
+                    if (matcher.group(1) != null) {
+                        String objectIdWithQuotes = matcher.group(1);
+                        String objectIdWithoutQuotes = matcher.group(2);
+                        String argWithQuotes = matcher.group(3);
+                        String argWithoutQuotes = "";
+                        try {
+                            argWithoutQuotes = matcher.group(4);
+                            if (specialType.isQuotesRequiredAroundParameter()) {
+                                argWithoutQuotes = objectMapper.writeValueAsString(argWithoutQuotes);
+                            }
+                        } catch (JsonProcessingException e) {
+                            throw new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                                    argWithoutQuotes,
+                                    e.getMessage()
+                            );
+                        }
+                        objectIdMap.put(objectIdWithQuotes, objectIdWithoutQuotes);
+                        objectIdMap.put(argWithQuotes, argWithoutQuotes);
+                    }
+                }
+
+                for (Map.Entry<String, String> entry : objectIdMap.entrySet()) {
+                    String objectIdWithQuotes = (entry).getKey();
+                    String objectIdWithoutQuotes = (entry).getValue();
+                    query = query.replace(objectIdWithQuotes, objectIdWithoutQuotes);
+                }
+            }
+            return query;
+        }
+
         private String smartSubstituteBSON(String rawQuery,
                                            List<Param> params,
                                            List<Map.Entry<String, String>> parameters) throws AppsmithPluginException {
@@ -508,13 +629,12 @@ public class MongoPlugin extends BasePlugin {
                 Matcher matcher = pattern.matcher(uri);
                 if (matcher.find()) {
                     Map extractedInfoMap = new HashMap();
-                    String username = matcher.group(REGEX_GROUP_USERNAME);
-                    extractedInfoMap.put(KEY_USERNAME, username == null ? "" : username);
-                    String password = matcher.group(REGEX_GROUP_PASSWORD);
-                    extractedInfoMap.put(KEY_PASSWORD, password == null ? "" : password);
                     extractedInfoMap.put(KEY_URI_HEAD, matcher.group(REGEX_GROUP_HEAD));
+                    extractedInfoMap.put(KEY_USERNAME, matcher.group(REGEX_GROUP_USERNAME));
+                    extractedInfoMap.put(KEY_PASSWORD, matcher.group(REGEX_GROUP_PASSWORD));
+                    extractedInfoMap.put(KEY_HOST_PORT, matcher.group(REGEX_HOST_PORT));
+                    extractedInfoMap.put(KEY_URI_DBNAME, matcher.group(REGEX_GROUP_DBNAME));
                     extractedInfoMap.put(KEY_URI_TAIL, matcher.group(REGEX_GROUP_TAIL));
-                    extractedInfoMap.put(KEY_URI_DBNAME, matcher.group(REGEX_GROUP_DBNAME).split("\\?")[0]);
                     return extractedInfoMap;
                 }
             }
@@ -522,10 +642,34 @@ public class MongoPlugin extends BasePlugin {
             return null;
         }
 
-        private String buildURIfromExtractedInfo(Map extractedInfo, String password) {
-            return extractedInfo.get(KEY_URI_HEAD) + (extractedInfo.get(KEY_USERNAME) == null ? "" :
-                    extractedInfo.get(KEY_USERNAME) + ":") + (password == null ? "" : password)
-                    + extractedInfo.get(KEY_URI_TAIL);
+        private String buildURIFromExtractedInfo(Map extractedInfo, String password) {
+            String userInfo = "";
+            if (extractedInfo.get(KEY_USERNAME) != null) {
+                userInfo += extractedInfo.get(KEY_USERNAME) + ":";
+                if (password != null) {
+                    userInfo += password;
+                }
+                userInfo += "@";
+            }
+
+            final String dbInfo = "/" + (extractedInfo.get(KEY_URI_DBNAME) == null ? "" : extractedInfo.get(KEY_URI_DBNAME));
+
+            String tailInfo = (String) (extractedInfo.get(KEY_URI_TAIL) == null ? "" : extractedInfo.get(KEY_URI_TAIL));
+            if (StringUtils.hasLength(tailInfo)) {
+                if (!tailInfo.contains("authSource")) {
+                    tailInfo = "?" + tailInfo + "&authSource=admin";
+                } else {
+                    tailInfo = "?" + tailInfo;
+                }
+            } else {
+                tailInfo = "?authSource=admin";
+            }
+
+            return extractedInfo.get(KEY_URI_HEAD)
+                    + userInfo
+                    + extractedInfo.get(KEY_HOST_PORT)
+                    + dbInfo
+                    + tailInfo;
         }
 
         public String buildClientURI(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
@@ -537,7 +681,7 @@ public class MongoPlugin extends BasePlugin {
                     Map extractedInfo = extractInfoFromConnectionStringURI(uriWithHiddenPassword, MONGO_URI_REGEX);
                     if (extractedInfo != null) {
                         String password = ((DBAuth) datasourceConfiguration.getAuthentication()).getPassword();
-                        return buildURIfromExtractedInfo(extractedInfo, password);
+                        return buildURIFromExtractedInfo(extractedInfo, password);
                     } else {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
@@ -701,7 +845,7 @@ public class MongoPlugin extends BasePlugin {
                             invalids.add("Mongo Connection String URI does not seem to be in the correct format. " +
                                     "Please check the URI once.");
                         } else if (!isAuthenticated(authentication, mongoUri)) {
-                            String mongoUriWithHiddenPassword = buildURIfromExtractedInfo(extractedInfo, "****");
+                            String mongoUriWithHiddenPassword = buildURIFromExtractedInfo(extractedInfo, "****");
                             properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).setValue(mongoUriWithHiddenPassword);
                             authentication = (authentication == null) ? new DBAuth() : authentication;
                             authentication.setUsername((String) extractedInfo.get(KEY_USERNAME));
@@ -773,43 +917,41 @@ public class MongoPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+
+            Function<TimeoutException, Throwable> timeoutExceptionThrowableFunction = error -> new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_TIMEOUT_ERROR,
+                    "Connection timed out. Please check if the datasource configuration fields have " +
+                            "been filled correctly."
+            );
+
+            final String defaultDatabaseName;
+            if (datasourceConfiguration.getConnection() != null) {
+                defaultDatabaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
+            } else defaultDatabaseName = null;
+
             return datasourceCreate(datasourceConfiguration)
                     .flatMap(mongoClient -> {
-                        return Mono.zip(Mono.just(mongoClient),
-                                Mono.from(mongoClient.getDatabase("admin").runCommand(new Document(
-                                        "listDatabases", 1))));
+                        final Publisher<String> result = mongoClient.listDatabaseNames();
+                        final Mono<List<String>> documentMono = Flux.from(result).collectList().cache();
+                        return documentMono.doFinally(ignored -> mongoClient.close()).then(documentMono);
                     })
-                    .doOnSuccess(tuple -> {
-                        MongoClient mongoClient = tuple.getT1();
-
-                        if (mongoClient != null) {
-                            mongoClient.close();
-                        }
-                    })
-                    .then(Mono.just(new DatasourceTestResult()))
-                    .timeout(Duration.ofSeconds(TEST_DATASOURCE_TIMEOUT_SECONDS))
-                    .onErrorMap(
-                            TimeoutException.class,
-                            error -> new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_DATASOURCE_TIMEOUT_ERROR,
-                                    "Connection timed out. Please check if the datasource configuration fields have " +
-                                            "been filled correctly."
-                            )
-                    )
-                    .onErrorResume(error -> {
-                        /**
-                         * 1. Return OK response on "Unauthorized" exception.
-                         * 2. If we get an exception with error code "Unauthorized" then it means that the connection to
-                         *    the MongoDB instance is valid. It also means we don't have access to the admin database,
-                         *    but that's okay for our purposes here.
-                         */
-                        if (error instanceof MongoCommandException &&
-                                ((MongoCommandException) error).getErrorCodeName().equals("Unauthorized")) {
+                    .flatMap(names -> {
+                        if (defaultDatabaseName == null || defaultDatabaseName.isBlank()) {
                             return Mono.just(new DatasourceTestResult());
                         }
+                        final Optional<String> defaultDB = names.stream()
+                                .filter(name -> name.equals(defaultDatabaseName))
+                                .findFirst();
 
-                        return Mono.just(new DatasourceTestResult(mongoErrorUtils.getReadableError(error)));
+                        if (defaultDB.isEmpty()) {
+                            // value entered in default database name is invalid
+                            return Mono.just(new DatasourceTestResult("Default Database Name is invalid, no database found with this name."));
+                        }
+                        return Mono.just(new DatasourceTestResult());
                     })
+                    .timeout(Duration.ofSeconds(TEST_DATASOURCE_TIMEOUT_SECONDS))
+                    .onErrorMap(TimeoutException.class, timeoutExceptionThrowableFunction)
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(mongoErrorUtils.getReadableError(error))))
                     .subscribeOn(scheduler);
         }
 
@@ -878,8 +1020,38 @@ public class MongoPlugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, insertedParams);
+            DataType dataType = stringToKnownMongoDBDataTypeConverter(value);
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value,dataType, insertedParams, this);
         }
+
+        /**
+         * This method checks if the replacement string contains any usage of special Mongo data types like
+         * `ObjectId` or `ISODate`. For complete list please check out `MongoSpecialDataTypes.java`. The check for
+         * special data type only happens if the common data type detection login in `DataTypeStringUtils
+         * .stringToKnownDataTypeConverter` identifies the data type of the replacement value as `DataType.STRING`
+         * even though it contains a Mongo special data type and hence should be treated differently.
+         *
+         * @param replacement replacement value
+         * @return identified data type of replacement value
+         */
+        private DataType stringToKnownMongoDBDataTypeConverter(String replacement) {
+            DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
+            if (dataType == DataType.STRING) {
+                for (MongoSpecialDataTypes specialType : MongoSpecialDataTypes.values()) {
+                    final String regex = MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE.replace("E",
+                            specialType.name());
+                    final Pattern pattern = Pattern.compile(regex);
+                    final Matcher matcher = pattern.matcher(replacement);
+                    if (matcher.find()) {
+                        dataType = DataType.BSON_SPECIAL_DATA_TYPES;
+                        break;
+                    }
+                }
+            }
+
+            return dataType;
+        }
+
 
         @Override
         public Mono<ActionExecutionResult> execute(MongoClient mongoClient,
@@ -903,7 +1075,7 @@ public class MongoPlugin extends BasePlugin {
 
             } else if (isSingleKey && "$date".equals(jsonObject.keys().next())) {
                 return DateTimeFormatter.ISO_INSTANT.format(
-                        Instant.ofEpochMilli(jsonObject.getLong("$date"))
+                        Instant.parse(jsonObject.getString("$date"))
                 );
 
             } else if (isSingleKey && "$numberDecimal".equals(jsonObject.keys().next())) {

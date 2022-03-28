@@ -189,6 +189,7 @@ const StyledButton = styled((props) => (
           ? theme.colors.button.primary.tertiary.hoverColor
           : theme.colors.button.primary.primary.hoverColor
       } !important;
+      border-color: var(--appsmith-input-focus-border-color) !important;
     }
 
     &:disabled {

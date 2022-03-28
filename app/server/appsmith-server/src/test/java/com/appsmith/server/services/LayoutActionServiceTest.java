@@ -8,6 +8,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
@@ -30,6 +31,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,10 +48,12 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
@@ -68,13 +72,14 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
 public class LayoutActionServiceTest {
-    @Autowired
+    @SpyBean
     NewActionService newActionService;
 
     @Autowired
@@ -110,11 +115,25 @@ public class LayoutActionServiceTest {
     @Autowired
     ActionCollectionService actionCollectionService;
 
+    @Autowired
+    ApplicationService applicationService;
+
+    @Autowired
+    ImportExportApplicationService importExportApplicationService;
+
     Application testApp = null;
 
     PageDTO testPage = null;
 
+    Application gitConnectedApp = null;
+
+    PageDTO gitConnectedPage = null;
+
     Datasource datasource;
+
+    String orgId;
+
+    String branchName;
 
     Datasource jsDatasource;
 
@@ -125,7 +144,7 @@ public class LayoutActionServiceTest {
     public void setup() {
         newPageService.deleteAll();
         User apiUser = userService.findByEmail("api_user").block();
-        String orgId = apiUser.getOrganizationIds().iterator().next();
+        orgId = apiUser.getOrganizationIds().iterator().next();
         Organization organization = organizationService.getById(orgId).block();
 
         if (testApp == null && testPage == null) {
@@ -168,6 +187,27 @@ public class LayoutActionServiceTest {
             layoutActionService.updateLayout(pageId, layout.getId(), layout).block();
 
             testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
+        }
+
+        if (gitConnectedApp == null) {
+            Application newApp = new Application();
+            newApp.setName(UUID.randomUUID().toString());
+            GitApplicationMetadata gitData = new GitApplicationMetadata();
+            gitData.setBranchName("actionServiceTest");
+            newApp.setGitApplicationMetadata(gitData);
+            gitConnectedApp = applicationPageService.createApplication(newApp, orgId)
+                    .flatMap(application -> {
+                        application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
+                        return applicationService.save(application)
+                                .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName()));
+                    })
+                    // Assign the branchName to all the resources connected to the application
+                    .flatMap(tuple -> importExportApplicationService.importApplicationInOrganization(orgId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                    .block();
+
+            gitConnectedPage = newPageService.findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false).block();
+
+            branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
         }
 
         Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
@@ -380,6 +420,74 @@ public class LayoutActionServiceTest {
                     innerArrayReference.clear();
                     innerArrayReference.add(new JSONObject(Map.of("innerK", "{{\tPostNameChange.data}}")));
                     assertThat(postNameChangeLayout.getDsl()).isEqualTo(dsl);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void refactorActionName_forGitConnectedAction_success() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionDTO action = new ActionDTO();
+        action.setName("beforeNameChange");
+        action.setPageId(gitConnectedPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetName", "firstWidget");
+        JSONArray temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        dsl.put("dynamicBindingPathList", temp);
+        dsl.put("testField", "{{ \tbeforeNameChange.data }}");
+        final JSONObject innerObjectReference = new JSONObject();
+        innerObjectReference.put("k", "{{\tbeforeNameChange.data}}");
+        dsl.put("innerObjectReference", innerObjectReference);
+        final JSONArray innerArrayReference = new JSONArray();
+        innerArrayReference.add(new JSONObject(Map.of("innerK", "{{\tbeforeNameChange.data}}")));
+        dsl.put("innerArrayReference", innerArrayReference);
+
+        Layout layout = gitConnectedPage.getLayouts().get(0);
+        layout.setDsl(dsl);
+        layout.setPublishedDsl(dsl);
+
+        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+
+        LayoutDTO firstLayout = layoutActionService.updateLayout(gitConnectedPage.getId(), layout.getId(), layout, branchName).block();
+
+
+        RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
+        refactorActionNameDTO.setPageId(gitConnectedPage.getId());
+        refactorActionNameDTO.setLayoutId(firstLayout.getId());
+        refactorActionNameDTO.setOldName("beforeNameChange");
+        refactorActionNameDTO.setNewName("PostNameChange");
+        refactorActionNameDTO.setActionId(createdAction.getId());
+
+        LayoutDTO postNameChangeLayout = layoutActionService.refactorActionName(refactorActionNameDTO).block();
+
+        Mono<NewAction> postNameChangeActionMono = newActionService.findById(createdAction.getId(), READ_ACTIONS);
+
+        StepVerifier
+                .create(postNameChangeActionMono)
+                .assertNext(updatedAction -> {
+
+                    assertThat(updatedAction.getUnpublishedAction().getName()).isEqualTo("PostNameChange");
+
+                    DslActionDTO actionDTO = postNameChangeLayout.getLayoutOnLoadActions().get(0).iterator().next();
+                    assertThat(actionDTO.getName()).isEqualTo("PostNameChange");
+
+                    dsl.put("testField", "{{ \tPostNameChange.data }}");
+                    innerObjectReference.put("k", "{{\tPostNameChange.data}}");
+                    innerArrayReference.clear();
+                    innerArrayReference.add(new JSONObject(Map.of("innerK", "{{\tPostNameChange.data}}")));
+                    assertThat(postNameChangeLayout.getDsl()).isEqualTo(dsl);
+                    assertThat(updatedAction.getDefaultResources()).isNotNull();
+                    assertThat(updatedAction.getDefaultResources().getActionId()).isEqualTo(updatedAction.getId());
+                    assertThat(updatedAction.getDefaultResources().getApplicationId()).isEqualTo(gitConnectedApp.getId());
+                    assertThat(updatedAction.getUnpublishedAction().getDefaultResources().getPageId()).isEqualTo(gitConnectedPage.getId());
                 })
                 .verifyComplete();
     }
@@ -846,6 +954,46 @@ public class LayoutActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void testRefactorWidgetName_forDefaultWidgetsInList_updatesBothWidgetsAndTemplateReferences() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetName", "List1");
+        dsl.put("type", "LIST_WIDGET");
+        JSONObject template = new JSONObject();
+        template.put("oldWidgetName", "irrelevantContent");
+        dsl.put("template", template);
+        final JSONArray children = new JSONArray();
+        final JSONObject defaultWidget = new JSONObject();
+        defaultWidget.put("widgetName", "oldWidgetName");
+        defaultWidget.put("type", "TEXT_WIDGET");
+        children.add(defaultWidget);
+        dsl.put("children", children);
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(dsl);
+
+        layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+
+        RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
+        refactorNameDTO.setPageId(testPage.getId());
+        refactorNameDTO.setLayoutId(layout.getId());
+        refactorNameDTO.setOldName("oldWidgetName");
+        refactorNameDTO.setNewName("newWidgetName");
+
+        Mono<LayoutDTO> widgetRenameMono = layoutActionService.refactorWidgetName(refactorNameDTO).cache();
+
+        StepVerifier
+                .create(widgetRenameMono)
+                .assertNext(updatedLayout -> {
+                    assertTrue(((Map) updatedLayout.getDsl().get("template")).containsKey("newWidgetName"));
+                    assertEquals("newWidgetName",
+                            ((Map)(((List)updatedLayout.getDsl().get("children")).get(0))).get("widgetName"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void testWidgetNameRefactor_withSimpleUpdate_refactorsActionCollectionAndItsAction() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -885,7 +1033,7 @@ public class LayoutActionServiceTest {
 
         assert createdActionCollectionDTO1 != null;
         final Mono<ActionCollection> actionCollectionMono = actionCollectionService.getById(createdActionCollectionDTO1.getId());
-        final Optional<String> optional = createdActionCollectionDTO1.getActionIds().stream().findFirst();
+        final Optional<String> optional = createdActionCollectionDTO1.getDefaultToBranchedActionIdsMap().values().stream().findFirst();
         assert optional.isPresent();
         final Mono<NewAction> actionMono = newActionService.findById(optional.get());
 
@@ -1202,5 +1350,170 @@ public class LayoutActionServiceTest {
                 })
                 .verifyComplete();
 
+    }
+
+    @SneakyThrows(JsonProcessingException.class)
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUpdateLayout_withSelfReferencingWidget_updatesLayout() {
+        JSONObject parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
+        }));
+
+        ArrayList children = (ArrayList) parentDsl.get("children");
+
+        JSONObject firstWidget = new JSONObject();
+        firstWidget.put("widgetName", "firstWidget");
+        JSONArray temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        firstWidget.put("dynamicBindingPathList", temp);
+        firstWidget.put("testField", "{{ firstWidget.testField }}");
+        children.add(firstWidget);
+
+        parentDsl.put("children", children);
+
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(parentDsl);
+
+
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+
+        StepVerifier.create(updateLayoutMono)
+                .assertNext(layoutDTO -> {
+                    final JSONObject dsl = layoutDTO.getDsl();
+                    final Object fieldValue = ((JSONObject) ((ArrayList) dsl.get("children")).get(0)).getAsString("testField");
+                    // Make sure the DSL got updated
+                    Assert.assertEquals("{{ firstWidget.testField }}", fieldValue);
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * This method tests the following case:
+     * o create action1 and action2.
+     * o make action2 dependent on action1 by adding {{action1.data}} in action2's body.
+     * o set both action1 and action2 to run on page load via settings tab. Do not reference action1 and action2 data
+     * in any other widget or action.
+     * @throws JsonProcessingException
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testExecuteOnPageLoadOrderWhenAllActionsAreOnlyExplicitlySetToExecute() throws JsonProcessingException {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        // Configure action1
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("firstAction");
+        action1.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration1 = new ActionConfiguration();
+        actionConfiguration1.setHttpMethod(HttpMethod.GET);
+        action1.setActionConfiguration(actionConfiguration1);
+        action1.setExecuteOnLoad(true);
+        action1.setDatasource(datasource);
+
+        // Configure action2
+        ActionDTO action2 = new ActionDTO();
+        action2.setName("secondAction");
+        action2.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration2 = new ActionConfiguration();
+        actionConfiguration2.setHttpMethod(HttpMethod.GET);
+        actionConfiguration2.setBody("{{ firstAction.data }}"); // make action2 dependent on action1
+        action2.setActionConfiguration(actionConfiguration2);
+        action2.setDynamicBindingPathList(List.of(new Property("body", null)));
+        action2.setExecuteOnLoad(true);
+        action2.setDatasource(datasource);
+
+        JSONObject parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
+        }));
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(parentDsl);
+
+        ActionDTO createdAction1 = layoutActionService.createSingleAction(action1).block(); // create action1
+        createdAction1.setExecuteOnLoad(true); // this can only be set to true post action creation.
+        NewAction newAction1 = new NewAction();
+        newAction1.setUnpublishedAction(createdAction1);
+        newAction1.setDefaultResources(createdAction1.getDefaultResources());
+
+        ActionDTO createdAction2 = layoutActionService.createSingleAction(action2).block(); // create action2
+        createdAction2.setExecuteOnLoad(true); // this can only be set to true post action creation.
+        NewAction newAction2 = new NewAction();
+        newAction2.setUnpublishedAction(createdAction2);
+        newAction2.setDefaultResources(createdAction2.getDefaultResources());
+
+        NewAction[] newActionArray = new NewAction[2];
+        newActionArray[0] = newAction1;
+        newActionArray[1] = newAction2;
+        Flux<NewAction> newActionFlux = Flux.fromArray(newActionArray);
+        Mockito.when(newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(Mockito.any())).thenReturn(newActionFlux);
+
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+
+        StepVerifier.create(updateLayoutMono)
+                .assertNext(updatedLayout -> {
+
+                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
+
+                    // Assert that both the actions don't belong to the same set. They should be run iteratively.
+                    DslActionDTO actionDTO1 = updatedLayout.getLayoutOnLoadActions().get(0).iterator().next();
+                    assertThat(actionDTO1.getName()).isEqualTo("firstAction");
+
+                    DslActionDTO actionDTO2 = updatedLayout.getLayoutOnLoadActions().get(1).iterator().next();
+                    assertThat(actionDTO2.getName()).isEqualTo("secondAction");
+
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * This method tests the following scenario:
+     * o create `action1`.
+     * o set `action1` to run on page load via settings tab.
+     * o bind `{{action1.data}}` in one of the widget fields.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testPageLoadActionWhenSetBothWaysExplicitlyAndImplicitlyViaWidget() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("firstAction");
+        action1.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration1 = new ActionConfiguration();
+        actionConfiguration1.setHttpMethod(HttpMethod.GET);
+        action1.setActionConfiguration(actionConfiguration1);
+        action1.setDatasource(datasource);
+
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetName", "firstWidget");
+        JSONArray temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        dsl.put("dynamicBindingPathList", temp);
+        dsl.put("testField", "{{ firstAction.data }}");
+
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(dsl);
+
+        ActionDTO createdAction1 = layoutActionService.createSingleAction(action1).block();
+        createdAction1.setExecuteOnLoad(true); // this can only be set to true post action creation.
+        createdAction1.setUserSetOnLoad(true);
+        NewAction newAction1 = new NewAction();
+        newAction1.setUnpublishedAction(createdAction1);
+        newAction1.setDefaultResources(createdAction1.getDefaultResources());
+
+        NewAction[] newActionArray = new NewAction[1];
+        newActionArray[0] = newAction1;
+        Flux<NewAction> newActionFlux = Flux.fromArray(newActionArray);
+        Mockito.when(newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(Mockito.any())).thenReturn(newActionFlux);
+
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+
+        StepVerifier.create(updateLayoutMono)
+                .assertNext(updatedLayout -> {
+                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(1);
+
+                    // Assert that both the actions don't belong to the same set. They should be run iteratively.
+                    DslActionDTO actionDTO1 = updatedLayout.getLayoutOnLoadActions().get(0).iterator().next();
+                    assertThat(actionDTO1.getName()).isEqualTo("firstAction");
+                })
+                .verifyComplete();
     }
 }

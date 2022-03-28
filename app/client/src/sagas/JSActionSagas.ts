@@ -27,15 +27,13 @@ import {
 } from "actions/jsActionActions";
 import {
   getJSCollection,
-  getJSCollections,
   getPageNameByPageId,
 } from "selectors/entitiesSelector";
 import history from "utils/history";
 import {
-  getCurrentApplicationId,
   getCurrentPageId,
+  selectPageSlugById,
 } from "selectors/editorSelectors";
-import { JS_COLLECTION_ID_URL, BUILDER_PAGE_URL } from "constants/routes";
 import JSActionAPI, { JSCollectionCreateUpdateResponse } from "api/JSActionAPI";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -48,9 +46,8 @@ import {
   JS_ACTION_MOVE_SUCCESS,
   ERROR_JS_ACTION_MOVE_FAIL,
   ERROR_JS_COLLECTION_RENAME_FAIL,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { validateResponse } from "./ErrorSagas";
-import { DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
@@ -60,6 +57,7 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { CreateJSCollectionRequest } from "api/JSActionAPI";
 import * as log from "loglevel";
+import { builderURL, jsCollectionIdURL } from "RouteBuilder";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -69,7 +67,7 @@ export function* fetchJSCollectionsSaga(
     const response = yield JSActionAPI.fetchJSCollections(applicationId);
     yield put({
       type: ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
-      payload: response.data,
+      payload: response.data || [],
     });
   } catch (error) {
     yield put({
@@ -170,9 +168,13 @@ function* copyJSCollectionSaga(
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   const jsAction: JSCollection = yield select(getJSCollection, id);
-  const applicationId = yield select(getCurrentApplicationId);
+  const pageSlug: string = yield select(selectPageSlugById(jsAction.pageId));
   history.push(
-    JS_COLLECTION_ID_URL(applicationId, jsAction.pageId, jsAction.id),
+    jsCollectionIdURL({
+      pageSlug,
+      pageId: jsAction.pageId,
+      collectionId: jsAction.id,
+    }),
   );
 }
 
@@ -180,6 +182,7 @@ function* moveJSCollectionSaga(
   action: ReduxAction<{
     id: string;
     destinationPageId: string;
+    name: string;
   }>,
 ) {
   const actionObject: JSCollection = yield select(
@@ -190,6 +193,7 @@ function* moveJSCollectionSaga(
     const response = yield JSActionAPI.moveJSCollection({
       collectionId: actionObject.id,
       destinationPageId: action.payload.destinationPageId,
+      name: action.payload.name,
     });
 
     const isValidResponse = yield validateResponse(response);
@@ -220,7 +224,7 @@ function* moveJSCollectionSaga(
 }
 
 export const getIndexToBeRedirected = (
-  jsActions: Array<DataTreeJSAction>,
+  jsActions: Array<JSCollectionData>,
   id: string,
 ): number | undefined => {
   let resultIndex = undefined;
@@ -245,36 +249,14 @@ export function* deleteJSCollectionSaga(
 ) {
   try {
     const id = actionPayload.payload.id;
-    const jsActions = yield select(getJSCollections);
-
     const response = yield JSActionAPI.deleteJSCollection(id);
-    const isValidResponse = yield validateResponse(response);
-    const applicationId = yield select(getCurrentApplicationId);
-    const pageId = yield select(getCurrentPageId);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       Toaster.show({
         text: createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name),
         variant: Variant.success,
       });
-      if (jsActions.length > 0) {
-        const getIndex = getIndexToBeRedirected(
-          jsActions,
-          actionPayload.payload.id,
-        );
-        if (getIndex) {
-          const jsAction = jsActions[getIndex];
-          history.push(
-            JS_COLLECTION_ID_URL(applicationId, pageId, jsAction.config.id),
-          );
-        } else {
-          history.push(
-            BUILDER_PAGE_URL({
-              applicationId,
-              pageId,
-            }),
-          );
-        }
-      }
+      history.push(builderURL());
       AppsmithConsole.info({
         logType: LOG_TYPE.ENTITY_DELETED,
         text: "JS object was deleted",

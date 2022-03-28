@@ -93,7 +93,7 @@ export const saveDatasourceName = (payload: { id: string; name: string }) => ({
   payload: payload,
 });
 
-export const changeDatasource = (payload: Datasource) => {
+export const changeDatasource = (payload: { datasource?: Datasource }) => {
   return {
     type: ReduxActionTypes.CHANGE_DATASOURCE,
     payload,
@@ -139,9 +139,10 @@ export const setDatsourceEditorMode = (payload: {
   };
 };
 
-export const fetchDatasources = () => {
+export const fetchDatasources = (payload?: { orgId?: string }) => {
   return {
     type: ReduxActionTypes.FETCH_DATASOURCES_INIT,
+    payload,
   };
 };
 
@@ -194,7 +195,7 @@ export const storeAsDatasource = () => {
 
 export const getOAuthAccessToken = (datasourceId: string) => {
   return {
-    type: ReduxActionTypes.SAAS_GET_OAUTH_ACCESS_TOKEN,
+    type: ReduxActionTypes.GET_OAUTH_ACCESS_TOKEN,
     payload: { datasourceId },
   };
 };
@@ -234,6 +235,13 @@ export const executeDatasourceQuery = ({
     onSuccessCallback,
   };
 };
+
+export const setUnconfiguredDatasourcesDuringImport = (
+  payload?: Array<Datasource>,
+) => ({
+  type: ReduxActionTypes.SET_UNCONFIGURED_DATASOURCES,
+  payload,
+});
 
 export default {
   fetchDatasources,

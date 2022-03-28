@@ -1,13 +1,17 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
+import { IconNames } from "@blueprintjs/icons";
+import { Colors } from "constants/Colors";
+import {
+  ButtonBorderRadiusTypes,
+  ButtonVariantTypes,
+} from "components/constants";
+import { GridDefaults } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
   BlueprintOperationTypes,
   FlattenedWidgetProps,
-  GRID_DENSITY_MIGRATION_V1,
 } from "widgets/constants";
-import { GridDefaults } from "constants/WidgetConstants";
-import { ButtonVariantTypes } from "components/constants";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -16,11 +20,12 @@ export const CONFIG = {
   needsMeta: true,
   isCanvas: true,
   defaults: {
-    rows: 6 * GRID_DENSITY_MIGRATION_V1,
-    columns: 6 * GRID_DENSITY_MIGRATION_V1,
+    rows: 24,
+    columns: 24,
     width: 456,
     height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 24,
     canEscapeKeyClose: true,
+    animateLoading: true,
     // detachFromLayout is set true for widgets that are not bound to the widgets within the layout.
     // setting it to true will only render the widgets(from sidebar) on the main container without any collision check.
     detachFromLayout: true,
@@ -45,16 +50,18 @@ export const CONFIG = {
             blueprint: {
               view: [
                 {
-                  type: "ICON_WIDGET",
-                  position: { left: 14 * GRID_DENSITY_MIGRATION_V1, top: 1 },
+                  type: "ICON_BUTTON_WIDGET",
+                  position: { left: 56, top: 1 },
                   size: {
-                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                    cols: 2 * GRID_DENSITY_MIGRATION_V1,
+                    rows: 4,
+                    cols: 8,
                   },
                   props: {
-                    iconName: "cross",
+                    buttonColor: Colors.OXFORD_BLUE,
+                    buttonVariant: ButtonVariantTypes.TERTIARY,
+                    borderRadius: ButtonBorderRadiusTypes.SHARP,
+                    iconName: IconNames.CROSS,
                     iconSize: 24,
-                    color: "#040627",
                     version: 1,
                   },
                 },
@@ -62,8 +69,8 @@ export const CONFIG = {
                   type: "TEXT_WIDGET",
                   position: { left: 1, top: 1 },
                   size: {
-                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                    cols: 10 * GRID_DENSITY_MIGRATION_V1,
+                    rows: 4,
+                    cols: 40,
                   },
                   props: {
                     text: "Modal Title",
@@ -74,12 +81,12 @@ export const CONFIG = {
                 {
                   type: "BUTTON_WIDGET",
                   position: {
-                    left: 9 * GRID_DENSITY_MIGRATION_V1,
-                    top: 4 * GRID_DENSITY_MIGRATION_V1,
+                    left: 36,
+                    top: 16,
                   },
                   size: {
-                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                    cols: 3 * GRID_DENSITY_MIGRATION_V1,
+                    rows: 4,
+                    cols: 12,
                   },
                   props: {
                     text: "Close",
@@ -91,12 +98,12 @@ export const CONFIG = {
                 {
                   type: "BUTTON_WIDGET",
                   position: {
-                    left: 12 * GRID_DENSITY_MIGRATION_V1,
-                    top: 4 * GRID_DENSITY_MIGRATION_V1,
+                    left: 48,
+                    top: 16,
                   },
                   size: {
-                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                    cols: 3 * GRID_DENSITY_MIGRATION_V1,
+                    rows: 4,
+                    cols: 12,
                   },
                   props: {
                     text: "Confirm",
@@ -116,7 +123,7 @@ export const CONFIG = {
                     const iconChild =
                       widget.children &&
                       widget.children.find(
-                        (child) => child.type === "ICON_WIDGET",
+                        (child) => child.type === "ICON_BUTTON_WIDGET",
                       );
 
                     if (iconChild && parent) {

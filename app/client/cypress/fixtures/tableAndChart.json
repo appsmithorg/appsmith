@@ -1,0 +1,168 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1280,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 1240,
+    "containerStyle": "none",
+    "snapRows": 51,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 45,
+    "minHeight": 830,
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "widgetName": "Table1",
+        "columnOrder": [
+          "x",
+          "y"
+        ],
+        "dynamicPropertyPathList": [],
+        "isVisibleDownload": true,
+        "topRow": 1,
+        "bottomRow": 29,
+        "parentRowSpace": 40,
+        "isSortable": true,
+        "type": "TABLE_WIDGET",
+        "parentColumnSpace": 77.5,
+        "dynamicTriggerPathList": [],
+        "leftColumn": 0,
+        "dynamicBindingPathList": [
+          {
+            "key": "primaryColumns.x.computedValue"
+          },
+          {
+            "key": "primaryColumns.y.computedValue"
+          }
+        ],
+        "primaryColumns": {
+          "x": {
+            "index": 0,
+            "width": 150,
+            "id": "x",
+            "horizontalAlignment": "LEFT",
+            "verticalAlignment": "CENTER",
+            "columnType": "text",
+            "textColor": "#231F20",
+            "textSize": "PARAGRAPH",
+            "enableFilter": true,
+            "enableSort": true,
+            "isVisible": true,
+            "isDisabled": false,
+            "isCellVisible": true,
+            "isDerived": false,
+            "label": "x",
+            "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.x))}}",
+            "cellBackground": "#FFFFFF"
+          },
+          "y": {
+            "index": 1,
+            "width": 150,
+            "id": "y",
+            "horizontalAlignment": "LEFT",
+            "verticalAlignment": "CENTER",
+            "columnType": "text",
+            "textColor": "#231F20",
+            "textSize": "PARAGRAPH",
+            "enableFilter": true,
+            "enableSort": true,
+            "isVisible": true,
+            "isDisabled": false,
+            "isCellVisible": true,
+            "isDerived": false,
+            "label": "y",
+            "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.y))}}",
+            "cellBackground": "#FFFFFF"
+          }
+        },
+        "delimiter": ",",
+        "derivedColumns": {},
+        "rightColumn": 32,
+        "textSize": "PARAGRAPH",
+        "widgetId": "z7rloxiin1",
+        "isVisibleFilters": true,
+        "tableData": "[\n  {\n    \"x\": \"Product1\",\n    \"y\": 20000\n  },\n  {\n    \"x\": \"Product2\",\n    \"y\": 22000\n  },\n  {\n    \"x\": \"Product3\",\n    \"y\": 32000\n  }\n]",
+        "isVisible": true,
+        "label": "Data",
+        "searchKey": "",
+        "version": 3,
+        "textColor": "#231F20",
+        "parentId": "0",
+        "isLoading": false,
+        "isVisibleCompactMode": true,
+        "horizontalAlignment": "LEFT",
+        "isVisibleSearch": true,
+        "isVisiblePagination": true,
+        "cellBackground": "#FFFFFF",
+        "verticalAlignment": "CENTER"
+      },
+      {
+        "widgetName": "Chart1",
+        "allowScroll": false,
+        "displayName": "Chart",
+        "iconSVG": "/static/media/icon.6adbe31e.svg",
+        "topRow": 35,
+        "bottomRow": 67,
+        "parentRowSpace": 10,
+        "type": "CHART_WIDGET",
+        "hideCard": false,
+        "chartData": {
+          "x5wgmtkq8v": {
+            "seriesName": "Sales",
+            "data": "[\n  {\n    \"x\": \"Product1\",\n    \"y\": 20000\n  },\n  {\n    \"x\": \"Product2\",\n    \"y\": 22000\n  },\n  {\n    \"x\": \"Product3\",\n    \"y\": 32000\n  }\n]"
+          }
+        },
+        "parentColumnSpace": 19.8125,
+        "dynamicTriggerPathList": [],
+        "leftColumn": 17,
+        "dynamicBindingPathList": [],
+        "customFusionChartConfig": {
+          "type": "column2d",
+          "dataSource": {
+            "chart": {
+              "caption": "Sales Report",
+              "xAxisName": "Product Line",
+              "yAxisName": "Revenue($)",
+              "theme": "fusion"
+            },
+            "data": [
+              {
+                "label": "Product1",
+                "value": 20000
+              },
+              {
+                "label": "Product2",
+                "value": 22000
+              },
+              {
+                "label": "Product3",
+                "value": 32000
+              }
+            ]
+          }
+        },
+        "key": "bh8sbtxj40",
+        "rightColumn": 41,
+        "widgetId": "09gxneieud",
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "labelOrientation": "auto",
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "yAxisName": "Revenue($)",
+        "chartName": "Sales Report",
+        "xAxisName": "Product Line",
+        "chartType": "COLUMN_CHART"
+      }
+    ]
+  }
+}

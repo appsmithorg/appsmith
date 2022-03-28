@@ -2,7 +2,7 @@
     "dsl": {
         "widgetName": "MainContainer",
         "backgroundColor": "none",
-        "rightColumn": 966,
+        "rightColumn": 776,
         "snapColumns": 64,
         "detachFromLayout": true,
         "widgetId": "0",
@@ -13,7 +13,7 @@
         "parentRowSpace": 1,
         "type": "CANVAS_WIDGET",
         "canExtend": true,
-        "version": 20,
+        "version": 44,
         "minHeight": 450,
         "parentColumnSpace": 1,
         "dynamicBindingPathList": [],
@@ -91,7 +91,7 @@
                         "widgetId": "rglduihhzk",
                         "containerStyle": "none",
                         "topRow": 0,
-                        "bottomRow": 20,
+                        "bottomRow": 450,
                         "parentRowSpace": 1,
                         "isVisible": true,
                         "type": "CANVAS_WIDGET",
@@ -103,32 +103,31 @@
                         "dynamicBindingPathList": [],
                         "children": [
                             {
+                                "widgetName": "Test",
+                                "rightColumn": 49,
+                                "widgetId": "snzfh3qjo8",
+                                "topRow": 10,
+                                "bottomRow": 43,
+                                "parentRowSpace": 10,
                                 "isVisible": true,
-                                "widgetName": "Chart1",
-                                "chartType": "LINE_CHART",
-                                "chartName": "Last week's revenue",
-                                "allowScroll": false,
+                                "type": "CHART_WIDGET",
                                 "version": 1,
+                                "parentId": "rglduihhzk",
+                                "isLoading": false,
                                 "chartData": {
                                     "q4pm3w97mo": {
                                         "seriesName": "Sales",
                                         "data": ""
                                     }
                                 },
-                                "xAxisName": "Last Week",
                                 "yAxisName": "Total Order Revenue $",
-                                "type": "CHART_WIDGET",
-                                "isLoading": false,
                                 "parentColumnSpace": 14.59375,
-                                "parentRowSpace": 10,
-                                "leftColumn": 20,
-                                "rightColumn": 44,
-                                "topRow": 16,
-                                "bottomRow": 48,
-                                "parentId": "rglduihhzk",
-                                "widgetId": "snzfh3qjo8",
+                                "dynamicTriggerPathList": [],
+                                "chartName": "Last week's revenue",
+                                "leftColumn": 5,
                                 "dynamicBindingPathList": [],
-                                "dynamicTriggerPathList": []
+                                "xAxisName": "Last Week",
+                                "chartType": "LINE_CHART"
                             }
                         ]
                     }
@@ -173,9 +172,7 @@
                         "parentColumnSpace": 1,
                         "leftColumn": 0,
                         "dynamicBindingPathList": [],
-                        "children": [
-                            null
-                        ]
+                        "children": []
                     }
                 ]
             }

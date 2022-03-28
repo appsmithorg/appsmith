@@ -3,11 +3,7 @@ import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 import { getFormValues } from "redux-form";
 import styled from "styled-components";
-import {
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-  QueryEditorRouteParams,
-} from "constants/routes";
+import { INTEGRATION_TABS, QueryEditorRouteParams } from "constants/routes";
 import history from "utils/history";
 import QueryEditorForm from "./Form";
 import { deleteAction, runAction } from "actions/pluginActionActions";
@@ -40,8 +36,10 @@ import {
   initFormEvaluations,
   startFormEvaluations,
 } from "actions/evaluationActions";
-import { getUIComponent } from "selectors/formSelectors";
+import { getUIComponent } from "./helpers";
 import { diff } from "deep-diff";
+import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
+import { integrationEditorURL } from "RouteBuilder";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -57,7 +55,12 @@ type ReduxDispatchProps = {
   runAction: (actionId: string) => void;
   deleteAction: (id: string, name: string) => void;
   changeQueryPage: (queryId: string) => void;
-  runFormEvaluation: (formId: string, formData: QueryActionConfig) => void;
+  runFormEvaluation: (
+    formId: string,
+    formData: QueryActionConfig,
+    datasourceId: string,
+    pluginId: string,
+  ) => void;
   initFormEvaluation: (
     editorConfig: any,
     settingConfig: any,
@@ -72,6 +75,7 @@ type ReduxStateProps = {
   isDeleting: boolean;
   formData: QueryAction;
   runErrorMessage: Record<string, string>;
+  pluginId: string | undefined;
   pluginIds: Array<string> | undefined;
   responses: any;
   isCreating: boolean;
@@ -99,6 +103,9 @@ class QueryEditor extends React.Component<Props> {
   }
 
   componentDidMount() {
+    // if the current action is non existent, do not dispatch change query page action
+    // this action should only be dispatched when switching from an existent action.
+    if (!this.props.pluginId) return;
     this.props.changeQueryPage(this.props.match.params.queryId);
 
     PerformanceTracker.stopTracking(PerformanceTransactionName.OPEN_ACTION, {
@@ -132,7 +139,11 @@ class QueryEditor extends React.Component<Props> {
     }
     // Update the page when the queryID is changed by changing the
     // URL or selecting new query from the query pane
-    if (prevProps.match.params.queryId !== this.props.match.params.queryId) {
+    // reusing same logic for changing query panes for switching query editor datasources, since the operations are similar.
+    if (
+      prevProps.match.params.queryId !== this.props.match.params.queryId ||
+      prevProps.pluginId !== this.props.pluginId
+    ) {
       this.props.changeQueryPage(this.props.match.params.queryId);
     }
     // If statement to debounce and track changes in the formData to update evaluations
@@ -148,13 +159,14 @@ class QueryEditor extends React.Component<Props> {
       this.props.runFormEvaluation(
         this.props.formData.id,
         this.props.formData.actionConfiguration,
+        this.props.formData.datasource.id,
+        this.props.formData.pluginId,
       );
     }
   }
 
   render() {
     const {
-      applicationId,
       dataSources,
       editorConfig,
       isCreating,
@@ -164,6 +176,7 @@ class QueryEditor extends React.Component<Props> {
       match: {
         params: { queryId },
       },
+      pluginId,
       pluginIds,
       pluginImages,
       responses,
@@ -172,6 +185,20 @@ class QueryEditor extends React.Component<Props> {
       uiComponent,
     } = this.props;
     const { pageId } = this.props.match.params;
+
+    // custom function to return user to integrations page if action is not found
+    const goToDatasourcePage = () =>
+      history.push(
+        integrationEditorURL({
+          pageId,
+          selectedTab: INTEGRATION_TABS.ACTIVE,
+        }),
+      );
+
+    // if the action can not be found, generate a entity not found page
+    if (!pluginId && queryId) {
+      return <EntityNotFoundPane goBackFn={goToDatasourcePage} />;
+    }
 
     if (!pluginIds?.length) {
       return (
@@ -195,7 +222,10 @@ class QueryEditor extends React.Component<Props> {
 
     const onCreateDatasourceClick = () => {
       history.push(
-        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+        integrationEditorURL({
+          pageId,
+          selectedTab: INTEGRATION_TABS.NEW,
+        }),
       );
     };
     return (
@@ -250,6 +280,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 
   return {
     pluginImages: getPluginImages(state),
+    pluginId,
     plugins: allPlugins,
     runErrorMessage,
     pluginIds: getPluginIdsOfPackageNames(state, PLUGIN_PACKAGE_DBS),
@@ -274,8 +305,13 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   changeQueryPage: (queryId: string) => {
     dispatch(changeQuery(queryId));
   },
-  runFormEvaluation: (formId: string, formData: QueryActionConfig) => {
-    dispatch(startFormEvaluations(formId, formData));
+  runFormEvaluation: (
+    formId: string,
+    formData: QueryActionConfig,
+    datasourceId: string,
+    pluginId: string,
+  ) => {
+    dispatch(startFormEvaluations(formId, formData, datasourceId, pluginId));
   },
   initFormEvaluation: (
     editorConfig: any,

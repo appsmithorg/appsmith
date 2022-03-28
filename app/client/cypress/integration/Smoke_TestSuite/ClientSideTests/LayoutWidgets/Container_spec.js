@@ -23,7 +23,7 @@ describe("Container Widget Functionality", function() {
     /**
      * @param{Text} Random Border Colour
      */
-    cy.get(widgetsPage.boadercolorPicker)
+    cy.get(widgetsPage.borderColorPickerNew)
       .first()
       .click({ force: true });
     cy.xpath(widgetsPage.yellowColor).click();
@@ -35,10 +35,12 @@ describe("Container Widget Functionality", function() {
     /**
      * @param{Text} Random Background Colour
      */
-    cy.get(widgetsPage.backgroundcolorPicker)
+    cy.get(widgetsPage.backgroundcolorPickerNew)
       .first()
       .click({ force: true });
-    cy.xpath(widgetsPage.greenColor).click();
+    cy.get(widgetsPage.greenColor)
+      .last()
+      .click();
     cy.get(widgetsPage.containerD)
       .should("have.css", "background-color")
       .and("eq", "rgb(3, 179, 101)");
@@ -50,7 +52,6 @@ describe("Container Widget Functionality", function() {
       .eq(0)
       .scrollIntoView({ easing: "linear" })
       .should("be.visible");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.PublishtheApp();
   });
   it("Container Widget Functionality To Verify The Colour", function() {

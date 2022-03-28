@@ -19,12 +19,12 @@ import { selectWidgetAction } from "actions/widgetSelectionActions";
 import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/draghandler.svg";
 
 const DragBlock = styled.div`
-  height: 41px;
+  height: 40px;
   width: 83px;
-  background: ${Colors.ATHENS_GRAY_DARKER};
+  background: ${Colors.WHITE_SNOW};
   box-sizing: border-box;
   font-size: 12px;
-  color: ${Colors.SLATE_GRAY};
+  color: ${Colors.GREY_11};
   letter-spacing: 0.04em;
   font-weight: 500;
   display: flex;
@@ -33,7 +33,7 @@ const DragBlock = styled.div`
   cursor: pointer;
   span {
     padding-left: 8px;
-    color: ${Colors.GRAY};
+    color: ${Colors.GREY_11};
   }
 `;
 
@@ -75,12 +75,21 @@ class TableFilterPane extends Component<Props> {
         "t--table-filter-toggle-btn " +
         generateClassName(this.props.tableFilterPane.widgetId);
       const el = document.getElementsByClassName(className)[0];
+
+      /*
+        Prevent the FilterPane from overflowing the canvas when the 
+        table widget is on the very top of the canvas.
+      */
+      const boundaryParent = document.querySelector("#root");
+
       return (
         <Popper
+          boundaryParent={boundaryParent || "viewport"}
           disablePopperEvents={get(this.props, "metaProps.isMoved", false)}
           isDraggable
           isOpen
           onPositionChange={this.handlePositionUpdate}
+          parentElement={boundaryParent}
           placement="top"
           position={get(this.props, "metaProps.position") as PositionPropsInt}
           renderDragBlock={

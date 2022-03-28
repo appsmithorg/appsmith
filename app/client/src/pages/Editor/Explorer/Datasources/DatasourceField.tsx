@@ -91,7 +91,7 @@ export function DatabaseColumns(props: DatabaseFieldProps) {
   const icon = DATASOURCE_FIELD_ICONS_MAP[fieldType] || datasourceColumnIcon;
 
   const content = (
-    <Wrapper className="t--datasource-column" step={props.step + 1}>
+    <Wrapper className="t--datasource-column" step={props.step}>
       {icon}
       <Content>
         <FieldName>{fieldName}</FieldName>

@@ -41,7 +41,7 @@ import {
   ACTION_CONFIGURATION_UPDATED,
   createMessage,
   WIDGET_PROPERTIES_UPDATED,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getWidget } from "./selectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";

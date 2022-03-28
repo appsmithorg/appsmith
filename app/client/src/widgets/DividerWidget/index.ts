@@ -1,15 +1,14 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { Colors } from "constants/Colors";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Divider",
   iconSVG: IconSVG,
   defaults: {
-    rows: 0.5 * GRID_DENSITY_MIGRATION_V1,
-    columns: 5 * GRID_DENSITY_MIGRATION_V1,
+    rows: 4,
+    columns: 20,
     widgetName: "Divider",
     orientation: "horizontal",
     capType: "nc",
@@ -19,6 +18,7 @@ export const CONFIG = {
     thickness: 2,
     isVisible: true,
     version: 1,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

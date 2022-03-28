@@ -145,6 +145,16 @@ const usersReducer = createReducer(initialState, {
       },
     ],
   }),
+  [ReduxActionTypes.UPDATE_PHOTO_ID]: (
+    state: UsersReduxState,
+    action: ReduxAction<{ photoId: string }>,
+  ) => ({
+    ...state,
+    currentUser: {
+      ...state.currentUser,
+      photoId: action.payload.photoId,
+    },
+  }),
   [ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS]: (state: UsersReduxState) => ({
     ...state,
     featureFlagFetched: true,

@@ -57,6 +57,14 @@ export const Layers = {
   sideStickyBar: Indices.Layer7,
   evaluationPopper: Indices.Layer3,
   concurrentEditorWarning: Indices.Layer2,
+  manualUpgrade: Indices.Layer10,
+};
+
+export const tailwindLayers = {
+  propertyPane: "z-3",
+  entityExplorer: "z-3",
+  resizer: "z-4",
+  appComments: "z-7",
 };
 
 export const LayersContext = React.createContext(Layers);

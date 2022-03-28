@@ -2,16 +2,12 @@ import { AxiosPromise } from "axios";
 import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
 import { GitConfig } from "entities/GitSync";
+import ApplicationApi from "./ApplicationApi";
 
 export type CommitPayload = {
   applicationId: string;
   commitMessage: string;
   doPush: boolean;
-  branch: string;
-};
-
-export type PushToGitPayload = {
-  applicationId: string;
   branch: string;
 };
 
@@ -29,11 +25,10 @@ export type MergeStatusPayload = {
 
 export type ConnectToGitPayload = {
   remoteUrl: string;
-  gitProfile: {
+  gitProfile?: {
     authorName: string;
     authorEmail: string;
   };
-  isImport?: boolean;
   isDefaultProfile?: boolean;
 };
 
@@ -60,15 +55,6 @@ class GitSyncAPI extends Api {
     );
   }
 
-  static push({
-    applicationId,
-    branch,
-  }: PushToGitPayload): AxiosPromise<ApiResponse> {
-    return Api.post(
-      `${GitSyncAPI.baseURL}/push/${applicationId}?branchName=${branch}`,
-    );
-  }
-
   static merge({
     applicationId,
     destinationBranch,
@@ -85,18 +71,18 @@ class GitSyncAPI extends Api {
     destinationBranch,
     sourceBranch,
   }: MergeStatusPayload) {
-    return Api.get(`${GitSyncAPI.baseURL}/merge/status/${applicationId}`, {
+    return Api.post(`${GitSyncAPI.baseURL}/merge/status/${applicationId}`, {
       sourceBranch,
       destinationBranch,
     });
   }
 
-  static connect(payload: ConnectToGitPayload, applicationId: string) {
-    return Api.post(`${GitSyncAPI.baseURL}/connect/${applicationId}`, payload);
+  static pull({ applicationId }: { applicationId: string }) {
+    return Api.get(`${GitSyncAPI.baseURL}/pull/${applicationId}`);
   }
 
-  static disconnect(applicationId: string) {
-    return Api.post(`${GitSyncAPI.baseURL}/disconnect/${applicationId}`);
+  static connect(payload: ConnectToGitPayload, applicationId: string) {
+    return Api.post(`${GitSyncAPI.baseURL}/connect/${applicationId}`, payload);
   }
 
   static getGlobalConfig() {
@@ -107,12 +93,19 @@ class GitSyncAPI extends Api {
     return Api.post(`${GitSyncAPI.baseURL}/profile/default`, payload);
   }
 
-  static fetchBranches(applicationId: string) {
-    return Api.get(`${GitSyncAPI.baseURL}/branch/${applicationId}`);
+  static fetchBranches(applicationId: string, pruneBranches?: boolean) {
+    const queryParams = {} as { pruneBranches?: boolean };
+    if (pruneBranches) queryParams.pruneBranches = true;
+    return Api.get(
+      `${GitSyncAPI.baseURL}/branch/${applicationId}`,
+      queryParams,
+    );
   }
 
-  static checkoutBranch(applicationId: string) {
-    return Api.get(`${GitSyncAPI.baseURL}/checkout-branch/${applicationId}`);
+  static checkoutBranch(applicationId: string, branch: string) {
+    return Api.get(`${GitSyncAPI.baseURL}/checkout-branch/${applicationId}`, {
+      branchName: branch,
+    });
   }
 
   static createNewBranch(applicationId: string, branch: string) {
@@ -133,6 +126,28 @@ class GitSyncAPI extends Api {
     return Api.get(
       `${GitSyncAPI.baseURL}/status/${applicationId}?branchName=${branch}`,
     );
+  }
+
+  static disconnectGit({ applicationId }: { applicationId: string }) {
+    return Api.post(`${GitSyncAPI.baseURL}/disconnect/${applicationId}`);
+  }
+
+  static importApp(payload: ConnectToGitPayload, orgId: string) {
+    return Api.post(`${GitSyncAPI.baseURL}/import/${orgId}`, payload);
+  }
+
+  static getSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
+    return Api.get(ApplicationApi.baseURL + "/ssh-keypair/" + applicationId);
+  }
+
+  static generateSSHKeyPair(
+    applicationId: string,
+    isImporting?: boolean,
+  ): AxiosPromise<ApiResponse> {
+    const url = isImporting
+      ? "v1/git/import/keys"
+      : ApplicationApi.baseURL + "/ssh-keypair/" + applicationId;
+    return isImporting ? Api.get(url) : Api.post(url);
   }
 }
 

@@ -243,6 +243,52 @@ public class UserServiceTest {
     }
 
     @Test
+    @WithMockAppsmithUser
+    public void createNewUser_WhenEmailHasUpperCase_SavedInLowerCase() {
+        String sampleEmail = "User-email@Email.cOm";
+        String sampleEmailLowercase = sampleEmail.toLowerCase();
+
+        User newUser = new User();
+        newUser.setEmail(sampleEmail);
+        newUser.setPassword("new-user-test-password");
+
+        Policy manageUserPolicy = Policy.builder()
+                .permission(MANAGE_USERS.getValue())
+                .users(Set.of(sampleEmailLowercase)).build();
+
+        Policy manageUserOrgPolicy = Policy.builder()
+                .permission(USER_MANAGE_ORGANIZATIONS.getValue())
+                .users(Set.of(sampleEmailLowercase)).build();
+
+        Policy readUserPolicy = Policy.builder()
+                .permission(READ_USERS.getValue())
+                .users(Set.of(sampleEmailLowercase)).build();
+
+        Policy readUserOrgPolicy = Policy.builder()
+                .permission(USER_READ_ORGANIZATIONS.getValue())
+                .users(Set.of(sampleEmailLowercase)).build();
+
+        Mono<User> userMono = userService.create(newUser);
+
+        StepVerifier.create(userMono)
+                .assertNext(user -> {
+                    assertThat(user).isNotNull();
+                    assertThat(user.getId()).isNotNull();
+                    assertThat(user.getEmail()).isEqualTo(sampleEmailLowercase);
+                    assertThat(user.getName()).isNullOrEmpty();
+                    assertThat(user.getPolicies()).isNotEmpty();
+                    assertThat(user.getPolicies()).containsAll(
+                            Set.of(manageUserPolicy, manageUserOrgPolicy, readUserPolicy, readUserOrgPolicy)
+                    );
+                    // Since there is a template organization, the user won't have an empty default organization. They
+                    // will get a clone of the default organization when they first login. So, we expect it to be
+                    // empty here.
+                    assertThat(user.getOrganizationIds()).hasSize(1);
+                })
+                .verifyComplete();
+    }
+
+    @Test
     @DirtiesContext
     @WithUserDetails(value = "api_user")
     public void inviteUserToApplicationValidAsAdmin() {

@@ -16,7 +16,7 @@ import { useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
 import TooltipComponent from "components/ads/Tooltip";
-import { createMessage, SETTINGS_TOOLTIP } from "constants/messages";
+import { createMessage, SETTINGS_TOOLTIP } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core";
 
@@ -24,7 +24,11 @@ import { Position } from "@blueprintjs/core";
 const Container = styled.div`
   padding: 12px;
   padding-top: 6px;
-  width: 280px;
+
+  /* min width to be 280px i.e. 17.5rem to wrap long page names */
+  max-width: inherit;
+  min-width: 17.5rem;
+
   background-color: ${Colors.GREY_1};
 
   h4 {
@@ -37,6 +41,14 @@ const Container = styled.div`
 
   main {
     padding: 4px;
+  }
+
+  & .ContextMenuPopOver .ContextMenu {
+    width: 10rem;
+  }
+
+  & .editing {
+    width: 10rem;
   }
 `;
 
@@ -122,7 +134,9 @@ function ContextMenu(props: Props) {
         <Container>
           <Header>
             <PageName>
-              <EditName page={page} />
+              <div className="ContextMenuPopOver">
+                <EditName page={page} />
+              </div>
             </PageName>
             <Actions>
               <Action>
@@ -195,7 +209,7 @@ function ContextMenu(props: Props) {
       >
         <Action className={isOpen ? "active" : ""} type="button">
           <SettingsIcon
-            color={Colors.GREY_8}
+            color={Colors.GREY_9}
             height={16}
             onClick={noop}
             width={16}

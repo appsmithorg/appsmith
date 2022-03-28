@@ -21,7 +21,6 @@ const Wrapper = styled(EntityTogglesWrapper)`
   span {
     font-size: ${(props) => props.theme.fontSizes[2]}px;
     margin-left: 5px;
-    padding-top: 2px;
   }
   padding: 0 5px;
   color: ${Colors.GRAY2};

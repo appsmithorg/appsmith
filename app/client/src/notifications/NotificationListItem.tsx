@@ -114,10 +114,10 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
     isRead,
   } = props.notification;
   const {
-    applicationId,
     applicationName,
     authorName,
     authorUsername,
+    branchName,
     mode: modeFromComment,
     orgId,
     pageId,
@@ -139,7 +139,7 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
     const mode = getModeFromRoleAndDomain(modeFromRole, modeFromComment);
 
     const commentThreadUrl = getCommentThreadURL({
-      applicationId,
+      branch: branchName,
       commentThreadId: threadId,
       // isResolved: resolvedState?.active,
       mode,
@@ -190,10 +190,10 @@ function CommentThreadNotification(props: {
 
   const {
     _id,
-    applicationId,
     applicationName,
     authorName,
     authorUsername,
+    branchName,
     id,
     mode: modeFromThread,
     orgId,
@@ -208,7 +208,7 @@ function CommentThreadNotification(props: {
     const mode = getModeFromRoleAndDomain(modeFromRole, modeFromThread);
 
     const commentThreadUrl = getCommentThreadURL({
-      applicationId,
+      branch: branchName,
       commentThreadId,
       isResolved: resolvedState?.active,
       mode,

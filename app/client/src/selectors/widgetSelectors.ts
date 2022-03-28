@@ -31,3 +31,21 @@ export const getNextModalName = createSelector(
     return getNextEntityName(prefix, names);
   },
 );
+
+/**
+ * Selector to get the parent widget of a particaular widget with id as a prop
+ */
+export const getParentWidget = createSelector(
+  getCanvasWidgets,
+  (state: AppState, widgetId: string) => widgetId,
+  (canvasWidgets, widgetId: string): FlattenedWidgetProps | undefined => {
+    if (canvasWidgets.hasOwnProperty(widgetId)) {
+      const widget = canvasWidgets[widgetId];
+      if (widget.parentId && canvasWidgets.hasOwnProperty(widget.parentId)) {
+        const parent = canvasWidgets[widget.parentId];
+        return parent;
+      }
+    }
+    return;
+  },
+);

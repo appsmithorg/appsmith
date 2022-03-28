@@ -1,5 +1,5 @@
 import { GracefulWorkerService } from "./WorkerUtil";
-import { runSaga } from "redux-saga";
+import { channel, runSaga } from "redux-saga";
 import WebpackWorker from "worker-loader!";
 
 const MessageType = "message";
@@ -208,5 +208,126 @@ describe("GracefulWorkerService", () => {
     // wait for shutdown
     await shutdown.toPromise();
     expect(await task.toPromise()).not.toEqual(message);
+  });
+
+  test("duplex request starter", async () => {
+    const w = new GracefulWorkerService(MockWorker);
+    await runSaga({}, w.start);
+    // Need this to work with eslint
+    if (MockWorker.instance === undefined) {
+      expect(MockWorker.instance).toBeDefined();
+      return;
+    }
+    const requestData = { message: "Hello" };
+    const method = "duplex_test";
+    MockWorker.instance.postMessage = jest.fn();
+    const duplexRequest = await runSaga(
+      {},
+      w.duplexRequest,
+      method,
+      requestData,
+    );
+    const handlers = await duplexRequest.toPromise();
+    expect(handlers).toHaveProperty("requestChannel");
+    expect(handlers).toHaveProperty("responseChannel");
+    expect(MockWorker.instance.postMessage).toBeCalledWith({
+      method,
+      requestData,
+      requestId: expect.stringContaining(method),
+    });
+  });
+
+  test("duplex request channel handler", async () => {
+    const w = new GracefulWorkerService(MockWorker);
+    await runSaga({}, w.start);
+    const mockChannel = (name = "mock") => ({
+      name,
+      take: jest.fn(),
+      put: jest.fn(),
+      flush: jest.fn(),
+      close: jest.fn(),
+    });
+    const workerChannel = channel();
+    const mockRequestChannel = mockChannel("request");
+    const mockResponseChannel = mockChannel("response");
+    runSaga(
+      {},
+      w.duplexRequestHandler,
+      workerChannel,
+      mockRequestChannel,
+      mockResponseChannel,
+    );
+
+    let randomRequestCount = Math.floor(Math.random() * 10);
+
+    for (randomRequestCount; randomRequestCount > 0; randomRequestCount--) {
+      workerChannel.put({
+        responseData: {
+          test: randomRequestCount,
+        },
+      });
+      expect(mockRequestChannel.put).toBeCalledWith({
+        requestData: {
+          test: randomRequestCount,
+        },
+      });
+    }
+
+    workerChannel.put({
+      responseData: {
+        finished: true,
+      },
+    });
+
+    expect(mockResponseChannel.put).toBeCalledWith({ finished: true });
+
+    expect(mockRequestChannel.close).toBeCalled();
+  });
+
+  test("duplex response channel handler", async () => {
+    const w = new GracefulWorkerService(MockWorker);
+    await runSaga({}, w.start);
+
+    // Need this to work with eslint
+    if (MockWorker.instance === undefined) {
+      expect(MockWorker.instance).toBeDefined();
+      return;
+    }
+    const mockChannel = (name = "mock") => ({
+      name,
+      take: jest.fn(),
+      put: jest.fn(),
+      flush: jest.fn(),
+      close: jest.fn(),
+    });
+    const mockWorkerChannel = mockChannel("worker");
+    const responseChannel = channel();
+    const workerRequestId = "testID";
+    runSaga(
+      {},
+      w.duplexResponseHandler,
+      workerRequestId,
+      mockWorkerChannel,
+      responseChannel,
+    );
+    MockWorker.instance.postMessage = jest.fn();
+
+    let randomRequestCount = Math.floor(Math.random() * 10);
+
+    for (randomRequestCount; randomRequestCount > 0; randomRequestCount--) {
+      responseChannel.put({
+        test: randomRequestCount,
+      });
+      expect(MockWorker.instance.postMessage).toBeCalledWith({
+        test: randomRequestCount,
+        requestId: workerRequestId,
+      });
+    }
+
+    responseChannel.put({
+      finished: true,
+    });
+
+    expect(mockWorkerChannel.close).toBeCalled();
   });
 });

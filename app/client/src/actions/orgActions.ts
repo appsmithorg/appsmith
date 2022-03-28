@@ -11,6 +11,13 @@ export const fetchOrg = (orgId: string, skipValidation?: boolean) => {
   };
 };
 
+export const deleteOrg = (orgId: string) => {
+  return {
+    type: ReduxActionTypes.DELETE_ORG_INIT,
+    payload: orgId,
+  };
+};
+
 export const changeOrgUserRole = (
   orgId: string,
   role: string,

@@ -11,9 +11,9 @@ const TooltipStyles = createGlobalStyle`
     }
     .bp3-popover-content {
       padding: 8px;
-      color: ${Colors.RED};
+      color: ${Colors.ERROR_RED};
       text-align: center;
-      border-radius: 4px;
+      border-radius: 0;
       text-transform: initial;
       font-weight: 500;
       font-size: 12px;
@@ -37,6 +37,7 @@ interface Props {
   isOpen: boolean;
   message: string;
   children: JSX.Element;
+  customClass?: string;
 }
 
 function ErrorTooltip(props: Props) {
@@ -48,7 +49,7 @@ function ErrorTooltip(props: Props) {
         canEscapeKeyClose
         content={props.message}
         isOpen={props.isOpen && !!props.message}
-        portalClassName="error-tooltip"
+        portalClassName={`error-tooltip ${props.customClass || ""}`}
         position="bottom"
         usePortal
       >

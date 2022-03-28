@@ -8,6 +8,7 @@ import { EditorReduxState } from "./uiReducers/editorReducer";
 import { ErrorReduxState } from "./uiReducers/errorReducer";
 import { ActionDataState } from "./entityReducers/actionsReducer";
 import { PropertyPaneReduxState } from "./uiReducers/propertyPaneReducer";
+import { TemplatesReduxState } from "./uiReducers/templateReducer";
 import { WidgetConfigReducerState } from "./entityReducers/widgetConfigReducer";
 import { DatasourceDataState } from "./entityReducers/datasourceReducer";
 import { AppViewReduxState } from "./uiReducers/appViewReducer";
@@ -30,7 +31,7 @@ import { HelpReduxState } from "./uiReducers/helpReducer";
 import { ApiNameReduxState } from "./uiReducers/apiNameReducer";
 import { ExplorerReduxState } from "./uiReducers/explorerReducer";
 import { PageCanvasStructureReduxState } from "reducers/uiReducers/pageCanvasStructureReducer";
-import { ConfirmRunActionReduxState } from "./uiReducers/confirmRunActionReducer";
+import { ModalActionReduxState } from "./uiReducers/modalActionReducer";
 import { AppDataState } from "reducers/entityReducers/appReducer";
 import { DatasourceNameReduxState } from "./uiReducers/datasourceNameReducer";
 import { EvaluatedTreeState } from "./evaluationReducers/treeReducer";
@@ -54,6 +55,7 @@ import { GitSyncReducerState } from "./uiReducers/gitSyncReducer";
 import { AppCollabReducerState } from "./uiReducers/appCollabReducer";
 import { CrudInfoModalReduxState } from "./uiReducers/crudInfoModalReducer";
 import { FormEvaluationState } from "./evaluationReducers/formEvaluationReducer";
+import { widgetReflowState } from "./uiReducers/reflowReducer";
 import SettingsReducer, { SettingsReduxState } from "./settingsReducer";
 
 const appReducer = combineReducers({
@@ -76,6 +78,7 @@ export interface AppState {
     applications: ApplicationsReduxState;
     apiPane: ApiPaneReduxState;
     auth: AuthState;
+    templates: TemplatesReduxState;
     orgs: OrgReduxState;
     users: UsersReduxState;
     widgetDragResize: WidgetDragResizeState;
@@ -89,7 +92,7 @@ export interface AppState {
     explorer: ExplorerReduxState;
     pageCanvasStructure: PageCanvasStructureReduxState;
     pageWidgets: PageWidgetsReduxState;
-    confirmRunAction: ConfirmRunActionReduxState;
+    modalAction: ModalActionReduxState;
     datasourceName: DatasourceNameReduxState;
     theme: ThemeState;
     onBoarding: OnboardingState;
@@ -106,6 +109,7 @@ export interface AppState {
     gitSync: GitSyncReducerState;
     appCollab: AppCollabReducerState;
     crudInfoModal: CrudInfoModalReduxState;
+    widgetReflow: widgetReflowState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;
@@ -123,6 +127,9 @@ export interface AppState {
     dependencies: EvaluationDependencyState;
     loadingEntities: LoadingEntitiesState;
     formEvaluation: FormEvaluationState;
+  };
+  form: {
+    [key: string]: any;
   };
   settings: SettingsReduxState;
 }

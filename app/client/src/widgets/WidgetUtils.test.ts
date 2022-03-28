@@ -1,5 +1,6 @@
 import { ButtonVariantTypes } from "components/constants";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
+import { escapeSpecialChars, sanitizeKey } from "./WidgetUtils";
 import {
   getCustomTextColor,
   getCustomBackgroundColor,
@@ -120,5 +121,91 @@ describe("validate widget utils button style functions", () => {
     const expected6 = theme.colors.button.primary.tertiary.hoverColor;
     const result6 = getCustomHoverColor(theme, ButtonVariantTypes.TERTIARY);
     expect(result6).toStrictEqual(expected6);
+  });
+
+  it("validate escaping special characters", () => {
+    const testString = `a\nb\nc
+hello! how are you?
+`;
+    const result = escapeSpecialChars(testString);
+    const expectedResult = "a\nb\nc\nhello! how are you?\n";
+    expect(result).toStrictEqual(expectedResult);
+  });
+});
+
+describe(".sanitizeKey", () => {
+  it("returns sanitized value when passed a valid string", () => {
+    const inputAndExpectedOutput = [
+      ["lowercase", "lowercase"],
+      ["__abc__", "__abc__"],
+      ["lower_snake_case", "lower_snake_case"],
+      ["UPPER_SNAKE_CASE", "UPPER_SNAKE_CASE"],
+      ["PascalCase", "PascalCase"],
+      ["camelCase", "camelCase"],
+      ["lower-kebab-case", "lower_kebab_case"],
+      ["UPPER_KEBAB-CASE", "UPPER_KEBAB_CASE"],
+      ["Sentencecase", "Sentencecase"],
+      ["", "_"],
+      ["with space", "with_space"],
+      ["with multiple  spaces", "with_multiple__spaces"],
+      ["with%special)characters", "with_special_characters"],
+      ["with%$multiple_spl.)characters", "with__multiple_spl__characters"],
+      ["1startingWithNumber", "_1startingWithNumber"],
+    ];
+
+    inputAndExpectedOutput.forEach(([input, expectedOutput]) => {
+      const result = sanitizeKey(input);
+      expect(result).toEqual(expectedOutput);
+    });
+  });
+
+  it("returns sanitized value when valid string with existing keys and reserved keys", () => {
+    const existingKeys = [
+      "__id",
+      "__restricted__",
+      "firstName1",
+      "_1age",
+      "gender",
+      "poll123",
+      "poll124",
+      "poll125",
+      "address_",
+    ];
+
+    const inputAndExpectedOutput = [
+      ["lowercase", "lowercase"],
+      ["__abc__", "__abc__"],
+      ["lower_snake_case", "lower_snake_case"],
+      ["UPPER_SNAKE_CASE", "UPPER_SNAKE_CASE"],
+      ["PascalCase", "PascalCase"],
+      ["camelCase", "camelCase"],
+      ["lower-kebab-case", "lower_kebab_case"],
+      ["UPPER_KEBAB-CASE", "UPPER_KEBAB_CASE"],
+      ["Sentencecase", "Sentencecase"],
+      ["", "_"],
+      ["with space", "with_space"],
+      ["with multiple  spaces", "with_multiple__spaces"],
+      ["with%special)characters", "with_special_characters"],
+      ["with%$multiple_spl.)characters", "with__multiple_spl__characters"],
+      ["1startingWithNumber", "_1startingWithNumber"],
+      ["1startingWithNumber", "_1startingWithNumber"],
+      ["firstName", "firstName"],
+      ["firstName1", "firstName2"],
+      ["1age", "_1age1"],
+      ["address&", "address_1"],
+      ["%&id", "__id1"],
+      ["%&restricted*(", "__restricted__1"],
+      ["poll130", "poll130"],
+      ["poll124", "poll126"],
+      ["हिन्दि", "xn__j2bd4cyac6f"],
+      ["😃", "xn__h28h"],
+    ];
+
+    inputAndExpectedOutput.forEach(([input, expectedOutput]) => {
+      const result = sanitizeKey(input, {
+        existingKeys,
+      });
+      expect(result).toEqual(expectedOutput);
+    });
   });
 });

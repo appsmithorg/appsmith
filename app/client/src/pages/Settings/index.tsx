@@ -1,14 +1,11 @@
 import { Spinner } from "@blueprintjs/core";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { APPLICATIONS_URL } from "constants/routes";
 import PageWrapper from "pages/common/PageWrapper";
 import React from "react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Redirect } from "react-router";
 import { getSettingsLoadingState } from "selectors/settingsSelectors";
 import styled from "styled-components";
-import getFeatureFlags from "utils/featureFlags";
 import LeftPane from "./LeftPane";
 import Main from "./Main";
 import WithSuperUserHOC from "./WithSuperUserHoc";
@@ -27,7 +24,6 @@ const LoaderContainer = styled.div`
 function Settings() {
   const dispatch = useDispatch();
   const isLoading = useSelector(getSettingsLoadingState);
-  const isAdminSettingsEnabled = getFeatureFlags().ADMIN_SETTINGS;
   useEffect(() => {
     dispatch({
       type: ReduxActionTypes.FETCH_ADMIN_SETTINGS,
@@ -36,9 +32,6 @@ function Settings() {
       type: ReduxActionTypes.FETCH_RELEASES,
     });
   }, []);
-  if (!isAdminSettingsEnabled) {
-    return <Redirect to={APPLICATIONS_URL} />;
-  }
 
   return (
     <PageWrapper>

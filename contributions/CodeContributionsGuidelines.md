@@ -33,5 +33,9 @@ Please follow these guidelines according to the module that you wish to contribu
 - [Plugin](./ServerCodeContributionsGuidelines/PluginCodeContributionsGuidelines.md)
 
 #### Client Code
+
 Please follow the below guideline to add a new JS library to the Appsmith platform:
 - [Add Custom JS Library](./CustomJsLibrary.md)
+
+Please follow the below guideline for widget development
+- [Widget Development Guideline](./AppsmithWidgetDevelopmentGuide.md)

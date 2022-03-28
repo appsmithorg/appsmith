@@ -3,17 +3,9 @@ import styled from "styled-components";
 import { Icon } from "@blueprintjs/core";
 import Text, { TextType } from "components/ads/Text";
 import { useHistory } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { Colors } from "constants/Colors";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "../../../selectors/editorSelectors";
-import {
-  BUILDER_PAGE_URL,
-  getGenerateTemplateFormURL,
-} from "../../../constants/routes";
+import { builderURL, generateTemplateFormURL } from "RouteBuilder";
 
 const Back = styled.span`
   height: 30px;
@@ -25,17 +17,15 @@ const Back = styled.span`
 
 function BackButton() {
   const history = useHistory();
-  const applicationId = useSelector(getCurrentApplicationId);
-  const pageId = useSelector(getCurrentPageId);
   const goBack = () => {
     const isGeneratePageInitiator = getIsGeneratePageInitiator();
     const redirectURL = isGeneratePageInitiator
-      ? getGenerateTemplateFormURL(applicationId, pageId)
-      : BUILDER_PAGE_URL({ applicationId, pageId });
+      ? generateTemplateFormURL()
+      : builderURL();
     history.push(redirectURL);
   };
   return (
-    <Back onClick={goBack}>
+    <Back className="t--back-button" onClick={goBack}>
       <Icon icon="chevron-left" iconSize={16} />
       <Text
         style={{ color: Colors.DIESEL, lineHeight: "14px" }}

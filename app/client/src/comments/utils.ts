@@ -1,11 +1,9 @@
 import { CommentThread } from "entities/Comments/CommentsInterfaces";
-import {
-  BUILDER_PAGE_URL,
-  getApplicationViewerPageURL,
-} from "constants/routes";
+import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import { APP_MODE } from "entities/App";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
+import { builderURL, viewerURL } from "RouteBuilder";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 // used for dev
@@ -116,13 +114,13 @@ export const getOffsetPos = (
 };
 
 export const getCommentThreadURL = ({
-  applicationId,
+  branch,
   commentThreadId,
   isResolved,
   pageId,
   mode = APP_MODE.PUBLISHED,
 }: {
-  applicationId: string;
+  branch?: string;
   commentThreadId: string;
   isResolved?: boolean;
   pageId: string;
@@ -137,14 +135,14 @@ export const getCommentThreadURL = ({
     queryParams.isResolved = true;
   }
 
-  const urlBuilder =
-    mode === APP_MODE.PUBLISHED
-      ? getApplicationViewerPageURL
-      : BUILDER_PAGE_URL;
+  if (branch) {
+    queryParams[GIT_BRANCH_QUERY_KEY] = branch;
+  }
+
+  const urlBuilder = mode === APP_MODE.PUBLISHED ? viewerURL : builderURL;
 
   const url = new URL(
     `${window.location.origin}${urlBuilder({
-      applicationId: applicationId,
       pageId,
       params: queryParams,
     })}`,

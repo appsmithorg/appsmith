@@ -39,3 +39,9 @@ spec:
         name: appsmith-internal-server
         ports:
           - containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /api/v1/users/me
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5

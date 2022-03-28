@@ -79,15 +79,20 @@ export const updateUsersCommentOnboardingState = (
 
 export const updatePhoto = (payload: {
   file: File;
-  callback?: () => void;
+  callback?: (id: string) => void;
 }) => ({
   type: ReduxActionTypes.UPLOAD_PROFILE_PHOTO,
   payload,
 });
 
-export const removePhoto = (callback: () => void) => ({
+export const removePhoto = (callback: (id: string) => void) => ({
   type: ReduxActionTypes.REMOVE_PROFILE_PHOTO,
   payload: { callback },
+});
+
+export const updatePhotoId = (payload: { photoId: string }) => ({
+  type: ReduxActionTypes.UPDATE_PHOTO_ID,
+  payload,
 });
 
 export const leaveOrganization = (orgId: string) => {

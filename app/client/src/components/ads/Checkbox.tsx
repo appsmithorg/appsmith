@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Text, { TextType } from "./Text";
 import { Colors } from "constants/Colors";
+import { replayHighlightClass } from "globalStyles/portals";
 
 export type CheckboxProps = CommonComponentProps & {
   label: string;
@@ -11,9 +12,10 @@ export type CheckboxProps = CommonComponentProps & {
   info?: string;
   backgroundColor?: string;
   fill?: boolean;
+  name?: string;
 };
 
-const Checkmark = styled.span<{
+export const Checkmark = styled.span<{
   disabled?: boolean;
   isChecked?: boolean;
   info?: string;
@@ -136,6 +138,7 @@ function Checkbox(props: CheckboxProps) {
       <input
         checked={checked}
         disabled={props.disabled}
+        name={props?.name}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
           onChangeHandler(e.target.checked)
         }
@@ -143,6 +146,7 @@ function Checkbox(props: CheckboxProps) {
       />
       <Checkmark
         backgroundColor={props.backgroundColor}
+        className={replayHighlightClass}
         disabled={props.disabled}
         info={props.info}
         isChecked={checked}

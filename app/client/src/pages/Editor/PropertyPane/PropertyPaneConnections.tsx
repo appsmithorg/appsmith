@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useCallback } from "react";
+import React, { memo, useMemo, useCallback, useEffect } from "react";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import Dropdown, {
@@ -26,21 +26,24 @@ import { setCurrentTab, showDebugger } from "actions/debuggerActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
+import { Position } from "@blueprintjs/core";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 
-const CONNECTION_WIDTH = 113;
 const CONNECTION_HEIGHT = 28;
 
 const TopLayer = styled.div`
   display: flex;
   flex: 1;
   justify-content: space-between;
-  background-color: ${Colors.GREY_1};
 
   .connection-dropdown {
     box-shadow: none;
     border: none;
-    background-color: ${Colors.GREY_1};
+    background-color: ${Colors.WHITE};
+    padding: 0;
+    width: auto;
   }
+
   .error {
     border: 1px solid
       ${(props) => props.theme.colors.propertyPane.connections.error};
@@ -51,16 +54,17 @@ const TopLayer = styled.div`
 const SelectedNodeWrapper = styled.div<{
   entityCount: number;
   hasError: boolean;
+  justifyContent: string;
 }>`
   display: flex;
   align-items: center;
-  justify-content: center;
+  width: 100%;
+  justify-content: ${(props) => props.justifyContent};
   color: ${(props) =>
     props.hasError
       ? props.theme.colors.propertyPane.connections.error
       : props.theme.colors.propertyPane.connections.connectionsCount};
   ${(props) => getTypographyByKey(props, "p3")}
-  width: 113px;
   opacity: ${(props) => (!!props.entityCount ? 1 : 0.5)};
 
   & > *:nth-child(2) {
@@ -121,6 +125,7 @@ const OptionWrapper = styled.div<{ hasError: boolean; fillIconColor: boolean }>`
 
 const OptionContentWrapper = styled.div<{
   hasError: boolean;
+  isSelected: boolean;
 }>`
   padding: ${(props) => props.theme.spaces[2] + 1}px
     ${(props) => props.theme.spaces[5]}px;
@@ -130,6 +135,10 @@ const OptionContentWrapper = styled.div<{
   line-height: 8px;
   flex: 1;
   min-width: 0;
+  background-color: ${(props) =>
+    props.isSelected &&
+    !props.hasError &&
+    props.theme.colors.dropdown.hovered.bg};
 
   span:first-child {
     font-size: 10px;
@@ -167,6 +176,8 @@ type TriggerNodeProps = DefaultDropDownValueNodeProps & {
   iconAlignment: "LEFT" | "RIGHT";
   connectionType: "INCOMING" | "OUTGOING";
   hasError: boolean;
+  justifyContent: string;
+  tooltipPosition?: Position;
 };
 
 const doConnectionsHaveErrors = (
@@ -181,6 +192,7 @@ const doConnectionsHaveErrors = (
 const useDependencyList = (name: string) => {
   const dataTree = useSelector(getDataTree);
   const deps = useSelector((state: AppState) => state.evaluations.dependencies);
+  const guidedTour = useSelector(inGuidedTour);
 
   const getEntityId = useCallback((name) => {
     const entity = dataTree[name];
@@ -193,16 +205,17 @@ const useDependencyList = (name: string) => {
   }, []);
 
   const entityDependencies = useMemo(() => {
+    if (guidedTour) return null;
     return getDependenciesFromInverseDependencies(
       deps.inverseDependencyMap,
       name,
     );
-  }, [name, deps.inverseDependencyMap]);
+  }, [name, deps.inverseDependencyMap, guidedTour]);
 
   const dependencyOptions =
     entityDependencies?.directDependencies.map((e) => ({
       label: e,
-      value: getEntityId(e),
+      value: getEntityId(e) ?? e,
     })) ?? [];
   const inverseDependencyOptions =
     entityDependencies?.inverseDependencies.map((e) => ({
@@ -237,12 +250,28 @@ function OptionNode(props: any) {
     });
   };
 
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (!props.isSelectedNode) return;
+    if (e.key === " " || e.key === "Enter") onClick();
+  };
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [props.isSelectedNode]);
+
   return (
     <OptionWrapper
       fillIconColor={!entityInfo?.datasourceName}
       hasError={!!entityInfo?.hasError}
     >
-      <OptionContentWrapper hasError={!!entityInfo?.hasError} onClick={onClick}>
+      <OptionContentWrapper
+        hasError={!!entityInfo?.hasError}
+        isSelected={props.isSelectedNode}
+        onClick={onClick}
+      >
         <span>{entityInfo?.icon}</span>
         <Text type={TextType.H6}>
           {props.option.label}{" "}
@@ -274,6 +303,7 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
       className={props.hasError ? "t--connection-error" : "t--connection"}
       entityCount={props.entityCount}
       hasError={props.hasError}
+      justifyContent={props.justifyContent}
       onClick={onClick}
     >
       {props.iconAlignment === "LEFT" && (
@@ -285,7 +315,12 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
         />
       )}
       <span>
-        <Tooltip content={tooltipText} disabled={props.isOpen}>
+        <Tooltip
+          content={tooltipText}
+          disabled={props.isOpen}
+          openOnTargetFocus={false}
+          position={props.tooltipPosition}
+        >
           {props.entityCount ? `${props.entityCount} ${ENTITY}` : "No Entity"}
         </Tooltip>
       </span>
@@ -303,6 +338,8 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
 });
 
 TriggerNode.displayName = "TriggerNode";
+
+const selectedOption = { label: "", value: "" };
 
 function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
   const dependencies = useDependencyList(props.widgetName);
@@ -329,10 +366,12 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         SelectedValueNode={(selectedValueProps) => (
           <TriggerNode
             iconAlignment={"LEFT"}
+            justifyContent={"flex-start"}
             {...selectedValueProps}
             connectionType="INCOMING"
             entityCount={dependencies.dependencyOptions.length}
             hasError={errorIncomingConnections}
+            tooltipPosition="bottom-left"
           />
         )}
         className={`connection-dropdown ${
@@ -343,22 +382,29 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         height={`${CONNECTION_HEIGHT}px`}
         options={dependencies.dependencyOptions}
         renderOption={(optionProps) => {
-          return <OptionNode option={optionProps.option} />;
+          return (
+            <OptionNode
+              isSelectedNode={optionProps.isSelectedNode}
+              option={optionProps.option}
+            />
+          );
         }}
-        selected={{ label: "", value: "" }}
+        selected={selectedOption}
         showDropIcon={false}
         showLabelOnly
-        width={`${CONNECTION_WIDTH}px`}
+        width="100%"
       />
       {/* <PopperDragHandle /> */}
       <Dropdown
         SelectedValueNode={(selectedValueProps) => (
           <TriggerNode
             iconAlignment={"RIGHT"}
+            justifyContent={"flex-end"}
             {...selectedValueProps}
             connectionType="OUTGOING"
             entityCount={dependencies.inverseDependencyOptions.length}
             hasError={errorOutgoingConnections}
+            tooltipPosition="bottom-right"
           />
         )}
         className={`connection-dropdown ${
@@ -370,12 +416,17 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         onSelect={navigateToEntity}
         options={dependencies.inverseDependencyOptions}
         renderOption={(optionProps) => {
-          return <OptionNode option={optionProps.option} />;
+          return (
+            <OptionNode
+              isSelectedNode={optionProps.isSelectedNode}
+              option={optionProps.option}
+            />
+          );
         }}
         selected={{ label: "", value: "" }}
         showDropIcon={false}
         showLabelOnly
-        width={`${CONNECTION_WIDTH}px`}
+        width={`100%`}
       />
     </TopLayer>
   );

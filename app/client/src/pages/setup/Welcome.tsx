@@ -7,7 +7,7 @@ import {
   createMessage,
   WELCOME_BODY,
   WELCOME_HEADER,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import NonSuperUserForm, { SuperUserForm } from "./GetStarted";
 
 const LandingPageWrapper = styled.div<{ hide: boolean }>`

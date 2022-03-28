@@ -12,7 +12,7 @@ import {
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
   INSPECT_ENTITY,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 import { Colors } from "constants/Colors";
@@ -27,7 +27,7 @@ const Container = styled.div`
   height: 25%;
   min-height: ${TABS_HEADER_HEIGHT}px;
   background-color: ${(props) => props.theme.colors.debugger.background};
-  border: 1px solid ${Colors.ALTO};
+  border-top: 1px solid ${Colors.ALTO};
 
   ul.react-tabs__tab-list {
     padding: 0px ${(props) => props.theme.spaces[12]}px;

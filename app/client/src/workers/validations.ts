@@ -6,13 +6,16 @@ import {
   Validator,
 } from "../constants/WidgetValidation";
 import _, {
+  compact,
   get,
   isArray,
   isObject,
   isPlainObject,
+  isRegExp,
   isString,
   toString,
   uniq,
+  __,
 } from "lodash";
 
 import moment from "moment";
@@ -21,7 +24,9 @@ import evaluate from "./evaluate";
 
 import getIsSafeURL from "utils/validation/getIsSafeURL";
 import * as log from "loglevel";
+import { findDuplicateIndex } from "./helpers";
 export const UNDEFINED_VALIDATION = "UNDEFINED_VALIDATION";
+export const VALIDATION_ERROR_COUNT_THRESHOLD = 10;
 
 const flat = (array: Record<string, any>[], uniqueParam: string) => {
   let result: { value: string }[] = [];
@@ -51,6 +56,7 @@ function validatePlainObject(
   config: ValidationConfig,
   value: Record<string, unknown>,
   props: Record<string, unknown>,
+  propertyPath: string,
 ) {
   if (config.params?.allowedKeys) {
     let _valid = true;
@@ -64,6 +70,7 @@ function validatePlainObject(
           entry,
           value[entryName],
           props,
+          propertyPath,
         );
         if (!isValid) {
           value[entryName] = parsed;
@@ -75,7 +82,7 @@ function validatePlainObject(
               );
             });
         }
-      } else if (entry.params?.required) {
+      } else if (entry.params?.required || entry.params?.requiredKey) {
         _valid = false;
         _messages.push(`Missing required key: ${entryName}`);
       }
@@ -102,106 +109,136 @@ function validateArray(
   config: ValidationConfig,
   value: unknown[],
   props: Record<string, unknown>,
+  propertyPath: string,
 ) {
-  let _isValid = true;
-  const _messages: string[] = [];
-  const whiteList = config.params?.allowedValues;
-  if (whiteList) {
-    value.forEach((entry) => {
-      if (!whiteList.includes(entry)) {
-        return {
-          isValid: false,
-          parsed: value,
-          messages: [`Disallowed value: ${entry}`],
-        };
-      }
-    });
-  }
-  // Check uniqueness of object elements in an array
+  let _isValid = true; // Let's first assume that this is valid
+  const _messages: string[] = []; // Initialise messages array
+
+  // Values allowed in the array, converted into a set of unique values
+  // or an empty set
+  const allowedValues = new Set(config.params?.allowedValues || []);
+
+  // Keys whose values are supposed to be unique across all values in all objects in the array
+  let uniqueKeys: Array<string> = [];
+  const allowedKeyConfigs = config.params?.children?.params?.allowedKeys;
   if (
     config.params?.children?.type === ValidationTypes.OBJECT &&
-    (config.params.children.params?.allowedKeys || []).length > 0
+    Array.isArray(allowedKeyConfigs) &&
+    allowedKeyConfigs.length
   ) {
-    const allowedKeysCofigArray =
-      config.params.children.params?.allowedKeys || [];
+    uniqueKeys = compact(
+      allowedKeyConfigs.map((allowedKeyConfig) => {
+        // TODO(abhinav): This is concerning, we now have two ways,
+        // in which we can define unique keys in an array of objects
+        // We need to disable one option.
 
-    const allowedKeys = (config.params.children.params?.allowedKeys || []).map(
-      (key) => key.name,
+        // If this key is supposed to be unique across all objects in the value array
+        // We include it in the uniqueKeys list
+        if (allowedKeyConfig.params?.unique) return allowedKeyConfig.name;
+      }),
     );
-    type ObjectKeys = typeof allowedKeys[number];
-    type ItemType = {
-      [key in ObjectKeys]: string;
-    };
-
-    const valueWithType = value as ItemType[];
-    allowedKeysCofigArray.forEach((allowedKeyConfig) => {
-      if (allowedKeyConfig.params?.unique) {
-        const allowedKeyValues = valueWithType.map(
-          (item) => item[allowedKeyConfig.name],
-        );
-        const normalizedValues = valueWithType.map((item) =>
-          item[allowedKeyConfig.name].toLowerCase(),
-        );
-        // Check if value is duplicated
-        _messages.push(
-          ...allowedKeyValues.reduce(
-            (acc: string[], currentValue, currentIndex) => {
-              if (
-                normalizedValues.indexOf(currentValue.toLowerCase()) !==
-                currentIndex
-              ) {
-                acc.push(
-                  `Duplicated entry at index: ${currentIndex + 1}, key: ${
-                    allowedKeyConfig.name
-                  }, value: ${currentValue}`,
-                );
-              }
-              return acc;
-            },
-            [],
-          ),
-        );
-        if (_messages.length > 0) {
-          _isValid = false;
-        }
-      }
-    });
   }
 
-  const children = config.params?.children;
+  // Concatenate unique keys from config.params?.unique
+  uniqueKeys = Array.isArray(config.params?.unique)
+    ? uniqueKeys.concat(config.params?.unique as Array<string>)
+    : uniqueKeys;
 
-  if (children) {
-    value.forEach((entry, index) => {
-      const validation = validate(children, entry, props);
-      if (!validation.isValid) {
+  // Validation configuration for children
+  const childrenValidationConfig = config.params?.children;
+
+  // Should we validate against disallowed values in the value array?
+  const shouldVerifyAllowedValues = !!allowedValues.size; // allowedValues is a set
+
+  // Do we have validation config for array children?
+  const shouldValidateChildren = !!childrenValidationConfig;
+
+  // Should array values be unique? This should applies only to primitive values in array children
+  // If we have to validate children with their own validation config, this should be false (Needs verification)
+  // If this option is true, shouldArrayValuesHaveUniqueValuesForKeys will become false
+  const shouldArrayHaveUniqueEntries = config.params?.unique === true;
+
+  // Should we validate for unique values for properties in the array entries?
+  const shouldArrayValuesHaveUniqueValuesForKeys =
+    !!uniqueKeys.length && !shouldArrayHaveUniqueEntries;
+
+  // Verify if all values are unique
+  if (shouldArrayHaveUniqueEntries) {
+    // Find the index of a duplicate value in array
+    const duplicateIndex = findDuplicateIndex(value);
+    if (duplicateIndex !== -1) {
+      // Bail out early
+      // Because, we don't want to re-iterate, if this validation fails
+      return {
+        isValid: false,
+        parsed: config.params?.default || [],
+        messages: [
+          `Array must be unique. Duplicate values found at index: ${duplicateIndex}`,
+        ],
+      };
+    }
+  }
+
+  if (shouldArrayValuesHaveUniqueValuesForKeys) {
+    // Loop
+    // Get only unique entries from the value array
+    const uniqueEntries = _.uniqWith(
+      value as Array<Record<string, unknown>>,
+      (a: Record<string, unknown>, b: Record<string, unknown>) => {
+        // If any of the keys are the same, we fail the uniqueness test
+        return uniqueKeys.some((key) => a[key] === b[key]);
+      },
+    );
+
+    if (uniqueEntries.length !== value.length) {
+      // Bail out early
+      // Because, we don't want to re-iterate, if this validation fails
+      return {
+        isValid: false,
+        parsed: config.params?.default || [],
+        messages: [
+          `Duplicate values found for the following properties, in the array entries, that must be unique -- ${uniqueKeys.join(
+            ",",
+          )}.`,
+        ],
+      };
+    }
+  }
+
+  // Loop
+  value.every((entry, index) => {
+    // Validate for allowed values
+    if (shouldVerifyAllowedValues && !allowedValues.has(entry)) {
+      _messages.push(`Value is not allowed in this array: ${entry}`);
+      _isValid = false;
+    }
+
+    // validate using validation config
+    if (shouldValidateChildren && childrenValidationConfig) {
+      // Validate this entry
+      const childValidationResult = validate(
+        childrenValidationConfig,
+        entry,
+        props,
+        `${propertyPath}[${index}]`,
+      );
+
+      // If invalid, append to messages
+      if (!childValidationResult.isValid) {
         _isValid = false;
-        validation.messages?.map((message) =>
+        childValidationResult.messages?.forEach((message) =>
           _messages.push(`Invalid entry at index: ${index}. ${message}`),
         );
       }
-    });
-  }
-  if (config.params?.unique) {
-    if (isArray(config.params?.unique)) {
-      for (const param of config.params?.unique) {
-        const shouldBeUnique = value.map((entry) =>
-          get(entry, param as string, ""),
-        );
-        if (uniq(shouldBeUnique).length !== value.length) {
-          _isValid = false;
-          _messages.push(
-            `path:${param} must be unique. Duplicate values found`,
-          );
-          break;
-        }
-      }
-    } else if (
-      uniq(value.map((entry) => JSON.stringify(entry))).length !== value.length
-    ) {
-      _isValid = false;
-      _messages.push(`Array must be unique. Duplicate values found`);
     }
-  }
+
+    // Bail out, if the error count threshold has been overcome
+    // This way, debugger will not have to render too many errors
+    if (_messages.length >= VALIDATION_ERROR_COUNT_THRESHOLD && !_isValid) {
+      return false;
+    }
+    return true;
+  });
 
   return {
     isValid: _isValid,
@@ -209,17 +246,20 @@ function validateArray(
     messages: _messages,
   };
 }
-
+//TODO: parameter props may not be in use
 export const validate = (
   config: ValidationConfig,
   value: unknown,
   props: Record<string, unknown>,
-) => {
+  propertyPath: string,
+): ValidationResponse => {
   const _result = VALIDATORS[config.type as ValidationTypes](
     config,
     value,
     props,
+    propertyPath,
   );
+
   return _result;
 };
 
@@ -236,6 +276,9 @@ export function getExpectedType(config?: ValidationConfig): string | undefined {
       if (config.params?.allowedValues) {
         const allowed = config.params.allowedValues.join(" | ");
         result = result + ` ( ${allowed} )`;
+      }
+      if (config.params?.regex) {
+        result = config.params?.regex.source;
       }
       if (config.params?.expected?.type) result = config.params?.expected.type;
       return result;
@@ -296,7 +339,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     value: unknown,
     props: Record<string, unknown>,
   ): ValidationResponse => {
-    if (value === undefined || value === null) {
+    if (value === undefined || value === null || value === "") {
       if (config.params && config.params.required) {
         return {
           isValid: false,
@@ -338,13 +381,11 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         return stringValidationError;
       }
     }
-    // If the value is an empty string we skip
-    // as we do not mark the field as an error
-    if (config.params?.allowedValues && value !== "") {
+    if (config.params?.allowedValues) {
       if (!config.params?.allowedValues.includes((parsed as string).trim())) {
         return {
           parsed: config.params?.default || "",
-          messages: ["Value is not allowed"],
+          messages: [`Disallowed value: ${parsed}`],
           isValid: false,
         };
       }
@@ -352,13 +393,13 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
 
     if (
       config.params?.regex &&
-      isString(config.params?.regex) &&
+      isRegExp(config.params?.regex) &&
       !config.params?.regex.test(parsed as string)
     ) {
       return {
         parsed: config.params?.default || "",
         messages: [
-          `Value does not match expected regex: ${config.params?.regex.source}`,
+          `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
         ],
         isValid: false,
       };
@@ -374,11 +415,13 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,
+    propertyPath: string,
   ): ValidationResponse => {
     const { isValid, messages, parsed } = VALIDATORS[ValidationTypes.TEXT](
       config,
       value,
       props,
+      propertyPath,
     );
 
     if (!isValid) {
@@ -432,12 +475,12 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     // check for min and max limits
     let parsed: number = value as number;
     if (isString(value)) {
-      if (/^\d+\.?\d*$/.test(value)) {
+      if (/^-?\d+\.?\d*$/.test(value)) {
         parsed = Number(value);
       } else {
         return {
           isValid: false,
-          parsed: config.params?.default || 0,
+          parsed: value || config.params?.default || 0,
           messages: [
             `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
           ],
@@ -452,7 +495,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       if (parsed < Number(config.params.min)) {
         return {
           isValid: false,
-          parsed,
+          parsed: parsed || config.params.min || 0,
           messages: [`Minimum allowed value: ${config.params.min}`],
         };
       }
@@ -465,7 +508,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       if (parsed > Number(config.params.max)) {
         return {
           isValid: false,
-          parsed,
+          parsed: config.params.max || parsed || 0,
           messages: [`Maximum allowed value: ${config.params.max}`],
         };
       }
@@ -473,7 +516,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     if (config.params?.natural && (parsed < 0 || !Number.isInteger(parsed))) {
       return {
         isValid: false,
-        parsed,
+        parsed: config.params.default || parsed || 0,
         messages: [`Value should be a positive integer`],
       };
     }
@@ -531,6 +574,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,
+    propertyPath: string,
   ): ValidationResponse => {
     if (
       value === undefined ||
@@ -557,13 +601,14 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         config,
         value as Record<string, unknown>,
         props,
+        propertyPath,
       );
     }
 
     try {
       const result = { parsed: JSON.parse(value as string), isValid: true };
       if (isPlainObject(result.parsed)) {
-        return validatePlainObject(config, result.parsed, props);
+        return validatePlainObject(config, result.parsed, props, propertyPath);
       }
       return {
         isValid: false,
@@ -586,6 +631,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,
+    propertyPath: string,
   ): ValidationResponse => {
     const invalidResponse = {
       isValid: false,
@@ -626,7 +672,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       try {
         const _value = JSON.parse(value);
         if (Array.isArray(_value)) {
-          const result = validateArray(config, _value, props);
+          const result = validateArray(config, _value, props, propertyPath);
           return result;
         }
       } catch (e) {
@@ -635,7 +681,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     }
 
     if (Array.isArray(value)) {
-      return validateArray(config, value, props);
+      return validateArray(config, value, props, propertyPath);
     }
 
     return invalidResponse;
@@ -705,13 +751,14 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,
+    propertyPath: string,
   ): ValidationResponse => {
     let response: ValidationResponse = {
       isValid: false,
       parsed: config.params?.default || [],
       messages: [`${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`],
     };
-    response = VALIDATORS.ARRAY(config, value, props);
+    response = VALIDATORS.ARRAY(config, value, props, propertyPath);
 
     if (!response.isValid) {
       return response;
@@ -743,30 +790,25 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     value: unknown,
     props: Record<string, unknown>,
   ): ValidationResponse => {
-    const invalidResponse = {
-      isValid: false,
-      parsed: config.params?.default || moment().toISOString(true),
-      messages: [`Value does not match: ${getExpectedType(config)}`],
-    };
-    if (value === undefined || value === null || !isString(value)) {
-      if (!config.params?.required) {
-        return {
-          isValid: true,
-          parsed: value,
-        };
-      }
-      return invalidResponse;
-    }
-    if (isString(value)) {
-      if (value === "" && !config.params?.required) {
-        return {
-          isValid: true,
-          parsed: config.params?.default || moment().toISOString(true),
-        };
-      }
+    let isValid = false;
+    let parsed = value;
+    let message = "";
 
-      if (!moment(value).isValid()) return invalidResponse;
+    if (_.isNil(value) || value === "") {
+      parsed = config.params?.default;
 
+      if (config.params?.required) {
+        isValid = false;
+        message = `Value does not match: ${getExpectedType(config)}`;
+      } else {
+        isValid = true;
+      }
+    } else if (typeof value === "object" && moment(value).isValid()) {
+      //Date and moment object
+      isValid = true;
+      parsed = moment(value).toISOString(true);
+    } else if (isString(value)) {
+      //Date string
       if (
         value === moment(value).toISOString() ||
         value === moment(value).toISOString(true)
@@ -775,16 +817,35 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           isValid: true,
           parsed: value,
         };
+      } else if (moment(value).isValid()) {
+        isValid = true;
+        parsed = moment(value).toISOString(true);
+      } else {
+        isValid = false;
+        message = `Value does not match: ${getExpectedType(config)}`;
+        parsed = config.params?.default;
       }
-      if (moment(value).isValid())
-        return { isValid: true, parsed: moment(value).toISOString(true) };
+    } else {
+      isValid = false;
+      message = `Value does not match: ${getExpectedType(config)}`;
     }
-    return invalidResponse;
+
+    const result: ValidationResponse = {
+      isValid,
+      parsed,
+    };
+
+    if (message) {
+      result.messages = [message];
+    }
+
+    return result;
   },
   [ValidationTypes.FUNCTION]: (
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,
+    propertyPath: string,
   ): ValidationResponse => {
     const invalidResponse = {
       isValid: false,
@@ -793,12 +854,14 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     };
     if (config.params?.fnString && isString(config.params?.fnString)) {
       try {
-        const { result } = evaluate(config.params.fnString, {}, {}, [
-          value,
-          props,
-          _,
-          moment,
-        ]);
+        const { result } = evaluate(
+          config.params.fnString,
+          {},
+          {},
+          false,
+          undefined,
+          [value, props, _, moment, propertyPath],
+        );
         return result;
       } catch (e) {
         log.error("Validation function error: ", { e });
@@ -861,5 +924,62 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     } else {
       return invalidResponse;
     }
+  },
+
+  /**
+   *
+   * TABLE_PROPERTY can be used in scenarios where we wanted to validate
+   * using ValidationTypes.ARRAY or ValidationTypes.* at the same time.
+   * This is needed in case of properties inside Table widget where we use COMPUTE_VALUE
+   * For more info: https://github.com/appsmithorg/appsmith/pull/9396
+   *
+   */
+  [ValidationTypes.TABLE_PROPERTY]: (
+    config: ValidationConfig,
+    value: unknown,
+    props: Record<string, unknown>,
+    propertyPath: string,
+  ): ValidationResponse => {
+    if (!config.params?.type)
+      return {
+        isValid: false,
+        parsed: undefined,
+        messages: ["Invalid validation"],
+      };
+
+    // Validate when JS mode is disabled
+    const result = VALIDATORS[config.params.type as ValidationTypes](
+      config.params as ValidationConfig,
+      value,
+      props,
+      propertyPath,
+    );
+    if (result.isValid) return result;
+
+    // Validate when JS mode is enabled
+    const resultValue = [];
+    if (_.isArray(value)) {
+      for (const item of value) {
+        const result = VALIDATORS[config.params.type](
+          config.params as ValidationConfig,
+          item,
+          props,
+          propertyPath,
+        );
+        if (!result.isValid) return result;
+        resultValue.push(result.parsed);
+      }
+    } else {
+      return {
+        isValid: false,
+        parsed: config.params?.params?.default,
+        messages: result.messages,
+      };
+    }
+
+    return {
+      isValid: true,
+      parsed: resultValue,
+    };
   },
 };

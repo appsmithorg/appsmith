@@ -34,6 +34,9 @@ public class Application extends BaseDomain {
 
     String organizationId;
 
+    /*
+    TODO: remove default values from application.
+     */
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Boolean isPublic = false;
 
@@ -76,13 +79,33 @@ public class Application extends BaseDomain {
     Integer evaluationVersion;
 
     /**
-     * This method has been added because the updatedAt property in base domain has @JsonIgnore annotation
+     * applicationVersion will be used when we've a breaking change in application, and it's not possible to write a
+     * migration. User need to update the application manually.
+     * In such cases, we can use this field to determine whether we need to notify user about that breaking change
+     * so that they can update their application.
+     * Once updated, we should set applicationVersion to latest version as well.
+     */
+    Integer applicationVersion;
+
+    /*
+    Changing name, change in pages, widgets and datasources will set lastEditedAt.
+    Other activities e.g. changing policy will not change this property.
+    We're adding JsonIgnore here because it'll be exposed as modifiedAt to keep it backward compatible
+     */
+    @JsonIgnore
+    Instant lastEditedAt;
+
+    /**
+     * Earlier this was returning value of the updatedAt property in the base domain.
+     * As this property is modified by the framework when there is any change in domain,
+     * a new property lastEditedAt has been added to track the edit actions from users.
+     * This method exposes that property.
      * @return updated time as a string
      */
     @JsonProperty(value = "modifiedAt", access = JsonProperty.Access.READ_ONLY)
     public String getLastUpdateTime() {
-        if(updatedAt != null) {
-            return ISO_FORMATTER.format(updatedAt);
+        if(lastEditedAt != null) {
+            return ISO_FORMATTER.format(lastEditedAt);
         }
         return null;
     }
@@ -95,6 +118,27 @@ public class Application extends BaseDomain {
     }
 
     Boolean forkingEnabled;
+
+    // Field to convey if the application is updated by the user
+    Boolean isManualUpdate;
+
+    // Field to convey if the application is modified from the DB migration
+    @Transient
+    Boolean isAutoUpdate;
+
+    // To convey current schema version for client and server. This will be used to check if we run the migration
+    // between 2 commits if the application is connected to git
+    @JsonIgnore
+    Integer clientSchemaVersion;
+
+    @JsonIgnore
+    Integer serverSchemaVersion;
+
+    @JsonIgnore
+    String publishedModeThemeId;
+
+    @JsonIgnore
+    String editModeThemeId;
 
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
     // initialized newly or is left up to the calling function to set.
@@ -152,5 +196,4 @@ public class Application extends BaseDomain {
             FLUID,
         }
     }
-
 }

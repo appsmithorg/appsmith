@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
 import _ from "lodash";
-import { animated } from "react-spring";
-import { useSpring, interpolate } from "react-spring";
+import { animated, useSpring, to } from "react-spring";
 
 export const ScrollThumb = styled(animated.div)<{
   mode?: "DARK" | "LIGHT";
@@ -125,7 +124,7 @@ function ScrollIndicator({
       <ScrollThumb
         ref={thumbRef}
         style={{
-          transform: interpolate(
+          transform: to(
             [thumbPosition],
             (top: number) => `translate3d(0px, ${top}%, 0)`,
           ),

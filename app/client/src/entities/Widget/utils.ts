@@ -45,10 +45,13 @@ const checkPathsInConfig = (
   return { configBindingPaths, configTriggerPaths, configValidationPaths };
 };
 
+// "originalWidget" param here always contains the complete widget props
+// as this function's widget parameter tends to change in each iteration
 const childHasPanelConfig = (
   config: any,
   widget: WidgetProps,
   basePath: string,
+  originalWidget: WidgetProps,
 ) => {
   const panelPropertyPath = config.propertyName;
   const widgetPanelPropertyValues = get(widget, panelPropertyPath);
@@ -58,22 +61,25 @@ const childHasPanelConfig = (
   if (widgetPanelPropertyValues) {
     Object.values(widgetPanelPropertyValues).forEach(
       (widgetPanelPropertyValue: any) => {
+        const { panelIdPropertyName } = config.panelConfig;
+        const propertyPath = `${basePath}.${widgetPanelPropertyValue[panelIdPropertyName]}`;
+
         config.panelConfig.children.forEach((panelColumnConfig: any) => {
           let isSectionHidden = false;
           if ("hidden" in panelColumnConfig) {
             isSectionHidden = panelColumnConfig.hidden(
-              widget,
-              `${basePath}.${widgetPanelPropertyValue.id}`,
+              originalWidget,
+              propertyPath,
             );
           }
           if (!isSectionHidden) {
             panelColumnConfig.children.forEach(
               (panelColumnControlConfig: any) => {
-                const panelPropertyConfigPath = `${basePath}.${widgetPanelPropertyValue.id}.${panelColumnControlConfig.propertyName}`;
+                const panelPropertyConfigPath = `${propertyPath}.${panelColumnControlConfig.propertyName}`;
                 let isControlHidden = false;
                 if ("hidden" in panelColumnControlConfig) {
                   isControlHidden = panelColumnControlConfig.hidden(
-                    widget,
+                    originalWidget,
                     panelPropertyConfigPath,
                   );
                 }
@@ -102,6 +108,7 @@ const childHasPanelConfig = (
                       panelColumnControlConfig,
                       widgetPanelPropertyValue,
                       panelPropertyConfigPath,
+                      originalWidget,
                     );
                     bindingPaths = { ...panelBindingPaths, ...bindingPaths };
                     triggerPaths = { ...panelTriggerPaths, ...triggerPaths };
@@ -138,6 +145,7 @@ export const getAllPathsFromPropertyConfig = (
   );
   let triggerPaths: Record<string, true> = {};
   let validationPaths: Record<any, ValidationConfig> = {};
+
   widgetConfig.forEach((config) => {
     if (config.children) {
       config.children.forEach((controlConfig: any) => {
@@ -153,9 +161,10 @@ export const getAllPathsFromPropertyConfig = (
             configTriggerPaths,
             configValidationPaths,
           } = checkPathsInConfig(controlConfig, path);
-          bindingPaths = { ...configBindingPaths, ...bindingPaths };
-          triggerPaths = { ...configTriggerPaths, ...triggerPaths };
-          validationPaths = { ...configValidationPaths, ...validationPaths };
+          // Update default path configs with the ones in the property config
+          bindingPaths = { ...bindingPaths, ...configBindingPaths };
+          triggerPaths = { ...triggerPaths, ...configTriggerPaths };
+          validationPaths = { ...validationPaths, ...configValidationPaths };
         }
         // Has child Panel Config
         if (controlConfig.panelConfig) {
@@ -163,12 +172,13 @@ export const getAllPathsFromPropertyConfig = (
             controlConfig,
             widget,
             basePath,
+            widget,
           );
-          bindingPaths = { ...resultingPaths.bindingPaths, ...bindingPaths };
-          triggerPaths = { ...resultingPaths.triggerPaths, ...triggerPaths };
+          bindingPaths = { ...bindingPaths, ...resultingPaths.bindingPaths };
+          triggerPaths = { ...triggerPaths, ...resultingPaths.triggerPaths };
           validationPaths = {
-            ...resultingPaths.validationPaths,
             ...validationPaths,
+            ...resultingPaths.validationPaths,
           };
         }
         if (controlConfig.children) {
@@ -191,11 +201,11 @@ export const getAllPathsFromPropertyConfig = (
                   childPropertyConfig,
                   childArrayPropertyPath,
                 );
-                bindingPaths = { ...configBindingPaths, ...bindingPaths };
-                triggerPaths = { ...configTriggerPaths, ...triggerPaths };
+                bindingPaths = { ...bindingPaths, ...configBindingPaths };
+                triggerPaths = { ...triggerPaths, ...configTriggerPaths };
                 validationPaths = {
-                  ...configValidationPaths,
                   ...validationPaths,
+                  ...configValidationPaths,
                 };
               });
             });

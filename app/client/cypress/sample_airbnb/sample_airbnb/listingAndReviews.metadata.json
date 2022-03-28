@@ -1,0 +1,17 @@
+{
+	"indexes": [
+		{
+			"v": {
+				"$numberInt": "2"
+			},
+			"key": {
+				"_id": {
+					"$numberInt": "1"
+				}
+			},
+			"name": "_id_"
+		}
+	],
+	"uuid": "8474766f7d1d4e548747ccf36a197261",
+	"collectionName": "listingAndReviews"
+}

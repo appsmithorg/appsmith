@@ -20,6 +20,7 @@ export type User = {
   role?: string;
   useCase?: string;
   isConfigurable: boolean;
+  enableTelemetry: boolean;
 };
 
 export interface UserApplication {
@@ -39,6 +40,7 @@ export const DefaultCurrentUserDetails: User = {
   gender: "MALE",
   isSuperUser: false,
   isConfigurable: false,
+  enableTelemetry: false,
 };
 
 // TODO keeping it here instead of the USER_API since it leads to cyclic deps errors during tests

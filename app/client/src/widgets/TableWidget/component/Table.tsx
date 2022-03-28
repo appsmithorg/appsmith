@@ -230,9 +230,13 @@ export function Table(props: TableProps) {
           width={props.width}
         >
           <Scrollbars
+            autoHide
             renderThumbHorizontal={ScrollbarHorizontalThumb}
             renderThumbVertical={ScrollbarVerticalThumb}
-            style={{ width: props.width, height: 38 }}
+            style={{
+              width: props.width,
+              height: 38,
+            }}
           >
             <TableHeaderInnerWrapper
               backgroundColor={Colors.WHITE}
@@ -313,6 +317,7 @@ export function Table(props: TableProps) {
                             isSortable={props.isSortable}
                             key={columnIndex}
                             sortTableColumn={props.sortTableColumn}
+                            width={props.width}
                           />
                         );
                       },

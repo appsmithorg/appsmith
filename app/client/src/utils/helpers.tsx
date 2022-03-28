@@ -11,19 +11,25 @@ import {
   WINDOW_OBJECT_PROPERTIES,
 } from "constants/WidgetValidation";
 import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
-import { set } from "lodash";
+import { get, set } from "lodash";
 import { Org } from "constants/orgConstants";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { User } from "constants/userConstants";
-import { getAppsmithConfigs } from "configs";
-import { sha256 } from "js-sha256";
 import moment from "moment";
-import log from "loglevel";
-
-const { cloudHosting, intercomAppID } = getAppsmithConfigs();
+import { extraLibrariesNames, isDynamicValue } from "./DynamicBindingUtils";
+import { ApiResponse } from "api/ApiResponses";
+import { DSLWidget } from "widgets/constants";
+import * as Sentry from "@sentry/react";
+import { matchPath } from "react-router";
+import {
+  BUILDER_PATH,
+  BUILDER_PATH_DEPRECATED,
+  VIEWER_PATH,
+  VIEWER_PATH_DEPRECATED,
+} from "constants/routes";
+import history from "./history";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -143,6 +149,20 @@ export const scrollElementIntoParentCanvasView = (
   }
 };
 
+export function hasClass(ele: HTMLElement, cls: string) {
+  return ele.classList.contains(cls);
+}
+
+function addClass(ele: HTMLElement, cls: string) {
+  if (!hasClass(ele, cls)) ele.classList.add(cls);
+}
+
+function removeClass(ele: HTMLElement, cls: string) {
+  if (hasClass(ele, cls)) {
+    ele.classList.remove(cls);
+  }
+}
+
 export const removeSpecialChars = (value: string, limit?: number) => {
   const separatorRegex = /\W+/;
   return value
@@ -154,12 +174,12 @@ export const removeSpecialChars = (value: string, limit?: number) => {
 export const flashElement = (
   el: HTMLElement,
   flashTimeout = 1000,
-  flashColor = "#FFCB33",
+  flashClass = "flash",
 ) => {
-  el.style.backgroundColor = flashColor;
-
+  if (!el) return;
+  addClass(el, flashClass);
   setTimeout(() => {
-    el.style.backgroundColor = "transparent";
+    removeClass(el, flashClass);
   }, flashTimeout);
 };
 
@@ -175,7 +195,7 @@ export const flashElementsById = (
   id: string | string[],
   timeout = 0,
   flashTimeout?: number,
-  flashColor?: string,
+  flashClass?: string,
 ) => {
   let ids: string[] = [];
 
@@ -195,7 +215,7 @@ export const flashElementsById = (
         inline: "center",
       });
 
-      if (el) flashElement(el, flashTimeout, flashColor);
+      if (el) flashElement(el, flashTimeout, flashClass);
     }, timeout);
   });
 };
@@ -243,17 +263,16 @@ export const trimTrailingSlash = (path: string) => {
  * this function is meant for checking the existence of ellipsis by CSS.
  * Since ellipsis by CSS are not part of DOM, we are checking with scroll width\height and offsetidth\height.
  * ScrollWidth\ScrollHeight is always greater than the offsetWidth\OffsetHeight when ellipsis made by CSS is active.
- *
+ * Using clientWidth to fix this https://stackoverflow.com/a/21064102/8692954
  * @param element
  */
 export const isEllipsisActive = (element: HTMLElement | null) => {
-  return (
-    element &&
-    (element.offsetWidth < element.scrollWidth ||
-      element.offsetHeight < element.scrollHeight)
-  );
+  return element && element.clientWidth < element.scrollWidth;
 };
 
+export const isVerticalEllipsisActive = (element: HTMLElement | null) => {
+  return element && element.clientHeight < element.scrollHeight;
+};
 /**
  * converts array to sentences
  * for e.g - ['Pawan', 'Abhinav', 'Hetu'] --> 'Pawan, Abhinav and Hetu'
@@ -286,6 +305,7 @@ export const isNameValid = (
     name in GLOBAL_FUNCTIONS ||
     name in WINDOW_OBJECT_PROPERTIES ||
     name in WINDOW_OBJECT_METHODS ||
+    name in extraLibrariesNames ||
     name in invalidNames
   );
 };
@@ -411,6 +431,7 @@ export const scrollbarWidth = () => {
 // To { isValid: false, settings.color: false}
 export const flattenObject = (data: Record<string, any>) => {
   const result: Record<string, any> = {};
+
   function recurse(cur: any, prop: any) {
     if (Object(cur) !== cur) {
       result[prop] = cur;
@@ -427,6 +448,7 @@ export const flattenObject = (data: Record<string, any>) => {
       if (isEmpty && prop) result[prop] = {};
     }
   }
+
   recurse(data, "");
   return result;
 };
@@ -465,28 +487,6 @@ export const getIsSafeRedirectURL = (redirectURL: string) => {
   }
 };
 
-export function bootIntercom(user?: User) {
-  if (intercomAppID && window.Intercom) {
-    let { email, username } = user || {};
-    let name;
-    if (!cloudHosting) {
-      username = sha256(username || "");
-      // keep email undefined so that users are prompted to enter it when they reach out on intercom
-      email = undefined;
-    } else {
-      name = user?.name;
-    }
-
-    window.Intercom("boot", {
-      app_id: intercomAppID,
-      user_id: username,
-      email,
-      // keep name undefined instead of an empty string so that intercom auto assigns a name
-      name,
-    });
-  }
-}
-
 export const stopClickEventPropagation = (
   e: React.MouseEvent<HTMLDivElement, MouseEvent>,
 ) => {
@@ -501,10 +501,15 @@ export const stopClickEventPropagation = (
  * @param date 2021-09-08T14:14:12Z
  *
  */
-export const howMuchTimeBeforeText = (date: string) => {
+export const howMuchTimeBeforeText = (
+  date: string,
+  options: { lessThanAMinute: boolean } = { lessThanAMinute: false },
+) => {
   if (!date || !moment.isMoment(moment(date))) {
     return "";
   }
+
+  const { lessThanAMinute } = options;
 
   const now = moment();
   const checkDate = moment(date);
@@ -519,7 +524,10 @@ export const howMuchTimeBeforeText = (date: string) => {
   else if (days > 0) return `${days} day${days > 1 ? "s" : ""}`;
   else if (hours > 0) return `${hours} hr${hours > 1 ? "s" : ""}`;
   else if (minutes > 0) return `${minutes} min${minutes > 1 ? "s" : ""}`;
-  else return `${seconds} sec${seconds > 1 ? "s" : ""}`;
+  else
+    return lessThanAMinute
+      ? "less than a minute"
+      : `${seconds} sec${seconds > 1 ? "s" : ""}`;
 };
 
 /**
@@ -545,7 +553,20 @@ export const truncateString = (
  *
  * @returns
  */
-export const modText = () => (isMac() ? <span>&#8984;</span> : "CTRL");
+export const modText = () => (isMac() ? <span>&#8984;</span> : "Ctrl +");
+export const altText = () => (isMac() ? <span>&#8997;</span> : "Alt +");
+export const shiftText = () => (isMac() ? <span>&#8682;</span> : "Shift +");
+
+export const undoShortCut = () => <span>{modText()} Z</span>;
+
+export const redoShortCut = () =>
+  isMac() ? (
+    <span>
+      {modText()} {shiftText()} Z
+    </span>
+  ) : (
+    <span>{modText()} Y</span>
+  );
 
 /**
  * @returns the original string after trimming the string past `?`
@@ -564,24 +585,122 @@ export const getSearchQuery = (search = "", key: string) => {
   return decodeURIComponent(params.get(key) || "");
 };
 
-/**
- * get query params object
- * ref: https://stackoverflow.com/a/8649003/1543567
+/*
+ * unfocus all window selection
+ *
+ * @param document
+ * @param window
  */
-export const getQueryParamsObject = () => {
-  const search = window.location.search.substring(1);
-  if (!search) return {};
-  try {
-    return JSON.parse(
-      '{"' +
-        decodeURI(search)
-          .replace(/"/g, '\\"')
-          .replace(/&/g, '","')
-          .replace(/=/g, '":"') +
-        '"}',
-    );
-  } catch (e) {
-    log.error(e, "error parsing search string");
-    return {};
+export function unFocus(document: Document, window: Window) {
+  if (document.getSelection()) {
+    document.getSelection()?.empty();
+  } else {
+    try {
+      window.getSelection()?.removeAllRanges();
+      // eslint-disable-next-line no-empty
+    } catch (e) {}
   }
+}
+
+export function getLogToSentryFromResponse(response?: ApiResponse) {
+  return response && response?.responseMeta?.status >= 500;
+}
+
+/*
+ *  Function to merge property pane config of a widget
+ *
+ */
+export const mergeWidgetConfig = (target: any, source: any) => {
+  const sectionMap: Record<string, any> = {};
+
+  target.forEach((section: { sectionName: string }) => {
+    sectionMap[section.sectionName] = section;
+  });
+
+  source.forEach((section: { sectionName: string; children: any[] }) => {
+    const targetSection = sectionMap[section.sectionName];
+
+    if (targetSection) {
+      Array.prototype.push.apply(targetSection.children, section.children);
+    } else {
+      target.push(section);
+    }
+  });
+
+  return target;
+};
+
+export const getLocale = () => {
+  return navigator.languages?.[0] || "en-US";
+};
+
+/**
+ * Function to check if the DynamicBindingPathList is valid
+ * @param currentDSL
+ * @returns
+ */
+export const captureInvalidDynamicBindingPath = (
+  currentDSL: Readonly<DSLWidget>,
+) => {
+  //Get the dynamicBindingPathList of the current DSL
+  const dynamicBindingPathList = get(currentDSL, "dynamicBindingPathList");
+  dynamicBindingPathList?.forEach((dBindingPath) => {
+    const pathValue = get(currentDSL, dBindingPath.key); //Gets the value for the given dynamic binding path
+    /**
+     * Checks if dynamicBindingPathList contains a property path that doesn't have a binding
+     */
+    if (!isDynamicValue(pathValue)) {
+      Sentry.captureException(
+        new Error(
+          `INVALID_DynamicPathBinding_CLIENT_ERROR: Invalid dynamic path binding list: ${currentDSL.widgetName}.${dBindingPath.key}`,
+        ),
+      );
+      return;
+    }
+  });
+
+  if (currentDSL.children) {
+    currentDSL.children.map(captureInvalidDynamicBindingPath);
+  }
+  return currentDSL;
+};
+
+export const isURLDeprecated = (url: string) => {
+  return !!matchPath(url, {
+    path: [
+      trimQueryString(BUILDER_PATH_DEPRECATED),
+      trimQueryString(VIEWER_PATH_DEPRECATED),
+    ],
+    strict: false,
+    exact: false,
+  });
+};
+
+export const getUpdatedRoute = (
+  path: string,
+  params: Record<string, string>,
+) => {
+  let updatedPath = path;
+  const match = matchPath<{ applicationSlug: string; pageSlug: string }>(path, {
+    path: [trimQueryString(BUILDER_PATH), trimQueryString(VIEWER_PATH)],
+    strict: false,
+    exact: false,
+  });
+  if (match?.params) {
+    const { applicationSlug, pageSlug } = match?.params;
+    if (params.applicationSlug)
+      updatedPath = updatedPath.replace(
+        applicationSlug,
+        params.applicationSlug,
+      );
+    if (params.pageSlug)
+      updatedPath = updatedPath.replace(pageSlug, `${params.pageSlug}-`);
+  }
+  return updatedPath;
+};
+
+export const updateSlugNamesInURL = (params: Record<string, string>) => {
+  const { pathname, search } = window.location;
+  const newURL = getUpdatedRoute(pathname, params);
+  history.replace(newURL + search);
 };

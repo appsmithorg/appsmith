@@ -8,14 +8,14 @@ import useClick from "utils/hooks/useClick";
 import { updatePage } from "actions/pageActions";
 import { MenuIcons } from "icons/MenuIcons";
 import { resolveAsSpaceChar } from "utils/helpers";
-import { BUILDER_PAGE_URL } from "constants/routes";
 import { Page } from "constants/ReduxActionConstants";
 import EditNameInput from "pages/Editor/Explorer/Entity/Name";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import TooltipComponent from "components/ads/Tooltip";
-import { createMessage, GO_TO_PAGE } from "constants/messages";
+import { createMessage, GO_TO_PAGE } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core";
+import { builderURL } from "RouteBuilder";
 
 const LinkIcon = MenuIcons.LINK_ICON;
 
@@ -26,13 +26,13 @@ export const EditNameContainer = styled.div`
   padding-left: 4px;
 
   & > .page-list-item-edit-icon {
-    display: none;
+    visibility: hidden; /* Hide the visiblity when not hovered */
     margin-left: 8px;
     align-items: center;
   }
 
   &:hover .page-list-item-edit-icon {
-    display: flex;
+    visibility: visible; /* on Hover display the element */
   }
 
   & > div {
@@ -80,7 +80,9 @@ function EditName(props: Props) {
   const switchPage = useCallback(() => {
     if (!!applicationId && !isEditing) {
       history.push(
-        BUILDER_PAGE_URL({ applicationId, pageId: props.page.pageId }),
+        builderURL({
+          pageId: props.page.pageId,
+        }),
       );
     }
   }, [props.page.pageId, applicationId]);

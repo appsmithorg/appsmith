@@ -1,119 +1,139 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import styled from "styled-components";
-import { MenuItem } from "@blueprintjs/core";
-import { IItemRendererProps } from "@blueprintjs/select";
-import DropdownField from "components/editorComponents/form/fields/DropdownField";
-import { DropdownOption } from "components/constants";
+import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { ControlType } from "constants/PropertyControlConstants";
-import { theme } from "constants/DefaultTheme";
-import FormLabel from "components/editorComponents/FormLabel";
-import { Colors } from "constants/Colors";
+import _ from "lodash";
+import {
+  Field,
+  WrappedFieldInputProps,
+  WrappedFieldMetaProps,
+} from "redux-form";
+import { connect } from "react-redux";
+import { AppState } from "reducers";
+import { getDynamicFetchedValues } from "selectors/formSelectors";
 
 const DropdownSelect = styled.div`
   font-size: 14px;
-  width: 50vh;
+  width: 20vw;
 `;
-
-const StyledInfo = styled.span`
-  font-weight: normal;
-  line-height: normal;
-  color: ${Colors.DOVE_GRAY};
-  font-size: 12px;
-  margin-left: 1px;
-`;
-
-const customSelectStyles = {
-  option: (
-    styles: { [x: string]: any },
-    { isDisabled, isFocused, isSelected }: any,
-  ) => {
-    return {
-      ...styles,
-      color: Colors.CODE_GRAY,
-      backgroundColor: isDisabled
-        ? undefined
-        : isSelected
-        ? Colors.GREY_3
-        : isFocused
-        ? Colors.GREY_2
-        : undefined,
-      ":active": {
-        ...styles[":active"],
-        backgroundColor:
-          !isDisabled &&
-          (isSelected ? theme.colors.primaryOld : theme.colors.hover),
-      },
-    };
-  },
-};
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
-    const {
-      configProperty,
-      customStyles,
-      isDisabled,
-      isRequired,
-      isSearchable,
-      label,
-      options,
-      subtitle,
-    } = this.props;
-
-    let width = "50vh";
-    if (customStyles && customStyles.width) {
-      width = customStyles.width;
+    let width = "20vw";
+    if (
+      "customStyles" in this.props &&
+      !!this.props.customStyles &&
+      "width" in this.props.customStyles
+    ) {
+      width = this.props.customStyles.width;
     }
+
     return (
-      <div>
-        <FormLabel>
-          {label} {isRequired && "*"}
-          {subtitle && (
-            <>
-              <br />
-              <StyledInfo>{subtitle}</StyledInfo>
-            </>
-          )}
-        </FormLabel>
-        <DropdownSelect data-cy={configProperty} style={{ width }}>
-          <DropdownField
-            customSelectStyles={customSelectStyles}
-            isDisabled={isDisabled}
-            isSearchable={isSearchable}
-            name={configProperty}
-            options={options}
-            placeholder=""
-            width={width}
-          />
-        </DropdownSelect>
-      </div>
+      <DropdownSelect data-cy={this.props.configProperty} style={{ width }}>
+        <Field
+          component={renderDropdown}
+          name={this.props.configProperty}
+          props={{ ...this.props, width }}
+          type={this.props?.isMultiSelect ? "select-multiple" : undefined}
+        />
+      </DropdownSelect>
     );
   }
-
-  renderItem = (option: DropdownOption, itemProps: IItemRendererProps) => {
-    if (!itemProps.modifiers.matchesPredicate) {
-      return null;
-    }
-    const isSelected: boolean = this.isOptionSelected(option);
-    return (
-      <MenuItem
-        active={isSelected}
-        className="single-select"
-        key={option.value}
-        onClick={itemProps.handleClick}
-        text={option.label}
-      />
-    );
-  };
-
-  isOptionSelected = (selectedOption: DropdownOption) => {
-    return selectedOption.value === this.props.propertyValue;
-  };
 
   getControlType(): ControlType {
     return "DROP_DOWN";
   }
+}
+
+function renderDropdown(
+  props: {
+    input?: WrappedFieldInputProps;
+    meta?: Partial<WrappedFieldMetaProps>;
+    width: string;
+  } & DropDownControlProps,
+): JSX.Element {
+  let selectedValue: string | string[];
+  if (_.isNil(props.input?.value)) {
+    if (props.isMultiSelect)
+      selectedValue = props?.initialValue ? (props.initialValue as string) : [];
+    else
+      selectedValue = props?.initialValue
+        ? (props.initialValue as string[])
+        : "";
+  } else {
+    selectedValue = props.input?.value;
+    if (props.isMultiSelect) {
+      if (!Array.isArray(selectedValue)) {
+        selectedValue = [selectedValue];
+      } else {
+        selectedValue = [...new Set(selectedValue)];
+      }
+    }
+  }
+  let options: DropdownOption[] = [];
+  let selectedOptions: DropdownOption[] = [];
+  if (typeof props.options === "object" && Array.isArray(props.options)) {
+    options = props.options;
+    selectedOptions =
+      options.filter((option: DropdownOption) => {
+        if (props.isMultiSelect)
+          return selectedValue.includes(option.value as string);
+        else return selectedValue === option.value;
+      }) || [];
+  }
+  // Function to handle selction of options
+  const onSelectOptions = (value: string | undefined) => {
+    if (!_.isNil(value)) {
+      if (props.isMultiSelect) {
+        if (Array.isArray(selectedValue)) {
+          if (!selectedValue.includes(value))
+            (selectedValue as string[]).push(value);
+        } else {
+          selectedValue = [selectedValue as string, value];
+        }
+      } else selectedValue = value;
+      props.input?.onChange(selectedValue);
+    }
+  };
+
+  // Function to handle deselction of options
+  const onRemoveOptions = (value: string | undefined) => {
+    if (!_.isNil(value)) {
+      if (props.isMultiSelect) {
+        if (Array.isArray(selectedValue)) {
+          if (selectedValue.includes(value))
+            (selectedValue as string[]).splice(
+              (selectedValue as string[]).indexOf(value),
+              1,
+            );
+        } else {
+          selectedValue = [];
+        }
+      } else selectedValue = "";
+      props.input?.onChange(selectedValue);
+    }
+  };
+
+  return (
+    <Dropdown
+      boundary="window"
+      disabled={props.disabled}
+      dontUsePortal={false}
+      dropdownMaxHeight="250px"
+      enableSearch={props.isSearchable}
+      isLoading={props.isLoading}
+      isMultiSelect={props?.isMultiSelect}
+      onSelect={onSelectOptions}
+      optionWidth={props.width}
+      options={options}
+      placeholder={props?.placeholderText}
+      removeSelectedOption={onRemoveOptions}
+      selected={props.isMultiSelect ? selectedOptions : selectedOptions[0]}
+      showLabelOnly
+      width={props.width}
+    />
+  );
 }
 
 export interface DropDownControlProps extends ControlProps {
@@ -121,8 +141,39 @@ export interface DropDownControlProps extends ControlProps {
   placeholderText: string;
   propertyValue: string;
   subtitle?: string;
-  isDisabled?: boolean;
+  isMultiSelect?: boolean;
   isSearchable?: boolean;
+  fetchOptionsCondtionally?: boolean;
+  isLoading: boolean;
 }
 
-export default DropDownControl;
+const mapStateToProps = (
+  state: AppState,
+  ownProps: DropDownControlProps,
+): { isLoading: boolean; options: DropdownOption[] } => {
+  // Added default options to prevent error when options is undefined
+  let isLoading = false;
+  let options: DropdownOption[] = ownProps.fetchOptionsCondtionally
+    ? []
+    : ownProps.options;
+
+  try {
+    if (ownProps.fetchOptionsCondtionally) {
+      const dynamicFetchedValues = getDynamicFetchedValues(
+        state,
+        ownProps.configProperty,
+      );
+      isLoading = dynamicFetchedValues.isLoading;
+      options = dynamicFetchedValues.data;
+    }
+    return { isLoading, options };
+  } catch (e) {
+    return {
+      isLoading,
+      options,
+    };
+  }
+};
+
+// Connecting this componenet to the state to allow for dynamic fetching of options to be updated.
+export default connect(mapStateToProps)(DropDownControl);

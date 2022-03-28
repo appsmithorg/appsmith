@@ -1,6 +1,6 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { JSCollection, JSAction } from "entities/JSCollection";
-import { RefactorAction } from "api/JSActionAPI";
+import { RefactorAction, SetFunctionPropertyPayload } from "api/JSActionAPI";
 export const createNewJSCollection = (
   pageId: string,
 ): ReduxAction<{ pageId: string }> => ({
@@ -19,9 +19,10 @@ export const updateJSCollection = (
 export const updateJSCollectionBody = (
   body: string,
   id: string,
-): ReduxAction<{ body: string; id: string }> => ({
+  isReplay = false,
+): ReduxAction<{ body: string; id: string; isReplay?: boolean }> => ({
   type: ReduxActionTypes.UPDATE_JS_ACTION_BODY_INIT,
-  payload: { body, id },
+  payload: { body, id, isReplay },
 });
 
 export const updateJSCollectionSuccess = (payload: { data: JSCollection }) => {
@@ -57,6 +58,20 @@ export const executeJSFunction = (payload: {
 }) => {
   return {
     type: ReduxActionTypes.EXECUTE_JS_FUNCTION_INIT,
+    payload,
+  };
+};
+
+export const updateFunctionProperty = (payload: SetFunctionPropertyPayload) => {
+  return {
+    type: ReduxActionTypes.SET_FUNCTION_PROPERTY,
+    payload,
+  };
+};
+
+export const updateJSFunction = (payload: SetFunctionPropertyPayload) => {
+  return {
+    type: ReduxActionTypes.UPDATE_JS_FUNCTION_PROPERTY_INIT,
     payload,
   };
 };

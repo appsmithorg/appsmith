@@ -48,11 +48,13 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { commentThreadsSelector } from "selectors/commentsSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { createMessage, LINK_COPIED_SUCCESSFULLY } from "constants/messages";
+import {
+  createMessage,
+  LINK_COPIED_SUCCESSFULLY,
+} from "@appsmith/constants/messages";
 import { Variant } from "components/ads/common";
 import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
 import { TourType } from "entities/Tour";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
 import { commentsTourStepsEditModeTypes } from "comments/tour/commentsTourSteps";
 
@@ -297,10 +299,7 @@ function CommentCard({
     pinnedBy = "You";
   }
 
-  const applicationId = useSelector(getCurrentApplicationId);
-
   const commentThreadURL = getCommentThreadURL({
-    applicationId,
     commentThreadId,
     isResolved: !!commentThread?.resolvedState?.active,
     pageId: commentThread?.pageId,

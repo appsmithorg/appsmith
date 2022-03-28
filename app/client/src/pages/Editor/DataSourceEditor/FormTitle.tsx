@@ -12,8 +12,6 @@ import { Datasource } from "entities/Datasource";
 import { isNameValid } from "utils/helpers";
 import { saveDatasourceName } from "actions/datasourceActions";
 import { Spinner } from "@blueprintjs/core";
-import { checkCurrentStep } from "sagas/OnboardingSagas";
-import { OnboardingStep } from "constants/OnboardingConstants";
 
 const Wrapper = styled.div`
   margin-left: 10px;
@@ -51,11 +49,6 @@ function FormTitle(props: FormTitleProps) {
     };
   });
 
-  // For onboarding
-  const hideEditIcon = useSelector((state: AppState) =>
-    checkCurrentStep(state, OnboardingStep.SUCCESSFUL_BINDING, "LESSER"),
-  );
-
   const hasNameConflict = React.useCallback(
     (name: string) => {
       const datasourcesNames: Record<string, any> = {};
@@ -75,7 +68,7 @@ function FormTitle(props: FormTitleProps) {
       if (!name || name.trim().length === 0) {
         return "Please enter a valid name";
       } else if (hasNameConflict(name)) {
-        return `${name} is already being used.`;
+        return `${name} is already being used or is a restricted keyword.`;
       }
       return false;
     },
@@ -110,9 +103,9 @@ function FormTitle(props: FormTitleProps) {
         defaultValue={currentDatasource ? currentDatasource.name : ""}
         editInteractionKind={EditInteractionKind.SINGLE}
         forceDefault={forceUpdate}
-        hideEditIcon={hideEditIcon}
-        isEditingDefault={props.focusOnMount && !hideEditIcon}
+        isEditingDefault={props.focusOnMount}
         isInvalid={isInvalidDatasourceName}
+        maxLength={30}
         onTextChanged={handleDatasourceNameChange}
         placeholder="Datasource Name"
         type="text"

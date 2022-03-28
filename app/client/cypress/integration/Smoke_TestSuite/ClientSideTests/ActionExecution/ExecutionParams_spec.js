@@ -1,6 +1,5 @@
 const dsl = require("../../../../fixtures/executionParamsDsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 
@@ -12,25 +11,19 @@ describe("API Panel Test Functionality", function() {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
-  it("Create a postgres datasource", function() {
+  it("1. Create a postgres datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
-
     cy.getPluginFormsAndCreateDatasource();
-
     cy.fillPostgresDatasourceForm();
-
     cy.testSaveDatasource();
-
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
   });
-  it("Create and runs query", () => {
-    cy.NavigateToQueryEditor();
-    cy.contains(".t--datasource-name", datasourceName)
-      .find(queryLocators.createQuery)
-      .click();
+
+  it("2. Create and runs query", () => {
+    cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click();
     cy.get(queryLocators.settings).click({ force: true });
     cy.get(queryLocators.switch)
@@ -48,16 +41,24 @@ describe("API Panel Test Functionality", function() {
     cy.runQuery();
   });
 
-  it("Will pass execution params", function() {
+  it("3. Will pass execution params", function() {
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
     // Bind the table
-    cy.SearchEntityandOpen("Table1");
+    cy.get(".t--entity-collapse-toggle")
+      .eq(2)
+      .click({ force: true });
+    cy.get(".t--entity-name")
+      .contains("Table1")
+      .click({ force: true });
     cy.testJsontext("tabledata", "{{Query1.data}}");
     // Assert 'posts' data (default)
     cy.readTabledataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("Test user 7");
     });
     // Choose static button
-    cy.SearchEntityandOpen("StaticButton");
+    cy.get(".t--entity-name")
+      .contains("StaticButton")
+      .click({ force: true });
     // toggle js of onClick
     cy.get(".t--property-control-onclick")
       .find(".t--js-toggle")
@@ -67,11 +68,13 @@ describe("API Panel Test Functionality", function() {
       "onclick",
       "{{Query1.run(undefined, undefined, { tableName: 'users' })}}",
     );
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
-
     // Choose dynamic button
-    cy.SearchEntityandOpen("DynamicButton");
+    cy.get(".t--entity-name")
+      .contains("DynamicButton")
+      .click({ force: true });
+    cy.wait(2000);
     // toggle js of onClick
+    cy.get(".t--property-control-onclick").scrollIntoView();
     cy.get(".t--property-control-onclick")
       .find(".t--js-toggle")
       .click({ force: true });

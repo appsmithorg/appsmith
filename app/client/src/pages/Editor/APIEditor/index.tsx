@@ -33,10 +33,14 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import { CurrentApplicationData } from "constants/ReduxActionConstants";
-import { getPluginSettingConfigs } from "selectors/entitiesSelector";
-import { SAAS_EDITOR_API_ID_URL } from "../SaaSEditor/constants";
+import { ApplicationPayload } from "constants/ReduxActionConstants";
+import {
+  getPageList,
+  getPlugins,
+  getPluginSettingConfigs,
+} from "selectors/entitiesSelector";
 import history from "utils/history";
+import { saasEditorApiIdURL } from "RouteBuilder";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -48,7 +52,7 @@ interface ReduxStateProps {
   isDeleting: boolean;
   isCreating: boolean;
   apiName: string;
-  currentApplication?: CurrentApplicationData;
+  currentApplication?: ApplicationPayload;
   currentPageName: string | undefined;
   pages: any;
   plugins: Plugin[];
@@ -226,15 +230,15 @@ class ApiEditor extends React.Component<Props> {
         )}
         {formUiComponent === "SaaSEditorForm" &&
           history.push(
-            SAAS_EDITOR_API_ID_URL(
-              this.props.applicationId,
-              this.props.match.params.pageId,
-              getPackageNameFromPluginId(
-                this.props.pluginId,
-                this.props.plugins,
-              ) ?? "",
-              this.props.match.params.apiId,
-            ),
+            saasEditorApiIdURL({
+              pageId: this.props.match.params.pageId,
+              pluginPackageName:
+                getPackageNameFromPluginId(
+                  this.props.pluginId,
+                  this.props.plugins,
+                ) ?? "",
+              apiId: this.props.match.params.apiId,
+            }),
           )}
       </div>
     );
@@ -258,9 +262,9 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     actions: state.entities.actions,
     currentApplication: getCurrentApplication(state),
     currentPageName: getCurrentPageName(state),
-    pages: state.entities.pageList.pages,
+    pages: getPageList(state),
     apiName: apiName || "",
-    plugins: state.entities.plugins.list,
+    plugins: getPlugins(state),
     pluginId,
     settingsConfig,
     paginationType: _.get(apiAction, "actionConfiguration.paginationType"),

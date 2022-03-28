@@ -213,7 +213,7 @@ public class SaasPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return Mono.empty();
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.UNSUPPORTED_PLUGIN_OPERATION));
         }
     }
 }

@@ -14,7 +14,6 @@ import {
 } from "./Constants";
 
 //TODO(abhinav): All of the following imports should not exist in a widget component
-import { hidePropertyPane } from "actions/propertyPaneActions";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { generateClassName } from "utils/generators";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
@@ -76,7 +75,6 @@ function TableFilters(props: TableFilterProps) {
     (selected: boolean) => {
       if (selected) {
         // filter button select
-        dispatch(hidePropertyPane());
         dispatch({
           type: ReduxActionTypes.SHOW_TABLE_FILTER_PANE,
           payload: { widgetId: props.widgetId, force: true },

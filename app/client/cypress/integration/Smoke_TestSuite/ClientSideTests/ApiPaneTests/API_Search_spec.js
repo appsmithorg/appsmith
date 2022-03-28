@@ -11,7 +11,9 @@ describe("API Panel Test Functionality ", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("SecondAPI");
     cy.RunAPI();
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.log("Creation of SecondAPI Action successful");
-    cy.SearchEntity("SecondAPI", "FirstAPI");
+    cy.get(".t--entity-name").contains("FirstAPI");
+    cy.get(".t--entity-name").contains("SecondAPI");
   });
 });

@@ -1,0 +1,15 @@
+{
+  "accountNonExpired": true,
+  "accountNonLocked": true,
+  "credentialsNonExpired": true,
+  "email": "test@appsmith.com",
+  "emptyInstance": false,
+  "enableTelemetry": false,
+  "isAnonymous": false,
+  "isConfigurable": true,
+  "isEnabled": true,
+  "isSuperUser": true,
+  "name": "test",
+  "organizationIds": ["61a8a112ccc8b629d92a1aad"],
+  "username": "test@appsmith.com"
+}

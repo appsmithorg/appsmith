@@ -1,7 +1,12 @@
-import React from "react";
-import { connect } from "react-redux";
+import React, { useEffect } from "react";
+import { connect, useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router-dom";
-import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
+import {
+  change,
+  reduxForm,
+  InjectedFormProps,
+  formValueSelector,
+} from "redux-form";
 import StyledForm from "components/editorComponents/Form";
 import {
   AuthCardHeader,
@@ -21,7 +26,7 @@ import {
   FORGOT_PASSWORD_SUCCESS_TEXT,
   FORGOT_PASSWORD_PAGE_LOGIN_LINK,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import FormMessage from "components/ads/formFields/FormMessage";
 import { FORGOT_PASSWORD_FORM_NAME } from "constants/forms";
@@ -34,7 +39,7 @@ import {
   ForgotPasswordFormValues,
   forgotPasswordSubmitHandler,
 } from "./helpers";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 const { mailEnabled } = getAppsmithConfigs();
 
@@ -63,6 +68,14 @@ export const ForgotPassword = withTheme(
       submitSucceeded,
       submitting,
     } = props;
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+      if (submitSucceeded) {
+        props.reset();
+        dispatch(change(FORGOT_PASSWORD_FORM_NAME, "email", ""));
+      }
+    }, [props.emailValue]);
 
     return (
       <>
@@ -82,8 +95,10 @@ export const ForgotPassword = withTheme(
           {submitSucceeded && (
             <FormMessage
               intent="lightSuccess"
-              message={`${createMessage(FORGOT_PASSWORD_SUCCESS_TEXT)} 
-                ${props.emailValue}`}
+              message={createMessage(
+                FORGOT_PASSWORD_SUCCESS_TEXT,
+                props.emailValue,
+              )}
             />
           )}
           {!mailEnabled && (

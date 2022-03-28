@@ -3,9 +3,11 @@ import styled from "styled-components";
 import { hexToRgba } from "widgets/WidgetUtils";
 
 import { ComponentProps } from "widgets/BaseComponent";
-import { AppState } from "reducers";
 import { useSelector } from "store";
-import { RenderMode, RenderModes } from "constants/WidgetConstants";
+import { RenderMode } from "constants/WidgetConstants";
+import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import { getAppMode } from "selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
 
 interface IframeContainerProps {
   borderColor?: string;
@@ -49,8 +51,10 @@ const OverlayDiv = styled.div`
 export interface IframeComponentProps extends ComponentProps {
   renderMode: RenderMode;
   source: string;
+  srcDoc?: string;
   title?: string;
   onURLChanged: (url: string) => void;
+  onSrcDocChanged: (srcDoc?: string) => void;
   onMessageReceived: (message: MessageEvent) => void;
   borderColor?: string;
   borderOpacity?: number;
@@ -63,23 +67,33 @@ function IframeComponent(props: IframeComponentProps) {
     borderOpacity,
     borderWidth,
     onMessageReceived,
+    onSrcDocChanged,
     onURLChanged,
-    renderMode,
     source,
+    srcDoc,
     title,
     widgetId,
   } = props;
+
+  const frameRef = useRef<HTMLIFrameElement>(null);
 
   const isFirstRender = useRef(true);
 
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      const iframeWindow =
+        frameRef.current?.contentWindow ||
+        frameRef.current?.contentDocument?.defaultView;
+      // Accept messages only from the current iframe
+      if (event.source !== iframeWindow) return;
+      onMessageReceived(event);
+    };
     // add a listener
-    window.addEventListener("message", onMessageReceived, false);
+    window.addEventListener("message", handler, false);
     // clean up
-    return () =>
-      window.removeEventListener("message", onMessageReceived, false);
+    return () => window.removeEventListener("message", handler, false);
   }, []);
 
   useEffect(() => {
@@ -88,19 +102,28 @@ function IframeComponent(props: IframeComponentProps) {
       return;
     }
     onURLChanged(source);
-    if (!source) {
-      setMessage("Valid source url is required");
-    } else {
+    if (source || srcDoc) {
       setMessage("");
+    } else {
+      setMessage("Valid source URL is required");
     }
   }, [source]);
 
-  const isPropertyPaneVisible = useSelector(
-    (state: AppState) => state.ui.propertyPane.isVisible,
-  );
-  const selectedWidgetId = useSelector(
-    (state: AppState) => state.ui.propertyPane.widgetId,
-  );
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    onSrcDocChanged(srcDoc);
+    if (srcDoc || source) {
+      setMessage("");
+    } else {
+      setMessage("At least either of source URL or srcDoc is required");
+    }
+  }, [srcDoc]);
+
+  const appMode = useSelector(getAppMode);
+  const selectedWidget = useSelector(getWidgetPropsForPropertyPane);
 
   return (
     <IframeContainer
@@ -108,12 +131,17 @@ function IframeComponent(props: IframeComponentProps) {
       borderOpacity={borderOpacity}
       borderWidth={borderWidth}
     >
-      {renderMode === RenderModes.CANVAS &&
-        !(isPropertyPaneVisible && widgetId === selectedWidgetId) && (
-          <OverlayDiv />
-        )}
+      {appMode === APP_MODE.EDIT && widgetId !== selectedWidget?.widgetId && (
+        <OverlayDiv />
+      )}
 
-      {message ? message : <iframe src={source} title={title} />}
+      {message ? (
+        message
+      ) : srcDoc ? (
+        <iframe ref={frameRef} src={source} srcDoc={srcDoc} title={title} />
+      ) : (
+        <iframe ref={frameRef} src={source} title={title} />
+      )}
     </IframeContainer>
   );
 }

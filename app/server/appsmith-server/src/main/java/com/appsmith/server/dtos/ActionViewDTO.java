@@ -1,5 +1,7 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.external.models.DefaultResources;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,6 +22,8 @@ public class ActionViewDTO {
     Integer timeoutInMillisecond;
     Boolean confirmBeforeExecute;
     Set<String> jsonPathKeys;
+    @JsonIgnore
+    DefaultResources defaultResources;
 
     // Overriding the getter to ensure that for actions missing action configuration, the timeout is
     // still set for the client to use as a guideline (even though this would be an invalid action

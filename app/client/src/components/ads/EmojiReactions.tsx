@@ -37,7 +37,7 @@ const Bubble = styled.div<{ active?: boolean }>`
         : "transparent"};
 
   border-radius: ${(props) => `${props.theme.radii[4]}px`};
-  margin-right: ${(props) => `${props.theme.radii[1]}px`};  
+  margin-right: ${(props) => `${props.theme.radii[1]}px`};
 
   & span.emoji {
     /*

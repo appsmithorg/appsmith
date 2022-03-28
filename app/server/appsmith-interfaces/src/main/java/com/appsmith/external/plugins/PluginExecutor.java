@@ -9,6 +9,8 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.TriggerRequestDTO;
+import com.appsmith.external.models.TriggerResultDTO;
 import org.pf4j.ExtensionPoint;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
@@ -201,5 +203,9 @@ public interface PluginExecutor<C> extends ExtensionPoint {
         datasourceHintMessages.addAll(getHintMessageForLocalhostUrl(datasourceConfiguration));
 
         return Mono.zip(Mono.just(datasourceHintMessages), Mono.just(actionHintMessages));
+    }
+
+    default Mono<TriggerResultDTO> trigger(TriggerRequestDTO request) {
+        return Mono.empty();
     }
 }

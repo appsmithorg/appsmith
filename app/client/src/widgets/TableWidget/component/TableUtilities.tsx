@@ -50,6 +50,7 @@ import {
 import { StyledButton } from "widgets/IconButtonWidget/component";
 import MenuButtonTableComponent from "./components/menuButtonTableComponent";
 import { stopClickEventPropagation } from "utils/helpers";
+import { generateTableColumnId } from "./TableHelpers";
 
 export const renderCell = (
   value: any,
@@ -69,6 +70,7 @@ export const renderCell = (
             cellProperties={cellProperties}
             isCellVisible={isCellVisible}
             isHidden={isHidden}
+            isPadding
           />
         );
       } else if (!isString(value)) {
@@ -77,6 +79,7 @@ export const renderCell = (
             cellProperties={cellProperties}
             isCellVisible={isCellVisible}
             isHidden={isHidden}
+            isPadding
           >
             <div>Invalid Image </div>
           </CellWrapper>
@@ -91,6 +94,7 @@ export const renderCell = (
           cellProperties={cellProperties}
           isCellVisible={isCellVisible}
           isHidden={isHidden}
+          isPadding
         >
           {value
             .toString()
@@ -132,6 +136,7 @@ export const renderCell = (
             cellProperties={cellProperties}
             isCellVisible={isCellVisible}
             isHidden={isHidden}
+            isPadding
           />
         );
       } else if (isString(value) && youtubeRegex.test(value)) {
@@ -141,6 +146,7 @@ export const renderCell = (
             className="video-cell"
             isCellVisible={isCellVisible}
             isHidden={isHidden}
+            isPadding
           >
             <PopoverVideo url={value} />
           </CellWrapper>
@@ -151,6 +157,7 @@ export const renderCell = (
             cellProperties={cellProperties}
             isCellVisible={isCellVisible}
             isHidden={isHidden}
+            isPadding
           >
             Invalid Video Link
           </CellWrapper>
@@ -187,6 +194,7 @@ interface RenderIconButtonProps {
   boxShadowColor: string;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
   isCellVisible: boolean;
+  disabled: boolean;
 }
 export const renderIconButton = (
   props: RenderIconButtonProps,
@@ -194,13 +202,20 @@ export const renderIconButton = (
   cellProperties: CellLayoutProperties,
 ) => {
   if (!props.columnActions)
-    return <CellWrapper cellProperties={cellProperties} isHidden={isHidden} />;
+    return (
+      <CellWrapper
+        cellProperties={cellProperties}
+        isHidden={isHidden}
+        isPadding
+      />
+    );
 
   return (
     <CellWrapper
       cellProperties={cellProperties}
       isCellVisible={props.isCellVisible}
       isHidden={isHidden}
+      isPadding
     >
       {props.columnActions.map((action: ColumnAction, index: number) => {
         return (
@@ -211,6 +226,7 @@ export const renderIconButton = (
             boxShadowColor={props.boxShadowColor}
             buttonColor={props.buttonColor}
             buttonVariant={props.buttonVariant}
+            disabled={props.disabled}
             iconName={props.iconName}
             isSelected={props.isSelected}
             key={index}
@@ -231,6 +247,7 @@ function IconButton(props: {
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;
   boxShadowColor: string;
+  disabled: boolean;
 }): JSX.Element {
   const [loading, setLoading] = useState(false);
   const onComplete = () => {
@@ -257,6 +274,7 @@ function IconButton(props: {
         boxShadowColor={props.boxShadowColor}
         buttonColor={props.buttonColor}
         buttonVariant={props.buttonVariant}
+        disabled={props.disabled}
         icon={props.iconName}
         loading={loading}
         onClick={handleClick}
@@ -303,6 +321,7 @@ export const renderActions = (
         cellProperties={cellProperties}
         isCellVisible={props.isCellVisible}
         isHidden={isHidden}
+        isPadding
       />
     );
 
@@ -311,6 +330,7 @@ export const renderActions = (
       cellProperties={cellProperties}
       isCellVisible={props.isCellVisible}
       isHidden={isHidden}
+      isPadding
     >
       {props.columnActions.map((action: ColumnAction, index: number) => {
         return (
@@ -340,6 +360,7 @@ export const renderMenuButton = (
       cellProperties={cellProperties}
       isCellVisible={props.isCellVisible}
       isHidden={isHidden}
+      isPadding
     >
       <MenuButton {...props} />
     </CellWrapper>
@@ -575,8 +596,9 @@ export function TableHeaderCell(props: {
   column: any;
   editMode?: boolean;
   isSortable?: boolean;
+  width: number;
 }) {
-  const { column, editMode, isSortable } = props;
+  const { column, editMode, isSortable, width } = props;
   const handleSortColumn = () => {
     if (props.isResizingColumn) return;
     let columnIndex = props.columnIndex;
@@ -599,7 +621,13 @@ export function TableHeaderCell(props: {
         className={!props.isHidden ? `draggable-header` : "hidden-header"}
         horizontalAlignment={column.columnProperties.horizontalAlignment}
       >
-        {props.columnName}
+        <AutoToolTipComponent
+          noPadding
+          tableWidth={width}
+          title={props.columnName}
+        >
+          {props.columnName}
+        </AutoToolTipComponent>
       </DraggableHeaderWrapper>
       {props.isAscOrder !== undefined ? (
         <div>
@@ -628,10 +656,11 @@ export function getDefaultColumnProperties(
   widgetName: string,
   isDerived?: boolean,
 ): ColumnProperties {
+  const id = generateTableColumnId(accessor);
   const columnProps = {
     index: index,
     width: 150,
-    id: accessor,
+    id,
     horizontalAlignment: CellAlignmentTypes.LEFT,
     verticalAlignment: VerticalAlignmentTypes.CENTER,
     columnType: ColumnTypes.TEXT,
@@ -647,7 +676,7 @@ export function getDefaultColumnProperties(
     label: accessor,
     computedValue: isDerived
       ? ""
-      : `{{${widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${accessor}))}}`,
+      : `{{${widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${id}))}}`,
   };
 
   return columnProps;

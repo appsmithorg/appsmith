@@ -1,12 +1,14 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Comment;
-import com.appsmith.server.domains.CommentMode;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.repositories.ApplicationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +20,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,11 +41,14 @@ public class ApplicationPageServiceTest {
     @Autowired
     CommentService commentService;
 
-    private CommentThread createCommentThread(CommentMode commentMode, PageDTO pageDTO) {
+    @Autowired
+    ApplicationRepository applicationRepository;
+
+    private CommentThread createCommentThread(ApplicationMode mode, PageDTO pageDTO) {
         CommentThread commentThread = new CommentThread();
         commentThread.setPageId(pageDTO.getId());
         commentThread.setApplicationId(pageDTO.getApplicationId());
-        commentThread.setMode(commentMode);
+        commentThread.setMode(mode);
         Comment comment = new Comment();
         commentThread.setComments(List.of(comment));
         return commentThread;
@@ -74,8 +81,8 @@ public class ApplicationPageServiceTest {
     public void deleteUnpublishedPage_WhenPageDeleted_EditModeCommentsDeleted() {
         Mono<List<CommentThread>> getThreadMono = createPageMono(UUID.randomUUID().toString())
                 .flatMap(pageDTO -> {
-                    CommentThread editModeCommentThread = createCommentThread(CommentMode.EDIT, pageDTO);
-                    CommentThread piublishedModeCommentThread = createCommentThread(CommentMode.PUBLISHED, pageDTO);
+                    CommentThread editModeCommentThread = createCommentThread(ApplicationMode.EDIT, pageDTO);
+                    CommentThread piublishedModeCommentThread = createCommentThread(ApplicationMode.PUBLISHED, pageDTO);
 
                     return commentService.createThread(editModeCommentThread, "app.appsmith.com")
                             .then(commentService.createThread(piublishedModeCommentThread, "app.appsmith.com"))
@@ -89,7 +96,7 @@ public class ApplicationPageServiceTest {
 
         StepVerifier.create(getThreadMono).assertNext(commentThreads -> {
             assertThat(commentThreads.size()).isEqualTo(1);
-            assertThat(commentThreads.get(0).getMode()).isEqualTo(CommentMode.PUBLISHED);
+            assertThat(commentThreads.get(0).getMode()).isEqualTo(ApplicationMode.PUBLISHED);
         }).verifyComplete();
     }
 
@@ -98,8 +105,8 @@ public class ApplicationPageServiceTest {
     public void deleteUnpublishedPage_WhenPageDeletedAndAppRePublished_PublishModeCommentsDeleted() {
         Mono<List<CommentThread>> getThreadMono = createPageMono(UUID.randomUUID().toString())
                 .flatMap(pageDTO -> {
-                    CommentThread editModeCommentThread = createCommentThread(CommentMode.EDIT, pageDTO);
-                    CommentThread piublishedModeCommentThread = createCommentThread(CommentMode.PUBLISHED, pageDTO);
+                    CommentThread editModeCommentThread = createCommentThread(ApplicationMode.EDIT, pageDTO);
+                    CommentThread piublishedModeCommentThread = createCommentThread(ApplicationMode.PUBLISHED, pageDTO);
 
                     // add a comment thread in edit mode
                     return commentService.createThread(editModeCommentThread, "app.appsmith.com")
@@ -120,6 +127,25 @@ public class ApplicationPageServiceTest {
 
         StepVerifier.create(getThreadMono).assertNext(commentThreads -> {
             assertThat(commentThreads.size()).isEqualTo(0);
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void deleteUnpublishedPage_WhenPageDeleted_ApplicationEditDateSet() {
+        Mono<Application> applicationMono = createPageMono(UUID.randomUUID().toString())
+                .flatMap(pageDTO -> {
+                    Application application = new Application();
+                    application.setLastEditedAt(Instant.now().minus(10, ChronoUnit.DAYS));
+                    return applicationRepository.updateById(pageDTO.getApplicationId(), application, AclPermission.MANAGE_APPLICATIONS)
+                            .then(applicationPageService.deleteUnpublishedPage(pageDTO.getId()))
+                            .then(applicationRepository.findById(pageDTO.getApplicationId()));
+                });
+
+        StepVerifier.create(applicationMono).assertNext(application -> {
+            assertThat(application.getLastEditedAt()).isNotNull();
+            Instant yesterday = Instant.now().minus(1, ChronoUnit.DAYS);
+            assertThat(application.getLastEditedAt()).isAfter(yesterday);
         }).verifyComplete();
     }
 }

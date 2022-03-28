@@ -15,7 +15,7 @@ const getSelectedStyles = (props: WrapperProps) =>
     ? `color: ${props.theme.colors.tabItemBackgroundFill.highlightTextColor};
       font-weight: 500;
       border-bottom: 2px solid ${props.theme.colors.info.light};
-     
+
      `
     : `color: ${Colors.GREY_7}
       `;
@@ -34,6 +34,8 @@ const Wrapper = styled.div<WrapperProps>`
   padding: ${(props) => `${props.theme.spaces[5]}px 0px`};
 
   width: 100%;
+
+  align-items: center;
 `;
 
 export default function TabItem(props: {

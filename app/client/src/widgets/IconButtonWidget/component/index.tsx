@@ -5,7 +5,11 @@ import { IconName } from "@blueprintjs/icons";
 
 import { ComponentProps } from "widgets/BaseComponent";
 import { ThemeProp } from "components/ads/common";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
+import {
+  RenderMode,
+  RenderModes,
+  WIDGET_PADDING,
+} from "constants/WidgetConstants";
 import _ from "lodash";
 import {
   ButtonBorderRadius,
@@ -21,12 +25,57 @@ import {
   getCustomHoverColor,
   getCustomTextColor,
 } from "widgets/WidgetUtils";
-const IconButtonContainer = styled.div`
+
+type IconButtonContainerProps = {
+  disabled?: boolean;
+  buttonColor?: string;
+  buttonVariant?: ButtonVariant;
+  hasOnClickAction?: boolean;
+  renderMode: RenderMode;
+};
+
+const IconButtonContainer = styled.div<IconButtonContainerProps>`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   height: 100%;
+
+  ${({ renderMode }) =>
+    renderMode === RenderModes.CANVAS &&
+    `
+  position: relative;
+  &:after {
+    content: "";
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: absolute;
+  }
+  
+  `}
+  
+  ${({ buttonColor, buttonVariant, hasOnClickAction, renderMode, theme }) => `
+
+  ${
+    hasOnClickAction && renderMode === RenderModes.CANVAS
+      ? `&:hover > button, &:active > button {
+      background: ${
+        getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
+          ? getCustomHoverColor(theme, buttonVariant, buttonColor)
+          : buttonVariant === ButtonVariantTypes.SECONDARY
+          ? theme.colors.button.primary.secondary.hoverColor
+          : buttonVariant === ButtonVariantTypes.TERTIARY
+          ? theme.colors.button.primary.tertiary.hoverColor
+          : theme.colors.button.primary.primary.hoverColor
+      } !important;
+    }`
+      : ""
+  }  
+`}
+
+  ${({ disabled }) => disabled && "cursor: not-allowed;"}
 `;
 
 export interface ButtonStyleProps {
@@ -52,7 +101,6 @@ export const StyledButton = styled((props) => (
     ])}
   />
 ))<ThemeProp & ButtonStyleProps>`
-
   background-image: none !important;
   height: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
   width: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
@@ -67,8 +115,9 @@ export const StyledButton = styled((props) => (
       } !important;
     }
 
-    ${hasOnClickAction &&
-      `&:hover:enabled, &:active:enabled {
+    ${
+      hasOnClickAction
+        ? `&:hover:enabled, &:active:enabled {
         background: ${
           getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
             ? getCustomHoverColor(theme, buttonVariant, buttonColor)
@@ -78,10 +127,19 @@ export const StyledButton = styled((props) => (
             ? theme.colors.button.primary.tertiary.hoverColor
             : theme.colors.button.primary.primary.hoverColor
         } !important;
-      }`}
+      }`
+        : ""
+    }
 
     &:disabled {
       background-color: ${theme.colors.button.disabled.bgColor} !important;
+      color: ${theme.colors.button.disabled.textColor} !important;
+      pointer-events: none;
+    }
+
+    &&:disabled {
+      background-color: ${theme.colors.button.disabled.bgColor} !important;
+      border-color: ${theme.colors.button.disabled.bgColor} !important;
       color: ${theme.colors.button.disabled.textColor} !important;
     }
 
@@ -120,7 +178,6 @@ export const StyledButton = styled((props) => (
     }
   `}
 
-
   border-radius: ${({ borderRadius }) =>
     borderRadius === ButtonBorderRadiusTypes.CIRCLE
       ? "50%"
@@ -149,7 +206,7 @@ export const StyledButton = styled((props) => (
 
 export interface IconButtonComponentProps extends ComponentProps {
   iconName?: IconName;
-  buttonColor: string;
+  buttonColor?: string;
   buttonVariant: ButtonVariant;
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;
@@ -158,6 +215,7 @@ export interface IconButtonComponentProps extends ComponentProps {
   isVisible: boolean;
   hasOnClickAction: boolean;
   onClick: () => void;
+  renderMode: RenderMode;
   height: number;
   width: number;
 }
@@ -173,6 +231,7 @@ function IconButtonComponent(props: IconButtonComponentProps) {
     height,
     isDisabled,
     onClick,
+    renderMode,
     width,
   } = props;
 
@@ -190,19 +249,28 @@ function IconButtonComponent(props: IconButtonComponentProps) {
   }, [width, height]);
 
   return (
-    <IconButtonContainer>
+    <IconButtonContainer
+      buttonColor={buttonColor}
+      buttonVariant={buttonVariant}
+      disabled={isDisabled}
+      hasOnClickAction={hasOnClickAction}
+      onClick={() => {
+        if (isDisabled) return;
+        onClick();
+      }}
+      renderMode={renderMode}
+    >
       <StyledButton
         borderRadius={borderRadius}
         boxShadow={boxShadow}
         boxShadowColor={boxShadowColor}
         buttonColor={buttonColor}
-        buttonVariant={buttonVariant}
+        buttonVariant={_.trim(buttonVariant)}
         dimension={dimension}
         disabled={isDisabled}
         hasOnClickAction={hasOnClickAction}
         icon={props.iconName}
         large
-        onClick={onClick}
       />
     </IconButtonContainer>
   );

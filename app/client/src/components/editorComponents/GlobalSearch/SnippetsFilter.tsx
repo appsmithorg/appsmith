@@ -133,7 +133,8 @@ function SnippetsFilter({ refinements, snippetsEmpty }: any) {
   const ref = useRef<HTMLDivElement>(null);
   const handleOutsideClick = useCallback(
     (e: MouseEvent) => {
-      if (ref && !ref.current?.contains(e?.target as Node))
+      // Check if the clicked element has the `ref` element in the path(i.e parent list).
+      if (ref && !e.composedPath().includes(ref?.current as EventTarget))
         toggleSnippetFilter(false);
     },
     [showSnippetFilter],
@@ -160,17 +161,22 @@ function SnippetsFilter({ refinements, snippetsEmpty }: any) {
       showFilter={showSnippetFilter}
       snippetsEmpty={snippetsEmpty}
     >
-      <button onClick={() => toggleSnippetFilter(!showSnippetFilter)}>
+      <button
+        className="flex items-center justify-center space-x-1 t--filter-button"
+        onClick={() => toggleSnippetFilter(!showSnippetFilter)}
+      >
         {!showSnippetFilter && <FilterIcon />}
+
         {!showSnippetFilter &&
           refinements.entities &&
           refinements.entities &&
-          refinements.entities.length > 0 &&
-          ` ${refinements.entities.length}`}
-        {!showSnippetFilter && " Filter"}
+          refinements.entities.length > 0 && (
+            <span>{refinements.entities.length}</span>
+          )}
+        {!showSnippetFilter && <span> Filter</span>}
         {showSnippetFilter && <CloseFilterIcon />}
       </button>
-      <div className="filter-list">
+      <div className="filter-list t--filter-list">
         <div
           className="container"
           onClick={(e: React.MouseEvent) => {

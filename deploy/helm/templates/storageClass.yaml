@@ -1,5 +1,5 @@
 {{- if and .Values.storageClass.enabled .Values.persistence.localStorage }}
-apiVersion: {{ template "apiVersion" }}
+apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: {{ .Values.persistence.storageClass }}  
@@ -7,7 +7,7 @@ provisioner: kubernetes.io/no-provisioner
 volumeBindingMode: WaitForFirstConsumer
 ---
 {{- else if .Values.storageClass.enabled }}
-apiVersion: {{ template "apiVersion" }}
+apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: {{ .Values.persistence.storageClass }}

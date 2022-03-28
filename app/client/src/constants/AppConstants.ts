@@ -4,6 +4,8 @@ export const CANVAS_DEFAULT_HEIGHT_PX = 1292;
 export const CANVAS_DEFAULT_GRID_HEIGHT_PX = 1;
 export const CANVAS_DEFAULT_GRID_WIDTH_PX = 1;
 export const CANVAS_BACKGROUND_COLOR = "#FFFFFF";
+export const DEFAULT_ENTITY_EXPLORER_WIDTH = 256;
+export const DEFAULT_PROPERTY_PANE_WIDTH = 256;
 
 const APP_STORE_NAMESPACE = "APPSMITH_LOCAL_STORE";
 
@@ -30,3 +32,8 @@ export const getPersistentAppStore = (appId: string, branch?: string) => {
 };
 
 export const TOOLTIP_HOVER_ON_DELAY = 1000;
+
+export const MOBILE_MAX_WIDTH = 767;
+export const TABLET_MIN_WIDTH = 768;
+export const TABLET_MAX_WIDTH = 991;
+export const DESKTOP_MIN_WIDTH = 992;

@@ -1,23 +1,23 @@
-import React, { ReactNode, memo, useCallback } from "react";
+import React, { memo, useCallback } from "react";
 import Entity, { EntityClassNames } from "../Entity";
-import EntityProperties from "../Entity/EntityProperties";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { JS_COLLECTION_ID_URL } from "constants/routes";
 import history from "utils/history";
 import JSCollectionEntityContextMenu from "./JSActionContextMenu";
-import { getJSCollectionIdFromURL } from "../helpers";
 import { saveJSObjectName } from "actions/jsActionActions";
-import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
-
 import { useSelector } from "react-redux";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { getJSCollection } from "selectors/entitiesSelector";
+import { AppState } from "reducers";
+import { JSCollection } from "entities/JSCollection";
+import { JsFileIconV2 } from "../ExplorerIcons";
+import { PluginType } from "entities/Action";
+import { jsCollectionIdURL } from "RouteBuilder";
 
 type ExplorerJSCollectionEntityProps = {
-  action: JSCollectionData;
-  icon: ReactNode;
   step: number;
   searchKeyword?: string;
-  pageId: string;
+  id: string;
+  isActive: boolean;
+  type: PluginType;
 };
 
 const getUpdateJSObjectName = (id: string, name: string) => {
@@ -26,50 +26,39 @@ const getUpdateJSObjectName = (id: string, name: string) => {
 
 export const ExplorerJSCollectionEntity = memo(
   (props: ExplorerJSCollectionEntityProps) => {
-    const applicationId = useSelector(getCurrentApplicationId);
+    const pageId = useSelector(getCurrentPageId) as string;
+    const jsAction = useSelector((state: AppState) =>
+      getJSCollection(state, props.id),
+    ) as JSCollection;
     const navigateToJSCollection = useCallback(() => {
-      history.push(
-        JS_COLLECTION_ID_URL(
-          applicationId,
-          props.pageId,
-          props.action.config.id,
-          {},
-        ),
-      );
-    }, [props.pageId]);
+      if (jsAction.id) {
+        history.push(
+          jsCollectionIdURL({ pageId, collectionId: jsAction.id, params: {} }),
+        );
+      }
+    }, [pageId, jsAction.id]);
     const contextMenu = (
       <JSCollectionEntityContextMenu
         className={EntityClassNames.CONTEXT_MENU}
-        id={props.action.config.id}
-        name={props.action.config.name}
-        pageId={props.pageId}
+        id={jsAction.id}
+        name={jsAction.name}
+        pageId={pageId}
       />
     );
-    const jsactionId = getJSCollectionIdFromURL();
-    const active = jsactionId === props.action.config.id;
     return (
       <Entity
         action={navigateToJSCollection}
-        active={active}
+        active={props.isActive}
         className="t--jsaction"
         contextMenu={contextMenu}
-        entityId={props.action.config.id}
-        icon={props.icon}
-        key={props.action.config.id}
-        name={props.action.config.name}
+        entityId={jsAction.id}
+        icon={JsFileIconV2}
+        key={jsAction.id}
+        name={jsAction.name}
         searchKeyword={props.searchKeyword}
         step={props.step}
         updateEntityName={getUpdateJSObjectName}
-      >
-        <EntityProperties
-          entity={props.action}
-          entityId={props.action.config.id}
-          entityName={props.action.config.name}
-          entityType={ENTITY_TYPE.JSACTION}
-          pageId={props.pageId}
-          step={props.step + 1}
-        />
-      </Entity>
+      />
     );
   },
 );

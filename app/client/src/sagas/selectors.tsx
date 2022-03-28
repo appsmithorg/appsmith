@@ -19,6 +19,15 @@ export const getWidgetsMeta = (state: AppState) => state.entities.meta;
 export const getWidgetMetaProps = (state: AppState, widgetId: string) =>
   state.entities.meta[widgetId];
 
+export const getWidgetByID = (widgetId: string) => {
+  return createSelector(
+    getWidgets,
+    (canvasWidgets: { [widgetId: string]: FlattenedWidgetProps }) => {
+      return canvasWidgets[widgetId];
+    },
+  );
+};
+
 export const getWidget = (state: AppState, widgetId: string): WidgetProps => {
   return state.entities.canvasWidgets[widgetId];
 };
@@ -109,14 +118,6 @@ export const getWidgetByName = (
     Object.values(widgets),
     (widget) => widget.widgetName === widgetName,
   );
-};
-
-export const getWidgetById = (
-  state: AppState,
-  id: string,
-): FlattenedWidgetProps | undefined => {
-  const widgets = state.entities.canvasWidgets;
-  return widgets[id];
 };
 
 export const getAllPageIds = (state: AppState) => {

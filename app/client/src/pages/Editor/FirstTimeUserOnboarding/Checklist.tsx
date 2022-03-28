@@ -13,12 +13,7 @@ import {
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { useIsWidgetActionConnectionPresent } from "pages/Editor/utils";
 import { getEvaluationInverseDependencyMap } from "selectors/dataTreeSelectors";
-import {
-  APPLICATIONS_URL,
-  BUILDER_PAGE_URL,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-} from "constants/routes";
+import { APPLICATIONS_URL, INTEGRATION_TABS } from "constants/routes";
 import {
   getApplicationLastDeployedAt,
   getCurrentApplicationId,
@@ -51,11 +46,12 @@ import {
   ONBOARDING_CHECKLIST_FOOTER,
   ONBOARDING_CHECKLIST_BANNER_BUTTON,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { Datasource } from "entities/Datasource";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { triggerWelcomeTour } from "./Utils";
+import { builderURL, integrationEditorURL } from "RouteBuilder";
 
 const Wrapper = styled.div`
   padding: ${(props) => props.theme.spaces[7]}px 55px;
@@ -120,6 +116,10 @@ const CompeleteMarkerIcon = styled.div<{ success: boolean }>`
   border-color: ${(props) =>
     props.success ? props.theme.colors.success.main : Colors.SILVER_CHALICE};
   padding: 2px 2px;
+
+  .bp3-icon {
+    vertical-align: initial;
+  }
 `;
 
 const StyledCompleteMarker = styled.div`
@@ -155,13 +155,13 @@ const BannerText = styled.p`
 
 const StyledImg = styled.img`
   width: 20px;
-  transform: translate(0px, 5px);
   margin-right: 5px;
 `;
 
 const StyledFooter = styled.div`
   cursor: pointer;
-  display: inline-block;
+  display: flex;
+  align-items: center;
   margin-top: ${(props) => props.theme.spaces[9]}px;
 `;
 
@@ -235,7 +235,7 @@ export default function OnboardingChecklist() {
     getEnableFirstTimeUserOnboarding,
   );
   if (!isFirstTimeUserOnboardingEnabled && !isCompleted) {
-    return <Redirect to={BUILDER_PAGE_URL({ applicationId, pageId })} />;
+    return <Redirect to={builderURL()} />;
   }
   const {
     completedTasks,
@@ -258,16 +258,15 @@ export default function OnboardingChecklist() {
         }),
       );
     } else {
-      history.push(BUILDER_PAGE_URL({ applicationId, pageId }));
+      history.push(builderURL());
     }
     AnalyticsUtil.logEvent("SIGNPOSTING_CONNECT_WIDGET_CLICK");
   };
   return (
     <Wrapper data-testid="checklist-wrapper">
       <Backbutton
-        onClick={() =>
-          history.push(BUILDER_PAGE_URL({ applicationId, pageId }))
-        }
+        className="t--checklist-back"
+        onClick={() => history.push(builderURL())}
       >
         <Icon color={Colors.DIESEL} icon="chevron-left" iconSize={16} />
         <Text style={{ lineHeight: "14px" }} type={TextType.P1}>
@@ -290,10 +289,15 @@ export default function OnboardingChecklist() {
           />
         </Banner>
       )}
-      <Pageheader>{createMessage(ONBOARDING_CHECKLIST_HEADER)}</Pageheader>
+      <Pageheader className="font-bold py-6">
+        {createMessage(ONBOARDING_CHECKLIST_HEADER)}
+      </Pageheader>
       <PageSubHeader>{createMessage(ONBOARDING_CHECKLIST_BODY)}</PageSubHeader>
       <StatusWrapper>
-        <span data-testid="checklist-completion-info">
+        <span
+          className="t--checklist-complete-status"
+          data-testid="checklist-completion-info"
+        >
           {completedTasks} of 5
         </span>
         &nbsp;{createMessage(ONBOARDING_CHECKLIST_COMPLETE_TEXT)}
@@ -305,6 +309,7 @@ export default function OnboardingChecklist() {
               success={!!datasources.length || !!actions.length}
             >
               <Icon
+                className="flex"
                 color={
                   datasources.length || actions.length
                     ? theme.colors.success.main
@@ -337,17 +342,16 @@ export default function OnboardingChecklist() {
                   ? Category.primary
                   : Category.tertiary
               }
+              className="t--checklist-datasource-button"
               data-testid="checklist-datasource-button"
               onClick={() => {
                 AnalyticsUtil.logEvent("SIGNPOSTING_CREATE_DATASOURCE_CLICK", {
                   from: "CHECKLIST",
                 });
                 history.push(
-                  INTEGRATION_EDITOR_URL(
-                    applicationId,
-                    pageId,
-                    INTEGRATION_TABS.NEW,
-                  ),
+                  integrationEditorURL({
+                    selectedTab: INTEGRATION_TABS.NEW,
+                  }),
                 );
               }}
               text={createMessage(
@@ -361,6 +365,7 @@ export default function OnboardingChecklist() {
           <StyledCompleteMarker>
             <CompeleteMarkerIcon success={!!actions.length}>
               <Icon
+                className="flex"
                 color={
                   actions.length
                     ? theme.colors.success.main
@@ -386,6 +391,7 @@ export default function OnboardingChecklist() {
                   ? Category.primary
                   : Category.tertiary
               }
+              className="t--checklist-action-button"
               data-testid="checklist-action-button"
               disabled={!datasources.length}
               onClick={() => {
@@ -393,11 +399,9 @@ export default function OnboardingChecklist() {
                   from: "CHECKLIST",
                 });
                 history.push(
-                  INTEGRATION_EDITOR_URL(
-                    applicationId,
-                    pageId,
-                    INTEGRATION_TABS.ACTIVE,
-                  ),
+                  integrationEditorURL({
+                    selectedTab: INTEGRATION_TABS.ACTIVE,
+                  }),
                 );
               }}
               tag="button"
@@ -412,6 +416,7 @@ export default function OnboardingChecklist() {
           <StyledCompleteMarker>
             <CompeleteMarkerIcon success={Object.keys(widgets).length > 1}>
               <Icon
+                className="flex"
                 color={
                   Object.keys(widgets).length > 1
                     ? theme.colors.success.main
@@ -437,6 +442,7 @@ export default function OnboardingChecklist() {
                   ? Category.primary
                   : Category.tertiary
               }
+              className="t--checklist-widget-button"
               data-testid="checklist-widget-button"
               onClick={() => {
                 AnalyticsUtil.logEvent("SIGNPOSTING_ADD_WIDGET_CLICK", {
@@ -444,7 +450,7 @@ export default function OnboardingChecklist() {
                 });
                 dispatch(toggleInOnboardingWidgetSelection(true));
                 dispatch(forceOpenWidgetPanel(true));
-                history.push(BUILDER_PAGE_URL({ applicationId, pageId }));
+                history.push(builderURL());
               }}
               text={createMessage(
                 () => ONBOARDING_CHECKLIST_ACTIONS.ADD_WIDGETS,
@@ -457,6 +463,7 @@ export default function OnboardingChecklist() {
           <StyledCompleteMarker>
             <CompeleteMarkerIcon success={!!isConnectionPresent}>
               <Icon
+                className="flex"
                 color={
                   isConnectionPresent
                     ? theme.colors.success.main
@@ -485,6 +492,7 @@ export default function OnboardingChecklist() {
                   ? Category.primary
                   : Category.tertiary
               }
+              className="t--checklist-connection-button"
               data-testid="checklist-connection-button"
               disabled={Object.keys(widgets).length === 1 || !actions.length}
               onClick={onconnectYourWidget}
@@ -500,6 +508,7 @@ export default function OnboardingChecklist() {
           <StyledCompleteMarker>
             <CompeleteMarkerIcon success={!!isDeployed}>
               <Icon
+                className="flex"
                 color={
                   isDeployed ? theme.colors.success.main : Colors.SILVER_CHALICE
                 }
@@ -526,6 +535,7 @@ export default function OnboardingChecklist() {
                   ? Category.primary
                   : Category.tertiary
               }
+              className="t--checklist-deploy-button"
               data-testid="checklist-deploy-button"
               onClick={() => {
                 AnalyticsUtil.logEvent("SIGNPOSTING_PUBLISH_CLICK", {
@@ -546,7 +556,10 @@ export default function OnboardingChecklist() {
           )}
         </StyledListItem>
       </StyledList>
-      <StyledFooter onClick={() => triggerWelcomeTour(dispatch)}>
+      <StyledFooter
+        className="flex"
+        onClick={() => triggerWelcomeTour(dispatch)}
+      >
         <StyledImg src="https://assets.appsmith.com/Rocket.png" />
         <Text style={{ lineHeight: "14px" }} type={TextType.P1}>
           {createMessage(ONBOARDING_CHECKLIST_FOOTER)}

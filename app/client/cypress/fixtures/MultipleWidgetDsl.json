@@ -24,7 +24,7 @@
         "inputType": "TEXT",
         "label": "",
         "widgetName": "Input1",
-        "type": "INPUT_WIDGET",
+        "type": "INPUT_WIDGET_V2",
         "isLoading": false,
         "parentColumnSpace": 74,
         "parentRowSpace": 40,
@@ -41,8 +41,11 @@
         "selectionType": "SINGLE_SELECT",
         "options": "",
         "widgetName": "Dropdown1",
-        "defaultOptionValue": "VEG",
-        "type": "DROP_DOWN_WIDGET",
+        "defaultOptionValue": {
+          "value":"VEG",
+          "label":"VEG"
+        },
+        "type": "SELECT_WIDGET",
         "isLoading": false,
         "parentColumnSpace": 74,
         "parentRowSpace": 40,

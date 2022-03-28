@@ -1,21 +1,17 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/tableTextPaginationDsl.json");
-const pages = require("../../../../locators/Pages.json");
-const apiPage = require("../../../../locators/ApiEditor.json");
-const publishPage = require("../../../../locators/publishWidgetspage.json");
-const testdata = require("../../../../fixtures/testdata.json");
 
 describe("Test Create Api and Bind to Table widget", function() {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Create an API and Execute the API and bind with Table", function() {
+  it("1. Create an API and Execute the API and bind with Table", function() {
     cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
     cy.RunAPI();
   });
 
-  it("Validate Table with API data and then add a column", function() {
+  it("2. Validate Table with API data and then add a column", function() {
     // Open property pane
     cy.SearchEntityandOpen("Table1");
     // Change the table data to Apil data users
@@ -39,7 +35,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.addColumn("CustomColumn");
   });
 
-  it("Update table json data and check the column names updated and validate empty value", function() {
+  it("3. Update table json data and check the column names updated and validate empty value", function() {
     // Open property pane
     cy.SearchEntityandOpen("Table1");
     // Change the table data
@@ -68,7 +64,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     });
   });
 
-  it("Check Selected Row(s) Resets When Table Data Changes", function() {
+  it("4. Check Selected Row(s) Resets When Table Data Changes", function() {
     // Select 1st row
     cy.isSelectRow(1);
     cy.openPropertyPane("tablewidget");

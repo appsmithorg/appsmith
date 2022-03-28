@@ -14,8 +14,8 @@ import {
   SEARCH_ITEM_TYPES,
   SearchItem,
   SearchCategory,
-  isMenu,
   comboHelpText,
+  isSnippet,
 } from "./utils";
 import SearchContext from "./GlobalSearchContext";
 import {
@@ -23,8 +23,8 @@ import {
   getPluginIcon,
   homePageIcon,
   pageIcon,
-  apiIcon,
-  jsIcon,
+  EntityIcon,
+  JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { HelpIcons } from "icons/HelpIcons";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
@@ -92,6 +92,9 @@ export const SearchItemContainer = styled.div<{
       &:hover {
         transform: scale(1.2);
       }
+    }
+    .operation-desc {
+      opacity: 1;
     }
     .icon-wrapper {
       svg {
@@ -198,13 +201,6 @@ function WidgetItem(props: {
   );
 }
 
-const ActionIconWrapper = styled.div`
-  & > div {
-    display: flex;
-    align-items: center;
-  }
-`;
-
 function ActionItem(props: {
   query: string;
   item: SearchItem;
@@ -217,13 +213,11 @@ function ActionItem(props: {
     return state.entities.plugins.list;
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
-  const icon =
-    pluginType === PluginType.API
-      ? apiIcon
-      : getActionConfig(pluginType)?.getIcon(
-          item.config,
-          pluginGroups[item.config.datasource.pluginId],
-        );
+  const icon = getActionConfig(pluginType)?.getIcon(
+    item.config,
+    pluginGroups[item.config.datasource.pluginId],
+    pluginType === PluginType.API,
+  );
 
   const title = getItemTitle(item);
   const pageName = usePageName(config.pageId);
@@ -231,7 +225,7 @@ function ActionItem(props: {
 
   return (
     <>
-      <ActionIconWrapper>{icon}</ActionIconWrapper>
+      {icon}
       <ItemTitle>
         <TextWrapper>
           <Highlight className="text" match={query} text={title} />
@@ -250,14 +244,13 @@ function JSCollectionItem(props: {
 }) {
   const { item, query } = props;
   const { config } = item || {};
-  const icon = jsIcon;
   const title = getItemTitle(item);
   const pageName = usePageName(config.pageId);
   const subText = `${pageName}`;
 
   return (
     <>
-      <ActionIconWrapper>{icon}</ActionIconWrapper>
+      {JsFileIconV2}
       <ItemTitle>
         <TextWrapper>
           <Highlight className="text" match={query} text={title} />
@@ -332,7 +325,7 @@ const StyledSectionTitleContainer = styled.div`
 function SectionTitle({ item }: { item: SearchItem }) {
   return (
     <StyledSectionTitleContainer>
-      <img className="section-title__icon" src={item.icon} />
+      {item.icon && <img className="section-title__icon" src={item.icon} />}
       <span className="section-title__text">{item.title}</span>
     </StyledSectionTitleContainer>
   );
@@ -422,6 +415,49 @@ function SnippetItem({ item: { body } }: any) {
   );
 }
 
+const ActionOperation = styled.div<{ isActive: boolean }>`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  .action-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+  }
+  .operation-title {
+    padding: 0 10px;
+    max-width: 50%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .operation-desc {
+    color: gray;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    opacity: ${(props) => (props.isActive ? 1 : 0)};
+  }
+`;
+
+function ActionOperationItem({ isActiveItem, item }: any) {
+  const plugins = useSelector((state: AppState) => {
+    return state.entities.plugins.list;
+  });
+  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
+  const icon = item.pluginId && getPluginIcon(pluginGroups[item.pluginId]);
+  return (
+    <ActionOperation isActive={isActiveItem}>
+      <div className="action-icon">
+        {item.icon ? item.icon : <EntityIcon>{icon}</EntityIcon>}
+      </div>
+      <span className="operation-title t--file-operation">{item.title}</span>
+      {item.desc && <span className="operation-desc"> ~ {item.desc}</span>}
+    </ActionOperation>
+  );
+}
+
 const SearchItemByType = {
   [SEARCH_ITEM_TYPES.document]: DocumentationItem,
   [SEARCH_ITEM_TYPES.widget]: WidgetItem,
@@ -433,6 +469,7 @@ const SearchItemByType = {
   [SEARCH_ITEM_TYPES.jsAction]: JSCollectionItem,
   [SEARCH_ITEM_TYPES.category]: CategoryItem,
   [SEARCH_ITEM_TYPES.snippet]: SnippetItem,
+  [SEARCH_ITEM_TYPES.actionOperation]: ActionOperationItem,
 };
 
 type ItemProps = {
@@ -484,11 +521,12 @@ const SearchResultsContainer = styled.div<{ category: SearchCategory }>`
   flex: 1;
   background: white;
   position: relative;
+  width: 100%;
   .container {
     overflow: auto;
     height: 100%;
     width: 100%;
-    padding-bottom: ${(props) => (isMenu(props.category) ? "0" : "50px")};
+    padding-bottom: ${(props) => (isSnippet(props.category) ? "50px" : "0")};
   }
 `;
 

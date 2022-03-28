@@ -12,6 +12,8 @@ import { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
 
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
+import derivedProperties from "./parseDerivedProperties";
 
 export function selectedTabValidation(
   value: unknown,
@@ -153,10 +155,21 @@ class TabsWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the button is clicked",
@@ -184,9 +197,7 @@ class TabsWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      selectedTab: `{{_.find(Object.values(this.tabsObj), {
-        widgetId: this.selectedTabWidgetId,
-      }).label}}`,
+      selectedTab: `{{(()=>{${derivedProperties.getSelectedTab}})()}}`,
     };
   }
 
@@ -201,9 +212,13 @@ class TabsWidget extends BaseWidget<
   }
 
   getPageView() {
+    const { leftColumn, parentColumnSpace, rightColumn } = this.props;
+
     const tabsComponentProps = {
       ...this.props,
       tabs: this.getVisibleTabs(),
+      width:
+        (rightColumn - leftColumn) * parentColumnSpace - WIDGET_PADDING * 2,
     };
     return (
       <TabsComponent {...tabsComponentProps} onTabChange={this.onTabChange}>

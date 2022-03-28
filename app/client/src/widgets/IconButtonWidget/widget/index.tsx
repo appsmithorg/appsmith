@@ -14,8 +14,11 @@ import {
   ButtonBorderRadiusTypes,
   ButtonVariantTypes,
 } from "components/constants";
-import { Colors } from "constants/Colors";
+import { IconNames } from "@blueprintjs/icons";
 
+const ICON_NAMES = Object.keys(IconNames).map(
+  (name: string) => IconNames[name as keyof typeof IconNames],
+);
 export interface IconButtonWidgetProps extends WidgetProps {
   iconName?: IconName;
   buttonColor?: string;
@@ -39,9 +42,17 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             label: "Icon",
             helpText: "Sets the icon to be used for the icon button",
             controlType: "ICON_SELECT",
-            isBindProperty: false,
+            defaultIconName: "plus",
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ICON_NAMES,
+                default: IconNames.PLUS,
+              },
+            },
           },
           {
             propertyName: "isDisabled",
@@ -63,10 +74,21 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the button is clicked",
@@ -87,8 +109,15 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             helpText: "Sets the style of the icon button",
             label: "Button Color",
             controlType: "COLOR_PICKER",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
           },
           {
             propertyName: "buttonVariant",
@@ -109,8 +138,20 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
                 value: ButtonVariantTypes.TERTIARY,
               },
             ],
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  ButtonVariantTypes.PRIMARY,
+                  ButtonVariantTypes.SECONDARY,
+                  ButtonVariantTypes.TERTIARY,
+                ],
+                default: ButtonVariantTypes.PRIMARY,
+              },
+            },
           },
           {
             propertyName: "borderRadius",
@@ -185,7 +226,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         borderRadius={borderRadius}
         boxShadow={boxShadow}
         boxShadowColor={boxShadowColor}
-        buttonColor={buttonColor || Colors.GREEN}
+        buttonColor={buttonColor}
         buttonVariant={buttonVariant}
         hasOnClickAction={!!this.props.onClick}
         height={
@@ -195,6 +236,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         isDisabled={isDisabled}
         isVisible={isVisible}
         onClick={this.handleClick}
+        renderMode={this.props.renderMode}
         widgetId={widgetId}
         width={
           (this.props.rightColumn - this.props.leftColumn) *

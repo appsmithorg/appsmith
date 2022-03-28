@@ -9,7 +9,10 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import { FORGOT_PASSWORD_SUCCESS_TEXT } from "constants/messages";
+import {
+  FORGOT_PASSWORD_SUCCESS_TEXT,
+  createMessage,
+} from "@appsmith/constants/messages";
 import { logoutUser, updateUserDetails } from "actions/userActions";
 import { AppState } from "reducers";
 import UserProfileImagePicker from "components/ads/UserProfileImagePicker";
@@ -21,6 +24,8 @@ import {
   TextLoader,
 } from "./StyledComponents";
 import { getCurrentUser as refreshCurrentUser } from "actions/authActions";
+import { getAppsmithConfigs } from "@appsmith/configs";
+const { disableLoginForm } = getAppsmithConfigs();
 
 const ForgotPassword = styled.a`
   margin-top: 12px;
@@ -39,7 +44,7 @@ function General() {
     try {
       await forgotPasswordSubmitHandler({ email: user?.email }, dispatch);
       Toaster.show({
-        text: `${FORGOT_PASSWORD_SUCCESS_TEXT} ${user?.email}`,
+        text: createMessage(FORGOT_PASSWORD_SUCCESS_TEXT, user?.email),
         variant: Variant.success,
       });
       dispatch(logoutUser());
@@ -102,9 +107,11 @@ function General() {
           {isFetchingUser && <TextLoader className={Classes.SKELETON} />}
           {!isFetchingUser && <Text type={TextType.P1}>{user?.email}</Text>}
 
-          <ForgotPassword onClick={forgotPassword}>
-            Reset Password
-          </ForgotPassword>
+          {!disableLoginForm && (
+            <ForgotPassword onClick={forgotPassword}>
+              Reset Password
+            </ForgotPassword>
+          )}
         </div>
       </FieldWrapper>
       {/* <InputWrapper>

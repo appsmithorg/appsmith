@@ -6,6 +6,7 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlIcons } from "icons/ControlIcons";
 import { ThemeProp } from "components/ads/common";
 import { ButtonBoxShadow, ButtonBoxShadowTypes } from "components/constants";
+import { replayHighlightClass } from "globalStyles/portals";
 
 const StyledButtonGroup = styled(ButtonGroup)`
   display: grid !important;
@@ -104,7 +105,7 @@ class BoxShadowOptionsControl extends BaseControl<
     const { propertyValue } = this.props;
 
     return (
-      <StyledButtonGroup fill>
+      <StyledButtonGroup className={replayHighlightClass} fill>
         {buttonConfigs.map(({ icon, variant }) => {
           const active =
             variant === ButtonBoxShadowTypes.NONE

@@ -1,10 +1,7 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.models.Provider;
-import reactor.core.publisher.Mono;
+import com.appsmith.server.services.ce.ProviderServiceCE;
 
-import java.util.List;
+public interface ProviderService extends ProviderServiceCE {
 
-public interface ProviderService extends CrudService<Provider, String> {
-    public Mono<List<String>> getAllCategories();
 }

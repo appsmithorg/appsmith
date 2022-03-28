@@ -1,5 +1,5 @@
 import React from "react";
-import UserApi from "api/UserApi";
+import UserApi, { SendTestEmailPayload } from "api/UserApi";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import {
@@ -12,7 +12,7 @@ import { User } from "constants/userConstants";
 import { takeLatest, all, call, put, delay, select } from "redux-saga/effects";
 import history from "utils/history";
 import { validateResponse } from "./ErrorSagas";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 import { ApiResponse } from "api/ApiResponses";
 import {
@@ -20,7 +20,7 @@ import {
   TEST_EMAIL_FAILURE,
   TEST_EMAIL_SUCCESS,
   TEST_EMAIL_SUCCESS_TROUBLESHOOT,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
 
@@ -53,32 +53,38 @@ function* FetchAdminSettingsErrorSaga() {
 
 function* SaveAdminSettingsSaga(action: ReduxAction<Record<string, string>>) {
   const settings = action.payload;
-  const response = yield call(UserApi.saveAdminSettings, settings);
-  const isValidResponse = yield validateResponse(response);
+  try {
+    const response = yield call(UserApi.saveAdminSettings, settings);
+    const isValidResponse = yield validateResponse(response);
 
-  if (isValidResponse) {
-    Toaster.show({
-      text: "Successfully Saved",
-      variant: Variant.success,
-    });
-    yield put({
-      type: ReduxActionTypes.SAVE_ADMIN_SETTINGS_SUCCESS,
-    });
-    yield put({
-      type: ReduxActionTypes.FETCH_ADMIN_SETTINGS_SUCCESS,
-      payload: settings,
-    });
-    yield put({
-      type: ReduxActionTypes.RESTART_SERVER_POLL,
-    });
-  } else {
+    if (isValidResponse) {
+      Toaster.show({
+        text: "Successfully Saved",
+        variant: Variant.success,
+      });
+      yield put({
+        type: ReduxActionTypes.SAVE_ADMIN_SETTINGS_SUCCESS,
+      });
+      yield put({
+        type: ReduxActionTypes.FETCH_ADMIN_SETTINGS_SUCCESS,
+        payload: settings,
+      });
+      yield put({
+        type: ReduxActionTypes.RESTART_SERVER_POLL,
+      });
+    } else {
+      yield put({
+        type: ReduxActionTypes.SAVE_ADMIN_SETTINGS_ERROR,
+      });
+    }
+  } catch (e) {
     yield put({
       type: ReduxActionTypes.SAVE_ADMIN_SETTINGS_ERROR,
     });
   }
 }
 
-const RESTART_POLL_TIMEOUT = 30000;
+const RESTART_POLL_TIMEOUT = 2 * 60 * 1000;
 const RESTART_POLL_INTERVAL = 2000;
 
 function* RestartServerPoll() {
@@ -100,38 +106,36 @@ function* RestartServerPoll() {
   });
 }
 
-function* SendTestEmail() {
+function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
   try {
-    const response = yield call(UserApi.sendTestEmail);
+    const response = yield call(UserApi.sendTestEmail, action.payload);
     const currentUser = yield select(getCurrentUser);
-    let actionElement;
-    if (response.data) {
-      actionElement = (
-        <>
-          <br />
-          <span onClick={() => window.open(EMAIL_SETUP_DOC, "blank")}>
-            {createMessage(TEST_EMAIL_SUCCESS_TROUBLESHOOT)}
-          </span>
-        </>
-      );
+    const isValidResponse = yield validateResponse(response);
+
+    if (isValidResponse) {
+      let actionElement;
+      if (response.data) {
+        actionElement = (
+          <>
+            <br />
+            <span onClick={() => window.open(EMAIL_SETUP_DOC, "blank")}>
+              {createMessage(TEST_EMAIL_SUCCESS_TROUBLESHOOT)}
+            </span>
+          </>
+        );
+      }
+      Toaster.show({
+        actionElement,
+        text: createMessage(
+          response.data
+            ? TEST_EMAIL_SUCCESS(currentUser?.email)
+            : TEST_EMAIL_FAILURE,
+        ),
+        hideProgressBar: true,
+        variant: response.data ? Variant.info : Variant.danger,
+      });
     }
-    Toaster.show({
-      actionElement,
-      text: createMessage(
-        response.data
-          ? TEST_EMAIL_SUCCESS(currentUser?.email)
-          : TEST_EMAIL_FAILURE,
-      ),
-      hideProgressBar: true,
-      variant: response.data ? Variant.info : Variant.danger,
-    });
-  } catch (e) {
-    Toaster.show({
-      text: createMessage(TEST_EMAIL_FAILURE),
-      hideProgressBar: true,
-      variant: Variant.danger,
-    });
-  }
+  } catch (e) {}
 }
 
 function* InitSuperUserSaga(action: ReduxAction<User>) {
