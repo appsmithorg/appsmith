@@ -225,6 +225,7 @@ const DBFormWrapper = styled.div`
 
   div[class^="RestAPIDatasourceForm__RestApiForm-"] {
     padding-top: 0px;
+    height: 100%;
   }
 
   .t--delete-datasource {
