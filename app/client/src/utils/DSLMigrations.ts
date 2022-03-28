@@ -1607,6 +1607,88 @@ export const migrateStylingPropertiesForTheming = (
         child.boxShadow = "none";
     }
 
+    // migrate table text sizes
+    /**
+     * Migrates the textSize property present at the table level.
+     */
+    switch (child.textSize) {
+      case TextSizes.PARAGRAPH2:
+        child.textSize = "0.75rem";
+        addPropertyToDynamicPropertyPathList("textSize", child);
+        break;
+      case TextSizes.PARAGRAPH:
+        child.textSize = "0.875rem";
+        break;
+      case TextSizes.HEADING3:
+        child.textSize = "1rem";
+        break;
+      case TextSizes.HEADING2:
+        child.textSize = "1.125rem";
+        addPropertyToDynamicPropertyPathList("textSize", child);
+        break;
+      case TextSizes.HEADING1:
+        child.textSize = "1.5rem";
+        addPropertyToDynamicPropertyPathList("textSize", child);
+        break;
+      default:
+        child.textSize = "0.875rem";
+    }
+    if (child.hasOwnProperty("primaryColumns")) {
+      Object.keys(child.primaryColumns).forEach((key: string) => {
+        /**
+         * Migrates the textSize property present at the primaryColumn and derivedColumn level.
+         */
+        const column = child.primaryColumns[key];
+        const isDerivedColumn =
+          child.hasOwnProperty("derivedColumns") && key in child.derivedColumns;
+        const derivedColumn = child.derivedColumns[key];
+        switch (column.textSize) {
+          case TextSizes.PARAGRAPH2:
+            column.textSize = "0.75rem";
+            if (isDerivedColumn) {
+              derivedColumn.textSize = "0.75rem";
+            }
+            addPropertyToDynamicPropertyPathList(
+              `primaryColumns.${key}.textSize`,
+              child,
+            );
+            break;
+          case TextSizes.PARAGRAPH:
+            column.textSize = "0.875rem";
+            if (isDerivedColumn) {
+              derivedColumn.textSize = "0.875rem";
+            }
+            break;
+          case TextSizes.HEADING3:
+            column.textSize = "1rem";
+            if (isDerivedColumn) {
+              derivedColumn.textSize = "1rem";
+            }
+            break;
+          case TextSizes.HEADING2:
+            column.textSize = "1.125rem";
+            if (isDerivedColumn) {
+              derivedColumn.textSize = "1.125rem";
+            }
+            addPropertyToDynamicPropertyPathList(
+              `primaryColumns.${key}.textSize`,
+              child,
+            );
+            break;
+          case TextSizes.HEADING1:
+            column.textSize = "1.5rem";
+            if (isDerivedColumn) {
+              derivedColumn.textSize = "1.5rem";
+            }
+            addPropertyToDynamicPropertyPathList(
+              `primaryColumns.${key}.textSize`,
+              child,
+            );
+            break;
+        }
+      });
+    }
+
     // migrate font size
     switch (child.fontSize) {
       case TextSizes.PARAGRAPH2:

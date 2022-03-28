@@ -34,7 +34,7 @@ import { Colors } from "constants/Colors";
 import { DropdownOption } from "widgets/DropdownWidget/constants";
 import { IconName, IconNames } from "@blueprintjs/icons";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
-import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
+import { FontStyleTypes } from "constants/WidgetConstants";
 import { noop } from "utils/AppsmithUtils";
 
 import { ReactComponent as CheckBoxLineIcon } from "assets/icons/widget/table/checkbox-line.svg";
@@ -665,7 +665,7 @@ export function getDefaultColumnProperties(
     verticalAlignment: VerticalAlignmentTypes.CENTER,
     columnType: ColumnTypes.TEXT,
     textColor: Colors.THUNDER,
-    textSize: TextSizes.PARAGRAPH,
+    textSize: "0.875rem",
     fontStyle: FontStyleTypes.REGULAR,
     enableFilter: true,
     enableSort: true,
