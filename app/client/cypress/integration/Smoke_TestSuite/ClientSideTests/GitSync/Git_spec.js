@@ -198,9 +198,8 @@ describe("Git sync:", function() {
       .should("eq", "true");
     cy.get(gitSyncLocators.closeGitSyncModal).click({ force: true });
   });
-
   after(() => {
-    /*  cy.deleteTestGithubRepo(repoName);
+    cy.deleteTestGithubRepo(repoName);
 
     // TODO remove when app deletion with conflicts is fixed
     cy.get(homePage.homeIcon).click({ force: true });
@@ -221,6 +220,6 @@ describe("Git sync:", function() {
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
-    ); */
+    );
   });
 });
