@@ -65,3 +65,46 @@ describe("Slug URLs", () => {
     });
   });
 });
+
+describe("Checks update feature on old application", () => {
+  it("Check the url of old applications and upgrades version", () => {
+    const applicationId = localStorage.getItem("applicationId");
+    cy.request("PUT", `/api/v1/applications/${applicationId}`, {
+      applicationVersion: 1,
+    }).then((response) => {
+      const application = response.body.data;
+      expect(application.applicationVersion).to.equal(1);
+      const applicationName = localStorage.getItem("AppName");
+      cy.NavigateToHome();
+      cy.reload();
+
+      cy.SearchApp(applicationName);
+
+      cy.wait("@getPagesForCreateApp").then((intercept) => {
+        const { application, pages } = intercept.response.body.data;
+        const defaultPage = pages.find((p) => p.isDefault);
+
+        cy.location().should((loc) => {
+          expect(loc.pathname).includes(
+            `/applications/${application.id}/pages/${defaultPage.id}`,
+          );
+        });
+
+        cy.get(".t--upgrade").click({ force: true });
+
+        cy.get(".t--upgrade-confirm").click({ force: true });
+
+        cy.wait("@getPagesForCreateApp").then((intercept) => {
+          const { application, pages } = intercept.response.body.data;
+          const defaultPage = pages.find((p) => p.isDefault);
+
+          cy.location().should((loc) => {
+            expect(loc.pathname).includes(
+              `/${application.slug}/${defaultPage.slug}-${defaultPage.id}`,
+            );
+          });
+        });
+      });
+    });
+  });
+});
