@@ -2,6 +2,7 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.Stopwatch;
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.BasicAuth;
@@ -381,15 +382,28 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         .getDatasourceList()
                                         .removeIf(datasource -> !dbNamesUsedInActions.contains(datasource.getName()));
 
-                                // Save decrypted fields for datasources
-                                applicationJson.getDatasourceList().forEach(datasource -> {
-                                    datasource.setId(null);
-                                    datasource.setOrganizationId(null);
-                                    datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
-                                    datasource.setStructure(null);
-                                    // Remove the datasourceConfiguration object as user will configure it once imported to other instance
-                                    datasource.setDatasourceConfiguration(null);
-                                });
+                                // Save decrypted fields for datasources for internally used sample apps and templates only
+                                if(true) {
+                                    // Save decrypted fields for datasources
+                                    Map<String, DecryptedSensitiveFields> decryptedFields = new HashMap<>();
+                                    applicationJson.getDatasourceList().forEach(datasource -> {
+                                        decryptedFields.put(datasource.getName(), getDecryptedFields(datasource));
+                                        datasource.setId(null);
+                                        datasource.setOrganizationId(null);
+                                        datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
+                                        datasource.setStructure(null);
+                                    });
+                                    applicationJson.setDecryptedFields(decryptedFields);
+                                } else {
+                                    applicationJson.getDatasourceList().forEach(datasource -> {
+                                        datasource.setId(null);
+                                        datasource.setOrganizationId(null);
+                                        datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
+                                        datasource.setStructure(null);
+                                        // Remove the datasourceConfiguration object as user will configure it once imported to other instance
+                                        datasource.setDatasourceConfiguration(null);
+                                    });
+                                }
 
                                 // Update ids for layoutOnLoadAction
                                 for (NewPage newPage : applicationJson.getPageList()) {
@@ -439,7 +453,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 .thenReturn(applicationJson);
     }
 
-    public Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName) {
+    public Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName, String isSampleApp) {
         return applicationService.findBranchedApplicationId(branchName, applicationId, EXPORT_APPLICATIONS)
                 .flatMap(branchedAppId -> exportApplicationById(branchedAppId, SerialiseApplicationObjective.SHARE));
     }
@@ -1686,8 +1700,16 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         }
 
         return existingDatasourceFlux
+                .map(ds -> {
+                    final DatasourceConfiguration dsAuthConfig = ds.getDatasourceConfiguration();
+                    if (dsAuthConfig != null && dsAuthConfig.getAuthentication() != null) {
+                        dsAuthConfig.getAuthentication().setAuthenticationResponse(null);
+                        dsAuthConfig.getAuthentication().setAuthenticationType(null);
+                    }
+                    return ds;
+                })
                 // For git import exclude datasource configuration
-                .filter(ds -> ds.getName().equals(datasource.getName()))
+                .filter(ds -> applicationId != null ? ds.getName().equals(datasource.getName()) : ds.softEquals(datasource))
                 .next()  // Get the first matching datasource, we don't need more than one here.
                 .switchIfEmpty(Mono.defer(() -> {
                     if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {
@@ -1787,6 +1809,41 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     application.getId(), editModeThemeId, publishedModeThemeId, MANAGE_APPLICATIONS
             ).thenReturn(application);
         });
+    }
+
+    /**
+     * This will be used to dehydrate sensitive fields from the datasource while exporting the application
+     *
+     * @param datasource entity from which sensitive fields need to be dehydrated
+     * @return sensitive fields which then will be deserialized and exported in JSON file
+     */
+    private DecryptedSensitiveFields getDecryptedFields(Datasource datasource) {
+        final AuthenticationDTO authentication = datasource.getDatasourceConfiguration() == null
+                ? null : datasource.getDatasourceConfiguration().getAuthentication();
+
+        if (authentication != null) {
+            DecryptedSensitiveFields dsDecryptedFields =
+                    authentication.getAuthenticationResponse() == null
+                            ? new DecryptedSensitiveFields()
+                            : new DecryptedSensitiveFields(authentication.getAuthenticationResponse());
+
+            if (authentication instanceof DBAuth) {
+                DBAuth auth = (DBAuth) authentication;
+                dsDecryptedFields.setPassword(auth.getPassword());
+                dsDecryptedFields.setDbAuth(auth);
+            } else if (authentication instanceof OAuth2) {
+                OAuth2 auth = (OAuth2) authentication;
+                dsDecryptedFields.setPassword(auth.getClientSecret());
+                dsDecryptedFields.setOpenAuth2(auth);
+            } else if (authentication instanceof BasicAuth) {
+                BasicAuth auth = (BasicAuth) authentication;
+                dsDecryptedFields.setPassword(auth.getPassword());
+                dsDecryptedFields.setBasicAuth(auth);
+            }
+            dsDecryptedFields.setAuthType(authentication.getClass().getName());
+            return dsDecryptedFields;
+        }
+        return null;
     }
 
     public Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String orgId) {
