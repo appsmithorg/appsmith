@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.Instant;
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -15,7 +13,5 @@ import java.time.Instant;
 public class UsagePulse extends BaseDomain {
 
     private String email;
-
-    private Instant time;
 
 }

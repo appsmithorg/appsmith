@@ -6,8 +6,6 @@ import com.appsmith.server.services.SessionUserService;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-import java.time.Instant;
-
 @RequiredArgsConstructor
 public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
 
@@ -19,7 +17,7 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
     public Mono<Void> createPulse() {
         return sessionUserService.getCurrentUser()
                 .filter(user -> !user.isAnonymous())
-                .flatMap(user -> repository.save(new UsagePulse(user.getEmail(), Instant.now())))
+                .flatMap(user -> repository.save(new UsagePulse(user.getEmail())))
                 .then();
     }
 
