@@ -1,8 +1,10 @@
 import { ObjectsRegistry } from "../Objects/Registry"
 export class HomePage {
 
-    public agHelper = ObjectsRegistry.AggregateHelper
-    public locator = ObjectsRegistry.CommonLocators;
+    private agHelper = ObjectsRegistry.AggregateHelper;
+    private locator = ObjectsRegistry.CommonLocators;
+    private dataSources = ObjectsRegistry.DataSources;
+
 
     private _username = "input[name='username']"
     private _password = "input[name='password']"
@@ -118,16 +120,13 @@ export class HomePage {
     public NavigateToHome() {
         cy.get(this._homeIcon).click({ force: true });
         this.agHelper.Sleep(3000)
+        cy.wait("@applications");
         cy.get(this._homePageAppCreateBtn).should("be.visible").should("be.enabled");
     }
 
     public CreateNewApplication() {
         cy.get(this._homePageAppCreateBtn).first().click({ force: true })
-        cy.wait("@createNewApplication").should(
-            "have.nested.property",
-            "response.body.responseMeta.status",
-            201,
-        );
+        this.agHelper.ValidateNetworkStatus("@createNewApplication", 201)
         cy.get(this.locator._loading).should("not.exist");
     }
 
@@ -260,13 +259,19 @@ export class HomePage {
         this.NavigateToHome()
     }
 
-    public ImportApp(fixtureJson: string) {
+    public ImportApp(fixtureJson: string, reconnect = false) {
         cy.get(this._homeIcon).click();
         cy.get(this._optionsIcon).first().click();
         cy.get(this._orgImport).click({ force: true });
         cy.get(this._orgImportAppModal).should("be.visible");
         cy.xpath(this._uploadFile).attachFile(fixtureJson).wait(500);
         cy.get(this._orgImportAppModal).should("not.exist");
+        if (!reconnect) {
+            this.AssertImport()
+        }
+    }
+
+    public AssertImport() {
         this.agHelper.ValidateToastMessage("Application imported successfully")
         this.agHelper.Sleep(5000)//for imported app to settle!
         cy.get(this.locator._loading).should("not.exist");

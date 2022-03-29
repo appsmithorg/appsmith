@@ -2,9 +2,13 @@ import datasourceFormData from "../../fixtures/datasources.json";
 import { ObjectsRegistry } from "../Objects/Registry"
 export class DataSources {
 
-    public agHelper = ObjectsRegistry.AggregateHelper
-    public locator = ObjectsRegistry.CommonLocators;
+    private agHelper = ObjectsRegistry.AggregateHelper
+    private locator = ObjectsRegistry.CommonLocators;
+    private homePage = ObjectsRegistry.HomePage;
 
+    private _dsCreateNewTab = "[data-cy=t--tab-CREATE_NEW]"
+    private _addNewDataSource = ".datasources .t--entity-add-btn"
+    private _createNewPlgin = (pluginName: string) => ".t--plugin-name:contains('" + pluginName + "')"
     private _host = "input[name='datasourceConfiguration.endpoints[0].host']"
     private _port = "input[name='datasourceConfiguration.endpoints[0].port']"
     private _databaseName = "input[name='datasourceConfiguration.authentication.databaseName']"
@@ -15,9 +19,27 @@ export class DataSources {
     private _saveDs = ".t--save-datasource"
     private _datasourceCard = ".t--datasource"
     _templateMenu = ".t--template-menu"
+    _visibleTextSpan = (spanText: string) => "//span[contains(text(),'" + spanText + "')]"
+    _dropdownTitle = (ddTitle: string) => "//p[contains(text()='" + ddTitle + "')]/parent::label/following-sibling::div/div/div"
+    _reconnectModal = "div.reconnect-datasource-modal"
+    _activeDSListReconnectModal = (dbName: string) => "//div[contains(@class, 't--ds-list')]//span[text()='" + dbName + "']"
+
+    public NavigateToDSAdd() {
+        cy.get(this._addNewDataSource).last().scrollIntoView()
+            .should("be.visible")
+            .click({ force: true });
+    }
 
     public CreatePlugIn(pluginName: string) {
-        cy.get(this.locator._createNewPlgin(pluginName)).click();
+        cy.get(this._createNewPlgin(pluginName)).click();
+    }
+
+    public NavigateToDSCreateNew() {
+        this.NavigateToDSAdd()
+        cy.get(this._dsCreateNewTab)
+            .should("be.visible")
+            .click({ force: true });
+        cy.get(this.locator._loading).should("not.exist");
     }
 
     public FillPostgresDSForm(shouldAddTrailingSpaces = false) {
@@ -38,23 +60,21 @@ export class DataSources {
 
     public TestDatasource(expectedRes = true) {
         cy.get(this._testDs).click();
-        cy.wait("@testDatasource").should(
-            "have.nested.property",
-            "response.body.data.success",
-            expectedRes,
-        );
+        this.agHelper.ValidateNetworkDataSuccess("@testDatasource", expectedRes)
     }
 
     public SaveDatasource() {
         cy.get(this._saveDs).click();
-        cy.wait("@saveDatasource")
-            .then((xhr) => {
-                cy.log(JSON.stringify(xhr.response!.body));
-            }).should("have.nested.property", "response.body.responseMeta.status", 200);
+        this.agHelper.ValidateNetworkDataSuccess("@saveDatasource")
+
+        // cy.wait("@saveDatasource")
+        //     .then((xhr) => {
+        //         cy.log(JSON.stringify(xhr.response!.body));
+        //     }).should("have.nested.property", "response.body.responseMeta.status", 200);
     }
 
     public NavigateToActiveDSQueryPane(datasourceName: string) {
-        this.agHelper.NavigateToDSAdd()
+        this.NavigateToDSAdd()
         this.agHelper.GetNClick(this.locator._activeTab)
         cy.get(this._datasourceCard)
             .contains(datasourceName)
@@ -66,4 +86,26 @@ export class DataSources {
             })
         this.agHelper.Sleep(2000); //for the CreateQuery page to load
     }
+
+
+    public ValidateNSelectDropdown(ddTitle: string, currentValue = "", newValue = "") {
+        let toChange = false;
+        if (currentValue)
+            cy.xpath(this._visibleTextSpan(currentValue)).scrollIntoView().should("be.visible", currentValue + " dropdown value not present")
+        if (newValue) toChange = true;
+        if (toChange) {
+            cy.xpath(this._dropdownTitle(ddTitle)).click(); //to expand the dropdown
+            cy.xpath(this._visibleTextSpan(newValue)).last().click({ force: true }); //to select the new value
+        }
+    }
+
+    public ReconnectDataSourcePostgres(dbName: string) {
+        cy.get(this._reconnectModal).should('exist')
+        cy.xpath(this._activeDSListReconnectModal("PostgreSQL")).should('be.visible')
+        cy.xpath(this._activeDSListReconnectModal(dbName)).should('be.visible')//.click()
+        this.ValidateNSelectDropdown("Connection Mode", "", "Read / Write")
+        this.FillPostgresDSForm()
+        this.homePage.AssertImport()
+    }
+
 }

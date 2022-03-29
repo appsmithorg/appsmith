@@ -1,14 +1,15 @@
 import { ObjectsRegistry } from "../../../support/Objects/Registry";
 
 let homePage = ObjectsRegistry.HomePage,
-  agHelper = ObjectsRegistry.AggregateHelper,
+  dataSources = ObjectsRegistry.DataSources,
   table = ObjectsRegistry.Table;
 
 describe("AForce - Community issues validations", function () {
 
   it("1. Import application json and validate headers", function () {
 
-    homePage.ImportApp("AForceMigrationExport.json")
+    homePage.ImportApp("AForceMigrationExport.json", true)
+    dataSources.ReconnectDataSourcePostgres("AForceDB")
 
     //Validate table is not empty!
     table.WaitUntilTableLoad()

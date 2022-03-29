@@ -1,14 +1,10 @@
 export class CommonLocators {
 
-    _addNewDataSource = ".datasources .t--entity-add-btn"
-    _integrationCreateNew = "[data-cy=t--tab-CREATE_NEW]"
     _loading = "#loading"
     _queryName = ".t--action-name-edit-field span"
     _queryNameTxt = ".t--action-name-edit-field input"
     _dsName = ".t--edit-datasource-name span"
     _dsNameTxt = ".t--edit-datasource-name input"
-    _homeIcon = ".t--appsmith-logo"
-    _homePageAppCreateBtn = ".t--applications-container .createnew"
     _saveStatusSuccess = ".t--save-status-success"
     _codeMirrorTextArea = ".CodeMirror textarea"
     _codeMirrorCode = ".CodeMirror-code"
@@ -57,8 +53,8 @@ export class CommonLocators {
     _propertyToggle = (controlToToggle: string) => ".t--property-control-" + controlToToggle + " input[type='checkbox']"
     _openNavigationTab = (tabToOpen: string) => `#switcher--${tabToOpen}`
     _selectWidgetDropdown = (widgetType: string) => "//div[contains(@class, 't--draggable-" + widgetType + "')]//button"
-    _createNewPlgin = (pluginName: string) => ".t--plugin-name:contains('" + pluginName + "')"
     _inputFieldByName = (fieldName: string) => "//p[text()='" + fieldName + "']/parent::label/following-sibling::div"
+    _existingFieldValueByName = (fieldName: string) => this._inputFieldByName(fieldName) + this._codeMirrorCode
     _evaluatedCurrentValue = "div:last-of-type .t--CodeEditor-evaluatedValue > div:last-of-type pre"
     _tableRowColumn = (rowNum: number, colNum: number) => `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div div`
 

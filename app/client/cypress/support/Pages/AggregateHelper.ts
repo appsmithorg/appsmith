@@ -2,7 +2,7 @@ import 'cypress-wait-until';
 const uuid = require("uuid");
 import { ObjectsRegistry } from '../Objects/Registry';
 export class AggregateHelper {
-    public locator = ObjectsRegistry.CommonLocators;
+    private locator = ObjectsRegistry.CommonLocators;
 
     public AddDsl(dsl: string) {
         let currentURL;
@@ -29,20 +29,6 @@ export class AggregateHelper {
         });
         this.Sleep(5000)//settling time for dsl
         cy.get(this.locator._loading).should("not.exist");//Checks the spinner is gone & dsl loaded!
-    }
-
-    public NavigateToDSCreateNew() {
-        this.NavigateToDSAdd()
-        cy.get(this.locator._integrationCreateNew)
-            .should("be.visible")
-            .click({ force: true });
-        cy.get(this.locator._loading).should("not.exist");
-    }
-
-    public NavigateToDSAdd() {
-        cy.get(this.locator._addNewDataSource).last().scrollIntoView()
-            .should("be.visible")
-            .click({ force: true });
     }
 
     public StartServerAndRoutes() {
@@ -153,6 +139,14 @@ export class AggregateHelper {
         )
     }
 
+    public ValidateNetworkDataSuccess(aliasName: string, expectedRes = true) {
+        cy.wait(aliasName).should(
+            "have.nested.property",
+            "response.body.data.success",
+            expectedRes,
+        )
+    }
+
     public ValidateNetworkStatus(aliasName: string, expectedStatus = 200) {
         cy.wait(aliasName).should(
             "have.nested.property",
@@ -258,24 +252,6 @@ export class AggregateHelper {
         cy.wait(timeout)
     }
 
-    public NavigateToHome() {
-        cy.get(this.locator._homeIcon).click({ force: true });
-        this.Sleep(3000);
-        cy.wait("@applications");
-        cy.get(this.locator._homePageAppCreateBtn)
-            .should("be.visible")
-            .should("be.enabled");
-    }
-
-    public CreateNewApplication() {
-        cy.get(this.locator._homePageAppCreateBtn).click({ force: true });
-        cy.wait("@createNewApplication").should(
-            "have.nested.property",
-            "response.body.responseMeta.status",
-            201,
-        );
-    }
-
     public ActionContextMenuWithInPane(action: 'Copy to page' | 'Move to page' | 'Delete', subAction = "") {
         cy.get(this.locator._contextMenuInPane).click()
         cy.xpath(this.locator._visibleTextDiv(action)).should('be.visible').click()
@@ -331,6 +307,24 @@ export class AggregateHelper {
             .then(($text) => {
                 if ($text.text()) expect($text.text()).to.eq(currentValue);
             });
+    }
+
+    public EvaluateExistingPropertyFieldValue(fieldName = "", currentValue = "") {
+        let toValidate = false;
+        if (currentValue) toValidate = true;
+        if (fieldName) {
+            cy.xpath(this.locator._existingFieldValueByName(fieldName)).click();
+        } else {
+            cy.xpath(this.locator._codeMirrorCode).click();
+        }
+        this.Sleep(3000); //Increasing wait time to evaluate non-undefined values
+        const val = cy
+            .get(this.locator._evaluatedCurrentValue)
+            .first()
+            .should("be.visible")
+            .invoke("text");
+        if (toValidate) expect(val).to.eq(currentValue);
+        return val;
     }
 
     public UploadFile(fixtureName: string, execStat = true) {

@@ -16,7 +16,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
   });
 
   it("1. With Optional chaining : {{ this?.params?.condition }}", function () {
-    agHelper.NavigateToDSCreateNew();
+    dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("PostgreSQL");
     dataSources.FillPostgresDSForm();
     agHelper.GenerateUUID();
