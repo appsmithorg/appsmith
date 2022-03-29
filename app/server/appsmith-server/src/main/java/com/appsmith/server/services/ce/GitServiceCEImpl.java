@@ -1421,12 +1421,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         application1.getGitApplicationMetadata().setDefaultBranchName(defaultBranchRemote);
                                         return applicationService.save(application1);
                                     })
-                                    // Update the default branch name in all the branched applications
-                                    .flatMap(application1 -> applicationService.findAllApplicationsByDefaultApplicationId(defaultApplicationId)
-                                            .flatMap(application2 -> {
-                                                application2.getGitApplicationMetadata().setDefaultBranchName(defaultBranchRemote);
-                                                return applicationService.save(application2);
-                                            }).then(Mono.just(application)))
                                     // Return the deleted branches
                                     .then(Mono.just(gitBranchListDTOS).zipWith(Mono.just(application)));
                         }
