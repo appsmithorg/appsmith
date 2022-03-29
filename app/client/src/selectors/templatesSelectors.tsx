@@ -1,4 +1,4 @@
-import { Template } from "api/TemplatesApi";
+import { FilterKeys, Template } from "api/TemplatesApi";
 import Fuse from "fuse.js";
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
@@ -8,7 +8,7 @@ import { getDefaultPlugins } from "./entitiesSelector";
 import { Filter } from "pages/Templates/Filters";
 
 const fuzzySearchOptions = {
-  keys: ["title", "id", "functions", "useCases"],
+  keys: ["title", "id"],
   shouldSort: true,
   threshold: 0.5,
   location: 0,
@@ -60,20 +60,31 @@ export const getActiveTemplateSelector = (state: AppState) =>
 export const getFilteredTemplateList = createSelector(
   getTemplatesSelector,
   getTemplateFilterSelector,
-  (templates, templatesFilters) => {
-    if (Object.keys(templatesFilters).length) {
-      return templates.filter((template) => {
-        return Object.keys(templatesFilters).every((filterKey) => {
-          if (!templatesFilters[filterKey].length) return true;
+  getTemplateFiltersLength,
+  (templates, templatesFilters, numberOfFiltersApplied) => {
+    const result: Template[] = [];
 
-          return templatesFilters[filterKey].every((value: string) =>
-            template[filterKey as keyof Template].includes(value),
-          );
-        });
-      });
+    if (!numberOfFiltersApplied) {
+      return templates;
     }
 
-    return templates;
+    if (!Object.keys(templatesFilters).length) {
+      return templates;
+    }
+
+    Object.keys(templatesFilters).map((filter) => {
+      templates.map((template) => {
+        if (
+          template[filter as FilterKeys].some((templateFilter) => {
+            return templatesFilters[filter].includes(templateFilter);
+          })
+        ) {
+          result.push(template);
+        }
+      });
+    });
+
+    return result;
   },
 );
 
