@@ -79,11 +79,11 @@ const StyledFilterItem = styled.div<{ selected: boolean }>`
 const StyledFilterCategory = styled(Text)`
   margin-bottom: ${(props) => props.theme.spaces[4]}px;
   padding-left: ${(props) => props.theme.spaces[6]}px;
+  font-weight: bold;
 
   &.title {
     margin-bottom: ${(props) => props.theme.spaces[12] - 2}px;
     display: inline-block;
-    font-size: ${(props) => props.theme.fontSizes[3]}px;
   }
 `;
 
@@ -215,7 +215,7 @@ function Filters() {
     <Wrapper>
       <SecondWrapper>
         <FilterWrapper>
-          <StyledFilterCategory className={"title"} type={TextType.P4}>
+          <StyledFilterCategory className={"title"} type={TextType.H5}>
             FILTERS
           </StyledFilterCategory>
           {Object.keys(filters).map((filter) => {
