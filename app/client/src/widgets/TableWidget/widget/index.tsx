@@ -13,6 +13,7 @@ import {
   sortBy,
   xorWith,
   isEmpty,
+  remove,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -583,17 +584,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // If the user has changed the tableData OR
     // The binding has returned a new value
     if (tableDataModified) {
-      // Set filter to default
-      const defaultFilter = [
-        {
-          column: "",
-          operator: OperatorTypes.OR,
-          value: "",
-          condition: "",
-        },
-      ];
       if (this.props.onFilterUpdate) {
-        this.props.updateWidgetMetaProperty("filters", defaultFilter, {
+        this.props.updateWidgetMetaProperty("filters", [], {
           triggerPropertyName: "onFilterUpdate",
           dynamicString: this.props.onFilterUpdate,
           event: {
@@ -755,8 +747,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   applyFilters = (filters: ReactTableFilter[]) => {
     this.resetSelectedRowIndex();
+    // Sanitize the filters
+    const inputFilters = [...filters];
+    remove(inputFilters, (filter) => isEqual(filter, defaultFilter[0]));
+
     if (this.props.onFilterUpdate) {
-      this.props.updateWidgetMetaProperty("filters", filters, {
+      this.props.updateWidgetMetaProperty("filters", inputFilters, {
         triggerPropertyName: "onFilterUpdate",
         dynamicString: this.props.onFilterUpdate,
         event: {
