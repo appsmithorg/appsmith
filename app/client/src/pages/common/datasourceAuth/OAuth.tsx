@@ -4,7 +4,7 @@ import {
   ActionButton,
   SaveButtonContainer,
 } from "pages/Editor/DataSourceEditor/JSONtoForm";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import EditButton from "components/editorComponents/Button";
 import { useDispatch, useSelector } from "react-redux";
@@ -29,12 +29,18 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useLocation, useParams } from "react-router";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
-
+import {
+  CONTEXT_DELETE,
+  CONFIRM_CONTEXT_DELETE,
+  createMessage,
+} from "@appsmith/constants/messages";
+import { debounce } from "lodash";
 interface Props {
   datasource: Datasource;
   getSanitizedFormData: () => Datasource;
   isInvalid: boolean;
   shouldRender: boolean;
+  pageId?: string;
 }
 
 enum AuthorizationStatus {
@@ -61,6 +67,7 @@ function OAuth({
   datasource,
   getSanitizedFormData,
   isInvalid,
+  pageId: pageIdProp,
   shouldRender,
 }: Props): JSX.Element {
   const { id: datasourceId } = datasource;
@@ -68,8 +75,8 @@ function OAuth({
     datasources: { isDeleting, loading: isSaving },
   } = useSelector(getEntities);
   const isAuthorized =
-    datasource.datasourceConfiguration.authentication?.authenticationStatus ===
-    AuthenticationStatus.SUCCESS;
+    datasource?.datasourceConfiguration?.authentication
+      ?.authenticationStatus === AuthenticationStatus.SUCCESS;
 
   const pluginType = useSelector((state: AppState) =>
     getPluginTypeFromDatasourceId(state, datasourceId),
@@ -79,7 +86,22 @@ function OAuth({
 
   const dispatch = useDispatch();
   const location = useLocation();
-  const { pageId } = useParams<ExplorerURLParams>();
+  const { pageId: pathPageId } = useParams<ExplorerURLParams>();
+
+  const pageId = pathPageId || pageIdProp;
+
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  useEffect(() => {
+    if (confirmDelete) {
+      delayConfirmDeleteToFalse();
+    }
+  }, [confirmDelete]);
+
+  const delayConfirmDeleteToFalse = debounce(
+    () => setConfirmDelete(false),
+    2200,
+  );
 
   // Handles datasource saving
   const handleDatasourceSave = () => {
@@ -87,7 +109,11 @@ function OAuth({
       updateDatasource(
         getSanitizedFormData(),
         pluginType
-          ? redirectAuthorizationCode(pageId, datasourceId, pluginType)
+          ? redirectAuthorizationCode(
+              pageId as string,
+              datasourceId,
+              pluginType,
+            )
           : undefined,
       ),
     );
@@ -104,7 +130,11 @@ function OAuth({
 
     const search = new URLSearchParams(location.search);
     const status = search.get("response_status");
-    if (status) {
+    const queryIsImport = search.get("importForGit");
+    const queryDatasourceId = search.get("datasourceId");
+    const shouldNotify =
+      !queryIsImport || (queryIsImport && queryDatasourceId === datasourceId);
+    if (status && shouldNotify) {
       const display_message = search.get("display_message");
       const variant = Variant.danger;
 
@@ -138,8 +168,14 @@ function OAuth({
             buttonVariant={ButtonVariantTypes.PRIMARY}
             className="t--delete-datasource"
             loading={isDeleting}
-            onClick={handleDatasourceDelete}
-            text="Delete"
+            onClick={() => {
+              confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
+            }}
+            text={
+              confirmDelete
+                ? createMessage(CONFIRM_CONTEXT_DELETE)
+                : createMessage(CONTEXT_DELETE)
+            }
           />
 
           <StyledButton

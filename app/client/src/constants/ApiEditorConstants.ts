@@ -18,7 +18,7 @@ export enum GRAPHQL_HTTP_METHOD {
 
 export const HTTP_METHODS_COLOR: Record<HTTP_METHOD, string> = {
   GET: "#457AE6",
-  POST: "#EABB0C",
+  POST: "#FEB811",
   PUT: "#5BB749",
   DELETE: "#E22C2C",
   PATCH: "#6D6D6D",
@@ -106,6 +106,7 @@ export const POST_BODY_FORMAT_TITLES = Object.entries(
 export enum MultiPartOptionTypes {
   TEXT = "Text",
   FILE = "File",
+  ARRAY = "Array",
 }
 
 export interface MULTI_PART_DROPDOWN_OPTION {
@@ -121,6 +122,10 @@ export const MULTI_PART_DROPDOWN_OPTIONS: MULTI_PART_DROPDOWN_OPTION[] = [
   {
     label: MultiPartOptionTypes.FILE,
     value: "FILE",
+  },
+  {
+    label: MultiPartOptionTypes.ARRAY,
+    value: "ARRAY",
   },
 ];
 

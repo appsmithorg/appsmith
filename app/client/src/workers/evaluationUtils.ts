@@ -377,6 +377,7 @@ export function validateWidgetProperty(
   config: ValidationConfig,
   value: unknown,
   props: Record<string, unknown>,
+  propertyPath: string,
 ) {
   if (!config) {
     return {
@@ -384,7 +385,7 @@ export function validateWidgetProperty(
       parsed: value,
     };
   }
-  return validate(config, value, props);
+  return validate(config, value, props, propertyPath);
 }
 
 export function validateActionProperty(
@@ -397,7 +398,7 @@ export function validateActionProperty(
       parsed: value,
     };
   }
-  return validate(config, value, {});
+  return validate(config, value, {}, "");
 }
 
 export function getValidatedTree(tree: DataTree) {
@@ -414,6 +415,7 @@ export function getValidatedTree(tree: DataTree) {
         validation,
         value,
         entity,
+        property,
       );
       _.set(parsedEntity, property, parsed);
       const evaluatedValue = isValid
@@ -503,7 +505,12 @@ export function getSafeToRenderDataTree(
     Object.entries(entity.validationPaths).forEach(([property, validation]) => {
       const value = _.get(entity, property);
       // Pass it through parse
-      const { parsed } = validateWidgetProperty(validation, value, entity);
+      const { parsed } = validateWidgetProperty(
+        validation,
+        value,
+        entity,
+        property,
+      );
       _.set(safeToRenderEntity, property, parsed);
     });
     // Set derived values to undefined or else they would go as bindings
@@ -544,8 +551,11 @@ export const addErrorToEntityProperty = (
   path: string,
 ) => {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(path);
+  const isPrivateEntityPath = getAllPrivateWidgetsInDataTree(dataTree)[
+    entityName
+  ];
   const logBlackList = _.get(dataTree, `${entityName}.logBlackList`, {});
-  if (propertyPath && !(propertyPath in logBlackList)) {
+  if (propertyPath && !(propertyPath in logBlackList) && !isPrivateEntityPath) {
     const existingErrors = _.get(
       dataTree,
       `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
@@ -602,33 +612,68 @@ export const updateJSCollectionInDataTree = (
       const action = parsedBody.actions[i];
       if (jsCollection.hasOwnProperty(action.name)) {
         if (jsCollection[action.name] !== action.body) {
+          const data = _.get(
+            modifiedDataTree,
+            `${jsCollection.name}.${action.name}.data`,
+            {},
+          );
           _.set(
             modifiedDataTree,
             `${jsCollection.name}.${action.name}`,
-            action.body,
+            new String(action.body),
+          );
+
+          _.set(
+            modifiedDataTree,
+            `${jsCollection.name}.${action.name}.data`,
+            data,
           );
         }
       } else {
         const bindingPaths = jsCollection.bindingPaths;
         bindingPaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
-        _.set(modifiedDataTree, `${jsCollection}.bindingPaths`, bindingPaths);
+        bindingPaths[`${action.name}.data`] =
+          EvaluationSubstitutionType.TEMPLATE;
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.bindingPaths`,
+          bindingPaths,
+        );
         const dynamicBindingPathList = jsCollection.dynamicBindingPathList;
         dynamicBindingPathList.push({ key: action.name });
         _.set(
           modifiedDataTree,
-          `${jsCollection}.dynamicBindingPathList`,
+          `${jsCollection.name}.dynamicBindingPathList`,
           dynamicBindingPathList,
         );
         const dependencyMap = jsCollection.dependencyMap;
         dependencyMap["body"].push(action.name);
-        _.set(modifiedDataTree, `${jsCollection}.dependencyMap`, dependencyMap);
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.dependencyMap`,
+          dependencyMap,
+        );
         const meta = jsCollection.meta;
-        meta[action.name] = { arguments: action.arguments };
+        meta[action.name] = {
+          arguments: action.arguments,
+          isAsync: false,
+          confirmBeforeExecute: false,
+        };
         _.set(modifiedDataTree, `${jsCollection.name}.meta`, meta);
+        const data = _.get(
+          modifiedDataTree,
+          `${jsCollection.name}.${action.name}.data`,
+          {},
+        );
         _.set(
           modifiedDataTree,
           `${jsCollection.name}.${action.name}`,
-          action.body,
+          new String(action.body.toString()),
+        );
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.${action.name}.data`,
+          data,
         );
       }
     }
@@ -672,6 +717,7 @@ export const updateJSCollectionInDataTree = (
         delete meta[preAction];
         _.set(modifiedDataTree, `${jsCollection.name}.meta`, meta);
         delete modifiedDataTree[`${jsCollection.name}`][`${preAction}`];
+        delete modifiedDataTree[`${jsCollection.name}`][`${preAction}.data`];
       }
     }
   }

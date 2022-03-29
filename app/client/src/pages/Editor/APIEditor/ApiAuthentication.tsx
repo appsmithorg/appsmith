@@ -9,7 +9,6 @@ import {
   storeAsDatasource,
 } from "actions/datasourceActions";
 import history from "utils/history";
-import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { getQueryParams } from "utils/AppsmithUtils";
 import Text, { TextType } from "components/ads/Text";
 import { AuthType } from "entities/Datasource/RestAPIForm";
@@ -26,11 +25,9 @@ import {
   SAVE_DATASOURCE_MESSAGE,
   createMessage,
 } from "@appsmith/constants/messages";
-
+import { datasourcesEditorIdURL } from "RouteBuilder";
 interface ReduxStateProps {
   datasource: EmbeddedRestDatasource | Datasource;
-  applicationId?: string;
-  currentPageId?: string;
 }
 
 interface ReduxDispatchProps {
@@ -81,7 +78,7 @@ type Props = ReduxStateProps & ReduxDispatchProps;
 
 function ApiAuthentication(props: Props): JSX.Element {
   const dispatch = useDispatch();
-  const { applicationId, currentPageId, datasource } = props;
+  const { datasource } = props;
   const authType = get(
     datasource,
     "datasourceConfiguration.authentication.authenticationType",
@@ -101,12 +98,10 @@ function ApiAuthentication(props: Props): JSX.Element {
       const id = get(datasource, "id");
       props.setDatasourceEditorMode(id, false);
       history.push(
-        DATA_SOURCES_EDITOR_ID_URL(
-          applicationId,
-          currentPageId,
-          id,
-          getQueryParams(),
-        ),
+        datasourcesEditorIdURL({
+          datasourceId: id,
+          params: getQueryParams(),
+        }),
       );
     }
   };
@@ -154,8 +149,6 @@ const mapStateToProps = (state: AppState, ownProps: any): ReduxStateProps => {
 
   return {
     datasource: datasourceMerged,
-    currentPageId: state.entities.pageList.currentPageId,
-    applicationId: state.entities.pageList.applicationId,
   };
 };
 

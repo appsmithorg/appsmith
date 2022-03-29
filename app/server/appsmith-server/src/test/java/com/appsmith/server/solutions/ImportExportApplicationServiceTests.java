@@ -1,10 +1,11 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DecryptedSensitiveFields;
+import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
@@ -23,17 +24,21 @@ import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
@@ -52,6 +57,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -91,7 +97,6 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -150,7 +155,13 @@ public class ImportExportApplicationServiceTests {
     PluginExecutorHelper pluginExecutorHelper;
 
     @Autowired
+    ThemeRepository themeRepository;
+
+    @Autowired
     ThemeService themeService;
+
+    @Autowired
+    ApplicationService applicationService;
 
     private static final String INVALID_JSON_FILE = "invalid json file";
     private static Plugin installedPlugin;
@@ -270,7 +281,7 @@ public class ImportExportApplicationServiceTests {
         newOrganization.setName("Template Organization");
         return organizationService.create(newOrganization).block();
     }
-    
+
     @Test
     @WithUserDetails(value = "api_user")
     public void exportApplicationWithNullApplicationIdTest() {
@@ -373,7 +384,6 @@ public class ImportExportApplicationServiceTests {
                     assertThat(applicationJson.getPageList()).hasSize(1);
                     assertThat(applicationJson.getActionList()).isEmpty();
                     assertThat(applicationJson.getDatasourceList()).isEmpty();
-                    assertThat(applicationJson.getDecryptedFields()).isEmpty();
                 })
                 .verifyComplete();
     }
@@ -389,6 +399,7 @@ public class ImportExportApplicationServiceTests {
         testApplication.setName("ApplicationWithActionCollectionAndDatasource");
         testApplication = applicationPageService.createApplication(testApplication, orgId).block();
 
+        assert testApplication != null;
         final String appName = testApplication.getName();
         final Mono<ApplicationJson> resultMono = Mono.zip(
                 Mono.just(testApplication),
@@ -429,6 +440,16 @@ public class ImportExportApplicationServiceTests {
                     action.setActionConfiguration(actionConfiguration);
                     action.setDatasource(datasourceMap.get("DS2"));
 
+                    ActionDTO action2 = new ActionDTO();
+                    action2.setName("validAction2");
+                    action2.setPageId(testPage.getId());
+                    action2.setExecuteOnLoad(true);
+                    action2.setUserSetOnLoad(true);
+                    ActionConfiguration actionConfiguration2 = new ActionConfiguration();
+                    actionConfiguration2.setHttpMethod(HttpMethod.GET);
+                    action2.setActionConfiguration(actionConfiguration2);
+                    action2.setDatasource(datasourceMap.get("DS2"));
+
                     ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
                     actionCollectionDTO1.setName("testCollection1");
                     actionCollectionDTO1.setPageId(testPage.getId());
@@ -444,8 +465,7 @@ public class ImportExportApplicationServiceTests {
 
                     return layoutCollectionService.createCollection(actionCollectionDTO1)
                             .then(layoutActionService.createSingleAction(action))
-                            .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
-                            .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
+                            .then(layoutActionService.createSingleAction(action2))
                             .then(layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout))
                             .then(importExportApplicationService.exportApplicationById(testApp.getId(), ""));
                 })
@@ -520,10 +540,8 @@ public class ImportExportApplicationServiceTests {
                     assertThat(defaultPage.getPolicies()).isEmpty();
 
                     assertThat(actionList.isEmpty()).isFalse();
-                    assertThat(actionList).hasSize(2);
-                    NewAction validAction = actionList.get(0).getPluginType().equals(PluginType.JS) ?
-                            actionList.get(1) :
-                            actionList.get(0);
+                    assertThat(actionList).hasSize(3);
+                    NewAction validAction = actionList.stream().filter(action -> action.getId().equals("Page1_validAction")).findFirst().get();
                     assertThat(validAction.getApplicationId()).isNull();
                     assertThat(validAction.getPluginId()).isEqualTo(installedPlugin.getPackageName());
                     assertThat(validAction.getPluginType()).isEqualTo(PluginType.API);
@@ -533,6 +551,9 @@ public class ImportExportApplicationServiceTests {
                     ActionDTO unpublishedAction = validAction.getUnpublishedAction();
                     assertThat(unpublishedAction.getPageId()).isEqualTo(defaultPage.getUnpublishedPage().getName());
                     assertThat(unpublishedAction.getDatasource().getPluginId()).isEqualTo(installedPlugin.getPackageName());
+
+                    NewAction testAction1 = actionList.stream().filter(action -> action.getUnpublishedAction().getName().equals("testAction1")).findFirst().get();
+                    assertThat(testAction1.getId()).isEqualTo("Page1_testCollection1.testAction1");
 
                     assertThat(actionCollectionList.isEmpty()).isFalse();
                     assertThat(actionCollectionList).hasSize(1);
@@ -551,14 +572,13 @@ public class ImportExportApplicationServiceTests {
                     assertThat(datasource.getOrganizationId()).isNull();
                     assertThat(datasource.getId()).isNull();
                     assertThat(datasource.getPluginId()).isEqualTo(installedPlugin.getPackageName());
-                    assertThat(datasource.getDatasourceConfiguration()).isNotNull();
-                    assertThat(datasource.getDatasourceConfiguration().getAuthentication()).isNull();
+                    assertThat(datasource.getDatasourceConfiguration()).isNull();
 
-                    DecryptedSensitiveFields decryptedFields = applicationJson.getDecryptedFields().get(datasource.getName());
+                    final Map<String, InvisibleActionFields> invisibleActionFields = applicationJson.getInvisibleActionFields();
 
-                    DBAuth auth = (DBAuth) datasourceMap.get("DS2").getDatasourceConfiguration().getAuthentication();
-                    assertThat(decryptedFields.getAuthType()).isEqualTo(auth.getClass().getName());
-                    assertThat(decryptedFields.getPassword()).isEqualTo("awesome-password");
+                    Assert.assertEquals(3, invisibleActionFields.size());
+                    NewAction validAction2 = actionList.stream().filter(action -> action.getId().equals("Page1_validAction2")).findFirst().get();
+                    Assert.assertEquals(true, invisibleActionFields.get(validAction2.getId()).getUnpublishedUserSetOnLoad());
 
                     assertThat(applicationJson.getUnpublishedLayoutmongoEscapedWidgets()).isNotEmpty();
                     assertThat(applicationJson.getPublishedLayoutmongoEscapedWidgets()).isNotEmpty();
@@ -689,7 +709,7 @@ public class ImportExportApplicationServiceTests {
         Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
         Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
 
-        Mono<Application> resultMono = importExportApplicationService.extractFileAndSaveApplication(orgId, filepart);
+        Mono<ApplicationImportDTO> resultMono = importExportApplicationService.extractFileAndSaveApplication(orgId, filepart);
 
         StepVerifier
                 .create(resultMono)
@@ -702,7 +722,7 @@ public class ImportExportApplicationServiceTests {
     public void importApplicationWithNullOrganizationIdTest() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         
-        Mono<Application> resultMono = importExportApplicationService
+        Mono<ApplicationImportDTO> resultMono = importExportApplicationService
             .extractFileAndSaveApplication(null, filepart);
         
         StepVerifier
@@ -717,7 +737,7 @@ public class ImportExportApplicationServiceTests {
     public void importApplicationFromInvalidJsonFileWithoutPagesTest() {
         
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-json-without-pages.json");
-        Mono<Application> resultMono = importExportApplicationService.extractFileAndSaveApplication(orgId,filePart);
+        Mono<ApplicationImportDTO> resultMono = importExportApplicationService.extractFileAndSaveApplication(orgId,filePart);
         
         StepVerifier
             .create(resultMono)
@@ -731,7 +751,7 @@ public class ImportExportApplicationServiceTests {
     public void importApplicationFromInvalidJsonFileWithoutApplicationTest() {
         
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-json-without-app.json");
-        Mono<Application> resultMono = importExportApplicationService.extractFileAndSaveApplication(orgId,filePart);
+        Mono<ApplicationImportDTO> resultMono = importExportApplicationService.extractFileAndSaveApplication(orgId,filePart);
         
         StepVerifier
             .create(resultMono)
@@ -756,7 +776,7 @@ public class ImportExportApplicationServiceTests {
             .users(Set.of("api_user"))
             .build();
     
-        final Mono<Application> resultMono = organizationService
+        final Mono<ApplicationImportDTO> resultMono = organizationService
             .create(newOrganization)
             .flatMap(organization -> importExportApplicationService
                 .extractFileAndSaveApplication(organization.getId(), filePart)
@@ -764,15 +784,20 @@ public class ImportExportApplicationServiceTests {
         
         StepVerifier
             .create(resultMono
-                .flatMap(application -> Mono.zip(
-                        Mono.just(application),
-                        datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList(),
-                        newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
-                        newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
-                        actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
-                )))
+                .flatMap(applicationImportDTO -> {
+                    Application application = applicationImportDTO.getApplication();
+                    return Mono.zip(
+                            Mono.just(applicationImportDTO),
+                            datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList(),
+                            newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                            newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
+                            actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
+                    );
+                }))
             .assertNext(tuple -> {
-                final Application application = tuple.getT1();
+                final Application application = tuple.getT1().getApplication();
+                final List<Datasource> unConfiguredDatasourceList  = tuple.getT1().getUnConfiguredDatasourceList();
+                final boolean isPartialImport = tuple.getT1().getIsPartialImport();
                 final List<Datasource> datasourceList = tuple.getT2();
                 final List<NewAction> actionList = tuple.getT3();
                 final List<PageDTO> pageList = tuple.getT4();
@@ -787,18 +812,13 @@ public class ImportExportApplicationServiceTests {
                 assertThat(application.getUpdatedAt()).isNotNull();
                 assertThat(application.getEditModeThemeId()).isNotNull();
                 assertThat(application.getPublishedModeThemeId()).isNotNull();
+                assertThat(isPartialImport).isEqualTo(Boolean.TRUE);
+                assertThat(unConfiguredDatasourceList).isNotNull();
 
                 assertThat(datasourceList).isNotEmpty();
                 datasourceList.forEach(datasource -> {
                     assertThat(datasource.getOrganizationId()).isEqualTo(application.getOrganizationId());
-                    if (datasource.getName().contains("wo-auth")) {
-                        assertThat(datasource.getDatasourceConfiguration().getAuthentication()).isNull();
-                    } else if (datasource.getName().contains("db")) {
-                        DBAuth auth = (DBAuth) datasource.getDatasourceConfiguration().getAuthentication();
-                        assertThat(auth).isNotNull();
-                        assertThat(auth.getPassword()).isNotNull();
-                        assertThat(auth.getUsername()).isNotNull();
-                    }
+                    assertThat(datasource.getDatasourceConfiguration()).isNotNull();
                 });
 
                 List<String> collectionIdInAction = new ArrayList<>();
@@ -893,7 +913,7 @@ public class ImportExportApplicationServiceTests {
         Organization newOrganization = new Organization();
         newOrganization.setName("Import theme test org");
 
-        final Mono<Application> resultMono = organizationService
+        final Mono<ApplicationImportDTO> resultMono = organizationService
                 .create(newOrganization)
                 .flatMap(organization -> importExportApplicationService
                         .extractFileAndSaveApplication(organization.getId(), filePart)
@@ -901,23 +921,23 @@ public class ImportExportApplicationServiceTests {
 
         StepVerifier
                 .create(resultMono
-                        .flatMap(application -> Mono.zip(
-                                Mono.just(application),
-                                themeService.getThemeById(application.getEditModeThemeId(), MANAGE_THEMES),
-                                themeService.getThemeById(application.getPublishedModeThemeId(), MANAGE_THEMES)
+                        .flatMap(applicationImportDTO -> Mono.zip(
+                                Mono.just(applicationImportDTO),
+                                themeRepository.findById(applicationImportDTO.getApplication().getEditModeThemeId()),
+                                themeRepository.findById(applicationImportDTO.getApplication().getPublishedModeThemeId())
                         )))
                 .assertNext(tuple -> {
-                    final Application application = tuple.getT1();
+                    final Application application = tuple.getT1().getApplication();
                     Theme editTheme = tuple.getT2();
                     Theme publishedTheme = tuple.getT3();
 
                     assertThat(editTheme.isSystemTheme()).isFalse();
-                    assertThat(editTheme.getName()).isEqualTo("Custom edit theme");
+                    assertThat(editTheme.getDisplayName()).isEqualTo("Custom edit theme");
                     assertThat(editTheme.getOrganizationId()).isNull();
                     assertThat(editTheme.getApplicationId()).isNull();
 
                     assertThat(publishedTheme.isSystemTheme()).isFalse();
-                    assertThat(publishedTheme.getName()).isEqualTo("Custom published theme");
+                    assertThat(publishedTheme.getDisplayName()).isEqualTo("Custom published theme");
                     assertThat(publishedTheme.getOrganizationId()).isNullOrEmpty();
                     assertThat(publishedTheme.getApplicationId()).isNullOrEmpty();
                 })
@@ -940,7 +960,7 @@ public class ImportExportApplicationServiceTests {
                 .users(Set.of("api_user"))
                 .build();
 
-        final Mono<Application> resultMono = organizationService
+        final Mono<ApplicationImportDTO> resultMono = organizationService
                 .create(newOrganization)
                 .flatMap(organization -> importExportApplicationService
                         .extractFileAndSaveApplication(organization.getId(), filePart)
@@ -948,16 +968,16 @@ public class ImportExportApplicationServiceTests {
 
         StepVerifier
                 .create(resultMono
-                        .flatMap(application -> Mono.zip(
-                                Mono.just(application),
-                                datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList(),
-                                getActionsInApplication(application).collectList(),
-                                newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
-                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false
+                        .flatMap(applicationImportDTO -> Mono.zip(
+                                Mono.just(applicationImportDTO),
+                                datasourceService.findAllByOrganizationId(applicationImportDTO.getApplication().getOrganizationId(), MANAGE_DATASOURCES).collectList(),
+                                getActionsInApplication(applicationImportDTO.getApplication()).collectList(),
+                                newPageService.findByApplicationId(applicationImportDTO.getApplication().getId(), MANAGE_PAGES, false).collectList(),
+                                actionCollectionService.findAllByApplicationIdAndViewMode(applicationImportDTO.getApplication().getId(), false
                                         , MANAGE_ACTIONS, null).collectList()
                         )))
                 .assertNext(tuple -> {
-                    final Application application = tuple.getT1();
+                    final Application application = tuple.getT1().getApplication();
                     final List<Datasource> datasourceList = tuple.getT2();
                     final List<ActionDTO> actionDTOS = tuple.getT3();
                     final List<PageDTO> pageList = tuple.getT4();
@@ -974,14 +994,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(datasourceList).isNotEmpty();
                     datasourceList.forEach(datasource -> {
                         assertThat(datasource.getOrganizationId()).isEqualTo(application.getOrganizationId());
-                        if (datasource.getName().contains("wo-auth")) {
-                            assertThat(datasource.getDatasourceConfiguration().getAuthentication()).isNull();
-                        } else if (datasource.getName().contains("db")) {
-                            DBAuth auth = (DBAuth) datasource.getDatasourceConfiguration().getAuthentication();
-                            assertThat(auth).isNotNull();
-                            assertThat(auth.getPassword()).isNotNull();
-                            assertThat(auth.getUsername()).isNotNull();
-                        }
+                        assertThat(datasource.getDatasourceConfiguration()).isNotNull();
                     });
 
                     assertThat(actionDTOS).isNotEmpty();
@@ -1018,16 +1031,16 @@ public class ImportExportApplicationServiceTests {
         Organization newOrganization = new Organization();
         newOrganization.setName("Template Organization");
 
-        final Mono<Application> resultMono = organizationService.create(newOrganization)
+        final Mono<ApplicationImportDTO> resultMono = organizationService.create(newOrganization)
                 .flatMap(organization -> importExportApplicationService
                         .extractFileAndSaveApplication(organization.getId(), filePart)
                 );
 
         StepVerifier
                 .create(resultMono)
-                .assertNext(application -> {
-                    assertThat(application.getEditModeThemeId()).isNotEmpty();
-                    assertThat(application.getPublishedModeThemeId()).isNotEmpty();
+                .assertNext(applicationImportDTO -> {
+                    assertThat(applicationImportDTO.getApplication().getEditModeThemeId()).isNotEmpty();
+                    assertThat(applicationImportDTO.getApplication().getPublishedModeThemeId()).isNotEmpty();
                 })
                 .verifyComplete();
     }
@@ -1041,7 +1054,7 @@ public class ImportExportApplicationServiceTests {
         Organization newOrganization = new Organization();
         newOrganization.setName("Template Organization");
 
-        final Mono<Application> resultMono = organizationService
+        final Mono<ApplicationImportDTO> resultMono = organizationService
                 .create(newOrganization)
                 .flatMap(organization -> importExportApplicationService
                         .extractFileAndSaveApplication(organization.getId(), filePart)
@@ -1049,16 +1062,16 @@ public class ImportExportApplicationServiceTests {
 
         StepVerifier
                 .create(resultMono
-                        .flatMap(application -> Mono.zip(
-                                Mono.just(application),
-                                datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList(),
-                                getActionsInApplication(application).collectList(),
-                                newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
+                        .flatMap(applicationImportDTO -> Mono.zip(
+                                Mono.just(applicationImportDTO),
+                                datasourceService.findAllByOrganizationId(applicationImportDTO.getApplication().getOrganizationId(), MANAGE_DATASOURCES).collectList(),
+                                getActionsInApplication(applicationImportDTO.getApplication()).collectList(),
+                                newPageService.findByApplicationId(applicationImportDTO.getApplication().getId(), MANAGE_PAGES, false).collectList(),
                                 actionCollectionService
-                                        .findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
+                                        .findAllByApplicationIdAndViewMode(applicationImportDTO.getApplication().getId(), false, MANAGE_ACTIONS, null).collectList()
                         )))
                 .assertNext(tuple -> {
-                    final Application application = tuple.getT1();
+                    final Application application = tuple.getT1().getApplication();
                     final List<Datasource> datasourceList = tuple.getT2();
                     final List<ActionDTO> actionDTOS = tuple.getT3();
                     final List<PageDTO> pageList = tuple.getT4();
@@ -1092,7 +1105,11 @@ public class ImportExportApplicationServiceTests {
         gitData.setBranchName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
 
-        Application savedApplication = applicationPageService.createApplication(testApplication, orgId).block();
+        Application savedApplication = applicationPageService.createApplication(testApplication, orgId)
+                .flatMap(application1 -> {
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    return applicationService.save(application1);
+                }).block();
 
         Mono<Application> result = newPageService.findNewPagesByApplicationId(savedApplication.getId(), READ_PAGES).collectList()
                 .flatMap(newPages -> {
@@ -1142,7 +1159,7 @@ public class ImportExportApplicationServiceTests {
     @WithUserDetails(value = "api_user")
     public void importApplication_incompatibleJsonFile_throwException() {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/incompatible_version.json");
-        Mono<Application> resultMono = importExportApplicationService.extractFileAndSaveApplication(orgId,filePart);
+        Mono<ApplicationImportDTO> resultMono = importExportApplicationService.extractFileAndSaveApplication(orgId,filePart);
 
         StepVerifier
                 .create(resultMono)
@@ -1153,6 +1170,91 @@ public class ImportExportApplicationServiceTests {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void importApplication_withUnConfiguredDatasources_Success() {
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application-with-un-configured-datasource.json");
+
+        Organization newOrganization = new Organization();
+        newOrganization.setName("Template Organization");
+
+        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        final Mono<ApplicationImportDTO> resultMono = organizationService
+                .create(newOrganization)
+                .flatMap(organization -> importExportApplicationService
+                        .extractFileAndSaveApplication(organization.getId(), filePart)
+                );
+
+        StepVerifier
+                .create(resultMono
+                        .flatMap(applicationImportDTO -> {
+                            Application application = applicationImportDTO.getApplication();
+                            return Mono.zip(
+                                    Mono.just(applicationImportDTO),
+                                    datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList(),
+                                    newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                    newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
+                                    actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
+                            );
+                        }))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1().getApplication();
+                    final List<Datasource> unConfiguredDatasourceList  = tuple.getT1().getUnConfiguredDatasourceList();
+                    final boolean isPartialImport = tuple.getT1().getIsPartialImport();
+                    final List<Datasource> datasourceList = tuple.getT2();
+                    final List<NewAction> actionList = tuple.getT3();
+                    final List<PageDTO> pageList = tuple.getT4();
+                    final List<ActionCollection> actionCollectionList = tuple.getT5();
+
+                    assertThat(application.getName()).isEqualTo("importExportTest");
+                    assertThat(application.getOrganizationId()).isNotNull();
+                    assertThat(application.getPages()).hasSize(1);
+                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+                    assertThat(application.getPublishedPages()).hasSize(1);
+                    assertThat(application.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(application.getUpdatedAt()).isNotNull();
+                    assertThat(application.getEditModeThemeId()).isNotNull();
+                    assertThat(application.getPublishedModeThemeId()).isNotNull();
+                    assertThat(isPartialImport).isEqualTo(Boolean.TRUE);
+                    assertThat(unConfiguredDatasourceList.size()).isNotEqualTo(0);
+
+                    assertThat(datasourceList).isNotEmpty();
+                    List<String> datasourceNames = unConfiguredDatasourceList.stream().map(Datasource::getName).collect(Collectors.toList());
+                    assertThat(datasourceNames).contains("mongoDatasource", "postgresTest");
+
+                    List<String> collectionIdInAction = new ArrayList<>();
+                    assertThat(actionList).isNotEmpty();
+                    actionList.forEach(newAction -> {
+                        ActionDTO actionDTO = newAction.getUnpublishedAction();
+                        assertThat(actionDTO.getPageId()).isNotEqualTo(pageList.get(0).getName());
+                        if (!StringUtils.isEmpty(actionDTO.getCollectionId())) {
+                            collectionIdInAction.add(actionDTO.getCollectionId());
+                        }
+                    });
+
+                    assertThat(actionCollectionList).isEmpty();
+
+                    assertThat(pageList).hasSize(1);
+
+                    ApplicationPage defaultAppPage = application.getPages()
+                            .stream()
+                            .filter(ApplicationPage::getIsDefault)
+                            .findFirst()
+                            .orElse(null);
+                    assertThat(defaultAppPage).isNotNull();
+
+                    PageDTO defaultPageDTO = pageList.stream()
+                            .filter(pageDTO -> pageDTO.getId().equals(defaultAppPage.getId())).findFirst().orElse(null);
+
+                    assertThat(defaultPageDTO).isNotNull();
+                })
+                .verifyComplete();
+    }
+
     public void importApplicationIntoOrganization_pageRemovedAndUpdatedDefaultPageNameInBranchApplication_Success() {
         Application testApplication = new Application();
         testApplication.setName("importApplicationIntoOrganization_pageRemovedInBranchApplication_Success");
@@ -1165,7 +1267,11 @@ public class ImportExportApplicationServiceTests {
         gitData.setBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
-        Application application = applicationPageService.createApplication(testApplication, orgId).block();
+        Application application = applicationPageService.createApplication(testApplication, orgId)
+                .flatMap(application1 -> {
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    return applicationService.save(application1);
+                }).block();
         String gitSyncIdBeforeImport = newPageService.findById(application.getPages().get(0).getId(), MANAGE_PAGES).block().getGitSyncId();
 
         PageDTO page = new PageDTO();
@@ -1209,7 +1315,6 @@ public class ImportExportApplicationServiceTests {
 
                 })
                 .verifyComplete();
-
     }
 
     @Test
@@ -1226,7 +1331,11 @@ public class ImportExportApplicationServiceTests {
         gitData.setBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
-        Application application = applicationPageService.createApplication(testApplication, orgId).block();
+        Application application = applicationPageService.createApplication(testApplication, orgId)
+                .flatMap(application1 -> {
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    return applicationService.save(application1);
+                }).block();
 
         String gitSyncIdBeforeImport = newPageService.findById(application.getPages().get(0).getId(), MANAGE_PAGES).block().getGitSyncId();
 
@@ -1341,10 +1450,19 @@ public class ImportExportApplicationServiceTests {
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation
                 .flatMap(importedApplication ->
                         applicationJsonMono
-                            .flatMap(applicationJson ->
-                                    importExportApplicationService
-                                            .importApplicationInOrganization(importedApplication.getOrganizationId(), applicationJson, importedApplication.getId(), "main")
-                            )
+                                .flatMap(applicationJson ->
+                                        {
+                                            importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                                            importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
+                                            return applicationService.save(importedApplication)
+                                                    .then(importExportApplicationService.importApplicationInOrganization(
+                                                            importedApplication.getOrganizationId(),
+                                                            applicationJson,
+                                                            importedApplication.getId(),
+                                                            "main")
+                                                    );
+                                        }
+                                )
                 );
 
         StepVerifier
@@ -1426,9 +1544,17 @@ public class ImportExportApplicationServiceTests {
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation
                 .flatMap(importedApplication ->
                         applicationJsonMono
-                                .flatMap(applicationJson ->
-                                        importExportApplicationService
-                                                .importApplicationInOrganization(importedApplication.getOrganizationId(), applicationJson, importedApplication.getId(), "main")
+                                .flatMap(applicationJson -> {
+                                    importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                                    importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
+                                    return applicationService.save(importedApplication)
+                                            .then(importExportApplicationService.importApplicationInOrganization(
+                                                    importedApplication.getOrganizationId(),
+                                                    applicationJson,
+                                                    importedApplication.getId(),
+                                                    "main")
+                                            );
+                                        }
                                 )
                 );
 
@@ -1519,8 +1645,17 @@ public class ImportExportApplicationServiceTests {
                 .flatMap(importedApplication ->
                         applicationJsonMono
                                 .flatMap(applicationJson ->
-                                        importExportApplicationService
-                                                .importApplicationInOrganization(importedApplication.getOrganizationId(), applicationJson, importedApplication.getId(), "main")
+                                        {
+                                            importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                                            importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
+                                            return applicationService.save(importedApplication)
+                                                    .then(importExportApplicationService.importApplicationInOrganization(
+                                                            importedApplication.getOrganizationId(),
+                                                            applicationJson,
+                                                            importedApplication.getId(),
+                                                            "main")
+                                                    );
+                                        }
                                 )
                 );
 
@@ -1601,8 +1736,17 @@ public class ImportExportApplicationServiceTests {
                 .flatMap(importedApplication ->
                         applicationJsonMono
                                 .flatMap(applicationJson ->
-                                        importExportApplicationService
-                                                .importApplicationInOrganization(importedApplication.getOrganizationId(), applicationJson, importedApplication.getId(), "main")
+                                        {
+                                            importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                                            importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
+                                            return applicationService.save(importedApplication)
+                                                    .then(importExportApplicationService.importApplicationInOrganization(
+                                                            importedApplication.getOrganizationId(),
+                                                            applicationJson,
+                                                            importedApplication.getId(),
+                                                            "main")
+                                                    );
+                                        }
                                 )
                 );
 
@@ -1678,8 +1822,17 @@ public class ImportExportApplicationServiceTests {
                 .flatMap(importedApplication ->
                         applicationJsonMono
                                 .flatMap(applicationJson ->
-                                        importExportApplicationService
-                                                .importApplicationInOrganization(importedApplication.getOrganizationId(), applicationJson, importedApplication.getId(), "main")
+                                        {
+                                            importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                                            importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
+                                            return applicationService.save(importedApplication)
+                                                    .then(importExportApplicationService.importApplicationInOrganization(
+                                                            importedApplication.getOrganizationId(),
+                                                            applicationJson,
+                                                            importedApplication.getId(),
+                                                            "main")
+                                                    );
+                                        }
                                 )
                 );
 
@@ -1756,8 +1909,17 @@ public class ImportExportApplicationServiceTests {
                 .flatMap(importedApplication ->
                         applicationJsonMono
                                 .flatMap(applicationJson ->
-                                        importExportApplicationService
-                                                .importApplicationInOrganization(importedApplication.getOrganizationId(), applicationJson, importedApplication.getId(), "main")
+                                        {
+                                            importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                                            importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
+                                            return applicationService.save(importedApplication)
+                                                    .then(importExportApplicationService.importApplicationInOrganization(
+                                                            importedApplication.getOrganizationId(),
+                                                            applicationJson,
+                                                            importedApplication.getId(),
+                                                            "main")
+                                                    );
+                                        }
                                 )
                 );
 
@@ -1778,6 +1940,34 @@ public class ImportExportApplicationServiceTests {
                     assertThat(actionCollectionNames).contains(deletedActionCollectionNames);
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void applySchemaMigration_jsonFileWithFirstVersion_migratedToLatestVersionSuccess() {
+        Mono<ApplicationJson> v1ApplicationMono = createAppJson("test_assets/ImportExportServiceTest/file-with-v1.json").cache();
+        Mono<ApplicationJson> migratedApplicationMono = v1ApplicationMono
+                .map(applicationJson -> {
+                    ApplicationJson applicationJson1 = new ApplicationJson();
+                    AppsmithBeanUtils.copyNestedNonNullProperties(applicationJson, applicationJson1);
+                    return JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson1);
+                });
+
+        StepVerifier
+                .create(Mono.zip(v1ApplicationMono, migratedApplicationMono))
+                .assertNext(tuple -> {
+                    ApplicationJson v1ApplicationJson = tuple.getT1();
+                    ApplicationJson latestApplicationJson = tuple.getT2();
+
+                    assertThat(v1ApplicationJson.getServerSchemaVersion()).isEqualTo(1);
+                    assertThat(v1ApplicationJson.getClientSchemaVersion()).isEqualTo(1);
+
+                    assertThat(latestApplicationJson.getServerSchemaVersion()).isEqualTo(JsonSchemaVersions.serverVersion);
+                    assertThat(latestApplicationJson.getClientSchemaVersion()).isEqualTo(JsonSchemaVersions.clientVersion);
+                })
+                .verifyComplete();
+
+
     }
     
 }

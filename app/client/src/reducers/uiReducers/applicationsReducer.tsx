@@ -4,7 +4,6 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ApplicationPayload,
-  CurrentApplicationData,
 } from "constants/ReduxActionConstants";
 import { Organization, OrgUser } from "constants/orgConstants";
 import {
@@ -14,7 +13,6 @@ import {
 import { UpdateApplicationRequest } from "api/ApplicationApi";
 import { CreateApplicationFormValues } from "pages/Applications/helpers";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
-import { GetSSHKeyResponseData } from "actions/applicationActions";
 import { ConnectToGitResponse } from "actions/gitSyncActions";
 
 const initialState: ApplicationsReduxState = {
@@ -33,6 +31,8 @@ const initialState: ApplicationsReduxState = {
   importingApplication: false,
   importedApplication: null,
   showAppInviteUsersDialog: false,
+  isImportAppModalOpen: false,
+  organizationIdForImport: null,
 };
 
 const applicationsReducer = createReducer(initialState, {
@@ -128,12 +128,13 @@ const applicationsReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE]: (
     state: ApplicationsReduxState,
-    action: ReduxAction<{ name: string }>,
+    action: ReduxAction<{ name: string; slug: string }>,
   ) => ({
     ...state,
     currentApplication: {
       ...state.currentApplication,
-      name: action.payload,
+      name: action.payload.name,
+      slug: action.payload.slug,
     },
   }),
   [ReduxActionTypes.CURRENT_APPLICATION_LAYOUT_UPDATE]: (
@@ -252,12 +253,15 @@ const applicationsReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.IMPORT_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
-  ) => ({ ...state, importingApplication: true }),
+  ) => ({
+    ...state,
+    importingApplication: true,
+  }),
   [ReduxActionTypes.IMPORT_APPLICATION_SUCCESS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<{ importedApplication: any }>,
   ) => {
-    const { importedApplication } = action.payload;
+    const importedApplication = action.payload;
     return {
       ...state,
       importingApplication: false,
@@ -376,6 +380,10 @@ const applicationsReducer = createReducer(initialState, {
     return {
       ...state,
       userOrgs: _organizations,
+      currentApplication: {
+        ...state.currentApplication,
+        applicationVersion: action.payload.applicationVersion,
+      },
       isSavingAppName: false,
       isErrorSavingAppName: false,
     };
@@ -395,43 +403,6 @@ const applicationsReducer = createReducer(initialState, {
     ...state,
     showAppInviteUsersDialog: action.payload,
   }),
-  [ReduxActionTypes.FETCH_SSH_KEY_PAIR_SUCCESS]: (
-    state: ApplicationsReduxState,
-    action: ReduxAction<GetSSHKeyResponseData>,
-  ) => {
-    return {
-      ...state,
-      currentApplication: {
-        ...state.currentApplication,
-        SSHKeyPair: action.payload.publicKey,
-        deployKeyDocUrl: action.payload.docUrl,
-      },
-    };
-  },
-  [ReduxActionTypes.INIT_SSH_KEY_PAIR_WITH_NULL]: (
-    state: ApplicationsReduxState,
-  ) => {
-    return {
-      ...state,
-      currentApplication: {
-        ...state.currentApplication,
-        SSHKeyPair: null,
-      },
-    };
-  },
-  [ReduxActionTypes.GENERATE_SSH_KEY_PAIR_SUCCESS]: (
-    state: ApplicationsReduxState,
-    action: ReduxAction<GetSSHKeyResponseData>,
-  ) => {
-    return {
-      ...state,
-      currentApplication: {
-        ...state.currentApplication,
-        SSHKeyPair: action.payload.publicKey,
-        deployKeyDocUrl: action.payload.docUrl,
-      },
-    };
-  },
   [ReduxActionTypes.CONNECT_TO_GIT_SUCCESS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<ConnectToGitResponse>,
@@ -457,6 +428,33 @@ const applicationsReducer = createReducer(initialState, {
       },
     },
   }),
+  [ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    isDatasourceConfigForImportFetched: true,
+  }),
+  [ReduxActionTypes.RESET_DATASOURCE_CONFIG_FETCHED_FOR_IMPORT_FLAG]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    isDatasourceConfigForImportFetched: false,
+  }),
+  [ReduxActionTypes.SET_ORG_ID_FOR_IMPORT]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<string>,
+  ) => {
+    let currentApplication = state.currentApplication;
+    if (action.payload) {
+      currentApplication = undefined;
+    }
+
+    return {
+      ...state,
+      currentApplication,
+      organizationIdForImport: action.payload,
+    };
+  },
   [ReduxActionTypes.IMPORT_TEMPLATE_TO_ORGANISATION_SUCCESS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<ApplicationPayload>,
@@ -483,12 +481,15 @@ export interface ApplicationsReduxState {
   deletingApplication: boolean;
   forkingApplication: boolean;
   duplicatingApplication: boolean;
-  currentApplication?: CurrentApplicationData;
+  currentApplication?: ApplicationPayload;
   userOrgs: Organization[];
   isSavingOrgInfo: boolean;
   importingApplication: boolean;
-  importedApplication: any;
   showAppInviteUsersDialog: boolean;
+  importedApplication: any;
+  isImportAppModalOpen: boolean;
+  organizationIdForImport: any;
+  isDatasourceConfigForImportFetched?: boolean;
 }
 
 export interface Application {

@@ -12,12 +12,10 @@
     "directory": "deploy/docker"
   },
   "dependencies": {
-    "boxen": "5.0.1",
-    "chalk": "4.1.2",
     "dotenv": "10.0.0",
-    "shelljs": "0.8.5",
-    "yargs": "17.1.1",
-    "readline-sync": "1.4.10"
+    "mongodb": "^4.4.0",
+    "readline-sync": "1.4.10",
+    "shelljs": "0.8.5"
   },
   "bin": {
     "appsmithctl": "./bin/index.js"

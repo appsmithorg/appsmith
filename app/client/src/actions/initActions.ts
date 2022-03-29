@@ -1,20 +1,16 @@
-import {
-  ReduxActionTypes,
-  ReduxAction,
-  InitializeEditorPayload,
-} from "constants/ReduxActionConstants";
+import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+
+export type InitializeEditorPayload = {
+  applicationId?: string;
+  pageId?: string;
+  branch?: string;
+};
 
 export const initEditor = (
-  applicationId: string,
-  pageId: string,
-  branch?: string,
+  payload: InitializeEditorPayload,
 ): ReduxAction<InitializeEditorPayload> => ({
   type: ReduxActionTypes.INITIALIZE_EDITOR,
-  payload: {
-    applicationId,
-    pageId,
-    branch,
-  },
+  payload,
 });
 
 export const resetEditorRequest = () => ({

@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import _, { merge } from "lodash";
 import { DATASOURCE_SAAS_FORM } from "constants/forms";
-import { SAAS_EDITOR_DATASOURCE_ID_URL } from "./constants";
 import FormTitle from "pages/Editor/DataSourceEditor/FormTitle";
 import AdsButton, { Category } from "components/ads/Button";
 import { Datasource } from "entities/Datasource";
@@ -26,6 +25,7 @@ import { Colors } from "constants/Colors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import DatasourceAuth from "../../common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
+import { saasEditorDatasourceIdURL } from "RouteBuilder";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -37,6 +37,9 @@ interface StateProps extends JSONtoFormProps {
   pluginId: string;
   actions: ActionDataState;
   datasource?: Datasource;
+  hiddenHeader?: boolean; // for reconnect modal
+  pageId?: string; // for reconnect modal
+  pluginPackageName: string; // for reconnect modal
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -75,49 +78,50 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
-      applicationId,
       datasource,
+      datasourceId,
       formData,
-      match: {
-        params: { datasourceId, pageId, pluginPackageName },
-      },
+      hiddenHeader,
+      pageId,
+      pluginPackageName,
     } = this.props;
 
     const params: string = location.search;
-    const viewMode = new URLSearchParams(params).get("viewMode");
+    const viewMode =
+      !hiddenHeader && new URLSearchParams(params).get("viewMode");
     return (
       <form
         onSubmit={(e) => {
           e.preventDefault();
         }}
       >
-        <Header>
-          <FormTitleContainer>
-            <PluginImage alt="Datasource" src={this.props.pluginImage} />
-            <FormTitle focusOnMount={this.props.isNewDatasource} />
-          </FormTitleContainer>
+        {!hiddenHeader && (
+          <Header>
+            <FormTitleContainer>
+              <PluginImage alt="Datasource" src={this.props.pluginImage} />
+              <FormTitle focusOnMount={this.props.isNewDatasource} />
+            </FormTitleContainer>
 
-          {viewMode && (
-            <EditDatasourceButton
-              category={Category.tertiary}
-              className="t--edit-datasource"
-              onClick={() => {
-                this.props.history.replace(
-                  SAAS_EDITOR_DATASOURCE_ID_URL(
-                    applicationId,
-                    pageId,
-                    pluginPackageName,
-                    datasourceId,
-                    {
-                      viewMode: false,
-                    },
-                  ),
-                );
-              }}
-              text="EDIT"
-            />
-          )}
-        </Header>
+            {viewMode && (
+              <EditDatasourceButton
+                category={Category.tertiary}
+                className="t--edit-datasource"
+                onClick={() => {
+                  this.props.history.replace(
+                    saasEditorDatasourceIdURL({
+                      pluginPackageName,
+                      datasourceId,
+                      params: {
+                        viewMode: false,
+                      },
+                    }),
+                  );
+                }}
+                text="EDIT"
+              />
+            )}
+          </Header>
+        )}
         {!viewMode ? (
           <>
             {!_.isNil(sections)
@@ -135,6 +139,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
             formData={formData}
             getSanitizedFormData={_.memoize(this.getSanitizedData)}
             isInvalid={this.validate()}
+            pageId={pageId}
             shouldRender={!viewMode}
           />
         )}
@@ -144,9 +149,10 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
 }
 
 const mapStateToProps = (state: AppState, props: any) => {
+  const datasourceId = props.datasourceId || props.match?.params?.datasourceId;
   const { datasourcePane } = state.ui;
   const { datasources, plugins } = state.entities;
-  const datasource = getDatasource(state, props.match.params.datasourceId);
+  const datasource = getDatasource(state, datasourceId);
   const { formConfigs } = plugins;
   const formData = getFormValues(DATASOURCE_SAAS_FORM)(state) as Datasource;
   const pluginId = _.get(datasource, "pluginId", "");
@@ -156,15 +162,19 @@ const mapStateToProps = (state: AppState, props: any) => {
     merge(initialValues, getConfigInitialValues(formConfig));
   }
   merge(initialValues, datasource);
+
   return {
     datasource,
+    datasourceId,
     isSaving: datasources.loading,
     isDeleting: datasources.isDeleting,
     formData: formData,
     formConfig,
-    isNewDatasource:
-      datasourcePane.newDatasource === props.match.params.datasourceId,
+    isNewDatasource: datasourcePane.newDatasource === datasourceId,
+    pageId: props.pageId || props.match?.params?.pageId,
     pluginImage: getPluginImages(state)[pluginId],
+    pluginPackageName:
+      props.pluginPackageName || props.match?.params?.pluginPackageName,
     initialValues,
     pluginId: pluginId,
     actions: state.entities.actions,

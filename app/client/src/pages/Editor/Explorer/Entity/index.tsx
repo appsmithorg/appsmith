@@ -193,7 +193,7 @@ export type EntityProps = {
   onToggle?: (isOpen: boolean) => void;
   alwaysShowRightIcon?: boolean;
   onClickRightIcon?: () => void;
-  addButtonHelptext?: string;
+  addButtonHelptext?: JSX.Element | string;
   isBeta?: boolean;
   preRightIcon?: ReactNode;
   onClickPreRightIcon?: () => void;
@@ -289,7 +289,7 @@ export const Entity = forwardRef(
             } t--entity-item`}
             data-guided-tour-id={`explorer-entity-${props.name}`}
             highlight={!!props.highlight}
-            id={props.entityId}
+            id={"entity-" + props.entityId}
             isSticky={props.isSticky === true}
             rightIconClickable={typeof props.onClickRightIcon === "function"}
             spaced={!!props.children}

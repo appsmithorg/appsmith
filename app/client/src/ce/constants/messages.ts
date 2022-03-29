@@ -97,8 +97,8 @@ export const FORGOT_PASSWORD_PAGE_TITLE = () => `Reset password`;
 export const FORGOT_PASSWORD_PAGE_SUBTITLE = () =>
   `We will send a reset link to the email below`;
 export const FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT = () => `Reset`;
-export const FORGOT_PASSWORD_SUCCESS_TEXT = () =>
-  `A password reset link has been sent to`;
+export const FORGOT_PASSWORD_SUCCESS_TEXT = (email: string) =>
+  `A password reset link has been sent to your email address ${email} registered with Appsmith.`;
 
 export const PRIVACY_POLICY_LINK = () => `Privacy policy`;
 export const TERMS_AND_CONDITIONS_LINK = () => `Terms and conditions`;
@@ -450,9 +450,45 @@ export const JS_EXECUTION_SUCCESS = () => "JS Function executed successfully";
 export const JS_EXECUTION_FAILURE = () => "JS Function execution failed";
 export const JS_EXECUTION_FAILURE_TOASTER = () =>
   "There was an error while executing function";
+export const JS_SETTINGS_ONPAGELOAD = () => "Run Function on Page load";
+export const JS_SETTINGS_ONPAGELOAD_SUBTEXT = () =>
+  "Will refresh data every time page is reloaded";
+export const JS_SETTINGS_CONFIRM_EXECUTION = () =>
+  "Request confirmation before calling Function?";
+export const JS_SETTINGS_CONFIRM_EXECUTION_SUBTEXT = () =>
+  "Ask confirmation from the user every time before refreshing data";
+export const JS_SETTINGS_EXECUTE_TIMEOUT = () =>
+  "Function Timeout (in milliseconds)";
 
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import application";
+export const IMPORT_APPLICATION_MODAL_LABEL = () =>
+  "Where would you like to import your application from?";
+export const IMPORT_APP_FROM_FILE_TITLE = () => "Import from file";
+export const IMPORT_APP_FROM_GIT_TITLE = () => "Import from a Git repo (Beta)";
+export const IMPORT_APP_FROM_FILE_MESSAGE = () =>
+  "Drag and drop your file or upload from your computer";
+export const IMPORT_APP_FROM_GIT_MESSAGE = () =>
+  "Import an application from its git repository using its SSH URL";
+export const IMPORT_FROM_GIT_REPOSITORY = () => "Import from Git Repository";
+export const IMPORT_FROM_GIT_REPOSITORY_MESSAGE = () =>
+  "While importing Appsmith will does not import the datasource credentials to prevent a breach. After a successfull import you can add the credentials manually so the application behaves normally!";
+export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS = () =>
+  "Reconnect missing datasource credentials";
+export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION = () =>
+  "Fill these with utmost care as the application will not behave normally otherwsie";
+export const RECONNECT_DATASOURCE_SUCCESS_MESSAGE1 = () =>
+  "These datasources were imported successfully!";
+export const RECONNECT_DATASOURCE_SUCCESS_MESSAGE2 = () =>
+  "Please fill up the missing datasources";
+export const ADD_MISSING_DATASOURCES = () => "Add missing Datasources";
+export const SKIP_TO_APPLICATION_TOOLTIP_HEADER = () =>
+  "This action is irreversible.";
+export const SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION = () =>
+  `You can always reconnect the datasources later but until then the application might be unuseable.`;
+export const SKIP_TO_APPLICATION = () => "Skip to Application";
+export const SELECT_A_METHOD_TO_ADD_CREDENTIALS = () =>
+  "Select a method to add credentials";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
   `You want to remove ${name} from this organization`;
@@ -552,12 +588,13 @@ export const GIT_DISCONNECT_POPUP_SUBTITLE = () =>
 export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure ?`;
 
 export const GIT_CONNECTION = () => "Git Connection";
+export const GIT_IMPORT = () => "Git Import";
 export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
 export const GIT_SETTINGS = () => "Git Settings";
 export const CONNECT_TO_GIT = () => "Connect to git repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
-  "Checkout branches, make commits, add deploy your application";
+  "Checkout branches, make commits, and deploy your application";
 export const REMOTE_URL = () => "Remote URL";
 export const REMOTE_URL_INFO = () =>
   `Create an empty git repository and paste the remote URL here.`;
@@ -610,7 +647,9 @@ export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
 export const SUBMIT = () => "SUBMIT";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
   "Git user updated successfully";
-export const REMOTE_URL_INPUT_PLACEHOLDER = () => "Paste your URL here";
+export const REMOTE_URL_INPUT_PLACEHOLDER = () =>
+  "git://example.com:user/repo.git";
+export const GIT_COMMIT_MESSAGE_PLACEHOLDER = () => "Your commit message here";
 export const COPIED_SSH_KEY = () => "Copied SSH Key";
 export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
 export const PASTE_SSH_URL_INFO = () =>
@@ -618,6 +657,7 @@ export const PASTE_SSH_URL_INFO = () =>
 export const GENERATE_KEY = () => "Generate Key";
 export const UPDATE_CONFIG = () => "UPDATE CONFIG";
 export const CONNECT_BTN_LABEL = () => "CONNECT";
+export const IMPORT_BTN_LABEL = () => "IMPORT";
 export const FETCH_GIT_STATUS = () => "fetching status...";
 export const FETCH_MERGE_STATUS = () => "Checking mergeability...";
 export const NO_MERGE_CONFLICT = () =>
@@ -637,6 +677,9 @@ export const DISCONNECT_SERVICE_SUBHEADER = () =>
   "Changes to this section can disrupt user authentication. Proceed with caution.";
 export const DISCONNECT_SERVICE_WARNING = () =>
   "will be removed as primary method of authentication";
+export const AUTHENTICATION_METHOD_ENABLED = (methodName: string) => `
+  ${methodName} authentication method is enabled
+`;
 
 export const DISCONNECT_EXISTING_REPOSITORIES = () =>
   "Disconnect existing Repositories";
@@ -649,22 +692,26 @@ export const REPOSITORY_LIMIT_REACHED = () => "Repository Limit Reached";
 export const REPOSITORY_LIMIT_REACHED_INFO = () =>
   "Adding and using upto 3 repositories is free. To add more repositories kindly upgrade.";
 export const NONE_REVERSIBLE_MESSAGE = () =>
-  "This action is non reversible. Proceed with caution";
+  "This action is non reversible. Proceed with caution.";
 export const CONTACT_SUPPORT_TO_UPGRADE = () =>
   "Contact support to upgrade. You can add unlimited private repositories in upgraded plan.";
 export const DISCONNECT_CAUSE_APPLICATION_BREAK = () =>
   "Disconnect might cause the application to break.";
-export const DISCONNECT_GIT = () => "Disconnect git";
+export const DISCONNECT_GIT = () => "Revoke access";
 export const DISCONNECT = () => "DISCONNECT";
+export const REVOKE = () => "REVOKE";
+export const REVOKE_ACCESS = () => "REVOKE ACCESS";
 export const GIT_DISCONNECTION_SUBMENU = () => "Git Connection > Disconnect";
 export const DISCONNECT_FROM_GIT = (name: string) =>
   `Disconnect ${name} from Git`;
-export const TYPE_PROMO_CODE = (name: string) =>
-  `Type “${name}” in the input box to disconnect.`;
-export const APPLICATION_NAME = () => "Application Name";
+export const GIT_REVOKE_ACCESS = (name: string) => `Revoke Access To ${name}`;
+export const GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS = (name: string) =>
+  `Type “${name}” in the input box to revoke access.`;
+export const APPLICATION_NAME = () => "Application name";
 export const NOT_OPTIONS = () => "Not Options!";
 export const OPEN_REPO = () => "OPEN REPO";
 export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
+export const IMPORTING_APP_FROM_GIT = () => "IMPORTING APPLICATION FROM GIT";
 export const ERROR_CONNECTING = () => "Error while connecting";
 export const ERROR_COMMITTING = () => "Error while committing";
 export const CONFIRM_SSH_KEY = () => "Make sure your SSH Key has write access.";
@@ -935,7 +982,7 @@ export const WELCOME_FORM_NON_SUPER_USER_ROLE = () => "Role";
 export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
   "What are you planning to use Appsmith for?";
 export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
-  "Are you sure you want to perform this action?";
+  `Are you sure you want to run `;
 export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
 export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
   `Select a widget to see it's properties`;
@@ -948,12 +995,7 @@ export const API_PANE_NO_BODY = () => "This request does not have a body";
 export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
   "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";
 export const CREATE_DATASOURCE_TOOLTIP = () => "Add a new datasource";
-export const ADD_QUERY_JS_TOOLTIP = () => "Add a new Query, API or JS Object";
-
-// Add datasource
-export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
-export const GENERATE_APPLICATION_DESCRIPTION = () =>
-  "Quickly generate a page to perform CRUD operations on your database tables";
+export const ADD_QUERY_JS_TOOLTIP = () => "Create New";
 
 export const DELETE_ORG_SUCCESSFUL = () => "Organization deleted successfully";
 
@@ -963,6 +1005,8 @@ export const ADMIN_AUTH_SETTINGS_TITLE = () => "Select Authentication Method";
 export const ADMIN_AUTH_SETTINGS_SUBTITLE = () =>
   "Select a protocol you want to authenticate users with";
 export const DANGER_ZONE = () => "Danger Zone";
+export const DISCONNECT_AUTH_METHOD = () => "Disconnect";
+export const DISCONNECT_CONFIRMATION = () => "Are you sure?";
 
 // Guided tour
 // -- STEPS ---
@@ -1036,7 +1080,22 @@ export const CONTEXT_SHOW_BINDING = () => "Show Bindings";
 export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
+export const CONFIRM_CONTEXT_DELETE = () => "Are you sure?";
 export const CONTEXT_NO_PAGE = () => "No pages";
+export const CONTEXT_REFRESH = () => "Refresh";
+export const CONTEXT_CLONE = () => "Clone";
+export const CONTEXT_SET_AS_HOME_PAGE = () => "Set as Home Page";
+
+// Entity explorer
+export const ADD_DATASOURCE_BUTTON = () => "ADD DATASOURCE";
+export const ADD_WIDGET_BUTTON = () => "ADD WIDGET";
+export const ADD_QUERY_JS_BUTTON = () => "ADD QUERY/JS";
+export const EMPTY_WIDGET_MAIN_TEXT = () => "No widget to display";
+export const EMPTY_WIDGET_BUTTON_TEXT = () => "NEW WIDGET";
+export const EMPTY_QUERY_JS_MAIN_TEXT = () => "No query/JS to display";
+export const EMPTY_QUERY_JS_BUTTON_TEXT = () => "NEW QUERY/JS";
+export const EMPTY_DATASOURCE_MAIN_TEXT = () => "No datasource to display";
+export const EMPTY_DATASOURCE_BUTTON_TEXT = () => "NEW DATASOURCE";
 
 // Templates
 export const MORE = () => "MORE";
@@ -1069,3 +1128,17 @@ export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 
 export const REDIRECT_URL_TOOLTIP = () =>
   "This URL will be used while configuring your Identity Provider's Callback/Redirect URL";
+
+export const FORK_APP_MODAL_LOADING_TITLE = () =>
+  "Fetching organisations to fork to...";
+export const FORK_APP_MODAL_EMPTY_TITLE = () =>
+  "No organisation available to fork to";
+export const FORK_APP_MODAL_SUCCESS_TITLE = () =>
+  "Choose where to fork the app";
+export const FORK = () => `FORK`;
+
+export const CLEAN_URL_UPDATE = {
+  name: () => "Update URLs",
+  shortDesc: () =>
+    "All URLs in your applications will update to a new readable format that includes the application and page names.",
+};

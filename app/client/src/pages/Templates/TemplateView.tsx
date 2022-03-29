@@ -20,7 +20,7 @@ import { getSimilarTemplatesInit } from "actions/templateActions";
 import { AppState } from "reducers";
 import { Icon, IconSize } from "components/ads";
 import history from "utils/history";
-import { TEMPLATES_URL } from "constants/routes";
+import { TEMPLATES_PATH } from "constants/routes";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import {
@@ -61,11 +61,11 @@ const Wrapper = styled.div`
 const TemplateViewWrapper = styled.div`
   padding-right: ${(props) => props.theme.spaces[12]}px;
   padding-left: ${(props) => props.theme.spaces[12]}px;
-  padding-bottom: 84px;
+  padding-bottom: 80px;
 `;
 
 const Title = styled(Text)`
-  margin-top: ${(props) => props.theme.spaces[11]}px;
+  margin-top: ${(props) => props.theme.spaces[5]}px;
   display: inline-block;
 `;
 
@@ -86,6 +86,7 @@ const IframeWrapper = styled.div`
 const DescriptionWrapper = styled.div`
   display: flex;
   gap: ${(props) => props.theme.spaces[17]}px;
+  margin-top: ${(props) => props.theme.spaces[15]}px;
 `;
 
 const DescriptionColumn = styled.div`
@@ -116,7 +117,7 @@ const StyledDatasourceChip = styled(DatasourceChip)`
     width: 25px;
   }
   span {
-    ${(props) => getTypographyByKey(props, "h2")}
+    ${(props) => getTypographyByKey(props, "h4")}
     color: ${Colors.EBONY_CLAY};
   }
 `;
@@ -230,7 +231,7 @@ function TemplateView() {
   };
 
   const goToTemplateListView = () => {
-    history.push(TEMPLATES_URL);
+    history.push(TEMPLATES_PATH);
   };
 
   useEffect(() => {
@@ -285,7 +286,7 @@ function TemplateView() {
                   >
                     <Button
                       className="template-fork-button"
-                      icon="fork-2"
+                      icon="compasses-line"
                       iconPosition={IconPositions.left}
                       onClick={onForkButtonTrigger}
                       size={Size.large}
@@ -298,7 +299,7 @@ function TemplateView() {
                 <Section>
                   <Text type={TextType.H1}>{createMessage(FUNCTION)}</Text>
                   <div className="section-content">
-                    <Text type={TextType.H1} weight={FontWeight.NORMAL}>
+                    <Text type={TextType.H4} weight={FontWeight.NORMAL}>
                       {currentTemplate.functions.join(" • ")}
                     </Text>
                   </div>
@@ -306,7 +307,7 @@ function TemplateView() {
                 <Section>
                   <Text type={TextType.H1}>{createMessage(INDUSTRY)}</Text>
                   <div className="section-content">
-                    <Text type={TextType.H1} weight={FontWeight.NORMAL}>
+                    <Text type={TextType.H4} weight={FontWeight.NORMAL}>
                       {currentTemplate.useCases.join(" • ")}
                     </Text>
                   </div>
