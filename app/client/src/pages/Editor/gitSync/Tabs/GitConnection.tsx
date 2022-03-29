@@ -70,6 +70,7 @@ import Link from "../components/Link";
 import TooltipComponent from "components/ads/Tooltip";
 import Icon, { IconSize } from "components/ads/Icon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { isValidGitRemoteUrl } from "../utils";
 
 export const UrlOptionContainer = styled.div`
   display: flex;
@@ -141,10 +142,6 @@ const TooltipWrapper = styled.div`
 
 // v1 only support SSH
 const selectedAuthType = AUTH_TYPE_OPTIONS[0];
-
-const REMOTE_URL_RE = /^((git|ssh)|(git@[\w\.]+))(:(\/\/)?)([\w\.@\:\/\-~]+)(\.git)$/im;
-
-const validRemoteURL = (value: string) => new RegExp(REMOTE_URL_RE).test(value);
 
 type AuthorInfo = {
   authorName: string;
@@ -262,7 +259,7 @@ function GitConnection({ isImport }: Props) {
   }, [authorInfo.authorEmail, authorInfo.authorName, localGitConfig]);
 
   const remoteUrlChangeHandler = (value: string) => {
-    const isInvalid = !validRemoteURL(value);
+    const isInvalid = !isValidGitRemoteUrl(value);
     setIsValidRemoteUrl(isInvalid);
     setRemoteUrl(value);
     dispatch(remoteUrlInputValue({ tempRemoteUrl: value }));
