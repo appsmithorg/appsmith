@@ -440,7 +440,7 @@ function ReconnectDatasourceModal() {
           applicationVersion:
             importedApplication?.applicationVersion ??
             ApplicationVersion.SLUG_URL,
-          applicationSlug: importedApplication.slug,
+          applicationSlug: importedApplication?.slug,
           applicationId: appId,
           pageId: pageId,
         }),
