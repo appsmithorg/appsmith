@@ -167,7 +167,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     @GetMapping("/export/{id}")
     public Mono<ResponseEntity<ApplicationJson>> getApplicationFile(@PathVariable String id,
                                                                     @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-                                                                    @RequestParam(required = false) String isSampleApp) {
+                                                                    @RequestParam(required = false, defaultValue = "false") String isSampleApp) {
         log.debug("Going to export application with id: {}, branch: {}", id, branchName);
 
         return importExportApplicationService.exportApplicationById(id, branchName, isSampleApp)

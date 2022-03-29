@@ -456,7 +456,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     public Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName, String isSampleApp) {
         return applicationService.findBranchedApplicationId(branchName, applicationId, EXPORT_APPLICATIONS)
                 .flatMap(branchedAppId -> {
-                    if(StringUtils.isEmpty(isSampleApp)) {
+                    if(StringUtils.isEmpty(isSampleApp) || Boolean.valueOf(isSampleApp).equals(false)) {
                         return exportApplicationById(branchedAppId, SerialiseApplicationObjective.SHARE);
                     }
                     return exportApplicationById(branchedAppId, SerialiseApplicationObjective.SAMPLE_APP);

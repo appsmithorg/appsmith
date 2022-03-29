@@ -285,7 +285,7 @@ public class ImportExportApplicationServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void exportApplicationWithNullApplicationIdTest() {
-        Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(null, "", null);
+        Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(null, "", "false");
         
         StepVerifier
             .create(resultMono)
@@ -297,7 +297,7 @@ public class ImportExportApplicationServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void exportApplication_withInvalidApplicationId_throwNoResourceFoundException() {
-        Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById("invalidAppId", "", null);
+        Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById("invalidAppId", "", "false");
 
         StepVerifier
                 .create(resultMono)
@@ -309,7 +309,7 @@ public class ImportExportApplicationServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void exportApplicationById_WhenContainsInternalFields_InternalFieldsNotExported() {
-        Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(testAppId, "", null);
+        Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(testAppId, "", "false");
 
         StepVerifier
                 .create(resultMono)
@@ -352,7 +352,7 @@ public class ImportExportApplicationServiceTests {
     @WithUserDetails(value = "api_user")
     public void createExportAppJsonWithoutActionsAndDatasourceTest() {
 
-        final Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(testAppId, "", null);
+        final Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(testAppId, "", "false");
 
         StepVerifier.create(resultMono)
                 .assertNext(applicationJson -> {
@@ -398,7 +398,7 @@ public class ImportExportApplicationServiceTests {
 
                     return  applicationPageService.createApplication(testApplication, orgId);
                 })
-                .flatMap(application -> importExportApplicationService.exportApplicationById(application.getId(), "", null));
+                .flatMap(application -> importExportApplicationService.exportApplicationById(application.getId(), "", "false"));
 
         StepVerifier.create(resultMono)
                 .assertNext(applicationJson -> {
