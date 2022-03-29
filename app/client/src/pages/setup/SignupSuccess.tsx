@@ -39,17 +39,14 @@ export function SignupSuccess() {
   const redirectUsingQueryParam = useCallback(() => {
     if (redirectUrl) {
       try {
-        const redirectURLObject = new URL(redirectUrl);
         if (
           window.location.pathname == SIGNUP_SUCCESS_URL &&
           shouldEnableFirstTimeUserOnboarding === "true"
         ) {
           const match = matchPath<{
-            applicationSlug: string;
-            pageSlug: string;
             pageId: string;
             applicationId: string;
-          }>(redirectURLObject.pathname, {
+          }>(redirectUrl, {
             path: [
               BUILDER_PATH,
               BUILDER_PATH_DEPRECATED,
