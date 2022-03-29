@@ -178,7 +178,7 @@ export default function Group({
                 return (
                   <div
                     className={setting.isHidden ? "hide" : ""}
-                    data-testid="admin-settings-redirect-url"
+                    data-testid="admin-settings-uneditable-field"
                     key={setting.name || setting.id}
                   >
                     <RedirectUrlReduxForm

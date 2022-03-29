@@ -1,5 +1,7 @@
 const explorer = require("../../../../locators/explorerlocators.json");
 
+const widgetName = "buttongroupwidget";
+
 describe("Button Group Widget Functionality", function() {
   before(() => {
     // no dsl required
