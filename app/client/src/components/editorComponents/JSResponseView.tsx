@@ -20,9 +20,7 @@ import {
   EMPTY_JS_RESPONSE_LAST_HALF,
 } from "@appsmith/constants/messages";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
-import DebuggerLogs, {
-  ListWrapper as DebuggerErrorList,
-} from "./Debugger/DebuggerLogs";
+import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
