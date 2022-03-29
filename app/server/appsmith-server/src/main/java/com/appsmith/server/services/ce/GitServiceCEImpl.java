@@ -65,6 +65,7 @@ import org.springframework.data.redis.core.ReactiveValueOperations;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -133,6 +134,14 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     private final static String GIT_PROFILE_ERROR = "Unable to find git author configuration for logged-in user. You can" +
             " set up a git profile from the user profile section.";
+
+    private final static String REDIS_FILE_LOCK_VALUE= "inUse";
+
+    private final static String REDIS_FILE_RELEASE_VALUE = "isFree";
+
+    private final static Duration FILE_LOCK_TIME_LIMIT = Duration.ofSeconds(20);
+
+    private final static Duration RETRY_DELAY = Duration.ofSeconds(10);
 
     private enum DEFAULT_COMMIT_REASONS {
         CONFLICT_STATE("for conflicted state"),
@@ -1190,6 +1199,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                         commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.BRANCH_CREATED.getReason() + gitData.getBranchName());
                         commitDTO.setDoPush(true);
                         return commitApplication(commitDTO, gitData.getDefaultApplicationId(), gitData.getBranchName())
+                                .retryWhen(Retry.fixedDelay(3, RETRY_DELAY))
                                 .thenReturn(application);
                     });
                 })
@@ -1698,24 +1708,26 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 GitCommitDTO commitDTO = new GitCommitDTO();
                                 commitDTO.setDoPush(true);
                                 commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.SYNC_REMOTE_AFTER_MERGE.getReason() + sourceBranch);
-                                return this.commitApplication(commitDTO, defaultApplicationId, destinationBranch)
-                                        .map(commitStatus -> mergeStatusDTO)
-                                        .zipWith(Mono.just(application1));
+                                Path repoSuffix = Paths.get(application1.getOrganizationId(),
+                                        application1.getGitApplicationMetadata().getDefaultApplicationId(),
+                                        application1.getGitApplicationMetadata().getRepoName());
+                                return redisOperations.opsForValue().set(repoSuffix.toString(), REDIS_FILE_RELEASE_VALUE, FILE_LOCK_TIME_LIMIT)
+                                        .flatMap(result -> this.commitApplication(commitDTO, defaultApplicationId, destinationBranch)
+                                                .retryWhen(Retry.fixedDelay(3, RETRY_DELAY))
+                                                .map(commitStatus -> mergeStatusDTO)
+                                                .zipWith(Mono.just(application1))
+                                        );
                             });
                 })
                 .flatMap(tuple -> {
                     MergeStatusDTO mergeStatusDTO = tuple.getT1();
                     Application application = tuple.getT2();
                     // Send analytics event
-                    Path repoSuffix = Paths.get(application.getOrganizationId(),
-                            application.getGitApplicationMetadata().getDefaultApplicationId(),
-                            application.getGitApplicationMetadata().getRepoName());
-                    return redisOperations.opsForValue().set(repoSuffix.toString(), REDIS_FILE_RELEASE_VALUE, FILE_LOCK_TIME_LIMIT)
-                            .then(addAnalyticsForGitOperation(
-                                    AnalyticsEvents.GIT_MERGE.getEventName(),
-                                    application,
-                                    application.getGitApplicationMetadata().getIsRepoPrivate()
-                            ).thenReturn(mergeStatusDTO));
+                    return addAnalyticsForGitOperation(
+                            AnalyticsEvents.GIT_MERGE.getEventName(),
+                            application,
+                            application.getGitApplicationMetadata().getIsRepoPrivate()
+                    ).thenReturn(mergeStatusDTO);
                 });
 
         return Mono.create(sink -> mergeMono
@@ -2180,27 +2192,6 @@ public class GitServiceCEImpl implements GitServiceCE {
         );
     }
 
-    private Mono<List<Datasource>> findNonConfiguredDatasourceByApplicationId(String applicationId,
-                                                                             List<Datasource> datasourceList) {
-        return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, AclPermission.READ_ACTIONS, null)
-                .collectList()
-                .flatMap(actionList -> {
-                    List<String> usedDatasource = actionList.stream()
-                            .map(newAction -> newAction.getUnpublishedAction().getDatasource().getId())
-                            .collect(Collectors.toList());
-
-                    datasourceList.removeIf(datasource -> !usedDatasource.contains(datasource.getId()));
-
-                    return Mono.just(datasourceList);
-                })
-                .map(datasources -> {
-                    for (Datasource datasource:datasources) {
-                        datasource.setIsConfigured(Optional.ofNullable(datasource.getDatasourceConfiguration()).isEmpty());
-                    }
-                    return datasources;
-                });
-    }
-
     private Mono<Application> deleteApplicationCreatedFromGitImport(String applicationId, String organizationId, String repoName) {
         return fileUtils.detachRemote(Paths.get(organizationId, applicationId, repoName))
                 .then(applicationPageService.deleteApplication(applicationId));
@@ -2477,6 +2468,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             Path baseRepoSuffix = Paths.get(branchedApplication.getOrganizationId(), application.getId(), application.getGitApplicationMetadata().getRepoName());
                             return redisOperations.opsForValue().set(baseRepoSuffix.toString(), REDIS_FILE_RELEASE_VALUE, FILE_LOCK_TIME_LIMIT)
                                     .flatMap(value -> this.commitApplication(commitDTO, application.getGitApplicationMetadata().getDefaultApplicationId(), branchName)
+                                            .retryWhen(Retry.fixedDelay(3, RETRY_DELAY))
                                             .thenReturn(gitPullDTO));
                         });
             });
