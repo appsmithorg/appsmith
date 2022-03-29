@@ -17,7 +17,7 @@ export const toggleInOnboardingWidgetSelection = (payload: boolean) => {
 };
 
 export const firstTimeUserOnboardingInit = (
-  applicationId: string,
+  applicationId: string | undefined,
   pageId: string,
 ) => {
   return {

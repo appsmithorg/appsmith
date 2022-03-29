@@ -3,7 +3,7 @@ import { getFormValues, InjectedFormProps, reduxForm } from "redux-form";
 import history from "utils/history";
 import { SAAS_EDITOR_FORM } from "constants/forms";
 import { Action, SaaSAction } from "entities/Action";
-import { connect, useDispatch, useSelector } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import { AppState } from "reducers";
 import {
   getPluginResponseTypes,
@@ -27,13 +27,13 @@ import {
 import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 import { Datasource } from "entities/Datasource";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import { INTEGRATION_TABS } from "constants/routes";
 import { diff, Diff } from "deep-diff";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { integrationEditorURL } from "RouteBuilder";
 
 type StateAndRouteProps = EditorJSONtoFormProps & {
   actionObjectDiff?: any;
@@ -69,8 +69,6 @@ function ActionForm(props: Props) {
     );
   }, []);
 
-  const applicationId = useSelector(getCurrentApplicationId);
-
   const { path = "", value = "" } = {
     ...getPathAndValueFromActionDiffObject(props.actionObjectDiff),
   };
@@ -90,14 +88,20 @@ function ActionForm(props: Props) {
 
   const onCreateDatasourceClick = () => {
     history.push(
-      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+      integrationEditorURL({
+        pageId,
+        selectedTab: INTEGRATION_TABS.NEW,
+      }),
     );
   };
 
   // custom function to return user to integrations page if action is not found
   const goToDatasourcePage = () =>
     history.push(
-      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+      integrationEditorURL({
+        pageId,
+        selectedTab: INTEGRATION_TABS.ACTIVE,
+      }),
     );
 
   // if the action can not be found, generate a entity not found page
