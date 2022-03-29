@@ -531,6 +531,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         // need to set isPublic=null because it has a `false` as it's default value in domain class
         application.setIsPublic(null);
         application.setLastEditedAt(Instant.now());
+        application.setIsManualUpdate(true);
         /*
           We're not setting updatedAt and modifiedBy fields to the application DTO because these fields will be set
           by the updateById method of the BaseAppsmithRepositoryImpl
