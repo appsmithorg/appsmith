@@ -160,13 +160,17 @@ describe("getNestedEvalPath", () => {
   it("returns valid nested path", () => {
     const actualUnpopulatedNestedPath = getEvalValuePath(
       "Table1.primaryColumns.state",
-      true,
-      false,
+      {
+        isPopulated: false,
+        fullPath: true,
+      },
     );
     const actualPopulatedNestedPath = getEvalValuePath(
       "Table1.primaryColumns.state",
-      true,
-      true,
+      {
+        isPopulated: true,
+        fullPath: true,
+      },
     );
     const expectedUnpopulatedNestedPath = `Table1.${EVAL_VALUE_PATH}.['primaryColumns.state']`;
     const expectedPopulatedNestedPath = `Table1.${EVAL_VALUE_PATH}.primaryColumns.state`;

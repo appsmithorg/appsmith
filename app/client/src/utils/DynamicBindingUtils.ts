@@ -377,27 +377,31 @@ const getNestedEvalPath = (
 
 export const getEvalErrorPath = (
   fullPropertyPath: string,
-  fullPath = true,
-  isPopulated = false,
+  options = {
+    fullPath: true,
+    isPopulated: false,
+  },
 ) => {
   return getNestedEvalPath(
     fullPropertyPath,
     EVAL_ERROR_PATH,
-    fullPath,
-    isPopulated,
+    options.fullPath,
+    options.isPopulated,
   );
 };
 
 export const getEvalValuePath = (
   fullPropertyPath: string,
-  fullPath = true,
-  isPopulated = false,
+  options = {
+    fullPath: true,
+    isPopulated: false,
+  },
 ) => {
   return getNestedEvalPath(
     fullPropertyPath,
     EVAL_VALUE_PATH,
-    fullPath,
-    isPopulated,
+    options.fullPath,
+    options.isPopulated,
   );
 };
 
