@@ -2975,7 +2975,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("POST", "/api/v1/datasources").as("createDatasource");
   cy.intercept("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
   cy.intercept("DELETE", "/api/v1/applications/*").as("deleteApplication");
-  cy.intercept("POST", "/api/v1/applications/?orgId=*").as(
+  cy.intercept("POST", "/api/v1/applications?orgId=*").as(
     "createNewApplication",
   );
   cy.intercept("PUT", "/api/v1/applications/*").as("updateApplication");
