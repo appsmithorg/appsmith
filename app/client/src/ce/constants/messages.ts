@@ -97,8 +97,8 @@ export const FORGOT_PASSWORD_PAGE_TITLE = () => `Reset password`;
 export const FORGOT_PASSWORD_PAGE_SUBTITLE = () =>
   `We will send a reset link to the email below`;
 export const FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT = () => `Reset`;
-export const FORGOT_PASSWORD_SUCCESS_TEXT = () =>
-  `A password reset link has been sent to`;
+export const FORGOT_PASSWORD_SUCCESS_TEXT = (email: string) =>
+  `A password reset link has been sent to your email address ${email} registered with Appsmith.`;
 
 export const PRIVACY_POLICY_LINK = () => `Privacy policy`;
 export const TERMS_AND_CONDITIONS_LINK = () => `Terms and conditions`;
@@ -450,6 +450,15 @@ export const JS_EXECUTION_SUCCESS = () => "JS Function executed successfully";
 export const JS_EXECUTION_FAILURE = () => "JS Function execution failed";
 export const JS_EXECUTION_FAILURE_TOASTER = () =>
   "There was an error while executing function";
+export const JS_SETTINGS_ONPAGELOAD = () => "Run Function on Page load";
+export const JS_SETTINGS_ONPAGELOAD_SUBTEXT = () =>
+  "Will refresh data every time page is reloaded";
+export const JS_SETTINGS_CONFIRM_EXECUTION = () =>
+  "Request confirmation before calling Function?";
+export const JS_SETTINGS_CONFIRM_EXECUTION_SUBTEXT = () =>
+  "Ask confirmation from the user every time before refreshing data";
+export const JS_SETTINGS_EXECUTE_TIMEOUT = () =>
+  "Function Timeout (in milliseconds)";
 
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import application";
@@ -668,6 +677,9 @@ export const DISCONNECT_SERVICE_SUBHEADER = () =>
   "Changes to this section can disrupt user authentication. Proceed with caution.";
 export const DISCONNECT_SERVICE_WARNING = () =>
   "will be removed as primary method of authentication";
+export const AUTHENTICATION_METHOD_ENABLED = (methodName: string) => `
+  ${methodName} authentication method is enabled
+`;
 
 export const DISCONNECT_EXISTING_REPOSITORIES = () =>
   "Disconnect existing Repositories";
@@ -680,19 +692,22 @@ export const REPOSITORY_LIMIT_REACHED = () => "Repository Limit Reached";
 export const REPOSITORY_LIMIT_REACHED_INFO = () =>
   "Adding and using upto 3 repositories is free. To add more repositories kindly upgrade.";
 export const NONE_REVERSIBLE_MESSAGE = () =>
-  "This action is non reversible. Proceed with caution";
+  "This action is non reversible. Proceed with caution.";
 export const CONTACT_SUPPORT_TO_UPGRADE = () =>
   "Contact support to upgrade. You can add unlimited private repositories in upgraded plan.";
 export const DISCONNECT_CAUSE_APPLICATION_BREAK = () =>
   "Disconnect might cause the application to break.";
-export const DISCONNECT_GIT = () => "Disconnect git";
+export const DISCONNECT_GIT = () => "Revoke access";
 export const DISCONNECT = () => "DISCONNECT";
+export const REVOKE = () => "REVOKE";
+export const REVOKE_ACCESS = () => "REVOKE ACCESS";
 export const GIT_DISCONNECTION_SUBMENU = () => "Git Connection > Disconnect";
 export const DISCONNECT_FROM_GIT = (name: string) =>
   `Disconnect ${name} from Git`;
-export const TYPE_PROMO_CODE = (name: string) =>
-  `Type “${name}” in the input box to disconnect.`;
-export const APPLICATION_NAME = () => "Application Name";
+export const GIT_REVOKE_ACCESS = (name: string) => `Revoke Access To ${name}`;
+export const GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS = (name: string) =>
+  `Type “${name}” in the input box to revoke access.`;
+export const APPLICATION_NAME = () => "Application name";
 export const NOT_OPTIONS = () => "Not Options!";
 export const OPEN_REPO = () => "OPEN REPO";
 export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
@@ -982,11 +997,6 @@ export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
 export const CREATE_DATASOURCE_TOOLTIP = () => "Add a new datasource";
 export const ADD_QUERY_JS_TOOLTIP = () => "Create New";
 
-// Add datasource
-export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
-export const GENERATE_APPLICATION_DESCRIPTION = () =>
-  "Quickly generate a page to perform CRUD operations on your database tables";
-
 export const DELETE_ORG_SUCCESSFUL = () => "Organization deleted successfully";
 
 export const UPGRADE_TO_EE = (authLabel: string) =>
@@ -995,6 +1005,8 @@ export const ADMIN_AUTH_SETTINGS_TITLE = () => "Select Authentication Method";
 export const ADMIN_AUTH_SETTINGS_SUBTITLE = () =>
   "Select a protocol you want to authenticate users with";
 export const DANGER_ZONE = () => "Danger Zone";
+export const DISCONNECT_AUTH_METHOD = () => "Disconnect";
+export const DISCONNECT_CONFIRMATION = () => "Are you sure?";
 
 // Guided tour
 // -- STEPS ---
@@ -1068,7 +1080,11 @@ export const CONTEXT_SHOW_BINDING = () => "Show Bindings";
 export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
+export const CONFIRM_CONTEXT_DELETE = () => "Are you sure?";
 export const CONTEXT_NO_PAGE = () => "No pages";
+export const CONTEXT_REFRESH = () => "Refresh";
+export const CONTEXT_CLONE = () => "Clone";
+export const CONTEXT_SET_AS_HOME_PAGE = () => "Set as Home Page";
 
 // Entity explorer
 export const ADD_DATASOURCE_BUTTON = () => "ADD DATASOURCE";
@@ -1120,3 +1136,9 @@ export const FORK_APP_MODAL_EMPTY_TITLE = () =>
 export const FORK_APP_MODAL_SUCCESS_TITLE = () =>
   "Choose where to fork the app";
 export const FORK = () => `FORK`;
+
+export const CLEAN_URL_UPDATE = {
+  name: () => "Update URLs",
+  shortDesc: () =>
+    "All URLs in your applications will update to a new readable format that includes the application and page names.",
+};

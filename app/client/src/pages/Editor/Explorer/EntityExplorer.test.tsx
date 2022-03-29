@@ -8,8 +8,31 @@ import { MockPageDSL } from "test/testCommon";
 import Sidebar from "components/editorComponents/Sidebar";
 import { generateReactKey } from "utils/generators";
 import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
+import store from "store";
+import Datasources from "./Datasources";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { mockDatasources } from "./mockTestData";
+import { updateCurrentPage } from "actions/pageActions";
+
 jest.useFakeTimers();
+const pushState = jest.spyOn(window.history, "pushState");
+pushState.mockImplementation((state: any, title: any, url: any) => {
+  window.document.title = title;
+  window.location.pathname = url;
+});
+
 describe("Entity Explorer tests", () => {
+  it("checks datasources section in explorer", () => {
+    store.dispatch({
+      type: ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
+      payload: mockDatasources,
+    });
+    store.dispatch(updateCurrentPage("623188f81876bb1bcfab19fd"));
+    const component = render(<Datasources />);
+    expect(component.container.getElementsByClassName("t--entity").length).toBe(
+      5,
+    );
+  });
   it("Should render Widgets tree in entity explorer", () => {
     const children: any = buildChildren([{ type: "TABS_WIDGET" }]);
     const dsl: any = widgetCanvasFactory.build({

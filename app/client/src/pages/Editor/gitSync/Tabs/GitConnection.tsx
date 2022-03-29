@@ -127,6 +127,7 @@ const StickyMenuWrapper = styled.div`
   height: fit-content;
   z-index: 9999;
   background: white;
+  margin-right: 10px;
 `;
 
 const TooltipWrapper = styled.div`
@@ -495,7 +496,7 @@ function GitConnection({ isImport }: Props) {
             setAuthorInfo={setAuthorInfo}
             toggleUseDefaultConfig={toggleHandler}
             triedSubmit={triedSubmit}
-            useGlobalConfig={!!useGlobalConfigInputVal}
+            useGlobalConfig={useGlobalConfigInputVal}
           />
           <ButtonContainer topMargin={3}>
             {(isConnectingToGit || isImportingApplicationViaGit) && (

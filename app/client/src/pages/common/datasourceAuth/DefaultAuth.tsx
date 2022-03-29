@@ -4,7 +4,7 @@ import {
   ActionButton,
   SaveButtonContainer,
 } from "pages/Editor/DataSourceEditor/JSONtoForm";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import EditButton from "components/editorComponents/Button";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,7 +24,12 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-
+import {
+  CONTEXT_DELETE,
+  CONFIRM_CONTEXT_DELETE,
+  createMessage,
+} from "@appsmith/constants/messages";
+import { debounce } from "lodash";
 interface Props {
   datasource: Datasource;
   getSanitizedFormData: () => Datasource;
@@ -51,6 +56,18 @@ export default function DefaultAuth({
   const applicationId = useSelector(getCurrentApplicationId);
 
   const dispatch = useDispatch();
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  useEffect(() => {
+    if (confirmDelete) {
+      delayConfirmDeleteToFalse();
+    }
+  }, [confirmDelete]);
+
+  const delayConfirmDeleteToFalse = debounce(
+    () => setConfirmDelete(false),
+    2200,
+  );
 
   // to check if saving during import flow
   const isReconnectModelOpen: boolean = useSelector(
@@ -91,13 +108,7 @@ export default function DefaultAuth({
       updateDatasource(
         getSanitizedFormData(),
         !isGeneratePageInitiator && !isReconnectModelOpen
-          ? dispatch(
-              redirectToNewIntegrations(
-                applicationId,
-                pageId,
-                getQueryParams(),
-              ),
-            )
+          ? dispatch(redirectToNewIntegrations(pageId, getQueryParams()))
           : undefined,
       ),
     );
@@ -113,8 +124,14 @@ export default function DefaultAuth({
             // accent="error"
             className="t--delete-datasource"
             loading={isDeleting}
-            onClick={handleDatasourceDelete}
-            text="Delete"
+            onClick={() => {
+              confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
+            }}
+            text={
+              confirmDelete
+                ? createMessage(CONFIRM_CONTEXT_DELETE)
+                : createMessage(CONTEXT_DELETE)
+            }
           />
 
           <ActionButton

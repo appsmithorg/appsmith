@@ -1,11 +1,11 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.InvisibleActionFields;
-import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
@@ -30,6 +30,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
@@ -37,6 +38,7 @@ import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
@@ -95,7 +97,6 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -158,6 +159,9 @@ public class ImportExportApplicationServiceTests {
 
     @Autowired
     ThemeService themeService;
+
+    @Autowired
+    ApplicationService applicationService;
 
     private static final String INVALID_JSON_FILE = "invalid json file";
     private static Plugin installedPlugin;
@@ -928,12 +932,12 @@ public class ImportExportApplicationServiceTests {
                     Theme publishedTheme = tuple.getT3();
 
                     assertThat(editTheme.isSystemTheme()).isFalse();
-                    assertThat(editTheme.getName()).isEqualTo("Custom edit theme");
+                    assertThat(editTheme.getDisplayName()).isEqualTo("Custom edit theme");
                     assertThat(editTheme.getOrganizationId()).isNull();
                     assertThat(editTheme.getApplicationId()).isNull();
 
                     assertThat(publishedTheme.isSystemTheme()).isFalse();
-                    assertThat(publishedTheme.getName()).isEqualTo("Custom published theme");
+                    assertThat(publishedTheme.getDisplayName()).isEqualTo("Custom published theme");
                     assertThat(publishedTheme.getOrganizationId()).isNullOrEmpty();
                     assertThat(publishedTheme.getApplicationId()).isNullOrEmpty();
                 })
@@ -1101,7 +1105,11 @@ public class ImportExportApplicationServiceTests {
         gitData.setBranchName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
 
-        Application savedApplication = applicationPageService.createApplication(testApplication, orgId).block();
+        Application savedApplication = applicationPageService.createApplication(testApplication, orgId)
+                .flatMap(application1 -> {
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    return applicationService.save(application1);
+                }).block();
 
         Mono<Application> result = newPageService.findNewPagesByApplicationId(savedApplication.getId(), READ_PAGES).collectList()
                 .flatMap(newPages -> {
@@ -1259,7 +1267,11 @@ public class ImportExportApplicationServiceTests {
         gitData.setBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
-        Application application = applicationPageService.createApplication(testApplication, orgId).block();
+        Application application = applicationPageService.createApplication(testApplication, orgId)
+                .flatMap(application1 -> {
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    return applicationService.save(application1);
+                }).block();
         String gitSyncIdBeforeImport = newPageService.findById(application.getPages().get(0).getId(), MANAGE_PAGES).block().getGitSyncId();
 
         PageDTO page = new PageDTO();
@@ -1319,7 +1331,11 @@ public class ImportExportApplicationServiceTests {
         gitData.setBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
-        Application application = applicationPageService.createApplication(testApplication, orgId).block();
+        Application application = applicationPageService.createApplication(testApplication, orgId)
+                .flatMap(application1 -> {
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    return applicationService.save(application1);
+                }).block();
 
         String gitSyncIdBeforeImport = newPageService.findById(application.getPages().get(0).getId(), MANAGE_PAGES).block().getGitSyncId();
 
@@ -1434,10 +1450,19 @@ public class ImportExportApplicationServiceTests {
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation
                 .flatMap(importedApplication ->
                         applicationJsonMono
-                            .flatMap(applicationJson ->
-                                    importExportApplicationService
-                                            .importApplicationInOrganization(importedApplication.getOrganizationId(), applicationJson, importedApplication.getId(), "main")
-                            )
+                                .flatMap(applicationJson ->
+                                        {
+                                            importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                                            importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
+                                            return applicationService.save(importedApplication)
+                                                    .then(importExportApplicationService.importApplicationInOrganization(
+                                                            importedApplication.getOrganizationId(),
+                                                            applicationJson,
+                                                            importedApplication.getId(),
+                                                            "main")
+                                                    );
+                                        }
+                                )
                 );
 
         StepVerifier
@@ -1519,9 +1544,17 @@ public class ImportExportApplicationServiceTests {
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation
                 .flatMap(importedApplication ->
                         applicationJsonMono
-                                .flatMap(applicationJson ->
-                                        importExportApplicationService
-                                                .importApplicationInOrganization(importedApplication.getOrganizationId(), applicationJson, importedApplication.getId(), "main")
+                                .flatMap(applicationJson -> {
+                                    importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                                    importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
+                                    return applicationService.save(importedApplication)
+                                            .then(importExportApplicationService.importApplicationInOrganization(
+                                                    importedApplication.getOrganizationId(),
+                                                    applicationJson,
+                                                    importedApplication.getId(),
+                                                    "main")
+                                            );
+                                        }
                                 )
                 );
 
@@ -1612,8 +1645,17 @@ public class ImportExportApplicationServiceTests {
                 .flatMap(importedApplication ->
                         applicationJsonMono
                                 .flatMap(applicationJson ->
-                                        importExportApplicationService
-                                                .importApplicationInOrganization(importedApplication.getOrganizationId(), applicationJson, importedApplication.getId(), "main")
+                                        {
+                                            importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                                            importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
+                                            return applicationService.save(importedApplication)
+                                                    .then(importExportApplicationService.importApplicationInOrganization(
+                                                            importedApplication.getOrganizationId(),
+                                                            applicationJson,
+                                                            importedApplication.getId(),
+                                                            "main")
+                                                    );
+                                        }
                                 )
                 );
 
@@ -1694,8 +1736,17 @@ public class ImportExportApplicationServiceTests {
                 .flatMap(importedApplication ->
                         applicationJsonMono
                                 .flatMap(applicationJson ->
-                                        importExportApplicationService
-                                                .importApplicationInOrganization(importedApplication.getOrganizationId(), applicationJson, importedApplication.getId(), "main")
+                                        {
+                                            importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                                            importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
+                                            return applicationService.save(importedApplication)
+                                                    .then(importExportApplicationService.importApplicationInOrganization(
+                                                            importedApplication.getOrganizationId(),
+                                                            applicationJson,
+                                                            importedApplication.getId(),
+                                                            "main")
+                                                    );
+                                        }
                                 )
                 );
 
@@ -1771,8 +1822,17 @@ public class ImportExportApplicationServiceTests {
                 .flatMap(importedApplication ->
                         applicationJsonMono
                                 .flatMap(applicationJson ->
-                                        importExportApplicationService
-                                                .importApplicationInOrganization(importedApplication.getOrganizationId(), applicationJson, importedApplication.getId(), "main")
+                                        {
+                                            importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                                            importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
+                                            return applicationService.save(importedApplication)
+                                                    .then(importExportApplicationService.importApplicationInOrganization(
+                                                            importedApplication.getOrganizationId(),
+                                                            applicationJson,
+                                                            importedApplication.getId(),
+                                                            "main")
+                                                    );
+                                        }
                                 )
                 );
 
@@ -1849,8 +1909,17 @@ public class ImportExportApplicationServiceTests {
                 .flatMap(importedApplication ->
                         applicationJsonMono
                                 .flatMap(applicationJson ->
-                                        importExportApplicationService
-                                                .importApplicationInOrganization(importedApplication.getOrganizationId(), applicationJson, importedApplication.getId(), "main")
+                                        {
+                                            importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                                            importedApplication.getGitApplicationMetadata().setDefaultApplicationId(importedApplication.getId());
+                                            return applicationService.save(importedApplication)
+                                                    .then(importExportApplicationService.importApplicationInOrganization(
+                                                            importedApplication.getOrganizationId(),
+                                                            applicationJson,
+                                                            importedApplication.getId(),
+                                                            "main")
+                                                    );
+                                        }
                                 )
                 );
 
@@ -1871,6 +1940,34 @@ public class ImportExportApplicationServiceTests {
                     assertThat(actionCollectionNames).contains(deletedActionCollectionNames);
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void applySchemaMigration_jsonFileWithFirstVersion_migratedToLatestVersionSuccess() {
+        Mono<ApplicationJson> v1ApplicationMono = createAppJson("test_assets/ImportExportServiceTest/file-with-v1.json").cache();
+        Mono<ApplicationJson> migratedApplicationMono = v1ApplicationMono
+                .map(applicationJson -> {
+                    ApplicationJson applicationJson1 = new ApplicationJson();
+                    AppsmithBeanUtils.copyNestedNonNullProperties(applicationJson, applicationJson1);
+                    return JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson1);
+                });
+
+        StepVerifier
+                .create(Mono.zip(v1ApplicationMono, migratedApplicationMono))
+                .assertNext(tuple -> {
+                    ApplicationJson v1ApplicationJson = tuple.getT1();
+                    ApplicationJson latestApplicationJson = tuple.getT2();
+
+                    assertThat(v1ApplicationJson.getServerSchemaVersion()).isEqualTo(1);
+                    assertThat(v1ApplicationJson.getClientSchemaVersion()).isEqualTo(1);
+
+                    assertThat(latestApplicationJson.getServerSchemaVersion()).isEqualTo(JsonSchemaVersions.serverVersion);
+                    assertThat(latestApplicationJson.getClientSchemaVersion()).isEqualTo(JsonSchemaVersions.clientVersion);
+                })
+                .verifyComplete();
+
+
     }
     
 }

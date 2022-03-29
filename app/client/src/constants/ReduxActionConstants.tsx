@@ -3,7 +3,11 @@ import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
 import { Org } from "./orgConstants";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
-import { GitApplicationMetadata } from "api/ApplicationApi";
+import {
+  ApplicationPagePayload,
+  GitApplicationMetadata,
+} from "api/ApplicationApi";
+import { ApplicationVersion } from "actions/applicationActions";
 
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
@@ -640,6 +644,13 @@ export const ReduxActionTypes = {
   UPDATE_JS_ACTION_BODY_INIT: "UPDATE_JS_ACTION_BODY_INIT",
   UPDATE_JS_ACTION_BODY_SUCCESS: "UPDATE_JS_ACTION_BODY_SUCCESS",
   SEND_TEST_EMAIL: "SEND_TEST_EMAIL",
+  SET_FUNCTION_PROPERTY: "SET_FUNCTION_PROPERTY",
+  UPDATE_JS_FUNCTION_PROPERTY_INIT: "UPDATE_JS_FUNCTION_PROPERTY_INIT",
+  UPDATE_JS_FUNCTION_PROPERTY_SUCCESS: "UPDATE_JS_FUNCTION_PROPERTY_SUCCESS",
+  TOGGLE_FUNCTION_EXECUTE_ON_LOAD_INIT: "TOGGLE_FUNCTION_EXECUTE_ON_LOAD_INIT",
+  TOGGLE_FUNCTION_EXECUTE_ON_LOAD_SUCCESS:
+    "TOGGLE_FUNCTION_EXECUTE_ON_LOAD_SUCCESS",
+  SET_JS_ACTION_TO_EXECUTE_ON_PAGELOAD: "SET_JS_ACTION_TO_EXECUTE_ON_PAGELOAD",
   ENABLE_GUIDED_TOUR: "ENABLE_GUIDED_TOUR",
   GUIDED_TOUR_MARK_STEP_COMPLETED: "GUIDED_TOUR_MARK_STEP_COMPLETED",
   SET_CURRENT_STEP: "SET_CURRENT_STEP",
@@ -838,6 +849,7 @@ export const ReduxActionErrorTypes = {
   FETCH_RELEASES_ERROR: "FETCH_RELEASES_ERROR",
   RESTART_SERVER_ERROR: "RESTART_SERVER_ERROR",
   UPDATE_JS_ACTION_BODY_ERROR: "UPDATE_JS_ACTION_BODY_ERROR",
+  UPDATE_JS_FUNCTION_PROPERTY_ERROR: "UPDATE_JS_FUNCTION_PROPERTY_ERROR",
   DELETE_ORG_ERROR: "DELETE_ORG_ERROR",
   REFLOW_BETA_FLAGS_INIT_ERROR: "REFLOW_BETA_FLAGS_INIT_ERROR",
   GET_ALL_TEMPLATES_ERROR: "GET_ALL_TEMPLATES_ERROR",
@@ -942,6 +954,7 @@ export interface Page {
   isDefault: boolean;
   latest?: boolean;
   isHidden?: boolean;
+  slug?: string;
 }
 
 export interface ClonePageSuccessPayload {
@@ -959,10 +972,11 @@ export interface ApplicationPayload {
   color?: string;
   icon?: string;
   organizationId: string;
-  defaultPageId?: string;
+  defaultPageId: string;
   isPublic?: boolean;
   userPermissions?: string[];
   appIsExample: boolean;
+  slug?: string;
   forkingEnabled?: boolean;
   appLayout?: AppLayoutConfig;
   gitApplicationMetadata?: GitApplicationMetadata;
@@ -970,6 +984,8 @@ export interface ApplicationPayload {
   applicationId?: string;
   modifiedBy?: string;
   modifiedAt?: string;
+  pages: ApplicationPagePayload[];
+  applicationVersion: ApplicationVersion;
 }
 
 export type OrganizationDetails = {
@@ -984,9 +1000,3 @@ export interface LoadWidgetEditorPayload {
 export interface LoadWidgetSidebarPayload {
   cards: { [id: string]: WidgetCardProps[] };
 }
-
-export type InitializeEditorPayload = {
-  applicationId: string;
-  pageId: string;
-  branch?: string;
-};

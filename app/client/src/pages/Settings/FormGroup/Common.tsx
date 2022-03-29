@@ -62,9 +62,11 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
       className={className}
       data-testid="admin-settings-form-group"
     >
-      <StyledLabel data-testid="admin-settings-form-group-label">
-        {createMessage(() => setting.label || "")}
-      </StyledLabel>
+      {setting.label && (
+        <StyledLabel data-testid="admin-settings-form-group-label">
+          {createMessage(() => setting.label || "")}
+        </StyledLabel>
+      )}
       {setting.isRequired && <StyledAsterisk>*</StyledAsterisk>}
       {setting.helpText && (
         <Tooltip content={createMessage(() => setting.helpText || "")}>

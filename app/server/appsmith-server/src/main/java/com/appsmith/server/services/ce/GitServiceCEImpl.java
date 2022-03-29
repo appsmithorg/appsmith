@@ -552,8 +552,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                     // Update json schema versions so that we can detect if the next update was made by DB migration or
                     // by the user
                     Application update = new Application();
+                    // Reset migration related fields before commit to detect the updates correctly between the commits
                     update.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
                     update.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+                    update.setIsManualUpdate(false);
                     return applicationService.update(childApplication.getId(), update)
                             .then(addAnalyticsForGitOperation(
                                     AnalyticsEvents.GIT_COMMIT.getEventName(),
@@ -1205,7 +1207,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             return checkoutRemoteBranch(defaultApplicationId, finalBranchName);
                         } else {
                             return Mono.error(
-                                    new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", branchName + " already exists in remote"));
+                                    new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", branchName + " already exists in local - " + branchName.replaceFirst("origin/", "")));
                         }
                     });
         }
