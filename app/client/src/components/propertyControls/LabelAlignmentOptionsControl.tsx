@@ -1,47 +1,53 @@
 import React from "react";
+import styled from "styled-components";
 import { Alignment } from "@blueprintjs/core";
 
 import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlIcons } from "icons/ControlIcons";
-import { replayHighlightClass } from "globalStyles/portals";
-import { StyledButton, StyledButtonGroup } from "./LabelButton";
+import ButtonTabComponent, {
+  ButtonTabOption,
+} from "components/ads/ButtonTabComponent";
+
+const ControlContainer = styled.div`
+  & > div:last-child {
+    display: flex;
+    & > div {
+      flex: 1;
+    }
+  }
+`;
 
 export interface LabelAlignmentOptionsControlProps extends ControlProps {
-  propertyValue: Alignment | undefined;
+  propertyValue?: Alignment;
+  options: ButtonTabOption[];
+  defaultValue: Alignment;
 }
 
 class LabelAlignmentOptionsControl extends BaseControl<
   LabelAlignmentOptionsControlProps
 > {
+  constructor(props: LabelAlignmentOptionsControlProps) {
+    super(props);
+    this.handleAlign = this.handleAlign.bind(this);
+  }
   static getControlType() {
     return "LABEL_ALIGNMENT_OPTIONS";
   }
 
   public render() {
-    const { propertyValue } = this.props;
-
+    const { options, propertyValue } = this.props;
     return (
-      <StyledButtonGroup className={replayHighlightClass} fill>
-        <StyledButton
-          active={
-            propertyValue === Alignment.LEFT || propertyValue === undefined
-          }
-          icon={<ControlIcons.LEFT_ALIGN color="#979797" />}
-          onClick={this.handleAlign(Alignment.LEFT)}
+      <ControlContainer>
+        <ButtonTabComponent
+          options={options}
+          selectButton={this.handleAlign}
+          values={[propertyValue || Alignment.LEFT]}
         />
-        <StyledButton
-          active={propertyValue === Alignment.RIGHT}
-          icon={<ControlIcons.RIGHT_ALIGN color="#979797" />}
-          onClick={this.handleAlign(Alignment.RIGHT)}
-        />
-      </StyledButtonGroup>
+      </ControlContainer>
     );
   }
 
-  private handleAlign(align: Alignment) {
-    return () => {
-      this.updateProperty(this.props.propertyName, align);
-    };
+  private handleAlign(align: string) {
+    this.updateProperty(this.props.propertyName, align);
   }
 }
 

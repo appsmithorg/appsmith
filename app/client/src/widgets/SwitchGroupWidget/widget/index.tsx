@@ -171,11 +171,11 @@ class SwitchGroupWidget extends BaseWidget<
             helpText: "Sets the label position of the widget",
             propertyName: "labelPosition",
             label: "Position",
-            controlType: "LABEL_POSITION_OPTIONS",
+            controlType: "DROP_DOWN",
             options: [
-              LabelPosition.Auto,
-              LabelPosition.Top,
-              LabelPosition.Left,
+              { label: "Left", value: LabelPosition.Left },
+              { label: "Top", value: LabelPosition.Top },
+              { label: "Auto", value: LabelPosition.Auto },
             ],
             isBindProperty: false,
             isTriggerProperty: false,
@@ -186,6 +186,16 @@ class SwitchGroupWidget extends BaseWidget<
             propertyName: "labelAlignment",
             label: "Alignment",
             controlType: "LABEL_ALIGNMENT_OPTIONS",
+            options: [
+              {
+                icon: "LEFT_ALIGN",
+                value: Alignment.LEFT,
+              },
+              {
+                icon: "RIGHT_ALIGN",
+                value: Alignment.RIGHT,
+              },
+            ],
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
