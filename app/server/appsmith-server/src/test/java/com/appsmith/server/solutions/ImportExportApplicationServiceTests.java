@@ -329,21 +329,214 @@ public class ImportExportApplicationServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void exportApplication_withCredentialsForSampleApps_SuccessWithDecryptFields() {
-        Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(testAppId, "", "true");
+        Organization newOrganization = new Organization();
+        newOrganization.setName("template-org-with-ds");
+
+        Application testApplication = new Application();
+        testApplication.setName("exportApplication_withCredentialsForSampleApps_SuccessWithDecryptFields");
+        testApplication = applicationPageService.createApplication(testApplication, orgId).block();
+
+        assert testApplication != null;
+        final String appName = testApplication.getName();
+        final Mono<ApplicationJson> resultMono = Mono.zip(
+                Mono.just(testApplication),
+                newPageService.findPageById(testApplication.getPages().get(0).getId(), READ_PAGES, false)
+        )
+                .flatMap(tuple -> {
+                    Application testApp = tuple.getT1();
+                    PageDTO testPage = tuple.getT2();
+
+                    Layout layout = testPage.getLayouts().get(0);
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    JSONObject dsl = new JSONObject();
+                    try {
+                        dsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
+                        }));
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+
+                    ArrayList children = (ArrayList) dsl.get("children");
+                    JSONObject testWidget = new JSONObject();
+                    testWidget.put("widgetName", "firstWidget");
+                    JSONArray temp = new JSONArray();
+                    temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+                    testWidget.put("dynamicBindingPathList", temp);
+                    testWidget.put("testField", "{{ validAction.data }}");
+                    children.add(testWidget);
+
+                    layout.setDsl(dsl);
+                    layout.setPublishedDsl(dsl);
+
+                    ActionDTO action = new ActionDTO();
+                    action.setName("validAction");
+                    action.setPageId(testPage.getId());
+                    action.setExecuteOnLoad(true);
+                    ActionConfiguration actionConfiguration = new ActionConfiguration();
+                    actionConfiguration.setHttpMethod(HttpMethod.GET);
+                    action.setActionConfiguration(actionConfiguration);
+                    action.setDatasource(datasourceMap.get("DS2"));
+
+                    ActionDTO action2 = new ActionDTO();
+                    action2.setName("validAction2");
+                    action2.setPageId(testPage.getId());
+                    action2.setExecuteOnLoad(true);
+                    action2.setUserSetOnLoad(true);
+                    ActionConfiguration actionConfiguration2 = new ActionConfiguration();
+                    actionConfiguration2.setHttpMethod(HttpMethod.GET);
+                    action2.setActionConfiguration(actionConfiguration2);
+                    action2.setDatasource(datasourceMap.get("DS2"));
+
+                    ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
+                    actionCollectionDTO1.setName("testCollection1");
+                    actionCollectionDTO1.setPageId(testPage.getId());
+                    actionCollectionDTO1.setApplicationId(testApp.getId());
+                    actionCollectionDTO1.setOrganizationId(testApp.getOrganizationId());
+                    actionCollectionDTO1.setPluginId(jsDatasource.getPluginId());
+                    ActionDTO action1 = new ActionDTO();
+                    action1.setName("testAction1");
+                    action1.setActionConfiguration(new ActionConfiguration());
+                    action1.getActionConfiguration().setBody("mockBody");
+                    actionCollectionDTO1.setActions(List.of(action1));
+                    actionCollectionDTO1.setPluginType(PluginType.JS);
+
+                    return layoutCollectionService.createCollection(actionCollectionDTO1)
+                            .then(layoutActionService.createSingleAction(action))
+                            .then(layoutActionService.createSingleAction(action2))
+                            .then(layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout))
+                            .then(importExportApplicationService.exportApplicationById(testApp.getId(), "", "true"));
+                })
+                .cache();
+
+        Mono<List<NewAction>> actionListMono = resultMono
+                .then(newActionService
+                        .findAllByApplicationIdAndViewMode(testApplication.getId(), false, READ_ACTIONS, null).collectList());
+
+        Mono<List<ActionCollection>> collectionListMono = resultMono.then(
+                actionCollectionService
+                        .findAllByApplicationIdAndViewMode(testApplication.getId(), false, READ_ACTIONS, null).collectList());
+
+        Mono<List<NewPage>> pageListMono = resultMono.then(
+                newPageService
+                        .findNewPagesByApplicationId(testApplication.getId(), READ_PAGES).collectList());
 
         StepVerifier
-                .create(resultMono)
-                .assertNext(applicationJson -> {
-                    Application exportedApplication = applicationJson.getExportedApplication();
-                    assertThat(exportedApplication.getModifiedBy()).isNull();
-                    assertThat(exportedApplication.getLastUpdateTime()).isNull();
-                    assertThat(exportedApplication.getLastEditedAt()).isNull();
-                    assertThat(exportedApplication.getLastDeployedAt()).isNull();
-                    assertThat(exportedApplication.getGitApplicationMetadata()).isNull();
-                    assertThat(exportedApplication.getEditModeThemeId()).isNull();
-                    assertThat(exportedApplication.getPublishedModeThemeId()).isNull();
+                .create(Mono.zip(resultMono, actionListMono, collectionListMono, pageListMono))
+                .assertNext(tuple -> {
+
+                    ApplicationJson applicationJson = tuple.getT1();
+                    List<NewAction> DBActions = tuple.getT2();
+                    List<ActionCollection> DBCollections = tuple.getT3();
+                    List<NewPage> DBPages = tuple.getT4();
+
+                    Application exportedApp = applicationJson.getExportedApplication();
+                    List<NewPage> pageList = applicationJson.getPageList();
+                    List<NewAction> actionList = applicationJson.getActionList();
+                    List<ActionCollection> actionCollectionList = applicationJson.getActionCollectionList();
+                    List<Datasource> datasourceList = applicationJson.getDatasourceList();
+
+                    List<String> exportedCollectionIds = actionCollectionList.stream().map(ActionCollection::getId).collect(Collectors.toList());
+                    List<String> exportedActionIds = actionList.stream().map(NewAction::getId).collect(Collectors.toList());
+                    List<String> DBCollectionIds = DBCollections.stream().map(ActionCollection::getId).collect(Collectors.toList());
+                    List<String> DBActionIds = DBActions.stream().map(NewAction::getId).collect(Collectors.toList());
+                    List<String> DBOnLayoutLoadActionIds = new ArrayList<>();
+                    List<String> exportedOnLayoutLoadActionIds = new ArrayList<>();
+
+                    DBPages.forEach(newPage ->
+                            newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
+                                if (layout.getLayoutOnLoadActions() != null) {
+                                    layout.getLayoutOnLoadActions().forEach(dslActionDTOSet -> {
+                                        dslActionDTOSet.forEach(actionDTO -> DBOnLayoutLoadActionIds.add(actionDTO.getId()));
+                                    });
+                                }
+                            })
+                    );
+
+                    pageList.forEach(newPage ->
+                            newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
+                                if (layout.getLayoutOnLoadActions() != null) {
+                                    layout.getLayoutOnLoadActions().forEach(dslActionDTOSet -> {
+                                        dslActionDTOSet.forEach(actionDTO -> exportedOnLayoutLoadActionIds.add(actionDTO.getId()));
+                                    });
+                                }
+                            })
+                    );
+
+                    NewPage defaultPage = pageList.get(0);
+
+                    assertThat(exportedApp.getName()).isEqualTo(appName);
+                    assertThat(exportedApp.getOrganizationId()).isNull();
+                    assertThat(exportedApp.getPages()).isNull();
+
+                    assertThat(exportedApp.getPolicies()).isNull();
+
+                    assertThat(pageList).hasSize(1);
+                    assertThat(defaultPage.getApplicationId()).isNull();
+                    assertThat(defaultPage.getUnpublishedPage().getLayouts().get(0).getDsl()).isNotNull();
+                    assertThat(defaultPage.getId()).isNull();
+                    assertThat(defaultPage.getPolicies()).isEmpty();
+
+                    assertThat(actionList.isEmpty()).isFalse();
+                    assertThat(actionList).hasSize(3);
+                    NewAction validAction = actionList.stream().filter(action -> action.getId().equals("Page1_validAction")).findFirst().get();
+                    assertThat(validAction.getApplicationId()).isNull();
+                    assertThat(validAction.getPluginId()).isEqualTo(installedPlugin.getPackageName());
+                    assertThat(validAction.getPluginType()).isEqualTo(PluginType.API);
+                    assertThat(validAction.getOrganizationId()).isNull();
+                    assertThat(validAction.getPolicies()).isNull();
+                    assertThat(validAction.getId()).isNotNull();
+                    ActionDTO unpublishedAction = validAction.getUnpublishedAction();
+                    assertThat(unpublishedAction.getPageId()).isEqualTo(defaultPage.getUnpublishedPage().getName());
+                    assertThat(unpublishedAction.getDatasource().getPluginId()).isEqualTo(installedPlugin.getPackageName());
+
+                    NewAction testAction1 = actionList.stream().filter(action -> action.getUnpublishedAction().getName().equals("testAction1")).findFirst().get();
+                    assertThat(testAction1.getId()).isEqualTo("Page1_testCollection1.testAction1");
+
+                    assertThat(actionCollectionList.isEmpty()).isFalse();
+                    assertThat(actionCollectionList).hasSize(1);
+                    final ActionCollection actionCollection = actionCollectionList.get(0);
+                    assertThat(actionCollection.getApplicationId()).isNull();
+                    assertThat(actionCollection.getOrganizationId()).isNull();
+                    assertThat(actionCollection.getPolicies()).isNull();
+                    assertThat(actionCollection.getId()).isNotNull();
+                    assertThat(actionCollection.getUnpublishedCollection().getPluginType()).isEqualTo(PluginType.JS);
+                    assertThat(actionCollection.getUnpublishedCollection().getPageId())
+                            .isEqualTo(defaultPage.getUnpublishedPage().getName());
+                    assertThat(actionCollection.getUnpublishedCollection().getPluginId()).isEqualTo(installedJsPlugin.getPackageName());
+
+                    assertThat(datasourceList).hasSize(1);
+                    Datasource datasource = datasourceList.get(0);
+                    assertThat(datasource.getOrganizationId()).isNull();
+                    assertThat(datasource.getId()).isNull();
+                    assertThat(datasource.getPluginId()).isEqualTo(installedPlugin.getPackageName());
+                    assertThat(datasource.getDatasourceConfiguration()).isNotNull();
+
+                    final Map<String, InvisibleActionFields> invisibleActionFields = applicationJson.getInvisibleActionFields();
+
+                    Assert.assertEquals(3, invisibleActionFields.size());
+                    NewAction validAction2 = actionList.stream().filter(action -> action.getId().equals("Page1_validAction2")).findFirst().get();
+                    Assert.assertEquals(true, invisibleActionFields.get(validAction2.getId()).getUnpublishedUserSetOnLoad());
+
+                    assertThat(applicationJson.getUnpublishedLayoutmongoEscapedWidgets()).isNotEmpty();
+                    assertThat(applicationJson.getPublishedLayoutmongoEscapedWidgets()).isNotEmpty();
+                    assertThat(applicationJson.getEditModeTheme()).isNotNull();
+                    assertThat(applicationJson.getEditModeTheme().isSystemTheme()).isTrue();
+                    assertThat(applicationJson.getEditModeTheme().getName()).isEqualToIgnoringCase(Theme.DEFAULT_THEME_NAME);
+
+                    assertThat(applicationJson.getPublishedTheme()).isNotNull();
+                    assertThat(applicationJson.getPublishedTheme().isSystemTheme()).isTrue();
+                    assertThat(applicationJson.getPublishedTheme().getName()).isEqualToIgnoringCase(Theme.DEFAULT_THEME_NAME);
+
+                    assertThat(exportedCollectionIds).isNotEmpty();
+                    assertThat(exportedCollectionIds).doesNotContain(String.valueOf(DBCollectionIds));
+
+                    assertThat(exportedActionIds).isNotEmpty();
+                    assertThat(exportedActionIds).doesNotContain(String.valueOf(DBActionIds));
+
+                    assertThat(exportedOnLayoutLoadActionIds).isNotEmpty();
+                    assertThat(exportedOnLayoutLoadActionIds).doesNotContain(String.valueOf(DBOnLayoutLoadActionIds));
+
                     assertThat(applicationJson.getDecryptedFields()).isNotNull();
-                    assertThat(applicationJson.getDatasourceList().get(0).getDatasourceConfiguration()).isNotNull();
                 })
                 .verifyComplete();
     }
