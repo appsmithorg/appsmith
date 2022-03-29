@@ -61,16 +61,19 @@ export class Table {
   }
 
   public NavigateToNextOrPreviousPage(nextPage = true) {
-    let currentPageNo: number = Number(cy.get(this._pageNumber).invoke('text'))
+    let curPageNo: number;
+    cy.get(this._pageNumber).invoke('text').then($currentPageNo =>
+      curPageNo = Number($currentPageNo))
+
     if (nextPage) {
       cy.get(this._nextPage).click()
       cy.get(this._pageNumber).invoke('text').then($newPageNo =>
-        expect($newPageNo).to.eq(currentPageNo + 1))
+        expect(Number($newPageNo)).to.eq(curPageNo + 1))
     }
     else {
       cy.get(this._previousPage).click()
       cy.get(this._pageNumber).invoke('text').then($newPageNo =>
-        expect($newPageNo).to.eq(currentPageNo - 1))
+        expect(Number($newPageNo)).to.eq(curPageNo - 1))
     }
   }
 
