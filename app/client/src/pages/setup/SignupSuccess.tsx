@@ -43,10 +43,14 @@ export function SignupSuccess() {
           window.location.pathname == SIGNUP_SUCCESS_URL &&
           shouldEnableFirstTimeUserOnboarding === "true"
         ) {
+          let urlObject;
+          try {
+            urlObject = new URL(redirectUrl);
+          } catch (e) {}
           const match = matchPath<{
             pageId: string;
             applicationId: string;
-          }>(redirectUrl, {
+          }>(urlObject?.pathname ?? redirectUrl, {
             path: [
               BUILDER_PATH,
               BUILDER_PATH_DEPRECATED,
