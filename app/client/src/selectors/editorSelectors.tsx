@@ -35,6 +35,7 @@ import { Page } from "constants/ReduxActionConstants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { builderURL } from "RouteBuilder";
 import { ApplicationVersion } from "actions/applicationActions";
+import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
@@ -184,8 +185,9 @@ export const getViewModePageList = createSelector(
 export const getCurrentApplicationLayout = (state: AppState) =>
   state.ui.applications.currentApplication?.appLayout;
 
-export const getCanvasWidth = (state: AppState) =>
-  state.entities.canvasWidgets[MAIN_CONTAINER_WIDGET_ID].rightColumn;
+export const getCanvasWidth = (state: AppState) => state.ui.mainCanvas.width;
+
+export const getMainCanvasProps = (state: AppState) => state.ui.mainCanvas;
 
 export const getCurrentPageName = createSelector(
   getPageListState,
@@ -229,8 +231,13 @@ export const getWidgetCards = createSelector(
 const getMainContainer = (
   canvasWidgets: CanvasWidgetsReduxState,
   evaluatedDataTree: DataTree,
+  mainCanvasProps: MainCanvasReduxState,
 ) => {
-  const canvasWidget = canvasWidgets[MAIN_CONTAINER_WIDGET_ID];
+  const canvasWidget = {
+    ...canvasWidgets[MAIN_CONTAINER_WIDGET_ID],
+    rightColumn: mainCanvasProps.width,
+    minHeight: mainCanvasProps.height,
+  };
   const evaluatedWidget = find(evaluatedDataTree, {
     widgetId: MAIN_CONTAINER_WIDGET_ID,
   }) as DataTreeWidget;
@@ -241,15 +248,18 @@ export const getCanvasWidgetDsl = createSelector(
   getCanvasWidgets,
   getDataTree,
   getLoadingEntities,
+  getMainCanvasProps,
   (
     canvasWidgets: CanvasWidgetsReduxState,
     evaluatedDataTree,
     loadingEntities,
+    mainCanvasProps,
   ): ContainerWidgetProps<WidgetProps> => {
     const widgets: Record<string, DataTreeWidget> = {
       [MAIN_CONTAINER_WIDGET_ID]: getMainContainer(
         canvasWidgets,
         evaluatedDataTree,
+        mainCanvasProps,
       ),
     };
     Object.keys(canvasWidgets)
