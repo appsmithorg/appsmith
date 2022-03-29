@@ -329,7 +329,7 @@ const PropertyControl = memo((props: Props) => {
 
     const evaluatedValue = _.get(
       widgetProperties,
-      getEvalValuePath(dataTreePath, false),
+      getEvalValuePath(dataTreePath, false, true),
     );
 
     const { additionalAutoComplete, ...rest } = props;
