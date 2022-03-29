@@ -262,6 +262,10 @@ function TemplateView() {
     }
   }, [params.templateId]);
 
+  const goBack = () => {
+    history.goBack();
+  };
+
   return (
     <PageWrapper>
       {isFetchingTemplate ? (
@@ -273,7 +277,7 @@ function TemplateView() {
           <TemplateViewWrapper>
             <HeaderWrapper>
               <div className="left">
-                <BackButtonWrapper onClick={goToTemplateListView}>
+                <BackButtonWrapper onClick={goBack}>
                   <Icon name="view-less" size={IconSize.XL} />
                   <Text type={TextType.P4}>{createMessage(GO_BACK)}</Text>
                 </BackButtonWrapper>

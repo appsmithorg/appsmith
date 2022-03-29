@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { Collapse } from "@blueprintjs/core";
@@ -6,12 +6,7 @@ import { Classes } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
 import Icon, { IconSize } from "components/ads/Icon";
 import { filterTemplates } from "actions/templateActions";
-import {
-  createMessage,
-  MORE,
-  SHOW_LESS,
-  FILTERS,
-} from "@appsmith/constants/messages";
+import { createMessage, FILTERS } from "@appsmith/constants/messages";
 import {
   getFilterListSelector,
   getTemplateFilterSelector,
@@ -145,7 +140,7 @@ function FilterCategory({
   label,
   selectedFilters,
 }: FilterCategoryProps) {
-  const [expand, setExpand] = useState(!!selectedFilters.length);
+  // const [expand, setExpand] = useState(!!selectedFilters.length);
   const dispatch = useDispatch();
   // This indicates how many filter items do we want to show, the rest are hidden
   // behind show more.
@@ -163,9 +158,9 @@ function FilterCategory({
     }
   };
 
-  const toggleExpand = () => {
-    setExpand((expand) => !expand);
-  };
+  // const toggleExpand = () => {
+  //   setExpand((expand) => !expand);
+  // };
 
   const isSelected = (filter: Filter) => {
     return selectedFilters.includes(filter?.value ?? filter.label);
@@ -188,7 +183,7 @@ function FilterCategory({
             />
           );
         })}
-        <Collapse isOpen={expand}>
+        <Collapse isOpen>
           {filterList.slice(FILTERS_TO_SHOW).map((filter) => {
             return (
               <FilterItem
@@ -200,7 +195,8 @@ function FilterCategory({
             );
           })}
         </Collapse>
-        {!!filterList.slice(FILTERS_TO_SHOW).length && (
+        {/* We will be adding this back later */}
+        {/* {!!filterList.slice(FILTERS_TO_SHOW).length && (
           <Text
             className={`more ${selectedFilters.length && expand && "hide"}`}
             onClick={toggleExpand}
@@ -213,7 +209,7 @@ function FilterCategory({
                   MORE,
                 )}`}
           </Text>
-        )}
+        )} */}
       </ListWrapper>
     </FilterCategoryWrapper>
   );
