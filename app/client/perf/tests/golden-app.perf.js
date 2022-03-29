@@ -1,7 +1,5 @@
-const path = require("path");
 const Perf = require("../src/perf.js");
-const dsl = require("./dsl/simple-typing").dsl;
-const { delay } = require("../src/utils/utils");
+const { delay, getFormattedTime } = require("../src/utils/utils");
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 const SEL = {
@@ -25,6 +23,9 @@ const SEL = {
   commentsTableTitle: "#urzv99hdc8",
 };
 
+const getScreenshotPath = () =>
+  `${APP_ROOT}/traces/reports/debug-${getFormattedTime()}.png`;
+
 async function testTyping() {
   const perf = new Perf();
   await perf.launch();
@@ -32,10 +33,20 @@ async function testTyping() {
 
   await perf.importApplication(`${APP_ROOT}/tests/dsl/blog-admin-app.json`);
 
+  await delay(5000);
+  await page.screenshot({
+    path: getScreenshotPath(),
+  });
+
   await delay(20000, "for newly created page to settle down");
   // Make the elements of the dropdown render
   await page.waitForSelector(SEL.multiSelect);
   await page.click(SEL.multiSelect);
+
+  await delay(5000);
+  await page.screenshot({
+    path: getScreenshotPath(),
+  });
 
   await perf.startTrace(actions.SELECT_CATEGORY);
   await page.waitForSelector(SEL.category);
