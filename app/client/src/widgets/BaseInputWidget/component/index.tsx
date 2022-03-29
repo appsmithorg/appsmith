@@ -307,7 +307,7 @@ class BaseInputComponent extends React.Component<
 
   componentDidMount() {
     if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
-      const element: any = document.querySelector(
+      const element = document.querySelector<HTMLDivElement>(
         `.appsmith_widget_${this.props.widgetId} .bp3-button-group`,
       );
 
@@ -326,7 +326,7 @@ class BaseInputComponent extends React.Component<
 
   componentWillUnmount() {
     if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
-      const element: any = document.querySelectorAll(
+      const element = document.querySelector<HTMLDivElement>(
         `.appsmith_widget_${this.props.widgetId} .bp3-button-group`,
       );
 
@@ -503,13 +503,13 @@ class BaseInputComponent extends React.Component<
       ? this.numericInputComponent()
       : this.textInputComponent(isTextArea);
 
-  onStepIncrement = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  onStepIncrement = (e: Event) => {
     e.preventDefault();
     e.stopPropagation();
     this.props.onStep && this.props.onStep(1);
   };
 
-  onStepDecrement = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  onStepDecrement = (e: Event) => {
     e.preventDefault();
     e.stopPropagation();
     this.props.onStep && this.props.onStep(-1);
