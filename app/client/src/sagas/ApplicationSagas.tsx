@@ -340,6 +340,12 @@ export function* updateApplicationSaga(
     // as the redux store updates the app only on success.
     // we have to run this
     if (isValidResponse) {
+      if (request && request.applicationVersion) {
+        if (request.applicationVersion === ApplicationVersion.SLUG_URL) {
+          request.callback?.();
+          return;
+        }
+      }
       if (request) {
         yield put({
           type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
@@ -354,11 +360,6 @@ export function* updateApplicationSaga(
         updateSlugNamesInURL({
           applicationSlug: response.data.slug,
         });
-      }
-      if (request.applicationVersion) {
-        if (request.applicationVersion === ApplicationVersion.SLUG_URL) {
-          request.callback?.();
-        }
       }
     }
   } catch (error) {
@@ -427,8 +428,9 @@ export function* duplicateApplicationSaga(
       const defaultPage = application.pages.find((page) => page.isDefault);
       const pageURL = builderURL({
         applicationVersion: application.applicationVersion,
-        applicationSlug: slug,
-        pageSlug: defaultPage?.slug,
+        applicationId: application.id,
+        applicationSlug: slug || PLACEHOLDER_APP_SLUG,
+        pageSlug: defaultPage?.slug || PLACEHOLDER_PAGE_SLUG,
         pageId: application.defaultPageId as string,
       });
       history.push(pageURL);
@@ -623,8 +625,9 @@ export function* forkApplicationSaga(
       );
       const pageURL = builderURL({
         applicationVersion: application.applicationVersion,
-        applicationSlug: application.slug as string,
-        pageSlug: defaultPage.slug,
+        applicationId: application.id,
+        applicationSlug: application.slug || PLACEHOLDER_APP_SLUG,
+        pageSlug: defaultPage.slug || PLACEHOLDER_PAGE_SLUG,
         pageId: application.defaultPageId as string,
       });
       history.push(pageURL);
@@ -675,7 +678,7 @@ export function* importApplicationSaga(
       );
       if (currentOrg.length > 0) {
         const {
-          application: { applicationVersion, pages, slug: applicationSlug },
+          application: { applicationVersion, id, pages, slug: applicationSlug },
           isPartialImport,
         }: {
           application: {
@@ -707,6 +710,7 @@ export function* importApplicationSaga(
           const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
           const pageURL = builderURL({
             applicationSlug: applicationSlug ?? PLACEHOLDER_APP_SLUG,
+            applicationId: id,
             applicationVersion:
               applicationVersion ?? ApplicationVersion.SLUG_URL,
             pageSlug: defaultPage[0].slug || PLACEHOLDER_PAGE_SLUG,
