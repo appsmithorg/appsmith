@@ -408,6 +408,21 @@ export function* initializeAppViewerSaga(
   );
   if (!jsActionsCall) return;
 
+  const themesCall: boolean = yield failFastApiCalls(
+    [fetchAppThemesAction(applicationId)],
+    [ReduxActionTypes.FETCH_APP_THEMES_SUCCESS],
+    [ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR],
+  );
+  if (!themesCall) return;
+
+  const selectedThemeCall: boolean = yield failFastApiCalls(
+    [fetchSelectedAppThemeAction(applicationId)],
+    [ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS],
+    [ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR],
+  );
+
+  if (!selectedThemeCall) return;
+
   const defaultPageId: string = yield select(getDefaultPageId);
   const toLoadPageId: string = pageId || defaultPageId;
 
