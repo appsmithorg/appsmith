@@ -346,7 +346,7 @@ function* setWidgetDynamicPropertySaga(
       validateProperty,
       propertyPath,
       propertyValue,
-      widget,
+      { ...widget, dynamicPropertyPathList },
     );
     widget = set(widget, propertyPath, parsed);
   }
