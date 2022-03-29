@@ -60,6 +60,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { Toaster, Variant } from "components/ads";
 import { getOAuthAccessToken } from "actions/datasourceActions";
 import { builderURL } from "RouteBuilder";
+import { PLACEHOLDER_APP_SLUG } from "constants/routes";
 
 const Container = styled.div`
   height: 765px;
@@ -438,9 +439,9 @@ function ReconnectDatasourceModal() {
       setAppURL(
         builderURL({
           applicationVersion:
-            importedApplication?.applicationVersion ??
+            importedApplication?.applicationVersion ||
             ApplicationVersion.SLUG_URL,
-          applicationSlug: importedApplication?.slug,
+          applicationSlug: importedApplication?.slug || PLACEHOLDER_APP_SLUG,
           applicationId: appId,
           pageId: pageId,
         }),
