@@ -30,7 +30,7 @@ async function testTyping() {
   await perf.launch();
   const page = perf.getPage();
 
-  await perf.importApplication(`${APP_ROOT}/tests/dsl/blog-admin-app.json`);
+  await perf.importApplication(`${APP_ROOT}/tests/dsl/GoldenApp.json`);
 
   await delay(20000, "for newly created page to settle down");
   // Make the elements of the dropdown render
