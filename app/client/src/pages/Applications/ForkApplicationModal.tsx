@@ -107,6 +107,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
         !!organizationList.length && (
           <>
             <Dropdown
+              boundary="viewport"
               dropdownMaxHeight={"200px"}
               fillOptions
               onSelect={(_, dropdownOption) =>

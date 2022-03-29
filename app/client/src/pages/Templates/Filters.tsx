@@ -6,7 +6,12 @@ import { Classes } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
 import Icon, { IconSize } from "components/ads/Icon";
 import { filterTemplates } from "actions/templateActions";
-import { createMessage, MORE, SHOW_LESS } from "@appsmith/constants/messages";
+import {
+  createMessage,
+  MORE,
+  SHOW_LESS,
+  FILTERS,
+} from "@appsmith/constants/messages";
 import {
   getFilterListSelector,
   getTemplateFilterSelector,
@@ -14,6 +19,7 @@ import {
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const FilterWrapper = styled.div`
   overflow: auto;
@@ -115,7 +121,13 @@ interface FilterCategoryProps {
 function FilterItem({ item, onSelect, selected }: FilterItemProps) {
   const onClick = () => {
     const action = selected ? "remove" : "add";
-    onSelect(item?.value ?? item.label, action);
+    const filterValue = item?.value ?? item.label;
+    onSelect(filterValue, action);
+    if (action === "add") {
+      AnalyticsUtil.logEvent("TEMPLATE_FILTER_SELECTED", {
+        filter: filterValue,
+      });
+    }
   };
 
   return (
@@ -216,7 +228,7 @@ function Filters() {
       <SecondWrapper>
         <FilterWrapper>
           <StyledFilterCategory className={"title"} type={TextType.H5}>
-            FILTERS
+            {createMessage(FILTERS)}
           </StyledFilterCategory>
           {Object.keys(filters).map((filter) => {
             return (

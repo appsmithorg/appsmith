@@ -73,6 +73,7 @@ function ForkTemplate({
       trigger={children}
     >
       <Dropdown
+        boundary="viewport"
         dropdownMaxHeight={"200px"}
         fillOptions
         onSelect={(_value, dropdownOption) =>
