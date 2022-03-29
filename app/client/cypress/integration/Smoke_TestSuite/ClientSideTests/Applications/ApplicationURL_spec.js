@@ -2,8 +2,9 @@ import homePage from "../../../../locators/HomePage";
 const explorer = require("../../../../locators/explorerlocators.json");
 describe("Slug URLs", () => {
   let applicationName;
+  let applicationId;
   it("Checks URL redirection from legacy URLs to slug URLs", () => {
-    const applicationId = localStorage.getItem("applicationId");
+    applicationId = localStorage.getItem("applicationId");
     cy.location("pathname").then((pathname) => {
       const pageId = pathname
         .split("/")[2]
@@ -69,6 +70,45 @@ describe("Slug URLs", () => {
       expect(pathname).to.be.equal(
         `/${applicationName}/page-renamed-${pageId}/edit`,
       );
+    });
+  });
+
+  it("Check the url of old applications and upgrades version", () => {
+    cy.request("PUT", `/api/v1/applications/${applicationId}`, {
+      applicationVersion: 1,
+    }).then((response) => {
+      const application = response.body.data;
+      expect(application.applicationVersion).to.equal(1);
+      cy.NavigateToHome();
+      cy.reload();
+
+      cy.SearchApp(applicationName);
+
+      cy.wait("@getPagesForCreateApp").then((intercept) => {
+        const { application, pages } = intercept.response.body.data;
+        const defaultPage = pages.find((p) => p.isDefault);
+
+        cy.location().should((loc) => {
+          expect(loc.pathname).includes(
+            `/applications/${application.id}/pages/${defaultPage.id}`,
+          );
+        });
+
+        cy.get(".t--upgrade").click({ force: true });
+
+        cy.get(".t--upgrade-confirm").click({ force: true });
+
+        cy.wait("@getPagesForCreateApp").then((intercept) => {
+          const { application, pages } = intercept.response.body.data;
+          const defaultPage = pages.find((p) => p.isDefault);
+
+          cy.location().should((loc) => {
+            expect(loc.pathname).includes(
+              `/${application.slug}/${defaultPage.slug}-${defaultPage.id}`,
+            );
+          });
+        });
+      });
     });
   });
 });
