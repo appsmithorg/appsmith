@@ -13,6 +13,7 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
@@ -23,6 +24,7 @@ import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -167,6 +169,16 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         if(!StringUtils.isEmpty(application.getName())) {
             application.setSlug(TextUtils.makeSlug(application.getName()));
         }
+
+        if(application.getApplicationVersion() != null) {
+            int appVersion = application.getApplicationVersion();
+            if(appVersion < ApplicationVersion.EARLIEST_VERSION || appVersion > ApplicationVersion.LATEST_VERSION) {
+                return Mono.error(new AppsmithException(
+                        AppsmithError.INVALID_PARAMETER,
+                        QApplication.application.applicationVersion.getMetadata().getName()
+                ));
+            }
+        }
         return repository.save(application)
                 .flatMap(this::setTransientFields);
     }
@@ -193,6 +205,17 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         if(!StringUtils.isEmpty(application.getName())) {
             application.setSlug(TextUtils.makeSlug(application.getName()));
         }
+
+        if(application.getApplicationVersion() != null) {
+            int appVersion = application.getApplicationVersion();
+            if(appVersion < ApplicationVersion.EARLIEST_VERSION || appVersion > ApplicationVersion.LATEST_VERSION) {
+                return Mono.error(new AppsmithException(
+                        AppsmithError.INVALID_PARAMETER,
+                        QApplication.application.applicationVersion.getMetadata().getName()
+                ));
+            }
+        }
+
         Mono<String> applicationIdMono;
         GitApplicationMetadata gitData = application.getGitApplicationMetadata();
         if (gitData != null && !StringUtils.isEmpty(gitData.getBranchName()) && !StringUtils.isEmpty(gitData.getDefaultApplicationId())) {
@@ -508,6 +531,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         // need to set isPublic=null because it has a `false` as it's default value in domain class
         application.setIsPublic(null);
         application.setLastEditedAt(Instant.now());
+        application.setIsManualUpdate(true);
         /*
           We're not setting updatedAt and modifiedBy fields to the application DTO because these fields will be set
           by the updateById method of the BaseAppsmithRepositoryImpl

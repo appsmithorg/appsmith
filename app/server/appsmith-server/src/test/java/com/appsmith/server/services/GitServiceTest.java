@@ -1838,6 +1838,7 @@ public class GitServiceTest {
                     assertThat(commitMsg).contains("pushed successfully");
                     assertThat(application.getClientSchemaVersion()).isEqualTo(JsonSchemaVersions.clientVersion);
                     assertThat(application.getServerSchemaVersion()).isEqualTo(JsonSchemaVersions.serverVersion);
+                    assertThat(application.getIsManualUpdate()).isFalse();
                 })
                 .verifyComplete();
     }
