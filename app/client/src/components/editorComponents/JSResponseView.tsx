@@ -53,16 +53,13 @@ const ResponseContainer = styled.div`
   ${ResizerCSS}
   width: 100%;
   // Minimum height of bottom tabs as it can be resized
-  min-height: ${({ theme }) => theme.smallHeaderHeight};
+  min-height: ${TAB_MIN_HEIGHT};
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
   height: ${({ theme }) => theme.actionsBottomTabInitialHeight};
 
   .react-tabs__tab-panel {
     overflow-y: auto;
-    height: ${({ theme }) => `calc(100% - ${theme.smallHeaderHeight})`};
-  }
-  ${DebuggerErrorList} {
-    height: ${() => `calc(100% - 50px)`};
+    height: calc(100% - ${TAB_MIN_HEIGHT});
   }
 `;
 
@@ -140,6 +137,7 @@ const NoResponseContainer = styled.div`
   width: max-content;
   display: flex;
   align-items: center;
+  justify-content: center;
   flex-direction: column;
   margin: 0 auto;
   &.empty {

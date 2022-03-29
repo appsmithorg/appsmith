@@ -358,7 +358,7 @@ export function TabComponent(
         const {
           contentRect: { height },
         } = entries[0];
-        if (height > Number(TAB_MIN_HEIGHT.replace("px", ""))) {
+        if (height > Number(TAB_MIN_HEIGHT.replace("px", "")) + 6) {
           !isExpanded && setIsExpanded(true);
         } else {
           isExpanded && setIsExpanded(false);
