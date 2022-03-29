@@ -11,7 +11,7 @@ import Tooltip from "components/ads/Tooltip";
 import { createMessage, NO_JS_FUNCTION_TO_RUN } from "ce/constants/messages";
 import { StyledButton } from "components/ads/Button";
 import { JSActionDropdownOption } from "./utils";
-import { RUN_BUTTON_DEFAULTS } from "./constants";
+import { RUN_BUTTON_DEFAULTS, testLocators } from "./constants";
 
 type Props = {
   disabled: boolean;
@@ -82,6 +82,7 @@ export function JSFunctionRun({
         hoverOpenDelay={50}
       >
         <Button
+          className={testLocators.runJSAction}
           height={RUN_BUTTON_DEFAULTS.HEIGHT}
           isLoading={isLoading}
           onClick={onButtonClick}

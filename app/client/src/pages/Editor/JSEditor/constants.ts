@@ -69,3 +69,7 @@ export enum NodeTypes {
   ExportDefaultDeclaration = "ExportDefaultDeclaration",
   Property = "Property",
 }
+
+export const testLocators = {
+  runJSAction: "run-js-action",
+};
