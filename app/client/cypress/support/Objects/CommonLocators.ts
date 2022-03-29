@@ -51,7 +51,7 @@ export class CommonLocators {
     _widgetInCanvas = (widgetType: string) => `.t--draggable-${widgetType}`
     _widgetInDeployed = (widgetType: string) => `.t--widget-${widgetType}`
     _propertyToggle = (controlToToggle: string) => ".t--property-control-" + controlToToggle + " input[type='checkbox']"
-    _propertyToggleValue = (controlToToggle: string) => ".t--property-control-" + controlToToggle + " input[type='checkbox']/parent::label"
+    _propertyToggleValue = (controlToToggle: string) => "//div[contains(@class, 't--property-control-" + controlToToggle + "')]//input[@type='checkbox']/parent::label"
     _openNavigationTab = (tabToOpen: string) => `#switcher--${tabToOpen}`
     _selectWidgetDropdown = (widgetType: string) => "//div[contains(@class, 't--draggable-" + widgetType + "')]//button"
     _inputFieldByName = (fieldName: string) => "//p[text()='" + fieldName + "']/parent::label/following-sibling::div"

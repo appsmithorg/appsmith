@@ -233,7 +233,7 @@ export class AggregateHelper {
     }
 
     public AssertExistingToggleState(propertyName: string, toggle: 'checked' | 'unchecked') {
-        cy.get(this.locator._propertyToggleValue(propertyName)).invoke("attr", "class")
+        cy.xpath(this.locator._propertyToggleValue(propertyName)).invoke("attr", "class")
             .then((classes) => {
                 expect(classes).includes(toggle);
             });

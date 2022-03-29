@@ -1,3 +1,4 @@
+/// <reference types="Cypress" />
 import { ObjectsRegistry } from "../../../support/Objects/Registry";
 
 let homePage = ObjectsRegistry.HomePage,
@@ -9,7 +10,7 @@ let homePage = ObjectsRegistry.HomePage,
 describe("AForce - Community issues Page validations", function () {
 
   let reconnect = true;
-  it("1. Import application json and validate headers", function () {
+  it("1. Import application json and validate headers", () => {
 
     homePage.ImportApp("AForceMigrationExport.json", reconnect)
     if (reconnect)
@@ -28,23 +29,32 @@ describe("AForce - Community issues Page validations", function () {
     table.WaitUntilTableLoad()
   });
 
-  it.skip("2. Validate Table navigation with server side pagination enabled", function () {
+  it("2. Validate Table navigation with server side pagination enabled", () => {
 
     ee.expandCollapseEntity("WIDGETS")
     ee.SelectEntityByName("Table1")
     agHelper.AssertExistingToggleState("serversidepagination", 'checked')
+    agHelper.DeployApp()
+    table.WaitUntilTableLoad()
+    table.AssertPageNumber(1);
+    table.NavigateToNextOrPreviousPage(true)
+    table.WaitUntilTableLoad()
+    table.NavigateToNextOrPreviousPage(true)
+    table.WaitForTableEmpty()//page 3
+    table.NavigateToNextOrPreviousPage(false)
+    table.WaitUntilTableLoad()
+    table.NavigateToNextOrPreviousPage(false)
+    table.WaitUntilTableLoad()
     table.AssertPageNumber(1);
 
-    //Validate table is not empty!
+    agHelper.NavigateBacktoEditor()
     table.WaitUntilTableLoad()
 
-    //Validating order of headers!
-    table.AssertTableHeaderOrder("TypeTitleStatus+1CommentorsVotesAnswerUpVoteStatesupvote_ididgithub_issue_idauthorcreated_atdescriptionlabelsstatelinkupdated_at")
-
-    //Validating hidden columns:
-    table.AssertHiddenColumns(['States', 'upvote_id', 'id', 'github_issue_id', 'author', 'created_at', 'description', 'labels', 'state', 'link', 'updated_at'])
-
-
+    agHelper.ToggleOnOrOff('serversidepagination', false)
+    agHelper.DeployApp()
+    table.WaitUntilTableLoad()
+    table.AssertPageNumber(1);
+    cy.get(table._nextPage).should("have.attr", 'disabled')
 
     //   //Validating Id column sorting happens as Datatype is Number in app!
     //   cy.xpath(

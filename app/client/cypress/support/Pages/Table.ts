@@ -7,7 +7,7 @@ export class Table {
   private _table = "//div[@class='tableWrap']"
   private _tableHeader = this._table + "//div[@class='thead']//div[@class='tr'][1]"
   private _columnHeader = (columnName: string) => this._table + "//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//div[text()='" + columnName + "']/parent::div/parent::div"
-  private _nextPage = ".t--widget-tablewidget .t--table-widget-next-page"
+  _nextPage = ".t--widget-tablewidget .t--table-widget-next-page"
   private _previousPage = ".t--widget-tablewidget .t--table-widget-prev-page"
   private _pageNumber = ".t--widget-tablewidget .page-item"
 
@@ -26,6 +26,15 @@ export class Table {
     cy.waitUntil(() => this.ReadTableRowColumnData(0, 0).then(cellData => expect(cellData).not.empty),
       {
         errorMsg: "Table is not populated",
+        timeout: 10000,
+        interval: 2000
+      }).then(() => this.agHelper.Sleep(1000))
+  }
+
+  public WaitForTableEmpty() {
+    cy.waitUntil(() => this.ReadTableRowColumnData(0, 0).then(cellData => expect(cellData).empty),
+      {
+        errorMsg: "Table is populated when not expected",
         timeout: 10000,
         interval: 2000
       }).then(() => this.agHelper.Sleep(500))
@@ -51,20 +60,22 @@ export class Table {
     })
   }
 
-  public NavigateToNextOrPreviousPage(nextPage: true) {
+  public NavigateToNextOrPreviousPage(nextPage = true) {
     let currentPageNo: number = Number(cy.get(this._pageNumber).invoke('text'))
     if (nextPage) {
       cy.get(this._nextPage).click()
-      expect(cy.get(this._pageNumber).invoke('text')).to.eq(currentPageNo + 1)
+      cy.get(this._pageNumber).invoke('text').then($newPageNo =>
+        expect($newPageNo).to.eq(currentPageNo + 1))
     }
     else {
       cy.get(this._previousPage).click()
-      expect(cy.get(this._pageNumber).invoke('text')).to.eq(currentPageNo - 1)
+      cy.get(this._pageNumber).invoke('text').then($newPageNo =>
+        expect($newPageNo).to.eq(currentPageNo - 1))
     }
   }
 
   public AssertPageNumber(pageNo: number) {
-    cy.get(this._pageNumber).should('eq', Number(pageNo))
+    cy.get(this._pageNumber).should('have.text', Number(pageNo))
   }
 
 }

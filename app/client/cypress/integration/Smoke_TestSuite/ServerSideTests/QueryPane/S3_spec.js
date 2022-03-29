@@ -400,7 +400,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     //Verifying Searching File from UI
     cy.xpath(queryLocators.searchFilefield)
       .type("CRUD")
-      .wait(500); //for search to finish
+      .wait(7000); //for search to finish
     expect(
       cy.xpath(
         "//div[@data-cy='overlay-comments-wrapper']//span[text()='CRUDNewPageFile']",
