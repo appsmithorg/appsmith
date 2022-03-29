@@ -13,7 +13,7 @@ describe("DocumentViewer Widget Functionality", () => {
     ee.NavigateToSwitcher('explorer')
     ee.expandCollapseEntity("WIDGETS"); //to expand widgets
     ee.SelectEntityByName("DocumentViewer1");
-    agHelper.ToggleOnOrOff("visible", false);
+    agHelper.ToggleOnOrOff("visible", 'Off');
     agHelper.DeployApp();
     cy.get(locator._widgetInDeployed("documentviewerwidget")).should(
       "not.exist",
@@ -24,7 +24,7 @@ describe("DocumentViewer Widget Functionality", () => {
   it("3. Change visibility & Publish app & verify again", () => {
     ee.expandCollapseEntity("WIDGETS"); //to expand widgets
     ee.SelectEntityByName("DocumentViewer1");
-    agHelper.ToggleOnOrOff("visible", true);
+    agHelper.ToggleOnOrOff("visible", 'On');
     agHelper.DeployApp();
     cy.get(locator._widgetInDeployed("documentviewerwidget")).should("exist");
   });

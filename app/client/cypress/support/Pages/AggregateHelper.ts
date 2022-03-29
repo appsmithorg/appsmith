@@ -218,8 +218,8 @@ export class AggregateHelper {
         cy.get(selector).click({ force: true });
     }
 
-    public ToggleOnOrOff(propertyName: string, On = true) {
-        if (On) {
+    public ToggleOnOrOff(propertyName: string, toggle: 'On' | 'Off') {
+        if (toggle == 'On') {
             cy.get(this.locator._propertyToggle(propertyName))
                 .check({ force: true })
                 .should("be.checked");

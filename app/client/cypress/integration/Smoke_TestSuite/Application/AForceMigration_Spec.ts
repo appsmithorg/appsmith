@@ -21,12 +21,7 @@ describe("AForce - Community issues Page validations", function () {
     table.AssertTableHeaderOrder("TypeTitleStatus+1CommentorsVotesAnswerUpVoteStatesupvote_ididgithub_issue_idauthorcreated_atdescriptionlabelsstatelinkupdated_at")
     //Validating hidden columns:
     table.AssertHiddenColumns(['States', 'upvote_id', 'id', 'github_issue_id', 'author', 'created_at', 'description', 'labels', 'state', 'link', 'updated_at'])
-    agHelper.DeployApp()
-    table.WaitUntilTableLoad()
-    //Verify hidden columns are infact hidden in deployed app!
-    table.AssertTableHeaderOrder("TypeTitleStatus+1CommentorsVotesAnswerUpVote")
-    agHelper.NavigateBacktoEditor()
-    table.WaitUntilTableLoad()
+
   });
 
   it("2. Validate Table navigation with server side pagination enabled", () => {
@@ -34,23 +29,32 @@ describe("AForce - Community issues Page validations", function () {
     ee.expandCollapseEntity("WIDGETS")
     ee.SelectEntityByName("Table1")
     agHelper.AssertExistingToggleState("serversidepagination", 'checked')
+
     agHelper.DeployApp()
     table.WaitUntilTableLoad()
+
+    //Verify hidden columns are infact hidden in deployed app!
+    table.AssertTableHeaderOrder("TypeTitleStatus+1CommentorsVotesAnswerUpVote")//from case #1
+
     table.AssertPageNumber(1);
-    table.NavigateToNextOrPreviousPage(true)
+    table.NavigateToNextPage()//page 2
+    agHelper.Sleep(3000)//wait for table navigation to take effect!
     table.WaitUntilTableLoad()
-    table.NavigateToNextOrPreviousPage(true)
+    table.NavigateToNextPage()//page 3
+    agHelper.Sleep(3000)//wait for table navigation to take effect!
     table.WaitForTableEmpty()//page 3
-    table.NavigateToNextOrPreviousPage(false)
+    table.NavigateToPreviousPage()//page 2
+    agHelper.Sleep(3000)//wait for table navigation to take effect!
     table.WaitUntilTableLoad()
-    table.NavigateToNextOrPreviousPage(false)
+    table.NavigateToPreviousPage()//page 1
+    agHelper.Sleep(3000)//wait for table navigation to take effect!
     table.WaitUntilTableLoad()
     table.AssertPageNumber(1);
 
     agHelper.NavigateBacktoEditor()
     table.WaitUntilTableLoad()
 
-    agHelper.ToggleOnOrOff('serversidepagination', false)
+    agHelper.ToggleOnOrOff('serversidepagination', 'Off')
     agHelper.DeployApp()
     table.WaitUntilTableLoad()
     table.AssertPageNumber(1);

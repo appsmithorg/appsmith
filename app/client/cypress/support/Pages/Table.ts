@@ -28,7 +28,7 @@ export class Table {
         errorMsg: "Table is not populated",
         timeout: 10000,
         interval: 2000
-      }).then(() => this.agHelper.Sleep(1000))
+      }).then(() => this.agHelper.Sleep(500))
   }
 
   public WaitForTableEmpty() {
@@ -60,21 +60,23 @@ export class Table {
     })
   }
 
-  public NavigateToNextOrPreviousPage(nextPage = true) {
+  public NavigateToNextPage() {
     let curPageNo: number;
     cy.get(this._pageNumber).invoke('text').then($currentPageNo =>
       curPageNo = Number($currentPageNo))
+    cy.get(this._nextPage).click()
+    cy.get(this._pageNumber).invoke('text').then($newPageNo =>
+      expect(Number($newPageNo)).to.eq(curPageNo + 1))
+  }
 
-    if (nextPage) {
-      cy.get(this._nextPage).click()
-      cy.get(this._pageNumber).invoke('text').then($newPageNo =>
-        expect(Number($newPageNo)).to.eq(curPageNo + 1))
-    }
-    else {
-      cy.get(this._previousPage).click()
-      cy.get(this._pageNumber).invoke('text').then($newPageNo =>
-        expect(Number($newPageNo)).to.eq(curPageNo - 1))
-    }
+  public NavigateToPreviousPage() {
+    let curPageNo: number;
+    cy.get(this._pageNumber).invoke('text').then($currentPageNo =>
+      curPageNo = Number($currentPageNo))
+    cy.get(this._previousPage).click()
+    cy.get(this._pageNumber).invoke('text').then($newPageNo =>
+      expect(Number($newPageNo)).to.eq(curPageNo - 1))
+
   }
 
   public AssertPageNumber(pageNo: number) {
