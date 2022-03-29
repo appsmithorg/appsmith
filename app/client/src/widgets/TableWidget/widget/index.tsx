@@ -592,13 +592,16 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           condition: "",
         },
       ];
-      this.props.updateWidgetMetaProperty("filters", defaultFilter, {
-        triggerPropertyName: "onFilterUpdate",
-        dynamicString: this.props.onFilterUpdate,
-        event: {
-          type: EventType.ON_TABLE_FILTER_UPDATE,
-        },
-      });
+      if (this.props.onFilterUpdate) {
+        this.props.updateWidgetMetaProperty("filters", defaultFilter, {
+          triggerPropertyName: "onFilterUpdate",
+          dynamicString: this.props.onFilterUpdate,
+          event: {
+            type: EventType.ON_TABLE_FILTER_UPDATE,
+          },
+        });
+      }
+
       // Get columns keys from this.props.tableData
       const columnIds: string[] = getAllTableColumnKeys(this.props.tableData);
       // Get column keys from columns except for derivedColumns
@@ -752,13 +755,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   applyFilters = (filters: ReactTableFilter[]) => {
     this.resetSelectedRowIndex();
-    this.props.updateWidgetMetaProperty("filters", filters, {
-      triggerPropertyName: "onFilterUpdate",
-      dynamicString: this.props.onFilterUpdate,
-      event: {
-        type: EventType.ON_TABLE_FILTER_UPDATE,
-      },
-    });
+    if (this.props.onFilterUpdate) {
+      this.props.updateWidgetMetaProperty("filters", filters, {
+        triggerPropertyName: "onFilterUpdate",
+        dynamicString: this.props.onFilterUpdate,
+        event: {
+          type: EventType.ON_TABLE_FILTER_UPDATE,
+        },
+      });
+    }
 
     // Reset Page only when a filter is added
     if (!isEmpty(xorWith(filters, defaultFilter, isEqual))) {

@@ -53,12 +53,8 @@ describe("Table Widget Filter Functionality", function() {
     cy.wait("@updateLayout");
     // Clear all filters
     cy.get(publish.filterBtn).click();
-    cy.get(".t--clear-all-filter-btn").click();
+    cy.get(publish.clearAllFilterBtn).click();
     // Check if the action is triggered
     cy.get(commonlocators.toastmsg).contains("reset");
-  });
-
-  afterEach(() => {
-    // put your clean up code if any
   });
 });

@@ -1739,6 +1739,8 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
+        hidden: (props: TableWidgetProps) => !props.isVisibleFilters,
+        dependencies: ["isVisibleFilters"],
       },
     ],
   },

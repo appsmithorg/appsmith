@@ -34,6 +34,7 @@
   "downloadBtn": ".t--table-download-btn",
   "filterBtn": ".t--table-filter-toggle-btn",
   "applyFiltersBtn": ".t--apply-filter-btn",
+  "clearAllFilterBtn": ".t--clear-all-filter-btn",
   "attributeDropdown": ".t--table-filter-columns-dropdown",
   "attributeValue": ".t--dropdown-option",
   "conditionDropdown": ".t--table-filter-conditions-dropdown",
