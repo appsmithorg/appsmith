@@ -418,7 +418,7 @@ function CircularProgress(props: ProgressComponentProps) {
               x={VIEWBOX_CENTER_X}
               y={VIEWBOX_CENTER_Y}
             >
-              {`${Math.round((value / MAX_VALUE) * 100)}%`}
+              {`${(value / MAX_VALUE) * 100}%`}
             </Label>
           )}
         </>
