@@ -13,6 +13,40 @@ describe("defaultOptionValueValidation - ", () => {
       messages: [""],
     });
   });
+  it("should get tested with number", () => {
+    const testValues = [
+      [
+        "{{1}}",
+        {
+          isValid: true,
+          parsed: 1,
+          messages: [""],
+        },
+      ],
+      [
+        "1",
+        {
+          isValid: true,
+          parsed: "1",
+          messages: [""],
+        },
+      ],
+      [
+        1,
+        {
+          isValid: true,
+          parsed: 1,
+          messages: [""],
+        },
+      ],
+    ];
+
+    testValues.forEach(([input, expected]) => {
+      expect(
+        defaultOptionValueValidation(input, {} as SelectWidgetProps, _),
+      ).toEqual(expected);
+    });
+  });
 
   it("should get tested with simple string", () => {
     const input = "green";
@@ -41,6 +75,40 @@ describe("defaultOptionValueValidation - ", () => {
         value: "green",
       },
       messages: [""],
+    });
+  });
+  it("should get tested with valid strings", () => {
+    const testValues = [
+      [
+        "undefined",
+        {
+          isValid: true,
+          parsed: "undefined",
+          messages: [""],
+        },
+      ],
+      [
+        "null",
+        {
+          isValid: true,
+          parsed: "null",
+          messages: [""],
+        },
+      ],
+      [
+        "true",
+        {
+          isValid: true,
+          parsed: "true",
+          messages: [""],
+        },
+      ],
+    ];
+
+    testValues.forEach(([input, expected]) => {
+      expect(
+        defaultOptionValueValidation(input, {} as SelectWidgetProps, _),
+      ).toEqual(expected);
     });
   });
 
