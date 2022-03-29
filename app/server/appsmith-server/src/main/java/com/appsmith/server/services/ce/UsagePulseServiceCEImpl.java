@@ -16,7 +16,6 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
     @Override
     public Mono<Void> createPulse() {
         return sessionUserService.getCurrentUser()
-                .filter(user -> !user.isAnonymous())
                 .flatMap(user -> repository.save(new UsagePulse(user.getEmail())))
                 .then();
     }
