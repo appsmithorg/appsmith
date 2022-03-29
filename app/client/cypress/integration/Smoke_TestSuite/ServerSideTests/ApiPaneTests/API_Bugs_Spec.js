@@ -47,26 +47,62 @@ describe("Rest Bugs tests", function() {
     cy.clickButton("Invoke APIs!");
     cy.wait(12000); // for all api calls to complete!
 
-    cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
-      expect(response.body.data.isExecutionSuccess).to.eq(true);
-      expect(response.body.data.body[0].url.length).to.be.above(0); //Cat image
-    });
+    //Cat Image
+    cy.xpath("//img/parent::div")
+      .eq(0)
+      .find("img")
+      .invoke("attr", "src")
+      .then(($src) => {
+        expect($src).not.eq("https://assets.appsmith.com/widgets/default.png");
+        expect($src).contains("cat");
+      });
 
-    cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
-      expect(response.body.data.isExecutionSuccess).to.eq(true);
-      expect(response.body.data.body.message.length).to.be.above(0); //Dog Image
-    });
+    // cy.wait("@postExecute").then(({ response }) => {
+    //   expect(response.body.data.isExecutionSuccess).to.eq(true);
+    //   expect(response.body.data.body[0].url.length).to.be.above(0); //Cat image
+    // });
 
-    cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
-      expect(response.body.data.isExecutionSuccess).to.eq(true);
-      expect(response.body.data.body.length).to.be.above(0); //Number fact
-    });
+    // cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
+    //   expect(response.body.data.isExecutionSuccess).to.eq(true);
+    //   expect(response.body.data.body.message.length).to.be.above(0); //Dog Image
+    // });
 
-    cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
-      //cy.log("Response is :"+ JSON.stringify(response.body))
-      expect(response.body.data.isExecutionSuccess).to.eq(true);
-      expect(response.body.data.request.url.length).to.be.above(0); //Cocktail
-    });
+    //Dog Image
+    cy.xpath("//img/parent::div")
+      .eq(1)
+      .find("img")
+      .invoke("attr", "src")
+      .then(($src) => {
+        expect($src).not.eq("https://assets.appsmith.com/widgets/default.png");
+        expect($src).contains("dog");
+      });
+
+    // cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
+    //   expect(response.body.data.isExecutionSuccess).to.eq(true);
+    //   expect(response.body.data.body.length).to.be.above(0); //Number fact
+    // });
+
+    cy.get(".t--draggable-textwidget")
+      .eq(0)
+      .invoke("text")
+      .then(($txt) => expect($txt).to.have.length.greaterThan(25));
+
+    // cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
+    //   //cy.log("Response is :"+ JSON.stringify(response.body))
+    //   expect(response.body.data.isExecutionSuccess).to.eq(true);
+    //   expect(response.body.data.request.url.length).to.be.above(0); //Cocktail
+    // });
+
+    //Cocktail DB
+
+    cy.xpath("//img/parent::div")
+      .eq(2)
+      .find("img")
+      .invoke("attr", "src")
+      .then(($src) => {
+        expect($src).not.eq("https://assets.appsmith.com/widgets/default.png");
+        expect($src).contains("cocktail");
+      });
 
     //Spread to check later!
     // cy.wait(['@postExecute', '@postExecute', '@postExecute', '@postExecute'], { timeout: 8000 }).spread(
