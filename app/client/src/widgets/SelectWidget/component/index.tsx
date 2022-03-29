@@ -1,12 +1,6 @@
 import React from "react";
 import { ComponentProps } from "widgets/BaseComponent";
-import {
-  MenuItem,
-  Button,
-  Classes,
-  Alignment,
-  Position,
-} from "@blueprintjs/core";
+import { MenuItem, Button, Classes, Alignment } from "@blueprintjs/core";
 import { DropdownOption } from "../constants";
 import { IItemRendererProps } from "@blueprintjs/select";
 import { debounce, findIndex, isEmpty, isNil } from "lodash";
@@ -14,25 +8,18 @@ import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.cs
 import { Colors } from "constants/Colors";
 import { TextSize } from "constants/WidgetConstants";
 import {
-  StyledLabel,
-  TextLabelWrapper,
   StyledControlGroup,
   StyledSingleDropDown,
   DropdownStyles,
   DropdownContainer,
   StyledDiv,
-  StyledTooltip,
 } from "./index.styled";
 import Fuse from "fuse.js";
-import {
-  addLabelTooltipEventListeners,
-  hasLabelEllipsis,
-  removeLabelTooltipEventListeners,
-  WidgetContainerDiff,
-} from "widgets/WidgetUtils";
+import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon, { IconSize } from "components/ads/Icon";
 import { LabelPosition } from "components/constants";
 import { isString } from "../../../utils/helpers";
+import LabelWithTooltip from "components/ads/LabelWithTooltip";
 
 const FUSE_OPTIONS = {
   shouldSort: true,
@@ -72,14 +59,6 @@ class SelectComponent extends React.Component<
     // set default selectedIndex as focused index
     this.setState({ activeItemIndex: this.props.selectedIndex });
     this.setState({ query: this.props.filterText });
-
-    if (this.props.labelText) {
-      addLabelTooltipEventListeners(
-        `.appsmith_widget_${this.props.widgetId} .select-label`,
-        this.handleMouseEnterOnLabel,
-        this.handleMouseLeaveOnLabel,
-      );
-    }
   };
 
   componentDidUpdate = (prevProps: SelectComponentProps) => {
@@ -87,34 +66,6 @@ class SelectComponent extends React.Component<
       // update focus index if selectedIndex changed by property pane
       this.setState({ activeItemIndex: this.props.selectedIndex });
     }
-
-    if (!prevProps.labelText && this.props.labelText) {
-      addLabelTooltipEventListeners(
-        `.appsmith_widget_${this.props.widgetId} .select-label`,
-        this.handleMouseEnterOnLabel,
-        this.handleMouseLeaveOnLabel,
-      );
-    }
-  };
-
-  componentWillUnmount() {
-    removeLabelTooltipEventListeners(
-      `.appsmith_widget_${this.props.widgetId} .select-label`,
-      this.handleMouseEnterOnLabel,
-      this.handleMouseLeaveOnLabel,
-    );
-  }
-
-  handleMouseEnterOnLabel = () => {
-    if (
-      hasLabelEllipsis(`.appsmith_widget_${this.props.widgetId} .select-label`)
-    ) {
-      this.setState({ isLabelTooltipOpen: true });
-    }
-  };
-
-  handleMouseLeaveOnLabel = () => {
-    this.setState({ isLabelTooltipOpen: false });
   };
 
   handleActiveItemChange = (activeItem: DropdownOption | null) => {
@@ -198,36 +149,21 @@ class SelectComponent extends React.Component<
       >
         <DropdownStyles dropDownWidth={this.getDropdownWidth()} id={widgetId} />
         {labelText && (
-          <TextLabelWrapper
+          <LabelWithTooltip
             alignment={labelAlignment}
-            compactMode={compactMode}
+            className={`select-label`}
+            color={labelTextColor}
+            compact={compactMode}
+            disabled={disabled}
+            fontSize={labelTextSize}
+            fontStyle={labelStyle}
+            loading={isLoading}
             position={labelPosition}
             ref={this.labelRef}
+            text={labelText}
             width={labelWidth}
-          >
-            <StyledTooltip
-              content={labelText}
-              hoverOpenDelay={200}
-              isOpen={this.state.isLabelTooltipOpen}
-              position={Position.TOP}
-            >
-              <StyledLabel
-                $compactMode={compactMode}
-                $disabled={!!disabled}
-                $labelStyle={labelStyle}
-                $labelText={labelText}
-                $labelTextColor={labelTextColor}
-                $labelTextSize={labelTextSize}
-                className={`select-label ${
-                  isLoading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
-                }`}
-              >
-                {labelText}
-              </StyledLabel>
-            </StyledTooltip>
-          </TextLabelWrapper>
+          />
         )}
-
         <StyledControlGroup
           compactMode={compactMode}
           fill

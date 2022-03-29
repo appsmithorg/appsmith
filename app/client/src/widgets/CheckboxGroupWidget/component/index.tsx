@@ -1,29 +1,20 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React from "react";
 import styled from "styled-components";
-import { Alignment, Label, Position } from "@blueprintjs/core";
+import { Alignment } from "@blueprintjs/core";
 
 import { Classes } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
 import { ThemeProp } from "components/ads/common";
 import { generateReactKey } from "utils/generators";
 import { Colors } from "constants/Colors";
-import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
-import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
-import Tooltip from "components/ads/Tooltip";
+import { LabelPosition } from "components/constants";
+import { TextSize } from "constants/WidgetConstants";
 
 // TODO(abstraction-issue): this needs to be a common import from somewhere in the platform
 // Alternatively, they need to be replicated.
 import { StyledCheckbox } from "widgets/CheckboxWidget/component";
 import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
-import {
-  addLabelTooltipEventListeners,
-  hasLabelEllipsis,
-  removeLabelTooltipEventListeners,
-} from "widgets/WidgetUtils";
+import LabelWithTooltip from "components/ads/LabelWithTooltip";
 
 export interface InputContainerProps {
   inline?: boolean;
@@ -68,69 +59,6 @@ const InputContainer = styled.div<ThemeProp & InputContainerProps>`
   }
 `;
 
-export interface LabelContainerProps {
-  inline: boolean;
-  optionCount: number;
-  compactMode: boolean;
-  alignment?: Alignment;
-  position?: LabelPosition;
-  width?: number;
-}
-
-export const LabelContainer = styled.div<LabelContainerProps>`
-  display: flex;
-  align-items: center;
-  min-height: 30px;
-
-  ${({ alignment, compactMode, inline, optionCount, position, width }) => `
-    ${
-      position !== LabelPosition.Top &&
-      (position === LabelPosition.Left || compactMode)
-        ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
-        : `width: 100%;`
-    }
-    ${position === LabelPosition.Left &&
-      `
-      ${!width && `width: 33%`};
-      ${alignment === Alignment.RIGHT && `justify-content: flex-end`};
-      label {
-        ${width && `width: ${width}px`};
-        ${
-          alignment === Alignment.RIGHT
-            ? `text-align: right`
-            : `text-align: left`
-        };
-      }
-    `}
-
-    ${!inline && optionCount > 1 && `align-self: flex-start;`}
-  `}
-`;
-
-export interface StyledLabelProps {
-  disabled: boolean;
-  labelTextColor?: string;
-  labelTextSize?: TextSize;
-  labelStyle?: string;
-}
-
-export const StyledLabel = styled(Label)<StyledLabelProps>`
-  ${({ disabled, labelStyle, labelTextColor, labelTextSize }) => `
-    color: ${disabled ? Colors.GREY_8 : labelTextColor || "inherit"};
-    font-size: ${labelTextSize ? TEXT_SIZES[labelTextSize] : "14px"};
-    font-weight: ${
-      labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"
-    };
-    font-style: ${
-      labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : "normal"
-    };
-  `}
-`;
-
-export const StyledTooltip = styled(Tooltip)`
-  overflow: hidden;
-`;
-
 export interface CheckboxGroupContainerProps {
   compactMode: boolean;
   labelPosition?: LabelPosition;
@@ -152,16 +80,6 @@ export const CheckboxGroupContainer = styled.div<CheckboxGroupContainerProps>`
   }};
 
   overflow-x: hidden;
-
-  label.checkboxgroup-label {
-    ${({ compactMode, labelPosition }) => {
-      if (labelPosition === LabelPosition.Top)
-        return "margin-bottom: 5px; margin-right: 0px";
-      if (compactMode || labelPosition === LabelPosition.Left)
-        return "margin-bottom: 0px; margin-right: 5px";
-      return "margin-bottom: 5px; margin-right: 0px";
-    }};
-  }
 
   & .select-all {
     white-space: nowrap;
@@ -244,43 +162,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
     options,
     rowSpace,
     selectedValues,
-    widgetId,
   } = props;
-
-  const [isLabelTooltipEnabled, setIsLabelTooltipEnabled] = useState(false);
-  const [isLabelTooltipOpen, setIsLabelTooltipOpen] = useState(false);
-
-  useEffect(() => {
-    if (labelText && !isLabelTooltipEnabled) {
-      addLabelTooltipEventListeners(
-        `.appsmith_widget_${widgetId} .checkboxgroup-label`,
-        handleMouseEnterOnLabel,
-        handleMouseLeaveOnLabel,
-      );
-      setIsLabelTooltipEnabled(true);
-    } else if (!labelText && isLabelTooltipEnabled) {
-      setIsLabelTooltipEnabled(false);
-    }
-  }, [labelText]);
-
-  useEffect(() => {
-    return () =>
-      removeLabelTooltipEventListeners(
-        `.appsmith_widget_${widgetId} .checkboxgroup-label`,
-        handleMouseEnterOnLabel,
-        handleMouseLeaveOnLabel,
-      );
-  }, []);
-
-  const handleMouseEnterOnLabel = useCallback(() => {
-    if (hasLabelEllipsis(`.appsmith_widget_${widgetId} .checkboxgroup-label`)) {
-      setIsLabelTooltipOpen(true);
-    }
-  }, []);
-
-  const handleMouseLeaveOnLabel = useCallback(() => {
-    setIsLabelTooltipOpen(false);
-  }, []);
 
   const selectAllChecked = selectedValues.length === options.length;
   const selectAllIndeterminate =
@@ -303,31 +185,20 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
       labelPosition={labelPosition}
     >
       {labelText && (
-        <LabelContainer
+        <LabelWithTooltip
           alignment={labelAlignment}
-          compactMode={compactMode}
+          className={`checkboxgroup-label`}
+          color={labelTextColor}
+          compact={compactMode}
+          disabled={isDisabled}
+          fontSize={labelTextSize}
+          fontStyle={labelStyle}
           inline={isInline}
           optionCount={optionCount}
           position={labelPosition}
+          text={labelText}
           width={labelWidth}
-        >
-          <StyledTooltip
-            content={labelText}
-            hoverOpenDelay={200}
-            isOpen={isLabelTooltipOpen}
-            position={Position.TOP}
-          >
-            <StyledLabel
-              className={`checkboxgroup-label ${Classes.TEXT_OVERFLOW_ELLIPSIS}`}
-              disabled={isDisabled}
-              labelStyle={labelStyle}
-              labelTextColor={labelTextColor}
-              labelTextSize={labelTextSize}
-            >
-              {labelText}
-            </StyledLabel>
-          </StyledTooltip>
-        </LabelContainer>
+        />
       )}
       <InputContainer
         data-cy="checkbox-group-container"

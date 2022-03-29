@@ -16,9 +16,6 @@ import MenuItemCheckBox, {
   DropdownStyles,
   MultiSelectContainer,
   StyledCheckbox,
-  TextLabelWrapper,
-  StyledLabel,
-  StyledTooltip,
   InputContainer,
 } from "./index.styled";
 import {
@@ -27,22 +24,12 @@ import {
   TextSize,
 } from "constants/WidgetConstants";
 import Icon from "components/ads/Icon";
-import {
-  Alignment,
-  Button,
-  Classes,
-  InputGroup,
-  Position,
-} from "@blueprintjs/core";
-import {
-  addLabelTooltipEventListeners,
-  hasLabelEllipsis,
-  removeLabelTooltipEventListeners,
-  WidgetContainerDiff,
-} from "widgets/WidgetUtils";
+import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
+import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import { uniqBy } from "lodash";
+import LabelWithTooltip from "components/ads/LabelWithTooltip";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <MenuItemCheckBox checked={props.isSelected} />;
@@ -113,8 +100,6 @@ function MultiSelectComponent({
   const [isSelectAll, setIsSelectAll] = useState(false);
   const [filter, setFilter] = useState(filterText ?? "");
   const [filteredOptions, setFilteredOptions] = useState(options);
-  const [isLabelTooltipEnabled, setIsLabelTooltipEnabled] = useState(false);
-  const [isLabelTooltipOpen, setIsLabelTooltipOpen] = useState(false);
 
   const _menu = useRef<HTMLElement | null>(null);
   const labelRef = useRef<HTMLDivElement>(null);
@@ -164,38 +149,6 @@ function MultiSelectComponent({
     },
     serverSideFiltering ? [options] : [filter, options],
   );
-
-  useEffect(() => {
-    if (labelText && !isLabelTooltipEnabled) {
-      addLabelTooltipEventListeners(
-        `.appsmith_widget_${widgetId} .multiselect-label`,
-        handleMouseEnterOnLabel,
-        handleMouseLeaveOnLabel,
-      );
-      setIsLabelTooltipEnabled(true);
-    } else if (!labelText && isLabelTooltipEnabled) {
-      setIsLabelTooltipEnabled(false);
-    }
-  }, [labelText]);
-
-  useEffect(() => {
-    return () =>
-      removeLabelTooltipEventListeners(
-        `.appsmith_widget_${widgetId} .multiselect-label`,
-        handleMouseEnterOnLabel,
-        handleMouseLeaveOnLabel,
-      );
-  }, []);
-
-  const handleMouseEnterOnLabel = useCallback(() => {
-    if (hasLabelEllipsis(`.appsmith_widget_${widgetId} .multiselect-label`)) {
-      setIsLabelTooltipOpen(true);
-    }
-  }, []);
-
-  const handleMouseLeaveOnLabel = useCallback(() => {
-    setIsLabelTooltipOpen(false);
-  }, []);
 
   const clearButton = useMemo(
     () =>
@@ -362,34 +315,20 @@ function MultiSelectComponent({
     >
       <DropdownStyles dropDownWidth={memoDropDownWidth} id={widgetId} />
       {labelText && (
-        <TextLabelWrapper
+        <LabelWithTooltip
           alignment={labelAlignment}
-          compactMode={compactMode}
+          className={`multiselect-label`}
+          color={labelTextColor}
+          compact={compactMode}
+          disabled={disabled}
+          fontSize={labelTextSize}
+          fontStyle={labelStyle}
+          loading={loading}
           position={labelPosition}
           ref={labelRef}
+          text={labelText}
           width={labelWidth}
-        >
-          <StyledTooltip
-            content={labelText}
-            hoverOpenDelay={200}
-            isOpen={isLabelTooltipOpen}
-            position={Position.TOP}
-          >
-            <StyledLabel
-              $compactMode={compactMode}
-              $disabled={disabled}
-              $labelStyle={labelStyle}
-              $labelText={labelText}
-              $labelTextColor={labelTextColor}
-              $labelTextSize={labelTextSize}
-              className={`multiselect-label ${
-                loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
-              }`}
-            >
-              {labelText}
-            </StyledLabel>
-          </StyledTooltip>
-        </TextLabelWrapper>
+        />
       )}
       <InputContainer compactMode={compactMode} labelPosition={labelPosition}>
         <Select

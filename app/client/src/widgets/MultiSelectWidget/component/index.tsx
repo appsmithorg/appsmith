@@ -6,9 +6,6 @@ import {
   DropdownStyles,
   MultiSelectContainer,
   StyledCheckbox,
-  TextLabelWrapper,
-  StyledLabel,
-  StyledTooltip,
 } from "./index.styled";
 import {
   CANVAS_CLASSNAME,
@@ -17,16 +14,12 @@ import {
 } from "constants/WidgetConstants";
 import debounce from "lodash/debounce";
 import Icon from "components/ads/Icon";
-import { Alignment, Classes, Position } from "@blueprintjs/core";
-import {
-  addLabelTooltipEventListeners,
-  hasLabelEllipsis,
-  removeLabelTooltipEventListeners,
-  WidgetContainerDiff,
-} from "widgets/WidgetUtils";
+import { Alignment, Classes } from "@blueprintjs/core";
+import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import _ from "lodash";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
+import LabelWithTooltip from "components/ads/LabelWithTooltip";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;
@@ -86,12 +79,9 @@ function MultiSelectComponent({
   placeholder,
   serverSideFiltering,
   value,
-  widgetId,
   width,
 }: MultiSelectProps): JSX.Element {
   const [isSelectAll, setIsSelectAll] = useState(false);
-  const [isLabelTooltipEnabled, setIsLabelTooltipEnabled] = useState(false);
-  const [isLabelTooltipOpen, setIsLabelTooltipOpen] = useState(false);
 
   const _menu = useRef<HTMLElement | null>(null);
 
@@ -108,38 +98,6 @@ function MultiSelectComponent({
       setIsSelectAll(false);
     }
   }, [options, value]);
-
-  useEffect(() => {
-    if (labelText && !isLabelTooltipEnabled) {
-      addLabelTooltipEventListeners(
-        `.appsmith_widget_${widgetId} .multiselect-label`,
-        handleMouseEnterOnLabel,
-        handleMouseLeaveOnLabel,
-      );
-      setIsLabelTooltipEnabled(true);
-    } else if (!labelText && isLabelTooltipEnabled) {
-      setIsLabelTooltipEnabled(false);
-    }
-  }, [labelText]);
-
-  useEffect(() => {
-    return () =>
-      removeLabelTooltipEventListeners(
-        `.appsmith_widget_${widgetId} .multiselect-label`,
-        handleMouseEnterOnLabel,
-        handleMouseLeaveOnLabel,
-      );
-  }, []);
-
-  const handleMouseEnterOnLabel = useCallback(() => {
-    if (hasLabelEllipsis(`.appsmith_widget_${widgetId} .multiselect-label`)) {
-      setIsLabelTooltipOpen(true);
-    }
-  }, []);
-
-  const handleMouseLeaveOnLabel = useCallback(() => {
-    setIsLabelTooltipOpen(false);
-  }, []);
 
   const getDropdownPosition = useCallback(() => {
     const node = _menu.current;
@@ -219,33 +177,19 @@ function MultiSelectComponent({
         parentWidth={width - WidgetContainerDiff}
       />
       {labelText && (
-        <TextLabelWrapper
+        <LabelWithTooltip
           alignment={labelAlignment}
-          compactMode={compactMode}
+          className={`multiselect-label`}
+          color={labelTextColor}
+          compact={compactMode}
+          disabled={disabled}
+          fontSize={labelTextSize}
+          fontStyle={labelStyle}
+          loading={loading}
           position={labelPosition}
+          text={labelText}
           width={labelWidth}
-        >
-          <StyledTooltip
-            content={labelText}
-            hoverOpenDelay={200}
-            isOpen={isLabelTooltipOpen}
-            position={Position.TOP}
-          >
-            <StyledLabel
-              $compactMode={compactMode}
-              $disabled={disabled}
-              $labelStyle={labelStyle}
-              $labelText={labelText}
-              $labelTextColor={labelTextColor}
-              $labelTextSize={labelTextSize}
-              className={`multiselect-label ${
-                loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
-              }`}
-            >
-              {labelText}
-            </StyledLabel>
-          </StyledTooltip>
-        </TextLabelWrapper>
+        />
       )}
       <Select
         animation="slide-up"

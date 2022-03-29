@@ -1,16 +1,10 @@
 import React from "react";
-import { Alignment, Checkbox, Classes, Label } from "@blueprintjs/core";
+import { Checkbox, Classes } from "@blueprintjs/core";
 import styled, { keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
-import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
 import Icon from "components/ads/Icon";
-import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
-import Tooltip from "components/ads/Tooltip";
+import { LabelPosition } from "components/constants";
 import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
 
 export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
@@ -25,59 +19,6 @@ export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
 export const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;
 };
-
-export const TextLabelWrapper = styled.div<{
-  compactMode: boolean;
-  alignment?: Alignment;
-  position?: LabelPosition;
-  width?: number;
-}>`
-  display: flex;
-  ${({ alignment, compactMode, position, width }) => `
-    ${
-      position !== LabelPosition.Top &&
-      (position === LabelPosition.Left || compactMode)
-        ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
-        : `width: 100%;`
-    }
-    ${position === LabelPosition.Left &&
-      `
-      ${!width && `width: 33%`};
-      ${alignment === Alignment.RIGHT && `justify-content: flex-end`};
-      label {
-        ${width && `width: ${width}px`};
-        ${
-          alignment === Alignment.RIGHT
-            ? `text-align: right`
-            : `text-align: left`
-        };
-      }
-    `}
-  `}
-`;
-
-export const StyledLabel = styled(Label)<{
-  $compactMode: boolean;
-  $disabled: boolean;
-  $labelText?: string;
-  $labelTextColor?: string;
-  $labelTextSize?: TextSize;
-  $labelStyle?: string;
-  disabled?: boolean;
-}>`
-  overflow-y: hidden;
-  text-overflow: ellipsis;
-  width: ${(props) => (props.$compactMode ? "auto" : "100%")};
-  text-align: left;
-  color: ${(props) =>
-    props.disabled ? Colors.GREY_8 : props.$labelTextColor || "inherit"};
-  font-size: ${(props) =>
-    props.$labelTextSize ? TEXT_SIZES[props.$labelTextSize] : "14px"};
-  font-weight: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
-  font-style: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
-`;
 
 const rcSelectDropdownSlideUpIn = keyframes`
 	0% {
@@ -634,16 +575,6 @@ export const TreeSelectContainer = styled.div<{
       labelPosition === LabelPosition.Top) &&
     `overflow-x: hidden; overflow-y: auto;`}
 
-  label.tree-select-label {
-   ${({ compactMode, labelPosition }) => {
-     if (labelPosition === LabelPosition.Top)
-       return "margin-bottom: 5px; margin-right: 0px";
-     if (compactMode || labelPosition === LabelPosition.Left)
-       return "margin-bottom: 0px; margin-right: 5px";
-     return "margin-bottom: 5px; margin-right: 0px";
-   }};
-  }
-
   .rc-tree-select {
     display: inline-block;
     font-size: 12px;
@@ -970,10 +901,6 @@ export const inputIcon = (): JSX.Element => (
     />
   </svg>
 );
-
-export const StyledTooltip = styled(Tooltip)`
-  overflow: hidden;
-`;
 
 export const InputContainer = styled.div<{
   compactMode: boolean;

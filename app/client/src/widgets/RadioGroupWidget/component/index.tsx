@@ -2,28 +2,12 @@ import React from "react";
 import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import { RadioOption } from "../constants";
-import {
-  RadioGroup,
-  Radio,
-  Label,
-  Classes,
-  Alignment,
-  Position,
-} from "@blueprintjs/core";
-import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
+import { RadioGroup, Radio, Classes, Alignment } from "@blueprintjs/core";
+import { TextSize } from "constants/WidgetConstants";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
-import Tooltip from "components/ads/Tooltip";
-import {
-  addLabelTooltipEventListeners,
-  hasLabelEllipsis,
-  removeLabelTooltipEventListeners,
-} from "widgets/WidgetUtils";
+import { LabelPosition } from "components/constants";
+import LabelWithTooltip from "components/ads/LabelWithTooltip";
 
 export interface RadioGroupContainerProps {
   compactMode: boolean;
@@ -46,76 +30,6 @@ export const RadioGroupContainer = styled.div<RadioGroupContainerProps>`
   }};
 
   overflow-x: hidden;
-
-  label.radiogroup-label {
-    ${({ compactMode, labelPosition }) => {
-      if (labelPosition === LabelPosition.Top)
-        return "margin-bottom: 5px; margin-right: 0px";
-      if (compactMode || labelPosition === LabelPosition.Left)
-        return "margin-bottom: 0px; margin-right: 5px";
-      return "margin-bottom: 5px; margin-right: 0px";
-    }};
-  }
-`;
-
-export interface LabelContainerProps {
-  inline: boolean;
-  optionCount: number;
-  compactMode: boolean;
-  alignment?: Alignment;
-  position?: LabelPosition;
-  width?: number;
-}
-
-export const LabelContainer = styled.div<LabelContainerProps>`
-  display: flex;
-  ${({ alignment, compactMode, inline, optionCount, position, width }) => `
-    ${
-      position !== LabelPosition.Top &&
-      (position === LabelPosition.Left || compactMode)
-        ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
-        : `width: 100%;`
-    }
-    ${position === LabelPosition.Left &&
-      `
-      ${!width && `width: 33%`};
-      ${alignment === Alignment.RIGHT && `justify-content: flex-end`};
-      label {
-        ${width && `width: ${width}px`};
-        ${
-          alignment === Alignment.RIGHT
-            ? `text-align: right`
-            : `text-align: left`
-        };
-      }
-    `}
-
-    ${!inline && optionCount > 1 && `align-self: flex-start;`}
-  `}
-`;
-
-export interface StyledLabelProps {
-  disabled: boolean;
-  labelTextColor?: string;
-  labelTextSize?: TextSize;
-  labelStyle?: string;
-}
-
-export const StyledLabel = styled(Label)<StyledLabelProps>`
-  ${({ disabled, labelStyle, labelTextColor, labelTextSize }) => `
-    color: ${disabled ? Colors.GREY_8 : labelTextColor || "inherit"};
-    font-size: ${labelTextSize ? TEXT_SIZES[labelTextSize] : "14px"};
-    font-weight: ${
-      labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"
-    };
-    font-style: ${
-      labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : "normal"
-    };
-  `}
-`;
-
-export const StyledTooltip = styled(Tooltip)`
-  overflow: hidden;
 `;
 
 export interface StyledRadioGroupProps {
@@ -183,19 +97,8 @@ class RadioGroupComponent extends React.Component<
     super(props);
     this.containerRef = React.createRef();
     this.state = {
-      isLabelTooltipOpen: false,
       scrollable: false,
     };
-  }
-
-  componentDidMount() {
-    if (this.props.labelText) {
-      addLabelTooltipEventListeners(
-        `.appsmith_widget_${this.props.widgetId} .radiogroup-label`,
-        this.handleMouseEnterOnLabel,
-        this.handleMouseLeaveOnLabel,
-      );
-    }
   }
 
   componentDidUpdate(prevProps: RadioGroupComponentProps) {
@@ -217,36 +120,7 @@ class RadioGroupComponent extends React.Component<
           : false,
       });
     }
-    if (!prevProps.labelText && this.props.labelText) {
-      addLabelTooltipEventListeners(
-        `.appsmith_widget_${this.props.widgetId} .radiogroup-label`,
-        this.handleMouseEnterOnLabel,
-        this.handleMouseLeaveOnLabel,
-      );
-    }
   }
-
-  componentWillUnmount() {
-    removeLabelTooltipEventListeners(
-      `.appsmith_widget_${this.props.widgetId} .radiogroup-label`,
-      this.handleMouseEnterOnLabel,
-      this.handleMouseLeaveOnLabel,
-    );
-  }
-
-  handleMouseEnterOnLabel = () => {
-    if (
-      hasLabelEllipsis(
-        `.appsmith_widget_${this.props.widgetId} .radiogroup-label`,
-      )
-    ) {
-      this.setState({ isLabelTooltipOpen: true });
-    }
-  };
-
-  handleMouseLeaveOnLabel = () => {
-    this.setState({ isLabelTooltipOpen: false });
-  };
 
   render() {
     const {
@@ -276,31 +150,21 @@ class RadioGroupComponent extends React.Component<
         ref={this.containerRef}
       >
         {labelText && (
-          <LabelContainer
+          <LabelWithTooltip
             alignment={labelAlignment}
-            compactMode={compactMode}
+            className={`radiogroup-label`}
+            color={labelTextColor}
+            compact={compactMode}
+            disabled={disabled}
+            fontSize={labelTextSize}
+            fontStyle={labelStyle}
             inline={inline}
+            loading={loading}
             optionCount={optionCount}
             position={labelPosition}
+            text={labelText}
             width={labelWidth}
-          >
-            <StyledTooltip
-              content={labelText}
-              hoverOpenDelay={200}
-              isOpen={this.state.isLabelTooltipOpen}
-              position={Position.TOP}
-            >
-              <StyledLabel
-                className={`radiogroup-label ${Classes.TEXT_OVERFLOW_ELLIPSIS}`}
-                disabled={disabled}
-                labelStyle={labelStyle}
-                labelTextColor={labelTextColor}
-                labelTextSize={labelTextSize}
-              >
-                {labelText}
-              </StyledLabel>
-            </StyledTooltip>
-          </LabelContainer>
+          />
         )}
         <StyledRadioGroup
           alignment={alignment}
@@ -356,7 +220,6 @@ export interface RadioGroupComponentProps extends ComponentProps {
 }
 
 interface RadioGroupComponentState {
-  isLabelTooltipOpen: boolean;
   scrollable: boolean;
 }
 

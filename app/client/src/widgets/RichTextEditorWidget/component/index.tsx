@@ -1,20 +1,12 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Editor } from "@tinymce/tinymce-react";
-import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
-import { Alignment, Classes, Label, Position } from "@blueprintjs/core";
-import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
-import Tooltip from "components/ads/Tooltip";
+import { LabelPosition } from "components/constants";
+import { Alignment } from "@blueprintjs/core";
+import { TextSize } from "constants/WidgetConstants";
+
 import { Colors } from "constants/Colors";
-import {
-  addLabelTooltipEventListeners,
-  hasLabelEllipsis,
-  removeLabelTooltipEventListeners,
-} from "widgets/WidgetUtils";
+import LabelWithTooltip from "components/ads/LabelWithTooltip";
 
 const StyledRTEditor = styled.div<{
   compactMode: boolean;
@@ -56,71 +48,6 @@ const StyledRTEditor = styled.div<{
     ((labelPosition !== LabelPosition.Left && !compactMode) ||
       labelPosition === LabelPosition.Top) &&
     `overflow-x: hidden; overflow-y: auto;`}
-
-  label.rich-text-editor-label {
-    ${({ compactMode, labelPosition }) => {
-      if (labelPosition === LabelPosition.Top)
-        return "margin-bottom: 5px; margin-right: 0px";
-      if (compactMode || labelPosition === LabelPosition.Left)
-        return "margin-bottom: 0px; margin-right: 5px";
-      return "margin-bottom: 5px; margin-right: 0px";
-    }};
-  }
-`;
-
-export const TextLabelWrapper = styled.div<{
-  compactMode: boolean;
-  alignment?: Alignment;
-  position?: LabelPosition;
-  width?: number;
-}>`
-  display: flex;
-  ${({ alignment, compactMode, position, width }) => `
-    ${
-      position !== LabelPosition.Top &&
-      (position === LabelPosition.Left || compactMode)
-        ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
-        : `width: 100%;`
-    }
-    ${position === LabelPosition.Left &&
-      `
-      ${!width && `width: 33%`};
-      ${alignment === Alignment.RIGHT && `justify-content: flex-end`};
-      label {
-        ${width && `width: ${width}px`};
-        ${
-          alignment === Alignment.RIGHT
-            ? `text-align: right`
-            : `text-align: left`
-        };
-      }
-    `}
-  `}
-`;
-
-export const StyledLabel = styled(Label)<{
-  $disabled: boolean;
-  $labelText?: string;
-  $labelTextColor?: string;
-  $labelTextSize?: TextSize;
-  $labelStyle?: string;
-  disabled?: boolean;
-}>`
-  overflow-y: hidden;
-  text-overflow: ellipsis;
-  text-align: left;
-  color: ${(props) =>
-    props.disabled ? Colors.GREY_8 : props.$labelTextColor || "inherit"};
-  font-size: ${(props) =>
-    props.$labelTextSize ? TEXT_SIZES[props.$labelTextSize] : "14px"};
-  font-weight: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
-  font-style: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
-`;
-
-export const StyledTooltip = styled(Tooltip)`
-  overflow: hidden;
 `;
 
 export const RichTextEditorInputWrapper = styled.div`
@@ -161,13 +88,10 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     labelTextColor,
     labelTextSize,
     labelWidth,
-    widgetId,
   } = props;
 
-  const [isLabelTooltipEnabled, setIsLabelTooltipEnabled] = useState(false);
-  const [isLabelTooltipOpen, setIsLabelTooltipOpen] = useState(false);
-
   const [value, setValue] = React.useState<string>(props.value as string);
+
   const editorRef = useRef<any>(null);
   const isInit = useRef<boolean>(false);
 
@@ -187,40 +111,6 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     setValue(props.value as string);
   }, [props.value]);
 
-  useEffect(() => {
-    if (labelText && !isLabelTooltipEnabled) {
-      addLabelTooltipEventListeners(
-        `.appsmith_widget_${widgetId} .rich-text-editor-label`,
-        handleMouseEnterOnLabel,
-        handleMouseLeaveOnLabel,
-      );
-      setIsLabelTooltipEnabled(true);
-    } else if (!labelText && isLabelTooltipEnabled) {
-      setIsLabelTooltipEnabled(false);
-    }
-  }, [labelText]);
-
-  useEffect(() => {
-    return () =>
-      removeLabelTooltipEventListeners(
-        `.appsmith_widget_${widgetId} .rich-text-editor-label`,
-        handleMouseEnterOnLabel,
-        handleMouseLeaveOnLabel,
-      );
-  }, []);
-
-  const handleMouseEnterOnLabel = useCallback(() => {
-    if (
-      hasLabelEllipsis(`.appsmith_widget_${widgetId} .rich-text-editor-label`)
-    ) {
-      setIsLabelTooltipOpen(true);
-    }
-  }, []);
-
-  const handleMouseLeaveOnLabel = useCallback(() => {
-    setIsLabelTooltipOpen(false);
-  }, []);
-
   const onEditorChange = (newValue: string) => {
     // Prevents cursur shift in Markdown
     if (newValue === "" && props.isMarkdown) {
@@ -239,31 +129,18 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
       labelPosition={labelPosition}
     >
       {labelText && (
-        <TextLabelWrapper
+        <LabelWithTooltip
           alignment={labelAlignment}
-          compactMode={compactMode}
+          className={`rich-text-editor-label`}
+          color={labelTextColor}
+          compact={compactMode}
+          disabled={isDisabled}
+          fontSize={labelTextSize}
+          fontStyle={labelStyle}
           position={labelPosition}
+          text={labelText}
           width={labelWidth}
-        >
-          <StyledTooltip
-            content={labelText}
-            hoverOpenDelay={200}
-            isOpen={isLabelTooltipOpen}
-            position={Position.TOP}
-          >
-            <StyledLabel
-              $disabled={isDisabled}
-              $labelStyle={labelStyle}
-              $labelText={labelText}
-              $labelTextColor={labelTextColor}
-              $labelTextSize={labelTextSize}
-              className={`rich-text-editor-label ${Classes.TEXT_OVERFLOW_ELLIPSIS}`}
-              disabled={isDisabled}
-            >
-              {labelText}
-            </StyledLabel>
-          </StyledTooltip>
-        </TextLabelWrapper>
+        />
       )}
       <RichTextEditorInputWrapper>
         <Editor

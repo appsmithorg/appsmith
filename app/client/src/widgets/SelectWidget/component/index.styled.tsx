@@ -1,79 +1,18 @@
-import { Alignment, Classes, ControlGroup, Label } from "@blueprintjs/core";
+import { Classes, ControlGroup } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
+
 import { DropdownOption } from "../constants";
 import { Select } from "@blueprintjs/select";
 import {
   BlueprintCSSTransform,
   createGlobalStyle,
 } from "constants/DefaultTheme";
-import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
-import Tooltip from "components/ads/Tooltip";
+import { LabelPosition } from "components/constants";
 import { isEmptyOrNill } from ".";
-
-export const TextLabelWrapper = styled.div<{
-  compactMode: boolean;
-  alignment?: Alignment;
-  position?: LabelPosition;
-  width?: number;
-}>`
-  display: flex;
-
-  ${({ alignment, compactMode, position, width }) => `
-    ${
-      position !== LabelPosition.Top &&
-      (position === LabelPosition.Left || compactMode)
-        ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
-        : `width: 100%;`
-    }
-    ${position === LabelPosition.Left &&
-      `
-      ${!width && `width: 33%`};
-      ${alignment === Alignment.RIGHT && `justify-content: flex-end`};
-      label {
-        ${width && `width: ${width}px`};
-        ${
-          alignment === Alignment.RIGHT
-            ? `text-align: right`
-            : `text-align: left`
-        };
-      }
-    `}
-  `}
-`;
 
 export const StyledDiv = styled.div`
   display: flex;
-`;
-export const StyledLabel = styled(Label)<{
-  $compactMode: boolean;
-  $disabled: boolean;
-  $labelText?: string;
-  $labelTextColor?: string;
-  $labelTextSize?: TextSize;
-  $labelStyle?: string;
-}>`
-  overflow-y: hidden;
-  text-overflow: ellipsis;
-  width: ${(props) => (props.$compactMode ? "auto" : "100%")};
-  text-align: left;
-  color: ${(props) =>
-    props.$labelTextColor
-      ? props.$labelTextColor
-      : props.$disabled
-      ? Colors.GREY_8
-      : "inherit"};
-  font-size: ${(props) =>
-    props.$labelTextSize ? TEXT_SIZES[props.$labelTextSize] : "14px"};
-  font-weight: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
-  font-style: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
 `;
 
 export const StyledControlGroup = styled(ControlGroup)<{
@@ -297,18 +236,4 @@ export const DropdownContainer = styled.div<{
     ((labelPosition !== LabelPosition.Left && !compactMode) ||
       labelPosition === LabelPosition.Top) &&
     `overflow-x: hidden; overflow-y: auto;`}
-
-  label.select-label {
-    ${({ compactMode, labelPosition }) => {
-      if (labelPosition === LabelPosition.Top)
-        return "margin-bottom: 5px; margin-right: 0px";
-      if (compactMode || labelPosition === LabelPosition.Left)
-        return "margin-bottom: 0px; margin-right: 5px";
-      return "margin-bottom: 5px; margin-right: 0px";
-    }};
-  }
-`;
-
-export const StyledTooltip = styled(Tooltip)`
-  overflow: hidden;
 `;

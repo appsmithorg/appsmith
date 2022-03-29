@@ -6,7 +6,6 @@ import {
   ControlGroup,
   Classes,
   Alignment,
-  Position,
 } from "@blueprintjs/core";
 import { DropdownOption } from "../constants";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
@@ -18,16 +17,11 @@ import styled, {
 } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { TextSize } from "constants/WidgetConstants";
-import { StyledLabel, StyledTooltip, TextLabelWrapper } from "./index.styled";
 import Fuse from "fuse.js";
-import {
-  addLabelTooltipEventListeners,
-  hasLabelEllipsis,
-  removeLabelTooltipEventListeners,
-  WidgetContainerDiff,
-} from "widgets/WidgetUtils";
+import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 import { LabelPosition } from "components/constants";
+import LabelWithTooltip from "components/ads/LabelWithTooltip";
 
 const FUSE_OPTIONS = {
   shouldSort: true,
@@ -254,22 +248,11 @@ const DropdownContainer = styled.div<{
     ((labelPosition !== LabelPosition.Left && !compactMode) ||
       labelPosition === LabelPosition.Top) &&
     `overflow-x: hidden; overflow-y: auto;`}
-
-  label.select-label {
-    ${({ compactMode, labelPosition }) => {
-      if (labelPosition === LabelPosition.Top)
-        return "margin-bottom: 5px; margin-right: 0px";
-      if (compactMode || labelPosition === LabelPosition.Left)
-        return "margin-bottom: 0px; margin-right: 5px";
-      return "margin-bottom: 5px; margin-right: 0px";
-    }};
-  }
 `;
 const DEBOUNCE_TIMEOUT = 800;
 
 interface DropDownComponentState {
   activeItemIndex: number | undefined;
-  isLabelTooltipOpen: boolean;
 }
 class DropDownComponent extends React.Component<
   DropDownComponentProps,
@@ -278,19 +261,11 @@ class DropDownComponent extends React.Component<
   state: DropDownComponentState = {
     // used to show focused item for keyboard up down key interection
     activeItemIndex: -1,
-    isLabelTooltipOpen: false,
   };
 
   componentDidMount = () => {
     // set default selectedIndex as focused index
     this.setState({ activeItemIndex: this.props.selectedIndex });
-    if (this.props.labelText) {
-      addLabelTooltipEventListeners(
-        `.appsmith_widget_${this.props.widgetId} .select-label`,
-        this.handleMouseEnterOnLabel,
-        this.handleMouseLeaveOnLabel,
-      );
-    }
   };
 
   componentDidUpdate = (prevProps: DropDownComponentProps) => {
@@ -298,34 +273,6 @@ class DropDownComponent extends React.Component<
       // update focus index if selectedIndex changed by property pane
       this.setState({ activeItemIndex: this.props.selectedIndex });
     }
-
-    if (!prevProps.labelText && this.props.labelText) {
-      addLabelTooltipEventListeners(
-        `.appsmith_widget_${this.props.widgetId} .select-label`,
-        this.handleMouseEnterOnLabel,
-        this.handleMouseLeaveOnLabel,
-      );
-    }
-  };
-
-  componentWillUnmount() {
-    removeLabelTooltipEventListeners(
-      `.appsmith_widget_${this.props.widgetId} .select-label`,
-      this.handleMouseEnterOnLabel,
-      this.handleMouseLeaveOnLabel,
-    );
-  }
-
-  handleMouseEnterOnLabel = () => {
-    if (
-      hasLabelEllipsis(`.appsmith_widget_${this.props.widgetId} .select-label`)
-    ) {
-      this.setState({ isLabelTooltipOpen: true });
-    }
-  };
-
-  handleMouseLeaveOnLabel = () => {
-    this.setState({ isLabelTooltipOpen: false });
   };
 
   handleActiveItemChange = (activeItem: DropdownOption | null) => {
@@ -378,33 +325,19 @@ class DropDownComponent extends React.Component<
           parentWidth={this.props.width - WidgetContainerDiff}
         />
         {labelText && (
-          <TextLabelWrapper
+          <LabelWithTooltip
             alignment={labelAlignment}
-            compactMode={compactMode}
+            className={`select-label`}
+            color={labelTextColor}
+            compact={compactMode}
+            disabled={disabled}
+            fontSize={labelTextSize}
+            fontStyle={labelStyle}
+            loading={isLoading}
             position={labelPosition}
+            text={labelText}
             width={labelWidth}
-          >
-            <StyledTooltip
-              content={labelText}
-              hoverOpenDelay={200}
-              isOpen={this.state.isLabelTooltipOpen}
-              position={Position.TOP}
-            >
-              <StyledLabel
-                $compactMode={compactMode}
-                $disabled={!!disabled}
-                $labelStyle={labelStyle}
-                $labelText={labelText}
-                $labelTextColor={labelTextColor}
-                $labelTextSize={labelTextSize}
-                className={`select-label ${
-                  isLoading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
-                }`}
-              >
-                {labelText}
-              </StyledLabel>
-            </StyledTooltip>
-          </TextLabelWrapper>
+          />
         )}
         <StyledControlGroup
           compactMode={compactMode}

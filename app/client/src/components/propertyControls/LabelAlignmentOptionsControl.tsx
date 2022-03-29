@@ -1,47 +1,13 @@
 import React from "react";
-import styled from "styled-components";
-import {
-  Alignment,
-  Button,
-  ButtonGroup,
-  IButtonProps,
-} from "@blueprintjs/core";
+import { Alignment } from "@blueprintjs/core";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlIcons } from "icons/ControlIcons";
-import { ThemeProp } from "components/ads/common";
 import { replayHighlightClass } from "globalStyles/portals";
-import { Colors } from "constants/Colors";
-
-const StyledButtonGroup = styled(ButtonGroup)`
-  height: 33px;
-`;
-
-const StyledButton = styled(Button)<ThemeProp & IButtonProps>`
-  &&& {
-    box-shadow: none;
-    background-image: none;
-    background: none;
-    border-radius: 0;
-    border: 1px solid
-      ${(props) => (props.active ? Colors.GREY_10 : Colors.GREY_5)};
-
-    &:hover,
-    &:active,
-    &.bp3-active {
-      background: ${Colors.GREY_3};
-    }
-
-    & > div {
-      display: flex;
-      cursor: pointer;
-    }
-  }
-`;
+import { StyledButton, StyledButtonGroup } from "./LabelButton";
 
 export interface LabelAlignmentOptionsControlProps extends ControlProps {
   propertyValue: Alignment | undefined;
-  onChange: (align: Alignment) => void;
 }
 
 class LabelAlignmentOptionsControl extends BaseControl<

@@ -1,32 +1,22 @@
 import React, { MutableRefObject } from "react";
 import styled from "styled-components";
-import { labelStyle } from "constants/DefaultTheme";
-import { ComponentProps } from "widgets/BaseComponent";
-import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
 import {
   Alignment,
   Intent,
   NumericInput,
   IconName,
   InputGroup,
-  Label,
   Classes,
   ControlGroup,
   TextArea,
   Tag,
-  Position,
   IRef,
 } from "@blueprintjs/core";
-import Tooltip from "components/ads/Tooltip";
-import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
-import { IconWrapper } from "constants/IconConstants";
-
-import { Colors } from "constants/Colors";
 import _, { isNil } from "lodash";
+
+import { ComponentProps } from "widgets/BaseComponent";
+import { TextSize, TEXT_SIZES } from "constants/WidgetConstants";
+import { Colors } from "constants/Colors";
 import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
@@ -37,12 +27,8 @@ import { InputTypes } from "../constants";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import Icon from "components/ads/Icon";
 import { InputType } from "widgets/InputWidget/constants";
-import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
-import {
-  addLabelTooltipEventListeners,
-  hasLabelEllipsis,
-  removeLabelTooltipEventListeners,
-} from "widgets/WidgetUtils";
+import { LabelPosition } from "components/constants";
+import LabelWithTooltip from "components/ads/LabelWithTooltip";
 
 /**
  * All design system component specific logic goes here.
@@ -65,7 +51,6 @@ const InputComponentWrapper = styled((props) => (
       "multiline",
       "numeric",
       "inputType",
-      "tooltip",
     ])}
   />
 ))<{
@@ -77,7 +62,6 @@ const InputComponentWrapper = styled((props) => (
   inputType: InputType;
   compactMode: boolean;
   labelPosition: LabelPosition;
-  tooltip?: string;
 }>`
   flex-direction: ${({ compactMode, labelPosition }) => {
     if (labelPosition === LabelPosition.Left) return "row";
@@ -91,6 +75,9 @@ const InputComponentWrapper = styled((props) => (
     `overflow-y: auto;`}
 
   &&&& {
+    .label-container {
+      flex-grow: 0;
+    }
     .currency-type-filter,
     .country-type-filter {
       width: fit-content;
@@ -215,29 +202,6 @@ const InputComponentWrapper = styled((props) => (
           ? `stretch`
           : `center`
         : `flex-start`};
-    label {
-      ${labelStyle}
-      ${({ compactMode, labelPosition, tooltip }) =>
-        labelPosition === LabelPosition.Top
-          ? `margin-bottom: 5px; ${
-              tooltip ? `margin-right: 5px` : `margin-right: 0px`
-            }`
-          : compactMode || labelPosition === LabelPosition.Left
-          ? `margin-bottom: 0px; margin-right: 5px`
-          : `margin-bottom: 5px; margin-right: 0px`};
-
-      align-self: flex-start;
-      color: ${(props) => props.labelTextColor || "inherit"};
-      font-size: ${(props) => props.labelTextSize};
-      font-weight: ${(props) =>
-        props?.labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
-      font-style: ${(props) =>
-        props?.labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
-      text-decoration: ${(props) =>
-        props?.labelStyle?.includes(FontStyleTypes.UNDERLINE)
-          ? "underline"
-          : ""};
-    }
   }
   &&&& .bp3-input-group {
     display: flex;
@@ -316,55 +280,6 @@ const StyledNumericInput = styled(NumericInput)`
   }
 `;
 
-const ToolTipIcon = styled(IconWrapper)`
-  cursor: help;
-  margin-top: 1.5px;
-  &&&:hover {
-    svg {
-      path {
-        fill: #716e6e;
-      }
-    }
-  }
-`;
-
-const TextLabelWrapper = styled.div<{
-  compactMode: boolean;
-  alignment?: Alignment;
-  position?: LabelPosition;
-  width?: number;
-}>`
-  display: flex;
-  flex-grow: 0 !important;
-
-  ${({ alignment, compactMode, position, width }) => `
-    ${
-      position !== LabelPosition.Top &&
-      (position === LabelPosition.Left || compactMode)
-        ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
-        : `width: 100%;`
-    }
-
-    ${position === LabelPosition.Left &&
-      `
-      ${!width && `width: 33%`};
-      ${alignment === Alignment.RIGHT && `justify-content: flex-end`};
-      label {
-        ${width && `width: ${width}px`};
-        ${
-          alignment === Alignment.RIGHT
-            ? `text-align: right`
-            : `text-align: left`
-        };
-      }
-    `}
-  `}
-`;
-
-const StyledTooltip = styled(Tooltip)`
-  overflow: hidden;
-`;
-
 const TextInputWrapper = styled.div<{ inputHtmlType?: InputHTMLType }>`
   width: 100%;
   display: flex;
@@ -381,30 +296,13 @@ export const isNumberInputType = (inputHTMLType: InputHTMLType = "TEXT") => {
   return inputHTMLType === "NUMBER";
 };
 
-interface LabelComponentProps {
-  isLoading: boolean;
-  label: string;
-}
-
-function LabelComponent({ isLoading, label }: LabelComponentProps) {
-  return (
-    <Label
-      className={`t--input-widget-label ${
-        isLoading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
-      }`}
-    >
-      {label}
-    </Label>
-  );
-}
-
 class BaseInputComponent extends React.Component<
   BaseInputComponentProps,
   InputComponentState
 > {
   constructor(props: BaseInputComponentProps) {
     super(props);
-    this.state = { showPassword: false, isLabelTooltipOpen: false };
+    this.state = { showPassword: false };
   }
 
   componentDidMount() {
@@ -423,24 +321,6 @@ class BaseInputComponent extends React.Component<
           this.onStepDecrement,
         );
       }
-    }
-
-    if (this.props.label) {
-      addLabelTooltipEventListeners(
-        `.appsmith_widget_${this.props.widgetId} .t--input-widget-label`,
-        this.handleMouseEnterOnLabel,
-        this.handleMouseLeaveOnLabel,
-      );
-    }
-  }
-
-  componentDidUpdate(prevProps: BaseInputComponentProps) {
-    if (!prevProps.label && this.props.label) {
-      addLabelTooltipEventListeners(
-        `.appsmith_widget_${this.props.widgetId} .t--input-widget-label`,
-        this.handleMouseEnterOnLabel,
-        this.handleMouseLeaveOnLabel,
-      );
     }
   }
 
@@ -461,12 +341,6 @@ class BaseInputComponent extends React.Component<
         );
       }
     }
-
-    removeLabelTooltipEventListeners(
-      `.appsmith_widget_${this.props.widgetId} .t--input-widget-label`,
-      this.handleMouseEnterOnLabel,
-      this.handleMouseLeaveOnLabel,
-    );
   }
 
   setFocusState = (isFocused: boolean) => {
@@ -641,20 +515,6 @@ class BaseInputComponent extends React.Component<
     this.props.onStep && this.props.onStep(-1);
   };
 
-  handleMouseEnterOnLabel = () => {
-    if (
-      hasLabelEllipsis(
-        `.appsmith_widget_${this.props.widgetId} .t--input-widget-label`,
-      )
-    ) {
-      this.setState({ isLabelTooltipOpen: true });
-    }
-  };
-
-  handleMouseLeaveOnLabel = () => {
-    this.setState({ isLabelTooltipOpen: false });
-  };
-
   render() {
     const {
       compactMode,
@@ -691,42 +551,22 @@ class BaseInputComponent extends React.Component<
         labelTextSize={labelTextSize ? TEXT_SIZES[labelTextSize] : "inherit"}
         multiline={(!!multiline).toString()}
         numeric={isNumberInputType(inputHTMLType)}
-        tooltip={tooltip}
       >
         {showLabelHeader && (
-          <TextLabelWrapper
+          <LabelWithTooltip
             alignment={labelAlignment}
-            className="t--input-label-wrapper"
-            compactMode={compactMode}
+            className={`t--input-widget-label`}
+            color={labelTextColor}
+            compact={compactMode}
+            disabled={disabled}
+            fontSize={labelTextSize}
+            fontStyle={labelStyle}
+            helpText={tooltip}
+            loading={isLoading}
             position={labelPosition}
+            text={label}
             width={labelWidth}
-          >
-            {label && (
-              <StyledTooltip
-                content={label}
-                hoverOpenDelay={200}
-                isOpen={this.state.isLabelTooltipOpen}
-                position={Position.TOP}
-              >
-                <LabelComponent isLoading={isLoading} label={label} />
-              </StyledTooltip>
-            )}
-            {tooltip && (
-              <Tooltip
-                content={tooltip}
-                hoverOpenDelay={200}
-                position={Position.TOP}
-              >
-                <ToolTipIcon
-                  color={Colors.SILVER_CHALICE}
-                  height={14}
-                  width={14}
-                >
-                  <HelpIcon className="t--input-widget-tooltip" />
-                </ToolTipIcon>
-              </Tooltip>
-            )}
-          </TextLabelWrapper>
+          />
         )}
         <TextInputWrapper inputHtmlType={inputHTMLType}>
           <ErrorTooltip
@@ -746,7 +586,6 @@ class BaseInputComponent extends React.Component<
 
 export interface InputComponentState {
   showPassword?: boolean;
-  isLabelTooltipOpen: boolean;
 }
 
 export interface BaseInputComponentProps extends ComponentProps {

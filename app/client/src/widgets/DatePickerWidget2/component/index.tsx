@@ -7,7 +7,6 @@ import {
   Label,
   IRef,
   Alignment,
-  Position,
 } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
@@ -29,11 +28,7 @@ import {
 import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
 import Tooltip from "components/ads/Tooltip";
 import { parseDate } from "./utils";
-import {
-  addLabelTooltipEventListeners,
-  hasLabelEllipsis,
-  removeLabelTooltipEventListeners,
-} from "widgets/WidgetUtils";
+import LabelWithTooltip from "components/ads/LabelWithTooltip";
 
 const StyledControlGroup = styled(ControlGroup)<{
   isValid: boolean;
@@ -57,15 +52,6 @@ const StyledControlGroup = styled(ControlGroup)<{
       labelPosition === LabelPosition.Top) &&
     `overflow-x: hidden; overflow-y: auto;`}
 
-  label.datepicker-label {
-    ${({ compactMode, labelPosition }) => {
-      if (labelPosition === LabelPosition.Top)
-        return "margin-bottom: 5px; margin-right: 0px";
-      if (compactMode || labelPosition === LabelPosition.Left)
-        return "margin-bottom: 0px; margin-right: 5px";
-      return "margin-bottom: 5px; margin-right: 0px";
-    }};
-  }
   &&& {
     .${Classes.INPUT} {
       color: ${Colors.GREY_10};
@@ -192,16 +178,6 @@ class DatePickerComponent extends React.Component<
     };
   }
 
-  componentDidMount() {
-    if (this.props.labelText) {
-      addLabelTooltipEventListeners(
-        `.appsmith_widget_${this.props.widgetId} .datepicker-label`,
-        this.handleMouseEnterOnLabel,
-        this.handleMouseLeaveOnLabel,
-      );
-    }
-  }
-
   componentDidUpdate(prevProps: DatePickerComponentProps) {
     if (
       this.props.selectedDate !== this.state.selectedDate &&
@@ -212,37 +188,7 @@ class DatePickerComponent extends React.Component<
     ) {
       this.setState({ selectedDate: this.props.selectedDate });
     }
-
-    if (!prevProps.labelText && this.props.labelText) {
-      addLabelTooltipEventListeners(
-        `.appsmith_widget_${this.props.widgetId} .datepicker-label`,
-        this.handleMouseEnterOnLabel,
-        this.handleMouseLeaveOnLabel,
-      );
-    }
   }
-
-  componentWillUnmount() {
-    removeLabelTooltipEventListeners(
-      `.appsmith_widget_${this.props.widgetId} .datepicker-label`,
-      this.handleMouseEnterOnLabel,
-      this.handleMouseLeaveOnLabel,
-    );
-  }
-
-  handleMouseEnterOnLabel = () => {
-    if (
-      hasLabelEllipsis(
-        `.appsmith_widget_${this.props.widgetId} .datepicker-label`,
-      )
-    ) {
-      this.setState({ isLabelTooltipOpen: true });
-    }
-  };
-
-  handleMouseLeaveOnLabel = () => {
-    this.setState({ isLabelTooltipOpen: false });
-  };
 
   getValidDate = (date: string, format: string) => {
     const _date = moment(date, format);
@@ -295,33 +241,19 @@ class DatePickerComponent extends React.Component<
         }}
       >
         {labelText && (
-          <TextLabelWrapper
+          <LabelWithTooltip
             alignment={labelAlignment}
-            compactMode={compactMode}
+            className={`datepicker-label`}
+            color={labelTextColor}
+            compact={compactMode}
+            disabled={isDisabled}
+            fontSize={labelTextSize}
+            fontStyle={labelStyle}
+            loading={isLoading}
             position={labelPosition}
+            text={labelText}
             width={labelWidth}
-          >
-            <StyledTooltip
-              content={labelText}
-              hoverOpenDelay={200}
-              isOpen={this.state.isLabelTooltipOpen}
-              position={Position.TOP}
-            >
-              <StyledLabel
-                $disabled={isDisabled}
-                $labelStyle={labelStyle}
-                $labelText={labelText}
-                $labelTextColor={labelTextColor}
-                $labelTextSize={labelTextSize}
-                className={`datepicker-label ${
-                  isLoading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
-                }`}
-                disabled={isDisabled}
-              >
-                {labelText}
-              </StyledLabel>
-            </StyledTooltip>
-          </TextLabelWrapper>
+          />
         )}
         <DateInputWrapper
           compactMode={compactMode}

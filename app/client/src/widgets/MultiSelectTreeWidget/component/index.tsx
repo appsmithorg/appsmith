@@ -12,9 +12,6 @@ import {
   TreeSelectContainer,
   DropdownStyles,
   StyledIcon,
-  StyledLabel,
-  TextLabelWrapper,
-  StyledTooltip,
   InputContainer,
 } from "./index.styled";
 import "rc-tree-select/assets/index.less";
@@ -26,23 +23,13 @@ import {
   MODAL_PORTAL_CLASSNAME,
   TextSize,
 } from "constants/WidgetConstants";
-import {
-  Alignment,
-  Button,
-  Classes,
-  InputGroup,
-  Position,
-} from "@blueprintjs/core";
+import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 
-import {
-  addLabelTooltipEventListeners,
-  hasLabelEllipsis,
-  removeLabelTooltipEventListeners,
-  WidgetContainerDiff,
-} from "widgets/WidgetUtils";
+import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
+import LabelWithTooltip from "components/ads/LabelWithTooltip";
 
 export interface TreeSelectProps
   extends Required<
@@ -139,8 +126,6 @@ function MultiTreeSelectComponent({
   width,
 }: TreeSelectProps): JSX.Element {
   const [key, setKey] = useState(Math.random());
-  const [isLabelTooltipEnabled, setIsLabelTooltipEnabled] = useState(false);
-  const [isLabelTooltipOpen, setIsLabelTooltipOpen] = useState(false);
   const [filter, setFilter] = useState(filterText ?? "");
 
   const _menu = useRef<HTMLElement | null>(null);
@@ -152,40 +137,6 @@ function MultiTreeSelectComponent({
   useEffect(() => {
     setKey(Math.random());
   }, [expandAll]);
-
-  useEffect(() => {
-    if (labelText && !isLabelTooltipEnabled) {
-      addLabelTooltipEventListeners(
-        `.appsmith_widget_${widgetId} .multitree-select-label`,
-        handleMouseEnterOnLabel,
-        handleMouseLeaveOnLabel,
-      );
-      setIsLabelTooltipEnabled(true);
-    } else if (!labelText && isLabelTooltipEnabled) {
-      setIsLabelTooltipEnabled(false);
-    }
-  }, [labelText]);
-
-  useEffect(() => {
-    return () =>
-      removeLabelTooltipEventListeners(
-        `.appsmith_widget_${widgetId} .multitree-select-label`,
-        handleMouseEnterOnLabel,
-        handleMouseLeaveOnLabel,
-      );
-  }, []);
-
-  const handleMouseEnterOnLabel = useCallback(() => {
-    if (
-      hasLabelEllipsis(`.appsmith_widget_${widgetId} .multitree-select-label`)
-    ) {
-      setIsLabelTooltipOpen(true);
-    }
-  }, []);
-
-  const handleMouseLeaveOnLabel = useCallback(() => {
-    setIsLabelTooltipOpen(false);
-  }, []);
 
   const clearButton = useMemo(
     () =>
@@ -262,35 +213,20 @@ function MultiTreeSelectComponent({
     >
       <DropdownStyles dropDownWidth={memoDropDownWidth} id={widgetId} />
       {labelText && (
-        <TextLabelWrapper
+        <LabelWithTooltip
           alignment={labelAlignment}
-          compactMode={compactMode}
+          className={`multitree-select-label`}
+          color={labelTextColor}
+          compact={compactMode}
+          disabled={disabled}
+          fontSize={labelTextSize}
+          fontStyle={labelStyle}
+          loading={loading}
           position={labelPosition}
           ref={labelRef}
+          text={labelText}
           width={labelWidth}
-        >
-          <StyledTooltip
-            content={labelText}
-            hoverOpenDelay={200}
-            isOpen={isLabelTooltipOpen}
-            position={Position.TOP}
-          >
-            <StyledLabel
-              $compactMode={compactMode}
-              $disabled={disabled}
-              $labelStyle={labelStyle}
-              $labelText={labelText}
-              $labelTextColor={labelTextColor}
-              $labelTextSize={labelTextSize}
-              className={`multitree-select-label ${
-                loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
-              }`}
-              disabled={disabled}
-            >
-              {labelText}
-            </StyledLabel>
-          </StyledTooltip>
-        </TextLabelWrapper>
+        />
       )}
       <InputContainer compactMode={compactMode} labelPosition={labelPosition}>
         <TreeSelect
