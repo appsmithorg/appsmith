@@ -1,9 +1,12 @@
 import {
+  ADMIN_SETTINGS_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
-  convertToQueryParams,
   GEN_TEMPLATE_FORM_ROUTE,
   GEN_TEMPLATE_URL,
+  PLACEHOLDER_APP_SLUG,
+  PLACEHOLDER_PAGE_SLUG,
+  TEMPLATES_PATH,
   VIEWER_PATH,
   VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
@@ -11,6 +14,22 @@ import { APP_MODE } from "entities/App";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 import { matchPath } from "react-router";
 import { ApplicationVersion } from "actions/applicationActions";
+
+export function convertToQueryParams(
+  params: Record<string, string> = {},
+): string {
+  const paramKeys = Object.keys(params);
+  const queryParams: string[] = [];
+  if (paramKeys) {
+    paramKeys.forEach((paramKey: string) => {
+      const value = params[paramKey];
+      if (paramKey && value) {
+        queryParams.push(`${paramKey}=${value}`);
+      }
+    });
+  }
+  return queryParams.length ? "?" + queryParams.join("&") : "";
+}
 
 const fetchParamsToPersist = () => {
   const existingParams = getQueryParamsObject() || {};
@@ -107,8 +126,11 @@ function baseURLBuilder(
     basePath = `/applications/${applicationId}/pages/${pageId}`;
   } else {
     applicationSlug =
-      applicationSlug ?? BASE_URL_BUILDER_PARAMS.applicationSlug;
-    pageSlug = pageSlug ?? BASE_URL_BUILDER_PARAMS.pageSlug;
+      applicationSlug ??
+      BASE_URL_BUILDER_PARAMS.applicationSlug ??
+      PLACEHOLDER_APP_SLUG;
+    pageSlug =
+      pageSlug ?? BASE_URL_BUILDER_PARAMS.pageSlug ?? PLACEHOLDER_PAGE_SLUG;
     basePath = `/${applicationSlug}/${pageSlug}-${pageId}`;
   }
   basePath += mode === APP_MODE.EDIT ? "/edit" : "";
@@ -260,3 +282,18 @@ export const builderURL = (props?: Optional<URLBuilderParams>): string => {
 export const viewerURL = (props?: Optional<URLBuilderParams>): string => {
   return baseURLBuilder({ ...props }, APP_MODE.PUBLISHED);
 };
+
+export function adminSettingsCategoryUrl({
+  category,
+  subCategory,
+}: {
+  category: string;
+  subCategory?: string;
+}) {
+  return `${ADMIN_SETTINGS_PATH}/${category}${
+    subCategory ? "/" + subCategory : ""
+  }`;
+}
+
+export const templateIdUrl = ({ id }: { id: string }): string =>
+  `${TEMPLATES_PATH}/${id}`;

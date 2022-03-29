@@ -97,8 +97,8 @@ export const FORGOT_PASSWORD_PAGE_TITLE = () => `Reset password`;
 export const FORGOT_PASSWORD_PAGE_SUBTITLE = () =>
   `We will send a reset link to the email below`;
 export const FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT = () => `Reset`;
-export const FORGOT_PASSWORD_SUCCESS_TEXT = () =>
-  `A password reset link has been sent to`;
+export const FORGOT_PASSWORD_SUCCESS_TEXT = (email: string) =>
+  `A password reset link has been sent to your email address ${email} registered with Appsmith.`;
 
 export const PRIVACY_POLICY_LINK = () => `Privacy policy`;
 export const TERMS_AND_CONDITIONS_LINK = () => `Terms and conditions`;

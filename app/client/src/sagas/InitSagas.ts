@@ -194,8 +194,6 @@ function* initiateEditorApplicationAndPages(payload: InitializeEditorPayload) {
   const defaultPageId: string = yield select(getDefaultPageId);
   toLoadPageId = toLoadPageId || defaultPageId;
 
-  yield call(initiateURLUpdate, toLoadPageId, APP_MODE.EDIT, payload.pageId);
-
   const fetchPageCallResult: boolean = yield failFastApiCalls(
     [fetchPage(toLoadPageId, true)],
     [ReduxActionTypes.FETCH_PAGE_SUCCESS],
@@ -203,6 +201,8 @@ function* initiateEditorApplicationAndPages(payload: InitializeEditorPayload) {
   );
 
   if (!fetchPageCallResult) return;
+
+  return toLoadPageId;
 }
 
 function* initiateEditorActions(applicationId: string) {
@@ -295,7 +295,12 @@ function* initializeEditorSaga(
       PerformanceTransactionName.INIT_EDIT_APP,
     );
 
-    yield call(initiateEditorApplicationAndPages, payload);
+    const toLoadPageId: string = yield call(
+      initiateEditorApplicationAndPages,
+      payload,
+    );
+
+    yield call(initiateURLUpdate, toLoadPageId, APP_MODE.EDIT, payload.pageId);
 
     const { id: applicationId, name }: ApplicationPayload = yield select(
       getCurrentApplication,
