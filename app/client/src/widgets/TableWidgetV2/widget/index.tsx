@@ -61,7 +61,7 @@ import { IconName } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
 import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
 import equal from "fast-deep-equal/es6";
-import { getSanitizedKey } from "widgets/WidgetUtils";
+import { sanitizeKey } from "widgets/WidgetUtils";
 import { renderDefault } from "../component/renderHelpers/DefaultRenderer";
 import { renderButton } from "../component/renderHelpers/ButtonRenderer";
 import { renderSelect } from "../component/renderHelpers/SelectRenderer";
@@ -617,7 +617,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         // Use the existing column properties
         newTableColumns[existingColumn.id] = existingColumn;
       } else {
-        const hashedColumnKey = getSanitizedKey(columnKey, {
+        const hashedColumnKey = sanitizeKey(columnKey, {
           existingKeys: union(existingColumnIds, Object.keys(newTableColumns)),
         });
         // Create column properties for the new column

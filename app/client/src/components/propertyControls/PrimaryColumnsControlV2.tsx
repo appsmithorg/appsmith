@@ -150,7 +150,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     const draggableComponentColumns = Object.values(reorderedColumns).map(
       (column: ColumnProperties) => {
         return {
-          label: column.label,
+          label: column.label || "",
           id: column.id,
           isVisible: column.isVisible,
           isDerived: column.isDerived,
