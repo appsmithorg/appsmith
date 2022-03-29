@@ -245,7 +245,7 @@ function ApiResponseView(props: Props) {
 
   // if no headers are present in the response, use the default body text.
   if (response.headers) {
-    Object.entries(response.headers).map(([key, value]) => {
+    Object.entries(response.headers).forEach(([key, value]) => {
       if (isArray(value) && value.length < 2)
         return (responseHeaders = {
           ...responseHeaders,
@@ -375,6 +375,7 @@ function ApiResponseView(props: Props) {
                     ? JSON.stringify(responseHeaders, null, 2)
                     : "",
                 }}
+                isReadOnly
               />
             )}
           </ResponseDataContainer>
