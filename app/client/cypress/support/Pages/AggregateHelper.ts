@@ -218,8 +218,8 @@ export class AggregateHelper {
         cy.get(selector).click({ force: true });
     }
 
-    public ToggleOrDisable(propertyName: string, check = true) {
-        if (check) {
+    public ToggleOnOrOff(propertyName: string, On = true) {
+        if (On) {
             cy.get(this.locator._propertyToggle(propertyName))
                 .check({ force: true })
                 .should("be.checked");
@@ -230,6 +230,13 @@ export class AggregateHelper {
                 .should("not.checked");
         }
         this.AssertAutoSave()
+    }
+
+    public AssertExistingToggleState(propertyName: string, toggle: 'checked' | 'unchecked') {
+        cy.get(this.locator._propertyToggleValue(propertyName)).invoke("attr", "class")
+            .then((classes) => {
+                expect(classes).includes(toggle);
+            });
     }
 
     public NavigateBacktoEditor() {
@@ -308,7 +315,7 @@ export class AggregateHelper {
                 if ($text.text()) expect($text.text()).to.eq(currentValue);
             });
     }
-    
+
     public EvaluateExistingPropertyFieldValue(fieldName = "", currentValue = "") {
         let toValidate = false;
         if (currentValue) toValidate = true;

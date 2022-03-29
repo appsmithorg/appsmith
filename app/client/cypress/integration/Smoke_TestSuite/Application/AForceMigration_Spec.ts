@@ -2,23 +2,48 @@ import { ObjectsRegistry } from "../../../support/Objects/Registry";
 
 let homePage = ObjectsRegistry.HomePage,
   dataSources = ObjectsRegistry.DataSources,
-  table = ObjectsRegistry.Table;
+  table = ObjectsRegistry.Table,
+  agHelper = ObjectsRegistry.AggregateHelper,
+  ee = ObjectsRegistry.EntityExplorer;
 
-describe("AForce - Community issues validations", function () {
+describe("AForce - Community issues Page validations", function () {
 
+  let reconnect = true;
   it("1. Import application json and validate headers", function () {
 
-    homePage.ImportApp("AForceMigrationExport.json", true)
-    dataSources.ReconnectDataSourcePostgres("AForceDB")
+    homePage.ImportApp("AForceMigrationExport.json", reconnect)
+    if (reconnect)
+      dataSources.ReconnectDataSourcePostgres("AForceDB")
+    //Validate table is not empty!
+    table.WaitUntilTableLoad()
+    //Validating order of header columns!
+    table.AssertTableHeaderOrder("TypeTitleStatus+1CommentorsVotesAnswerUpVoteStatesupvote_ididgithub_issue_idauthorcreated_atdescriptionlabelsstatelinkupdated_at")
+    //Validating hidden columns:
+    table.AssertHiddenColumns(['States', 'upvote_id', 'id', 'github_issue_id', 'author', 'created_at', 'description', 'labels', 'state', 'link', 'updated_at'])
+    agHelper.DeployApp()
+    table.WaitUntilTableLoad()
+    //Verify hidden columns are infact hidden in deployed app!
+    table.AssertTableHeaderOrder("TypeTitleStatus+1CommentorsVotesAnswerUpVote")
+    agHelper.NavigateBacktoEditor()
+    table.WaitUntilTableLoad()
+  });
+
+  it.skip("2. Validate Table navigation with server side pagination enabled", function () {
+
+    ee.expandCollapseEntity("WIDGETS")
+    ee.SelectEntityByName("Table1")
+    agHelper.AssertExistingToggleState("serversidepagination", 'checked')
+    table.AssertPageNumber(1);
 
     //Validate table is not empty!
     table.WaitUntilTableLoad()
 
-    //Validating order of header row!
-    table.AssertTableHeader("TypeTitleStatus+1CommentorsVotesAnswerUpVoteStatesupvote_ididgithub_issue_idauthorcreated_atdescriptionlabelsstatelinkupdated_at")
+    //Validating order of headers!
+    table.AssertTableHeaderOrder("TypeTitleStatus+1CommentorsVotesAnswerUpVoteStatesupvote_ididgithub_issue_idauthorcreated_atdescriptionlabelsstatelinkupdated_at")
 
     //Validating hidden columns:
-    table.AssertHiddenColumns(['States', 'upvote_id', 'id','github_issue_id','author', 'created_at', 'description', 'labels', 'state', 'link', 'updated_at'])
+    table.AssertHiddenColumns(['States', 'upvote_id', 'id', 'github_issue_id', 'author', 'created_at', 'description', 'labels', 'state', 'link', 'updated_at'])
+
 
 
     //   //Validating Id column sorting happens as Datatype is Number in app!

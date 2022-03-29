@@ -64,7 +64,7 @@ export class DataSources {
 
     public SaveDatasource() {
         cy.get(this._saveDs).click();
-        this.agHelper.ValidateNetworkDataSuccess("@saveDatasource")
+        this.agHelper.ValidateNetworkStatus("@saveDatasource", 200)
 
         // cy.wait("@saveDatasource")
         //     .then((xhr) => {
