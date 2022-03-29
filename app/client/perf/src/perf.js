@@ -25,7 +25,7 @@ module.exports = class Perf {
       ...launchOptions,
     };
 
-    if (process.env.PERF_TEST_ENV === "dev" || true) {
+    if (process.env.PERF_TEST_ENV === "dev") {
       this.launchOptions.executablePath =
         "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
       this.launchOptions.devtools = true;
