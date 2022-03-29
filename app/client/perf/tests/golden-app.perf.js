@@ -31,7 +31,7 @@ async function testTyping() {
   await perf.launch();
   const page = perf.getPage();
 
-  await perf.importApplication(`${APP_ROOT}/tests/dsl/blog-admin-app.json`);
+  await perf.importApplication(`${APP_ROOT}/tests/dsl/GoldenApp.json`);
 
   await delay(5000);
   await page.screenshot({
