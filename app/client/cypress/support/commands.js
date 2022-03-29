@@ -3034,6 +3034,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "/api/v1/users/me").as("getUser");
   cy.route("POST", "/api/v1/pages").as("createPage");
   cy.route("POST", "/api/v1/pages/clone/*").as("clonePage");
+  cy.route("POST", "/api/v1/applications/clone/*").as("cloneApp");
   cy.route("PUT", "/api/v1/applications/*/changeAccess").as("changeAccess");
 
   cy.route("PUT", "/api/v1/organizations/*").as("updateOrganization");
