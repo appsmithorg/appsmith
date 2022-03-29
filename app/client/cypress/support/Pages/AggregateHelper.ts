@@ -308,7 +308,7 @@ export class AggregateHelper {
                 if ($text.text()) expect($text.text()).to.eq(currentValue);
             });
     }
-
+    
     public EvaluateExistingPropertyFieldValue(fieldName = "", currentValue = "") {
         let toValidate = false;
         if (currentValue) toValidate = true;
@@ -333,7 +333,7 @@ export class AggregateHelper {
         this.ValidateNetworkExecutionSuccess("@postExecute", execStat);
     }
 
-    public assertDebugError(label: string, messgae: string) {
+    public AssertDebugError(label: string, messgae: string) {
         cy.get(this.locator._debuggerIcon)
             .should("be.visible")
             .click({ force: true });

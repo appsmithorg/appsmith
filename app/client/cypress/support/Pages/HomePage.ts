@@ -3,8 +3,6 @@ export class HomePage {
 
     private agHelper = ObjectsRegistry.AggregateHelper;
     private locator = ObjectsRegistry.CommonLocators;
-    private dataSources = ObjectsRegistry.DataSources;
-
 
     private _username = "input[name='username']"
     private _password = "input[name='password']"

@@ -129,7 +129,7 @@ describe("Validate API request body panel", () => {
         agHelper.UploadFile(imageNameToUpload, false)
         agHelper.ValidateToastMessage("CloudinaryUploadApi failed to execute")
         apiPage.CheckElementPresence(locator._spanButton('Select Files'))//verifying if reset!
-        agHelper.assertDebugError("Execution failed with status 400 BAD_REQUEST", '{"error":{"message":"Unsupported source URL: {\\"type\\":\\"image/jpeg\\"')
+        agHelper.AssertDebugError("Execution failed with status 400 BAD_REQUEST", '{"error":{"message":"Unsupported source URL: {\\"type\\":\\"image/jpeg\\"')
 
     });
 

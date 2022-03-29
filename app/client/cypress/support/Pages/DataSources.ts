@@ -4,7 +4,6 @@ export class DataSources {
 
     private agHelper = ObjectsRegistry.AggregateHelper
     private locator = ObjectsRegistry.CommonLocators;
-    private homePage = ObjectsRegistry.HomePage;
 
     private _dsCreateNewTab = "[data-cy=t--tab-CREATE_NEW]"
     private _addNewDataSource = ".datasources .t--entity-add-btn"
@@ -20,7 +19,7 @@ export class DataSources {
     private _datasourceCard = ".t--datasource"
     _templateMenu = ".t--template-menu"
     _visibleTextSpan = (spanText: string) => "//span[contains(text(),'" + spanText + "')]"
-    _dropdownTitle = (ddTitle: string) => "//p[contains(text()='" + ddTitle + "')]/parent::label/following-sibling::div/div/div"
+    _dropdownTitle = (ddTitle: string) => "//p[contains(text(),'" + ddTitle + "')]/parent::label/following-sibling::div/div/div"
     _reconnectModal = "div.reconnect-datasource-modal"
     _activeDSListReconnectModal = (dbName: string) => "//div[contains(@class, 't--ds-list')]//span[text()='" + dbName + "']"
 
@@ -105,7 +104,7 @@ export class DataSources {
         cy.xpath(this._activeDSListReconnectModal(dbName)).should('be.visible')//.click()
         this.ValidateNSelectDropdown("Connection Mode", "", "Read / Write")
         this.FillPostgresDSForm()
-        this.homePage.AssertImport()
+        cy.get(this._saveDs).click();
     }
 
 }
