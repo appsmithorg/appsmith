@@ -222,6 +222,7 @@ const TooltipWrapper = styled.div`
 const DBFormWrapper = styled.div`
   padding: 10px;
   width: calc(100% - 206px);
+  overflow: auto;
 
   div[class^="RestAPIDatasourceForm__RestApiForm-"] {
     padding-top: 0px;
