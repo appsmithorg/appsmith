@@ -16,14 +16,6 @@ describe("defaultOptionValueValidation - ", () => {
   it("should get tested with number", () => {
     const testValues = [
       [
-        "{{1}}",
-        {
-          isValid: true,
-          parsed: 1,
-          messages: [""],
-        },
-      ],
-      [
         "1",
         {
           isValid: true,
