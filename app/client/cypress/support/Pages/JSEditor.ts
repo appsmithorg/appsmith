@@ -7,6 +7,7 @@ const locator = new CommonLocators();
 
 export class JSEditor {
   private _runButton = "//li//*[local-name() = 'svg' and @class='run-button']";
+  private _outputConsole = ".CodeEditorTarget";
   private _jsObjName = ".t--js-action-name-edit-field span";
   private _jsObjTxt = ".t--js-action-name-edit-field input";
   private _newJSobj = "span:contains('New JS Object')"
