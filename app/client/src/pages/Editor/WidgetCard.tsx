@@ -56,7 +56,10 @@ export const IconLabel = styled.h5`
   text-transform: uppercase;
   font-weight: ${(props) => props.theme.fontWeights[1]};
   flex-shrink: 1;
-  font-size: ${(props) => props.theme.fontSizes[1]}px;
+  font-size: ${(props) =>
+    props.theme.fontSizes[1]}px; //fallback if clamp is not supported by browser
+  font-size: min(max(10px, 0.5vw + 0.2rem), 0.69rem);
+  font-size: clamp(10px, 0.5vw + 0.2rem, 0.69rem);
   line-height: ${(props) => props.theme.lineHeights[2]}px;
   &::selection {
     background: none;
