@@ -20,22 +20,6 @@ export const groupAndFilterDependantsMap = (
     const dataTreeEntity = dataTree[dependencyEntityName];
     if (!dataTreeEntity) return;
     const isJS_Object = isJSObject(dataTreeEntity);
-    // const is_Action = isAction(dataTreeEntity);
-
-    // if (is_Action) {
-    //   const actionEntity = dataTreeEntity as DataTreeAction;
-    //   const fullPropertyPath = fullDependencyPath.substring(
-    //     fullDependencyPath.indexOf(".") + 1,
-    //   );
-    //   const propertyName = fullDependencyPath.split(".")[1];
-    //   console.log("Hello new", propertyName, actionEntity);
-    //   if (
-    //     !(fullPropertyPath in actionEntity.bindingPaths) &&
-    //     !(propertyName in actionEntity.bindingPaths)
-    //   ) {
-    //     return;
-    //   }
-    // }
 
     const entityDependantsMap = entitiesDepMap[dependencyEntityName] || {};
     let entityPathDependants = entityDependantsMap[fullDependencyPath] || [];

@@ -240,7 +240,6 @@ export default class DataTreeEvaluator {
     unEvalUpdates: DataTreeDiff[];
     jsUpdates: Record<string, JSUpdate>;
   } {
-    const updateStartTime = new Date().valueOf();
     let localUnEvalTree = Object.assign({}, unEvalTree);
     const totalStart = performance.now();
     let jsUpdates: Record<string, JSUpdate> = {};
@@ -337,8 +336,6 @@ export default class DataTreeEvaluator {
       }
       return false;
     });
-
-    console.log("hello eval order length", evaluationOrder.length);
     this.logs.push({
       sortedDependencies: this.sortedDependencies,
       inverse: this.inverseDependencyMap,
@@ -379,14 +376,6 @@ export default class DataTreeEvaluator {
       evaluate: (evalStop - evalStart).toFixed(2),
     };
     this.logs.push({ timeTakenForSubTreeEval });
-
-    const updateEndTime = new Date().valueOf();
-
-    console.log(
-      "hello update tree time",
-      updateEndTime - updateStartTime,
-      "ms",
-    );
     return {
       evaluationOrder,
       unEvalUpdates: translatedDiffs,
