@@ -21,7 +21,7 @@ public interface ImportExportApplicationServiceCE {
      */
     Mono<ApplicationJson> exportApplicationById(String applicationId, SerialiseApplicationObjective serialiseFor);
 
-    Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName, String isSampleApps);
+    Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName);
 
     /**
      * This function will take the Json filepart and saves the application in organization

@@ -74,6 +74,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -202,7 +203,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     removeUnwantedFieldsFromApplicationDuringExport(application);
                     examplesOrganizationCloner.makePristine(application);
                     applicationJson.setExportedApplication(application);
-
+                    if(Optional.ofNullable(application.getIsSampleApp()).isEmpty()) {
+                        applicationJson.setIsSampleApp(false);
+                    } else {
+                        applicationJson.setIsSampleApp(true);
+                    }
                     Set<String> dbNamesUsedInActions = new HashSet<>();
 
                     return newPageRepository.findByApplicationId(applicationId, MANAGE_PAGES)
@@ -383,7 +388,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         .removeIf(datasource -> !dbNamesUsedInActions.contains(datasource.getName()));
 
                                 // Save decrypted fields for datasources for internally used sample apps and templates only
-                                if(SerialiseApplicationObjective.SAMPLE_APP.equals(serialiseFor)) {
+                                if(!Optional.ofNullable(applicationJson.getIsSampleApp()).isEmpty()) {
                                     // Save decrypted fields for datasources
                                     Map<String, DecryptedSensitiveFields> decryptedFields = new HashMap<>();
                                     applicationJson.getDatasourceList().forEach(datasource -> {
@@ -453,14 +458,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 .thenReturn(applicationJson);
     }
 
-    public Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName, String isSampleApp) {
+    public Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName) {
         return applicationService.findBranchedApplicationId(branchName, applicationId, EXPORT_APPLICATIONS)
-                .flatMap(branchedAppId -> {
-                    if(StringUtils.isEmpty(isSampleApp) || Boolean.valueOf(isSampleApp).equals(false)) {
-                        return exportApplicationById(branchedAppId, SerialiseApplicationObjective.SHARE);
-                    }
-                    return exportApplicationById(branchedAppId, SerialiseApplicationObjective.SAMPLE_APP);
-                });
+                .flatMap(branchedAppId -> exportApplicationById(branchedAppId, SerialiseApplicationObjective.SHARE));
     }
 
     /**

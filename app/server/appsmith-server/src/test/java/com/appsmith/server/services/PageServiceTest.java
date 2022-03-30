@@ -147,7 +147,7 @@ public class PageServiceTest {
                 .flatMap(application -> {
                     application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
                     return applicationService.save(application)
-                            .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName(), null));
+                            .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName()));
                 })
                 // Assign the branchName to all the resources connected to the application
                 .flatMap(tuple -> importExportApplicationService.importApplicationInOrganization(orgId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))

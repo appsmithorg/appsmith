@@ -285,7 +285,7 @@ public class ImportExportApplicationServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void exportApplicationWithNullApplicationIdTest() {
-        Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(null, "", "false");
+        Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(null, "");
         
         StepVerifier
             .create(resultMono)
@@ -297,7 +297,7 @@ public class ImportExportApplicationServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void exportApplication_withInvalidApplicationId_throwNoResourceFoundException() {
-        Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById("invalidAppId", "", "false");
+        Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById("invalidAppId", "");
 
         StepVerifier
                 .create(resultMono)
@@ -309,7 +309,7 @@ public class ImportExportApplicationServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void exportApplicationById_WhenContainsInternalFields_InternalFieldsNotExported() {
-        Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(testAppId, "", "false");
+        Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(testAppId, "");
 
         StepVerifier
                 .create(resultMono)
@@ -334,6 +334,7 @@ public class ImportExportApplicationServiceTests {
 
         Application testApplication = new Application();
         testApplication.setName("exportApplication_withCredentialsForSampleApps_SuccessWithDecryptFields");
+        testApplication.setIsSampleApp(true);
         testApplication = applicationPageService.createApplication(testApplication, orgId).block();
 
         assert testApplication != null;
@@ -404,7 +405,7 @@ public class ImportExportApplicationServiceTests {
                             .then(layoutActionService.createSingleAction(action))
                             .then(layoutActionService.createSingleAction(action2))
                             .then(layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout))
-                            .then(importExportApplicationService.exportApplicationById(testApp.getId(), "", "true"));
+                            .then(importExportApplicationService.exportApplicationById(testApp.getId(), ""));
                 })
                 .cache();
 
@@ -545,7 +546,7 @@ public class ImportExportApplicationServiceTests {
     @WithUserDetails(value = "api_user")
     public void createExportAppJsonWithoutActionsAndDatasourceTest() {
 
-        final Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(testAppId, "", "false");
+        final Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(testAppId, "");
 
         StepVerifier.create(resultMono)
                 .assertNext(applicationJson -> {
@@ -591,7 +592,7 @@ public class ImportExportApplicationServiceTests {
 
                     return  applicationPageService.createApplication(testApplication, orgId);
                 })
-                .flatMap(application -> importExportApplicationService.exportApplicationById(application.getId(), "", "false"));
+                .flatMap(application -> importExportApplicationService.exportApplicationById(application.getId(), ""));
 
         StepVerifier.create(resultMono)
                 .assertNext(applicationJson -> {
@@ -682,7 +683,7 @@ public class ImportExportApplicationServiceTests {
                             .then(layoutActionService.createSingleAction(action))
                             .then(layoutActionService.createSingleAction(action2))
                             .then(layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout))
-                            .then(importExportApplicationService.exportApplicationById(testApp.getId(), "", null));
+                            .then(importExportApplicationService.exportApplicationById(testApp.getId(), ""));
                 })
                 .cache();
 

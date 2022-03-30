@@ -166,11 +166,10 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
     @GetMapping("/export/{id}")
     public Mono<ResponseEntity<ApplicationJson>> getApplicationFile(@PathVariable String id,
-                                                                    @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-                                                                    @RequestParam(required = false, defaultValue = "false") String isSampleApp) {
+                                                                    @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to export application with id: {}, branch: {}", id, branchName);
 
-        return importExportApplicationService.exportApplicationById(id, branchName, isSampleApp)
+        return importExportApplicationService.exportApplicationById(id, branchName)
                 .map(fetchedResource -> {
                     String applicationName = fetchedResource.getExportedApplication().getName();
                     HttpHeaders responseHeaders = new HttpHeaders();
