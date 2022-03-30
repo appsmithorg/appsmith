@@ -11,7 +11,6 @@ import {
 } from "react-select";
 import { Datasource } from "entities/Datasource";
 import { Colors } from "constants/Colors";
-import JSONViewer from "./JSONViewer";
 import FormControl from "../FormControl";
 import Table from "./Table";
 import { Action, QueryAction, SaaSAction } from "entities/Action";
@@ -79,6 +78,7 @@ import {
   ConditionalOutput,
   FormEvalOutput,
 } from "reducers/evaluationReducers/formEvaluationReducer";
+import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -789,7 +789,14 @@ export function EditorJSONtoForm(props: Props) {
             (isTableResponse ? (
               <Table data={output} tableBodyHeight={tableBodyHeight} />
             ) : (
-              <JSONViewer src={output} />
+              <ReadOnlyEditor
+                folding
+                height={"100%"}
+                input={{
+                  value: JSON.stringify(output, null, 2),
+                }}
+                isReadOnly
+              />
             ))}
           {!output && !error && (
             <NoResponseContainer>

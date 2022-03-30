@@ -3945,7 +3945,9 @@ Cypress.Commands.add(
           "']/parent::label/following-sibling::div//div[@class='CodeMirror-code']",
       ).click();
     } else {
-      cy.xpath("//div[@class='CodeMirror-code']").click();
+      cy.xpath("//div[@class='CodeMirror-code']")
+        .first()
+        .click();
     }
     cy.wait(3000); //Increasing wait time to evaluate non-undefined values
     const val = cy
