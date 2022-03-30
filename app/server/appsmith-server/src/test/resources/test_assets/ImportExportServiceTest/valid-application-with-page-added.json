@@ -1683,9 +1683,163 @@
         "validName": "s3Query"
       },
       "new": false
+    },
+    {
+      "id": "Page1_jsObject.myFun2",
+      "userPermissions": [
+        "read:actions",
+        "execute:actions",
+        "manage:actions"
+      ],
+      "gitSyncId": "62431e377dac2c35c9824849_6243f342ccfaea795b411e47",
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "myFun2",
+        "fullyQualifiedName": "jsObject.myFun2",
+        "datasource": {
+          "userPermissions": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isValid": true,
+          "new": true
+        },
+        "pageId": "Page1",
+        "collectionId": "Page1_jsObject",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "async () => {\n\t\t//use async-await or promises\n\t}",
+          "jsArguments": [],
+          "isAsync": true
+        },
+        "executeOnLoad": false,
+        "clientSideExecution": true,
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "async () => {\n\t\t//use async-await or promises\n\t}"
+        ],
+        "confirmBeforeExecute": false,
+        "userPermissions": [],
+        "validName": "jsObject.myFun2"
+      },
+      "publishedAction": {
+        "datasource": {
+          "userPermissions": [],
+          "messages": [],
+          "isValid": true,
+          "new": true
+        },
+        "messages": [],
+        "confirmBeforeExecute": false,
+        "userPermissions": []
+      },
+      "new": false
+    },
+    {
+      "id": "Page1_jsObject.myFun1",
+      "userPermissions": [
+        "read:actions",
+        "execute:actions",
+        "manage:actions"
+      ],
+      "gitSyncId": "62431e377dac2c35c9824849_6243f342ccfaea795b411e48",
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "myFun1",
+        "fullyQualifiedName": "jsObject.myFun1",
+        "datasource": {
+          "userPermissions": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isValid": true,
+          "new": true
+        },
+        "pageId": "Page1",
+        "collectionId": "Page1_jsObject",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => {\n\t\t//write code here\n\t}",
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "clientSideExecution": true,
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          }
+        ],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "() => {\n\t\t//write code here\n\t}"
+        ],
+        "confirmBeforeExecute": false,
+        "userPermissions": [],
+        "validName": "jsObject.myFun1"
+      },
+      "publishedAction": {
+        "datasource": {
+          "userPermissions": [],
+          "messages": [],
+          "isValid": true,
+          "new": true
+        },
+        "messages": [],
+        "confirmBeforeExecute": false,
+        "userPermissions": []
+      },
+      "new": false
     }
   ],
-  "actionCollectionList": [],
+  "actionCollectionList": [
+    {
+      "id": "Page1_jsObject",
+      "userPermissions": [
+        "read:actions",
+        "execute:actions",
+        "manage:actions"
+      ],
+      "gitSyncId": "62431e377dac2c35c9824849_6243f343ccfaea795b411e4b",
+      "unpublishedCollection": {
+        "name": "jsObject",
+        "pageId": "Page1",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actionIds": [],
+        "archivedActionIds": [],
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
+        "variables": [
+          {
+            "name": "myVar1",
+            "value": []
+          },
+          {
+            "name": "myVar2",
+            "value": {}
+          }
+        ]
+      },
+      "new": false
+    }
+  ],
   "invisibleActionFields": {
     "Page1_gsheetAPI": {
       "unpublishedUserSetOnLoad": false,
@@ -1699,11 +1853,19 @@
       "unpublishedUserSetOnLoad": false,
       "publishedUserSetOnLoad": false
     },
+    "Page1_jsObject.myFun2": {
+      "unpublishedUserSetOnLoad": false,
+      "publishedUserSetOnLoad": false
+    },
     "Page1_moviesQuery": {
       "unpublishedUserSetOnLoad": false,
       "publishedUserSetOnLoad": false
     },
     "Page1_testImport": {
+      "unpublishedUserSetOnLoad": false,
+      "publishedUserSetOnLoad": false
+    },
+    "Page1_jsObject.myFun1": {
       "unpublishedUserSetOnLoad": false,
       "publishedUserSetOnLoad": false
     },
