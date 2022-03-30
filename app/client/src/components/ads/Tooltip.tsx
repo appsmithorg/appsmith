@@ -33,11 +33,14 @@ const portalContainer = document.getElementById("tooltip-root");
 const TooltipWrapper = styled(Tooltip)`
   display: flex;
   width: fit-content;
+  text-align: center;
 `;
 
-const TooltipChildrenWrapper = styled.div<{ disabled: boolean }>`
+const TooltipChildrenWrapper = styled.div<{ helpCursor: boolean }>`
+  display: flex;
   position: relative;
-  cursor: ${(props) => (props.disabled ? "" : "help")};
+  height: 100%;
+  cursor: ${(props) => (props.helpCursor ? "help" : "")};
 `;
 
 const TooltipUnderline = styled.span`
@@ -70,7 +73,9 @@ function TooltipComponent(props: TooltipProps) {
       position={props.position}
       usePortal={!props.donotUsePortal}
     >
-      <TooltipChildrenWrapper disabled={!!props.disabled}>
+      <TooltipChildrenWrapper
+        helpCursor={!!(!props.disabled && props.underline)}
+      >
         {props.children}
         {!props.disabled && props.underline && (
           <TooltipUnderline className={"underline"} />
