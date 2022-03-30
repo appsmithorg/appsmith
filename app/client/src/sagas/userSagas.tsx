@@ -15,12 +15,7 @@ import UserApi, {
   UpdateUserRequest,
   LeaveOrgRequest,
 } from "api/UserApi";
-import {
-  APPLICATIONS_URL,
-  AUTH_LOGIN_URL,
-  BASE_URL,
-  SETUP,
-} from "constants/routes";
+import { AUTH_LOGIN_URL, SETUP } from "constants/routes";
 import history from "utils/history";
 import { ApiResponse } from "api/ApiResponses";
 import {
@@ -131,12 +126,6 @@ export function* getCurrentUserSaga() {
       });
       if (response.data.emptyInstance) {
         history.replace(SETUP);
-      } else if (window.location.pathname === BASE_URL) {
-        if (response.data.isAnonymous) {
-          history.replace(AUTH_LOGIN_URL);
-        } else {
-          history.replace(APPLICATIONS_URL);
-        }
       }
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.USER_ME_API,

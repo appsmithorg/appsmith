@@ -129,7 +129,6 @@ function AppRouter(props: {
                 exact
                 path={SIGNUP_SUCCESS_URL}
               />
-
               <SentryRoute component={UserProfile} path={PROFILE} />
               <SentryRoute
                 component={UnsubscribeEmail}
