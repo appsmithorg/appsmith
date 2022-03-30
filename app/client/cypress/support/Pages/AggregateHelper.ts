@@ -203,7 +203,7 @@ export class AggregateHelper {
             .first()
             .scrollIntoView()
             .click()
-        cy.get(locator._dropDownValue(ddOption)).click({ force: true })
+        cy.get(locator._selectOptionValue(ddOption)).click({ force: true })
         this.Sleep(2000)
     }
 
