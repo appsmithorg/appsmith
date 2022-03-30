@@ -141,7 +141,7 @@ export function Login(props: LoginFormProps) {
           }
           intent="danger"
           message={
-            !!errorMessage
+            !!errorMessage && errorMessage !== "true"
               ? errorMessage
               : createMessage(LOGIN_PAGE_INVALID_CREDS_ERROR)
           }
