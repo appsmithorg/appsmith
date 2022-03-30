@@ -8,4 +8,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check and copy labels
-        uses: appsmithorg/process-automations/actions/copy-labels-from-issue@main
+        uses: appsmithorg/process-automations/actions/copy-labels-to-pr@main
