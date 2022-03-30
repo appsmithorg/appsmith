@@ -72,10 +72,8 @@ import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
 import Guide from "pages/Editor/GuidedTour/Guide";
-import Boxed from "pages/Editor/GuidedTour/Boxed";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
-import { GUIDED_TOUR_STEPS } from "../GuidedTour/constants";
 import Spinner from "components/ads/Spinner";
 import {
   ConditionalOutput,
@@ -971,28 +969,26 @@ export function EditorJSONtoForm(props: Props) {
               />
             </TabContainerView>
 
-            <Boxed step={GUIDED_TOUR_STEPS.RUN_QUERY}>
-              <TabbedViewContainer ref={panelRef}>
-                <Resizable
-                  panelRef={panelRef}
-                  setContainerDimensions={(height: number) =>
-                    setTableBodyHeightHeight(height)
-                  }
-                />
-                {output && !!output.length && (
-                  <ResultsCount>
-                    <Text type={TextType.P3}>
-                      Result:
-                      <Text type={TextType.H5}>{`${output.length} Record${
-                        output.length > 1 ? "s" : ""
-                      }`}</Text>
-                    </Text>
-                  </ResultsCount>
-                )}
+            <TabbedViewContainer ref={panelRef}>
+              <Resizable
+                panelRef={panelRef}
+                setContainerDimensions={(height: number) =>
+                  setTableBodyHeightHeight(height)
+                }
+              />
+              {output && !!output.length && (
+                <ResultsCount>
+                  <Text type={TextType.P3}>
+                    Result:
+                    <Text type={TextType.H5}>{`${output.length} Record${
+                      output.length > 1 ? "s" : ""
+                    }`}</Text>
+                  </Text>
+                </ResultsCount>
+              )}
 
-                <EntityBottomTabs defaultIndex={0} tabs={responseTabs} />
-              </TabbedViewContainer>
-            </Boxed>
+              <EntityBottomTabs defaultIndex={0} tabs={responseTabs} />
+            </TabbedViewContainer>
           </SecondaryWrapper>
           <SidebarWrapper
             show={(hasDependencies || !!output) && !guidedTourEnabled}
