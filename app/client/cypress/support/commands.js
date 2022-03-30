@@ -42,6 +42,7 @@ const chainStart = Symbol();
 export const initLocalstorage = () => {
   cy.window().then((window) => {
     window.localStorage.setItem("ShowCommentsButtonToolTip", "");
+    window.localStorage.setItem("updateDismissed", "true");
   });
 };
 
@@ -338,11 +339,12 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
     .scrollIntoView()
     .should("be.visible")
     .click({ force: true });
-  cy.wait("@createNewApplication").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
+  cy.wait("@createNewApplication").then((xhr) => {
+    const response = xhr.response;
+    expect(response.body.responseMeta.status).to.eq(201);
+    localStorage.setItem("applicationId", response.body.data.id);
+  });
+
   cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
@@ -360,14 +362,16 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
 });
 
 Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
+  let applicationId;
   cy.get(homePage.createNew)
     .first()
     .click({ force: true });
-  cy.wait("@createNewApplication").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
+  cy.wait("@createNewApplication").then((xhr) => {
+    const response = xhr.response;
+    expect(response.body.responseMeta.status).to.eq(201);
+    applicationId = response.body.data.id;
+    localStorage.setItem("applicationId", applicationId);
+  });
   cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
@@ -1332,6 +1336,14 @@ Cypress.Commands.add("selectOnClickOption", (option) => {
     .click({ force: true });
 });
 
+Cypress.Commands.add("selectWidgetOnClickOption", (option) => {
+  cy.get(".bp3-popover-content", { timeout: 10000 }).should("be.visible");
+  cy.get(commonlocators.selectWidgetVirtualList, { timeout: 10000 })
+    .should("be.visible")
+    .contains(option)
+    .click({ force: true });
+});
+
 Cypress.Commands.add("CheckWidgetProperties", (checkboxCss) => {
   cy.get(checkboxCss).check({
     force: true,
@@ -1445,7 +1457,6 @@ Cypress.Commands.add("PublishtheApp", () => {
 
   cy.get(homePage.publishButton).click();
   cy.wait("@publishApp");
-  cy.url().should("include", "/pages");
   cy.log("pagename: " + localStorage.getItem("PageName"));
   cy.wait(1000); //wait time for page to load!
 });
@@ -1897,17 +1908,14 @@ Cypress.Commands.add("Createpage", (pageName) => {
 });
 
 Cypress.Commands.add("Deletepage", (Pagename) => {
-  cy.get(pages.pagesIcon).click({ force: true });
-  cy.get(".t--page-sidebar-" + Pagename + "");
-  cy.get(
-    ".t--page-sidebar-" +
-      Pagename +
-      ">.t--page-sidebar-menu-actions>.bp3-popover-target",
-  ).click({ force: true });
-  cy.get(pages.Menuaction).click({ force: true });
-  cy.get(pages.Delete).click({ force: true });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
+  cy.CheckAndUnfoldEntityItem("PAGES");
+  cy.get(`.t--entity-item:contains(${Pagename})`).within(() => {
+    cy.get(".t--context-menu").click({ force: true });
+  });
+  cy.selectAction("Delete");
+  cy.selectAction("Are you sure?");
+  cy.wait("@deletePage");
+  cy.get("@deletePage").should("have.property", "status", 200);
 });
 
 Cypress.Commands.add("generateUUID", () => {
@@ -1922,9 +1930,10 @@ Cypress.Commands.add("addDsl", (dsl) => {
   let layoutId;
   cy.url().then((url) => {
     currentURL = url;
-    const myRegexp = /pages(.*)/;
-    const match = myRegexp.exec(currentURL);
-    pageid = match[1].split("/")[1];
+    pageid = currentURL
+      .split("/")[4]
+      ?.split("-")
+      .pop();
     cy.log(pageidcopy + "page id copy");
     cy.log(pageid + "page id");
     //Fetch the layout id
@@ -1946,26 +1955,18 @@ Cypress.Commands.add("addDsl", (dsl) => {
 });
 
 Cypress.Commands.add("DeleteAppByApi", () => {
-  let currentURL;
-  let appId;
-  cy.url().then((url) => {
-    currentURL = url;
-    const myRegexp = /applications(.*)/;
-    const match = myRegexp.exec(currentURL);
-    appId = match ? match[1].split("/")[1] : null;
-
-    if (appId !== null) {
-      cy.log(appId + "appId");
-      cy.request({
-        method: "DELETE",
-        url: "api/v1/applications/" + appId,
-        failOnStatusCode: false,
-      }).then((response) => {
-        cy.log(response.body);
-        cy.log(response.status);
-      });
-    }
-  });
+  const appId = localStorage.getItem("applicationId");
+  if (appId !== null) {
+    cy.log(appId + "appId");
+    cy.request({
+      method: "DELETE",
+      url: "api/v1/applications/" + appId,
+      failOnStatusCode: false,
+    }).then((response) => {
+      cy.log(response.body);
+      cy.log(response.status);
+    });
+  }
 });
 
 Cypress.Commands.add("togglebar", (value) => {
@@ -2283,7 +2284,7 @@ Cypress.Commands.add("ClickGotIt", () => {
 });
 
 Cypress.Commands.add("testDatasource", (expectedRes = true) => {
-  cy.get(".t--test-datasource").click();
+  cy.get(".t--test-datasource").click({ force: true });
   cy.wait("@testDatasource").should(
     "have.nested.property",
     "response.body.data.success",
@@ -2292,7 +2293,7 @@ Cypress.Commands.add("testDatasource", (expectedRes = true) => {
 });
 
 Cypress.Commands.add("saveDatasource", () => {
-  cy.get(".t--save-datasource").click();
+  cy.get(".t--save-datasource").click({ force: true });
   cy.wait("@saveDatasource")
     .then((xhr) => {
       cy.log(JSON.stringify(xhr.response.body));
@@ -2975,8 +2976,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/logout").as("postLogout");
 
   cy.route("GET", "/api/v1/datasources?organizationId=*").as("getDataSources");
-  cy.route("GET", "/api/v1/pages/application/*").as("getPagesForCreateApp");
-  cy.route("GET", "/api/v1/applications/view/*").as("getPagesForViewApp");
+  cy.route("GET", "/api/v1/pages?*mode=EDIT").as("getPagesForCreateApp");
+  cy.route("GET", "/api/v1/pages?*mode=PUBLISHED").as("getPagesForViewApp");
 
   cy.route("POST");
   cy.route("GET", "/api/v1/pages/*").as("getPage");
@@ -2986,6 +2987,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "api/v1/import/templateCollections").as(
     "getTemplateCollections",
   );
+  cy.route("PUT", "/api/v1/pages/*").as("updatePage");
   cy.route("DELETE", "/api/v1/actions/*").as("deleteAPI");
   cy.route("DELETE", "/api/v1/applications/*").as("deleteApp");
   cy.route("DELETE", "/api/v1/actions/*").as("deleteAction");
@@ -3040,6 +3042,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "/api/v1/users/me").as("getUser");
   cy.route("POST", "/api/v1/pages").as("createPage");
   cy.route("POST", "/api/v1/pages/clone/*").as("clonePage");
+  cy.route("POST", "/api/v1/applications/clone/*").as("cloneApp");
   cy.route("PUT", "/api/v1/applications/*/changeAccess").as("changeAccess");
 
   cy.route("PUT", "/api/v1/organizations/*").as("updateOrganization");
@@ -3528,6 +3531,29 @@ Cypress.Commands.add("skipCommentsOnboarding", () => {
   cy.get("button[type='submit']").click();
 });
 
+Cypress.Commands.add("revokeAccessGit", (appName) => {
+  cy.xpath("//span[text()= `${appName}`]")
+    .parent()
+    .next()
+    .click();
+  cy.get(gitSyncLocators.disconnectAppNameInput).type(appName);
+  cy.get(gitSyncLocators.disconnectButton).click();
+  cy.route("POST", "api/v1/git/disconnect/*").as("disconnect");
+  cy.get(gitSyncLocators.disconnectButton).click();
+  cy.wait("@disconnect").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.window()
+    .its("store")
+    .invoke("getState")
+    .then((state) => {
+      const { id, name } = state.ui.gitSync.disconnectingGitApp;
+      expect(name).to.eq("");
+      expect(id).to.eq("");
+    });
+});
 Cypress.Commands.add(
   "connectToGitRepo",
   (repo, shouldCommit = true, assertConnectFailure) => {
@@ -3919,7 +3945,9 @@ Cypress.Commands.add(
           "']/parent::label/following-sibling::div//div[@class='CodeMirror-code']",
       ).click();
     } else {
-      cy.xpath("//div[@class='CodeMirror-code']").click();
+      cy.xpath("//div[@class='CodeMirror-code']")
+        .first()
+        .click();
     }
     cy.wait(3000); //Increasing wait time to evaluate non-undefined values
     const val = cy
