@@ -182,6 +182,13 @@ function DatePickerComponent(props: DatePickerComponentProps) {
     setDatePickerVisibility(nextOpenState);
   }
 
+  function handleTimePickerKeydown(e: React.KeyboardEvent) {
+    if (e.key === "Enter") {
+      setDatePickerVisibility(false);
+      e.stopPropagation();
+    }
+  }
+
   return (
     <StyledDateInput
       className={Classes.DATE_PICKER_OVARLAY}
@@ -205,6 +212,9 @@ function DatePickerComponent(props: DatePickerComponentProps) {
         isOpen: isDatePickerVisible,
       }}
       showActionsBar={props.showActionsBar}
+      timePickerProps={{
+        onKeyDown: handleTimePickerKeydown,
+      }}
       timePrecision={props.timePrecision}
       value={props.value}
     />
