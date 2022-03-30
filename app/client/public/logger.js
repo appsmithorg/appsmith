@@ -46,6 +46,7 @@ function removeActivityListener() {
 
 // Removes event listeners and adds them just in time for the next pulse
 function scheduleNextPunchIn() {
+  const timestamp = getCurrentUTCTimestamp();
   const startListentingIn = NEXT_LOGGING_HOUR - timestamp - 2;
 
   // If we don't have much time until TTL expires;
@@ -54,7 +55,6 @@ function scheduleNextPunchIn() {
 
   // Remove all listeners for now.
   removeActivityListener();
-  const timestamp = getCurrentUTCTimestamp();
 
   // Add listeners 10 seconds before the next hour begins
   setTimeout(addActivityListener, startListentingIn * 1000);
