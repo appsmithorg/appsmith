@@ -2,7 +2,6 @@ import Button, { Category } from "components/ads/Button";
 import { createMessage } from "@appsmith/constants/messages";
 import React from "react";
 import styled from "styled-components";
-import { Setting } from "@appsmith/pages/AdminSettings/config/types";
 
 const StyledButton = styled(Button)`
   height: 24px;
