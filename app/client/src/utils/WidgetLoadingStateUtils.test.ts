@@ -167,7 +167,7 @@ describe("Widget loading state utils", () => {
     beforeAll(() => {
       // mock WidgetFactory.getLoadingProperties
       const loadingPropertiesMap = new Map<string, RegExp[]>();
-      loadingPropertiesMap.set("TABLE_WIDGET", [/tableData$/]);
+      loadingPropertiesMap.set("TABLE_WIDGET", [/.tableData$/]);
 
       jest
         .spyOn(WidgetFactory, "getLoadingProperties")

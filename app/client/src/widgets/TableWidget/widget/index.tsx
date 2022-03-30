@@ -110,7 +110,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   static getLoadingProperties(): Array<RegExp> | undefined {
-    return [/tableData$/];
+    return [/.tableData$/];
   }
 
   getTableColumns = () => {
