@@ -57,6 +57,5 @@ export class CommonLocators {
     _inputFieldByName = (fieldName: string) => "//p[text()='" + fieldName + "']/parent::label/following-sibling::div"
     _existingFieldValueByName = (fieldName: string) => this._inputFieldByName(fieldName) + this._codeMirrorCode
     _evaluatedCurrentValue = "div:last-of-type .t--CodeEditor-evaluatedValue > div:last-of-type pre"
-    _tableRowColumn = (rowNum: number, colNum: number) => `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div div`
 
 }

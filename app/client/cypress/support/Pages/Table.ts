@@ -10,6 +10,8 @@ export class Table {
   _nextPage = ".t--widget-tablewidget .t--table-widget-next-page"
   private _previousPage = ".t--widget-tablewidget .t--table-widget-prev-page"
   private _pageNumber = ".t--widget-tablewidget .page-item"
+  _tableRowColumn = (rowNum: number, colNum: number) => `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div div`
+  _tableEmptyColumnData = `.t--widget-tablewidget .tbody .td`
 
   public WaitUntilTableLoad() {
     // cy.waitUntil(() => cy.xpath(this._table, { timeout: 80000 }).should('be.visible'),
@@ -32,7 +34,7 @@ export class Table {
   }
 
   public WaitForTableEmpty() {
-    cy.waitUntil(() => cy.get(this.locator._tableRowColumn(0, 0), { timeout: 80000 }).should('not.exist'),
+    cy.waitUntil(() => cy.get(this._tableEmptyColumnData).children().should("have.length", 0),
       {
         errorMsg: "Table is populated when not expected",
         timeout: 10000,
@@ -47,7 +49,7 @@ export class Table {
   }
 
   public ReadTableRowColumnData(rowNum: number, colNum: number) {
-    return cy.get(this.locator._tableRowColumn(rowNum, colNum), { timeout: 80000 }).invoke("text");
+    return cy.get(this._tableRowColumn(rowNum, colNum), { timeout: 80000 }).invoke("text");
   }
 
   public AssertHiddenColumns(columnNames: string[]) {
