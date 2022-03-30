@@ -286,7 +286,12 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
+            validation: {
+              type: ValidationTypes.CSV,
+              params: {
+                allowedValues: ["BOLD", "ITALIC"],
+              },
+            },
           },
         ],
       },

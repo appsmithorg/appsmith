@@ -324,7 +324,12 @@ const COMMON_PROPERTIES = {
       isBindProperty: true,
       isTriggerProperty: false,
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
-      validation: { type: ValidationTypes.TEXT },
+      validation: {
+        type: ValidationTypes.CSV,
+        params: {
+          allowedValues: ["BOLD", "ITALIC"],
+        },
+      },
       dependencies: ["schema", "sourceData"],
     },
   ],
