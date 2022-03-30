@@ -57,7 +57,7 @@ function scheduleNextPunchIn() {
   removeActivityListener();
 
   // Add listeners 2 seconds before the next hour begins
-  setTimeout(addActivityListener, startListentingIn);
+  setTimeout(addActivityListener, startListentingIn * 1000);
 }
 
 LAST_LOGGED_HOUR = 0; // The last time we logged
