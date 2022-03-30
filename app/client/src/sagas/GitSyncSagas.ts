@@ -61,11 +61,7 @@ import {
 import { GitApplicationMetadata } from "../api/ApplicationApi";
 
 import history from "utils/history";
-import {
-  addBranchParam,
-  BUILDER_PAGE_URL,
-  GIT_BRANCH_QUERY_KEY,
-} from "constants/routes";
+import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import { MergeBranchPayload, MergeStatusPayload } from "api/GitSyncAPI";
 
 import {
@@ -84,6 +80,7 @@ import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
 import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
+import { builderURL } from "RouteBuilder";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
@@ -419,7 +416,9 @@ function* fetchGitStatusSaga() {
   let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
-    const gitMetaData = yield select(getCurrentAppGitMetaData);
+    const gitMetaData: GitApplicationMetadata = yield select(
+      getCurrentAppGitMetaData,
+    );
     response = yield GitSyncAPI.getGitStatus({
       applicationId,
       branch: gitMetaData?.branchName || "",
@@ -533,7 +532,12 @@ function* gitPullSaga(
     if (isValidResponse) {
       const { mergeStatus } = response?.data;
       yield put(gitPullSuccess(mergeStatus));
-      yield put(initEditor(applicationId, currentPageId, currentBranch));
+      yield put(
+        initEditor({
+          pageId: currentPageId,
+          branch: currentBranch,
+        }),
+      );
     }
   } catch (e) {
     // todo check based on error type
@@ -649,6 +653,8 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
         }: {
           application: {
             id: string;
+            applicationVersion: number;
+            slug: string;
             pages: { default?: boolean; id: string; isDefault?: boolean }[];
           };
           isPartialImport: boolean;
@@ -674,8 +680,10 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
             pageId = defaultPage ? defaultPage.id : "";
           }
 
-          const pageURL = BUILDER_PAGE_URL({
+          const pageURL = builderURL({
             applicationId: app.id,
+            applicationSlug: app.slug,
+            applicationVersion: app.applicationVersion,
             pageId,
           });
           history.push(pageURL);

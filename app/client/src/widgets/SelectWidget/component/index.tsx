@@ -113,6 +113,7 @@ class SelectComponent extends React.Component<
   };
   onQueryChange = (filterValue: string) => {
     this.setState({ query: filterValue });
+    this.props.onFilterChange(filterValue);
     this.listRef?.current?.scrollTo(0);
     if (!this.props.serverSideFiltering) return;
     return this.serverSideSearch(filterValue);
@@ -183,6 +184,7 @@ class SelectComponent extends React.Component<
       props.renderItem,
     );
   };
+  menuListStyle = { height: "auto", maxHeight: 300 };
   renderList = (
     items: DropdownOption[],
     activeItemIndex: number | null,
@@ -206,6 +208,7 @@ class SelectComponent extends React.Component<
         itemCount={items.length}
         itemSize={ITEM_SIZE}
         ref={this.listRef}
+        style={this.menuListStyle}
         width={"100%"}
       >
         {RowRenderer}

@@ -45,6 +45,8 @@ import {
   REST_API_AUTHORIZATION_APPSMITH_ERROR,
   REST_API_AUTHORIZATION_FAILED,
   REST_API_AUTHORIZATION_SUCCESSFUL,
+  CONTEXT_DELETE,
+  CONFIRM_CONTEXT_DELETE,
 } from "@appsmith/constants/messages";
 import Collapsible from "./Collapsible";
 import _ from "lodash";
@@ -138,9 +140,14 @@ const SaveButtonContainer = styled.div`
 
 const ActionButton = styled(BaseButton)`
   &&& {
-    max-width: 72px;
+    width: auto;
+    min-width: 74px;
     margin-right: 9px;
     min-height: 32px;
+
+    & > span {
+      max-width: 100%;
+    }
   }
 `;
 
@@ -157,7 +164,14 @@ const AuthorizeButton = styled(StyledButton)`
   }
 `;
 
-class DatasourceRestAPIEditor extends React.Component<Props> {
+class DatasourceRestAPIEditor extends React.Component<
+  Props,
+  { confirmDelete: boolean }
+> {
+  constructor(props: Props) {
+    super(props);
+    this.state = { confirmDelete: false };
+  }
   componentDidMount() {
     const status = this.props.responseStatus;
 
@@ -186,6 +200,15 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
   componentDidUpdate() {
     if (!this.props.formData) return;
+
+    if (this.state.confirmDelete) {
+      const delayConfirmDeleteToFalse = _.debounce(
+        () => this.setState({ confirmDelete: false }),
+        2200,
+      );
+
+      delayConfirmDeleteToFalse();
+    }
 
     const { authType } = this.props.formData;
 
@@ -373,8 +396,16 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             buttonVariant={ButtonVariantTypes.PRIMARY}
             className="t--delete-datasource"
             loading={isDeleting}
-            onClick={() => deleteDatasource(datasourceId)}
-            text="Delete"
+            onClick={() => {
+              this.state.confirmDelete
+                ? deleteDatasource(datasourceId)
+                : this.setState({ confirmDelete: true });
+            }}
+            text={
+              this.state.confirmDelete
+                ? createMessage(CONFIRM_CONTEXT_DELETE)
+                : createMessage(CONTEXT_DELETE)
+            }
           />
         )}
 
@@ -393,7 +424,19 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   renderEditor = () => {
-    const { formData, messages } = this.props;
+    const {
+      datasource,
+      datasourceId,
+      formData,
+      isSaving,
+      messages,
+      pageId,
+    } = this.props;
+    const isAuthorized = _.get(
+      datasource,
+      "datasourceConfiguration.authentication.isAuthorized",
+      false,
+    );
     if (!formData) return;
     return (
       <>
@@ -490,27 +533,22 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           )}
         </FormInputContainer>
         {this.renderAuthFields()}
-        <FormInputContainer data-replay-id={btoa("ssl")}>
-          {this.renderDropdownControlViaFormControl(
-            "connection.ssl.authType",
-            [
-              {
-                label: "No",
-                value: "DEFAULT",
-              },
-              {
-                label: "Yes",
-                value: "SELF_SIGNED_CERTIFICATE",
-              },
-            ],
-            "Use Self-signed certificate",
-            "",
-            true,
-            "",
-            "DEFAULT",
-          )}
-        </FormInputContainer>
         {this.renderSelfSignedCertificateFields()}
+        <FormInputContainer>
+          <AuthorizeButton
+            disabled={this.disableSave()}
+            filled
+            intent="primary"
+            loading={isSaving}
+            onClick={() =>
+              this.save(
+                redirectAuthorizationCode(pageId, datasourceId, PluginType.API),
+              )
+            }
+            size="small"
+            text={isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"}
+          />
+        </FormInputContainer>
       </>
     );
   };
@@ -830,6 +868,26 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             "",
           )}
         </FormInputContainer>
+        <FormInputContainer data-replay-id={btoa("ssl")}>
+          {this.renderDropdownControlViaFormControl(
+            "connection.ssl.authType",
+            [
+              {
+                label: "No",
+                value: "DEFAULT",
+              },
+              {
+                label: "Yes",
+                value: "SELF_SIGNED_CERTIFICATE",
+              },
+            ],
+            "Use Self-signed certificate",
+            "",
+            true,
+            "",
+            "DEFAULT",
+          )}
+        </FormInputContainer>
       </>
     );
   };
@@ -871,12 +929,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   renderOauth2AuthorizationCode = () => {
-    const { datasource, datasourceId, formData, isSaving, pageId } = this.props;
-    const isAuthorized = _.get(
-      datasource,
-      "datasourceConfiguration.authentication.isAuthorized",
-      false,
-    );
+    const { formData } = this.props;
+
     const redirectURL =
       window.location.origin + "/api/v1/datasources/authorize";
     return (
@@ -943,21 +997,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         <Collapsible title="Advanced Settings">
           {this.renderOauth2AdvancedSettings()}
         </Collapsible>
-        <FormInputContainer>
-          <AuthorizeButton
-            disabled={this.disableSave()}
-            filled
-            intent="primary"
-            loading={isSaving}
-            onClick={() =>
-              this.save(
-                redirectAuthorizationCode(pageId, datasourceId, PluginType.API),
-              )
-            }
-            size="small"
-            text={isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"}
-          />
-        </FormInputContainer>
       </>
     );
   };
