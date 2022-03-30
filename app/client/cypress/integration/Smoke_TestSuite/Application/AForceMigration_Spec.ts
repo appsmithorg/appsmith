@@ -53,7 +53,7 @@ describe("AForce - Community issues Page validations", function () {
 
     agHelper.NavigateBacktoEditor()
     table.WaitUntilTableLoad()
-
+    ee.SelectEntityByName("Table1")
     agHelper.ToggleOnOrOff('serversidepagination', 'Off')
     agHelper.DeployApp()
     table.WaitUntilTableLoad()
