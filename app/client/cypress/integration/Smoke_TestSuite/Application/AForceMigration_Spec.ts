@@ -7,9 +7,9 @@ let homePage = ObjectsRegistry.HomePage,
   agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer;
 
-describe("AForce - Community issues Page validations", function () {
+describe("AForce - Community Issues page validations", function () {
 
-  let reconnect = true;
+  let reconnect = true, selectedRow: number;
   it("1. Import application json and validate headers", () => {
 
     homePage.ImportApp("AForceMigrationExport.json", reconnect)
@@ -24,11 +24,16 @@ describe("AForce - Community issues Page validations", function () {
 
   });
 
-  it("2. Validate Table navigation with server side pagination enabled", () => {
-
+  it("2. Validate table navigation with Server Side pagination enabled with Default selected row", () => {
     ee.expandCollapseEntity("WIDGETS")
     ee.SelectEntityByName("Table1")
     agHelper.AssertExistingToggleState("serversidepagination", 'checked')
+
+    agHelper.EvaluateExistingPropertyFieldValue("Default Selected Row")
+      .then($selectedRow => {
+        selectedRow = Number($selectedRow);
+        table.AssertSelectedRow(selectedRow)
+      });
 
     agHelper.DeployApp()
     table.WaitUntilTableLoad()
@@ -36,20 +41,33 @@ describe("AForce - Community issues Page validations", function () {
     //Verify hidden columns are infact hidden in deployed app!
     table.AssertTableHeaderOrder("TypeTitleStatus+1CommentorsVotesAnswerUpVote")//from case #1
 
+    table.AssertSelectedRow(selectedRow)//Assert default selected row
+
     table.AssertPageNumber(1);
     table.NavigateToNextPage()//page 2
     agHelper.Sleep(3000)//wait for table navigation to take effect!
     table.WaitUntilTableLoad()
+    table.AssertSelectedRow(selectedRow)
+
+
     table.NavigateToNextPage()//page 3
     agHelper.Sleep(3000)//wait for table navigation to take effect!
     table.WaitForTableEmpty()//page 3
     table.NavigateToPreviousPage()//page 2
     agHelper.Sleep(3000)//wait for table navigation to take effect!
     table.WaitUntilTableLoad()
+    table.AssertSelectedRow(selectedRow)
+
     table.NavigateToPreviousPage()//page 1
     agHelper.Sleep(3000)//wait for table navigation to take effect!
     table.WaitUntilTableLoad()
+    table.AssertSelectedRow(selectedRow)
+
     table.AssertPageNumber(1);
+
+  })
+
+  it("3. Validate table navigation with Server Side pagination disabled with Default selected row", () => {
 
     agHelper.NavigateBacktoEditor()
     table.WaitUntilTableLoad()
@@ -58,6 +76,40 @@ describe("AForce - Community issues Page validations", function () {
     agHelper.DeployApp()
     table.WaitUntilTableLoad()
     table.AssertPageNumber(1, 'Off');
+    table.AssertSelectedRow(selectedRow)
+
+    agHelper.NavigateBacktoEditor()
+    table.WaitUntilTableLoad()
+
+  });
+
+  // it.skip("4. Verify Default search text in table as per 'Default Search Text' property set", () => {
+
+  // });
+
+  // it.skip("5. Validate Search table with Client Side Search enabled & disabled", () => {
+
+  // })
+
+  // it.skip("6. Validate Filter table", () => {
+
+  // })
+
+  // it.skip("7. Validate Filter table", () => {
+
+  // })
+
+  // it.skip("8. Validate Updating issue from Details tab", () => {
+
+  // })
+
+  // it.skip("9. Validate Adding a New issue from Add Modal", () => {
+
+
+  // })
+
+  // it.skip("10. Validate Deleting the newly created issue", () => {
+
 
     //   //Validating Id column sorting happens as Datatype is Number in app!
     //   cy.xpath(
@@ -490,5 +542,6 @@ describe("AForce - Community issues Page validations", function () {
     //   .invoke("attr", "value")
     //   .should("contain", "#FFC13D");
     // cy.get(widgetsPage.selectedTextSize).should("have.text", "24px");
-  });
+  
+  //});
 });

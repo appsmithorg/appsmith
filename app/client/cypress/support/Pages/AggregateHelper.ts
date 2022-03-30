@@ -321,7 +321,7 @@ export class AggregateHelper {
         let toValidate = false;
         if (currentValue) toValidate = true;
         if (fieldName) {
-            cy.xpath(this.locator._existingFieldValueByName(fieldName)).click();
+            cy.xpath(this.locator._existingFieldValueByName(fieldName)).eq(0).click();
         } else {
             cy.xpath(this.locator._codeMirrorCode).click();
         }

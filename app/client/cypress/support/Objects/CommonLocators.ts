@@ -55,7 +55,7 @@ export class CommonLocators {
     _openNavigationTab = (tabToOpen: string) => `#switcher--${tabToOpen}`
     _selectWidgetDropdown = (widgetType: string) => "//div[contains(@class, 't--draggable-" + widgetType + "')]//button"
     _inputFieldByName = (fieldName: string) => "//p[text()='" + fieldName + "']/parent::label/following-sibling::div"
-    _existingFieldValueByName = (fieldName: string) => this._inputFieldByName(fieldName) + this._codeMirrorCode
+    _existingFieldValueByName = (fieldName: string) => "//label[text()='" + fieldName + "']/ancestor::div//div[contains(@class,'CodeMirror-code')]"
     _evaluatedCurrentValue = "div:last-of-type .t--CodeEditor-evaluatedValue > div:last-of-type pre"
 
 }
