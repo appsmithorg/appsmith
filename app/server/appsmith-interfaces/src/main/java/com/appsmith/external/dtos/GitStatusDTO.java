@@ -1,5 +1,6 @@
 package com.appsmith.external.dtos;
 
+import com.appsmith.external.constants.Assets;
 import lombok.Data;
 
 import java.util.Set;
@@ -44,4 +45,7 @@ public class GitStatusDTO {
 
         // Remote tracking branch name
         String remoteBranch;
+
+        // Documentation url for discard and pull functionality
+        String discardDocUrl = Assets.GIT_DISCARD_DOC_URL;
 }
