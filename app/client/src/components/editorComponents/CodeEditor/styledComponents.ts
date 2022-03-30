@@ -46,6 +46,7 @@ export const EditorWrapper = styled.div<{
   height?: string | number;
   borderLess?: boolean;
   isNotHover?: boolean;
+  isReadOnly?: boolean;
   border?: CodeEditorBorder;
   hoverInteraction?: boolean;
   fill?: boolean;
@@ -286,6 +287,21 @@ export const EditorWrapper = styled.div<{
       height: ${props.isFocused ? "auto" : "35px"};
     }
   `}
+
+  ${(props) =>
+    props.isReadOnly &&
+    ` 
+      &&&&&&&&&& .cm-m-javascript.cm-number {
+        color: #268bd2;
+      }
+      &&&&&&&& .cm-m-javascript.cm-string.cm-property {
+        color: #002b36;
+      }
+
+      &&&&&&&& .cm-m-javascript.cm-string {
+        color: #cb4b16;
+      }
+    `}
 `;
 
 export const IconContainer = styled.div`
