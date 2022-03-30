@@ -1,5 +1,4 @@
 export class CommonLocators {
-
     _addNewDataSource = ".datasources .t--entity-add-btn"
     _integrationCreateNew = "[data-cy=t--tab-CREATE_NEW]"
     _loading = "#loading"
@@ -37,8 +36,9 @@ export class CommonLocators {
     _entityNameEditing = (entityNameinLeftSidebar: string) => "//span[text()='" + entityNameinLeftSidebar + "']/parent::div[contains(@class, 't--entity-name editing')]/input"
     _jsToggle = (controlToToggle: string) => ".t--property-control-" + controlToToggle + " .t--js-toggle"
     _spanButton = (btnVisibleText: string) => "//span[text()='" + btnVisibleText + "']/parent::button"
-    _selectPropDropdown = (ddName: string) => "//div[contains(@class, 't--property-control-" + ddName + "')]//button"
+    _selectPropDropdown = (ddName: string) => "//div[contains(@class, 't--property-control-" + ddName + "')]//button[contains(@class, 't--open-dropdown-Select-Action')]"
     _dropDownValue = (ddOption: string) => ".single-select:contains('" + ddOption + "')"
+    _selectOptionValue = (ddOption: string) => ".menu-item-link:contains('" + ddOption + "')"
     _actionTextArea = (actionName: string) => "//label[text()='" + actionName + "']/following-sibling::div//div[contains(@class, 'CodeMirror')]//textarea"
     _existingDefaultTextInput = ".t--property-control-defaulttext .CodeMirror-code"
     _widgetPageIcon = (widgetType: string) => `.t--widget-card-draggable-${widgetType}`
