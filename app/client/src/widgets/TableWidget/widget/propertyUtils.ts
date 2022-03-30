@@ -3,6 +3,7 @@ import { ColumnProperties } from "../component/Constants";
 import { TableWidgetProps } from "../constants";
 import { Colors } from "constants/Colors";
 import { get } from "lodash";
+import { IconNames } from "@blueprintjs/icons";
 
 export enum ColumnTypes {
   TEXT = "text",
@@ -206,6 +207,38 @@ export const updateColumnStyles = (
   }
   return;
 };
+
+// Select default Icon Name if column type is Icon Button
+export function updateIconName(
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: string,
+) {
+  const property = getBasePropertyPath(propertyPath);
+  const iconName = get(props, `${property}.iconName`, "");
+  let propertiesToUpdate = [{ propertyPath, propertyValue }];
+  const updateDerivedColumnsHookArr = updateDerivedColumnsHook(
+    props,
+    propertyPath,
+    propertyValue,
+  );
+  if (updateDerivedColumnsHookArr) {
+    propertiesToUpdate = [
+      ...updateDerivedColumnsHookArr,
+      ...propertiesToUpdate,
+    ];
+  }
+
+  if (!iconName && propertyValue === "iconButton") {
+    propertiesToUpdate.push({
+      propertyPath: `${property}.iconName`,
+      propertyValue: IconNames.ADD,
+    });
+  }
+
+  return propertiesToUpdate;
+}
+
 // Select default Icon Alignment when an icon is chosen
 export function updateIconAlignment(
   props: TableWidgetProps,

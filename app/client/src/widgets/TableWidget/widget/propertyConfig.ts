@@ -18,6 +18,7 @@ import {
   getBasePropertyPath,
   hideByColumnType,
   uniqueColumnNameValidation,
+  updateIconName,
 } from "./propertyUtils";
 import {
   createMessage,
@@ -124,7 +125,7 @@ export default [
                       value: "iconButton",
                     },
                   ],
-                  updateHook: updateDerivedColumnsHook,
+                  updateHook: updateIconName,
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
