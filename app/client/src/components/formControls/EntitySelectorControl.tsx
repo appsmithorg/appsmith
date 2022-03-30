@@ -2,8 +2,6 @@ import React from "react";
 import FormControl from "pages/Editor/FormControl";
 import styled from "styled-components";
 import { ControlProps } from "./BaseControl";
-import { Colors } from "constants/Colors";
-import Icon, { IconSize } from "components/ads/Icon";
 import { allowedControlTypes } from "components/formControls/utils";
 
 const dropDownFieldConfig: any = {
@@ -18,23 +16,16 @@ const inputFieldConfig: any = {
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
 };
 
-// Component for the icons
-const CenteredIcon = styled(Icon)<{ noMarginLeft?: boolean }>`
-  padding: 12px 12px 32px 12px;
-  align-self: end;
-  &.hide {
-    opacity: 0;
-    pointer-events: none;
-  }
-  color: ${Colors.GREY_7};
-`;
-
 // main container for the entity selector component
 const EntitySelectorContainer = styled.div`
   display: flex;
   flex-direction: row;
   width: min-content;
   justify-content: space-between;
+`;
+
+const EntitySelectorWrapper = styled.div<{ marginRight: string }>`
+  margin-right: ${(props) => props.marginRight};
 `;
 
 function EntitySelectorComponent(props: any) {
@@ -61,7 +52,10 @@ function EntitySelectorComponent(props: any) {
           return (
             allowedControlTypes.includes(singleSchema.controlType) &&
             !singleSchema.hidden && (
-              <React.Fragment key={`ES_FRAG_${singleSchema.configProperty}`}>
+              <EntitySelectorWrapper
+                key={`ES_FRAG_${singleSchema.configProperty}`}
+                marginRight={index + 1 === visibleSchemas.length ? "" : "1rem"}
+              >
                 {singleSchema.controlType === "DROP_DOWN" ? (
                   <FormControl
                     config={{
@@ -83,14 +77,7 @@ function EntitySelectorComponent(props: any) {
                     formName={props.formName}
                   />
                 )}
-                {index < visibleSchemas.length - 1 && (
-                  <CenteredIcon
-                    key={`ES_ICON_${configProperty}`}
-                    name="double-arrow-right"
-                    size={IconSize.SMALL}
-                  />
-                )}
-              </React.Fragment>
+              </EntitySelectorWrapper>
             )
           );
         })}
