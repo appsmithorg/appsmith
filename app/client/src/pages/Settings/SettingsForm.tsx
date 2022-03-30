@@ -90,6 +90,7 @@ export function SettingsForm(
   const params = useParams() as any;
   const { category, subCategory } = params;
   const settingsDetails = useSettings(category, subCategory);
+  const { settings, settingsConfig } = props;
   const details = getSettingDetail(category, subCategory);
   const dispatch = useDispatch();
   const isSavable = AdminConfig.savableCategories.includes(
@@ -100,11 +101,40 @@ export function SettingsForm(
   );
 
   const onSave = () => {
-    if (saveAllowed(props.settings)) {
-      dispatch(saveSettings(props.settings));
+    if (checkMandatoryFileds()) {
+      if (saveAllowed(props.settings)) {
+        dispatch(saveSettings(props.settings));
+      } else {
+        saveBlocked();
+      }
     } else {
-      saveBlocked();
+      Toaster.show({
+        text: "Mandatory fields cannot be empty",
+        variant: Variant.danger,
+      });
     }
+  };
+
+  const checkMandatoryFileds = () => {
+    const requiredFields = settingsDetails.filter((eachSetting) => {
+      const isInitialSettingBlank =
+        settingsConfig[eachSetting.id]?.toString().trim() === "" ||
+        settingsConfig[eachSetting.id] === undefined;
+      const isInitialSettingNotBlank = settingsConfig[eachSetting.id];
+      const isNewSettingBlank = settings[eachSetting.id]?.trim() === "";
+      const isNewSettingNotBlank = !settings[eachSetting.id];
+
+      if (
+        eachSetting.isRequired &&
+        !eachSetting.isHidden &&
+        ((isInitialSettingBlank && isNewSettingNotBlank) ||
+          (isInitialSettingNotBlank && isNewSettingBlank))
+      ) {
+        return eachSetting.id;
+      }
+    });
+
+    return !(requiredFields.length > 0);
   };
 
   const onClear = () => {
@@ -168,8 +198,6 @@ export function SettingsForm(
             onClear={onClear}
             onSave={onSave}
             settings={props.settings}
-            settingsConfig={props.settingsConfig}
-            settingsDetails={settingsDetails}
             valid={props.valid}
           />
         )}

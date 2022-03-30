@@ -46,48 +46,18 @@ type SaveAdminSettingsProps = {
   onSave?: () => void;
   onClear?: () => void;
   settings: Record<string, string>;
-  settingsConfig: Record<string, string | boolean>;
-  settingsDetails: Setting[];
   valid: boolean;
 };
 
 const saveAdminSettings = (props: SaveAdminSettingsProps) => {
-  const {
-    isSaving,
-    onClear,
-    onSave,
-    settings,
-    settingsConfig,
-    settingsDetails,
-    valid,
-  } = props;
-
-  const isDisabled = () => {
-    const requiredFields = settingsDetails.filter((eachSetting) => {
-      if (
-        eachSetting.isRequired &&
-        !eachSetting.isHidden &&
-        (((settingsConfig[eachSetting.id]?.toString().trim() === "" ||
-          settingsConfig[eachSetting.id] === undefined) &&
-          !settings[eachSetting.id]) ||
-          (!settingsConfig[eachSetting.id] &&
-            settings[eachSetting.id]?.trim() === ""))
-      ) {
-        return eachSetting.id;
-      }
-    });
-
-    return (
-      requiredFields.length > 0 || Object.keys(settings).length == 0 || !valid
-    );
-  };
+  const { isSaving, onClear, onSave, settings, valid } = props;
 
   return (
     <SettingsButtonWrapper>
       <StyledSaveButton
         category={Category.primary}
         className="t--admin-settings-save-button"
-        disabled={isDisabled()}
+        disabled={Object.keys(settings).length == 0 || !valid}
         isLoading={isSaving}
         onClick={onSave}
         tag="button"
