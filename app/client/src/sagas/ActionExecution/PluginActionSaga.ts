@@ -29,7 +29,7 @@ import {
   getAppMode,
   getCurrentApplication,
 } from "selectors/applicationSelectors";
-import _, { get, isString } from "lodash";
+import _, { get, isString, set } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import { validateResponse } from "sagas/ErrorSagas";
@@ -66,15 +66,15 @@ import { isBlobUrl, parseBlobUrl } from "utils/AppsmithUtils";
 import { getType, Types } from "utils/TypeHelpers";
 import { matchPath } from "react-router";
 import {
-  API_EDITOR_ID_URL,
-  API_EDITOR_URL,
-  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-  INTEGRATION_EDITOR_URL,
-  QUERIES_EDITOR_ID_URL,
-  QUERIES_EDITOR_URL,
+  API_EDITOR_BASE_PATH,
+  API_EDITOR_ID_PATH,
+  API_EDITOR_PATH_WITH_SELECTED_PAGE_ID,
+  INTEGRATION_EDITOR_PATH,
+  QUERIES_EDITOR_BASE_PATH,
+  QUERIES_EDITOR_ID_PATH,
   CURL_IMPORT_PAGE_PATH,
 } from "constants/routes";
-import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
+import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import {
   ActionTriggerType,
   RunPluginActionDescription,
@@ -101,6 +101,8 @@ import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { getFormNames, getFormValues } from "redux-form";
 import { CURL_IMPORT_FORM } from "constants/forms";
 import { submitCurlImportForm } from "actions/importActions";
+import { getBasePath } from "pages/Editor/Explorer/helpers";
+import { isTrueObject } from "workers/evaluationUtils";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -227,6 +229,22 @@ function* evaluateActionParams(
   for (let i = 0; i < bindings.length; i++) {
     const key = bindings[i];
     let value = values[i];
+
+    if (isTrueObject(value)) {
+      const blobUrlPaths: string[] = [];
+      Object.keys(value).forEach((propertyName) => {
+        if (isBlobUrl(value[propertyName])) {
+          blobUrlPaths.push(propertyName);
+        }
+      });
+
+      for (const blobUrlPath of blobUrlPaths) {
+        const blobUrl = value[blobUrlPath] as string;
+        const resolvedBlobValue = yield call(readBlob, blobUrl);
+        set(value, blobUrlPath, resolvedBlobValue);
+      }
+    }
+
     if (typeof value === "object") value = JSON.stringify(value);
     if (isBlobUrl(value)) {
       value = yield call(readBlob, value);
@@ -357,16 +375,17 @@ export default function* executePluginActionTriggerSaga(
 
 function* runActionShortcutSaga() {
   const location = window.location.pathname;
+  const basePath = getBasePath();
   const match: any = matchPath(location, {
     path: [
-      trimQueryString(API_EDITOR_URL()),
-      trimQueryString(API_EDITOR_ID_URL()),
-      trimQueryString(QUERIES_EDITOR_URL()),
-      trimQueryString(QUERIES_EDITOR_ID_URL()),
-      trimQueryString(API_EDITOR_URL_WITH_SELECTED_PAGE_ID()),
-      trimQueryString(INTEGRATION_EDITOR_URL()),
-      trimQueryString(SAAS_EDITOR_API_ID_URL()),
-      CURL_IMPORT_PAGE_PATH, // check if the current location matches a curl editor page
+      trimQueryString(`${basePath}${API_EDITOR_BASE_PATH}`),
+      trimQueryString(`${basePath}${API_EDITOR_ID_PATH}`),
+      trimQueryString(`${basePath}${QUERIES_EDITOR_BASE_PATH}`),
+      trimQueryString(`${basePath}${QUERIES_EDITOR_ID_PATH}`),
+      trimQueryString(`${basePath}${API_EDITOR_PATH_WITH_SELECTED_PAGE_ID}`),
+      trimQueryString(`${basePath}${INTEGRATION_EDITOR_PATH}`),
+      trimQueryString(`${basePath}${SAAS_EDITOR_API_ID_PATH}`),
+      `${basePath}${CURL_IMPORT_PAGE_PATH}`,
     ],
     exact: true,
     strict: false,
