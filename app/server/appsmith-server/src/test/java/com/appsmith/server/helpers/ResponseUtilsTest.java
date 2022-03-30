@@ -140,31 +140,31 @@ public class ResponseUtilsTest {
         AppsmithBeanUtils.copyNestedNonNullProperties(application, applicationCopy);
 
         application.setServerSchemaVersion(null);
-        Assert.assertNull(application.getIsManualUpdate());
+        Assert.assertNull(application.getIsAutoUpdate());
         responseUtils.updateApplicationWithDefaultResources(application);
-        Assert.assertEquals(application.getIsManualUpdate(), true);
+        Assert.assertEquals(application.getIsAutoUpdate(), false);
 
         application.setClientSchemaVersion(null);
-        application.setIsManualUpdate(null);
+        application.setIsAutoUpdate(null);
         responseUtils.updateApplicationWithDefaultResources(application);
-        Assert.assertEquals(application.getIsManualUpdate(), true);
+        Assert.assertEquals(application.getIsAutoUpdate(), false);
 
-        application.setIsManualUpdate(null);
+        application.setIsAutoUpdate(null);
         application.setServerSchemaVersion(1000);
         application.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
         responseUtils.updateApplicationWithDefaultResources(application);
-        Assert.assertEquals(application.getIsManualUpdate(), false);
+        Assert.assertEquals(application.getIsAutoUpdate(), true);
 
-        application.setIsManualUpdate(null);
+        application.setIsAutoUpdate(null);
         application.setClientSchemaVersion(1000);
         application.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
         responseUtils.updateApplicationWithDefaultResources(application);
-        Assert.assertEquals(application.getIsManualUpdate(), false);
+        Assert.assertEquals(application.getIsAutoUpdate(), true);
 
-        application.setIsManualUpdate(null);
+        application.setIsAutoUpdate(null);
         application.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
-        application.setClientSchemaVersion(JsonSchemaVersions.serverVersion);
+        application.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
         responseUtils.updateApplicationWithDefaultResources(application);
-        Assert.assertEquals(application.getIsManualUpdate(), true);
+        Assert.assertEquals(application.getIsAutoUpdate(), false);
     }
 }

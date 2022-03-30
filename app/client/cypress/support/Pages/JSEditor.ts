@@ -23,12 +23,34 @@ export class JSEditor {
     agHelper.WaitUntilEleDisappear(locator._toastMsg, 'created successfully', 1000)
   }
 
-  public CreateJSObject(JSCode: string, paste = true) {
+  public CreateJSObject(JSCode: string, paste = true, completeReplace = false) {
     this.NavigateToJSEditor();
-    cy.get(locator._codeMirrorTextArea)
+
+    if (!completeReplace) {
+      cy.get(locator._codeMirrorTextArea)
+        .first()
+        .focus()
+        .type("{downarrow}{downarrow}{downarrow}{downarrow}  ")
+    }
+    else {
+      cy.get(locator._codeMirrorTextArea)
       .first()
       .focus()
-      .type("{downarrow}{downarrow}{downarrow}{downarrow}  ")
+      .type("{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}")
+      .type("{shift}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}{uparrow}", { force: true })
+      .type("{backspace}",{ force: true });
+
+      // .type("{uparrow}", { force: true })
+      // .type("{ctrl}{shift}{downarrow}", { force: true })
+      // .type("{del}",{ force: true });
+
+      // cy.get(locator._codeEditorTarget).contains('export').click().closest(locator._codeEditorTarget)
+      //   .type("{uparrow}", { force: true })
+      //   .type("{ctrl}{shift}{downarrow}", { force: true })
+      //   .type("{backspace}",{ force: true });
+      //.type("{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow} ")
+
+      }
 
     cy.get(locator._codeMirrorTextArea)
       .first()
@@ -75,7 +97,9 @@ export class JSEditor {
       .first()
       .focus()
       .type("{uparrow}", { force: true })
-      .type("{ctrl}{shift}{downarrow}", { force: true });
+      .type("{ctrl}{shift}{downarrow}", { force: true })
+      .type("{del}", { force: true });
+
     cy.focused().then(($cm: any) => {
       if ($cm.contents != "") {
         cy.log("The field is not empty");

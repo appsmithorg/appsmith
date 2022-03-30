@@ -5,8 +5,8 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { all, put, takeEvery, call } from "redux-saga/effects";
-import TemplatesAPI from "api/TemplatesApi";
-import { BUILDER_PAGE_URL } from "constants/routes";
+import TemplatesAPI, { ImportTemplateResponse } from "api/TemplatesApi";
+import { PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import history from "utils/history";
 import { getDefaultPageId } from "./ApplicationSagas";
 import { setTemplateNotificationSeenAction } from "actions/templateActions";
@@ -15,6 +15,7 @@ import {
   setTemplateNotificationSeen,
 } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
+import { builderURL } from "RouteBuilder";
 
 function* getAllTemplatesSaga() {
   try {
@@ -40,24 +41,32 @@ function* importTemplateToOrganisationSaga(
   action: ReduxAction<{ templateId: string; organizationId: string }>,
 ) {
   try {
-    const response = yield call(
+    const response: ImportTemplateResponse = yield call(
       TemplatesAPI.importTemplate,
       action.payload.templateId,
       action.payload.organizationId,
     );
-    const application: ApplicationPayload = {
-      ...response,
-      defaultPageId: getDefaultPageId(response.pages),
-    };
-    const pageURL = BUILDER_PAGE_URL({
-      applicationId: application.id,
-      pageId: application.defaultPageId,
-    });
-    yield put({
-      type: ReduxActionTypes.IMPORT_TEMPLATE_TO_ORGANISATION_SUCCESS,
-      payload: response,
-    });
-    history.push(pageURL);
+    const isValid: boolean = yield validateResponse(response);
+    if (isValid) {
+      const application: ApplicationPayload = {
+        ...response.data,
+        defaultPageId: getDefaultPageId(response.data.pages) as string,
+      };
+      const defaultPage = response.data.pages.find((page) => page.isDefault);
+      const defaultPageSlug = defaultPage?.slug || PLACEHOLDER_PAGE_SLUG;
+      const pageURL = builderURL({
+        applicationId: application.id,
+        applicationSlug: application.slug,
+        applicationVersion: application.applicationVersion,
+        pageSlug: defaultPageSlug,
+        pageId: application.defaultPageId,
+      });
+      yield put({
+        type: ReduxActionTypes.IMPORT_TEMPLATE_TO_ORGANISATION_SUCCESS,
+        payload: response.data,
+      });
+      history.push(pageURL);
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.IMPORT_TEMPLATE_TO_ORGANISATION_ERROR,

@@ -33,7 +33,7 @@ jest.mock("store", () => {
 });
 
 function renderComponent() {
-  render(<ButtonComponent setting={setting} />, container);
+  render(<ButtonComponent setting={setting} />);
 }
 
 describe("Button", () => {

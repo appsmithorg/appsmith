@@ -5,25 +5,18 @@ async function exec() {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
-  checkReplicaSet(client)
-    .then((res) => {
-      // support replica set
-      if (res === 0) {
-        client.close();
-        process.exit(0);
-      }
 
-      // not support replica set
-      if (res === 1) {
-        client.close();
-        process.exit(1);
-      }
-    })
-    .catch((err) => {
-      // exit 1 for any other error
-      client.close();
-      process.exit(1);
-    });
+  let isReplicaSetEnabled = false;
+
+  try {
+    isReplicaSetEnabled = await checkReplicaSet(client);
+  } catch (err) {
+    console.error("Error trying to check replicaset", err);
+  } finally {
+    client.close();
+  }
+
+  process.exit(isReplicaSetEnabled ? 0 : 1);
 }
 
 async function checkReplicaSet(client) {
@@ -31,17 +24,22 @@ async function checkReplicaSet(client) {
   return await new Promise((resolve) => {
     try {
       client
+        .db()
+        .collection("user")
         .watch()
         .on("change", (change) => console.log(change))
-        .on("error", () => resolve(1));
+        .on("error", (err) => {
+          console.error("Error even from changeStream", err);
+          resolve(false);
+        });
 
       // setTimeout so the error event can kick-in first
       setTimeout(() => {
-        resolve(0);
+        resolve(true);
       }, 1000);
     } catch (err) {
-      console.log(err.stack);
-      resolve(1);
+      console.error("Error thrown when checking replicaset", err);
+      resolve(false);
     }
   });
 }
