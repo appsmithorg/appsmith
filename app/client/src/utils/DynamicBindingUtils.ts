@@ -332,27 +332,78 @@ export const EVALUATION_PATH = "__evaluation__";
 export const EVAL_ERROR_PATH = `${EVALUATION_PATH}.errors`;
 export const EVAL_VALUE_PATH = `${EVALUATION_PATH}.evaluatedValues`;
 
+/**
+ * non-populated object 
+ {
+   __evaluation__:{
+     evaluatedValues:{
+       primaryColumns: [...],
+       primaryColumns.status: {...},
+       primaryColumns.action: {...}
+     }
+   }
+ }
+
+ * Populated Object
+ {
+   __evaluation__:{
+     evaluatedValues:{
+       primaryColumns: {
+         status: [...],
+         action:[...]
+        }
+     }
+   }
+ }
+
+ */
 const getNestedEvalPath = (
   fullPropertyPath: string,
   pathType: string,
   fullPath = true,
+  isPopulated = false,
 ) => {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(
     fullPropertyPath,
   );
-  const nestedPath = `${pathType}.['${propertyPath}']`;
+  const nestedPath = isPopulated
+    ? `${pathType}.${propertyPath}`
+    : `${pathType}.['${propertyPath}']`;
+
   if (fullPath) {
     return `${entityName}.${nestedPath}`;
   }
   return nestedPath;
 };
 
-export const getEvalErrorPath = (fullPropertyPath: string, fullPath = true) => {
-  return getNestedEvalPath(fullPropertyPath, EVAL_ERROR_PATH, fullPath);
+export const getEvalErrorPath = (
+  fullPropertyPath: string,
+  options = {
+    fullPath: true,
+    isPopulated: false,
+  },
+) => {
+  return getNestedEvalPath(
+    fullPropertyPath,
+    EVAL_ERROR_PATH,
+    options.fullPath,
+    options.isPopulated,
+  );
 };
 
-export const getEvalValuePath = (fullPropertyPath: string, fullPath = true) => {
-  return getNestedEvalPath(fullPropertyPath, EVAL_VALUE_PATH, fullPath);
+export const getEvalValuePath = (
+  fullPropertyPath: string,
+  options = {
+    fullPath: true,
+    isPopulated: false,
+  },
+) => {
+  return getNestedEvalPath(
+    fullPropertyPath,
+    EVAL_VALUE_PATH,
+    options.fullPath,
+    options.isPopulated,
+  );
 };
 
 export enum PropertyEvaluationErrorType {
