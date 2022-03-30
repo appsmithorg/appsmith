@@ -4,13 +4,13 @@ import { useParams } from "react-router";
 import { getTemplatesSelector } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import Text, { TextType } from "components/ads/Text";
-import { TEMPLATE_ID_URL } from "constants/routes";
 import history from "utils/history";
 import { Classes } from "components/ads/common";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { createMessage, TEMPLATES } from "@appsmith/constants/messages";
+import { templateIdUrl } from "RouteBuilder";
 
 const Wrapper = styled.div`
   width: ${(props) => props.theme.homePage.sidebar}px;
@@ -71,7 +71,7 @@ function LeftPaneTemplateList() {
   const params = useParams<{ templateId: string }>();
 
   const onClick = (id: string) => {
-    history.push(TEMPLATE_ID_URL(id));
+    history.push(templateIdUrl({ id }));
   };
 
   return (

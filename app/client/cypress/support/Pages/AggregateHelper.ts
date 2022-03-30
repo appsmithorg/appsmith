@@ -10,10 +10,7 @@ export class AggregateHelper {
         let pageid: string;
         let layoutId;
         cy.url().then((url) => {
-            currentURL = url;
-            const myRegexp = /pages(.*)/;
-            const match = myRegexp.exec(currentURL);
-            pageid = match![1].split("/")[1];
+            pageid = url.split("/")[4]?.split("-").pop() as string;
             cy.log(pageid + "page id");
             //Fetch the layout id
             cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
@@ -106,7 +103,6 @@ export class AggregateHelper {
         });
         cy.get(locator._publishButton).click();
         cy.wait("@publishApp");
-        cy.url().should("include", "/pages");
         cy.log("Pagename: " + localStorage.getItem("PageName"));
     }
 
@@ -207,7 +203,7 @@ export class AggregateHelper {
             .first()
             .scrollIntoView()
             .click()
-        cy.get(locator._dropDownValue(ddOption)).click({ force: true })
+        cy.get(locator._selectOptionValue(ddOption)).click({ force: true })
         this.Sleep(2000)
     }
 
