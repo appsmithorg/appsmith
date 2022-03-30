@@ -205,8 +205,10 @@ class PhoneInputWidget extends BaseInputWidget<
         parseIncompletePhoneNumber(formattedValue),
       );
       this.props.updateWidgetMetaProperty("text", formattedValue);
+    }
 
-      // If defaultText property has changed, reset isDirty to false
+    // If defaultText property has changed, reset isDirty to false
+    if (this.props.defaultText !== prevProps.defaultText) {
       if (this.props.isDirty) {
         this.props.updateWidgetMetaProperty("isDirty", false);
       }

@@ -130,7 +130,7 @@ class RichTextEditorWidget extends BaseWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       text: undefined,
-      shouldReset: true,
+      shouldReset: false,
       isDirty: false,
     };
   }
@@ -148,12 +148,20 @@ class RichTextEditorWidget extends BaseWidget<
     };
   }
 
+  componentDidMount(): void {
+    if (this.props.defaultText) {
+      this.props.updateWidgetMetaProperty("shouldReset", true);
+    }
+  }
+
   componentDidUpdate(prevProps: RichTextEditorWidgetProps): void {
     if (this.props.defaultText !== prevProps.defaultText) {
       if (this.props.isDirty) {
         this.props.updateWidgetMetaProperty("isDirty", false);
       }
-      this.props.updateWidgetMetaProperty("shouldReset", true);
+      if (this.props.defaultText) {
+        this.props.updateWidgetMetaProperty("shouldReset", true);
+      }
     }
   }
 
