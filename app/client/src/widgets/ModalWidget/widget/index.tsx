@@ -13,10 +13,7 @@ import { generateClassName } from "utils/generators";
 import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
 import { AppState } from "reducers";
 import { commentModeSelector } from "selectors/commentsSelectors";
-import {
-  getMainCanvasProps,
-  snipingModeSelector,
-} from "selectors/editorSelectors";
+import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
 import { deselectAllInitAction } from "actions/widgetSelectionActions";
 import { ValidationTypes } from "constants/WidgetValidation";
 
@@ -265,7 +262,7 @@ const mapDispatchToProps = (dispatch: any) => ({
 
 const mapStateToProps = (state: AppState) => {
   const props = {
-    mainCanvasWidth: getMainCanvasProps(state).width,
+    mainCanvasWidth: getCanvasWidth(state),
     isCommentMode: commentModeSelector(state),
     isSnipingMode: snipingModeSelector(state),
     selectedWidget: state.ui.widgetDragResize.lastSelectedWidget,
