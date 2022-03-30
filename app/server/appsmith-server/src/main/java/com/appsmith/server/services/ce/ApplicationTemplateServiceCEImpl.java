@@ -99,7 +99,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
 
     private Mono<ApplicationJson> getApplicationJsonFromTemplate(String templateId) {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
-        final String templateUrl = baseUrl + "/api/v1/app-templates/" + templateId + "/download";
+        final String templateUrl = baseUrl + "/api/v1/app-templates/" + templateId + "/application";
             /* using a custom url builder factory because default builder always encodes URL.
              It's expected that the appDataUrl is already encoded, so we don't need to encode that again.
              Encoding an encoded URL will not work and end up resulting a 404 error */
