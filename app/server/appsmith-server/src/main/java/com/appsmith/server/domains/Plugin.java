@@ -82,4 +82,6 @@ public class Plugin extends BaseDomain {
     @Transient
     Map<String, String> templates;
 
+    Boolean isConfigStoredAtDataSource;
+
 }

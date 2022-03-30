@@ -637,5 +637,23 @@ public class DatabaseChangelog2 {
         }
     }
 
+    @ChangeSet(order = "005", id = "add-isConfigStoredAtDataSource-for-plugins", author = "")
+    public void updateIsConfigStoredAtDataSourceForPlugIn(MongockTemplate mongockTemplate) {
+        for(Plugin plugin : mongockTemplate.findAll(Plugin.class)) {
+            if (plugin.getType().equals("DB")) {
+                plugin.setIsConfigStoredAtDataSource(true);
+            }
+            if(plugin.getType().equals("SAAS")) {
+                plugin.setIsConfigStoredAtDataSource(false);
+            }
+            if(plugin.getType().equals("REMOTE")) {
+                plugin.setIsConfigStoredAtDataSource(false);
+            }
+            if(plugin.getType().equals("API")) {
+                plugin.setIsConfigStoredAtDataSource(true);
+            }
+        }
+    }
+
 }
 

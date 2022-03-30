@@ -11,6 +11,7 @@ import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
@@ -71,7 +72,8 @@ public class GitFileUtils {
      */
     public Mono<Path> saveApplicationToLocalRepo(Path baseRepoSuffix,
                                                  ApplicationJson applicationJson,
-                                                 String branchName) throws IOException, GitAPIException {
+                                                 String branchName,
+                                                 List<Plugin> pluginList) throws IOException, GitAPIException {
 
         /*
             1. Checkout to branch
@@ -119,7 +121,7 @@ public class GitFileUtils {
             String prefix = newAction.getUnpublishedAction() != null ?
                     newAction.getUnpublishedAction().getName() + "_" + newAction.getUnpublishedAction().getPageId()
                     : newAction.getPublishedAction().getName() + "_" + newAction.getPublishedAction().getPageId();
-            removeUnwantedFieldFromAction(newAction);
+            removeUnwantedFieldFromAction(newAction, pluginList);
             resourceMap.put(prefix, newAction);
         });
         applicationReference.setActions(new HashMap<>(resourceMap));
@@ -273,7 +275,7 @@ public class GitFileUtils {
         datasource.setInvalids(null);
     }
 
-    private void removeUnwantedFieldFromAction(NewAction action) {
+    private void removeUnwantedFieldFromAction(NewAction action, List<Plugin> pluginList) {
         action.setDefaultResources(null);
         action.setCreatedAt(null);
         action.setUpdatedAt(null);
@@ -282,7 +284,9 @@ public class GitFileUtils {
         action.setPublishedAction(null);
         action.setUserPermissions(null);
         ActionDTO unpublishedAction = action.getUnpublishedAction();
-        if(action.getPluginType().toString().equals("SAAS") || action.getPluginType().toString().equals("REMOTE")) {
+        // Exclude config values from action before committing to git repo
+        List<Plugin> actionPluginType = pluginList.stream().filter(plugin -> plugin.getType().equals(action.getPluginType())).collect(Collectors.toList());
+        if(actionPluginType.size() > 0 && actionPluginType.get(0).getIsConfigStoredAtDataSource().equals(false)) {
             action.getUnpublishedAction().setActionConfiguration(new ActionConfiguration());
         }
         if (unpublishedAction != null) {

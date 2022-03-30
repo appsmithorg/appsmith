@@ -3,6 +3,7 @@ package com.appsmith.server.helpers;
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.server.domains.ApplicationJson;
+import com.appsmith.server.domains.Plugin;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import lombok.SneakyThrows;
@@ -25,7 +26,9 @@ import reactor.test.StepVerifier;
 
 import java.lang.reflect.Type;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,7 +83,9 @@ public class GitFileUtilsTest {
         Mockito.when(fileInterface.saveApplicationToGitRepo(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(localRepoPath));
 
-        Mono<Path> resultMono = gitFileUtils.saveApplicationToLocalRepo(Path.of(""), validAppJson, "gitFileTest");
+        List<Plugin> pluginList = new ArrayList<>();
+
+        Mono<Path> resultMono = gitFileUtils.saveApplicationToLocalRepo(Path.of(""), validAppJson, "gitFileTest", pluginList);
 
         StepVerifier
                 .create(resultMono)

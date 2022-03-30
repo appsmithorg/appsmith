@@ -448,19 +448,21 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return Mono.zip(
                             importExportApplicationService
                                     .exportApplicationById(branchedApplication.getId(), SerialiseApplicationObjective.VERSION_CONTROL),
-                            Mono.just(branchedApplication)
+                            Mono.just(branchedApplication),
+                            pluginService.getDefaultPlugins().collectList()
                     );
                 })
                 .flatMap(tuple -> {
                     ApplicationJson applicationJson = tuple.getT1();
                     Application childApplication = tuple.getT2();
+                    List<Plugin> pluginList = tuple.getT3();
                     GitApplicationMetadata gitData = childApplication.getGitApplicationMetadata();
                     Path baseRepoSuffix =
                             Paths.get(childApplication.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
 
                     Mono<Path> repoPathMono;
                     try {
-                        repoPathMono = fileUtils.saveApplicationToLocalRepo(baseRepoSuffix, applicationJson, gitData.getBranchName());
+                        repoPathMono = fileUtils.saveApplicationToLocalRepo(baseRepoSuffix, applicationJson, gitData.getBranchName(), pluginList);
                     } catch (IOException | GitAPIException e) {
                         return Mono.error(e);
                     }
@@ -1502,11 +1504,13 @@ public class GitServiceCEImpl implements GitServiceCE {
                             //if the branch does not exist in local, checkout remote branch
                             return checkoutBranch(defaultApplicationId, finalBranchName);
                         })
-                        .zipWhen(application -> importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)))
+                        .zipWhen(application -> importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)),
+                pluginService.getDefaultPlugins().collectList())
                 .flatMap(tuple -> {
                     GitApplicationMetadata defaultApplicationMetadata = tuple.getT1();
                     Application application = tuple.getT2().getT1();
                     ApplicationJson applicationJson = tuple.getT2().getT2();
+                    List<Plugin> pluginList = tuple.getT3();
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     gitData.setGitAuth(defaultApplicationMetadata.getGitAuth());
                     Path repoSuffix =
@@ -1514,7 +1518,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     try {
                         return Mono.zip(
-                                fileUtils.saveApplicationToLocalRepo(repoSuffix, applicationJson, finalBranchName),
+                                fileUtils.saveApplicationToLocalRepo(repoSuffix, applicationJson, finalBranchName, pluginList),
                                 Mono.just(gitData.getGitAuth()),
                                 Mono.just(repoSuffix)
                         );
@@ -1767,11 +1771,13 @@ public class GitServiceCEImpl implements GitServiceCE {
         Mono<String> conflictedBranchMono = Mono.zip(
                 getGitApplicationMetadata(defaultApplicationId),
                 applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
-                        .zipWhen(application -> importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)))
+                        .zipWhen(application -> importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)),
+                pluginService.getDefaultPlugins().collectList())
                 .flatMap(tuple -> {
                     GitApplicationMetadata defaultApplicationMetadata = tuple.getT1();
                     Application application = tuple.getT2().getT1();
                     ApplicationJson applicationJson = tuple.getT2().getT2();
+                    List<Plugin> pluginList = tuple.getT3();
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     gitData.setGitAuth(defaultApplicationMetadata.getGitAuth());
                     Path repoSuffix =
@@ -1779,7 +1785,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     try {
                         return Mono.zip(
-                                fileUtils.saveApplicationToLocalRepo(repoSuffix, applicationJson, branchName),
+                                fileUtils.saveApplicationToLocalRepo(repoSuffix, applicationJson, branchName, pluginList),
                                 Mono.just(gitData),
                                 Mono.just(repoSuffix)
                         );
