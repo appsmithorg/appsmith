@@ -37,7 +37,7 @@ const NotificationWrapper = styled.div`
   .text-wrapper {
     display: flex;
     flex-direction: column;
-    margin-left: ${(props) => props.theme.spaces[4]}px;
+    margin-left: ${(props) => props.theme.spaces[3]}px;
   }
 
   .description {
