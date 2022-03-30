@@ -88,7 +88,7 @@ function* SaveAdminSettingsSaga(action: ReduxAction<Record<string, string>>) {
   }
 }
 
-const RESTART_POLL_TIMEOUT = 60000;
+const RESTART_POLL_TIMEOUT = 2 * 60 * 1000;
 const RESTART_POLL_INTERVAL = 2000;
 
 function* RestartServerPoll() {
@@ -117,36 +117,33 @@ function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
       action.payload,
     );
     const currentUser: User | undefined = yield select(getCurrentUser);
-    let actionElement;
-    if (response.data) {
-      actionElement = (
-        <>
-          <br />
-          <span onClick={() => window.open(EMAIL_SETUP_DOC, "blank")}>
-            {createMessage(TEST_EMAIL_SUCCESS_TROUBLESHOOT)}
-          </span>
-        </>
-      );
-    }
-    Toaster.show({
-      actionElement,
+    const isValidResponse: boolean = yield validateResponse(response);
 
-      text: createMessage(
-        response.data
-          ? // @ts-expect-error: Balaji type mismatch for TEST_EMAIL_SUCCESS()
-            TEST_EMAIL_SUCCESS(currentUser?.email)
-          : TEST_EMAIL_FAILURE,
-      ),
-      hideProgressBar: true,
-      variant: response.data ? Variant.info : Variant.danger,
-    });
-  } catch (e) {
-    Toaster.show({
-      text: (e as Error)?.message || createMessage(TEST_EMAIL_FAILURE),
-      hideProgressBar: true,
-      variant: Variant.danger,
-    });
-  }
+    if (isValidResponse) {
+      let actionElement;
+      if (response.data) {
+        actionElement = (
+          <>
+            <br />
+            <span onClick={() => window.open(EMAIL_SETUP_DOC, "blank")}>
+              {createMessage(TEST_EMAIL_SUCCESS_TROUBLESHOOT)}
+            </span>
+          </>
+        );
+      }
+      Toaster.show({
+        actionElement,
+        text: createMessage(
+          response.data
+            ? // @ts-expect-error: currentUser can be undefined
+              TEST_EMAIL_SUCCESS(currentUser?.email)
+            : TEST_EMAIL_FAILURE,
+        ),
+        hideProgressBar: true,
+        variant: response.data ? Variant.info : Variant.danger,
+      });
+    }
+  } catch (e) {}
 }
 
 function* InitSuperUserSaga(action: ReduxAction<User>) {

@@ -19,7 +19,6 @@ import {
 } from "utils/storage";
 
 import { getCurrentUser } from "selectors/usersSelectors";
-import { BUILDER_PAGE_URL, QUERIES_EDITOR_ID_URL } from "constants/routes";
 import history from "utils/history";
 import TourApp from "pages/Editor/GuidedTour/app.json";
 
@@ -41,6 +40,7 @@ import {
 } from "actions/onboardingActions";
 import {
   getCurrentApplicationId,
+  selectURLSlugs,
   getCurrentPageId,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
@@ -73,6 +73,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { User } from "constants/userConstants";
+import { builderURL, queryEditorIdURL } from "RouteBuilder";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import { shouldBeDefined } from "utils/helpers";
@@ -184,11 +185,10 @@ function* setUpTourAppSaga() {
   yield put(clearActionResponse(query?.config.id ?? ""));
   const applicationId: string = yield select(getCurrentApplicationId);
   history.push(
-    QUERIES_EDITOR_ID_URL(
-      applicationId,
-      query?.config.pageId,
-      query?.config.id,
-    ),
+    queryEditorIdURL({
+      pageId: query?.config.pageId ?? "",
+      queryId: query?.config.id ?? "",
+    }),
   );
 
   yield put(
@@ -314,7 +314,6 @@ function* selectWidgetSaga(
   const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
     getWidgets,
   );
-  const applicationId: string = yield select(getCurrentApplicationId);
   const pageId = shouldBeDefined<string>(
     yield select(getCurrentPageId),
     "Page not found in state.entities.pageList.currentPageId",
@@ -325,7 +324,7 @@ function* selectWidgetSaga(
 
   if (widget) {
     // Navigate to the widget as well, usefull especially when we are not on the canvas
-    navigateToCanvas({ applicationId, pageId, widgetId: widget.widgetId });
+    navigateToCanvas({ pageId, widgetId: widget.widgetId });
     yield put(selectWidgetInitAction(widget.widgetId));
     // Delay to wait for the fields to render
     yield delay(1000);
@@ -399,9 +398,11 @@ function* firstTimeUserOnboardingInitSaga(
     type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
     payload: true,
   });
+  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
   history.replace(
-    BUILDER_PAGE_URL({
-      applicationId: action.payload.applicationId,
+    builderURL({
+      applicationSlug,
+      pageSlug,
       pageId: action.payload.pageId,
     }),
   );

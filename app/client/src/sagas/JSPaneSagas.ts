@@ -25,7 +25,6 @@ import {
 import { createNewJSFunctionName, getQueryParams } from "utils/AppsmithUtils";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import { createJSCollectionRequest } from "actions/jsActionActions";
-import { JS_COLLECTION_ID_URL } from "constants/routes";
 import history from "utils/history";
 import { executeFunction } from "./EvaluationsSaga";
 import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
@@ -71,6 +70,7 @@ import { updateCanvasWithDSL } from "sagas/PageSagas";
 export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 import { set } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
+import { jsCollectionIdURL } from "RouteBuilder";
 import { ApiResponse } from "api/ApiResponses";
 import { shouldBeDefined } from "utils/helpers";
 
@@ -121,9 +121,12 @@ function* handleJSCollectionCreatedSaga(
   actionPayload: ReduxAction<JSCollection>,
 ) {
   const { id } = actionPayload.payload;
-  const applicationId: string = yield select(getCurrentApplicationId);
-  const pageId: string | undefined = yield select(getCurrentPageId);
-  history.push(JS_COLLECTION_ID_URL(applicationId, pageId, id, {}));
+  history.push(
+    jsCollectionIdURL({
+      collectionId: id,
+      params: {},
+    }),
+  );
 }
 
 function* handleEachUpdateJSCollection(update: JSUpdate) {
@@ -294,9 +297,12 @@ function* handleJSObjectNameChangeSuccessSaga(
     if (params.editName) {
       params.editName = "false";
     }
-    const applicationId: string = yield select(getCurrentApplicationId);
-    const pageId: string | undefined = yield select(getCurrentPageId);
-    history.push(JS_COLLECTION_ID_URL(applicationId, pageId, actionId, params));
+    history.push(
+      jsCollectionIdURL({
+        collectionId: actionId,
+        params,
+      }),
+    );
   }
 }
 

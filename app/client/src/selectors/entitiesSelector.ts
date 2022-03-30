@@ -158,6 +158,10 @@ export const getIsExecutingDatasourceQuery = (state: AppState): boolean => {
   return state.entities.datasources.executingDatasourceQuery;
 };
 
+export const getIsDatasourceTesting = (state: AppState): boolean => {
+  return state.entities.datasources.isTesting;
+};
+
 export const getEditorConfig = (state: AppState, pluginId: string): any[] => {
   return state.entities.plugins.editorConfigs[pluginId];
 };

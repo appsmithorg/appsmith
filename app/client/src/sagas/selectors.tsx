@@ -60,7 +60,7 @@ export const getEditorConfigs = (
   return { pageId, layoutId };
 };
 
-export const getDefaultPageId = (state: AppState): string | undefined =>
+export const getDefaultPageId = (state: AppState): string =>
   state.entities.pageList.defaultPageId;
 
 export const getExistingWidgetNames = createSelector(

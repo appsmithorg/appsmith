@@ -7,44 +7,44 @@ import {
   ClonePageActionPayload,
   CreatePageActionPayload,
 } from "actions/pageActions";
+import { FetchApplicationResponse } from "./ApplicationApi";
 
-export interface FetchPageRequest {
+export type FetchPageRequest = {
   id: string;
   isFirstLoad?: boolean;
-}
+  handleResponseLater?: boolean;
+};
 
-export interface FetchPublishedPageRequest {
+export type FetchPublishedPageRequest = {
   pageId: string;
   bustCache?: boolean;
-}
+};
 
-export interface SavePageRequest {
+export type SavePageRequest = {
   dsl: DSLWidget;
   layoutId: string;
   pageId: string;
-}
+};
 
-export interface PageLayout {
+export type PageLayout = {
   id: string;
   dsl: Partial<DSLWidget>;
   layoutOnLoadActions: PageAction[][];
   layoutActions: PageAction[];
-}
+};
 
-export type FetchPageResponse = ApiResponse<{
+export type FetchPageResponseData = {
   id: string;
   name: string;
+  slug: string;
   applicationId: string;
   layouts: Array<PageLayout>;
-}>;
+  lastUpdatedTime: number;
+};
 
-export type FetchPublishedPageResponse = ApiResponse<{
-  id: string;
-  dsl: Partial<DSLWidget>;
-  pageId: string;
-}>;
+export type FetchPublishedPageResponseData = FetchPageResponseData;
 
-export type SavePageResponse = ApiResponse<{
+export type SavePageResponseData = {
   id: string;
   layoutOnLoadActions: PageAction[][];
   dsl: Partial<DSLWidget>;
@@ -52,47 +52,41 @@ export type SavePageResponse = ApiResponse<{
   actionUpdates: Array<{
     executeOnLoad: boolean;
     id: string;
-    layoutOnLoadActions: PageAction[][];
-    dsl: Partial<DSLWidget>;
-    messages: string[];
-    actionUpdates: Array<{
-      executeOnLoad: boolean;
-      id: string;
-      name: string;
-      collectionId?: string;
-    }>;
+    collectionId?: string;
+    name: string;
   }>;
-}>;
+};
 
 export type CreatePageRequest = Omit<
   CreatePageActionPayload,
   "blockNavigation"
 >;
 
-export interface UpdatePageRequest {
+export type UpdatePageRequest = {
   id: string;
   name: string;
   isHidden?: boolean;
-}
+};
 
-export interface SetPageOrderRequest {
+export type SetPageOrderRequest = {
   order: number;
   pageId: string;
   applicationId: string;
-}
+};
 
 export type CreatePageResponse = ApiResponse;
 
-export type FetchPageListResponse = ApiResponse<{
+export type FetchPageListResponseData = {
   pages: Array<{
     id: string;
     name: string;
     isDefault: boolean;
     isHidden?: boolean;
     layouts: Array<PageLayout>;
+    slug?: string;
   }>;
   organizationId: string;
-}>;
+};
 
 export interface DeletePageRequest {
   id: string;
@@ -107,8 +101,6 @@ export interface UpdateWidgetNameRequest {
   oldName: string;
 }
 
-export type UpdateWidgetNameResponse = ApiResponse<PageLayout>;
-
 export interface GenerateTemplatePageRequest {
   pageId: string;
   tableName: string;
@@ -120,12 +112,28 @@ export interface GenerateTemplatePageRequest {
   pluginSpecificParams?: Record<any, any>;
 }
 
-export type GenerateTemplatePageRequestResponse = ApiResponse<{
+export type GenerateTemplatePageResponseData = {
   id: string;
   name: string;
   applicationId: string;
   layouts: Array<PageLayout>;
-}>;
+};
+
+export type SavePageResponse = ApiResponse<SavePageResponseData>;
+
+export type FetchPageListResponse = ApiResponse<FetchPageListResponseData>;
+
+export type UpdateWidgetNameResponse = ApiResponse<PageLayout>;
+
+export type GenerateTemplatePageRequestResponse = ApiResponse<
+  GenerateTemplatePageResponseData
+>;
+
+export type FetchPageResponse = ApiResponse<FetchPageResponseData>;
+
+export type FetchPublishedPageResponse = ApiResponse<
+  FetchPublishedPageResponseData
+>;
 
 class PageApi extends Api {
   static url = "v1/pages";
@@ -240,6 +248,10 @@ class PageApi extends Api {
         request.order,
       ),
     );
+  }
+
+  static fetchAppAndPages(params: any): AxiosPromise<FetchApplicationResponse> {
+    return Api.get(PageApi.url, params);
   }
 }
 

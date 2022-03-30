@@ -9,7 +9,8 @@ import {
   BuilderRouteParams,
   GIT_BRANCH_QUERY_KEY,
   VIEWER_FORK_PATH,
-  VIEWER_URL,
+  VIEWER_PATH,
+  VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import { Page, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { getIsInitialized } from "selectors/appViewSelectors";
@@ -85,7 +86,7 @@ const AppViewerBodyContainer = styled.div<{ width?: string }>`
 
 export type AppViewerProps = {
   initializeAppViewer: (params: {
-    applicationId: string;
+    applicationId?: string;
     pageId?: string;
     branch?: string;
   }) => void;
@@ -130,13 +131,11 @@ class AppViewer extends Component<Props> {
     } = this.props;
     const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
 
-    if (applicationId) {
-      this.props.initializeAppViewer({
-        branch: branch,
-        applicationId,
-        pageId,
-      });
-    }
+    this.props.initializeAppViewer({
+      branch: branch,
+      applicationId,
+      pageId,
+    });
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -151,7 +150,7 @@ class AppViewer extends Component<Props> {
     const prevBranch = getSearchQuery(prevSearch, GIT_BRANCH_QUERY_KEY);
     const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
 
-    if (branch && branch !== prevBranch && applicationId && pageId) {
+    if (branch && branch !== prevBranch && (applicationId || pageId)) {
       this.props.initializeAppViewer({
         applicationId,
         pageId,
@@ -191,7 +190,12 @@ class AppViewer extends Component<Props> {
                       <SentryRoute
                         component={AppViewerPageContainer}
                         exact
-                        path={VIEWER_URL}
+                        path={VIEWER_PATH}
+                      />
+                      <SentryRoute
+                        component={AppViewerPageContainer}
+                        exact
+                        path={VIEWER_PATH_DEPRECATED}
                       />
                       <SentryRoute
                         component={AppViewerPageContainer}
@@ -239,7 +243,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   resetChildrenMetaProperty: (widgetId: string) =>
     dispatch(resetChildrenMetaProperty(widgetId)),
   initializeAppViewer: (params: {
-    applicationId: string;
+    applicationId?: string;
     pageId?: string;
     branch?: string;
   }) => {

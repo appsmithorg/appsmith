@@ -46,7 +46,6 @@ import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData
 import static com.external.plugins.AmazonS3Plugin.DEFAULT_FILE_NAME;
 import static com.external.plugins.AmazonS3Plugin.DEFAULT_URL_EXPIRY_IN_MINUTES;
 import static com.external.plugins.AmazonS3Plugin.NO;
-import static com.external.plugins.AmazonS3Plugin.SMART_SUBSTITUTION;
 import static com.external.plugins.AmazonS3Plugin.YES;
 import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.BUCKET;
@@ -61,6 +60,7 @@ import static com.external.plugins.constants.FieldName.LIST_WHERE;
 import static com.external.plugins.constants.FieldName.PATH;
 import static com.external.plugins.constants.FieldName.READ_DATATYPE;
 import static com.external.plugins.constants.FieldName.READ_EXPIRY;
+import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
 import static com.external.utils.TemplateUtils.CREATE_FILE_TEMPLATE_NAME;
 import static com.external.utils.TemplateUtils.CREATE_MULTIPLE_FILES_TEMPLATE_NAME;
@@ -1075,9 +1075,9 @@ public class AmazonS3PluginTest {
                     // Check read file template
                     Template readFileTemplate = templates.get(1);
                     assertEquals(READ_FILE_TEMPLATE_NAME, readFileTemplate.getTitle());
-                    assertEquals(DEFAULT_FILE_NAME, readFileTemplate.getActionConfiguration().getPath());
 
                     Map<String, Object> readFileConfig = (Map<String, Object>) readFileTemplate.getConfiguration();
+                    assertEquals(DEFAULT_FILE_NAME, getValueSafelyFromFormData(readFileConfig, PATH));
                     assertEquals(AmazonS3Action.READ_FILE.name(), getValueSafelyFromFormData(readFileConfig, COMMAND));
                     assertEquals(expectedBucketName, getValueSafelyFromFormData(readFileConfig, BUCKET));
                     assertEquals(YES, getValueSafelyFromFormData(readFileConfig, READ_DATATYPE));
@@ -1086,10 +1086,10 @@ public class AmazonS3PluginTest {
                     // Check create file template
                     Template createFileTemplate = templates.get(2);
                     assertEquals(CREATE_FILE_TEMPLATE_NAME, createFileTemplate.getTitle());
-                    assertEquals(DEFAULT_FILE_NAME, createFileTemplate.getActionConfiguration().getPath());
-                    assertEquals(FILE_PICKER_DATA_EXPRESSION, createFileTemplate.getActionConfiguration().getBody());
 
                     Map<String, Object> createFileConfig = (Map<String, Object>) createFileTemplate.getConfiguration();
+                    assertEquals(DEFAULT_FILE_NAME, getValueSafelyFromFormData(createFileConfig, PATH));
+                    assertEquals(FILE_PICKER_DATA_EXPRESSION, getValueSafelyFromFormData(createFileConfig, BODY));
                     assertEquals(AmazonS3Action.UPLOAD_FILE_FROM_BODY.name(),
                             getValueSafelyFromFormData(createFileConfig, COMMAND));
                     assertEquals(expectedBucketName, getValueSafelyFromFormData(createFileConfig, BUCKET));
@@ -1099,11 +1099,11 @@ public class AmazonS3PluginTest {
                     // Check create multiple files template
                     Template createMultipleFilesTemplate = templates.get(3);
                     assertEquals(CREATE_MULTIPLE_FILES_TEMPLATE_NAME, createMultipleFilesTemplate.getTitle());
-                    assertEquals(DEFAULT_DIR, createMultipleFilesTemplate.getActionConfiguration().getPath());
-                    assertEquals(FILE_PICKER_MULTIPLE_FILES_DATA_EXPRESSION,
-                            createMultipleFilesTemplate.getActionConfiguration().getBody());
 
                     Map<String, Object> createMultipleFilesConfig = (Map<String, Object>) createMultipleFilesTemplate.getConfiguration();
+                    assertEquals(DEFAULT_DIR, getValueSafelyFromFormData(createMultipleFilesConfig, PATH));
+                    assertEquals(FILE_PICKER_MULTIPLE_FILES_DATA_EXPRESSION,
+                            getValueSafelyFromFormData(createMultipleFilesConfig, BODY));
                     assertEquals(AmazonS3Action.UPLOAD_MULTIPLE_FILES_FROM_BODY.name(),
                             getValueSafelyFromFormData(createMultipleFilesConfig, COMMAND));
                     assertEquals(expectedBucketName, getValueSafelyFromFormData(createMultipleFilesConfig, BUCKET));
@@ -1113,9 +1113,9 @@ public class AmazonS3PluginTest {
                     // Check delete file template
                     Template deleteFileTemplate = templates.get(4);
                     assertEquals(DELETE_FILE_TEMPLATE_NAME, deleteFileTemplate.getTitle());
-                    assertEquals(DEFAULT_FILE_NAME, deleteFileTemplate.getActionConfiguration().getPath());
 
                     Map<String, Object> deleteFileConfig = (Map<String, Object>) deleteFileTemplate.getConfiguration();
+                    assertEquals(DEFAULT_FILE_NAME, getValueSafelyFromFormData(deleteFileConfig, PATH));
                     assertEquals(AmazonS3Action.DELETE_FILE.name(), getValueSafelyFromFormData(deleteFileConfig,
                             COMMAND));
                     assertEquals(expectedBucketName, getValueSafelyFromFormData(deleteFileConfig, BUCKET));
@@ -1123,10 +1123,10 @@ public class AmazonS3PluginTest {
                     // Check delete multiple files template
                     Template deleteMultipleFilesTemplate = templates.get(5);
                     assertEquals(DELETE_MULTIPLE_FILES_TEMPLATE_NAME, deleteMultipleFilesTemplate.getTitle());
-                    assertEquals(LIST_OF_FILES_STRING, deleteMultipleFilesTemplate.getActionConfiguration().getPath());
 
                     Map<String, Object> deleteMultipleFilesConfig =
                             (Map<String, Object>) deleteMultipleFilesTemplate.getConfiguration();
+                    assertEquals(LIST_OF_FILES_STRING, getValueSafelyFromFormData(deleteMultipleFilesConfig, PATH));
                     assertEquals(AmazonS3Action.DELETE_MULTIPLE_FILES.name(),
                             getValueSafelyFromFormData(deleteMultipleFilesConfig, COMMAND));
                     assertEquals(expectedBucketName, getValueSafelyFromFormData(deleteMultipleFilesConfig, BUCKET));

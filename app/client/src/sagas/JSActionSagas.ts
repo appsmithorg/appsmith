@@ -31,10 +31,9 @@ import {
 } from "selectors/entitiesSelector";
 import history from "utils/history";
 import {
-  getCurrentApplicationId,
   getCurrentPageId,
+  selectPageSlugById,
 } from "selectors/editorSelectors";
-import { JS_COLLECTION_ID_URL, BUILDER_PAGE_URL } from "constants/routes";
 import JSActionAPI, { JSCollectionCreateUpdateResponse } from "api/JSActionAPI";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -51,17 +50,14 @@ import {
 import { validateResponse } from "./ErrorSagas";
 import PageApi, { FetchPageResponse } from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
-import {
-  JSCollectionData,
-  JSCollectionDataState,
-} from "reducers/entityReducers/jsActionsReducer";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { ApiResponse } from "api/ApiResponses";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { CreateJSCollectionRequest } from "api/JSActionAPI";
 import * as log from "loglevel";
-import { AxiosResponse } from "axios";
+import { builderURL, jsCollectionIdURL } from "RouteBuilder";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -184,9 +180,13 @@ function* copyJSCollectionSaga(
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   const jsAction: JSCollection = yield select(getJSCollection, id);
-  const applicationId: string = yield select(getCurrentApplicationId);
+  const pageSlug: string = yield select(selectPageSlugById(jsAction.pageId));
   history.push(
-    JS_COLLECTION_ID_URL(applicationId, jsAction.pageId, jsAction.id),
+    jsCollectionIdURL({
+      pageSlug,
+      pageId: jsAction.pageId,
+      collectionId: jsAction.id,
+    }),
   );
 }
 
@@ -202,7 +202,7 @@ function* moveJSCollectionSaga(
     action.payload.id,
   );
   try {
-    const response: AxiosResponse = yield JSActionAPI.moveJSCollection({
+    const response: ApiResponse = yield JSActionAPI.moveJSCollection({
       collectionId: actionObject.id,
       destinationPageId: action.payload.destinationPageId,
       name: action.payload.name,
@@ -211,18 +211,21 @@ function* moveJSCollectionSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     const pageName: string = yield select(
       getPageNameByPageId,
+      // @ts-expect-error: response.data is of type unknown
       response.data.pageId,
     );
     if (isValidResponse) {
       Toaster.show({
         text: createMessage(
           JS_ACTION_MOVE_SUCCESS,
+          // @ts-expect-error: response.data is of type unknown
           response.data.name,
           pageName,
         ),
         variant: Variant.success,
       });
     }
+    // @ts-expect-error: response.data is of type unknown
     yield put(moveJSCollectionSuccess(response.data));
   } catch (e) {
     Toaster.show({
@@ -239,7 +242,7 @@ function* moveJSCollectionSaga(
 }
 
 export const getIndexToBeRedirected = (
-  jsActions: JSCollectionDataState,
+  jsActions: Array<JSCollectionData>,
   id: string,
 ): number | undefined => {
   let resultIndex = undefined;
@@ -264,23 +267,15 @@ export function* deleteJSCollectionSaga(
 ) {
   try {
     const id = actionPayload.payload.id;
-
     const response: ApiResponse = yield JSActionAPI.deleteJSCollection(id);
     const isValidResponse: boolean = yield validateResponse(response);
-    const applicationId: string = yield select(getCurrentApplicationId);
-    const pageId: string | undefined = yield select(getCurrentPageId);
     if (isValidResponse) {
       Toaster.show({
         // @ts-expect-error: response.data is of type unknown
         text: createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name),
         variant: Variant.success,
       });
-      history.push(
-        BUILDER_PAGE_URL({
-          applicationId,
-          pageId,
-        }),
-      );
+      history.push(builderURL());
       AppsmithConsole.info({
         logType: LOG_TYPE.ENTITY_DELETED,
         text: "JS object was deleted",
@@ -346,7 +341,7 @@ export function* refactorJSObjectName(
     // get the layoutId from the page response
     const layoutId = pageResponse.data.layouts[0].id;
     // call to refactor action
-    const refactorResponse: AxiosResponse = yield JSActionAPI.updateJSCollectionOrActionName(
+    const refactorResponse: ApiResponse = yield JSActionAPI.updateJSCollectionOrActionName(
       {
         layoutId,
         actionCollectionId: id,
@@ -370,6 +365,7 @@ export function* refactorJSObjectName(
         },
       });
       if (currentPageId === pageId) {
+        // @ts-expect-error: refactorResponse.data is of type unknown
         yield updateCanvasWithDSL(refactorResponse.data, pageId, layoutId);
       } else {
         yield put(fetchJSCollectionsForPage(pageId));

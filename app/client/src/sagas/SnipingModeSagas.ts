@@ -1,11 +1,7 @@
 import { takeLeading, all, put, select } from "redux-saga/effects";
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import history from "../utils/history";
-import { BUILDER_PAGE_URL } from "../constants/routes";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "../selectors/editorSelectors";
+import { getCurrentPageId } from "../selectors/editorSelectors";
 import { ActionData } from "../reducers/entityReducers/actionsReducer";
 import { getCanvasWidgets } from "../selectors/entitiesSelector";
 import {
@@ -23,6 +19,7 @@ import {
 
 import WidgetFactory from "utils/WidgetFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { builderURL } from "RouteBuilder";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -133,6 +130,10 @@ export function* bindDataToWidgetSaga(
       propertyPath = "url";
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
+    case WidgetTypes.JSON_FORM_WIDGET:
+      propertyPath = "sourceData";
+      propertyValue = `{{${currentAction.config.name}.data}}`;
+      break;
     default:
       isValidProperty = false;
       break;
@@ -158,10 +159,8 @@ export function* bindDataToWidgetSaga(
         force: true,
       },
     });
-    const applicationId: string = yield select(getCurrentApplicationId);
     history.replace(
-      BUILDER_PAGE_URL({
-        applicationId,
+      builderURL({
         pageId,
       }),
     );

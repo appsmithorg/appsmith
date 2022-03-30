@@ -4,6 +4,8 @@ import { AxiosPromise } from "axios";
 import { AppColorCode } from "constants/DefaultTheme";
 import { AppIconName } from "components/ads/AppIcon";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import { APP_MODE } from "entities/App";
+import { ApplicationVersion } from "actions/applicationActions";
 import { Datasource } from "entities/Datasource";
 
 export type EvaluationVersion = number;
@@ -23,6 +25,8 @@ export interface ApplicationPagePayload {
   id: string;
   name: string;
   isDefault: boolean;
+  slug?: string;
+  isHidden?: boolean;
 }
 
 export type GitApplicationMetadata =
@@ -43,23 +47,36 @@ export interface ApplicationResponsePayload {
   name: string;
   organizationId: string;
   evaluationVersion?: EvaluationVersion;
-  pages?: ApplicationPagePayload[];
+  pages: ApplicationPagePayload[];
   appIsExample: boolean;
   appLayout?: AppLayoutConfig;
   unreadCommentThreads?: number;
   gitApplicationMetadata: GitApplicationMetadata;
+  slug: string;
+  applicationVersion: ApplicationVersion;
+}
+
+export interface FetchApplicationPayload {
+  applicationId?: string;
+  pageId?: string;
+  mode: APP_MODE;
+}
+
+export interface FetchApplicationResponseData {
+  application: Omit<ApplicationResponsePayload, "pages">;
+  pages: ApplicationPagePayload[];
+  organizationId: string;
 }
 
 export type FetchApplicationResponse = ApiResponse<
-  ApplicationResponsePayload & { pages: ApplicationPagePayload[] }
+  FetchApplicationResponseData
 >;
 
 export type FetchApplicationsResponse = ApiResponse<
-  Array<ApplicationResponsePayload & { pages: ApplicationPagePayload[] }>
+  FetchApplicationResponseData[]
 >;
 
 export type CreateApplicationResponse = ApiResponse<ApplicationResponsePayload>;
-
 export interface CreateApplicationRequest {
   name: string;
   orgId: string;
@@ -84,9 +101,7 @@ export interface ForkApplicationRequest {
   organizationId: string;
 }
 
-export type GetAllApplicationResponse = ApiResponse<
-  Array<ApplicationResponsePayload & { pages: ApplicationPagePayload[] }>
->;
+export type GetAllApplicationResponse = ApiResponse<ApplicationPagePayload[]>;
 
 export type UpdateApplicationPayload = {
   icon?: string;
@@ -94,10 +109,12 @@ export type UpdateApplicationPayload = {
   name?: string;
   currentApp?: boolean;
   appLayout?: AppLayoutConfig;
+  applicationVersion?: number;
 };
 
 export type UpdateApplicationRequest = UpdateApplicationPayload & {
   id: string;
+  callback?: () => void;
 };
 
 export interface ApplicationObject {

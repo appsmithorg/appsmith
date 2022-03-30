@@ -68,7 +68,6 @@ function* fetchPluginFormConfigsSaga() {
   try {
     const datasources: Datasource[] = yield select(getDatasources);
     const plugins: Plugin[] = yield select(getPlugins);
-    const pluginFormRequests = [];
     // Add plugins of all the datasources of their org
     const pluginIdFormsToFetch = new Set(
       datasources.map((datasource) => datasource.pluginId),
@@ -80,16 +79,11 @@ function* fetchPluginFormConfigsSaga() {
     if (apiPlugin) {
       pluginIdFormsToFetch.add(apiPlugin.id);
     }
-    for (const id of pluginIdFormsToFetch) {
-      const response: ApiResponse<PluginFormPayload> = yield call(
-        PluginsApi.fetchFormConfig,
-        id,
-      );
-      pluginFormRequests.push(response);
-    }
     const pluginFormData: PluginFormPayload[] = [];
     const pluginFormResponses: ApiResponse<PluginFormPayload>[] = yield all(
-      pluginFormRequests,
+      [...pluginIdFormsToFetch].map((id) =>
+        call(PluginsApi.fetchFormConfig, id),
+      ),
     );
     for (const response of pluginFormResponses) {
       yield validateResponse(response);

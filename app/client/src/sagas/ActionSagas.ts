@@ -40,8 +40,8 @@ import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
 import {
   getActionById,
-  getCurrentApplicationId,
   getCurrentPageId,
+  selectPageSlugById,
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -67,13 +67,7 @@ import {
   getActions,
 } from "selectors/entitiesSelector";
 import history from "utils/history";
-import {
-  API_EDITOR_ID_URL,
-  BUILDER_PAGE_URL,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-  QUERIES_EDITOR_ID_URL,
-} from "constants/routes";
+import { INTEGRATION_TABS } from "constants/routes";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import PerformanceTracker, {
@@ -91,7 +85,6 @@ import { merge, get } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { createNewApiAction } from "actions/apiPaneActions";
 import {
@@ -118,6 +111,13 @@ import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReduc
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import * as log from "loglevel";
 import { shouldBeDefined } from "utils/helpers";
+import {
+  apiEditorIdURL,
+  builderURL,
+  integrationEditorURL,
+  queryEditorIdURL,
+  saasEditorApiIdURL,
+} from "RouteBuilder";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -238,24 +238,29 @@ export function* fetchActionsForViewModeSaga(
     const response: ApiResponse<ActionViewMode[]> = yield ActionAPI.fetchActionsForViewMode(
       applicationId,
     );
-    const correctFormatResponse = response.data.map((action) => {
-      return {
-        ...action,
-        actionConfiguration: {
-          timeoutInMillisecond: action.timeoutInMillisecond,
-        },
-      };
-    });
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      const correctFormatResponse = response.data.map((action) => {
+        return {
+          ...action,
+          actionConfiguration: {
+            timeoutInMillisecond: action.timeoutInMillisecond,
+          },
+        };
+      });
       yield put({
         type: ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
         payload: correctFormatResponse,
       });
-      PerformanceTracker.stopAsyncTracking(
-        PerformanceTransactionName.FETCH_ACTIONS_API,
-      );
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
+        payload: response.responseMeta.error,
+      });
     }
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.FETCH_ACTIONS_API,
+    );
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
@@ -411,11 +416,10 @@ export function* deleteActionSaga(
     if (!!actionPayload.payload.onSuccess) {
       actionPayload.payload.onSuccess();
     } else {
-      const pageId: string | undefined = yield select(getCurrentPageId);
-      const applicationId: string = yield select(getCurrentApplicationId);
-
       history.push(
-        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+        integrationEditorURL({
+          selectedTab: INTEGRATION_TABS.NEW,
+        }),
       );
     }
 
@@ -625,10 +629,8 @@ function* bindDataOnCanvasSaga(
   }>,
 ) {
   const { pageId, queryId } = action.payload;
-  const applicationId = getCurrentApplicationId(yield select());
   history.push(
-    BUILDER_PAGE_URL({
-      applicationId,
+    builderURL({
       pageId,
       params: {
         isSnipingMode: "true",
@@ -756,14 +758,24 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const isApi = action.pluginType === PluginType.API;
   const isQuery = action.pluginType === PluginType.DB;
   const isSaas = action.pluginType === PluginType.SAAS;
-  const applicationId: string = yield select(getCurrentApplicationId);
+  const pageSlug: string = yield select(selectPageSlugById(action.pageId));
 
   if (isApi) {
-    history.push(API_EDITOR_ID_URL(applicationId, action.pageId, action.id));
+    history.push(
+      apiEditorIdURL({
+        pageSlug,
+        pageId: action.pageId,
+        apiId: action.id,
+      }),
+    );
   }
   if (isQuery) {
     history.push(
-      QUERIES_EDITOR_ID_URL(applicationId, action.pageId, action.id),
+      queryEditorIdURL({
+        pageSlug,
+        pageId: action.pageId,
+        queryId: action.id,
+      }),
     );
   }
   if (isSaas) {
@@ -772,12 +784,12 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
       `Plugin not found for pluginId - ${action.pluginId}`,
     );
     history.push(
-      SAAS_EDITOR_API_ID_URL(
-        applicationId,
-        action.pageId,
-        plugin.packageName,
-        action.id,
-      ),
+      saasEditorApiIdURL({
+        pageSlug,
+        pageId: action.pageId,
+        pluginPackageName: plugin.packageName,
+        apiId: action.id,
+      }),
     );
   }
 }
@@ -859,7 +871,6 @@ export function* getCurrentEntity(
 
 function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
   const pageId: string = yield select(getCurrentPageId);
-  const applicationId: string = yield select(getCurrentApplicationId);
   const callback = get(actionPayload, "payload.callback");
   const params = getQueryParams();
   switch (actionPayload.payload.actionType) {
@@ -921,7 +932,9 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       break;
     case SlashCommand.NEW_INTEGRATION:
       history.push(
-        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+        integrationEditorURL({
+          selectedTab: INTEGRATION_TABS.NEW,
+        }),
       );
       break;
     case SlashCommand.NEW_QUERY:

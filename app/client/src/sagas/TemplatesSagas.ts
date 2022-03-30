@@ -9,7 +9,7 @@ import TemplatesAPI, {
   FetchTemplateResponse,
   ImportTemplateResponse,
 } from "api/TemplatesApi";
-import { BUILDER_PAGE_URL } from "constants/routes";
+import { PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import history from "utils/history";
 import { getDefaultPageId } from "./ApplicationSagas";
 import { setTemplateNotificationSeenAction } from "actions/templateActions";
@@ -18,6 +18,7 @@ import {
   setTemplateNotificationSeen,
 } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
+import { builderURL } from "RouteBuilder";
 
 function* getAllTemplatesSaga() {
   try {
@@ -54,10 +55,15 @@ function* importTemplateToOrganisationSaga(
     if (isValid) {
       const application: ApplicationPayload = {
         ...response.data,
-        defaultPageId: getDefaultPageId(response.data.pages),
+        defaultPageId: getDefaultPageId(response.data.pages) as string,
       };
-      const pageURL = BUILDER_PAGE_URL({
+      const defaultPage = response.data.pages.find((page) => page.isDefault);
+      const defaultPageSlug = defaultPage?.slug || PLACEHOLDER_PAGE_SLUG;
+      const pageURL = builderURL({
         applicationId: application.id,
+        applicationSlug: application.slug,
+        applicationVersion: application.applicationVersion,
+        pageSlug: defaultPageSlug,
         pageId: application.defaultPageId,
       });
       yield put({
