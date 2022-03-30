@@ -32,7 +32,7 @@ export class Table {
   }
 
   public WaitForTableEmpty() {
-    cy.waitUntil(() => this.ReadTableRowColumnData(0, 0).then(cellData => expect(cellData).empty),
+    cy.waitUntil(() => cy.get(this.locator._tableRowColumn(0, 0), { timeout: 80000 }).should('not.exist'),
       {
         errorMsg: "Table is populated when not expected",
         timeout: 10000,
