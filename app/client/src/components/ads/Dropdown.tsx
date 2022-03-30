@@ -761,10 +761,9 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
                     {option.hasCustomBadge && props.customBadge}
                   </>
                 ) : (
-                  <>
-                    <Text type={TextType.P1}>{option.label} </Text>
-                    {option.hasCustomBadge && props.customBadge}
-                  </>
+                  <Text type={TextType.P1}>
+                    {option.label} {option.hasCustomBadge && props.customBadge}
+                  </Text>
                 )
               ) : option.label && option.value ? (
                 <LabelWrapper className="label-container">
