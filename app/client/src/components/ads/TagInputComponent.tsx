@@ -49,7 +49,6 @@ type TagInputProps = {
   /** TagInput value and onChange handler */
   input: {
     value?: string;
-    required?: boolean;
     onChange?: (value: string) => void;
   };
   /** TagInput type of individual entries (HTML input types) */
@@ -60,7 +59,6 @@ type TagInputProps = {
   intent?: Intent;
   hasError?: boolean;
   customError?: (values: any) => void;
-  isRequired?: boolean;
 };
 
 /**
