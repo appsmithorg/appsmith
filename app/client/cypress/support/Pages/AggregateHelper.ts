@@ -72,8 +72,9 @@ export class AggregateHelper {
             });
         });
         cy.get(this.locator._publishButton).click();
-        cy.wait("@publishApp");
         cy.log("Pagename: " + localStorage.getItem("PageName"));
+        cy.wait("@publishApp").its("request.url").should("not.contain", "edit")
+        //cy.wait('@publishApp').wait('@publishApp') //waitng for 2 calls to complete
     }
 
     public AddNewPage() {

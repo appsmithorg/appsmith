@@ -7,9 +7,10 @@ export class Table {
   private _table = "//div[@class='tableWrap']"
   private _tableHeader = this._table + "//div[@class='thead']//div[@class='tr'][1]"
   private _columnHeader = (columnName: string) => this._table + "//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//div[text()='" + columnName + "']/parent::div/parent::div"
-  _nextPage = ".t--widget-tablewidget .t--table-widget-next-page"
+  private _nextPage = ".t--widget-tablewidget .t--table-widget-next-page"
   private _previousPage = ".t--widget-tablewidget .t--table-widget-prev-page"
   private _pageNumber = ".t--widget-tablewidget .page-item"
+  private _pageNumberServerSideOff = ".t--widget-tablewidget .t--table-widget-page-input input"
   _tableRowColumn = (rowNum: number, colNum: number) => `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div div`
   _tableEmptyColumnData = `.t--widget-tablewidget .tbody .td`
 
@@ -81,8 +82,16 @@ export class Table {
 
   }
 
-  public AssertPageNumber(pageNo: number) {
-    cy.get(this._pageNumber).should('have.text', Number(pageNo))
+  public AssertPageNumber(pageNo: number, serverSide: 'Off' | 'On' = 'On') {
+    if (serverSide == 'On')
+      cy.get(this._pageNumber).should('have.text', Number(pageNo))
+    else {
+      cy.get(this._pageNumberServerSideOff).should('have.value', Number(pageNo))
+      cy.get(this._previousPage).should("have.attr", 'disabled')
+      cy.get(this._nextPage).should("have.attr", 'disabled')
+    }
+    if (pageNo == 1)
+      cy.get(this._previousPage).should("have.attr", 'disabled')
   }
 
 }

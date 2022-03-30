@@ -57,8 +57,7 @@ describe("AForce - Community issues Page validations", function () {
     agHelper.ToggleOnOrOff('serversidepagination', 'Off')
     agHelper.DeployApp()
     table.WaitUntilTableLoad()
-    table.AssertPageNumber(1);
-    cy.get(table._nextPage).should("have.attr", 'disabled')
+    table.AssertPageNumber(1, 'Off');
 
     //   //Validating Id column sorting happens as Datatype is Number in app!
     //   cy.xpath(
