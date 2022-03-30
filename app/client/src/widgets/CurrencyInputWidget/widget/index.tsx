@@ -30,7 +30,6 @@ import {
   getLocaleDecimalSeperator,
   getLocaleThousandSeparator,
   limitDecimalValue,
-  parseLocaleFormattedStringToNumber,
 } from "../component/utilities";
 import { mergeWidgetConfig } from "utils/helpers";
 
