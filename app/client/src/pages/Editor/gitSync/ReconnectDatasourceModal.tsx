@@ -33,6 +33,7 @@ import {
 import Button, { Category, Size } from "components/ads/Button";
 import {
   getDatasourceDrafts,
+  getIsDatasourceTesting,
   getIsListing,
   getIsReconnectingDatasourcesModalOpen,
   getPluginImages,
@@ -46,7 +47,7 @@ import {
   setIsReconnectingDatasourcesModalOpen,
   setOrgIdForImport,
 } from "actions/applicationActions";
-import { Datasource } from "entities/Datasource";
+import { AuthType, Datasource } from "entities/Datasource";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import { initialize } from "redux-form";
 import TooltipComponent from "components/ads/Tooltip";
@@ -59,6 +60,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { Toaster, Variant } from "components/ads";
 import { getOAuthAccessToken } from "actions/datasourceActions";
 import { builderURL } from "RouteBuilder";
+import { PLACEHOLDER_APP_SLUG } from "constants/routes";
 
 const Container = styled.div`
   height: 765px;
@@ -221,9 +223,11 @@ const TooltipWrapper = styled.div`
 const DBFormWrapper = styled.div`
   padding: 10px;
   width: calc(100% - 206px);
+  overflow: auto;
 
   div[class^="RestAPIDatasourceForm__RestApiForm-"] {
     padding-top: 0px;
+    height: 100%;
   }
 
   .t--delete-datasource {
@@ -272,6 +276,7 @@ function ReconnectDatasourceModal() {
   const pluginNames = useSelector(getPluginNames);
   const datasourceDrafts = useSelector(getDatasourceDrafts);
   const isLoading = useSelector(getIsListing);
+  const isDatasourceTesting = useSelector(getIsDatasourceTesting);
 
   // getting query from redirection url
   const userOrgs = useSelector(getUserApplicationsOrgsList);
@@ -289,6 +294,7 @@ function ReconnectDatasourceModal() {
   const [appURL, setAppURL] = useState("");
   const [datasouce, setDatasource] = useState<Datasource | null>(null);
   const [isImport, setIsImport] = useState(queryIsImport);
+  const [isTesting, setIsTesting] = useState(false);
 
   // when redirecting from oauth, processing the status
   if (isImport) {
@@ -356,6 +362,12 @@ function ReconnectDatasourceModal() {
     }
   }, [organizationId, isModalOpen]);
 
+  useEffect(() => {
+    if (isModalOpen && isDatasourceTesting) {
+      setIsTesting(true);
+    }
+  }, [isModalOpen, isDatasourceTesting]);
+
   const handleClose = useCallback(() => {
     dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
     dispatch(setOrgIdForImport(""));
@@ -364,6 +376,7 @@ function ReconnectDatasourceModal() {
   }, [dispatch, setIsReconnectingDatasourcesModalOpen, isModalOpen]);
 
   const onSelectDatasource = useCallback((ds: Datasource) => {
+    setIsTesting(false);
     setSelectedDatasourceId(ds.id);
     setDatasource(ds);
     AnalyticsUtil.logEvent("RECONNECTING_DATASOURCE_ITEM_CLICK", {
@@ -426,8 +439,9 @@ function ReconnectDatasourceModal() {
       setAppURL(
         builderURL({
           applicationVersion:
-            importedApplication.applicationVersion ??
+            importedApplication?.applicationVersion ||
             ApplicationVersion.SLUG_URL,
+          applicationSlug: importedApplication?.slug || PLACEHOLDER_APP_SLUG,
           applicationId: appId,
           pageId: pageId,
         }),
@@ -437,7 +451,19 @@ function ReconnectDatasourceModal() {
 
   // checking of full configured
   useEffect(() => {
-    if (isModalOpen) {
+    if (isModalOpen && !isTesting) {
+      // if there is only one gsheet datasource, it shouldn't be redirected to app immediately
+      if (
+        !queryIsImport &&
+        datasources.length === 1 &&
+        datasources[0].isConfigured
+      ) {
+        const authType =
+          datasources[0].datasourceConfiguration?.authentication
+            ?.authenticationType;
+
+        if (authType === AuthType.OAUTH2) return;
+      }
       const id = selectedDatasourceId;
       const pending = datasources.filter((ds: Datasource) => !ds.isConfigured);
       if (pending.length > 0) {
@@ -455,7 +481,7 @@ function ReconnectDatasourceModal() {
         window.open(appURL, "_self");
       }
     }
-  }, [datasources, appURL, isModalOpen]);
+  }, [datasources, appURL, isModalOpen, isTesting, queryIsImport]);
 
   const mappedDataSources = datasources.map((ds: Datasource) => {
     return (
@@ -538,7 +564,6 @@ function ReconnectDatasourceModal() {
                   AnalyticsUtil.logEvent(
                     "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK",
                   );
-                  window.open(appURL, "_self");
                 }}
                 size={Size.medium}
                 text={createMessage(SKIP_TO_APPLICATION)}

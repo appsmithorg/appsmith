@@ -3042,6 +3042,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "/api/v1/users/me").as("getUser");
   cy.route("POST", "/api/v1/pages").as("createPage");
   cy.route("POST", "/api/v1/pages/clone/*").as("clonePage");
+  cy.route("POST", "/api/v1/applications/clone/*").as("cloneApp");
   cy.route("PUT", "/api/v1/applications/*/changeAccess").as("changeAccess");
 
   cy.route("PUT", "/api/v1/organizations/*").as("updateOrganization");
@@ -3944,7 +3945,9 @@ Cypress.Commands.add(
           "']/parent::label/following-sibling::div//div[@class='CodeMirror-code']",
       ).click();
     } else {
-      cy.xpath("//div[@class='CodeMirror-code']").click();
+      cy.xpath("//div[@class='CodeMirror-code']")
+        .first()
+        .click();
     }
     cy.wait(3000); //Increasing wait time to evaluate non-undefined values
     const val = cy

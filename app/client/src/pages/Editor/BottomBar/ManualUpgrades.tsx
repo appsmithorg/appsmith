@@ -138,6 +138,7 @@ function UpdatesModal({
           />
           <Button
             category={Category.primary}
+            className="t--upgrade-confirm"
             isLoading={isLoading}
             onClick={() => {
               setIsLoading(true);
@@ -195,7 +196,7 @@ function ManualUpgrades() {
     );
 
   return (
-    <div className="t--upgrade relative">
+    <div className="relative">
       {applicationVersion < latestVersion && <RedDot />}
       <TooltipComponent
         autoFocus={!updateDismissed && applicationVersion < latestVersion}
@@ -206,6 +207,7 @@ function ManualUpgrades() {
         {...defaultProps}
       >
         <Icon
+          className="t--upgrade"
           disabled={applicationVersion < latestVersion}
           fillColor={Colors.SCORPION}
           name="upgrade"
