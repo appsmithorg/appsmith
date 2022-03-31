@@ -90,56 +90,6 @@ describe("MultiSelect Widget Functionality", function() {
       .eq(1)
       .should("have.text", "Option 2");
   });
-
-  describe("Label section", () => {
-    it("Check properties: Text, Position, Alignment, Width", () => {
-      const widgetName = "multiselectwidgetv2";
-      const labelText = "Label";
-      const parentColumnSpace = 10.87890625;
-      const widgetSelector = `.t--widget-${widgetName}`;
-      const labelSelector = `${widgetSelector} label.multiselect-label`;
-      const containerSelector = `${widgetSelector} [data-testid="multiselect-container"]`;
-      const labelPositionSelector = ".t--property-control-position button";
-      const labelAlignmentSelector = ".t--property-control-alignment button";
-
-      cy.openPropertyPane(widgetName);
-
-      cy.get(".t--property-control-text .CodeMirror textarea")
-        .first()
-        .focus()
-        .type(labelText);
-      // Assert label presence
-      cy.get(labelSelector)
-        .first()
-        .contains(labelText);
-      // Assert label position: Auto
-      cy.get(containerSelector).should("have.css", "flex-direction", "column");
-
-      // Change label position to Top
-      cy.get(labelPositionSelector)
-        .eq(1)
-        .click();
-      // Assert label position: Top
-      cy.get(containerSelector).should("have.css", "flex-direction", "column");
-
-      // Change label position to Left
-      cy.get(labelPositionSelector)
-        .eq(2)
-        .click();
-      // Assert label position: Left
-      cy.get(containerSelector).should("have.css", "flex-direction", "row");
-      // Set label alignment to RIGHT
-      cy.get(labelAlignmentSelector)
-        .eq(1)
-        .click();
-      // Assert label alignment
-      cy.get(labelSelector)
-        .first()
-        .should("have.css", "text-align", "right");
-      // Assert label width
-      cy.checkLabelWidth(parentColumnSpace, 4, labelSelector);
-    });
-  });
 });
 afterEach(() => {
   // put your clean up code if any

@@ -140,56 +140,9 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       .should("have.text", "May 4, 2021 6:25 AM");
   });
 
-  describe("Label section", () => {
-    it("Check properties: Text, Position, Alignment, Width", () => {
-      const widgetName = "datepickerwidget2";
-      const labelText = "Name";
-      const parentColumnSpace = 11.9375;
-      const widgetSelector = `.t--widget-${widgetName}`;
-      const labelSelector = `${widgetSelector} label`;
-      const containerSelector = `${widgetSelector} [data-testid="datepicker-container"]`;
-      const labelPositionSelector = ".t--property-control-position button";
-      const labelAlignmentSelector = ".t--property-control-alignment button";
-
-      cy.openPropertyPane(widgetName);
-
-      cy.get(".t--property-control-text .CodeMirror textarea")
-        .first()
-        .focus()
-        .type(labelText);
-      // Assert label presence
-      cy.get(labelSelector)
-        .first()
-        .contains(labelText);
-      // Assert label position: Auto
-      cy.get(containerSelector).should("have.css", "flex-direction", "row");
-      // Change label position to Top
-      cy.get(labelPositionSelector)
-        .eq(1)
-        .click();
-      // Assert label position: Top
-      cy.get(containerSelector).should("have.css", "flex-direction", "column");
-      // Change label position to Left
-      cy.get(labelPositionSelector)
-        .eq(2)
-        .click();
-      cy.wait(300);
-      // Set label alignment to RIGHT
-      cy.get(labelAlignmentSelector)
-        .eq(1)
-        .click();
-      // Assert label alignment
-      cy.get(labelSelector)
-        .first()
-        .should("have.css", "text-align", "right");
-      // Assert label width
-      cy.checkLabelWidth(parentColumnSpace, 4, labelSelector);
-    });
+  it("Datepicker default date validation with js binding", function() {
+    cy.PublishtheApp();
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(10000);
   });
-
-  // it("Datepicker default date validation with js binding", function() {
-  //   cy.PublishtheApp();
-  //   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  //   cy.wait(10000);
-  // });
 });

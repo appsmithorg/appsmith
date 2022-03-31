@@ -68,6 +68,7 @@ export interface CheckboxGroupContainerProps {
 
 export const CheckboxGroupContainer = styled.div<CheckboxGroupContainerProps>`
   ${labelLayoutStyles}
+  overflow-x: hidden;
 
   & .select-all {
     white-space: nowrap;
