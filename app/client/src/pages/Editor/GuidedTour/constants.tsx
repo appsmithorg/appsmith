@@ -264,15 +264,8 @@ export const Steps: StepsType = {
       {
         text: (
           <>
-            <b>Edit</b> the getCustomers query below to fetch data. Replace the{" "}
-            <b>limit</b> {`"20"`} with {`"10"`}.
-          </>
-        ),
-      },
-      {
-        text: (
-          <>
-            Now hit the <RunButton>RUN</RunButton> button to see the response.
+            This command will fetch the first 10 items in the user_data
+            database. Hit <RunButton>RUN</RunButton> to see the response.
           </>
         ),
       },
@@ -284,8 +277,8 @@ export const Steps: StepsType = {
         dispatch(setCurrentStepInit(GUIDED_TOUR_STEPS.SELECT_TABLE_WIDGET));
         setTimeout(() => {
           showIndicator(`[data-guided-tour-iid='CustomersTable']`, "right", {
-            top: 3,
-            left: 18,
+            top: 5,
+            left: -15,
           });
         }, 1000);
       },

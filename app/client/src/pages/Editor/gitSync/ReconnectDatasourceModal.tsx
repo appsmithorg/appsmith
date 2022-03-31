@@ -47,7 +47,7 @@ import {
   setIsReconnectingDatasourcesModalOpen,
   setOrgIdForImport,
 } from "actions/applicationActions";
-import { Datasource } from "entities/Datasource";
+import { AuthType, Datasource } from "entities/Datasource";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import { initialize } from "redux-form";
 import TooltipComponent from "components/ads/Tooltip";
@@ -60,6 +60,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { Toaster, Variant } from "components/ads";
 import { getOAuthAccessToken } from "actions/datasourceActions";
 import { builderURL } from "RouteBuilder";
+import { PLACEHOLDER_APP_SLUG } from "constants/routes";
 
 const Container = styled.div`
   height: 765px;
@@ -438,9 +439,9 @@ function ReconnectDatasourceModal() {
       setAppURL(
         builderURL({
           applicationVersion:
-            importedApplication?.applicationVersion ??
+            importedApplication?.applicationVersion ||
             ApplicationVersion.SLUG_URL,
-          applicationSlug: importedApplication.slug,
+          applicationSlug: importedApplication?.slug || PLACEHOLDER_APP_SLUG,
           applicationId: appId,
           pageId: pageId,
         }),
@@ -451,6 +452,18 @@ function ReconnectDatasourceModal() {
   // checking of full configured
   useEffect(() => {
     if (isModalOpen && !isTesting) {
+      // if there is only one gsheet datasource, it shouldn't be redirected to app immediately
+      if (
+        !queryIsImport &&
+        datasources.length === 1 &&
+        datasources[0].isConfigured
+      ) {
+        const authType =
+          datasources[0].datasourceConfiguration?.authentication
+            ?.authenticationType;
+
+        if (authType === AuthType.OAUTH2) return;
+      }
       const id = selectedDatasourceId;
       const pending = datasources.filter((ds: Datasource) => !ds.isConfigured);
       if (pending.length > 0) {
@@ -468,7 +481,7 @@ function ReconnectDatasourceModal() {
         window.open(appURL, "_self");
       }
     }
-  }, [datasources, appURL, isModalOpen, isTesting]);
+  }, [datasources, appURL, isModalOpen, isTesting, queryIsImport]);
 
   const mappedDataSources = datasources.map((ds: Datasource) => {
     return (
