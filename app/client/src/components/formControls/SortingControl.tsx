@@ -3,7 +3,6 @@ import FormControl from "pages/Editor/FormControl";
 import Icon, { IconSize } from "components/ads/Icon";
 import styled, { css } from "styled-components";
 import { FieldArray } from "redux-form";
-import FormLabel from "components/editorComponents/FormLabel";
 import { ControlProps } from "./BaseControl";
 import { Colors } from "constants/Colors";
 import { getBindingOrConfigPathsForSortingControl } from "entities/Action/actionProperties";
@@ -85,24 +84,24 @@ const CenteredIcon = styled(Icon)<{ noMarginLeft?: boolean }>`
 `;
 
 // container for the bottom label section
-const StyledBottomLabelContainer = styled.div`
+const StyledBottomLabelContainer = styled.div<{ isDisabled?: boolean }>`
   display: flex;
   flex-direction: row;
   align-items: center;
-  color: ${Colors.GREY_7};
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 14px;
+  letter-spacing: 0.6px;
+  margin-right: 20px;
+  color: ${(props) =>
+    props.isDisabled ? "var(--appsmith-color-black-300)" : "#858282;"};
   cursor: pointer;
   width: max-content;
-  &:hover {
-    opacity: 0.8;
-  }
+  text-transform: uppercase;
 `;
 
-export const StyledBottomLabel = styled(FormLabel)`
-  margin-left: 5px;
-  font-weight: 400;
-  font-size: 12px;
-  color: ${Colors.GREY_7};
-  line-height: 16px;
+export const StyledBottomLabel = styled.span`
+  margin-left: 8px;
 `;
 
 function SortingComponent(props: any) {
@@ -168,7 +167,6 @@ function SortingComponent(props: any) {
             </SortingDropdownContainer>
           );
         })}
-
       <StyledBottomLabelContainer
         onClick={() =>
           props.fields.push({
@@ -177,7 +175,7 @@ function SortingComponent(props: any) {
           })
         }
       >
-        <CenteredIcon name="add-more-fill" noMarginLeft size={IconSize.SMALL} />
+        <Icon name="add-more-fill" size={IconSize.XL} />
         <StyledBottomLabel>Add Another sort Parameter</StyledBottomLabel>
       </StyledBottomLabelContainer>
     </SortingContainer>

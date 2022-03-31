@@ -38,6 +38,8 @@ const TooltipWrapper = styled(Tooltip)`
 
 const TooltipChildrenWrapper = styled.div<{ helpCursor: boolean }>`
   display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
   height: 100%;
   cursor: ${(props) => (props.helpCursor ? "help" : "")};
