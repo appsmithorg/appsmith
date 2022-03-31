@@ -9,12 +9,11 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "9001:9001"
     volumes:
       - ./stacks:/appsmith-stacks
 
   auto_update:
-    image: containrrr/watchtower:latest-dev
+    image: containrrr/watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     # Update check every hour.

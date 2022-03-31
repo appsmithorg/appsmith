@@ -178,13 +178,27 @@ export default class DataTreeEvaluator {
     return { evalTree: this.evalTree, jsUpdates: jsUpdates };
   }
 
+  isJSObjectFunction(dataTree: DataTree, jsObjectName: string, key: string) {
+    const entity = dataTree[jsObjectName];
+    if (isJSAction(entity)) {
+      return entity.meta.hasOwnProperty(key);
+    }
+    return false;
+  }
+
   updateLocalUnEvalTree(dataTree: DataTree) {
     //add functions and variables to unevalTree
     Object.keys(this.currentJSCollectionState).forEach((update) => {
       const updates = this.currentJSCollectionState[update];
       if (!!dataTree[update]) {
         Object.keys(updates).forEach((key) => {
-          _.set(dataTree, `${update}.${key}`, updates[key]);
+          const data = _.get(dataTree, `${update}.${key}.data`, undefined);
+          if (this.isJSObjectFunction(dataTree, update, key)) {
+            _.set(dataTree, `${update}.${key}`, new String(updates[key]));
+            _.set(dataTree, `${update}.${key}.data`, data);
+          } else {
+            _.set(dataTree, `${update}.${key}`, updates[key]);
+          }
         });
       }
     });
@@ -271,6 +285,7 @@ export default class DataTreeEvaluator {
         jsUpdates: {},
       };
     }
+    //find all differences which can lead to updating of dependency map
     const translatedDiffs = _.flatten(
       differences.map((diff) =>
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
@@ -290,6 +305,8 @@ export default class DataTreeEvaluator {
       removedPaths,
     } = this.updateDependencyMap(translatedDiffs, localUnEvalTree);
     const updateDependenciesStop = performance.now();
+
+    this.applyDifferencesToEvalTree(differences);
 
     const calculateSortOrderStart = performance.now();
 
@@ -479,7 +496,7 @@ export default class DataTreeEvaluator {
         }),
       );
     });
-    dependencyMap = makeParentsDependOnChildren(dependencyMap);
+    dependencyMap = makeParentsDependOnChildren(dependencyMap, this.allKeys);
     return dependencyMap;
   }
 
@@ -502,12 +519,22 @@ export default class DataTreeEvaluator {
 
     if (isWidget(entity)) {
       // Adding the dynamic triggers in the dependency list as they need linting whenever updated
-      // we don't make it dependent on anything else
-      if (entity.dynamicTriggerPathList) {
-        Object.values(entity.dynamicTriggerPathList).forEach(({ key }) => {
-          dependencies[`${entityName}.${key}`] = [];
+      // To keep linting in trigger fields in sync, nodes they depend on need to be added to their dependencies
+      const dynamicTriggerPathlist = entity.dynamicTriggerPathList;
+
+      if (dynamicTriggerPathlist && dynamicTriggerPathlist.length) {
+        dynamicTriggerPathlist.forEach((dynamicPath) => {
+          const propertyPath = dynamicPath.key;
+          const unevalPropValue = _.get(entity, propertyPath);
+          const { jsSnippets } = getDynamicBindings(unevalPropValue);
+          const existingDeps =
+            dependencies[`${entityName}.${propertyPath}`] || [];
+          dependencies[`${entityName}.${propertyPath}`] = existingDeps.concat(
+            jsSnippets.filter((jsSnippet) => !!jsSnippet),
+          );
         });
       }
+
       const widgetDependencies = addWidgetPropertyDependencies({
         entity,
         entityName,
@@ -545,7 +572,8 @@ export default class DataTreeEvaluator {
         Object.keys(entity.bindingPaths).forEach((propertyPath) => {
           const existingDeps =
             dependencies[`${entityName}.${propertyPath}`] || [];
-          const jsSnippets = [_.get(entity, propertyPath)];
+          const unevalPropValue = _.get(entity, propertyPath).toString();
+          const { jsSnippets } = getDynamicBindings(unevalPropValue, entity);
           dependencies[`${entityName}.${propertyPath}`] = existingDeps.concat(
             jsSnippets.filter((jsSnippet) => !!jsSnippet),
           );
@@ -858,6 +886,7 @@ export default class DataTreeEvaluator {
     requestId: string,
     resolvedFunctions: Record<string, any>,
     callbackData: Array<unknown>,
+    context?: EvaluateContext,
   ) {
     const { jsSnippets } = getDynamicBindings(userScript);
     return evaluateAsync(
@@ -865,7 +894,7 @@ export default class DataTreeEvaluator {
       dataTree,
       requestId,
       resolvedFunctions,
-      {},
+      context,
       callbackData,
     );
   }
@@ -928,6 +957,7 @@ export default class DataTreeEvaluator {
       validation,
       evalPropertyValue,
       widget,
+      propertyPath,
     );
 
     const evaluatedValue = isValid
@@ -938,7 +968,10 @@ export default class DataTreeEvaluator {
     const safeEvaluatedValue = removeFunctions(evaluatedValue);
     _.set(
       widget,
-      getEvalValuePath(fullPropertyPath, false),
+      getEvalValuePath(fullPropertyPath, {
+        isPopulated: false,
+        fullPath: false,
+      }),
       safeEvaluatedValue,
     );
     if (!isValid) {
@@ -1310,7 +1343,10 @@ export default class DataTreeEvaluator {
                 entity,
                 entityPropertyPath,
               );
-              if (isABindingPath) {
+              const isATriggerPath =
+                isWidget(entity) &&
+                isPathADynamicTrigger(entity, entityPropertyPath);
+              if (isABindingPath || isATriggerPath) {
                 didUpdateDependencyMap = true;
 
                 const { jsSnippets } = getDynamicBindings(
@@ -1394,7 +1430,10 @@ export default class DataTreeEvaluator {
           ),
         );
       });
-      this.dependencyMap = makeParentsDependOnChildren(this.dependencyMap);
+      this.dependencyMap = makeParentsDependOnChildren(
+        this.dependencyMap,
+        this.allKeys,
+      );
     }
     const subDepCalcEnd = performance.now();
     const updateChangedDependenciesStart = performance.now();
@@ -1421,6 +1460,14 @@ export default class DataTreeEvaluator {
     return { dependenciesOfRemovedPaths, removedPaths };
   }
 
+  applyDifferencesToEvalTree(differences: Diff<any, any>[]) {
+    for (const d of differences) {
+      if (!Array.isArray(d.path) || d.path.length === 0) continue; // Null check for typescript
+      // Apply the changes into the evalTree so that it gets the latest changes
+      applyChange(this.evalTree, undefined, d);
+    }
+  }
+
   calculateSubTreeSortOrder(
     differences: Diff<any, any>[],
     dependenciesOfRemovedPaths: Array<string>,
@@ -1428,12 +1475,8 @@ export default class DataTreeEvaluator {
     unEvalTree: DataTree,
   ) {
     const changePaths: Set<string> = new Set(dependenciesOfRemovedPaths);
-
     for (const d of differences) {
       if (!Array.isArray(d.path) || d.path.length === 0) continue; // Null check for typescript
-      // Apply the changes into the evalTree so that it gets the latest changes
-      applyChange(this.evalTree, undefined, d);
-
       changePaths.add(convertPathToString(d.path));
       // If this is a property path change, simply add for evaluation and move on
       if (!isDynamicLeaf(unEvalTree, convertPathToString(d.path))) {

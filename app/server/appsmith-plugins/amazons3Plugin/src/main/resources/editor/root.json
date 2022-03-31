@@ -1,35 +1,51 @@
 {
-  "command" : {
-    "label": "Commands",
-    "description": "Choose method you would like to use",
-    "configProperty": "actionConfiguration.formData.command",
-    "controlType": "DROP_DOWN",
-    "initialValue": "LIST",
-    "options": [
-      {
-        "label": "List files in bucket",
-        "fileName" : "list.json"
-      },
-      {
-        "label": "Create a new file",
-        "fileName" : "create.json"
-      },
-      {
-        "label": "Create multiple new files",
-        "fileName" : "create_many.json"
-      },
-      {
-        "label": "Read file",
-        "fileName" : "read.json"
-      },
-      {
-        "label": "Delete file",
-        "fileName" : "delete.json"
-      },
-      {
-        "label": "Delete multiple files",
-        "fileName" : "delete_many.json"
-      }
-    ]
-  }
+  "editor": [
+    {
+      "controlType": "SECTION",
+      "identifier": "SELECTOR",
+      "children": [
+        {
+          "label": "Commands",
+          "description": "Choose the method you would like to use",
+          "configProperty": "actionConfiguration.formData.command.data",
+          "controlType": "DROP_DOWN",
+          "initialValue": "LIST",
+          "options": [
+            {
+              "label": "List files in bucket",
+              "value": "LIST"
+            },
+            {
+              "label": "Create a new file",
+              "value": "UPLOAD_FILE_FROM_BODY"
+            },
+            {
+              "label": "Create multiple new files",
+              "value": "UPLOAD_MULTIPLE_FILES_FROM_BODY"
+            },
+            {
+              "label": "Read file",
+              "value": "READ_FILE"
+            },
+            {
+              "label": "Delete file",
+              "value": "DELETE_FILE"
+            },
+            {
+              "label": "Delete multiple files",
+              "value": "DELETE_MULTIPLE_FILES"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "files": [
+    "create.json",
+    "create_many.json",
+    "delete.json",
+    "delete_many.json",
+    "list.json",
+    "read.json"
+  ]
 }

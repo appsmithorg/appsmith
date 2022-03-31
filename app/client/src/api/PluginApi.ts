@@ -41,6 +41,15 @@ export interface PluginFormPayload {
   editor: any[];
   setting: any[];
   dependencies: DependencyMap;
+  formButton: string[];
+}
+
+export interface DefaultPlugin {
+  id: string;
+  name: string;
+  packageName: string;
+  iconLocation?: string;
+  allowUserDatasources?: boolean;
 }
 
 class PluginsApi extends Api {
@@ -63,6 +72,12 @@ class PluginsApi extends Api {
     body: Record<string, any>,
   ): AxiosPromise<GenericApiResponse<DropdownOption[]>> {
     return Api.post(url, body);
+  }
+
+  static fetchDefaultPlugins(): AxiosPromise<
+    GenericApiResponse<DefaultPlugin[]>
+  > {
+    return Api.get(PluginsApi.url + `/default/icons`);
   }
 }
 

@@ -1,15 +1,12 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/datePicker2dsl.json");
-const publishPage = require("../../../../locators/publishWidgetspage.json");
-const pages = require("../../../../locators/Pages.json");
 
 describe("DatePicker Widget Property pane tests with js bindings", function() {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Datepicker default date validation with js binding and default date", function() {
+  it("1. Datepicker default date validation with js binding and default date", function() {
     cy.openPropertyPane("datepickerwidget2");
     cy.get(".t--property-control-defaultdate .bp3-input").clear();
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
@@ -19,7 +16,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     );
   });
 
-  it("Datepicker default time picker validation by Time precision", function() {
+  it("2. Datepicker default time picker validation by Time precision", function() {
     // default value in property pane
     cy.openPropertyPane("datepickerwidget2");
     cy.get(".t--property-control-timeprecision span[type='p1']").should(
@@ -39,7 +36,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.closePropertyPane();
   });
 
-  it("Hide Time picker from Datepicker", function() {
+  it("3. Hide Time picker from Datepicker", function() {
     // default value in property pane
     cy.openPropertyPane("datepickerwidget2");
 
@@ -64,7 +61,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.closePropertyPane();
   });
 
-  it("set second field in time picker for Datepicker", function() {
+  it("4. set second field in time picker for Datepicker", function() {
     // default value in property pane
     cy.openPropertyPane("datepickerwidget2");
 
@@ -89,7 +86,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.closePropertyPane();
   });
 
-  it("Text widgets binding with datepicker", function() {
+  it("5. Text widgets binding with datepicker", function() {
     cy.SearchEntityandOpen("Text1");
     cy.testJsontext("text", "{{DatePicker1.formattedDate}}");
     cy.closePropertyPane();
@@ -98,7 +95,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.closePropertyPane();
   });
 
-  it("Text widgets binding with datepicker", function() {
+  it("6. Text widgets binding with datepicker", function() {
     cy.openPropertyPane("datepickerwidget2");
     cy.selectDateFormat("DD/MM/YYYY");
     cy.assertDateFormat();
@@ -106,8 +103,12 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.assertDateFormat();
   });
 
-  it("Datepicker default date validation with js binding and default date with moment object", function() {
+  it("7. Datepicker default date validation with js binding and default date with moment object", function() {
     cy.openPropertyPane("datepickerwidget2");
+    cy.get(formWidgetsPage.toggleJsDefaultDate)
+      .click()
+      .wait(1000); //disable
+    cy.get(formWidgetsPage.toggleJsDefaultDate).click(); //enable
     cy.testJsontext("defaultdate", `{{moment("1/1/2012")}}`);
     cy.get(".t--widget-datepickerwidget2 .bp3-input").should(
       "contain.value",
@@ -115,7 +116,22 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     );
   });
 
-  it("Datepicker default date validation with js binding", function() {
+  it("8. Datepicker clear date, validation with js binding and default date with moment object", function() {
+    // clear data and check datepicker textbox is clear
+    cy.clearPropertyValue(0);
+    cy.get(".t--widget-datepickerwidget2 .bp3-input").should(
+      "contain.value",
+      "",
+    );
+    // add new date value and check datepicker textbox have value
+    cy.testJsontext("defaultdate", `{{moment("1/1/2012")}}`);
+    cy.get(".t--widget-datepickerwidget2 .bp3-input").should(
+      "contain.value",
+      "01/01/2012 00:00",
+    );
+  });
+
+  it("9. Datepicker default date validation with js binding", function() {
     cy.PublishtheApp();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(10000);

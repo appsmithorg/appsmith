@@ -20,6 +20,8 @@ import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { matchPath, useLocation } from "react-router";
 import {
   API_EDITOR_ID_PATH,
+  BUILDER_PATH,
+  BUILDER_PATH_DEPRECATED,
   JS_COLLECTION_ID_PATH,
   QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
@@ -75,33 +77,72 @@ export const useDatasourcesPageMapInCurrentApplication = () => {
   }, [actions, reducerDatasources]);
 };
 
-export const useAppWideAndOtherDatasource = () => {
+export const useCurrentApplicationDatasource = () => {
   const actions = useSelector(getActions);
   const allDatasources = useSelector(getDatasources);
-  const appWideDatasourcesIds = actions.reduce((acc, action: ActionData) => {
-    if (
-      isStoredDatasource(action.config.datasource) &&
-      action.config.datasource.id
-    ) {
-      acc.add(action.config.datasource.id);
-    }
-    return acc;
-  }, new Set());
-  return allDatasources
-    .sort((ds1, ds2) =>
+  const datasourceIdsUsedInCurrentApplication = actions.reduce(
+    (acc, action: ActionData) => {
+      if (
+        isStoredDatasource(action.config.datasource) &&
+        action.config.datasource.id
+      ) {
+        acc.add(action.config.datasource.id);
+      }
+      return acc;
+    },
+    new Set(),
+  );
+  return allDatasources.filter((ds) =>
+    datasourceIdsUsedInCurrentApplication.has(ds.id),
+  );
+};
+
+export const useOtherDatasourcesInOrganization = () => {
+  const actions = useSelector(getActions);
+  const allDatasources = useSelector(getDatasources);
+  const datasourceIdsUsedInCurrentApplication = actions.reduce(
+    (acc, action: ActionData) => {
+      if (
+        isStoredDatasource(action.config.datasource) &&
+        action.config.datasource.id
+      ) {
+        acc.add(action.config.datasource.id);
+      }
+      return acc;
+    },
+    new Set(),
+  );
+  return allDatasources.filter(
+    (ds) => !datasourceIdsUsedInCurrentApplication.has(ds.id),
+  );
+};
+
+export const useAppWideAndOtherDatasource = () => {
+  const datasourcesUsedInApplication = useCurrentApplicationDatasource();
+  const otherDatasourceInOrg = useOtherDatasourcesInOrganization();
+
+  return {
+    appWideDS: datasourcesUsedInApplication.sort((ds1, ds2) =>
       ds1.name?.toLowerCase()?.localeCompare(ds2.name?.toLowerCase()),
-    )
-    .reduce(
-      (acc: any, ds) => {
-        if (appWideDatasourcesIds.has(ds.id)) {
-          acc.appWideDS = acc.appWideDS.concat(ds);
-        } else {
-          acc.otherDS = acc.otherDS.concat(ds);
-        }
-        return acc;
-      },
-      { appWideDS: [], otherDS: [] },
-    );
+    ),
+    otherDS: otherDatasourceInOrg.sort((ds1, ds2) =>
+      ds1.name?.toLowerCase()?.localeCompare(ds2.name?.toLowerCase()),
+    ),
+  };
+};
+
+const MAX_DATASOURCE_SUGGESTIONS = 3;
+
+export const useDatasourceSuggestions = () => {
+  const datasourcesUsedInApplication = useCurrentApplicationDatasource();
+  const otherDatasourceInOrg = useOtherDatasourcesInOrganization();
+  if (datasourcesUsedInApplication.length >= MAX_DATASOURCE_SUGGESTIONS)
+    return [];
+  otherDatasourceInOrg.reverse();
+  return otherDatasourceInOrg.slice(
+    0,
+    MAX_DATASOURCE_SUGGESTIONS - datasourcesUsedInApplication.length,
+  );
 };
 
 export const useFilteredDatasources = (searchKeyword?: string) => {
@@ -321,29 +362,35 @@ export const useEntityEditState = (entityId: string) => {
 
 export function useActiveAction() {
   const location = useLocation();
+
+  const baseMatch = matchPath<{ apiId: string }>(location.pathname, {
+    path: [BUILDER_PATH, BUILDER_PATH_DEPRECATED],
+    strict: false,
+    exact: false,
+  });
+
+  const basePath = baseMatch?.path || "";
+
   const apiMatch = matchPath<{ apiId: string }>(location.pathname, {
-    path: API_EDITOR_ID_PATH,
+    path: `${basePath}${API_EDITOR_ID_PATH}`,
   });
   if (apiMatch?.params?.apiId) {
     return apiMatch.params.apiId;
   }
-  const queryMatch = matchPath<{ queryId: string }>(window.location.pathname, {
-    path: QUERIES_EDITOR_ID_PATH,
+  const queryMatch = matchPath<{ queryId: string }>(location.pathname, {
+    path: `${basePath}${QUERIES_EDITOR_ID_PATH}`,
   });
   if (queryMatch?.params?.queryId) {
     return queryMatch.params.queryId;
   }
-  const jsMatch = matchPath<{ collectionId: string }>(
-    window.location.pathname,
-    {
-      path: JS_COLLECTION_ID_PATH,
-    },
-  );
+  const jsMatch = matchPath<{ collectionId: string }>(location.pathname, {
+    path: `${basePath}${JS_COLLECTION_ID_PATH}`,
+  });
   if (jsMatch?.params?.collectionId) {
     return jsMatch.params.collectionId;
   }
-  const saasMatch = matchPath<{ apiId: string }>(window.location.pathname, {
-    path: SAAS_EDITOR_API_ID_PATH,
+  const saasMatch = matchPath<{ apiId: string }>(location.pathname, {
+    path: `${basePath}${SAAS_EDITOR_API_ID_PATH}`,
   });
   if (saasMatch?.params?.apiId) {
     return saasMatch.params.apiId;

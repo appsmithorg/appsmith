@@ -4,9 +4,9 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const pages = require("../../../../locators/Pages.json");
-import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
 
-const AHelper = new AggregateHelper();
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let ee = ObjectsRegistry.EntityExplorer;
 
 const pageid = "MyPage";
 let datasourceName;
@@ -56,7 +56,7 @@ describe("Entity explorer tests related to query and datasource", function() {
     /* eslint-disable */
     cy.wait(2000);
     cy.NavigateToQueryEditor();
-
+    cy.CheckAndUnfoldEntityItem("DATASOURCES");
     cy.contains(".t--entity-name", datasourceName).click();
 
     cy.get(".t--edit-datasource-name").click();
@@ -75,6 +75,7 @@ describe("Entity explorer tests related to query and datasource", function() {
       .blur();
 
     // going  to the query create page
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.contains(commonlocators.entityName, "Query1").click();
 
     cy.wait("@getPluginForm").should(
@@ -92,7 +93,7 @@ describe("Entity explorer tests related to query and datasource", function() {
     cy.EvaluateCurrentValue("select * from users");
     cy.get(".t--action-name-edit-field").click({ force: true });
 
-    AHelper.ActionContextMenuByEntityName("Query1", "Show Bindings");
+    ee.ActionContextMenuByEntityName("Query1", "Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(5);
       expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
@@ -101,9 +102,9 @@ describe("Entity explorer tests related to query and datasource", function() {
       expect($lis.eq(3)).to.contain("{{Query1.run()}}");
       expect($lis.eq(4)).to.contain("{{Query1.clear()}}");
     });
-    AHelper.ActionContextMenuByEntityName("Query1", "Edit Name");
+    ee.ActionContextMenuByEntityName("Query1", "Edit Name");
     cy.EditApiNameFromExplorer("MyQuery");
-    AHelper.ActionContextMenuByEntityName("MyQuery", "Move to page", pageid);
+    ee.ActionContextMenuByEntityName("MyQuery", "Move to page", pageid);
     cy.get(".t--entity-name")
       .contains("MyQuery")
       .click();
@@ -120,7 +121,9 @@ describe("Entity explorer tests related to query and datasource", function() {
       .click({ force: true });
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-    cy.get("[data-cy=t--confirm-modal-btn]").click();
+    cy.get(".t--delete-datasource")
+      .contains("Are you sure?")
+      .click();
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",

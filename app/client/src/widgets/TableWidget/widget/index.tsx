@@ -109,6 +109,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
+  static getLoadingProperties(): Array<RegExp> | undefined {
+    return [/.tableData$/];
+  }
+
   getTableColumns = () => {
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
@@ -223,7 +227,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               borderRadius: cellProperties.borderRadius,
               boxShadow: cellProperties.boxShadow,
               boxShadowColor: cellProperties.boxShadowColor,
-              iconName: cellProperties.iconName,
+              iconName: cellProperties.iconName || "add",
               iconAlign: cellProperties.iconAlign,
               isCellVisible: cellProperties.isCellVisible ?? true,
               label: cellProperties.menuButtonLabel ?? "Open menu",
@@ -886,14 +890,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     onComplete?: () => void,
   ) => {
     try {
-      const rowData = [this.props.filteredTableData[rowIndex]];
+      const rowData = this.props.filteredTableData[rowIndex];
       this.props.updateWidgetMetaProperty(
         "triggeredRowIndex",
         this.props.filteredTableData[rowIndex].__originalIndex__,
       );
       const { jsSnippets } = getDynamicBindings(action);
       const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
-        return prev + `{{(currentRow) => { return (${next}) }}} `;
+        return prev + `{{ ${next} }} `;
       }, "");
       if (modifiedAction) {
         super.executeAction({
@@ -903,7 +907,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             type: EventType.ON_CLICK,
             callback: onComplete,
           },
-          responseData: rowData,
+          globalContext: { currentRow: rowData },
         });
       } else {
         onComplete?.();

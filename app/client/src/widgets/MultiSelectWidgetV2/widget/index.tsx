@@ -2,7 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isArray, isString, isNumber } from "lodash";
+import { isArray, isString, isNumber, LoDashStatic } from "lodash";
 import {
   ValidationResponse,
   ValidationTypes,
@@ -20,11 +20,14 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 export function defaultOptionValueValidation(
   value: unknown,
   props: MultiSelectWidgetProps,
-  _: any,
+  _: LoDashStatic,
 ): ValidationResponse {
-  let isValid;
-  let parsed;
+  let isValid = false;
+  let parsed: any[] = [];
   let message = "";
+
+  const DEFAULT_ERROR_MESSAGE =
+    "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
 
   /*
    * Function to check if the object has `label` and `value`
@@ -51,12 +54,16 @@ export function defaultOptionValueValidation(
   /*
    * When value is "['green', 'red']", "[{label: 'green', value: 'green'}]" and "green, red"
    */
-  if (_.isString(value) && (value as string).trim() !== "") {
+  if (_.isString(value) && value.trim() !== "") {
     try {
       /*
        * when value is "['green', 'red']", "[{label: 'green', value: 'green'}]"
        */
-      value = JSON.parse(value as string);
+      const parsedValue = JSON.parse(value);
+      // Only parse value if resulting value is an array or string
+      if (Array.isArray(parsedValue) || _.isString(parsedValue)) {
+        value = parsedValue;
+      }
     } catch (e) {
       /*
        * when value is "green, red", JSON.parse throws error
@@ -67,21 +74,18 @@ export function defaultOptionValueValidation(
     }
   }
 
-  if (_.isString(value) && (value as string).trim() === "") {
-    isValid = true;
-    parsed = [];
-    message = "";
-  } else if (Array.isArray(value)) {
+  /*
+   * When value is "['green', 'red']", "[{label: 'green', value: 'green'}]" and "green, red"
+   */
+  if (Array.isArray(value)) {
     if (value.every((val) => _.isString(val) || _.isFinite(val))) {
       /*
        * When value is ["green", "red"]
        */
-      if (hasUniqueValues(value as [])) {
+      if (hasUniqueValues(value)) {
         isValid = true;
         parsed = value;
-        message = "";
       } else {
-        isValid = false;
         parsed = [];
         message = "values must be unique. Duplicate values found";
       }
@@ -89,12 +93,10 @@ export function defaultOptionValueValidation(
       /*
        * When value is [{label: "green", value: "red"}]
        */
-      if (hasUniqueValues(value.map((val) => val.value) as [])) {
+      if (hasUniqueValues(value.map((val) => val.value))) {
         isValid = true;
         parsed = value;
-        message = "";
       } else {
-        isValid = false;
         parsed = [];
         message = "path:value must be unique. Duplicate values found";
       }
@@ -102,19 +104,35 @@ export function defaultOptionValueValidation(
       /*
        * When value is [true, false], [undefined, undefined] etc.
        */
-      isValid = false;
       parsed = [];
-      message =
-        "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
+      message = DEFAULT_ERROR_MESSAGE;
     }
+
+    return {
+      isValid,
+      parsed,
+      messages: [message],
+    };
+  }
+
+  /*
+   * When value is an empty string
+   */
+  if (_.isString(value) && value.trim() === "") {
+    isValid = true;
+    parsed = [];
+  } else if (_.isNumber(value) || _.isString(value)) {
+    /*
+     * When value is a number or just a single string e.g "Blue"
+     */
+    isValid = true;
+    parsed = [value];
   } else {
     /*
      * When value is undefined, null, {} etc.
      */
-    isValid = false;
     parsed = [];
-    message =
-      "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
+    message = DEFAULT_ERROR_MESSAGE;
   }
 
   return {
@@ -422,11 +440,11 @@ class MultiSelectWidget extends BaseWidget<
     const { componentWidth } = this.getComponentDimensions();
     const values: LabelValueType[] = this.props.selectedOptions
       ? this.props.selectedOptions.map((o) =>
-          isString(o) || isNumber(o)
-            ? { label: o, value: o }
-            : { label: o.label, value: o.value },
+          isString(o) || isNumber(o) ? { value: o } : { value: o.value },
         )
       : [];
+    const isInvalid =
+      "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     return (
       <MultiSelectComponent
         allowSelectAll={this.props.allowSelectAll}
@@ -444,7 +462,7 @@ class MultiSelectWidget extends BaseWidget<
         }}
         filterText={this.props.filterText}
         isFilterable={this.props.isFilterable}
-        isValid={this.props.isValid}
+        isValid={!isInvalid}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
@@ -463,10 +481,6 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   onOptionChange = (value: DefaultValueType) => {
-    if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
-    }
-
     this.props.updateWidgetMetaProperty("selectedOptions", value, {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,
@@ -474,6 +488,9 @@ class MultiSelectWidget extends BaseWidget<
         type: EventType.ON_OPTION_CHANGE,
       },
     });
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
   };
 
   onFilterChange = (value: string) => {
@@ -494,10 +511,11 @@ class MultiSelectWidget extends BaseWidget<
     return "MULTI_SELECT_WIDGET_V2";
   }
 }
-
-export interface DropdownOption {
+export interface OptionValue {
   label: string;
   value: string;
+}
+export interface DropdownOption extends OptionValue {
   disabled?: boolean;
 }
 
@@ -509,7 +527,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   options?: DropdownOption[];
   onOptionChange: string;
   onFilterChange: string;
-  defaultOptionValue: string | string[];
+  defaultOptionValue: string | string[] | OptionValue[];
   isRequired: boolean;
   isLoading: boolean;
   selectedOptions: LabelValueType[];
@@ -520,6 +538,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   onFilterUpdate: string;
   allowSelectAll?: boolean;
   isFilterable: boolean;
+  isDirty?: boolean;
 }
 
 export default MultiSelectWidget;

@@ -1,23 +1,23 @@
 const guidedTourLocators = require("../../../../locators/GuidedTour.json");
+const onboardingLocators = require("../../../../locators/FirstTimeUserOnboarding.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Guided Tour", function() {
+  it("Guided tour should work when started from the editor", function() {
+    cy.generateUUID().then((uid) => {
+      cy.Signup(`${uid}@appsmith.com`, uid);
+    });
+    cy.get(onboardingLocators.introModalWelcomeTourBtn).should("be.visible");
+    cy.get(onboardingLocators.introModalWelcomeTourBtn).click();
+    cy.get(onboardingLocators.welcomeTourBtn).should("be.visible");
+  });
+
   it("Guided Tour", function() {
     // Start guided tour
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(guidedTourLocators.welcomeTour).click();
     cy.get(guidedTourLocators.startBuilding).click();
-    // Step 1: Update limit in code and run query
-    cy.get(".CodeMirror")
-      .first()
-      .then((editor) => {
-        editor[0].CodeMirror.setValue("");
-      });
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("SELECT * FROM user_data ORDER BY id LIMIT")
-      .type(" 10;", { delay: 600 });
+    // Step 1: Run query
     cy.runQuery();
     cy.get(guidedTourLocators.successButton).click();
     // Step 2: Select table widget

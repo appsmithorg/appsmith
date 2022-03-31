@@ -27,7 +27,9 @@ import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { Variable } from "entities/JSCollection";
+import { PluginType } from "entities/Action";
 const clone = require("rfdc/default");
+import { warn as logWarn } from "loglevel";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -92,6 +94,15 @@ export function getEntityNameAndPropertyPath(
   return { entityName, propertyPath };
 }
 
+//these paths are not required to go through evaluate tree as these are internal properties
+const ignorePathsForEvalRegex =
+  ".(bindingPaths|triggerPaths|validationPaths|dynamicBindingPathList)";
+
+//match if paths are part of ignorePathsForEvalRegex
+const isUninterestingChangeForDependencyUpdate = (path: string) => {
+  return path.match(ignorePathsForEvalRegex);
+};
+
 export const translateDiffEventToDataTreeDiffEvent = (
   difference: Diff<any, any>,
   unEvalDataTree: DataTree,
@@ -106,7 +117,15 @@ export const translateDiffEventToDataTreeDiffEvent = (
   if (!difference.path) {
     return result;
   }
+
   const propertyPath = convertPathToString(difference.path);
+  //we do not need evaluate these paths coz these are internal paths
+  const isUninterestingPathForUpdateTree = isUninterestingChangeForDependencyUpdate(
+    propertyPath,
+  );
+  if (!!isUninterestingPathForUpdateTree) {
+    return result;
+  }
   const { entityName } = getEntityNameAndPropertyPath(propertyPath);
   const entity = unEvalDataTree[entityName];
   const isJsAction = isJSAction(entity);
@@ -267,6 +286,16 @@ export function isJSAction(entity: DataTreeEntity): entity is DataTreeJSAction {
   );
 }
 
+export function isJSObject(entity: DataTreeEntity): entity is DataTreeJSAction {
+  return (
+    typeof entity === "object" &&
+    "ENTITY_TYPE" in entity &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION &&
+    "pluginType" in entity &&
+    entity.pluginType === PluginType.JS
+  );
+}
+
 // We need to remove functions from data tree to avoid any unexpected identifier while JSON parsing
 // Check issue https://github.com/appsmithorg/appsmith/issues/719
 export const removeFunctions = (value: any) => {
@@ -285,13 +314,14 @@ export const removeFunctions = (value: any) => {
 
 export const makeParentsDependOnChildren = (
   depMap: DependencyMap,
+  allkeys: Record<string, true>,
 ): DependencyMap => {
   //return depMap;
   // Make all parents depend on child
   Object.keys(depMap).forEach((key) => {
-    depMap = makeParentsDependOnChild(depMap, key);
+    depMap = makeParentsDependOnChild(depMap, key, allkeys);
     depMap[key].forEach((path) => {
-      depMap = makeParentsDependOnChild(depMap, path);
+      depMap = makeParentsDependOnChild(depMap, path, allkeys);
     });
   });
   return depMap;
@@ -300,10 +330,16 @@ export const makeParentsDependOnChildren = (
 export const makeParentsDependOnChild = (
   depMap: DependencyMap,
   child: string,
+  allkeys: Record<string, true>,
 ): DependencyMap => {
   const result: DependencyMap = depMap;
   let curKey = child;
-
+  if (!allkeys[curKey]) {
+    logWarn(
+      `makeParentsDependOnChild - ${curKey} is not present in dataTree.`,
+      "This might result in a cyclic dependency.",
+    );
+  }
   let matches: Array<string> | null;
   // Note: The `=` is intentional
   // Stops looping when match is null
@@ -341,6 +377,7 @@ export function validateWidgetProperty(
   config: ValidationConfig,
   value: unknown,
   props: Record<string, unknown>,
+  propertyPath: string,
 ) {
   if (!config) {
     return {
@@ -348,7 +385,7 @@ export function validateWidgetProperty(
       parsed: value,
     };
   }
-  return validate(config, value, props);
+  return validate(config, value, props, propertyPath);
 }
 
 export function validateActionProperty(
@@ -361,7 +398,7 @@ export function validateActionProperty(
       parsed: value,
     };
   }
-  return validate(config, value, {});
+  return validate(config, value, {}, "");
 }
 
 export function getValidatedTree(tree: DataTree) {
@@ -378,6 +415,7 @@ export function getValidatedTree(tree: DataTree) {
         validation,
         value,
         entity,
+        property,
       );
       _.set(parsedEntity, property, parsed);
       const evaluatedValue = isValid
@@ -388,7 +426,10 @@ export function getValidatedTree(tree: DataTree) {
       const safeEvaluatedValue = removeFunctions(evaluatedValue);
       _.set(
         parsedEntity,
-        getEvalValuePath(`${entityKey}.${property}`, false),
+        getEvalValuePath(`${entityKey}.${property}`, {
+          isPopulated: false,
+          fullPath: false,
+        }),
         safeEvaluatedValue,
       );
       if (!isValid) {
@@ -402,7 +443,10 @@ export function getValidatedTree(tree: DataTree) {
         addErrorToEntityProperty(
           evalErrors,
           tree,
-          getEvalErrorPath(`${entityKey}.${property}`, false),
+          getEvalErrorPath(`${entityKey}.${property}`, {
+            isPopulated: false,
+            fullPath: false,
+          }),
         );
       }
     });
@@ -467,7 +511,12 @@ export function getSafeToRenderDataTree(
     Object.entries(entity.validationPaths).forEach(([property, validation]) => {
       const value = _.get(entity, property);
       // Pass it through parse
-      const { parsed } = validateWidgetProperty(validation, value, entity);
+      const { parsed } = validateWidgetProperty(
+        validation,
+        value,
+        entity,
+        property,
+      );
       _.set(safeToRenderEntity, property, parsed);
     });
     // Set derived values to undefined or else they would go as bindings
@@ -508,8 +557,11 @@ export const addErrorToEntityProperty = (
   path: string,
 ) => {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(path);
+  const isPrivateEntityPath = getAllPrivateWidgetsInDataTree(dataTree)[
+    entityName
+  ];
   const logBlackList = _.get(dataTree, `${entityName}.logBlackList`, {});
-  if (propertyPath && !(propertyPath in logBlackList)) {
+  if (propertyPath && !(propertyPath in logBlackList) && !isPrivateEntityPath) {
     const existingErrors = _.get(
       dataTree,
       `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
@@ -566,33 +618,68 @@ export const updateJSCollectionInDataTree = (
       const action = parsedBody.actions[i];
       if (jsCollection.hasOwnProperty(action.name)) {
         if (jsCollection[action.name] !== action.body) {
+          const data = _.get(
+            modifiedDataTree,
+            `${jsCollection.name}.${action.name}.data`,
+            {},
+          );
           _.set(
             modifiedDataTree,
             `${jsCollection.name}.${action.name}`,
-            action.body,
+            new String(action.body),
+          );
+
+          _.set(
+            modifiedDataTree,
+            `${jsCollection.name}.${action.name}.data`,
+            data,
           );
         }
       } else {
         const bindingPaths = jsCollection.bindingPaths;
         bindingPaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
-        _.set(modifiedDataTree, `${jsCollection}.bindingPaths`, bindingPaths);
+        bindingPaths[`${action.name}.data`] =
+          EvaluationSubstitutionType.TEMPLATE;
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.bindingPaths`,
+          bindingPaths,
+        );
         const dynamicBindingPathList = jsCollection.dynamicBindingPathList;
         dynamicBindingPathList.push({ key: action.name });
         _.set(
           modifiedDataTree,
-          `${jsCollection}.dynamicBindingPathList`,
+          `${jsCollection.name}.dynamicBindingPathList`,
           dynamicBindingPathList,
         );
         const dependencyMap = jsCollection.dependencyMap;
         dependencyMap["body"].push(action.name);
-        _.set(modifiedDataTree, `${jsCollection}.dependencyMap`, dependencyMap);
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.dependencyMap`,
+          dependencyMap,
+        );
         const meta = jsCollection.meta;
-        meta[action.name] = { arguments: action.arguments };
+        meta[action.name] = {
+          arguments: action.arguments,
+          isAsync: false,
+          confirmBeforeExecute: false,
+        };
         _.set(modifiedDataTree, `${jsCollection.name}.meta`, meta);
+        const data = _.get(
+          modifiedDataTree,
+          `${jsCollection.name}.${action.name}.data`,
+          {},
+        );
         _.set(
           modifiedDataTree,
           `${jsCollection.name}.${action.name}`,
-          action.body,
+          new String(action.body.toString()),
+        );
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.${action.name}.data`,
+          data,
         );
       }
     }
@@ -636,6 +723,7 @@ export const updateJSCollectionInDataTree = (
         delete meta[preAction];
         _.set(modifiedDataTree, `${jsCollection.name}.meta`, meta);
         delete modifiedDataTree[`${jsCollection.name}`][`${preAction}`];
+        delete modifiedDataTree[`${jsCollection.name}`][`${preAction}.data`];
       }
     }
   }

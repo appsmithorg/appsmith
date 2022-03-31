@@ -1,9 +1,12 @@
 const explorer = require("../../../../locators/explorerlocators.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let ee = ObjectsRegistry.EntityExplorer;
+
 const firstApiName = "First";
 const secondApiName = "Second";
 
 describe("Api Naming conflict on a page test", function() {
-  it.skip("expects actions on the same page cannot have identical names", function() {
+  it("expects actions on the same page cannot have identical names", function() {
     cy.log("Login Successful");
     // create an API
     cy.NavigateToAPI_Panel();
@@ -12,9 +15,11 @@ describe("Api Naming conflict on a page test", function() {
     // create another API
     cy.NavigateToAPI_Panel();
     cy.CreateAPI(secondApiName);
-
+    ee.expandCollapseEntity("QUERIES/JS", true);
     // try to rename one of the APIs with an existing API name
-    cy.hoverAndClickParticularIndex(2);
+    cy.get(`.t--entity-item:contains(${secondApiName})`).within(() => {
+      cy.get(".t--context-menu").click({ force: true });
+    });
     cy.selectAction("Edit Name");
     //cy.RenameEntity(tabname);
     cy.get(explorer.editEntity)
@@ -23,8 +28,14 @@ describe("Api Naming conflict on a page test", function() {
     //cy.RenameEntity(firstApiName);
     cy.validateMessage(firstApiName);
     cy.ClearSearch();
-    cy.DeleteAPIFromSideBar();
-    cy.DeleteAPIFromSideBar();
+    cy.get(`.t--entity-item:contains(${secondApiName})`).within(() => {
+      cy.get(".t--context-menu").click({ force: true });
+    });
+    cy.deleteActionAndConfirm();
+    cy.get(`.t--entity-item:contains(${firstApiName})`).within(() => {
+      cy.get(".t--context-menu").click({ force: true });
+    });
+    cy.deleteActionAndConfirm();
   });
 });
 
@@ -33,45 +44,65 @@ describe("Api Naming conflict on different pages test", function() {
     cy.log("Login Successful");
     // create a new API
     cy.CreateAPI(firstApiName);
-
+    ee.expandCollapseEntity("QUERIES/JS", true);
     // create a new page and an API on that page
     cy.Createpage("Page2");
     cy.CreateAPI(firstApiName);
+    ee.expandCollapseEntity("QUERIES/JS", true);
     cy.get(".t--entity-name")
       .contains(firstApiName)
       .should("exist");
-    cy.DeleteAPIFromSideBar();
-    cy.get(".t--entity-name")
-      .contains("Page2")
-      .trigger("mouseover");
-    cy.hoverAndClick();
-    cy.selectAction("Delete");
+    cy.get(`.t--entity-item:contains(${firstApiName})`).within(() => {
+      cy.get(".t--context-menu").click({ force: true });
+    });
+    cy.deleteActionAndConfirm();
+    cy.get(`.t--entity-item:contains(Page2)`).within(() => {
+      cy.get(".t--context-menu").click({ force: true });
+    });
+    cy.deleteActionAndConfirm();
+    cy.get(`.t--entity-item:contains(${firstApiName})`).within(() => {
+      cy.get(".t--context-menu").click({ force: true });
+    });
+    cy.deleteActionAndConfirm();
     cy.wait(1000);
-    cy.DeleteAPIFromSideBar();
   });
 });
 
 describe("Entity Naming conflict test", function() {
   it("expects JS objects and actions to not have identical names on the same page.", function() {
     cy.log("Login Successful");
-
+    ee.expandCollapseEntity("QUERIES/JS", true);
     // create JS object and name it
     cy.createJSObject('return "Hello World";');
-    cy.RenameEntity(firstApiName);
 
-    // create API and rename it, expect error to occur
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI(secondApiName);
-    cy.hoverAndClickParticularIndex(2);
+    cy.get(`.t--entity-item:contains('JSObject1')`).within(() => {
+      cy.get(".t--context-menu").click({ force: true });
+    });
     cy.selectAction("Edit Name");
     cy.get(explorer.editEntity)
       .last()
-      .type(secondApiName, { force: true });
-    cy.VerifyPopOverMessage(secondApiName + " is already being used.", true);
-    cy.ClearSearch();
+      .type(firstApiName, { force: true });
 
-    cy.deleteJSObject();
-    cy.DeleteAPIFromSideBar();
-    cy.NavigateToHome();
+    cy.CreateAPI(secondApiName);
+
+    cy.get(`.t--entity-item:contains(${secondApiName})`).within(() => {
+      cy.get(".t--context-menu").click({ force: true });
+    });
+    cy.selectAction("Edit Name");
+
+    cy.get(explorer.editEntity)
+      .last()
+      .type(firstApiName, { force: true });
+    cy.VerifyPopOverMessage(firstApiName + " is already being used.", true);
+    cy.get("body").click(0, 0);
+    cy.wait(2000);
+    cy.get(`.t--entity-item:contains(${firstApiName})`).within(() => {
+      cy.get(".t--context-menu").click({ force: true });
+    });
+    cy.deleteActionAndConfirm();
+    cy.get(`.t--entity-item:contains(${secondApiName})`).within(() => {
+      cy.get(".t--context-menu").click({ force: true });
+    });
+    cy.deleteActionAndConfirm();
   });
 });

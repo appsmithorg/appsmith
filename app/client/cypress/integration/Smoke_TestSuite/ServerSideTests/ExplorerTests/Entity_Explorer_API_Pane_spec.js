@@ -3,9 +3,8 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const pageid = "MyPage";
 
-import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
-
-const AHelper = new AggregateHelper();
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let ee = ObjectsRegistry.EntityExplorer;
 
 describe("Entity explorer API pane related testcases", function() {
   it("Empty Message validation for Widgets/API/Queries", function() {
@@ -32,7 +31,8 @@ describe("Entity explorer API pane related testcases", function() {
       testdata.Get,
     );
     cy.ResponseStatusCheck(testdata.successStatusCode);
-    AHelper.ActionContextMenuByEntityName("FirstAPI", "Show Bindings");
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    ee.ActionContextMenuByEntityName("FirstAPI", "Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(5);
       expect($lis.eq(0)).to.contain("{{FirstAPI.isLoading}}");
@@ -48,14 +48,14 @@ describe("Entity explorer API pane related testcases", function() {
     cy.get(".t--entity-name")
       .contains("Page1")
       .click();
-    AHelper.ActionContextMenuByEntityName("FirstAPI", "Edit Name");
+    ee.ActionContextMenuByEntityName("FirstAPI", "Edit Name");
     cy.EditApiNameFromExplorer("SecondAPI");
     cy.xpath(apiwidget.popover)
       .last()
       .should("be.hidden")
       .invoke("show")
       .click({ force: true });
-    AHelper.ActionContextMenuByEntityName("SecondAPI", "Move to page", pageid);
+    ee.ActionContextMenuByEntityName("SecondAPI", "Move to page", pageid);
     cy.get(".t--entity-name")
       .contains("SecondAPI")
       .should("exist");

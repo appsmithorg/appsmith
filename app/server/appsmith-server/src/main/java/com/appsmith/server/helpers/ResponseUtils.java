@@ -103,6 +103,10 @@ public class ResponseUtils {
             }
             page.setId(page.getDefaultPageId());
         }
+        // need to update the application also if it's present
+        if(applicationPages.getApplication() != null) {
+            applicationPages.setApplication(updateApplicationWithDefaultResources(applicationPages.getApplication()));
+        }
         return applicationPages;
     }
 
@@ -341,9 +345,9 @@ public class ResponseUtils {
         if (application.getClientSchemaVersion() == null || application.getServerSchemaVersion() == null
                 || (JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion())
                 && JsonSchemaVersions.serverVersion.equals(application.getServerSchemaVersion()))) {
-            application.setIsManualUpdate(true);
+            application.setIsAutoUpdate(false);
         } else {
-            application.setIsManualUpdate(false);
+            application.setIsAutoUpdate(true);
         }
         return application;
     }
