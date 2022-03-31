@@ -359,9 +359,7 @@ function ConditionBlock(props: any) {
           })}
       </ConditionWrapper>
 
-      <ActionBox
-        marginLeft={`${props.fields.length > 1 ? DropdownWidth + Margin : 0}px`}
-      >
+      <ActionBox marginLeft={`${DropdownWidth + Margin}px`}>
         <AddMoreAction
           onClick={() =>
             props.fields.push({ condition: props.comparisonTypes[0].value })
