@@ -1,5 +1,6 @@
 package com.external.plugins.commands;
 
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import lombok.Getter;
@@ -14,7 +15,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.BODY;
@@ -40,16 +40,16 @@ public class UpdateMany extends MongoCommand {
         Map<String, Object> formData = actionConfiguration.getFormData();
 
         if (validConfigurationPresentInFormData(formData, UPDATE_QUERY)) {
-            this.query = (String) getValueSafelyFromFormData(formData, UPDATE_QUERY);
+            this.query = PluginUtils.getDataValueSafelyFromFormData(formData, UPDATE_QUERY, String.class);
         }
 
         if (validConfigurationPresentInFormData(formData, UPDATE_OPERATION)) {
-            this.update = (String) getValueSafelyFromFormData(formData, UPDATE_OPERATION);
+            this.update = PluginUtils.getDataValueSafelyFromFormData(formData, UPDATE_OPERATION, String.class);
         }
 
         // Default for this is 1 to indicate updating only one document at a time.
         if (validConfigurationPresentInFormData(formData, UPDATE_LIMIT)) {
-            String limitOption = (String) getValueSafelyFromFormData(formData, UPDATE_LIMIT);
+            String limitOption = PluginUtils.getDataValueSafelyFromFormData(formData, UPDATE_LIMIT, String.class);
             if ("ALL".equals(limitOption)) {
                 this.multi = Boolean.TRUE;
             }

@@ -11,12 +11,15 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.TriggerRequestDTO;
+import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.external.config.ExecutionMethod;
 import com.external.config.GoogleSheetsMethodStrategy;
-import com.external.config.Method;
 import com.external.config.MethodConfig;
+import com.external.config.TriggerMethod;
 import com.external.constants.FieldName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -137,11 +140,11 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
             // Check if method is defined
             final Map<String, Object> formData = actionConfiguration.getFormData();
-            final Method method = CollectionUtils.isEmpty(formData)
+            final ExecutionMethod executionMethod = CollectionUtils.isEmpty(formData)
                     ? null
-                    : GoogleSheetsMethodStrategy.getMethod(formData, objectMapper);
+                    : GoogleSheetsMethodStrategy.getExecutionMethod(formData, objectMapper);
 
-            if (method == null) {
+            if (executionMethod == null) {
                 return Mono.error(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         "Missing Google Sheets method."
@@ -154,7 +157,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
             // Initializing webClient to be used for http call
             WebClient.Builder webClientBuilder = WebClient.builder();
 
-            method.validateMethodRequest(methodConfig);
+            executionMethod.validateExecutionMethodRequest(methodConfig);
 
             WebClient client = webClientBuilder
                     .exchangeStrategies(EXCHANGE_STRATEGIES)
@@ -165,10 +168,10 @@ public class GoogleSheetsPlugin extends BasePlugin {
             assert (oauth2.getAuthenticationResponse() != null);
 
             // Triggering the actual REST API call
-            return method.executePrerequisites(methodConfig, oauth2)
+            return executionMethod.executePrerequisites(methodConfig, oauth2)
                     // This method call will populate the request with all the configurations it needs for a particular method
                     .flatMap(res -> {
-                        return method.getClient(client, methodConfig)
+                        return executionMethod.getExecutionClient(client, methodConfig)
                                 .headers(headers -> headers.set(
                                         "Authorization",
                                         "Bearer " + oauth2.getAuthenticationResponse().getToken()))
@@ -215,7 +218,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                         JsonNode jsonNodeBody = objectMapper.readTree(jsonBody);
 
                                         if (response.getStatusCode().is2xxSuccessful()) {
-                                            result.setBody(method.transformResponse(jsonNodeBody, methodConfig));
+                                            result.setBody(executionMethod.transformExecutionResponse(jsonNodeBody, methodConfig));
                                         } else {
                                             result.setBody(jsonNodeBody
                                                     .get("error")
@@ -299,6 +302,68 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                              Object... args) {
             String jsonBody = (String) input;
             return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null);
+        }
+
+        @Override
+        public Mono<TriggerResultDTO> trigger(Void connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
+            final TriggerMethod triggerMethod = GoogleSheetsMethodStrategy.getTriggerMethod(request, objectMapper);
+            MethodConfig methodConfig = new MethodConfig(request);
+
+            // Initializing webClient to be used for http call
+            WebClient.Builder webClientBuilder = WebClient.builder();
+
+            triggerMethod.validateTriggerMethodRequest(methodConfig);
+
+            WebClient client = webClientBuilder
+                    .exchangeStrategies(EXCHANGE_STRATEGIES)
+                    .build();
+
+            // Authentication will already be valid at this point
+            final OAuth2 oauth2 = (OAuth2) datasourceConfiguration.getAuthentication();
+            assert (oauth2.getAuthenticationResponse() != null);
+
+            return triggerMethod.getTriggerClient(client, methodConfig)
+                    .headers(headers -> headers.set(
+                            "Authorization",
+                            "Bearer " + oauth2.getAuthenticationResponse().getToken()))
+                    .exchange()
+                    .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
+                    .map(response -> {
+                        // Choose body depending on response status
+                        byte[] body = response.getBody();
+
+                        if (body == null) {
+                            body = new byte[0];
+                        }
+                        String jsonBody = new String(body);
+                        JsonNode jsonNodeBody = null;
+                        try {
+                            jsonNodeBody = objectMapper.readTree(jsonBody);
+                        } catch (JsonProcessingException e) {
+                            throw Exceptions.propagate(
+                                    new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                                            jsonBody,
+                                            e.getMessage()
+                                    ));
+                        }
+
+                        if (response.getStatusCode().is2xxSuccessful()) {
+                            final JsonNode triggerResponse = triggerMethod.transformTriggerResponse(jsonNodeBody, methodConfig);
+                            final TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
+                            triggerResultDTO.setTrigger(triggerResponse);
+                            return triggerResultDTO;
+                        } else {
+                            throw Exceptions.propagate(
+                                    new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_ERROR,
+                                            jsonNodeBody
+                                                    .get("error")
+                                                    .get("message")
+                                                    .asText())
+                            );
+                        }
+                    });
         }
     }
 }

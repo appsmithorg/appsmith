@@ -1,8 +1,6 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.dtos.DatasourceDTO;
 import com.appsmith.external.dtos.ExecuteActionDTO;
-import com.appsmith.external.dtos.ExecutePluginDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
@@ -26,7 +24,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionProvider;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
@@ -125,7 +122,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final PolicyUtils policyUtils;
     private final ObjectMapper objectMapper;
     private final AuthenticationValidator authenticationValidator;
-    private final ConfigService configService;
+
     private final ResponseUtils responseUtils;
 
     public NewActionServiceCEImpl(Scheduler scheduler,
@@ -161,7 +158,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.sessionUserService = sessionUserService;
         this.policyUtils = policyUtils;
         this.authenticationValidator = authenticationValidator;
-        this.configService = configService;
         this.objectMapper = new ObjectMapper();
         this.responseUtils = responseUtils;
     }
@@ -628,7 +624,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     Mono<ActionExecutionResult> executionMono = validatedDatasourceMono
                             .flatMap(datasource1 -> {
                                 if (plugin.isRemotePlugin()) {
-                                    return this.getRemoteDatasourceContext(plugin, datasource1);
+                                    return datasourceContextService.getRemoteDatasourceContext(plugin, datasource1);
                                 } else {
                                     return datasourceContextService.getDatasourceContext(datasource1);
                                 }
@@ -1305,23 +1301,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params, String branchName) {
         return this.getUnpublishedActions(params, branchName)
                 .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()));
-    }
-
-    // We can afford to make this call all the time since we already have all the info we need in context
-    private Mono<DatasourceContext> getRemoteDatasourceContext(Plugin plugin, Datasource datasource) {
-        final DatasourceContext datasourceContext = new DatasourceContext();
-
-        return configService.getInstanceId()
-                .map(instanceId -> {
-                    ExecutePluginDTO executePluginDTO = new ExecutePluginDTO();
-                    executePluginDTO.setInstallationKey(instanceId);
-                    executePluginDTO.setPluginName(plugin.getPluginName());
-                    executePluginDTO.setPluginVersion(plugin.getVersion());
-                    executePluginDTO.setDatasource(new DatasourceDTO(datasource.getId(), datasource.getDatasourceConfiguration()));
-                    datasourceContext.setConnection(executePluginDTO);
-
-                    return datasourceContext;
-                });
     }
 
     @Override

@@ -205,7 +205,7 @@ public interface PluginExecutor<C> extends ExtensionPoint {
         return Mono.zip(Mono.just(datasourceHintMessages), Mono.just(actionHintMessages));
     }
 
-    default Mono<TriggerResultDTO> trigger(TriggerRequestDTO request) {
+    default Mono<TriggerResultDTO> trigger(C connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
         return Mono.empty();
     }
 }

@@ -13,8 +13,9 @@ public class DatasourceContextServiceImpl extends DatasourceContextServiceCEImpl
     public DatasourceContextServiceImpl(DatasourceService datasourceService,
                                         PluginService pluginService,
                                         PluginExecutorHelper pluginExecutorHelper,
-                                        EncryptionService encryptionService) {
+                                        EncryptionService encryptionService,
+                                        ConfigService configService) {
 
-        super(datasourceService, pluginService, pluginExecutorHelper, encryptionService);
+        super(datasourceService, pluginService, pluginExecutorHelper, encryptionService, configService);
     }
 }

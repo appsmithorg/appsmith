@@ -4,12 +4,14 @@ import com.appsmith.external.models.ClientDataDisplayType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.TriggerRequestDTO;
-import com.appsmith.external.models.TriggerRequestType;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.services.AuthenticationValidator;
+import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
@@ -41,16 +43,20 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
     private final PluginExecutorHelper pluginExecutorHelper;
     private final PluginService pluginService;
     private final DatasourceStructureSolution datasourceStructureSolution;
+    private final AuthenticationValidator authenticationValidator;
+    private final DatasourceContextService datasourceContextService;
 
     public Mono<TriggerResultDTO> trigger(String datasourceId, MultiValueMap<String, Object> params) {
 
         Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId, READ_DATASOURCES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "datasourceId")))
                 .cache();
-
-        Mono<PluginExecutor> pluginExecutorMono = datasourceMono
+        final Mono<Plugin> pluginMono = datasourceMono
                 .map(datasource -> datasource.getPluginId())
                 .flatMap(pluginId -> pluginService.findById(pluginId))
+                .cache();
+
+        Mono<PluginExecutor> pluginExecutorMono = pluginMono
                 .flatMap(plugin -> pluginExecutorHelper.getPluginExecutor(Mono.just(plugin)))
                 .cache();
 
@@ -61,17 +67,11 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
         if (requestTypeObject == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, REQUEST_TYPE));
         }
-        TriggerRequestType requestType;
-        try {
-            requestType = TriggerRequestType.valueOf((String) requestTypeObject);
-        } catch (IllegalArgumentException e) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, REQUEST_TYPE));
-        }
 
         List<String> parameters;
         if (parametersObject == null || StringUtils.isBlank((CharSequence) parametersObject)) {
-            parameters = null;
-        } else  {
+            parameters = new ArrayList<>();
+        } else {
             parameters = new ArrayList<>(Arrays.asList(((String) parametersObject).split(",")));
         }
 
@@ -85,17 +85,44 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, DISPLAY_TYPE));
         }
 
-
         TriggerRequestDTO request = new TriggerRequestDTO(
-                requestType,
+                (String) requestTypeObject,
                 parameters,
                 displayType
         );
 
+        Mono<Datasource> validatedDatasourceMono = datasourceMono
+                .flatMap(authenticationValidator::validateAuthentication)
+                .cache();
 
         // If the plugin has overridden and implemented the same, use the plugin result
-        Mono<TriggerResultDTO> resultFromPluginMono = pluginExecutorMono
-                .flatMap(pluginExecutor -> pluginExecutor.trigger(request));
+        Mono<TriggerResultDTO> resultFromPluginMono = Mono.zip(validatedDatasourceMono, pluginMono, pluginExecutorMono)
+                .flatMap(tuple -> {
+                    final Datasource datasource = tuple.getT1();
+                    final Plugin plugin = tuple.getT2();
+                    final PluginExecutor pluginExecutor = tuple.getT3();
+
+                    final Mono<Datasource> validDatasourceMono = authenticationValidator.validateAuthentication(datasource);
+
+                    return validDatasourceMono
+                            .flatMap(datasource1 -> {
+                                if (plugin.isRemotePlugin()) {
+                                    return datasourceContextService.getRemoteDatasourceContext(plugin, datasource1);
+                                } else {
+                                    return datasourceContextService.getDatasourceContext(datasource1);
+                                }
+                            })
+                            // Now that we have the context (connection details), execute the action.
+                            .flatMap(resourceContext -> validatedDatasourceMono
+                                    .flatMap(datasource1 -> {
+                                        return (Mono<TriggerResultDTO>) pluginExecutor.trigger(
+                                                resourceContext.getConnection(),
+                                                datasource1.getDatasourceConfiguration(),
+                                                request
+                                        );
+                                    })
+                            );
+                });
 
         // If the plugin hasn't, go for the default implementation
         Mono<TriggerResultDTO> defaultResultMono = datasourceMono
@@ -113,9 +140,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                         }
                     }
 
-                    TriggerResultDTO output = new TriggerResultDTO(result);
-
-                    return output;
+                    return new TriggerResultDTO(result);
                 });
 
         return resultFromPluginMono
@@ -123,7 +148,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
     }
 
     private Mono<Set<String>> entitySelectorTriggerSolution(Datasource datasource, TriggerRequestDTO request) {
-        if (!TriggerRequestType.ENTITY_SELECTOR.equals(request.getRequestType())) {
+        if ("ENTITY_SELECTOR".equals(request.getRequestType())) {
             return Mono.just(new HashSet<>());
         }
 

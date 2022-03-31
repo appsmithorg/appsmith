@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-public interface Method {
+public interface ExecutionMethod {
 
     String BASE_SHEETS_API_URL = "https://sheets.googleapis.com/v4/spreadsheets/";
 
@@ -56,15 +56,15 @@ public interface Method {
         }
     }
 
-    boolean validateMethodRequest(MethodConfig methodConfig);
+    boolean validateExecutionMethodRequest(MethodConfig methodConfig);
 
     default Mono<Object> executePrerequisites(MethodConfig methodConfig, OAuth2 oauth2) {
         return Mono.just(true);
     }
 
-    WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig);
+    WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig);
 
-    default JsonNode transformResponse(JsonNode response, MethodConfig methodConfig) {
+    default JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw Exceptions.propagate(new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_ERROR,

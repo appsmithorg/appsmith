@@ -3,6 +3,7 @@ package com.external.config;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.PluginUtils;
+import com.appsmith.external.models.TriggerRequestDTO;
 import com.external.constants.FieldName;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -13,10 +14,10 @@ import java.util.Map;
 @Slf4j
 public class GoogleSheetsMethodStrategy {
 
-    public static Method getMethod(Map<String, Object> formData, ObjectMapper objectMapper) {
-        final String type = PluginUtils.getValueSafelyFromFormData(formData, FieldName.ENTITY_TYPE, String.class)
+    public static ExecutionMethod getExecutionMethod(Map<String, Object> formData, ObjectMapper objectMapper) {
+        final String type = PluginUtils.getDataValueSafelyFromFormData(formData, FieldName.ENTITY_TYPE, String.class)
                 + "_"
-                + PluginUtils.getValueSafelyFromFormData(formData, FieldName.COMMAND, String.class);
+                + PluginUtils.getDataValueSafelyFromFormData(formData, FieldName.COMMAND, String.class);
         switch (type) {
             case MethodIdentifiers.ROWS_INSERT_ONE:
                 return new RowsAppendMethod(objectMapper);
@@ -47,7 +48,21 @@ public class GoogleSheetsMethodStrategy {
             case MethodIdentifiers.ROWS_DELETE_ONE:
                 return new RowsDeleteMethod(objectMapper);
             default:
-                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unknown method type: " + type));
+                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unknown execution method type: " + type));
         }
+    }
+
+    public static TriggerMethod getTriggerMethod(TriggerRequestDTO triggerRequestDTO, ObjectMapper objectMapper) {
+        switch (triggerRequestDTO.getRequestType()) {
+            case MethodIdentifiers.TRIGGER_SPREADSHEET_SELECTOR:
+                return new FileListMethod(objectMapper);
+            case MethodIdentifiers.TRIGGER_SHEET_SELECTOR:
+                return new FileInfoMethod(objectMapper);
+            case MethodIdentifiers.TRIGGER_COLUMNS_SELECTOR:
+                return new GetStructureMethod(objectMapper);
+            default:
+                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unknown trigger method type: " + triggerRequestDTO.getRequestType()));
+        }
+
     }
 }

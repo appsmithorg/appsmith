@@ -1,6 +1,7 @@
 package com.appsmith.server.migrations;
 
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Connection;
@@ -130,7 +131,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
@@ -4677,10 +4678,10 @@ public class DatabaseChangelog {
             if (unpublishedAction.getActionConfiguration().getFormData() != null) {
                 Map formData = unpublishedAction.getActionConfiguration().getFormData();
 
-                String startAfter = getValueSafelyFromFormData(formData, START_AFTER, String.class, "{}");
+                String startAfter = PluginUtils.getDataValueSafelyFromFormData(formData, START_AFTER, String.class, "{}");
                 unpublishedAction.getActionConfiguration().setNext(startAfter);
 
-                String endBefore = getValueSafelyFromFormData(formData, END_BEFORE, String.class, "{}");
+                String endBefore = PluginUtils.getDataValueSafelyFromFormData(formData, END_BEFORE, String.class, "{}");
                 unpublishedAction.getActionConfiguration().setPrev(endBefore);
             }
 
@@ -4690,10 +4691,10 @@ public class DatabaseChangelog {
                     publishedAction.getActionConfiguration().getFormData() != null) {
                 Map formData = publishedAction.getActionConfiguration().getFormData();
 
-                String startAfter = getValueSafelyFromFormData(formData, START_AFTER, String.class, "{}");
+                String startAfter = PluginUtils.getDataValueSafelyFromFormData(formData, START_AFTER, String.class, "{}");
                 publishedAction.getActionConfiguration().setNext(startAfter);
 
-                String endBefore = getValueSafelyFromFormData(formData, END_BEFORE, String.class, "{}");
+                String endBefore = PluginUtils.getDataValueSafelyFromFormData(formData, END_BEFORE, String.class, "{}");
                 publishedAction.getActionConfiguration().setPrev(endBefore);
             }
 

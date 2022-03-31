@@ -8,6 +8,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -73,7 +74,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINES;
@@ -222,7 +222,7 @@ public class MongoPlugin extends BasePlugin {
 
             Boolean smartBsonSubstitution = TRUE;
 
-            Object smartSubstitutionObject = getValueSafelyFromFormData(formData, SMART_SUBSTITUTION, Object.class,
+            Object smartSubstitutionObject = PluginUtils.getDataValueSafelyFromFormData(formData, SMART_SUBSTITUTION, Object.class,
                     TRUE);
             if (smartSubstitutionObject instanceof Boolean) {
                 smartBsonSubstitution = (Boolean) smartSubstitutionObject;
@@ -241,7 +241,7 @@ public class MongoPlugin extends BasePlugin {
                             executeActionDTO.getParams(), parameters);
                 } else {
                     // For raw queries do smart replacements in BSON body
-                    final Object body = getValueSafelyFromFormData(formData, BODY);
+                    final Object body = PluginUtils.getDataValueSafelyFromFormData(formData, BODY, Object.class);
                     if (body != null) {
                         try {
                             String updatedRawQuery = smartSubstituteBSON((String) body,
@@ -295,7 +295,7 @@ public class MongoPlugin extends BasePlugin {
 
             final Map<String, Object> formData = actionConfiguration.getFormData();
 
-            String query = (String) getValueSafelyFromFormData(formData, BODY);
+            String query = PluginUtils.getDataValueSafelyFromFormData(formData, BODY, String.class);
             Bson command = Document.parse(query);
 
             Mono<Document> mongoOutputMono = Mono.from(database.runCommand(command));
@@ -559,7 +559,7 @@ public class MongoPlugin extends BasePlugin {
 
             for (String bsonField : bsonFields) {
                 if (validConfigurationPresentInFormData(formData, bsonField)) {
-                    String preSmartSubValue = (String) getValueSafelyFromFormData(formData, bsonField);
+                    String preSmartSubValue = PluginUtils.getDataValueSafelyFromFormData(formData, bsonField, String.class);
                     String postSmartSubValue = smartSubstituteBSON(preSmartSubValue, params, parameters);
                     setValueSafelyInFormData(formData, bsonField, postSmartSubValue);
                 }

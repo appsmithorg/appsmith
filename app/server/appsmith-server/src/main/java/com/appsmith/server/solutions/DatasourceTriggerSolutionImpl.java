@@ -1,6 +1,8 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.services.AuthenticationValidator;
+import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.ce.DatasourceTriggerSolutionCEImpl;
@@ -14,8 +16,15 @@ public class DatasourceTriggerSolutionImpl extends DatasourceTriggerSolutionCEIm
     public DatasourceTriggerSolutionImpl(DatasourceService datasourceService,
                                          PluginExecutorHelper pluginExecutorHelper,
                                          PluginService pluginService,
-                                         DatasourceStructureSolution datasourceStructureSolution) {
+                                         DatasourceStructureSolution datasourceStructureSolution,
+                                         AuthenticationValidator authenticationValidator,
+                                         DatasourceContextService datasourceContextService) {
 
-        super(datasourceService, pluginExecutorHelper, pluginService, datasourceStructureSolution);
+        super(datasourceService,
+                pluginExecutorHelper,
+                pluginService,
+                datasourceStructureSolution,
+                authenticationValidator,
+                datasourceContextService);
     }
 }

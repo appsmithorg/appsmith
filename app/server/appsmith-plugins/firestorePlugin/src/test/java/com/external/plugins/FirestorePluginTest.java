@@ -4,6 +4,7 @@ import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.AppsmithErrorAction;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
@@ -46,7 +47,6 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.external.constants.FieldName.BODY;
 import static com.external.constants.FieldName.CHILDREN;
@@ -185,7 +185,7 @@ public class FirestorePluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(COMMAND, "GET_DOCUMENT", null, null, null)); // Method
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, getValueSafelyFromFormData(actionConfiguration.getFormData(), PATH),
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), PATH, String.class),
                             null, null, null)); // Path
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
@@ -341,10 +341,10 @@ public class FirestorePluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(COMMAND, "SET_DOCUMENT", null, null, null)); // Method
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, getValueSafelyFromFormData(actionConfiguration.getFormData(), PATH),
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), PATH, String.class),
                             null, null, null)); // Path
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            getValueSafelyFromFormData(actionConfiguration.getFormData(), BODY), null, null, null)); // Body
+                            PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), BODY, String.class), null, null, null)); // Body
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -376,10 +376,10 @@ public class FirestorePluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(COMMAND, "CREATE_DOCUMENT", null, null, null));
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, getValueSafelyFromFormData(actionConfiguration.getFormData(), PATH),
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), PATH, String.class),
                             null, null, null)); // Path
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            getValueSafelyFromFormData(actionConfiguration.getFormData(), BODY), null, null, null)); // Body
+                            PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), BODY, String.class), null, null, null)); // Body
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -442,7 +442,7 @@ public class FirestorePluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(COMMAND, "DELETE_DOCUMENT", null, null, null));
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, getValueSafelyFromFormData(actionConfiguration.getFormData(), PATH),
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), PATH, String.class),
                             null, null, null)); // Path
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
@@ -477,10 +477,10 @@ public class FirestorePluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(COMMAND, "ADD_TO_COLLECTION", null, null, null));
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, getValueSafelyFromFormData(actionConfiguration.getFormData(), PATH),
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), PATH, String.class),
                             null, null, null)); // Path
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            getValueSafelyFromFormData(actionConfiguration.getFormData(), BODY), null, null, null)); // Body
+                            PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), BODY, String.class), null, null, null)); // Body
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -662,7 +662,7 @@ public class FirestorePluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(COMMAND, "GET_COLLECTION", null, null, null));
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, getValueSafelyFromFormData(actionConfiguration.getFormData(), PATH),
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), PATH, String.class),
                             null, null, null)); // Path
                     expectedRequestParams.add(new RequestParamDTO(ORDER_BY, "[\"firm\", \"name\"]", null, null, null)); // Order by
                     expectedRequestParams.add(new RequestParamDTO(START_AFTER, "{}", null, null, null)); // Start after
@@ -1051,11 +1051,11 @@ public class FirestorePluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(COMMAND, "UPDATE_DOCUMENT", null, null, null));
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, getValueSafelyFromFormData(actionConfiguration.getFormData(), PATH),
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), PATH, String.class),
                             null, null, null)); // Path
                     expectedRequestParams.add(new RequestParamDTO(DELETE_KEY_PATH, "[\"value\"]", null, null, null)); // Method
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            getValueSafelyFromFormData(actionConfiguration.getFormData(), BODY), null, null, null)); // Body
+                            PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), BODY, String.class), null, null, null)); // Body
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();

@@ -5,6 +5,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -58,7 +59,7 @@ import java.util.stream.StreamSupport;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDataOrDefault;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.external.constants.FieldName.BODY;
@@ -142,7 +143,7 @@ public class FirestorePlugin extends BasePlugin {
             // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
             if (TRUE.equals(smartJsonSubstitution)) {
-                String query = getValueSafelyFromFormData(actionConfiguration.getFormData(), BODY, String.class);
+                String query = PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), BODY, String.class);
                 if (query != null) {
 
                     // First extract all the bindings in order
@@ -179,7 +180,7 @@ public class FirestorePlugin extends BasePlugin {
             final String path = (String) getValueSafelyFromFormDataOrDefault(formData, PATH, "");
             requestData.put("path", path);
 
-            String command = getValueSafelyFromFormData(formData, COMMAND, String.class);
+            String command = PluginUtils.getDataValueSafelyFromFormData(formData, COMMAND, String.class);
 
             if (isBlank(command)) {
                 return Mono.error(
@@ -314,8 +315,8 @@ public class FirestorePlugin extends BasePlugin {
         }
 
         private boolean isTimestampAndDeleteFieldValuePathEmpty(Map<String, Object> formData) {
-            if (isBlank(getValueSafelyFromFormData(formData, TIMESTAMP_VALUE_PATH, String.class))
-                    && isBlank(getValueSafelyFromFormData(formData, DELETE_KEY_PATH, String.class))) {
+            if (isBlank(PluginUtils.getDataValueSafelyFromFormData(formData, TIMESTAMP_VALUE_PATH, String.class))
+                    && isBlank(PluginUtils.getDataValueSafelyFromFormData(formData, DELETE_KEY_PATH, String.class))) {
                 return true;
             }
 
@@ -339,7 +340,7 @@ public class FirestorePlugin extends BasePlugin {
              * - Check that FieldValue.delete() option is only available for UPDATE operation.
              */
             if (!Method.UPDATE_DOCUMENT.equals(method)
-                    && !isBlank(getValueSafelyFromFormData(formData, DELETE_KEY_PATH, String.class))) {
+                    && !isBlank(PluginUtils.getDataValueSafelyFromFormData(formData, DELETE_KEY_PATH, String.class))) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
                         "Appsmith has found an unexpected query form property - 'Delete Key Value Pair Path'. Please " +
@@ -350,8 +351,8 @@ public class FirestorePlugin extends BasePlugin {
             /*
              * - Parse delete path.
              */
-            if(!isBlank(getValueSafelyFromFormData(formData, DELETE_KEY_PATH, String.class))) {
-                String deletePaths = getValueSafelyFromFormData(formData, DELETE_KEY_PATH, String.class);
+            if(!isBlank(PluginUtils.getDataValueSafelyFromFormData(formData, DELETE_KEY_PATH, String.class))) {
+                String deletePaths = PluginUtils.getDataValueSafelyFromFormData(formData, DELETE_KEY_PATH, String.class);
                 requestParams.add(new RequestParamDTO(DELETE_KEY_PATH, deletePaths, null, null, null));
                 List<String> deletePathsList;
                 try {
@@ -381,7 +382,7 @@ public class FirestorePlugin extends BasePlugin {
              * - Check that FieldValue.serverTimestamp() option is not available for any GET or DELETE operations.
              */
             if (isGetOrDeleteMethod(method)
-                    && !isBlank(getValueSafelyFromFormData(formData, TIMESTAMP_VALUE_PATH, String.class))) {
+                    && !isBlank(PluginUtils.getDataValueSafelyFromFormData(formData, TIMESTAMP_VALUE_PATH, String.class))) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
                         "Appsmith has found an unexpected query form property - 'Timestamp Value Path'. Please reach " +
@@ -392,8 +393,8 @@ public class FirestorePlugin extends BasePlugin {
             /*
              * - Parse severTimestamp FieldValue path.
              */
-            if(!isBlank(getValueSafelyFromFormData(formData, TIMESTAMP_VALUE_PATH, String.class))) {
-                String timestampValuePaths = getValueSafelyFromFormData(formData, TIMESTAMP_VALUE_PATH, String.class);
+            if(!isBlank(PluginUtils.getDataValueSafelyFromFormData(formData, TIMESTAMP_VALUE_PATH, String.class))) {
+                String timestampValuePaths = PluginUtils.getDataValueSafelyFromFormData(formData, TIMESTAMP_VALUE_PATH, String.class);
                 requestParams.add(new RequestParamDTO(TIMESTAMP_VALUE_PATH, timestampValuePaths, null, null, null));
                 List<String> timestampPathsStringList; // ["key1.key2", "key3.key4"]
                 try {
@@ -602,9 +603,9 @@ public class FirestorePlugin extends BasePlugin {
                                                                 PaginationField paginationField,
                                                                 List<RequestParamDTO> requestParams,
                                                                 Set<String> hintMessages, ActionConfiguration actionConfiguration) {
-            final String limitString = getValueSafelyFromFormData(formData, LIMIT_DOCUMENTS, String.class);
+            final String limitString = PluginUtils.getDataValueSafelyFromFormData(formData, LIMIT_DOCUMENTS, String.class);
             final int limit = StringUtils.isEmpty(limitString) ? 10 : Integer.parseInt(limitString);
-            final String orderByString = getValueSafelyFromFormData(formData, ORDER_BY, String.class, "");
+            final String orderByString = PluginUtils.getDataValueSafelyFromFormData(formData, ORDER_BY, String.class, "");
             requestParams.add(new RequestParamDTO(ORDER_BY, orderByString, null, null, null));
 
             final List<String> orderings;
@@ -687,7 +688,7 @@ public class FirestorePlugin extends BasePlugin {
                             return Mono.just(query1);
                         }
 
-                        List<Object> conditionList = getValueSafelyFromFormData(formData, WHERE_CHILDREN, List.class,
+                        List<Object> conditionList = PluginUtils.getDataValueSafelyFromFormData(formData, WHERE_CHILDREN, List.class,
                                 new ArrayList());
                         requestParams.add(new RequestParamDTO(WHERE, conditionList, null, null, null));
 
@@ -748,7 +749,7 @@ public class FirestorePlugin extends BasePlugin {
         }
 
         private boolean isWhereMethodUsed(Map<String, Object> formData) {
-            List<Object> conditionList = getValueSafelyFromFormData(formData, WHERE_CHILDREN, List.class,
+            List<Object> conditionList = PluginUtils.getDataValueSafelyFromFormData(formData, WHERE_CHILDREN, List.class,
                     new ArrayList());
 
             // Check if the where clause does not exist

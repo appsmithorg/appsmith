@@ -1,5 +1,6 @@
 package com.external.plugins.commands;
 
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import lombok.Getter;
@@ -13,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.BODY;
@@ -38,11 +38,11 @@ public class Distinct extends MongoCommand {
         Map<String, Object> formData = actionConfiguration.getFormData();
 
         if (validConfigurationPresentInFormData(formData, DISTINCT_QUERY)) {
-            this.query = (String) getValueSafelyFromFormData(formData, DISTINCT_QUERY);
+            this.query = PluginUtils.getDataValueSafelyFromFormData(formData, DISTINCT_QUERY, String.class);
         }
 
         if (validConfigurationPresentInFormData(formData, DISTINCT_KEY)) {
-            this.key = (String) getValueSafelyFromFormData(formData, DISTINCT_KEY);
+            this.key = PluginUtils.getDataValueSafelyFromFormData(formData, DISTINCT_KEY, String.class);
         }
     }
 

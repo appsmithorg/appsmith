@@ -29,7 +29,7 @@ import java.util.stream.StreamSupport;
 /**
  * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/append
  */
-public class RowsBulkAppendMethod implements Method {
+public class RowsBulkAppendMethod implements ExecutionMethod {
 
     ObjectMapper objectMapper;
 
@@ -38,7 +38,7 @@ public class RowsBulkAppendMethod implements Method {
     }
 
     @Override
-    public boolean validateMethodRequest(MethodConfig methodConfig) {
+    public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Spreadsheet Url");
         }
@@ -107,11 +107,11 @@ public class RowsBulkAppendMethod implements Method {
                 .rowLimit("1")
                 .build();
 
-        rowsGetMethod.validateMethodRequest(newMethodConfig);
+        rowsGetMethod.validateExecutionMethodRequest(newMethodConfig);
 
         List<RowObject> finalRowObjectListFromBody = rowObjectListFromBody;
         return rowsGetMethod
-                .getClient(client, newMethodConfig)
+                .getExecutionClient(client, newMethodConfig)
                 .headers(headers -> headers.set(
                         "Authorization",
                         "Bearer " + oauth2.getAuthenticationResponse().getToken()))
@@ -200,7 +200,7 @@ public class RowsBulkAppendMethod implements Method {
     }
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
+    public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
 
         final String range = "'" + methodConfig.getSheetName() + "'!" +
                 methodConfig.getTableHeaderIndex() + ":" + methodConfig.getTableHeaderIndex();
@@ -231,7 +231,7 @@ public class RowsBulkAppendMethod implements Method {
     }
 
     @Override
-    public JsonNode transformResponse(JsonNode response, MethodConfig methodConfig) {
+    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_ERROR,

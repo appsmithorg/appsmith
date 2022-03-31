@@ -39,7 +39,7 @@ public abstract class MongoCommand {
         Map<String, Object> formData = actionConfiguration.getFormData();
 
         if (validConfigurationPresentInFormData(formData, COLLECTION)) {
-            this.collection = (String) PluginUtils.getValueSafelyFromFormData(formData, COLLECTION);
+            this.collection = PluginUtils.getDataValueSafelyFromFormData(formData, COLLECTION, String.class);
         }
     }
 

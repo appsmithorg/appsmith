@@ -14,7 +14,7 @@ public class FileListMethodTest {
         ObjectMapper objectMapper = new ObjectMapper();
 
         FileListMethod fileListMethod = new FileListMethod(objectMapper);
-        fileListMethod.transformResponse(null, null);
+        fileListMethod.transformExecutionResponse(null, null);
     }
 
     @Test
@@ -28,7 +28,7 @@ public class FileListMethodTest {
         Assert.assertNotNull(jsonNode);
 
         FileListMethod fileListMethod = new FileListMethod(objectMapper);
-        JsonNode result = fileListMethod.transformResponse(jsonNode, null);
+        JsonNode result = fileListMethod.transformExecutionResponse(jsonNode, null);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());
@@ -46,7 +46,7 @@ public class FileListMethodTest {
         Assert.assertNotNull(jsonNode);
 
         FileListMethod fileListMethod = new FileListMethod(objectMapper);
-        JsonNode result = fileListMethod.transformResponse(jsonNode, null);
+        JsonNode result = fileListMethod.transformExecutionResponse(jsonNode, null);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());
@@ -64,7 +64,7 @@ public class FileListMethodTest {
         Assert.assertNotNull(jsonNode);
 
         FileListMethod fileListMethod = new FileListMethod(objectMapper);
-        JsonNode result = fileListMethod.transformResponse(jsonNode, null);
+        JsonNode result = fileListMethod.transformExecutionResponse(jsonNode, null);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());

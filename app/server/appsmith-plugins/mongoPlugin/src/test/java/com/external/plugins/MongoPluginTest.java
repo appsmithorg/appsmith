@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -51,7 +52,6 @@ import java.util.concurrent.CompletableFuture;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.DisplayDataType.JSON;
 import static com.appsmith.external.constants.DisplayDataType.RAW;
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.external.plugins.constants.FieldName.AGGREGATE_LIMIT;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINES;
@@ -288,7 +288,7 @@ public class MongoPluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            getValueSafelyFromFormData(actionConfiguration.getFormData(), BODY), null, null, null));
+                            PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), BODY, Object.class), null, null, null));
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -329,7 +329,7 @@ public class MongoPluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            getValueSafelyFromFormData(actionConfiguration.getFormData(), BODY), null, null, null));
+                            PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), BODY, Object.class), null, null, null));
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -514,13 +514,13 @@ public class MongoPluginTest {
                                     "  },\n" +
                                     "  \"limit\": 10\n" +
                                     "}\n",
-                            getValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), BODY));
-                    assertEquals("FIND", getValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), COMMAND));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), BODY, String.class));
+                    assertEquals("FIND", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), COMMAND, String.class));
 
                     assertEquals("{ \"gender\": \"F\"}",
-                            getValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), FIND_QUERY));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), FIND_QUERY, String.class));
                     assertEquals("{\"_id\": 1}",
-                            getValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), FIND_SORT));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) findTemplate.getConfiguration(), FIND_SORT, String.class));
 
                     //Assert Find By Id command
                     DatasourceStructure.Template findByIdTemplate = templates.get(1);
@@ -531,10 +531,10 @@ public class MongoPluginTest {
                                     "    \"_id\": ObjectId(\"id_to_query_with\")\n" +
                                     "  }\n" +
                                     "}\n",
-                            getValueSafelyFromFormData((Map<String, Object>) findByIdTemplate.getConfiguration(), BODY));
-                    assertEquals("FIND", getValueSafelyFromFormData((Map<String, Object>) findByIdTemplate.getConfiguration(), COMMAND));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) findByIdTemplate.getConfiguration(), BODY, String.class));
+                    assertEquals("FIND", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) findByIdTemplate.getConfiguration(), COMMAND, String.class));
                     assertEquals("{\"_id\": ObjectId(\"id_to_query_with\")}",
-                            getValueSafelyFromFormData((Map<String, Object>) findByIdTemplate.getConfiguration(), FIND_QUERY));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) findByIdTemplate.getConfiguration(), FIND_QUERY, String.class));
 
                     // Assert Insert command
                     DatasourceStructure.Template insertTemplate = templates.get(2);
@@ -554,8 +554,8 @@ public class MongoPluginTest {
                                     "    }\n" +
                                     "  ]\n" +
                                     "}\n",
-                            getValueSafelyFromFormData((Map<String, Object>) insertTemplate.getConfiguration(), BODY));
-                    assertEquals("INSERT", getValueSafelyFromFormData((Map<String, Object>) insertTemplate.getConfiguration(), COMMAND));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) insertTemplate.getConfiguration(), BODY, String.class));
+                    assertEquals("INSERT", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) insertTemplate.getConfiguration(), COMMAND, String.class));
                     assertEquals("[{      \"_id\": ObjectId(\"a_valid_object_id_hex\"),\n" +
                                     "      \"age\": 1,\n" +
                                     "      \"dob\": new Date(\"2019-07-01\"),\n" +
@@ -565,7 +565,7 @@ public class MongoPluginTest {
                                     "      \"netWorth\": NumberDecimal(\"1\"),\n" +
                                     "      \"updatedByCommand\": {},\n" +
                                     "}]",
-                            getValueSafelyFromFormData((Map<String, Object>) insertTemplate.getConfiguration(), INSERT_DOCUMENT));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) insertTemplate.getConfiguration(), INSERT_DOCUMENT, String.class));
 
                     // Assert Update command
                     DatasourceStructure.Template updateTemplate = templates.get(3);
@@ -580,12 +580,12 @@ public class MongoPluginTest {
                             "      \"u\": { \"$set\": { \"gender\": \"new value\" } }\n" +
                             "    }\n" +
                             "  ]\n" +
-                            "}\n", getValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), BODY));
-                    assertEquals("UPDATE", getValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), COMMAND));
+                            "}\n", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), BODY, String.class));
+                    assertEquals("UPDATE", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), COMMAND, String.class));
                     assertEquals("{ \"_id\": ObjectId(\"id_of_document_to_update\") }",
-                            getValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), UPDATE_QUERY));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), UPDATE_QUERY, String.class));
                     assertEquals("{ \"$set\": { \"gender\": \"new value\" } }",
-                            getValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), UPDATE_OPERATION));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) updateTemplate.getConfiguration(), UPDATE_OPERATION, String.class));
 
                     // Assert Delete Command
                     DatasourceStructure.Template deleteTemplate = templates.get(4);
@@ -600,12 +600,12 @@ public class MongoPluginTest {
                             "      \"limit\": 1\n" +
                             "    }\n" +
                             "  ]\n" +
-                            "}\n", getValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), BODY));
-                    assertEquals("DELETE", getValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), COMMAND));
+                            "}\n", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), BODY, String.class));
+                    assertEquals("DELETE", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), COMMAND, String.class));
                     assertEquals("{ \"_id\": ObjectId(\"id_of_document_to_delete\") }",
-                            getValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), DELETE_QUERY));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), DELETE_QUERY, String.class));
                     assertEquals("SINGLE",
-                            getValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), DELETE_LIMIT));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) deleteTemplate.getConfiguration(), DELETE_LIMIT, String.class));
 
                     // Assert Count Command
                     DatasourceStructure.Template countTemplate = templates.get(5);
@@ -613,10 +613,10 @@ public class MongoPluginTest {
                     assertEquals("{\n" +
                             "  \"count\": \"users\",\n" +
                             "  \"query\": " + "{\"_id\": {\"$exists\": true}} \n" +
-                            "}\n", getValueSafelyFromFormData((Map<String, Object>) countTemplate.getConfiguration(), BODY));
-                    assertEquals("COUNT", getValueSafelyFromFormData((Map<String, Object>) countTemplate.getConfiguration(), COMMAND));
+                            "}\n", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) countTemplate.getConfiguration(), BODY, String.class));
+                    assertEquals("COUNT", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) countTemplate.getConfiguration(), COMMAND, String.class));
                     assertEquals("{\"_id\": {\"$exists\": true}}",
-                            getValueSafelyFromFormData((Map<String, Object>) countTemplate.getConfiguration(), COUNT_QUERY));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) countTemplate.getConfiguration(), COUNT_QUERY, String.class));
 
                     // Assert Distinct Command
                     DatasourceStructure.Template distinctTemplate = templates.get(6);
@@ -625,12 +625,12 @@ public class MongoPluginTest {
                             "  \"distinct\": \"users\",\n" +
                             "  \"query\": { \"_id\": ObjectId(\"id_of_document_to_distinct\") }," +
                             "  \"key\": \"_id\"," +
-                            "}\n", getValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), BODY));
-                    assertEquals("DISTINCT", getValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), COMMAND));
+                            "}\n", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), BODY, String.class));
+                    assertEquals("DISTINCT", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), COMMAND, String.class));
                     assertEquals("{ \"_id\": ObjectId(\"id_of_document_to_distinct\") }",
-                            getValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), DISTINCT_QUERY));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), DISTINCT_QUERY, String.class));
                     assertEquals("_id",
-                            getValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), DISTINCT_KEY));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) distinctTemplate.getConfiguration(), DISTINCT_KEY, String.class));
 
                     // Assert Aggregate Command
                     DatasourceStructure.Template aggregateTemplate = templates.get(7);
@@ -640,11 +640,11 @@ public class MongoPluginTest {
                             "  \"pipeline\": " + "[ {\"$sort\" : {\"_id\": 1} } ],\n" +
                             "  \"limit\": 10,\n" +
                             "  \"explain\": \"true\"\n" +
-                            "}\n", getValueSafelyFromFormData((Map<String, Object>) aggregateTemplate.getConfiguration(), BODY));
+                            "}\n", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) aggregateTemplate.getConfiguration(), BODY, String.class));
 
-                    assertEquals("AGGREGATE", getValueSafelyFromFormData((Map<String, Object>) aggregateTemplate.getConfiguration(), COMMAND));
+                    assertEquals("AGGREGATE", PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) aggregateTemplate.getConfiguration(), COMMAND, String.class));
                     assertEquals("[ {\"$sort\" : {\"_id\": 1} } ]",
-                            getValueSafelyFromFormData((Map<String, Object>) aggregateTemplate.getConfiguration(), AGGREGATE_PIPELINES));
+                            PluginUtils.getDataValueSafelyFromFormData((Map<String, Object>) aggregateTemplate.getConfiguration(), AGGREGATE_PIPELINES, String.class));
 
 
                 })

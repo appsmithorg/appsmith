@@ -13,7 +13,7 @@ import java.util.List;
 @Setter
 public class TriggerRequestDTO {
 
-    TriggerRequestType requestType;
+    String requestType;
 
     // Comma separated parameters in the correct order.
     // e.g. for GSheets, it may look like the following :

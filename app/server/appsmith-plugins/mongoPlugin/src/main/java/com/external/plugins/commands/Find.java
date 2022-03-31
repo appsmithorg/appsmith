@@ -1,5 +1,6 @@
 package com.external.plugins.commands;
 
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import lombok.Getter;
@@ -13,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.BODY;
@@ -44,23 +44,23 @@ public class Find extends MongoCommand {
         Map<String, Object> formData = actionConfiguration.getFormData();
 
         if (validConfigurationPresentInFormData(formData, FIND_QUERY)) {
-            this.query = (String) getValueSafelyFromFormData(formData, FIND_QUERY);
+            this.query = PluginUtils.getDataValueSafelyFromFormData(formData, FIND_QUERY, String.class);
         }
 
         if (validConfigurationPresentInFormData(formData, FIND_SORT)) {
-            this.sort = (String) getValueSafelyFromFormData(formData, FIND_SORT);
+            this.sort = PluginUtils.getDataValueSafelyFromFormData(formData, FIND_SORT, String.class);
         }
 
         if (validConfigurationPresentInFormData(formData, FIND_PROJECTION)) {
-            this.projection = (String) getValueSafelyFromFormData(formData, FIND_PROJECTION);
+            this.projection = PluginUtils.getDataValueSafelyFromFormData(formData, FIND_PROJECTION, String.class);
         }
 
         if (validConfigurationPresentInFormData(formData, FIND_LIMIT)) {
-            this.limit = (String) getValueSafelyFromFormData(formData, FIND_LIMIT);
+            this.limit = PluginUtils.getDataValueSafelyFromFormData(formData, FIND_LIMIT, String.class);
         }
 
         if (validConfigurationPresentInFormData(formData, FIND_SKIP)) {
-            this.skip = (String) getValueSafelyFromFormData(formData, FIND_SKIP);
+            this.skip = PluginUtils.getDataValueSafelyFromFormData(formData, FIND_SKIP, String.class);
         }
     }
 

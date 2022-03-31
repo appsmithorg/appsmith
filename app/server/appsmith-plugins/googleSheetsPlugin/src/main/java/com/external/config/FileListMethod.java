@@ -17,21 +17,21 @@ import java.util.stream.StreamSupport;
 /**
  * API reference: https://developers.google.com/sheets/api/guides/migration#list_spreadsheets_for_the_authenticated_user
  */
-public class FileListMethod implements Method {
+public class FileListMethod implements ExecutionMethod, TriggerMethod {
 
     ObjectMapper objectMapper;
 
     public FileListMethod(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
-    
+
     @Override
-    public boolean validateMethodRequest(MethodConfig methodConfig) {
+    public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
         return true;
     }
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
+    public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_DRIVE_API_URL,
                 "?q=mimeType%3D'application%2Fvnd.google-apps.spreadsheet'%20and%20trashed%3Dfalse", true);
 
@@ -41,7 +41,7 @@ public class FileListMethod implements Method {
     }
 
     @Override
-    public JsonNode transformResponse(JsonNode response, MethodConfig methodConfig) {
+    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_ERROR,
@@ -53,12 +53,47 @@ public class FileListMethod implements Method {
         List<Map<String, String>> filesList = StreamSupport
                 .stream(response.get("files").spliterator(), false)
                 .map(file -> {
-
+                    final String spreadSheetUrl = "https://docs.google.com/spreadsheets/d/" + file.get("id").asText() + "/edit";
                     return Map.of("id", file.get("id").asText(),
-                            "name", file.get("name").asText());
+                            "name", file.get("name").asText(),
+                            "url", spreadSheetUrl);
                 })
                 .collect(Collectors.toList());
 
         return this.objectMapper.valueToTree(filesList);
     }
+
+    @Override
+    public boolean validateTriggerMethodRequest(MethodConfig methodConfig) {
+        return this.validateExecutionMethodRequest(methodConfig);
+    }
+
+
+    @Override
+    public WebClient.RequestHeadersSpec<?> getTriggerClient(WebClient webClient, MethodConfig methodConfig) {
+        return this.getExecutionClient(webClient, methodConfig);
+    }
+
+    @Override
+    public JsonNode transformTriggerResponse(JsonNode response, MethodConfig methodConfig) {
+        if (response == null) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_ERROR,
+                    "Missing a valid response object.");
+        }
+        if (response.get("files") == null) {
+            return this.objectMapper.createArrayNode();
+        }
+        List<Map<String, String>> filesList = StreamSupport
+                .stream(response.get("files").spliterator(), false)
+                .map(file -> {
+                    final String spreadSheetUrl = "https://docs.google.com/spreadsheets/d/" + file.get("id").asText() + "/edit";
+                    return Map.of("label", file.get("name").asText(),
+                            "value", spreadSheetUrl);
+                })
+                .collect(Collectors.toList());
+
+        return this.objectMapper.valueToTree(filesList);
+    }
+
 }

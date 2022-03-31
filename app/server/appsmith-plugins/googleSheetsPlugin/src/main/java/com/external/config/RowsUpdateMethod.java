@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * API reference: https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
  */
-public class RowsUpdateMethod implements Method {
+public class RowsUpdateMethod implements ExecutionMethod {
 
     ObjectMapper objectMapper;
 
@@ -35,7 +35,7 @@ public class RowsUpdateMethod implements Method {
     }
 
     @Override
-    public boolean validateMethodRequest(MethodConfig methodConfig) {
+    public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Spreadsheet Url");
         }
@@ -87,12 +87,12 @@ public class RowsUpdateMethod implements Method {
                 .rowLimit("1")
                 .build();
 
-        rowsGetMethod.validateMethodRequest(newMethodConfig);
+        rowsGetMethod.validateExecutionMethodRequest(newMethodConfig);
 
         final RowObject finalRowObjectFromBody = rowObjectFromBody;
 
         return rowsGetMethod
-                .getClient(client, newMethodConfig)
+                .getExecutionClient(client, newMethodConfig)
                 .headers(headers -> headers.set(
                         "Authorization",
                         "Bearer " + oauth2.getAuthenticationResponse().getToken()))
@@ -130,7 +130,7 @@ public class RowsUpdateMethod implements Method {
 
                     // This is the object with the original values in the referred row
                     final JsonNode jsonNode = rowsGetMethod
-                            .transformResponse(jsonNodeBody, methodConfig)
+                            .transformExecutionResponse(jsonNodeBody, methodConfig)
                             .get(0);
 
                     if (jsonNode == null) {
@@ -170,7 +170,7 @@ public class RowsUpdateMethod implements Method {
     }
 
     @Override
-    public WebClient.RequestHeadersSpec<?> getClient(WebClient webClient, MethodConfig methodConfig) {
+    public WebClient.RequestHeadersSpec<?> getExecutionClient(WebClient webClient, MethodConfig methodConfig) {
 
         RowObject rowObject = (RowObject) methodConfig.getBody();
 
@@ -196,7 +196,7 @@ public class RowsUpdateMethod implements Method {
     }
 
     @Override
-    public JsonNode transformResponse(JsonNode response, MethodConfig methodConfig) {
+    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_ERROR,

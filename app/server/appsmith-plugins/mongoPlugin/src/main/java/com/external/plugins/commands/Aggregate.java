@@ -4,6 +4,7 @@ import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import lombok.Getter;
@@ -20,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.AGGREGATE;
@@ -47,11 +47,11 @@ public class Aggregate extends MongoCommand {
         Map<String, Object> formData = actionConfiguration.getFormData();
 
         if (validConfigurationPresentInFormData(formData, AGGREGATE_PIPELINES)) {
-            this.pipeline = (String) getValueSafelyFromFormData(formData, AGGREGATE_PIPELINES);
+            this.pipeline = PluginUtils.getDataValueSafelyFromFormData(formData, AGGREGATE_PIPELINES, String.class);
         }
 
         if (validConfigurationPresentInFormData(formData, AGGREGATE_LIMIT)) {
-            this.limit = (String) getValueSafelyFromFormData(formData, AGGREGATE_LIMIT);
+            this.limit = PluginUtils.getDataValueSafelyFromFormData(formData, AGGREGATE_LIMIT, String.class);
         }
     }
 

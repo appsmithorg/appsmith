@@ -349,9 +349,10 @@ public class RestApiPlugin extends BasePlugin {
 
             // We will read the request body for all HTTP calls where the apiContentType is NOT "none".
             // This is irrespective of the content-type header or the HTTP method
-            String apiContentTypeStr = (String) PluginUtils.getValueSafelyFromFormData(
+            String apiContentTypeStr = PluginUtils.getDataValueSafelyFromFormData(
                     actionConfiguration.getFormData(),
-                    FIELD_API_CONTENT_TYPE
+                    FIELD_API_CONTENT_TYPE,
+                    String.class
             );
             ApiContentType apiContentType = ApiContentType.getValueFromString(apiContentTypeStr);
 

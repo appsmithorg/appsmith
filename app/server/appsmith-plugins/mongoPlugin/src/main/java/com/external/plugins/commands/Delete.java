@@ -1,5 +1,6 @@
 package com.external.plugins.commands;
 
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import lombok.Getter;
@@ -14,7 +15,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.BODY;
@@ -39,11 +39,11 @@ public class Delete extends MongoCommand {
         Map<String, Object> formData = actionConfiguration.getFormData();
 
         if (validConfigurationPresentInFormData(formData, DELETE_QUERY)) {
-            this.query = (String) getValueSafelyFromFormData(formData, DELETE_QUERY);
+            this.query = PluginUtils.getDataValueSafelyFromFormData(formData, DELETE_QUERY, String.class);
         }
 
         if (validConfigurationPresentInFormData(formData, DELETE_LIMIT)) {
-            String limitOption = (String) getValueSafelyFromFormData(formData, DELETE_LIMIT);
+            String limitOption = PluginUtils.getDataValueSafelyFromFormData(formData, DELETE_LIMIT, String.class);
             if ("ALL".equals(limitOption)) {
                 this.limit = 0;
             }

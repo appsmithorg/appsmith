@@ -93,7 +93,7 @@ public class MongoPluginUtils {
 
         // We reached here. This means either this is a RAW command input or some configuration error has happened
         // in which case, we default to RAW
-        return (String) PluginUtils.getValueSafelyFromFormData(formData, BODY);
+        return PluginUtils.getDataValueSafelyFromFormData(formData, BODY, String.class);
     }
 
     public static String getDatabaseName(DatasourceConfiguration datasourceConfiguration) {

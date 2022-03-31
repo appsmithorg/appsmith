@@ -18,7 +18,7 @@ public class FileInfoMethodTest {
         ObjectMapper objectMapper = new ObjectMapper();
 
         FileInfoMethod fileInfoMethod = new FileInfoMethod(objectMapper);
-        fileInfoMethod.transformResponse(null, null);
+        fileInfoMethod.transformExecutionResponse(null, null);
     }
 
     @Test
@@ -35,7 +35,7 @@ public class FileInfoMethodTest {
         methodConfig.setBody(sheetNode);
 
         FileInfoMethod fileInfoMethod = new FileInfoMethod(objectMapper);
-        JsonNode result = fileInfoMethod.transformResponse(jsonNode, methodConfig);
+        JsonNode result = fileInfoMethod.transformExecutionResponse(jsonNode, methodConfig);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isObject());
@@ -55,7 +55,7 @@ public class FileInfoMethodTest {
         methodConfig.setBody(new ArrayList<>());
 
         FileInfoMethod fileInfoMethod = new FileInfoMethod(objectMapper);
-        JsonNode result = fileInfoMethod.transformResponse(jsonNode, methodConfig);
+        JsonNode result = fileInfoMethod.transformExecutionResponse(jsonNode, methodConfig);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isObject());
@@ -77,7 +77,7 @@ public class FileInfoMethodTest {
         methodConfig.setBody(List.of(sheetNode));
 
         FileInfoMethod fileInfoMethod = new FileInfoMethod(objectMapper);
-        JsonNode result = fileInfoMethod.transformResponse(jsonNode, methodConfig);
+        JsonNode result = fileInfoMethod.transformExecutionResponse(jsonNode, methodConfig);
 
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isObject());
