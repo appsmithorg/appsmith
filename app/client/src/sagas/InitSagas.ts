@@ -357,6 +357,10 @@ export function* initializeAppViewerSaga(
 
   let { applicationId } = action.payload;
 
+  if (branch) yield put(updateBranchLocally(branch));
+
+  yield put(setAppMode(APP_MODE.PUBLISHED));
+
   const applicationCall: boolean = yield failFastApiCalls(
     [fetchApplication({ applicationId, pageId, mode: APP_MODE.PUBLISHED })],
     [
@@ -371,13 +375,9 @@ export function* initializeAppViewerSaga(
 
   if (!applicationCall) return;
 
-  if (branch) yield put(updateBranchLocally(branch));
-
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.INIT_VIEW_APP,
   );
-
-  yield put(setAppMode(APP_MODE.PUBLISHED));
 
   applicationId = applicationId || (yield select(getCurrentApplicationId));
   yield put(
