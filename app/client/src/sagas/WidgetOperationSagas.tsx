@@ -322,7 +322,7 @@ function* updateWidgetPropertySaga(
   );
 }
 
-function* setWidgetDynamicPropertySaga(
+export function* setWidgetDynamicPropertySaga(
   action: ReduxAction<SetWidgetDynamicPropertyPayload>,
 ) {
   const { isDynamic, propertyPath, widgetId } = action.payload;
