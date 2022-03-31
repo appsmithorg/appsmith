@@ -35,6 +35,7 @@ export const BUILDER_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
 export const VIEWER_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId`;
 export const VIEWER_PATH_DEPRECATED = `/applications/:applicationId/(pages)?/:pageId?`;
 export const VIEWER_FORK_PATH = `${VIEWER_PATH}/fork`;
+export const VIEWER_FORK_PATH_DEPRECATED = `${VIEWER_PATH_DEPRECATED}/fork`;
 export const INTEGRATION_EDITOR_PATH = `/datasources/:selectedTab`;
 export const API_EDITOR_BASE_PATH = `/api`;
 export const API_EDITOR_ID_PATH = `${API_EDITOR_BASE_PATH}/:apiId`;
@@ -67,7 +68,9 @@ export const matchBuilderPath = (pathName: string) =>
 export const matchJSObjectPath = match(JS_COLLECTION_ID_PATH);
 export const matchViewerPath = (pathName: string) =>
   match(VIEWER_PATH)(pathName) || match(VIEWER_PATH_DEPRECATED)(pathName);
-export const matchViewerForkPath = match(VIEWER_FORK_PATH);
+export const matchViewerForkPath = (pathName: string) =>
+  match(VIEWER_FORK_PATH)(pathName) ||
+  match(VIEWER_FORK_PATH_DEPRECATED)(pathName);
 export const matchTemplatesPath = match(TEMPLATES_PATH);
 export const matchTemplatesIdPath = match(TEMPLATES_ID_PATH);
 

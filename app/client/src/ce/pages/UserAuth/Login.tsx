@@ -117,6 +117,7 @@ export function Login(props: LoginFormProps) {
         <SignUpLinkSection>
           {createMessage(NEW_TO_APPSMITH)}
           <AuthCardNavLink
+            className="t--sign-up"
             style={{ marginLeft: props.theme.spaces[3] }}
             to={signupURL}
           >
