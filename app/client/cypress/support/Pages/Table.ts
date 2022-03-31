@@ -28,21 +28,28 @@ export class Table {
     //   expect(cellData).not.empty;
     // });
 
-    cy.waitUntil(() => this.ReadTableRowColumnData(0, 0).then(cellData => expect(cellData).not.empty),
+    cy.waitUntil(() => this.ReadTableRowColumnData(0, 0),
       {
         errorMsg: "Table is not populated",
         timeout: 10000,
         interval: 2000
-      }).then(() => this.agHelper.Sleep(500))
+      }).then(cellData => {
+        expect(cellData).not.empty
+        this.agHelper.Sleep(500)
+      })
   }
 
   public WaitForTableEmpty() {
-    cy.waitUntil(() => cy.get(this._tableEmptyColumnData).children().should("have.length", 0),
+    cy.waitUntil(() => cy.get(this._tableEmptyColumnData).children(),
       {
         errorMsg: "Table is populated when not expected",
         timeout: 10000,
         interval: 2000
-      }).then(() => this.agHelper.Sleep(500))
+      }).then($children => {
+        cy.wrap($children).should('have.length', 0) //or below
+        //expect($children).to.have.lengthOf(0)
+        this.agHelper.Sleep(500)
+      })
   }
 
   public AssertTableHeaderOrder(expectedOrder: string) {
@@ -52,7 +59,7 @@ export class Table {
   }
 
   public ReadTableRowColumnData(rowNum: number, colNum: number) {
-    return cy.get(this._tableRowColumn(rowNum, colNum), { timeout: 80000 }).invoke("text");
+    return cy.get(this._tableRowColumn(rowNum, colNum)).invoke("text");
   }
 
   public AssertHiddenColumns(columnNames: string[]) {

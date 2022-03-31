@@ -32,7 +32,10 @@ describe("Loadash basic test with input Widget", () => {
     });
 
     it("3. Publish and validate the data displayed in input widgets value for aToB and bToa", function () {
-        agHelper.DeployApp()
+//        agHelper.DeployApp(locator._inputWidgetInDeployed)
+
+        agHelper.DeployApp("//div[contains(@class, 't--widget-inputwidgetv2')]//input")
+
         cy.get(locator._inputWidgetInDeployed).first().invoke("attr", "value")
             .should("contain", "7")
         cy.get(locator._inputWidgetInDeployed).last().invoke("attr", "value")

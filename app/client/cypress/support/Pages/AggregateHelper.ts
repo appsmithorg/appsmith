@@ -50,7 +50,7 @@ export class AggregateHelper {
 
     public AssertAutoSave() {
         // wait for save query to trigger & n/w call to finish occuring
-        cy.get(this.locator._saveStatusSuccess, { timeout: 40000 }).should("exist");
+        cy.get(this.locator._saveStatusSuccess).should("exist");
     }
 
     public ValidateCodeEditorContent(selector: string, contentToValidate: any) {
@@ -60,7 +60,7 @@ export class AggregateHelper {
     }
 
     //refering PublishtheApp from command.js
-    public DeployApp() {
+    public DeployApp(eleToCheckInDeployPage: string = "") {
         cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
         // Wait before publish
         this.Sleep(2000)
@@ -75,6 +75,10 @@ export class AggregateHelper {
         cy.log("Pagename: " + localStorage.getItem("PageName"));
         cy.wait("@publishApp").its("request.url").should("not.contain", "edit")
         //cy.wait('@publishApp').wait('@publishApp') //waitng for 2 calls to complete
+
+        if (eleToCheckInDeployPage) {
+            this.WaitUntilEleAppear(eleToCheckInDeployPage)
+        }
     }
 
     public AddNewPage() {
@@ -114,22 +118,35 @@ export class AggregateHelper {
         });
     }
 
-    public WaitUntilEleDisappear(selector: string, msgToCheckforDisappearance: string) {
-        cy.waitUntil(() => cy.get(selector).contains(msgToCheckforDisappearance).should("have.length", 0),
+    public WaitUntilEleDisappear(selector: string, msgToCheckforDisappearance: string | "") {
+        cy.waitUntil(() => selector.includes("//") ? cy.xpath(selector) : cy.get(selector),
             {
                 errorMsg: msgToCheckforDisappearance + " did not disappear",
                 timeout: 5000,
                 interval: 1000
-            }).then(() => this.Sleep())
+            }).then($ele => {
+                cy.wrap($ele).contains(msgToCheckforDisappearance).should("have.length", 0)
+                this.Sleep()
+            })
     }
 
     public WaitUntilEleAppear(selector: string) {
-        cy.waitUntil(() => cy.get(selector, { timeout: 50000 }).should("have.length.greaterThan", 0),
+        // cy.waitUntil(() => cy.get(selector, { timeout: 50000 }).should("have.length.greaterThan", 0),
+        //     {
+        //         errorMsg: "Element did not appear",
+        //         timeout: 5000,
+        //         interval: 1000
+        //     }).then(() => this.Sleep(500))
+
+        cy.waitUntil(() => selector.includes("//") ? cy.xpath(selector) : cy.get(selector),
             {
                 errorMsg: "Element did not appear",
                 timeout: 5000,
                 interval: 1000
-            }).then(() => this.Sleep(500))
+            }).then($ele => {
+                cy.wrap($ele).should("have.length.greaterThan", 0)
+                this.Sleep(500)
+            })
     }
 
     public ValidateNetworkExecutionSuccess(aliasName: string, expectedRes = true) {
@@ -360,4 +377,26 @@ export class AggregateHelper {
             });
 
     }
+
+    //Not used:
+    // private xPathToCss(xpath: string) {
+    //     return xpath
+    //         .replace(/\[(\d+?)\]/g, function (s, m1) { return '[' + (m1 - 1) + ']'; })
+    //         .replace(/\/{2}/g, '')
+    //         .replace(/\/+/g, ' > ')
+    //         .replace(/@/g, '')
+    //         .replace(/\[(\d+)\]/g, ':eq($1)')
+    //         .replace(/^\s+/, '');
+    // }
+
+    // Cypress.Commands.add("byXpath", (xpath) => {
+    //     const iterator = document.evaluate(xpath, document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+    //     const items = [];
+    //     let item = iterator.iterateNext();
+    //     while (item) {
+    //         items.push(item);
+    //         item = iterator.iterateNext();
+    //     }
+    //     return items;
+    //   }, { timeout: 5000 });
 }

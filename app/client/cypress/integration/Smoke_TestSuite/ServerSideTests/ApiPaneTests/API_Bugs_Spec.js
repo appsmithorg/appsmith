@@ -62,7 +62,7 @@ describe("Rest Bugs tests", function() {
     //   expect(response.body.data.body[0].url.length).to.be.above(0); //Cat image
     // });
 
-    // cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
+    // cy.wait("@postExecute").then(({ response }) => {
     //   expect(response.body.data.isExecutionSuccess).to.eq(true);
     //   expect(response.body.data.body.message.length).to.be.above(0); //Dog Image
     // });
@@ -77,7 +77,7 @@ describe("Rest Bugs tests", function() {
         expect($src).contains("dog");
       });
 
-    // cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
+    // cy.wait("@postExecute").then(({ response }) => {
     //   expect(response.body.data.isExecutionSuccess).to.eq(true);
     //   expect(response.body.data.body.length).to.be.above(0); //Number fact
     // });
@@ -87,7 +87,7 @@ describe("Rest Bugs tests", function() {
       .invoke("text")
       .then(($txt) => expect($txt).to.have.length.greaterThan(25));
 
-    // cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
+    // cy.wait("@postExecute").then(({ response }) => {
     //   //cy.log("Response is :"+ JSON.stringify(response.body))
     //   expect(response.body.data.isExecutionSuccess).to.eq(true);
     //   expect(response.body.data.request.url.length).to.be.above(0); //Cocktail

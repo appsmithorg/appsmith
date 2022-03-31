@@ -384,6 +384,12 @@ Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
     200,
   );
 
+  cy.waitUntil(() => cy.get(generatePage.buildFromScratchActionCard), {
+    errorMsg: "Build app from scratch not visible even aft 80 secs",
+    timeout: 20000,
+    interval: 1000,
+  }).then(($ele) => cy.wrap($ele).should("be.visible"));
+
   cy.get(generatePage.buildFromScratchActionCard).click();
 
   /* The server created app always has an old dsl so the layout will migrate
@@ -1330,16 +1336,16 @@ Cypress.Commands.add("createModal", (ModalName) => {
 });
 
 Cypress.Commands.add("selectOnClickOption", (option) => {
-  cy.get(".bp3-popover-content", { timeout: 10000 }).should("be.visible");
-  cy.get("ul.bp3-menu div.bp3-fill", { timeout: 10000 })
+  cy.get(".bp3-popover-content").should("be.visible");
+  cy.get("ul.bp3-menu div.bp3-fill")
     .should("be.visible")
     .contains(option)
     .click({ force: true });
 });
 
 Cypress.Commands.add("selectWidgetOnClickOption", (option) => {
-  cy.get(".bp3-popover-content", { timeout: 10000 }).should("be.visible");
-  cy.get(commonlocators.selectWidgetVirtualList, { timeout: 10000 })
+  cy.get(".bp3-popover-content").should("be.visible");
+  cy.get(commonlocators.selectWidgetVirtualList)
     .should("be.visible")
     .contains(option)
     .click({ force: true });
@@ -2934,11 +2940,11 @@ Cypress.Commands.add("validateDisableWidget", (widgetCss, disableCss) => {
 });
 
 Cypress.Commands.add("validateToolbarVisible", (widgetCss, toolbarCss) => {
-  cy.get(widgetCss + toolbarCss, { timeout: 10000 }).should("exist");
+  cy.get(widgetCss + toolbarCss).should("exist");
 });
 
 Cypress.Commands.add("validateToolbarHidden", (widgetCss, toolbarCss) => {
-  cy.get(widgetCss + toolbarCss, { timeout: 10000 }).should("not.exist");
+  cy.get(widgetCss + toolbarCss).should("not.exist");
 });
 
 Cypress.Commands.add("validateEnableWidget", (widgetCss, disableCss) => {
@@ -3271,7 +3277,7 @@ Cypress.Commands.add(
   "validateWidgetExists",
   { prevSubject: true },
   (selector) => {
-    cy.get(selector, { timeout: 5000 }).should("exist");
+    cy.get(selector).should("exist");
   },
 );
 

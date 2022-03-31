@@ -6,7 +6,7 @@ export class EntityExplorer {
     public locator = ObjectsRegistry.CommonLocators;
 
     public SelectEntityByName(entityNameinLeftSidebar: string) {
-        cy.xpath(this.locator._entityNameInExplorer(entityNameinLeftSidebar), { timeout: 30000 })
+        cy.xpath(this.locator._entityNameInExplorer(entityNameinLeftSidebar))
             .last()
             .click({ multiple: true })
         this.agHelper.Sleep()
