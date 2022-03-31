@@ -13,7 +13,8 @@
           "label": "Collection",
           "configProperty": "actionConfiguration.formData.collection.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "evaluationSubstitutionType": "TEMPLATE"
+          "evaluationSubstitutionType": "TEMPLATE",
+          "expected": "{type: 'string' , example: 'string', autocompleteDataType: 'STRING'}"
         }
       ]
     },

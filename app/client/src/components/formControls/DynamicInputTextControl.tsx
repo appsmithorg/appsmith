@@ -14,6 +14,7 @@ import {
 import styled from "styled-components";
 import _ from "lodash";
 import { Colors } from "constants/Colors";
+import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 
 // Enum for the different types of input fields
 export enum INPUT_TEXT_INPUT_TYPES {
@@ -44,8 +45,9 @@ export function InputText(props: {
   inputType?: INPUT_TEXT_INPUT_TYPES;
   customStyles?: any;
   disabled?: boolean;
+  expected?: CodeEditorExpected;
 }) {
-  const { actionName, inputType, name, placeholder } = props;
+  const { actionName, expected, inputType, name, placeholder } = props;
   const dataTreePath = actionPathFromName(actionName, name);
   let editorProps = {};
 
@@ -67,11 +69,13 @@ export function InputText(props: {
       customStyle.minHeight = props.customStyles.minHeight;
     }
   }
+
   return (
     <div style={customStyle}>
       <StyledDynamicTextField
         dataTreePath={dataTreePath}
         disabled={props.disabled}
+        expected={expected}
         name={name}
         placeholder={placeholder}
         showLightningMenu={false}
@@ -89,6 +93,7 @@ class DynamicInputTextControl extends BaseControl<DynamicInputControlProps> {
       configProperty,
       customStyles,
       disabled,
+      expected,
       inputType,
       label,
       placeholderText,
@@ -104,6 +109,7 @@ class DynamicInputTextControl extends BaseControl<DynamicInputControlProps> {
         actionName={actionName}
         customStyles={customStyles}
         disabled={disabled}
+        expected={expected}
         inputType={inputTypeProp}
         label={label}
         name={configProperty}
@@ -121,6 +127,7 @@ export interface DynamicInputControlProps extends ControlProps {
   placeholderText: string;
   actionName: string;
   inputType?: INPUT_TEXT_INPUT_TYPES;
+  expected?: CodeEditorExpected;
 }
 
 const mapStateToProps = (state: AppState, props: DynamicInputControlProps) => {

@@ -13,7 +13,8 @@
           "label": "Collection",
           "configProperty": "actionConfiguration.formData.collection.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "evaluationSubstitutionType": "TEMPLATE"
+          "evaluationSubstitutionType": "TEMPLATE",
+          "expected": "{type: 'string' , example: 'string', autocompleteDataType: 'STRING'}"
         }
       ]
     },
@@ -28,7 +29,8 @@
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
-          "placeholderText": "{rating : {$gte : 9}}"
+          "placeholderText": "{rating : {$gte : 4}}",
+          "expected": "{type: 'object' , example: '{rating : {$gte : 9}}', autocompleteDataType: 'OBJECT'}"
         },
         {
           "label": "Sort",
@@ -36,7 +38,8 @@
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
-          "placeholderText": "{name : 1}"
+          "placeholderText": "{name : 1}",
+          "expected": "{{type: 'object' , example: '{name : 1}', autocompleteDataType: 'OBJECT'}}"
         },
         {
           "label": "Projection",
@@ -44,21 +47,24 @@
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
-          "placeholderText": "{name : 1}"
+          "placeholderText": "{name : 1}",
+          "expected": "{type: 'object' , example: '{name: 1}', autocompleteDataType: 'OBJECT'}"
         },
         {
           "label": "Limit",
           "configProperty": "actionConfiguration.formData.find.limit.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
-          "placeholderText": "10"
+          "placeholderText": "10",
+          "expected": "{type: 'number' , example: '10', autocompleteDataType: 'NUMBER'}"
         },
         {
           "label": "Skip",
           "configProperty": "actionConfiguration.formData.find.skip.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
-          "placeholderText": "0"
+          "placeholderText": "0",
+          "expected": "{type: 'number' , example: '0', autocompleteDataType: 'NUMBER'}"
         }
       ]
     }

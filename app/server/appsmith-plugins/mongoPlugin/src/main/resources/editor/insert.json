@@ -13,7 +13,8 @@
           "label": "Collection",
           "configProperty": "actionConfiguration.formData.collection.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "evaluationSubstitutionType": "TEMPLATE"
+          "evaluationSubstitutionType": "TEMPLATE",
+          "expected": "{type: 'string' , example: 'string', autocompleteDataType: 'STRING'}"
         }
       ]
     },
@@ -28,7 +29,8 @@
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
-          "placeholderText": "[ { _id: 1, user: \"abc123\", status: \"A\" } ]"
+          "placeholderText": "[ { _id: 1, user: \"abc123\", status: \"A\" } ]",
+          "expected": "{type: 'array' , example: '[{ _id: 3 }]', autocompleteDataType: 'ARRAY'}"
         }
       ]
     }

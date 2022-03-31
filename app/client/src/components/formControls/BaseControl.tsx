@@ -4,6 +4,7 @@ import { InputType } from "components/constants";
 import { ConditonalObject } from "reducers/evaluationReducers/formEvaluationReducer";
 import { DropdownOption } from "components/ads/Dropdown";
 import { ViewTypes } from "./utils";
+import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 // eslint-disable-next-line @typescript-eslint/ban-types
 abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
   P,
@@ -69,6 +70,7 @@ export interface ControlData {
   errorText?: string;
   showError?: boolean;
   encrypted?: boolean;
+  expected?: CodeEditorExpected;
   subtitle?: string;
   url?: string;
   urlText?: string;

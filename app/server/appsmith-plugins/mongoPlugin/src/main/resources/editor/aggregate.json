@@ -13,7 +13,8 @@
           "label": "Collection",
           "configProperty": "actionConfiguration.formData.collection.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "evaluationSubstitutionType": "TEMPLATE"
+          "evaluationSubstitutionType": "TEMPLATE",
+          "expected": "{type: 'string' , example: 'string', autocompleteDataType: 'STRING'}"
         }
       ]
     },
@@ -37,7 +38,8 @@
       "configProperty": "actionConfiguration.formData.aggregate.limit.data",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
-      "initialValue": "10"
+      "initialValue": "10",
+      "expected": "{type: 'number' , example: '10', autocompleteDataType: 'STRING'}"
     }
   ]
 }

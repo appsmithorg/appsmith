@@ -13,7 +13,8 @@
           "label": "Collection",
           "configProperty": "actionConfiguration.formData.collection.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "evaluationSubstitutionType": "TEMPLATE"
+          "evaluationSubstitutionType": "TEMPLATE",
+          "expected": "{type: 'string' , example: 'string', autocompleteDataType: 'STRING'}"
         }
       ]
     },
@@ -28,7 +29,8 @@
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
-          "placeholderText": "{rating : {$gte : 9}}"
+          "placeholderText": "{rating : {$gte : 9}}",
+          "expected": "{type: 'object' , example: '{rating : {$gte : 9}}', autocompleteDataType: 'OBJECT'}"
         },
         {
           "label": "Update",
@@ -36,7 +38,8 @@
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
-          "placeholderText": "{ $inc: { score: 1 } }"
+          "placeholderText": "{ $inc: { score: 1 } }",
+          "expected": "{type: 'object' , example: '{inc : {$score : 9}}', autocompleteDataType: 'OBJECT'}"
         },
         {
           "label": "Limit",
