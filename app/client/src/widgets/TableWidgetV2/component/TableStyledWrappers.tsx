@@ -12,7 +12,6 @@ import {
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar } from "constants/DefaultTheme";
 import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
-import { EditableRowHoverStyle } from "./cellComponents/TextCell";
 
 export const TableWrapper = styled.div<{
   width: number;
@@ -554,8 +553,4 @@ export const MenuCategoryWrapper = styled.div`
 
 export const MenuStyledOptionHeader = styled.div`
   font-weight: 600;
-`;
-
-export const RowWrapper = styled.div`
-  ${() => EditableRowHoverStyle}
 `;
