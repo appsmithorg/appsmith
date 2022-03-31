@@ -477,7 +477,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       moreActionItems.push({
         onSelect: forkApplicationInitiate,
         text: "Fork",
-        icon: "compasses-line",
+        icon: "fork-2",
         cypressSelector: "t--fork-app",
       });
     }
