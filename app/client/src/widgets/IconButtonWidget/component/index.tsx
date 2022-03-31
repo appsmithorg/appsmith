@@ -100,8 +100,6 @@ export const StyledButton = styled((props) => (
   background-image: none !important;
   height: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
   width: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
-  min-height: auto !important;
-  min-width: auto !important;
   ${({ buttonColor, buttonVariant, hasOnClickAction, theme }) => `
     &:enabled {
       background: ${

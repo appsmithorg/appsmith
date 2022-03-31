@@ -2,7 +2,7 @@ import { Alignment } from "@blueprintjs/core";
 import { ColumnProperties } from "../component/Constants";
 import { TableWidgetProps } from "../constants";
 import { Colors } from "constants/Colors";
-import { get } from "lodash";
+import { get, has } from "lodash";
 
 export enum ColumnTypes {
   TEXT = "text",
@@ -331,4 +331,28 @@ export const hideByColumnType = (
     : getBasePropertyPath(propertyPath);
   const columnType = get(props, `${baseProperty}.columnType`, "");
   return !columnTypes.includes(columnType);
+};
+
+/**
+ * A function for updateHook to remove the boxShadowColor property post migration.
+ * @param props
+ * @param propertyPath
+ * @param propertyValue
+ */
+export const boxShadowHook = (
+  props: TableWidgetProps,
+  propertyPath: string,
+) => {
+  if (has(props, propertyPath)) {
+    const boxShadowColorPath = propertyPath.replace(
+      "boxShadow",
+      "boxShadowColor",
+    ); //Create a new path for the boxShadowColor;
+    return [
+      {
+        propertyPath: boxShadowColorPath,
+        propertyValue: undefined,
+      },
+    ];
+  }
 };
