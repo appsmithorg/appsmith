@@ -157,16 +157,14 @@ function SortingComponent(props: any) {
                 formName={props.formName}
               />
               {/* Component to render the delete icon */}
-              {index !== 0 && (
-                <CenteredIcon
-                  name="cross"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDeletePressed(index);
-                  }}
-                  size={IconSize.SMALL}
-                />
-              )}
+              <CenteredIcon
+                name="cross"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeletePressed(index);
+                }}
+                size={IconSize.SMALL}
+              />
             </SortingDropdownContainer>
           );
         })}

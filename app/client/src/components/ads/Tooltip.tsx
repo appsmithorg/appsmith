@@ -2,6 +2,7 @@ import React from "react";
 import { CommonComponentProps } from "./common";
 import { Position, Tooltip, PopperBoundary } from "@blueprintjs/core";
 import { GLOBAL_STYLE_TOOLTIP_CLASSNAME } from "globalStyles/tooltip";
+import styled from "styled-components";
 import { Modifiers } from "popper.js";
 import { noop } from "lodash";
 
@@ -24,13 +25,35 @@ export type TooltipProps = CommonComponentProps & {
   isOpen?: boolean;
   onOpening?: typeof noop;
   donotUsePortal?: boolean;
+  underline?: boolean;
 };
 
 const portalContainer = document.getElementById("tooltip-root");
 
+const TooltipWrapper = styled(Tooltip)`
+  display: flex;
+  width: fit-content;
+  text-align: center;
+`;
+
+const TooltipChildrenWrapper = styled.div<{ helpCursor: boolean }>`
+  display: flex;
+  position: relative;
+  height: 100%;
+  cursor: ${(props) => (props.helpCursor ? "help" : "")};
+`;
+
+const TooltipUnderline = styled.span`
+  border-bottom: 1px dashed;
+  width: 100%;
+  display: flex;
+  position: absolute;
+  bottom: -1px;
+`;
+
 function TooltipComponent(props: TooltipProps) {
   return (
-    <Tooltip
+    <TooltipWrapper
       autoFocus={props.autoFocus}
       boundary={props.boundary || "scrollParent"}
       className={props.className}
@@ -50,8 +73,15 @@ function TooltipComponent(props: TooltipProps) {
       position={props.position}
       usePortal={!props.donotUsePortal}
     >
-      {props.children}
-    </Tooltip>
+      <TooltipChildrenWrapper
+        helpCursor={!!(!props.disabled && props.underline)}
+      >
+        {props.children}
+        {!props.disabled && props.underline && (
+          <TooltipUnderline className={"underline"} />
+        )}
+      </TooltipChildrenWrapper>
+    </TooltipWrapper>
   );
 }
 

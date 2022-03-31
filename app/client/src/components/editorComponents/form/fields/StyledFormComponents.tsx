@@ -87,14 +87,19 @@ const FormInputSwitchToJsonButton = styled.button`
 `;
 
 //Styled form label tag, intended to be used with Form Fields
-const StyledFormLabel = styled.label<{ config?: ControlProps }>`
+const StyledFormLabel = styled.label<{
+  config?: ControlProps;
+  extraStyles?: any;
+}>`
   display: inline-block;
   // TODO: replace condition with props.config?.dataType === "TOGGLE" 
   // required for large texts in CHECKBOX and SWITCH
   width: ${(props) => props.config?.customStyles?.width || "auto;"}
   min-width: ${(props) =>
-    props.config?.controlType === "SWITCH" ||
-    props.config?.controlType === "CHECKBOX"
+    props.extraStyles?.minWidth
+      ? props.extraStyles?.minWidth
+      : props.config?.controlType === "SWITCH" ||
+        props.config?.controlType === "CHECKBOX"
       ? "auto;"
       : "20vw;"} 
   margin-left: ${(props) =>
@@ -106,7 +111,11 @@ const StyledFormLabel = styled.label<{ config?: ControlProps }>`
   letter-spacing: 0.02em;
   color: ${Colors.CHARCOAL};
   margin-bottom: ${(props) =>
-    props.config?.controlType === "CHECKBOX" ? "0px;" : "8px;"} 
+    props.extraStyles?.marginBottom
+      ? props.extraStyles?.marginBottom
+      : props.config?.controlType === "CHECKBOX"
+      ? "0px;"
+      : "8px;"} 
   &:first-child {
     margin-left: 0px;
   }
@@ -132,12 +141,15 @@ const FormEncrytedSection = styled.div`
 interface FormLabelProps {
   config?: ControlProps;
   children: JSX.Element | React.ReactNode;
+  extraStyles?: any;
 }
 
 //Wrapper on styled <label/>
 function FormLabel(props: FormLabelProps) {
   return (
-    <StyledFormLabel config={props.config}>{props.children}</StyledFormLabel>
+    <StyledFormLabel config={props.config} extraStyles={props.extraStyles}>
+      {props.children}
+    </StyledFormLabel>
   );
 }
 

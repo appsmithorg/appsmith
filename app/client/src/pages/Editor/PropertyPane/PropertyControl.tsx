@@ -3,9 +3,8 @@ import _, { isEqual } from "lodash";
 import {
   ControlPropertyLabelContainer,
   ControlWrapper,
-  JSToggleButton,
 } from "components/propertyControls/StyledControls";
-import { ControlIcons } from "icons/ControlIcons";
+import { JSToggleButton } from "components/ads";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
@@ -421,14 +420,11 @@ const PropertyControl = memo((props: Props) => {
             />
             {isConvertible && (
               <JSToggleButton
-                active={isDynamic}
-                className={`focus:ring-2 t--js-toggle ${
-                  isDynamic ? "is-active" : ""
-                }`}
-                onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
-              >
-                <ControlIcons.JS_TOGGLE />
-              </JSToggleButton>
+                handleClick={() =>
+                  toggleDynamicProperty(propertyName, isDynamic)
+                }
+                isActive={isDynamic}
+              />
             )}
           </ControlPropertyLabelContainer>
           {PropertyControlFactory.createControl(

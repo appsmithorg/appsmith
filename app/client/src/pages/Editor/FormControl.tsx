@@ -57,6 +57,9 @@ function FormControl(props: FormControlProps) {
     () =>
       !hidden ? (
         <FormConfig
+          changesViewType={
+            !!(viewTypes.length > 0 && viewTypes.includes(ViewTypes.JSON))
+          }
           config={props.config}
           configErrors={configErrors}
           formName={props.formName}
@@ -71,7 +74,6 @@ function FormControl(props: FormControlProps) {
                 configProperty={props.config.configProperty}
                 disabled={props.config.disabled}
                 formName={props.formName}
-                formValues={formValues}
                 renderCompFunction={FormControlRenderMethod}
                 viewType={viewType}
               />
