@@ -465,6 +465,7 @@ export interface SelectWidgetProps extends WidgetProps {
   serverSideFiltering: boolean;
   onFilterUpdate: string;
   isDirty?: boolean;
+  filterText: string;
 }
 
 export default SelectWidget;

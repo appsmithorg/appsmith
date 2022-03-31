@@ -37,7 +37,10 @@ describe("Select Widget Functionality", function() {
     cy.get(".bp3-button")
       .should("be.visible")
       .click({ force: true });
-    cy.get(".bp3-active div").should("contain.text", "Green");
+    cy.get(commonlocators.singleSelectActiveMenuItem).should(
+      "contain.text",
+      "Green",
+    );
     cy.goToEditFromPublish();
   });
 });
