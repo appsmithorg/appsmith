@@ -1,5 +1,6 @@
 export class CommonLocators {
     _loading = "#loading"
+    _spinner = ".bp3-spinner"
     _queryName = ".t--action-name-edit-field span"
     _queryNameTxt = ".t--action-name-edit-field input"
     _dsName = ".t--edit-datasource-name span"
