@@ -146,6 +146,12 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
 
+        // Check permissions depending upon the serialization objective:
+        // Git-sync => Manage permission
+        // Share application
+        //      : Normal apps => Export permission
+        //      : Sample apps where datasource config needs to be shared => Read permission
+
         Mono<Application> applicationMono = SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor)
                 ? applicationService.findById(applicationId, MANAGE_APPLICATIONS)
                 : applicationService.findById(applicationId, READ_APPLICATIONS)
