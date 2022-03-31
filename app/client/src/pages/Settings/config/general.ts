@@ -60,7 +60,7 @@ export const config: AdminConfigType = {
       id: "APPSMITH_DISABLE_TELEMETRY",
       category: SettingCategories.GENERAL,
       controlType: SettingTypes.TOGGLE,
-      label: "Disable Sharing Anonymous Usage Data",
+      label: "Share anonymous usage data",
       subText: "Share anonymous usage data to help improve the product",
       toggleText: (value: boolean) =>
         value ? "Share Anonymous Telemetry" : "Don't share any data",

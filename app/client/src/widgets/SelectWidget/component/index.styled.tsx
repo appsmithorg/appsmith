@@ -8,9 +8,17 @@ import {
   BlueprintCSSTransform,
   createGlobalStyle,
 } from "constants/DefaultTheme";
+import { isEmptyOrNill } from "../../../utils/helpers";
 import { LabelPosition } from "components/constants";
-import { isEmptyOrNill } from ".";
 import { labelLayoutStyles } from "components/ads/LabelWithTooltip";
+
+export const TextLabelWrapper = styled.div<{
+  compactMode: boolean;
+}>`
+  ${(props) =>
+    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
+  display: flex;
+`;
 
 export const StyledDiv = styled.div`
   display: flex;
@@ -222,4 +230,50 @@ export const DropdownContainer = styled.div<{
 }>`
   ${BlueprintCSSTransform}
   ${labelLayoutStyles}
+`;
+
+export const MenuItem = styled.div`
+  & .menu-item-link {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    border-radius: 2px;
+    color: inherit;
+    line-height: 20px;
+    padding: 5px 7px;
+    text-decoration: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+    min-height: 38px;
+    padding: 9px 12px;
+    color: ${Colors.DOVE_GRAY2};
+    outline: none !important;
+    background-color: transparent;
+
+    &:hover {
+      background-color: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+      color: ${Colors.GREY_10};
+      position: relative;
+    }
+  }
+
+  & .menu-item-active {
+    background-color: ${Colors.NARVIK_GREEN};
+  }
+
+  && .has-focus {
+    background-color: ${Colors.GREEN_SOLID_LIGHT_HOVER} !important;
+  }
+
+  & .menu-item-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: break-word;
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin-right: 0;
+  }
 `;

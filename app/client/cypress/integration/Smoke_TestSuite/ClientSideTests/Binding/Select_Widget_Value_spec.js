@@ -40,7 +40,7 @@ describe("Binding the multiple widgets and validating default data", function() 
     cy.get(formWidgetsPage.selectWidget)
       .find(widgetLocators.dropdownSingleSelect)
       .click({ force: true });
-    cy.get(commonlocators.singleSelectMenuItem)
+    cy.get(commonlocators.singleSelectWidgetMenuItem)
       .contains("#1")
       .click({ force: true });
     cy.get(commonlocators.TextInside).contains("#1");
