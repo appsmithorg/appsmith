@@ -357,6 +357,10 @@ export function* initializeAppViewerSaga(
 
   let { applicationId } = action.payload;
 
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.INIT_VIEW_APP,
+  );
+
   if (branch) yield put(updateBranchLocally(branch));
 
   yield put(setAppMode(APP_MODE.PUBLISHED));
@@ -374,10 +378,6 @@ export function* initializeAppViewerSaga(
   );
 
   if (!applicationCall) return;
-
-  PerformanceTracker.startAsyncTracking(
-    PerformanceTransactionName.INIT_VIEW_APP,
-  );
 
   applicationId = applicationId || (yield select(getCurrentApplicationId));
   yield put(
