@@ -291,7 +291,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
       true,
       true,
     );
-    agHelper.DeployApp();
+    agHelper.DeployApp(locator._inputWidgetInDeployed);
     cy.get(locator._inputWidgetInDeployed).type("Update value");
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("Test")

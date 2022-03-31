@@ -33,7 +33,7 @@ describe("Validate basic binding of Input widget to Input widget", () => {
 
     it("3. Publish widget and validate the data displayed in input widgets", function () {
         var currentTime = new Date();
-        agHelper.DeployApp()
+        agHelper.DeployApp(locator._inputWidgetInDeployed)
         cy.get(locator._inputWidgetInDeployed).first()
             .should("contain.value", currentTime.getFullYear());
         cy.get(locator._inputWidgetInDeployed).last()

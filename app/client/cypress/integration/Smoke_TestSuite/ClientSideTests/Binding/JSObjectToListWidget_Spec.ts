@@ -46,8 +46,7 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
             .then((text) => {
                 expect(text).to.equal((valueToTest as string).trimEnd());
             });
-        agHelper.DeployApp();
-        agHelper.WaitUntilEleAppear(locator._textWidgetInDeployed)
+        agHelper.DeployApp(locator._textWidgetInDeployed);
         cy.get(locator._textWidgetInDeployed).should("have.length", 8);
         cy.get(locator._textWidgetInDeployed)
             .first()
@@ -69,7 +68,7 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
             .then((text) => {
                 expect(text).to.equal((valueToTest as string).trimEnd());
             });
-        agHelper.DeployApp();
+        agHelper.DeployApp(locator._textWidgetInDeployed);
         cy.get(locator._textWidgetInDeployed).should("have.length", 6);
         cy.get(locator._textWidgetInDeployed).first()
             .invoke("text")

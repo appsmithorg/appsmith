@@ -60,7 +60,7 @@ export class AggregateHelper {
     }
 
     //refering PublishtheApp from command.js
-    public DeployApp(eleToCheckInDeployPage: string = "") {
+    public DeployApp(eleToCheckInDeployPage: string = this.locator._backToEditor) {
         cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
         // Wait before publish
         this.Sleep(2000)
