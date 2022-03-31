@@ -4,7 +4,7 @@ const explorerLocators = require("../../../../locators/explorerlocators.json");
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
 import homePage from "../../../../locators/HomePage";
 
-const tempBranch = "feat/tempBranch";
+const tempBranch = "tempBranch";
 const tempBranch0 = "tempBranch0";
 const tempBranch1 = "tempBranch1";
 const tempBranch2 = "tempBranch2";
