@@ -157,38 +157,7 @@ export const DropdownStyles = createGlobalStyle<{
 }>`
 ${({ dropDownWidth, id }) => `
   .multiselect-popover-width-${id} {
-    width: ${dropDownWidth}px !important;
-
-    &.rc-select-dropdown-hidden {
-      display: none !important;
-    }
-    &.multi-select-dropdown {
-      min-height: 100px;
-      position: absolute;
-      background: #fff;
-      width: auto;
-      border-radius: 0px;
-      margin-top: 5px;
-      background: white;
-      box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
-      overflow-x: scroll;
-      > div {
-          min-width: ${dropDownWidth}px;
-        }
-      .rc-select-item {
-        font-size: 14px;
-        padding: 5px 16px;
-        align-items: center;
-        cursor: pointer;
-        width: 100%;
-        height: 38px;
-      }
-      .rc-select-item-option-state {
-        .bp3-control.bp3-checkbox {
-          margin-bottom: 0;
-        }
-      }
-    }
+    min-width: ${dropDownWidth}px !important;
   }
 `}
 .rc-select-dropdown-hidden {
@@ -314,10 +283,35 @@ ${({ dropDownWidth, id }) => `
 	animation-name: ${rcSelectDropdownSlideUpOut};
 	animation-play-state: running;
 }
-.multi-select-dropdown {
-    ${CommonSelectFilterStyle}
-}
 
+.multi-select-dropdown {
+  min-height: 100px;
+  position: absolute;
+  background: #fff;
+  width: auto;
+  border-radius: 0px;
+  margin-top: 5px;
+  background: white;
+  box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
+   overflow-x: scroll;
+  > div {
+      min-width: ${({ dropDownWidth }) => dropDownWidth}px;
+    }
+    ${CommonSelectFilterStyle}
+  .rc-select-item {
+    font-size: 14px;
+    padding: 5px 16px;
+    align-items: center;
+    cursor: pointer;
+    width: 100%;
+    height: 38px;
+  }
+  .rc-select-item-option-state {
+    .bp3-control.bp3-checkbox {
+      margin-bottom: 0;
+    }
+  }
+}
 `;
 
 export const MultiSelectContainer = styled.div<{
@@ -432,7 +426,6 @@ export const MultiSelectContainer = styled.div<{
       }
       .rc-select-selection-overflow {
         display: flex;
-        flex-wrap: wrap;
         width: 100%;
         align-items: center;
       }

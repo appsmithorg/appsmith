@@ -93,6 +93,8 @@ function MultiSelectComponent({
   const [isSelectAll, setIsSelectAll] = useState(false);
   const [filter, setFilter] = useState(filterText ?? "");
   const [filteredOptions, setFilteredOptions] = useState(options);
+  const [memoDropDownWidth, setMemoDropDownWidth] = useState(0);
+
   const _menu = useRef<HTMLElement | null>(null);
   const labelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -193,14 +195,19 @@ function MultiSelectComponent({
     },
     serverSideFiltering ? [options] : [filter, options],
   );
-  const memoDropDownWidth = useMemo(() => {
+  useEffect(() => {
     if (compactMode && labelRef.current) {
       const labelWidth = labelRef.current.clientWidth;
       const widthDiff = dropDownWidth - labelWidth;
-      return widthDiff > dropDownWidth ? widthDiff : dropDownWidth;
+      setMemoDropDownWidth(
+        widthDiff > dropDownWidth ? widthDiff : dropDownWidth,
+      );
+      return;
     }
     const parentWidth = width - WidgetContainerDiff;
-    return parentWidth > dropDownWidth ? parentWidth : dropDownWidth;
+    setMemoDropDownWidth(
+      parentWidth > dropDownWidth ? parentWidth : dropDownWidth,
+    );
   }, [compactMode, dropDownWidth, width]);
 
   const onQueryChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
