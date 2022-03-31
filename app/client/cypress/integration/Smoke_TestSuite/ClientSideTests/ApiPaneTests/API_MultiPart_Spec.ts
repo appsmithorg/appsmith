@@ -82,7 +82,7 @@ describe("Validate API request body panel", () => {
         agHelper.ActionContextMenuWithInPane('Delete')
     });
 
-    it("7. Checks MultiPart form data for a File Type upload", () => {
+    it("7. Checks MultiPart form data for a File Type upload + Bug 12476", () => {
         let imageNameToUpload = "ConcreteHouse.jpg";
         cy.fixture('multiPartFormDataDsl').then((val: any) => {
             agHelper.AddDsl(val)
@@ -107,6 +107,7 @@ describe("Validate API request body panel", () => {
         ee.SelectEntityByName("Image1");
         jsEditor.EnterJSContext('image', '{{CloudinaryUploadApi.data.url}}')
 
+        //agHelper.DeployApp(locator._spanButton('Select Files'))
         agHelper.ClickButton('Select Files');
         agHelper.UploadFile(imageNameToUpload)
         agHelper.ValidateToastMessage("Image uploaded to Cloudinary successfully")
@@ -116,7 +117,6 @@ describe("Validate API request body panel", () => {
                 expect($src).not.eq("https://assets.appsmith.com/widgets/default.png")
             })
         apiPage.CheckElementPresence(locator._spanButton('Select Files'))//verifying if reset!
-
     });
 
     it("8. Checks MultiPart form data for a Array Type upload results in API error", () => {

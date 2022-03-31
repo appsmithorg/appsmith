@@ -40,13 +40,13 @@ export class Table {
   }
 
   public WaitForTableEmpty() {
-    cy.waitUntil(() => cy.get(this._tableEmptyColumnData).children(),
+    cy.waitUntil(() => cy.get(this._tableEmptyColumnData),
       {
         errorMsg: "Table is populated when not expected",
         timeout: 10000,
         interval: 2000
       }).then($children => {
-        cy.wrap($children).should('have.length', 0) //or below
+        cy.wrap($children).children().should('have.length', 0) //or below
         //expect($children).to.have.lengthOf(0)
         this.agHelper.Sleep(500)
       })

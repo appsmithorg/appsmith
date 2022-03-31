@@ -76,9 +76,7 @@ export class AggregateHelper {
         cy.wait("@publishApp").its("request.url").should("not.contain", "edit")
         //cy.wait('@publishApp').wait('@publishApp') //waitng for 2 calls to complete
 
-        if (eleToCheckInDeployPage) {
-            this.WaitUntilEleAppear(eleToCheckInDeployPage)
-        }
+        this.WaitUntilEleAppear(eleToCheckInDeployPage)
     }
 
     public AddNewPage() {
@@ -144,8 +142,8 @@ export class AggregateHelper {
                 timeout: 5000,
                 interval: 1000
             }).then($ele => {
-                cy.wrap($ele).should("have.length.greaterThan", 0)
-                this.Sleep(500)
+                cy.wrap($ele).should("be.visible")
+                this.Sleep()
             })
     }
 
@@ -354,6 +352,7 @@ export class AggregateHelper {
 
     public UploadFile(fixtureName: string, execStat = true) {
         cy.get(this.locator._uploadFiles).attachFile(fixtureName).wait(1000);
+        //this.WaitUntilEleAppear(this.locator._uploadBtn)
         cy.get(this.locator._uploadBtn).click().wait(3000);
         this.ValidateNetworkExecutionSuccess("@postExecute", execStat);
     }
