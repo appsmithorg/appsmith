@@ -117,10 +117,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         UNPUBLISHED, PUBLISHED
     }
 
-    private enum IdType {
-        RESOURCE_ID, DEFAULT_RESOURCE_ID
-    }
-
     /**
      * This function will give the application resource to rebuild the application in import application flow
      *
@@ -229,7 +225,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     applicationJson.setExportedApplication(application);
                     Set<String> dbNamesUsedInActions = new HashSet<>();
 
-                    Flux<NewPage> pageFlux = application.getExportWithConfiguration()
+                    Flux<NewPage> pageFlux = Boolean.TRUE.equals(application.getExportWithConfiguration())
                             ? newPageRepository.findByApplicationId(applicationId, READ_PAGES)
                             : newPageRepository.findByApplicationId(applicationId, MANAGE_PAGES);
 
@@ -290,7 +286,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 applicationJson.setPublishedLayoutmongoEscapedWidgets(publishedMongoEscapedWidgetsNames);
                                 applicationJson.setUnpublishedLayoutmongoEscapedWidgets(unpublishedMongoEscapedWidgetsNames);
 
-                                Flux<Datasource> datasourceFlux = application.getExportWithConfiguration()
+                                Flux<Datasource> datasourceFlux = Boolean.TRUE.equals(application.getExportWithConfiguration())
                                         ? datasourceRepository.findAllByOrganizationId(organizationId, AclPermission.READ_DATASOURCES)
                                         : datasourceRepository.findAllByOrganizationId(organizationId, AclPermission.MANAGE_DATASOURCES);
 
@@ -301,7 +297,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         datasourceIdToNameMap.put(datasource.getId(), datasource.getName()));
                                 applicationJson.setDatasourceList(datasourceList);
 
-                                Flux<ActionCollection> actionCollectionFlux = application.getExportWithConfiguration()
+                                Flux<ActionCollection> actionCollectionFlux = Boolean.TRUE.equals(application.getExportWithConfiguration())
                                         ? actionCollectionRepository.findByApplicationId(applicationId, READ_ACTIONS, null)
                                         : actionCollectionRepository.findByApplicationId(applicationId, MANAGE_ACTIONS, null);
                                 return actionCollectionFlux;
@@ -344,7 +340,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 // Because the actions will have a reference to the collection
                                 applicationJson.setActionCollectionList(actionCollections);
 
-                                Flux<NewAction> actionFlux = application.getExportWithConfiguration()
+                                Flux<NewAction> actionFlux = Boolean.TRUE.equals(application.getExportWithConfiguration())
                                         ? newActionRepository.findByApplicationId(applicationId, READ_ACTIONS, null)
                                         : newActionRepository.findByApplicationId(applicationId, MANAGE_ACTIONS, null);
 
@@ -421,7 +417,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         .removeIf(datasource -> !dbNamesUsedInActions.contains(datasource.getName()));
 
                                 // Save decrypted fields for datasources for internally used sample apps and templates only
-                                if(application.getExportWithConfiguration()) {
+                                if(Boolean.TRUE.equals(application.getExportWithConfiguration())) {
                                     // Save decrypted fields for datasources
                                     Map<String, DecryptedSensitiveFields> decryptedFields = new HashMap<>();
                                     applicationJson.getDatasourceList().forEach(datasource -> {
@@ -627,9 +623,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         Map<String, List<String>> publishedActionIdToCollectionIdMap = new HashMap<>();
 
         Application importedApplication = importedDoc.getExportedApplication();
-        if(importedApplication.getApplicationVersion() == null) {
-            importedApplication.setApplicationVersion(ApplicationVersion.EARLIEST_VERSION);
-        }
 
         List<Datasource> importedDatasourceList = importedDoc.getDatasourceList();
         List<NewPage> importedNewPageList = importedDoc.getPageList();
@@ -654,6 +647,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         if (!errorField.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, errorField, INVALID_JSON_FILE));
+        }
+        assert importedApplication != null;
+        if(importedApplication.getApplicationVersion() == null) {
+            importedApplication.setApplicationVersion(ApplicationVersion.EARLIEST_VERSION);
         }
 
         Mono<Application> importedApplicationMono = pluginRepository.findAll()
