@@ -8,7 +8,9 @@ import InputComponent, { InputType } from "../TextInput";
 import { Intent } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
-import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
+import { HelpIcons } from "icons/HelpIcons";
+
+const CopyIcon = HelpIcons.COPY_ICON;
 
 const Label = styled.div`
   font-size: 14px;
@@ -24,11 +26,8 @@ const InputCopyWrapper = styled.div`
     width: 40rem;
   }
 
-  svg {
+  .copy-icon {
     margin-left: 12px;
-    cursor: pointer;
-    position: absolute;
-    right: -24px;
   }
 `;
 
@@ -45,6 +44,8 @@ const renderComponent = (
         <InputComponent {...componentProps} {...componentProps.input} fill />
         {componentProps.iscopy === "true" && (
           <CopyIcon
+            className={"copy-icon"}
+            color={Colors.GREY_7}
             height={16}
             onClick={() =>
               componentProps.handleCopy(componentProps.input.value)
