@@ -28,8 +28,8 @@ import log from "loglevel";
 import {
   formatCurrencyNumber,
   getLocaleDecimalSeperator,
+  getLocaleThousandSeparator,
   limitDecimalValue,
-  parseLocaleFormattedStringToNumber,
 } from "../component/utilities";
 import { mergeWidgetConfig } from "utils/helpers";
 
@@ -260,18 +260,17 @@ class CurrencyInputWidget extends BaseInputWidget<
   handleFocusChange = (isFocused?: boolean) => {
     try {
       if (isFocused) {
-        const deFormattedValue = parseLocaleFormattedStringToNumber(
-          this.props.text,
+        const text = this.props.text || "";
+        const deFormattedValue = text.replace(
+          new RegExp("\\" + getLocaleThousandSeparator(), "g"),
+          "",
         );
-        this.props.updateWidgetMetaProperty(
-          "text",
-          isNaN(deFormattedValue) ? "" : String(deFormattedValue),
-        );
+        this.props.updateWidgetMetaProperty("text", deFormattedValue);
       } else {
         if (this.props.text) {
           const formattedValue = formatCurrencyNumber(
             this.props.decimals,
-            String(this.props.value),
+            this.props.text,
           );
           this.props.updateWidgetMetaProperty("text", formattedValue);
         }
