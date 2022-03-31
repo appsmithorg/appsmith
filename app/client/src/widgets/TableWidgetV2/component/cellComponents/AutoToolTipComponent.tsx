@@ -17,10 +17,13 @@ export const OpenNewTabIconWrapper = styled.div`
   position: relative;
 `;
 
-export const ColumnWrapper = styled.div`
+export const ColumnWrapper = styled.div<{
+  cellProperties?: CellLayoutProperties;
+}>`
   display: flex;
   align-items: center;
   height: 100%;
+  color: ${(props) => props?.cellProperties?.textColor};
 `;
 
 interface Props {
@@ -100,7 +103,10 @@ function AutoToolTipComponent(props: Props) {
     return <LinkWrapper {...props} />;
   }
   return (
-    <ColumnWrapper className={props.className}>
+    <ColumnWrapper
+      cellProperties={props.cellProperties}
+      className={props.className}
+    >
       <CellWrapper
         cellProperties={props.cellProperties}
         compactMode={props.compactMode}
@@ -126,7 +132,7 @@ function AutoToolTipComponent(props: Props) {
           props.children
         )}
       </CellWrapper>
-      {useToolTip && props.children && <>&nbsp;...&nbsp;&nbsp;&nbsp;</>}
+      {useToolTip && props.children && <>...&nbsp;&nbsp;&nbsp;</>}
     </ColumnWrapper>
   );
 }
