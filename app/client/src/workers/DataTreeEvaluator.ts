@@ -958,7 +958,10 @@ export default class DataTreeEvaluator {
     const safeEvaluatedValue = removeFunctions(evaluatedValue);
     _.set(
       widget,
-      getEvalValuePath(fullPropertyPath, false),
+      getEvalValuePath(fullPropertyPath, {
+        isPopulated: false,
+        fullPath: false,
+      }),
       safeEvaluatedValue,
     );
     if (!isValid) {

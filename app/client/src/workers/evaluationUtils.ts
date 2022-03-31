@@ -426,7 +426,10 @@ export function getValidatedTree(tree: DataTree) {
       const safeEvaluatedValue = removeFunctions(evaluatedValue);
       _.set(
         parsedEntity,
-        getEvalValuePath(`${entityKey}.${property}`, false),
+        getEvalValuePath(`${entityKey}.${property}`, {
+          isPopulated: false,
+          fullPath: false,
+        }),
         safeEvaluatedValue,
       );
       if (!isValid) {
@@ -440,7 +443,10 @@ export function getValidatedTree(tree: DataTree) {
         addErrorToEntityProperty(
           evalErrors,
           tree,
-          getEvalErrorPath(`${entityKey}.${property}`, false),
+          getEvalErrorPath(`${entityKey}.${property}`, {
+            isPopulated: false,
+            fullPath: false,
+          }),
         );
       }
     });
