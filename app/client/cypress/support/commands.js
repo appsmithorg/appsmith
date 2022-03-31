@@ -479,7 +479,7 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.visit("/user/login");
   cy.get(loginPage.username).should("be.visible");
   cy.get(loginPage.username).type(uname);
-  cy.get(loginPage.password).type(pword);
+  cy.get(loginPage.password).type(pword, { log: false });
   cy.get(loginPage.submitBtn).click();
   cy.wait("@getUser");
   cy.wait(3000);
@@ -889,7 +889,8 @@ Cypress.Commands.add("enterDatasource", (datasource) => {
   cy.get(apiwidget.resourceUrl)
     .first()
     .click({ force: true })
-    .type(datasource, { parseSpecialCharSequences: false });
+    .type(datasource, { parseSpecialCharSequences: false })
+    .type("{esc}}");
 });
 
 Cypress.Commands.add("changeZoomLevel", (zoomValue) => {
@@ -1331,6 +1332,14 @@ Cypress.Commands.add("createModal", (ModalName) => {
 Cypress.Commands.add("selectOnClickOption", (option) => {
   cy.get(".bp3-popover-content", { timeout: 10000 }).should("be.visible");
   cy.get("ul.bp3-menu div.bp3-fill", { timeout: 10000 })
+    .should("be.visible")
+    .contains(option)
+    .click({ force: true });
+});
+
+Cypress.Commands.add("selectWidgetOnClickOption", (option) => {
+  cy.get(".bp3-popover-content", { timeout: 10000 }).should("be.visible");
+  cy.get(commonlocators.selectWidgetVirtualList, { timeout: 10000 })
     .should("be.visible")
     .contains(option)
     .click({ force: true });
@@ -3937,7 +3946,9 @@ Cypress.Commands.add(
           "']/parent::label/following-sibling::div//div[@class='CodeMirror-code']",
       ).click();
     } else {
-      cy.xpath("//div[@class='CodeMirror-code']").click();
+      cy.xpath("//div[@class='CodeMirror-code']")
+        .first()
+        .click();
     }
     cy.wait(3000); //Increasing wait time to evaluate non-undefined values
     const val = cy
