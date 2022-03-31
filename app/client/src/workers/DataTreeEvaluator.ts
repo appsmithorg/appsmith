@@ -1482,30 +1482,29 @@ export default class DataTreeEvaluator {
         if (!isAction(entity) && !isWidget(entity)) {
           continue;
         }
-        const entityDynamicBindingPathList = getEntityDynamicBindingPathList(
-          entity,
-        );
-        const entityDynamicBindingPaths: string[] = entityDynamicBindingPathList.map(
-          (path) => {
-            return path.key;
-          },
-        );
+        let entityDynamicBindingPaths: string[] = [];
+        if (isAction(entity)) {
+          const entityDynamicBindingPathList = getEntityDynamicBindingPathList(
+            entity,
+          );
+          entityDynamicBindingPaths = entityDynamicBindingPathList.map(
+            (path) => {
+              return path.key;
+            },
+          );
+        }
         const parentPropertyPath = convertPathToString(d.path);
         Object.keys(entity.bindingPaths).forEach((relativePath) => {
           const childPropertyPath = `${entityName}.${relativePath}`;
           // Check if relative path has dynamic binding
           if (
-            isAction(entity) &&
             entityDynamicBindingPaths &&
             entityDynamicBindingPaths.length &&
             entityDynamicBindingPaths.includes(relativePath)
           ) {
             changePaths.add(childPropertyPath);
           }
-          if (
-            !childPropertyPath.includes(".bindingPaths") &&
-            isChildPropertyPath(parentPropertyPath, childPropertyPath)
-          ) {
+          if (isChildPropertyPath(parentPropertyPath, childPropertyPath)) {
             changePaths.add(childPropertyPath);
           }
         });
