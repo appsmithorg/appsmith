@@ -39,14 +39,11 @@ const is404orAuthPath = () => {
 // this will be used to calculate the time taken for an action
 // execution request
 export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
-  const branch = getCurrentGitBranch(store.getState());
+  const branch =
+    getCurrentGitBranch(store.getState()) || getQueryParamsObject().branch;
   if (branch) {
     config.headers.branchName = branch;
-  } else {
-    const { branch } = getQueryParamsObject();
-    if (branch) config.headers.branchName = branch;
   }
-
   if (config.url?.indexOf("/git/") !== -1) {
     config.timeout = 1000 * 120; // increase timeout for git specific APIs
   }
