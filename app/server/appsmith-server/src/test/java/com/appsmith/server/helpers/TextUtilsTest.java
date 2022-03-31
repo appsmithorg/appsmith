@@ -49,4 +49,21 @@ public class TextUtilsTest {
         checkFromCsv("", 0);
         checkFromCsv(null, 0);
     }
+
+    @Test
+    public void generateApplicationSlug() {
+        assertThat(TextUtils.generateApplicationSlug("API")).isEqualTo("app-api");
+        assertThat(TextUtils.generateApplicationSlug("Api manager")).isEqualTo("app-api-manager");
+        assertThat(TextUtils.generateApplicationSlug(" API-manager")).isEqualTo("app-api-manager");
+        assertThat(TextUtils.generateApplicationSlug("APIXYZ")).isEqualTo("app-apixyz");
+        assertThat(TextUtils.generateApplicationSlug("HelloAPI")).isEqualTo("helloapi");
+
+        assertThat(TextUtils.generateApplicationSlug("Login manager")).isEqualTo("app-login-manager");
+        assertThat(TextUtils.generateApplicationSlug("LoginAndLogout")).isEqualTo("app-loginandlogout");
+        assertThat(TextUtils.generateApplicationSlug("Logout Login")).isEqualTo("logout-login");
+
+        assertThat(TextUtils.generateApplicationSlug("Oauth2 manager")).isEqualTo("app-oauth2-manager");
+        assertThat(TextUtils.generateApplicationSlug("oauth23-support-dashboard")).isEqualTo("app-oauth23-support-dashboard");
+        assertThat(TextUtils.generateApplicationSlug("Oauth manager")).isEqualTo("oauth-manager");
+    }
 }

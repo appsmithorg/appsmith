@@ -25,6 +25,16 @@ public class TextUtils {
     private static final Pattern SEPARATORS = Pattern.compile("[\\s\\p{Punct}&&[^-]]");
 
     /**
+     * These words are used in nginx path config, we'll not allow slug names starting with these words
+     */
+    public static final String APP_SLUG_RESERVED_PREFIX_REGEX = "^api|^oauth2|^login";
+
+    private static final Pattern appSlugReservedPrefixPattern = Pattern.compile(APP_SLUG_RESERVED_PREFIX_REGEX);
+
+    // this prefix will be set to slug if it starts with reserved words from APP_SLUG_RESERVED_PREFIXES
+    public static final String APP_SLUG_PREFIX = "app-";
+
+    /**
      * Creates URL safe text aka slug from the input text. It supports english locale only.
      * See the test cases for sample conversions
      * For other languages, it'll return empty.
@@ -59,5 +69,18 @@ public class TextUtils {
         Set<String> parts = new HashSet<>(Arrays.asList(inputStringCsv.trim().split("(\\s*,\\s*)+")));
         parts.remove("");
         return parts;
+    }
+
+    /**
+     * Utility method to generate application slug. It ensures slug does not contain reserved keywords as prefix.
+     * @param applicationName Name of the application
+     * @return cleaned slug
+     */
+    public static String generateApplicationSlug(String applicationName) {
+        String slug = makeSlug(applicationName);
+        if(appSlugReservedPrefixPattern.matcher(slug).lookingAt()) {
+            slug = TextUtils.APP_SLUG_PREFIX + slug;
+        }
+        return slug;
     }
 }

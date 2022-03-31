@@ -1,9 +1,9 @@
 package com.appsmith.server.migrations;
 
-import com.appsmith.server.domains.Application;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.QDatasource;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.QApplication;
@@ -12,6 +12,7 @@ import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.TextUtils;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
@@ -653,4 +654,22 @@ public class DatabaseChangelog2 {
                 Application.class);
     }
 
+    @ChangeSet(order = "006", id = "remove-reserved-prefix-from-app-slug", author = "")
+    public void removeReservedPrefixFromAppSlug(MongockTemplate mongockTemplate) {
+        // update applications
+        final Query applicationQuery = query(where("deletedAt").is(null))
+                .addCriteria(where("slug").regex(TextUtils.APP_SLUG_RESERVED_PREFIX_REGEX));
+        applicationQuery.fields().include(fieldName(QApplication.application.slug));
+
+        List<Application> applications = mongockTemplate.find(applicationQuery, Application.class);
+
+        for (Application application : applications) {
+            application.setSlug(TextUtils.APP_SLUG_PREFIX + application.getSlug()); // this will update the slug
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QApplication.application.id)).is(application.getId())),
+                    new Update().set(fieldName(QApplication.application.slug), application.getSlug()),
+                    Application.class
+            );
+        }
+    }
 }

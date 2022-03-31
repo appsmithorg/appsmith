@@ -167,7 +167,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     @Override
     public Mono<Application> save(Application application) {
         if(!StringUtils.isEmpty(application.getName())) {
-            application.setSlug(TextUtils.makeSlug(application.getName()));
+            application.setSlug(TextUtils.generateApplicationSlug(application.getName()));
         }
 
         if(application.getApplicationVersion() != null) {
@@ -190,7 +190,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
     @Override
     public Mono<Application> createDefault(Application application) {
-        application.setSlug(TextUtils.makeSlug(application.getName()));
+        application.setSlug(TextUtils.generateApplicationSlug(application.getName()));
         application.setLastEditedAt(Instant.now());
         if(!StringUtils.hasLength(application.getColor())) {
             application.setColor(getRandomAppCardColor());
@@ -203,7 +203,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         application.setIsPublic(null);
         application.setLastEditedAt(Instant.now());
         if(!StringUtils.isEmpty(application.getName())) {
-            application.setSlug(TextUtils.makeSlug(application.getName()));
+            application.setSlug(TextUtils.generateApplicationSlug(application.getName()));
         }
 
         if(application.getApplicationVersion() != null) {

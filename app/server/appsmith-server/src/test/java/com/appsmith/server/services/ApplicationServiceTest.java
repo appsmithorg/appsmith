@@ -81,6 +81,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
@@ -262,7 +263,7 @@ public class ApplicationServiceTest {
                     Application application = tuple2.getT1();
                     String defaultThemeId = tuple2.getT2();
                     assertThat(application).isNotNull();
-                    assertThat(application.getSlug()).isEqualTo(TextUtils.makeSlug(application.getName()));
+                    assertThat(application.getSlug()).isEqualTo(TextUtils.generateApplicationSlug(application.getName()));
                     assertThat(application.isAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
                     assertThat(application.getName()).isEqualTo("ApplicationServiceTest TestApp");
@@ -276,6 +277,84 @@ public class ApplicationServiceTest {
                     assertThat(application.getColor()).isNotEmpty();
                     assertThat(application.getEditModeThemeId()).isEqualTo(defaultThemeId);
                     assertThat(application.getPublishedModeThemeId()).isEqualTo(defaultThemeId);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createApplication_WhenNameHasReservedPrefix_PrefixAddedToSlug() {
+        String randomString = UUID.randomUUID().toString();
+        Application testApplication = new Application();
+        testApplication.setName("API Manager" + randomString);
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId);
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application -> {
+                    assertThat(application.getName()).isEqualTo(testApplication.getName());
+                    assertThat(application.getSlug()).isEqualTo(TextUtils.generateApplicationSlug(application.getName()));
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createDefault_WhenNameHasReservedPrefix_PrefixAddedToSlug() {
+        String randomString = UUID.randomUUID().toString();
+        Application testApplication = new Application();
+        testApplication.setName("API Manager" + randomString);
+        testApplication.setOrganizationId(orgId);
+
+        StepVerifier
+                .create(applicationService.createDefault(testApplication))
+                .assertNext(application -> {
+                    assertThat(application.getName()).isEqualTo(testApplication.getName());
+                    assertThat(application.getSlug()).isEqualTo(TextUtils.generateApplicationSlug(application.getName()));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void save_WhenNameHasReservedPrefix_PrefixAddedToSlug() {
+        String randomString = UUID.randomUUID().toString();
+        Application testApplication = new Application();
+        testApplication.setName("ManagerAPI" + randomString);
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
+                .flatMap(createdApplication -> {
+                    createdApplication.setName("API Manager" + randomString);
+                    return applicationService.save(createdApplication);
+                });
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application -> {
+                    assertThat(application.getName()).isEqualTo("API Manager" + randomString);
+                    assertThat(application.getSlug()).isEqualTo(TextUtils.generateApplicationSlug(application.getName()));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void update_WhenNameHasReservedPrefix_PrefixAddedToSlug() {
+        String randomString = UUID.randomUUID().toString();
+        Application testApplication = new Application();
+        testApplication.setName("ManagerAPI" + randomString);
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
+                .flatMap(createdApplication -> {
+                    Application application = new Application();
+                    application.setName("API Manager" + randomString);
+                    return applicationService.update(createdApplication.getId(), application);
+                });
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application -> {
+                    assertThat(application.getName()).isEqualTo("API Manager" + randomString);
+                    assertThat(application.getSlug()).isEqualTo(TextUtils.generateApplicationSlug(application.getName()));
                 })
                 .verifyComplete();
     }
@@ -468,7 +547,7 @@ public class ApplicationServiceTest {
                     assertThat(t.getId()).isNotNull();
                     assertThat(t.getPolicies()).isNotEmpty();
                     assertThat(t.getName()).isEqualTo("NewValidUpdateApplication-Test");
-                    assertThat(t.getSlug()).isEqualTo(TextUtils.makeSlug(t.getName()));
+                    assertThat(t.getSlug()).isEqualTo(TextUtils.generateApplicationSlug(t.getName()));
                 })
                 .verifyComplete();
     }
@@ -517,7 +596,7 @@ public class ApplicationServiceTest {
                     assertThat(t.getId()).isNotNull();
                     assertThat(t.getPolicies()).isNotEmpty();
                     assertThat(t.getName()).isEqualTo("updatedGitConnectedApplication");
-                    assertThat(t.getSlug()).isEqualTo(TextUtils.makeSlug(t.getName()));
+                    assertThat(t.getSlug()).isEqualTo(TextUtils.generateApplicationSlug(t.getName()));
                 })
                 .verifyComplete();
     }
