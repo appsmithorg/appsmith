@@ -17,17 +17,7 @@ describe("Guided Tour", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(guidedTourLocators.welcomeTour).click();
     cy.get(guidedTourLocators.startBuilding).click();
-    // Step 1: Update limit in code and run query
-    cy.get(".CodeMirror")
-      .first()
-      .then((editor) => {
-        editor[0].CodeMirror.setValue("");
-      });
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("SELECT * FROM user_data ORDER BY id LIMIT")
-      .type(" 10;", { delay: 600 });
+    // Step 1: Run query
     cy.runQuery();
     cy.get(guidedTourLocators.successButton).click();
     // Step 2: Select table widget
