@@ -14,10 +14,12 @@ RUN mkdir -p /tmp/keycloak /opt/keycloak
 COPY ./app/keycloak-docker-config/launch.sh /tmp/keycloak/launch.sh
 
 # Update APT packages - Base Layer
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
-  supervisor curl cron certbot nginx gnupg wget netcat openssh-client \
-  software-properties-common gettext openjdk-11-jre \
-  python3-pip python-setuptools git \
+RUN apt-get update \
+  && apt-get upgrade --yes \
+  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    supervisor curl cron certbot nginx gnupg wget netcat openssh-client \
+    software-properties-common gettext openjdk-11-jre \
+    python3-pip python-setuptools git \
   && add-apt-repository ppa:redislabs/redis \
   && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
   && apt-get remove -y git python3-pip \
