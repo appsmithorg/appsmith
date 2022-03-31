@@ -4,6 +4,7 @@ import styled, { keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
 import { LabelPosition } from "components/constants";
+import { labelLayoutStyles } from "components/ads/LabelWithTooltip";
 
 const rcSelectDropdownSlideUpIn = keyframes`
 	0% {
@@ -230,22 +231,7 @@ export const MultiSelectContainer = styled.div<{
   isValid: boolean;
   labelPosition?: LabelPosition;
 }>`
-  display: flex;
-  flex-direction: ${(props) =>
-    props.labelPosition === LabelPosition.Left
-      ? "row"
-      : props.labelPosition === LabelPosition.Top
-      ? "column"
-      : props.compactMode
-      ? "row"
-      : "column"};
-  align-items: ${({ compactMode, labelPosition }) =>
-    labelPosition === LabelPosition.Top
-      ? `flex-start`
-      : compactMode || labelPosition === LabelPosition.Left
-      ? `center`
-      : `flex-start`};
-  overflow-x: hidden;
+  ${labelLayoutStyles}
 
   .rc-select {
     display: inline-block;

@@ -14,7 +14,9 @@ import { TextSize } from "constants/WidgetConstants";
 // Alternatively, they need to be replicated.
 import { StyledCheckbox } from "widgets/CheckboxWidget/component";
 import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
-import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import LabelWithTooltip, {
+  labelLayoutStyles,
+} from "components/ads/LabelWithTooltip";
 
 export interface InputContainerProps {
   inline?: boolean;
@@ -65,21 +67,7 @@ export interface CheckboxGroupContainerProps {
 }
 
 export const CheckboxGroupContainer = styled.div<CheckboxGroupContainerProps>`
-  display: flex;
-  flex-direction: ${({ compactMode, labelPosition }) => {
-    if (labelPosition === LabelPosition.Left) return "row";
-    if (labelPosition === LabelPosition.Top) return "column";
-    if (compactMode) return "row";
-    return "column";
-  }};
-
-  align-items: ${({ compactMode, labelPosition }) => {
-    if (labelPosition === LabelPosition.Top) return "flex-start";
-    if (compactMode || labelPosition === LabelPosition.Left) return "center";
-    return "flex-start";
-  }};
-
-  overflow-x: hidden;
+  ${labelLayoutStyles}
 
   & .select-all {
     white-space: nowrap;

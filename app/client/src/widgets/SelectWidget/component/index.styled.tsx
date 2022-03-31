@@ -10,6 +10,7 @@ import {
 } from "constants/DefaultTheme";
 import { LabelPosition } from "components/constants";
 import { isEmptyOrNill } from ".";
+import { labelLayoutStyles } from "components/ads/LabelWithTooltip";
 
 export const StyledDiv = styled.div`
   display: flex;
@@ -220,20 +221,5 @@ export const DropdownContainer = styled.div<{
   labelPosition?: LabelPosition;
 }>`
   ${BlueprintCSSTransform}
-  display: flex;
-  flex-direction: ${({ compactMode, labelPosition }) => {
-    if (labelPosition === LabelPosition.Left) return "row";
-    if (labelPosition === LabelPosition.Top) return "column";
-    if (compactMode) return "row";
-    return "column";
-  }};
-  align-items: ${({ compactMode, labelPosition }) => {
-    if (labelPosition === LabelPosition.Top) return "flex-start";
-    if (compactMode || labelPosition === LabelPosition.Left) return "center";
-    return "flex-start";
-  }};
-  ${({ compactMode, labelPosition }) =>
-    ((labelPosition !== LabelPosition.Left && !compactMode) ||
-      labelPosition === LabelPosition.Top) &&
-    `overflow-x: hidden; overflow-y: auto;`}
+  ${labelLayoutStyles}
 `;

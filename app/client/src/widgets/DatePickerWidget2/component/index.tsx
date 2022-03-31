@@ -28,29 +28,16 @@ import {
 import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
 import Tooltip from "components/ads/Tooltip";
 import { parseDate } from "./utils";
-import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import LabelWithTooltip, {
+  labelLayoutStyles,
+} from "components/ads/LabelWithTooltip";
 
 const StyledControlGroup = styled(ControlGroup)<{
   isValid: boolean;
   compactMode: boolean;
   labelPosition?: LabelPosition;
 }>`
-  display: flex;
-  flex-direction: ${({ compactMode, labelPosition }) => {
-    if (labelPosition === LabelPosition.Left) return "row";
-    if (labelPosition === LabelPosition.Top) return "column";
-    if (compactMode) return "row";
-    return "column";
-  }};
-  align-items: ${({ compactMode, labelPosition }) => {
-    if (labelPosition === LabelPosition.Top) return "flex-start";
-    if (compactMode || labelPosition === LabelPosition.Left) return "center";
-    return "flex-start";
-  }};
-  ${({ compactMode, labelPosition }) =>
-    ((labelPosition !== LabelPosition.Left && !compactMode) ||
-      labelPosition === LabelPosition.Top) &&
-    `overflow-x: hidden; overflow-y: auto;`}
+  ${labelLayoutStyles}
 
   &&& {
     .${Classes.INPUT} {

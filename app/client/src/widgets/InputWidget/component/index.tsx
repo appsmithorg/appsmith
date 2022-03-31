@@ -37,7 +37,9 @@ import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import Icon from "components/ads/Icon";
 import { limitDecimalValue, getSeparators } from "./utilities";
 import { LabelPosition } from "components/constants";
-import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import LabelWithTooltip, {
+  labelLayoutStyles,
+} from "components/ads/LabelWithTooltip";
 
 /**
  * All design system component specific logic goes here.
@@ -69,25 +71,7 @@ const InputComponentWrapper = styled((props) => (
   disabled?: boolean;
   inputType: InputType;
 }>`
-  flex-direction: ${(props) =>
-    props.labelPosition === LabelPosition.Left
-      ? "row"
-      : props.labelPosition === LabelPosition.Top
-      ? "column"
-      : props.compactMode
-      ? "row"
-      : "column"};
-  ${({ compactMode, labelPosition }) =>
-    ((labelPosition !== LabelPosition.Left && !compactMode) ||
-      labelPosition === LabelPosition.Top) &&
-    `overflow-y: auto;`}
-
-  ${({ compactMode, labelPosition }) =>
-    labelPosition === LabelPosition.Top
-      ? `gap: 5px`
-      : compactMode || labelPosition === LabelPosition.Left
-      ? `gap: 0px`
-      : `gap: 5px`};
+  ${labelLayoutStyles}
 
   &&&& {
     .label-container {

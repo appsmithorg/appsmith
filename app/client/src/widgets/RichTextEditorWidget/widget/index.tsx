@@ -332,9 +332,7 @@ class RichTextEditorWidget extends BaseWidget<
           labelText={this.props.labelText}
           labelTextColor={this.props.labelTextColor}
           labelTextSize={this.props.labelTextSize}
-          labelWidth={
-            (Number(this.props.labelWidth) || 0) * this.props.parentColumnSpace
-          }
+          labelWidth={this.getLabelWidth(this.props.labelWidth)}
           onValueChange={this.onValueChange}
           placeholder={this.props.placeholder}
           value={value}

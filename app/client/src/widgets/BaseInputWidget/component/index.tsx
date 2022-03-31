@@ -28,7 +28,9 @@ import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import Icon from "components/ads/Icon";
 import { InputType } from "widgets/InputWidget/constants";
 import { LabelPosition } from "components/constants";
-import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import LabelWithTooltip, {
+  labelLayoutStyles,
+} from "components/ads/LabelWithTooltip";
 
 /**
  * All design system component specific logic goes here.
@@ -63,16 +65,7 @@ const InputComponentWrapper = styled((props) => (
   compactMode: boolean;
   labelPosition: LabelPosition;
 }>`
-  flex-direction: ${({ compactMode, labelPosition }) => {
-    if (labelPosition === LabelPosition.Left) return "row";
-    if (labelPosition === LabelPosition.Top) return "column";
-    if (compactMode) return "row";
-    return "column";
-  }};
-  ${({ compactMode, labelPosition }) =>
-    ((labelPosition !== LabelPosition.Left && !compactMode) ||
-      labelPosition === LabelPosition.Top) &&
-    `overflow-y: auto;`}
+  ${labelLayoutStyles}
 
   &&&& {
     .label-container {

@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { Alignment, Classes, Label, Position } from "@blueprintjs/core";
 
 import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
@@ -14,6 +14,23 @@ import { Colors } from "constants/Colors";
 import { IconWrapper } from "constants/IconConstants";
 import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
 
+export interface LabelWithTooltipProps {
+  alignment?: Alignment;
+  className?: string;
+  color?: string;
+  compact: boolean;
+  disabled?: boolean;
+  fontSize?: TextSize;
+  fontStyle?: string;
+  helpText?: string;
+  inline?: boolean;
+  loading?: boolean;
+  optionCount?: number;
+  position?: LabelPosition;
+  text: string;
+  width?: number;
+}
+
 export interface LabelContainerProps {
   alignment?: Alignment;
   compact: boolean;
@@ -22,6 +39,44 @@ export interface LabelContainerProps {
   position?: LabelPosition;
   width?: number;
 }
+
+export interface StyledLabelProps {
+  color?: string;
+  compact: boolean;
+  disabled?: boolean;
+  fontSize?: TextSize;
+  fontStyle?: string;
+  hasHelpText: boolean;
+  position?: LabelPosition;
+}
+
+interface TooltipIconProps {
+  compact: boolean;
+  position?: LabelPosition;
+}
+
+export const labelLayoutStyles = css<{
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
+}>`
+  display: flex;
+  flex-direction: ${({ compactMode, labelPosition }) => {
+    if (labelPosition === LabelPosition.Left) return "row";
+    if (labelPosition === LabelPosition.Top) return "column";
+    if (compactMode) return "row";
+    return "column";
+  }};
+
+  align-items: ${({ compactMode, labelPosition }) => {
+    if (labelPosition === LabelPosition.Top) return "flex-start";
+    if (compactMode || labelPosition === LabelPosition.Left) return "center";
+    return "flex-start";
+  }};
+  ${({ compactMode, labelPosition }) =>
+    ((labelPosition !== LabelPosition.Left && !compactMode) ||
+      labelPosition === LabelPosition.Top) &&
+    `overflow-x: hidden; overflow-y: auto;`}
+`;
 
 export const LabelContainer = styled.div<LabelContainerProps>`
   display: flex;
@@ -57,16 +112,6 @@ export const StyledTooltip = styled(Tooltip)`
   overflow: hidden;
 `;
 
-export interface StyledLabelProps {
-  color?: string;
-  compact: boolean;
-  disabled?: boolean;
-  fontSize?: TextSize;
-  fontStyle?: string;
-  hasHelpText: boolean;
-  position?: LabelPosition;
-}
-
 export const StyledLabel = styled(Label)<StyledLabelProps>`
   &&& {
     ${({ compact, hasHelpText, position }) => {
@@ -95,11 +140,6 @@ export const StyledLabel = styled(Label)<StyledLabelProps>`
   }
 `;
 
-interface TooltipIconProps {
-  compact: boolean;
-  position?: LabelPosition;
-}
-
 const ToolTipIcon = styled(IconWrapper)<TooltipIconProps>`
   cursor: help;
   margin-top: 1.5px;
@@ -119,23 +159,6 @@ const ToolTipIcon = styled(IconWrapper)<TooltipIconProps>`
     return "margin-bottom: 5px";
   }};
 `;
-
-export interface LabelWithTooltipProps {
-  alignment?: Alignment;
-  className?: string;
-  color?: string;
-  compact: boolean;
-  disabled?: boolean;
-  fontSize?: TextSize;
-  fontStyle?: string;
-  helpText?: string;
-  inline?: boolean;
-  loading?: boolean;
-  optionCount?: number;
-  position?: LabelPosition;
-  text: string;
-  width?: number;
-}
 
 const LabelWithTooltip = React.forwardRef<
   HTMLDivElement,

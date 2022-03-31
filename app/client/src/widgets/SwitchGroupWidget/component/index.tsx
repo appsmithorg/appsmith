@@ -7,7 +7,9 @@ import { BlueprintControlTransform } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import { TextSize } from "constants/WidgetConstants";
-import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import LabelWithTooltip, {
+  labelLayoutStyles,
+} from "components/ads/LabelWithTooltip";
 
 export interface SwitchGroupContainerProps {
   compactMode: boolean;
@@ -15,20 +17,7 @@ export interface SwitchGroupContainerProps {
 }
 
 export const SwitchGroupContainer = styled.div<SwitchGroupContainerProps>`
-  display: flex;
-  flex-direction: ${({ compactMode, labelPosition }) => {
-    if (labelPosition === LabelPosition.Left) return "row";
-    if (labelPosition === LabelPosition.Top) return "column";
-    if (compactMode) return "row";
-    return "column";
-  }};
-
-  align-items: ${({ compactMode, labelPosition }) => {
-    if (labelPosition === LabelPosition.Top) return "flex-start";
-    if (compactMode || labelPosition === LabelPosition.Left) return "center";
-    return "flex-start";
-  }};
-
+  ${labelLayoutStyles}
   overflow-x: hidden;
 `;
 

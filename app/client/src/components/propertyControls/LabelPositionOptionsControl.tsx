@@ -13,10 +13,6 @@ export interface LabelPositionOptionsControlProps extends ControlProps {
 class LabelPositionOptionsControl extends BaseControl<
   LabelPositionOptionsControlProps
 > {
-  constructor(props: LabelPositionOptionsControlProps) {
-    super(props);
-  }
-
   static getControlType() {
     return "LABEL_POSITION_OPTIONS";
   }

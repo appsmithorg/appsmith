@@ -4,6 +4,7 @@ import styled, { css, keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
 import { LabelPosition } from "components/constants";
+import { labelLayoutStyles } from "components/ads/LabelWithTooltip";
 
 const Input = styled.input`
   height: 0;
@@ -315,19 +316,7 @@ export const MultiSelectContainer = styled.div<{
   isValid: boolean;
   labelPosition?: LabelPosition;
 }>`
-  display: flex;
-  flex-direction: ${({ compactMode, labelPosition }) => {
-    if (labelPosition === LabelPosition.Left) return "row";
-    if (labelPosition === LabelPosition.Top) return "column";
-    if (compactMode) return "row";
-    return "column";
-  }};
-  align-items: ${({ compactMode, labelPosition }) => {
-    if (labelPosition === LabelPosition.Top) return "flex-start";
-    if (compactMode || labelPosition === LabelPosition.Left) return "center";
-    return "flex-start";
-  }};
-  overflow-x: hidden;
+  ${labelLayoutStyles}
 
   .rc-select {
     display: inline-block;

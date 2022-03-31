@@ -352,9 +352,7 @@ class CurrencyInputWidget extends BaseInputWidget<
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
-        labelWidth={
-          (Number(this.props.labelWidth) || 0) * this.props.parentColumnSpace
-        }
+        labelWidth={this.getLabelWidth(this.props.labelWidth)}
         onCurrencyTypeChange={this.onCurrencyTypeChange}
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}
