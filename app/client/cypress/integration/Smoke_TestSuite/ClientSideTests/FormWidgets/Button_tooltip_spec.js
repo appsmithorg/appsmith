@@ -49,7 +49,7 @@ describe("Button Widget Functionality - Validate tooltip visibility", function()
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry",
     );
     // Hover out
-    cy.get(widgetsPage.buttonWidget).trigger("mouseout");
+    cy.get(publish.buttonWidget).trigger("mouseout");
     // Check if the tooltip is disappeared
     cy.get(".bp3-popover2-content")
       .contains(
