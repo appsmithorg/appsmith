@@ -70,6 +70,10 @@ export function InputText(props: {
             Access the current cell using <CurlyBraces>{"{{"}</CurlyBraces>
             currentRow.columnName
             <CurlyBraces>{"}}"}</CurlyBraces>
+            <br />
+            Access the current index using <CurlyBraces>{"{{"}</CurlyBraces>
+            currentIndex
+            <CurlyBraces>{"}}"}</CurlyBraces>
           </PromptMessage>
         }
         size={EditorSize.EXTENDED}
@@ -128,7 +132,8 @@ class ComputeTablePropertyControlV2 extends BaseControl<
 
   getInputComputedValue = (propertyValue: string, tableId: string) => {
     const value = `${propertyValue.substring(
-      `{{${tableId}.processedTableData.map((currentRow) => ( `.length,
+      `{{${tableId}.processedTableData.map((currentRow, currentIndex) => ( `
+        .length,
       propertyValue.length - 4,
     )}`;
     const stringValue = JSToString(value);
@@ -141,7 +146,7 @@ class ComputeTablePropertyControlV2 extends BaseControl<
     if (stringToEvaluate === "") {
       return stringToEvaluate;
     }
-    return `{{${tableId}.processedTableData.map((currentRow) => ( ${stringToEvaluate}))}}`;
+    return `{{${tableId}.processedTableData.map((currentRow, currentIndex) => ( ${stringToEvaluate}))}}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
