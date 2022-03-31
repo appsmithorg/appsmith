@@ -334,7 +334,7 @@ public class ImportExportApplicationServiceTests {
 
         Application testApplication = new Application();
         testApplication.setName("exportApplication_withCredentialsForSampleApps_SuccessWithDecryptFields");
-        testApplication.setIsSampleApp(true);
+        testApplication.setExportWithConfiguration(true);
         testApplication = applicationPageService.createApplication(testApplication, orgId).block();
 
         assert testApplication != null;

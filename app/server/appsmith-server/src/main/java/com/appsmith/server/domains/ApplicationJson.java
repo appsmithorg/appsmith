@@ -34,9 +34,6 @@ public class ApplicationJson {
     @Transient
     Integer serverSchemaVersion;
 
-    @JsonIgnore
-    Boolean isSampleApp;
-
     Application exportedApplication;
 
     List<Datasource> datasourceList;

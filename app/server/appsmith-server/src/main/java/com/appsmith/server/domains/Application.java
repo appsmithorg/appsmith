@@ -140,8 +140,8 @@ public class Application extends BaseDomain {
     @JsonIgnore
     String editModeThemeId;
 
-    @JsonIgnore
-    Boolean isSampleApp;
+    // This is a temporary provision for exporting the application with datasource configuration for the sample apps
+    Boolean exportWithConfiguration;
 
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
     // initialized newly or is left up to the calling function to set.
