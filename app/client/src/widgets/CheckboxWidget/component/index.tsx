@@ -145,8 +145,8 @@ export interface CheckboxComponentProps extends ComponentProps {
   onCheckChange: (isChecked: boolean) => void;
   rowSpace: number;
   inputRef?: (el: HTMLInputElement | null) => any;
-  backgroundColor?: string;
-  borderRadius?: string;
+  backgroundColor: string;
+  borderRadius: string;
 }
 
 export default CheckboxComponent;

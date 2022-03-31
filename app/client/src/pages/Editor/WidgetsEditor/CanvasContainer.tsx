@@ -65,6 +65,7 @@ function CanvasContainer() {
     </Centered>
   );
   let node: ReactNode;
+
   if (isFetchingPage) {
     node = pageLoading;
   }

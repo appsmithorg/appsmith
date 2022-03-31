@@ -234,6 +234,7 @@ function DateField({
       labelTextColor={schemaItem.labelTextColor}
       labelTextSize={schemaItem.labelTextSize}
       name={name}
+      tooltip={schemaItem.tooltip}
     >
       {fieldComponent}
     </Field>

@@ -436,4 +436,4 @@ const Icon = forwardRef(
 
 Icon.displayName = "Icon";
 
-export default Icon;
+export default React.memo(Icon);

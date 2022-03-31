@@ -12,6 +12,8 @@ import { Color, Colors } from "constants/Colors";
 import FontLoader from "./FontLoader";
 import { DEFAULT_FONT_SIZE } from "constants/ThemeConstants";
 import { fontSizeUtility } from "widgets/WidgetUtils";
+import { OverflowTypes } from "../constants";
+
 export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
 
 const ELLIPSIS_HEIGHT = 15;
@@ -92,8 +94,7 @@ const StyledIcon = styled(Icon)<{ backgroundColor?: string }>`
 `;
 
 export const StyledText = styled(Text)<{
-  scroll: boolean;
-  truncate: boolean;
+  overflow: OverflowTypes;
   isTruncated: boolean;
   textAlign: string;
   backgroundColor?: string;
@@ -104,10 +105,15 @@ export const StyledText = styled(Text)<{
   borderWidth?: number;
 }>`
   height: ${(props) =>
-    props.isTruncated ? `calc(100% - ${ELLIPSIS_HEIGHT}px)` : "100%"};
+    props.overflow === OverflowTypes.TRUNCATE
+      ? `calc(100% - ${ELLIPSIS_HEIGHT}px)`
+      : "100%"};
   overflow-x: hidden;
   overflow-y: ${(props) =>
-    props.scroll ? (props.isTruncated ? "hidden" : "auto") : "hidden"};
+    props.overflow !== OverflowTypes.SCROLL ||
+    props.overflow === OverflowTypes.TRUNCATE.valueOf()
+      ? "hidden"
+      : "auto"};
   text-overflow: ellipsis;
   text-align: ${(props) => props.textAlign.toLowerCase()};
   display: flex;
@@ -115,7 +121,10 @@ export const StyledText = styled(Text)<{
   justify-content: flex-start;
   flex-direction: ${(props) => (props.isTruncated ? "column" : "unset")};
   align-items: ${(props) =>
-    props.scroll || props.truncate ? "flex-start" : "center"};
+    props.overflow === OverflowTypes.SCROLL ||
+    props.overflow === OverflowTypes.TRUNCATE
+      ? "flex-start"
+      : "center"};
   background: ${(props) => props?.backgroundColor};
   border-width: ${(props) => props.borderWidth}px;
   border-color: ${(props) => props.borderColor || "transparent"};
@@ -174,6 +183,7 @@ const Content = styled.div<{
   color: ${(props) => props?.textColor};
   max-height: 70vh;
   overflow: auto;
+  word-break: break-all;
   text-align: ${(props) => props.textAlign.toLowerCase()};
   font-style: ${(props) =>
     props?.fontStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
@@ -189,15 +199,14 @@ export interface TextComponentProps extends ComponentProps {
   ellipsize?: boolean;
   fontSize?: string;
   isLoading: boolean;
-  shouldScroll?: boolean;
   backgroundColor?: string;
   textColor?: string;
   fontStyle?: string;
   disableLink: boolean;
+  truncateButtonColor?: string;
   borderColor?: Color;
   borderWidth?: number;
-  shouldTruncate: boolean;
-  truncateButtonColor?: string;
+  overflow: OverflowTypes;
   // helpers to detect and re-calculate content width
   bottomRow?: number;
   leftColumn?: number;
@@ -232,7 +241,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
 
   componentDidMount = () => {
     const textRef = get(this.textRef, "current.textRef");
-    if (textRef && this.props.shouldTruncate) {
+    if (textRef && this.props.overflow === OverflowTypes.TRUNCATE) {
       const isTruncated = this.getTruncate(textRef);
       this.setState({ isTruncated });
     }
@@ -240,13 +249,16 @@ class TextComponent extends React.Component<TextComponentProps, State> {
 
   componentDidUpdate = (prevProps: TextComponentProps) => {
     if (!isEqual(prevProps, this.props)) {
-      if (this.props.shouldTruncate) {
+      if (this.props.overflow === OverflowTypes.TRUNCATE) {
         const textRef = get(this.textRef, "current.textRef");
         if (textRef) {
           const isTruncated = this.getTruncate(textRef);
           this.setState({ isTruncated });
         }
-      } else if (prevProps.shouldTruncate && !this.props.shouldTruncate) {
+      } else if (
+        prevProps.overflow === OverflowTypes.TRUNCATE &&
+        this.props.overflow !== OverflowTypes.TRUNCATE.valueOf()
+      ) {
         this.setState({ isTruncated: false });
       }
     }
@@ -268,8 +280,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
       fontFamily,
       fontSize,
       fontStyle,
-      shouldScroll,
-      shouldTruncate,
+      overflow,
       text,
       textAlign,
       textColor,
@@ -282,18 +293,15 @@ class TextComponent extends React.Component<TextComponentProps, State> {
           <TextContainer>
             <StyledText
               backgroundColor={backgroundColor}
-              borderColor={this.props.borderColor}
-              borderWidth={this.props.borderWidth}
               className={this.props.isLoading ? "bp3-skeleton" : "bp3-ui-text"}
               ellipsize={ellipsize}
               fontSize={fontSize}
               fontStyle={fontStyle}
               isTruncated={this.state.isTruncated}
+              overflow={overflow}
               ref={this.textRef}
-              scroll={!!shouldScroll}
               textAlign={textAlign}
               textColor={textColor}
-              truncate={!!shouldTruncate}
             >
               <Interweave
                 content={text}
