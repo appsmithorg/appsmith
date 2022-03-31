@@ -479,7 +479,7 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.visit("/user/login");
   cy.get(loginPage.username).should("be.visible");
   cy.get(loginPage.username).type(uname);
-  cy.get(loginPage.password).type(pword);
+  cy.get(loginPage.password).type(pword, { log: false });
   cy.get(loginPage.submitBtn).click();
   cy.wait("@getUser");
   cy.wait(3000);
@@ -889,7 +889,8 @@ Cypress.Commands.add("enterDatasource", (datasource) => {
   cy.get(apiwidget.resourceUrl)
     .first()
     .click({ force: true })
-    .type(datasource, { parseSpecialCharSequences: false });
+    .type(datasource, { parseSpecialCharSequences: false })
+    .type("{esc}}");
 });
 
 Cypress.Commands.add("changeZoomLevel", (zoomValue) => {
