@@ -15,6 +15,12 @@ const Container = styled.div<{ cellProperties: CellLayoutProperties }>`
   align-items: ${(props) =>
     props.cellProperties.verticalAlignment &&
     ALIGN_ITEMS[props.cellProperties.verticalAlignment]};
+
+  &:hover {
+    .editable-cell-icon {
+      display: block;
+    }
+  }
 `;
 
 const Wrapper = styled.div<{
@@ -51,14 +57,6 @@ const StyledEditIcon = styled.div<{
 
   & path {
     fill: #fff;
-  }
-`;
-
-export const EditableRowHoverStyle = css`
-  &:hover {
-    .editable-cell-icon {
-      display: block;
-    }
   }
 `;
 

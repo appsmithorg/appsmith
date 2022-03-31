@@ -117,6 +117,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       processedTableData: `{{(()=>{${derivedProperties.getProcessedTableData}})()}}`,
       orderedTableColumns: `{{(()=>{${derivedProperties.getOrderedTableColumns}})()}}`,
       filteredTableData: `{{(()=>{ ${derivedProperties.getFilteredTableData}})()}}`,
+      updatedRows: `{{(()=>{ ${derivedProperties.getUpdatedRows}})()}}`,
+      updatedRowIndices: `{{(()=>{ ${derivedProperties.getUpdatedRowIndices}})()}}`,
     };
   }
 
