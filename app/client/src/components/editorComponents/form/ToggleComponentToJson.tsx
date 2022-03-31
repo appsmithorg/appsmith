@@ -18,7 +18,6 @@ type Props = {
   formValues: any;
   renderCompFunction: (config?: ControlProps) => JSX.Element;
   change: (formName: string, id: string, value: any) => void;
-  expected?: any;
 };
 
 function ToggleComponentToJson(props: Props) {
@@ -45,7 +44,6 @@ function ToggleComponentToJson(props: Props) {
             configProperty: props.configProperty,
             formName: props.formName,
             id: props.configProperty,
-            expected: props.expected,
           })
         : props.renderCompFunction()}
     </>
