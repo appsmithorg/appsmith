@@ -19,16 +19,14 @@ export const countryToFlag = (isoCode: string) => {
 */
 export const formatCurrencyNumber = (decimalsInCurrency = 0, value: string) => {
   const fractionDigits = decimalsInCurrency || 0;
-  const currentIndexOfDecimal = value.indexOf(getLocaleDecimalSeperator());
-  const indexOfDecimal = value.length - fractionDigits - 1;
-  const isDecimal =
-    value.includes(getLocaleDecimalSeperator()) &&
-    currentIndexOfDecimal <= indexOfDecimal;
+  const hasDecimal = value.includes(getLocaleDecimalSeperator());
   const locale = getLocale();
   const formatter = new Intl.NumberFormat(locale, {
     style: "decimal",
-    maximumFractionDigits: isDecimal ? fractionDigits : 0,
+    minimumFractionDigits: hasDecimal ? fractionDigits : 0,
+    maximumFractionDigits: hasDecimal ? fractionDigits : 0,
   });
+
   const parsedValue = parseLocaleFormattedStringToNumber(value);
   return formatter.format(isNaN(parsedValue) ? 0 : parsedValue);
 };

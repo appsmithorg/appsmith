@@ -8,7 +8,7 @@ import {
   BlueprintCSSTransform,
   createGlobalStyle,
 } from "constants/DefaultTheme";
-import { isEmptyOrNill } from ".";
+import { isEmptyOrNill } from "../../../utils/helpers";
 import { lightenColor } from "widgets/WidgetUtils";
 
 export const TextLabelWrapper = styled.div<{
@@ -270,5 +270,51 @@ export const DropdownContainer = styled.div<{ compactMode: boolean }>`
 
   label.bp3-label {
     margin: 0;
+  }
+`;
+
+export const MenuItem = styled.div`
+  & .menu-item-link {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    border-radius: 2px;
+    color: inherit;
+    line-height: 20px;
+    padding: 5px 7px;
+    text-decoration: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+    min-height: 38px;
+    padding: 9px 12px;
+    color: ${Colors.DOVE_GRAY2};
+    outline: none !important;
+    background-color: transparent;
+
+    &:hover {
+      background-color: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+      color: ${Colors.GREY_10};
+      position: relative;
+    }
+  }
+
+  & .menu-item-active {
+    background-color: ${Colors.NARVIK_GREEN};
+  }
+
+  && .has-focus {
+    background-color: ${Colors.GREEN_SOLID_LIGHT_HOVER} !important;
+  }
+
+  & .menu-item-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: break-word;
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin-right: 0;
   }
 `;

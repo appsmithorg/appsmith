@@ -27,7 +27,10 @@ import {
   isSortableMigration,
   migrateTableWidgetIconButtonVariant,
 } from "./migrations/TableWidget";
-import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
+import {
+  migrateTextStyleFromTextWidget,
+  migrateScrollTruncateProperties,
+} from "./migrations/TextWidget";
 import {
   DATA_BIND_REGEX,
   DATA_BIND_REGEX_GLOBAL,
@@ -1069,6 +1072,11 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 53) {
+    currentDSL = migrateScrollTruncateProperties(currentDSL);
+    currentDSL.version = 54;
+  }
+
+  if (currentDSL.version === 54) {
     currentDSL = migrateStylingPropertiesForTheming(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }

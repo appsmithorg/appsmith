@@ -198,7 +198,6 @@ describe("Git sync:", function() {
       .should("eq", "true");
     cy.get(gitSyncLocators.closeGitSyncModal).click({ force: true });
   });
-
   after(() => {
     cy.deleteTestGithubRepo(repoName);
 
