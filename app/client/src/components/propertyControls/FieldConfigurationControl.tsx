@@ -18,6 +18,7 @@ import { DraggableListCard } from "components/ads/DraggableListCard";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { InputText } from "./InputTextControl";
+import { JSONFormWidgetProps } from "widgets/JSONFormWidget/widget";
 
 const clone = require("rfdc/default");
 
@@ -120,7 +121,10 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
     if (this.isArrayItem()) return;
 
     const { propertyValue = {}, propertyName, widgetProperties } = this.props;
-    const { widgetName } = widgetProperties;
+    const {
+      childStylesheets,
+      widgetName,
+    } = widgetProperties as JSONFormWidgetProps;
     const schema: Schema = propertyValue;
     const existingKeys = getKeysFromSchema(schema, ["identifier", "accessor"]);
     const schemaItems = Object.values(schema);
@@ -133,19 +137,22 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
       isCustomField: true,
       skipDefaultValueProcessing: true,
       identifier: nextFieldKey,
+      fieldThemeStylesheets: childStylesheets,
     });
 
     schemaItem.position = lastSchemaItemPosition + 1;
+
+    const path = `${propertyName}.${nextFieldKey}`;
 
     if (isEmpty(widgetProperties.schema)) {
       const newSchema = {
         schema: SchemaParser.parse(widgetProperties.widgetName, {}),
       };
-      set(newSchema, `${propertyName}.${nextFieldKey}`, schemaItem);
+      set(newSchema, path, schemaItem);
 
       this.updateProperty("schema", newSchema.schema);
     } else {
-      this.updateProperty(`${propertyName}.${nextFieldKey}`, schemaItem);
+      this.updateProperty(path, schemaItem);
     }
   };
 

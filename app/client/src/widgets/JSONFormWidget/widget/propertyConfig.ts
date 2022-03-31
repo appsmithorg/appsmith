@@ -173,16 +173,6 @@ const generateButtonStyleControlsFor = (prefix: string) => [
     isTriggerProperty: false,
     validation: {
       type: ValidationTypes.TEXT,
-      params: {
-        allowedValues: [
-          "NONE",
-          "VARIANT1",
-          "VARIANT2",
-          "VARIANT3",
-          "VARIANT4",
-          "VARIANT5",
-        ],
-      },
     },
   },
   {
@@ -353,7 +343,7 @@ export default [
         isBindProperty: false,
         isTriggerProperty: false,
         panelConfig,
-        dependencies: ["schema"],
+        dependencies: ["schema", "childStylesheets"],
       },
       {
         propertyName: "disabledWhenInvalid",
@@ -458,7 +448,7 @@ export default [
         propertyName: "backgroundColor",
         helpText: "Use a html color name, HEX, RGB or RGBA value",
         placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-        label: "Background Colour",
+        label: "Background Color",
         controlType: "COLOR_PICKER",
         isBindProperty: true,
         isTriggerProperty: false,
@@ -468,7 +458,7 @@ export default [
         propertyName: "borderColor",
         helpText: "Use a html color name, HEX, RGB or RGBA value",
         placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-        label: "Border Colour",
+        label: "Border Color",
         controlType: "COLOR_PICKER",
         isBindProperty: true,
         isTriggerProperty: false,
@@ -502,27 +492,6 @@ export default [
         controlType: "BOX_SHADOW_OPTIONS",
         isBindProperty: false,
         isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            allowedValues: [
-              "NONE",
-              "VARIANT1",
-              "VARIANT2",
-              "VARIANT3",
-              "VARIANT4",
-              "VARIANT5",
-            ],
-          },
-        },
-      },
-      {
-        propertyName: "boxShadowColor",
-        helpText: "Sets the shadow color of the widget",
-        label: "Shadow Color",
-        controlType: "COLOR_PICKER",
-        isBindProperty: false,
-        isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
       },
     ],
@@ -534,7 +503,7 @@ export default [
   },
   {
     sectionName: "Reset Button Styles",
-    isDefaultOpen: true,
+    isDefaultOpen: false,
     children: generateButtonStyleControlsFor("resetButtonStyles"),
     dependencies: ["showReset"],
     hidden: (props: JSONFormWidgetProps) => !props.showReset,

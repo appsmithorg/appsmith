@@ -21,6 +21,9 @@ import { Colors } from "constants/Colors";
 
 type DateComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
+    primaryColor?: string;
+    borderRadius?: string;
+    boxShadow?: string;
     closeOnSelection: boolean;
     convertToISO: boolean;
     dateFormat: string;
@@ -31,6 +34,9 @@ type DateComponentProps = FieldComponentBaseProps &
     shortcuts: boolean;
     timePrecision: TimePrecision;
   };
+
+const DEFAULT_PRIMARY_COLOR = Colors.GREEN;
+const DEFAULT_BORDER_RADIUS = "0";
 
 const COMPONENT_DEFAULT_VALUES = {
   closeOnSelection: false,
@@ -182,7 +188,8 @@ function DateField({
     return (
       <DateComponent
         backgroundColor="white"
-        borderRadius="0px"
+        borderRadius={schemaItem.borderRadius || DEFAULT_BORDER_RADIUS}
+        boxShadow={schemaItem.boxShadow}
         closeOnSelection={schemaItem.closeOnSelection}
         dateFormat={schemaItem.dateFormat}
         datePickerType="DATE_PICKER"
@@ -193,14 +200,17 @@ function DateField({
         maxDate={schemaItem.maxDate}
         minDate={schemaItem.minDate}
         onDateSelected={onDateSelected}
-        primaryColor={Colors.GREEN}
+        primaryColor={schemaItem.primaryColor || DEFAULT_PRIMARY_COLOR}
         selectedDate={valueInISOFormat}
         shortcuts={schemaItem.shortcuts}
         timePrecision={schemaItem.timePrecision}
-        widgetId=""
+        widgetId="asd"
       />
     );
   }, [
+    schemaItem.primaryColor,
+    schemaItem.boxShadow,
+    schemaItem.borderRadius,
     schemaItem.closeOnSelection,
     schemaItem.dateFormat,
     schemaItem.isDisabled,

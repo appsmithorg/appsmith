@@ -18,21 +18,17 @@ export const fieldTypeUpdateHook = (
   propertyPath: string,
   fieldType: FieldType,
 ): HookResponse => {
-  const { schema, widgetName } = props;
+  const { childStylesheets, schema, widgetName } = props;
   const schemaItemPath = getParentPropertyPath(propertyPath);
   const schemaItem: SchemaItem = get(props, schemaItemPath, {});
 
-  const options = {
+  const newSchemaItem = SchemaParser.getSchemaItemByFieldType(fieldType, {
     schemaItem,
     schemaItemPath,
     schema,
     widgetName,
-  };
-
-  const newSchemaItem = SchemaParser.getSchemaItemByFieldType(
-    fieldType,
-    options,
-  );
+    fieldThemeStylesheets: childStylesheets,
+  });
 
   return [{ propertyPath: schemaItemPath, propertyValue: newSchemaItem }];
 };
@@ -73,12 +69,16 @@ export const getSchemaItem = <TSchemaItem extends SchemaItem>(
     fieldTypes: Readonly<FieldType[]> | FieldType[],
   ) => !fieldTypes.includes(schemaItem.fieldType);
 
+  const fieldTypeIncludes = (fieldTypes: Readonly<FieldType[]> | FieldType[]) =>
+    fieldTypes.includes(schemaItem.fieldType);
+
   const compute = (cb: (props: TSchemaItem) => any) => cb(schemaItem);
 
   return {
     fieldTypeMatches,
     fieldTypeNotMatches,
     fieldTypeNotIncludes,
+    fieldTypeIncludes,
     compute,
   };
 };

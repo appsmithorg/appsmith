@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/react";
 import _ from "lodash";
 import moment from "moment";
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext, useMemo, useState } from "react";
 
 import BaseInputField, {
   BaseInputComponentProps,
@@ -33,9 +33,12 @@ export type CurrencyInputFieldProps = BaseFieldComponentProps<
 
 type CurrencyTypeDropdownComponentProps = {
   allowCurrencyChange?: boolean;
+  borderRadius?: string;
   currencyCountryCode: string;
   isDisabled: boolean;
+  primaryColor?: string;
   propertyPath: string;
+  fieldName: string;
 };
 
 const COMPONENT_DEFAULT_VALUES: CurrencyInputComponentProps = {
@@ -79,8 +82,11 @@ export const isValid = (
 
 function CurrencyTypeDropdownComponent({
   allowCurrencyChange,
+  borderRadius,
   currencyCountryCode,
+  fieldName,
   isDisabled,
+  primaryColor,
   propertyPath,
 }: CurrencyTypeDropdownComponentProps) {
   const { renderMode, updateWidgetProperty } = useContext(FormContext);
@@ -101,10 +107,12 @@ function CurrencyTypeDropdownComponent({
   return (
     <CurrencyTypeDropdown
       allowCurrencyChange={allowCurrencyChange && !isDisabled}
+      borderRadius={borderRadius}
       onCurrencyTypeChange={onCurrencyTypeChange}
       options={CurrencyDropdownOptions}
+      primaryColor={primaryColor}
       selected={selectedCurrencyCountryCode}
-      widgetId="asdas"
+      widgetId={fieldName}
     />
   );
 }
@@ -141,13 +149,26 @@ function CurrencyInputField({
     [schemaItem.decimalsInCurrency],
   );
 
-  const leftIcon = (
-    <CurrencyTypeDropdownComponent
-      allowCurrencyChange={schemaItem.allowCurrencyChange}
-      currencyCountryCode={schemaItem.currencyCountryCode}
-      isDisabled={schemaItem.isDisabled}
-      propertyPath={propertyPath}
-    />
+  const leftIcon = useMemo(
+    () => (
+      <CurrencyTypeDropdownComponent
+        allowCurrencyChange={schemaItem.allowCurrencyChange}
+        borderRadius={schemaItem.borderRadius}
+        currencyCountryCode={schemaItem.currencyCountryCode}
+        fieldName={name}
+        isDisabled={schemaItem.isDisabled}
+        primaryColor={schemaItem.primaryColor}
+        propertyPath={propertyPath}
+      />
+    ),
+    [
+      schemaItem.allowCurrencyChange,
+      schemaItem.currencyCountryCode,
+      schemaItem.isDisabled,
+      propertyPath,
+      schemaItem.primaryColor,
+      schemaItem.borderRadius,
+    ],
   );
 
   return (
