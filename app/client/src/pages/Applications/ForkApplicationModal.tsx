@@ -100,7 +100,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
     <StyledDialog
       canOutsideClickClose
       className={"fork-modal"}
-      headerIcon={{ name: "compasses-line", bgColor: Colors.GEYSER_LIGHT }}
+      headerIcon={{ name: "fork-2", bgColor: Colors.GEYSER_LIGHT }}
       isOpen={isModalOpen || showBasedOnURL}
       setModalClose={setModalClose}
       title={modalHeading}
@@ -114,6 +114,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
         !!organizationList.length && (
           <>
             <Dropdown
+              boundary="viewport"
               dropdownMaxHeight={"200px"}
               fillOptions
               onSelect={(_, dropdownOption) =>
