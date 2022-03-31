@@ -322,12 +322,8 @@ export const useCanvasDragging = (
         };
 
         const canReflowForCurrentMouseMove = () => {
-          const { prevAcceleration, prevSpeed } = mouseAttributesRef.current;
-          const acceleration = Math.abs(prevAcceleration);
-          return (
-            acceleration < reflowThresholds.accThreshold ||
-            prevSpeed < reflowThresholds.speedThreshold
-          );
+          const { prevSpeed } = mouseAttributesRef.current;
+          return prevSpeed > reflowThresholds.speedThreshold;
         };
         const getMouseMoveDirection = (event: any) => {
           if (lastMousePosition) {

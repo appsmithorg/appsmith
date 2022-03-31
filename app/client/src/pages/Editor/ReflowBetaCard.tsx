@@ -8,7 +8,6 @@ import { ReactComponent as RightArrow } from "assets/icons/ads/arrow-right-line.
 import { ReactComponent as CloseIcon } from "assets/icons/control/close.svg";
 import {
   closeOnboardingCardAction,
-  setAccThreshold,
   setEnableReflowAction,
   setSpeedThreshold,
 } from "actions/reflowActions";
@@ -160,19 +159,7 @@ export function ReflowBetaCard() {
       <div>
         <p>Jump into the container instead of Reflowing if,</p>
         <br />
-        <p>Acceleration is greater than</p>
-        <TextInput
-          dataType="number"
-          defaultValue={reflowThresholds.accThreshold.toString()}
-          onChange={debounce(
-            (value) => dispatch(setAccThreshold(parseFloat(value))),
-            300,
-          )}
-        />
-        <br />
-        <p>OR</p>
-        <br />
-        <p>Speed is greater than</p>
+        <p>Speed is slower than</p>
         <TextInput
           dataType="number"
           defaultValue={reflowThresholds.speedThreshold.toString()}

@@ -1,7 +1,7 @@
 import { reflowMoveAction, stopReflowAction } from "actions/reflowActions";
 import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
 import { isEmpty, throttle } from "lodash";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { reflow } from "reflow";
@@ -14,6 +14,8 @@ import {
 import { getLimitedMovementMap } from "reflow/reflowUtils";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
+import { AppState } from "reducers";
+import { getIsReflowing } from "selectors/widgetReflowSelectors";
 
 type WidgetCollidingSpace = CollidingSpace & {
   type: string;
@@ -51,6 +53,11 @@ export const useReflow = (
 
   const isReflowing = useRef<boolean>(false);
 
+  const isReflowingGlobal = useSelector(getIsReflowing);
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
+
   const reflowSpacesSelector = getWidgetSpacesSelectorForContainer(parentId);
   const widgetSpaces: WidgetSpace[] = useSelector(reflowSpacesSelector) || [];
 
@@ -58,11 +65,24 @@ export const useReflow = (
     (space) => space.id === widgetId,
   );
 
+  const reflowingContainers = useRef<{ [key: string]: boolean }>({});
+
   const prevPositions = useRef<OccupiedSpace | undefined>(
     originalSpacePosition,
   );
   const prevCollidingSpaces = useRef<WidgetCollidingSpaceMap>();
   const prevMovementMap = useRef<ReflowedSpaceMap>({});
+
+  useEffect(() => {
+    //only have it run when the user has completely stopped dragging and stopped Reflowing
+    if (!isReflowingGlobal && !isDragging) {
+      isReflowing.current = false;
+      prevCollidingSpaces.current = {};
+      prevMovementMap.current = {};
+      reflowingContainers.current = {};
+    }
+  }, [isReflowingGlobal, isDragging]);
+
   // will become a state if we decide that resize should be a "toggle on-demand" feature
   const shouldResize = true;
   return function reflowSpaces(
@@ -99,16 +119,24 @@ export const useReflow = (
         movementLimit,
       );
 
-    if (shouldSkipContainerReflow) {
-      const collidingSpaces = Object.values(
-        (collidingSpaceMap as WidgetCollidingSpaceMap) || {},
-      );
-      for (const collidingSpace of collidingSpaces) {
-        if (checkIsDropTarget(collidingSpace.type)) {
+    const tempReflowingContainers: { [key: string]: boolean } = {};
+    const collidingSpaces = Object.values(
+      (collidingSpaceMap as WidgetCollidingSpaceMap) || {},
+    );
+    for (const collidingSpace of collidingSpaces) {
+      if (checkIsDropTarget(collidingSpace.type)) {
+        if (
+          shouldSkipContainerReflow &&
+          !reflowingContainers.current[collidingSpace.id]
+        ) {
           correctedMovementMap = {};
+        } else {
+          tempReflowingContainers[collidingSpace.id] = true;
         }
       }
     }
+
+    reflowingContainers.current = { ...tempReflowingContainers };
 
     prevMovementMap.current = correctedMovementMap;
 
