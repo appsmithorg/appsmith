@@ -6,7 +6,7 @@ describe("Checks for analytics initialization", function() {
   it("Should check analytics is not initialised when enableTelemtry is false", function() {
     cy.visit("/applications");
     cy.reload();
-    cy.wait(3000);
+    cy.wait(6000);
     cy.wait("@getUser").should(
       "have.nested.property",
       "response.body.data.enableTelemetry",
