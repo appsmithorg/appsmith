@@ -56,6 +56,8 @@ import {
 import { fetchGitStatusSuccess } from "actions/gitSyncActions";
 import {
   createMessage,
+  ERROR_GIT_AUTH_FAIL,
+  ERROR_GIT_INVALID_REMOTE,
   GIT_USER_UPDATED_SUCCESSFULLY,
 } from "@appsmith/constants/messages";
 import { GitApplicationMetadata } from "../api/ApplicationApi";
@@ -65,8 +67,7 @@ import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import { MergeBranchPayload, MergeStatusPayload } from "api/GitSyncAPI";
 
 import {
-  mergeBranchSuccess,
-  // mergeBranchFailure,
+  mergeBranchSuccess, // mergeBranchFailure,
 } from "../actions/gitSyncActions";
 import {
   getCurrentGitBranch,
@@ -432,10 +433,18 @@ function* fetchGitStatusSaga() {
       yield put(fetchGitStatusSuccess(response?.data));
     }
   } catch (error) {
+    const payload = { error, show: true };
+    if (error?.message?.includes("Auth fail")) {
+      payload.error = new Error(ERROR_GIT_AUTH_FAIL());
+    } else if (error?.message?.includes("Invalid remote: origin")) {
+      payload.error = new Error(ERROR_GIT_INVALID_REMOTE());
+    }
+
     yield put({
       type: ReduxActionErrorTypes.FETCH_GIT_STATUS_ERROR,
-      payload: { error, show: false },
+      payload,
     });
+
     // non api error
     if (!response || response?.responseMeta?.success) {
       throw error;
