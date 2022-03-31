@@ -3,6 +3,7 @@ import { TableSizes, CellLayoutProperties, CellAlignment } from "./Constants";
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar } from "constants/DefaultTheme";
 import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
+import { Classes } from "@blueprintjs/core";
 
 export const TableWrapper = styled.div<{
   width: number;
@@ -372,6 +373,9 @@ export const CellWrapper = styled.div<{
   ${TableStyles};
   padding: ${(props) => (props.isPadding ? "0 10px" : " 0px")};
   line-height: 28px;
+  .${Classes.POPOVER_WRAPPER} {
+    overflow: hidden;
+  }
   .image-cell-wrapper {
     width: 100%;
     height: 100%;

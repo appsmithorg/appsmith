@@ -1,9 +1,10 @@
-import React, { createRef, useEffect, useState } from "react";
+import React, { createRef, memo, useEffect, useState } from "react";
 import { Tooltip } from "@blueprintjs/core";
 import { CellWrapper, ColumnWrapper } from "./TableStyledWrappers";
 import { CellLayoutProperties, ColumnTypes } from "./Constants";
 import { ReactComponent as OpenNewTabIcon } from "assets/icons/control/open-new-tab.svg";
 import styled from "styled-components";
+import { isEqual } from "lodash";
 
 const TooltipContentWrapper = styled.div<{ width: number }>`
   word-break: break-all;
@@ -82,10 +83,8 @@ function AutoToolTipComponent(props: Props) {
     const element = ref.current;
     if (element && element.offsetWidth < element.scrollWidth) {
       updateToolTip(true);
-    } else {
-      updateToolTip(false);
     }
-  }, [ref]);
+  }, []);
   if (props.columnType === ColumnTypes.URL && props.title) {
     return <LinkWrapper {...props} />;
   }
@@ -115,10 +114,20 @@ function AutoToolTipComponent(props: Props) {
         ) : (
           props.children
         )}
+        {useToolTip && props.children && "..."}
       </CellWrapper>
-      {useToolTip && props.children && "..."}
     </ColumnWrapper>
   );
 }
-
-export default AutoToolTipComponent;
+export default memo(
+  AutoToolTipComponent,
+  (prev, next) =>
+    isEqual(prev.cellProperties, next.cellProperties) &&
+    prev.isHidden === next.isHidden &&
+    prev.isCellVisible === next.isCellVisible &&
+    prev.noPadding === next.noPadding &&
+    prev.children === next.children &&
+    prev.title === next.title &&
+    prev.tableWidth === next.tableWidth &&
+    prev.columnType === next.columnType,
+);
