@@ -76,7 +76,7 @@ public class DataUtils {
             case MediaType.MULTIPART_FORM_DATA_VALUE:
                 return parseMultipartFileData((List<Property>) body);
             default:
-                return BodyInserters.fromValue(((String) body).getBytes(StandardCharsets.UTF_8));
+                return BodyInserters.fromValue(((String) body).getBytes(StandardCharsets.ISO_8859_1));
         }
     }
 
