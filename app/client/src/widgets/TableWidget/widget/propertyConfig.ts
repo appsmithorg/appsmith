@@ -827,7 +827,7 @@ export default [
                       ColumnTypes.MENU_BUTTON,
                     ]);
                   },
-                  updateHook: updateDerivedColumnsHook,
+                  updateHook: updateIconAlignmentHook,
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
@@ -865,7 +865,7 @@ export default [
                   ],
                   isBindProperty: false,
                   isTriggerProperty: false,
-                  updateHook: updateIconAlignmentHook,
+                  updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.MENU_BUTTON,
