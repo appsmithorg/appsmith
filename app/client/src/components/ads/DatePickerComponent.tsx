@@ -132,7 +132,7 @@ function DatePickerComponent(props: DatePickerComponentProps) {
   function handleKeydown(e: KeyboardEvent) {
     if (document.activeElement === inputRef.current) {
       if (e.key === "Enter") {
-        setDatePickerVisibility(true);
+        setDatePickerVisibility((value) => !value);
       } else if (e.key === "Escape") {
         setDatePickerVisibility(false);
       } else if (e.key === "Tab") {
