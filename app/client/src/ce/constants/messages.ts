@@ -97,8 +97,8 @@ export const FORGOT_PASSWORD_PAGE_TITLE = () => `Reset password`;
 export const FORGOT_PASSWORD_PAGE_SUBTITLE = () =>
   `We will send a reset link to the email below`;
 export const FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT = () => `Reset`;
-export const FORGOT_PASSWORD_SUCCESS_TEXT = () =>
-  `A password reset link has been sent to`;
+export const FORGOT_PASSWORD_SUCCESS_TEXT = (email: string) =>
+  `A password reset link has been sent to your email address ${email} registered with Appsmith.`;
 
 export const PRIVACY_POLICY_LINK = () => `Privacy policy`;
 export const TERMS_AND_CONDITIONS_LINK = () => `Terms and conditions`;
@@ -1113,7 +1113,7 @@ export const REQUEST_TEMPLATE = () => "Request for a template";
 export const SEARCH_TEMPLATES = () => "Search templates";
 export const INTRODUCING_TEMPLATES = () => "Introducing Templates";
 export const TEMPLATE_NOTIFICATION_DESCRIPTION = () =>
-  "You can browse, fork, and make them your own here";
+  "Use these templates to learn, create, and build apps even faster";
 export const GO_BACK = () => "GO BACK";
 export const OVERVIEW = () => "Overview";
 export const FUNCTION = () => "Function";
@@ -1123,6 +1123,8 @@ export const NOTE = () => "Note:";
 export const NOTE_MESSAGE = () => "You can add your datasources as well";
 export const WIDGET_USED = () => "Widgets Used";
 export const SIMILAR_TEMPLATES = () => "Similar Templates";
+export const VIEW_ALL_TEMPLATES = () => "VIEW ALL TEMPLATES";
+export const FILTERS = () => "FILTERS";
 
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 

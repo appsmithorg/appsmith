@@ -63,18 +63,12 @@ const SortingDropdownContainer = styled.div`
 
 // container for the column dropdown section
 const ColumnDropdownContainer = styled.div`
-  width: 30vw;
   margin-right: 1rem;
-`;
-
-// container for the order dropdown section
-const OrderDropdownContainer = styled.div`
-  width: 15vw;
 `;
 
 // Component for the icons
 const CenteredIcon = styled(Icon)<{ noMarginLeft?: boolean }>`
-  margin-left: 10px;
+  margin-left: 8px;
   align-self: end;
   margin-bottom: 10px;
   &.hide {
@@ -112,16 +106,6 @@ export const StyledBottomLabel = styled(FormLabel)`
 `;
 
 function SortingComponent(props: any) {
-  const columnCustomStyles = {
-    width: "100%",
-    height: "30px",
-  };
-
-  const orderCustomStyles = {
-    width: "15vw",
-    height: "30px",
-  };
-
   const onDeletePressed = (index: number) => {
     props.fields.remove(index);
   };
@@ -158,24 +142,20 @@ function SortingComponent(props: any) {
                 <FormControl
                   config={{
                     ...columnFieldConfig,
-                    customStyles: columnCustomStyles,
                     configProperty: `${columnPath}`,
                     nestedFormControl: true,
                   }}
                   formName={props.formName}
                 />
               </ColumnDropdownContainer>
-              <OrderDropdownContainer>
-                <FormControl
-                  config={{
-                    ...orderFieldConfig,
-                    customStyles: orderCustomStyles,
-                    configProperty: `${OrderPath}`,
-                    nestedFormControl: true,
-                  }}
-                  formName={props.formName}
-                />
-              </OrderDropdownContainer>
+              <FormControl
+                config={{
+                  ...orderFieldConfig,
+                  configProperty: `${OrderPath}`,
+                  nestedFormControl: true,
+                }}
+                formName={props.formName}
+              />
               {/* Component to render the delete icon */}
               {index !== 0 && (
                 <CenteredIcon
