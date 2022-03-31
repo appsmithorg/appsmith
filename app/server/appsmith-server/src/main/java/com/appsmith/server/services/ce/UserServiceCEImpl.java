@@ -77,6 +77,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
@@ -459,8 +460,17 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         return new HashSet<>(userPolicies.values());
     }
 
+    private Set<Policy> adminUserPolicy(User user) {
+
+        Set<AclPermission> aclPermissions = Set.of(MANAGE_INSTANCE_ENV);
+
+        Map<String, Policy> userPolicies = policyUtils.generatePolicyFromPermission(aclPermissions, user);
+
+        return new HashSet<>(userPolicies.values());
+    }
+
     @Override
-    public Mono<User> userCreate(User user) {
+    public Mono<User> userCreate(User user, boolean isAdminUser) {
         // It is assumed here that the user's password has already been encoded.
 
         // convert the user email to lowercase
@@ -468,6 +478,9 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         // Set the permissions for the user
         user.getPolicies().addAll(crudUserPolicy(user));
+        if(isAdminUser) {
+            user.getPolicies().addAll(adminUserPolicy(user));
+        }
 
         // Save the new user
         return Mono.just(user)
@@ -555,6 +568,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     }
 
     private Mono<User> signupIfAllowed(User user) {
+        boolean isAdminUser = false;
+
         if (!commonConfig.getAdminEmails().contains(user.getEmail())) {
             // If this is not an admin email address, only then do we check if signup should be allowed or not. Being an
             // explicitly set admin email address trumps all everything and signup for this email can never be disabled.
@@ -575,10 +590,12 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 // of a different domain, reject.
                 return Mono.error(new AppsmithException(AppsmithError.SIGNUP_DISABLED));
             }
+        } else {
+            isAdminUser = true;
         }
 
         // No special configurations found, allow signup for the new user.
-        return userCreate(user);
+        return userCreate(user, isAdminUser);
     }
 
     public Mono<User> sendWelcomeEmail(User user, String originHeader) {
@@ -769,8 +786,10 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         // role information to classify the user persona.
         newUser.setInviteToken(role + ":" + UUID.randomUUID());
 
+        boolean isAdminUser = commonConfig.getAdminEmails().contains(email.toLowerCase());
+
         // Call user service's userCreate function so that the default organization, etc are also created along with assigning basic permissions.
-        return userCreate(newUser)
+        return userCreate(newUser, isAdminUser)
                 .flatMap(createdUser -> {
                     log.debug("Going to send email for invite user to {}", createdUser.getEmail());
                     String inviteUrl = String.format(
