@@ -30,13 +30,13 @@ function CheckboxComponent(props: CheckboxComponentProps) {
 
   // If the prop isValid has a value true/false (it was explicitly passed to this component),
   // it take priority over the internal logic to determine if the field is valid or not.
-  const isValid = (() => {
-    if (props.isValid !== undefined) {
-      return props.isValid;
-    }
+  // const isValid = (() => {
+  //   if (props.isValid !== undefined) {
+  //     return props.isValid;
+  //   }
 
-    return !(props.isRequired && !props.isChecked);
-  })();
+  //   return !(props.isRequired && !props.isChecked);
+  // })();
 
   /**
    * on check change

@@ -51,6 +51,7 @@ import { IconName } from "@blueprintjs/icons";
 import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
 import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
+import { borderRadiusUtility, boxShadowUtility } from "widgets/WidgetUtils";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -228,9 +229,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 this.props.primaryColor ||
                 Colors.GREEN,
               borderRadius:
-                cellProperties.borderRadius || this.props.borderRadius,
-              boxShadow: cellProperties.boxShadow,
-              iconName: cellProperties.iconName || "add",
+                borderRadiusUtility(cellProperties.borderRadius) ||
+                this.props.borderRadius,
+              boxShadow: boxShadowUtility(
+                cellProperties.boxShadow,
+                cellProperties.boxShadowColor,
+              ),
+              iconName: cellProperties.iconName,
               iconAlign: cellProperties.iconAlign,
               isCellVisible: cellProperties.isCellVisible ?? true,
               label: cellProperties.menuButtonLabel ?? "Open menu",
@@ -254,15 +259,19 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 Colors.GREEN,
               buttonVariant: cellProperties.buttonVariant || "PRIMARY",
               borderRadius:
-                cellProperties.borderRadius || this.props.borderRadius,
-              boxShadow: cellProperties.boxShadow || "NONE",
+                borderRadiusUtility(cellProperties.borderRadius) ||
+                this.props.borderRadius,
+              boxShadow:
+                boxShadowUtility(
+                  cellProperties.boxShadow,
+                  cellProperties.boxShadowColor,
+                ) || "NONE",
               isCellVisible: cellProperties.isCellVisible ?? true,
               disabled: !!cellProperties.isDisabled,
             };
             return renderIconButton(iconButtonProps, isHidden, cellProperties);
           } else {
             const isCellVisible = cellProperties.isCellVisible ?? true;
-
             return renderCell(
               props.cell.value,
               columnProperties.columnType,

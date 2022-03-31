@@ -15,6 +15,7 @@ import {
   getBasePropertyPath,
   hideByColumnType,
   uniqueColumnNameValidation,
+  boxShadowHook,
 } from "./propertyUtils";
 import {
   createMessage,
@@ -1014,7 +1015,10 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                    },
                   },
                 },
                 {
@@ -1025,6 +1029,7 @@ export default [
                   controlType: "BOX_SHADOW_OPTIONS",
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
+                  updateHook: boxShadowHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.ICON_BUTTON,
@@ -1040,7 +1045,10 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                    },
                   },
                 },
                 {

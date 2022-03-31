@@ -74,6 +74,11 @@ export const getCellProperties = (
         true,
       ),
       boxShadow: getPropertyValue(columnProperties.boxShadow, rowIndex, true),
+      boxShadowColor: getPropertyValue(
+        columnProperties.boxShadowColor,
+        rowIndex,
+        true,
+      ),
       iconButtonStyle: getPropertyValue(
         columnProperties.iconButtonStyle,
         rowIndex,

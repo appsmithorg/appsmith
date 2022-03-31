@@ -18,11 +18,13 @@ import {
   ButtonVariantTypes,
   ButtonPlacement,
   ButtonPlacementTypes,
+  ButtonBorderRadiusTypes,
 } from "components/constants";
 import tinycolor from "tinycolor2";
 import { createGlobalStyle } from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { Classes as DateTimeClasses } from "@blueprintjs/datetime";
+import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
 
 const punycode = require("punycode/");
 
@@ -324,6 +326,54 @@ export const fontSizeUtility = (fontSize: string | undefined) => {
   }
 };
 
+export const borderRadiusUtility = (borderRadius: string | undefined) => {
+  switch (borderRadius) {
+    case ButtonBorderRadiusTypes.SHARP:
+      return "0px";
+    case ButtonBorderRadiusTypes.ROUNDED:
+      return "0.375rem";
+    case ButtonBorderRadiusTypes.CIRCLE:
+      return "9999px";
+
+    default:
+      return borderRadius;
+  }
+};
+
+/**
+ * @param boxShadow
+ * @param boxShadowColor
+ * @returns
+ */
+export const boxShadowColorUtility = (
+  boxShadow: string,
+  boxShadowColor: string,
+) => {
+  if (boxShadowColor) {
+    return boxShadow.replace(
+      /(?:#|0x)(?:[a-f0-9]{3}|[a-f0-9]{6})\b|(?:rgb)a?\([^\)]*\)/g,
+      boxShadowColor,
+    );
+  }
+  return boxShadow;
+};
+
+export const boxShadowUtility = (boxShadow: string, boxShadowColor: string) => {
+  switch (boxShadow) {
+    case BoxShadowTypes.VARIANT1:
+      return `0px 0px 4px 3px ${boxShadowColor || "rgba(0, 0, 0, 0.25)"}`;
+    case BoxShadowTypes.VARIANT2:
+      return `3px 3px 4px ${boxShadowColor || "rgba(0, 0, 0, 0.25)"}`;
+    case BoxShadowTypes.VARIANT3:
+      return `0px 1px 3px ${boxShadowColor || "rgba(0, 0, 0, 0.25)"}`;
+    case BoxShadowTypes.VARIANT4:
+      return `2px 2px 0px  ${boxShadowColor || "rgba(0, 0, 0, 0.25)"}`;
+    case BoxShadowTypes.VARIANT5:
+      return `-2px -2px 0px ${boxShadowColor || "rgba(0, 0, 0, 0.25)"}`;
+    default:
+      return boxShadowColorUtility(boxShadow, boxShadowColor);
+  }
+};
 // Creates a map between the string part of a key with max suffixed number found
 // eg. keys -> ["key1", "key10", "newKey"]
 // returns -> {key: 10, newKey: 0 }
