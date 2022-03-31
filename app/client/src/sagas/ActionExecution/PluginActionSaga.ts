@@ -245,10 +245,13 @@ function* evaluateActionParams(
       }
     }
 
-    if (typeof value === "object") value = JSON.stringify(value);
+    if (typeof value === "object") {
+      value = JSON.stringify(value);
+    }
     if (isBlobUrl(value)) {
       value = yield call(readBlob, value);
     }
+    value = new Blob([value], { type: "text/plain" });
 
     formData.append(encodeURIComponent(key), value);
   }
