@@ -14,11 +14,11 @@ import {
   defaultSelectedRowValidation,
   totalRecordsCountValidation,
   updateColumnStyles,
-  updateIconAlignment,
+  updateIconAlignmentHook,
   getBasePropertyPath,
   hideByColumnType,
   uniqueColumnNameValidation,
-  updateIconName,
+  updateIconNameHook,
 } from "./propertyUtils";
 import {
   createMessage,
@@ -125,7 +125,7 @@ export default [
                       value: "iconButton",
                     },
                   ],
-                  updateHook: updateIconName,
+                  updateHook: updateIconNameHook,
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
@@ -865,7 +865,7 @@ export default [
                   ],
                   isBindProperty: false,
                   isTriggerProperty: false,
-                  updateHook: updateIconAlignment,
+                  updateHook: updateIconAlignmentHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.MENU_BUTTON,

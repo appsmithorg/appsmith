@@ -209,13 +209,12 @@ export const updateColumnStyles = (
 };
 
 // Select default Icon Name if column type is Icon Button
-export function updateIconName(
+export function updateIconNameHook(
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: string,
 ) {
   const property = getBasePropertyPath(propertyPath);
-  const iconName = get(props, `${property}.iconName`, "");
   let propertiesToUpdate = [{ propertyPath, propertyValue }];
   const updateDerivedColumnsHookArr = updateDerivedColumnsHook(
     props,
@@ -229,10 +228,15 @@ export function updateIconName(
     ];
   }
 
-  if (!iconName && propertyValue === "iconButton") {
+  if (propertyValue === "iconButton") {
     propertiesToUpdate.push({
       propertyPath: `${property}.iconName`,
       propertyValue: IconNames.ADD,
+    });
+  } else {
+    propertiesToUpdate.push({
+      propertyPath: `${property}.iconName`,
+      propertyValue: "",
     });
   }
 
@@ -240,7 +244,7 @@ export function updateIconName(
 }
 
 // Select default Icon Alignment when an icon is chosen
-export function updateIconAlignment(
+export function updateIconAlignmentHook(
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: string,
