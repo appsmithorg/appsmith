@@ -115,7 +115,7 @@ public class GetStructureMethodTest {
         Assert.assertNotNull(result);
         Assert.assertTrue(result.isArray());
         Assert.assertEquals(1, result.size());
-        Assert.assertEquals(0, result.get(0).get(FieldName.PLAIN_ROW_INDEX).asInt());
+        Assert.assertEquals(0, result.get(0).get(FieldName.ROW_INDEX).asInt());
     }
 
     @Test

@@ -11,13 +11,15 @@ import reactor.core.Exceptions;
 
 import java.util.Map;
 
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+
 @Slf4j
 public class GoogleSheetsMethodStrategy {
 
     public static ExecutionMethod getExecutionMethod(Map<String, Object> formData, ObjectMapper objectMapper) {
-        final String type = PluginUtils.getDataValueSafelyFromFormData(formData, FieldName.ENTITY_TYPE, String.class)
+        final String type = PluginUtils.getDataValueSafelyFromFormData(formData, FieldName.ENTITY_TYPE, STRING_TYPE)
                 + "_"
-                + PluginUtils.getDataValueSafelyFromFormData(formData, FieldName.COMMAND, String.class);
+                + PluginUtils.getDataValueSafelyFromFormData(formData, FieldName.COMMAND, STRING_TYPE);
         switch (type) {
             case MethodIdentifiers.ROWS_INSERT_ONE:
                 return new RowsAppendMethod(objectMapper);

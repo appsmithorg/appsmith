@@ -209,13 +209,15 @@ public class GetStructureMethod implements ExecutionMethod, TriggerMethod {
         Set<String> columnsSet = sanitizeHeaders(headers, valueSize);
 
         List<Map<String, String>> columnsList = new ArrayList<>();
-        columnsSet.stream()
+        columnsSet
+                .stream()
                 .forEach(columnName -> {
                     columnsList.add(Map.of(
                             "label", columnName,
                             "value", columnName
                     ));
                 });
+
 
         return this.objectMapper.valueToTree(columnsList);
     }

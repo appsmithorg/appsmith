@@ -85,11 +85,12 @@ public class RowsAppendMethod implements ExecutionMethod {
             // Should never enter here
         }
         assert rowObjectFromBody != null;
+        final int rowStart = Integer.parseInt(methodConfig.getTableHeaderIndex());
+        final int rowEnd = rowStart + 1;
         final MethodConfig newMethodConfig = methodConfig
                 .toBuilder()
-                .queryFormat("ROWS")
-                .rowOffset(String.valueOf(Integer.parseInt(methodConfig.getTableHeaderIndex()) - 1))
-                .rowLimit("1")
+                .queryFormat("RANGE")
+                .spreadsheetRange(rowStart + ":" + rowEnd)
                 .build();
 
         rowsGetMethod.validateExecutionMethodRequest(newMethodConfig);

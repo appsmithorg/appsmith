@@ -99,12 +99,12 @@ public class RowsBulkAppendMethod implements ExecutionMethod {
         assert rowObjectListFromBody != null;
         RowObject rowObjectFromBody = rowObjectListFromBody.get(0);
         assert rowObjectFromBody != null;
-//        final String row = String.valueOf(rowObjectFromBody.getCurrentRowIndex());
+        final int rowStart = Integer.parseInt(methodConfig.getTableHeaderIndex());
+        final int rowEnd = rowStart + 1;
         final MethodConfig newMethodConfig = methodConfig
                 .toBuilder()
-                .queryFormat("ROWS")
-                .rowOffset(String.valueOf(Integer.parseInt(methodConfig.getTableHeaderIndex()) - 1))
-                .rowLimit("1")
+                .queryFormat("RANGE")
+                .spreadsheetRange(rowStart + ":" + rowEnd)
                 .build();
 
         rowsGetMethod.validateExecutionMethodRequest(newMethodConfig);

@@ -87,13 +87,12 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
         }
 
         assert rowObjectMapFromBody != null;
-        final Integer rowStart = ((TreeMap<Integer, RowObject>) rowObjectMapFromBody).firstKey();
-        final Integer rowEnd = ((TreeMap<Integer, RowObject>) rowObjectMapFromBody).lastKey();
+        final Integer rowStart = Integer.parseInt(methodConfig.getTableHeaderIndex()) + ((TreeMap<Integer, RowObject>) rowObjectMapFromBody).firstKey() + 1;
+        final Integer rowEnd = Integer.parseInt(methodConfig.getTableHeaderIndex()) + ((TreeMap<Integer, RowObject>) rowObjectMapFromBody).lastKey() + 1;
         final MethodConfig newMethodConfig = methodConfig
                 .toBuilder()
-                .queryFormat("ROWS")
-                .rowOffset(String.valueOf(rowStart))
-                .rowLimit(String.valueOf(rowEnd - rowStart + 1))
+                .queryFormat("RANGE")
+                .spreadsheetRange(rowStart + ":" + rowEnd)
                 .build();
 
         rowsGetMethod.validateExecutionMethodRequest(newMethodConfig);

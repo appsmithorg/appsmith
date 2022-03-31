@@ -352,7 +352,7 @@ public class RestApiPlugin extends BasePlugin {
             String apiContentTypeStr = PluginUtils.getDataValueSafelyFromFormData(
                     actionConfiguration.getFormData(),
                     FIELD_API_CONTENT_TYPE,
-                    String.class
+                    PluginUtils.STRING_TYPE
             );
             ApiContentType apiContentType = ApiContentType.getValueFromString(apiContentTypeStr);
 

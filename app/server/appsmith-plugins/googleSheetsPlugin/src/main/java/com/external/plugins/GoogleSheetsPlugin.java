@@ -41,8 +41,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDataOrDefault;
-import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.appsmith.external.helpers.PluginUtils.OBJECT_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static java.lang.Boolean.TRUE;
 
@@ -84,7 +86,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
             if (!validConfigurationPresentInFormData(formData, FieldName.SMART_SUBSTITUTION)) {
                 smartJsonSubstitution = true;
             } else {
-                Object ssubValue = getValueSafelyFromFormDataOrDefault(formData, FieldName.SMART_SUBSTITUTION, true);
+                Object ssubValue = getDataValueSafelyFromFormData(formData, FieldName.SMART_SUBSTITUTION, OBJECT_TYPE, true);
                 if (ssubValue instanceof Boolean) {
                     smartJsonSubstitution = (Boolean) ssubValue;
                 } else if (ssubValue instanceof String) {
@@ -98,7 +100,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                 // Smartly substitute in Json fields and replace all the bindings with values.
                 if (TRUE.equals(smartJsonSubstitution)) {
                     jsonFields.forEach(jsonField -> {
-                        String property = (String) getValueSafelyFromFormDataOrDefault(formData, jsonField, null);
+                        String property = getDataValueSafelyFromFormData(formData, jsonField, STRING_TYPE, null);
                         if (property != null) {
 
                             // First extract all the bindings in order
@@ -111,7 +113,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                     executeActionDTO.getParams(),
                                     parameters);
 
-                            setValueSafelyInFormData(formData, jsonField, updatedValue);
+                            setDataValueSafelyInFormData(formData, jsonField, updatedValue);
                         }
                     });
                 }

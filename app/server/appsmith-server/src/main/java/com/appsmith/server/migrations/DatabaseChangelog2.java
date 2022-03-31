@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -228,7 +229,7 @@ public class DatabaseChangelog2 {
             if (!(command instanceof String)) {
                 throw new AppsmithException(AppsmithError.MIGRATION_ERROR);
             }
-            
+
             publishedFormData
                     .keySet()
                     .stream()
@@ -375,7 +376,7 @@ public class DatabaseChangelog2 {
                 if (createMap == null) {
                     break;
                 }
-                final Map<String,Object> newCreateMap = new HashMap<>();
+                final Map<String, Object> newCreateMap = new HashMap<>();
                 f.put("create", newCreateMap);
                 convertToFormDataObject(newCreateMap, "dataType", createMap.get("dataType"));
                 convertToFormDataObject(newCreateMap, "expiry", createMap.get("expiry"));
@@ -385,7 +386,7 @@ public class DatabaseChangelog2 {
                 if (readMap == null) {
                     break;
                 }
-                final Map<String,Object> newReadMap = new HashMap<>();
+                final Map<String, Object> newReadMap = new HashMap<>();
                 f.put("read", newReadMap);
                 convertToFormDataObject(newReadMap, "dataType", readMap.get("usingBase64Encoding"));
                 break;
@@ -490,7 +491,7 @@ public class DatabaseChangelog2 {
                 if (countMap == null) {
                     break;
                 }
-                final Map<String,Object> newCountMap = new HashMap<>();
+                final Map<String, Object> newCountMap = new HashMap<>();
                 f.put("count", newCountMap);
                 convertToFormDataObject(newCountMap, "query", countMap.get("query"));
                 break;
@@ -499,7 +500,7 @@ public class DatabaseChangelog2 {
                 if (deleteMap == null) {
                     break;
                 }
-                final Map<String,Object> newDeleteMap = new HashMap<>();
+                final Map<String, Object> newDeleteMap = new HashMap<>();
                 f.put("delete", newDeleteMap);
                 convertToFormDataObject(newDeleteMap, "query", deleteMap.get("query"));
                 convertToFormDataObject(newDeleteMap, "limit", deleteMap.get("limit"));
@@ -509,7 +510,7 @@ public class DatabaseChangelog2 {
                 if (distinctMap == null) {
                     break;
                 }
-                final Map<String,Object> newDistinctMap = new HashMap<>();
+                final Map<String, Object> newDistinctMap = new HashMap<>();
                 f.put("distinct", newDistinctMap);
                 convertToFormDataObject(newDistinctMap, "query", distinctMap.get("query"));
                 convertToFormDataObject(newDistinctMap, "key", distinctMap.get("key"));
@@ -519,7 +520,7 @@ public class DatabaseChangelog2 {
                 if (findMap == null) {
                     break;
                 }
-                final Map<String,Object> newFindMap = new HashMap<>();
+                final Map<String, Object> newFindMap = new HashMap<>();
                 f.put("find", newFindMap);
                 convertToFormDataObject(newFindMap, "query", findMap.get("query"));
                 convertToFormDataObject(newFindMap, "sort", findMap.get("sort"));
@@ -532,7 +533,7 @@ public class DatabaseChangelog2 {
                 if (insertMap == null) {
                     break;
                 }
-                final Map<String,Object> newInsertMap = new HashMap<>();
+                final Map<String, Object> newInsertMap = new HashMap<>();
                 f.put("insert", newInsertMap);
                 convertToFormDataObject(newInsertMap, "documents", insertMap.get("documents"));
                 break;
@@ -541,7 +542,7 @@ public class DatabaseChangelog2 {
                 if (updateMap == null) {
                     break;
                 }
-                final Map<String,Object> newUpdateManyMap = new HashMap<>();
+                final Map<String, Object> newUpdateManyMap = new HashMap<>();
                 f.put("updateMany", newUpdateManyMap);
                 convertToFormDataObject(newUpdateManyMap, "query", updateMap.get("query"));
                 convertToFormDataObject(newUpdateManyMap, "update", updateMap.get("update"));
@@ -626,7 +627,7 @@ public class DatabaseChangelog2 {
                 .include(fieldName(QDatasource.datasource.id));
 
         List<Datasource> datasources = mongockTemplate.find(datasourceQuery, Datasource.class);
-        for(Datasource datasource: datasources) {
+        for (Datasource datasource : datasources) {
             final Update update = new Update();
             update.set(fieldName(QDatasource.datasource.isConfigured), TRUE);
             mongockTemplate.updateFirst(
@@ -635,6 +636,165 @@ public class DatabaseChangelog2 {
                     Datasource.class
             );
         }
+    }
+
+//    @ChangeSet(order = "005", id = "migrate-google-sheets-to-uqi", author = "")
+//    public void migrateGoogleSheetsToUqi(MongockTemplate mongockTemplate) {
+//
+//        // Get all plugin references to Mongo, S3 and Firestore actions
+//        List<Plugin> uqiPlugins = mongockTemplate.find(
+//                query(where("packageName").in("google-sheets-plugin")),
+//                Plugin.class
+//        );
+//
+//        final Map<String, String> pluginMap = uqiPlugins.stream()
+//                .collect(Collectors.toMap(Plugin::getId, Plugin::getPackageName));
+//
+//        final Set<String> pluginIds = pluginMap.keySet();
+//
+//        // Find all relevant actions
+//        final Query actionQuery = query(
+//                where(fieldName(QNewAction.newAction.pluginId)).in(pluginIds)
+//                        .and(fieldName(QNewAction.newAction.deleted)).ne(true)); // setting `deleted` != `true`
+//        actionQuery.fields()
+//                .include(fieldName(QNewAction.newAction.id));
+//
+//        List<NewAction> uqiActions = mongockTemplate.find(
+//                actionQuery,
+//                NewAction.class
+//        );
+//
+//        // Retrieve the formData path for all actions
+//        for (NewAction uqiActionWithId : uqiActions) {
+//
+//            // Fetch one action at a time to avoid OOM.
+//            final NewAction uqiAction = mongockTemplate.findOne(
+//                    query(where(fieldName(QNewAction.newAction.id)).is(uqiActionWithId.getId())),
+//                    NewAction.class
+//            );
+//
+//            assert uqiAction != null;
+//            ActionDTO unpublishedAction = uqiAction.getUnpublishedAction();
+//
+//            /* No migrations required if action configuration does not exist. */
+//            if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
+//                continue;
+//            }
+//
+//            try {
+//                migrateGoogleSheetsToUqi(uqiAction);
+//            } catch (AppsmithException e) {
+//                // This action is already migrated, move on
+//                log.error("Failed with error: {}", e.getMessage());
+//                log.error("Failing action: {}", uqiAction.getId());
+//                continue;
+//            }
+//            mongockTemplate.save(uqiAction);
+//        }
+//    }
+
+    public static void migrateGoogleSheetsToUqi(NewAction uqiAction) {
+        ActionDTO unpublishedAction = uqiAction.getUnpublishedAction();
+        /**
+         * Migrate unpublished action configuration data.
+         */
+        Map<String, Object> newUnpublishedFormDataMap = new HashMap<>();
+        mapGoogleSheetsToNewFormData(unpublishedAction, newUnpublishedFormDataMap);
+        unpublishedAction.getActionConfiguration().setFormData(newUnpublishedFormDataMap);
+
+        ActionDTO publishedAction = uqiAction.getPublishedAction();
+        /**
+         * Migrate published action configuration data.
+         */
+        if (publishedAction.getActionConfiguration() != null) {
+            Map<String, Object> newPublishedFormDataMap = new HashMap<>();
+            mapGoogleSheetsToNewFormData(publishedAction, newPublishedFormDataMap);
+            publishedAction.getActionConfiguration().setFormData(newPublishedFormDataMap);
+        }
+    }
+
+    private static void mapGoogleSheetsToNewFormData(ActionDTO action, Map<String, Object> f) {
+        final Map<String, Object> formData = action.getActionConfiguration().getFormData();
+
+        if (formData != null) {
+            // This action has already been migrated
+            throw new AppsmithException(AppsmithError.MIGRATION_ERROR);
+        }
+
+        final List<Property> pluginSpecifiedTemplates = action.getActionConfiguration().getPluginSpecifiedTemplates();
+
+        if (pluginSpecifiedTemplates == null || pluginSpecifiedTemplates.isEmpty()) {
+            // Nothing to do with this action, it is already incorrectly configured
+            return;
+        }
+
+        final String oldCommand = (String) pluginSpecifiedTemplates.get(0).getValue();
+
+        final int pluginSpecifiedTemplatesSize = pluginSpecifiedTemplates.size();
+
+        switch(oldCommand) {
+            case "GET":
+                convertToFormDataObject(f, "command", "FETCH_MANY");
+                convertToFormDataObject(f, "entityType", "ROWS");
+                break;
+            case "APPEND":
+                convertToFormDataObject(f, "command", "INSERT_ONE");
+                convertToFormDataObject(f, "entityType", "ROWS");
+                break;
+            case "UPDATE":
+                convertToFormDataObject(f, "command", "UPDATE_ONE");
+                convertToFormDataObject(f, "entityType", "ROWS");
+                break;
+            case "DELETE_ROW":
+                convertToFormDataObject(f, "command", "DELETE_ONE");
+                convertToFormDataObject(f, "entityType", "ROWS");
+                break;
+            case "LIST":
+                convertToFormDataObject(f, "command", "FETCH_MANY");
+                convertToFormDataObject(f, "entityType", "SPREADSHEET");
+                break;
+            case "INFO":
+                convertToFormDataObject(f, "command", "FETCH_DETAILS");
+                convertToFormDataObject(f, "entityType", "SPREADSHEET");
+                break;
+            case "CREATE":
+                convertToFormDataObject(f, "command", "INSERT_ONE");
+                convertToFormDataObject(f, "entityType", "SPREADSHEET");
+                break;
+            case "DELETE":
+                convertToFormDataObject(f, "command", "DELETE_ONE");
+
+                break;
+            case "BULK_APPEND":
+                convertToFormDataObject(f, "command", "INSERT_MANY");
+                convertToFormDataObject(f, "entityType", "ROWS");
+                break;
+            case "BULK_UPDATE":
+                convertToFormDataObject(f, "command", "UPDATE_MANY");
+                convertToFormDataObject(f, "entityType", "ROWS");
+                break;
+            default: return;
+        }
+    }
+
+    private static Map<String, Object> updateWhereClauseFormat(Object oldWhereClauseArray) {
+        final Map<String, Object> newWhereClause = new HashMap<>();
+        newWhereClause.put("condition", "AND");
+        final List<Object> convertedConditionArray = new ArrayList<>();
+        newWhereClause.put("children", convertedConditionArray);
+
+        ((ArrayList) oldWhereClauseArray)
+                .stream()
+                .forEach(oldWhereClauseCondition -> {
+                    Map<String, Object> newWhereClauseCondition = new HashMap<>();
+                    final Map clauseCondition = (Map) oldWhereClauseCondition;
+                    newWhereClauseCondition.put("key", clauseCondition.get("path"));
+                    newWhereClauseCondition.put("condition", clauseCondition.get("operator"));
+                    newWhereClauseCondition.put("value", clauseCondition.get("value"));
+                    convertedConditionArray.add(newWhereClauseCondition);
+                });
+
+        return newWhereClause;
     }
 
 }

@@ -91,50 +91,6 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         }
     }
 
-    public ArrayNode filterData(ArrayNode items, List<Condition> conditionList) {
-        return filterData(items, conditionList, null);
-    }
-
-    /**
-     * Overloaded Method to handle plugin-based DataType conversion.
-     * Plugins implementing this passes parameter 'dataTypeConversionMap' to instruct how their DataTypes to be processed.
-     * Example: GoogleSheet plugin handled it in a way that Integer, Long and Float DataTypes to be treated as Double.
-     * @param items
-     * @param conditionList
-     * @param dataTypeConversionMap - A Map to provide custom Datatype(value) against the actual Datatype(key) found.
-     * @return
-     */
-    public ArrayNode filterData(ArrayNode items, List<Condition> conditionList, Map<DataType, DataType> dataTypeConversionMap) {
-
-        if (items == null || items.size() == 0) {
-            return items;
-        }
-
-        Map<String, DataType> schema = generateSchema(items, dataTypeConversionMap);
-
-        if (!validConditionList(conditionList, schema)) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Conditions for filtering were incomplete or incorrect.");
-        }
-
-        List<Condition> conditions = addValueDataType(conditionList);
-
-
-        String tableName = generateTable(schema);
-
-        // insert the data
-        insertAllData(tableName, items, schema, dataTypeConversionMap);
-
-        // Filter the data
-        List<Map<String, Object>> finalResults = executeFilterQueryOldFormat(tableName, conditions, schema, dataTypeConversionMap);
-
-        // Now that the data has been filtered. Clean Up. Drop the table
-        dropTable(tableName);
-
-        ArrayNode finalResultsNode = objectMapper.valueToTree(finalResults);
-
-        return finalResultsNode;
-    }
-
     /**
      * This filter method is using the new UQI format.
      * @param items - data
@@ -147,7 +103,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         }
 
         Condition condition = uqiDataFilterParams.getCondition();
-        if (condition != null) {
+        if (Condition.isValid(condition)) {
             Condition updatedCondition = addValueDataType(condition);
             uqiDataFilterParams.setCondition(updatedCondition);
         }
@@ -195,7 +151,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
          */
         List<PreparedStatementValueDTO> values = new ArrayList<>();
 
-        if (condition != null) {
+        if (condition != null && Condition.isValid(condition)) {
             ConditionalOperator operator = condition.getOperator();
             List<Condition> conditions = (List<Condition>) condition.getValue();
 
@@ -300,7 +256,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         if (!CollectionUtils.isEmpty(projectionColumns)) {
             sb.append("SELECT");
             projectionColumns.stream()
-                    .forEach(columnName -> sb.append(" " + columnName + ","));
+                    .forEach(columnName -> sb.append(" `" + columnName + "`,"));
 
             sb.setLength(sb.length() - 1);
             sb.append(" FROM " + tableName);
@@ -346,7 +302,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                                 "to parse the type of sort condition. Please reach out to Appsmith customer support " +
                                 "to resolve this.");
                     }
-                    sb.append(" " + columnName + " " + sortType + ",");
+                    sb.append(" `" + columnName + "` " + sortType + ",");
                 });
 
         sb.setLength(sb.length() - 1);

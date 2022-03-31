@@ -13,8 +13,6 @@ import java.util.Map;
 
 public interface IFilterDataServiceCE {
 
-    ArrayNode filterData(ArrayNode items, List<Condition> conditionList);
-
     ArrayNode filterDataNew(ArrayNode items, UQIDataFilterParams uqiDataFilterParams);
 
     List<Map<String, Object>> executeFilterQueryOldFormat(String tableName, List<Condition> conditions, Map<String,

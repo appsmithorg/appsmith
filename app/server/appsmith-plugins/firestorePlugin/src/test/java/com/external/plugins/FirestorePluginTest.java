@@ -47,7 +47,8 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
-import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.external.constants.FieldName.BODY;
 import static com.external.constants.FieldName.CHILDREN;
 import static com.external.constants.FieldName.COMMAND;
@@ -161,8 +162,8 @@ public class FirestorePluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "GET_DOCUMENT");
-        setValueSafelyInFormData(configMap, PATH, "initial/one");
+        setDataValueSafelyInFormData(configMap, COMMAND, "GET_DOCUMENT");
+        setDataValueSafelyInFormData(configMap, PATH, "initial/one");
         actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
@@ -185,7 +186,7 @@ public class FirestorePluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(COMMAND, "GET_DOCUMENT", null, null, null)); // Method
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), PATH, String.class),
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), PATH, STRING_TYPE),
                             null, null, null)); // Path
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
@@ -197,8 +198,8 @@ public class FirestorePluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "GET_DOCUMENT");
-        setValueSafelyInFormData(configMap, PATH, "initial/two");
+        setDataValueSafelyInFormData(configMap, COMMAND, "GET_DOCUMENT");
+        setDataValueSafelyInFormData(configMap, PATH, "initial/two");
         actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
@@ -228,8 +229,8 @@ public class FirestorePluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "GET_DOCUMENT");
-        setValueSafelyInFormData(configMap, PATH, "initial/inner-ref");
+        setDataValueSafelyInFormData(configMap, COMMAND, "GET_DOCUMENT");
+        setDataValueSafelyInFormData(configMap, PATH, "initial/inner-ref");
         actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
@@ -260,8 +261,8 @@ public class FirestorePluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
-        setValueSafelyInFormData(configMap, PATH, "initial");
+        setDataValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+        setDataValueSafelyInFormData(configMap, PATH, "initial");
         actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
@@ -320,9 +321,9 @@ public class FirestorePluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "SET_DOCUMENT");
-        setValueSafelyInFormData(configMap, PATH, "test/new_with_set");
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, COMMAND, "SET_DOCUMENT");
+        setDataValueSafelyInFormData(configMap, PATH, "test/new_with_set");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "    \"firstName\": \"test\",\n" +
                 "    \"lastName\":\"lastTest\"\n" +
                 "}");
@@ -341,10 +342,10 @@ public class FirestorePluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(COMMAND, "SET_DOCUMENT", null, null, null)); // Method
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), PATH, String.class),
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), PATH, STRING_TYPE),
                             null, null, null)); // Path
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), BODY, String.class), null, null, null)); // Body
+                            PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), BODY, STRING_TYPE), null, null, null)); // Body
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -355,9 +356,9 @@ public class FirestorePluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "CREATE_DOCUMENT");
-        setValueSafelyInFormData(configMap, PATH, "test/new_with_create");
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, COMMAND, "CREATE_DOCUMENT");
+        setDataValueSafelyInFormData(configMap, PATH, "test/new_with_create");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "    \"firstName\": \"test\",\n" +
                 "    \"lastName\":\"lastTest\"\n" +
                 "}");
@@ -376,10 +377,10 @@ public class FirestorePluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(COMMAND, "CREATE_DOCUMENT", null, null, null));
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), PATH, String.class),
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), PATH, STRING_TYPE),
                             null, null, null)); // Path
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), BODY, String.class), null, null, null)); // Body
+                            PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), BODY, STRING_TYPE), null, null, null)); // Body
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -390,9 +391,9 @@ public class FirestorePluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "UPDATE_DOCUMENT");
-        setValueSafelyInFormData(configMap, PATH, "changing/to-update");
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPDATE_DOCUMENT");
+        setDataValueSafelyInFormData(configMap, PATH, "changing/to-update");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "    \"value\": 2\n" +
                 "}");
         actionConfiguration.setFormData(configMap);
@@ -419,8 +420,8 @@ public class FirestorePluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "DELETE_DOCUMENT");
-        setValueSafelyInFormData(configMap, PATH, "changing/to-delete");
+        setDataValueSafelyInFormData(configMap, COMMAND, "DELETE_DOCUMENT");
+        setDataValueSafelyInFormData(configMap, PATH, "changing/to-delete");
         actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
@@ -442,7 +443,7 @@ public class FirestorePluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(COMMAND, "DELETE_DOCUMENT", null, null, null));
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), PATH, String.class),
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), PATH, STRING_TYPE),
                             null, null, null)); // Path
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
@@ -454,9 +455,9 @@ public class FirestorePluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "ADD_TO_COLLECTION");
-        setValueSafelyInFormData(configMap, PATH, "changing");
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, COMMAND, "ADD_TO_COLLECTION");
+        setDataValueSafelyInFormData(configMap, PATH, "changing");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "  \"question\": \"What is the answer to life, universe and everything else?\",\n" +
                 "  \"answer\": 42\n" +
                 "}");
@@ -477,10 +478,10 @@ public class FirestorePluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(COMMAND, "ADD_TO_COLLECTION", null, null, null));
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), PATH, String.class),
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), PATH, STRING_TYPE),
                             null, null, null)); // Path
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), BODY, String.class), null, null, null)); // Body
+                            PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), BODY, STRING_TYPE), null, null, null)); // Body
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -491,15 +492,15 @@ public class FirestorePluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
-        setValueSafelyInFormData(configMap, ORDER_BY, "[\"n\"]");
-        setValueSafelyInFormData(configMap, LIMIT_DOCUMENTS, "5");
-        setValueSafelyInFormData(configMap, PATH, "pagination");
+        setDataValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+        setDataValueSafelyInFormData(configMap, ORDER_BY, "[\"n\"]");
+        setDataValueSafelyInFormData(configMap, LIMIT_DOCUMENTS, "5");
+        setDataValueSafelyInFormData(configMap, PATH, "pagination");
 
         if (first != null && last != null) {
             try {
-                setValueSafelyInFormData(configMap, NEXT, objectMapper.writeValueAsString(last));
-                setValueSafelyInFormData(configMap, PREV, objectMapper.writeValueAsString(first));
+                setDataValueSafelyInFormData(configMap, NEXT, objectMapper.writeValueAsString(last));
+                setDataValueSafelyInFormData(configMap, PREV, objectMapper.writeValueAsString(first));
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
@@ -618,10 +619,10 @@ public class FirestorePluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
-        setValueSafelyInFormData(configMap, ORDER_BY, "[\"firm\", \"name\"]");
-        setValueSafelyInFormData(configMap, LIMIT_DOCUMENTS, "15");
-        setValueSafelyInFormData(configMap, PATH, "pagination");
+        setDataValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+        setDataValueSafelyInFormData(configMap, ORDER_BY, "[\"firm\", \"name\"]");
+        setDataValueSafelyInFormData(configMap, LIMIT_DOCUMENTS, "15");
+        setDataValueSafelyInFormData(configMap, PATH, "pagination");
         actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
@@ -662,7 +663,7 @@ public class FirestorePluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(COMMAND, "GET_COLLECTION", null, null, null));
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), PATH, String.class),
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), PATH, STRING_TYPE),
                             null, null, null)); // Path
                     expectedRequestParams.add(new RequestParamDTO(ORDER_BY, "[\"firm\", \"name\"]", null, null, null)); // Order by
                     expectedRequestParams.add(new RequestParamDTO(START_AFTER, "{}", null, null, null)); // Start after
@@ -678,10 +679,10 @@ public class FirestorePluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
-        setValueSafelyInFormData(configMap, ORDER_BY, "[\"firm\", \"-name\"]");
-        setValueSafelyInFormData(configMap, LIMIT_DOCUMENTS, "15");
-        setValueSafelyInFormData(configMap, PATH, "pagination");
+        setDataValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+        setDataValueSafelyInFormData(configMap, ORDER_BY, "[\"firm\", \"-name\"]");
+        setDataValueSafelyInFormData(configMap, LIMIT_DOCUMENTS, "15");
+        setDataValueSafelyInFormData(configMap, PATH, "pagination");
         actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
@@ -723,7 +724,7 @@ public class FirestorePluginTest {
     @Test
     public void testWhereConditional() {
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+        setDataValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
 
         List<Object> children = new ArrayList<>();
 
@@ -749,8 +750,8 @@ public class FirestorePluginTest {
 
         Map<String, Object> whereMap = new HashMap<>();
         whereMap.put(CHILDREN, children);
-        setValueSafelyInFormData(configMap, WHERE, whereMap);
-        setValueSafelyInFormData(configMap, PATH, "initial");
+        setDataValueSafelyInFormData(configMap, WHERE, whereMap);
+        setDataValueSafelyInFormData(configMap, PATH, "initial");
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setFormData(configMap);
@@ -805,7 +806,7 @@ public class FirestorePluginTest {
     @Test
     public void testNumberWhereConditional() {
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+        setDataValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
 
         List<Object> children = new ArrayList<>();
         children.add(new HashMap<String, Object>() {{
@@ -816,8 +817,8 @@ public class FirestorePluginTest {
 
         Map<String, Object> whereMap = new HashMap<>();
         whereMap.put(CHILDREN, children);
-        setValueSafelyInFormData(configMap, WHERE, whereMap);
-        setValueSafelyInFormData(configMap, PATH, "numeric");
+        setDataValueSafelyInFormData(configMap, WHERE, whereMap);
+        setDataValueSafelyInFormData(configMap, PATH, "numeric");
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setFormData(configMap);
@@ -849,7 +850,7 @@ public class FirestorePluginTest {
     @Test
     public void testBooleanWhereConditional() {
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+        setDataValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
 
         List<Object> children = new ArrayList<>();
         children.add(new HashMap<String, Object>() {{
@@ -860,8 +861,8 @@ public class FirestorePluginTest {
 
         Map<String, Object> whereMap = new HashMap<>();
         whereMap.put(CHILDREN, children);
-        setValueSafelyInFormData(configMap, WHERE, whereMap);
-        setValueSafelyInFormData(configMap, PATH, "numeric");
+        setDataValueSafelyInFormData(configMap, WHERE, whereMap);
+        setDataValueSafelyInFormData(configMap, PATH, "numeric");
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setFormData(configMap);
@@ -893,7 +894,7 @@ public class FirestorePluginTest {
     @Test
     public void testDateWhereConditional() {
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+        setDataValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
 
         List<Object> children = new ArrayList<>();
         children.add(new HashMap<String, Object>() {{
@@ -904,8 +905,8 @@ public class FirestorePluginTest {
 
         Map<String, Object> whereMap = new HashMap<>();
         whereMap.put(CHILDREN, children);
-        setValueSafelyInFormData(configMap, WHERE, whereMap);
-        setValueSafelyInFormData(configMap, PATH, "numeric");
+        setDataValueSafelyInFormData(configMap, WHERE, whereMap);
+        setDataValueSafelyInFormData(configMap, PATH, "numeric");
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setFormData(configMap);
@@ -937,7 +938,7 @@ public class FirestorePluginTest {
     @Test
     public void testTimeStampWhereConditional() {
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+        setDataValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
 
         List<Object> children = new ArrayList<>();
         children.add(new HashMap<String, Object>() {{
@@ -948,8 +949,8 @@ public class FirestorePluginTest {
 
         Map<String, Object> whereMap = new HashMap<>();
         whereMap.put(CHILDREN, children);
-        setValueSafelyInFormData(configMap, WHERE, whereMap);
-        setValueSafelyInFormData(configMap, PATH, "numeric");
+        setDataValueSafelyInFormData(configMap, WHERE, whereMap);
+        setDataValueSafelyInFormData(configMap, PATH, "numeric");
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setFormData(configMap);
 
@@ -981,10 +982,10 @@ public class FirestorePluginTest {
     public void testUpdateDocumentWithFieldValueTimestamp() {
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "UPDATE_DOCUMENT");
-        setValueSafelyInFormData(configMap, TIMESTAMP_VALUE_PATH, "[\"value\"]");
-        setValueSafelyInFormData(configMap, PATH, "changing/to-update");
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPDATE_DOCUMENT");
+        setDataValueSafelyInFormData(configMap, TIMESTAMP_VALUE_PATH, "[\"value\"]");
+        setDataValueSafelyInFormData(configMap, PATH, "changing/to-update");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "    \"value\": 2\n" +
                 "}");
 
@@ -1025,10 +1026,10 @@ public class FirestorePluginTest {
     @Test
     public void testUpdateDocumentWithFieldValueDelete() {
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "UPDATE_DOCUMENT");
-        setValueSafelyInFormData(configMap, DELETE_KEY_PATH, "[\"value\"]");
-        setValueSafelyInFormData(configMap, PATH, "changing/to-update");
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPDATE_DOCUMENT");
+        setDataValueSafelyInFormData(configMap, DELETE_KEY_PATH, "[\"value\"]");
+        setDataValueSafelyInFormData(configMap, PATH, "changing/to-update");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "    \"value\": 2\n" +
                 "}");
 
@@ -1051,19 +1052,19 @@ public class FirestorePluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(COMMAND, "UPDATE_DOCUMENT", null, null, null));
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), PATH, String.class),
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), PATH, STRING_TYPE),
                             null, null, null)); // Path
                     expectedRequestParams.add(new RequestParamDTO(DELETE_KEY_PATH, "[\"value\"]", null, null, null)); // Method
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), BODY, String.class), null, null, null)); // Body
+                            PluginUtils.getDataValueSafelyFromFormData(actionConfiguration.getFormData(), BODY, STRING_TYPE), null, null, null)); // Body
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
 
         configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, PATH, "changing/to-update");
-        setValueSafelyInFormData(configMap, BODY, "");
-        setValueSafelyInFormData(configMap, COMMAND, "GET_DOCUMENT");
+        setDataValueSafelyInFormData(configMap, PATH, "changing/to-update");
+        setDataValueSafelyInFormData(configMap, BODY, "");
+        setDataValueSafelyInFormData(configMap, COMMAND, "GET_DOCUMENT");
         resultMono = pluginExecutor
                 .executeParameterized(firestoreConnection, new ExecuteActionDTO(), dsConfig, actionConfiguration);
 
@@ -1082,10 +1083,10 @@ public class FirestorePluginTest {
     @Test
     public void testFieldValueDeleteWithUnsupportedAction() {
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "CREATE_DOCUMENT");
-        setValueSafelyInFormData(configMap, DELETE_KEY_PATH, "[\"value\"]");
-        setValueSafelyInFormData(configMap, PATH, "changing/to-update");
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, COMMAND, "CREATE_DOCUMENT");
+        setDataValueSafelyInFormData(configMap, DELETE_KEY_PATH, "[\"value\"]");
+        setDataValueSafelyInFormData(configMap, PATH, "changing/to-update");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "    \"value\": 2\n" +
                 "}");
 
@@ -1110,10 +1111,10 @@ public class FirestorePluginTest {
     @Test
     public void testFieldValueTimestampWithUnsupportedAction() {
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "GET_DOCUMENT");
-        setValueSafelyInFormData(configMap, TIMESTAMP_VALUE_PATH, "[\"value\"]");
-        setValueSafelyInFormData(configMap, PATH, "changing/to-update");
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, COMMAND, "GET_DOCUMENT");
+        setDataValueSafelyInFormData(configMap, TIMESTAMP_VALUE_PATH, "[\"value\"]");
+        setDataValueSafelyInFormData(configMap, PATH, "changing/to-update");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "    \"value\": 2\n" +
                 "}");
 
@@ -1137,10 +1138,10 @@ public class FirestorePluginTest {
     @Test
     public void testFieldValueDeleteWithBadArgument() {
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "UPDATE_DOCUMENT");
-        setValueSafelyInFormData(configMap, DELETE_KEY_PATH, "value");
-        setValueSafelyInFormData(configMap, PATH, "changing/to-update");
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPDATE_DOCUMENT");
+        setDataValueSafelyInFormData(configMap, DELETE_KEY_PATH, "value");
+        setDataValueSafelyInFormData(configMap, PATH, "changing/to-update");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "    \"value\": 2\n" +
                 "}");
 
@@ -1164,10 +1165,10 @@ public class FirestorePluginTest {
     @Test
     public void testFieldValueTimestampWithBadArgument() {
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "UPDATE_DOCUMENT");
-        setValueSafelyInFormData(configMap, TIMESTAMP_VALUE_PATH, "value");
-        setValueSafelyInFormData(configMap, PATH, "changing/to-update");
-        setValueSafelyInFormData(configMap, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPDATE_DOCUMENT");
+        setDataValueSafelyInFormData(configMap, TIMESTAMP_VALUE_PATH, "value");
+        setDataValueSafelyInFormData(configMap, PATH, "changing/to-update");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
                 "    \"value\": 2\n" +
                 "}");
 
@@ -1252,9 +1253,9 @@ public class FirestorePluginTest {
          *  Please note that the smart substitution is by default set to `true` hence we haven't explicitly set it here.
          */
         Map<String, Object> configMap1 = new HashMap<>();
-        setValueSafelyInFormData(configMap1, COMMAND, "CREATE_DOCUMENT");
-        setValueSafelyInFormData(configMap1, PATH, "test/json_smart_substitution_test");
-        setValueSafelyInFormData(configMap1, BODY, "{\n" +
+        setDataValueSafelyInFormData(configMap1, COMMAND, "CREATE_DOCUMENT");
+        setDataValueSafelyInFormData(configMap1, PATH, "test/json_smart_substitution_test");
+        setDataValueSafelyInFormData(configMap1, BODY, "{\n" +
                 "    \"firstName\":{{Input1.text}},\n" +
                 "    \"lastName\":{{Input2.text}},\n" +
                 "    \"locationPreferences\":{{Input3.text}},\n" +
@@ -1294,8 +1295,8 @@ public class FirestorePluginTest {
 
         /* Fetch previously created document to check if correct value was saved */
         Map<String, Object> configMap2 = new HashMap();
-        setValueSafelyInFormData(configMap2, COMMAND, "GET_DOCUMENT");
-        setValueSafelyInFormData(configMap2, PATH, "test/json_smart_substitution_test");
+        setDataValueSafelyInFormData(configMap2, COMMAND, "GET_DOCUMENT");
+        setDataValueSafelyInFormData(configMap2, PATH, "test/json_smart_substitution_test");
 
         ActionConfiguration actionConfiguration2 = new ActionConfiguration();
         actionConfiguration2.setFormData(configMap2);
@@ -1318,8 +1319,8 @@ public class FirestorePluginTest {
 
         /* Delete the document added as part of this test */
         Map<String, Object> configMap3 = new HashMap<>();
-        setValueSafelyInFormData(configMap3, COMMAND, "DELETE_DOCUMENT");
-        setValueSafelyInFormData(configMap3, PATH, "test/json_smart_substitution_test");
+        setDataValueSafelyInFormData(configMap3, COMMAND, "DELETE_DOCUMENT");
+        setDataValueSafelyInFormData(configMap3, PATH, "test/json_smart_substitution_test");
 
         ActionConfiguration actionConfiguration3 = new ActionConfiguration();
         actionConfiguration3.setFormData(configMap3);

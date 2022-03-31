@@ -67,42 +67,10 @@ public class RowsGetMethod implements ExecutionMethod {
                         "Unexpected format for table header index. Please use a number starting from 1");
             }
         }
-        if ("ROWS".equalsIgnoreCase(methodConfig.getQueryFormat())) {
-            if (methodConfig.getRowOffset() == null || methodConfig.getRowOffset().isBlank()) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Row offset");
-            }
-            int rowOffset = 0;
-            try {
-                rowOffset = Integer.parseInt(methodConfig.getRowOffset());
-                if (rowOffset < 0) {
-                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            "Unexpected value for row offset. Please use a number starting from 0");
-                }
-
-            } catch (NumberFormatException e) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Unexpected format for row offset. Please use a number starting from 0");
-            }
-            if (methodConfig.getRowLimit() == null || methodConfig.getRowLimit().isBlank()) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Row limit");
-            }
-            int rowLimit = 1;
-            try {
-                rowLimit = Integer.parseInt(methodConfig.getRowLimit());
-                if (rowLimit <= 0) {
-                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            "Unexpected value for row limit. Please use a number starting from 1");
-                }
-            } catch (NumberFormatException e) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Unexpected format for row limit. Please use a number starting from 1");
-            }
-        } else if ("RANGE".equalsIgnoreCase(methodConfig.getQueryFormat())) {
+        if ("RANGE".equalsIgnoreCase(methodConfig.getQueryFormat())) {
             if (methodConfig.getSpreadsheetRange() == null || methodConfig.getSpreadsheetRange().isBlank()) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field 'Cell Range'");
             }
-        } else {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Invalid query format");
         }
 
         return true;
@@ -138,22 +106,9 @@ public class RowsGetMethod implements ExecutionMethod {
             }
         }
         if ("ROWS".equalsIgnoreCase(methodConfig.getQueryFormat())) {
-            int rowOffset = 0;
-            try {
-                rowOffset = Integer.parseInt(methodConfig.getRowOffset());
-            } catch (NumberFormatException e) {
-                // Should have already been caught
-            }
-            int rowLimit = 1;
-            try {
-                rowLimit = Integer.parseInt(methodConfig.getRowLimit());
-                return List.of(
-                        "'" + methodConfig.getSheetName() + "'!" + tableHeaderIndex + ":" + tableHeaderIndex,
-                        "'" + methodConfig.getSheetName() + "'!" + (tableHeaderIndex + rowOffset + 1) + ":" + (tableHeaderIndex + rowOffset + rowLimit));
-
-            } catch (NumberFormatException e) {
-                // Should have already been caught
-            }
+            return List.of(
+                    "'" + methodConfig.getSheetName() + "'!" + tableHeaderIndex + ":" + tableHeaderIndex,
+                    "'" + methodConfig.getSheetName() + "'!A" + (tableHeaderIndex + 1) + ":ZZZ");
         } else if ("RANGE".equalsIgnoreCase(methodConfig.getQueryFormat())) {
             Matcher matcher = findAllRowsPattern.matcher(methodConfig.getSpreadsheetRange());
             matcher.find();
@@ -210,7 +165,11 @@ public class RowsGetMethod implements ExecutionMethod {
 
         if (isWhereConditionConfigured(methodConfig)) {
             return filterDataService.filterDataNew(preFilteringResponse,
-                    new UQIDataFilterParams(methodConfig.getWhereConditions(), null, null, null));
+                    new UQIDataFilterParams(
+                            methodConfig.getWhereConditions(),
+                            methodConfig.getProjection(),
+                            methodConfig.getSortBy(),
+                            methodConfig.getPaginateBy()));
         }
 
         return preFilteringResponse;

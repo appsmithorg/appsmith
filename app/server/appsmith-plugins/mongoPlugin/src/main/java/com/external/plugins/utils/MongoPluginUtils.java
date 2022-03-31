@@ -46,7 +46,7 @@ public class MongoPluginUtils {
     }
 
     public static Boolean isRawCommand(Map<String, Object> formData) {
-        String command = (String) PluginUtils.getValueSafelyFromFormDataOrDefault(formData, COMMAND, null);
+        String command = PluginUtils.getDataValueSafelyFromFormData(formData, COMMAND, null);
         return RAW.equals(command);
     }
 
@@ -58,7 +58,7 @@ public class MongoPluginUtils {
 
                 // Parse the commands into raw appropriately
                 MongoCommand command = null;
-                switch ((String) PluginUtils.getValueSafelyFromFormDataOrDefault(formData, COMMAND, "")) {
+                switch (PluginUtils.getDataValueSafelyFromFormData(formData, COMMAND, PluginUtils.STRING_TYPE, "")) {
                     case "INSERT":
                         command = new Insert(actionConfiguration);
                         break;
@@ -93,7 +93,7 @@ public class MongoPluginUtils {
 
         // We reached here. This means either this is a RAW command input or some configuration error has happened
         // in which case, we default to RAW
-        return PluginUtils.getDataValueSafelyFromFormData(formData, BODY, String.class);
+        return PluginUtils.getDataValueSafelyFromFormData(formData, BODY, PluginUtils.STRING_TYPE);
     }
 
     public static String getDatabaseName(DatasourceConfiguration datasourceConfiguration) {

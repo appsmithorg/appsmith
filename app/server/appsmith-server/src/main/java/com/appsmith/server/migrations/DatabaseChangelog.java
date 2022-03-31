@@ -131,7 +131,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
-import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
@@ -4676,25 +4676,31 @@ public class DatabaseChangelog {
 
             // Migrate unpublished action config data
             if (unpublishedAction.getActionConfiguration().getFormData() != null) {
-                Map formData = unpublishedAction.getActionConfiguration().getFormData();
+                Map<String, Object> formData = unpublishedAction.getActionConfiguration().getFormData();
 
-                String startAfter = PluginUtils.getDataValueSafelyFromFormData(formData, START_AFTER, String.class, "{}");
-                unpublishedAction.getActionConfiguration().setNext(startAfter);
+                Object startAfter = PluginUtils.getValueSafelyFromFormData(formData, START_AFTER);
+                if (startAfter == null) {
+                    startAfter = "{}";
+                }
+                unpublishedAction.getActionConfiguration().setNext((String) startAfter);
 
-                String endBefore = PluginUtils.getDataValueSafelyFromFormData(formData, END_BEFORE, String.class, "{}");
-                unpublishedAction.getActionConfiguration().setPrev(endBefore);
+                Object endBefore = PluginUtils.getValueSafelyFromFormData(formData, END_BEFORE);
+                if (endBefore == null) {
+                    endBefore = "{}";
+                }
+                unpublishedAction.getActionConfiguration().setPrev((String) endBefore);
             }
 
             // Migrate published action config data.
             ActionDTO publishedAction = firestoreAction.getPublishedAction();
             if (publishedAction != null && publishedAction.getActionConfiguration() != null &&
                     publishedAction.getActionConfiguration().getFormData() != null) {
-                Map formData = publishedAction.getActionConfiguration().getFormData();
+                Map<String, Object> formData = publishedAction.getActionConfiguration().getFormData();
 
-                String startAfter = PluginUtils.getDataValueSafelyFromFormData(formData, START_AFTER, String.class, "{}");
+                String startAfter = PluginUtils.getDataValueSafelyFromFormData(formData, START_AFTER, STRING_TYPE, "{}");
                 publishedAction.getActionConfiguration().setNext(startAfter);
 
-                String endBefore = PluginUtils.getDataValueSafelyFromFormData(formData, END_BEFORE, String.class, "{}");
+                String endBefore = PluginUtils.getDataValueSafelyFromFormData(formData, END_BEFORE, STRING_TYPE, "{}");
                 publishedAction.getActionConfiguration().setPrev(endBefore);
             }
 

@@ -14,7 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COLLECTION;
@@ -38,11 +39,11 @@ public class Distinct extends MongoCommand {
         Map<String, Object> formData = actionConfiguration.getFormData();
 
         if (validConfigurationPresentInFormData(formData, DISTINCT_QUERY)) {
-            this.query = PluginUtils.getDataValueSafelyFromFormData(formData, DISTINCT_QUERY, String.class);
+            this.query = PluginUtils.getDataValueSafelyFromFormData(formData, DISTINCT_QUERY, STRING_TYPE);
         }
 
         if (validConfigurationPresentInFormData(formData, DISTINCT_KEY)) {
-            this.key = PluginUtils.getDataValueSafelyFromFormData(formData, DISTINCT_KEY, String.class);
+            this.key = PluginUtils.getDataValueSafelyFromFormData(formData, DISTINCT_KEY, STRING_TYPE);
         }
     }
 
@@ -82,18 +83,18 @@ public class Distinct extends MongoCommand {
         Map<String, Object> configMap = new HashMap<>();
         String collectionName = (String) templateConfiguration.get("collectionName");
 
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "DISTINCT");
-        setValueSafelyInFormData(configMap, DISTINCT_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_distinct\") }");
-        setValueSafelyInFormData(configMap, DISTINCT_KEY, "_id");
-        setValueSafelyInFormData(configMap, COLLECTION, collectionName);
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "DISTINCT");
+        setDataValueSafelyInFormData(configMap, DISTINCT_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_distinct\") }");
+        setDataValueSafelyInFormData(configMap, DISTINCT_KEY, "_id");
+        setDataValueSafelyInFormData(configMap, COLLECTION, collectionName);
 
         String rawQuery = "{\n" +
                 "  \"distinct\": \"" + collectionName + "\",\n" +
                 "  \"query\": { \"_id\": ObjectId(\"id_of_document_to_distinct\") }," +
                 "  \"key\": \"_id\"," +
                 "}\n";
-        setValueSafelyInFormData(configMap, BODY, rawQuery);
+        setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
         return Collections.singletonList(new DatasourceStructure.Template(
                 "Distinct",

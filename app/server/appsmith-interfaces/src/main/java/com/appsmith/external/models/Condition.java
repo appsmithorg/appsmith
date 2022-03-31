@@ -81,7 +81,9 @@ public class Condition {
      */
     public static Boolean isValid(Condition condition) {
 
-        if (StringUtils.isEmpty(condition.getPath()) || (condition.getOperator() == null)) {
+        if (condition == null ||
+                (StringUtils.isEmpty(condition.getPath()) && !(condition.getValue() instanceof List)) ||
+                condition.getOperator() == null) {
             return false;
         }
 
