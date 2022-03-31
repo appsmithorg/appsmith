@@ -114,9 +114,33 @@ function* getTemplateNotificationSeenSaga() {
   }
 }
 
+function* getTemplateSaga(action: ReduxAction<string>) {
+  try {
+    const response = yield call(
+      TemplatesAPI.getTemplateInformation,
+      action.payload,
+    );
+    const isValid = yield validateResponse(response);
+    if (isValid) {
+      yield put({
+        type: ReduxActionTypes.GET_TEMPLATE_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.GET_TEMPLATE_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export default function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.GET_ALL_TEMPLATES_INIT, getAllTemplatesSaga),
+    takeEvery(ReduxActionTypes.GET_TEMPLATE_INIT, getTemplateSaga),
     takeEvery(
       ReduxActionTypes.GET_SIMILAR_TEMPLATES_INIT,
       getSimilarTemplatesSaga,
