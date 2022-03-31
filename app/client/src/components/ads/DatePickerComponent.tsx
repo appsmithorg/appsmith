@@ -26,7 +26,7 @@ const StyledDateInput = styled(DateInput)`
   select,
   [tabindex]:not([tabindex="-1"]) {
     &:focus {
-      outline: rgba(19, 124, 189, 0.6) auto 2px !important;
+      outline: #6eb9f0 auto 2px !important;
     }
   }
 
@@ -167,10 +167,30 @@ function DatePickerComponent(props: DatePickerComponentProps) {
     }
   }
 
+  function handleDocumentClick(e: Event) {
+    if (popoverRef.current) {
+      if (popoverRef.current.contains(e.target as Node)) {
+        const $footerBar = popoverRef.current.querySelector(
+          ".bp3-datepicker-footer",
+        );
+        if ($footerBar) {
+          const $buttons = Array.from(
+            $footerBar.querySelectorAll("button.bp3-button"),
+          );
+          if ($buttons.some((button) => button.contains(e.target as Node))) {
+            setDatePickerVisibility(false);
+          }
+        }
+      }
+    }
+  }
+
   useEffect(() => {
     document.body.addEventListener("keydown", handleKeydown);
+    document.addEventListener("click", handleDocumentClick);
     return () => {
       document.body.removeEventListener("keydown", handleKeydown);
+      document.removeEventListener("click", handleDocumentClick);
     };
   }, []);
 
