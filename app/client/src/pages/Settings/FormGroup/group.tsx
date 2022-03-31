@@ -57,7 +57,7 @@ const GroupBody = styled.div`
       > div {
         margin: 0;
         .${Classes.TAG_INPUT}, .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
-          border: 1.2px solid ${Colors.ALTO2};
+          border: 1.2px solid var(--appsmith-color-black-250);
           box-shadow: none;
           .bp3-tag {
             background: var(--appsmith-color-black-50);
