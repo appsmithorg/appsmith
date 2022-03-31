@@ -1159,7 +1159,7 @@ jobs:
       - run: echo "::set-output name=run_result::success" > ~/run_result
 
   ui-test-result:
-    needs: [ui-test, fat-conatiner-test]
+    needs: [ui-test, fat-container-test]
     if: always() &&
       (github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
@@ -1220,7 +1220,7 @@ jobs:
           fi
 
   package:
-    needs: [ui-test, fat-conatiner-test]
+    needs: [ui-test, fat-container-test]
     runs-on: ubuntu-latest
 
     # Run this job irrespective of tests failing, if this is the release branch; or only if the tests pass, if this is the master branch.
