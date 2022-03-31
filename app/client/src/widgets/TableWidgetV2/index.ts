@@ -63,7 +63,7 @@ export const CONFIG = {
         isCellEditable: false,
         isDerived: false,
         label: "step",
-        computedValue: `{{Table1.processedTableData.map((currentRow) => ( currentRow["step"]))}}`,
+        computedValue: `{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow["step"]))}}`,
       },
       task: {
         index: 1,
@@ -82,7 +82,7 @@ export const CONFIG = {
         isCellEditable: false,
         isDerived: false,
         label: "task",
-        computedValue: `{{Table1.processedTableData.map((currentRow) => ( currentRow["task"]))}}`,
+        computedValue: `{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow["task"]))}}`,
       },
       status: {
         index: 2,
@@ -101,7 +101,7 @@ export const CONFIG = {
         isCellEditable: false,
         isDerived: false,
         label: "status",
-        computedValue: `{{Table1.processedTableData.map((currentRow) => ( currentRow["status"]))}}`,
+        computedValue: `{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow["status"]))}}`,
       },
       action: {
         index: 3,
@@ -123,7 +123,7 @@ export const CONFIG = {
         label: "action",
         onClick:
           "{{currentRow.step === '#1' ? showAlert('Done', 'success') : currentRow.step === '#2' ? navigateTo('https://docs.appsmith.com/core-concepts/connecting-to-data-sources/querying-a-database',undefined,'NEW_WINDOW') : navigateTo('https://docs.appsmith.com/core-concepts/displaying-data-read/display-data-tables',undefined,'NEW_WINDOW')}}",
-        computedValue: `{{Table1.processedTableData.map((currentRow) => ( currentRow["action"]))}}`,
+        computedValue: `{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow["action"]))}}`,
       },
     },
     tableData: [
@@ -165,7 +165,7 @@ export const CONFIG = {
                 `${columnId}.computedValue`,
                 `{{${
                   widget.widgetName
-                }.processedTableData.map((currentRow) => ( currentRow["${escapeString(
+                }.processedTableData.map((currentRow, currentIndex) => ( currentRow["${escapeString(
                   primaryColumns[columnId].alias,
                 )}"]))}}`,
               );
