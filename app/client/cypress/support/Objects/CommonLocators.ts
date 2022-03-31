@@ -1,13 +1,10 @@
 export class CommonLocators {
-    _addNewDataSource = ".datasources .t--entity-add-btn"
-    _integrationCreateNew = "[data-cy=t--tab-CREATE_NEW]"
     _loading = "#loading"
+    _spinner = ".bp3-spinner"
     _queryName = ".t--action-name-edit-field span"
     _queryNameTxt = ".t--action-name-edit-field input"
     _dsName = ".t--edit-datasource-name span"
     _dsNameTxt = ".t--edit-datasource-name input"
-    _homeIcon = ".t--appsmith-logo"
-    _homePageAppCreateBtn = ".t--applications-container .createnew"
     _saveStatusSuccess = ".t--save-status-success"
     _codeMirrorTextArea = ".CodeMirror textarea"
     _codeMirrorCode = ".CodeMirror-code"
@@ -24,10 +21,20 @@ export class CommonLocators {
     _newPage = ".pages .t--entity-add-btn"
     _toastMsg = ".t--toast-action"
     _empty = "span[name='no-response']"
+    _contextMenuInPane = "span[name='context-menu']"
+    _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']"
     _openWidget = ".widgets .t--entity-add-btn"
     _dropHere = "#comment-overlay-wrapper-0"
     _activeTab = "span:contains('Active')"
     _createQuery = ".t--create-query"
+    _crossBtn = "span.cancel-icon"
+    _createNew = ".t--entity-add-btn.group.files"
+    _uploadFiles = "div.uppy-Dashboard-AddFiles input"
+    _uploadBtn = "button.uppy-StatusBar-actionBtn--upload"
+    _debuggerIcon = ".t--debugger svg"
+    _errorTab = "[data-cy=t--tab-ERROR]"
+    _debugErrorMsg = ".t--debugger-message"
+    _debuggerLabel = "span.debugger-label"
     _entityNameInExplorer = (entityNameinLeftSidebar: string) => "//div[contains(@class, 't--entity-name')][text()='" + entityNameinLeftSidebar + "']"
     _expandCollapseArrow = (entityNameinLeftSidebar: string) => "//div[text()='" + entityNameinLeftSidebar + "']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]"
     _entityProperties = (entityNameinLeftSidebar: string) => "//div[text()='" + entityNameinLeftSidebar + "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//div[contains(@class, 't--entity-property')]//code"
@@ -45,13 +52,11 @@ export class CommonLocators {
     _widgetInCanvas = (widgetType: string) => `.t--draggable-${widgetType}`
     _widgetInDeployed = (widgetType: string) => `.t--widget-${widgetType}`
     _propertyToggle = (controlToToggle: string) => ".t--property-control-" + controlToToggle + " input[type='checkbox']"
+    _propertyToggleValue = (controlToToggle: string) => "//div[contains(@class, 't--property-control-" + controlToToggle + "')]//input[@type='checkbox']/parent::label"
     _openNavigationTab = (tabToOpen: string) => `#switcher--${tabToOpen}`
     _selectWidgetDropdown = (widgetType: string) => "//div[contains(@class, 't--draggable-" + widgetType + "')]//button"
-    _createNewPlgin = (pluginName: string) => ".t--plugin-name:contains('" + pluginName + "')"
     _inputFieldByName = (fieldName: string) => "//p[text()='" + fieldName + "']/parent::label/following-sibling::div"
+    _existingFieldValueByName = (fieldName: string) => "//label[text()='" + fieldName + "']/ancestor::div//div[contains(@class,'CodeMirror-code')]"
     _evaluatedCurrentValue = "div:last-of-type .t--CodeEditor-evaluatedValue > div:last-of-type pre"
-    _tableRowColumn = (rowNum: number, colNum: number) => `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div div`
-    _crossBtn = "span.cancel-icon"
-    _createNew = ".t--entity-add-btn.group.files"
 
 }
