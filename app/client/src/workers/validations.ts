@@ -1004,7 +1004,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     props: Record<string, unknown>,
     propertyPath: string,
   ) => {
-    if (value === undefined || value === null || value === "" || value === []) {
+    if (value === undefined || value === null || value === "" || (Array.isArray(value) && value.length === 0)) {
       if (config?.params?.required) {
         return {
           isValid: false,
