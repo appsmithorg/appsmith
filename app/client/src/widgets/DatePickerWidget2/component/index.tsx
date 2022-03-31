@@ -43,7 +43,6 @@ const StyledControlGroup = styled(ControlGroup)<{
       border-color: ${({ isValid }) =>
         !isValid ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
       width: 100%;
-      height: 100%;
       align-items: center;
       &:active {
         border-color: ${({ isValid, primaryColor }) =>

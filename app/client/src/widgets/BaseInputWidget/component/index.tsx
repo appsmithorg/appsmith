@@ -202,7 +202,6 @@ const InputComponentWrapper = styled((props) => (
     background: ${({ disabled }) => (disabled ? Colors.GREY_1 : Colors.WHITE)};
     border-radius: 0px;
     box-shadow: none !important;
-    height: 100%;
     width: 100%;
 
     ${(props) =>

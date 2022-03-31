@@ -35,6 +35,8 @@ type DateComponentProps = FieldComponentBaseProps &
     timePrecision: TimePrecision;
   };
 
+type DateFieldProps = BaseFieldComponentProps<DateComponentProps>;
+
 const DEFAULT_PRIMARY_COLOR = Colors.GREEN;
 const DEFAULT_BORDER_RADIUS = "0";
 
@@ -84,8 +86,6 @@ const componentDefaultValues = ({
     dateFormat,
   };
 };
-
-type DateFieldProps = BaseFieldComponentProps<DateComponentProps>;
 
 export const isValidType = (value: string) =>
   dateFormatOptions.some(({ value: format }) =>
@@ -204,7 +204,7 @@ function DateField({
         selectedDate={valueInISOFormat}
         shortcuts={schemaItem.shortcuts}
         timePrecision={schemaItem.timePrecision}
-        widgetId="asd"
+        widgetId={name}
       />
     );
   }, [
@@ -220,6 +220,7 @@ function DateField({
     schemaItem.shortcuts,
     schemaItem.timePrecision,
     inputRef,
+    name,
   ]);
 
   return (
