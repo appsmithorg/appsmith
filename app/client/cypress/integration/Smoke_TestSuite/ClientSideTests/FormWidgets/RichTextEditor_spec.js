@@ -132,7 +132,7 @@ describe("RichTextEditor Widget Functionality", function() {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",
-      `{{RichTextEditor1.isDirty}}`,
+      `{{RichtextEditor.isDirty}}`,
     );
     // Change defaultText
     cy.openPropertyPane("richtexteditorwidget");
