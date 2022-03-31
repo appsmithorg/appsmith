@@ -1,12 +1,10 @@
-import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
-import { JSEditor } from "../../../../support/Pages/JSEditor";
-import { CommonLocators } from "../../../../support/Objects/CommonLocators";
-
-const agHelper = new AggregateHelper();
-const jsEditor = new JSEditor();
-const locator = new CommonLocators();
+import { ObjectsRegistry } from "../../../../support/Objects/Registry"
 
 let dataSet: any;
+let agHelper = ObjectsRegistry.AggregateHelper,
+    ee = ObjectsRegistry.EntityExplorer,
+    jsEditor = ObjectsRegistry.JSEditor,
+    locator = ObjectsRegistry.CommonLocators;
 
 describe("Validate basic binding of Input widget to Input widget", () => {
 
@@ -21,16 +19,16 @@ describe("Validate basic binding of Input widget to Input widget", () => {
     });
 
     it("1. Input widget test with default value from another Input widget", () => {
-        agHelper.expandCollapseEntity("WIDGETS")
-        agHelper.SelectEntityByName("Input1")
+        ee.expandCollapseEntity("WIDGETS")
+        ee.SelectEntityByName("Input1")
         jsEditor.EnterJSContext("defaulttext", dataSet.defaultInputBinding + "}}");
-        agHelper.ValidateNetworkCallRespPut('@updateLayout')
+        agHelper.ValidateNetworkStatus('@updateLayout')
     });
 
     it("2. Binding second input widget with first input widget and validating", function () {
-        agHelper.SelectEntityByName("Input2")
+        ee.SelectEntityByName("Input2")
         jsEditor.EnterJSContext("defaulttext", dataSet.momentInput + "}}");
-        agHelper.ValidateNetworkCallRespPut('@updateLayout')
+        agHelper.ValidateNetworkStatus('@updateLayout')
     });
 
     it("3. Publish widget and validate the data displayed in input widgets", function () {
