@@ -35,3 +35,4 @@ export const WELCOME_FORM_CUSTOM_USECASE_FIELD_NAME = "custom_useCase";
 
 export const SETTINGS_FORM_NAME = "SettingsForm";
 export const WELCOME_NON_SUPER_FORM_NAME = "WelcomeNonSuperSetupForm";
+export const REDIRECT_URL_FORM = "RedirectURLForm";
