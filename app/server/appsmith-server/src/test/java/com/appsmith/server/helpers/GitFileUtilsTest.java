@@ -4,6 +4,7 @@ import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.services.PluginService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import lombok.SneakyThrows;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,6 +44,9 @@ public class GitFileUtilsTest {
 
     @Autowired
     GitFileUtils gitFileUtils;
+
+    @Autowired
+    PluginService pluginService;
 
     private static String filePath = "test_assets/ImportExportServiceTest/valid-application.json";
     private static final Path localRepoPath = Path.of("localRepoPath");
@@ -178,6 +183,37 @@ public class GitFileUtilsTest {
                 })
                 .verifyComplete();
 
+    }
+
+    @SneakyThrows
+    @Test
+    public void saveApplicationToLocalRepo_whereConfigsArePresentAtActionsLevels_removeTheCOnfigValuesFromActionBasedOnPlugInType() {
+        ApplicationJson validAppJson = createAppJson("test_assets/ImportExportServiceTest/valid-application-with-page-added.json").block();
+
+        Mockito.when(fileInterface.saveApplicationToGitRepo(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.just(localRepoPath));
+
+        List<Plugin> pluginList = pluginService.getDefaultPlugins().collectList().block();
+
+        Mono<Path> resultMono = gitFileUtils.saveApplicationToLocalRepo(Path.of(""), validAppJson, "gitFileTest", pluginList);
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(path -> {
+                    validAppJson.getActionList().forEach(newAction -> {
+                        assertThat(newAction.getUnpublishedAction()).isNotNull();
+                        assertThat(newAction.getPublishedAction()).isNull();
+                        List<Plugin> actionPluginType = pluginList.stream().filter(plugin -> plugin.getType().equals(newAction.getPluginType())).collect(Collectors.toList());
+                        if(actionPluginType.size() > 0 && actionPluginType.get(0).getIsConfigStoredAtDataSource().equals(false)) {
+                            // Check if the configs are excluded from actions of type such as SAAS, Airtable
+                            assertThat(newAction.getUnpublishedAction().getActionConfiguration()).isNull();
+                        } else {
+                            assertThat(newAction.getUnpublishedAction().getActionConfiguration()).isNotNull();
+                        }
+
+                    });
+                })
+                .verifyComplete();
     }
 
 }

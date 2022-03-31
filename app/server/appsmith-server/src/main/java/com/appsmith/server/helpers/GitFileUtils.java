@@ -285,7 +285,7 @@ public class GitFileUtils {
         action.setUserPermissions(null);
         ActionDTO unpublishedAction = action.getUnpublishedAction();
         // Exclude config values from action before committing to git repo
-        List<Plugin> actionPluginType = pluginList.stream().filter(plugin -> plugin.getType().equals(action.getPluginType())).collect(Collectors.toList());
+        List<Plugin> actionPluginType = pluginList.stream().filter(plugin -> plugin.getPackageName().equals(action.getPluginId())).collect(Collectors.toList());
         if(actionPluginType.size() > 0 && actionPluginType.get(0).getIsConfigStoredAtDataSource().equals(false)) {
             action.getUnpublishedAction().setActionConfiguration(new ActionConfiguration());
         }

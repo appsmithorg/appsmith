@@ -5092,6 +5092,21 @@ public class DatabaseChangelog {
         setSmartSubstitutionFieldForEachAction(firestoreActions, mongockTemplate);
     }
 
+    @ChangeSet(order = "119", id = "add-isConfigStoredAtDataSource-for-plugins", author = "")
+    public void updateIsConfigStoredAtDataSourceForPlugIn(MongockTemplate mongockTemplate) {
+        List<Plugin> pluginList =  mongockTemplate.findAll(Plugin.class);
+        for(Plugin plugin : pluginList) {
+            if(plugin.getType().equals("SAAS")) {
+                plugin.setIsConfigStoredAtDataSource(FALSE);
+            } else if(plugin.getType().equals("REMOTE") && plugin.getPackageName().equals("Airtable")) {
+                plugin.setIsConfigStoredAtDataSource(FALSE);
+            } else {
+                plugin.setIsConfigStoredAtDataSource(TRUE);
+            }
+            mongockTemplate.save(plugin);
+        }
+    }
+
     private void setSmartSubstitutionFieldForEachAction(List<NewAction> firestoreActions,
                                                         MongockTemplate mongockTemplate) {
         firestoreActions.stream()

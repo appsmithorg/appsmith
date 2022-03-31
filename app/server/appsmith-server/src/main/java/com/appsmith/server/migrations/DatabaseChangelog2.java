@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -644,31 +645,33 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "005", id = "add-isConfigStoredAtDataSource-for-plugins", author = "")
-    public void updateIsConfigStoredAtDataSourceForPlugIn(MongockTemplate mongockTemplate) {
-        for(Plugin plugin : mongockTemplate.findAll(Plugin.class)) {
-            if (plugin.getType().equals("DB")) {
-                plugin.setIsConfigStoredAtDataSource(true);
-            }
-            if(plugin.getType().equals("SAAS")) {
-                plugin.setIsConfigStoredAtDataSource(false);
-            }
-            if(plugin.getType().equals("REMOTE")) {
-                plugin.setIsConfigStoredAtDataSource(false);
-            }
-            if(plugin.getType().equals("API")) {
-                plugin.setIsConfigStoredAtDataSource(true);
-            }
-        }
-    }
-
-    @ChangeSet(order = "006", id = "set-application-version", author = "")
+    @ChangeSet(order = "005", id = "set-application-version", author = "")
     public void setDefaultApplicationVersion(MongockTemplate mongockTemplate) {
         mongockTemplate.updateMulti(
                 Query.query(where(fieldName(QApplication.application.deleted)).is(false)),
                 Update.update(fieldName(QApplication.application.applicationVersion),
                         ApplicationVersion.EARLIEST_VERSION),
                 Application.class);
+    }
+
+    @ChangeSet(order = "006", id = "add-isConfigStoredAtDataSource-for-plugins", author = "")
+    public void updateIsConfigStoredAtDataSourceForPlugIn(MongockTemplate mongockTemplate) {
+        List<Plugin> pluginList =  mongockTemplate.findAll(Plugin.class);
+        for(Plugin plugin : pluginList) {
+            if (plugin.getType().equals("DB")) {
+                plugin.setIsConfigStoredAtDataSource(TRUE);
+            }
+            if(plugin.getType().equals("SAAS")) {
+                plugin.setIsConfigStoredAtDataSource(FALSE);
+            }
+            if(plugin.getType().equals("REMOTE") && plugin.getPackageName().equals("Airtable")) {
+                plugin.setIsConfigStoredAtDataSource(FALSE);
+            }
+            if(plugin.getType().equals("API")) {
+                plugin.setIsConfigStoredAtDataSource(TRUE);
+            }
+            mongockTemplate.save(plugin);
+        }
     }
 
 }
