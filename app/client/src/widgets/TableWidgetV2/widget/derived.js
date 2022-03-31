@@ -1,7 +1,5 @@
 /* eslint-disable no-console */
 
-import moment from "moment";
-
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
   getSelectedRow: (props, moment, _) => {
@@ -514,6 +512,7 @@ export default {
   },
   //
   getUpdatedRows: (props, moment, _) => {
+    const keysToBeOmitted = ["__originalIndex__", "__primaryKey__"];
     /*
      * case 1. If transientTableData is not empty return aray of updated row.
      * case 2. If transientTableData is empty return empty array
@@ -532,7 +531,7 @@ export default {
      *  }
      */
 
-    //case 1
+    /* case 1 */
     if (
       props.transientTableData &&
       !!Object.keys(props.transientTableData).length
@@ -541,33 +540,39 @@ export default {
       const tableData =
         props.filteredTableData || props.processedTableData || props.tableData;
 
-      //updatedRows is not sorted by index
-      Object.entries(props.transientTableData).filter((entry) => {
-        return !_.isNil(entry[0]) && !!entry[0] && _.isFinite(Number(entry[0]));
-      }).forEach((entry) => {
-        const key = entry[0];
-        const value = entry[1];
-        const row = tableData[key];
+      /* updatedRows is not sorted by index */
+      Object.entries(props.transientTableData)
+        .filter((entry) => {
+          return (
+            !_.isNil(entry[0]) && !!entry[0] && _.isFinite(Number(entry[0]))
+          );
+        })
+        .forEach((entry) => {
+          const key = entry[0];
+          const value = entry[1];
+          const row = tableData[key];
 
-        updatedRows.push({
-          index: Number(key),
-          [props.primaryColumnId]: row[props.primaryColumnId],
-          updatedFields: value,
-          all_fields: row || {},
+          updatedRows.push({
+            index: Number(key),
+            [props.primaryColumnId]: row[props.primaryColumnId],
+            updatedFields: value,
+            all_fields: _.omit(row, keysToBeOmitted) || {},
+          });
         });
-      });
 
       return updatedRows;
     } else {
-      //case 2
+      /* case 2 */
       return [];
     }
   },
   //
   getUpdatedRowIndices: (props, moment, _) => {
-    //should return the keys of the transientTableData
+    /* should return the keys of the transientTableData */
     if (props.transientTableData) {
-      return Object.keys(props.transientTableData).map(index => Number(index));
+      return Object.keys(props.transientTableData).map((index) =>
+        Number(index),
+      );
     } else {
       return [];
     }

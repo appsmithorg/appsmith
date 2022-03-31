@@ -5,6 +5,7 @@ import { Colors } from "constants/Colors";
 import styled from "constants/DefaultTheme";
 import { ControlIcons } from "icons/ControlIcons";
 import { CellAlignment, TEXT_ALIGN } from "../Constants";
+import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.svg";
 
 const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   padding: 0;
@@ -29,6 +30,17 @@ const DescendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
       fill: ${Colors.LIGHT_GREYISH_BLUE};
     }
   }
+`;
+
+const ColumnNameContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const StyledEditIcon = styled(EditIcon)`
+  width: 14px;
+  min-width: 14px;
+  margin-right: 3px;
 `;
 
 export const DraggableHeaderWrapper = styled.div<{
@@ -62,6 +74,10 @@ export function HeaderCell(props: {
   };
   const disableSort = editMode === false && isSortable === false;
 
+  const isColumnEditable =
+    column.columnProperties.isCellEditable &&
+    column.columnProperties.isEditable;
+
   return (
     <div
       {...column.getHeaderProps()}
@@ -72,7 +88,10 @@ export function HeaderCell(props: {
         className={!props.isHidden ? `draggable-header` : "hidden-header"}
         horizontalAlignment={column.columnProperties.horizontalAlignment}
       >
-        {props.columnName}
+        <ColumnNameContainer>
+          {isColumnEditable && <StyledEditIcon />}
+          <div>{props.columnName}</div>
+        </ColumnNameContainer>
       </DraggableHeaderWrapper>
       {props.isAscOrder !== undefined ? (
         <div>
