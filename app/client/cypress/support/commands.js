@@ -889,7 +889,8 @@ Cypress.Commands.add("enterDatasource", (datasource) => {
   cy.get(apiwidget.resourceUrl)
     .first()
     .click({ force: true })
-    .type(datasource, { parseSpecialCharSequences: false });
+    .type(datasource, { parseSpecialCharSequences: false })
+    .type("{esc}}");
 });
 
 Cypress.Commands.add("changeZoomLevel", (zoomValue) => {
