@@ -11,7 +11,7 @@ import {
   WINDOW_OBJECT_PROPERTIES,
 } from "constants/WidgetValidation";
 import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
-import { get, set } from "lodash";
+import { get, set, isNil } from "lodash";
 import { Org } from "constants/orgConstants";
 import {
   isPermitted,
@@ -681,6 +681,15 @@ export function shouldBeDefined<T>(
 
   return result;
 }
+/*
+ * Check if a value is null / undefined / empty string
+ *
+ * @param value: any
+ */
+export const isEmptyOrNill = (value: any) => {
+  return isNil(value) || (isString(value) && value === "");
+};
+
 export const isURLDeprecated = (url: string) => {
   return !!matchPath(url, {
     path: [

@@ -26,7 +26,10 @@ import {
   isSortableMigration,
   migrateTableWidgetIconButtonVariant,
 } from "./migrations/TableWidget";
-import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
+import {
+  migrateTextStyleFromTextWidget,
+  migrateScrollTruncateProperties,
+} from "./migrations/TextWidget";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 import { theme } from "constants/DefaultTheme";
 import { getCanvasSnapRows } from "./WidgetPropsUtils";
@@ -1056,6 +1059,11 @@ export const transformDSL = (
 
   if (currentDSL.version === 52) {
     currentDSL = migrateModalIconButtonWidget(currentDSL);
+    currentDSL.version = 53;
+  }
+
+  if (currentDSL.version === 53) {
+    currentDSL = migrateScrollTruncateProperties(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

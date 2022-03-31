@@ -91,12 +91,14 @@ class DatePickerComponent extends React.Component<
   }
 
   componentDidUpdate(prevProps: DatePickerComponentProps) {
+    // prevProps.selectedDate can undefined and moment(undefined) returns now
     if (
       this.props.selectedDate !== this.state.selectedDate &&
-      !moment(this.props.selectedDate).isSame(
+      (!moment(this.props.selectedDate).isSame(
         moment(prevProps.selectedDate),
         "seconds",
-      )
+      ) ||
+        (!prevProps.selectedDate && this.props.selectedDate))
     ) {
       this.setState({ selectedDate: this.props.selectedDate });
     }

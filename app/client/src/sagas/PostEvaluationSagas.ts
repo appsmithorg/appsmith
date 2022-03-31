@@ -70,7 +70,10 @@ function logLatestEvalPropertyErrors(
       }
       let allEvalErrors: EvaluationError[] = get(
         entity,
-        getEvalErrorPath(evaluatedPath, false),
+        getEvalErrorPath(evaluatedPath, {
+          fullPath: false,
+          isPopulated: false,
+        }),
         [],
       );
 
@@ -84,7 +87,10 @@ function logLatestEvalPropertyErrors(
 
       const evaluatedValue = get(
         entity,
-        getEvalValuePath(evaluatedPath, false),
+        getEvalValuePath(evaluatedPath, {
+          isPopulated: false,
+          fullPath: false,
+        }),
       );
       const evalErrors: EvaluationError[] = [];
       const evalWarnings: EvaluationError[] = [];

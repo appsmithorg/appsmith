@@ -2,6 +2,7 @@ import { transformDSL } from "./DSLMigrations";
 import { LATEST_PAGE_VERSION, RenderModes } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { WidgetProps } from "widgets/BaseWidget";
+import { OverflowTypes } from "widgets/TextWidget/constants";
 
 describe("correctly migrate dsl", () => {
   it("AddsPrivateWidgetsToAllListWidgets", () => {
@@ -975,7 +976,6 @@ describe("correctly migrate dsl", () => {
                             },
                           ],
                           leftColumn: 16,
-                          shouldTruncate: false,
                           truncateButtonColor: "#FFC13D",
                           text: "{{currentItem.name}}",
                           key: "yd217bk315",
@@ -1019,7 +1019,7 @@ describe("correctly migrate dsl", () => {
                           isVisible: true,
                           fontStyle: "BOLD",
                           textColor: "#231F20",
-                          shouldScroll: false,
+                          overflow: OverflowTypes.NONE,
                           version: 1,
                           parentId: "vqn2okwc6a",
                           renderMode: "CANVAS",
@@ -1043,7 +1043,6 @@ describe("correctly migrate dsl", () => {
                             },
                           ],
                           leftColumn: 16,
-                          shouldTruncate: false,
                           truncateButtonColor: "#FFC13D",
                           text: "{{currentItem.id}}",
                           key: "yd217bk315",
@@ -1087,7 +1086,7 @@ describe("correctly migrate dsl", () => {
                           isVisible: true,
                           fontStyle: "BOLD",
                           textColor: "#231F20",
-                          shouldScroll: false,
+                          overflow: OverflowTypes.NONE,
                           version: 1,
                           parentId: "vqn2okwc6a",
                           renderMode: "CANVAS",
