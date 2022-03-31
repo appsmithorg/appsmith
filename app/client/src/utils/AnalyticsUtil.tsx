@@ -210,7 +210,8 @@ export type EventName =
   | "DATASOURCE_AUTH_COMPLETE"
   | "RECONNECTING_DATASOURCE_ITEM_CLICK"
   | "ADD_MISSING_DATASOURCE_LINK_CLICK"
-  | "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK";
+  | "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK"
+  | "TEMPLATE_FILTER_SELECTED";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");

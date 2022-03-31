@@ -41,3 +41,8 @@ export const setTemplateNotificationSeenAction = (payload: boolean) => ({
 export const getTemplateNotificationSeenAction = () => ({
   type: ReduxActionTypes.GET_TEMPLATE_NOTIFICATION_SEEN,
 });
+
+export const getTemplateInformation = (payload: string) => ({
+  type: ReduxActionTypes.GET_TEMPLATE_INIT,
+  payload,
+});
