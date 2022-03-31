@@ -18,6 +18,7 @@ const ListWrapper = styled.div`
   overflow: auto;
   ${thinScrollbar};
   height: 100%;
+  padding-bottom: 25px;
 `;
 
 function Errors(props: { hasShortCut?: boolean }) {

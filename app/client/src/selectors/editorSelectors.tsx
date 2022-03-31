@@ -36,7 +36,8 @@ import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { builderURL } from "RouteBuilder";
 import { ApplicationVersion } from "actions/applicationActions";
 
-const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
+export const getWidgetConfigs = (state: AppState) =>
+  state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
 
 export const getProviderCategories = (state: AppState) =>

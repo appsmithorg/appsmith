@@ -17,6 +17,7 @@ interface Props {
   height: string;
   folding: boolean;
   showLineNumbers?: boolean;
+  isReadOnly?: boolean;
 }
 
 function ReadOnlyEditor(props: Props) {
@@ -35,6 +36,7 @@ function ReadOnlyEditor(props: Props) {
       : true,
     borderLess: true,
     folding: props.folding,
+    isReadOnly: props.isReadOnly,
   };
   return <CodeEditor {...editorProps} />;
 }

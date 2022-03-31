@@ -62,7 +62,7 @@ function ListItemWrapper(props: {
           style={{ marginBottom: 2, display: "flex" }}
           type={TextType.H4}
         >
-          {plugin.name}
+          {ds.name}
           <Icon
             fillColor={ds.isConfigured ? Colors.GREEN : Colors.ERROR_RED}
             name={ds.isConfigured ? "oval-check" : "info"}
@@ -74,7 +74,7 @@ function ListItemWrapper(props: {
           color={Colors.GRAY_700}
           type={TextType.H5}
         >
-          {ds.name}
+          {plugin.name}
         </Text>
       </ListLabels>
     </ListItem>
