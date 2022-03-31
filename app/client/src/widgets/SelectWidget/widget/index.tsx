@@ -361,9 +361,11 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     let selectedIndex: number | undefined = findIndex(this.props.options, {
       value: this.props.selectedOptionValue,
     });
-    if (selectedIndex === -1) {
-      // If the provided value (default value) is not available in the options,
-      // then clear the selection.
+    if (selectedIndex === -1 && !this.props.serverSideFiltering) {
+      /**
+       * If the provided value (default value) is not available in the options,
+       * then clear the selection; unless options are being filtered on the server.
+       */
       label = "";
       value = "";
       selectedIndex = undefined;

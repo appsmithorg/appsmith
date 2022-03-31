@@ -459,12 +459,13 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   getValidSelections = (): LabelValueType[] => {
-    const { options, selectedOptions } = this.props;
+    const { options, selectedOptions, serverSideFiltering } = this.props;
     const values: LabelValueType[] = selectedOptions
       ? selectedOptions.map((o) =>
           isString(o) || isNumber(o) ? { value: o } : { value: o.value },
         )
       : [];
+    if (serverSideFiltering) return values;
     if (options?.length && values?.length) {
       const availableOptions: any[] = values
         .map((x) => {
