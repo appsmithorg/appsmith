@@ -1,17 +1,13 @@
 const path = require("path");
 const Perf = require("../src/perf");
 const { delay } = require("../src/utils/utils");
+const { actions } = require("./actions");
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 const SEL = {
   select_button: ".select-button",
   options_list: ".menu-virtual-list",
   first_option_item: ".menu-item-text:nth-child(1)",
-};
-
-const actions = {
-  OPEN_SELECT_MENU: "OPEN_SELECT_MENU",
-  SELECT_OPTION_ITEM: "SELECT_OPTION_ITEM",
 };
 
 async function testSelectOptionsRender() {
@@ -30,7 +26,7 @@ async function testSelectOptionsRender() {
     await delay(2000, "wait after opening options list");
     await perf.stopTrace();
 
-    await perf.startTrace(actions.SELECT_OPTION_ITEM);
+    await perf.startTrace(actions.CLICK_SELECT_OPTION_ITEM);
     await page.click(SEL.first_option_item);
     await delay(2000, "wait after selecting option item");
     await perf.stopTrace();
