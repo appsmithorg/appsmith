@@ -125,7 +125,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
-            <version>2.5.5</version>
+            <version>2.5.12</version>
             <scope>test</scope>
         </dependency>
         <dependency>
