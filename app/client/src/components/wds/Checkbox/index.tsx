@@ -11,6 +11,7 @@ type StyledCheckboxProps = {
   borderRadius?: string;
   indeterminate?: boolean;
   hasError?: boolean;
+  inputRef?: (el: HTMLInputElement | null) => any;
 };
 
 const DISABLED_ICON_SVG =

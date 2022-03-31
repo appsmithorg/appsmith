@@ -98,8 +98,8 @@ export const FORGOT_PASSWORD_PAGE_TITLE = () => `Reset password`;
 export const FORGOT_PASSWORD_PAGE_SUBTITLE = () =>
   `We will send a reset link to the email below`;
 export const FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT = () => `Reset`;
-export const FORGOT_PASSWORD_SUCCESS_TEXT = () =>
-  `A password reset link has been sent to`;
+export const FORGOT_PASSWORD_SUCCESS_TEXT = (email: string) =>
+  `A password reset link has been sent to your email address ${email} registered with Appsmith.`;
 
 export const PRIVACY_POLICY_LINK = () => `Privacy policy`;
 export const TERMS_AND_CONDITIONS_LINK = () => `Terms and conditions`;
@@ -678,6 +678,9 @@ export const DISCONNECT_SERVICE_SUBHEADER = () =>
   "Changes to this section can disrupt user authentication. Proceed with caution.";
 export const DISCONNECT_SERVICE_WARNING = () =>
   "will be removed as primary method of authentication";
+export const AUTHENTICATION_METHOD_ENABLED = (methodName: string) => `
+  ${methodName} authentication method is enabled
+`;
 
 export const DISCONNECT_EXISTING_REPOSITORIES = () =>
   "Disconnect existing Repositories";
@@ -1015,6 +1018,8 @@ export const ADMIN_AUTH_SETTINGS_TITLE = () => "Select Authentication Method";
 export const ADMIN_AUTH_SETTINGS_SUBTITLE = () =>
   "Select a protocol you want to authenticate users with";
 export const DANGER_ZONE = () => "Danger Zone";
+export const DISCONNECT_AUTH_METHOD = () => "Disconnect";
+export const DISCONNECT_CONFIRMATION = () => "Are you sure?";
 
 // Guided tour
 // -- STEPS ---
@@ -1088,7 +1093,11 @@ export const CONTEXT_SHOW_BINDING = () => "Show Bindings";
 export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
+export const CONFIRM_CONTEXT_DELETE = () => "Are you sure?";
 export const CONTEXT_NO_PAGE = () => "No pages";
+export const CONTEXT_REFRESH = () => "Refresh";
+export const CONTEXT_CLONE = () => "Clone";
+export const CONTEXT_SET_AS_HOME_PAGE = () => "Set as Home Page";
 
 // Entity explorer
 export const ADD_DATASOURCE_BUTTON = () => "ADD DATASOURCE";
@@ -1140,3 +1149,9 @@ export const FORK_APP_MODAL_EMPTY_TITLE = () =>
 export const FORK_APP_MODAL_SUCCESS_TITLE = () =>
   "Choose where to fork the app";
 export const FORK = () => `FORK`;
+
+export const CLEAN_URL_UPDATE = {
+  name: () => "Update URLs",
+  shortDesc: () =>
+    "All URLs in your applications will update to a new readable format that includes the application and page names.",
+};

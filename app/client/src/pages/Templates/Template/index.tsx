@@ -4,13 +4,13 @@ import { Template as TemplateInterface } from "api/TemplatesApi";
 import history from "utils/history";
 import Button, { Size } from "components/ads/Button";
 import Tooltip from "components/ads/Tooltip";
-import { TEMPLATE_ID_URL } from "constants/routes";
 import ForkTemplateDialog from "../ForkTemplate";
 import DatasourceChip from "../DatasourceChip";
 import LargeTemplate from "./LargeTemplate";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { createMessage, FORK_THIS_TEMPLATE } from "ce/constants/messages";
+import { templateIdUrl } from "RouteBuilder";
 
 const TemplateWrapper = styled.div`
   border: 1px solid ${Colors.GEYSER_LIGHT};
@@ -117,7 +117,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
   } = props.template;
   const [showForkModal, setShowForkModal] = useState(false);
   const onClick = () => {
-    history.push(TEMPLATE_ID_URL(id));
+    history.push(templateIdUrl({ id }));
   };
 
   const onForkButtonTrigger = (e: React.MouseEvent<HTMLElement>) => {

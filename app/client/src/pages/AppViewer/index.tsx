@@ -9,7 +9,8 @@ import {
   BuilderRouteParams,
   GIT_BRANCH_QUERY_KEY,
   VIEWER_FORK_PATH,
-  VIEWER_URL,
+  VIEWER_PATH,
+  VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
@@ -107,7 +108,7 @@ function AppViewer(props: Props) {
    * initialize the app if branch, pageId or application is changed
    */
   useEffect(() => {
-    if (applicationId && pageId) {
+    if (applicationId || pageId) {
       initializeAppViewerCallback(branch, applicationId, pageId);
     }
   }, [branch, pageId, applicationId]);
@@ -222,7 +223,12 @@ function AppViewer(props: Props) {
                     <SentryRoute
                       component={AppViewerPageContainer}
                       exact
-                      path={VIEWER_URL}
+                      path={VIEWER_PATH}
+                    />
+                    <SentryRoute
+                      component={AppViewerPageContainer}
+                      exact
+                      path={VIEWER_PATH_DEPRECATED}
                     />
                     <SentryRoute
                       component={AppViewerPageContainer}

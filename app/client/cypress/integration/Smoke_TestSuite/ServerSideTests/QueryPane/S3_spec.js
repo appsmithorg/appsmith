@@ -120,7 +120,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
         "File content is not base64 encoded.",
       );
     });
-    cy.validateNSelectDropdown("File Data Type", "Base64", "Text / Binary");
+    cy.validateNSelectDropdown("File Data Type", "Base64", "Text");
 
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
@@ -249,7 +249,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.typeValueNValidate("AutoFile", "File Path");
 
     //Commenting below since below dropdown is removed from Read
-    //cy.validateNSelectDropdown("File Data Type", "Base64", "Text / Binary");
+    //cy.validateNSelectDropdown("File Data Type", "Base64", "Text");
 
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
@@ -343,7 +343,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     );
     cy.typeValueNValidate("assets-test.appsmith.com", "Bucket Name");
     cy.typeValueNValidate("CRUDNewPageFile", "File Path");
-    cy.validateNSelectDropdown("File Data Type", "Base64", "Text / Binary");
+    cy.validateNSelectDropdown("File Data Type", "Base64", "Text");
     cy.typeValueNValidate(
       '{"data": "Hi, this is Automation script adding file for S3 CRUD New Page validation!"}',
       "Content",
@@ -438,13 +438,19 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
-    cy.clickButton("Yes");
+    cy.get(".t--delete-datasource")
+      .contains("Are you sure?")
+      .click();
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       409,
     );
-    cy.actionContextMenuByEntityName("Assets-test.appsmith.com");
+    cy.actionContextMenuByEntityName(
+      "Assets-test.appsmith.com",
+      "Delete",
+      "Are you sure?",
+    );
   });
 
   it("7. Bug 9069, 9201, 6975, 9922, 3836, 6492, 11833: Upload/Update query is failing in S3 crud pages", function() {
@@ -607,7 +613,11 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     ).should("not.exist"); //verify Deletion of file is success from UI also
 
     //Deleting the page:
-    cy.actionContextMenuByEntityName("Assets-test.appsmith.com");
+    cy.actionContextMenuByEntityName(
+      "Assets-test.appsmith.com",
+      "Delete",
+      "Are you sure?",
+    );
   });
 
   it("8. Verify 'Add to widget [Widget Suggestion]' functionality - S3", () => {
@@ -670,7 +680,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.NavigateToActiveTab();
     cy.contains(".t--datasource-name", datasourceName).click({ force: true });
     cy.get(".t--delete-datasource").click();
-    cy.clickButton("Yes");
+    cy.get(".t--delete-datasource")
+      .contains("Are you sure?")
+      .click();
 
     // cy.wait("@deleteDatasource").should(
     //   "have.nested.property",

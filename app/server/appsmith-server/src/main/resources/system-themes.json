@@ -54,7 +54,12 @@
         "primaryColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
-        "boxShadow": "none"
+        "boxShadow": "none",
+        "childStylesheets": {
+          "BUTTON": {
+            "buttonColor": "{{appsmith.theme.colors.primaryColor}}"
+          }
+        }
       },
       "CAMERA_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -325,7 +330,12 @@
         "primaryColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
-        "boxShadow": "none"
+        "boxShadow": "none",
+        "childStylesheets": {
+          "BUTTON": {
+            "buttonColor": "{{appsmith.theme.colors.primaryColor}}"
+          }
+        }
       },
       "CAMERA_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -596,7 +606,12 @@
         "primaryColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
-        "boxShadow": "none"
+        "boxShadow": "none",
+        "childStylesheets": {
+          "BUTTON": {
+            "buttonColor": "{{appsmith.theme.colors.primaryColor}}"
+          }
+        }
       },
       "CAMERA_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -867,7 +882,12 @@
         "primaryColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
         "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
-        "boxShadow": "none"
+        "boxShadow": "none",
+        "childStylesheets": {
+          "BUTTON": {
+            "buttonColor": "{{appsmith.theme.colors.primaryColor}}"
+          }
+        }
       },
       "CAMERA_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",

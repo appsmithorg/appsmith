@@ -15,6 +15,12 @@ import { mockDatasources } from "./mockTestData";
 import { updateCurrentPage } from "actions/pageActions";
 
 jest.useFakeTimers();
+const pushState = jest.spyOn(window.history, "pushState");
+pushState.mockImplementation((state: any, title: any, url: any) => {
+  window.document.title = title;
+  window.location.pathname = url;
+});
+
 describe("Entity Explorer tests", () => {
   it("checks datasources section in explorer", () => {
     store.dispatch({

@@ -33,7 +33,7 @@ describe("Text-Table Binding Functionality", function() {
         .find("span")
         .click();
       cy.EvaluateDataType("string");
-      cy.EvaluateCurrentValue(tabValue);
+      cy.validateEvaluatedValue(tabValue);
       cy.PublishtheApp();
       cy.isSelectRow(1);
       cy.readTabledataPublish("1", "0").then((tabDataP) => {
@@ -59,7 +59,7 @@ describe("Text-Table Binding Functionality", function() {
         .find("span")
         .click();
       cy.EvaluateDataType("string");
-      cy.EvaluateCurrentValue(tabValue);
+      cy.validateEvaluatedValue(tabValue);
       cy.PublishtheApp();
       cy.isSelectRow(2);
       cy.readTabledataPublish("2", "1").then((tabDataP) => {
@@ -82,7 +82,7 @@ describe("Text-Table Binding Functionality", function() {
           .find("span")
           .click();
         cy.EvaluateDataType("string");
-        cy.EvaluateCurrentValue(listingCount);
+        cy.validateEvaluatedValue(listingCount);
         cy.PublishtheApp();
         cy.get(publish.tableLength)
           .find(".tr")
@@ -131,7 +131,7 @@ describe("Text-Table Binding Functionality", function() {
         .find("span")
         .click();
       cy.EvaluateDataType("string");
-      cy.EvaluateCurrentValue(tabValue);
+      cy.validateEvaluatedValue(tabValue);
       cy.PublishtheApp();
       cy.isSelectRow(1);
       cy.readTabledataPublish("1", "2").then((tabDataP) => {
