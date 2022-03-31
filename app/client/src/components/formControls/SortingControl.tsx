@@ -41,6 +41,9 @@ const orderFieldConfig: any = {
       value: OrderDropDownValues.DESCENDING,
     },
   ],
+  customStyles: {
+    width: `160px`,
+  },
 };
 
 // main container for the fsorting component
