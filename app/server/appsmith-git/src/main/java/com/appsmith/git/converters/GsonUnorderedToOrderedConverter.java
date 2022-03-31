@@ -1,7 +1,7 @@
 package com.appsmith.git.converters;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import org.springframework.util.CollectionUtils;
@@ -9,14 +9,23 @@ import org.springframework.util.CollectionUtils;
 import javax.lang.model.type.PrimitiveType;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-public class GsonUnorderedToOrderedSetConverter implements JsonSerializer<Set> {
+public class GsonUnorderedToOrderedConverter<T> implements JsonSerializer<T> {
     @Override
-    public JsonArray serialize(Set src, Type typeOfSrc, JsonSerializationContext context) {
+    public JsonElement serialize(T src, Type typeOfSrc, JsonSerializationContext context) {
         // Sort the set so that same elements will not end up in merge conflicts
-        return (JsonArray) new Gson().toJsonTree(getOrderedResource(src));
+        Gson gson = new Gson();
+        if (src instanceof Set) {
+            return gson.toJsonTree(getOrderedResource((Set<?>) src));
+        }
+        else if (src instanceof Map) {
+            return gson.toJsonTree(new TreeMap<>((Map<?, ?>) src));
+        }
+        return (JsonElement) src;
     }
 
     /**
@@ -28,7 +37,7 @@ public class GsonUnorderedToOrderedSetConverter implements JsonSerializer<Set> {
      * @param <T>
      * @return sorted collection
      */
-    private <T> Collection<T> getOrderedResource(Set<T> objects) {
+    private <T> Collection<T> getOrderedResource(Collection<T> objects) {
         if (!CollectionUtils.isEmpty(objects)) {
             T element = objects.iterator().next();
             if (element instanceof String || element instanceof PrimitiveType) {
