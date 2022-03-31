@@ -2013,3 +2013,238 @@ describe("Validate getOrderedTableColumns function", () => {
     expect(result).toStrictEqual(expected);
   });
 });
+
+describe("getUpdatedRows -", () => {
+  it("should test that it returns empty array when transientTableData is empty", () => {
+    const { getUpdatedRows } = derivedProperty;
+
+    expect(getUpdatedRows({
+      transientTableData: {}
+    }, null, _)).toEqual([]);
+  });
+
+  it("should test that it returns empty array when transientTableData is null", () => {
+    const { getUpdatedRows } = derivedProperty;
+
+    expect(getUpdatedRows({
+      transientTableData: null,
+    }, null, _)).toEqual([]);
+  });
+
+  it("should test that it returns empty array when transientTableData is undefined", () => {
+    const { getUpdatedRows } = derivedProperty;
+
+    expect(getUpdatedRows({
+      transientTableData: null,
+    }, null, _)).toEqual([]);
+  });
+
+  it("should test that it returns expected array when transientTableData has data with invalid index", () => {
+    const { getUpdatedRows } = derivedProperty;
+
+    const input = {
+      transientTableData: {
+        "test": {
+          "column1": "newValue",
+        },
+      },
+      filteredTableData: [
+        {
+          "column1": "oldValue",
+          "column2": "oldValue",
+        },
+        {
+          "column1": "newValue",
+          "column2": "oldValue",
+        },
+      ],
+    };
+
+    const expected = []
+
+    expect(getUpdatedRows(input, null, _)).toEqual(expected);
+  });
+
+  it("should test that it returns expected array when transientTableData has data", () => {
+    const { getUpdatedRows } = derivedProperty;
+
+    const input = {
+      transientTableData: {
+        "1": {
+          "column1": "newValue",
+        },
+      },
+      filteredTableData: [
+        {
+          "column1": "oldValue",
+          "column2": "oldValue",
+        },
+        {
+          "column1": "newValue",
+          "column2": "oldValue",
+        },
+      ],
+    };
+
+    const expected = [
+      {
+        index: 1,
+        updatedFields: {
+          "column1": "newValue",
+        },
+        all_fields: {
+          "column1": "newValue",
+          "column2": "oldValue",
+        }
+      }
+    ]
+
+    expect(getUpdatedRows(input, null, _)).toEqual(expected);
+  });
+
+  it("should test that it returns expected array when transientTableData has data with primary column", () => {
+    const { getUpdatedRows } = derivedProperty;
+
+    const input = {
+      primaryColumnId: "column2",
+      transientTableData: {
+        "1": {
+          "column1": "newValue",
+        },
+      },
+      filteredTableData: [
+        {
+          "column1": "oldValue1",
+          "column2": "oldValue1",
+        },
+        {
+          "column1": "newValue",
+          "column2": "oldValue2",
+        },
+      ],
+    };
+
+    const expected = [
+      {
+        index: 1,
+        column2: "oldValue2",
+        updatedFields: {
+          "column1": "newValue",
+        },
+        all_fields: {
+          "column1": "newValue",
+          "column2": "oldValue2",
+        }
+      }
+    ]
+
+    expect(getUpdatedRows(input, null, _)).toEqual(expected);
+  });
+
+  it("should test that it returns expected array when transientTableData has data with primary column and bigger tableData", () => {
+    const { getUpdatedRows } = derivedProperty;
+
+    const input = {
+      primaryColumnId: "column3",
+      transientTableData: {
+        "1": {
+          "column1": "newValue",
+          "column2": "newValue1",
+        },
+      },
+      filteredTableData: [
+        {
+          "column1": "oldValue1",
+          "column2": "oldValue1",
+          "column3": "oldValue1",
+        },
+        {
+          "column1": "newValue",
+          "column2": "newValue1",
+          "column3": "oldValue2",
+        },
+        {
+          "column1": "oldValue3",
+          "column2": "oldValue3",
+          "column3": "oldValue3",
+        },
+        {
+          "column1": "oldValue3",
+          "column2": "oldValue3",
+          "column3": "oldValue4",
+        },
+      ],
+    };
+
+    const expected = [
+      {
+        index: 1,
+        column3: "oldValue2",
+        updatedFields: {
+          "column1": "newValue",
+          "column2": "newValue1",
+        },
+        all_fields: {
+          "column1": "newValue",
+          "column2": "newValue1",
+          "column3": "oldValue2",
+        }
+      }
+    ]
+
+    expect(getUpdatedRows(input, null, _)).toEqual(expected);
+  });
+});
+
+describe("getUpdatedRowIndices -", () => {
+  it("should test that it returns empty array when transientTableData is empty", () => {
+    const { getUpdatedRowIndices } = derivedProperty;
+
+    expect(getUpdatedRowIndices({
+      transientTableData: {},
+    })).toEqual([]);
+  });
+
+  it("should test that it returns empty array when transientTableData is null", () => {
+    const { getUpdatedRowIndices } = derivedProperty;
+
+    expect(getUpdatedRowIndices({
+      transientTableData: null,
+    })).toEqual([]);
+  });
+
+  it("should test that it returns empty array when transientTableData is undefined", () => {
+    const { getUpdatedRowIndices } = derivedProperty;
+
+    expect(getUpdatedRowIndices({
+      transientTableData: undefined,
+    })).toEqual([]);
+  });
+
+  it("should test that it returns empty array when transientTableData has one value", () => {
+    const { getUpdatedRowIndices } = derivedProperty;
+
+    expect(getUpdatedRowIndices({
+      transientTableData: {
+        1: {
+          column1: "newValue",
+        },
+      },
+    })).toEqual([1]);
+  });
+
+  it("should test that it returns empty array when transientTableData has two value", () => {
+    const { getUpdatedRowIndices } = derivedProperty;
+
+    expect(getUpdatedRowIndices({
+      transientTableData: {
+        1: {
+          column1: "newValue",
+        },
+        2: {
+          column1: "newValue",
+        },
+      },
+    })).toEqual([1, 2]);
+  });
+});

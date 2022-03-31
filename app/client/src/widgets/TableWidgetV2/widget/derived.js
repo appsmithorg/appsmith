@@ -1,4 +1,7 @@
 /* eslint-disable no-console */
+
+import moment from "moment";
+
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
   getSelectedRow: (props, moment, _) => {
@@ -508,6 +511,66 @@ export default {
     });
 
     return finalTableData;
+  },
+  //
+  getUpdatedRows: (props, moment, _) => {
+    /*
+     * case 1. If transientTableData is not empty return aray of updated row.
+     * case 2. If transientTableData is empty return empty array
+     *
+     * updated row structure
+     *  {
+     *    index: {{original index of the row}},
+     *    {{primary_column}}: {{primary_column_value}} // only if primary has been set
+     *    updated_fields: {
+     *      {{updated_column_1}}: {{updated_column_1_value}}
+     *    },
+     *    all_fields: {
+     *      {{updated_column_1}}: {{updated_column_1_value}}
+     *      {{rest of the fields from the row}}
+     *    }
+     *  }
+     */
+
+    //case 1
+    if (
+      props.transientTableData &&
+      !!Object.keys(props.transientTableData).length
+    ) {
+      const updatedRows = [];
+      const tableData =
+        props.filteredTableData || props.processedTableData || props.tableData;
+
+      //updatedRows is not sorted by index
+      Object.entries(props.transientTableData).filter((entry) => {
+        return !_.isNil(entry[0]) && !!entry[0] && _.isFinite(Number(entry[0]));
+      }).forEach((entry) => {
+        const key = entry[0];
+        const value = entry[1];
+        const row = tableData[key];
+
+        updatedRows.push({
+          index: Number(key),
+          [props.primaryColumnId]: row[props.primaryColumnId],
+          updatedFields: value,
+          all_fields: row || {},
+        });
+      });
+
+      return updatedRows;
+    } else {
+      //case 2
+      return [];
+    }
+  },
+  //
+  getUpdatedRowIndices: (props, moment, _) => {
+    //should return the keys of the transientTableData
+    if (props.transientTableData) {
+      return Object.keys(props.transientTableData).map(index => Number(index));
+    } else {
+      return [];
+    }
   },
   //
 };
