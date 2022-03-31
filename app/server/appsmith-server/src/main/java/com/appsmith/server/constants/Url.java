@@ -35,4 +35,5 @@ public interface Url {
     String GIT_URL = BASE_URL + VERSION + "/git";
     String THEME_URL = BASE_URL + VERSION + "/themes";
     String APP_TEMPLATE_URL = BASE_URL + VERSION + "/app-templates";
+    String USAGE_PULSE_URL = BASE_URL + VERSION + "/usage-pulse";
 }
