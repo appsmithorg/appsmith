@@ -319,7 +319,8 @@ const COMMON_PROPERTIES = {
           subText: "3.75rem",
         },
       ],
-      isBindProperty: false,
+      isJSConvertible: true,
+      isBindProperty: true,
       isTriggerProperty: false,
     },
     {

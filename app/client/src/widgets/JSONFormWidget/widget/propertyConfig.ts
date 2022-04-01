@@ -112,7 +112,8 @@ const generateButtonStyleControlsFor = (prefix: string) => [
     helpText: "Changes the color of the button",
     label: "Button Color",
     controlType: "COLOR_PICKER",
-    isBindProperty: false,
+    isJSConvertible: true,
+    isBindProperty: true,
     isTriggerProperty: false,
   },
   {
@@ -155,7 +156,8 @@ const generateButtonStyleControlsFor = (prefix: string) => [
     helpText: "Rounds the corners of the icon button's outer border edge",
     controlType: "BORDER_RADIUS_OPTIONS",
     options: [ButtonBorderRadiusTypes.SHARP, ButtonBorderRadiusTypes.ROUNDED],
-    isBindProperty: false,
+    isJSConvertible: true,
+    isBindProperty: true,
     isTriggerProperty: false,
     validation: {
       type: ValidationTypes.TEXT,
@@ -169,24 +171,11 @@ const generateButtonStyleControlsFor = (prefix: string) => [
     label: "Box Shadow",
     helpText: "Enables you to cast a drop shadow from the frame of the widget",
     controlType: "BOX_SHADOW_OPTIONS",
+    isJSConvertible: true,
     isBindProperty: false,
     isTriggerProperty: false,
     validation: {
       type: ValidationTypes.TEXT,
-    },
-  },
-  {
-    propertyName: `${prefix}.boxShadowColor`,
-    helpText: "Sets the shadow color of the widget",
-    label: "Shadow Color",
-    controlType: "COLOR_PICKER",
-    isBindProperty: false,
-    isTriggerProperty: false,
-    validation: {
-      type: ValidationTypes.TEXT,
-      params: {
-        regex: /^(?![<|{{]).+/,
-      },
     },
   },
   {
@@ -194,7 +183,8 @@ const generateButtonStyleControlsFor = (prefix: string) => [
     label: "Icon",
     helpText: "Sets the icon to be used for the button",
     controlType: "ICON_SELECT",
-    isBindProperty: false,
+    isJSConvertible: true,
+    isBindProperty: true,
     isTriggerProperty: false,
     updateHook: (
       props: ButtonWidgetProps,
@@ -264,7 +254,8 @@ const generateButtonStyleControlsFor = (prefix: string) => [
         value: "right",
       },
     ],
-    isBindProperty: false,
+    isJSConvertible: true,
+    isBindProperty: true,
     isTriggerProperty: false,
     validation: {
       type: ValidationTypes.TEXT,
@@ -450,6 +441,7 @@ export default [
         placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
         label: "Background Color",
         controlType: "COLOR_PICKER",
+        isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
@@ -460,6 +452,7 @@ export default [
         placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
         label: "Border Color",
         controlType: "COLOR_PICKER",
+        isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
@@ -490,7 +483,8 @@ export default [
         helpText:
           "Enables you to cast a drop shadow from the frame of the widget",
         controlType: "BOX_SHADOW_OPTIONS",
-        isBindProperty: false,
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
       },
