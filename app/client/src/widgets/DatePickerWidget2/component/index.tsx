@@ -1,23 +1,13 @@
 import React from "react";
 import styled from "styled-components";
 import { IntentColors, getBorderCSSShorthand } from "constants/DefaultTheme";
-import {
-  ControlGroup,
-  Classes,
-  Label,
-  IRef,
-  Alignment,
-} from "@blueprintjs/core";
+import { ControlGroup, Classes, IRef, Alignment } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
 import moment from "moment-timezone";
 import "../../../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 import { DatePickerType, TimePrecision } from "../constants";
-import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
+import { TextSize } from "constants/WidgetConstants";
 import { Colors } from "constants/Colors";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
@@ -25,8 +15,7 @@ import {
   createMessage,
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
-import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
-import Tooltip from "components/ads/Tooltip";
+import { LabelPosition } from "components/constants";
 import { parseDate } from "./utils";
 import LabelWithTooltip, {
   labelLayoutStyles,
