@@ -66,6 +66,7 @@ describe("Comments", function() {
       .its("length")
       .should("eq", 2);
   });
+
   it("Completing comments tour adds bot comment in first thread", function() {
     cy.generateUUID().then((uid) => {
       cy.Signup(`${uid}@appsmithtest.com`, uid);
