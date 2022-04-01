@@ -45,6 +45,9 @@ const PopoverStyles = createGlobalStyle`
   .menu-button-popover > .${Classes.POPOVER2_CONTENT} {
     background: none;
   }
+  .menu-button-popover-backdrop {
+    background-color: transparent !important;
+  }
 `;
 
 interface BaseStyleProps {
@@ -333,6 +336,9 @@ function MenuButtonTableComponent(props: MenuButtonComponentProps) {
     <MenuButtonContainer>
       <PopoverStyles />
       <Popover2
+        backdropProps={{
+          className: "menu-button-popover-backdrop",
+        }}
         content={
           <PopoverContent
             isCompact={isCompact}
@@ -342,6 +348,7 @@ function MenuButtonTableComponent(props: MenuButtonComponentProps) {
         }
         disabled={isDisabled}
         fill
+        hasBackdrop
         minimal
         placement="bottom-end"
         popoverClassName="menu-button-popover"

@@ -194,8 +194,6 @@ function* initiateEditorApplicationAndPages(payload: InitializeEditorPayload) {
   const defaultPageId: string = yield select(getDefaultPageId);
   toLoadPageId = toLoadPageId || defaultPageId;
 
-  yield call(initiateURLUpdate, toLoadPageId, APP_MODE.EDIT, payload.pageId);
-
   const fetchPageCallResult: boolean = yield failFastApiCalls(
     [fetchPage(toLoadPageId, true)],
     [ReduxActionTypes.FETCH_PAGE_SUCCESS],
@@ -203,6 +201,8 @@ function* initiateEditorApplicationAndPages(payload: InitializeEditorPayload) {
   );
 
   if (!fetchPageCallResult) return;
+
+  return toLoadPageId;
 }
 
 function* initiateEditorActions(applicationId: string) {
@@ -295,7 +295,12 @@ function* initializeEditorSaga(
       PerformanceTransactionName.INIT_EDIT_APP,
     );
 
-    yield call(initiateEditorApplicationAndPages, payload);
+    const toLoadPageId: string = yield call(
+      initiateEditorApplicationAndPages,
+      payload,
+    );
+
+    yield call(initiateURLUpdate, toLoadPageId, APP_MODE.EDIT, payload.pageId);
 
     const { id: applicationId, name }: ApplicationPayload = yield select(
       getCurrentApplication,
@@ -352,6 +357,14 @@ export function* initializeAppViewerSaga(
 
   let { applicationId } = action.payload;
 
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.INIT_VIEW_APP,
+  );
+
+  if (branch) yield put(updateBranchLocally(branch));
+
+  yield put(setAppMode(APP_MODE.PUBLISHED));
+
   const applicationCall: boolean = yield failFastApiCalls(
     [fetchApplication({ applicationId, pageId, mode: APP_MODE.PUBLISHED })],
     [
@@ -365,14 +378,6 @@ export function* initializeAppViewerSaga(
   );
 
   if (!applicationCall) return;
-
-  if (branch) yield put(updateBranchLocally(branch));
-
-  PerformanceTracker.startAsyncTracking(
-    PerformanceTransactionName.INIT_VIEW_APP,
-  );
-
-  yield put(setAppMode(APP_MODE.PUBLISHED));
 
   applicationId = applicationId || (yield select(getCurrentApplicationId));
   yield put(
