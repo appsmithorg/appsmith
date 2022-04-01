@@ -532,7 +532,7 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
     },
   }).then((response) => {
     expect(response.status).equal(302);
-    cy.log(response.body);
+    //cy.log(response.body);
   });
 });
 
