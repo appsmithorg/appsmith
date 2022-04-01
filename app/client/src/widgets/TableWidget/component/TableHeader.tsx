@@ -136,7 +136,7 @@ interface TableHeaderProps {
 }
 
 function TableHeader(props: TableHeaderProps) {
-  const isSmallerTableWidth = props.width < TableWidth["Smaller"];
+  const isSmallerTableWidth = props.width <= TableWidth["Smaller"];
   return (
     <>
       {props.isVisibleSearch && !isSmallerTableWidth && (
@@ -232,7 +232,7 @@ function TableHeader(props: TableHeaderProps) {
               pageNo={props.pageNo + 1}
               updatePageNo={props.updatePageNo}
             />
-            {!props.isMobileScreenTableWidth && ` of ${props.pageCount}`}
+            {!props.isMobileScreenTableWidth && `of ${props.pageCount}`}
           </RowWrapper>
           <PaginationItemWrapper
             className="t--table-widget-next-page"

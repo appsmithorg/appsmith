@@ -91,14 +91,6 @@ function TableFilters(props: TableFilterProps) {
     [props.widgetId],
   );
 
-  const tableActionTitle = React.useMemo(
-    () =>
-      `${props.isMobileScreenTableWidth ? "" : "Filters"}${
-        hasAnyFilters ? ` (${filters.length})` : ""
-      }`,
-    [props.isMobileScreenTableWidth],
-  );
-
   if (props.columns.length === 0) {
     return (
       <TableIconWrapper disabled>
@@ -119,6 +111,12 @@ function TableFilters(props: TableFilterProps) {
   const isTableFilterPaneVisible =
     tableFilterPaneState.isVisible &&
     tableFilterPaneState.widgetId === props.widgetId;
+
+  const tableActionTitle = `${props.isMobileScreenTableWidth ? "" : "Filters"}${
+    hasAnyFilters && !props.isMobileScreenTableWidth
+      ? ` (${filters.length})`
+      : ""
+  }`;
 
   return (
     <>
