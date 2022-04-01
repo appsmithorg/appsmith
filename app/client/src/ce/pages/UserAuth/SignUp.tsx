@@ -88,7 +88,12 @@ export function SignUp(props: SignUpFormProps) {
   const history = useHistory();
   useEffect(() => {
     if (disableLoginForm) {
-      history.replace(AUTH_LOGIN_URL);
+      const currentURL = new URL(window.location.href);
+      const searchParams = currentURL.searchParams;
+      history.replace({
+        pathname: AUTH_LOGIN_URL,
+        search: searchParams.toString(),
+      });
     }
   }, []);
   const { emailValue: email, error, pristine, submitting, valid } = props;
