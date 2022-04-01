@@ -540,7 +540,7 @@ class ButtonGroupComponent extends React.Component<
       return acc;
     }, {});
 
-  onButtonClick = (onClick: string | undefined) => () => {
+  onButtonClick = (onClick: string | undefined) => {
     this.props.buttonClickHandler(onClick);
   };
 
