@@ -25,6 +25,7 @@ export class ApiPage {
     _noBodyMessage = "This request does not have a body"
     _imageSrc = "//img/parent::div"
     private _trashDelete = "span[name='delete']"
+    private _onPageLoad = "input[name='executeOnLoad'][type='checkbox']"
 
 
     CreateApi(apiName: string = "", apiVerb: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' = 'GET',) {
@@ -100,8 +101,7 @@ export class ApiPage {
     EnterBodyFormData(subTab: 'FORM_URLENCODED' | 'MULTIPART_FORM_DATA', bKey: string, bValue: string, type = "", toTrash = false) {
         this.SelectAPITab('Body')
         this.SelectSubTab(subTab)
-        if (toTrash)
-        {
+        if (toTrash) {
             cy.get(this._trashDelete).click()
             cy.xpath(this._visibleTextSpan('Add more')).click()
         }
@@ -133,8 +133,18 @@ export class ApiPage {
         cy.xpath(this._queryTimeout)
             .clear()
             .type(timeout.toString());
+        this.agHelper.AssertAutoSave()
         this.SelectAPITab('Headers');
     }
+
+    DisableOnPageLoadRun() {
+        this.SelectAPITab('Settings');
+        cy.get(this._onPageLoad).uncheck({
+            force: true,
+        });
+        this.agHelper.AssertAutoSave()
+    }
+
 
     SelectAPITab(tabName: 'Headers' | 'Params' | 'Body' | 'Pagination' | 'Authentication' | 'Settings') {
         cy.xpath(this._visibleTextSpan(tabName)).should('be.visible').eq(0).click();

@@ -107,7 +107,12 @@ describe("Validate API request body panel", () => {
         ee.SelectEntityByName("Image1");
         jsEditor.EnterJSContext('image', '{{CloudinaryUploadApi.data.url}}')
 
-        //agHelper.DeployApp(locator._spanButton('Select Files'))
+        ee.expandCollapseEntity("QUERIES/JS")//to expand widgets
+        ee.SelectEntityByName("CloudinaryUploadApi");
+
+        apiPage.DisableOnPageLoadRun()//Bug 12476
+        ee.SelectEntityByName("Page1");
+        agHelper.DeployApp(locator._spanButton('Select Files'))
         agHelper.ClickButton('Select Files');
         agHelper.UploadFile(imageNameToUpload)
         agHelper.ValidateToastMessage("Image uploaded to Cloudinary successfully")
@@ -117,6 +122,7 @@ describe("Validate API request body panel", () => {
                 expect($src).not.eq("https://assets.appsmith.com/widgets/default.png")
             })
         apiPage.CheckElementPresence(locator._spanButton('Select Files'))//verifying if reset!
+        agHelper.NavigateBacktoEditor()
     });
 
     it("8. Checks MultiPart form data for a Array Type upload results in API error", () => {
@@ -124,13 +130,17 @@ describe("Validate API request body panel", () => {
         ee.expandCollapseEntity("QUERIES/JS")//to expand widgets
         ee.SelectEntityByName("CloudinaryUploadApi");
         apiPage.EnterBodyFormData('MULTIPART_FORM_DATA', 'file', '{{FilePicker1.files[0]}}', 'Array', true)
+        ee.expandCollapseEntity("WIDGETS")//to expand widgets
         ee.SelectEntityByName("FilePicker1");
         agHelper.ClickButton('Select Files');
         agHelper.UploadFile(imageNameToUpload, false)
-        agHelper.ValidateToastMessage("CloudinaryUploadApi failed to execute")
-        apiPage.CheckElementPresence(locator._spanButton('Select Files'))//verifying if reset!
         agHelper.AssertDebugError("Execution failed with status 400 BAD_REQUEST", '{"error":{"message":"Unsupported source URL: {\\"type\\":\\"image/jpeg\\"')
 
+        agHelper.DeployApp(locator._spanButton('Select Files'))
+        agHelper.ClickButton('Select Files');
+        agHelper.UploadFile(imageNameToUpload, false)
+        agHelper.ValidateToastMessage("CloudinaryUploadApi failed to execute")
+        apiPage.CheckElementPresence(locator._spanButton('Select Files'))//verifying if reset in case of failure!
     });
 
 });

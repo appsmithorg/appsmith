@@ -256,7 +256,7 @@ export class AggregateHelper {
     }
 
     public NavigateBacktoEditor() {
-        cy.get(this.locator._backToEditor).click({ force: true });
+        cy.get(this.locator._backToEditor).click();
         this.Sleep(2000)
     }
 
@@ -351,8 +351,7 @@ export class AggregateHelper {
     }
 
     public UploadFile(fixtureName: string, execStat = true) {
-        cy.get(this.locator._uploadFiles).attachFile(fixtureName).wait(1000);
-        //this.WaitUntilEleAppear(this.locator._uploadBtn)
+        cy.get(this.locator._uploadFiles).attachFile(fixtureName).wait(2000);
         cy.get(this.locator._uploadBtn).click().wait(3000);
         this.ValidateNetworkExecutionSuccess("@postExecute", execStat);
     }

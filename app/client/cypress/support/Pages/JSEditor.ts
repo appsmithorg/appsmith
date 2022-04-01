@@ -67,7 +67,7 @@ export class JSEditor {
       });
 
     this.agHelper.AssertAutoSave()//Ample wait due to open bug # 10284
-    this.agHelper.Sleep(5000)//Ample wait due to open bug # 10284
+    //this.agHelper.Sleep(5000)//Ample wait due to open bug # 10284
 
     if (toRun) {
       //clicking 1 times & waits for 3 second for result to be populated!
