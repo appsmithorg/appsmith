@@ -185,7 +185,7 @@ export function getDefaultColumnProperties(
     isDerived: !!isDerived,
     label: id,
     computedValue: isDerived
-      ? ""
+      ? "{{'test'}}"
       : `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( currentRow["${escapeString(
           id,
         )}"]))}}`,
