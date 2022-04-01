@@ -141,6 +141,8 @@ export const entityDefinitions = {
       column: "string",
       order: ["asc", "desc"],
     },
+    updatedRows: generateTypeDef(widget.updatedRows),
+    updatedRowIndices: generateTypeDef(widget.updatedRowIndices),
   }),
   VIDEO_WIDGET: {
     "!doc":

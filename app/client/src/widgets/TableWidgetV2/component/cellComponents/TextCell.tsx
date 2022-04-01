@@ -8,7 +8,10 @@ import { InlineCellEditor } from "./InlineCellEditor";
 import { EditableCellActions } from "widgets/TableWidgetV2/constants";
 import { ALIGN_ITEMS, CellLayoutProperties, TABLE_SIZES } from "../Constants";
 
-const Container = styled.div<{ cellProperties: CellLayoutProperties }>`
+const Container = styled.div<{
+  cellProperties: CellLayoutProperties;
+  isCellEditMode?: boolean;
+}>`
   height: 100%;
   width: 100%;
   display: flex;
@@ -19,7 +22,7 @@ const Container = styled.div<{ cellProperties: CellLayoutProperties }>`
 
   &:hover {
     .editable-cell-icon {
-      display: block;
+      display: ${(props) => (props.isCellEditMode ? "none" : "block")};
     }
   }
 `;
@@ -112,7 +115,7 @@ export function TextCell({
   }
 
   return (
-    <Container cellProperties={cellProperties}>
+    <Container cellProperties={cellProperties} isCellEditMode={isCellEditMode}>
       <Wrapper
         allowWrapping={cellProperties.allowCellWrapping}
         compactMode={compactMode}
