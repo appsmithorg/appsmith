@@ -88,11 +88,10 @@ export function SignUp(props: SignUpFormProps) {
   const history = useHistory();
   useEffect(() => {
     if (disableLoginForm) {
-      const currentURL = new URL(window.location.href);
-      const searchParams = currentURL.searchParams;
+      const search = new URL(window.location.href)?.searchParams?.toString();
       history.replace({
         pathname: AUTH_LOGIN_URL,
-        search: searchParams.toString(),
+        search,
       });
     }
   }, []);
