@@ -1082,10 +1082,9 @@ public class MongoPlugin extends BasePlugin {
 
                     /**
                      * This translation must happen only if the user has not edited the raw mode. Hence, check that
-                     * user has not provided any raw query. The use case here is a one time conversion from form data
-                     * to raw query when the user switches from form interface to raw input.
+                     * user has not provided any raw query.
                      */
-                    if (isBlank(actionConfiguration.getBody())) {
+                    if (isBlank(getValueSafelyFromFormData(formData, BODY, String.class))) {
                         try {
                             String rawQuery = getRawQuery(actionConfiguration);
                             if (rawQuery != null) {
@@ -1098,6 +1097,12 @@ public class MongoPlugin extends BasePlugin {
                                     e.getMessage()
                             );
                         }
+                    }
+                }
+                else {
+                    if (isBlank(getValueSafelyFromFormData(formData, BODY, String.class))) {
+                        String nativeQuery = getValueSafelyFromFormData(formData, NATIVE_QUERY_PATH_DATA, String.class, "");
+                        setValueSafelyInFormData(formData, BODY, nativeQuery);
                     }
                 }
             }
