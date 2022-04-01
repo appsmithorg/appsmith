@@ -83,6 +83,13 @@ export class JSEditor {
     this.GetJSObjectName()
   }
 
+  //Not working - To improve!
+  public EditJSObj(existingTxt: string, newTxt: string) {
+    cy.get(this.locator._codeEditorTarget).contains(existingTxt).dblclick()//.type("{backspace}").type(newTxt)
+    cy.get('body').type("{backspace}").type(newTxt)
+    this.agHelper.AssertAutoSave()//Ample wait due to open bug # 10284
+  }
+
   public EnterJSContext(endp: string, value: string, paste = true, toToggleOnJS = false) {
     if (toToggleOnJS) {
       cy.get(this.locator._jsToggle(endp))

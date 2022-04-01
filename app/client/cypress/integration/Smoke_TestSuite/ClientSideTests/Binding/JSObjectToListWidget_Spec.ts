@@ -5,7 +5,8 @@ let agHelper = ObjectsRegistry.AggregateHelper,
     ee = ObjectsRegistry.EntityExplorer,
     jsEditor = ObjectsRegistry.JSEditor,
     locator = ObjectsRegistry.CommonLocators,
-    apiPage = ObjectsRegistry.ApiPage;
+    apiPage = ObjectsRegistry.ApiPage,
+    table = ObjectsRegistry.Table;
 
 
 describe("Validate Create Api and Bind to Table widget via JSObject", () => {
@@ -35,17 +36,11 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
         })
     });
 
-    it("2. Validate the Api data is updated on List widget", function () {
+    it("2. Validate the Api data is updated on List widget + Bug 12438", function () {
         ee.expandCollapseEntity("WIDGETS")//to expand widgets
         ee.SelectEntityByName("List1");
         jsEditor.EnterJSContext("items", "{{" + jsName as string + ".myFun1()}}")
         cy.get(locator._textWidget).should("have.length", 8);
-        cy.get(locator._textWidget)
-            .first()
-            .invoke("text")
-            .then((text) => {
-                expect(text).to.equal((valueToTest as string).trimEnd());
-            });
         agHelper.DeployApp(locator._textWidgetInDeployed);
         cy.get(locator._textWidgetInDeployed).should("have.length", 8);
         cy.get(locator._textWidgetInDeployed)
@@ -54,20 +49,22 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
             .then((text) => {
                 expect(text).to.equal((valueToTest as string).trimEnd());
             });
+
+        table.AssertPageNumber_List(1)
+        table.NavigateToNextPage_List()
+        table.AssertPageNumber_List(2, true)
+        cy.get(locator._textWidgetInDeployed).should("have.length", 2);
+        table.NavigateToPreviousPage_List()
+        table.AssertPageNumber_List(1)
+        cy.get(locator._textWidgetInDeployed).should("have.length", 8);
+        agHelper.NavigateBacktoEditor()
     });
 
-    it("3. Validate the List widget ", function () {
-        agHelper.NavigateBacktoEditor()
+    it("3. Validate the List widget + Bug 12438 ", function () {
         ee.expandCollapseEntity("WIDGETS")//to expand widgets
         ee.SelectEntityByName("List1");
         jsEditor.EnterJSContext("itemspacing\\(px\\)", "50")
         cy.get(locator._textWidget).should("have.length", 6);
-        cy.get(locator._textWidget)
-            .first()
-            .invoke("text")
-            .then((text) => {
-                expect(text).to.equal((valueToTest as string).trimEnd());
-            });
         agHelper.DeployApp(locator._textWidgetInDeployed);
         cy.get(locator._textWidgetInDeployed).should("have.length", 6);
         cy.get(locator._textWidgetInDeployed).first()
@@ -75,6 +72,14 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
             .then((text) => {
                 expect(text).to.equal((valueToTest as string).trimEnd());
             });
-        agHelper.NavigateBacktoEditor()
+
+        table.AssertPageNumber_List(1)
+        table.NavigateToNextPage_List()
+        table.AssertPageNumber_List(2, true)
+        cy.get(locator._textWidgetInDeployed).should("have.length", 4);
+        table.NavigateToPreviousPage_List()
+        table.AssertPageNumber_List(1)
+        cy.get(locator._textWidgetInDeployed).should("have.length", 8);
+        //agHelper.NavigateBacktoEditor()
     });
 });

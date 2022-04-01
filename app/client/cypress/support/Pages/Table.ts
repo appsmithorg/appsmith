@@ -14,6 +14,9 @@ export class Table {
   _tableRowColumn = (rowNum: number, colNum: number) => `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div div`
   _tableEmptyColumnData = `.t--widget-tablewidget .tbody .td` //selected-row
   _tableSelectedRow = this._tableWrap + "//div[contains(@class, 'tbody')]//div[contains(@class, 'selected-row')]/div"
+  _liNextPage = "li[title='Next Page']"
+  _liPreviousPage = "li[title='Previous Page']"
+  _liCurrentSelectedPage = "//div[@type='LIST_WIDGET']//ul[contains(@class, 'rc-pagination')]/li[contains(@class, 'rc-pagination-item-active')]/a"
 
 
   public WaitUntilTableLoad() {
@@ -110,4 +113,36 @@ export class Table {
       });
   }
 
+  //List methods - keeping it for now!
+  public NavigateToNextPage_List() {
+    let curPageNo: number;
+    cy.get(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
+      curPageNo = Number($currentPageNo))
+    cy.get(this._liNextPage).click()
+    cy.get(this._liCurrentSelectedPage).invoke('text').then($newPageNo =>
+      expect(Number($newPageNo)).to.eq(curPageNo + 1))
+  }
+
+  public NavigateToPreviousPage_List() {
+    let curPageNo: number;
+    cy.get(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
+      curPageNo = Number($currentPageNo))
+    cy.get(this._liPreviousPage).click()
+    cy.get(this._liCurrentSelectedPage).invoke('text').then($newPageNo =>
+      expect(Number($newPageNo)).to.eq(curPageNo - 1))
+  }
+
+  public AssertPageNumber_List(pageNo: number, checkNoNextPage = false) {
+    cy.get(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
+      expect(Number($currentPageNo)).to.eq(pageNo))
+
+    if (pageNo == 1)
+      cy.get(this._liPreviousPage).should("have.attr", "aria-disabled", 'disabled')
+
+    if (checkNoNextPage)
+      cy.get(this._liNextPage).should("have.attr", "aria-disabled", 'true')
+    else
+      cy.get(this._liNextPage).should("have.attr", "aria-disabled", 'false')
+
+  }
 }
