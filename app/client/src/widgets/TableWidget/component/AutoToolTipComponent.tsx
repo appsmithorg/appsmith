@@ -4,7 +4,7 @@ import { CellWrapper, ColumnWrapper } from "./TableStyledWrappers";
 import { CellLayoutProperties, ColumnTypes } from "./Constants";
 import { ReactComponent as OpenNewTabIcon } from "assets/icons/control/open-new-tab.svg";
 import styled from "styled-components";
-import { isEqual } from "lodash";
+import isEqual from "fast-deep-equal";
 
 const TooltipContentWrapper = styled.div<{ width: number }>`
   word-break: break-all;
@@ -83,6 +83,8 @@ function AutoToolTipComponent(props: Props) {
     const element = ref.current;
     if (element && element.offsetWidth < element.scrollWidth) {
       updateToolTip(true);
+    } else {
+      updateToolTip(false);
     }
   }, []);
   if (props.columnType === ColumnTypes.URL && props.title) {
