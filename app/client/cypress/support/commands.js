@@ -487,7 +487,7 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.get(loginPage.username).type(uname);
   cy.get(loginPage.password).type(pword, { log: false });
   cy.get(loginPage.submitBtn).click();
-  cy.wait("@getUser");
+  cy.wait("@getMe");
   cy.wait(3000);
   cy.get(".t--applications-container .createnew").should("be.visible");
   cy.get(".t--applications-container .createnew").should("be.enabled");
@@ -512,7 +512,7 @@ Cypress.Commands.add("Signup", (uname, pword) => {
   cy.get(signupPage.dropdownOption).click();
   cy.get(signupPage.roleUsecaseSubmit).click();
 
-  cy.wait("@getUser");
+  cy.wait("@getMe");
   cy.wait(3000);
   initLocalstorage();
 });
