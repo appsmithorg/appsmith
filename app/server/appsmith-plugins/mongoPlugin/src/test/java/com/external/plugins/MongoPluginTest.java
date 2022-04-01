@@ -2057,7 +2057,7 @@ public class MongoPluginTest {
 
         pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
         setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, getValueSafelyFromFormData(configMap, "formToNativeQuery.data", String.class));
+        setValueSafelyInFormData(configMap, BODY, getValueSafelyFromFormData(configMap, "misc.formToNativeQuery.data", String.class));
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -2102,7 +2102,7 @@ public class MongoPluginTest {
 
         pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
         setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, getValueSafelyFromFormData(configMap, "formToNativeQuery.data", String.class));
+        setValueSafelyInFormData(configMap, BODY, getValueSafelyFromFormData(configMap, "misc.formToNativeQuery.data", String.class));
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -2159,7 +2159,7 @@ public class MongoPluginTest {
 
         pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
         setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, getValueSafelyFromFormData(configMap, "formToNativeQuery.data", String.class));
+        setValueSafelyInFormData(configMap, BODY, getValueSafelyFromFormData(configMap, "misc.formToNativeQuery.data", String.class));
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -2221,7 +2221,7 @@ public class MongoPluginTest {
 
         pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
         setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, getValueSafelyFromFormData(configMap, "formToNativeQuery.data", String.class));
+        setValueSafelyInFormData(configMap, BODY, getValueSafelyFromFormData(configMap, "misc.formToNativeQuery.data", String.class));
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
                 executeActionDTO, dsConfig, actionConfiguration));
@@ -2261,7 +2261,7 @@ public class MongoPluginTest {
 
         pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
         setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, getValueSafelyFromFormData(configMap, "formToNativeQuery.data", String.class));
+        setValueSafelyInFormData(configMap, BODY, getValueSafelyFromFormData(configMap, "misc.formToNativeQuery.data", String.class));
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
                 executeActionDTO, dsConfig, actionConfiguration));
@@ -2302,7 +2302,7 @@ public class MongoPluginTest {
 
         pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
         setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, getValueSafelyFromFormData(configMap, "formToNativeQuery.data",
+        setValueSafelyInFormData(configMap, BODY, getValueSafelyFromFormData(configMap, "misc.formToNativeQuery.data",
                 String.class));
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
@@ -2336,7 +2336,7 @@ public class MongoPluginTest {
 
         pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
         setValueSafelyInFormData(configMap, COMMAND, "RAW");
-        setValueSafelyInFormData(configMap, BODY, getValueSafelyFromFormData(configMap, "formToNativeQuery.data", String.class));
+        setValueSafelyInFormData(configMap, BODY, getValueSafelyFromFormData(configMap, "misc.formToNativeQuery.data", String.class));
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         List<Param> params = new ArrayList<>();
