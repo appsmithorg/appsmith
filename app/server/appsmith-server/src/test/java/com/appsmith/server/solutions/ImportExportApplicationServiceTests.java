@@ -24,6 +24,7 @@ import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -59,8 +60,10 @@ import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -107,6 +110,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @DirtiesContext
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ImportExportApplicationServiceTests {
 
     @Autowired
@@ -171,6 +175,7 @@ public class ImportExportApplicationServiceTests {
     private static final Map<String, Datasource> datasourceMap = new HashMap<>();
     private static Plugin installedJsPlugin;
     private static Boolean isSetupDone = false;
+    private static String exportWithConfigurationAppId;
 
     @Before
     public void setup() {
@@ -322,38 +327,6 @@ public class ImportExportApplicationServiceTests {
                     assertThat(exportedApplication.getGitApplicationMetadata()).isNull();
                     assertThat(exportedApplication.getEditModeThemeId()).isNull();
                     assertThat(exportedApplication.getPublishedModeThemeId()).isNull();
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void createExportAppJsonWithoutActionsAndDatasourceTest() {
-
-        final Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(testAppId, "");
-
-        StepVerifier.create(resultMono)
-                .assertNext(applicationJson -> {
-                    Application exportedApp = applicationJson.getExportedApplication();
-                    List<NewPage> pageList = applicationJson.getPageList();
-                    List<NewAction> actionList = applicationJson.getActionList();
-                    List<Datasource> datasourceList = applicationJson.getDatasourceList();
-
-                    NewPage defaultPage = pageList.get(0);
-
-                    assertThat(exportedApp.getId()).isNull();
-                    assertThat(exportedApp.getOrganizationId()).isNull();
-                    assertThat(exportedApp.getPages()).isNull();
-                    assertThat(exportedApp.getPolicies()).isNull();
-                    assertThat(exportedApp.getUserPermissions()).isNull();
-
-                    assertThat(pageList.isEmpty()).isFalse();
-                    assertThat(defaultPage.getApplicationId()).isNull();
-                    assertThat(defaultPage.getUnpublishedPage().getLayouts().get(0).getLayoutOnLoadActions()).isNull();
-
-                    assertThat(actionList.isEmpty()).isTrue();
-
-                    assertThat(datasourceList.isEmpty()).isTrue();
                 })
                 .verifyComplete();
     }
@@ -1966,8 +1939,248 @@ public class ImportExportApplicationServiceTests {
                     assertThat(latestApplicationJson.getClientSchemaVersion()).isEqualTo(JsonSchemaVersions.clientVersion);
                 })
                 .verifyComplete();
+    }
 
+    /**
+     * Testcase to check if the application is exported with the datasource configuration object if this setting is
+     * enabled from application object
+     * This can be enabled with exportWithConfiguration: true
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void test1_exportApplication_withDatasourceConfig_exportedWithDecryptedFields() {
+        Organization newOrganization = new Organization();
+        newOrganization.setName("template-org-with-ds");
 
+        Application testApplication = new Application();
+        testApplication.setName("exportApplication_withCredentialsForSampleApps_SuccessWithDecryptFields");
+        testApplication.setExportWithConfiguration(true);
+        testApplication = applicationPageService.createApplication(testApplication, orgId).block();
+        assert testApplication != null;
+        exportWithConfigurationAppId = testApplication.getId();
+        ApplicationAccessDTO accessDTO = new ApplicationAccessDTO();
+        accessDTO.setPublicAccess(true);
+        applicationService.changeViewAccess(exportWithConfigurationAppId, accessDTO).block();
+        final String appName = testApplication.getName();
+        final Mono<ApplicationJson> resultMono = Mono.zip(
+                        Mono.just(testApplication),
+                        newPageService.findPageById(testApplication.getPages().get(0).getId(), READ_PAGES, false)
+                )
+                .flatMap(tuple -> {
+                    Application testApp = tuple.getT1();
+                    PageDTO testPage = tuple.getT2();
+
+                    Layout layout = testPage.getLayouts().get(0);
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    JSONObject dsl = new JSONObject();
+                    try {
+                        dsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
+                        }));
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+
+                    ArrayList children = (ArrayList) dsl.get("children");
+                    JSONObject testWidget = new JSONObject();
+                    testWidget.put("widgetName", "firstWidget");
+                    JSONArray temp = new JSONArray();
+                    temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+                    testWidget.put("dynamicBindingPathList", temp);
+                    testWidget.put("testField", "{{ validAction.data }}");
+                    children.add(testWidget);
+
+                    layout.setDsl(dsl);
+                    layout.setPublishedDsl(dsl);
+
+                    ActionDTO action = new ActionDTO();
+                    action.setName("validAction");
+                    action.setPageId(testPage.getId());
+                    action.setExecuteOnLoad(true);
+                    ActionConfiguration actionConfiguration = new ActionConfiguration();
+                    actionConfiguration.setHttpMethod(HttpMethod.GET);
+                    action.setActionConfiguration(actionConfiguration);
+                    action.setDatasource(datasourceMap.get("DS2"));
+
+                    ActionDTO action2 = new ActionDTO();
+                    action2.setName("validAction2");
+                    action2.setPageId(testPage.getId());
+                    action2.setExecuteOnLoad(true);
+                    action2.setUserSetOnLoad(true);
+                    ActionConfiguration actionConfiguration2 = new ActionConfiguration();
+                    actionConfiguration2.setHttpMethod(HttpMethod.GET);
+                    action2.setActionConfiguration(actionConfiguration2);
+                    action2.setDatasource(datasourceMap.get("DS2"));
+
+                    ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
+                    actionCollectionDTO1.setName("testCollection1");
+                    actionCollectionDTO1.setPageId(testPage.getId());
+                    actionCollectionDTO1.setApplicationId(testApp.getId());
+                    actionCollectionDTO1.setOrganizationId(testApp.getOrganizationId());
+                    actionCollectionDTO1.setPluginId(jsDatasource.getPluginId());
+                    ActionDTO action1 = new ActionDTO();
+                    action1.setName("testAction1");
+                    action1.setActionConfiguration(new ActionConfiguration());
+                    action1.getActionConfiguration().setBody("mockBody");
+                    actionCollectionDTO1.setActions(List.of(action1));
+                    actionCollectionDTO1.setPluginType(PluginType.JS);
+
+                    return layoutCollectionService.createCollection(actionCollectionDTO1)
+                            .then(layoutActionService.createSingleAction(action))
+                            .then(layoutActionService.createSingleAction(action2))
+                            .then(layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout))
+                            .then(importExportApplicationService.exportApplicationById(testApp.getId(), ""));
+                })
+                .cache();
+
+        Mono<List<NewAction>> actionListMono = resultMono
+                .then(newActionService
+                        .findAllByApplicationIdAndViewMode(testApplication.getId(), false, READ_ACTIONS, null).collectList());
+
+        Mono<List<ActionCollection>> collectionListMono = resultMono.then(
+                actionCollectionService
+                        .findAllByApplicationIdAndViewMode(testApplication.getId(), false, READ_ACTIONS, null).collectList());
+
+        Mono<List<NewPage>> pageListMono = resultMono.then(
+                newPageService
+                        .findNewPagesByApplicationId(testApplication.getId(), READ_PAGES).collectList());
+
+        StepVerifier
+                .create(Mono.zip(resultMono, actionListMono, collectionListMono, pageListMono))
+                .assertNext(tuple -> {
+
+                    ApplicationJson applicationJson = tuple.getT1();
+                    List<NewAction> DBActions = tuple.getT2();
+                    List<ActionCollection> DBCollections = tuple.getT3();
+                    List<NewPage> DBPages = tuple.getT4();
+
+                    Application exportedApp = applicationJson.getExportedApplication();
+                    List<NewPage> pageList = applicationJson.getPageList();
+                    List<NewAction> actionList = applicationJson.getActionList();
+                    List<ActionCollection> actionCollectionList = applicationJson.getActionCollectionList();
+                    List<Datasource> datasourceList = applicationJson.getDatasourceList();
+
+                    List<String> exportedCollectionIds = actionCollectionList.stream().map(ActionCollection::getId).collect(Collectors.toList());
+                    List<String> exportedActionIds = actionList.stream().map(NewAction::getId).collect(Collectors.toList());
+                    List<String> DBCollectionIds = DBCollections.stream().map(ActionCollection::getId).collect(Collectors.toList());
+                    List<String> DBActionIds = DBActions.stream().map(NewAction::getId).collect(Collectors.toList());
+                    List<String> DBOnLayoutLoadActionIds = new ArrayList<>();
+                    List<String> exportedOnLayoutLoadActionIds = new ArrayList<>();
+
+                    DBPages.forEach(newPage ->
+                            newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
+                                if (layout.getLayoutOnLoadActions() != null) {
+                                    layout.getLayoutOnLoadActions().forEach(dslActionDTOSet -> {
+                                        dslActionDTOSet.forEach(actionDTO -> DBOnLayoutLoadActionIds.add(actionDTO.getId()));
+                                    });
+                                }
+                            })
+                    );
+
+                    pageList.forEach(newPage ->
+                            newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
+                                if (layout.getLayoutOnLoadActions() != null) {
+                                    layout.getLayoutOnLoadActions().forEach(dslActionDTOSet -> {
+                                        dslActionDTOSet.forEach(actionDTO -> exportedOnLayoutLoadActionIds.add(actionDTO.getId()));
+                                    });
+                                }
+                            })
+                    );
+
+                    NewPage defaultPage = pageList.get(0);
+
+                    assertThat(exportedApp.getName()).isEqualTo(appName);
+                    assertThat(exportedApp.getOrganizationId()).isNull();
+                    assertThat(exportedApp.getPages()).isNull();
+
+                    assertThat(exportedApp.getPolicies()).isNull();
+
+                    assertThat(pageList).hasSize(1);
+                    assertThat(defaultPage.getApplicationId()).isNull();
+                    assertThat(defaultPage.getUnpublishedPage().getLayouts().get(0).getDsl()).isNotNull();
+                    assertThat(defaultPage.getId()).isNull();
+                    assertThat(defaultPage.getPolicies()).isEmpty();
+
+                    assertThat(actionList.isEmpty()).isFalse();
+                    assertThat(actionList).hasSize(3);
+                    NewAction validAction = actionList.stream().filter(action -> action.getId().equals("Page1_validAction")).findFirst().get();
+                    assertThat(validAction.getApplicationId()).isNull();
+                    assertThat(validAction.getPluginId()).isEqualTo(installedPlugin.getPackageName());
+                    assertThat(validAction.getPluginType()).isEqualTo(PluginType.API);
+                    assertThat(validAction.getOrganizationId()).isNull();
+                    assertThat(validAction.getPolicies()).isNull();
+                    assertThat(validAction.getId()).isNotNull();
+                    ActionDTO unpublishedAction = validAction.getUnpublishedAction();
+                    assertThat(unpublishedAction.getPageId()).isEqualTo(defaultPage.getUnpublishedPage().getName());
+                    assertThat(unpublishedAction.getDatasource().getPluginId()).isEqualTo(installedPlugin.getPackageName());
+
+                    NewAction testAction1 = actionList.stream().filter(action -> action.getUnpublishedAction().getName().equals("testAction1")).findFirst().get();
+                    assertThat(testAction1.getId()).isEqualTo("Page1_testCollection1.testAction1");
+
+                    assertThat(actionCollectionList.isEmpty()).isFalse();
+                    assertThat(actionCollectionList).hasSize(1);
+                    final ActionCollection actionCollection = actionCollectionList.get(0);
+                    assertThat(actionCollection.getApplicationId()).isNull();
+                    assertThat(actionCollection.getOrganizationId()).isNull();
+                    assertThat(actionCollection.getPolicies()).isNull();
+                    assertThat(actionCollection.getId()).isNotNull();
+                    assertThat(actionCollection.getUnpublishedCollection().getPluginType()).isEqualTo(PluginType.JS);
+                    assertThat(actionCollection.getUnpublishedCollection().getPageId())
+                            .isEqualTo(defaultPage.getUnpublishedPage().getName());
+                    assertThat(actionCollection.getUnpublishedCollection().getPluginId()).isEqualTo(installedJsPlugin.getPackageName());
+
+                    assertThat(datasourceList).hasSize(1);
+                    Datasource datasource = datasourceList.get(0);
+                    assertThat(datasource.getOrganizationId()).isNull();
+                    assertThat(datasource.getId()).isNull();
+                    assertThat(datasource.getPluginId()).isEqualTo(installedPlugin.getPackageName());
+                    assertThat(datasource.getDatasourceConfiguration()).isNotNull();
+
+                    final Map<String, InvisibleActionFields> invisibleActionFields = applicationJson.getInvisibleActionFields();
+
+                    Assert.assertEquals(3, invisibleActionFields.size());
+                    NewAction validAction2 = actionList.stream().filter(action -> action.getId().equals("Page1_validAction2")).findFirst().get();
+                    Assert.assertEquals(true, invisibleActionFields.get(validAction2.getId()).getUnpublishedUserSetOnLoad());
+
+                    assertThat(applicationJson.getUnpublishedLayoutmongoEscapedWidgets()).isNotEmpty();
+                    assertThat(applicationJson.getPublishedLayoutmongoEscapedWidgets()).isNotEmpty();
+                    assertThat(applicationJson.getEditModeTheme()).isNotNull();
+                    assertThat(applicationJson.getEditModeTheme().isSystemTheme()).isTrue();
+                    assertThat(applicationJson.getEditModeTheme().getName()).isEqualToIgnoringCase(Theme.DEFAULT_THEME_NAME);
+
+                    assertThat(applicationJson.getPublishedTheme()).isNotNull();
+                    assertThat(applicationJson.getPublishedTheme().isSystemTheme()).isTrue();
+                    assertThat(applicationJson.getPublishedTheme().getName()).isEqualToIgnoringCase(Theme.DEFAULT_THEME_NAME);
+
+                    assertThat(exportedCollectionIds).isNotEmpty();
+                    assertThat(exportedCollectionIds).doesNotContain(String.valueOf(DBCollectionIds));
+
+                    assertThat(exportedActionIds).isNotEmpty();
+                    assertThat(exportedActionIds).doesNotContain(String.valueOf(DBActionIds));
+
+                    assertThat(exportedOnLayoutLoadActionIds).isNotEmpty();
+                    assertThat(exportedOnLayoutLoadActionIds).doesNotContain(String.valueOf(DBOnLayoutLoadActionIds));
+
+                    assertThat(applicationJson.getDecryptedFields()).isNotNull();
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * Test to check if the application can be exported with read only access if this is sample application
+     */
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void test2_exportApplication_withReadOnlyAccess_exportedWithDecryptedFields() {
+        Mono<ApplicationJson> exportApplicationMono = importExportApplicationService
+                .exportApplicationById(exportWithConfigurationAppId, SerialiseApplicationObjective.SHARE);
+
+        StepVerifier
+                .create(exportApplicationMono)
+                .assertNext(applicationJson -> {
+                    assertThat(applicationJson.getExportedApplication()).isNotNull();
+                    assertThat(applicationJson.getDecryptedFields()).isNotNull();
+                })
+                .verifyComplete();
     }
     
 }

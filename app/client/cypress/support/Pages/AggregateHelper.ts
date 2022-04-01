@@ -1,9 +1,8 @@
 import 'cypress-wait-until';
 const uuid = require("uuid");
-import { CommonLocators } from "../Objects/CommonLocators";
-
-const locator = new CommonLocators();
+import { ObjectsRegistry } from '../Objects/Registry';
 export class AggregateHelper {
+    private locator = ObjectsRegistry.CommonLocators;
 
     public AddDsl(dsl: string) {
         let currentURL;
@@ -29,20 +28,7 @@ export class AggregateHelper {
             });
         });
         this.Sleep(5000)//settling time for dsl
-    }
-
-    public NavigateToDSCreateNew() {
-        this.NavigateToDSAdd()
-        cy.get(locator._integrationCreateNew)
-            .should("be.visible")
-            .click({ force: true });
-        cy.get(locator._loading).should("not.exist");
-    }
-
-    public NavigateToDSAdd() {
-        cy.get(locator._addNewDataSource).last().scrollIntoView()
-            .should("be.visible")
-            .click({ force: true });
+        cy.get(this.locator._loading).should("not.exist");//Checks the spinner is gone & dsl loaded!
     }
 
     public StartServerAndRoutes() {
@@ -52,8 +38,8 @@ export class AggregateHelper {
     }
 
     public RenameWithInPane(renameVal: string, query = true) {
-        let name = query ? locator._queryName : locator._dsName;
-        let text = query ? locator._queryNameTxt : locator._dsNameTxt;
+        let name = query ? this.locator._queryName : this.locator._dsName;
+        let text = query ? this.locator._queryNameTxt : this.locator._dsNameTxt;
         cy.get(name).click({ force: true });
         cy.get(text)
             .clear({ force: true })
@@ -62,30 +48,14 @@ export class AggregateHelper {
             .blur();
     }
 
-    public WaitAutoSave() {
+    public AssertAutoSave() {
         // wait for save query to trigger & n/w call to finish occuring
-        cy.get(locator._saveStatusSuccess, { timeout: 40000 }).should("exist");
-    }
-
-    public SelectEntityByName(entityNameinLeftSidebar: string) {
-        cy.xpath(locator._entityNameInExplorer(entityNameinLeftSidebar), { timeout: 30000 })
-            .last()
-            .click({ multiple: true })
-        this.Sleep()
-    }
-
-    public NavigateToExplorer() {
-        cy.get(locator._openNavigationTab('explorer')).click()
-    }
-
-    public ValidateEntityPresenceInExplorer(entityNameinLeftSidebar: string) {
-        cy.xpath(locator._entityNameInExplorer(entityNameinLeftSidebar))
-            .should("have.length", 1);
+        cy.get(this.locator._saveStatusSuccess, { timeout: 40000 }).should("exist");
     }
 
     public ValidateCodeEditorContent(selector: string, contentToValidate: any) {
         cy.get(selector).within(() => {
-            cy.get(locator._codeMirrorCode).should("have.text", contentToValidate);
+            cy.get(this.locator._codeMirrorCode).should("have.text", contentToValidate);
         });
     }
 
@@ -94,31 +64,21 @@ export class AggregateHelper {
         cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
         // Wait before publish
         this.Sleep(2000)
-        this.WaitAutoSave()
+        this.AssertAutoSave()
         // Stubbing window.open to open in the same tab
         cy.window().then((window) => {
             cy.stub(window, "open").callsFake((url) => {
                 window.location.href = Cypress.config().baseUrl + url.substring(1);
             });
         });
-        cy.get(locator._publishButton).click();
-        cy.wait("@publishApp");
+        cy.get(this.locator._publishButton).click();
         cy.log("Pagename: " + localStorage.getItem("PageName"));
-    }
-
-    public expandCollapseEntity(entityName: string, expand = true) {
-        cy.xpath(locator._expandCollapseArrow(entityName)).invoke('attr', 'name').then((arrow) => {
-            if (expand && arrow == 'arrow-right')
-                cy.xpath(locator._expandCollapseArrow(entityName)).trigger('click', { multiple: true }).wait(1000);
-            else if (!expand && arrow == 'arrow-down')
-                cy.xpath(locator._expandCollapseArrow(entityName)).trigger('click', { multiple: true }).wait(1000);
-            else
-                this.Sleep()
-        })
+        cy.wait("@publishApp").its("request.url").should("not.contain", "edit")
+        //cy.wait('@publishApp').wait('@publishApp') //waitng for 2 calls to complete
     }
 
     public AddNewPage() {
-        cy.get(locator._newPage)
+        cy.get(this.locator._newPage)
             .first()
             .click();
         cy.wait("@createPage").should(
@@ -128,8 +88,14 @@ export class AggregateHelper {
         );
     }
 
+    public ValidateToastMessage(text: string, length = 1, index = 1) {
+        cy.get(this.locator._toastMsg)
+            .should("have.length", length)
+            .should("contain.text", text);
+    }
+
     public ClickButton(btnVisibleText: string) {
-        cy.xpath(locator._spanButton(btnVisibleText))
+        cy.xpath(this.locator._spanButton(btnVisibleText))
             .scrollIntoView()
             .click({ force: true });
     }
@@ -148,22 +114,22 @@ export class AggregateHelper {
         });
     }
 
-    public WaitUntilEleDisappear(selector: string, msgToCheckforDisappearance: string, timeout = 1000) {
+    public WaitUntilEleDisappear(selector: string, msgToCheckforDisappearance: string) {
         cy.waitUntil(() => cy.get(selector).contains(msgToCheckforDisappearance).should("have.length", 0),
             {
                 errorMsg: msgToCheckforDisappearance + " did not disappear",
                 timeout: 5000,
                 interval: 1000
-            }).then(() => this.Sleep(timeout))
+            }).then(() => this.Sleep())
     }
 
-    public WaitUntilEleAppear(selector: string, timeout = 500) {
+    public WaitUntilEleAppear(selector: string) {
         cy.waitUntil(() => cy.get(selector, { timeout: 50000 }).should("have.length.greaterThan", 0),
             {
                 errorMsg: "Element did not appear",
                 timeout: 5000,
                 interval: 1000
-            }).then(() => this.Sleep(timeout))
+            }).then(() => this.Sleep(500))
     }
 
     public ValidateNetworkExecutionSuccess(aliasName: string, expectedRes = true) {
@@ -174,15 +140,15 @@ export class AggregateHelper {
         )
     }
 
-    public ValidateNetworkStatus(aliasName: string, expectedRes = 200) {
+    public ValidateNetworkDataSuccess(aliasName: string, expectedRes = true) {
         cy.wait(aliasName).should(
             "have.nested.property",
-            "response.body.responseMeta.status",
+            "response.body.data.success",
             expectedRes,
         )
     }
 
-    public ValidateNetworkCallRespPut(aliasName: string, expectedStatus = 200) {
+    public ValidateNetworkStatus(aliasName: string, expectedStatus = 200) {
         cy.wait(aliasName).should(
             "have.nested.property",
             "response.body.responseMeta.status",
@@ -191,24 +157,24 @@ export class AggregateHelper {
     }
 
     public SelectPropertiesDropDown(endp: string, ddOption: string,) {
-        cy.xpath(locator._selectPropDropdown(endp))
+        cy.xpath(this.locator._selectPropDropdown(endp))
             .first()
             .scrollIntoView()
             .click()
-        cy.get(locator._dropDownValue(ddOption)).click()
+        cy.get(this.locator._dropDownValue(ddOption)).click()
     }
 
     public SelectDropDown(endp: string, ddOption: string,) {
-        cy.xpath(locator._selectWidgetDropdown(endp))
+        cy.xpath(this.locator._selectWidgetDropdown(endp))
             .first()
             .scrollIntoView()
             .click()
-        cy.get(locator._dropDownValue(ddOption)).click({ force: true })
+        cy.get(this.locator._selectOptionValue(ddOption)).click({ force: true })
         this.Sleep(2000)
     }
 
     public EnterActionValue(actionName: string, value: string, paste = true) {
-        cy.xpath(locator._actionTextArea(actionName))
+        cy.xpath(this.locator._actionTextArea(actionName))
             .first()
             .focus()
             .type("{uparrow}", { force: true })
@@ -216,7 +182,7 @@ export class AggregateHelper {
         cy.focused().then(($cm: any) => {
             if ($cm.contents != "") {
                 cy.log("The field is not empty");
-                cy.xpath(locator._actionTextArea(actionName))
+                cy.xpath(this.locator._actionTextArea(actionName))
                     .first()
                     .click({ force: true })
                     .focused()
@@ -225,7 +191,7 @@ export class AggregateHelper {
                     });
             }
             this.Sleep()
-            cy.xpath(locator._actionTextArea(actionName))
+            cy.xpath(this.locator._actionTextArea(actionName))
                 .first()
                 .then((el: any) => {
                     const input = cy.get(el);
@@ -238,7 +204,7 @@ export class AggregateHelper {
                         });
                     }
                 });
-            this.WaitAutoSave()
+            this.AssertAutoSave()
         })
     }
 
@@ -253,36 +219,29 @@ export class AggregateHelper {
         cy.get(selector).click({ force: true });
     }
 
-    public DragDropWidgetNVerify(widgetType: string, x: number, y: number) {
-        cy.get(locator._openNavigationTab('widgets')).click({ force: true })
-        this.Sleep()
-        cy.get(locator._widgetPageIcon(widgetType)).first()
-            .trigger("dragstart", { force: true })
-            .trigger("mousemove", x, y, { force: true });
-        cy.get(locator._dropHere)
-            .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
-            .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
-            .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
-        this.WaitAutoSave()//settling time for widget on canvas!
-        cy.get(locator._widgetInCanvas(widgetType)).should('exist')
-    }
-
-    public ToggleOrDisable(propertyName: string, check = true) {
-        if (check) {
-            cy.get(locator._propertyToggle(propertyName))
+    public ToggleOnOrOff(propertyName: string, toggle: 'On' | 'Off') {
+        if (toggle == 'On') {
+            cy.get(this.locator._propertyToggle(propertyName))
                 .check({ force: true })
                 .should("be.checked");
         }
         else {
-            cy.get(locator._propertyToggle(propertyName))
+            cy.get(this.locator._propertyToggle(propertyName))
                 .uncheck({ force: true })
                 .should("not.checked");
         }
-        this.WaitAutoSave()
+        this.AssertAutoSave()
+    }
+
+    public AssertExistingToggleState(propertyName: string, toggle: 'checked' | 'unchecked') {
+        cy.xpath(this.locator._propertyToggleValue(propertyName)).invoke("attr", "class")
+            .then((classes) => {
+                expect(classes).includes(toggle);
+            });
     }
 
     public NavigateBacktoEditor() {
-        cy.get(locator._backToEditor).click({ force: true });
+        cy.get(this.locator._backToEditor).click({ force: true });
         this.Sleep(2000)
     }
 
@@ -293,52 +252,25 @@ export class AggregateHelper {
     }
 
     public GetObjectName() {
-        //cy.get(locator._queryName).invoke("text").then((text) => cy.wrap(text).as("queryName")); or below syntax
-        return cy.get(locator._queryName).invoke("text");
+        //cy.get(this.locator._queryName).invoke("text").then((text) => cy.wrap(text).as("queryName")); or below syntax
+        return cy.get(this.locator._queryName).invoke("text");
     }
 
     public Sleep(timeout = 1000) {
         cy.wait(timeout)
     }
 
-    public NavigateToHome() {
-        cy.get(locator._homeIcon).click({ force: true });
-        this.Sleep(3000);
-        cy.wait("@applications");
-        cy.get(locator._homePageAppCreateBtn)
-            .should("be.visible")
-            .should("be.enabled");
-    }
-
-    public CreateNewApplication() {
-        cy.get(locator._homePageAppCreateBtn).click({ force: true });
-        cy.wait("@createNewApplication").should(
-            "have.nested.property",
-            "response.body.responseMeta.status",
-            201,
-        );
-    }
-
-    public ActionContextMenuByEntityName(
-        entityNameinLeftSidebar: string,
-        action = "Delete",
-        subAction = "") {
-        this.Sleep();
-        cy.xpath(locator._contextMenu(entityNameinLeftSidebar))
-            .last()
-            .click({ force: true });
-        cy.xpath(locator._contextMenuItem(action))
-            .click({ force: true })
-        this.Sleep(500)
+    public ActionContextMenuWithInPane(action: 'Copy to page' | 'Move to page' | 'Delete', subAction = "") {
+        cy.get(this.locator._contextMenuInPane).click()
+        cy.xpath(this.locator._visibleTextDiv(action)).should('be.visible').click()
+        if (action == 'Delete') {
+            cy.xpath(this.locator._visibleTextDiv('Are you sure?')).click()
+            this.ValidateNetworkStatus("@deleteAction");
+        }
         if (subAction) {
-            cy.xpath(locator._contextMenuItem(subAction))
-                .click({ force: true })
+            cy.xpath(this.locator._visibleTextDiv(subAction)).click()
             this.Sleep(500)
         }
-    }
-
-    public ValidateEntityAbsenceInExplorer(entityNameinLeftSidebar: string) {
-        cy.xpath(locator._entityNameInExplorer(entityNameinLeftSidebar)).should('not.exist');
     }
 
     public TypeValueNValidate(valueToType: string, fieldName = "") {
@@ -348,11 +280,11 @@ export class AggregateHelper {
 
     public EnterValue(valueToType: string, fieldName = "") {
         if (fieldName) {
-            cy.xpath(locator._inputFieldByName(fieldName)).then(($field: any) => {
+            cy.xpath(this.locator._inputFieldByName(fieldName)).then(($field: any) => {
                 this.UpdateCodeInput($field, valueToType);
             });
         } else {
-            cy.get(locator._codeEditorTarget).then(($field: any) => {
+            cy.get(this.locator._codeEditorTarget).then(($field: any) => {
                 this.UpdateCodeInput($field, valueToType);
             });
         }
@@ -373,11 +305,11 @@ export class AggregateHelper {
 
     public VerifyEvaluatedValue(currentValue: string) {
         this.Sleep(3000);
-        cy.get(locator._evaluatedCurrentValue)
+        cy.get(this.locator._evaluatedCurrentValue)
             .first()
             .should("be.visible")
             .should("not.have.text", "undefined");
-        cy.get(locator._evaluatedCurrentValue)
+        cy.get(this.locator._evaluatedCurrentValue)
             .first()
             .click({ force: true })
             .then(($text) => {
@@ -385,7 +317,47 @@ export class AggregateHelper {
             });
     }
 
-    public ReadTableRowColumnData(rowNum: number, colNum: number) {
-        return cy.get(locator._tableRowColumn(rowNum, colNum)).invoke("text");
+    public EvaluateExistingPropertyFieldValue(fieldName = "", currentValue = "") {
+        let toValidate = false;
+        if (currentValue) toValidate = true;
+        if (fieldName) {
+            cy.xpath(this.locator._existingFieldValueByName(fieldName)).eq(0).click();
+        } else {
+            cy.xpath(this.locator._codeMirrorCode).click();
+        }
+        this.Sleep(3000); //Increasing wait time to evaluate non-undefined values
+        const val = cy
+            .get(this.locator._evaluatedCurrentValue)
+            .first()
+            .should("be.visible")
+            .invoke("text");
+        if (toValidate) expect(val).to.eq(currentValue);
+        return val;
+    }
+
+    public UploadFile(fixtureName: string, execStat = true) {
+        cy.get(this.locator._uploadFiles).attachFile(fixtureName).wait(1000);
+        cy.get(this.locator._uploadBtn).click().wait(3000);
+        this.ValidateNetworkExecutionSuccess("@postExecute", execStat);
+    }
+
+    public AssertDebugError(label: string, messgae: string) {
+        cy.get(this.locator._debuggerIcon)
+            .should("be.visible")
+            .click({ force: true });
+        cy.get(this.locator._errorTab)
+            .should("be.visible")
+            .click({ force: true });
+        cy.get(this.locator._debuggerLabel).eq(0)
+            .invoke("text")
+            .then(($text) => {
+                expect($text).to.eq(label);
+            });
+        cy.get(this.locator._debugErrorMsg).eq(0)
+            .invoke("text")
+            .then(($text) => {
+                expect($text).contains(messgae);
+            });
+
     }
 }
