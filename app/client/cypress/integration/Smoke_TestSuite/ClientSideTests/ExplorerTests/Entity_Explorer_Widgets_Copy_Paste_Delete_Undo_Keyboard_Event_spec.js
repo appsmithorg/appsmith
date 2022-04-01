@@ -49,7 +49,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
       expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{FormTestCopy.isVisible}}");
       expect($lis.eq(1)).to.contain("{{FormTestCopy.data}}");
-      expect($lis.eq(1)).to.contain("{{FormTestCopy.hansChanges}}");
+      expect($lis.eq(1)).to.contain("{{FormTestCopy.hasChanges}}");
       cy.contains("FormTestCopy");
       cy.get($lis.eq(1))
         .contains("{{FormTestCopy.data}}")
