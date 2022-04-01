@@ -144,7 +144,7 @@ export function* getCurrentUserSaga() {
     });
 
     yield put({
-      type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
       payload: {
         code: ERROR_CODES.SERVER_ERROR,
       },
