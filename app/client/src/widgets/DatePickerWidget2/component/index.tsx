@@ -88,61 +88,6 @@ const StyledControlGroup = styled(ControlGroup)<{
   }
 `;
 
-export const TextLabelWrapper = styled.div<{
-  compactMode: boolean;
-  alignment?: Alignment;
-  position?: LabelPosition;
-  width?: number;
-}>`
-  display: flex;
-  ${({ alignment, compactMode, position, width }) => `
-    ${
-      position !== LabelPosition.Top &&
-      (position === LabelPosition.Left || compactMode)
-        ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
-        : `&&& {flex:0; width: 100%;}`
-    }
-    ${position === LabelPosition.Left &&
-      `
-      ${!width && `width: 33%`};
-      ${alignment === Alignment.RIGHT && `justify-content: flex-end`};
-      label {
-        ${width && `width: ${width}px`};
-        ${
-          alignment === Alignment.RIGHT
-            ? `text-align: right`
-            : `text-align: left`
-        };
-      }
-    `}
-  `}
-`;
-
-export const StyledLabel = styled(Label)<{
-  $disabled: boolean;
-  $labelText?: string;
-  $labelTextColor?: string;
-  $labelTextSize?: TextSize;
-  $labelStyle?: string;
-  disabled?: boolean;
-}>`
-  overflow-y: hidden;
-  text-overflow: ellipsis;
-  text-align: left;
-  color: ${(props) =>
-    props.disabled ? Colors.GREY_8 : props.$labelTextColor || "inherit"};
-  font-size: ${(props) =>
-    props.$labelTextSize ? TEXT_SIZES[props.$labelTextSize] : "14px"};
-  font-weight: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
-  font-style: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
-`;
-
-export const StyledTooltip = styled(Tooltip)`
-  overflow: hidden;
-`;
-
 export const DateInputWrapper = styled.div<{
   compactMode: boolean;
   labelPosition?: LabelPosition;
@@ -161,7 +106,6 @@ class DatePickerComponent extends React.Component<
     super(props);
     this.state = {
       selectedDate: props.selectedDate,
-      isLabelTooltipOpen: false,
     };
   }
 
@@ -380,7 +324,6 @@ interface DatePickerComponentProps extends ComponentProps {
 
 interface DatePickerComponentState {
   selectedDate?: string;
-  isLabelTooltipOpen: boolean;
 }
 
 export default DatePickerComponent;

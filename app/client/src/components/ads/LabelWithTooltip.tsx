@@ -92,7 +92,7 @@ export const LabelContainer = styled.div<LabelContainerProps>`
     }
     ${position === LabelPosition.Left &&
       `
-      ${!width && `width: 33%`};
+      ${!width && width !== 0 && `width: 33%`};
       ${alignment === Alignment.RIGHT && `justify-content: flex-end`};
       label {
         ${width && `width: ${width}px`};
