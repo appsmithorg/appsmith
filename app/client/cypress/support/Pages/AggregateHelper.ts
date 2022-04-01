@@ -4,7 +4,7 @@ import { ObjectsRegistry } from '../Objects/Registry';
 export class AggregateHelper {
     private locator = ObjectsRegistry.CommonLocators;
 
-    public AddDsl(dsl: string) {
+    public AddDsl(dsl: string, elementToCheckPresenceaftDslLoad: string | "" = "") {
         let currentURL;
         let pageid: string;
         let layoutId;
@@ -27,7 +27,10 @@ export class AggregateHelper {
                 });
             });
         });
-        this.Sleep(5000)//settling time for dsl
+
+        if (elementToCheckPresenceaftDslLoad)
+            this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad)
+        this.Sleep(500)//settling time for dsl
         cy.get(this.locator._loading).should("not.exist");//Checks the spinner is gone & dsl loaded!
     }
 
@@ -50,7 +53,7 @@ export class AggregateHelper {
 
     public AssertAutoSave() {
         // wait for save query to trigger & n/w call to finish occuring
-        cy.get(this.locator._saveStatusSuccess).should("exist");
+        cy.get(this.locator._saveStatusSuccess, { timeout: 30000 }).should("exist");//adding timeout since waiting more time is not worth it!
     }
 
     public ValidateCodeEditorContent(selector: string, contentToValidate: any) {
