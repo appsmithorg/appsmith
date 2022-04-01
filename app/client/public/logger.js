@@ -7,8 +7,10 @@ function getCurrentUTCTimestamp(date) {
 // For a current time of 19:15, returns the timestamp of 19:00
 function getCurrentUTCHourTimestamp() {
   const date = new Date();
-  const timestamp = getCurrentUTCTimestamp(date);
-  return timestamp - (date.getUTCMinutes() * 60 + date.getUTCSeconds());
+  date.setUTCMinutes(0);
+  date.setUTCSeconds(0);
+  date.setUTCMilliseconds(0);
+  return getCurrentUTCTimestamp(date);
 }
 
 const PULSE_API_ENDPOINT = "/api/v1/usage-pulse";
@@ -16,6 +18,7 @@ const PULSE_API_ENDPOINT = "/api/v1/usage-pulse";
 // Use standard fetch to POST (fire and forget)
 function sendHTTPPulse() {
   fetch(PULSE_API_ENDPOINT, {
+    method: "POST",
     credentials: "same-origin",
   });
 }
