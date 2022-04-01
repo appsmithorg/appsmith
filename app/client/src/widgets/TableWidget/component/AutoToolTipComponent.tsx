@@ -116,7 +116,6 @@ function AutoToolTipComponent(props: Props) {
         ) : (
           props.children
         )}
-        {useToolTip && props.children && "..."}
       </CellWrapper>
     </ColumnWrapper>
   );

@@ -373,8 +373,10 @@ export const CellWrapper = styled.div<{
   ${TableStyles};
   padding: ${(props) => (props.isPadding ? "0 10px" : " 0px")};
   line-height: 28px;
-  .${Classes.POPOVER_WRAPPER} {
+  .${Classes.POPOVER_WRAPPER}, > span > span > span {
+    width: 100%;
     overflow: hidden;
+    text-overflow: ellipsis;
   }
   .image-cell-wrapper {
     width: 100%;
