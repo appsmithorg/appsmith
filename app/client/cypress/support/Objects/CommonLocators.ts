@@ -17,6 +17,7 @@ export class CommonLocators {
     _publishButton = ".t--application-publish-btn"
     _textWidgetInDeployed = ".t--widget-textwidget span"
     _inputWidgetInDeployed = ".t--widget-inputwidgetv2 input"
+    _imageWidget =".t--draggable-imagewidget"
     _backToEditor = ".t--back-to-editor"
     _newPage = ".pages .t--entity-add-btn"
     _toastMsg = ".t--toast-action"

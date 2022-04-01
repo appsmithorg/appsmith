@@ -11,12 +11,12 @@ describe("Validate API request body panel", () => {
         apiPage.CreateApi("FirstAPI", 'POST');
         apiPage.SelectAPITab('Body')
         apiPage.SelectSubTab('FORM_URLENCODED')
-        apiPage.CheckElementPresence(apiPage._bodyKey(0))
-        apiPage.CheckElementPresence(apiPage._bodyValue(0))
+        agHelper.AssertElementPresence(apiPage._bodyKey(0))
+        agHelper.AssertElementPresence(apiPage._bodyValue(0))
         apiPage.SelectSubTab('MULTIPART_FORM_DATA')
-        apiPage.CheckElementPresence(apiPage._bodyKey(0))
-        apiPage.CheckElementPresence(apiPage._bodyTypeDropdown)
-        apiPage.CheckElementPresence(apiPage._bodyValue(0))
+        agHelper.AssertElementPresence(apiPage._bodyKey(0))
+        agHelper.AssertElementPresence(apiPage._bodyTypeDropdown)
+        agHelper.AssertElementPresence(apiPage._bodyValue(0))
         agHelper.ActionContextMenuWithInPane('Delete')
     });
 
@@ -121,7 +121,7 @@ describe("Validate API request body panel", () => {
             .invoke('attr', 'src').then($src => {
                 expect($src).not.eq("https://assets.appsmith.com/widgets/default.png")
             })
-        apiPage.CheckElementPresence(locator._spanButton('Select Files'))//verifying if reset!
+        agHelper.AssertElementPresence(locator._spanButton('Select Files'))//verifying if reset!
         agHelper.NavigateBacktoEditor()
     });
 
@@ -140,7 +140,7 @@ describe("Validate API request body panel", () => {
         agHelper.ClickButton('Select Files');
         agHelper.UploadFile(imageNameToUpload, false)
         agHelper.ValidateToastMessage("CloudinaryUploadApi failed to execute")
-        apiPage.CheckElementPresence(locator._spanButton('Select Files'))//verifying if reset in case of failure!
+        agHelper.AssertElementPresence(locator._spanButton('Select Files'))//verifying if reset in case of failure!
     });
 
 });

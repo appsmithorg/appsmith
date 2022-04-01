@@ -7,6 +7,7 @@ const widgetLocators = require("../../../../locators/Widgets.json");
 describe("Binding the multiple widgets and validating default data", function() {
   before(() => {
     cy.addDsl(dsl);
+    cy.wait(3000); //dsl to settle
   });
 
   it("1. Validation of  default displayed in select widget based on row selected", function() {

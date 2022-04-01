@@ -154,13 +154,6 @@ export class ApiPage {
         cy.get(this._bodySubTab(subTabName)).eq(0).should('be.visible').click();
     }
 
-    public CheckElementPresence(selector: string) {
-        if (selector.startsWith("//"))
-            cy.xpath(selector).should('be.visible')
-        else
-            cy.get(selector).should('be.visible')
-    }
-
     ValidateQueryParams(param: { key: string; value: string; }) {
         this.SelectAPITab('Params')
         this.agHelper.ValidateCodeEditorContent(this._paramKey(0), param.key)

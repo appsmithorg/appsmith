@@ -145,7 +145,7 @@ export class AggregateHelper {
                 timeout: 5000,
                 interval: 1000
             }).then($ele => {
-                cy.wrap($ele).should("be.visible")
+                cy.wrap($ele).eq(0).should("be.visible")
                 this.Sleep()
             })
     }
@@ -377,6 +377,20 @@ export class AggregateHelper {
                 expect($text).contains(messgae);
             });
 
+    }
+
+    public AssertElementAbsence(selector: string) {
+        if (selector.startsWith("//"))
+            cy.xpath(selector).should('not.exist')
+        else
+            cy.get(selector).should('not.exist')
+    }
+
+    public AssertElementPresence(selector: string) {
+        if (selector.startsWith("//"))
+            cy.xpath(selector).should('be.visible')
+        else
+            cy.get(selector).should('be.visible')
     }
 
     //Not used:
