@@ -47,9 +47,9 @@ before(function() {
   cy.window().then((window) => {
     window.indexedDB.deleteDatabase("Appsmith");
   });
-
   cy.visit("/setup/welcome");
   cy.wait("@getMe");
+  cy.wait(3000);
   cy.url().then((url) => {
     if (url.indexOf("setup/welcome") > -1) {
       cy.createSuperUser();
