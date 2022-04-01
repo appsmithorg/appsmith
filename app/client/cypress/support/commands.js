@@ -4138,7 +4138,7 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
     ".t--property-control-alignment .t--button-tab-right";
   const labelWidth = options.labelWidth;
 
-  // Drag a radio group widget
+  // Drag a widget
   cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
   cy.get(`.t--widget-${widgetName}`).should("exist");
 
