@@ -51,7 +51,7 @@ public class FieldName {
     public static final String STATUS = "status";
     public static final String SUCCESS = "SUCCESS";
     public static final String ERROR = "ERROR";
-    public static final String NATIVE_QUERY_PATH = "formToNativeQuery";
+    public static final String NATIVE_QUERY_PATH = "misc.formToNativeQuery";
     public static final String NATIVE_QUERY_PATH_DATA = NATIVE_QUERY_PATH + "." + DATA;
     public static final String NATIVE_QUERY_PATH_STATUS = NATIVE_QUERY_PATH + "." + STATUS;
 }

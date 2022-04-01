@@ -1099,12 +1099,6 @@ public class MongoPlugin extends BasePlugin {
                         }
                     }
                 }
-                else {
-                    if (isBlank(getValueSafelyFromFormData(formData, BODY, String.class))) {
-                        String nativeQuery = getValueSafelyFromFormData(formData, NATIVE_QUERY_PATH_DATA, String.class, "");
-                        setValueSafelyInFormData(formData, BODY, nativeQuery);
-                    }
-                }
             }
 
             return actionConfiguration;
