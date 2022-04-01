@@ -76,6 +76,8 @@ const RULES: Record<AutocompleteDataType, Array<string>> = {
     "ACTION.data",
     "TABLE_WIDGET.selectedRowIndices",
     "TABLE_WIDGET_V2.selectedRowIndices",
+    "TABLE_WIDGET_V2.updatedRows",
+    "TABLE_WIDGET_V2.updatedRowIndices",
   ],
   BOOLEAN: [
     "CHECKBOX_WIDGET.isChecked",

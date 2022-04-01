@@ -4,7 +4,7 @@ import { AnyStyledComponent } from "styled-components";
 import { Colors } from "constants/Colors";
 import styled from "constants/DefaultTheme";
 import { ControlIcons } from "icons/ControlIcons";
-import { CellAlignment, TEXT_ALIGN } from "../Constants";
+import { CellAlignment, JUSTIFY_CONTENT, TEXT_ALIGN } from "../Constants";
 import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.svg";
 
 const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
@@ -32,22 +32,19 @@ const DescendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   }
 `;
 
-const ColumnNameContainer = styled.div`
+const ColumnNameContainer = styled.div<{
+  horizontalAlignment: CellAlignment;
+}>`
   display: flex;
   align-items: center;
+  justify-content: ${(props) =>
+    props?.horizontalAlignment && JUSTIFY_CONTENT[props.horizontalAlignment]};
 `;
 
 const StyledEditIcon = styled(EditIcon)`
   width: 14px;
   min-width: 14px;
   margin-right: 3px;
-`;
-
-export const DraggableHeaderWrapper = styled.div<{
-  horizontalAlignment?: CellAlignment;
-}>`
-  text-align: ${(props) =>
-    props?.horizontalAlignment && TEXT_ALIGN[props?.horizontalAlignment]};
 `;
 
 export function HeaderCell(props: {
@@ -84,15 +81,14 @@ export function HeaderCell(props: {
       className="th header-reorder"
       onClick={!disableSort && props ? handleSortColumn : undefined}
     >
-      <DraggableHeaderWrapper
-        className={!props.isHidden ? `draggable-header` : "hidden-header"}
-        horizontalAlignment={column.columnProperties.horizontalAlignment}
-      >
-        <ColumnNameContainer>
+      <div className={!props.isHidden ? `draggable-header` : "hidden-header"}>
+        <ColumnNameContainer
+          horizontalAlignment={column.columnProperties.horizontalAlignment}
+        >
           {isColumnEditable && <StyledEditIcon />}
           <div>{props.columnName}</div>
         </ColumnNameContainer>
-      </DraggableHeaderWrapper>
+      </div>
       {props.isAscOrder !== undefined ? (
         <div>
           {props.isAscOrder ? (
