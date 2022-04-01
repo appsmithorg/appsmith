@@ -286,7 +286,6 @@ interface RenderActionProps {
   isSelected: boolean;
   columnActions?: ColumnAction[];
   backgroundColor: string;
-  buttonLabelColor: string;
   buttonVariant: ButtonVariant;
   isDisabled: boolean;
   isCellVisible: boolean;
@@ -337,7 +336,6 @@ export const renderActions = (
           <TableAction
             action={action}
             backgroundColor={props.backgroundColor}
-            buttonLabelColor={props.buttonLabelColor}
             buttonVariant={props.buttonVariant}
             isCellVisible={props.isCellVisible}
             isDisabled={props.isDisabled}
@@ -423,7 +421,6 @@ function TableAction(props: {
   isSelected: boolean;
   action: ColumnAction;
   backgroundColor: string;
-  buttonLabelColor: string;
   buttonVariant: ButtonVariant;
   isDisabled: boolean;
   isCellVisible: boolean;
@@ -442,8 +439,6 @@ function TableAction(props: {
 
   return (
     <ActionWrapper
-      background={props.backgroundColor}
-      buttonLabelColor={props.buttonLabelColor}
       onClick={(e) => {
         if (props.isSelected) {
           e.stopPropagation();

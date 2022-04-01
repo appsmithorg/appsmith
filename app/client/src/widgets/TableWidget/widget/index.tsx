@@ -168,7 +168,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               onCommandClick: (action: string, onComplete: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
               backgroundColor: cellProperties.buttonColor || "transparent",
-              buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
               buttonVariant:
                 cellProperties.buttonVariant || ButtonVariantTypes.PRIMARY,
               isDisabled: cellProperties.isDisabled || false,
