@@ -1141,4 +1141,12 @@ export const CLEAN_URL_UPDATE = {
   name: () => "Update URLs",
   shortDesc: () =>
     "All URLs in your applications will update to a new readable format that includes the application and page names.",
+  description: [
+    () =>
+      "All URLs in your applications will be updated to match our new style. This will make your apps easier to find, and URLs easier to remember.",
+    (url: string) =>
+      `The current app’s URL will be: <i style="font-weight: 500">${url}</i>`,
+  ],
+  disclaimer: () =>
+    "Existing references to <strong>appsmith.URL.fullpath</strong> and <strong>appsmith.URL.pathname</strong> properties will behave differently.",
 };

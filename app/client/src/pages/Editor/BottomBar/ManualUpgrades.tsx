@@ -211,17 +211,20 @@ function ManualUpgrades() {
       {
         name: createMessage(CLEAN_URL_UPDATE.name),
         shortDesc: createMessage(CLEAN_URL_UPDATE.shortDesc),
-        description: [
-          "All URLs in your applications will be updated to match our new style. This will make your apps easier to find, and URLs easier to remember.",
-          `The current app’s URL will be: <i style="font-weight: 500">${window.location.href.replace(
-            `/applications/${applicationId}/pages/${pageId}`,
-            `/${applicationSlug}/${pageSlug}-${pageId}`,
-          )}</i>`,
-        ],
+        description: CLEAN_URL_UPDATE.description.map((formatter) =>
+          createMessage(
+            formatter.bind(
+              null,
+              window.location.href.replace(
+                `/applications/${applicationId}/pages/${pageId}`,
+                `/${applicationSlug}/${pageSlug}-${pageId}`,
+              ),
+            ),
+          ),
+        ),
         disclaimer: {
           severity: "MODERATE",
-          desc:
-            "Existing references to <strong>appsmith.URL.fullpath</strong> and <strong>appsmith.URL.pathname</strong> properties will behave differently.",
+          desc: createMessage(CLEAN_URL_UPDATE.disclaimer),
         },
         version: ApplicationVersion.SLUG_URL,
       },
