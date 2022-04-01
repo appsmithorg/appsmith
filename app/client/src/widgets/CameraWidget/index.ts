@@ -1,7 +1,6 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { CameraModeTypes } from "./constants";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -11,8 +10,8 @@ export const CONFIG = {
   isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
   defaults: {
     widgetName: "Camera",
-    rows: 8.25 * GRID_DENSITY_MIGRATION_V1,
-    columns: 6.25 * GRID_DENSITY_MIGRATION_V1,
+    rows: 33,
+    columns: 25,
     mode: CameraModeTypes.CAMERA,
     isDisabled: false,
     isVisible: true,

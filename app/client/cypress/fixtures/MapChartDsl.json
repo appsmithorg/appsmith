@@ -1,0 +1,74 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1206.35,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 710,
+    "containerStyle": "none",
+    "snapRows": 125,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 46,
+    "minHeight": 690,
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "widgetName": "MapChart1",
+        "rightColumn": 33,
+        "data": [
+          {
+              "id": "NA",
+              "value": "515"
+          },
+          {
+              "id": "SA",
+              "value": "373"
+          },
+          {
+              "id": "AS",
+              "value": "3875"
+          },
+          {
+              "id": "EU",
+              "value": "727"
+          },
+          {
+              "id": "AF",
+              "value": "885"
+          },
+          {
+              "id": "AU",
+              "value": "32"
+          }
+        ],
+        "isCanvas": false,
+        "displayName": "Map Chart",
+        "iconSVG": "/static/media/icon.87faa91c.svg",
+        "widgetId": "23hfx8apm2",
+        "topRow": 7,
+        "bottomRow": 39,
+        "mapType": "WORLD",
+        "parentRowSpace": 10,
+        "isVisible": true,
+        "type": "MAP_CHART_WIDGET",
+        "version": 1,
+        "hideCard": false,
+        "parentId": "0",
+        "mapTitle": "Global Population",
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "parentColumnSpace": 18.66171875,
+        "showLabels": true,
+        "leftColumn": 9,
+        "key": "20o6b88hp8"
+      }
+    ]
+  }
+}

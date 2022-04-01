@@ -1,9 +1,11 @@
 package com.external.helpers;
 
 import com.appsmith.external.models.Property;
+import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.core.codec.ByteArrayEncoder;
 import org.springframework.core.codec.ByteBufferEncoder;
 import org.springframework.core.codec.CharSequenceEncoder;
 import org.springframework.core.codec.DataBufferEncoder;
@@ -48,6 +50,7 @@ public class DataUtilsTest {
     public void createContext() {
         final List<HttpMessageWriter<?>> messageWriters = new ArrayList<>();
         messageWriters.add(new EncoderHttpMessageWriter<>(new ByteBufferEncoder()));
+        messageWriters.add(new EncoderHttpMessageWriter<>(new ByteArrayEncoder()));
         messageWriters.add(new EncoderHttpMessageWriter<>(CharSequenceEncoder.textPlainOnly()));
         messageWriters.add(new ResourceHttpMessageWriter());
         Jackson2JsonEncoder jsonEncoder = new Jackson2JsonEncoder();
@@ -91,7 +94,7 @@ public class DataUtilsTest {
         Mono<Void> result = bodyInserter.insert(request, this.context);
         StepVerifier.create(result).expectComplete().verify();
         StepVerifier.create(request.getBodyAsString())
-                .expectNext("\"\"")
+                .expectNext("")
                 .expectComplete()
                 .verify();
     }
@@ -123,9 +126,9 @@ public class DataUtilsTest {
                                     "Content-Length: 8\r\n" +
                                     "\r\n" +
                                     "textData"));
+                    Assert.assertTrue(content.contains("Content-Type: text/plain"));
                     Assert.assertTrue(content.contains(
                             "Content-Disposition: form-data; name=\"textType\"\r\n" +
-                                    "Content-Type: text/plain;charset=UTF-8\r\n" +
                                     "Content-Length: 8\r\n" +
                                     "\r\n" +
                                     "textData"));
@@ -255,4 +258,54 @@ public class DataUtilsTest {
                 .expectComplete()
                 .verify();
     }
+
+    @Test
+    public void testParseMultipartArrayDataWorks() {
+        List<Property> properties = new ArrayList<>();
+        final String arrayOne = "[\"1\", \"2\", \"3\"]";
+        final Property p1 = new Property("arrayOne", arrayOne);
+        p1.setType("array");
+        properties.add(p1);
+        final String listOne = "[\"four\", \"five\"]";
+        final Property p2 = new Property("listOne", listOne);
+        p2.setType("array");
+        properties.add(p2);
+        final String listTwo = "[6, 7]";
+        final Property p3 = new Property("listTwo", listTwo);
+        p3.setType("array");
+        properties.add(p3);
+
+        final BodyInserter<Object, MockClientHttpRequest> bodyInserter =
+                (BodyInserter<Object, MockClientHttpRequest>) dataUtils.parseMultipartFileData(properties);
+        MockClientHttpRequest request = new MockClientHttpRequest(HttpMethod.POST, URI.create("https://example.com"));
+
+        Mono<Void> result = bodyInserter.insert(request, this.context);
+        StepVerifier.create(result).expectComplete().verify();
+        StepVerifier.create(DataBufferUtils.join(request.getBody()))
+                .consumeNextWith(dataBuffer -> {
+                    byte[] resultBytes = new byte[dataBuffer.readableByteCount()];
+                    dataBuffer.read(resultBytes);
+                    DataBufferUtils.release(dataBuffer);
+                    String content = new String(resultBytes, StandardCharsets.UTF_8);
+                    Assertions.assertThat(content).containsSubsequence(
+                            "Content-Disposition: form-data; name=\"arrayOne\"",
+                            "1",
+                            "Content-Disposition: form-data; name=\"arrayOne\"",
+                            "2",
+                            "Content-Disposition: form-data; name=\"arrayOne\"",
+                            "3",
+                            "Content-Disposition: form-data; name=\"listOne\"",
+                            "four",
+                            "Content-Disposition: form-data; name=\"listOne\"",
+                            "five",
+                            "Content-Disposition: form-data; name=\"listTwo\"",
+                            "6",
+                            "Content-Disposition: form-data; name=\"listTwo\"",
+                            "7"
+                    );
+                })
+                .expectComplete()
+                .verify();
+    }
+
 }

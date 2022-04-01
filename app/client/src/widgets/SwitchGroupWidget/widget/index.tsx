@@ -48,7 +48,6 @@ class SwitchGroupWidget extends BaseWidget<
                         type: ValidationTypes.TEXT,
                         params: {
                           default: "",
-                          required: true,
                           unique: true,
                         },
                       },

@@ -2,7 +2,6 @@
   [build.environment]
     REACT_APP_OAUTH2_GOOGLE_CLIENT_ID = "enabled"
     REACT_APP_OAUTH2_GITHUB_CLIENT_ID = "enabled"
-    REACT_APP_OPTIMIZELY_KEY = "Jq3K2kVdvuvxecHyHbVYcj"
     REACT_APP_ALGOLIA_API_ID = "AZ2Z9CJSJ0"
     REACT_APP_ALGOLIA_API_KEY = "d113611dccb80ac14aaa72a6e3ac6d10"
     REACT_APP_ALGOLIA_SEARCH_INDEX_NAME = "test_appsmith"
@@ -62,11 +61,6 @@
   force = true
   headers = { X-Forwarded-Host = "APP_HOST_PLACEHOLDER", X-Forwarded-Proto = "https" }
 
-[[redirects]]
-  from = "/f/*"
-  to = "https://cdn.optimizely.com/:splat"
-  status = 200
-  force = true
 
 # This must be the last redirect in the chain because it's a catch-all
 [[redirects]]

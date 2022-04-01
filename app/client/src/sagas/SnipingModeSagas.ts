@@ -1,11 +1,7 @@
 import { takeLeading, all, put, select } from "redux-saga/effects";
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import history from "../utils/history";
-import { BUILDER_PAGE_URL } from "../constants/routes";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "../selectors/editorSelectors";
+import { getCurrentPageId } from "../selectors/editorSelectors";
 import { ActionData } from "../reducers/entityReducers/actionsReducer";
 import { getCanvasWidgets } from "../selectors/entitiesSelector";
 import {
@@ -19,9 +15,10 @@ import AnalyticsUtil from "../utils/AnalyticsUtil";
 import {
   SNIPING_NOT_SUPPORTED,
   SNIPING_SELECT_WIDGET_AGAIN,
-} from "../constants/messages";
+} from "@appsmith/constants/messages";
 
 import WidgetFactory from "utils/WidgetFactory";
+import { builderURL } from "RouteBuilder";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -30,7 +27,7 @@ export function* bindDataToWidgetSaga(
     widgetId: string;
   }>,
 ) {
-  const pageId = yield select(getCurrentPageId);
+  const pageId: string = yield select(getCurrentPageId);
   // console.log("Binding Data in Saga");
   const currentURL = new URL(window.location.href);
   const searchParams = currentURL.searchParams;
@@ -82,6 +79,10 @@ export function* bindDataToWidgetSaga(
       propertyPath = "defaultText";
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
+    case WidgetTypes.INPUT_WIDGET_V2:
+      propertyPath = "defaultText";
+      propertyValue = `{{${currentAction.config.name}.data}}`;
+      break;
     case WidgetTypes.LIST_WIDGET:
       propertyPath = "items";
       propertyValue = `{{${currentAction.config.name}.data}}`;
@@ -106,6 +107,10 @@ export function* bindDataToWidgetSaga(
       propertyPath = "options";
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
+    case WidgetTypes.SELECT_WIDGET:
+      propertyPath = "options";
+      propertyValue = `{{${currentAction.config.name}.data}}`;
+      break;
     case WidgetTypes.SWITCH_WIDGET:
       propertyPath = "defaultSwitchState";
       propertyValue = `{{${currentAction.config.name}.data}}`;
@@ -120,6 +125,10 @@ export function* bindDataToWidgetSaga(
       break;
     case WidgetTypes.VIDEO_WIDGET:
       propertyPath = "url";
+      propertyValue = `{{${currentAction.config.name}.data}}`;
+      break;
+    case WidgetTypes.JSON_FORM_WIDGET:
+      propertyPath = "sourceData";
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
     default:
@@ -147,10 +156,8 @@ export function* bindDataToWidgetSaga(
         force: true,
       },
     });
-    const applicationId = yield select(getCurrentApplicationId);
     history.replace(
-      BUILDER_PAGE_URL({
-        applicationId,
+      builderURL({
         pageId,
       }),
     );

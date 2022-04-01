@@ -21,6 +21,7 @@ describe("API Panel Test Functionality", function() {
     );
 
     cy.reload();
+    cy.wait(30000);
     cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -38,14 +39,13 @@ describe("API Panel Test Functionality", function() {
     cy.get("[name=executeOnLoad]").click({ force: true });
 
     cy.wait("@setExecuteOnLoad");
-
-    cy.SearchEntityandOpen("Table1");
-    cy.testJsontext("tabledata", "{{PageLoadApi2.data.data}}");
-
-    cy.wait("@updateLayout");
-
-    cy.reload();
     cy.wait(3000);
+    cy.get(".t--global-search-modal-trigger").click({ force: true });
+    cy.get(".t--global-search-input").type("Table1{enter}", { delay: 300 });
+    cy.wait(2000);
+    cy.testJsontext("tabledata", "{{PageLoadApi2.data.data}}");
+    cy.wait("@updateLayout");
+    cy.reload();
     cy.get(commonlocators.toastMsg).contains(
       `The action "PageLoadApi2" has failed.`,
     );

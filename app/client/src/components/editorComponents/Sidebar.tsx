@@ -15,10 +15,6 @@ import { useDispatch, useSelector } from "react-redux";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
 import { AppState } from "reducers";
 import {
   getFirstTimeUserOnboardingComplete,
@@ -27,12 +23,8 @@ import {
 import Explorer from "pages/Editor/Explorer";
 import Switcher from "components/ads/Switcher";
 import { trimQueryString } from "utils/helpers";
-import { BUILDER_PAGE_URL } from "constants/routes";
 import AppComments from "comments/AppComments/AppComments";
-import {
-  setExplorerActiveAction,
-  setExplorerPinnedAction,
-} from "actions/explorerActions";
+import { setExplorerActiveAction } from "actions/explorerActions";
 import {
   getExplorerActive,
   getExplorerPinned,
@@ -42,10 +34,13 @@ import TooltipComponent from "components/ads/Tooltip";
 import { previewModeSelector } from "selectors/editorSelectors";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
-import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
-import { createMessage, ENTITY_EXPLORER_TITLE } from "constants/messages";
+import Pages from "pages/Editor/Explorer/Pages";
+import { Colors } from "constants/Colors";
+import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { builderURL } from "RouteBuilder";
 
 type Props = {
   width: number;
@@ -57,11 +52,9 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   let tooltipTimeout: number;
   const dispatch = useDispatch();
   const active = useSelector(getExplorerActive);
-  const pageId = useSelector(getCurrentPageId);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const pinned = useSelector(getExplorerPinned);
   const isPreviewMode = useSelector(previewModeSelector);
-  const applicationId = useSelector(getCurrentApplicationId);
   const enableFirstTimeUserOnboarding = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
@@ -83,20 +76,8 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       id: "widgets",
       text: "Widgets",
       action: () => {
-        !(
-          trimQueryString(
-            BUILDER_PAGE_URL({
-              applicationId,
-              pageId,
-            }),
-          ) === window.location.pathname
-        ) &&
-          history.push(
-            BUILDER_PAGE_URL({
-              applicationId,
-              pageId,
-            }),
-          );
+        !(trimQueryString(builderURL()) === window.location.pathname) &&
+          history.push(builderURL());
         setTimeout(() => dispatch(forceOpenWidgetPanel(true)), 0);
         if (isFirstTimeUserOnboardingEnabled) {
           dispatch(toggleInOnboardingWidgetSelection(true));
@@ -168,19 +149,12 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         }
       } else {
         // check if user cursor is at extreme left when the explorer is inactive, if yes, make the explorer active
-        if (currentX <= 5) {
+        if (currentX <= 20) {
           dispatch(setExplorerActiveAction(true));
         }
       }
     }
   };
-
-  /**
-   * toggles the pinned state of sidebar
-   */
-  const onPin = useCallback(() => {
-    dispatch(setExplorerPinnedAction(!pinned));
-  }, [pinned, dispatch, setExplorerPinnedAction]);
 
   /**
    * on hover of resizer, show tooltip
@@ -206,6 +180,13 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     return !pinned && !active ? 0 : props.width;
   }, [pinned, active, props.width]);
 
+  useEffect(() => {
+    dispatch({
+      type: ReduxActionTypes.SET_ENTITY_INFO,
+      payload: { show: false },
+    });
+  }, [resizerLeft, pinned, isPreviewMode]);
+
   return (
     <div
       className={classNames({
@@ -224,38 +205,14 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       >
         {(enableFirstTimeUserOnboarding ||
           isFirstTimeUserOnboardingComplete) && <OnboardingStatusbar />}
-        {/* ENTITY EXPLORE HEADER */}
-        <div className="sticky top-0 flex items-center justify-between px-3 py-3 z-1">
-          <h3 className="flex items-center text-sm font-medium text-gray-800 uppercase min-h-7">
-            {createMessage(ENTITY_EXPLORER_TITLE)}
-          </h3>
-          <div
-            className={classNames({
-              "items-center transition-all duration-300 transform ": true,
-              "opacity-0 pointer-events-none scale-50": pinned === false,
-              "opacity-0 scale-100 group-hover:opacity-100": pinned,
-            })}
-          >
-            <TooltipComponent
-              content={
-                <div className="flex items-center justify-between">
-                  <span>Close sidebar</span>
-                  <span className="ml-4 text-xs text-gray-300">Ctrl + /</span>
-                </div>
-              }
-            >
-              <button
-                className="p-2 hover:bg-warmGray-100 group t--unpin-entity-explorer"
-                onClick={onPin}
-                type="button"
-              >
-                <PinIcon className="w-3 h-3 text-trueGray-500" />
-              </button>
-            </TooltipComponent>
-          </div>
-        </div>
+        {/* PagesContainer */}
+        <Pages />
+        {/* Popover that contains the bindings info */}
+        <EntityProperties />
         {/* SWITCHER */}
-        <div className="px-3 mt-1 mb-3">
+        <div
+          className={`px-3 mt-1 py-2 border-t border-b border-[${Colors.Gallery}]`}
+        >
           <Switcher activeObj={activeSwitch} switches={switches} />
         </div>
         <PanelStack

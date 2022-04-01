@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
@@ -9,6 +10,8 @@ import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.CommentRepository;
@@ -16,6 +19,7 @@ import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.NotificationRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.solutions.EmailEventHandler;
+import com.mongodb.client.result.UpdateResult;
 import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -76,6 +80,9 @@ public class CommentServiceTest {
     @Autowired
     private NotificationRepository notificationRepository;
 
+    @Autowired
+    private UserOrganizationService userOrganizationService;
+
     @MockBean
     private Analytics analytics;
 
@@ -134,15 +141,15 @@ public class CommentServiceTest {
                     assertThat(thread.getId()).isNotEmpty();
                     //assertThat(thread.getResolved()).isNull();
                     assertThat(thread.getPolicies()).containsExactlyInAnyOrder(
-                            Policy.builder().permission(AclPermission.READ_THREAD.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
-                            Policy.builder().permission(AclPermission.MANAGE_THREAD.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
-                            Policy.builder().permission(AclPermission.COMMENT_ON_THREAD.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build()
+                            Policy.builder().permission(AclPermission.READ_THREADS.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
+                            Policy.builder().permission(AclPermission.MANAGE_THREADS.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
+                            Policy.builder().permission(AclPermission.COMMENT_ON_THREADS.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build()
                     );
                     assertThat(thread.getComments()).hasSize(2);  // one comment is from bot
                     assertThat(thread.getComments().get(0).getBody()).isEqualTo(makePlainTextComment("comment one").getBody());
                     assertThat(thread.getComments().get(0).getPolicies()).containsExactlyInAnyOrder(
-                            Policy.builder().permission(AclPermission.MANAGE_COMMENT.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
-                            Policy.builder().permission(AclPermission.READ_COMMENT.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build()
+                            Policy.builder().permission(AclPermission.MANAGE_COMMENTS.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
+                            Policy.builder().permission(AclPermission.READ_COMMENTS.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build()
                     );
 
                     assertThat(threadsInApp).hasSize(1);
@@ -318,7 +325,7 @@ public class CommentServiceTest {
         User user = new User();
         user.setEmail("api_user");
         Map<String, Policy> stringPolicyMap = policyUtils.generatePolicyFromPermission(
-                Set.of(AclPermission.READ_THREAD),
+                Set.of(AclPermission.READ_THREADS),
                 user
         );
         Set<Policy> policies = Set.copyOf(stringPolicyMap.values());
@@ -362,7 +369,7 @@ public class CommentServiceTest {
     public void create_WhenThreadIsResolvedAndAlreadyViewed_ThreadIsUnresolvedAndUnread() {
         // create a thread first with resolved=true
         Collection<Policy> threadPolicies = policyUtils.generatePolicyFromPermission(
-                Set.of(AclPermission.COMMENT_ON_THREAD),
+                Set.of(AclPermission.COMMENT_ON_THREADS),
                 "api_user"
         ).values();
 
@@ -580,7 +587,7 @@ public class CommentServiceTest {
 
         // create a thread first with resolved=true
         Collection<Policy> threadPolicies = policyUtils.generatePolicyFromPermission(
-                Set.of(AclPermission.COMMENT_ON_THREAD),
+                Set.of(AclPermission.COMMENT_ON_THREADS),
                 "api_user"
         ).values();
         CommentThread commentThread = new CommentThread();
@@ -596,5 +603,55 @@ public class CommentServiceTest {
         StepVerifier.create(commentMono).assertNext(comment -> {
             assertThat(comment.getAuthorPhotoId()).isEqualTo("test-photo-id");
         }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createThread_WhenPublicAppAndOutsideUser_CommentIsCreated() {
+        Mockito.when(
+                userDataRepository.removeIdFromRecentlyUsedList(any(String.class), any(String.class), any(List.class))
+        ).thenReturn(Mono.just(Mockito.mock(UpdateResult.class)));
+        String randomId = UUID.randomUUID().toString();
+        Organization organization = new Organization();
+        organization.setName("Comment test " + randomId);
+
+        Mono<CommentThread> commentThreadMono = organizationService.create(organization).flatMap(organization1 -> {
+            Application application = new Application();
+            application.setName("Comment test " + randomId);
+            ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+            applicationAccessDTO.setPublicAccess(true);
+            return applicationPageService.createApplication(application, organization1.getId()).flatMap(
+                    createdApp -> applicationService.changeViewAccess(application.getId(), applicationAccessDTO)
+            );
+        }).flatMap(application -> {
+            // add another admin to this org and remove api_user from this organization
+            User user = new User();
+            user.setEmail("some_other_user");
+            user.setPassword("mypassword");
+
+            UserRole userRole = new UserRole();
+            userRole.setUsername(user.getUsername());
+            userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+            userRole.setRole(AppsmithRole.ORGANIZATION_ADMIN);
+
+            return userService.create(user)
+                    .then(userOrganizationService.addUserRoleToOrganization(application.getOrganizationId(), userRole))
+                    .then(userOrganizationService.leaveOrganization(application.getOrganizationId()))
+                    .thenReturn(application);
+        }).flatMap(application -> {
+            String pageId = application.getPublishedPages().get(0).getId();
+            // try to add a comment thread
+            CommentThread commentThread = new CommentThread();
+            commentThread.setApplicationId(application.getId());
+            commentThread.setPageId(pageId);
+            commentThread.setComments(List.of(makePlainTextComment("my test comment")));
+            return commentService.createThread(commentThread, null, null);
+        });
+
+        StepVerifier.create(commentThreadMono)
+                .assertNext(commentThread -> {
+                    assertThat(commentThread.getId()).isNotEmpty();
+                })
+                .verifyComplete();
     }
 }

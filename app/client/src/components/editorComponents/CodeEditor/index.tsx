@@ -71,6 +71,8 @@ import {
   isActionEntity,
   isWidgetEntity,
   removeNewLineChars,
+  addEventToHighlightedElement,
+  removeEventFromHighlightedElement,
 } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
@@ -80,12 +82,17 @@ import { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { Placement } from "@blueprintjs/popover2";
-import { getLintAnnotations } from "./lintHelpers";
+import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { startingEntityUpdation } from "actions/editorActions";
 import { SlashCommandPayload } from "entities/Action";
 import { Indices } from "constants/Layers";
 import { replayHighlightClass } from "globalStyles/portals";
+import {
+  LintTooltipDirection,
+  LINT_TOOLTIP_CLASS,
+  LINT_TOOLTIP_JUSTIFIFIED_LEFT_CLASS,
+} from "./constants";
 
 interface ReduxStateProps {
   dynamicData: DataTree;
@@ -139,6 +146,12 @@ export type EditorProps = EditorStyleProps &
     errors?: any;
     isInvalid?: boolean;
     isEditorHidden?: boolean;
+    codeEditorVisibleOverflow?: boolean; // flag for determining the input overflow type for the code editor
+    showCustomToolTipForHighlightedText?: boolean;
+    highlightedTextClassName?: string;
+    handleMouseEnter?: (event: MouseEvent) => void;
+    handleMouseLeave?: () => void;
+    isReadOnly?: boolean;
   };
 
 type Props = ReduxStateProps &
@@ -150,6 +163,10 @@ type State = {
   isOpened: boolean;
   autoCompleteVisible: boolean;
   hinterOpen: boolean;
+  // Flag for determining whether the entity change has been started or not so that even if the initial and final value remains the same, the status should be changed to not loading
+  changeStarted: boolean;
+  // state of lint errors in editor
+  hasLintError: boolean;
 };
 
 class CodeEditor extends Component<Props, State> {
@@ -157,7 +174,8 @@ class CodeEditor extends Component<Props, State> {
     marking: [bindingMarker],
     hinting: [bindingHint, commandsHelper],
   };
-
+  // this is the higlighted element for any highlighted text in the codemirror
+  highlightedUrlElement: HTMLElement | undefined;
   codeEditorTarget = React.createRef<HTMLDivElement>();
   editor!: CodeMirror.Editor;
   hinters: Hinter[] = [];
@@ -171,6 +189,8 @@ class CodeEditor extends Component<Props, State> {
       isOpened: false,
       autoCompleteVisible: false,
       hinterOpen: false,
+      changeStarted: false,
+      hasLintError: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
@@ -197,6 +217,7 @@ class CodeEditor extends Component<Props, State> {
           async: true,
           lintOnChange: false,
         },
+        tabindex: -1,
       };
 
       if (!this.props.input.onChange || this.props.disabled) {
@@ -221,7 +242,7 @@ class CodeEditor extends Component<Props, State> {
       }
 
       // Set value of the editor
-      const inputValue = getInputValue(this.props.input.value || "");
+      const inputValue = getInputValue(this.props.input.value) || "";
       if (this.props.size === EditorSize.COMPACT) {
         options.value = removeNewLineChars(inputValue);
       } else {
@@ -271,6 +292,7 @@ class CodeEditor extends Component<Props, State> {
       // DO NOT ADD CODE BELOW. If you need to do something with the editor right after it’s created,
       // put that code into `options.finishInit()`.
     }
+    window.addEventListener("keydown", this.handleKeydown);
   }
 
   componentDidUpdate(prevProps: Props): void {
@@ -280,6 +302,8 @@ class CodeEditor extends Component<Props, State> {
         const editorValue = this.editor.getValue();
         // Safe update of value of the editor when value updated outside the editor
         const inputValue = getInputValue(this.props.input.value);
+        const previousInputValue = getInputValue(prevProps.input.value);
+
         if (!!inputValue || inputValue === "") {
           if (inputValue !== editorValue && isString(inputValue)) {
             this.editor.setValue(inputValue);
@@ -289,6 +313,9 @@ class CodeEditor extends Component<Props, State> {
             //So, if it is hidden it does not reflect in UI, this code is to refresh editor if it was just made visible.
             this.editor.refresh();
           }
+        } else if (previousInputValue !== inputValue) {
+          // handles case when inputValue changes from a truthy to a falsy value
+          this.editor.setValue("");
         }
         CodeEditor.updateMarkings(this.editor, this.props.marking);
       } else {
@@ -302,7 +329,46 @@ class CodeEditor extends Component<Props, State> {
     });
   }
 
+  handleMouseMove = () => {
+    // this code only runs when we want custom tool tip for any highlighted text inside codemirror instance
+    if (
+      this.props.showCustomToolTipForHighlightedText &&
+      this.props.highlightedTextClassName
+    ) {
+      addEventToHighlightedElement(
+        this.highlightedUrlElement,
+        this.props.highlightedTextClassName,
+        [
+          {
+            eventType: "mouseenter",
+            eventHandlerFn: this.props.handleMouseEnter,
+          },
+          {
+            eventType: "mouseleave",
+            eventHandlerFn: this.props.handleMouseLeave,
+          },
+        ],
+      );
+    }
+  };
+
   componentWillUnmount() {
+    // if the highlighted element exists, remove the event listeners to prevent memory leaks
+    if (this.highlightedUrlElement) {
+      removeEventFromHighlightedElement(this.highlightedUrlElement, [
+        {
+          eventType: "mouseenter",
+          eventHandlerFn: this.props.handleMouseEnter,
+        },
+        {
+          eventType: "mouseleave",
+          eventHandlerFn: this.props.handleMouseLeave,
+        },
+      ]);
+    }
+
+    window.removeEventListener("keydown", this.handleKeydown);
+
     // return if component unmounts before editor is created
     if (!this.editor) return;
 
@@ -319,6 +385,21 @@ class CodeEditor extends Component<Props, State> {
     // @ts-ignore: No types available
     this.editor.closeHint();
   }
+
+  private handleKeydown = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case "Enter":
+      case " ":
+        if (document.activeElement === this.codeEditorTarget.current) {
+          this.editor.focus();
+          e.preventDefault();
+        }
+        break;
+      case "Escape":
+        if (this.state.isFocused) this.codeEditorTarget.current?.focus();
+        break;
+    }
+  };
 
   static startAutocomplete(
     editor: CodeMirror.Editor,
@@ -382,6 +463,21 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
+  handleLintTooltip = () => {
+    // return if there is no lint error in editor instance
+    if (!this.state.hasLintError) return;
+    const lintTooltipList = document.getElementsByClassName(LINT_TOOLTIP_CLASS);
+    if (!lintTooltipList) return;
+    for (const tooltip of lintTooltipList) {
+      if (
+        tooltip &&
+        getLintTooltipDirection(tooltip) === LintTooltipDirection.left
+      ) {
+        tooltip.classList.add(LINT_TOOLTIP_JUSTIFIFIED_LEFT_CLASS);
+      }
+    }
+  };
+
   handleChange = (instance?: any, changeObj?: any) => {
     const value = this.editor.getValue() || "";
     if (changeObj && changeObj.origin === "complete") {
@@ -392,9 +488,12 @@ class CodeEditor extends Component<Props, State> {
     const inputValue = this.props.input.value || "";
     if (
       this.props.input.onChange &&
-      value !== inputValue &&
-      this.state.isFocused
+      ((value !== inputValue && this.state.isFocused) ||
+        this.state.changeStarted)
     ) {
+      this.setState({
+        changeStarted: false,
+      });
       this.props.input.onChange(value);
     }
     CodeEditor.updateMarkings(this.editor, this.props.marking);
@@ -405,8 +504,17 @@ class CodeEditor extends Component<Props, State> {
   startChange = (instance?: any, changeObj?: any) => {
     /* This action updates the status of the savingEntity to true so that any
       shortcut commands do not execute before updating the entity in the store */
-    const entity = this.getEntityInformation();
-    if (entity.entityId) {
+    const value = this.editor.getValue() || "";
+    const inputValue = this.props.input.value || "";
+    if (
+      this.props.input.onChange &&
+      value !== inputValue &&
+      this.state.isFocused &&
+      !this.state.changeStarted
+    ) {
+      this.setState({
+        changeStarted: true,
+      });
       this.props.startingEntityUpdation();
     }
     this.handleDebouncedChange(instance, changeObj);
@@ -566,6 +674,16 @@ class CodeEditor extends Component<Props, State> {
       (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
     );
 
+    const lintErrors = errors.filter(
+      (error) => error.errorType === PropertyEvaluationErrorType.LINT,
+    );
+
+    if (!_.isEmpty(lintErrors)) {
+      !this.state.hasLintError && this.setState({ hasLintError: true });
+    } else {
+      this.state.hasLintError && this.setState({ hasLintError: false });
+    }
+
     const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
 
     return {
@@ -580,6 +698,7 @@ class CodeEditor extends Component<Props, State> {
       border,
       borderLess,
       className,
+      codeEditorVisibleOverflow,
       dataTreePath,
       disabled,
       dynamicData,
@@ -640,6 +759,7 @@ class CodeEditor extends Component<Props, State> {
                   : "/";
               this.updatePropertyValue(newValue, newValue.length);
             }}
+            tabIndex={-1}
             tag="button"
             text="/"
           />
@@ -664,6 +784,7 @@ class CodeEditor extends Component<Props, State> {
             className={`${className} ${replayHighlightClass} ${
               isInvalid ? "t--codemirror-has-error" : ""
             }`}
+            codeEditorVisibleOverflow={codeEditorVisibleOverflow}
             disabled={disabled}
             editorTheme={this.props.theme}
             fill={fill}
@@ -672,6 +793,9 @@ class CodeEditor extends Component<Props, State> {
             hoverInteraction={hoverInteraction}
             isFocused={this.state.isFocused}
             isNotHover={this.state.isFocused || this.state.isOpened}
+            isReadOnly={this.props.isReadOnly}
+            onMouseMove={this.handleLintTooltip}
+            onMouseOver={this.handleMouseMove}
             ref={this.editorWrapperRef}
             size={size}
           >
@@ -686,7 +810,12 @@ class CodeEditor extends Component<Props, State> {
                 src={this.props.leftImage}
               />
             )}
-            <div className="CodeEditorTarget" ref={this.codeEditorTarget}>
+            <div
+              className="CodeEditorTarget"
+              data-testid="code-editor-target"
+              ref={this.codeEditorTarget}
+              tabIndex={0}
+            >
               <BindingPrompt
                 editorTheme={this.props.theme}
                 isOpen={

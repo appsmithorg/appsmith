@@ -6,8 +6,9 @@ describe("Test Create Api and Bind to Table widget", function() {
   });
 
   it("Validate onSearchTextChanged function is called when configured for search text", function() {
+    cy.wait(5000);
     // input text in search bar
-    cy.get(".t--widget-tablewidget .t--search-input")
+    cy.get(".t--widget-tablewidget .t--search-input input")
       .first()
       .type("2");
     cy.wait(5000);

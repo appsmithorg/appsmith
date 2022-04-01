@@ -15,26 +15,27 @@ public class GitUtils {
 
     /**
      * Sample repo urls :
-     * git@gitPlatform.com:user/repoName.git
-     * https://gitPlatform.com/user/repoName
+     * git@example.com:user/repoName.git
+     * ssh://git@example.org/<workspace_ID>/<repo_name>.git
+     * https://example.com/user/repoName
      *
      * @param sshUrl ssh url of repo
      * @return https url supported by curl command extracted from ssh repo url
      */
-    public static String convertSshUrlToHttpsCurlSupportedUrl(String sshUrl) {
+    public static String convertSshUrlToBrowserSupportedUrl(String sshUrl) {
         if (StringUtils.isEmptyOrNull(sshUrl)) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "ssh url");
         }
         return sshUrl
-                .replaceFirst("git@", "https://")
-                .replaceFirst("\\.com:", ".com/")
-                .replaceFirst("\\.git", "");
+                .replaceFirst(".*git@", "https://")
+                .replaceFirst("(\\.[a-z]*):", "$1/")
+                .replaceFirst("\\.git$", "");
     }
 
     /**
      * Sample repo urls :
-     * git@github.com:username/reponame.git
-     * ssh://git@bitbucket.org/<workspace_ID>/<repo_name>.git
+     * git@example.com:username/reponame.git
+     * ssh://git@example.org/<workspace_ID>/<repo_name>.git
      * @param remoteUrl ssh url of repo
      * @return repo name extracted from repo url
      */
@@ -44,8 +45,8 @@ public class GitUtils {
         if (matcher.find()) {
             return matcher.group(1);
         }
-        throw new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Remote URL is incorrect! Can you " +
-                "please provide as per standard format => git@github.com:username/reponame.git");
+        throw new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Remote URL is incorrect, " +
+                "please add a URL in standard format. Example: git@example.com:username/reponame.git");
     }
 
     /**
@@ -62,5 +63,21 @@ public class GitUtils {
         int responseCode = huc.getResponseCode();
 
         return !(HttpURLConnection.HTTP_OK == responseCode || HttpURLConnection.HTTP_ACCEPTED == responseCode);
+    }
+
+    /**
+     * Sample repo urls :
+     * git@gitPlatform.com:user/repoName.git
+     * gitPlatform
+     *
+     * @param sshUrl ssh url of repo
+     * @return git hosting provider
+     */
+    public static String getGitProviderName(String sshUrl) {
+        if(StringUtils.isEmptyOrNull(sshUrl)) {
+            return "";
+        }
+        return sshUrl.split("\\.")[0]
+                .replaceFirst("git@", "");
     }
 }

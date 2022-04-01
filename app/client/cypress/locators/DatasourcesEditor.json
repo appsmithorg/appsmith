@@ -6,11 +6,12 @@
   "username": "input[name='datasourceConfiguration.authentication.username']",
   "password": "input[name='datasourceConfiguration.authentication.password']",
   "authenticationAuthtype": "[data-cy=datasourceConfiguration\\.authentication\\.authType]",
-  "url": "input[name='datasourceConfiguration.url']",
+  "url": "input[name='url']",
   "MongoDB": ".t--plugin-name:contains('MongoDB')",
   "RESTAPI": ".t--plugin-name:contains('REST API')",
   "PostgreSQL": ".t--plugin-name:contains('PostgreSQL')",
-  "MySQL": ".t--plugin-name:contains('Mysql')",
+  "SMTP":".t--plugin-name:contains('SMTP')",
+  "MySQL": ".t--plugin-name:contains('MySQL')",
   "sectionAuthentication": "[data-cy=section-Authentication]",
   "PostgresEntity": ".t--entity-name:contains(PostgreSQL)",
   "MySQLEntity": ".t--entity-name:contains(Mysql)",
@@ -32,7 +33,7 @@
   "ElasticSearch": ".t--plugin-name:contains('ElasticSearch')",
   "DynamoDB": ".t--plugin-name:contains('DynamoDB')",
   "Redis": ".t--plugin-name:contains('Redis')",
-  "MsSQL": ".t--plugin-name:contains('MsSQL')",
+  "MsSQL": ".t--plugin-name:contains('Microsoft SQL Server')",
   "ArangoDB": ".t--plugin-name:contains('ArangoDB')",
   "Firestore": ".t--plugin-name:contains('Firestore')",
   "Redshift": ".t--plugin-name:contains('Redshift')",
@@ -56,5 +57,6 @@
   "mockUserDatasources":".t--datasource-name:contains('Users')",
   "mongoUriDropdown": "//p[text()='Use Mongo Connection String URI']/following-sibling::div",
   "mongoUriYes": "//div[text()='Yes']",
-  "mongoUriInput":"//p[text()='Connection String URI']/following-sibling::div//input"
+  "mongoUriInput":"//p[text()='Connection String URI']/following-sibling::div//input",
+  "saveBtn": ".t--save-datasource"
 }

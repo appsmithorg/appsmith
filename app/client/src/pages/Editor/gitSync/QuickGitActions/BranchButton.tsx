@@ -15,6 +15,7 @@ import Tooltip from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
 import { isEllipsisActive } from "utils/helpers";
 import { getGitStatus } from "selectors/gitSyncSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -56,11 +57,17 @@ function BranchButton() {
   return (
     <Popover2
       content={<BranchList setIsPopupOpen={setIsOpen} />}
+      hasBackdrop
       isOpen={isOpen}
       minimal
       modifiers={{ offset: { enabled: true, options: { offset: [7, 10] } } }}
       onInteraction={(nextState: boolean) => {
         setIsOpen(nextState);
+        if (nextState) {
+          AnalyticsUtil.logEvent("GS_OPEN_BRANCH_LIST_POPUP", {
+            source: "BOTTOM_BAR_ACTIVE_BRANCH_NAME",
+          });
+        }
       }}
       placement="top-start"
     >
@@ -68,7 +75,7 @@ function BranchButton() {
         boundary="window"
         content={currentBranch || ""}
         disabled={!isEllipsisActive(labelTarget.current)}
-        hoverOpenDelay={1000}
+        hoverOpenDelay={1}
         position={Position.TOP_LEFT}
       >
         <ButtonContainer className="t--branch-button">

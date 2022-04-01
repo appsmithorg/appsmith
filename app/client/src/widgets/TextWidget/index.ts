@@ -1,6 +1,6 @@
-import Widget from "./widget";
+import { OverflowTypes } from "./constants";
 import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -12,9 +12,12 @@ export const CONFIG = {
     fontStyle: "BOLD",
     textAlign: "LEFT",
     textColor: "#231F20",
-    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-    columns: 4 * GRID_DENSITY_MIGRATION_V1,
+    truncateButtonColor: "#FFC13D",
+    rows: 4,
+    columns: 16,
     widgetName: "Text",
+    shouldTruncate: false,
+    overflow: OverflowTypes.NONE,
     version: 1,
     animateLoading: true,
   },

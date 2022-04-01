@@ -7,6 +7,7 @@ public enum AnalyticsEvents {
     UPDATE,
     DELETE,
     ARCHIVE,
+    APPLY,
     FIRST_LOGIN,
     EXECUTE_ACTION("execute_ACTION_TRIGGERED"),
     UPDATE_LAYOUT,
@@ -18,6 +19,7 @@ public enum AnalyticsEvents {
     UNSUBSCRIBE_MARKETING_EMAILS,
     INSTALLATION_SETUP_COMPLETE("Installation Setup Complete"),
     GIT_CONNECT,
+    GIT_PRIVATE_REPO_LIMIT_EXCEEDED,
     GIT_CREATE_BRANCH,
     GIT_COMMIT,
     GIT_PUSH,
@@ -26,7 +28,11 @@ public enum AnalyticsEvents {
     GIT_PRUNE,
     GIT_DISCONNECT,
     GIT_CHECKOUT_BRANCH,
-    GIT_CHECKOUT_REMOTE_BRANCH
+    GIT_CHECKOUT_REMOTE_BRANCH,
+    GIT_IMPORT,
+    GIT_TEST_CONNECTION,
+    GIT_DELETE_BRANCH,
+    GIT_DISCARD_CHANGES
     ;
 
     private final String eventName;

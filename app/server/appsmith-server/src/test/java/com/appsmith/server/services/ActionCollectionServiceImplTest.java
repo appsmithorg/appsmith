@@ -16,8 +16,8 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.result.UpdateResult;
@@ -326,6 +326,7 @@ public class ActionCollectionServiceImplTest {
                     Assert.assertEquals("testAction", actionDTO.getName());
                     Assert.assertEquals("testActionId", actionDTO.getId());
                     Assert.assertEquals("testCollection.testAction", actionDTO.getFullyQualifiedName());
+                    Assert.assertEquals("testActionCollectionId", actionDTO.getDefaultResources().getCollectionId());
                     Assert.assertTrue(actionDTO.getClientSideExecution());
                 })
                 .verifyComplete();
@@ -454,7 +455,7 @@ public class ActionCollectionServiceImplTest {
                                     .collect(Collectors.toSet())
                                     .containsAll(Set.of("testActionId1", "testActionId3")));
                     Assert.assertEquals("testActionId2", actionCollectionDTO1.getArchivedActions().get(0).getId());
-                    Assert.assertTrue(archivedAfter.isBefore(actionCollectionDTO1.getArchivedActions().get(0).getArchivedAt()));
+                    Assert.assertTrue(archivedAfter.isBefore(actionCollectionDTO1.getArchivedActions().get(0).getDeletedAt()));
                 })
                 .verifyComplete();
     }
@@ -569,7 +570,7 @@ public class ActionCollectionServiceImplTest {
                 .thenReturn(Mono.just(actionCollection));
 
         Mockito
-                .when(actionCollectionRepository.delete(Mockito.any()))
+                .when(actionCollectionRepository.archive(Mockito.any()))
                 .thenReturn(Mono.empty());
 
         final Mono<ActionCollectionDTO> actionCollectionDTOMono = actionCollectionService.deleteUnpublishedActionCollection("testCollectionId");
@@ -602,11 +603,11 @@ public class ActionCollectionServiceImplTest {
                 .thenReturn(Mono.just(actionCollection));
 
         Mockito
-                .when(newActionService.delete(Mockito.any()))
+                .when(newActionService.archiveById(Mockito.any()))
                 .thenReturn(Mono.just(new NewAction()));
 
         Mockito
-                .when(actionCollectionRepository.delete(Mockito.any()))
+                .when(actionCollectionRepository.archive(Mockito.any()))
                 .thenReturn(Mono.empty());
 
         final Mono<ActionCollectionDTO> actionCollectionDTOMono = actionCollectionService.deleteUnpublishedActionCollection("testCollectionId");

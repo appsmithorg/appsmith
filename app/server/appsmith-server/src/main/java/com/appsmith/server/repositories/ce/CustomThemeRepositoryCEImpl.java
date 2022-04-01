@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.QTheme;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
@@ -25,9 +26,17 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
 
 
     @Override
+    public Flux<Theme> getApplicationThemes(String applicationId, AclPermission aclPermission) {
+        Criteria appThemeCriteria = Criteria.where(fieldName(QTheme.theme.applicationId)).is(applicationId);
+        Criteria systemThemeCriteria = Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(Boolean.TRUE);
+        Criteria criteria = new Criteria().orOperator(appThemeCriteria, systemThemeCriteria);
+        return queryAll(List.of(criteria), aclPermission);
+    }
+
+    @Override
     public Flux<Theme> getSystemThemes() {
-        Criteria criteria = Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(Boolean.TRUE);
-        return queryAll(List.of(criteria), null);
+        Criteria systemThemeCriteria = Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(Boolean.TRUE);
+        return queryAll(List.of(systemThemeCriteria), AclPermission.READ_THEMES);
     }
 
     @Override
@@ -35,6 +44,6 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
         String findNameRegex = String.format("^%s$", Pattern.quote(themeName));
         Criteria criteria = where(fieldName(QTheme.theme.name)).regex(findNameRegex, "i")
                 .and(fieldName(QTheme.theme.isSystemTheme)).is(true);
-        return queryOne(List.of(criteria), null);
+        return queryOne(List.of(criteria), AclPermission.READ_THEMES);
     }
 }

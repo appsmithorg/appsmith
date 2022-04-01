@@ -6,16 +6,23 @@ import TextField from "components/editorComponents/form/fields/TextField";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
-  width: 50vh;
+  width: 20vw;
 `;
 
 class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
   render() {
-    const { configProperty, dataType, fixedKey, placeholderText } = this.props;
+    const {
+      configProperty,
+      dataType,
+      disabled,
+      fixedKey,
+      placeholderText,
+    } = this.props;
 
     return (
       <Wrapper>
         <TextField
+          disabled={disabled}
           format={(value) => {
             // Get the value property
             if (value) {

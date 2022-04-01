@@ -147,6 +147,13 @@ export const typography = {
     fontWeight: 600,
     lineHeight: 12,
   },
+  dangerHeading: {
+    fontStyle: "normal",
+    fontWeight: 500,
+    fontSize: 24,
+    lineHeight: 28,
+    letterSpacing: -0.24,
+  },
 };
 
 export type TypographyKeys = keyof typeof typography;

@@ -2,6 +2,7 @@ import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
 import { DropdownOption } from "components/ads/Dropdown";
+import { isNil } from "lodash";
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
@@ -9,13 +10,16 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       label: "No selection.",
       value: undefined,
     };
+
+    const options = this.props?.options || [];
+
     if (this.props.defaultValue) {
-      defaultSelected = this.props.options.find(
+      defaultSelected = options.find(
         (option) => option.value === this.props.defaultValue,
       );
     }
 
-    const selected: DropdownOption = this.props.options.find(
+    const selected: DropdownOption = options.find(
       (option) => option.value === this.props.propertyValue,
     );
 
@@ -33,7 +37,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           optionWidth={
             this.props.optionWidth ? this.props.optionWidth : "231px"
           }
-          options={this.props.options}
+          options={options}
           searchPlaceholder={this.props.placeholderText}
           selected={defaultSelected}
           showLabelOnly
@@ -44,7 +48,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
   }
 
   onItemSelect = (value?: string): void => {
-    if (value) {
+    if (!isNil(value)) {
       this.updateProperty(this.props.propertyName, value);
     }
   };
@@ -59,7 +63,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 }
 
 export interface DropDownControlProps extends ControlProps {
-  options: any[];
+  options?: any[];
   defaultValue?: string;
   placeholderText: string;
   dropdownHeight?: string;

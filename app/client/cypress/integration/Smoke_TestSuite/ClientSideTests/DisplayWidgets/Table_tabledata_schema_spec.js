@@ -1,5 +1,5 @@
 const explorer = require("../../../../locators/explorerlocators.json");
-import homePage from "../../../../locators/HomePage.json";
+import homePage from "../../../../locators/HomePage";
 const publish = require("../../../../locators/publishWidgetspage.json");
 
 describe("Table Widget", function() {
@@ -23,6 +23,7 @@ describe("Table Widget", function() {
       cy.updateCodeInput($el, jsContext);
     });
     cy.PublishtheApp();
+    cy.wait(30000);
     cy.getTableDataSelector("0", "0").then((element) => {
       cy.get(element, { timeout: 10000 }).should("be.visible");
     });
@@ -54,8 +55,8 @@ describe("Table Widget", function() {
       .first()
       .click()
       .wait(1000);
-
-    cy.selectEntityByName("Widgets");
+    cy.wait(30000);
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.actionContextMenuByEntityName("Switch1");
     cy.actionContextMenuByEntityName("Table1");
   });

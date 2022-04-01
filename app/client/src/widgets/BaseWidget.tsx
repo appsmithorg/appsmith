@@ -38,6 +38,7 @@ import OverlayCommentsWrapper from "comments/inlineComments/OverlayCommentsWrapp
 import PreventInteractionsOverlay from "components/editorComponents/PreventInteractionsOverlay";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
 
 /***
  * BaseWidget
@@ -72,6 +73,20 @@ abstract class BaseWidget<
   // TODO Find a way to enforce this, (dont let it be set)
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
+  }
+
+  /**
+   * getLoadingProperties returns a list of regexp's used to specify bindingPaths,
+   * which can set the isLoading prop of the widget.
+   * When:
+   * 1. the path is bound to an action (API/Query)
+   * 2. the action is currently in-progress
+   *
+   * if undefined, all paths can set the isLoading state
+   * if empty array, no paths can set the isLoading state
+   */
+  static getLoadingProperties(): Array<RegExp> | undefined {
+    return;
   }
 
   /**
@@ -271,6 +286,7 @@ abstract class BaseWidget<
     return (
       <PositionedContainer
         focused={this.props.focused}
+        parentId={this.props.parentId}
         resizeDisabled={this.props.resizeDisabled}
         selected={this.props.selected}
         style={style}
@@ -312,12 +328,20 @@ abstract class BaseWidget<
     );
   }
 
+  addPreviewModeWidget(content: ReactNode): React.ReactElement {
+    return (
+      <PreviewModeComponent isVisible={this.props.isVisible}>
+        {content}
+      </PreviewModeComponent>
+    );
+  }
+
   private getWidgetView(): ReactNode {
     let content: ReactNode;
-
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
         content = this.getCanvasView();
+        content = this.addPreviewModeWidget(content);
         content = this.addPreventInteractionOverlay(content);
         content = this.addOverlayComments(content);
         if (!this.props.detachFromLayout) {

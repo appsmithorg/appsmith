@@ -3,13 +3,10 @@ import styled, { ThemeProvider } from "styled-components";
 import classNames from "classnames";
 import { Classes as Popover2Classes } from "@blueprintjs/popover2";
 import {
-  CurrentApplicationData,
+  ApplicationPayload,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import {
-  APPLICATIONS_URL,
-  getApplicationViewerPageURL,
-} from "constants/routes";
+import { APPLICATIONS_URL } from "constants/routes";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
@@ -21,6 +18,7 @@ import {
   getCurrentPageId,
   getIsPublishingApplication,
   previewModeSelector,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import { getAllUsers, getCurrentOrgId } from "selectors/organizationSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
@@ -34,10 +32,6 @@ import {
   showAppInviteUsersDialogSelector,
 } from "selectors/applicationSelectors";
 import EditorAppName from "./EditorAppName";
-import Boxed from "components/editorComponents/Onboarding/Boxed";
-import OnboardingHelper from "components/editorComponents/Onboarding/Helper";
-import { OnboardingStep } from "constants/OnboardingConstants";
-import EndOnboardingTour from "components/editorComponents/Onboarding/EndTour";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
@@ -47,7 +41,6 @@ import { Profile } from "pages/common/ProfileImage";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import HelpButton from "./HelpButton";
-import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import ToggleModeButton, {
   useHideComments,
@@ -61,7 +54,6 @@ import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import getFeatureFlags from "utils/featureFlags";
 
-import { getIsInOnboarding } from "selectors/onboardingSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
 import { fetchUsersForOrg } from "actions/orgActions";
 import { OrgUser } from "constants/orgConstants";
@@ -70,6 +62,7 @@ import { getIsGitConnected } from "../../selectors/gitSyncSelectors";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core/lib/esnext/common";
 import {
+  CLOSE_ENTITY_EXPLORER_MESSAGE,
   createMessage,
   DEPLOY_BUTTON_TOOLTIP,
   LOCK_ENTITY_EXPLORER_MESSAGE,
@@ -77,15 +70,21 @@ import {
   RENAME_APPLICATION_TOOLTIP,
   SHARE_BUTTON_TOOLTIP,
   SHARE_BUTTON_TOOLTIP_WITH_USER,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { ReactComponent as MenuIcon } from "assets/icons/header/hamburger.svg";
 import { getExplorerPinned } from "selectors/explorerSelector";
-import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
 import {
   setExplorerActiveAction,
   setExplorerPinnedAction,
 } from "actions/explorerActions";
+import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
+import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
+import { modText } from "utils/helpers";
+import Boxed from "./GuidedTour/Boxed";
+import EndTour from "./GuidedTour/EndTour";
+import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
+import { viewerURL } from "RouteBuilder";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -100,7 +99,6 @@ const HeaderWrapper = styled.div`
     ${(props) => getTypographyByKey(props, "h4")}
     color: ${(props) => props.theme.colors.header.appName};
   }
-
   & ${Profile} {
     width: 24px;
     height: 24px;
@@ -170,7 +168,6 @@ const BindingBanner = styled.div`
   transform: translate(-50%, 0);
   text-align: center;
   background: ${Colors.DANUBE};
-
   color: ${Colors.WHITE};
   font-weight: 500;
   font-size: 15px;
@@ -179,7 +176,6 @@ const BindingBanner = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-
   box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
   z-index: 9999;
 `;
@@ -189,7 +185,6 @@ const StyledDeployIcon = styled(Icon)`
   width: 20px;
   align-self: center;
   background: ${(props) => props.theme.colors.header.shareBtnHighlight};
-
   &:hover {
     background: rgb(191, 65, 9);
   }
@@ -209,15 +204,24 @@ const StyledSharedIcon = styled(Icon)`
   display: inline-block;
 `;
 
+const HamburgerContainer = styled.div`
+  height: 34px;
+  width: 34px;
+
+  :hover {
+    background-color: ${Colors.GEYSER_LIGHT};
+  }
+`;
+
 type EditorHeaderProps = {
   pageSaveError?: boolean;
   pageName?: string;
-  pageId?: string;
+  pageId: string;
   isPublishing: boolean;
   publishedTime?: string;
   orgId: string;
   applicationId?: string;
-  currentApplication?: CurrentApplicationData;
+  currentApplication?: ApplicationPayload;
   isSaving: boolean;
   publishApplication: (appId: string) => void;
   lastUpdatedTime?: number;
@@ -298,7 +302,7 @@ export function EditorHeader(props: EditorHeaderProps) {
     (fromDeploy?: boolean) => {
       if (getFeatureFlags().GIT && isGitConnected) {
         dispatch(showConnectGitModal());
-        AnalyticsUtil.logEvent("CONNECT_GIT_CLICK", {
+        AnalyticsUtil.logEvent("GS_DEPLOY_GIT_CLICK", {
           source: fromDeploy
             ? "Deploy button"
             : "Application name menu (top left)",
@@ -333,23 +337,24 @@ export function EditorHeader(props: EditorHeaderProps) {
   const filteredSharedUserList = props.sharedUserList.filter(
     (user) => user.username !== props.currentUser?.username,
   );
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   return (
     <ThemeProvider theme={theme}>
       <HeaderWrapper className="pr-3">
         <HeaderSection className="space-x-3">
-          <div
-            className={classNames({
-              "text-gray-800 transform transition-all duration-400 pl-3 relative": true,
-              "ml-0": !pinned,
-              "-ml-7": pinned,
-            })}
-          >
+          <HamburgerContainer className="text-gray-800 transform transition-all duration-400 relative p-0 flex items-center justify-center">
             <TooltipComponent
               content={
-                <div className="flex items-center justify-between">
-                  <span>{createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)}</span>
-                  <span className="ml-4 text-xs text-gray-300">Ctrl + /</span>
+                <div className="flex justify-between items-center">
+                  <span>
+                    {!pinned
+                      ? createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)
+                      : createMessage(CLOSE_ENTITY_EXPLORER_MESSAGE)}
+                  </span>
+                  <span className="ml-4 text-xs text-gray-300">
+                    {modText()} /
+                  </span>
                 </div>
               }
               position="bottom-left"
@@ -358,14 +363,22 @@ export function EditorHeader(props: EditorHeaderProps) {
                 className="relative w-4 h-4 text-trueGray-600 group t--pin-entity-explorer"
                 onMouseEnter={onMenuHover}
               >
-                <MenuIcon className="absolute w-4 h-4 transition-opacity opacity-100 fill-current group-hover:opacity-0" />
-                <UnpinIcon
-                  className="absolute w-4 h-4 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
-                  onClick={onPin}
-                />
+                <MenuIcon className="absolute w-4 h-4 transition-opacity fill-current cursor-pointer group-hover:opacity-0" />
+                {!pinned && (
+                  <UnpinIcon
+                    className="absolute w-4 h-4 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
+                    onClick={onPin}
+                  />
+                )}
+                {pinned && (
+                  <PinIcon
+                    className="absolute w-4 h-4 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
+                    onClick={onPin}
+                  />
+                )}
               </div>
             </TooltipComponent>
-          </div>
+          </HamburgerContainer>
           <TooltipComponent
             content={createMessage(LOGO_TOOLTIP)}
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
@@ -379,48 +392,48 @@ export function EditorHeader(props: EditorHeaderProps) {
               />
             </AppsmithLink>
           </TooltipComponent>
-          <Boxed step={OnboardingStep.FINISH}>
-            <TooltipComponent
-              autoFocus={false}
-              content={createMessage(RENAME_APPLICATION_TOOLTIP)}
-              disabled={isPopoverOpen}
-              hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-              openOnTargetFocus={false}
-              position={Position.BOTTOM}
-            >
-              <EditorAppName
-                applicationId={applicationId}
-                className="t--application-name editable-application-name max-w-48"
-                currentDeployLink={getApplicationViewerPageURL({
-                  applicationId: props.applicationId,
-                  pageId,
-                })}
-                defaultSavingState={
-                  isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-                }
-                defaultValue={currentApplication?.name || ""}
-                deploy={() => handleClickDeploy(false)}
-                editInteractionKind={EditInteractionKind.SINGLE}
-                fill
-                isError={isErroredSavingName}
-                isNewApp={
-                  applicationList.filter((el) => el.id === applicationId)
-                    .length > 0
-                }
-                isPopoverOpen={isPopoverOpen}
-                onBlur={(value: string) =>
-                  updateApplicationDispatch(applicationId || "", {
-                    name: value,
-                    currentApp: true,
-                  })
-                }
-                setIsPopoverOpen={setIsPopoverOpen}
-              />
-            </TooltipComponent>
-            {!shouldHideComments && (
-              <ToggleModeButton showSelectedMode={!isPopoverOpen} />
-            )}
-          </Boxed>
+
+          <TooltipComponent
+            autoFocus={false}
+            content={createMessage(RENAME_APPLICATION_TOOLTIP)}
+            disabled={isPopoverOpen}
+            hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+            openOnTargetFocus={false}
+            position={Position.BOTTOM}
+          >
+            <EditorAppName
+              applicationId={applicationId}
+              className="t--application-name editable-application-name max-w-48"
+              currentDeployLink={viewerURL({
+                applicationSlug,
+                pageSlug,
+                pageId,
+              })}
+              defaultSavingState={
+                isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+              }
+              defaultValue={currentApplication?.name || ""}
+              deploy={() => handleClickDeploy(false)}
+              editInteractionKind={EditInteractionKind.SINGLE}
+              fill
+              isError={isErroredSavingName}
+              isNewApp={
+                applicationList.filter((el) => el.id === applicationId).length >
+                0
+              }
+              isPopoverOpen={isPopoverOpen}
+              onBlur={(value: string) =>
+                updateApplicationDispatch(applicationId || "", {
+                  name: value,
+                  currentApp: true,
+                })
+              }
+              setIsPopoverOpen={setIsPopoverOpen}
+            />
+          </TooltipComponent>
+          {!shouldHideComments && (
+            <ToggleModeButton showSelectedMode={!isPopoverOpen} />
+          )}
         </HeaderSection>
         <HeaderSection
           className={classNames({
@@ -434,15 +447,18 @@ export function EditorHeader(props: EditorHeaderProps) {
         </HeaderSection>
         <HeaderSection className="space-x-3">
           <EditorSaveIndicator />
-          <RealtimeAppEditors applicationId={applicationId} />
-          <Boxed step={OnboardingStep.FINISH}>
+          <Boxed
+            alternative={<EndTour />}
+            step={GUIDED_TOUR_STEPS.BUTTON_ONSUCCESS_BINDING}
+          >
+            <RealtimeAppEditors applicationId={applicationId} />
             <FormDialogComponent
               Form={AppInviteUsersForm}
               applicationId={applicationId}
               canOutsideClickClose
               headerIcon={{
                 name: "right-arrow",
-                bgColor: "transparent",
+                bgColor: Colors.GEYSER_LIGHT,
               }}
               isOpen={showAppInviteUsersDialog}
               orgId={orgId}
@@ -469,35 +485,26 @@ export function EditorHeader(props: EditorHeaderProps) {
                 </TooltipComponent>
               }
             />
-          </Boxed>
-          <Boxed
-            alternative={<EndOnboardingTour />}
-            step={OnboardingStep.DEPLOY}
-          >
             <DeploySection>
-              <OnboardingIndicator
-                hasButton={false}
-                step={OnboardingStep.DEPLOY}
-                width={75}
+              <TooltipComponent
+                content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
+                hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                position={Position.BOTTOM_RIGHT}
               >
-                <TooltipComponent
-                  content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
-                  hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                  position={Position.BOTTOM_RIGHT}
-                >
-                  <StyledDeployButton
-                    className="t--application-publish-btn"
-                    isLoading={isPublishing}
-                    onClick={() => handleClickDeploy(true)}
-                    size={Size.small}
-                    text={"Deploy"}
-                  />
-                </TooltipComponent>
-              </OnboardingIndicator>
+                <StyledDeployButton
+                  className="t--application-publish-btn"
+                  data-guided-tour-iid="deploy"
+                  isLoading={isPublishing}
+                  onClick={() => handleClickDeploy(true)}
+                  size={Size.small}
+                  text={"Deploy"}
+                />
+              </TooltipComponent>
 
               <DeployLinkButtonDialog
-                link={getApplicationViewerPageURL({
-                  applicationId: props.applicationId,
+                link={viewerURL({
+                  applicationSlug,
+                  pageSlug,
                   pageId,
                 })}
                 trigger={
@@ -520,7 +527,6 @@ export function EditorHeader(props: EditorHeaderProps) {
             </ProfileDropdownContainer>
           )}
         </HeaderSection>
-        {props.inOnboarding && <OnboardingHelper />}
         <Suspense fallback={<span />}>
           <GlobalSearch />
         </Suspense>
@@ -542,8 +548,7 @@ const mapStateToProps = (state: AppState) => ({
   applicationId: getCurrentApplicationId(state),
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),
-  pageId: getCurrentPageId(state),
-  inOnboarding: getIsInOnboarding(state),
+  pageId: getCurrentPageId(state) as string,
   sharedUserList: getAllUsers(state),
   currentUser: getCurrentUser(state),
 });

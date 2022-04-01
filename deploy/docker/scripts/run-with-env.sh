@@ -1,9 +1,11 @@
 #!/bin/bash
 
 ENV_PATH="/appsmith-stacks/configuration/docker.env"
+PRE_DEFINED_ENV_PATH="/opt/appsmith/templates/pre-define.env"
 echo 'Load environment configuration'
 set -o allexport
 . "$ENV_PATH"
+. "$PRE_DEFINED_ENV_PATH"
 set +o allexport
 
 if [[ -z "${APPSMITH_MAIL_ENABLED}" ]]; then

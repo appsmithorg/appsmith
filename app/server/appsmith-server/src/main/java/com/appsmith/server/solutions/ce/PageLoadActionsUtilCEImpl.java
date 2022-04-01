@@ -163,7 +163,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                     Set<String> actionNames = tuple.getT1();
                     DirectedAcyclicGraph<String, DefaultEdge> graph = tuple.getT2();
 
-                    return computeOnPageLoadActionsSchedulingOrder(graph, onPageLoadActionSet, actionNames);
+                    return computeOnPageLoadActionsSchedulingOrder(graph, onPageLoadActionSet, actionNames,
+                            explicitUserSetOnLoadActions);
                 })
                 .map(onPageLoadActionsSchedulingOrder -> {
                     // Find all explicitly turned on actions which haven't found their way into the scheduling order
@@ -523,7 +524,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
      */
     private List<Set<String>> computeOnPageLoadActionsSchedulingOrder(DirectedAcyclicGraph<String, DefaultEdge> dag,
                                                                       Set<String> onPageLoadActionSet,
-                                                                      Set<String> actionNames) {
+                                                                      Set<String> actionNames,
+                                                                      Set<String> explicitUserSetOnLoadActions) {
         Map<String, Integer> pageLoadActionAndLevelMap = new HashMap<>();
         List<Set<String>> onPageLoadActions = new ArrayList<>();
 
@@ -544,7 +546,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                 onPageLoadActions.add(new HashSet<>());
             }
 
-            Set<String> actionsFromBinding = actionCandidatesForPageLoadFromBinding(actionNames, vertex, pageLoadActionAndLevelMap, onPageLoadActions);
+            Set<String> actionsFromBinding = actionCandidatesForPageLoadFromBinding(actionNames, vertex,
+                    pageLoadActionAndLevelMap, onPageLoadActions, explicitUserSetOnLoadActions);
             onPageLoadActions.get(level).addAll(actionsFromBinding);
             for (String action : actionsFromBinding) {
                 pageLoadActionAndLevelMap.put(action, level);
@@ -786,7 +789,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
             for (Property x : dynamicBindingPathList) {
                 final String fieldPath = String.valueOf(x.getKey());
 
-                // Ignore pagination configuration since paginatio technically does not belong to dynamic binding list.
+                // Ignore pagination configuration since pagination technically does not belong to dynamic binding list.
                 if (fieldPath.equals("prev") || fieldPath.equals("next")) {
                     continue;
                 }
@@ -820,7 +823,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                     }
                     // After updating the parent, check for the types
                     if (parent == null) {
-                        // path doesnt seem to exist. Ignore.
+                        // path doesn't seem to exist. Ignore.
                     } else if (parent instanceof String) {
                         // If we get String value, then this is a leaf node
                         isLeafNode = true;
@@ -908,7 +911,8 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
     private Set<String> actionCandidatesForPageLoadFromBinding(Set<String> allActionNames,
                                                                String vertex,
                                                                Map<String, Integer> pageLoadActionsLevelMap,
-                                                               List<Set<String>> existingPageLoadActions) {
+                                                               List<Set<String>> existingPageLoadActions,
+                                                               Set<String> explicitUserSetOnLoadActions) {
 
         Set<String> onPageLoadCandidates = new HashSet<>();
 
@@ -921,10 +925,21 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
 
                 Boolean isCandidateForPageLoad = TRUE;
 
-                // Only add it for page load if it is not a function call. Aka the data
-                // of this call is being referred to in the binding.
+                /**
+                 * Add action for page load if:
+                 *  o it has been explicitly set to run on page load by the user (even if its data is not
+                 *  referenced in any widget or action)
+                 *  o or, it is not a function call i.e. the data of this call is being referred to in the binding.
+                 */
 
-                String validBinding = entity + "." + "data";
+                String validBinding;
+                if (explicitUserSetOnLoadActions.contains(entity)) {
+                    validBinding = entity + "." + "actionConfiguration";
+                }
+                else {
+                    validBinding = entity + "." + "data";
+                }
+
                 if (!vertex.contains(validBinding)) {
                     isCandidateForPageLoad = FALSE;
                 }
@@ -977,8 +992,10 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         dslActionDTO.setName(actionDTO.getValidName());
         dslActionDTO.setCollectionId(actionDTO.getCollectionId());
         dslActionDTO.setClientSideExecution(actionDTO.getClientSideExecution());
+        dslActionDTO.setConfirmBeforeExecute(actionDTO.getConfirmBeforeExecute());
         if (actionDTO.getDefaultResources() != null) {
             dslActionDTO.setDefaultActionId(actionDTO.getDefaultResources().getActionId());
+            dslActionDTO.setDefaultCollectionId(actionDTO.getDefaultResources().getCollectionId());
         }
 
         if (actionDTO.getActionConfiguration() != null) {

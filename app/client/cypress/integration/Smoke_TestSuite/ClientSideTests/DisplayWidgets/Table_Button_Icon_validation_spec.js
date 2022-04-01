@@ -1,11 +1,8 @@
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tableNewDsl.json");
-const pages = require("../../../../locators/Pages.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const color = "rgb(151, 0, 0)";
-const newcolor = "rgb(250, 0, 0)";
 
 describe("Table Widget property pane feature validation", function() {
   before(() => {
@@ -77,7 +74,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.clearPropertyValue(1);
   });
 
-  it.skip("Table widget column reorder and reload function", function() {
+  it("Table widget column reorder and reload function", function() {
     cy.openPropertyPane("tablewidget");
     cy.get(commonlocators.editPropBackButton).click({ force: true });
     cy.hideColumn("email");
@@ -90,7 +87,7 @@ describe("Table Widget property pane feature validation", function() {
       cy.reload();
       cy.wait(3000);
       cy.readTabledataPublish("2", "2").then((tabDataNew) => {
-        expect(tabValue).not.to.be.equal("Tobias Funke");
+        expect(tabDataNew).to.be.equal("Tobias Funke");
       });
     });
   });

@@ -2,6 +2,7 @@ package com.appsmith.external.models;
 
 import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.ExceptionHelper;
 import com.appsmith.external.plugins.AppsmithPluginErrorUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
@@ -56,6 +57,6 @@ public class ActionExecutionResult {
     }
 
     public void setErrorInfo(Throwable error) {
-        this.setErrorInfo(error, null);
+        this.setErrorInfo(ExceptionHelper.getRootCause(error), null);
     }
 }

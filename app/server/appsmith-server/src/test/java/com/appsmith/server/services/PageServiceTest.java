@@ -3,9 +3,11 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -13,7 +15,9 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.LayoutDTO;
@@ -86,6 +90,9 @@ public class PageServiceTest {
     NewActionService newActionService;
 
     @Autowired
+    ActionCollectionService actionCollectionService;
+
+    @Autowired
     PluginRepository pluginRepository;
 
     @MockBean
@@ -96,6 +103,9 @@ public class PageServiceTest {
 
     @Autowired
     LayoutActionService layoutActionService;
+
+    @Autowired
+    LayoutCollectionService layoutCollectionService;
 
     @Autowired
     ImportExportApplicationService importExportApplicationService;
@@ -353,6 +363,26 @@ public class PageServiceTest {
 
         layoutActionService.createSingleAction(action).block();
 
+        // Save actionCollection
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("testCollection1");
+        actionCollectionDTO.setPageId(page.getId());
+        actionCollectionDTO.setApplicationId(applicationId);
+        actionCollectionDTO.setOrganizationId(orgId);
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+        actionCollectionDTO.setBody("collectionBody");
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("cloneTestAction1");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("mockBody");
+        actionCollectionDTO.setActions(List.of(action1));
+        actionCollectionDTO.setPluginType(PluginType.JS);
+
+        layoutCollectionService.createCollection(actionCollectionDTO).block();
+
+        applicationPageService.publish(applicationId, true).block();
+
         final Mono<PageDTO> pageMono = applicationPageService.clonePage(page.getId()).cache();
 
         Mono<List<NewAction>> actionsMono =
@@ -362,8 +392,20 @@ public class PageServiceTest {
                                         .findByPageId(page1.getId(), READ_ACTIONS))
                         .collectList();
 
+        Mono<List<ActionCollection>> actionCollectionMono =
+                pageMono
+                        .flatMapMany(
+                                page1 -> actionCollectionService
+                                        .findByPageId(page1.getId()))
+                        .collectList();
+
+        Mono<List<ActionCollection>> actionCollectionInParentPageMono = actionCollectionService
+                .findByPageId(page.getId())
+                .collectList();
+
+
         StepVerifier
-                .create(Mono.zip(pageMono, actionsMono))
+                .create(Mono.zip(pageMono, actionsMono, actionCollectionMono, actionCollectionInParentPageMono))
                 .assertNext(tuple -> {
                     PageDTO clonedPage = tuple.getT1();
                     assertThat(clonedPage).isNotNull();
@@ -381,11 +423,31 @@ public class PageServiceTest {
 
                     // Confirm that the page action got copied as well
                     List<NewAction> actions = tuple.getT2();
-                    assertThat(actions.size()).isEqualTo(1);
-                    assertThat(actions.get(0).getUnpublishedAction().getName()).isEqualTo("PageAction");
+                    assertThat(actions.size()).isEqualTo(2);
+                    NewAction actionWithoutCollection = actions
+                            .stream()
+                            .filter(newAction -> !StringUtils.hasLength(newAction.getUnpublishedAction().getCollectionId()))
+                            .findFirst()
+                            .orElse(null);
+
+                    assertThat(actionWithoutCollection.getUnpublishedAction().getName()).isEqualTo("PageAction");
 
                     // Confirm that executeOnLoad is cloned as well.
-                    assertThat(Boolean.TRUE.equals(actions.get(0).getUnpublishedAction().getExecuteOnLoad()));
+                    assertThat(Boolean.TRUE.equals(actionWithoutCollection.getUnpublishedAction().getExecuteOnLoad()));
+
+                    // Check if collections got copied too
+                    List<ActionCollection> collections = tuple.getT3();
+                    assertThat(collections.size()).isEqualTo(1);
+                    assertThat(collections.get(0).getPublishedCollection()).isNull();
+                    assertThat(collections.get(0).getUnpublishedCollection()).isNotNull();
+                    assertThat(collections.get(0).getUnpublishedCollection().getPageId()).isEqualTo(clonedPage.getId());
+
+                    // Check if the parent page collections are not altered
+                    List<ActionCollection> parentPageCollections = tuple.getT4();
+                    assertThat(parentPageCollections.size()).isEqualTo(1);
+                    assertThat(parentPageCollections.get(0).getPublishedCollection()).isNotNull();
+                    assertThat(parentPageCollections.get(0).getUnpublishedCollection()).isNotNull();
+                    assertThat(parentPageCollections.get(0).getUnpublishedCollection().getPageId()).isEqualTo(page.getId());
                 })
                 .verifyComplete();
     }

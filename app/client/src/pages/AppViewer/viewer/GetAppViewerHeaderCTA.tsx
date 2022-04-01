@@ -1,7 +1,12 @@
 import React from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
-import { createMessage, EDIT_APP, FORK_APP, SIGN_IN } from "constants/messages";
+import {
+  createMessage,
+  EDIT_APP,
+  FORK_APP,
+  SIGN_IN,
+} from "@appsmith/constants/messages";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import Button, { IconPositions } from "components/ads/Button";
@@ -9,22 +14,14 @@ import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 import { TriggerButton } from "pages/Applications/ForkModalStyles";
 import { Size } from "components/ads/Button";
 import { getAllApplications } from "actions/applicationActions";
+import history from "utils/history";
 
 const Cta = styled(Button)`
   ${(props) => getTypographyByKey(props, "btnLarge")}
   height: 21px;
-  span > svg {
-    height: 10px;
-    path {
-      stroke: white;
-    }
-  }
 `;
 
 const ForkButton = styled(Cta)`
-  svg {
-    transform: rotate(-90deg);
-  }
   height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
 `;
 
@@ -46,9 +43,12 @@ function GetAppViewerHeaderCTA(props: any) {
     CTA = (
       <Cta
         className="t--back-to-editor"
-        href={url}
         icon="chevron-left"
         iconPosition={IconPositions.left}
+        onClick={(e) => {
+          e.stopPropagation();
+          history.push(url);
+        }}
         text={createMessage(EDIT_APP)}
       />
     );
@@ -61,7 +61,7 @@ function GetAppViewerHeaderCTA(props: any) {
         <ForkButton
           className="t--fork-app"
           href={forkUrl}
-          icon="fork"
+          icon="fork-2"
           text={createMessage(FORK_APP)}
         />
       );
@@ -73,7 +73,7 @@ function GetAppViewerHeaderCTA(props: any) {
             trigger={
               <TriggerButton
                 className="t--fork-app"
-                icon="fork"
+                icon="fork-2"
                 onClick={() => dispatch(getAllApplications())}
                 size={Size.small}
                 text={createMessage(FORK_APP)}

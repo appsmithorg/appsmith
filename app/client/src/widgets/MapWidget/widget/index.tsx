@@ -5,7 +5,7 @@ import MapComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import styled from "styled-components";
 import { DEFAULT_CENTER } from "constants/WidgetConstants";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
@@ -308,6 +308,27 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       this.props.selectedMarker
     ) {
       this.unselectMarker();
+    }
+
+    // If initial location was changed
+    if (
+      JSON.stringify(prevProps.mapCenter) !==
+      JSON.stringify(this.props.mapCenter)
+    ) {
+      this.props.updateWidgetMetaProperty("center", this.props.mapCenter);
+      return;
+    }
+
+    // If markers were changed
+    if (
+      this.props.markers &&
+      this.props.markers.length > 0 &&
+      JSON.stringify(prevProps.markers) !== JSON.stringify(this.props.markers)
+    ) {
+      this.props.updateWidgetMetaProperty(
+        "center",
+        this.props.markers[this.props.markers.length - 1],
+      );
     }
   }
 

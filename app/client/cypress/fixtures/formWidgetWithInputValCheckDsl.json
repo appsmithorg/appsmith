@@ -149,7 +149,7 @@
                 "bottomRow": 19,
                 "parentRowSpace": 10,
                 "autoFocus": false,
-                "type": "INPUT_WIDGET",
+                "type": "INPUT_WIDGET_V2",
                 "hideCard": false,
                 "parentColumnSpace": 9.3203125,
                 "dynamicTriggerPathList": [],

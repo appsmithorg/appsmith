@@ -8,6 +8,10 @@ const StyledSwitch = styled(Switch)`
   &&&&& input:checked ~ span {
     background: ${Colors.GREY_10};
   }
+
+  & input:focus + .bp3-control-indicator {
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.2) !important;
+  }
 `;
 
 export default function AdsSwitch(props: ISwitchProps) {

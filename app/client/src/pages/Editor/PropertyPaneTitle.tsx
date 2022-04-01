@@ -23,6 +23,8 @@ import { WidgetType } from "constants/WidgetConstants";
 
 import TooltipComponent from "components/ads/Tooltip";
 import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
+import { inGuidedTour } from "selectors/onboardingSelectors";
+import { toggleShowDeviationDialog } from "actions/onboardingActions";
 
 type PropertyPaneTitleProps = {
   title: string;
@@ -47,6 +49,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
     (state: AppState) => state.ui.editor.loadingStates.updatingWidgetName,
   );
   const isNew = useSelector((state: AppState) => state.ui.propertyPane.isNew);
+  const guidedTourEnabled = useSelector(inGuidedTour);
 
   // Pass custom equality check function. Shouldn't be expensive than the render
   // as it is just a small array #perf
@@ -59,6 +62,11 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   const { title, updatePropertyTitle } = props;
   const updateNewTitle = useCallback(
     (value: string) => {
+      if (guidedTourEnabled) {
+        dispatch(toggleShowDeviationDialog(true));
+        return;
+      }
+
       if (
         value &&
         value.trim().length > 0 &&
@@ -67,12 +75,16 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
         updatePropertyTitle && updatePropertyTitle(value.trim());
       }
     },
-    [updatePropertyTitle, title],
+    [updatePropertyTitle, title, guidedTourEnabled],
   );
   // End
 
   const updateTitle = useCallback(
     (value?: string) => {
+      if (guidedTourEnabled) {
+        dispatch(toggleShowDeviationDialog(true));
+        return;
+      }
       if (
         value &&
         value.trim().length > 0 &&
@@ -88,12 +100,40 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
         toggleEditWidgetName(props.widgetId, false);
       }
     },
-    [dispatch, widgets, setName, props.widgetId, props.title],
+    [
+      dispatch,
+      widgets,
+      setName,
+      props.widgetId,
+      props.title,
+      guidedTourEnabled,
+    ],
   );
 
   useEffect(() => {
     setName(props.title);
   }, [props.title]);
+
+  // Focus title on F2
+
+  const [isEditingDefault, setIsEditingDefault] = useState(
+    !props.isPanelTitle ? isNew : undefined,
+  );
+
+  function handleKeyDown(e: KeyboardEvent) {
+    if (e.key === "F2") {
+      setIsEditingDefault(true);
+    }
+  }
+
+  function handleOnBlurEverytime() {
+    setIsEditingDefault(false);
+  }
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  });
 
   return props.widgetId || props.isPanelTitle ? (
     <div className="flex items-center w-full px-3 space-x-1 z-3">
@@ -114,8 +154,9 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
           editInteractionKind={EditInteractionKind.SINGLE}
           fill
           hideEditIcon
-          isEditingDefault={!props.isPanelTitle ? isNew : undefined}
+          isEditingDefault={isEditingDefault}
           onBlur={!props.isPanelTitle ? updateTitle : undefined}
+          onBlurEverytime={handleOnBlurEverytime}
           onTextChanged={!props.isPanelTitle ? undefined : updateNewTitle}
           placeholder={props.title}
           savingState={updating ? SavingState.STARTED : SavingState.NOT_STARTED}

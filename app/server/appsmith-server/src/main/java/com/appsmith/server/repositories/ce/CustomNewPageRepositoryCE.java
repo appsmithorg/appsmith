@@ -12,6 +12,8 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
 
     Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission);
 
+    Flux<NewPage> findByApplicationIdAndNonDeletedEditMode(String applicationId, AclPermission aclPermission);
+
     Mono<NewPage> findByIdAndLayoutsIdAndViewMode(String id, String layoutId, AclPermission aclPermission, Boolean viewMode);
 
     Mono<NewPage> findByNameAndViewMode(String name, AclPermission aclPermission, Boolean viewMode);
@@ -23,4 +25,6 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
     Mono<String> getNameByPageId(String pageId, boolean isPublishedName);
 
     Mono<NewPage> findPageByBranchNameAndDefaultPageId(String branchName, String defaultPageId, AclPermission permission);
+
+    Flux<NewPage> findSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission);
 }

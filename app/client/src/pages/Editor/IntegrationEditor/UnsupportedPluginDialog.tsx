@@ -8,12 +8,12 @@ import Dialog from "components/ads/DialogComponent";
 import Icon, { IconSize } from "components/ads/Icon";
 import { IconProps } from "constants/IconConstants";
 import Button, { Category, Size } from "components/ads/Button";
-import { UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING } from "constants/messages";
+import { UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   UNSUPPORTED_PLUGIN_DIALOG_TITLE,
   UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 type Props = {
   isModalOpen: boolean;

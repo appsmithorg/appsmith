@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface CurlImporterServiceCE extends ApiImporterCE{
 
-    ActionDTO curlToAction(String command, String pageId, String name) throws AppsmithException;
+    ActionDTO curlToAction(String command, String name) throws AppsmithException;
 
     ActionDTO curlToAction(String command) throws AppsmithException;
 

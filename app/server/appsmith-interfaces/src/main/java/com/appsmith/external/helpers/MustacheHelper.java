@@ -24,7 +24,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.BeanCopyUtils.isDomainModel;
+import static com.appsmith.external.helpers.AppsmithBeanUtils.getBeanPropertyValues;
+import static com.appsmith.external.helpers.AppsmithBeanUtils.isDomainModel;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.APPSMITH_SUBSTITUTION_PLACEHOLDER;
 
 @Slf4j
@@ -237,27 +238,6 @@ public class MustacheHelper {
         }
 
         return keys;
-    }
-
-    private static List<Object> getBeanPropertyValues(Object object) {
-        final BeanWrapper sourceBeanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(object);
-        final List<Object> values = new ArrayList<>();
-
-        for (PropertyDescriptor propertyDescriptor : sourceBeanWrapper.getPropertyDescriptors()) {
-            // For properties like `class` that don't have a set method, just ignore them.
-            if (propertyDescriptor.getWriteMethod() == null) {
-                continue;
-            }
-
-            String name = propertyDescriptor.getName();
-            Object value = sourceBeanWrapper.getPropertyValue(name);
-
-            if (value != null) {
-                values.add(value);
-            }
-        }
-
-        return values;
     }
 
     private static void clearAndPushToken(StringBuilder tokenBuilder, List<String> tokenList) {

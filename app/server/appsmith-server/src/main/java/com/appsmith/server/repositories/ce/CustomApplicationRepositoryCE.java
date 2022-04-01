@@ -34,7 +34,7 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(String defaultApplicationId, String branchName, AclPermission aclPermission);
 
-    Flux<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId);
+    Flux<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId, AclPermission permission);
 
     Mono<List<String>> getAllApplicationId(String organizationId);
 
@@ -42,5 +42,7 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     Mono<Long> countByOrganizationId(String organizationId);
 
-    Mono<Long> getGitConnectedApplicationCount(String organizationId);
+    Mono<Long> getGitConnectedApplicationWithPrivateRepoCount(String organizationId);
+
+    Flux<Application> getGitConnectedApplicationByOrganizationId(String organizationId);
 }

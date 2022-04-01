@@ -10,7 +10,7 @@ import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScre
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
-import _ from "lodash";
+import { isArray, isEmpty, isString } from "lodash";
 import {
   CHECK_REQUEST_BODY,
   createMessage,
@@ -19,7 +19,7 @@ import {
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_RESPONSE_LAST_HALF,
   INSPECT_ENTITY,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import Text, { TextType } from "components/ads/Text";
 import { Text as BlueprintText } from "@blueprintjs/core";
 import Icon from "components/ads/Icon";
@@ -36,6 +36,7 @@ import Button, { Size } from "components/ads/Button";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import { setCurrentTab } from "actions/debuggerActions";
+import { isHtml } from "./utils";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -185,12 +186,21 @@ export const EMPTY_RESPONSE: ActionResponse = {
 const StatusCodeText = styled(BaseText)<{ code: string }>`
   color: ${(props) =>
     props.code.startsWith("2") ? props.theme.colors.primaryOld : Colors.RED};
+  cursor: pointer;
+  width: 38px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  &:hover {
+    width: 100%;
+  }
 `;
 
 const ResponseDataContainer = styled.div`
   flex: 1;
   overflow: auto;
   display: flex;
+  margin-bottom: 10px;
   flex-direction: column;
   & .CodeEditorTarget {
     overflow: hidden;
@@ -230,11 +240,40 @@ function ApiResponseView(props: Props) {
   };
 
   const messages = response?.messages;
+  let responseHeaders = {};
+  let responseBody;
+
+  // if no headers are present in the response, use the default body text.
+  if (response.headers) {
+    Object.entries(response.headers).forEach(([key, value]) => {
+      if (isArray(value) && value.length < 2)
+        return (responseHeaders = {
+          ...responseHeaders,
+          [key]: value[0],
+        });
+      return (responseHeaders = {
+        ...responseHeaders,
+        [key]: value,
+      });
+    });
+  } else {
+    // if the response headers is empty show an empty object.
+    responseHeaders = {};
+  }
+
+  if (response.body) {
+    // if the response is already a string and is of type html, do not stringify further but simply return the response string.
+    if (isString(response.body) && isHtml(response.body)) {
+      responseBody = response.body || "";
+    } else {
+      responseBody = JSON.stringify(response.body, null, 2);
+    }
+  }
 
   const tabs = [
     {
       key: "body",
-      title: "Response Body",
+      title: "Body",
       panelComponent: (
         <ResponseTabWrapper>
           {Array.isArray(messages) && messages.length > 0 && (
@@ -260,7 +299,58 @@ function ApiResponseView(props: Props) {
             />
           )}
           <ResponseDataContainer>
-            {_.isEmpty(response.statusCode) ? (
+            {isEmpty(response.statusCode) ? (
+              <NoResponseContainer>
+                <Icon name="no-response" />
+                <Text type={TextType.P1}>
+                  {EMPTY_RESPONSE_FIRST_HALF()}
+                  <InlineButton
+                    isLoading={isRunning}
+                    onClick={onRunClick}
+                    size={Size.medium}
+                    tag="button"
+                    text="Run"
+                    type="button"
+                  />
+                  {EMPTY_RESPONSE_LAST_HALF()}
+                </Text>
+              </NoResponseContainer>
+            ) : (
+              <ReadOnlyEditor
+                folding
+                height={"100%"}
+                input={{
+                  value: response.body ? (responseBody as string) : "",
+                }}
+                isReadOnly
+              />
+            )}
+          </ResponseDataContainer>
+        </ResponseTabWrapper>
+      ),
+    },
+    {
+      key: "headers",
+      title: "Headers",
+      panelComponent: (
+        <ResponseTabWrapper>
+          {hasFailed && !isRunning && (
+            <StyledCallout
+              fill
+              label={
+                <FailedMessage>
+                  <DebugButton
+                    className="api-debugcta"
+                    onClick={onDebugClick}
+                  />
+                </FailedMessage>
+              }
+              text={createMessage(CHECK_REQUEST_BODY)}
+              variant={Variant.danger}
+            />
+          )}
+          <ResponseDataContainer>
+            {isEmpty(response.statusCode) ? (
               <NoResponseContainer>
                 <Icon name="no-response" />
                 <Text type={TextType.P1}>
@@ -282,9 +372,10 @@ function ApiResponseView(props: Props) {
                 height={"100%"}
                 input={{
                   value: response.body
-                    ? JSON.stringify(response.body, null, 2)
+                    ? JSON.stringify(responseHeaders, null, 2)
                     : "",
                 }}
+                isReadOnly
               />
             )}
           </ResponseDataContainer>
@@ -346,7 +437,7 @@ function ApiResponseView(props: Props) {
                   </Text>
                 </Flex>
               )}
-              {!_.isEmpty(response.body) && Array.isArray(response.body) && (
+              {!isEmpty(response.body) && Array.isArray(response.body) && (
                 <Flex>
                   <Text type={TextType.P3}>Result: </Text>
                   <Text type={TextType.H5}>

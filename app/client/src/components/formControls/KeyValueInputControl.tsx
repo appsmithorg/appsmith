@@ -55,7 +55,7 @@ function KeyValueRow(props: KeyValueRowProps & WrappedFieldArrayProps) {
             <FormRowWithLabel key={index} style={{ marginTop: index ? 13 : 0 }}>
               <div
                 data-replay-id={btoa(`${field}.key`)}
-                style={{ width: "50vh" }}
+                style={{ width: "20vw" }}
               >
                 <TextField name={`${field}.key`} placeholder="Key" />
               </div>
@@ -64,7 +64,7 @@ function KeyValueRow(props: KeyValueRowProps & WrappedFieldArrayProps) {
                 <div style={{ display: "flex", flexDirection: "row" }}>
                   <div
                     data-replay-id={btoa(`${field}.value`)}
-                    style={{ marginRight: 14, width: "50vh" }}
+                    style={{ marginRight: 14, width: "20vw" }}
                   >
                     <TextField name={`${field}.value`} placeholder="Value" />
                   </div>

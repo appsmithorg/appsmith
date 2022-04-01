@@ -6,5 +6,6 @@ public enum AmazonS3Action {
     UPLOAD_MULTIPLE_FILES_FROM_BODY,
     READ_FILE,
     DELETE_FILE,
+    DELETE_MULTIPLE_FILES,
     LIST_BUCKETS
 }

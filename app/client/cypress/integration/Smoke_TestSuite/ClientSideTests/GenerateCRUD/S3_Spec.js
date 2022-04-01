@@ -1,7 +1,7 @@
 const pages = require("../../../../locators/Pages.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
-import homePage from "../../../../locators/HomePage.json";
+import homePage from "../../../../locators/HomePage";
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 
@@ -47,7 +47,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     cy.get(".t--save-datasource").click();
 
     // fetch bucket
-    cy.wait("@put_datasources").should(
+    cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
@@ -99,7 +99,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     cy.NavigateToDSGeneratePage(datasourceName);
 
     // fetch bucket
-    cy.wait("@put_datasources").should(
+    cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
@@ -188,7 +188,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     });
 
     // fetch bucket
-    cy.wait("@put_datasources").should(
+    cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
@@ -223,6 +223,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     cy.get("span:contains('GOT IT')").click();
 
     //Bug verification starts
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.selectEntityByName("ListFiles");
     cy.wait(2000);
     cy.selectEntityByName("Page3");

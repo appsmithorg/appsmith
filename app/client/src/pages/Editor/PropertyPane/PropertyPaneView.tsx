@@ -73,7 +73,7 @@ function PropertyPaneView(
         tooltipPosition: "bottom-right",
         icon: (
           <button
-            className="p-1 hover:bg-warmGray-100 group t--copy-widget"
+            className="p-1 hover:bg-warmGray-100 focus:bg-warmGray-100 group t--copy-widget"
             onClick={onCopy}
           >
             <CopyIcon className="w-4 h-4 text-gray-500" />
@@ -85,7 +85,7 @@ function PropertyPaneView(
         tooltipPosition: "bottom-right",
         icon: (
           <button
-            className="p-1 hover:bg-warmGray-100 group t--delete-widget"
+            className="p-1 hover:bg-warmGray-100 focus:bg-warmGray-100 group t--delete-widget"
             onClick={onDelete}
           >
             <DeleteIcon className="w-4 h-4 text-gray-500" />
@@ -110,7 +110,10 @@ function PropertyPaneView(
         widgetType={widgetProperties?.type}
       />
 
-      <div className="p-3 pb-24 overflow-x-hidden overflow-y-scroll t--property-pane-view">
+      <div
+        className="p-3 pb-24 overflow-x-hidden overflow-y-scroll t--property-pane-view"
+        data-guided-tour-id="property-pane"
+      >
         {!doActionsExist && !hideConnectDataCTA && (
           <ConnectDataCTA
             widgetId={widgetProperties.widgetId}
@@ -119,6 +122,7 @@ function PropertyPaneView(
           />
         )}
         <PropertyPaneConnections widgetName={widgetProperties.widgetName} />
+
         <PropertyControlsGenerator
           id={widgetProperties.widgetId}
           panel={panel}

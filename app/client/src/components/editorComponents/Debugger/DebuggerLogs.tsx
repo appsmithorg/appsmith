@@ -6,10 +6,10 @@ import FilterHeader from "./FilterHeader";
 import { BlankState } from "./helpers";
 import LogItem, { getLogItemProps } from "./LogItem";
 import { usePagination, useFilteredLogs } from "./hooks/debuggerHooks";
-import { createMessage, NO_LOGS } from "constants/messages";
+import { createMessage, NO_LOGS } from "@appsmith/constants/messages";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { bootIntercom } from "utils/helpers";
+import bootIntercom from "utils/bootIntercom";
 import { thinScrollbar } from "constants/DefaultTheme";
 
 const LIST_HEADER_HEIGHT = "38px";
@@ -23,6 +23,7 @@ const ListWrapper = styled.div`
   overflow: auto;
   height: calc(100% - ${LIST_HEADER_HEIGHT});
   ${thinScrollbar};
+  padding-bottom: 25px;
 `;
 
 type Props = {

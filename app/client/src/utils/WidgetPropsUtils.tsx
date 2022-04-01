@@ -1,5 +1,4 @@
 import { FetchPageResponse } from "api/PageApi";
-import { XYCord } from "utils/hooks/useCanvasDragging";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import {
   WidgetOperation,
@@ -14,6 +13,8 @@ import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReduc
 import { transformDSL } from "./DSLMigrations";
 import { WidgetType } from "./WidgetFactory";
 import { DSLWidget } from "widgets/constants";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -21,7 +22,7 @@ export type WidgetOperationParams = {
   payload: any;
 };
 
-type Rect = {
+export type Rect = {
   top: number;
   left: number;
   right: number;
@@ -37,7 +38,7 @@ export const extractCurrentDSL = (
   const currentDSL = fetchPageResponse?.data.layouts[0].dsl || {
     ...defaultDSL,
   };
-  return transformDSL(currentDSL, newPage);
+  return transformDSL(currentDSL as ContainerWidgetProps<WidgetProps>, newPage);
 };
 
 export const getDropZoneOffsets = (
@@ -161,6 +162,10 @@ export const widgetOperationParams = (
   parentColumnSpace: number,
   parentRowSpace: number,
   parentWidgetId: string, // parentWidget
+  widgetSizeUpdates: {
+    width: number;
+    height: number;
+  },
 ): WidgetOperationParams => {
   const [leftColumn, topRow] = getDropZoneOffsets(
     parentColumnSpace,
@@ -177,6 +182,12 @@ export const widgetOperationParams = (
       payload: {
         leftColumn,
         topRow,
+        bottomRow: Math.round(
+          topRow + widgetSizeUpdates.height / parentRowSpace,
+        ),
+        rightColumn: Math.round(
+          leftColumn + widgetSizeUpdates.width / parentColumnSpace,
+        ),
         parentId: widget.parentId,
         newParentId: parentWidgetId,
       },
@@ -201,23 +212,6 @@ export const widgetOperationParams = (
       parentColumnSpace,
       newWidgetId: widget.widgetId,
     },
-  };
-};
-
-export const updateWidgetPosition = (
-  widget: WidgetProps,
-  leftColumn: number,
-  topRow: number,
-) => {
-  const newPositions = {
-    leftColumn,
-    topRow,
-    rightColumn: leftColumn + (widget.rightColumn - widget.leftColumn),
-    bottomRow: topRow + (widget.bottomRow - widget.topRow),
-  };
-
-  return {
-    ...newPositions,
   };
 };
 

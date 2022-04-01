@@ -10,4 +10,5 @@ public interface SessionUserServiceCE {
 
     Mono<User> refreshCurrentUser(ServerWebExchange exchange);
 
+    Mono<Void> logoutAllSessions(String email);
 }

@@ -16,13 +16,18 @@ import {
   createMessage,
   FIELD_REQUIRED_ERROR,
   INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { InputType, InputTypes } from "../constants";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { ISDCodeDropdownOptions } from "../component/ISDCodeDropdown";
 import { CurrencyDropdownOptions } from "../component/CurrencyCodeDropdown";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import {
+  formatCurrencyNumber,
+  getDecimalSeparator,
+  getLocale,
+} from "../component/utilities";
 
 export function defaultValueValidation(
   value: any,
@@ -508,7 +513,17 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             propertyName: "iconAlign",
             label: "Icon alignment",
             helpText: "Sets the icon alignment of input field",
-            controlType: "ICON_ALIGN",
+            controlType: "ICON_TABS",
+            options: [
+              {
+                icon: "VERTICAL_LEFT",
+                value: "left",
+              },
+              {
+                icon: "VERTICAL_RIGHT",
+                value: "right",
+              },
+            ],
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -698,8 +713,24 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     }
   };
 
+  getFormattedText = () => {
+    if (this.props.isFocused || this.props.inputType !== InputTypes.CURRENCY) {
+      return this.props.text !== undefined ? this.props.text : "";
+    }
+    if (this.props.text === "" || this.props.text === undefined) return "";
+    const valueToFormat = String(this.props.text);
+
+    const locale = getLocale();
+    const decimalSeparator = getDecimalSeparator(locale);
+    return formatCurrencyNumber(
+      this.props.decimalsInCurrency,
+      valueToFormat,
+      decimalSeparator,
+    );
+  };
+
   getPageView() {
-    const value = this.props.text ?? "";
+    const value = this.getFormattedText();
     let isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const currencyCountryCode = this.props.selectedCurrencyCountryCode

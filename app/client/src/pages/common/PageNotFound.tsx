@@ -9,7 +9,7 @@ import {
   BACK_TO_HOMEPAGE,
   createMessage,
   PAGE_NOT_FOUND,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 const Wrapper = styled.div`
   text-align: center;

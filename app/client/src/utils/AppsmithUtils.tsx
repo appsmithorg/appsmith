@@ -1,9 +1,9 @@
 import {
-  CurrentApplicationData,
+  ApplicationPayload,
   Page,
   ReduxAction,
 } from "constants/ReduxActionConstants";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "./AnalyticsUtil";
 import FormControlRegistry from "./FormControlRegistry";
@@ -14,15 +14,13 @@ import * as log from "loglevel";
 import { LogLevelDesc } from "loglevel";
 import produce from "immer";
 import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
-import { ERROR_CODES } from "constants/ApiConstants";
-import { createMessage, ERROR_500 } from "../constants/messages";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
+import { createMessage, ERROR_500 } from "@appsmith/constants/messages";
 import localStorage from "utils/localStorage";
 import { APP_MODE } from "entities/App";
 import { trimQueryString } from "./helpers";
-import {
-  getApplicationEditorPageURL,
-  getApplicationViewerPageURL,
-} from "constants/routes";
+import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
+import { builderURL, viewerURL } from "RouteBuilder";
 
 export const createReducer = (
   initialState: any,
@@ -402,21 +400,24 @@ export const getCamelCaseString = (sourceString: string) => {
 export const getPageURL = (
   page: Page,
   appMode: APP_MODE | undefined,
-  currentApplicationDetails: CurrentApplicationData | undefined,
+  currentApplicationDetails: ApplicationPayload | undefined,
 ) => {
   if (appMode === APP_MODE.PUBLISHED) {
     return trimQueryString(
-      getApplicationViewerPageURL({
-        applicationId: currentApplicationDetails?.id,
+      viewerURL({
+        applicationSlug:
+          currentApplicationDetails?.slug || PLACEHOLDER_APP_SLUG,
+        pageSlug: page.slug || PLACEHOLDER_PAGE_SLUG,
         pageId: page.pageId,
       }),
     );
   }
 
-  return getApplicationEditorPageURL(
-    currentApplicationDetails?.id,
-    page.pageId,
-  );
+  return builderURL({
+    applicationSlug: currentApplicationDetails?.slug || PLACEHOLDER_APP_SLUG,
+    pageSlug: page.slug || PLACEHOLDER_PAGE_SLUG,
+    pageId: page.pageId,
+  });
 };
 
 /**

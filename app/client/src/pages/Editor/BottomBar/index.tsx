@@ -4,9 +4,9 @@ import QuickGitActions from "pages/Editor/gitSync/QuickGitActions";
 import { Layers } from "constants/Layers";
 import { DebuggerTrigger } from "components/editorComponents/Debugger";
 import { Colors } from "constants/Colors";
+import ManualUpgrades from "./ManualUpgrades";
 
 const Container = styled.div`
-  position: relative;
   width: 100%;
   height: ${(props) => props.theme.bottomBarHeight};
   display: flex;
@@ -16,11 +16,14 @@ const Container = styled.div`
   border-top: solid 1px ${Colors.MERCURY};
 `;
 
-export default function BottomBar() {
+export default function BottomBar(props: { className?: string }) {
   return (
-    <Container>
+    <Container className={props.className ?? ""}>
       <QuickGitActions />
-      <DebuggerTrigger />
+      <div className="w-20 flex justify-between items-center">
+        <ManualUpgrades />
+        <DebuggerTrigger />
+      </div>
     </Container>
   );
 }

@@ -3,11 +3,7 @@ import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 import { getFormValues } from "redux-form";
 import styled from "styled-components";
-import {
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-  QueryEditorRouteParams,
-} from "constants/routes";
+import { INTEGRATION_TABS, QueryEditorRouteParams } from "constants/routes";
 import history from "utils/history";
 import QueryEditorForm from "./Form";
 import { deleteAction, runAction } from "actions/pluginActionActions";
@@ -40,9 +36,10 @@ import {
   initFormEvaluations,
   startFormEvaluations,
 } from "actions/evaluationActions";
-import { getUIComponent } from "selectors/formSelectors";
+import { getUIComponent } from "./helpers";
 import { diff } from "deep-diff";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
+import { integrationEditorURL } from "RouteBuilder";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -58,7 +55,12 @@ type ReduxDispatchProps = {
   runAction: (actionId: string) => void;
   deleteAction: (id: string, name: string) => void;
   changeQueryPage: (queryId: string) => void;
-  runFormEvaluation: (formId: string, formData: QueryActionConfig) => void;
+  runFormEvaluation: (
+    formId: string,
+    formData: QueryActionConfig,
+    datasourceId: string,
+    pluginId: string,
+  ) => void;
   initFormEvaluation: (
     editorConfig: any,
     settingConfig: any,
@@ -157,13 +159,14 @@ class QueryEditor extends React.Component<Props> {
       this.props.runFormEvaluation(
         this.props.formData.id,
         this.props.formData.actionConfiguration,
+        this.props.formData.datasource.id,
+        this.props.formData.pluginId,
       );
     }
   }
 
   render() {
     const {
-      applicationId,
       dataSources,
       editorConfig,
       isCreating,
@@ -186,7 +189,10 @@ class QueryEditor extends React.Component<Props> {
     // custom function to return user to integrations page if action is not found
     const goToDatasourcePage = () =>
       history.push(
-        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+        integrationEditorURL({
+          pageId,
+          selectedTab: INTEGRATION_TABS.ACTIVE,
+        }),
       );
 
     // if the action can not be found, generate a entity not found page
@@ -216,7 +222,10 @@ class QueryEditor extends React.Component<Props> {
 
     const onCreateDatasourceClick = () => {
       history.push(
-        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+        integrationEditorURL({
+          pageId,
+          selectedTab: INTEGRATION_TABS.NEW,
+        }),
       );
     };
     return (
@@ -296,8 +305,13 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   changeQueryPage: (queryId: string) => {
     dispatch(changeQuery(queryId));
   },
-  runFormEvaluation: (formId: string, formData: QueryActionConfig) => {
-    dispatch(startFormEvaluations(formId, formData));
+  runFormEvaluation: (
+    formId: string,
+    formData: QueryActionConfig,
+    datasourceId: string,
+    pluginId: string,
+  ) => {
+    dispatch(startFormEvaluations(formId, formData, datasourceId, pluginId));
   },
   initFormEvaluation: (
     editorConfig: any,

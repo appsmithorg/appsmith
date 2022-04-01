@@ -12,6 +12,7 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import TextComponent, { TextAlign } from "../component";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { OverflowTypes } from "../constants";
 
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -27,13 +28,31 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             placeholderText: "Name:",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: { limitLineBreaks: true },
+            },
           },
           {
-            propertyName: "shouldScroll",
-            label: "Enable Scroll",
-            helpText: "Allows scrolling text instead of truncation",
-            controlType: "SWITCH",
+            propertyName: "overflow",
+            label: "Overflow",
+            helpText: "Controls the text behavior when length of text exceeds",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Scroll contents",
+                value: OverflowTypes.SCROLL,
+              },
+              {
+                label: "Truncate text",
+                value: OverflowTypes.TRUNCATE,
+              },
+              {
+                label: "No overflow",
+                value: OverflowTypes.NONE,
+              },
+            ],
+            defaultValue: OverflowTypes.NONE,
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -75,7 +94,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "backgroundColor",
-            label: "Cell Background",
+            label: "Cell Background Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -107,10 +126,28 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             },
           },
           {
+            propertyName: "truncateButtonColor",
+            label: "Truncate Button Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
+            dependencies: ["overflow"],
+            hidden: (props: TextWidgetProps) => {
+              return props.overflow !== OverflowTypes.TRUNCATE;
+            },
+          },
+          {
             helpText: "Use a html color name, HEX, RGB or RGBA value",
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
             propertyName: "borderColor",
-            label: "Border Colour",
+            label: "Border Color",
             controlType: "COLOR_PICKER",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -239,15 +276,20 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
       >
         <TextComponent
           backgroundColor={this.props.backgroundColor}
+          bottomRow={this.props.bottomRow}
           disableLink={this.props.disableLink || false}
           fontSize={this.props.fontSize}
           fontStyle={this.props.fontStyle}
           isLoading={this.props.isLoading}
           key={this.props.widgetId}
-          shouldScroll={this.props.shouldScroll}
+          leftColumn={this.props.leftColumn}
+          overflow={this.props.overflow}
+          rightColumn={this.props.rightColumn}
           text={this.props.text}
           textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
           textColor={this.props.textColor}
+          topRow={this.props.topRow}
+          truncateButtonColor={this.props.truncateButtonColor}
           widgetId={this.props.widgetId}
         />
       </WidgetStyleContainer>
@@ -271,6 +313,7 @@ export interface TextStyles {
   fontStyle?: string;
   fontSize?: TextSize;
   textAlign?: TextAlign;
+  truncateButtonColor?: string;
 }
 
 export interface TextWidgetProps
@@ -279,8 +322,8 @@ export interface TextWidgetProps
     WidgetStyleContainerProps {
   text?: string;
   isLoading: boolean;
-  shouldScroll: boolean;
   disableLink: boolean;
+  overflow: OverflowTypes;
 }
 
 export default TextWidget;

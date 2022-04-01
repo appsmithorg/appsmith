@@ -109,6 +109,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
+  static getLoadingProperties(): Array<RegExp> | undefined {
+    return [/.tableData$/];
+  }
+
   getTableColumns = () => {
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
@@ -167,7 +171,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isSelected: isSelected,
               onCommandClick: (action: string, onComplete: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
-              backgroundColor: cellProperties.buttonColor || "rgb(3, 179, 101)",
+              backgroundColor: cellProperties.buttonColor || "transparent",
               buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
               isDisabled: cellProperties.isDisabled || false,
               isCellVisible: cellProperties.isCellVisible ?? true,
@@ -223,7 +227,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               borderRadius: cellProperties.borderRadius,
               boxShadow: cellProperties.boxShadow,
               boxShadowColor: cellProperties.boxShadowColor,
-              iconName: cellProperties.iconName,
+              iconName: cellProperties.iconName || "add",
               iconAlign: cellProperties.iconAlign,
               isCellVisible: cellProperties.isCellVisible ?? true,
               label: cellProperties.menuButtonLabel ?? "Open menu",
@@ -822,7 +826,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           tableData={transformedData}
           totalRecordsCount={totalRecordsCount}
           triggerRowSelection={this.props.triggerRowSelection}
-          unSelectAllRow={this.resetSelectedRowIndex}
+          unSelectAllRow={this.unSelectAllRow}
           updatePageNo={this.updatePageNumber}
           widgetId={this.props.widgetId}
           widgetName={this.props.widgetName}
@@ -886,14 +890,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     onComplete?: () => void,
   ) => {
     try {
-      const rowData = [this.props.filteredTableData[rowIndex]];
+      const rowData = this.props.filteredTableData[rowIndex];
       this.props.updateWidgetMetaProperty(
         "triggeredRowIndex",
         this.props.filteredTableData[rowIndex].__originalIndex__,
       );
       const { jsSnippets } = getDynamicBindings(action);
       const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
-        return prev + `{{(currentRow) => { ${next} }}} `;
+        return prev + `{{ ${next} }} `;
       }, "");
       if (modifiedAction) {
         super.executeAction({
@@ -903,7 +907,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             type: EventType.ON_CLICK,
             callback: onComplete,
           },
-          responseData: rowData,
+          globalContext: { currentRow: rowData },
         });
       } else {
         onComplete?.();
@@ -1028,6 +1032,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         selectedRowIndices,
       );
     }
+  };
+  unSelectAllRow = () => {
+    this.props.updateWidgetMetaProperty("selectedRowIndices", []);
   };
 
   handlePrevPageClick = () => {

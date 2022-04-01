@@ -2,6 +2,7 @@ package com.external.plugins.utils;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -30,6 +31,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.RAW;
 
@@ -44,7 +46,7 @@ public class MongoPluginUtils {
     }
 
     public static Boolean isRawCommand(Map<String, Object> formData) {
-        String command = (String) formData.getOrDefault(COMMAND, null);
+        String command = (String) PluginUtils.getValueSafelyFromFormDataOrDefault(formData, COMMAND, null);
         return RAW.equals(command);
     }
 
@@ -53,7 +55,6 @@ public class MongoPluginUtils {
         if (formData != null && !formData.isEmpty()) {
             // If its not raw command, then it must be one of the mongo form commands
             if (!isRawCommand(formData)) {
-
                 // Parse the commands into raw appropriately
                 MongoCommand command = getMongoCommand(actionConfiguration);
                 if (!command.isValid()) {
@@ -66,7 +67,7 @@ public class MongoPluginUtils {
 
         // We reached here. This means either this is a RAW command input or some configuration error has happened
         // in which case, we default to RAW
-        return actionConfiguration.getBody();
+        return (String) PluginUtils.getValueSafelyFromFormData(formData, BODY);
     }
 
     private static MongoCommand getMongoCommand(ActionConfiguration actionConfiguration) throws AppsmithPluginException {
@@ -193,6 +194,19 @@ public class MongoPluginUtils {
         templates.addAll(
                 new Delete().generateTemplate(templateConfiguration)
         );
+
+        templates.addAll(
+                new Count().generateTemplate(templateConfiguration)
+        );
+
+        templates.addAll(
+                new Distinct().generateTemplate(templateConfiguration)
+        );
+
+        templates.addAll(
+                new Aggregate().generateTemplate(templateConfiguration)
+        );
+
     }
 
     public static String urlEncode(String text) {

@@ -32,21 +32,21 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>5.2.3.RELEASE</version>
+            <version>5.3.15</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <version>5.2.3.RELEASE</version>
+            <version>5.3.15</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webflux</artifactId>
-            <version>5.2.3.RELEASE</version>
+            <version>5.3.15</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.projectreactor</groupId>
@@ -185,7 +185,8 @@
                         <configuration>
                             <minimizeJar>false</minimizeJar>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
                                         <Plugin-Version>${plugin.version}</Plugin-Version>
                                         <Plugin-Id>${plugin.id}</Plugin-Id>

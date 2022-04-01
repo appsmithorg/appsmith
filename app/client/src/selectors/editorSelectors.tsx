@@ -9,7 +9,7 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
-import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
 import {
   getActions,
   getCanvasWidgets,
@@ -31,8 +31,13 @@ import { find, pick, sortBy } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import { APP_MODE } from "entities/App";
 import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
+import { Page } from "constants/ReduxActionConstants";
+import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
+import { builderURL } from "RouteBuilder";
+import { ApplicationVersion } from "actions/applicationActions";
 
-const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
+export const getWidgetConfigs = (state: AppState) =>
+  state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
 
 export const getProviderCategories = (state: AppState) =>
@@ -97,8 +102,28 @@ export const getCurrentLayoutId = (state: AppState) =>
 
 export const getPageList = (state: AppState) => state.entities.pageList.pages;
 
+export const getPageById = (pageId: string) =>
+  createSelector(getPageList, (pages: Page[]) =>
+    pages.find((page) => page.pageId === pageId),
+  );
+
 export const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
+
+export const selectCurrentPageSlug = createSelector(
+  getCurrentPageId,
+  getPageList,
+  (pageId, pages) =>
+    pages.find((page) => page.pageId === pageId)?.slug || PLACEHOLDER_PAGE_SLUG,
+);
+
+export const selectPageSlugToIdMap = createSelector(getPageList, (pages) =>
+  pages.reduce((acc, page: Page) => {
+    // Comeback
+    acc[page.pageId] = page.slug || "";
+    return acc;
+  }, {} as Record<string, string>),
+);
 
 export const getCurrentApplication = (state: AppState) =>
   state.ui.applications.currentApplication;
@@ -106,6 +131,31 @@ export const getCurrentApplication = (state: AppState) =>
 export const getCurrentApplicationId = (state: AppState) =>
   state.entities.pageList.applicationId ||
   ""; /** this is set during init can assume it to be defined */
+
+export const selectCurrentApplicationSlug = (state: AppState) =>
+  state.ui.applications.currentApplication?.slug || PLACEHOLDER_APP_SLUG;
+
+export const selectApplicationVersion = (state: AppState) =>
+  state.ui.applications.currentApplication?.applicationVersion ||
+  ApplicationVersion.DEFAULT;
+
+export const selectPageSlugById = (pageId: string) =>
+  createSelector(getPageList, (pages) => {
+    const page = pages.find((page) => page.pageId === pageId);
+    return page?.slug || PLACEHOLDER_PAGE_SLUG;
+  });
+
+export const selectURLSlugs = createSelector(
+  getCurrentApplication,
+  getPageList,
+  getCurrentPageId,
+  (application, pages, pageId) => {
+    const applicationSlug = application?.slug || PLACEHOLDER_APP_SLUG;
+    const currentPage = pages.find((page) => page.pageId === pageId);
+    const pageSlug = currentPage?.slug || PLACEHOLDER_PAGE_SLUG;
+    return { applicationSlug, pageSlug };
+  },
+);
 
 export const getRenderMode = (state: AppState) =>
   state.entities.app.mode === APP_MODE.EDIT
@@ -246,6 +296,24 @@ const getOccupiedSpacesForContainer = (
   });
 };
 
+const getWidgetSpacesForContainer = (
+  containerWidgetId: string,
+  widgets: FlattenedWidgetProps[],
+): WidgetSpace[] => {
+  return widgets.map((widget) => {
+    const occupiedSpace: WidgetSpace = {
+      id: widget.widgetId,
+      parentId: containerWidgetId,
+      left: widget.leftColumn,
+      top: widget.topRow,
+      bottom: widget.bottomRow,
+      right: widget.rightColumn,
+      type: widget.type,
+    };
+    return occupiedSpace;
+  });
+};
+
 export const getOccupiedSpaces = createSelector(
   getWidgets,
   (
@@ -312,6 +380,35 @@ export function getOccupiedSpacesSelectorForContainer(
   });
 }
 
+// same as getOccupiedSpaces but gets only the container specific ocupied Spaces
+export function getWidgetSpacesSelectorForContainer(
+  containerId: string | undefined,
+) {
+  return createSelector(getWidgets, (widgets: CanvasWidgetsReduxState):
+    | WidgetSpace[]
+    | undefined => {
+    if (containerId === null || containerId === undefined) return undefined;
+
+    const containerWidget: FlattenedWidgetProps = widgets[containerId];
+
+    if (!containerWidget || !containerWidget.children) return undefined;
+
+    // Get child widgets for the container
+    const childWidgets = Object.keys(widgets).filter(
+      (widgetId) =>
+        containerWidget.children &&
+        containerWidget.children.indexOf(widgetId) > -1 &&
+        !widgets[widgetId].detachFromLayout,
+    );
+
+    const occupiedSpaces = getWidgetSpacesForContainer(
+      containerId,
+      childWidgets.map((widgetId) => widgets[widgetId]),
+    );
+    return occupiedSpaces;
+  });
+}
+
 export const getActionById = createSelector(
   [getActions, (state: any, props: any) => props.match.params.apiId],
   (actions, id) => {
@@ -355,6 +452,9 @@ const createLoadingWidget = (
     validationPaths: {},
     logBlackList: {},
     isLoading: true,
+    propertyOverrideDependency: {},
+    overridingPropertyPaths: {},
+    privateWidgets: {},
   };
 };
 
@@ -404,3 +504,14 @@ export const getZoomLevel = (state: AppState) => {
  */
 export const getIsSavingEntity = (state: AppState) =>
   state.ui.editor.loadingStates.savingEntity;
+
+export const getEditorURL = createSelector(
+  getCurrentPageId,
+  selectURLSlugs,
+  (pageId: string, { applicationSlug, pageSlug }) =>
+    builderURL({
+      applicationSlug,
+      pageSlug,
+      pageId,
+    }),
+);

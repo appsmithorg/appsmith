@@ -1,6 +1,6 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { SelectedArenaDimensions } from "pages/common/CanvasSelectionArena";
-import { XYCord } from "utils/hooks/useCanvasDragging";
+import { SelectedArenaDimensions } from "pages/common/CanvasArenas/CanvasSelectionArena";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
 
 export const setCanvasSelectionFromEditor = (
   start: boolean,

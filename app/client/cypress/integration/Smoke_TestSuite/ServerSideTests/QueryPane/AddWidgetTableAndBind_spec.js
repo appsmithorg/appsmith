@@ -56,6 +56,9 @@ describe("Addwidget from Query and bind with other widgets", function() {
   });
 
   it("3. Input widget test with default value from table widget", () => {
+    cy.get(".t--entity-name")
+      .contains("WIDGETS")
+      .click();
     cy.SearchEntityandOpen("Input1");
     cy.get(widgetsPage.defaultInput).type(testdata.addInputWidgetBinding);
     cy.wait("@updateLayout").should(
@@ -77,5 +80,18 @@ describe("Addwidget from Query and bind with other widgets", function() {
         .invoke("attr", "value")
         .should("contain", tabValue);
     });
+  });
+
+  it("5. Input widget test with default value from table widget[Bug#4136]", () => {
+    cy.openPropertyPane("tablewidget");
+    cy.get(".t--propery-page-title").click({ force: true });
+    cy.get(".t--propery-page-title")
+      .type("TableUpdated", { delay: 300 })
+      .type("{enter}");
+    cy.wait("@updateWidgetName").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
   });
 });

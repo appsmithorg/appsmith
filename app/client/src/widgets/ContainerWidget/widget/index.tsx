@@ -14,10 +14,10 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
-import { CanvasSelectionArena } from "pages/common/CanvasSelectionArena";
+import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import { compact, map, sortBy } from "lodash";
 
-import { CanvasDraggingArena } from "pages/common/CanvasDraggingArena";
+import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -71,7 +71,7 @@ class ContainerWidget extends BaseWidget<
             helpText: "Use a html color name, HEX, RGB or RGBA value",
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
             propertyName: "backgroundColor",
-            label: "Background Colour",
+            label: "Background Color",
             controlType: "COLOR_PICKER",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -81,7 +81,7 @@ class ContainerWidget extends BaseWidget<
             helpText: "Use a html color name, HEX, RGB or RGBA value",
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
             propertyName: "borderColor",
-            label: "Border Colour",
+            label: "Border Color",
             controlType: "COLOR_PICKER",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -221,6 +221,7 @@ class ContainerWidget extends BaseWidget<
               canExtend={props.canExtend}
               dropDisabled={!!props.dropDisabled}
               noPad={this.props.noPad}
+              parentId={props.parentId}
               snapRows={snapRows}
               widgetId={props.widgetId}
             />

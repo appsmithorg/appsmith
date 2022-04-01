@@ -106,9 +106,15 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             propertyName: "dividerColor",
             label: "Divider Color",
             controlType: "COLOR_PICKER",
-            isBindProperty: false,
+            isBindProperty: true,
             isJSConvertible: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
           },
           {
             helpText: "Controls the type of divider cap",
@@ -136,14 +142,22 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
                 iconSize: "large",
               },
             ],
-            isBindProperty: false,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["nc", "arrow", "dot"],
+                required: true,
+                default: "nc",
+              },
+            },
           },
           {
             helpText:
-              "Controls hide/show divider cap on start or end of divider",
+              "Changes the position of the cap if a valid cap is selected.",
             propertyName: "capSide",
-            label: "",
+            label: "Cap Position",
             controlType: "ICON_TABS",
             options: [
               {
@@ -163,8 +177,6 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             defaultValue: "0",
             isBindProperty: false,
             isTriggerProperty: false,
-            hidden: (props: DividerWidgetProps) => props.capType === "nc",
-            dependencies: ["capType"],
           },
         ],
       },

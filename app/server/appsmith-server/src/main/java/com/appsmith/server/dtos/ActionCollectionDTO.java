@@ -6,6 +6,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.exceptions.AppsmithError;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 
 @Getter
 @Setter
@@ -45,6 +46,7 @@ public class ActionCollectionDTO {
 
     PluginType pluginType;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
     Instant deletedAt;
 
     // TODO can be used as template for new actions in collection,

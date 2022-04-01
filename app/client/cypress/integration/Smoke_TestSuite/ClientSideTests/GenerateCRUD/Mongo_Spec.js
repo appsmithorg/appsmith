@@ -1,6 +1,6 @@
 const pages = require("../../../../locators/Pages.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
-import homePage from "../../../../locators/HomePage.json";
+import homePage from "../../../../locators/HomePage";
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 
 describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
@@ -12,7 +12,7 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
   });
 
   beforeEach(function() {
-    if (Cypress.env("Mongo") == 0) {
+    if (Cypress.env("Mongo") === 0) {
       cy.log("Mongo DB is not found. Using intercept");
       cy.startInterceptRoutesForMongo();
     } else cy.log("Mongo DB is found, hence using actual DB");
@@ -22,7 +22,7 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MongoDB).click({ force: true });
 
-    if (Cypress.env("Mongo") == 0) cy.fillMongoDatasourceFormWithURI();
+    if (Cypress.env("Mongo") === 0) cy.fillMongoDatasourceFormWithURI();
     else cy.fillMongoDatasourceForm();
 
     cy.generateUUID().then((uid) => {
@@ -33,11 +33,11 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
 
     //TestData source
 
-    cy.get(".t--test-datasource").click();
+    cy.get(".t--test-datasource").click({ force: true });
     cy.wait("@testDatasource");
 
     //Save source
-    cy.get(".t--save-datasource").click();
+    cy.get(".t--save-datasource").click({ force: true });
 
     //Verify page after save clicked
     cy.get("@createDatasource").then((httpResponse) => {
@@ -114,7 +114,7 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
 
     cy.get(datasource.MongoDB).click();
 
-    if (Cypress.env("Mongo") == 0) cy.fillMongoDatasourceFormWithURI();
+    if (Cypress.env("Mongo") === 0) cy.fillMongoDatasourceFormWithURI();
     else cy.fillMongoDatasourceForm();
 
     cy.generateUUID().then((uid) => {
@@ -124,11 +124,11 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
     });
 
     //TestData source
-    cy.get(".t--test-datasource").click();
+    cy.get(".t--test-datasource").click({ force: true });
     cy.wait("@testDatasource");
 
     //Save source
-    cy.get(".t--save-datasource").click();
+    cy.get(".t--save-datasource").click({ force: true });
 
     //Generate Stub for tables dropdown values also
     cy.wait("@getDatasourceStructure").should(

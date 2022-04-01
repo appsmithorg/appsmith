@@ -10,11 +10,11 @@ const StyledDialog = styled(Dialog)<{
   maxHeight?: string;
   maxWidth?: string;
   showHeaderUnderline?: boolean;
+  noModalBodyMarginTop?: boolean;
 }>`
   && {
     border-radius: 0;
-    padding: 22px;
-    padding-bottom: 28px;
+    padding: 24px;
     background: ${(props) => props.theme.colors.modal.bg};
     ${(props) => (props.maxHeight ? `max-height: ${props.maxHeight};` : "")}
     width: ${(props) => props.width || "640px"};
@@ -23,8 +23,7 @@ const StyledDialog = styled(Dialog)<{
 
     & .${Classes.DIALOG_HEADER} {
       position: relative;
-      padding: 0px;
-      padding-bottom: 0;
+      padding: 0;
       background: ${(props) => props.theme.colors.modal.bg};
       box-shadow: none;
       .${Classes.ICON} {
@@ -51,6 +50,8 @@ const StyledDialog = styled(Dialog)<{
 
       svg {
         fill: ${Colors.CHARCOAL};
+        width: 24px;
+        height: 24px;
       }
     }
 
@@ -76,8 +77,8 @@ const StyledDialog = styled(Dialog)<{
         : ""}
 
     & .${Classes.DIALOG_BODY} {
-      padding-top: ${(props) => props.theme.spaces[4]}px;
       margin: 0;
+      margin-top: ${(props) => (props.noModalBodyMarginTop ? "0px" : "24px")};
       overflow: auto;
     }
 
@@ -92,6 +93,10 @@ const HeaderIconWrapper = styled.div<{ bgColor?: string }>`
   border-radius: 50%;
   margin-right: 10px;
   background: ${(props) => props.bgColor || props.theme.colors.modal.iconBg};
+  cursor: default;
+  .cs-icon svg {
+    cursor: default;
+  }
 `;
 
 type DialogComponentProps = {
@@ -99,6 +104,7 @@ type DialogComponentProps = {
   canOutsideClickClose?: boolean;
   title?: string;
   headerIcon?: {
+    clickable?: boolean;
     name: IconName;
     fillColor?: string;
     hoverColor?: string;
@@ -118,6 +124,7 @@ type DialogComponentProps = {
   canEscapeKeyClose?: boolean;
   className?: string;
   maxWidth?: string;
+  noModalBodyMarginTop?: boolean;
 };
 
 export function DialogComponent(props: DialogComponentProps) {
@@ -138,6 +145,7 @@ export function DialogComponent(props: DialogComponentProps) {
   const headerIcon = props.headerIcon ? (
     <HeaderIconWrapper bgColor={props.headerIcon.bgColor}>
       <Icon
+        clickable={props.headerIcon?.clickable}
         fillColor={props.headerIcon.fillColor}
         hoverFillColor={props.headerIcon.hoverColor}
         name={props.headerIcon.name}
@@ -167,6 +175,7 @@ export function DialogComponent(props: DialogComponentProps) {
         isOpen={isOpen}
         maxHeight={props.maxHeight}
         maxWidth={props.maxWidth}
+        noModalBodyMarginTop={props.noModalBodyMarginTop}
         onClose={onClose}
         onOpening={props.onOpening}
         setMaxWidth={props.setMaxWidth}

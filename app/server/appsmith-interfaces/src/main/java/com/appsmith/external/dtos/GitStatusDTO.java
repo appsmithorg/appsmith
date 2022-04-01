@@ -1,5 +1,6 @@
 package com.appsmith.external.dtos;
 
+import com.appsmith.external.constants.Assets;
 import lombok.Data;
 
 import java.util.Set;
@@ -10,8 +11,14 @@ import java.util.Set;
 @Data
 public class GitStatusDTO {
 
-        // Name of modified, added and deleted resources for local git repo
+        // Name of modified, added and deleted resources in local git repo
         Set<String> modified;
+
+        // Name of added resources to local git repo
+        Set<String> added;
+
+        // Name of deleted resources from local git repo
+        Set<String> removed;
 
         // Name of conflicting resources
         Set<String> conflicting;
@@ -24,6 +31,12 @@ public class GitStatusDTO {
         // # of modified actions
         Long modifiedQueries;
 
+        // # of modified JSObjects
+        Long modifiedJSObjects;
+
+        // # of modified JSObjects
+        Long modifiedDatasources;
+
         // # of local commits which are not present in remote repo
         Integer aheadCount;
 
@@ -32,4 +45,7 @@ public class GitStatusDTO {
 
         // Remote tracking branch name
         String remoteBranch;
+
+        // Documentation url for discard and pull functionality
+        String discardDocUrl = Assets.GIT_DISCARD_DOC_URL;
 }

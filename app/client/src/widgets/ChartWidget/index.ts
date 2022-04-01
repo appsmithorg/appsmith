@@ -1,8 +1,7 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "./constants";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -10,8 +9,8 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    rows: 8 * GRID_DENSITY_MIGRATION_V1,
-    columns: 6 * GRID_DENSITY_MIGRATION_V1,
+    rows: 32,
+    columns: 24,
     widgetName: "Chart",
     chartType: "COLUMN_CHART",
     chartName: "Sales Report",

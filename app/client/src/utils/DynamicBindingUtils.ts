@@ -17,6 +17,7 @@ export type DependencyMap = Record<string, Array<string>>;
 export type FormEditorConfigs = Record<string, any[]>;
 export type FormSettingsConfigs = Record<string, any[]>;
 export type FormDependencyConfigs = Record<string, DependencyMap>;
+export type FormDatasourceButtonConfigs = Record<string, string[]>;
 
 // referencing DATA_BIND_REGEX fails for the value "{{Table1.tableData[Table1.selectedRowIndex]}}" if you run it multiple times and don't recreate
 export const isDynamicValue = (value: string): boolean =>
@@ -132,8 +133,6 @@ export enum EVAL_WORKER_ACTIONS {
   EVAL_ACTION_BINDINGS = "EVAL_ACTION_BINDINGS",
   EVAL_TRIGGER = "EVAL_TRIGGER",
   PROCESS_TRIGGER = "PROCESS_TRIGGER",
-  CLEAR_PROPERTY_CACHE = "CLEAR_PROPERTY_CACHE",
-  CLEAR_PROPERTY_CACHE_OF_WIDGET = "CLEAR_PROPERTY_CACHE_OF_WIDGET",
   CLEAR_CACHE = "CLEAR_CACHE",
   VALIDATE_PROPERTY = "VALIDATE_PROPERTY",
   UNDO = "undo",
@@ -141,6 +140,7 @@ export enum EVAL_WORKER_ACTIONS {
   EVAL_EXPRESSION = "EVAL_EXPRESSION",
   UPDATE_REPLAY_OBJECT = "UPDATE_REPLAY_OBJECT",
   SET_EVALUATION_VERSION = "SET_EVALUATION_VERSION",
+  INIT_FORM_EVAL = "INIT_FORM_EVAL",
   EXECUTE_SYNC_JS = "EXECUTE_SYNC_JS",
 }
 
@@ -308,10 +308,13 @@ export const unsafeFunctionForEval = [
 export const isChildPropertyPath = (
   parentPropertyPath: string,
   childPropertyPath: string,
-): boolean =>
-  parentPropertyPath === childPropertyPath ||
-  childPropertyPath.startsWith(`${parentPropertyPath}.`) ||
-  childPropertyPath.startsWith(`${parentPropertyPath}[`);
+): boolean => {
+  return (
+    parentPropertyPath === childPropertyPath ||
+    childPropertyPath.startsWith(`${parentPropertyPath}.`) ||
+    childPropertyPath.startsWith(`${parentPropertyPath}[`)
+  );
+};
 
 /**
  * Paths set via evaluator on entities
@@ -329,27 +332,78 @@ export const EVALUATION_PATH = "__evaluation__";
 export const EVAL_ERROR_PATH = `${EVALUATION_PATH}.errors`;
 export const EVAL_VALUE_PATH = `${EVALUATION_PATH}.evaluatedValues`;
 
+/**
+ * non-populated object 
+ {
+   __evaluation__:{
+     evaluatedValues:{
+       primaryColumns: [...],
+       primaryColumns.status: {...},
+       primaryColumns.action: {...}
+     }
+   }
+ }
+
+ * Populated Object
+ {
+   __evaluation__:{
+     evaluatedValues:{
+       primaryColumns: {
+         status: [...],
+         action:[...]
+        }
+     }
+   }
+ }
+
+ */
 const getNestedEvalPath = (
   fullPropertyPath: string,
   pathType: string,
   fullPath = true,
+  isPopulated = false,
 ) => {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(
     fullPropertyPath,
   );
-  const nestedPath = `${pathType}.['${propertyPath}']`;
+  const nestedPath = isPopulated
+    ? `${pathType}.${propertyPath}`
+    : `${pathType}.['${propertyPath}']`;
+
   if (fullPath) {
     return `${entityName}.${nestedPath}`;
   }
   return nestedPath;
 };
 
-export const getEvalErrorPath = (fullPropertyPath: string, fullPath = true) => {
-  return getNestedEvalPath(fullPropertyPath, EVAL_ERROR_PATH, fullPath);
+export const getEvalErrorPath = (
+  fullPropertyPath: string,
+  options = {
+    fullPath: true,
+    isPopulated: false,
+  },
+) => {
+  return getNestedEvalPath(
+    fullPropertyPath,
+    EVAL_ERROR_PATH,
+    options.fullPath,
+    options.isPopulated,
+  );
 };
 
-export const getEvalValuePath = (fullPropertyPath: string, fullPath = true) => {
-  return getNestedEvalPath(fullPropertyPath, EVAL_VALUE_PATH, fullPath);
+export const getEvalValuePath = (
+  fullPropertyPath: string,
+  options = {
+    fullPath: true,
+    isPopulated: false,
+  },
+) => {
+  return getNestedEvalPath(
+    fullPropertyPath,
+    EVAL_VALUE_PATH,
+    options.fullPath,
+    options.isPopulated,
+  );
 };
 
 export enum PropertyEvaluationErrorType {
