@@ -83,7 +83,7 @@ export function Pagination(props: {
         <FormControl
           config={{
             ...limitFieldConfig,
-            label: "Limit",
+            label: "Pagination Limit",
             customStyles,
             configProperty: limitPath,
             placeholderText:
@@ -101,7 +101,7 @@ export function Pagination(props: {
         <FormControl
           config={{
             ...offsetFieldConfig,
-            label: "Offset",
+            label: "Pagination Offset",
             customStyles,
             configProperty: offsetPath,
             placeholderText:
@@ -112,7 +112,7 @@ export function Pagination(props: {
           formName={formName}
         />
         <StyledFormLabel>
-          No of rows that are skipped before starting to count.
+          No. of rows to be skipped before querying
         </StyledFormLabel>
       </FormControlContainer>
     </div>

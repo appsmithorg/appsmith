@@ -102,9 +102,6 @@ const StyledFormLabel = styled.label<{
         props.config?.controlType === "CHECKBOX"
       ? "auto;"
       : "20vw;"} 
-  margin-left: ${(props) =>
-    // margin required for CHECKBOX
-    props.config?.controlType === "CHECKBOX" ? "0px;" : "16px;"} 
   font-weight: 400;
   font-size: 14px;
   line-height: 16px;

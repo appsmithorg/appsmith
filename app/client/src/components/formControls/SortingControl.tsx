@@ -179,7 +179,7 @@ function SortingComponent(props: any) {
         }
       >
         <Icon name="add-more-fill" size={IconSize.XL} />
-        <StyledBottomLabel>Add Another sort Parameter</StyledBottomLabel>
+        <StyledBottomLabel>Add Parameter</StyledBottomLabel>
       </StyledBottomLabelContainer>
     </SortingContainer>
   );

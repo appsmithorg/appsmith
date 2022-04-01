@@ -31,15 +31,6 @@ const EntitySelectorWrapper = styled.div<{ marginRight: string }>`
 function EntitySelectorComponent(props: any) {
   const { configProperty, schema } = props;
 
-  const maxWidthOfComponents = 45;
-  let width = 15;
-  if (schema.length > 0) {
-    width = maxWidthOfComponents / schema.length;
-  }
-  const customStyles = {
-    width: `${width}vw`,
-  };
-
   const visibleSchemas = schema.filter(
     (singleSchema: any) => !singleSchema.hidden,
   );
@@ -61,7 +52,6 @@ function EntitySelectorComponent(props: any) {
                     config={{
                       ...dropDownFieldConfig,
                       ...singleSchema,
-                      customStyles,
                       key: `ES_${singleSchema.configProperty}`,
                     }}
                     formName={props.formName}
@@ -71,7 +61,6 @@ function EntitySelectorComponent(props: any) {
                     config={{
                       ...inputFieldConfig,
                       ...singleSchema,
-                      customStyles,
                       key: `ES_${singleSchema.configProperty}`,
                     }}
                     formName={props.formName}
