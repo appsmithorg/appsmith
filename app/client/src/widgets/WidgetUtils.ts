@@ -29,6 +29,7 @@ import { SchemaItem } from "./JSONFormWidget/constants";
 import { find, isEmpty } from "lodash";
 import { rgbaMigrationConstantV56 } from "./constants";
 import { DynamicPath } from "utils/DynamicBindingUtils";
+import { isArray } from "lodash";
 
 const punycode = require("punycode/");
 
