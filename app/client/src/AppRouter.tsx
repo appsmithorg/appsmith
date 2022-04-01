@@ -56,7 +56,7 @@ import { Theme } from "constants/DefaultTheme";
 import { ERROR_CODES } from "ce/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
 import { fetchFeatureFlagsInit } from "actions/userActions";
-import FeatureFlag from "entities/FeatureFlag";
+import FeatureFlags from "entities/FeatureFlags";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -82,7 +82,7 @@ function AppRouter(props: {
   getFeatureFlags: () => void;
   currentTheme: Theme;
   safeCrashCode?: ERROR_CODES;
-  featureFlags: FeatureFlag;
+  featureFlags: FeatureFlags;
   setTheme: (theme: ThemeMode) => void;
 }) {
   const { featureFlags, getCurrentUser, getFeatureFlags } = props;

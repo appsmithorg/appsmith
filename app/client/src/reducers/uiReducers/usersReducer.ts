@@ -11,7 +11,7 @@ import {
   DefaultCurrentUserDetails,
   User,
 } from "constants/userConstants";
-import FeatureFlag from "entities/FeatureFlag";
+import FeatureFlags from "entities/FeatureFlags";
 
 const initialState: UsersReduxState = {
   loadingStates: {
@@ -161,7 +161,7 @@ const usersReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS]: (
     state: UsersReduxState,
-    action: ReduxAction<FeatureFlag>,
+    action: ReduxAction<FeatureFlags>,
   ) => ({
     ...state,
     featureFlag: {
@@ -210,7 +210,7 @@ export interface UsersReduxState {
   propPanePreferences?: PropertyPanePositionConfig;
   featureFlag: {
     isFetched: boolean;
-    data: FeatureFlag;
+    data: FeatureFlags;
   };
 }
 

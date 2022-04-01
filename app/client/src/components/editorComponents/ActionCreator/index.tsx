@@ -60,7 +60,7 @@ import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { selectFeatureFlags } from "selectors/usersSelectors";
-import FeatureFlag from "entities/FeatureFlag";
+import FeatureFlags from "entities/FeatureFlags";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -127,7 +127,7 @@ const baseOptions: { label: string; value: string }[] = [
   },
 ];
 
-const getBaseOptions = (featureFlags: FeatureFlag) => {
+const getBaseOptions = (featureFlags: FeatureFlags) => {
   const { JS_EDITOR: isJSEditorEnabled } = featureFlags;
   if (isJSEditorEnabled) {
     const jsOption = baseOptions.find(
@@ -414,7 +414,7 @@ function getIntegrationOptionsWithChildren(
   jsActions: Array<JSCollectionData>,
   createIntegrationOption: TreeDropdownOption,
   dispatch: any,
-  featureFlags: FeatureFlag,
+  featureFlags: FeatureFlags,
 ) {
   const { JS_EDITOR: isJSEditorEnabled } = featureFlags;
   const createJSObject: TreeDropdownOption = {

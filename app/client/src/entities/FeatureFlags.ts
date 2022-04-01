@@ -1,4 +1,4 @@
-type FeatureFlag = {
+type FeatureFlags = {
   APP_TEMPLATE?: boolean;
   JS_EDITOR?: boolean;
   MULTIPLAYER?: boolean;
@@ -7,4 +7,4 @@ type FeatureFlag = {
   GIT_IMPORT?: boolean;
 };
 
-export default FeatureFlag;
+export default FeatureFlags;
