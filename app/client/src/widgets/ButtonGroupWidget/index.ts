@@ -107,8 +107,11 @@ export const CONFIG = {
             );
 
             Object.keys(groupButtons).map((groupButtonKey) => {
-              groupButtons[groupButtonKey].buttonColor =
-                widget.childStylesheets.BUTTON.buttonColor;
+              groupButtons[groupButtonKey].buttonColor = get(
+                widget,
+                "defaultProperties.buttonColor",
+                "{{appsmith.theme.colors.primaryColor}}",
+              );
 
               dynamicBindingPathList.push({
                 key: `groupButtons.${groupButtonKey}.buttonColor`,

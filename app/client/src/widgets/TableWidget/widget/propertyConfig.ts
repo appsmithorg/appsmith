@@ -54,7 +54,7 @@ export default [
         controlType: "PRIMARY_COLUMNS",
         label: "Columns",
         updateHook: updateDerivedColumnsHook,
-        dependencies: ["derivedColumns", "columnOrder"],
+        dependencies: ["derivedColumns", "columnOrder", "defaultProperties"],
         isBindProperty: false,
         isTriggerProperty: false,
         validation: {
@@ -1014,7 +1014,10 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                    },
                   },
                 },
                 {
@@ -1040,7 +1043,10 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TABLE_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                    },
                   },
                 },
                 {
@@ -1081,6 +1087,7 @@ export default [
                     "Sets the custom color preset based on the menu button variant",
                   label: "Menu Color",
                   controlType: "COLOR_PICKER",
+                  customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,

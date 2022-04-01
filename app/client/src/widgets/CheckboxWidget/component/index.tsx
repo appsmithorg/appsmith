@@ -20,6 +20,10 @@ const CheckboxContainer = styled.div<{
 
     &.${Alignment.RIGHT} {
       justify-content: flex-end;
+
+      label {
+        flex-direction: row-reverse;
+      }
     }
   }
 `;
