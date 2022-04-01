@@ -21,6 +21,7 @@ import {
   RATING_TITLE,
 } from "@appsmith/constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
 import { builderURL } from "RouteBuilder";
 
 const Container = styled.div`
@@ -124,7 +125,7 @@ function CongratulationsView() {
               emptySymbol={
                 <Icon
                   className={"t--guided-tour-rating star"}
-                  fillColor={"#858282"}
+                  fillColor={Colors.GREY_7}
                   name="star-line"
                   size={IconSize.XXXXL}
                 />
