@@ -1,13 +1,12 @@
-import { ApiPage } from "../../../../support/Pages/ApiPage";
-import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
-import { HomePage } from "../../../../support/Pages/HomePage";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry"
 
-const apiPage = new ApiPage();
-const agHelper = new AggregateHelper();
-const homePage = new HomePage();
+let dsl: any;
+let agHelper = ObjectsRegistry.AggregateHelper,
+    homePage = ObjectsRegistry.HomePage,
+    ee = ObjectsRegistry.EntityExplorer,
+    apiPage = ObjectsRegistry.ApiPage;
 
 describe("Layout OnLoad Actions tests", function() {
-  let dsl: any;
   before(() => {
     cy.fixture("onPageLoadActionsDsl").then((val: any) => {
       dsl = val;
@@ -16,8 +15,8 @@ describe("Layout OnLoad Actions tests", function() {
 
   it("1. Bug 8595: OnPageLoad execution - when No api to run on Pageload", function() {
     agHelper.AddDsl(dsl);
-    agHelper.SelectEntityByName("WIDGETS");
-    agHelper.SelectEntityByName("Page1");
+    ee.SelectEntityByName("WIDGETS");
+    ee.SelectEntityByName("Page1");
     cy.url().then((url) => {
       const pageid = url.split("/")[4]?.split("-").pop();
       cy.log(pageid + "page id");
@@ -55,8 +54,8 @@ describe("Layout OnLoad Actions tests", function() {
     apiPage.CreateAndFillApi("https://api.genderize.io", "Genderize");
     apiPage.EnterParams("name", "{{RandomUser.data.results[0].name.first}}");
     apiPage.RunAPI();
-    agHelper.SelectEntityByName("WIDGETS");
-    agHelper.SelectEntityByName("Page1");
+    ee.SelectEntityByName("WIDGETS");
+    ee.SelectEntityByName("Page1");
 
     cy.url().then((url) => {
       const pageid = url.split("/")[4]?.split("-").pop();
@@ -132,8 +131,8 @@ describe("Layout OnLoad Actions tests", function() {
       value: "{{RandomUser.data.results[0].name.first}}",
     }); // verifies Bug 10055
     apiPage.RunAPI();
-    agHelper.SelectEntityByName("WIDGETS");
-    agHelper.SelectEntityByName("Page1");
+    ee.SelectEntityByName("WIDGETS");
+    ee.SelectEntityByName("Page1");
 
     cy.url().then((url) => {
       const pageid = url.split("/")[4]?.split("-").pop();
