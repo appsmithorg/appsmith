@@ -72,7 +72,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
       expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{FormTest.isVisible}}");
       expect($lis.eq(1)).to.contain("{{FormTest.data}}");
-      expect($lis.eq(1)).to.contain("{{FormTest.hasChanges}}");
+      expect($lis.eq(2)).to.contain("{{FormTest.hasChanges}}");
     });
   });
 });
