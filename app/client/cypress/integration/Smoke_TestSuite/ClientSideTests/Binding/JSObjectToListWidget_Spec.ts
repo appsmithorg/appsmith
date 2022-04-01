@@ -52,8 +52,14 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
 
         table.AssertPageNumber_List(1)
         table.NavigateToNextPage_List()
-        table.AssertPageNumber_List(2, true)
-        cy.get(locator._textWidgetInDeployed).should("have.length", 2);
+        table.AssertPageNumber_List(2)
+        cy.get(locator._textWidgetInDeployed).should("have.length", 8);
+        table.NavigateToNextPage_List()
+        table.AssertPageNumber_List(3, true)
+        cy.get(locator._textWidgetInDeployed).should("have.length", 4);
+        table.NavigateToPreviousPage_List()
+        table.AssertPageNumber_List(2)
+        cy.get(locator._textWidgetInDeployed).should("have.length", 8);
         table.NavigateToPreviousPage_List()
         table.AssertPageNumber_List(1)
         cy.get(locator._textWidgetInDeployed).should("have.length", 8);
@@ -74,12 +80,25 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
             });
 
         table.AssertPageNumber_List(1)
+        cy.get(locator._textWidgetInDeployed).should("have.length", 6);
         table.NavigateToNextPage_List()
-        table.AssertPageNumber_List(2, true)
-        cy.get(locator._textWidgetInDeployed).should("have.length", 4);
+        table.AssertPageNumber_List(2)
+        cy.get(locator._textWidgetInDeployed).should("have.length", 6);
+        table.NavigateToNextPage_List()
+        table.AssertPageNumber_List(3)
+        cy.get(locator._textWidgetInDeployed).should("have.length", 6);
+        table.NavigateToNextPage_List()
+        table.AssertPageNumber_List(4, true)
+        cy.get(locator._textWidgetInDeployed).should("have.length", 2)
+        table.NavigateToPreviousPage_List()
+        table.AssertPageNumber_List(3)
+        cy.get(locator._textWidgetInDeployed).should("have.length", 6);
+        table.NavigateToPreviousPage_List()
+        table.AssertPageNumber_List(2)
+        cy.get(locator._textWidgetInDeployed).should("have.length", 6);
         table.NavigateToPreviousPage_List()
         table.AssertPageNumber_List(1)
-        cy.get(locator._textWidgetInDeployed).should("have.length", 8);
+        cy.get(locator._textWidgetInDeployed).should("have.length", 6);
         //agHelper.NavigateBacktoEditor()
     });
 });

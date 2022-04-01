@@ -119,6 +119,7 @@ export class Table {
     cy.xpath(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
       curPageNo = Number($currentPageNo))
     cy.get(this._liNextPage).click()
+    cy.scrollTo('top', { easing: 'linear' })
     cy.xpath(this._liCurrentSelectedPage).invoke('text').then($newPageNo =>
       expect(Number($newPageNo)).to.eq(curPageNo + 1))
   }
@@ -128,6 +129,7 @@ export class Table {
     cy.xpath(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
       curPageNo = Number($currentPageNo))
     cy.get(this._liPreviousPage).click()
+    cy.scrollTo('top', { easing: 'linear' })
     cy.xpath(this._liCurrentSelectedPage).invoke('text').then($newPageNo =>
       expect(Number($newPageNo)).to.eq(curPageNo - 1))
   }
