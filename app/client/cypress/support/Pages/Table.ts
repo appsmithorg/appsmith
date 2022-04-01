@@ -116,28 +116,28 @@ export class Table {
   //List methods - keeping it for now!
   public NavigateToNextPage_List() {
     let curPageNo: number;
-    cy.get(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
+    cy.xpath(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
       curPageNo = Number($currentPageNo))
     cy.get(this._liNextPage).click()
-    cy.get(this._liCurrentSelectedPage).invoke('text').then($newPageNo =>
+    cy.xpath(this._liCurrentSelectedPage).invoke('text').then($newPageNo =>
       expect(Number($newPageNo)).to.eq(curPageNo + 1))
   }
 
   public NavigateToPreviousPage_List() {
     let curPageNo: number;
-    cy.get(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
+    cy.xpath(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
       curPageNo = Number($currentPageNo))
     cy.get(this._liPreviousPage).click()
-    cy.get(this._liCurrentSelectedPage).invoke('text').then($newPageNo =>
+    cy.xpath(this._liCurrentSelectedPage).invoke('text').then($newPageNo =>
       expect(Number($newPageNo)).to.eq(curPageNo - 1))
   }
 
   public AssertPageNumber_List(pageNo: number, checkNoNextPage = false) {
-    cy.get(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
+    cy.xpath(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
       expect(Number($currentPageNo)).to.eq(pageNo))
 
     if (pageNo == 1)
-      cy.get(this._liPreviousPage).should("have.attr", "aria-disabled", 'disabled')
+      cy.get(this._liPreviousPage).should("have.attr", "aria-disabled", 'true')
 
     if (checkNoNextPage)
       cy.get(this._liNextPage).should("have.attr", "aria-disabled", 'true')
