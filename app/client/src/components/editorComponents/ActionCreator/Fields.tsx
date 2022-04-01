@@ -232,6 +232,7 @@ export const ActionType = {
   getGeolocation: "appsmith.geolocation.getCurrentPosition",
   watchGeolocation: "appsmith.geolocation.watchPosition",
   stopWatchGeolocation: "appsmith.geolocation.clearWatch",
+  postMessage: "postMessage",
 };
 type ActionType = typeof ActionType[keyof typeof ActionType];
 
@@ -355,6 +356,7 @@ export enum FieldType {
   DELAY_FIELD = "DELAY_FIELD",
   ID_FIELD = "ID_FIELD",
   CLEAR_INTERVAL_ID_FIELD = "CLEAR_INTERVAL_ID_FIELD",
+  // TODO - see if post message needs to accept any arguments and add them here
 }
 
 type FieldConfig = {
@@ -407,6 +409,9 @@ const fieldConfigs: FieldConfigs = {
           break;
         case ActionType.resetWidget:
           defaultParams = `"",true`;
+          break;
+        case ActionType.postMessage:
+          defaultParams = "() => { \n\t // add code here \n}";
           break;
         default:
           break;

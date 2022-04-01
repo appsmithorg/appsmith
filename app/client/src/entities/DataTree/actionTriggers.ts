@@ -18,6 +18,7 @@ export enum ActionTriggerType {
   WATCH_CURRENT_LOCATION = "WATCH_CURRENT_LOCATION",
   STOP_WATCHING_CURRENT_LOCATION = "STOP_WATCHING_CURRENT_LOCATION",
   CONFIRMATION_MODAL = "CONFIRMATION_MODAL",
+  POST_MESSAGE = "POST_MESSAGE",
 }
 
 export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
@@ -37,6 +38,7 @@ export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
   [ActionTriggerType.WATCH_CURRENT_LOCATION]: "watchLocation",
   [ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION]: "stopWatch",
   [ActionTriggerType.CONFIRMATION_MODAL]: "ConfirmationModal",
+  [ActionTriggerType.POST_MESSAGE]: "postMessage",
 };
 
 export type RunPluginActionDescription = {
@@ -166,6 +168,13 @@ export type ConfirmationModal = {
   payload?: Record<string, any>;
 };
 
+export type PostMessageDescription = {
+  type: ActionTriggerType.POST_MESSAGE;
+  payload: {
+    callback: string;
+  };
+};
+
 export type ActionDescription =
   | RunPluginActionDescription
   | ClearPluginActionDescription
@@ -182,4 +191,5 @@ export type ActionDescription =
   | GetCurrentLocationDescription
   | WatchCurrentLocationDescription
   | StopWatchingCurrentLocationDescription
-  | ConfirmationModal;
+  | ConfirmationModal
+  | PostMessageDescription;
