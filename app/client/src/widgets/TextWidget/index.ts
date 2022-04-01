@@ -1,3 +1,4 @@
+import { OverflowTypes } from "./constants";
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { DEFAULT_FONT_SIZE } from "constants/ThemeConstants";
@@ -16,8 +17,8 @@ export const CONFIG = {
     rows: 4,
     columns: 16,
     widgetName: "Text",
-    shouldScroll: false,
     shouldTruncate: false,
+    overflow: OverflowTypes.NONE,
     version: 1,
     animateLoading: true,
   },

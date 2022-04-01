@@ -1,12 +1,10 @@
-import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
-import { JSEditor } from "../../../../support/Pages/JSEditor";
-import { CommonLocators } from "../../../../support/Objects/CommonLocators";
-
-const agHelper = new AggregateHelper();
-const jsEditor = new JSEditor();
-const locator = new CommonLocators();
+import { ObjectsRegistry } from "../../../../support/Objects/Registry"
 
 let dataSet: any, dsl: any;
+let agHelper = ObjectsRegistry.AggregateHelper,
+    ee = ObjectsRegistry.EntityExplorer,
+    jsEditor = ObjectsRegistry.JSEditor,
+    locator = ObjectsRegistry.CommonLocators;
 
 describe("Input widget test with default value from chart datapoint", () => {
 
@@ -21,14 +19,14 @@ describe("Input widget test with default value from chart datapoint", () => {
     });
 
     it("1. Input widget test with default value from another Input widget", () => {
-        agHelper.expandCollapseEntity("WIDGETS")
-        agHelper.SelectEntityByName("Input1")
+        ee.expandCollapseEntity("WIDGETS")
+        ee.SelectEntityByName("Input1")
         jsEditor.EnterJSContext("defaulttext", dataSet.bindChartData + "}}");
-        agHelper.ValidateNetworkCallRespPut('@updateLayout')
+        agHelper.ValidateNetworkStatus('@updateLayout')
     });
 
     it("2. Chart with datapoint feature validation", function () {
-        agHelper.SelectEntityByName("Chart1")
+        ee.SelectEntityByName("Chart1")
         agHelper.SelectPropertiesDropDown("ondatapointclick", "Show message")
         agHelper.EnterActionValue("Message", dataSet.bindingDataPoint)
         agHelper.XpathNClick("(//*[local-name()='rect'])[13]")
@@ -40,7 +38,7 @@ describe("Input widget test with default value from chart datapoint", () => {
     })
 
     it("3. Chart with seriesTitle feature validation", function () {
-        agHelper.SelectEntityByName("Input2")
+        ee.SelectEntityByName("Input2")
         jsEditor.EnterJSContext("defaulttext", dataSet.bindingSeriesTitle + "}}");
         cy.get(locator._inputWidget).last().should("have.value", dsl.dsl.children[0].chartData[0].seriesName);
     });

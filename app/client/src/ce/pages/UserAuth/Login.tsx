@@ -85,15 +85,15 @@ export function Login(props: LoginFormProps) {
   const socialLoginList = ThirdPartyLoginRegistry.get();
   const queryParams = new URLSearchParams(location.search);
   let showError = false;
+  let errorMessage = "";
   const currentUser = useSelector(getCurrentUser);
   if (currentUser?.emptyInstance) {
     return <Redirect to={SETUP} />;
   }
   if (queryParams.get("error")) {
+    errorMessage = queryParams.get("message") || queryParams.get("error") || "";
     showError = true;
   }
-  const errorMsg = showError && queryParams.get("message");
-
   let loginURL = "/api/v1/" + LOGIN_SUBMIT_PATH;
   let signupURL = SIGN_UP_URL;
   const redirectUrl = queryParams.get("redirectUrl");
@@ -127,7 +127,7 @@ export function Login(props: LoginFormProps) {
       {showError && (
         <FormMessage
           actions={
-            !!errorMsg
+            !!errorMessage
               ? []
               : [
                   {
@@ -141,8 +141,8 @@ export function Login(props: LoginFormProps) {
           }
           intent="danger"
           message={
-            !!errorMsg
-              ? errorMsg
+            !!errorMessage && errorMessage !== "true"
+              ? errorMessage
               : createMessage(LOGIN_PAGE_INVALID_CREDS_ERROR)
           }
         />
