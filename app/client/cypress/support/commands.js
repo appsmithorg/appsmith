@@ -2908,6 +2908,7 @@ Cypress.Commands.add("isSelectRow", (index) => {
   cy.get('.tbody .td[data-rowindex="' + index + '"][data-colindex="' + 0 + '"]')
     .first()
     .click({ force: true });
+  cy.wait(1000); //for selection to show!
 });
 
 Cypress.Commands.add("getDate", (date, dateFormate) => {

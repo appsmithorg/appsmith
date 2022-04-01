@@ -43,7 +43,7 @@ describe("Layout OnLoad Actions tests", function () {
     //apiPage.RunAPI();
 
     apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes");
-    apiPage.EnterHeader("dependency", "{{RandomUser.data}}");
+    apiPage.EnterHeader("dependency", "{{RandomUser.data}}");//via Params tab
     //apiPage.RunAPI();
 
     apiPage.CreateAndFillApi(
@@ -54,10 +54,10 @@ describe("Layout OnLoad Actions tests", function () {
     //apiPage.RunAPI();
 
     apiPage.CreateAndFillApi("https://api.genderize.io", "Genderize");
-    apiPage.EnterParams("name", "{{RandomUser.data.results[0].name.first}}");
+    apiPage.EnterParams("name", "{{RandomUser.data.results[0].name.first}}");//via Params tab
     //apiPage.RunAPI();
 
-    //Adding dependency right matters!
+    //Adding dependency in right order matters!
     ee.SelectEntityByName("WIDGETS");
     ee.SelectEntityByName("Image1");
     jsEditor.EnterJSContext("image", `{{RandomFlora.data}}`, true);
@@ -161,21 +161,21 @@ describe("Layout OnLoad Actions tests", function () {
       "https://source.unsplash.com/collection/1599413",
       "RandomFlora",
     );
-    apiPage.RunAPI();
+    //apiPage.RunAPI();
 
     apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser");
-    apiPage.RunAPI();
+    //apiPage.RunAPI();
 
     apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes");
     apiPage.EnterHeader("dependency", "{{RandomUser.data}}");
-    apiPage.RunAPI();
+    //apiPage.RunAPI();
 
     apiPage.CreateAndFillApi(
       "https://www.boredapi.com/api/activity",
       "Suggestions",
     );
     apiPage.EnterHeader("dependency", "{{InspiringQuotes.data}}");
-    apiPage.RunAPI();
+    //apiPage.RunAPI();
 
     apiPage.CreateAndFillApi(
       "https://api.genderize.io?name={{RandomUser.data.results[0].name.first}}",
@@ -185,47 +185,54 @@ describe("Layout OnLoad Actions tests", function () {
       key: "name",
       value: "{{RandomUser.data.results[0].name.first}}",
     }); // verifies Bug 10055
-    apiPage.RunAPI();
+    //apiPage.RunAPI();
+
+    //Adding dependency in right order matters!
     ee.SelectEntityByName("WIDGETS");
-    ee.SelectEntityByName("Page1");
+    ee.SelectEntityByName("Image1");
+    jsEditor.EnterJSContext("image", `{{RandomFlora.data}}`, true);
 
-    cy.url().then((url) => {
-      const pageid = url.split("/")[4]?.split("-").pop();
-      cy.log(pageid + "page id");
-      cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
-        const respBody = JSON.stringify(response.body);
+    ee.SelectEntityByName("Image2");
+    jsEditor.EnterJSContext("image", `{{RandomUser.data.results[0].picture.large}}`, true);
 
-        const _randomFlora = JSON.parse(respBody).data.layouts[0]
-          .layoutOnLoadActions[0];
-        const _randomUser = JSON.parse(respBody).data.layouts[0]
-          .layoutOnLoadActions[1];
-        const _genderize = JSON.parse(respBody).data.layouts[0]
-          .layoutOnLoadActions[2];
-        const _suggestions = JSON.parse(respBody).data.layouts[0]
-          .layoutOnLoadActions[3];
-        // cy.log("_randomFlora is: " + JSON.stringify(_randomFlora))
-        // cy.log("_randomUser is: " + JSON.stringify(_randomUser))
-        // cy.log("_genderize is: " + JSON.stringify(_genderize))
-        // cy.log("_suggestions is: " + JSON.stringify(_suggestions))
+    ee.SelectEntityByName("Text1");
+    jsEditor.EnterJSContext("text", `{{InspiringQuotes.data.quote.body}}\n--\n{{InspiringQuotes.data.quote.author}}\n`, true);
 
-        expect(JSON.parse(JSON.stringify(_randomFlora))[0]["name"]).to.eq(
-          "RandomFlora",
-        );
-        expect(JSON.parse(JSON.stringify(_randomUser))[0]["name"]).to.eq(
-          "RandomUser",
-        );
-        expect(JSON.parse(JSON.stringify(_genderize))[0]["name"]).to.be.oneOf([
-          "Genderize",
-          "InspiringQuotes",
-        ]);
-        expect(JSON.parse(JSON.stringify(_genderize))[1]["name"]).to.be.oneOf([
-          "Genderize",
-          "InspiringQuotes",
-        ]);
-        expect(JSON.parse(JSON.stringify(_suggestions))[0]["name"]).to.eq(
-          "Suggestions",
-        );
-      });
-    });
+    ee.SelectEntityByName("Text2");
+    jsEditor.EnterJSContext("text", `Hi, here is {{RandomUser.data.results[0].name.first}} & I'm {{RandomUser.data.results[0].dob.age}}'yo\nI live in {{RandomUser.data.results[0].location.country}}\nMy Suggestion : {{Suggestions.data.activity}}\n\nI'm {{Genderize.data.gender}}`, true);
+
+    agHelper.DeployApp()
+    agHelper.Sleep()//waiting for error toast - incase it wants to appear!
+    agHelper.AssertElementAbsence(locator._toastMsg)
+    agHelper.Sleep(5000)//for all api's to ccomplete call!
+    cy.wait("@viewPage").then(($response) => {
+      const respBody = JSON.stringify($response.response?.body);
+      const _randomFlora = JSON.parse(respBody).data.layouts[0]
+        .layoutOnLoadActions[0];
+      const _randomUser = JSON.parse(respBody).data.layouts[0]
+        .layoutOnLoadActions[1];
+      const _genderize = JSON.parse(respBody).data.layouts[0]
+        .layoutOnLoadActions[2];
+      const _suggestions = JSON.parse(respBody).data.layouts[0]
+        .layoutOnLoadActions[3];
+
+      expect(JSON.parse(JSON.stringify(_randomFlora))[0]["name"]).to.eq(
+        "RandomFlora",
+      );
+      expect(JSON.parse(JSON.stringify(_randomUser))[0]["name"]).to.eq(
+        "RandomUser",
+      );
+      expect(JSON.parse(JSON.stringify(_genderize))[0]["name"]).to.be.oneOf([
+        "Genderize",
+        "InspiringQuotes",
+      ]);
+      expect(JSON.parse(JSON.stringify(_genderize))[1]["name"]).to.be.oneOf([
+        "Genderize",
+        "InspiringQuotes",
+      ]);
+      expect(JSON.parse(JSON.stringify(_suggestions))[0]["name"]).to.eq(
+        "Suggestions",
+      );
+    })
   });
 });
