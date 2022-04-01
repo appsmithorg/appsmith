@@ -348,7 +348,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("14. Verify table columy type button with button variant", function() {
+  it("14. Verify table column type button with button variant", function() {
     // Open property pane
     cy.openPropertyPane("tablewidget");
     // Add new column in the table with name "CustomColumn"
