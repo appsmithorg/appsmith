@@ -1,22 +1,21 @@
-import { WidgetProps } from "widgets/BaseWidget";
 import { setWidgetDynamicPropertySaga } from "./WidgetOperationSagas";
 
 const widget = {
-  label: "{{test}}",
+  isVisible: "true",
   dynamicPropertyPathList: [],
   dynamicBindingPathList: [],
 };
 
 const widget1 = {
-  label: "{{test}}",
+  isVisible: "{{true}}",
   dynamicPropertyPathList: [
     {
-      key: "label",
+      key: "isVisible",
     },
   ],
   dynamicBindingPathList: [
     {
-      key: "label",
+      key: "isVisible",
     },
   ],
 };
@@ -47,16 +46,17 @@ jest.mock("actions/pageActions", () => {
 });
 
 describe("WidgetOperationSaga - ", () => {
-  describe("Shoudld test setWidgetDynamicPropertySaga ", () => {
-    it("that its updating the dyncamicBindingPathList peroperly", () => {
-      let value = setWidgetDynamicPropertySaga({
+  describe("Should test setWidgetDynamicPropertySaga ", () => {
+    it("should update dynamicBindingPathList on js toggle", () => {
+      const value = setWidgetDynamicPropertySaga({
         type: "test",
         payload: {
           isDynamic: true,
-          propertyPath: "label",
+          propertyPath: "isVisible",
           widgetId: "test",
         },
       });
+
       value.next(); // start
       value.next(widget as any); // yield select
       value.next({
@@ -68,17 +68,19 @@ describe("WidgetOperationSaga - ", () => {
           ...widget,
           dynamicPropertyPathList: [
             {
-              key: "label",
+              key: "isVisible",
             },
           ],
         },
       });
+    });
 
-      value = setWidgetDynamicPropertySaga({
+    it("should remove property from dynamicBindingList on js toggle off", () => {
+      const value = setWidgetDynamicPropertySaga({
         type: "test",
         payload: {
           isDynamic: false,
-          propertyPath: "label",
+          propertyPath: "isVisible",
           widgetId: "test",
         },
       });
@@ -93,7 +95,7 @@ describe("WidgetOperationSaga - ", () => {
         test: {
           dynamicPropertyPathList: [],
           dynamicBindingPathList: [],
-          label: 1,
+          isVisible: 1,
         },
       });
     });
