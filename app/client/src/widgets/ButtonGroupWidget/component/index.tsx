@@ -1,5 +1,5 @@
-import React from "react";
-import { sortBy, uniqueId } from "lodash";
+import React, { RefObject, createRef } from "react";
+import { sortBy } from "lodash";
 import {
   Alignment,
   Icon,
@@ -29,11 +29,39 @@ import {
   getCustomBorderColor,
   getCustomTextColor,
   getCustomJustifyContent,
-  WidgetContainerDiff,
 } from "widgets/WidgetUtils";
 import { RenderMode, RenderModes } from "constants/WidgetConstants";
 import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 import { buttonHoverActiveStyles } from "../../ButtonWidget/component/utils";
+
+// Utility functions
+interface ButtonData {
+  id?: string;
+  type?: string;
+  label?: string;
+  iconName?: string;
+}
+// Extract props influencing to width change
+const getButtonData = (
+  groupButtons: Record<string, GroupButtonProps>,
+): ButtonData[] => {
+  const buttonData = Object.keys(groupButtons).reduce(
+    (acc: ButtonData[], id) => {
+      return [
+        ...acc,
+        {
+          id,
+          type: groupButtons[id].buttonType,
+          label: groupButtons[id].label,
+          iconName: groupButtons[id].iconName,
+        },
+      ];
+    },
+    [],
+  );
+
+  return buttonData as ButtonData[];
+};
 
 interface WrapperStyleProps {
   isHorizontal: boolean;
@@ -96,26 +124,19 @@ const MenuButtonWrapper = styled.div<{ renderMode: RenderMode }>`
 `;
 
 const PopoverStyles = createGlobalStyle<{
-  parentWidth: number;
-  menuDropDownWidth: number;
+  minPopoverWidth: number;
+  popoverTargetWidth?: number;
   id: string;
 }>`
   .menu-button-popover > .${Classes.POPOVER2_CONTENT} {
     background: none;
   }
-  ${({ id, menuDropDownWidth, parentWidth }) => `
-  .menu-button-width-${id} {
-
-    max-width: ${
-      menuDropDownWidth > parentWidth
-        ? `${menuDropDownWidth}px`
-        : `${parentWidth}px`
-    } !important;
-    min-width: ${
-      parentWidth > menuDropDownWidth ? parentWidth : menuDropDownWidth
-    }px !important;
-  }
-`}
+  ${({ id, minPopoverWidth, popoverTargetWidth }) => `
+    .menu-button-width-${id} {
+      ${popoverTargetWidth && `width: ${popoverTargetWidth}px`};
+      min-width: ${minPopoverWidth}px;
+    }
+  `}
 `;
 
 interface ButtonStyleProps {
@@ -398,8 +419,128 @@ function PopoverContent(props: PopoverContentProps) {
   return <StyledMenu>{listItems}</StyledMenu>;
 }
 
-class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
-  onButtonClick = (onClick?: string) => {
+class ButtonGroupComponent extends React.Component<
+  ButtonGroupComponentProps,
+  ButtonGroupComponentState
+> {
+  private timer?: number;
+
+  constructor(props: ButtonGroupComponentProps) {
+    super(props);
+    this.state = {
+      itemRefs: {},
+      itemWidths: {},
+    };
+  }
+
+  componentDidMount() {
+    this.setState(() => {
+      return {
+        ...this.state,
+        itemRefs: this.createMenuButtonRefs(),
+      };
+    });
+
+    this.timer = setTimeout(() => {
+      this.setState(() => {
+        return {
+          ...this.state,
+          itemWidths: this.getMenuButtonWidths(),
+        };
+      });
+    }, 0);
+  }
+
+  componentDidUpdate(
+    prevProps: ButtonGroupComponentProps,
+    prevState: ButtonGroupComponentState,
+  ) {
+    if (
+      this.state.itemRefs !== prevState.itemRefs ||
+      this.props.width !== prevProps.width ||
+      this.props.orientation !== prevProps.orientation
+    ) {
+      if (this.timer) {
+        clearTimeout(this.timer);
+      }
+      this.timer = setTimeout(() => {
+        this.setState(() => {
+          return {
+            ...this.state,
+            itemWidths: this.getMenuButtonWidths(),
+          };
+        });
+      });
+    } else {
+      // Reset refs array if
+      // * A button is added/removed or changed into a menu button
+      // * A label is changed or icon is newly added or removed
+      let isWidthChanged = false;
+      const buttons = getButtonData(this.props.groupButtons);
+      const menuButtons = buttons.filter((button) => button.type === "MENU");
+      const prevButtons = getButtonData(prevProps.groupButtons);
+      const prevMenuButtons = prevButtons.filter(
+        (button) => button.type === "MENU",
+      );
+
+      if (buttons.length !== prevButtons.length) {
+        isWidthChanged = true;
+      } else if (menuButtons.length > prevMenuButtons.length) {
+        isWidthChanged = true;
+      } else {
+        isWidthChanged = buttons.some((button) => {
+          const prevButton = prevButtons.find((btn) => btn.id === button.id);
+
+          return (
+            button.label !== prevButton?.label ||
+            (button.iconName && !prevButton?.iconName) ||
+            (!button.iconName && prevButton?.iconName)
+          );
+        });
+      }
+
+      if (isWidthChanged) {
+        this.setState(() => {
+          return {
+            ...this.state,
+            itemRefs: this.createMenuButtonRefs(),
+          };
+        });
+      }
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+  }
+
+  // Get widths of menu buttons
+  getMenuButtonWidths = () =>
+    Object.keys(this.props.groupButtons).reduce((acc, id) => {
+      if (this.props.groupButtons[id].buttonType === "MENU") {
+        return {
+          ...acc,
+          [id]: this.state.itemRefs[id].current?.getBoundingClientRect().width,
+        };
+      }
+      return acc;
+    }, {});
+
+  // Create refs of menu buttons
+  createMenuButtonRefs = () =>
+    Object.keys(this.props.groupButtons).reduce((acc, id) => {
+      if (this.props.groupButtons[id].buttonType === "MENU") {
+        return {
+          ...acc,
+          [id]: createRef(),
+        };
+      }
+      return acc;
+    }, {});
+
+  onButtonClick = (onClick: string | undefined) => {
     this.props.buttonClickHandler(onClick);
   };
 
@@ -408,9 +549,9 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
       buttonVariant,
       groupButtons,
       isDisabled,
-      menuDropDownWidth,
+      minPopoverWidth,
       orientation,
-      width,
+      widgetId,
     } = this.props;
     const isHorizontal = orientation === "horizontal";
 
@@ -435,17 +576,16 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
 
           if (button.buttonType === "MENU" && !isButtonDisabled) {
             const { menuItems } = button;
-            const id = uniqueId();
-
+            const popoverId = `${widgetId}-${button.id}`;
             return (
               <MenuButtonWrapper
                 key={button.id}
                 renderMode={this.props.renderMode}
               >
                 <PopoverStyles
-                  id={id}
-                  menuDropDownWidth={menuDropDownWidth}
-                  parentWidth={width - WidgetContainerDiff}
+                  id={popoverId}
+                  minPopoverWidth={minPopoverWidth}
+                  popoverTargetWidth={this.state.itemWidths[button.id]}
                 />
                 <Popover2
                   content={
@@ -458,7 +598,7 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
                   fill
                   minimal
                   placement="bottom-end"
-                  popoverClassName={`menu-button-popover menu-button-width-${id}`}
+                  popoverClassName={`menu-button-popover menu-button-width-${popoverId}`}
                 >
                   <DragContainer
                     buttonColor={button.buttonColor}
@@ -477,6 +617,7 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
                       isHorizontal={isHorizontal}
                       isLabel={!!button.label}
                       key={button.id}
+                      ref={this.state.itemRefs[button.id]}
                     >
                       <StyledButtonContent
                         iconAlign={button.iconAlign || "left"}
@@ -579,10 +720,16 @@ export interface ButtonGroupComponentProps {
   buttonClickHandler: (onClick: string | undefined) => void;
   groupButtons: Record<string, GroupButtonProps>;
   isDisabled: boolean;
-  menuDropDownWidth: number;
   orientation: string;
   renderMode: RenderMode;
   width: number;
+  minPopoverWidth: number;
+  widgetId: string;
+}
+
+export interface ButtonGroupComponentState {
+  itemRefs: Record<string, RefObject<HTMLButtonElement>>;
+  itemWidths: Record<string, number>;
 }
 
 export default ButtonGroupComponent;
