@@ -49,7 +49,7 @@ before(function() {
   });
 
   cy.visit("/setup/welcome");
-  cy.wait("@getUser");
+  cy.wait("@getMe");
   cy.url().then((url) => {
     if (url.indexOf("setup/welcome") > -1) {
       cy.createSuperUser();
@@ -75,7 +75,7 @@ before(function() {
   const password = Cypress.env("PASSWORD");
   cy.LoginFromAPI(username, password);
   cy.visit("/applications");
-  cy.wait("@getUser");
+  cy.wait("@getMe");
   cy.wait(3000);
   cy.get(".t--applications-container .createnew").should("be.visible");
   cy.get(".t--applications-container .createnew").should("be.enabled");
