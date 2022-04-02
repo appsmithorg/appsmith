@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry"
 
-let guid: any;
+let guid: any, jsName: any;
 let agHelper = ObjectsRegistry.AggregateHelper,
   dataSources = ObjectsRegistry.DataSources,
   jsEditor = ObjectsRegistry.JSEditor,
@@ -38,6 +38,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     });
     ee.SelectEntityByName("Button1", 'WIDGETS');
     cy.get("@jsObjName").then((jsObjName) => {
+      jsName = jsObjName;
       jsEditor.EnterJSContext(
         "onclick",
         "{{" + jsObjName + ".myFun1()}}",
@@ -60,7 +61,6 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     });
 
     agHelper.NavigateBacktoEditor()
-    //ee.ActionContextMenuByEntityName('Params1', 'Delete', 'Are you sure?')
   });
 
   it("2. With Optional chaining : {{ (function() { return this?.params?.condition })() }}", function () {
@@ -217,4 +217,14 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     agHelper.NavigateBacktoEditor()
   });
 
+  it.skip("12. Delete all entities - Query, JSObjects, Datasource", () => {
+    ee.expandCollapseEntity('QUERIES/JS')
+    ee.ActionContextMenuByEntityName('ParamsTest', 'Delete', 'Are you sure?')
+    agHelper.ValidateNetworkStatus("@deleteAction", 200)
+    ee.ActionContextMenuByEntityName(jsName as string, 'Delete', 'Are you sure?')
+    agHelper.ValidateNetworkStatus("@deleteJSCollection", 200)
+    ee.expandCollapseEntity('DATASOURCES')
+    ee.ActionContextMenuByEntityName(guid, 'Delete', 'Are you sure?')
+    agHelper.ValidateNetworkStatus("@deleteAction", 200)
+  });
 });

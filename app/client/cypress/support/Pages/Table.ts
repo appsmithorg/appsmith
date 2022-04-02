@@ -63,7 +63,7 @@ export class Table {
   }
 
   public ReadTableRowColumnData(rowNum: number, colNum: number) {
-    this.agHelper.Sleep()
+    this.agHelper.Sleep(2000)//Settling time for table!
     return cy.get(this._tableRowColumnData(rowNum, colNum)).invoke("text");
   }
 

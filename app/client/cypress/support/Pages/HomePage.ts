@@ -175,7 +175,7 @@ export class HomePage {
         cy.wait("@postLogout");
         cy.visit("/user/login");
         cy.get(this._username).should("be.visible").type(uname)
-        cy.get(this._password).type(pswd);
+        cy.get(this._password).type(pswd, {log: false});
         cy.get(this._submitBtn).click();
         cy.wait("@getMe");
         this.agHelper.Sleep(3000)

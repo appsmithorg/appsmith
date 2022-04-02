@@ -90,21 +90,15 @@ export class ApiPage {
             cy.get(this._trashDelete).click()
             cy.xpath(this._visibleTextSpan('Add more')).click()
         }
-        cy.get(this._bodyKey(0))
-            .first()
-            .click({ force: true })
-            .type(bKey, { parseSpecialCharSequences: false })
-            .type("{esc}");
+        this.agHelper.UpdateCodeInput(this._bodyKey(0), bKey)
+        cy.get('body').type("{esc}");
+
         if (type) {
             cy.xpath(this._bodyTypeDropdown).eq(0).click()
             cy.xpath(this._visibleTextDiv(type)).click()
         }
-        cy.get(this._bodyValue(0))
-            .first()
-            .click({ force: true })
-            .type(bValue, { parseSpecialCharSequences: false })
-            .type("{esc}");
-
+        this.agHelper.UpdateCodeInput(this._bodyValue(0), bValue)
+        cy.get('body').type("{esc}");
         this.agHelper.AssertAutoSave()
     }
 
