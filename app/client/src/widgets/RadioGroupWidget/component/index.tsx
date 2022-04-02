@@ -24,33 +24,73 @@ export const RadioGroupContainer = styled.div<RadioGroupContainerProps>`
 export interface StyledRadioGroupProps {
   alignment: Alignment;
   compactMode: boolean;
+  height?: number;
   inline: boolean;
+  labelPosition?: LabelPosition;
   optionCount: number;
   scrollable: boolean;
 }
 
 const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
-  display: block;
+  width: 100%;
+  height: 100%;
 
-  ${({ inline, optionCount }) =>
-    !inline && optionCount > 1 && `align-self: flex-start`};
-
-  ${({ compactMode, inline, optionCount, scrollable }) =>
-    inline && compactMode && optionCount > 1 && scrollable && `height: 100%`};
+  ${({ alignment, inline, optionCount }) => `
+    display: ${
+      inline ? "inline-flex" : alignment === Alignment.RIGHT ? "block" : "flex"
+    };
+    flex-direction: ${inline ? "row" : "column"};
+    align-items: ${inline ? "center" : "flex-start"};
+    ${inline && "flex-wrap: wrap"};
+    justify-content: ${
+      optionCount > 1 ? `space-between` : inline ? `flex-start` : `center`
+    };
+  `}
 
   ${BlueprintControlTransform};
   .${Classes.CONTROL} {
-    margin-bottom: 0;
+    display: ${({ alignment, inline }) => {
+      if (alignment === Alignment.RIGHT) {
+        return inline ? "inline-block" : "block";
+      }
+      return "flex";
+    }};
+    align-items: center;
     border: 1px solid transparent;
     color: ${Colors.GREY_10};
+    line-height: 16px;
+    min-height: ${({ alignment }) =>
+      alignment === Alignment.RIGHT ? 23 : 30}px;
+    margin-top: ${({ alignment }) => (alignment === Alignment.RIGHT ? 7 : 0)}px;
 
-    ${({ alignment, inline }) =>
-      (inline || alignment === Alignment.RIGHT) && `line-height: 16px`};
+    margin-bottom: ${({
+      alignment,
+      height,
+      inline,
+      labelPosition,
+      optionCount,
+    }) => {
+      if (
+        alignment === Alignment.RIGHT &&
+        !inline &&
+        optionCount > 1 &&
+        height
+      ) {
+        return Math.max(
+          (height -
+            (labelPosition === LabelPosition.Left ? 0 : 35) -
+            optionCount * 31) /
+            (optionCount - 1),
+          8,
+        );
+      } else {
+        return 0;
+      }
+    }}px;
 
-    ${({ alignment, inline }) =>
-      alignment === Alignment.RIGHT &&
-      (inline ? `display: inline-block` : `display: block`)};
-
+    &:last-child {
+      margin-bottom: 0;
+    }
     .bp3-control-indicator {
       margin-top: 0;
       border: 1px solid ${Colors.GREY_3};
@@ -59,21 +99,11 @@ const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
     &:hover input:checked ~ .bp3-control-indicator {
       background-color: ${Colors.GREEN};
     }
-
     &:hover {
       & input:not(:checked) ~ .bp3-control-indicator {
         border: 1px solid ${Colors.GREY_5} !important;
       }
     }
-
-    ${({ alignment, inline, optionCount, scrollable }) =>
-      (scrollable || (!inline && optionCount > 1)) &&
-      (alignment === Alignment.LEFT
-        ? `margin-bottom: 16px`
-        : `min-height: 30px`)};
-
-    ${({ compactMode, inline, optionCount }) =>
-      (inline || optionCount === 1) && compactMode && `margin-bottom: 0`};
   }
 `;
 
@@ -116,6 +146,7 @@ class RadioGroupComponent extends React.Component<
       alignment,
       compactMode,
       disabled,
+      height,
       inline,
       labelAlignment,
       labelPosition,
@@ -159,7 +190,9 @@ class RadioGroupComponent extends React.Component<
           alignment={alignment}
           compactMode={compactMode}
           disabled={disabled}
+          height={height}
           inline={inline}
+          labelPosition={labelPosition}
           onChange={this.onRadioSelectionChange}
           optionCount={options.length}
           scrollable={this.state.scrollable}

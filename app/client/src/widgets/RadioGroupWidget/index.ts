@@ -9,8 +9,8 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    rows: 4,
-    columns: 11,
+    rows: 8,
+    columns: 20,
     animateLoading: true,
     label: "Label",
     labelPosition: LabelPosition.Left,
