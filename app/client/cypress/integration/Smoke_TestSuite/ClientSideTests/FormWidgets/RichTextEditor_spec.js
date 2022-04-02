@@ -136,13 +136,7 @@ describe("RichTextEditor Widget Functionality", function() {
     );
     // Change defaultText
     cy.openPropertyPane("richtexteditorwidget");
-    cy.updateCodeInput(".t--property-control-defaulttext", "a");
-    cy.closePropertyPane();
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.testJsontext("defaulttext", "a");
     // Check if isDirty has been changed into false
     cy.get(".t--widget-textwidget").should("contain", "false");
     // Interact with UI
@@ -151,13 +145,7 @@ describe("RichTextEditor Widget Functionality", function() {
     cy.get(".t--widget-textwidget").should("contain", "true");
     // Change defaultText
     cy.openPropertyPane("richtexteditorwidget");
-    cy.updateCodeInput(".t--property-control-defaulttext", "b");
-    cy.closePropertyPane();
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.testJsontext("defaulttext", "b");
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
   });
