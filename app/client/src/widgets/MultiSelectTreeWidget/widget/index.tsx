@@ -340,6 +340,7 @@ class MultiSelectTreeWidget extends BaseWidget<
       selectedOptionValues:
         '{{ this.selectedOptionValueArr.filter((o) => JSON.stringify(this.options).match(new RegExp(`"value":"${o}"`, "g")) )}}',
       isValid: `{{ this.isRequired  ? this.selectedOptionValues?.length > 0 : true}}`,
+      value: `{{this.selectedOptionValues}}`,
     };
   }
 

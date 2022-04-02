@@ -304,6 +304,7 @@ class SingleSelectTreeWidget extends BaseWidget<
       selectedOptionValue:
         '{{  JSON.stringify(this.options).match(new RegExp(`"value":${Number.isFinite(this.selectedOption) ? this.selectedOption : `"${this.selectedOption}"` }`), "g") ? this.selectedOption : undefined  }}',
       isValid: `{{this.isRequired  ? !!this.selectedOptionValue || this.selectedOptionValue === 0 : true}}`,
+      value: `{{this.selectedOptionValue}}`,
     };
   }
 
