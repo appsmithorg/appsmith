@@ -104,6 +104,7 @@ Check out some real applications that can be built with Appsmith:
 - 🗓️ [Calendly in Appsmith](https://app.appsmith.com/applications/600186605b452f525458d6d2/pages/600186605b452f525458d6d4/?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
 - 💸 [Fundraising CRM](https://app.appsmith.com/applications/6098bdc65864501cc39c3d2f/pages/6098bdc65864501cc39c3d31/?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
 - 📄 [Application Tracking System App](https://app.appsmith.com/applications/5f43bce13697fd5df1c52ce4/pages/5f43c39c3697fd5df1c52d50/?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
+- 📦 [All Sample Apps](https://docs.appsmith.com/sample-apps?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
 
 - 🌟 Made something cool? [Share it with the community](https://discord.gg/Tx395War)
   <br><br>
