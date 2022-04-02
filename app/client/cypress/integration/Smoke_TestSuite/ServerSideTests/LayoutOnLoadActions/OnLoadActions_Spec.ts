@@ -153,29 +153,8 @@ describe("Layout OnLoad Actions tests", function () {
   });
 
   it("3. Bug 10049, 10055: Dependency not executed in expected order in layoutOnLoadActions when dependency added via URL", function () {
-    homePage.NavigateToHome();
-    homePage.CreateNewApplication();
-    agHelper.AddDsl(dsl);
-
-    apiPage.CreateAndFillApi(
-      "https://source.unsplash.com/collection/1599413",
-      "RandomFlora",
-    );
-    //apiPage.RunAPI();
-
-    apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser");
-    //apiPage.RunAPI();
-
-    apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes");
-    apiPage.EnterHeader("dependency", "{{RandomUser.data}}");
-    //apiPage.RunAPI();
-
-    apiPage.CreateAndFillApi(
-      "https://www.boredapi.com/api/activity",
-      "Suggestions",
-    );
-    apiPage.EnterHeader("dependency", "{{InspiringQuotes.data}}");
-    //apiPage.RunAPI();
+    ee.SelectEntityByName('Genderize', 'QUERIES/JS')
+    ee.ActionContextMenuByEntityName('Genderize', 'Delete', 'Are you sure?')
 
     apiPage.CreateAndFillApi(
       "https://api.genderize.io?name={{RandomUser.data.results[0].name.first}}",
@@ -185,22 +164,7 @@ describe("Layout OnLoad Actions tests", function () {
       key: "name",
       value: "{{RandomUser.data.results[0].name.first}}",
     }); // verifies Bug 10055
-    //apiPage.RunAPI();
-
-    //Adding dependency in right order matters!
-    ee.SelectEntityByName("WIDGETS");
-    ee.SelectEntityByName("Image1");
-    jsEditor.EnterJSContext("image", `{{RandomFlora.data}}`, true);
-
-    ee.SelectEntityByName("Image2");
-    jsEditor.EnterJSContext("image", `{{RandomUser.data.results[0].picture.large}}`, true);
-
-    ee.SelectEntityByName("Text1");
-    jsEditor.EnterJSContext("text", `{{InspiringQuotes.data.quote.body}}\n--\n{{InspiringQuotes.data.quote.author}}\n`, true);
-
-    ee.SelectEntityByName("Text2");
-    jsEditor.EnterJSContext("text", `Hi, here is {{RandomUser.data.results[0].name.first}} & I'm {{RandomUser.data.results[0].dob.age}}'yo\nI live in {{RandomUser.data.results[0].location.country}}\nMy Suggestion : {{Suggestions.data.activity}}\n\nI'm {{Genderize.data.gender}}`, true);
-
+    
     agHelper.DeployApp()
     agHelper.Sleep()//waiting for error toast - incase it wants to appear!
     agHelper.AssertElementAbsence(locator._toastMsg)
