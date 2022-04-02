@@ -61,48 +61,25 @@ export class ApiPage {
     }
 
     EnterURL(url: string) {
-        cy.get(this._resourceUrl)
-            .find(".CodeMirror")
-            .first().then((ins: any) => {
-                const input = ins[0].CodeMirror;
-                input.focus();
-                this.agHelper.Sleep(200)
-                input.setValue(url);
-                this.agHelper.Sleep(200)
-            });
-        //.click({ force: true })
-        //.type(url, { parseSpecialCharSequences: false });
-
+        this.agHelper.UpdateCodeInput(this._resourceUrl, url)
         this.agHelper.AssertAutoSave()
     }
 
     EnterHeader(hKey: string, hValue: string) {
         this.SelectPaneTab('Headers');
-        cy.get(this._headerKey(0))
-            .first()
-            .click({ force: true })
-            .type(hKey, { parseSpecialCharSequences: false })
-            .type("{esc}");
-        cy.get(this._headerValue(0))
-            .first()
-            .click({ force: true })
-            .type(hValue, { parseSpecialCharSequences: false })
-            .type("{esc}");
+        this.agHelper.UpdateCodeInput(this._headerKey(0), hKey)
+        cy.get('body').type("{esc}");
+        this.agHelper.UpdateCodeInput(this._headerValue(0), hValue)
+        cy.get('body').type("{esc}");
         this.agHelper.AssertAutoSave()
     }
 
     EnterParams(pKey: string, pValue: string) {
         this.SelectPaneTab('Params')
-        cy.get(this._paramKey(0))
-            .first()
-            .click({ force: true })
-            .type(pKey, { parseSpecialCharSequences: false })
-            .type("{esc}");
-        cy.get(this._paramValue(0))
-            .first()
-            .click({ force: true })
-            .type(pValue, { parseSpecialCharSequences: false })
-            .type("{esc}");
+        this.agHelper.UpdateCodeInput(this._paramKey(0), pKey)
+        cy.get('body').type("{esc}");
+        this.agHelper.UpdateCodeInput(this._paramValue(0), pValue)
+        cy.get('body').type("{esc}");
         this.agHelper.AssertAutoSave()
     }
 

@@ -9,7 +9,7 @@ let agHelper = ObjectsRegistry.AggregateHelper,
     table = ObjectsRegistry.Table;
 
 
-describe("Validate Create Api and Bind to Table widget via JSObject", () => {
+describe("Validate JSObj binding to Table widget", () => {
     before(() => {
         cy.fixture('listwidgetdsl').then((val: any) => {
             agHelper.AddDsl(val)

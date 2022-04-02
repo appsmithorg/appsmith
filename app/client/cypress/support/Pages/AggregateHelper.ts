@@ -412,9 +412,7 @@ export class AggregateHelper {
         if (selector.startsWith("//"))
             cy.xpath(selector).should("have.length", length)
         else
-            cy.get(selector).should('be.visible')
-        cy.get(selector).should("have.length", length);
-
+            cy.get(selector).should("have.length", length);
     }
 
     //Not used:
