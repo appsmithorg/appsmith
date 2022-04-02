@@ -11,7 +11,8 @@ export class Table {
   private _previousPage = ".t--widget-tablewidget .t--table-widget-prev-page"
   private _pageNumber = ".t--widget-tablewidget .page-item"
   private _pageNumberServerSideOff = ".t--widget-tablewidget .t--table-widget-page-input input"
-  _tableRowColumn = (rowNum: number, colNum: number) => `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div div`
+  _tableRow = (rowNum: number, colNum: number) => `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}]`
+  _tableRowColumnData = (rowNum: number, colNum: number) => this._tableRow(rowNum, colNum) + ` div div`
   _tableEmptyColumnData = `.t--widget-tablewidget .tbody .td` //selected-row
   _tableSelectedRow = this._tableWrap + "//div[contains(@class, 'tbody')]//div[contains(@class, 'selected-row')]/div"
   _liNextPage = "li[title='Next Page']"
@@ -62,7 +63,8 @@ export class Table {
   }
 
   public ReadTableRowColumnData(rowNum: number, colNum: number) {
-    return cy.get(this._tableRowColumn(rowNum, colNum)).invoke("text");
+    this.agHelper.Sleep()
+    return cy.get(this._tableRowColumnData(rowNum, colNum)).invoke("text");
   }
 
   public AssertHiddenColumns(columnNames: string[]) {
@@ -111,6 +113,11 @@ export class Table {
       .then($rowIndex => {
         expect(Number($rowIndex)).to.eq(rowNum);
       });
+  }
+
+  public SelectTableRow(rowIndex: number) {
+    cy.get(this._tableRow(rowIndex, 0)).first().click({ force: true });
+    this.agHelper.Sleep()//for select to reflect
   }
 
   //List methods - keeping it for now!

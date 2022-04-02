@@ -19,8 +19,7 @@ describe("Validate basic binding of Input widget to Input widget", () => {
     });
 
     it("1. Input widget test with default value for atob method", () => {
-        ee.expandCollapseEntity("WIDGETS")
-        ee.SelectEntityByName("Input1")
+        ee.SelectEntityByName("Input1", 'WIDGETS')
         jsEditor.EnterJSContext("defaulttext", dataSet.atobInput + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
         cy.get(locator._inputWidget).first().invoke("attr", "value").should("equal", 'A');//Before mapping JSObject value of input

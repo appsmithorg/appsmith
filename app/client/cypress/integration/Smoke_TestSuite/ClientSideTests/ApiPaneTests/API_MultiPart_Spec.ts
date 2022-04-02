@@ -9,7 +9,7 @@ let agHelper = ObjectsRegistry.AggregateHelper,
 describe("Validate API request body panel", () => {
     it("1. Check whether input and type dropdown selector exist when multi-part is selected", () => {
         apiPage.CreateApi("FirstAPI", 'POST');
-        apiPage.SelectAPITab('Body')
+        apiPage.SelectPaneTab('Body')
         apiPage.SelectSubTab('FORM_URLENCODED')
         agHelper.AssertElementPresence(apiPage._bodyKey(0))
         agHelper.AssertElementPresence(apiPage._bodyValue(0))
@@ -22,7 +22,7 @@ describe("Validate API request body panel", () => {
 
     it("2. Checks whether No body error message is shown when None API body content type is selected", function () {
         apiPage.CreateApi("FirstAPI", 'GET');
-        apiPage.SelectAPITab('Body')
+        apiPage.SelectPaneTab('Body')
         apiPage.SelectSubTab('NONE')
         cy.get(apiPage._noBodyMessageDiv).contains(apiPage._noBodyMessage);
         agHelper.ActionContextMenuWithInPane('Delete')
@@ -34,7 +34,7 @@ describe("Validate API request body panel", () => {
             key: "content-type",
             value: "application/json",
         });
-        apiPage.SelectAPITab('Body')
+        apiPage.SelectPaneTab('Body')
         apiPage.SelectSubTab('FORM_URLENCODED')
         apiPage.ValidateHeaderParams({
             key: "content-type",
@@ -49,7 +49,7 @@ describe("Validate API request body panel", () => {
             key: "content-type",
             value: "application/json",
         });
-        apiPage.SelectAPITab('Body')
+        apiPage.SelectPaneTab('Body')
         apiPage.SelectSubTab('MULTIPART_FORM_DATA')
         apiPage.ValidateHeaderParams({
             key: "content-type",
@@ -60,7 +60,7 @@ describe("Validate API request body panel", () => {
 
     it("5. Checks whether content type 'FORM_URLENCODED' is preserved when user selects None API body content type", function () {
         apiPage.CreateApi("FirstAPI", 'POST');
-        apiPage.SelectAPITab('Body')
+        apiPage.SelectPaneTab('Body')
         apiPage.SelectSubTab('FORM_URLENCODED')
         apiPage.SelectSubTab('NONE')
         apiPage.ValidateHeaderParams({
@@ -72,7 +72,7 @@ describe("Validate API request body panel", () => {
 
     it("6. Checks whether content type 'MULTIPART_FORM_DATA' is preserved when user selects None API body content type", function () {
         apiPage.CreateApi("FirstAPI", 'POST');
-        apiPage.SelectAPITab('Body')
+        apiPage.SelectPaneTab('Body')
         apiPage.SelectSubTab('MULTIPART_FORM_DATA')
         apiPage.SelectSubTab('NONE')
         apiPage.ValidateHeaderParams({
@@ -100,15 +100,13 @@ describe("Validate API request body panel", () => {
             }
         }`, true, true, false);
 
-        ee.expandCollapseEntity("WIDGETS")//to expand widgets
-        ee.SelectEntityByName("FilePicker1");
+        ee.SelectEntityByName("FilePicker1", 'WIDGETS');
         jsEditor.EnterJSContext('onfilesselected', `{{JSObject1.upload()}}`, true, true);
 
         ee.SelectEntityByName("Image1");
         jsEditor.EnterJSContext('image', '{{CloudinaryUploadApi.data.url}}')
 
-        ee.expandCollapseEntity("QUERIES/JS")//to expand widgets
-        ee.SelectEntityByName("CloudinaryUploadApi");
+        ee.SelectEntityByName("CloudinaryUploadApi", 'QUERIES/JS');
 
         apiPage.DisableOnPageLoadRun()//Bug 12476
         ee.SelectEntityByName("Page1");
@@ -127,11 +125,9 @@ describe("Validate API request body panel", () => {
 
     it("8. Checks MultiPart form data for a Array Type upload results in API error", () => {
         let imageNameToUpload = "AAAFlowerVase.jpeg";
-        ee.expandCollapseEntity("QUERIES/JS")//to expand widgets
-        ee.SelectEntityByName("CloudinaryUploadApi");
+        ee.SelectEntityByName("CloudinaryUploadApi", 'QUERIES/JS');
         apiPage.EnterBodyFormData('MULTIPART_FORM_DATA', 'file', '{{FilePicker1.files[0]}}', 'Array', true)
-        ee.expandCollapseEntity("WIDGETS")//to expand widgets
-        ee.SelectEntityByName("FilePicker1");
+        ee.SelectEntityByName("FilePicker1", 'WIDGETS');
         agHelper.ClickButton('Select Files');
         agHelper.UploadFile(imageNameToUpload, false)
         agHelper.AssertDebugError("Execution failed with status 400 BAD_REQUEST", '{"error":{"message":"Unsupported source URL: {\\"type\\":\\"image/jpeg\\"')

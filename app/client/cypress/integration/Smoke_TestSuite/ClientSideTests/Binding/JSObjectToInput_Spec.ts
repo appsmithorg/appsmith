@@ -40,9 +40,7 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
   });
 
   it.skip("2. Bug 10284, 11529 - Verify autosave while editing JSObj & reference changes when JSObj is mapped", function () {
-
-    ee.expandCollapseEntity("QUERIES/JS")//to expand widgets
-    ee.SelectEntityByName(jsOjbNameReceived as string)
+    ee.SelectEntityByName(jsOjbNameReceived as string, 'QUERIES/JS')
     jsEditor.EditJSObj("myFun1", "newName")
 
     //jsEditor.CreateJSObject('return "Success";', true);

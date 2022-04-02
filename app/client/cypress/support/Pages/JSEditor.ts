@@ -20,7 +20,8 @@ export class JSEditor {
     cy.get(this._newJSobj).click({ force: true });
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
-    this.agHelper.WaitUntilEleDisappear(this.locator._toastMsg, 'created successfully')
+    //this.agHelper.WaitUntilEleDisappear(this.locator._toastMsg, 'created successfully')
+    this.agHelper.Sleep()
   }
 
   public CreateJSObject(JSCode: string, paste = true, completeReplace = false, toRun = true) {

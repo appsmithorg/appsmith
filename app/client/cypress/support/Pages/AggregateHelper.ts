@@ -80,6 +80,7 @@ export class AggregateHelper {
         //cy.wait('@publishApp').wait('@publishApp') //waitng for 2 calls to complete
 
         this.WaitUntilEleAppear(eleToCheckInDeployPage)
+        localStorage.setItem("inDeployedMode", "true");
     }
 
     public AddNewPage() {
@@ -182,13 +183,26 @@ export class AggregateHelper {
         cy.get(this.locator._dropDownValue(ddOption)).click()
     }
 
-    public SelectDropDown(endp: string, ddOption: string,) {
-        cy.xpath(this.locator._selectWidgetDropdown(endp))
-            .first()
-            .scrollIntoView()
-            .click()
+    public SelectDropDown(ddOption: string, endp: string = "selectwidget") {
+        let mode = localStorage.getItem("inDeployedMode");
+        if (mode == "false") {
+            cy.xpath(this.locator._selectWidgetDropdown(endp))
+                .first()
+                .scrollIntoView()
+                .click()
+        }
+        else {
+            cy.xpath(this.locator._selectWidgetDropdownInDeployed(endp))
+                .first()
+                .scrollIntoView()
+                .click()
+        }
         cy.get(this.locator._selectOptionValue(ddOption)).click({ force: true })
-        this.Sleep(2000)
+        this.Sleep()//for selected value to reflect!
+    }
+
+    public ReadSelectedDropDownValue() {
+        return cy.xpath(this.locator._selectedDropdownValue).first().invoke("text")
     }
 
     public EnterActionValue(actionName: string, value: string, paste = true) {
@@ -261,6 +275,7 @@ export class AggregateHelper {
     public NavigateBacktoEditor() {
         cy.get(this.locator._backToEditor).click();
         this.Sleep(2000)
+        localStorage.setItem("inDeployedMode", "false");
     }
 
     public GenerateUUID() {
@@ -296,14 +311,14 @@ export class AggregateHelper {
         this.VerifyEvaluatedValue(valueToType);
     }
 
-    public EnterValue(valueToType: string, fieldName = "") {
+    public EnterValue(valueToEnter: string, fieldName = "") {
         if (fieldName) {
             cy.xpath(this.locator._inputFieldByName(fieldName)).then(($field: any) => {
-                this.UpdateCodeInput($field, valueToType);
+                this.UpdateCodeInput($field, valueToEnter);
             });
         } else {
             cy.get(this.locator._codeEditorTarget).then(($field: any) => {
-                this.UpdateCodeInput($field, valueToType);
+                this.UpdateCodeInput($field, valueToEnter);
             });
         }
     }
@@ -391,6 +406,15 @@ export class AggregateHelper {
             cy.xpath(selector).should('be.visible')
         else
             cy.get(selector).should('be.visible')
+    }
+
+    public AssertElementLength(selector: string, length: number) {
+        if (selector.startsWith("//"))
+            cy.xpath(selector).should("have.length", length)
+        else
+            cy.get(selector).should('be.visible')
+        cy.get(selector).should("have.length", length);
+
     }
 
     //Not used:

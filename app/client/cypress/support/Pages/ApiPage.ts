@@ -55,21 +55,29 @@ export class ApiPage {
         this.CreateApi(apiname, apiVerb)
         this.EnterURL(url)
         this.agHelper.AssertAutoSave()
-        this.agHelper.Sleep(2000);// Added because api name edit takes some time to reflect in api sidebar after the call passes.
+        //this.agHelper.Sleep(2000);// Added because api name edit takes some time to reflect in api sidebar after the call passes.
         cy.get(this._apiRunBtn).should("not.be.disabled");
         this.SetAPITimeout(queryTimeout)
     }
 
     EnterURL(url: string) {
         cy.get(this._resourceUrl)
-            .first()
-            .click({ force: true })
-            .type(url, { parseSpecialCharSequences: false });
+            .find(".CodeMirror")
+            .first().then((ins: any) => {
+                const input = ins[0].CodeMirror;
+                input.focus();
+                this.agHelper.Sleep(200)
+                input.setValue(url);
+                this.agHelper.Sleep(200)
+            });
+        //.click({ force: true })
+        //.type(url, { parseSpecialCharSequences: false });
+
         this.agHelper.AssertAutoSave()
     }
 
     EnterHeader(hKey: string, hValue: string) {
-        this.SelectAPITab('Headers');
+        this.SelectPaneTab('Headers');
         cy.get(this._headerKey(0))
             .first()
             .click({ force: true })
@@ -84,7 +92,7 @@ export class ApiPage {
     }
 
     EnterParams(pKey: string, pValue: string) {
-        this.SelectAPITab('Params')
+        this.SelectPaneTab('Params')
         cy.get(this._paramKey(0))
             .first()
             .click({ force: true })
@@ -99,7 +107,7 @@ export class ApiPage {
     }
 
     EnterBodyFormData(subTab: 'FORM_URLENCODED' | 'MULTIPART_FORM_DATA', bKey: string, bValue: string, type = "", toTrash = false) {
-        this.SelectAPITab('Body')
+        this.SelectPaneTab('Body')
         this.SelectSubTab(subTab)
         if (toTrash) {
             cy.get(this._trashDelete).click()
@@ -129,24 +137,22 @@ export class ApiPage {
     }
 
     SetAPITimeout(timeout: number) {
-        this.SelectAPITab('Settings');
+        this.SelectPaneTab('Settings');
         cy.xpath(this._queryTimeout)
             .clear()
             .type(timeout.toString());
         this.agHelper.AssertAutoSave()
-        this.SelectAPITab('Headers');
+        this.SelectPaneTab('Headers');
     }
 
     DisableOnPageLoadRun() {
-        this.SelectAPITab('Settings');
+        this.SelectPaneTab('Settings');
         cy.get(this._onPageLoad).uncheck({
             force: true,
         });
-        this.agHelper.AssertAutoSave()
     }
 
-
-    SelectAPITab(tabName: 'Headers' | 'Params' | 'Body' | 'Pagination' | 'Authentication' | 'Settings') {
+    SelectPaneTab(tabName: 'Headers' | 'Params' | 'Body' | 'Pagination' | 'Authentication' | 'Settings') {
         cy.xpath(this._visibleTextSpan(tabName)).should('be.visible').eq(0).click();
     }
 
@@ -155,13 +161,13 @@ export class ApiPage {
     }
 
     ValidateQueryParams(param: { key: string; value: string; }) {
-        this.SelectAPITab('Params')
+        this.SelectPaneTab('Params')
         this.agHelper.ValidateCodeEditorContent(this._paramKey(0), param.key)
         this.agHelper.ValidateCodeEditorContent(this._paramValue(0), param.value)
     }
 
     ValidateHeaderParams(header: { key: string; value: string; }) {
-        this.SelectAPITab('Headers')
+        this.SelectPaneTab('Headers')
         this.agHelper.ValidateCodeEditorContent(this._headerKey(0), header.key)
         this.agHelper.ValidateCodeEditorContent(this._headerValue(0), header.value)
     }

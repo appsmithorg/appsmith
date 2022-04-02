@@ -25,6 +25,7 @@ let applicationId;
 // Import commands.js using ES2015 syntax:
 import "./commands";
 import { initLocalstorage } from "./commands";
+import { initLocalstorageRegistry } from "./Objects/Registry";
 import * as MESSAGES from "../../../client/src/ce/constants/messages.ts";
 
 Cypress.on("uncaught:exception", (err, runnable) => {
@@ -42,6 +43,7 @@ Cypress.env("MESSAGES", MESSAGES);
 before(function() {
   //console.warn = () => {};
   initLocalstorage();
+  initLocalstorageRegistry();
   cy.startServerAndRoutes();
   // Clear indexedDB
   cy.window().then((window) => {
@@ -49,7 +51,7 @@ before(function() {
   });
   cy.visit("/setup/welcome");
   cy.wait("@getMe");
-  cy.wait(3000);
+  cy.wait(2000);
   cy.url().then((url) => {
     if (url.indexOf("setup/welcome") > -1) {
       cy.createSuperUser();
@@ -91,6 +93,7 @@ before(function() {
 
 beforeEach(function() {
   initLocalstorage();
+  initLocalstorageRegistry();
   Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   cy.startServerAndRoutes();
   //-- Delete local storage data of entity explorer

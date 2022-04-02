@@ -19,8 +19,7 @@ describe("Validate basic binding of Input widget to Input widget", () => {
     });
 
     it("1. Input widget test with default value from another Input widget", () => {
-        ee.expandCollapseEntity("WIDGETS")
-        ee.SelectEntityByName("Input1")
+        ee.SelectEntityByName("Input1", 'WIDGETS')
         jsEditor.EnterJSContext("defaulttext", dataSet.defaultInputBinding + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
     });

@@ -37,12 +37,11 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
     });
 
     it("2. Validate the Api data is updated on List widget + Bug 12438", function () {
-        ee.expandCollapseEntity("WIDGETS")//to expand widgets
-        ee.SelectEntityByName("List1");
+        ee.SelectEntityByName("List1", 'WIDGETS');
         jsEditor.EnterJSContext("items", "{{" + jsName as string + ".myFun1()}}")
         cy.get(locator._textWidget).should("have.length", 8);
         agHelper.DeployApp(locator._textWidgetInDeployed);
-        cy.get(locator._textWidgetInDeployed).should("have.length", 8);
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 8)
         cy.get(locator._textWidgetInDeployed)
             .first()
             .invoke("text")
@@ -53,26 +52,25 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
         table.AssertPageNumber_List(1)
         table.NavigateToNextPage_List()
         table.AssertPageNumber_List(2)
-        cy.get(locator._textWidgetInDeployed).should("have.length", 8);
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 8)
         table.NavigateToNextPage_List()
         table.AssertPageNumber_List(3, true)
-        cy.get(locator._textWidgetInDeployed).should("have.length", 4);
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 4)
         table.NavigateToPreviousPage_List()
         table.AssertPageNumber_List(2)
-        cy.get(locator._textWidgetInDeployed).should("have.length", 8);
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 8)
         table.NavigateToPreviousPage_List()
         table.AssertPageNumber_List(1)
-        cy.get(locator._textWidgetInDeployed).should("have.length", 8);
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 8)
         agHelper.NavigateBacktoEditor()
     });
 
     it("3. Validate the List widget + Bug 12438 ", function () {
-        ee.expandCollapseEntity("WIDGETS")//to expand widgets
-        ee.SelectEntityByName("List1");
+        ee.SelectEntityByName("List1", 'WIDGETS');
         jsEditor.EnterJSContext("itemspacing\\(px\\)", "50")
         cy.get(locator._textWidget).should("have.length", 6);
         agHelper.DeployApp(locator._textWidgetInDeployed);
-        cy.get(locator._textWidgetInDeployed).should("have.length", 6);
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 6)
         cy.get(locator._textWidgetInDeployed).first()
             .invoke("text")
             .then((text) => {
@@ -80,25 +78,25 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
             });
 
         table.AssertPageNumber_List(1)
-        cy.get(locator._textWidgetInDeployed).should("have.length", 6);
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 6)
         table.NavigateToNextPage_List()
         table.AssertPageNumber_List(2)
-        cy.get(locator._textWidgetInDeployed).should("have.length", 6);
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 6)
         table.NavigateToNextPage_List()
         table.AssertPageNumber_List(3)
-        cy.get(locator._textWidgetInDeployed).should("have.length", 6);
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 6)
         table.NavigateToNextPage_List()
         table.AssertPageNumber_List(4, true)
-        cy.get(locator._textWidgetInDeployed).should("have.length", 2)
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 2)
         table.NavigateToPreviousPage_List()
         table.AssertPageNumber_List(3)
-        cy.get(locator._textWidgetInDeployed).should("have.length", 6);
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 6)
         table.NavigateToPreviousPage_List()
         table.AssertPageNumber_List(2)
-        cy.get(locator._textWidgetInDeployed).should("have.length", 6);
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 6)
         table.NavigateToPreviousPage_List()
         table.AssertPageNumber_List(1)
-        cy.get(locator._textWidgetInDeployed).should("have.length", 6);
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 6)
         //agHelper.NavigateBacktoEditor()
     });
 });
