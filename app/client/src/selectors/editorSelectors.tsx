@@ -380,7 +380,7 @@ export function getOccupiedSpacesSelectorForContainer(
   });
 }
 
-// same as getOccupiedSpaces but gets only the container specific ocupied Spaces
+// same as getOccupiedSpaces but gets only the container specific occupied Spaces
 export function getWidgetSpacesSelectorForContainer(
   containerId: string | undefined,
 ) {

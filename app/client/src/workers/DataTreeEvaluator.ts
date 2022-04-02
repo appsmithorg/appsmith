@@ -82,6 +82,7 @@ import {
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 const clone = require("rfdc/default");
+
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
   sortedDependencies: Array<string> = [];
@@ -336,6 +337,7 @@ export default class DataTreeEvaluator {
       }
       return false;
     });
+
     this.logs.push({
       sortedDependencies: this.sortedDependencies,
       inverse: this.inverseDependencyMap,
@@ -1320,7 +1322,6 @@ export default class DataTreeEvaluator {
             });
             break;
           }
-
           case DataTreeDiffEvent.EDIT: {
             // We only care if the difference is in dynamic bindings since static values do not need
             // an evaluation.
@@ -1497,9 +1498,28 @@ export default class DataTreeEvaluator {
         if (!isAction(entity) && !isWidget(entity)) {
           continue;
         }
+        let entityDynamicBindingPaths: string[] = [];
+        if (isAction(entity)) {
+          const entityDynamicBindingPathList = getEntityDynamicBindingPathList(
+            entity,
+          );
+          entityDynamicBindingPaths = entityDynamicBindingPathList.map(
+            (path) => {
+              return path.key;
+            },
+          );
+        }
         const parentPropertyPath = convertPathToString(d.path);
         Object.keys(entity.bindingPaths).forEach((relativePath) => {
           const childPropertyPath = `${entityName}.${relativePath}`;
+          // Check if relative path has dynamic binding
+          if (
+            entityDynamicBindingPaths &&
+            entityDynamicBindingPaths.length &&
+            entityDynamicBindingPaths.includes(relativePath)
+          ) {
+            changePaths.add(childPropertyPath);
+          }
           if (isChildPropertyPath(parentPropertyPath, childPropertyPath)) {
             changePaths.add(childPropertyPath);
           }
