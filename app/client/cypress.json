@@ -1,9 +1,9 @@
 {
 	"baseUrl": "https://dev.appsmith.com/",
-	"defaultCommandTimeout": 80000,
+	"defaultCommandTimeout": 30000,
 	"requestTimeout": 21000,
 	"responseTimeout": 30000,
-	"pageLoadTimeout": 60000,
+	"pageLoadTimeout": 40000,
 	"video": true,
 	"videoUploadOnPasses": false,
 	"reporter": "mochawesome",
