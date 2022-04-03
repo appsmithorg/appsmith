@@ -152,7 +152,18 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
       this.updateProperty("schema", newSchema.schema);
     } else {
-      this.updateProperty(path, schemaItem);
+      /**
+       * TODO(Ashit): Not suppose to update the whole schema but just
+       * the path within the schema. This is just a hack to make sure
+       * the new added paths gets into the dynamicBindingPathList until
+       * the updateProperty function is fixed.
+       */
+      const updatedSchema = {
+        schema: clone(widgetProperties.schema),
+      };
+      set(updatedSchema, path, schemaItem);
+
+      this.updateProperty("schema", updatedSchema.schema);
     }
   };
 
