@@ -1762,7 +1762,7 @@ Cypress.Commands.add("evaluateErrorMessage", (value) => {
     });
 });
 
-Cypress.Commands.add("addAction", (value) => {
+Cypress.Commands.add("addAction", (value, parentSelector) => {
   cy.get(commonlocators.dropdownSelectButton)
     .last()
     .click();
@@ -1770,7 +1770,7 @@ Cypress.Commands.add("addAction", (value) => {
     .children()
     .contains("Show message")
     .click();
-  cy.enterActionValue(value);
+  cy.enterActionValue(value, parentSelector);
 });
 
 Cypress.Commands.add("onTableAction", (value, value1, value2) => {
@@ -1791,7 +1791,7 @@ Cypress.Commands.add("selectShowMsg", () => {
     .click();
 });
 
-Cypress.Commands.add("addSuccessMessage", (value) => {
+Cypress.Commands.add("addSuccessMessage", (value, parentSelector) => {
   cy.get(commonlocators.chooseMsgType)
     .last()
     .click();
@@ -1799,7 +1799,7 @@ Cypress.Commands.add("addSuccessMessage", (value) => {
     .children()
     .contains("Success")
     .click();
-  cy.enterActionValue(value);
+  cy.enterActionValue(value, parentSelector);
 });
 
 Cypress.Commands.add("SetDateToToday", () => {
@@ -1809,21 +1809,26 @@ Cypress.Commands.add("SetDateToToday", () => {
   cy.assertPageSave();
 });
 
-Cypress.Commands.add("enterActionValue", (value) => {
-  cy.get(".CodeMirror textarea")
+Cypress.Commands.add("enterActionValue", (value, parentSelector) => {
+  let selector = ".CodeMirror textarea";
+  if (parentSelector) {
+    selector = `${parentSelector} ${selector}`;
+  }
+
+  cy.get(selector)
     .last()
     .focus()
     .type("{ctrl}{shift}{downarrow}")
     .then(($cm) => {
       if ($cm.val() !== "") {
-        cy.get(".CodeMirror textarea")
+        cy.get(selector)
           .last()
           .clear({
             force: true,
           });
       }
 
-      cy.get(".CodeMirror textarea")
+      cy.get(selector)
         .last()
         .type(value, {
           force: true,

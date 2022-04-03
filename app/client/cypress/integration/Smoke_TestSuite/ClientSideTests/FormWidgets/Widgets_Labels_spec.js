@@ -101,7 +101,7 @@ describe("Label feature", () => {
       widgetName: "radiogroupwidget",
       parentColumnSpace: 11.9375,
       containerSelector: "[data-testid='radiogroup-container']",
-      isCompact: true,
+      isCompact: false,
       labelText: "Name",
       labelWidth: 4,
     };
