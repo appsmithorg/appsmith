@@ -115,13 +115,17 @@ describe("AForce - Community Issues page validations", function () {
     table.WaitUntilTableLoad()
     agHelper.NavigateBacktoEditor()
 
-    ee.SelectEntityByName("Table1", 'WIDGETS') //Bug 12228 - Searching based on hidden column value should not be allowed
-    jsEditor.EnterJSContext("defaultsearchtext", "Epic", true)
+    ee.SelectEntityByName("Table1", 'WIDGETS')
+    jsEditor.EnterJSContext("defaultsearchtext", "Epic", true)//Bug 12228 - Searching based on hidden column value should not be allowed
     agHelper.DeployApp()
     table.WaitForTableEmpty()
     table.AssertSearchText('Epic')
     table.WaitUntilTableLoad()
     agHelper.NavigateBacktoEditor()
+
+    ee.SelectEntityByName("Table1", 'WIDGETS')
+    jsEditor.RemoveText('defaultsearchtext')
+    table.WaitUntilTableLoad()
 
   });
 

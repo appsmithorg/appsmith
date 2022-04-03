@@ -139,6 +139,16 @@ export class JSEditor {
     this.agHelper.AssertAutoSave()//Allowing time for Evaluate value to capture value
   }
 
+  public RemoveText(endp: string) {
+    cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
+      .first()
+      .focus()
+      .type("{uparrow}", { force: true })
+      .type("{ctrl}{shift}{downarrow}", { force: true })
+      .type("{del}", { force: true });
+    this.agHelper.AssertAutoSave()
+  }
+
   public RenameJSObjFromForm(renameVal: string) {
     cy.get(this._jsObjName).click({ force: true });
     cy.get(this._jsObjTxt)
