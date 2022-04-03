@@ -104,6 +104,7 @@ export class AggregateHelper {
         cy.xpath(this.locator._spanButton(btnVisibleText))
             .scrollIntoView()
             .click({ force: true });
+        this.Sleep()
     }
 
     public Paste(selector: any, pastePayload: string) {
@@ -197,8 +198,28 @@ export class AggregateHelper {
                 .scrollIntoView()
                 .click()
         }
-        cy.get(this.locator._selectOptionValue(ddOption)).click({ force: true })
+        if (endp == 'selectwidget')
+            cy.get(this.locator._selectOptionValue(ddOption)).click({ force: true })
+        else
+            cy.get(this.locator._dropDownValue(ddOption)).click({ force: true })
+
         this.Sleep()//for selected value to reflect!
+    }
+
+    public SelectFromMultiSelect(options: string[], index = 0, endp: string = 'multiselectwidgetv2') {
+        cy.get(this.locator._widgetInDeployed(endp))
+            .eq(index)
+            .scrollIntoView()
+            .click()
+
+        options.forEach($each => {
+            cy.get(this.locator._multiSelectOptions($each)).check({ force: true })
+        })
+
+        //closing multiselect dropdown
+        cy.get(this.locator._widgetInDeployed(endp))
+            .eq(index)
+            .click()
     }
 
     public ReadSelectedDropDownValue() {
