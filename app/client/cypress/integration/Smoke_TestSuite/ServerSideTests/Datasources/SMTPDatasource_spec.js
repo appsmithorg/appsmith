@@ -62,7 +62,7 @@ describe("SMTP datasource test cases using ted", function() {
     cy.get("span.bp3-button-text:contains('Run query')")
       .closest("div")
       .click();
-    cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
+    cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.statusCode).to.eq("5005");
       expect(response.body.data.body).to.contain(
         "Couldn't find a valid recipient address. Please check your action configuration",
@@ -78,7 +78,7 @@ describe("SMTP datasource test cases using ted", function() {
     cy.get("span.bp3-button-text:contains('Run query')")
       .closest("div")
       .click();
-    cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
+    cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.statusCode).to.eq("5005");
       expect(response.body.data.body).to.contain(
         "Couldn't find a valid sender address. Please check your action configuration",

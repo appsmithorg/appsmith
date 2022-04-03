@@ -73,3 +73,11 @@ export class ObjectsRegistry {
         return ObjectsRegistry.table__;
     }
 }
+
+export const initLocalstorageRegistry = () => {
+    cy.window().then((window) => {
+        window.localStorage.setItem("ShowCommentsButtonToolTip", "");
+        window.localStorage.setItem("updateDismissed", "true");
+    });
+    localStorage.setItem("inDeployedMode", "false");
+};

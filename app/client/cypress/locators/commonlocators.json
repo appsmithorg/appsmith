@@ -65,7 +65,7 @@
   "toastMsg": ".Toastify__toast.Toastify__toast--default span",
   "callApi": ".t--property-control-onpagechange .t--open-dropdown-Select-Action",
   "singleSelectMenuItem": ".bp3-menu-item.single-select div",
-  "singleSelectWidgetMenuItem": ".menu-item-link div",
+  "singleSelectWidgetMenuItem": ".menu-item-link",
   "singleSelectActiveMenuItem": ".menu-item-active div",
   "multiSelectMenuItem": "rc-select-item.rc-select-item-option div",
   "selectMenuItem": ".bp3-menu li>a>div",
