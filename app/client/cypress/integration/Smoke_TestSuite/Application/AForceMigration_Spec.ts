@@ -1,4 +1,5 @@
 /// <reference types="Cypress" />
+import { toArray } from "cypress/types/lodash";
 import { ObjectsRegistry } from "../../../support/Objects/Registry";
 
 let homePage = ObjectsRegistry.HomePage,
@@ -100,28 +101,29 @@ describe("AForce - Community Issues page validations", function () {
 
   it("5. Verify Default search text in table as per 'Default Search Text' property set + Bug 12228", () => {
 
+    ee.SelectEntityByName("Table1", 'WIDGETS')
     jsEditor.EnterJSContext("defaultsearchtext", "Bug", true)
     agHelper.DeployApp()
-    table.WaitUntilTableLoad()
     table.AssertSearchText('Bug')
+    table.WaitUntilTableLoad()
     table.WaitUntilTableLoad()
     agHelper.NavigateBacktoEditor()
 
     ee.SelectEntityByName("Table1", 'WIDGETS')
     jsEditor.EnterJSContext("defaultsearchtext", "Question", true)
     agHelper.DeployApp()
-    table.WaitUntilTableLoad()
     table.AssertSearchText('Question')
     table.WaitUntilTableLoad()
     agHelper.NavigateBacktoEditor()
+    table.WaitUntilTableLoad()
 
     ee.SelectEntityByName("Table1", 'WIDGETS')
     jsEditor.EnterJSContext("defaultsearchtext", "Epic", true)//Bug 12228 - Searching based on hidden column value should not be allowed
     agHelper.DeployApp()
-    table.WaitForTableEmpty()
     table.AssertSearchText('Epic')
-    table.WaitUntilTableLoad()
+    table.WaitForTableEmpty()
     agHelper.NavigateBacktoEditor()
+    table.WaitUntilTableLoad()
 
     ee.SelectEntityByName("Table1", 'WIDGETS')
     jsEditor.RemoveText('defaultsearchtext')
@@ -129,9 +131,43 @@ describe("AForce - Community Issues page validations", function () {
 
   });
 
-  // it.skip("5. Validate Search table with Client Side Search enabled & disabled", () => {
+  it("6. Validate Search table with Client Side Search enabled & disabled", () => {
 
-  // })
+    agHelper.AssertExistingToggleState("enableclientsidesearch", 'checked')
+
+    agHelper.DeployApp()
+    table.WaitUntilTableLoad()
+
+    table.SearchTable('Bug')
+    table.WaitUntilTableLoad()
+    cy.xpath(table._searchBoxCross).click(),
+    
+    table.SearchTable('Question')
+    table.WaitUntilTableLoad()
+    cy.xpath(table._searchBoxCross).click(),
+
+    agHelper.NavigateBacktoEditor()
+    table.WaitUntilTableLoad()
+
+    ee.SelectEntityByName("Table1", 'WIDGETS')    
+    agHelper.ToggleOnOrOff("enableclientsidesearch", 'Off')
+
+    agHelper.DeployApp()
+    table.WaitUntilTableLoad()
+
+    table.SearchTable('Bug')
+    table.WaitForTableEmpty()
+    cy.xpath(table._searchBoxCross).click(),
+    
+    table.SearchTable('Question')
+    table.WaitForTableEmpty()
+    cy.xpath(table._searchBoxCross).click(),
+
+    agHelper.NavigateBacktoEditor()
+    table.WaitUntilTableLoad()
+    ee.SelectEntityByName("Table1", 'WIDGETS')
+
+  })
 
   // it.skip("6. Validate Filter table", () => {
 

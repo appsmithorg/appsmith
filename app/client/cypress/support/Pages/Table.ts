@@ -19,6 +19,7 @@ export class Table {
   _liPreviousPage = "li[title='Previous Page']"
   _liCurrentSelectedPage = "//div[@type='LIST_WIDGET']//ul[contains(@class, 'rc-pagination')]/li[contains(@class, 'rc-pagination-item-active')]/a"
   private _searchText = "input[type='search']"
+  _searchBoxCross = "//div[contains(@class, 't--search-input')]/following-sibling::div"
 
   public WaitUntilTableLoad() {
     // cy.waitUntil(() => cy.xpath(this._table, { timeout: 80000 }).should('be.visible'),
@@ -122,6 +123,10 @@ export class Table {
 
   public AssertSearchText(searchTxt: string) {
     cy.get(this._searchText).should('have.value', searchTxt)
+  }
+
+  public SearchTable(searchTxt: string) {
+    cy.get(this._searchText).type(searchTxt)
   }
 
   //List methods - keeping it for now!

@@ -15,9 +15,12 @@
 	},
 	"ignoreTestFiles": [
 		"**/Smoke_TestSuite/Application/PgAdmin_spec*.js",
-		"**/Smoke_TestSuite/ClientSideTests/DisplayWidgets/Table_Filter_spec*.js",
-		"**/Smoke_TestSuite/ClientSideTests/Onboarding/FirstTimeUserOnboarding_spec*.js",
-		"**/Smoke_TestSuite/ClientSideTests/Templates/Fork_Template_spec.js"
+		"**/Smoke_TestSuite/Application/EchoApiCMS_spec*.js",
+		"**/Smoke_TestSuite/Application/ImportExportForkApplication_spec*.js",
+		"**/Smoke_TestSuite/Application/MongoDBShoppingCart_spec*.js",
+		"**/Smoke_TestSuite/ClientSideTests/**/*",
+		"**/Smoke_TestSuite/ServerSideTests/**/*",
+		"**/Smoke_TestSuite/EnterpriseTests/**/*"
 	],
 	"chromeWebSecurity": false,
 	"viewportHeight": 1100,
