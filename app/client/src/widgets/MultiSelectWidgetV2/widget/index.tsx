@@ -445,7 +445,12 @@ class MultiSelectWidget extends BaseWidget<
     const options = isArray(this.props.options) ? this.props.options : [];
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
     const { componentWidth } = this.getComponentDimensions();
-    const values = this.getValidSelections();
+    const values: LabelValueType[] = this.props.selectedOptions
+      ? this.props.selectedOptions.map((o) =>
+          isString(o) || isNumber(o) ? { value: o } : { value: o.value },
+        )
+      : [];
+    this.validateSelections(values);
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     return (
@@ -483,14 +488,9 @@ class MultiSelectWidget extends BaseWidget<
     );
   }
 
-  getValidSelections = (): LabelValueType[] => {
-    const { options, selectedOptions, serverSideFiltering } = this.props;
-    const values: LabelValueType[] = selectedOptions
-      ? selectedOptions.map((o) =>
-          isString(o) || isNumber(o) ? { value: o } : { value: o.value },
-        )
-      : [];
-    if (serverSideFiltering) return values;
+  validateSelections = (values: LabelValueType[]): void => {
+    const { options, serverSideFiltering } = this.props;
+    if (serverSideFiltering) return;
     if (options?.length && values?.length) {
       const availableOptions: any[] = values
         .map((x) => {
@@ -499,10 +499,11 @@ class MultiSelectWidget extends BaseWidget<
             return { ...options[index], key: options[index].value };
         })
         .filter((e) => !isNil(e));
-      if (!availableOptions.length) return [];
-      return availableOptions;
+      if (availableOptions.length !== values.length)
+        this.onOptionChange(availableOptions);
+      return;
     }
-    return [];
+    this.onOptionChange([]);
   };
 
   onOptionChange = (value: DefaultValueType) => {
