@@ -175,30 +175,30 @@ describe("AForce - Community Issues page validations", function () {
 
 
   it("8. Validate Adding a New issue from Add Modal", () => {
-
     agHelper.DeployApp()
     table.WaitUntilTableLoad()
 
     cy.get(table._addIcon).closest('div').click()
     agHelper.AssertElementPresence(locator._modal)
-    agHelper.SelectDropDown('Suggestion', 'dropdownwidget')
+    agHelper.SelectFromDropDown('Suggestion', 't--modal-widget')
 
-    cy.get(locator._inputWidgetv1InDeployed).eq(0).type("Adding Title Suggestion via script")
-    cy.get(locator._inputWidgetv1InDeployed).eq(1).type("Adding Description Suggestion via script")
-    cy.get(locator._inputWidgetv1InDeployed).eq(2).type("https://github.com/appsmithorg/appsmith/issues/12532")
-    agHelper.SelectFromMultiSelect(['Epic', 'Task'], 0)
-    cy.get(locator._inputWidgetv1InDeployed).eq(3).type("https://release.app.appsmith.com/applications/62486d45ab307a026918639e/pages/62486d45ab307a02691863a7")
+    cy.get(locator._inputWidgetv1InDeployed).eq(3).type("Adding Title Suggestion via script")
+    cy.get(locator._textAreainputWidgetv1InDeployed).eq(1).type("Adding Description Suggestion via script")
+    cy.get(locator._inputWidgetv1InDeployed).eq(4).type("https://github.com/appsmithorg/appsmith/issues/12532")
+    agHelper.SelectFromMultiSelect(['Epic', 'Task'], 1)
+    cy.get(locator._inputWidgetv1InDeployed).eq(5).type("https://release.app.appsmith.com/applications/62486d45ab307a026918639e/pages/62486d45ab307a02691863a7")
     agHelper.SelectFromMultiSelect(['Documented', 'Needs App'], 1, 'multiselectwidget')
 
     agHelper.ClickButton('Confirm')
-    table.SearchTable('Suggestion')
+    agHelper.Sleep(3000)
+    table.SearchTable('Suggestion', 2)
     table.WaitUntilTableLoad()
 
     table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("Suggestion");
     });
 
-    table.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 1).then((cellData) => {
       expect(cellData).to.be.equal("Adding Title Suggestion via script");
     });
 

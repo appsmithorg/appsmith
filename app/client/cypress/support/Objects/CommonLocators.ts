@@ -20,6 +20,7 @@ export class CommonLocators {
     _textWidgetInDeployed = this._widgetInDeployed("textwidget") + " span"
     _inputWidgetInDeployed = this._widgetInDeployed("inputwidgetv2") + " input"
     _inputWidgetv1InDeployed = this._widgetInDeployed("inputwidget") + " input"
+    _textAreainputWidgetv1InDeployed = this._widgetInDeployed("inputwidget") + " textarea"
     _imageWidget = ".t--draggable-imagewidget"
     _backToEditor = ".t--back-to-editor"
     _newPage = ".pages .t--entity-add-btn"
@@ -63,4 +64,7 @@ export class CommonLocators {
     _existingFieldValueByName = (fieldName: string) => "//label[text()='" + fieldName + "']/ancestor::div//div[contains(@class,'CodeMirror-code')]"
     _evaluatedCurrentValue = "div:last-of-type .t--CodeEditor-evaluatedValue > div:last-of-type pre"
     _multiSelectOptions = (option: string) => "div[title='" + option + "'] input[type='checkbox']"
+    _divWithClass = (className: string) => "//div[contains(@class, '" + className + "')]"
+
+
 }

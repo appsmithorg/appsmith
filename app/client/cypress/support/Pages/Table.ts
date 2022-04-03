@@ -128,8 +128,8 @@ export class Table {
     cy.get(this._searchText).should('have.value', searchTxt)
   }
 
-  public SearchTable(searchTxt: string) {
-    cy.get(this._searchText).type(searchTxt)
+  public SearchTable(searchTxt: string, index = 0) {
+    cy.get(this._searchText).eq(index).type(searchTxt)
   }
 
   //List methods - keeping it for now!

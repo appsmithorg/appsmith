@@ -206,6 +206,19 @@ export class AggregateHelper {
         this.Sleep()//for selected value to reflect!
     }
 
+
+    public SelectFromDropDown(ddOption: string, insideParent: string = "", endp: string = "dropdownwidget") {
+        let mode = localStorage.getItem("inDeployedMode");
+        let modeSelector = mode == 'false' ? this.locator._selectWidgetDropdown(endp) : this.locator._selectWidgetDropdownInDeployed(endp);
+        let finalSelector = insideParent ? this.locator._divWithClass(insideParent) + modeSelector : modeSelector
+        cy.xpath(finalSelector)
+            .first()
+            .scrollIntoView()
+            .click()
+        cy.get(this.locator._dropDownValue(ddOption)).click({ force: true })
+        this.Sleep()//for selected value to reflect!
+    }
+
     public SelectFromMultiSelect(options: string[], index = 0, endp: string = 'multiselectwidgetv2') {
         cy.get(this.locator._widgetInDeployed(endp))
             .eq(index)
