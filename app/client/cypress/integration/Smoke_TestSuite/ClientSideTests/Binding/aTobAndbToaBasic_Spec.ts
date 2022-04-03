@@ -19,20 +19,21 @@ describe("Validate basic binding of Input widget to Input widget", () => {
     });
 
     it("1. Input widget test with default value for atob method", () => {
-        ee.expandCollapseEntity("WIDGETS")
-        ee.SelectEntityByName("Input1")
+        ee.SelectEntityByName("Input1", 'WIDGETS')
         jsEditor.EnterJSContext("defaulttext", dataSet.atobInput + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
+        cy.get(locator._inputWidget).first().invoke("attr", "value").should("equal", 'A');//Before mapping JSObject value of input
     });
 
     it("2. Input widget test with default value for btoa method", function () {
         ee.SelectEntityByName("Input2")
         jsEditor.EnterJSContext("defaulttext", dataSet.btoaInput + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
+        cy.get(locator._inputWidget).last().invoke("attr", "value").should("equal", 'QQ==');//Before mapping JSObject value of input
     });
 
     it("3. Publish and validate the data displayed in input widgets value for aToB and bToa", function () {
-        agHelper.DeployApp()
+        agHelper.DeployApp(locator._inputWidgetInDeployed)
         cy.get(locator._inputWidgetInDeployed).first().invoke("attr", "value")
             .should("contain", "A")
         cy.get(locator._inputWidgetInDeployed).last().invoke("attr", "value")
