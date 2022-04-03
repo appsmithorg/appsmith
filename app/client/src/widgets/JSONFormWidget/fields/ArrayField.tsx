@@ -34,8 +34,16 @@ const clone = require("rfdc/default");
 
 type ArrayComponentProps = FieldComponentBaseProps & {
   backgroundColor?: string;
+  borderColor?: string;
+  borderWidth?: number;
+  borderRadius?: string;
+  boxShadow?: string;
   cellBackgroundColor?: string;
   cellBorderColor?: string;
+  cellBorderWidth?: number;
+  cellBorderRadius?: string;
+  cellBoxShadow?: string;
+  primaryColor?: string;
   defaultValue?: any[];
   isCollapsible: boolean;
 };
@@ -264,6 +272,9 @@ function ArrayField({
         <Accordion
           backgroundColor={schemaItem.cellBackgroundColor}
           borderColor={schemaItem.cellBorderColor}
+          borderRadius={schemaItem.cellBorderRadius}
+          borderWidth={schemaItem.cellBorderWidth}
+          boxShadow={schemaItem.cellBoxShadow}
           className={`t--jsonformfield-${fieldClassName}-item t--item-${index}`}
           isCollapsible={schemaItem.isCollapsible}
           key={key}
@@ -306,6 +317,10 @@ function ArrayField({
   return (
     <StyledNestedFormWrapper
       backgroundColor={schemaItem.backgroundColor}
+      borderColor={schemaItem.borderColor}
+      borderRadius={schemaItem.borderRadius}
+      borderWidth={schemaItem.borderWidth}
+      boxShadow={schemaItem.boxShadow}
       className={`t--jsonformfield-${fieldClassName}`}
     >
       <FieldLabel
@@ -324,7 +339,7 @@ function ArrayField({
         <Icon
           icon="add"
           iconSize={ACTION_ICON_SIZE}
-          style={{ color: Colors.GREEN }}
+          style={{ color: schemaItem.primaryColor || Colors.GREEN }}
         />
         <span className="t--text">Add New</span>
       </StyledButton>

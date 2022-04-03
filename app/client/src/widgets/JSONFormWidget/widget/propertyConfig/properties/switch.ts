@@ -55,6 +55,21 @@ const PROPERTIES = {
       dependencies: ["schema", "sourceData"],
     },
   ],
+  styles: [
+    {
+      propertyName: "backgroundColor",
+      helpText: "Sets the checked state color of the switch",
+      label: "Background Color",
+      controlType: "COLOR_PICKER",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: { type: ValidationTypes.TEXT },
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.SWITCH),
+      dependencies: ["schema"],
+    },
+  ],
 };
 
 export default PROPERTIES;

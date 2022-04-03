@@ -12,9 +12,11 @@ import {
 import Icon, { IconSize } from "components/ads/Icon";
 import { isEqual, get } from "lodash";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
-import { Colors } from "constants/Colors";
-import { OverflowTypes } from "../constants";
+import { Color, Colors } from "constants/Colors";
 import FontLoader from "./FontLoader";
+import { DEFAULT_FONT_SIZE } from "constants/ThemeConstants";
+import { fontSizeUtility } from "widgets/WidgetUtils";
+import { OverflowTypes } from "../constants";
 
 export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
 
@@ -131,7 +133,8 @@ export const StyledText = styled(Text)<{
     props?.fontStyle?.includes(FontStyleTypes.UNDERLINE) ? "underline" : ""};
   font-weight: ${(props) =>
     props?.fontStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
-  font-size: ${(props) => props?.fontSize && TEXT_SIZES[props?.fontSize]};
+  font-size: ${({ fontSize }) =>
+    fontSizeUtility(fontSize) || DEFAULT_FONT_SIZE};
   word-break: break-word;
   span {
     width: 100%;
@@ -182,7 +185,8 @@ const Content = styled.div<{
     props?.fontStyle?.includes(FontStyleTypes.UNDERLINE) ? "underline" : ""};
   font-weight: ${(props) =>
     props?.fontStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
-  font-size: ${(props) => props?.fontSize && TEXT_SIZES[props?.fontSize]};
+  font-size: ${({ fontSize }) =>
+    fontSizeUtility(fontSize) || DEFAULT_FONT_SIZE};
 `;
 export interface TextComponentProps extends ComponentProps {
   text?: string;
@@ -196,6 +200,8 @@ export interface TextComponentProps extends ComponentProps {
   fontStyle?: string;
   disableLink: boolean;
   truncateButtonColor?: string;
+  borderColor?: Color;
+  borderWidth?: number;
   overflow: OverflowTypes;
   // helpers to detect and re-calculate content width
   bottomRow?: number;

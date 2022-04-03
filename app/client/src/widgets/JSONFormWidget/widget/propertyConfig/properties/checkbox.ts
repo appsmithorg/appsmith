@@ -62,6 +62,21 @@ const PROPERTIES: Record<string, ExtendedControlConfig[]> = {
       dependencies: ["schema"],
     },
   ],
+  styles: [
+    {
+      propertyName: "checkColor",
+      helpText: "Sets the checked state color of the checkbox",
+      label: "Checked Color",
+      controlType: "COLOR_PICKER",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: { type: ValidationTypes.TEXT },
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.CHECKBOX),
+      dependencies: ["schema"],
+    },
+  ],
 };
 
 export default PROPERTIES;

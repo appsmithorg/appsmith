@@ -8,8 +8,8 @@ import {
   BlueprintCSSTransform,
   createGlobalStyle,
 } from "constants/DefaultTheme";
-import { lightenColor } from "widgets/WidgetUtils";
 import { isEmptyOrNill } from "../../../utils/helpers";
+import { lightenColor } from "widgets/WidgetUtils";
 
 export const TextLabelWrapper = styled.div<{
   compactMode: boolean;
@@ -108,6 +108,8 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
     border-radius: ${(props) => props.borderRadius} !important;
     box-shadow: ${(props) => props.boxShadow} !important;
     border: 1px solid;
+    transition: border-color 0.15s ease-in-out 0s,
+      box-shadow 0.15s ease-in-out 0s;
     border-color: ${(props) =>
       props.hasError ? Colors.DANGER_SOLID : Colors.GREY_3};
     ${(props) =>
@@ -273,7 +275,9 @@ export const DropdownContainer = styled.div<{ compactMode: boolean }>`
   }
 `;
 
-export const MenuItem = styled.div`
+export const MenuItem = styled.div<{
+  primaryColor?: string;
+}>`
   & .menu-item-link {
     display: flex;
     flex-direction: row;
@@ -286,6 +290,7 @@ export const MenuItem = styled.div`
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    border-radius: 0;
 
     min-height: 38px;
     padding: 9px 12px;
@@ -294,7 +299,7 @@ export const MenuItem = styled.div`
     background-color: transparent;
 
     &:hover {
-      background-color: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+      background-color: ${({ primaryColor }) => lightenColor(primaryColor)};
       color: ${Colors.GREY_10};
       position: relative;
     }
@@ -305,7 +310,8 @@ export const MenuItem = styled.div`
   }
 
   && .has-focus {
-    background-color: ${Colors.GREEN_SOLID_LIGHT_HOVER} !important;
+    background-color: ${({ primaryColor }) =>
+      lightenColor(primaryColor)} !important;
   }
 
   & .menu-item-text {

@@ -56,6 +56,9 @@ describe(".fieldTypeUpdateHook", () => {
           originalIdentifier: ARRAY_ITEM_KEY,
           isSpellCheck: false,
           position: -1,
+          primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
         },
       },
       dataType: DataType.ARRAY,
@@ -72,7 +75,11 @@ describe(".fieldTypeUpdateHook", () => {
 
     const [result] =
       fieldTypeUpdateHook(
-        ({ schema, widgetName } as unknown) as JSONFormWidgetProps,
+        ({
+          schema,
+          widgetName,
+          childStylesheets: schemaTestData.fieldThemeStylesheets,
+        } as unknown) as JSONFormWidgetProps,
         propertyPath,
         fieldType,
       ) || [];
@@ -113,6 +120,9 @@ describe(".fieldTypeUpdateHook", () => {
           originalIdentifier: ARRAY_ITEM_KEY,
           isSpellCheck: false,
           position: -1,
+          primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
         },
       },
       dataType: DataType.ARRAY,
@@ -138,7 +148,11 @@ describe(".fieldTypeUpdateHook", () => {
 
     const [result] =
       fieldTypeUpdateHook(
-        ({ schema, widgetName } as unknown) as JSONFormWidgetProps,
+        ({
+          schema,
+          widgetName,
+          childStylesheets: schemaTestData.fieldThemeStylesheets,
+        } as unknown) as JSONFormWidgetProps,
         propertyPath,
         fieldType,
       ) || [];

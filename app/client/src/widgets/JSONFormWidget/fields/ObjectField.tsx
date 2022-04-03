@@ -17,8 +17,15 @@ import {
 
 type ObjectComponentProps = FieldComponentBaseProps & {
   backgroundColor?: string;
+  borderColor?: string;
+  borderWidth?: number;
+  borderRadius?: string;
+  boxShadow?: string;
   cellBackgroundColor?: string;
   cellBorderColor?: string;
+  cellBorderWidth?: number;
+  cellBorderRadius?: string;
+  cellBoxShadow?: string;
 };
 
 // Note: Do not use ControllerRenderProps["name"] here for name, as it causes TS stack overflow
@@ -64,8 +71,6 @@ function ObjectField({
   const {
     accessor,
     backgroundColor,
-    cellBackgroundColor,
-    cellBorderColor,
     isVisible = true,
     label,
     tooltip,
@@ -123,6 +128,10 @@ function ObjectField({
     >
       <NestedFormWrapper
         backgroundColor={isRootField ? "transparent" : backgroundColor}
+        borderColor={schemaItem.borderColor}
+        borderRadius={schemaItem.borderRadius}
+        borderWidth={schemaItem.borderWidth}
+        boxShadow={schemaItem.boxShadow}
         withoutPadding={isRootField}
       >
         {!hideLabel && <FieldLabel label={label} tooltip={tooltip} />}
@@ -130,8 +139,11 @@ function ObjectField({
           field
         ) : (
           <Accordion
-            backgroundColor={cellBackgroundColor}
-            borderColor={cellBorderColor}
+            backgroundColor={schemaItem.cellBackgroundColor}
+            borderColor={schemaItem.cellBorderColor}
+            borderRadius={schemaItem.cellBorderRadius}
+            borderWidth={schemaItem.cellBorderWidth}
+            boxShadow={schemaItem.cellBoxShadow}
             isCollapsible={false}
           >
             {field}

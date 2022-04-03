@@ -8,7 +8,7 @@ import { countryToFlag } from "./utilities";
 import { Colors } from "constants/Colors";
 import { lightenColor } from "widgets/WidgetUtils";
 
-const DropdownTriggerIconWrapper = styled.div`
+const DropdownTriggerIconWrapper = styled.button`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -16,6 +16,15 @@ const DropdownTriggerIconWrapper = styled.div`
   line-height: normal;
   letter-spacing: -0.24px;
   color: #090707;
+  border-right: 1px solid ${Colors.GREY_3};
+  gap: 0.25rem;
+  padding: 0 0.75rem;
+  height: 100%;
+  margin-right: 0.625rem;
+
+  &:focus {
+    background-color: ${Colors.GREY_1};
+  }
 
   .dropdown {
     svg {
@@ -139,7 +148,7 @@ export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
   const selectedCurrency = selectedOption.id;
   const dropdownTrigger = (
     <DropdownTriggerIconWrapper
-      className="h-full gap-2 px-3 t--input-currency-change focus:bg-gray-50"
+      className="t--input-currency-change currency-change-dropdown-trigger"
       tabIndex={0}
     >
       {selectedCurrency}

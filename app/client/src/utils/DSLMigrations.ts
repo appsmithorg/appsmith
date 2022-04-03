@@ -31,7 +31,10 @@ import {
   migrateTextStyleFromTextWidget,
   migrateScrollTruncateProperties,
 } from "./migrations/TextWidget";
-import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
+import {
+  DATA_BIND_REGEX,
+  DATA_BIND_REGEX_GLOBAL,
+} from "constants/BindingsConstants";
 import { theme } from "constants/DefaultTheme";
 import { getCanvasSnapRows } from "./WidgetPropsUtils";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
@@ -1074,7 +1077,7 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 54) {
-    currentDSL = currentDSL = migrateStylingPropertiesForTheming(currentDSL);
+    currentDSL = migrateStylingPropertiesForTheming(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
@@ -1580,10 +1583,12 @@ export const migrateStylingPropertiesForTheming = (
         break;
       case ButtonBorderRadiusTypes.CIRCLE:
         child.borderRadius = "9999px";
+        addPropertyToDynamicPropertyPathList("borderRadius", child);
         break;
       default:
         if (child.type === "CONTAINER_WIDGET" || child.type === "FORM_WIDGET") {
           child.borderRadius = `${child.borderRadius}px`;
+          addPropertyToDynamicPropertyPathList("borderRadius", child);
         } else {
           child.borderRadius = "0px";
         }
@@ -1594,22 +1599,27 @@ export const migrateStylingPropertiesForTheming = (
       case BoxShadowTypes.VARIANT1:
         child.boxShadow = `0px 0px 4px 3px ${child.boxShadowColor ||
           "rgba(0, 0, 0, 0.25)"}`;
+        addPropertyToDynamicPropertyPathList("boxShadow", child);
         break;
       case BoxShadowTypes.VARIANT2:
         child.boxShadow = `3px 3px 4px ${child.boxShadowColor ||
           "rgba(0, 0, 0, 0.25)"}`;
+        addPropertyToDynamicPropertyPathList("boxShadow", child);
         break;
       case BoxShadowTypes.VARIANT3:
         child.boxShadow = `0px 1px 3px ${child.boxShadowColor ||
           "rgba(0, 0, 0, 0.25)"}`;
+        addPropertyToDynamicPropertyPathList("boxShadow", child);
         break;
       case BoxShadowTypes.VARIANT4:
         child.boxShadow = `2px 2px 0px  ${child.boxShadowColor ||
           "rgba(0, 0, 0, 0.25)"}`;
+        addPropertyToDynamicPropertyPathList("boxShadow", child);
         break;
       case BoxShadowTypes.VARIANT5:
         child.boxShadow = `-2px -2px 0px ${child.boxShadowColor ||
           "rgba(0, 0, 0, 0.25)"}`;
+        addPropertyToDynamicPropertyPathList("boxShadow", child);
         break;
       default:
         child.boxShadow = "none";
@@ -1692,6 +1702,117 @@ export const migrateStylingPropertiesForTheming = (
               `primaryColumns.${key}.textSize`,
               child,
             );
+            break;
+        }
+
+        /**
+         * Migrate the borderRadius if exists for the primary columns and derived columns
+         */
+        switch (column.borderRadius) {
+          case ButtonBorderRadiusTypes.SHARP:
+            column.borderRadius = "0px";
+            if (isDerivedColumn) {
+              derivedColumn.borderRadius = "0px";
+            }
+            break;
+          case ButtonBorderRadiusTypes.ROUNDED:
+            column.borderRadius = "0.375rem";
+            if (isDerivedColumn) {
+              derivedColumn.borderRadius = "0.375rem";
+            }
+            break;
+          case ButtonBorderRadiusTypes.CIRCLE:
+            column.borderRadius = "9999px";
+            if (isDerivedColumn) {
+              derivedColumn.borderRadius = "9999px";
+            }
+            break;
+        }
+
+        /**
+         * Migrate the boxShadow if exists for the primary columns and derived columns:
+         */
+        switch (column.boxShadow) {
+          case BoxShadowTypes.VARIANT1:
+            if (!DATA_BIND_REGEX.test(column.boxShadowColor)) {
+              //Checks is boxShadowColor is not dynamic
+              column.boxShadow = `0px 0px 4px 3px ${column.boxShadowColor ||
+                "rgba(0, 0, 0, 0.25)"}`;
+              if (isDerivedColumn) {
+                derivedColumn.boxShadow = `0px 0px 4px 3px ${column.boxShadowColor ||
+                  "rgba(0, 0, 0, 0.25)"}`;
+              }
+              delete column.boxShadowColor;
+            } else {
+              column.boxShadow = `0px 0px 4px 3px rgba(0, 0, 0, 0.25)`;
+              if (isDerivedColumn) {
+                derivedColumn.boxShadow = `0px 0px 4px 3px rgba(0, 0, 0, 0.25)`;
+              }
+            }
+            break;
+          case BoxShadowTypes.VARIANT2:
+            if (!DATA_BIND_REGEX.test(column.boxShadowColor)) {
+              column.boxShadow = `3px 3px 4px ${column.boxShadowColor ||
+                "rgba(0, 0, 0, 0.25)"}`;
+              if (isDerivedColumn) {
+                derivedColumn.boxShadow = `3px 3px 4px ${column.boxShadowColor ||
+                  "rgba(0, 0, 0, 0.25)"}`;
+              }
+              delete column.boxShadowColor;
+            } else {
+              column.boxShadow = `3px 3px 4px rgba(0, 0, 0, 0.25)`;
+              if (isDerivedColumn) {
+                derivedColumn.boxShadow = `3px 3px 4px rgba(0, 0, 0, 0.25)`;
+              }
+            }
+            break;
+          case BoxShadowTypes.VARIANT3:
+            if (!DATA_BIND_REGEX.test(column.boxShadowColor)) {
+              column.boxShadow = `0px 1px 3px ${column.boxShadowColor ||
+                "rgba(0, 0, 0, 0.25)"}`;
+              if (isDerivedColumn) {
+                derivedColumn.boxShadow = `0px 1px 3px ${column.boxShadowColor ||
+                  "rgba(0, 0, 0, 0.25)"}`;
+              }
+              delete column.boxShadowColor;
+            } else {
+              column.boxShadow = `0px 1px 3px rgba(0, 0, 0, 0.25)`;
+              if (isDerivedColumn) {
+                derivedColumn.boxShadow = `0px 1px 3px rgba(0, 0, 0, 0.25)`;
+              }
+            }
+            break;
+          case BoxShadowTypes.VARIANT4:
+            if (!DATA_BIND_REGEX.test(column.boxShadowColor)) {
+              column.boxShadow = `2px 2px 0px  ${column.boxShadowColor ||
+                "rgba(0, 0, 0, 0.25)"}`;
+              if (isDerivedColumn) {
+                derivedColumn.boxShadow = `2px 2px 0px  ${column.boxShadowColor ||
+                  "rgba(0, 0, 0, 0.25)"}`;
+              }
+              delete column.boxShadowColor;
+            } else {
+              column.boxShadow = `2px 2px 0px rgba(0, 0, 0, 0.25)`;
+              if (isDerivedColumn) {
+                derivedColumn.boxShadow = `2px 2px 0px rgba(0, 0, 0, 0.25)`;
+              }
+            }
+            break;
+          case BoxShadowTypes.VARIANT5:
+            if (!DATA_BIND_REGEX.test(column.boxShadowColor)) {
+              column.boxShadow = `-2px -2px 0px ${column.boxShadowColor ||
+                "rgba(0, 0, 0, 0.25)"}`;
+              if (isDerivedColumn) {
+                derivedColumn.boxShadow = `-2px -2px 0px ${column.boxShadowColor ||
+                  "rgba(0, 0, 0, 0.25)"}`;
+              }
+              delete column.boxShadowColor;
+            } else {
+              column.boxShadow = `-2px -2px 0px rgba(0, 0, 0, 0.25)`;
+              if (isDerivedColumn) {
+                derivedColumn.boxShadow = `-2px -2px 0px rgba(0, 0, 0, 0.25)`;
+              }
+            }
             break;
         }
       });
