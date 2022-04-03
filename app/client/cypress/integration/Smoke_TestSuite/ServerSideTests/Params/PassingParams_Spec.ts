@@ -217,14 +217,15 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     agHelper.NavigateBacktoEditor()
   });
 
-  it.skip("12. Delete all entities - Query, JSObjects, Datasource", () => {
+  it("12. Delete all entities - Query, JSObjects, Datasource + Bug 12532", () => {
     ee.expandCollapseEntity('QUERIES/JS')
     ee.ActionContextMenuByEntityName('ParamsTest', 'Delete', 'Are you sure?')
     agHelper.ValidateNetworkStatus("@deleteAction", 200)
     ee.ActionContextMenuByEntityName(jsName as string, 'Delete', 'Are you sure?')
     agHelper.ValidateNetworkStatus("@deleteJSCollection", 200)
-    ee.expandCollapseEntity('DATASOURCES')
-    ee.ActionContextMenuByEntityName(guid, 'Delete', 'Are you sure?')
-    agHelper.ValidateNetworkStatus("@deleteAction", 200)
+    // //Bug 12532
+    // ee.expandCollapseEntity('DATASOURCES')
+    // ee.ActionContextMenuByEntityName(guid, 'Delete', 'Are you sure?')
+    // agHelper.ValidateNetworkStatus("@deleteAction", 200)
   });
 });
