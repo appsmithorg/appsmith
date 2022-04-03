@@ -98,9 +98,25 @@ describe("AForce - Community Issues page validations", function () {
 
   });
 
-  // it("4. Verify Default search text in table as per 'Default Search Text' property set", () => {
+  it("5. Verify Default search text in table as per 'Default Search Text' property set + Bug 12228", () => {
 
-  // });
+    jsEditor.EnterJSContext("defaultsearchtext", "Bug", true)
+    agHelper.DeployApp()
+    table.WaitUntilTableLoad()
+    table.AssertSearchText('Bug')
+    table.WaitUntilTableLoad()
+
+    agHelper.NavigateBacktoEditor()
+    ee.SelectEntityByName("Table1", 'WIDGETS')
+    jsEditor.EnterJSContext("defaultsearchtext", "Question", true)
+    agHelper.DeployApp()
+    table.WaitUntilTableLoad()
+    table.AssertSearchText('Question')
+    table.WaitUntilTableLoad()
+
+    agHelper.NavigateBacktoEditor()
+
+  });
 
   // it.skip("5. Validate Search table with Client Side Search enabled & disabled", () => {
 

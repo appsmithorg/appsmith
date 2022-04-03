@@ -18,7 +18,7 @@ export class Table {
   _liNextPage = "li[title='Next Page']"
   _liPreviousPage = "li[title='Previous Page']"
   _liCurrentSelectedPage = "//div[@type='LIST_WIDGET']//ul[contains(@class, 'rc-pagination')]/li[contains(@class, 'rc-pagination-item-active')]/a"
-
+  private _searchText = "input[type='search']"
 
   public WaitUntilTableLoad() {
     // cy.waitUntil(() => cy.xpath(this._table, { timeout: 80000 }).should('be.visible'),
@@ -118,6 +118,10 @@ export class Table {
   public SelectTableRow(rowIndex: number) {
     cy.get(this._tableRow(rowIndex, 0)).first().click({ force: true });
     this.agHelper.Sleep()//for select to reflect
+  }
+
+  public AssertSearchText(searchTxt: string) {
+    cy.get(this._searchText).should('have.value', searchTxt)
   }
 
   //List methods - keeping it for now!
