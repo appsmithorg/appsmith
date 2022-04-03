@@ -24,6 +24,12 @@ let applicationId;
 
 // Import commands.js using ES2015 syntax:
 import "./commands";
+import "./ApiCommands";
+import "./OrgCommands";
+import "./queryCommands";
+import "./dataSourceCommands";
+import "./gitSync";
+import "./widgetProperties";
 import { initLocalstorage } from "./commands";
 import * as MESSAGES from "../../../client/src/ce/constants/messages.ts";
 
