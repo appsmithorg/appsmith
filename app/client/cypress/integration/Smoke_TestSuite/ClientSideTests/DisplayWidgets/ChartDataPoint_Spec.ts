@@ -18,29 +18,23 @@ describe("Input widget test with default value from chart datapoint", () => {
         });
     });
 
-    it("1. Input widget test with default value from another Input widget", () => {
-        ee.expandCollapseEntity("WIDGETS")
-        ee.SelectEntityByName("Input1")
+    it("1. Chart widget - Input widget test with default value from another Input widget", () => {
+        ee.SelectEntityByName("Input1", 'WIDGETS')
         jsEditor.EnterJSContext("defaulttext", dataSet.bindChartData + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
-    });
-
-    it("2. Chart with datapoint feature validation", function () {
         ee.SelectEntityByName("Chart1")
         agHelper.SelectPropertiesDropDown("ondatapointclick", "Show message")
         agHelper.EnterActionValue("Message", dataSet.bindingDataPoint)
+        ee.SelectEntityByName("Input2")
+        jsEditor.EnterJSContext("defaulttext", dataSet.bindingSeriesTitle + "}}");
+        agHelper.DeployApp()
+        agHelper.Sleep(1500)//waiting for chart to load!
         agHelper.XpathNClick("(//*[local-name()='rect'])[13]")
-        cy.get(locator._inputWidget).first().invoke('val').then($value => {
+        cy.get(locator._inputWidgetInDeployed).first().invoke('val').then($value => {
             let inputVal = ($value as string).replace(/\s/g, "")
             //cy.get(locator._toastMsg).invoke('text').then(toastTxt => expect(toastTxt.trim()).to.eq(inputVal))
             cy.get(locator._toastMsg).should('have.text', inputVal)
         })
-    })
-
-    it("3. Chart with seriesTitle feature validation", function () {
-        ee.SelectEntityByName("Input2")
-        jsEditor.EnterJSContext("defaulttext", dataSet.bindingSeriesTitle + "}}");
-        cy.get(locator._inputWidget).last().should("have.value", dsl.dsl.children[0].chartData[0].seriesName);
+        cy.get(locator._inputWidgetInDeployed).last().should("have.value", dsl.dsl.children[0].chartData[0].seriesName);
     });
-
 });
