@@ -356,7 +356,9 @@ export enum FieldType {
   DELAY_FIELD = "DELAY_FIELD",
   ID_FIELD = "ID_FIELD",
   CLEAR_INTERVAL_ID_FIELD = "CLEAR_INTERVAL_ID_FIELD",
-  // TODO - see if post message needs to accept any arguments and add them here
+  MESSAGE_FIELD = "MESSAGE_FIELD",
+  TARGET_ORIGIN_FIELD = "TARGET_ORIGIN_FIELD",
+  TRANSFER_ARRAY_FIELD = "TRANSFER_ARRAY_FIELD",
 }
 
 type FieldConfig = {
@@ -411,7 +413,7 @@ const fieldConfigs: FieldConfigs = {
           defaultParams = `"",true`;
           break;
         case ActionType.postMessage:
-          defaultParams = "() => { \n\t // add code here \n}";
+          defaultParams = `"",*,undefined`;
           break;
         default:
           break;
@@ -627,6 +629,33 @@ const fieldConfigs: FieldConfigs = {
     },
     view: ViewTypes.TEXT_VIEW,
   },
+  [FieldType.MESSAGE_FIELD]: {
+    getter: (value: string) => {
+      return textGetter(value, 0);
+    },
+    setter: (value: string, currentValue: string) => {
+      return textSetter(value, currentValue, 0);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
+  [FieldType.TARGET_ORIGIN_FIELD]: {
+    getter: (value: string) => {
+      return textGetter(value, 1);
+    },
+    setter: (value: string, currentValue: string) => {
+      return textSetter(value, currentValue, 1);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
+  [FieldType.TRANSFER_ARRAY_FIELD]: {
+    getter: (value: string) => {
+      return textGetter(value, 2);
+    },
+    setter: (value: string, currentValue: string) => {
+      return textSetter(value, currentValue, 2);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
 };
 
 function renderField(props: {
@@ -798,6 +827,9 @@ function renderField(props: {
     case FieldType.DELAY_FIELD:
     case FieldType.ID_FIELD:
     case FieldType.CLEAR_INTERVAL_ID_FIELD:
+    case FieldType.MESSAGE_FIELD:
+    case FieldType.TARGET_ORIGIN_FIELD:
+    case FieldType.TRANSFER_ARRAY_FIELD:
       let fieldLabel = "";
       if (fieldType === FieldType.ALERT_TEXT_FIELD) {
         fieldLabel = "Message";
@@ -823,6 +855,12 @@ function renderField(props: {
         fieldLabel = "Id";
       } else if (fieldType === FieldType.CLEAR_INTERVAL_ID_FIELD) {
         fieldLabel = "Id";
+      } else if (fieldType === FieldType.MESSAGE_FIELD) {
+        fieldLabel = "Message";
+      } else if (fieldType === FieldType.TARGET_ORIGIN_FIELD) {
+        fieldLabel = "Target origin";
+      } else if (fieldType === FieldType.TRANSFER_ARRAY_FIELD) {
+        fieldLabel = "Transfer array (optional)";
       }
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
         label: fieldLabel,

@@ -380,9 +380,17 @@ function getFieldFromValue(
   }
 
   if (value.indexOf("postMessage") !== -1) {
-    fields.push({
-      field: FieldType.CALLBACK_FUNCTION_FIELD,
-    });
+    fields.push(
+      {
+        field: FieldType.MESSAGE_FIELD,
+      },
+      {
+        field: FieldType.TARGET_ORIGIN_FIELD,
+      },
+      {
+        field: FieldType.TRANSFER_ARRAY_FIELD,
+      },
+    );
   }
 
   return fields;

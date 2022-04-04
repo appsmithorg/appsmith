@@ -261,11 +261,13 @@ const DATA_TREE_FUNCTIONS: Record<
         };
       },
   },
-  postMessage: function(callback) {
+  postMessage: function(message: any, targetOrigin: any, transfer?: any) {
     return {
       type: ActionTriggerType.POST_MESSAGE,
       payload: {
-        callback: callback.toString(),
+        message,
+        targetOrigin,
+        transfer,
       },
       executionType: ExecutionType.TRIGGER,
     };

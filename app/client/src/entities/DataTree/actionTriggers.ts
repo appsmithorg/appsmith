@@ -171,7 +171,9 @@ export type ConfirmationModal = {
 export type PostMessageDescription = {
   type: ActionTriggerType.POST_MESSAGE;
   payload: {
-    callback: string;
+    message: any;
+    targetOrigin: any;
+    transfer?: any;
   };
 };
 
