@@ -723,7 +723,12 @@ export function EditorJSONtoForm(props: Props) {
             subSection.hidden = false;
           }
           enabled = checkIfSectionIsEnabled(conditionalOutput);
+          subSection = updateEvaluatedSectionConfig(
+            subSection,
+            conditionalOutput,
+          );
           subSection = modifySectionConfig(subSection, enabled);
+          if (!isValidFormConfig(subSection)) return null;
         });
       }
       // If the component is not allowed to render, return null
