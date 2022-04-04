@@ -185,7 +185,7 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.get(loginPage.username).type(uname);
   cy.get(loginPage.password).type(pword, { log: false });
   cy.get(loginPage.submitBtn).click();
-  cy.wait("@getUser");
+  cy.wait("@getMe");
   cy.wait(3000);
   cy.get(".t--applications-container .createnew").should("be.visible");
   cy.get(".t--applications-container .createnew").should("be.enabled");
@@ -210,7 +210,7 @@ Cypress.Commands.add("Signup", (uname, pword) => {
   cy.get(signupPage.dropdownOption).click();
   cy.get(signupPage.roleUsecaseSubmit).click();
 
-  cy.wait("@getUser");
+  cy.wait("@getMe");
   cy.wait(3000);
   initLocalstorage();
 });
@@ -230,7 +230,7 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
     },
   }).then((response) => {
     expect(response.status).equal(302);
-    cy.log(response.body);
+    //cy.log(response.body);
   });
 });
 
@@ -701,10 +701,12 @@ Cypress.Commands.add(
     const selector = `.t--widget-card-draggable-${widgetType}`;
     cy.wait(800);
     cy.get(selector)
+      .scrollIntoView()
       .trigger("dragstart", { force: true })
       .trigger("mousemove", x, y, { force: true });
     const selector2 = `.t--draggable-${destinationWidget}`;
     cy.get(selector2)
+      .scrollIntoView()
       .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
       .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
       .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
@@ -768,6 +770,7 @@ Cypress.Commands.add("isSelectRow", (index) => {
   cy.get('.tbody .td[data-rowindex="' + index + '"][data-colindex="' + 0 + '"]')
     .first()
     .click({ force: true });
+  cy.wait(1000); //for selection to show!
 });
 
 Cypress.Commands.add("getDate", (date, dateFormate) => {
@@ -802,11 +805,11 @@ Cypress.Commands.add("validateDisableWidget", (widgetCss, disableCss) => {
 });
 
 Cypress.Commands.add("validateToolbarVisible", (widgetCss, toolbarCss) => {
-  cy.get(widgetCss + toolbarCss, { timeout: 10000 }).should("exist");
+  cy.get(widgetCss + toolbarCss).should("exist");
 });
 
 Cypress.Commands.add("validateToolbarHidden", (widgetCss, toolbarCss) => {
-  cy.get(widgetCss + toolbarCss, { timeout: 10000 }).should("not.exist");
+  cy.get(widgetCss + toolbarCss).should("not.exist");
 });
 
 Cypress.Commands.add("validateEnableWidget", (widgetCss, disableCss) => {
@@ -857,9 +860,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     "getTemplateCollections",
   );
   cy.route("PUT", "/api/v1/pages/*").as("updatePage");
-  cy.route("DELETE", "/api/v1/actions/*").as("deleteAPI");
   cy.route("DELETE", "/api/v1/applications/*").as("deleteApp");
-  cy.route("DELETE", "/api/v1/actions/*").as("deleteAction");
   cy.route("DELETE", "/api/v1/pages/*").as("deletePage");
   cy.route("POST", "/api/v1/datasources").as("createDatasource");
   cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
@@ -908,7 +909,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "/api/v1/organizations/roles?organizationId=*").as(
     "getRoles",
   );
-  cy.route("GET", "/api/v1/users/me").as("getUser");
+  cy.route("GET", "/api/v1/users/me").as("getMe");
   cy.route("POST", "/api/v1/pages").as("createPage");
   cy.route("POST", "/api/v1/pages/clone/*").as("clonePage");
   cy.route("POST", "/api/v1/applications/clone/*").as("cloneApp");
@@ -928,6 +929,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.route("POST", "api/v1/git/connect/*").as("connectGitRepo");
   cy.route("POST", "api/v1/git/commit/*").as("commit");
+  cy.route("POST", "/api/v1/git/import/*").as("importFromGit");
 
   cy.route("PUT", "api/v1/collections/actions/refactor").as("renameJsAction");
 

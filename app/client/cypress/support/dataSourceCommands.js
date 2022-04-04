@@ -144,18 +144,17 @@ Cypress.Commands.add(
     // const databaseName = shouldAddTrailingSpaces
     //   ? datasourceFormData["mongo-databaseName"] + "  "
     //   : datasourceFormData["mongo-databaseName"];
-
     cy.get(datasourceEditor["host"]).type(hostAddress);
     cy.get(datasourceEditor.port).type(datasourceFormData["mongo-port"]);
     //cy.get(datasourceEditor["port"]).type(datasourceFormData["mongo-port"]);
     //cy.get(datasourceEditor["selConnectionType"]).click();
     //cy.contains(datasourceFormData["connection-type"]).click();
     //cy.get(datasourceEditor["defaultDatabaseName"]).type(databaseName);//is optional hence removing
-
     cy.get(datasourceEditor.sectionAuthentication).click();
     cy.get(datasourceEditor["databaseName"])
       .clear()
       .type(datasourceFormData["mongo-databaseName"]);
+    cy.get(datasourceEditor.sectionAuthentication).click();
     // cy.get(datasourceEditor["username"]).type(
     //   datasourceFormData["mongo-username"],
     // );
@@ -185,13 +184,13 @@ Cypress.Commands.add(
       .clear()
       .type(databaseName);
 
-    cy.get(datasourceEditor.sectionAuthentication).click();
     cy.get(datasourceEditor.username).type(
       datasourceFormData["postgres-username"],
     );
     cy.get(datasourceEditor.password).type(
       datasourceFormData["postgres-password"],
     );
+    cy.get(datasourceEditor.sectionAuthentication).click();
   },
 );
 
@@ -218,6 +217,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.password).type(
       datasourceFormData["mysql-password"],
     );
+    cy.get(datasourceEditor.sectionAuthentication).click();
   },
 );
 
@@ -407,4 +407,8 @@ Cypress.Commands.add("fillMongoDatasourceFormWithURI", () => {
   cy.xpath(datasourceEditor["mongoUriInput"]).type(
     datasourceFormData["mongo-uri"],
   );
+});
+
+Cypress.Commands.add("ReconnectDatasource", (datasource) => {
+  cy.xpath(`//span[text()='${datasource}']`).click();
 });

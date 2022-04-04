@@ -82,14 +82,14 @@ Cypress.Commands.add("changeColumnType", (dataType) => {
     200,
   );
   /*
-    cy.get(commonlocators.selectedColType)
-      .first()
-      .invoke("text")
-      .then((text) => {
-        const someText = text;
-        expect(someText).to.equal(dataType);
-      });
-      */
+      cy.get(commonlocators.selectedColType)
+        .first()
+        .invoke("text")
+        .then((text) => {
+          const someText = text;
+          expect(someText).to.equal(dataType);
+        });
+        */
 });
 
 Cypress.Commands.add("switchToPaginationTab", () => {
@@ -200,16 +200,16 @@ Cypress.Commands.add("createModal", (ModalName) => {
 });
 
 Cypress.Commands.add("selectOnClickOption", (option) => {
-  cy.get(".bp3-popover-content", { timeout: 10000 }).should("be.visible");
-  cy.get("ul.bp3-menu div.bp3-fill", { timeout: 10000 })
+  cy.get(".bp3-popover-content").should("be.visible");
+  cy.get("ul.bp3-menu div.bp3-fill")
     .should("be.visible")
     .contains(option)
     .click({ force: true });
 });
 
 Cypress.Commands.add("selectWidgetOnClickOption", (option) => {
-  cy.get(".bp3-popover-content", { timeout: 10000 }).should("be.visible");
-  cy.get(commonlocators.selectWidgetVirtualList, { timeout: 10000 })
+  cy.get(".bp3-popover-content").should("be.visible");
+  cy.get(commonlocators.selectWidgetVirtualList)
     .should("be.visible")
     .contains(option)
     .click({ force: true });
@@ -1085,7 +1085,7 @@ Cypress.Commands.add(
   "validateWidgetExists",
   { prevSubject: true },
   (selector) => {
-    cy.get(selector, { timeout: 5000 }).should("exist");
+    cy.get(selector).should("exist");
   },
 );
 

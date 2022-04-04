@@ -307,7 +307,6 @@ Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
   cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
-
   cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
@@ -315,6 +314,12 @@ Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
     "response.body.responseMeta.status",
     200,
   );
+
+  cy.waitUntil(() => cy.get(generatePage.buildFromScratchActionCard), {
+    errorMsg: "Build app from scratch not visible even aft 80 secs",
+    timeout: 20000,
+    interval: 1000,
+  }).then(($ele) => cy.wrap($ele).should("be.visible"));
 
   cy.get(generatePage.buildFromScratchActionCard).click();
 
