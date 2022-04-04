@@ -1,4 +1,4 @@
-import { get } from "lodash";
+import { get, set } from "lodash";
 
 import SchemaParser from "widgets/JSONFormWidget/schemaParser";
 import {
@@ -12,6 +12,8 @@ import { getGrandParentPropertyPath, getParentPropertyPath } from "../helper";
 import { JSONFormWidgetProps } from "..";
 
 export type HiddenFnParams = [JSONFormWidgetProps, string];
+
+const clone = require("rfdc/default");
 
 export const fieldTypeUpdateHook = (
   props: JSONFormWidgetProps,
@@ -30,7 +32,16 @@ export const fieldTypeUpdateHook = (
     fieldThemeStylesheets: childStylesheets,
   });
 
-  return [{ propertyPath: schemaItemPath, propertyValue: newSchemaItem }];
+  /**
+   * TODO(Ashit): Not suppose to update the whole schema but just
+   * the path within the schema. This is just a hack to make sure
+   * the new added paths gets into the dynamicBindingPathList until
+   * the updateProperty function is fixed.
+   */
+  const updatedSchema = clone(schema);
+  set({ schema: updatedSchema }, schemaItemPath, newSchemaItem);
+
+  return [{ propertyPath: "schema", propertyValue: updatedSchema }];
 };
 
 export const hiddenIfArrayItemIsObject = (
