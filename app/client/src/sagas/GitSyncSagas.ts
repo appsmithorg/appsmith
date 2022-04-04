@@ -5,9 +5,12 @@ import {
   ReduxActionTypes,
   ReduxActionWithCallbacks,
 } from "constants/ReduxActionConstants";
-import { all, put, select, takeLatest, call } from "redux-saga/effects";
+import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
-import GitSyncAPI from "api/GitSyncAPI";
+import GitSyncAPI, {
+  MergeBranchPayload,
+  MergeStatusPayload,
+} from "api/GitSyncAPI";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -17,33 +20,35 @@ import {
   commitToRepoSuccess,
   fetchBranchesInit,
   fetchBranchesSuccess,
-  fetchGlobalGitConfigSuccess,
-  fetchLocalGitConfigSuccess,
-  updateLocalGitConfigSuccess,
-  fetchLocalGitConfigInit,
-  switchGitBranchInit,
-  gitPullSuccess,
-  fetchMergeStatusSuccess,
-  fetchMergeStatusFailure,
   fetchGitStatusInit,
-  setIsGitSyncModalOpen,
-  setIsGitErrorPopupVisible,
-  setIsDisconnectGitModalOpen,
-  setShowRepoLimitErrorModal,
+  fetchGitStatusSuccess,
   fetchGlobalGitConfigInit,
-  generateSSHKeyPairSuccess,
-  getSSHKeyPairSuccess,
-  getSSHKeyPairError,
+  fetchGlobalGitConfigSuccess,
+  fetchLocalGitConfigInit,
+  fetchLocalGitConfigSuccess,
+  fetchMergeStatusFailure,
+  fetchMergeStatusSuccess,
   GenerateSSHKeyPairReduxAction,
+  generateSSHKeyPairSuccess,
+  getSSHKeyPairError,
   GetSSHKeyPairReduxAction,
+  getSSHKeyPairSuccess,
+  gitPullSuccess,
   importAppViaGitSuccess,
+  setIsDisconnectGitModalOpen,
+  setIsGitErrorPopupVisible,
+  setIsGitSyncModalOpen,
+  setShowRepoLimitErrorModal,
+  switchGitBranchInit,
+  updateLocalGitConfigSuccess,
 } from "actions/gitSyncActions";
 
 import { showReconnectDatasourceModal } from "actions/applicationActions";
 
 import {
-  connectToGitSuccess,
   ConnectToGitReduxAction,
+  connectToGitSuccess,
+  mergeBranchSuccess,
 } from "../actions/gitSyncActions";
 import { ApiResponse } from "api/ApiResponses";
 import { GitConfig, GitSyncModalTab } from "entities/GitSync";
@@ -52,29 +57,24 @@ import { Variant } from "components/ads/common";
 import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
+  getOrganizationIdForImport,
 } from "selectors/applicationSelectors";
-import { fetchGitStatusSuccess } from "actions/gitSyncActions";
 import {
   createMessage,
+  ERROR_GIT_AUTH_FAIL,
+  ERROR_GIT_INVALID_REMOTE,
   GIT_USER_UPDATED_SUCCESSFULLY,
 } from "@appsmith/constants/messages";
 import { GitApplicationMetadata } from "../api/ApplicationApi";
 
 import history from "utils/history";
 import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
-import { MergeBranchPayload, MergeStatusPayload } from "api/GitSyncAPI";
-
-import {
-  mergeBranchSuccess,
-  // mergeBranchFailure,
-} from "../actions/gitSyncActions";
 import {
   getCurrentGitBranch,
   getDisconnectingGitApplication,
 } from "selectors/gitSyncSelectors";
 import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
-import { getOrganizationIdForImport } from "selectors/applicationSelectors";
 import { getLogToSentryFromResponse } from "utils/helpers";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
@@ -432,10 +432,18 @@ function* fetchGitStatusSaga() {
       yield put(fetchGitStatusSuccess(response?.data));
     }
   } catch (error) {
+    const payload = { error, show: true };
+    if (error?.message?.includes("Auth fail")) {
+      payload.error = new Error(createMessage(ERROR_GIT_AUTH_FAIL));
+    } else if (error?.message?.includes("Invalid remote: origin")) {
+      payload.error = new Error(createMessage(ERROR_GIT_INVALID_REMOTE));
+    }
+
     yield put({
       type: ReduxActionErrorTypes.FETCH_GIT_STATUS_ERROR,
-      payload: { error, show: false },
+      payload,
     });
+
     // non api error
     if (!response || response?.responseMeta?.success) {
       throw error;

@@ -710,6 +710,8 @@ export const getUpdatedRoute = (
 
 export const updateSlugNamesInURL = (params: Record<string, string>) => {
   const { pathname, search } = window.location;
+  // Do not update old URLs
+  if (isURLDeprecated(pathname)) return;
   const newURL = getUpdatedRoute(pathname, params);
   history.replace(newURL + search);
 };
