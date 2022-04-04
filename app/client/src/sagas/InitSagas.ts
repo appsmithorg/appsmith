@@ -349,7 +349,7 @@ export function* initializeAppViewerSaga(
     PerformanceTransactionName.INIT_VIEW_APP,
   );
 
-  if (branch) yield put(updateBranchLocally(branch));
+  yield put(updateBranchLocally(branch));
 
   yield put(setAppMode(APP_MODE.PUBLISHED));
 
@@ -374,19 +374,21 @@ export function* initializeAppViewerSaga(
   yield put({ type: ReduxActionTypes.START_EVALUATION });
 
   const resultOfPrimaryCalls: boolean = yield failFastApiCalls(
-    [fetchActionsForView({ applicationId })],
-    [ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS],
-    [ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR],
+    [
+      fetchActionsForView({ applicationId }),
+      fetchJSCollectionsForView({ applicationId }),
+    ],
+    [
+      ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
+      ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
+    ],
+    [
+      ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
+      ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
+    ],
   );
 
   if (!resultOfPrimaryCalls) return;
-
-  const jsActionsCall: boolean = yield failFastApiCalls(
-    [fetchJSCollectionsForView({ applicationId })],
-    [ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS],
-    [ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR],
-  );
-  if (!jsActionsCall) return;
 
   const defaultPageId: string = yield select(getDefaultPageId);
   const toLoadPageId: string = pageId || defaultPageId;
