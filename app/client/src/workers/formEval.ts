@@ -1,13 +1,16 @@
 import {
   DynamicValues,
+  EvaluatedFormConfig,
   FormEvalOutput,
   FormEvaluationState,
+  FormConfigEvalObject,
 } from "../reducers/evaluationReducers/formEvaluationReducer";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ActionConfig } from "entities/Action";
 import { FormEvalActionPayload } from "sagas/FormEvaluationSaga";
 import { FormConfig } from "components/formControls/BaseControl";
 import { isEmpty, merge } from "lodash";
+import { extractEvalConfigFromFormConfig } from "components/formControls/utils";
 
 export enum ConditionType {
   HIDE = "hide", // When set, the component will be shown until condition is true
@@ -15,6 +18,7 @@ export enum ConditionType {
   ENABLE = "enable", // When set, the component will be enabled until condition is true
   DISABLE = "disable", // When set, the component will be disabled until condition is true
   FETCH_DYNAMIC_VALUES = "fetchDynamicValues", // When set, the component will fetch the values dynamically
+  EVALUATE_FORM_CONFIG = "evaluateFormConfig", // When set, the component will evaluate the form config settings
 }
 
 // Object to hold the initial eval object
@@ -55,6 +59,22 @@ const generateInitialEvalState = (formConfig: FormConfig) => {
       merge(conditionals, formConfig.conditionals);
     }
 
+    if (allConditionTypes.includes(ConditionType.EVALUATE_FORM_CONFIG)) {
+      // Setting the component as invisible since it has elements that will be evaluated later
+      conditionTypes.visible = false;
+      const evaluateFormConfig: EvaluatedFormConfig = {
+        executeEvaluation: true,
+        paths: formConfig.conditionals.evaluateFormConfig.paths,
+        evaluateFormConfigObject: extractEvalConfigFromFormConfig(
+          formConfig,
+          formConfig.conditionals.evaluateFormConfig.paths,
+        ),
+      };
+      conditionTypes.evaluateFormConfig = evaluateFormConfig;
+      conditionals.evaluateFormConfig =
+        formConfig.conditionals.evaluateFormConfig.condition;
+    }
+
     if (allConditionTypes.includes(ConditionType.FETCH_DYNAMIC_VALUES)) {
       const dynamicValues: DynamicValues = {
         allowedToFetch: false,
@@ -72,6 +92,7 @@ const generateInitialEvalState = (formConfig: FormConfig) => {
       conditionals.fetchDynamicValues =
         formConfig.conditionals.fetchDynamicValues.condition;
     }
+
     // Conditionals are stored in the eval state itself for quick access
     finalEvalObj[key] = {
       ...conditionTypes,
@@ -89,6 +110,23 @@ const generateInitialEvalState = (formConfig: FormConfig) => {
       generateInitialEvalState({ ...config }),
     );
 };
+
+function evaluateFormConfigElements(
+  actionConfiguration: ActionConfig,
+  config: FormConfigEvalObject,
+) {
+  const paths = Object.keys(config);
+  if (paths.length > 0) {
+    paths.forEach((path) => {
+      const { expression } = config[path];
+      try {
+        const evaluatedVal = eval(expression);
+        config[path].output = evaluatedVal;
+      } catch (e) {}
+    });
+  }
+  return config;
+}
 
 // Function to run the eval for the whole form when data changes
 function evaluate(
@@ -119,6 +157,22 @@ function evaluate(
                 .fetchDynamicValues as DynamicValues).allowedToFetch = output;
               (currentEvalState[key]
                 .fetchDynamicValues as DynamicValues).isLoading = output;
+            } else if (
+              conditionType === ConditionType.EVALUATE_FORM_CONFIG &&
+              currentEvalState[key].hasOwnProperty("evaluateFormConfig") &&
+              !!currentEvalState[key].evaluateFormConfig
+            ) {
+              (currentEvalState[key]
+                .evaluateFormConfig as EvaluatedFormConfig).executeEvaluation = output;
+              currentEvalState[key].visible = output;
+              if (output && !!currentEvalState[key].evaluateFormConfig)
+                (currentEvalState[key]
+                  .evaluateFormConfig as EvaluatedFormConfig).evaluateFormConfigObject = evaluateFormConfigElements(
+                  actionConfiguration,
+                  (currentEvalState[key]
+                    .evaluateFormConfig as EvaluatedFormConfig)
+                    .evaluateFormConfigObject,
+                );
             }
           });
         }
