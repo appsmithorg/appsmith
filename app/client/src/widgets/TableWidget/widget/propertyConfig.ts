@@ -55,7 +55,7 @@ export default [
         controlType: "PRIMARY_COLUMNS",
         label: "Columns",
         updateHook: updateDerivedColumnsHook,
-        dependencies: ["derivedColumns", "columnOrder", "defaultProperties"],
+        dependencies: ["derivedColumns", "columnOrder", "childStylesheets"],
         isBindProperty: false,
         isTriggerProperty: false,
         validation: {
@@ -127,6 +127,7 @@ export default [
                     "primaryColumns",
                     "derivedColumns",
                     "columnOrder",
+                    "childStylesheets",
                   ],
                   isBindProperty: false,
                   isTriggerProperty: false,

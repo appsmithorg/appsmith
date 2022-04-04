@@ -165,9 +165,14 @@ export const CONFIG = {
               );
               set(primaryColumns, `${columnId}.labelColor`, Colors.WHITE);
 
-              Object.keys(widget.defaultProperties).map((propertyKey) => {
+              Object.keys(
+                widget.childStylesheets[primaryColumns[columnId].columnType] ||
+                  [],
+              ).map((propertyKey) => {
                 const { jsSnippets, stringSegments } = getDynamicBindings(
-                  widget.defaultProperties[propertyKey],
+                  widget.childStylesheets[primaryColumns[columnId].columnType][
+                    propertyKey
+                  ],
                 );
 
                 const js = combineDynamicBindings(jsSnippets, stringSegments);
@@ -178,8 +183,6 @@ export const CONFIG = {
                   `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => ( ${js}))}}`,
                 );
               });
-
-              set(primaryColumns, `${columnId}.boxShadow`, "none");
             });
 
             const updatePropertyMap = [

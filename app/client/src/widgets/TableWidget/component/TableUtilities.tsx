@@ -683,19 +683,19 @@ export function getDefaultColumnProperties(
       : `{{${widgetProperties.widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${id}))}}`,
   };
 
-  Object.keys(widgetProperties.defaultProperties).map((propertyKey) => {
-    const { jsSnippets, stringSegments } = getDynamicBindings(
-      widgetProperties.defaultProperties[propertyKey],
-    );
+  // Object.keys(widgetProperties.defaultProperties).map((propertyKey) => {
+  //   const { jsSnippets, stringSegments } = getDynamicBindings(
+  //     widgetProperties.defaultProperties[propertyKey],
+  //   );
 
-    const js = combineDynamicBindings(jsSnippets, stringSegments);
+  //   const js = combineDynamicBindings(jsSnippets, stringSegments);
 
-    set(
-      columnProps,
-      `${propertyKey}`,
-      `{{${widgetProperties.widgetName}.sanitizedTableData.map((currentRow) => ( ${js}))}}`,
-    );
-  });
+  //   set(
+  //     columnProps,
+  //     `${propertyKey}`,
+  //     `{{${widgetProperties.widgetName}.sanitizedTableData.map((currentRow) => ( ${js}))}}`,
+  //   );
+  // });
 
   return columnProps;
 }

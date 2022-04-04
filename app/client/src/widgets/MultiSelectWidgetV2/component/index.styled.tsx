@@ -13,7 +13,9 @@ const Input = styled.input`
   z-index: -1;
 `;
 
-export const CommonSelectFilterStyle = css`
+export const CommonSelectFilterStyle = css<{
+  primaryColor?: string;
+}>`
   &&&& .${Classes.ALIGN_LEFT} {
     font-size: 14px;
     padding-left: 42px;
@@ -22,7 +24,7 @@ export const CommonSelectFilterStyle = css`
       margin-right: 20px;
     }
     &.all-options.selected {
-      background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+      background: ${(props) => lightenColor(props.primaryColor)};
       color: ${Colors.GREY_10} !important;
     }
   }
