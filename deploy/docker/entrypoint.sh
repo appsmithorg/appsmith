@@ -11,20 +11,20 @@ init_env_file() {
     # Generate new docker.env file when initializing container for first time or in Heroku which does not have persistent volume
     echo "Generating default configuration file"
     mkdir -p "$CONF_PATH"
-    APPSMITH_MONGODB_USER="appsmith"
-    APPSMITH_MONGODB_PASSWORD=$(
+    local default_appsmith_mongodb_user="appsmith"
+    local generated_appsmith_mongodb_password=$(
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ""
     )
-    TEMP_APPSMITH_ENCRYPTION_PASSWORD=$(
+    local generated_appsmith_encryption_password=$(
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ""
     )
-    TEMP_APPSMITH_ENCRYPTION_SALT=$(
+    local generated_appsmith_encription_salt=$(
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ""
     )
-    bash "$TEMPLATES_PATH/docker.env.sh" "$APPSMITH_MONGODB_USER" "$APPSMITH_MONGODB_PASSWORD" "$TEMP_APPSMITH_ENCRYPTION_PASSWORD" "$TEMP_APPSMITH_ENCRYPTION_SALT" > "$ENV_PATH"
+    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt"> "$ENV_PATH"
   fi
 
   # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
