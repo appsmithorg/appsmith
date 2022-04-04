@@ -1,7 +1,7 @@
 import React, { RefObject, useRef, useState } from "react";
 import { InjectedFormProps } from "redux-form";
 import { Icon, Tag } from "@blueprintjs/core";
-import { isString } from "lodash";
+import { isString, set } from "lodash";
 import {
   components,
   MenuListComponentProps,
@@ -79,7 +79,9 @@ import { GUIDED_TOUR_STEPS } from "../GuidedTour/constants";
 import Spinner from "components/ads/Spinner";
 import {
   ConditionalOutput,
+  FormConfigEvalObject,
   FormEvalOutput,
+  isValidFormConfig,
 } from "reducers/evaluationReducers/formEvaluationReducer";
 
 const QueryFormContainer = styled.form`
@@ -631,6 +633,19 @@ export function EditorJSONtoForm(props: Props) {
     ) {
       allowToRender = conditionalOutput.visible;
     }
+
+    if (
+      conditionalOutput.hasOwnProperty("evaluateFormConfig") &&
+      !!conditionalOutput.evaluateFormConfig &&
+      conditionalOutput.evaluateFormConfig.hasOwnProperty(
+        "updateEvaluatedConfig",
+      ) &&
+      typeof conditionalOutput.evaluateFormConfig.updateEvaluatedConfig ===
+        "boolean"
+    ) {
+      allowToRender =
+        conditionalOutput.evaluateFormConfig.updateEvaluatedConfig;
+    }
     return allowToRender;
   };
 
@@ -657,6 +672,34 @@ export function EditorJSONtoForm(props: Props) {
     }
 
     return section;
+  };
+
+  const updateEvaluatedSectionConfig = (
+    section: any,
+    conditionalOutput: ConditionalOutput,
+  ) => {
+    const updatedSection = { ...section };
+    let evaluatedConfig: FormConfigEvalObject = {};
+    if (
+      conditionalOutput.hasOwnProperty("evaluateFormConfig") &&
+      !!conditionalOutput.evaluateFormConfig &&
+      conditionalOutput.evaluateFormConfig.hasOwnProperty(
+        "updateEvaluatedConfig",
+      ) &&
+      typeof conditionalOutput.evaluateFormConfig.updateEvaluatedConfig ===
+        "boolean" &&
+      conditionalOutput.evaluateFormConfig.updateEvaluatedConfig
+    ) {
+      evaluatedConfig =
+        conditionalOutput.evaluateFormConfig.evaluateFormConfigObject;
+
+      const paths = Object.keys(evaluatedConfig);
+      paths.forEach((path: string) => {
+        set(updatedSection, path, evaluatedConfig[path].output);
+      });
+    }
+
+    return updatedSection;
   };
 
   // Render function to render the V2 of form editor type (UQI)
@@ -686,7 +729,9 @@ export function EditorJSONtoForm(props: Props) {
       // If the component is not allowed to render, return null
       const conditionalOutput = extractConditionalOutput(section);
       if (!checkIfSectionCanRender(conditionalOutput)) return null;
+      section = updateEvaluatedSectionConfig(section, conditionalOutput);
       enabled = checkIfSectionIsEnabled(conditionalOutput);
+      if (!isValidFormConfig(section)) return null;
     }
     if (section.hasOwnProperty("controlType")) {
       // If component is type section, render it's children
