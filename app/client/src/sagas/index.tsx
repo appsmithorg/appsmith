@@ -94,6 +94,8 @@ const sagas = [
 ];
 
 export function* rootSaga(sagasToRun = sagas): any {
+  // This race effect ensures that we fail as soon as the first safe crash is dispatched.
+  // Without this, all the subsequent safe crash failures would be shown in the toast messages as well.
   const result = yield race({
     running: all(
       sagasToRun.map((saga) =>
