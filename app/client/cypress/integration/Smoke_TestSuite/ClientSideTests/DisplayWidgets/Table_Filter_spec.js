@@ -8,14 +8,14 @@ describe("Table Widget Filter Functionality", function() {
     cy.addDsl(dsl);
   });
 
-  it("Table Widget Functionality", function() {
+  it("1. Table Widget Functionality", function() {
     cy.openPropertyPane("tablewidget");
     cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
     cy.testJsontext("tabledata", JSON.stringify(this.data.TableInput));
     cy.wait("@updateLayout");
   });
 
-  it("Table Widget Functionality To validate download csv and download Excel", function() {
+  it("2. Table Widget Functionality To validate download csv and download Excel", function() {
     cy.isSelectRow(1);
     cy.readTabledataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
@@ -24,41 +24,43 @@ describe("Table Widget Filter Functionality", function() {
       cy.get(publish.searchInput)
         .first()
         .type(tabData);
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
       cy.readTabledataPublish("1", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Lindsay Ferguson");
       });
       cy.downloadData("Download as CSV");
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(5000);
-      //cy.validateDownload('Table1.csv');
-      cy.verifyDownload("Table1.csv");
+      cy.wait(2000);
+
+      //This plugin works only from cypress ^9.2
+      //cy.verifyDownload("Table1.csv")
+
+      cy.validateDownload("Table1.csv");
+
       cy.downloadData("Download as Excel");
-      cy.wait(5000);
-      //cy.validateDownload('Table1.xlsx');
-      cy.verifyDownload("Table1.xlsx");
+      cy.wait(2000);
+      cy.validateDownload("Table1.xlsx");
+
       cy.get(publish.searchInput)
         .first()
         .within(() => {
           return cy.get("input").clear();
         })
+        .wait(1000)
         .type("7434532");
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(1000);
-      cy.readTabledataPublish("3", "3").then((tabData) => {
+      cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Byron Fields");
       });
     });
   });
 
-  it("Table Widget Functionality To Filter The Data using does not contain", function() {
-    cy.isSelectRow(1);
+  it("3. Table Widget Functionality To Filter The Data using does not contain", function() {
+    //cy.isSelectRow(1);
     cy.readTabledataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
-      expect(tabValue).to.be.equal("Lindsay Ferguson");
+      expect(tabValue).to.be.equal("Ryan Holmes");
       cy.log("the value is" + tabValue);
       cy.get(publish.filterBtn).click();
       cy.get(publish.attributeDropdown).click();
@@ -69,23 +71,23 @@ describe("Table Widget Filter Functionality", function() {
       cy.get(publish.attributeValue)
         .contains("does not contain")
         .click();
-      cy.get(publish.inputValue).type("Lindsay");
+      cy.get(publish.inputValue).type("Byron");
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
       cy.get(widgetsPage.filterApplyBtn).click({ force: true });
       cy.wait(500);
       cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
-        expect(tabValue).not.to.be.equal("Lindsay Ferguson");
+        expect(tabValue).not.to.be.equal("Byron Fields");
       });
       cy.get(widgetsPage.filterCloseBtn).click({ force: true });
       cy.get(publish.filterBtn).click();
       cy.get(publish.removeFilter).click();
       // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(500);
+      cy.wait(1000);
       cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
-        expect(tabValue).to.be.equal("Michael Lawson");
+        expect(tabValue).to.be.equal("Byron Fields");
       });
       cy.get(publish.canvas)
         .first()
@@ -93,8 +95,15 @@ describe("Table Widget Filter Functionality", function() {
     });
   });
 
-  it("Table Widget Functionality To Filter The Data using OR operator ", function() {
-    cy.isSelectRow(1);
+  it("4. Table Widget Functionality To Filter The Data using OR operator ", function() {
+    cy.get(publish.searchInput)
+      .first()
+      .within(() => {
+        return cy.get("input").clear();
+      })
+      .wait(1000);
+
+    //cy.isSelectRow(1);
     cy.readTabledataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Lindsay Ferguson");
@@ -116,15 +125,22 @@ describe("Table Widget Filter Functionality", function() {
         "OR",
         "email",
         "contains",
-        "tobias.funke@reqres.in",
+        "ryan.holmes@reqres.in",
       );
       cy.wait(500);
       cy.get(widgetsPage.filterApplyBtn).click({ force: true });
       cy.wait(500);
+
       cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Tobias Funke");
       });
+
+      cy.readTabledataPublish("1", "3").then((tabData) => {
+        const tabValue = tabData;
+        expect(tabValue).to.be.equal("Ryan Holmes");
+      });
+
       cy.get(widgetsPage.filterCloseBtn).click({ force: true });
       cy.get(publish.filterBtn).click();
       cy.get(publish.removeFilter)
@@ -146,7 +162,7 @@ describe("Table Widget Filter Functionality", function() {
   });
 
   it("Table Widget Functionality To Filter The Data using AND operator ", function() {
-    cy.isSelectRow(1);
+    //cy.isSelectRow(1);
     cy.readTabledataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Lindsay Ferguson");
@@ -177,6 +193,7 @@ describe("Table Widget Filter Functionality", function() {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Tobias Funke");
       });
+
       cy.get(widgetsPage.filterCloseBtn).click({ force: true });
       cy.get(publish.filterBtn).click();
       cy.get(publish.removeFilter)
@@ -198,7 +215,7 @@ describe("Table Widget Filter Functionality", function() {
   });
 
   it("Table Widget Functionality To Filter The Data using OR operator with different data ", function() {
-    cy.isSelectRow(1);
+    //cy.isSelectRow(1);
     cy.readTabledataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Lindsay Ferguson");

@@ -245,7 +245,7 @@ describe("AForce - Community Issues page validations", function () {
     //agHelper.Sleep(2000)
     //cy.get("body").type("{enter}")
 
-    agHelper.RemoveMultiSelectItems(['Documented', 'Needs App', 'App Built'])
+    agHelper.RemoveMultiSelectItems(['Documented', 'Needs App'])
 
    //agHelper.SelectFromMultiSelect(['Documented', 'Needs App', 'App Built'], 0, false, 'multiselectwidget')
     agHelper.SelectFromMultiSelect(['Needs Product'], 0, true, 'multiselectwidget')

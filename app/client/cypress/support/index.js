@@ -17,6 +17,7 @@
 import "cypress-real-events/support";
 import "cypress-xpath";
 import "cypress-wait-until";
+//import "cy-verify-downloads";
 /// <reference types="cypress-xpath" />
 
 let appName;

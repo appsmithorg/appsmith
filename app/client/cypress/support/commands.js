@@ -1,8 +1,9 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 
-require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
+//require('cy-verify-downloads').addCustomCommand();
+const path = require("path");
 
 const dayjs = require("dayjs");
 const {
@@ -100,12 +101,16 @@ Cypress.Commands.add("downloadData", (filetype) => {
 });
 
 Cypress.Commands.add("validateDownload", (fileName) => {
-  const downloadedFilename = Cypress.config("downloadsFolder")
-    .concat("/")
-    .concat(fileName);
-  cy.readFile(downloadedFilename, "binary", {
-    timeout: 15000,
-  }).should((buffer) => expect(buffer.length).to.be.gt(100));
+  // const downloadedFilename = Cypress.config("downloadsFolder")
+  //   .concat("/")
+  //   .concat(fileName);
+  // cy.readFile(downloadedFilename, "binary", {
+  //   timeout: 15000,
+  // }).should((buffer) => expect(buffer.length).to.be.gt(100));
+
+  let downloadsFolder = Cypress.config("downloadsFolder");
+  cy.log("downloadsFolder is:" + downloadsFolder);
+  cy.readFile(path.join(downloadsFolder, fileName)).should("exist");
 });
 
 Cypress.Commands.add(
