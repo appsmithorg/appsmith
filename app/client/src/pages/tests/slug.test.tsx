@@ -11,6 +11,7 @@ import store from "store";
 import { render } from "test/testUtils";
 import { getUpdatedRoute, isURLDeprecated } from "utils/helpers";
 import {
+  fetchApplicationMockResponse,
   setMockApplication,
   setMockPageList,
   updatedApplicationPayload,
@@ -85,8 +86,11 @@ describe("URL slug names", () => {
 
   it("tests the manual upgrade option", () => {
     store.dispatch({
-      type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
-      payload: { applicationVersion: 1 },
+      type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
+      payload: {
+        ...fetchApplicationMockResponse.data.application,
+        applicationVersion: 1,
+      },
     });
     const component = render(<ManualUpgrades />);
     expect(component.getByTestId("update-indicator")).toBeDefined();
