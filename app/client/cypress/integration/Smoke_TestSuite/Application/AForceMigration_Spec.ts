@@ -11,6 +11,18 @@ let homePage = ObjectsRegistry.HomePage,
 
 describe("AForce - Community Issues page validations", function () {
 
+  before(function () {
+    agHelper.clearLocalStorageCache();
+  });
+
+  beforeEach(() => {
+    agHelper.restoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.saveLocalStorageCache();
+  });
+
   let reconnect = true, selectedRow: number;
   it("1. Import application json and validate headers", () => {
 
@@ -140,13 +152,13 @@ describe("AForce - Community Issues page validations", function () {
 
     table.SearchTable('Bug')
     table.WaitUntilTableLoad()
-    cy.xpath(table._searchBoxCross).click(),
+    cy.xpath(table._searchBoxCross).click()
 
-      table.SearchTable('Question')
+    table.SearchTable('Question')
     table.WaitUntilTableLoad()
-    cy.xpath(table._searchBoxCross).click(),
+    cy.xpath(table._searchBoxCross).click()
 
-      agHelper.NavigateBacktoEditor()
+    agHelper.NavigateBacktoEditor()
     table.WaitUntilTableLoad()
 
     ee.SelectEntityByName("Table1", 'WIDGETS')
@@ -157,13 +169,13 @@ describe("AForce - Community Issues page validations", function () {
 
     table.SearchTable('Bug')
     table.WaitForTableEmpty()
-    cy.xpath(table._searchBoxCross).click(),
+    cy.xpath(table._searchBoxCross).click()
 
-      table.SearchTable('Question')
+    table.SearchTable('Question')
     table.WaitForTableEmpty()
-    cy.xpath(table._searchBoxCross).click(),
+    cy.xpath(table._searchBoxCross).click()
 
-      agHelper.NavigateBacktoEditor()
+    agHelper.NavigateBacktoEditor()
     table.WaitUntilTableLoad()
     ee.SelectEntityByName("Table1", 'WIDGETS')
     agHelper.ToggleOnOrOff("enableclientsidesearch", 'On')
@@ -187,7 +199,7 @@ describe("AForce - Community Issues page validations", function () {
     cy.get(locator._inputWidgetv1InDeployed).eq(4).type("https://github.com/appsmithorg/appsmith/issues/12532")
     agHelper.SelectFromMultiSelect(['Epic', 'Task'], 1)
     cy.get(locator._inputWidgetv1InDeployed).eq(5).type("https://release.app.appsmith.com/applications/62486d45ab307a026918639e/pages/62486d45ab307a02691863a7")
-    agHelper.SelectFromMultiSelect(['Documented', 'Needs App'], 1, 'multiselectwidget')
+    agHelper.SelectFromMultiSelect(['Documented', 'Needs App'], 1, true, 'multiselectwidget')
 
     agHelper.ClickButton('Confirm')
     agHelper.Sleep(3000)
@@ -204,12 +216,60 @@ describe("AForce - Community Issues page validations", function () {
 
   })
 
+  it("9. Validate Updating issue from Details tab", () => {
 
-  // it("9. Validate Updating issue from Details tab", () => {
+    agHelper.AssertElementAbsence(locator._widgetInDeployed('tabswidget'))
+    table.SelectTableRow(0)
+    agHelper.AssertElementPresence(locator._widgetInDeployed('tabswidget'))
+    cy.get(locator._inputWidgetv1InDeployed).eq(0).type("-updating title")
+    cy.get(locator._textAreainputWidgetv1InDeployed).eq(0).type("-updating desc")
+    cy.get(locator._inputWidgetv1InDeployed).eq(1).type("-updating issue link")
+    agHelper.SelectFromDropDown('Troubleshooting', 't--widget-tabswidget')
+    agHelper.SelectFromMultiSelect(['Epic', 'Task'], 0, false)
+    agHelper.SelectFromMultiSelect(['High', 'Dependencies'], 0, true)
+    agHelper.SelectFromDropDown('[Bug] TypeError: o is undefined', 't--widget-tabswidget', 1)
+    cy.get(locator._inputWidgetv1InDeployed).eq(2).type("-updating answer link")
 
-  // })
+    //cy.get("body").tab().type("{enter}")
+    
+    //agHelper.TypeTab()
+    // cy.get(locator._widgetInDeployed('multiselectwidget'))
+    // .eq(0).typeTab(false, false)
+    // cy.get(locator._widgetInDeployed('multiselectwidget'))
+    // .eq(0).trigger('focus').trigger('keydown', {
+    //   key: 'Enter',
+    // })
 
-  // it.skip("10. Validate Deleting the newly created issue", () => {
 
-  //});
+    //agHelper.Sleep(2000)
+    //cy.get("body").type("{enter}")
+
+    agHelper.RemoveMultiSelectItems(['Documented', 'Needs App', 'App Built'])
+
+   //agHelper.SelectFromMultiSelect(['Documented', 'Needs App', 'App Built'], 0, false, 'multiselectwidget')
+    agHelper.SelectFromMultiSelect(['Needs Product'], 0, true, 'multiselectwidget')
+    agHelper.ClickButton('Save')
+
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
+      expect(cellData).to.be.equal("Troubleshooting");
+    });
+
+    table.ReadTableRowColumnData(0, 1).then((cellData) => {
+      expect(cellData).to.be.equal("Adding Title Suggestion via script-updating title");
+    });
+
+  })
+
+  it("10. Validate Deleting the newly created issue", () => {
+
+    cy.get(table._trashIcon).closest('div').click()
+    agHelper.AssertElementAbsence(locator._widgetInDeployed('tabswidget'))
+    cy.xpath(table._searchBoxCross).click()
+    table.WaitForTableEmpty()
+    table.SearchTable('Troubleshooting')
+    table.WaitUntilTableLoad()
+    table.ReadTableRowColumnData(0, 1).then((cellData) => {
+      expect(cellData).not.to.be.equal("Adding Title Suggestion via script-updating title");
+    });
+  });
 });

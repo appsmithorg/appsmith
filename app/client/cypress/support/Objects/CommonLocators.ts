@@ -65,6 +65,6 @@ export class CommonLocators {
     _evaluatedCurrentValue = "div:last-of-type .t--CodeEditor-evaluatedValue > div:last-of-type pre"
     _multiSelectOptions = (option: string) => "div[title='" + option + "'] input[type='checkbox']"
     _divWithClass = (className: string) => "//div[contains(@class, '" + className + "')]"
-
+    _multiSelectItem = (item: string) => "//span[text()='" + item + "']/ancestor::div[@class ='rc-select-selection-overflow-item']//span[contains(@class, 'remove-icon')]"
 
 }

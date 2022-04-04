@@ -1,8 +1,36 @@
 import 'cypress-wait-until';
 const uuid = require("uuid");
 import { ObjectsRegistry } from '../Objects/Registry';
+let LOCAL_STORAGE_MEMORY: any = {};
+
 export class AggregateHelper {
     private locator = ObjectsRegistry.CommonLocators;
+
+    public saveLocalStorageCache() {
+        Object.keys(localStorage).forEach(key => {
+            LOCAL_STORAGE_MEMORY[key] = localStorage[key];
+        });
+    }
+
+    public restoreLocalStorageCache() {
+        Object.keys(LOCAL_STORAGE_MEMORY).forEach(key => {
+            localStorage.setItem(key, LOCAL_STORAGE_MEMORY[key]);
+        });
+    }
+
+    public clearLocalStorageCache() {
+        localStorage.clear();
+        LOCAL_STORAGE_MEMORY = {};
+    }
+
+    public TypeTab(shiftKey: boolean = false, ctrlKey: boolean = false) {
+        cy.focused().trigger('keydown', {
+            keyCode: 9,
+            which: 9,
+            shiftKey: shiftKey,
+            ctrlKey: ctrlKey
+        });
+    }
 
     public AddDsl(dsl: string, elementToCheckPresenceaftDslLoad: string | "" = "") {
         let currentURL;
@@ -185,7 +213,7 @@ export class AggregateHelper {
     }
 
     public SelectDropDown(ddOption: string, endp: string = "selectwidget") {
-        let mode = localStorage.getItem("inDeployedMode");
+        let mode = window.localStorage.getItem("inDeployedMode");
         if (mode == "false") {
             cy.xpath(this.locator._selectWidgetDropdown(endp))
                 .first()
@@ -207,32 +235,46 @@ export class AggregateHelper {
     }
 
 
-    public SelectFromDropDown(ddOption: string, insideParent: string = "", endp: string = "dropdownwidget") {
-        let mode = localStorage.getItem("inDeployedMode");
-        let modeSelector = mode == 'false' ? this.locator._selectWidgetDropdown(endp) : this.locator._selectWidgetDropdownInDeployed(endp);
+    public SelectFromDropDown(ddOption: string, insideParent: string = "", index = 0, endp: string = "dropdownwidget") {
+        let mode = window.localStorage.getItem("inDeployedMode");
+        //cy.log("mode frm deployed is:" + mode)
+        let modeSelector = mode == 'true' ? this.locator._selectWidgetDropdownInDeployed(endp) : this.locator._selectWidgetDropdown(endp);
         let finalSelector = insideParent ? this.locator._divWithClass(insideParent) + modeSelector : modeSelector
+        cy.log(finalSelector)
         cy.xpath(finalSelector)
-            .first()
+            .eq(index)
             .scrollIntoView()
             .click()
         cy.get(this.locator._dropDownValue(ddOption)).click({ force: true })
         this.Sleep()//for selected value to reflect!
     }
 
-    public SelectFromMultiSelect(options: string[], index = 0, endp: string = 'multiselectwidgetv2') {
-        cy.get(this.locator._widgetInDeployed(endp))
+    public SelectFromMultiSelect(options: string[], index = 0, check = true, endp: string = 'multiselectwidgetv2') {
+        cy.get(this.locator._widgetInDeployed(endp) + " div.rc-select-selector")
             .eq(index)
             .scrollIntoView()
             .click()
 
-        options.forEach($each => {
-            cy.get(this.locator._multiSelectOptions($each)).check({ force: true })
-        })
+        if (check) {
+            options.forEach($each => {
+                cy.get(this.locator._multiSelectOptions($each)).check({ force: true })
+            })
+        }
+        else {
+            options.forEach($each => {
+                cy.get(this.locator._multiSelectOptions($each)).uncheck({ force: true })
+            })
+        }
 
         //closing multiselect dropdown
         cy.get(this.locator._widgetInDeployed(endp))
             .eq(index)
             .click()
+    }
+    public RemoveMultiSelectItems(items: string[]) {
+        items.forEach($each => {
+            cy.xpath(this.locator._multiSelectItem($each)).eq(0).click().wait(1000)
+        })
     }
 
     public ReadSelectedDropDownValue() {

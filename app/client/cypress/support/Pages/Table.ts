@@ -20,7 +20,8 @@ export class Table {
   _liCurrentSelectedPage = "//div[@type='LIST_WIDGET']//ul[contains(@class, 'rc-pagination')]/li[contains(@class, 'rc-pagination-item-active')]/a"
   private _searchText = "input[type='search']"
   _searchBoxCross = "//div[contains(@class, 't--search-input')]/following-sibling::div"
-  _addIcon = "span[icon='add']"
+  _addIcon = "button span[icon='add']"
+  _trashIcon = "button span[icon='trash']"
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']"
 
 
