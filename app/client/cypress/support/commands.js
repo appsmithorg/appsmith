@@ -2341,6 +2341,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor["databaseName"])
       .clear()
       .type(datasourceFormData["mongo-databaseName"]);
+    cy.get(datasourceEditor.sectionAuthentication).click();
     // cy.get(datasourceEditor["username"]).type(
     //   datasourceFormData["mongo-username"],
     // );
@@ -2374,7 +2375,6 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.databaseName)
       .clear()
       .type(databaseName);
-
     cy.get(datasourceEditor.sectionAuthentication).click();
     cy.get(datasourceEditor.username).type(
       datasourceFormData["postgres-username"],
@@ -2382,6 +2382,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.password).type(
       datasourceFormData["postgres-password"],
     );
+    cy.get(datasourceEditor.sectionAuthentication).click();
   },
 );
 
@@ -2408,6 +2409,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.password).type(
       datasourceFormData["mysql-password"],
     );
+    cy.get(datasourceEditor.sectionAuthentication).click();
   },
 );
 
@@ -2531,6 +2533,7 @@ Cypress.Commands.add(
       : datasourceFormData["smtp-host"];
     cy.get(datasourceEditor.host).type(hostAddress);
     cy.get(datasourceEditor.port).type(datasourceFormData["smtp-port"]);
+
     cy.get(datasourceEditor.sectionAuthentication).click();
     cy.get(datasourceEditor.username).type(datasourceFormData["smtp-username"]);
     cy.get(datasourceEditor.password).type(datasourceFormData["smtp-password"]);
@@ -3065,9 +3068,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/comments/threads").as("createNewThread");
   cy.route("POST", "/api/v1/comments?threadId=*").as("createNewComment");
 
-  cy.intercept("POST", "api/v1/git/connect/*").as("connectGitRepo");
-  cy.intercept("POST", "api/v1/git/commit/*").as("commit");
-  cy.intercept("POST", "/api/v1/git/import/*").as("importFromGit");
+  cy.route("POST", "api/v1/git/connect/*").as("connectGitRepo");
+  cy.route("POST", "api/v1/git/commit/*").as("commit");
+  cy.route("POST", "/api/v1/git/import/*").as("importFromGit");
   cy.route("PUT", "api/v1/collections/actions/refactor").as("renameJsAction");
 
   cy.route("POST", "/api/v1/collections/actions").as("createNewJSCollection");
@@ -3878,6 +3881,10 @@ Cypress.Commands.add(
     });
   },
 );
+
+Cypress.Commands.add("ReconnectDatasource", (datasource) => {
+  cy.xpath(`//span[text()='${datasource}']`).click();
+});
 
 Cypress.Commands.add("clearPropertyValue", (value) => {
   cy.get(".CodeMirror textarea")
