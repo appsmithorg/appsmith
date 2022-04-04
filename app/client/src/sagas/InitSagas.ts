@@ -194,14 +194,6 @@ function* initiateEditorApplicationAndPages(payload: InitializeEditorPayload) {
   const defaultPageId: string = yield select(getDefaultPageId);
   toLoadPageId = toLoadPageId || defaultPageId;
 
-  const fetchPageCallResult: boolean = yield failFastApiCalls(
-    [fetchPage(toLoadPageId, true)],
-    [ReduxActionTypes.FETCH_PAGE_SUCCESS],
-    [ReduxActionErrorTypes.FETCH_PAGE_ERROR],
-  );
-
-  if (!fetchPageCallResult) return;
-
   return toLoadPageId;
 }
 
@@ -299,6 +291,8 @@ function* initializeEditorSaga(
       initiateEditorApplicationAndPages,
       payload,
     );
+
+    yield put(fetchPage(toLoadPageId, true));
 
     yield call(initiateURLUpdate, toLoadPageId, APP_MODE.EDIT, payload.pageId);
 
