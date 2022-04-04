@@ -36,7 +36,7 @@ type MultiSelectComponentProps = FieldComponentBaseProps &
     onOptionChange?: string;
     options: DropdownOption[];
     placeholderText?: string;
-    primaryColor?: string;
+    accentColor?: string;
     serverSideFiltering: boolean;
   };
 
@@ -44,7 +44,7 @@ export type MultiSelectFieldProps = BaseFieldComponentProps<
   MultiSelectComponentProps
 >;
 
-const DEFAULT_PRIMARY_COLOR = Colors.GREEN;
+const DEFAULT_ACCENT_COLOR = Colors.GREEN;
 const DEFAULT_BORDER_RADIUS = "0";
 
 const COMPONENT_DEFAULT_VALUES: MultiSelectComponentProps = {
@@ -215,7 +215,7 @@ function MultiSelectField({
           onFocus={onFocusHandler}
           options={schemaItem.options || []}
           placeholder={schemaItem.placeholderText || ""}
-          primaryColor={schemaItem.primaryColor}
+          primaryColor={schemaItem.accentColor || DEFAULT_ACCENT_COLOR}
           serverSideFiltering={schemaItem.serverSideFiltering}
           value={componentValues}
           widgetId={name}
@@ -233,7 +233,7 @@ function MultiSelectField({
     onFilterChange,
     onFocusHandler,
     onOptionChange,
-    schemaItem.primaryColor,
+    schemaItem.accentColor,
     schemaItem.boxShadow,
     schemaItem.borderRadius,
     schemaItem.allowSelectAll,
