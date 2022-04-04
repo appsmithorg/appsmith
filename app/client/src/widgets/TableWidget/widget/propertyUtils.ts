@@ -345,9 +345,7 @@ function updateThemeStylesheetsInColumns(
         propertyPath: `derivedColumns.${columnId}.${propertyKey}`,
         propertyValue: undefined,
       });
-    });
 
-    propertiesToRemove.forEach((propertyKey) => {
       propertiesToUpdate.push({
         propertyPath: `primaryColumns.${columnId}.${propertyKey}`,
         propertyValue: undefined,
