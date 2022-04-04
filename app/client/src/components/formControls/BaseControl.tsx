@@ -46,7 +46,7 @@ export interface ControlData {
   id: string;
   label: string;
   alternateViewTypes?: ViewTypes[];
-  tooltipText?: string;
+  tooltipText?: string | Record<string, string>;
   configProperty: string;
   controlType: ControlType;
   propertyValue?: any;
