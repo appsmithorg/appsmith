@@ -80,6 +80,8 @@ export function updateURLFactory(params: Optional<BaseURLBuilderParams>) {
   BASE_URL_BUILDER_PARAMS = { ...BASE_URL_BUILDER_PARAMS, ...params };
 }
 
+export const getRouteBuilderParams = () => BASE_URL_BUILDER_PARAMS;
+
 /**
  * Do not export this method directly. Please write wrappers for your URLs.
  * Uses applicationVersion attribute to determine whether to use slug URLs or legacy URLs.
