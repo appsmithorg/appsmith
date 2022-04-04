@@ -11,7 +11,7 @@ import {
 } from "selectors/gitSyncSelectors";
 import { GitStatusData } from "../../../../reducers/uiReducers/gitSyncReducer";
 
-const Skeleton = styled.div`
+const DummyChange = styled.div`
   width: 50%;
   height: ${(props) => props.theme.spaces[9]}px;
   background: linear-gradient(
@@ -19,6 +19,7 @@ const Skeleton = styled.div`
     ${Colors.GREY_2} 0%,
     rgba(240, 240, 240, 0) 100%
   );
+  margin-top: ${(props) => props.theme.spaces[7]}px;
   margin-bottom: ${(props) => props.theme.spaces[7]}px;
 `;
 
@@ -37,6 +38,7 @@ const Wrapper = styled.div`
 `;
 
 const Statuses = styled.div`
+  margin-top: ${(props) => props.theme.spaces[7]}px;
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
 `;
 
@@ -44,7 +46,6 @@ export enum Kind {
   WIDGET = "WIDGET",
   QUERY = "QUERY",
   COMMIT = "COMMIT",
-  // pullRequest = "pullRequest",
   JS_OBJECT = "JS_OBJECT",
 }
 
@@ -110,7 +111,7 @@ function Status(props: Partial<StatusProps>) {
 
   return (
     <Wrapper>
-      <Icon fillColor={Colors.GREY_10} name={iconName} size={IconSize.XXL} />
+      <Icon name={iconName} size={IconSize.XXL} />
       <Text type={TextType.P3}>{message}</Text>
     </Wrapper>
   );
@@ -125,5 +126,9 @@ export default function GitChanged() {
       s.hasValue ? <Status {...s} key={`change-status-${s.iconName}`} /> : null,
     )
     .filter((s) => !!s);
-  return loading ? <Skeleton /> : <Statuses>{statuses}</Statuses>;
+  return loading ? (
+    <DummyChange data-testid={"t--git-change-loading-dummy"} />
+  ) : (
+    <Statuses data-testid={"t--git-change-statuses"}>{statuses}</Statuses>
+  );
 }
