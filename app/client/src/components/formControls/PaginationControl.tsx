@@ -45,6 +45,7 @@ export function Pagination(props: {
   isValid: boolean;
   validationMessage?: string;
   placeholder?: Record<string, string>;
+  tooltip?: Record<string, string>;
   isRequired?: boolean;
   name: string;
   disabled?: boolean;
@@ -60,6 +61,7 @@ export function Pagination(props: {
     initialValue,
     name,
     placeholder,
+    tooltip,
   } = props;
 
   const offsetPath = getBindingOrConfigPathsForPaginationControl(
@@ -88,6 +90,7 @@ export function Pagination(props: {
             configProperty: limitPath,
             placeholderText:
               typeof placeholder === "object" ? placeholder.limit : "",
+            tooltipText: typeof tooltip === "object" ? tooltip.limit : "",
             initialValue:
               typeof initialValue === "object" ? initialValue.limit : null,
           }}
@@ -106,6 +109,7 @@ export function Pagination(props: {
             configProperty: offsetPath,
             placeholderText:
               typeof placeholder === "object" ? placeholder.offset : "",
+            tooltipText: typeof tooltip === "object" ? tooltip.offset : "",
             initialValue:
               typeof initialValue === "object" ? initialValue.offset : null,
           }}
@@ -128,6 +132,7 @@ class PaginationControl extends BaseControl<PaginationControlProps> {
       isValid,
       label,
       placeholderText,
+      tooltipText,
       validationMessage,
     } = this.props;
 
@@ -141,6 +146,7 @@ class PaginationControl extends BaseControl<PaginationControlProps> {
         label={label}
         name={configProperty}
         placeholder={placeholderText}
+        tooltip={tooltipText}
         validationMessage={validationMessage}
       />
     );
@@ -153,6 +159,7 @@ class PaginationControl extends BaseControl<PaginationControlProps> {
 
 export interface PaginationControlProps extends ControlProps {
   placeholderText: Record<string, string>;
+  tooltipText: Record<string, string>;
   disabled?: boolean;
 }
 
