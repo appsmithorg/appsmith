@@ -604,6 +604,25 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
     );
     const jsAction = collection.actions.find((d) => d.id === pageAction.id);
     if (!!jsAction) {
+      if (jsAction.confirmBeforeExecute) {
+        const modalPayload = {
+          name: pageAction.name,
+          modalOpen: true,
+          modalType: ModalType.RUN_ACTION,
+        };
+
+        const confirmed = yield call(
+          requestModalConfirmationSaga,
+          modalPayload,
+        );
+        if (!confirmed) {
+          yield put({
+            type: ReduxActionTypes.RUN_ACTION_CANCELLED,
+            payload: { id: pageAction.id },
+          });
+          throw new UserCancelledActionExecutionError();
+        }
+      }
       yield put(
         executeJSFunction({
           collectionName: collection.name,

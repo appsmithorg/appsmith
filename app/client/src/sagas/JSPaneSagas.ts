@@ -41,6 +41,7 @@ import {
   refactorJSCollectionAction,
   updateJSCollectionBodySuccess,
   updateJSFunction,
+  executeJSFunction,
 } from "actions/jsPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
@@ -67,6 +68,9 @@ export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 import { set } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
 import { jsCollectionIdURL } from "RouteBuilder";
+import { ModalType } from "reducers/uiReducers/modalActionReducer";
+import { requestModalConfirmationSaga } from "sagas/UtilSagas";
+import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
   const organizationId: string = yield select(getCurrentOrgId);
@@ -346,6 +350,41 @@ export function* handleExecuteJSFunctionSaga(
   }
 }
 
+export function* handleStartExecuteJSFunctionSaga(
+  data: ReduxAction<{
+    collectionName: string;
+    action: JSAction;
+    collectionId: string;
+  }>,
+): any {
+  const { action, collectionId, collectionName } = data.payload;
+  const actionId = action.id;
+  if (action.confirmBeforeExecute) {
+    const modalPayload = {
+      name: collectionName + "." + action.name,
+      modalOpen: true,
+      modalType: ModalType.RUN_ACTION,
+    };
+
+    const confirmed = yield call(requestModalConfirmationSaga, modalPayload);
+
+    if (!confirmed) {
+      yield put({
+        type: ReduxActionTypes.RUN_ACTION_CANCELLED,
+        payload: { id: actionId },
+      });
+      throw new UserCancelledActionExecutionError();
+    }
+  }
+  yield put(
+    executeJSFunction({
+      collectionName: collectionName,
+      action: action,
+      collectionId: collectionId,
+    }),
+  );
+}
+
 function* handleUpdateJSCollectionBody(
   actionPayload: ReduxAction<{ body: string; id: string; isReplay: boolean }>,
 ) {
@@ -573,6 +612,10 @@ export default function* root() {
     takeEvery(
       ReduxActionTypes.EXECUTE_JS_FUNCTION_INIT,
       handleExecuteJSFunctionSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.START_EXECUTE_JS_FUNCTION,
+      handleStartExecuteJSFunctionSaga,
     ),
     takeEvery(
       ReduxActionTypes.REFACTOR_JS_ACTION_NAME,
