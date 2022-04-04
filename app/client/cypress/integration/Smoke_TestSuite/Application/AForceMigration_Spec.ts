@@ -198,7 +198,7 @@ describe("AForce - Community Issues page validations", function () {
     cy.get(locator._textAreainputWidgetv1InDeployed).eq(1).type("Adding Description Suggestion via script")
     cy.get(locator._inputWidgetv1InDeployed).eq(4).type("https://github.com/appsmithorg/appsmith/issues/12532")
     agHelper.SelectFromMultiSelect(['Epic', 'Task'], 1)
-    cy.xpath(table._visibleTextSpan('Labels'))
+    cy.xpath(table._visibleTextSpan('Labels')).click()
     cy.get(locator._inputWidgetv1InDeployed).eq(5).type("https://release.app.appsmith.com/applications/62486d45ab307a026918639e/pages/62486d45ab307a02691863a7")
     agHelper.SelectFromMultiSelect(['Documented', 'Needs App'], 1, true, 'multiselectwidget')
 
