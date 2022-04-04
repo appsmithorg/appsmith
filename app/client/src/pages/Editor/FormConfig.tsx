@@ -131,7 +131,7 @@ function renderFormConfigTop(props: {
                 }}
               >
                 <Tooltip
-                  content={tooltipText}
+                  content={tooltipText as string}
                   disabled={!tooltipText}
                   hoverOpenDelay={200}
                   underline
