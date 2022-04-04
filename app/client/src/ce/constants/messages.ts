@@ -522,8 +522,7 @@ export const BULK_WIDGET_ADDED = (widgetName: string) =>
 export const UNSUPPORTED_PLUGIN_DIALOG_TITLE = () =>
   `Couldn't auto generate a page from this datasource.`;
 
-export const UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE = () =>
-  `You can continue building your app with it using our drag & Drop
+export const UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE = () => `You can continue building your app with it using our drag & Drop
   builder`;
 export const UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING = () => `Heads up`;
 
@@ -735,6 +734,13 @@ export const CONNECTING_TO_REPO_DISABLED = () =>
   "Connecting to a git repo is disabled";
 export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
 export const MERGED_SUCCESSFULLY = () => "Merged successfully";
+
+// GIT ERRORS begin
+export const ERROR_GIT_AUTH_FAIL = () =>
+  "Please make sure that regenerated SSH key is added and has write access to the repo.";
+export const ERROR_GIT_INVALID_REMOTE = () =>
+  "Remote repo doesn't exist or is unreachable.";
+// GIT ERRORS end
 
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>
@@ -1143,4 +1149,12 @@ export const CLEAN_URL_UPDATE = {
   name: () => "Update URLs",
   shortDesc: () =>
     "All URLs in your applications will update to a new readable format that includes the application and page names.",
+  description: [
+    () =>
+      "All URLs in your applications will be updated to match our new style. This will make your apps easier to find, and URLs easier to remember.",
+    (url: string) =>
+      `The current app’s URL will be:<br /><code style="line-break: anywhere; padding: 2px 4px; line-height: 22px">${url}</code>`,
+  ],
+  disclaimer: () =>
+    "Existing references to <strong>appsmith.URL.fullpath</strong> and <strong>appsmith.URL.pathname</strong> properties will behave differently.",
 };

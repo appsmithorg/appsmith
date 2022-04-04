@@ -7,7 +7,7 @@ import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.converters.GsonDoubleToLongConverter;
-import com.appsmith.git.converters.GsonUnorderedToOrderedSetConverter;
+import com.appsmith.git.converters.GsonUnorderedToOrderedConverter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
@@ -93,7 +93,8 @@ public class FileUtilsImpl implements FileInterface {
                     // Convert unordered set to ordered one
                     Gson gson = new GsonBuilder()
                             .registerTypeAdapter(Double.class,  new GsonDoubleToLongConverter())
-                            .registerTypeAdapter(Set.class, new GsonUnorderedToOrderedSetConverter())
+                            .registerTypeAdapter(Set.class, new GsonUnorderedToOrderedConverter())
+                            .registerTypeAdapter(Map.class, new GsonUnorderedToOrderedConverter())
                             .disableHtmlEscaping()
                             .setPrettyPrinting()
                             .create();

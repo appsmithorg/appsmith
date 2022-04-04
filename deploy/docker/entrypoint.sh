@@ -194,6 +194,26 @@ configure_supervisord() {
   fi
 }
 
+# This is a workaround to get Redis working on diffent memory pagesize
+# https://github.com/appsmithorg/appsmith/issues/11773
+check_redis_compatible_page_size() {
+  local page_size
+  page_size="$(getconf PAGE_SIZE)"
+  if [[ $page_size -gt 4096 ]]; then
+    echo "Compile Redis stable with page size of $page_size"
+    echo "Downloading Redis source..."
+    curl https://download.redis.io/redis-stable.tar.gz -L | tar xvz
+    cd redis-stable/
+    echo "Compiling Redis from source..."
+    make && make install
+    echo "Cleaning up Redis source..."
+    cd ..
+    rm -rf redis-stable/
+  else
+    echo "Redis is compatible with page size of $page_size"
+  fi
+}
+
 # Main Section
 init_env_file
 unset_unused_variables
@@ -204,6 +224,7 @@ if [[ -z "${DYNO}" ]]; then
   init_replica_set
 fi
 mount_letsencrypt_directory
+check_redis_compatible_page_size
 # These functions are used to limit heap size for Backend process when deployed on Heroku
 get_maximum_heap
 setup_backend_heap_arg
