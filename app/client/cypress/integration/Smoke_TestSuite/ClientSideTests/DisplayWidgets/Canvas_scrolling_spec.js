@@ -9,9 +9,7 @@ describe("Modal Widget Functionality", function() {
 
   it("1. [Bug]- 11415 - Open  Modal from button and test scroll", () => {
     cy.PublishtheApp();
-    cy.get(widgetsPage.widgetBtn)
-      .closest("div")
-      .click({ force: true });
+    cy.get(".t--widget-buttonwidget button").click({ force: true });
     cy.get(".t--modal-widget").should("exist");
     cy.get("span:contains('Close')").should("not.be.visible");
     cy.get(".t--modal-widget")
