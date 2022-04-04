@@ -3636,6 +3636,7 @@ Cypress.Commands.add(
         "contain.text",
         "No changes to commit",
       );
+      cy.get(gitSyncLocators.closeGitSyncModal).click();
       // click commit button
       /* if (shouldCommit) {
           cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
