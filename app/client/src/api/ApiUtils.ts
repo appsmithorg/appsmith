@@ -39,8 +39,7 @@ const is404orAuthPath = () => {
 // this will be used to calculate the time taken for an action
 // execution request
 export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
-  const branch =
-    getCurrentGitBranch(store.getState()) || getQueryParamsObject().branch;
+  const branch = getCurrentGitBranch(store.getState());
   if (branch) {
     config.headers.branchName = branch;
   }
