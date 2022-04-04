@@ -2238,7 +2238,7 @@ public class ImportExportApplicationServiceTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplication_datasourceWithSameNameAndPlugin_importedWithValidActionsAndSuffixedDatasource() {
+    public void importApplication_datasourceWithSameNameAndPlugin_importedWithValidActionsWithoutSuffixedDatasource() {
 
         ApplicationJson applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json").block();
 
@@ -2247,7 +2247,7 @@ public class ImportExportApplicationServiceTests {
         testOrganization = organizationService.create(testOrganization).block();
 
         Datasource testDatasource = new Datasource();
-        // Chose any plugin except for mongo, as json static file has mongo plugin for datasource
+        // Chose plugin same as mongo, as json static file has mongo plugin for datasource
         Plugin postgreSQLPlugin = pluginRepository.findByName("MongoDB").block();
         testDatasource.setPluginId(postgreSQLPlugin.getId());
         testDatasource.setOrganizationId(testOrganization.getId());
