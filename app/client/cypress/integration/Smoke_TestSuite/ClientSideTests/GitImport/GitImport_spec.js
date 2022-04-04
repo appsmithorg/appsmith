@@ -20,7 +20,7 @@ describe("Git import flow", function() {
       .click();
     cy.get(homePage.orgImportAppOption).click({ force: true });
     cy.get(homePage.orgImportAppModal).should("be.visible");
-    cy.xpath(homePage.uploadLogo).attachFile("gitimport.json");
+    cy.xpath(homePage.uploadLogo).attachFile("gitImport.json");
     cy.wait("@importNewApplication").then((interception) => {
       cy.wait(100);
       // should check reconnect modal opening
