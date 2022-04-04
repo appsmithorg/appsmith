@@ -1,5 +1,7 @@
-import { isBoolean, get, set } from "lodash";
-import { HiddenType } from "./BaseControl";
+import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
+import { isBoolean, get, set, bind } from "lodash";
+import { FormConfigEvalObject } from "reducers/evaluationReducers/formEvaluationReducer";
+import { FormConfig, HiddenType } from "./BaseControl";
 
 export const evaluateCondtionWithType = (
   conditions: Array<boolean> | undefined,
@@ -282,3 +284,53 @@ export enum WhereClauseSubComponent {
 }
 
 export const allowedControlTypes = ["DROP_DOWN", "QUERY_DYNAMIC_INPUT_TEXT"];
+
+const extractExpressionObject = (
+  config: string,
+  path: any,
+  parentPath: string,
+) => {
+  const bindingPaths: FormConfigEvalObject = {};
+  const expressions = config.match(DATA_BIND_REGEX_GLOBAL);
+  if (Array.isArray(expressions) && expressions.length > 0) {
+    const completePath = parentPath.length > 0 ? `${parentPath}.${path}` : path;
+    expressions.forEach((exp) => {
+      bindingPaths[completePath] = {
+        expression: exp,
+        output: "",
+      };
+    });
+  }
+  return bindingPaths;
+};
+
+export const extractEvalConfigFromFormConfig = (
+  formConfig: FormConfig,
+  paths: string[],
+  parentPath = "",
+  bindingsFound: FormConfigEvalObject = {},
+) => {
+  paths.forEach((path: string) => {
+    if (!(path in formConfig)) return;
+    const config = get(formConfig, path, "");
+    // console.log("Ayush", config, typeof config);
+    if (typeof config === "string") {
+      bindingsFound = {
+        ...bindingsFound,
+        ...extractExpressionObject(config, path, parentPath),
+      };
+    } else if (typeof config === "object") {
+      bindingsFound = {
+        ...bindingsFound,
+        ...extractEvalConfigFromFormConfig(
+          config,
+          Object.keys(config),
+          parentPath.length > 0 ? `${parentPath}.${path}` : path,
+          bindingsFound,
+        ),
+      };
+    }
+  });
+
+  return bindingsFound;
+};
