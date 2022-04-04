@@ -242,13 +242,6 @@ function* initiatePluginsAndDatasources() {
     ],
   );
   if (!pluginsAndDatasourcesCalls) return;
-
-  const pluginFormCall: boolean = yield failFastApiCalls(
-    [fetchPluginFormConfigs()],
-    [ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS],
-    [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR],
-  );
-  if (!pluginFormCall) return;
 }
 
 function* initiateGit(applicationId: string) {
@@ -307,7 +300,10 @@ function* initializeEditorSaga(
     yield all([
       call(initiateEditorActions, applicationId),
       call(initiatePluginsAndDatasources),
+      call(populatePageDSLsSaga),
     ]);
+
+    yield put(fetchPluginFormConfigs());
 
     AnalyticsUtil.logEvent("EDITOR_OPEN", {
       appId: applicationId,
@@ -325,8 +321,6 @@ function* initializeEditorSaga(
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.INIT_EDIT_APP,
     );
-
-    yield call(populatePageDSLsSaga);
   } catch (e) {
     log.error(e);
     Sentry.captureException(e);
