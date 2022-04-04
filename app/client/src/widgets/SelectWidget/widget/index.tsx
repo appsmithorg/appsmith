@@ -13,12 +13,12 @@ import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { findIndex, isArray, isNumber, isString } from "lodash";
+import { findIndex, isArray, isNumber, isString, LoDashStatic } from "lodash";
 
 export function defaultOptionValueValidation(
   value: unknown,
   props: SelectWidgetProps,
-  _: any,
+  _: LoDashStatic,
 ): ValidationResponse {
   let isValid;
   let parsed;
@@ -42,7 +42,10 @@ export function defaultOptionValueValidation(
    */
   if (typeof value === "string") {
     try {
-      value = JSON.parse(value);
+      const parsedValue = JSON.parse(value);
+      if (_.isObject(parsedValue)) {
+        value = parsedValue;
+      }
     } catch (e) {}
   }
 
@@ -55,7 +58,7 @@ export function defaultOptionValueValidation(
   } else {
     isValid = false;
     parsed = {};
-    message = `value does not evaluate to type: string | { "label": "label1", "value": "value1" }`;
+    message = `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`;
   }
 
   return {
