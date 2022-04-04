@@ -1381,3 +1381,70 @@ export function purgeOrphanedDynamicPaths(widget: WidgetProps) {
   }
   return widget;
 }
+
+/*
+ * Function to extend the lodash's get function to check
+ * paths which have dots in it's key
+ *
+ * Suppose, if the path is `path1.path2.path3.path4`, this function
+ * checks in following paths in the tree as well, if _.get doesn't return a value
+ *  - path1.path2.path3 -> path4
+ *  - path1.path2 -> path3.path4 (will recursively traversed with same logic)
+ *  - path1 -> path2.path3.path4 (will recursively traversed with same logic)
+ */
+export function getValueFromTree(
+  obj: Record<string, unknown>,
+  path: string,
+  defaultValue?: unknown,
+): unknown {
+  // Creating a symbol as we need a unique value that will not be present in the input obj
+  const defaultValueSymbol = Symbol("defaultValue");
+
+  //Call the original get function with defaultValueSymbol.
+  const value = _.get(obj, path, defaultValueSymbol);
+
+  /*
+   * if the value returned by get matches defaultValueSymbol,
+   * path is invalid.
+   */
+  if (value === defaultValueSymbol && path.includes(".")) {
+    const pathArray = path.split(".");
+    const poppedPath: Array<string> = [];
+
+    while (pathArray.length) {
+      const currentPath = pathArray.join(".");
+
+      if (obj.hasOwnProperty(currentPath)) {
+        const currentValue = obj[currentPath];
+
+        if (typeof currentValue !== "object") {
+          if (!poppedPath.length) {
+            //Valid path
+            return currentValue;
+          } else {
+            //Invalid path
+            return defaultValue;
+          }
+        } else {
+          if (!poppedPath.length) {
+            //Valid path
+            return currentValue;
+          } else {
+            //Valid path, need to traverse recursively with same strategy
+            return getValueFromTree(
+              currentValue as Record<string, unknown>,
+              poppedPath.join("."),
+              defaultValue,
+            );
+          }
+        }
+      } else {
+        // We need the popped paths to traverse recursively
+        poppedPath.unshift(pathArray.pop() || "");
+      }
+    }
+  }
+
+  // Need to return the defaultValue, if there is no match for the path in the tree
+  return value !== defaultValueSymbol ? value : defaultValue;
+}

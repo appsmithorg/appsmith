@@ -110,6 +110,7 @@ import {
   getWidgetsFromIds,
   getDefaultCanvas,
   isDropTarget,
+  getValueFromTree,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
@@ -434,7 +435,7 @@ export function getPropertiesToUpdate(
   } = getAllPathsFromPropertyConfig(widgetWithUpdates, widgetConfig, {});
 
   Object.keys(updatePaths).forEach((propertyPath) => {
-    const propertyValue = _.get(updates, propertyPath);
+    const propertyValue = getValueFromTree(updates, propertyPath);
     // only check if
     if (!_.isString(propertyValue)) {
       return;
