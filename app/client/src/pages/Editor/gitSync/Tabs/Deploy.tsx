@@ -150,6 +150,8 @@ function Deploy() {
   const handleCommit = (doPush: boolean) => {
     AnalyticsUtil.logEvent("GS_COMMIT_AND_PUSH_BUTTON_CLICK", {
       source: "GIT_DEPLOY_MODAL",
+      isAutoUpdate,
+      isManualUpdate,
     });
     if (currentBranch) {
       dispatch(

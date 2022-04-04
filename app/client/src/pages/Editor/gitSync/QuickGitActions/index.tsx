@@ -72,19 +72,19 @@ const QuickActionButtonContainer = styled.div<{ disabled?: boolean }>`
 
   .count {
     position: absolute;
-    //min-width: 28px;
-    height: 16px;
+    height: ${(props) => props.theme.spaces[7]}px;
     display: flex;
     justify-content: center;
     align-items: center;
     color: ${Colors.WHITE};
     background-color: ${Colors.BLACK};
-    top: -8px;
-    left: 18px;
-    border-radius: 8px;
+    top: ${(props) => -1 * props.theme.spaces[3]}px;
+    left: ${(props) => props.theme.spaces[8]}px;
+    border-radius: ${(props) => props.theme.spaces[3]}px;
     ${(props) => getTypographyByKey(props, "p3")};
     z-index: 1;
-    padding: 4px;
+    padding: ${(props) => props.theme.spaces[1]}px
+      ${(props) => props.theme.spaces[2]}px;
   }
 `;
 
