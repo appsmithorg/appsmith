@@ -154,17 +154,22 @@ class TabControl extends BaseControl<ControlProps, State> {
   }
 
   getTabItems = () => {
-    const menuItems: Array<{
+    let menuItems: Array<{
       id: string;
       label: string;
-      isVisible: boolean;
+      isVisible?: boolean;
+      isDuplicateLabel?: boolean;
     }> =
       isString(this.props.propertyValue) ||
       isUndefined(this.props.propertyValue)
         ? []
         : Object.values(this.props.propertyValue);
-
-    return orderBy(menuItems, ["index"], ["asc"]);
+    menuItems = orderBy(menuItems, ["index"], ["asc"]);
+    menuItems = menuItems.map((tab: DroppableItem) => ({
+      ...tab,
+      isDuplicateLabel: includes(this.state.duplicateTabIds, tab.id),
+    }));
+    return menuItems;
   };
 
   updateItems = (items: Array<Record<string, any>>) => {
@@ -188,13 +193,6 @@ class TabControl extends BaseControl<ControlProps, State> {
     });
   };
   render() {
-    let tabs: DroppableItem[] = isString(this.props.propertyValue)
-      ? []
-      : Object.values(this.props.propertyValue);
-    tabs = tabs.map((tab: DroppableItem) => ({
-      ...tab,
-      isDuplicateLabel: includes(this.state.duplicateTabIds, tab.id),
-    }));
     return (
       <TabsWrapper>
         <DroppableComponent
