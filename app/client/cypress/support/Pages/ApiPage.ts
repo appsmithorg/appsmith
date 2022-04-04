@@ -25,6 +25,7 @@ export class ApiPage {
     _noBodyMessage = "This request does not have a body"
     _imageSrc = "//img/parent::div"
     private _trashDelete = "span[name='delete']"
+    private _onPageLoad = "input[name='executeOnLoad'][type='checkbox']"
 
 
     CreateApi(apiName: string = "", apiVerb: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' = 'GET',) {
@@ -54,72 +55,50 @@ export class ApiPage {
         this.CreateApi(apiname, apiVerb)
         this.EnterURL(url)
         this.agHelper.AssertAutoSave()
-        this.agHelper.Sleep(2000);// Added because api name edit takes some time to reflect in api sidebar after the call passes.
+        //this.agHelper.Sleep(2000);// Added because api name edit takes some time to reflect in api sidebar after the call passes.
         cy.get(this._apiRunBtn).should("not.be.disabled");
         this.SetAPITimeout(queryTimeout)
     }
 
     EnterURL(url: string) {
-        cy.get(this._resourceUrl)
-            .first()
-            .click({ force: true })
-            .type(url, { parseSpecialCharSequences: false });
+        this.agHelper.UpdateCodeInput(this._resourceUrl, url)
         this.agHelper.AssertAutoSave()
     }
 
     EnterHeader(hKey: string, hValue: string) {
-        this.SelectAPITab('Headers');
-        cy.get(this._headerKey(0))
-            .first()
-            .click({ force: true })
-            .type(hKey, { parseSpecialCharSequences: false })
-            .type("{esc}");
-        cy.get(this._headerValue(0))
-            .first()
-            .click({ force: true })
-            .type(hValue, { parseSpecialCharSequences: false })
-            .type("{esc}");
+        this.SelectPaneTab('Headers');
+        this.agHelper.UpdateCodeInput(this._headerKey(0), hKey)
+        cy.get('body').type("{esc}");
+        this.agHelper.UpdateCodeInput(this._headerValue(0), hValue)
+        cy.get('body').type("{esc}");
         this.agHelper.AssertAutoSave()
     }
 
     EnterParams(pKey: string, pValue: string) {
-        this.SelectAPITab('Params')
-        cy.get(this._paramKey(0))
-            .first()
-            .click({ force: true })
-            .type(pKey, { parseSpecialCharSequences: false })
-            .type("{esc}");
-        cy.get(this._paramValue(0))
-            .first()
-            .click({ force: true })
-            .type(pValue, { parseSpecialCharSequences: false })
-            .type("{esc}");
+        this.SelectPaneTab('Params')
+        this.agHelper.UpdateCodeInput(this._paramKey(0), pKey)
+        cy.get('body').type("{esc}");
+        this.agHelper.UpdateCodeInput(this._paramValue(0), pValue)
+        cy.get('body').type("{esc}");
         this.agHelper.AssertAutoSave()
     }
 
     EnterBodyFormData(subTab: 'FORM_URLENCODED' | 'MULTIPART_FORM_DATA', bKey: string, bValue: string, type = "", toTrash = false) {
-        this.SelectAPITab('Body')
+        this.SelectPaneTab('Body')
         this.SelectSubTab(subTab)
-        if (toTrash)
-        {
+        if (toTrash) {
             cy.get(this._trashDelete).click()
             cy.xpath(this._visibleTextSpan('Add more')).click()
         }
-        cy.get(this._bodyKey(0))
-            .first()
-            .click({ force: true })
-            .type(bKey, { parseSpecialCharSequences: false })
-            .type("{esc}");
+        this.agHelper.UpdateCodeInput(this._bodyKey(0), bKey)
+        cy.get('body').type("{esc}");
+
         if (type) {
             cy.xpath(this._bodyTypeDropdown).eq(0).click()
             cy.xpath(this._visibleTextDiv(type)).click()
         }
-        cy.get(this._bodyValue(0))
-            .first()
-            .click({ force: true })
-            .type(bValue, { parseSpecialCharSequences: false })
-            .type("{esc}");
-
+        this.agHelper.UpdateCodeInput(this._bodyValue(0), bValue)
+        cy.get('body').type("{esc}");
         this.agHelper.AssertAutoSave()
     }
 
@@ -129,14 +108,22 @@ export class ApiPage {
     }
 
     SetAPITimeout(timeout: number) {
-        this.SelectAPITab('Settings');
+        this.SelectPaneTab('Settings');
         cy.xpath(this._queryTimeout)
             .clear()
             .type(timeout.toString());
-        this.SelectAPITab('Headers');
+        this.agHelper.AssertAutoSave()
+        this.SelectPaneTab('Headers');
     }
 
-    SelectAPITab(tabName: 'Headers' | 'Params' | 'Body' | 'Pagination' | 'Authentication' | 'Settings') {
+    DisableOnPageLoadRun() {
+        this.SelectPaneTab('Settings');
+        cy.get(this._onPageLoad).uncheck({
+            force: true,
+        });
+    }
+
+    SelectPaneTab(tabName: 'Headers' | 'Params' | 'Body' | 'Pagination' | 'Authentication' | 'Settings') {
         cy.xpath(this._visibleTextSpan(tabName)).should('be.visible').eq(0).click();
     }
 
@@ -144,21 +131,14 @@ export class ApiPage {
         cy.get(this._bodySubTab(subTabName)).eq(0).should('be.visible').click();
     }
 
-    public CheckElementPresence(selector: string) {
-        if (selector.startsWith("//"))
-            cy.xpath(selector).should('be.visible')
-        else
-            cy.get(selector).should('be.visible')
-    }
-
     ValidateQueryParams(param: { key: string; value: string; }) {
-        this.SelectAPITab('Params')
+        this.SelectPaneTab('Params')
         this.agHelper.ValidateCodeEditorContent(this._paramKey(0), param.key)
         this.agHelper.ValidateCodeEditorContent(this._paramValue(0), param.value)
     }
 
     ValidateHeaderParams(header: { key: string; value: string; }) {
-        this.SelectAPITab('Headers')
+        this.SelectPaneTab('Headers')
         this.agHelper.ValidateCodeEditorContent(this._headerKey(0), header.key)
         this.agHelper.ValidateCodeEditorContent(this._headerValue(0), header.value)
     }

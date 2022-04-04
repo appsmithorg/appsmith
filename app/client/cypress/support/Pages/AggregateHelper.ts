@@ -4,7 +4,7 @@ import { ObjectsRegistry } from '../Objects/Registry';
 export class AggregateHelper {
     private locator = ObjectsRegistry.CommonLocators;
 
-    public AddDsl(dsl: string) {
+    public AddDsl(dsl: string, elementToCheckPresenceaftDslLoad: string | "" = "") {
         let currentURL;
         let pageid: string;
         let layoutId;
@@ -27,7 +27,10 @@ export class AggregateHelper {
                 });
             });
         });
-        this.Sleep(5000)//settling time for dsl
+
+        if (elementToCheckPresenceaftDslLoad)
+            this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad)
+        this.Sleep(500)//settling time for dsl
         cy.get(this.locator._loading).should("not.exist");//Checks the spinner is gone & dsl loaded!
     }
 
@@ -50,7 +53,7 @@ export class AggregateHelper {
 
     public AssertAutoSave() {
         // wait for save query to trigger & n/w call to finish occuring
-        cy.get(this.locator._saveStatusSuccess, { timeout: 40000 }).should("exist");
+        cy.get(this.locator._saveStatusSuccess, { timeout: 30000 }).should("exist");//adding timeout since waiting more time is not worth it!
     }
 
     public ValidateCodeEditorContent(selector: string, contentToValidate: any) {
@@ -60,7 +63,7 @@ export class AggregateHelper {
     }
 
     //refering PublishtheApp from command.js
-    public DeployApp() {
+    public DeployApp(eleToCheckInDeployPage: string = this.locator._backToEditor) {
         cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
         // Wait before publish
         this.Sleep(2000)
@@ -75,6 +78,9 @@ export class AggregateHelper {
         cy.log("Pagename: " + localStorage.getItem("PageName"));
         cy.wait("@publishApp").its("request.url").should("not.contain", "edit")
         //cy.wait('@publishApp').wait('@publishApp') //waitng for 2 calls to complete
+
+        this.WaitUntilEleAppear(eleToCheckInDeployPage)
+        localStorage.setItem("inDeployedMode", "true");
     }
 
     public AddNewPage() {
@@ -114,22 +120,35 @@ export class AggregateHelper {
         });
     }
 
-    public WaitUntilEleDisappear(selector: string, msgToCheckforDisappearance: string) {
-        cy.waitUntil(() => cy.get(selector).contains(msgToCheckforDisappearance).should("have.length", 0),
+    public WaitUntilEleDisappear(selector: string, msgToCheckforDisappearance: string | "") {
+        cy.waitUntil(() => selector.includes("//") ? cy.xpath(selector) : cy.get(selector),
             {
                 errorMsg: msgToCheckforDisappearance + " did not disappear",
                 timeout: 5000,
                 interval: 1000
-            }).then(() => this.Sleep())
+            }).then($ele => {
+                cy.wrap($ele).contains(msgToCheckforDisappearance).should("have.length", 0)
+                this.Sleep()
+            })
     }
 
     public WaitUntilEleAppear(selector: string) {
-        cy.waitUntil(() => cy.get(selector, { timeout: 50000 }).should("have.length.greaterThan", 0),
+        // cy.waitUntil(() => cy.get(selector, { timeout: 50000 }).should("have.length.greaterThan", 0),
+        //     {
+        //         errorMsg: "Element did not appear",
+        //         timeout: 5000,
+        //         interval: 1000
+        //     }).then(() => this.Sleep(500))
+
+        cy.waitUntil(() => selector.includes("//") ? cy.xpath(selector) : cy.get(selector),
             {
                 errorMsg: "Element did not appear",
                 timeout: 5000,
                 interval: 1000
-            }).then(() => this.Sleep(500))
+            }).then($ele => {
+                cy.wrap($ele).eq(0).should("be.visible")
+                this.Sleep()
+            })
     }
 
     public ValidateNetworkExecutionSuccess(aliasName: string, expectedRes = true) {
@@ -164,13 +183,26 @@ export class AggregateHelper {
         cy.get(this.locator._dropDownValue(ddOption)).click()
     }
 
-    public SelectDropDown(endp: string, ddOption: string,) {
-        cy.xpath(this.locator._selectWidgetDropdown(endp))
-            .first()
-            .scrollIntoView()
-            .click()
+    public SelectDropDown(ddOption: string, endp: string = "selectwidget") {
+        let mode = localStorage.getItem("inDeployedMode");
+        if (mode == "false") {
+            cy.xpath(this.locator._selectWidgetDropdown(endp))
+                .first()
+                .scrollIntoView()
+                .click()
+        }
+        else {
+            cy.xpath(this.locator._selectWidgetDropdownInDeployed(endp))
+                .first()
+                .scrollIntoView()
+                .click()
+        }
         cy.get(this.locator._selectOptionValue(ddOption)).click({ force: true })
-        this.Sleep(2000)
+        this.Sleep()//for selected value to reflect!
+    }
+
+    public ReadSelectedDropDownValue() {
+        return cy.xpath(this.locator._selectedDropdownValue).first().invoke("text")
     }
 
     public EnterActionValue(actionName: string, value: string, paste = true) {
@@ -241,8 +273,9 @@ export class AggregateHelper {
     }
 
     public NavigateBacktoEditor() {
-        cy.get(this.locator._backToEditor).click({ force: true });
+        cy.get(this.locator._backToEditor).click();
         this.Sleep(2000)
+        localStorage.setItem("inDeployedMode", "false");
     }
 
     public GenerateUUID() {
@@ -278,14 +311,14 @@ export class AggregateHelper {
         this.VerifyEvaluatedValue(valueToType);
     }
 
-    public EnterValue(valueToType: string, fieldName = "") {
+    public EnterValue(valueToEnter: string, fieldName = "") {
         if (fieldName) {
             cy.xpath(this.locator._inputFieldByName(fieldName)).then(($field: any) => {
-                this.UpdateCodeInput($field, valueToType);
+                this.UpdateCodeInput($field, valueToEnter);
             });
         } else {
             cy.get(this.locator._codeEditorTarget).then(($field: any) => {
-                this.UpdateCodeInput($field, valueToType);
+                this.UpdateCodeInput($field, valueToEnter);
             });
         }
     }
@@ -336,7 +369,7 @@ export class AggregateHelper {
     }
 
     public UploadFile(fixtureName: string, execStat = true) {
-        cy.get(this.locator._uploadFiles).attachFile(fixtureName).wait(1000);
+        cy.get(this.locator._uploadFiles).attachFile(fixtureName).wait(2000);
         cy.get(this.locator._uploadBtn).click().wait(3000);
         this.ValidateNetworkExecutionSuccess("@postExecute", execStat);
     }
@@ -360,4 +393,47 @@ export class AggregateHelper {
             });
 
     }
+
+    public AssertElementAbsence(selector: string) {
+        if (selector.startsWith("//"))
+            cy.xpath(selector).should('not.exist')
+        else
+            cy.get(selector).should('not.exist')
+    }
+
+    public AssertElementPresence(selector: string) {
+        if (selector.startsWith("//"))
+            cy.xpath(selector).should('be.visible')
+        else
+            cy.get(selector).should('be.visible')
+    }
+
+    public AssertElementLength(selector: string, length: number) {
+        if (selector.startsWith("//"))
+            cy.xpath(selector).should("have.length", length)
+        else
+            cy.get(selector).should("have.length", length);
+    }
+
+    //Not used:
+    // private xPathToCss(xpath: string) {
+    //     return xpath
+    //         .replace(/\[(\d+?)\]/g, function (s, m1) { return '[' + (m1 - 1) + ']'; })
+    //         .replace(/\/{2}/g, '')
+    //         .replace(/\/+/g, ' > ')
+    //         .replace(/@/g, '')
+    //         .replace(/\[(\d+)\]/g, ':eq($1)')
+    //         .replace(/^\s+/, '');
+    // }
+
+    // Cypress.Commands.add("byXpath", (xpath) => {
+    //     const iterator = document.evaluate(xpath, document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+    //     const items = [];
+    //     let item = iterator.iterateNext();
+    //     while (item) {
+    //         items.push(item);
+    //         item = iterator.iterateNext();
+    //     }
+    //     return items;
+    //   }, { timeout: 5000 });
 }

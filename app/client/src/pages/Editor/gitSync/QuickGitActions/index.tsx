@@ -72,33 +72,25 @@ const QuickActionButtonContainer = styled.div<{ disabled?: boolean }>`
 
   .count {
     position: absolute;
-    width: 20px;
-    height: 20px;
+    height: ${(props) => props.theme.spaces[7]}px;
     display: flex;
     justify-content: center;
     align-items: center;
     color: ${Colors.WHITE};
     background-color: ${Colors.BLACK};
-    top: -8px;
-    left: 18px;
-    border-radius: 50%;
+    top: ${(props) => -1 * props.theme.spaces[3]}px;
+    left: ${(props) => props.theme.spaces[8]}px;
+    border-radius: ${(props) => props.theme.spaces[3]}px;
     ${(props) => getTypographyByKey(props, "p3")};
     z-index: 1;
+    padding: ${(props) => props.theme.spaces[1]}px
+      ${(props) => props.theme.spaces[2]}px;
   }
 `;
 
 const capitalizeFirstLetter = (string = " ") => {
   return string.charAt(0).toUpperCase() + string.toLowerCase().slice(1);
 };
-
-// const SpinnerContainer = styled.div`
-//   margin-left: ${(props) => props.theme.spaces[2]}px;
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-//   width: 29px;
-//   height: 26px;
-// `;
 
 function QuickActionButton({
   className = "",
