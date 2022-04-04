@@ -20,21 +20,20 @@ const DropdownSelect = styled.div`
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
-    let width = "20vw";
-    if (
-      "customStyles" in this.props &&
-      !!this.props.customStyles &&
-      "width" in this.props.customStyles
-    ) {
-      width = this.props.customStyles.width;
-    }
+    const styles = {
+      width: "20vw",
+      ...("customStyles" in this.props &&
+      typeof this.props.customStyles === "object"
+        ? this.props.customStyles
+        : {}),
+    };
 
     return (
-      <DropdownSelect data-cy={this.props.configProperty} style={{ width }}>
+      <DropdownSelect data-cy={this.props.configProperty} style={styles}>
         <Field
           component={renderDropdown}
           name={this.props.configProperty}
-          props={{ ...this.props, width }}
+          props={{ ...this.props, width: styles.width }}
           type={this.props?.isMultiSelect ? "select-multiple" : undefined}
         />
       </DropdownSelect>

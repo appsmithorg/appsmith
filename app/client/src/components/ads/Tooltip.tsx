@@ -32,7 +32,7 @@ const portalContainer = document.getElementById("tooltip-root");
 
 const TooltipWrapper = styled(Tooltip)`
   display: flex;
-  width: 100%;
+  width: fit-content;
   text-align: start;
   align-self: start;
 `;
