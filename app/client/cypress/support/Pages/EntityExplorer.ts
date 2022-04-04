@@ -5,8 +5,10 @@ export class EntityExplorer {
     public agHelper = ObjectsRegistry.AggregateHelper
     public locator = ObjectsRegistry.CommonLocators;
 
-    public SelectEntityByName(entityNameinLeftSidebar: string) {
-        cy.xpath(this.locator._entityNameInExplorer(entityNameinLeftSidebar), { timeout: 30000 })
+    public SelectEntityByName(entityNameinLeftSidebar: string, section: 'WIDGETS' | 'QUERIES/JS' | 'DATASOURCES' | '' = '') {
+        if (section)
+            this.expandCollapseEntity(section)//to expand respective section
+        cy.xpath(this.locator._entityNameInExplorer(entityNameinLeftSidebar))
             .last()
             .click({ multiple: true })
         this.agHelper.Sleep()
@@ -32,7 +34,7 @@ export class EntityExplorer {
             else if (!expand && arrow == 'arrow-down')
                 cy.xpath(this.locator._expandCollapseArrow(entityName)).trigger('click', { multiple: true }).wait(1000);
             else
-                this.agHelper.Sleep()
+                this.agHelper.Sleep(500)
         })
     }
 

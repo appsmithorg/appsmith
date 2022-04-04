@@ -70,9 +70,10 @@ import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/organizationIc
 import { ReactComponent as SettingIcon } from "assets/icons/control/settings.svg";
 import { ReactComponent as DropdownIcon } from "assets/icons/ads/dropdown.svg";
 import { ReactComponent as ChatIcon } from "assets/icons/ads/app-icons/chat.svg";
+import { ReactComponent as JsIcon } from "assets/icons/ads/js.svg";
 
 import styled from "styled-components";
-import { CommonComponentProps, Classes } from "./common";
+import { Classes, CommonComponentProps } from "./common";
 import { noop } from "lodash";
 import { theme } from "constants/DefaultTheme";
 import Spinner from "./Spinner";
@@ -90,6 +91,7 @@ import CheckLineIcon from "remixicon-react/CheckLineIcon";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
 import CloseCircleIcon from "remixicon-react/CloseCircleFillIcon";
 import CommentContextMenu from "remixicon-react/More2FillIcon";
+import More2FillIcon from "remixicon-react/More2FillIcon";
 import CompassesLine from "remixicon-react/CompassesLineIcon";
 import ContextMenuIcon from "remixicon-react/MoreFillIcon";
 import CreateNewIcon from "remixicon-react/AddLineIcon";
@@ -102,8 +104,10 @@ import Download from "remixicon-react/DownloadCloud2LineIcon";
 import DuplicateIcon from "remixicon-react/FileCopyLineIcon";
 import EditIcon from "remixicon-react/PencilFillIcon";
 import EditLineIcon from "remixicon-react/EditLineIcon";
+import EditUnderlineIcon from "remixicon-react/EditLineIcon";
 import Emoji from "remixicon-react/EmotionLineIcon";
 import ExpandMore from "remixicon-react/ArrowDownSLineIcon";
+import DownArrowIcon from "remixicon-react/ArrowDownSLineIcon";
 import ExpandLess from "remixicon-react/ArrowUpSLineIcon";
 import EyeOn from "remixicon-react/EyeLineIcon";
 import EyeOff from "remixicon-react/EyeOffLineIcon";
@@ -122,7 +126,6 @@ import KeyIcon from "remixicon-react/Key2LineIcon";
 import LeftArrowIcon2 from "remixicon-react/ArrowLeftSLineIcon";
 import Link2 from "remixicon-react/LinkIcon";
 import LeftArrowIcon from "remixicon-react/ArrowLeftLineIcon";
-import More2FillIcon from "remixicon-react/More2FillIcon";
 import NewsPaperLine from "remixicon-react/NewspaperLineIcon";
 import OvalCheck from "remixicon-react/CheckboxCircleLineIcon";
 import OvalCheckFill from "remixicon-react/CheckboxCircleFillIcon";
@@ -137,10 +140,8 @@ import Trash from "remixicon-react/DeleteBinLineIcon";
 import UpArrow from "remixicon-react/ArrowUpSFillIcon";
 import WarningIcon from "remixicon-react/ErrorWarningFillIcon";
 import WarningLineIcon from "remixicon-react/ErrorWarningLineIcon";
-import EditUnderlineIcon from "remixicon-react/EditLineIcon";
 import LogoutIcon from "remixicon-react/LogoutBoxRLineIcon";
 import ShareLineIcon from "remixicon-react/ShareLineIcon";
-import DownArrowIcon from "remixicon-react/ArrowDownSLineIcon";
 import LoaderLineIcon from "remixicon-react/LoaderLineIcon";
 import WidgetIcon from "remixicon-react/FunctionLineIcon";
 import RefreshLineIcon from "remixicon-react/RefreshLineIcon";
@@ -344,6 +345,7 @@ const ICON_LOOKUP = {
   hamburger: <HamburgerIcon />,
   help: <HelpIcon />,
   info: <InfoIcon />,
+  js: <JsIcon />,
   key: <KeyIcon />,
   lightning: <LightningIcon />,
   link: <LinkIcon />,

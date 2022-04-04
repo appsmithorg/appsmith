@@ -1,9 +1,4 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/buttonRecaptchaDsl.json");
-const pages = require("../../../../locators/Pages.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 
 describe("Binding the Button widget with Text widget using Recpatcha v3", function() {
@@ -11,7 +6,7 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
     cy.addDsl(dsl);
   });
 
-  it("Validate the Button binding with Text Widget with Recaptcha Token", function() {
+  it("1. Validate the Button binding with Text Widget with Recaptcha token with empty key", function() {
     cy.get("button")
       .contains("Submit")
       .should("be.visible")
@@ -69,7 +64,7 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
     })
   });
 */
-  it("Validate the Button binding with Text Widget with Recaptcha Token with v2Key", function() {
+  it("2. Validate the Button binding with Text Widget with Recaptcha Token with v2Key", function() {
     cy.get("button")
       .contains("Submit")
       .should("be.visible")
@@ -106,7 +101,7 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
       });
   });
 
-  it("Validate the Button binding with Text Widget with Recaptcha Token with v3Key", function() {
+  it("3. Validate the Button binding with Text Widget with Recaptcha Token with v3Key", function() {
     cy.get("button")
       .contains("Submit")
       .should("be.visible")
