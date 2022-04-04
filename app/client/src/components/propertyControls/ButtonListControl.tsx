@@ -5,7 +5,9 @@ import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
 import { DroppableComponent } from "components/ads/DraggableListComponent";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import _ from "lodash";
+import orderBy from "lodash/orderBy";
+import isString from "lodash/isString";
+import isUndefined from "lodash/isUndefined";
 import { Category, Size } from "components/ads/Button";
 import { Colors } from "constants/Colors";
 import { ButtonPlacementTypes } from "components/constants";
@@ -51,6 +53,23 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
       this.updateFocus(Object.keys(this.props.propertyValue).length - 1, true);
     }
   }
+
+  getMenuItems = () => {
+    const menuItems: Array<{
+      id: string;
+      label: string;
+      isDisabled: boolean;
+      isVisible: boolean;
+      widgetId: string;
+    }> =
+      isString(this.props.propertyValue) ||
+      isUndefined(this.props.propertyValue)
+        ? []
+        : Object.values(this.props.propertyValue);
+
+    return orderBy(menuItems, ["index"], ["asc"]);
+  };
+
   updateItems = (items: Array<Record<string, any>>) => {
     const menuItems = items.reduce((obj: any, each: any, index: number) => {
       obj[each.id] = {
@@ -63,10 +82,7 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
   };
 
   onEdit = (index: number) => {
-    const menuItems: Array<{
-      id: string;
-      label: string;
-    }> = Object.values(this.props.propertyValue);
+    const menuItems = this.getMenuItems();
     const targetMenuItem = menuItems[index];
     this.props.openNextPanel({
       index,
@@ -76,12 +92,6 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
   };
 
   render() {
-    const menuItems: Array<{
-      id: string;
-      label: string;
-    }> = _.isString(this.props.propertyValue)
-      ? []
-      : Object.values(this.props.propertyValue);
     return (
       <ButtonListWrapper>
         <DroppableComponent
@@ -89,7 +99,7 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
           fixedHeight={370}
           focusedIndex={this.state.focusedIndex}
           itemHeight={45}
-          items={menuItems}
+          items={this.getMenuItems()}
           onEdit={this.onEdit}
           renderComponent={(props) =>
             DraggableListCard({
@@ -119,13 +129,7 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
   }
 
   toggleVisibility = (index: number) => {
-    const menuItems: Array<{
-      id: string;
-      label: string;
-      isDisabled: boolean;
-      isVisible: boolean;
-      widgetId: string;
-    }> = this.props.propertyValue.slice();
+    const menuItems = this.getMenuItems();
     const isVisible = menuItems[index].isVisible === true ? false : true;
     const updatedMenuItems = menuItems.map((item, itemIndex) => {
       if (index === itemIndex) {
@@ -140,9 +144,8 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
   };
 
   deleteOption = (index: number) => {
-    const menuItemsArray: any = Object.values(this.props.propertyValue);
-    const itemId = menuItemsArray[index].id;
-    if (menuItemsArray && menuItemsArray.length === 1) return;
+    const menuItemsArray = this.getMenuItems();
+    if (menuItemsArray.length === 1) return;
     const updatedArray = menuItemsArray.filter((eachItem: any, i: number) => {
       return i !== index;
     });
@@ -156,12 +159,11 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
       },
       {},
     );
-    this.deleteProperties([`${this.props.propertyName}.${itemId}.isVisible`]);
     this.updateProperty(this.props.propertyName, updatedObj);
   };
 
   updateOption = (index: number, updatedLabel: string) => {
-    const menuItemsArray: any = Object.values(this.props.propertyValue);
+    const menuItemsArray = this.getMenuItems();
     const itemId = menuItemsArray[index].id;
     this.updateProperty(
       `${this.props.propertyName}.${itemId}.label`,
@@ -171,7 +173,7 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
 
   addOption = () => {
     let groupButtons = this.props.propertyValue;
-    const groupButtonsArray = Object.values(groupButtons);
+    const groupButtonsArray = this.getMenuItems();
     const newGroupButtonId = generateReactKey({ prefix: "groupButton" });
     const newGroupButtonLabel = getNextEntityName(
       "Group Button ",
@@ -181,6 +183,7 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
       ...groupButtons,
       [newGroupButtonId]: {
         id: newGroupButtonId,
+        index: groupButtonsArray.length,
         label: newGroupButtonLabel,
         menuItems: {},
         buttonType: "SIMPLE",
