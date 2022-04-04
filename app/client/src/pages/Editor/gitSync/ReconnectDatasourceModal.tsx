@@ -33,6 +33,7 @@ import {
 import Button, { Category, Size } from "components/ads/Button";
 import {
   getDatasourceDrafts,
+  getDatasourceLoading,
   getIsDatasourceTesting,
   getIsListing,
   getIsReconnectingDatasourcesModalOpen,
@@ -277,6 +278,7 @@ function ReconnectDatasourceModal() {
   const datasourceDrafts = useSelector(getDatasourceDrafts);
   const isLoading = useSelector(getIsListing);
   const isDatasourceTesting = useSelector(getIsDatasourceTesting);
+  const isDatasourceUpdating = useSelector(getDatasourceLoading);
 
   // getting query from redirection url
   const userOrgs = useSelector(getUserApplicationsOrgsList);
@@ -363,10 +365,17 @@ function ReconnectDatasourceModal() {
   }, [organizationId, isModalOpen]);
 
   useEffect(() => {
-    if (isModalOpen && isDatasourceTesting) {
-      setIsTesting(true);
+    if (isModalOpen) {
+      // while updating datasource, testing flag should be false
+      if (isDatasourceUpdating) {
+        setIsTesting(false);
+      }
+      // while testing datasource, testing flag should be true
+      if (isDatasourceTesting) {
+        setIsTesting(true);
+      }
     }
-  }, [isModalOpen, isDatasourceTesting]);
+  }, [isModalOpen, isDatasourceTesting, isDatasourceUpdating]);
 
   const handleClose = useCallback(() => {
     dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
