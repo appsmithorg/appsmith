@@ -1908,6 +1908,7 @@ Cypress.Commands.add("Createpage", (pageName) => {
       cy.get(pages.editName).click({ force: true });
       cy.get(pages.editInput).type(pageName + "{enter}");
       pageidcopy = pageName;
+      cy.wrap(pageId).as("currentPageId");
     }
     cy.get(generatePage.buildFromScratchActionCard).click();
     cy.get("#loading").should("not.exist");
@@ -2341,6 +2342,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor["databaseName"])
       .clear()
       .type(datasourceFormData["mongo-databaseName"]);
+    cy.get(datasourceEditor.sectionAuthentication).click();
     // cy.get(datasourceEditor["username"]).type(
     //   datasourceFormData["mongo-username"],
     // );
@@ -2374,7 +2376,6 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.databaseName)
       .clear()
       .type(databaseName);
-
     cy.get(datasourceEditor.sectionAuthentication).click();
     cy.get(datasourceEditor.username).type(
       datasourceFormData["postgres-username"],
@@ -2382,6 +2383,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.password).type(
       datasourceFormData["postgres-password"],
     );
+    cy.get(datasourceEditor.sectionAuthentication).click();
   },
 );
 
@@ -2408,6 +2410,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.password).type(
       datasourceFormData["mysql-password"],
     );
+    cy.get(datasourceEditor.sectionAuthentication).click();
   },
 );
 
@@ -2531,6 +2534,7 @@ Cypress.Commands.add(
       : datasourceFormData["smtp-host"];
     cy.get(datasourceEditor.host).type(hostAddress);
     cy.get(datasourceEditor.port).type(datasourceFormData["smtp-port"]);
+
     cy.get(datasourceEditor.sectionAuthentication).click();
     cy.get(datasourceEditor.username).type(datasourceFormData["smtp-username"]);
     cy.get(datasourceEditor.password).type(datasourceFormData["smtp-password"]);
@@ -3067,7 +3071,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.route("POST", "api/v1/git/connect/*").as("connectGitRepo");
   cy.route("POST", "api/v1/git/commit/*").as("commit");
-
+  cy.route("POST", "/api/v1/git/import/*").as("importFromGit");
   cy.route("PUT", "api/v1/collections/actions/refactor").as("renameJsAction");
 
   cy.route("POST", "/api/v1/collections/actions").as("createNewJSCollection");
@@ -3810,6 +3814,78 @@ Cypress.Commands.add(
     });
   },
 );
+
+Cypress.Commands.add(
+  "importAppFromGit",
+  (repo, shouldCommit = true, assertConnectFailure) => {
+    const testEmail = "test@test.com";
+    const testUsername = "testusername";
+    const owner = Cypress.env("TEST_GITHUB_USER_NAME");
+
+    let generatedKey;
+    cy.intercept(
+      {
+        url: "api/v1/git/connect/*",
+        hostname: window.location.host,
+      },
+      (req) => {
+        req.headers["origin"] = "Cypress";
+      },
+    );
+    cy.intercept("GET", "api/v1/git/import/keys").as(`generateKey-${repo}`);
+    cy.get(gitSyncLocators.gitRepoInput).type(
+      `git@github.com:${owner}/${repo}.git`,
+    );
+    cy.get(gitSyncLocators.generateDeployKeyBtn).click();
+    cy.wait(`@generateKey-${repo}`).then((result) => {
+      generatedKey = result.response.body.data.publicKey;
+      generatedKey = generatedKey.slice(0, generatedKey.length - 1);
+      // fetch the generated key and post to the github repo
+      cy.request({
+        method: "POST",
+        url: `${GITHUB_API_BASE}/repos/${Cypress.env(
+          "TEST_GITHUB_USER_NAME",
+        )}/${repo}/keys`,
+        headers: {
+          Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
+        },
+        body: {
+          title: "key0",
+          key: generatedKey,
+        },
+      });
+
+      cy.get(gitSyncLocators.useGlobalGitConfig).click();
+
+      cy.get(gitSyncLocators.gitConfigNameInput).type(
+        `{selectall}${testUsername}`,
+      );
+      cy.get(gitSyncLocators.gitConfigEmailInput).type(
+        `{selectall}${testEmail}`,
+      );
+      // click on the connect button and verify
+      cy.get(gitSyncLocators.connectSubmitBtn).click();
+
+      if (!assertConnectFailure) {
+        // check for connect success
+        cy.wait("@importFromGit").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          201,
+        );
+      } else {
+        cy.wait("@importFromGit").then((interception) => {
+          const status = interception.response.body.responseMeta.status;
+          expect(status).to.be.gte(400);
+        });
+      }
+    });
+  },
+);
+
+Cypress.Commands.add("ReconnectDatasource", (datasource) => {
+  cy.xpath(`//span[text()='${datasource}']`).click();
+});
 
 Cypress.Commands.add("clearPropertyValue", (value) => {
   cy.get(".CodeMirror textarea")
