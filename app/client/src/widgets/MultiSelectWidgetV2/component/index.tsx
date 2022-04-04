@@ -26,14 +26,13 @@ import {
 } from "constants/WidgetConstants";
 import Icon from "components/ads/Icon";
 import { Button, Classes, InputGroup } from "@blueprintjs/core";
-import { WidgetContainerDiff } from "widgets/WidgetUtils";
+import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
 import { uniqBy } from "lodash";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <MenuItemCheckBox checked={props.isSelected} />;
 };
-
 export interface MultiSelectProps
   extends Required<
     Pick<
@@ -196,19 +195,19 @@ function MultiSelectComponent({
     serverSideFiltering ? [options] : [filter, options],
   );
   useEffect(() => {
+    const parentWidth = width - WidgetContainerDiff;
     if (compactMode && labelRef.current) {
-      const labelWidth = labelRef.current.clientWidth;
-      const widthDiff = dropDownWidth - labelWidth;
+      const labelWidth = labelRef.current.getBoundingClientRect().width;
+      const widthDiff = parentWidth - labelWidth - labelMargin;
       setMemoDropDownWidth(
         widthDiff > dropDownWidth ? widthDiff : dropDownWidth,
       );
       return;
     }
-    const parentWidth = width - WidgetContainerDiff;
     setMemoDropDownWidth(
       parentWidth > dropDownWidth ? parentWidth : dropDownWidth,
     );
-  }, [compactMode, dropDownWidth, width]);
+  }, [compactMode, dropDownWidth, width, labelText]);
 
   const onQueryChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
