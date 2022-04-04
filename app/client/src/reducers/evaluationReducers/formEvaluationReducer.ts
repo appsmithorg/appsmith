@@ -12,6 +12,12 @@ export type DynamicValues = {
   config: { url: string; method: string; params: Record<string, any> };
 };
 
+export type EvaluatedFormConfig = {
+  executeEvaluation: boolean;
+  paths: string[];
+  evaluateFormConfigObject: FormConfigEvalObject;
+};
+
 export type ConditonalObject = Record<string, any>;
 
 // Type for the object that will store the evaluation output for each component
@@ -20,6 +26,11 @@ export type ConditionalOutput = {
   enabled?: boolean;
   fetchDynamicValues?: DynamicValues;
   conditionals?: ConditonalObject;
+  evaluateFormConfig?: EvaluatedFormConfig;
+};
+
+export type FormConfigEvalObject = {
+  [path: string]: { expression: string; output: string };
 };
 
 // Type for the object that will store the eval output for the form
