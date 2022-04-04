@@ -3619,9 +3619,15 @@ Cypress.Commands.add(
           "response.body.responseMeta.status",
           200,
         );
-
-        // click commit button
-        if (shouldCommit) {
+      }
+      // verify commit input box is disabled
+      cy.get(gitSyncLocators.commitCommentInput).should("be.disabled");
+      cy.get(gitSyncLocators.commitCommentInput).should(
+        "contain.text",
+        "No changes to commit",
+      );
+      // click commit button
+      /* if (shouldCommit) {
           cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
           cy.get(gitSyncLocators.commitButton).click();
           // check for commit success
@@ -3637,8 +3643,8 @@ Cypress.Commands.add(
         cy.wait("@connectGitRepo").then((interception) => {
           const status = interception.response.body.responseMeta.status;
           expect(status).to.be.gte(400);
-        });
-      }
+        }); 
+      } */
     });
   },
 );
