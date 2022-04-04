@@ -115,6 +115,7 @@ const generateButtonStyleControlsFor = (prefix: string) => [
     isJSConvertible: true,
     isBindProperty: true,
     isTriggerProperty: false,
+    validation: { type: ValidationTypes.TEXT },
   },
   {
     propertyName: `${prefix}.buttonVariant`,
@@ -172,7 +173,7 @@ const generateButtonStyleControlsFor = (prefix: string) => [
     helpText: "Enables you to cast a drop shadow from the frame of the widget",
     controlType: "BOX_SHADOW_OPTIONS",
     isJSConvertible: true,
-    isBindProperty: false,
+    isBindProperty: true,
     isTriggerProperty: false,
     validation: {
       type: ValidationTypes.TEXT,

@@ -43,7 +43,7 @@ type ArrayComponentProps = FieldComponentBaseProps & {
   cellBorderWidth?: number;
   cellBorderRadius?: string;
   cellBoxShadow?: string;
-  primaryColor?: string;
+  accentColor?: string;
   defaultValue?: any[];
   isCollapsible: boolean;
 };
@@ -355,7 +355,7 @@ function ArrayField({
       {fields}
       <StyledButton
         className="t--jsonformfield-array-add-btn"
-        color={schemaItem.primaryColor}
+        color={schemaItem.accentColor}
         onClick={add}
         type="button"
       >
@@ -363,7 +363,7 @@ function ArrayField({
           <Icon
             icon="add"
             iconSize={ACTION_ICON_SIZE}
-            style={{ color: schemaItem.primaryColor || Colors.GREEN }}
+            style={{ color: schemaItem.accentColor || Colors.GREEN }}
           />
         </StyledIconWrapper>
         <span className="t--text">Add New</span>

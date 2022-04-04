@@ -23,13 +23,11 @@ const widgetName = "JSONForm1";
 describe(".fieldTypeUpdateHook", () => {
   it("updates valid new schema item for a field type multiselect -> array", () => {
     const schema = schemaTestData.initialDataset.schemaOutput;
-    const propertyPath = "schema.__root_schema__.children.hobbies.fieldType";
+    const schemaItemPath = "__root_schema__.children.hobbies";
+    const propertyPath = `schema.${schemaItemPath}.fieldType`;
     const fieldType = FieldType.ARRAY;
 
-    const oldSchemaItem: SchemaItem = get(
-      schema,
-      "__root_schema__.children.hobbies",
-    );
+    const oldSchemaItem: SchemaItem = get(schema, schemaItemPath);
 
     const expectedNewSchemaItem = {
       isCollapsible: true,
@@ -56,7 +54,7 @@ describe(".fieldTypeUpdateHook", () => {
           originalIdentifier: ARRAY_ITEM_KEY,
           isSpellCheck: false,
           position: -1,
-          primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
           borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
           boxShadow: "none",
         },
@@ -73,6 +71,12 @@ describe(".fieldTypeUpdateHook", () => {
       position: 4,
     };
 
+    const expectedNewSchema = set(
+      clone(schema),
+      schemaItemPath,
+      expectedNewSchemaItem,
+    );
+
     const [result] =
       fieldTypeUpdateHook(
         ({
@@ -84,18 +88,17 @@ describe(".fieldTypeUpdateHook", () => {
         fieldType,
       ) || [];
 
-    const newSchemaItem: SchemaItem = result.propertyValue;
+    const newSchema: SchemaItem = result.propertyValue;
 
-    expect(result.propertyPath).toEqual(
-      "schema.__root_schema__.children.hobbies",
-    );
+    expect(result.propertyPath).toEqual("schema");
     expect(oldSchemaItem.fieldType).toEqual(FieldType.MULTISELECT);
-    expect(newSchemaItem).toEqual(expectedNewSchemaItem);
+    expect(newSchema).toEqual(expectedNewSchema);
   });
 
   it("updates valid new schema item for a field type array -> multiselect", () => {
-    const schema = clone(schemaTestData.initialDataset.schemaOutput);
-    const propertyPath = "schema.__root_schema__.children.hobbies.fieldType";
+    const oldSchema = clone(schemaTestData.initialDataset.schemaOutput);
+    const schemaItemPath = "__root_schema__.children.hobbies";
+    const propertyPath = `schema.${schemaItemPath}.fieldType`;
     const fieldType = FieldType.MULTISELECT;
 
     const oldSchemaItem = {
@@ -120,7 +123,7 @@ describe(".fieldTypeUpdateHook", () => {
           originalIdentifier: ARRAY_ITEM_KEY,
           isSpellCheck: false,
           position: -1,
-          primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
           borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
           boxShadow: "none",
         },
@@ -138,18 +141,14 @@ describe(".fieldTypeUpdateHook", () => {
       position: 4,
     };
 
-    const expectedNewSchemaItem = get(
-      schema,
-      "__root_schema__.children.hobbies",
-      {},
-    );
+    const expectedNewSchema = clone(schemaTestData.initialDataset.schemaOutput);
 
-    set(schema, "__root_schema__.children.hobbies", oldSchemaItem);
+    set(oldSchema, "__root_schema__.children.hobbies", oldSchemaItem);
 
     const [result] =
       fieldTypeUpdateHook(
         ({
-          schema,
+          schema: oldSchema,
           widgetName,
           childStylesheets: schemaTestData.fieldThemeStylesheets,
         } as unknown) as JSONFormWidgetProps,
@@ -157,13 +156,11 @@ describe(".fieldTypeUpdateHook", () => {
         fieldType,
       ) || [];
 
-    const newSchemaItem: SchemaItem = result.propertyValue;
+    const newSchema: SchemaItem = result.propertyValue;
 
-    expect(result.propertyPath).toEqual(
-      "schema.__root_schema__.children.hobbies",
-    );
+    expect(result.propertyPath).toEqual("schema");
     expect(oldSchemaItem.fieldType).toEqual(FieldType.ARRAY);
-    expect(newSchemaItem).toEqual(expectedNewSchemaItem);
+    expect(newSchema).toEqual(expectedNewSchema);
   });
 });
 

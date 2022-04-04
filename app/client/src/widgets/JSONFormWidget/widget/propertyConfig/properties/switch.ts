@@ -57,9 +57,9 @@ const PROPERTIES = {
   ],
   styles: [
     {
-      propertyName: "backgroundColor",
-      helpText: "Sets the checked state color of the switch",
-      label: "Background Color",
+      propertyName: "accentColor",
+      helpText: "Sets the accent color of the switch",
+      label: "Accent Color",
       controlType: "COLOR_PICKER",
       isJSConvertible: true,
       isBindProperty: true,

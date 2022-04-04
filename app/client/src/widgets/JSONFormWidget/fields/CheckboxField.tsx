@@ -20,7 +20,7 @@ type CheckboxComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
     alignWidget: AlignWidget;
     onCheckChange?: string;
-    checkColor?: string;
+    accentColor?: string;
     borderRadius?: string;
     boxShadow?: string;
   };
@@ -103,7 +103,7 @@ function CheckboxField({
     () => (
       <StyledCheckboxWrapper>
         <CheckboxComponent
-          backgroundColor={schemaItem.checkColor || Colors.GREEN}
+          backgroundColor={schemaItem.accentColor || Colors.GREEN}
           borderRadius={schemaItem.borderRadius || DEFAULT_BORDER_RADIUS}
           inputRef={(e) => (inputRef.current = e)}
           isChecked={value}

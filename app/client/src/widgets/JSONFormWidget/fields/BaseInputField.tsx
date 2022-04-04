@@ -47,7 +47,7 @@ export type BaseInputComponentProps = FieldComponentBaseProps &
     onEnterKeyPress?: string;
     onTextChanged?: string;
     placeholderText?: string;
-    primaryColor?: string;
+    accentColor?: string;
     regex?: string;
     validation?: boolean;
   };
@@ -348,7 +348,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
         onKeyDown={(e) => keyDownHandler(e, onChange, isValueValid)}
         onValueChange={(value) => onTextChangeHandler(value, onChange)}
         placeholder={schemaItem.placeholderText}
-        primaryColor={schemaItem.primaryColor}
+        primaryColor={schemaItem.accentColor}
         showError={isFocused}
         spellCheck={schemaItem.isSpellCheck}
         stepSize={1}

@@ -35,7 +35,7 @@ type SelectComponentProps = FieldComponentBaseProps &
     onOptionChange?: string;
     options: DropdownOption[];
     placeholderText?: string;
-    primaryColor?: string;
+    accentColor?: string;
     serverSideFiltering: boolean;
   };
 
@@ -174,7 +174,7 @@ function SelectField({
           onOptionSelected={onOptionSelected}
           options={options}
           placeholder={schemaItem.placeholderText}
-          primaryColor={schemaItem.primaryColor || DEFAULT_PRIMARY_COLOR}
+          primaryColor={schemaItem.accentColor || DEFAULT_PRIMARY_COLOR}
           selectedIndex={selectedIndex}
           serverSideFiltering={schemaItem.serverSideFiltering}
           value={options[selectedOptionIndex]?.value}
@@ -188,7 +188,7 @@ function SelectField({
       selectedOptionIndex,
       schemaItem.serverSideFiltering,
       schemaItem.placeholderText,
-      schemaItem.primaryColor,
+      schemaItem.accentColor,
       schemaItem.boxShadow,
       schemaItem.borderRadius,
       options,

@@ -322,6 +322,7 @@ const COMMON_PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
+      validation: { type: ValidationTypes.TEXT },
     },
     {
       propertyName: "labelStyle",

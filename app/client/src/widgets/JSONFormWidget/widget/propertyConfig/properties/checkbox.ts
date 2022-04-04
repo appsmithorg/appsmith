@@ -64,9 +64,9 @@ const PROPERTIES: Record<string, ExtendedControlConfig[]> = {
   ],
   styles: [
     {
-      propertyName: "checkColor",
-      helpText: "Sets the checked state color of the checkbox",
-      label: "Checked Color",
+      propertyName: "accentColor",
+      helpText: "Sets the accent color of the checkbox",
+      label: "Accent Color",
       controlType: "COLOR_PICKER",
       isJSConvertible: true,
       isBindProperty: true,
