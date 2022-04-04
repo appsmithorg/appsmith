@@ -94,18 +94,27 @@ describe("Slug URLs", () => {
           );
         });
 
-        cy.get(".t--upgrade").click({ force: true });
-
-        cy.get(".t--upgrade-confirm").click({ force: true });
-
-        cy.wait("@getPagesForCreateApp").then((intercept) => {
-          const { application, pages } = intercept.response.body.data;
-          const defaultPage = pages.find((p) => p.isDefault);
-
+        cy.Createpage("NewPage");
+        cy.get("@currentPageId").then((currentPageId) => {
           cy.location().should((loc) => {
             expect(loc.pathname).includes(
-              `/${application.slug}/${defaultPage.slug}-${defaultPage.id}`,
+              `/applications/${application.id}/pages/${currentPageId}`,
             );
+          });
+
+          cy.get(".t--upgrade").click({ force: true });
+
+          cy.get(".t--upgrade-confirm").click({ force: true });
+
+          cy.wait("@getPagesForCreateApp").then((intercept) => {
+            const { application, pages } = intercept.response.body.data;
+            const currentPage = pages.find((p) => p.id === currentPageId);
+
+            cy.location().should((loc) => {
+              expect(loc.pathname).includes(
+                `/${application.slug}/${currentPage.slug}-${currentPage.id}`,
+              );
+            });
           });
         });
       });

@@ -349,7 +349,7 @@ export function* initializeAppViewerSaga(
     PerformanceTransactionName.INIT_VIEW_APP,
   );
 
-  yield put(updateBranchLocally(branch));
+  yield put(updateBranchLocally(branch || ""));
 
   yield put(setAppMode(APP_MODE.PUBLISHED));
 

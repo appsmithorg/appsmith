@@ -380,10 +380,6 @@ const applicationsReducer = createReducer(initialState, {
     return {
       ...state,
       userOrgs: _organizations,
-      currentApplication: {
-        ...state.currentApplication,
-        applicationVersion: action.payload.applicationVersion,
-      },
       isSavingAppName: false,
       isErrorSavingAppName: false,
     };
