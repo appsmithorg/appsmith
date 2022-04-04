@@ -4,7 +4,7 @@ import moment from "moment";
 
 describe("Klona clone test", () => {
   it("Strings, Booleans, numbers, null & undefined values", () => {
-    const inputEvalTree: {
+    const input: {
       meta: {
         stringLiteral: string;
         string: string;
@@ -37,14 +37,14 @@ describe("Klona clone test", () => {
         undefined: undefined,
       },
     };
-    const result = klona(inputEvalTree);
+    const result = klona(input);
 
     // mutate
-    inputEvalTree.meta.string = "hello1";
-    inputEvalTree.meta.boolean = false;
-    inputEvalTree.meta.number = Number(89);
-    inputEvalTree.meta.null = "efewf";
-    inputEvalTree.meta.undefined = NaN;
+    input.meta.string = "hello1";
+    input.meta.boolean = false;
+    input.meta.number = Number(89);
+    input.meta.null = "efewf";
+    input.meta.undefined = NaN;
 
     expect(isEqual(expected, result)).toEqual(true);
   });
@@ -52,7 +52,7 @@ describe("Klona clone test", () => {
   it("Dates and regex values", () => {
     const currentDate = new Date();
     const currentMoment = moment();
-    const inputEvalTree = {
+    const input = {
       meta: {
         date: currentDate,
         moment: currentMoment,
@@ -69,13 +69,13 @@ describe("Klona clone test", () => {
         regexExp: new RegExp(/^abc$/),
       },
     };
-    const result = klona(inputEvalTree);
+    const result = klona(input);
 
     // mutate
-    inputEvalTree.meta.date = new Date(327392879);
-    inputEvalTree.meta.moment = moment();
-    inputEvalTree.meta.regex = /^def$/g;
-    inputEvalTree.meta.regexExp = new RegExp(/^def$/);
+    input.meta.date = new Date(327392879);
+    input.meta.moment = moment();
+    input.meta.regex = /^def$/g;
+    input.meta.regexExp = new RegExp(/^def$/);
 
     expect(isEqual(expected, result)).toEqual(true);
   });
@@ -93,14 +93,13 @@ describe("Klona clone test", () => {
       method() {
         return "hello";
       },
-      moment: moment(""),
     });
 
     const nestedObject = Object.create({
       Input: { text: "abc" },
     });
 
-    const inputEvalTree = {
+    const input = {
       meta: {
         nestedArray: [...nestedArray],
         objectWithMethod,
@@ -116,12 +115,12 @@ describe("Klona clone test", () => {
       },
     };
 
-    const result = klona(inputEvalTree);
+    const result = klona(input);
 
     // mutate
-    inputEvalTree.meta.nestedArray[0] = "abc";
-    inputEvalTree.meta.nestedArray[1] = { a: "bc" };
-    inputEvalTree.meta.nestedObject.value = "hello";
+    input.meta.nestedArray[0] = "abc";
+    input.meta.nestedArray[1] = { a: "bc" };
+    input.meta.nestedObject.value = "hello";
 
     expect(
       isEqual(expected.meta.nestedArray[0], result.meta.nestedArray[0]),
@@ -140,71 +139,86 @@ describe("Klona clone test", () => {
     ).toEqual(true);
   });
 
-  // it("Functions, Pollutions and Classes values", () => {
-  //   const inputEvalTree = {
-  //     Input: {
-  //       meta: {
-  //         text: "",
-  //         regex: /aa/g,
-  //       },
-  //     },
-  //   };
+  it("Functions, Pollutions and Classes values", () => {
+    const fn = async () => {
+      return "hello";
+    };
+    const input = {
+      fn,
+    };
 
-  //   const expected = 5;
-  //   const result = klona(inputEvalTree);
+    const expected = {
+      fn,
+    };
+    const result = klona(input);
 
-  //   inputEvalTree.Input.meta.text = "hello1";
-  //   expect(result).toStrictEqual(expected);
-  // });
+    expect(expected.fn === result.fn).toEqual(true);
+  });
 
-  // it("Maps and Sets values", () => {
-  //   const inputEvalTree = {
-  //     Input: {
-  //       meta: {
-  //         text: "",
-  //         regex: /aa/g,
-  //       },
-  //     },
-  //   };
+  it("Maps and Sets values", () => {
+    const map = new Map();
+    const set = new Set();
 
-  //   const expected = 5;
-  //   const result = klona(inputEvalTree);
+    map.set("abc", "value");
+    set.add("1");
+    set.add("2");
 
-  //   inputEvalTree.Input.meta.text = "hello1";
-  //   expect(result).toStrictEqual(expected);
-  // });
+    const input = { map, set };
 
-  // it("TypedArrays values", () => {
-  //   const inputEvalTree = {
-  //     Input: {
-  //       meta: {
-  //         text: "",
-  //         regex: /aa/g,
-  //       },
-  //     },
-  //   };
+    const result = klona(input);
 
-  //   const expected = 5;
-  //   const result = klona(inputEvalTree);
+    // changes after clone
+    input.map.set("1", "value1");
+    input.map.set("2", "value1");
 
-  //   inputEvalTree.Input.meta.text = "hello1";
-  //   expect(result).toStrictEqual(expected);
-  // });
+    expect(result.map.get("abc")).toStrictEqual("value");
+    expect(result.map.get("1")).toStrictEqual(undefined);
+    expect(result.map.get("2")).toStrictEqual(undefined);
 
-  // it("Symbols, Descriptors and Dicts values", () => {
-  //   const inputEvalTree = {
-  //     Input: {
-  //       meta: {
-  //         text: "",
-  //         regex: /aa/g,
-  //       },
-  //     },
-  //   };
+    // add new value and verify it is not present in cloned set
+    set.add("3");
+    expect(result.set.has("3")).toStrictEqual(false);
+    // delete a value and verify it is still present in cloned set
+    set.delete("2");
+    expect(result.set.has("2")).toStrictEqual(true);
+  });
 
-  //   const expected = 5;
-  //   const result = klona(inputEvalTree);
+  it("TypedArrays values", () => {
+    const int16Array = new Int16Array([42]);
+    const buf = new ArrayBuffer(8);
+    const int32Array = new Int32Array(buf);
 
-  //   inputEvalTree.Input.meta.text = "hello1";
-  //   expect(result).toStrictEqual(expected);
-  // });
+    const resultInt16Array = klona(int16Array);
+    const resultInt32Array = klona(int32Array);
+
+    // add value at 1st index and verify cloned value doesn't contain it.
+    resultInt16Array[1] = 42;
+    expect(int16Array[1]).toStrictEqual(undefined);
+    expect(int16Array[0]).toStrictEqual(42);
+
+    expect(resultInt32Array[1]).toStrictEqual(0);
+  });
+
+  it("Symbols and Descriptors values", () => {
+    // Symbol
+    const key = Symbol("key");
+    const input = { foo: 123, [key]: 456 };
+    const result = klona(input);
+
+    expect(result[key]).toStrictEqual(456);
+
+    // Descriptor
+    const inputDesc = { foo: 123 };
+    Object.defineProperty(inputDesc, "bar", {
+      enumerable: false,
+      value: [1, 2, 3],
+    });
+    const outputDesc = klona(inputDesc);
+    expect(Object.getOwnPropertyDescriptor(outputDesc, "bar")).toStrictEqual({
+      enumerable: false,
+      configurable: false,
+      writable: false,
+      value: [1, 2, 3],
+    });
+  });
 });
