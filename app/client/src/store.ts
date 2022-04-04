@@ -60,7 +60,7 @@ const routeParamsMiddleware: Middleware = () => (next: any) => (
       const { pageId } = getRouteBuilderParams();
       // Update route params and page slug in URL only if the current page is updated
       if (pageId === id) {
-        updateURLFactory({ pageId: id, pageSlug: slug });
+        updateURLFactory({ pageSlug: slug });
         updateSlugNamesInURL({
           pageSlug: slug,
         });
