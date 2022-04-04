@@ -21,6 +21,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
@@ -71,6 +72,8 @@ import reactor.util.function.Tuple2;
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -226,6 +229,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     // Refactor application to remove the ids
                     final String organizationId = application.getOrganizationId();
+                    List<String> pageOrderList = application.getPages().stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toList());
                     removeUnwantedFieldsFromApplicationDuringExport(application);
                     examplesOrganizationCloner.makePristine(application);
                     applicationJson.setExportedApplication(application);
@@ -237,6 +241,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     return pageFlux
                             .collectList()
+                            // Maintain the page order while exporting the application
+                            .flatMap(newPages ->  {
+                                Collections.sort(newPages, Comparator.comparing(newPage -> pageOrderList.indexOf(newPage.getId())));
+                                return Mono.just(newPages);
+                            })
                             .flatMap(newPageList -> {
                                 // Extract mongoEscapedWidgets from pages and save it to applicationJson object as this
                                 // field is JsonIgnored. Also remove any ids those are present in the page objects
