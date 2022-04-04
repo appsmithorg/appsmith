@@ -292,7 +292,7 @@ function ReconnectDatasourceModal() {
   const [pageId, setPageId] = useState<string | null>(queryPageId);
   const [appId, setAppId] = useState<string | null>(queryAppId);
   const [appURL, setAppURL] = useState("");
-  const [datasouce, setDatasource] = useState<Datasource | null>(null);
+  const [datasource, setDatasource] = useState<Datasource | null>(null);
   const [isImport, setIsImport] = useState(queryIsImport);
   const [isTesting, setIsTesting] = useState(false);
 
@@ -453,13 +453,9 @@ function ReconnectDatasourceModal() {
   useEffect(() => {
     if (isModalOpen && !isTesting) {
       // if there is only one gsheet datasource, it shouldn't be redirected to app immediately
-      if (
-        !queryIsImport &&
-        datasources.length === 1 &&
-        datasources[0].isConfigured
-      ) {
+      if (!queryIsImport && datasources.length && datasource) {
         const authType =
-          datasources[0].datasourceConfiguration?.authentication
+          datasource?.datasourceConfiguration?.authentication
             ?.authenticationType;
 
         if (authType === AuthType.OAUTH2) return;
@@ -501,8 +497,8 @@ function ReconnectDatasourceModal() {
   });
 
   const shouldShowDBForm =
-    isConfigFetched && !isLoading && !datasouce?.isConfigured;
-  const shouldShowSuccessMessages = datasouce && datasouce.isConfigured;
+    isConfigFetched && !isLoading && !datasource?.isConfigured;
+  const shouldShowSuccessMessages = datasource && datasource.isConfigured;
 
   return (
     <>
