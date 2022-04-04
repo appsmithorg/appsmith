@@ -475,6 +475,9 @@ function ReconnectDatasourceModal() {
         let next: Datasource | undefined = undefined;
         if (id) {
           const index = datasources.findIndex((ds: Datasource) => ds.id === id);
+          if (index > -1 && !datasources[index].isConfigured) {
+            return;
+          }
           next = datasources
             .slice(index + 1)
             .find((ds: Datasource) => !ds.isConfigured);
