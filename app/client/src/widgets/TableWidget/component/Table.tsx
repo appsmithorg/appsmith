@@ -27,6 +27,7 @@ import {
   TABLE_SIZES,
   CompactMode,
   CompactModeTypes,
+  TableWidth,
 } from "./Constants";
 import { Colors } from "constants/Colors";
 
@@ -126,6 +127,7 @@ export function Table(props: TableProps) {
       }),
     [columnString],
   );
+  const isMobileScreenTableWidth = props.width <= TableWidth["Mobile"];
   const pageCount =
     props.serverSidePaginationEnabled && props.totalRecordsCount
       ? Math.ceil(props.totalRecordsCount / props.pageSize)
@@ -250,6 +252,7 @@ export function Table(props: TableProps) {
                 currentPageIndex={currentPageIndex}
                 delimiter={props.delimiter}
                 filters={props.filters}
+                isMobileScreenTableWidth={isMobileScreenTableWidth}
                 isVisibleDownload={props.isVisibleDownload}
                 isVisibleFilters={props.isVisibleFilters}
                 isVisiblePagination={props.isVisiblePagination}
@@ -269,6 +272,7 @@ export function Table(props: TableProps) {
                 updatePageNo={props.updatePageNo}
                 widgetId={props.widgetId}
                 widgetName={props.widgetName}
+                width={props.width}
               />
             </TableHeaderInnerWrapper>
           </Scrollbars>

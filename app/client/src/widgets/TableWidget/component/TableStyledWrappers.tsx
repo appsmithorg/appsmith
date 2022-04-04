@@ -212,14 +212,19 @@ export const IconOptionWrapper = styled.div`
   cursor: pointer;
 `;
 
-export const PaginationWrapper = styled.div`
+export const PaginationWrapper = styled.div<{
+  isMobileScreenTableWidth: boolean;
+  isSmallerTableWidth: boolean;
+}>`
   box-sizing: border-box;
   display: flex;
   width: 100%;
-  justify-content: flex-end;
+  justify-content: ${(props) =>
+    props.isSmallerTableWidth ? "center" : "flex-end"};
   align-items: center;
   padding: 8px 20px;
   color: ${Colors.GRAY};
+  ${(props) => (props.isMobileScreenTableWidth ? "padding: 8px;" : "")};
 `;
 
 export const PaginationItemWrapper = styled.div<{

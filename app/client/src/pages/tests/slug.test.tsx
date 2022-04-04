@@ -1,13 +1,24 @@
 import React from "react";
 import { ApplicationVersion } from "actions/applicationActions";
-import { builderURL, updateURLFactory } from "RouteBuilder";
+import {
+  builderURL,
+  getRouteBuilderParams,
+  updateURLFactory,
+} from "RouteBuilder";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { selectURLSlugs } from "selectors/editorSelectors";
 import store from "store";
 import { render } from "test/testUtils";
 import { getUpdatedRoute, isURLDeprecated } from "utils/helpers";
-import { setMockApplication, setMockPageList } from "./mockData";
+import {
+  fetchApplicationMockResponse,
+  setMockApplication,
+  setMockPageList,
+  updatedApplicationPayload,
+  updatedPagePayload,
+} from "./mockData";
 import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
+import { updateCurrentPage } from "actions/pageActions";
 
 describe("URL slug names", () => {
   beforeEach(async () => {
@@ -75,10 +86,52 @@ describe("URL slug names", () => {
 
   it("tests the manual upgrade option", () => {
     store.dispatch({
-      type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
-      payload: { applicationVersion: 1 },
+      type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
+      payload: {
+        ...fetchApplicationMockResponse.data.application,
+        applicationVersion: 1,
+      },
     });
     const component = render(<ManualUpgrades />);
     expect(component.getByTestId("update-indicator")).toBeDefined();
+  });
+
+  it("tests Route builder factory params", () => {
+    store.dispatch({
+      type: ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
+      payload: updatedApplicationPayload,
+    });
+    const { applicationSlug } = getRouteBuilderParams();
+    expect(applicationSlug).toBe(updatedApplicationPayload.slug);
+
+    store.dispatch({
+      type: ReduxActionTypes.UPDATE_PAGE_SUCCESS,
+      payload: updatedPagePayload,
+    });
+
+    const { pageSlug: updatedPageSlug } = getRouteBuilderParams();
+
+    expect(updatedPageSlug).toBe("page-1");
+
+    store.dispatch(updateCurrentPage("605c435a91dea93f0eaf91bc", "my-page-2"));
+    const { pageSlug } = getRouteBuilderParams();
+
+    expect(pageSlug).toBe("my-page-2");
+  });
+
+  it("tests slug URLs utility methods", () => {
+    const legacyURL =
+      "/applications/605c435a91dea93f0eaf91ba/pages/605c435a91dea93f0eaf91ba/edit";
+    const slugURL = "/my-application/my-page-605c435a91dea93f0eaf91ba/edit";
+
+    expect(isURLDeprecated(legacyURL)).toBe(true);
+    expect(isURLDeprecated(slugURL)).toBe(false);
+
+    expect(
+      getUpdatedRoute(slugURL, {
+        applicationSlug: "my-app",
+        pageSlug: "page",
+      }),
+    ).toBe("/my-app/page-605c435a91dea93f0eaf91ba/edit");
   });
 });
