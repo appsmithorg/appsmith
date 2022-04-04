@@ -44,6 +44,7 @@ function LinkWrapper(props: Props) {
       isCellVisible={props.isCellVisible}
       isHidden={props.isHidden}
       isHyperLink
+      isPadding
       isTextType
       onClick={() => {
         window.open(props.title, "_blank");
