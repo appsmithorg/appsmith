@@ -48,17 +48,23 @@ const routeParamsMiddleware: Middleware = () => (next: any) => (
       });
       break;
     }
-    case ReduxActionTypes.SWITCH_CURRENT_PAGE_ID:
+    case ReduxActionTypes.SWITCH_CURRENT_PAGE_ID: {
+      const id = action.payload.id;
+      const slug = action.payload.slug;
+      updateURLFactory({ pageId: id, pageSlug: slug });
+      break;
+    }
     case ReduxActionTypes.UPDATE_PAGE_SUCCESS: {
       const id = action.payload.id;
       const slug = action.payload.slug;
       const { pageId } = getRouteBuilderParams();
-      // Update page slug in URL only if the current page is renamed
-      if (pageId === id)
+      // Update route params and page slug in URL only if the current page is updated
+      if (pageId === id) {
+        updateURLFactory({ pageSlug: slug });
         updateSlugNamesInURL({
           pageSlug: slug,
         });
-      updateURLFactory({ pageId: id, pageSlug: slug });
+      }
       break;
     }
     case ReduxActionTypes.UPDATE_APPLICATION_SUCCESS:
