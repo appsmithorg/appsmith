@@ -1,5 +1,5 @@
 {
-  "dsl": {
+  "dsl":{
     "widgetName": "MainContainer",
     "backgroundColor": "none",
     "rightColumn": 909,
@@ -7,7 +7,7 @@
     "detachFromLayout": true,
     "widgetId": "0",
     "topRow": 0,
-    "bottomRow": 710,
+    "bottomRow": 680,
     "containerStyle": "none",
     "snapRows": 125,
     "parentRowSpace": 1,
@@ -20,401 +20,357 @@
     "leftColumn": 0,
     "children": [
       {
-        "widgetName": "Form1",
-        "backgroundColor": "white",
-        "rightColumn": 46,
-        "isCanvas": true,
-        "displayName": "Form",
-        "iconSVG": "/static/media/icon.ea3e08d1.svg",
-        "widgetId": "vo1bbavl8y",
-        "topRow": 0,
-        "bottomRow": 64,
-        "parentRowSpace": 10,
-        "isVisible": true,
-        "type": "FORM_WIDGET",
-        "hideCard": false,
-        "parentId": "0",
-        "renderMode": "CANVAS",
-        "isLoading": false,
-        "animateLoading": true,
-        "parentColumnSpace": 14.015625,
-        "leftColumn": 1,
-        "children": [
-          {
-            "widgetName": "Canvas1",
-            "rightColumn": 336.375,
-            "detachFromLayout": true,
-            "displayName": "Canvas",
-            "widgetId": "3jr3djrob8",
-            "containerStyle": "none",
-            "topRow": 0,
-            "bottomRow": 630,
-            "parentRowSpace": 1,
-            "isVisible": true,
-            "type": "CANVAS_WIDGET",
-            "canExtend": false,
-            "version": 1,
-            "hideCard": true,
-            "parentId": "vo1bbavl8y",
-            "minHeight": 400,
-            "renderMode": "CANVAS",
-            "isLoading": false,
-            "parentColumnSpace": 1,
-            "leftColumn": 0,
-            "children": [
+          "widgetName": "Form1",
+          "backgroundColor": "white",
+          "rightColumn": 40,
+          "isCanvas": true,
+          "displayName": "Form",
+          "iconSVG": "/static/media/icon.ea3e08d1.svg",
+          "widgetId": "fx7fqvgc9c",
+          "topRow": 3,
+          "bottomRow": 65,
+          "parentRowSpace": 10,
+          "isVisible": true,
+          "type": "FORM_WIDGET",
+          "hideCard": false,
+          "parentId": "0",
+          "renderMode": "CANVAS",
+          "isLoading": false,
+          "animateLoading": true,
+          "parentColumnSpace": 14.015625,
+          "leftColumn": 1,
+          "children": [
               {
-                "widgetName": "Text1",
-                "displayName": "Text",
-                "iconSVG": "/static/media/icon.97c59b52.svg",
-                "topRow": 1,
-                "bottomRow": 5,
-                "type": "TEXT_WIDGET",
-                "hideCard": false,
-                "animateLoading": true,
-                "overflow": "NONE",
-                "leftColumn": 1.5,
-                "shouldTruncate": false,
-                "truncateButtonColor": "#FFC13D",
-                "text": "Form",
-                "key": "wtfikrx0u6",
-                "rightColumn": 25.5,
-                "textAlign": "LEFT",
-                "widgetId": "ccxgfw6e4q",
-                "isVisible": true,
-                "fontStyle": "BOLD",
-                "textColor": "#231F20",
-                "version": 1,
-                "parentId": "3jr3djrob8",
-                "renderMode": "CANVAS",
-                "isLoading": false,
-                "fontSize": "HEADING1"
-              },
-              {
-                "resetFormOnClick": true,
-                "widgetName": "FormButton1",
-                "buttonColor": "#03B365",
-                "displayName": "FormButton",
-                "iconSVG": "/static/media/icon.cca02633.svg",
-                "topRow": 57,
-                "bottomRow": 61,
-                "type": "FORM_BUTTON_WIDGET",
-                "hideCard": true,
-                "animateLoading": true,
-                "leftColumn": 48,
-                "text": "Submit",
-                "key": "offtw4ts42",
-                "rightColumn": 64,
-                "isDefaultClickDisabled": true,
-                "widgetId": "ewrvkcyd52",
-                "isVisible": true,
-                "recaptchaType": "V3",
-                "version": 1,
-                "parentId": "3jr3djrob8",
-                "renderMode": "CANVAS",
-                "isLoading": false,
-                "disabledWhenInvalid": true,
-                "buttonVariant": "PRIMARY"
-              },
-              {
-                "resetFormOnClick": true,
-                "widgetName": "FormButton2",
-                "buttonColor": "#03B365",
-                "displayName": "FormButton",
-                "iconSVG": "/static/media/icon.cca02633.svg",
-                "topRow": 57,
-                "bottomRow": 61,
-                "type": "FORM_BUTTON_WIDGET",
-                "hideCard": true,
-                "animateLoading": true,
-                "leftColumn": 31,
-                "text": "Reset",
-                "key": "offtw4ts42",
-                "rightColumn": 47,
-                "isDefaultClickDisabled": true,
-                "widgetId": "k7cvh8oxdl",
-                "isVisible": true,
-                "recaptchaType": "V3",
-                "version": 1,
-                "parentId": "3jr3djrob8",
-                "renderMode": "CANVAS",
-                "isLoading": false,
-                "disabledWhenInvalid": false,
-                "buttonVariant": "SECONDARY"
-              },
-              {
-                "widgetName": "CheckboxGroup1",
-                "displayName": "Checkbox Group",
-                "iconSVG": "/static/media/icon.ecb38479.svg",
-                "topRow": 6,
-                "bottomRow": 11,
-                "parentRowSpace": 10,
-                "type": "CHECKBOX_GROUP_WIDGET",
-                "hideCard": false,
-                "animateLoading": true,
-                "parentColumnSpace": 9.542236328125,
-                "leftColumn": 1,
-                "options": [
-                  {
-                    "label": "Blue",
-                    "value": "BLUE"
-                  },
-                  {
-                    "label": "Green",
-                    "value": "GREEN"
-                  },
-                  {
-                    "label": "Red",
-                    "value": "RED"
-                  }
-                ],
-                "isDisabled": false,
-                "key": "q60bqkmeif",
-                "isRequired": false,
-                "rightColumn": 33,
-                "defaultSelectedValues": "BLUE",
-                "widgetId": "m6gp5eqs5g",
-                "isVisible": true,
-                "version": 2,
-                "parentId": "3jr3djrob8",
-                "renderMode": "CANVAS",
-                "isLoading": false,
-                "isInline": true
-              },
-              {
-                "widgetName": "MultiTreeSelect1",
-                "displayName": "Multi TreeSelect",
-                "iconSVG": "/static/media/icon.b3e28afb.svg",
-                "labelText": "",
-                "topRow": 13,
-                "bottomRow": 17,
-                "parentRowSpace": 10,
-                "type": "MULTI_SELECT_TREE_WIDGET",
-                "hideCard": false,
-                "mode": "SHOW_ALL",
-                "defaultOptionValue": [
-                  "GREEN"
-                ],
-                "animateLoading": true,
-                "parentColumnSpace": 9.542236328125,
-                "leftColumn": 1,
-                "options": [
-                  {
-                    "label": "Blue",
-                    "value": "BLUE",
-                    "children": [
+                  "widgetName": "Canvas1",
+                  "rightColumn": 336.375,
+                  "detachFromLayout": true,
+                  "displayName": "Canvas",
+                  "widgetId": "cj8fiztjq3",
+                  "containerStyle": "none",
+                  "topRow": 0,
+                  "bottomRow": 410,
+                  "parentRowSpace": 1,
+                  "isVisible": true,
+                  "type": "CANVAS_WIDGET",
+                  "canExtend": false,
+                  "version": 1,
+                  "hideCard": true,
+                  "parentId": "fx7fqvgc9c",
+                  "minHeight": 400,
+                  "renderMode": "CANVAS",
+                  "isLoading": false,
+                  "parentColumnSpace": 1,
+                  "leftColumn": 0,
+                  "children": [
                       {
-                        "label": "Dark Blue",
-                        "value": "DARK BLUE"
+                          "widgetName": "CheckboxGroup1",
+                          "displayName": "Checkbox Group",
+                          "iconSVG": "/static/media/icon.ecb38479.svg",
+                          "topRow": 1,
+                          "bottomRow": 7,
+                          "parentRowSpace": 10,
+                          "type": "CHECKBOX_GROUP_WIDGET",
+                          "hideCard": false,
+                          "animateLoading": true,
+                          "parentColumnSpace": 8.228271484375,
+                          "leftColumn": 0,
+                          "options": [
+                              {
+                                  "label": "Blue",
+                                  "value": "BLUE"
+                              },
+                              {
+                                  "label": "Green",
+                                  "value": "GREEN"
+                              },
+                              {
+                                  "label": "Red",
+                                  "value": "RED"
+                              }
+                          ],
+                          "isDisabled": false,
+                          "key": "ty0fthyvyi",
+                          "isRequired": false,
+                          "rightColumn": 37,
+                          "defaultSelectedValues": "BLUE",
+                          "widgetId": "twflv5iyha",
+                          "isVisible": true,
+                          "version": 2,
+                          "parentId": "cj8fiztjq3",
+                          "renderMode": "CANVAS",
+                          "isLoading": false,
+                          "isInline": true
                       },
                       {
-                        "label": "Light Blue",
-                        "value": "LIGHT BLUE"
-                      }
-                    ]
-                  },
-                  {
-                    "label": "Green",
-                    "value": "GREEN"
-                  },
-                  {
-                    "label": "Red",
-                    "value": "RED"
-                  }
-                ],
-                "placeholderText": "Select option(s)",
-                "isDisabled": false,
-                "key": "oh1r8edi9d",
-                "isRequired": false,
-                "rightColumn": 33,
-                "widgetId": "ypvp55av7a",
-                "isVisible": true,
-                "version": 1,
-                "expandAll": false,
-                "parentId": "3jr3djrob8",
-                "renderMode": "CANVAS",
-                "isLoading": false,
-                "allowClear": false
-              },
-              {
-                "widgetName": "MultiSelect1",
-                "isFilterable": true,
-                "displayName": "MultiSelect",
-                "iconSVG": "/static/media/icon.a3495809.svg",
-                "labelText": "",
-                "topRow": 19,
-                "bottomRow": 23,
-                "parentRowSpace": 10,
-                "type": "MULTI_SELECT_WIDGET_V2",
-                "serverSideFiltering": false,
-                "hideCard": false,
-                "defaultOptionValue": [
-                  "GREEN",
-                  "RED"
-                ],
-                "animateLoading": true,
-                "parentColumnSpace": 9.542236328125,
-                "leftColumn": 1,
-                "options": [
-                  {
-                    "label": "Blue",
-                    "value": "BLUE"
-                  },
-                  {
-                    "label": "Green",
-                    "value": "GREEN"
-                  },
-                  {
-                    "label": "Red",
-                    "value": "RED"
-                  }
-                ],
-                "placeholderText": "Select option(s)",
-                "isDisabled": false,
-                "key": "seouu3dsr4",
-                "isRequired": false,
-                "rightColumn": 33,
-                "widgetId": "rhk3q0zoa8",
-                "isVisible": true,
-                "version": 1,
-                "parentId": "3jr3djrob8",
-                "renderMode": "CANVAS",
-                "isLoading": false
-              },
-              {
-                "widgetName": "TreeSelect1",
-                "displayName": "TreeSelect",
-                "iconSVG": "/static/media/icon.bd99caba.svg",
-                "labelText": "",
-                "topRow": 26,
-                "bottomRow": 30,
-                "parentRowSpace": 10,
-                "type": "SINGLE_SELECT_TREE_WIDGET",
-                "hideCard": false,
-                "defaultOptionValue": "BLUE",
-                "animateLoading": true,
-                "parentColumnSpace": 9.542236328125,
-                "leftColumn": 1,
-                "options": [
-                  {
-                    "label": "Blue",
-                    "value": "BLUE",
-                    "children": [
-                      {
-                        "label": "Dark Blue",
-                        "value": "DARK BLUE"
+                          "widgetName": "MultiTreeSelect1",
+                          "displayName": "Multi TreeSelect",
+                          "iconSVG": "/static/media/icon.b3e28afb.svg",
+                          "labelText": "",
+                          "topRow": 9,
+                          "bottomRow": 13,
+                          "parentRowSpace": 10,
+                          "type": "MULTI_SELECT_TREE_WIDGET",
+                          "hideCard": false,
+                          "mode": "SHOW_ALL",
+                          "defaultOptionValue": [
+                              "GREEN"
+                          ],
+                          "animateLoading": true,
+                          "parentColumnSpace": 8.228271484375,
+                          "leftColumn": 0,
+                          "options": [
+                              {
+                                  "label": "Blue",
+                                  "value": "BLUE",
+                                  "children": [
+                                      {
+                                          "label": "Dark Blue",
+                                          "value": "DARK BLUE"
+                                      },
+                                      {
+                                          "label": "Light Blue",
+                                          "value": "LIGHT BLUE"
+                                      }
+                                  ]
+                              },
+                              {
+                                  "label": "Green",
+                                  "value": "GREEN"
+                              },
+                              {
+                                  "label": "Red",
+                                  "value": "RED"
+                              }
+                          ],
+                          "placeholderText": "Select option(s)",
+                          "isDisabled": false,
+                          "key": "c3g7qzbtib",
+                          "isRequired": false,
+                          "rightColumn": 37,
+                          "widgetId": "siixqt8ujs",
+                          "isVisible": true,
+                          "version": 1,
+                          "expandAll": false,
+                          "parentId": "cj8fiztjq3",
+                          "renderMode": "CANVAS",
+                          "isLoading": false,
+                          "allowClear": false
                       },
                       {
-                        "label": "Light Blue",
-                        "value": "LIGHT BLUE"
+                          "widgetName": "MultiSelect1",
+                          "isFilterable": true,
+                          "displayName": "MultiSelect",
+                          "iconSVG": "/static/media/icon.a3495809.svg",
+                          "labelText": "",
+                          "topRow": 15,
+                          "bottomRow": 19,
+                          "parentRowSpace": 10,
+                          "type": "MULTI_SELECT_WIDGET_V2",
+                          "serverSideFiltering": false,
+                          "hideCard": false,
+                          "defaultOptionValue": [
+                              "GREEN",
+                              "RED"
+                          ],
+                          "animateLoading": true,
+                          "parentColumnSpace": 8.228271484375,
+                          "leftColumn": 0,
+                          "options": [
+                              {
+                                  "label": "Blue",
+                                  "value": "BLUE"
+                              },
+                              {
+                                  "label": "Green",
+                                  "value": "GREEN"
+                              },
+                              {
+                                  "label": "Red",
+                                  "value": "RED"
+                              }
+                          ],
+                          "placeholderText": "Select option(s)",
+                          "isDisabled": false,
+                          "key": "jwrt41a477",
+                          "isRequired": false,
+                          "rightColumn": 37,
+                          "widgetId": "x2qcbb5d7s",
+                          "isVisible": true,
+                          "version": 1,
+                          "parentId": "cj8fiztjq3",
+                          "renderMode": "CANVAS",
+                          "isLoading": false
+                      },
+                      {
+                          "widgetName": "TreeSelect1",
+                          "displayName": "TreeSelect",
+                          "iconSVG": "/static/media/icon.bd99caba.svg",
+                          "labelText": "",
+                          "topRow": 21,
+                          "bottomRow": 25,
+                          "parentRowSpace": 10,
+                          "type": "SINGLE_SELECT_TREE_WIDGET",
+                          "hideCard": false,
+                          "defaultOptionValue": "BLUE",
+                          "animateLoading": true,
+                          "parentColumnSpace": 8.228271484375,
+                          "leftColumn": 0,
+                          "options": [
+                              {
+                                  "label": "Blue",
+                                  "value": "BLUE",
+                                  "children": [
+                                      {
+                                          "label": "Dark Blue",
+                                          "value": "DARK BLUE"
+                                      },
+                                      {
+                                          "label": "Light Blue",
+                                          "value": "LIGHT BLUE"
+                                      }
+                                  ]
+                              },
+                              {
+                                  "label": "Green",
+                                  "value": "GREEN"
+                              },
+                              {
+                                  "label": "Red",
+                                  "value": "RED"
+                              }
+                          ],
+                          "placeholderText": "Select option",
+                          "isDisabled": false,
+                          "key": "ys8ygepozq",
+                          "isRequired": false,
+                          "rightColumn": 37,
+                          "widgetId": "gy4w2c0jlp",
+                          "isVisible": true,
+                          "version": 1,
+                          "expandAll": false,
+                          "parentId": "cj8fiztjq3",
+                          "renderMode": "CANVAS",
+                          "isLoading": false,
+                          "allowClear": false
+                      },
+                      {
+                          "widgetName": "SwitchGroup1",
+                          "isCanvas": false,
+                          "displayName": "Switch Group",
+                          "iconSVG": "/static/media/icon.c98225ee.svg",
+                          "topRow": 27,
+                          "bottomRow": 33,
+                          "parentRowSpace": 10,
+                          "type": "SWITCH_GROUP_WIDGET",
+                          "hideCard": false,
+                          "animateLoading": true,
+                          "parentColumnSpace": 8.228271484375,
+                          "leftColumn": 0,
+                          "options": [
+                              {
+                                  "label": "Blue",
+                                  "value": "BLUE"
+                              },
+                              {
+                                  "label": "Green",
+                                  "value": "GREEN"
+                              },
+                              {
+                                  "label": "Red",
+                                  "value": "RED"
+                              }
+                          ],
+                          "isDisabled": false,
+                          "key": "xoar9fwax0",
+                          "isRequired": false,
+                          "rightColumn": 37,
+                          "defaultSelectedValues": [
+                              "BLUE"
+                          ],
+                          "widgetId": "1pdpvya223",
+                          "isVisible": true,
+                          "version": 1,
+                          "parentId": "cj8fiztjq3",
+                          "renderMode": "CANVAS",
+                          "isLoading": false,
+                          "isInline": true,
+                          "alignment": "left"
+                      },
+                      {
+                          "widgetName": "PhoneInput1",
+                          "dialCode": "+1",
+                          "displayName": "Phone Input",
+                          "iconSVG": "/static/media/icon.ec4f5c23.svg",
+                          "topRow": 35,
+                          "bottomRow": 39,
+                          "parentRowSpace": 10,
+                          "autoFocus": false,
+                          "type": "PHONE_INPUT_WIDGET",
+                          "hideCard": false,
+                          "animateLoading": true,
+                          "parentColumnSpace": 8.228271484375,
+                          "dynamicTriggerPathList": [],
+                          "resetOnSubmit": true,
+                          "leftColumn": 0,
+                          "dynamicBindingPathList": [],
+                          "countryCode": "US",
+                          "labelStyle": "",
+                          "isDisabled": false,
+                          "key": "k1pctaj6gx",
+                          "isRequired": false,
+                          "rightColumn": 37,
+                          "widgetId": "90oo59fqun",
+                          "allowDialCodeChange": false,
+                          "isVisible": true,
+                          "label": "",
+                          "version": 1,
+                          "parentId": "cj8fiztjq3",
+                          "allowFormatting": true,
+                          "renderMode": "CANVAS",
+                          "isLoading": false,
+                          "iconAlign": "left",
+                          "defaultText": ""
                       }
-                    ]
-                  },
-                  {
-                    "label": "Green",
-                    "value": "GREEN"
-                  },
-                  {
-                    "label": "Red",
-                    "value": "RED"
-                  }
-                ],
-                "placeholderText": "Select option",
-                "isDisabled": false,
-                "key": "vmkf63hgmg",
-                "isRequired": false,
-                "rightColumn": 33,
-                "widgetId": "xtuxgu77us",
-                "isVisible": true,
-                "version": 1,
-                "expandAll": false,
-                "parentId": "3jr3djrob8",
-                "renderMode": "CANVAS",
-                "isLoading": false,
-                "allowClear": false
-              },
-              {
-                "widgetName": "SwitchGroup1",
-                "isCanvas": false,
-                "displayName": "Switch Group",
-                "iconSVG": "/static/media/icon.c98225ee.svg",
-                "topRow": 32,
-                "bottomRow": 38,
-                "parentRowSpace": 10,
-                "type": "SWITCH_GROUP_WIDGET",
-                "hideCard": false,
-                "animateLoading": true,
-                "parentColumnSpace": 9.542236328125,
-                "leftColumn": 1,
-                "options": [
-                  {
-                    "label": "Blue",
-                    "value": "BLUE"
-                  },
-                  {
-                    "label": "Green",
-                    "value": "GREEN"
-                  },
-                  {
-                    "label": "Red",
-                    "value": "RED"
-                  }
-                ],
-                "isDisabled": false,
-                "key": "je1vceihwc",
-                "isRequired": false,
-                "rightColumn": 33,
-                "defaultSelectedValues": [
-                  "BLUE"
-                ],
-                "widgetId": "f8oh3l39zu",
-                "isVisible": true,
-                "version": 1,
-                "parentId": "3jr3djrob8",
-                "renderMode": "CANVAS",
-                "isLoading": false,
-                "isInline": true,
-                "alignment": "left"
+                  ],
+                  "key": "qe8913y9ni"
               }
-            ],
-            "key": "jz6bb663zj"
-          }
-        ],
-        "key": "nspkyjib3l"
+          ],
+          "key": "scz3ztbrxx"
       },
       {
-        "widgetName": "Text2",
-        "displayName": "Text",
-        "iconSVG": "/static/media/icon.97c59b52.svg",
-        "topRow": 1,
-        "bottomRow": 39,
-        "parentRowSpace": 10,
-        "type": "TEXT_WIDGET",
-        "hideCard": false,
-        "animateLoading": true,
-        "overflow": "NONE",
-        "parentColumnSpace": 14.015625,
-        "dynamicTriggerPathList": [],
-        "leftColumn": 48,
-        "dynamicBindingPathList": [
-          {
-            "key": "text"
-          }
-        ],
-        "shouldTruncate": false,
-        "truncateButtonColor": "#FFC13D",
-        "text": "{{Form1.data}}",
-        "key": "wtfikrx0u6",
-        "rightColumn": 64,
-        "textAlign": "LEFT",
-        "widgetId": "ibrrnyba83",
-        "isVisible": true,
-        "fontStyle": "BOLD",
-        "textColor": "#231F20",
-        "version": 1,
-        "parentId": "0",
-        "renderMode": "CANVAS",
-        "isLoading": false,
-        "fontSize": "PARAGRAPH"
+          "widgetName": "Text1",
+          "displayName": "Text",
+          "iconSVG": "/static/media/icon.97c59b52.svg",
+          "topRow": 3,
+          "bottomRow": 51,
+          "parentRowSpace": 10,
+          "type": "TEXT_WIDGET",
+          "hideCard": false,
+          "animateLoading": true,
+          "overflow": "NONE",
+          "parentColumnSpace": 14.015625,
+          "dynamicTriggerPathList": [],
+          "leftColumn": 42,
+          "dynamicBindingPathList": [
+              {
+                  "key": "text"
+              }
+          ],
+          "shouldTruncate": false,
+          "truncateButtonColor": "#FFC13D",
+          "text": "{{Form1.data}}",
+          "key": "23oh7a84gl",
+          "rightColumn": 58,
+          "textAlign": "LEFT",
+          "widgetId": "vannrar7rd",
+          "isVisible": true,
+          "fontStyle": "BOLD",
+          "textColor": "#231F20",
+          "version": 1,
+          "parentId": "0",
+          "renderMode": "CANVAS",
+          "isLoading": false,
+          "fontSize": "PARAGRAPH"
       }
     ]
   }
