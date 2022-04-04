@@ -683,8 +683,8 @@ export const ReduxActionTypes = {
   SET_TEMPLATE_NOTIFICATION_SEEN: "SET_TEMPLATE_NOTIFICATION_SEEN",
   GET_TEMPLATE_NOTIFICATION_SEEN: "GET_TEMPLATE_NOTIFICATION_SEEN",
   GET_SIMILAR_TEMPLATES_INIT: "GET_SIMILAR_TEMPLATES_INIT",
-  GET_SIMILAR_TEMPLATES_SUCCESS: "GET_SIMILAR_TEMPLATES_SUCCESS",
-  /* This action constants is for identifying the status of the updates of the entities */
+  GET_SIMILAR_TEMPLATES_SUCCESS:
+    "GET_SIMILAR_TEMPLATES_SUCCESS" /* This action constants is for identifying the status of the updates of the entities */,
   ENTITY_UPDATE_STARTED: "ENTITY_UPDATE_STARTED",
   ENTITY_UPDATE_SUCCESS: "ENTITY_UPDATE_SUCCESS",
   FETCH_PLUGIN_AND_JS_ACTIONS_SUCCESS: "FETCH_PLUGIN_AND_JS_ACTIONS_SUCCESS",
@@ -925,6 +925,7 @@ export interface PromisePayload {
   reject: any;
   resolve: any;
 }
+
 export interface ReduxActionWithPromise<T> extends ReduxAction<T> {
   payload: T & PromisePayload;
 }
@@ -989,6 +990,8 @@ export interface ApplicationPayload {
   modifiedAt?: string;
   pages: ApplicationPagePayload[];
   applicationVersion: ApplicationVersion;
+  isAutoUpdate?: boolean;
+  isManualUpdate?: boolean;
 }
 
 export type OrganizationDetails = {

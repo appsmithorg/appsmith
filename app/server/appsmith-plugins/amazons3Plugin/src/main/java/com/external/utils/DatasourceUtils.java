@@ -214,7 +214,8 @@ public class DatasourceUtils {
 
                     break;
                 default:
-                    region = (String) properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX).getValue();
+                    region = getValueSafelyFromPropertyList(properties, CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX,
+                            String.class, "");
             }
 
             s3ClientBuilder = s3ClientBuilder

@@ -26,8 +26,7 @@ describe("AForce - Community Issues page validations", function () {
   });
 
   it("2. Validate table navigation with Server Side pagination enabled with Default selected row", () => {
-    ee.expandCollapseEntity("WIDGETS")
-    ee.SelectEntityByName("Table1")
+    ee.SelectEntityByName("Table1", 'WIDGETS')
     agHelper.AssertExistingToggleState("serversidepagination", 'checked')
 
     agHelper.EvaluateExistingPropertyFieldValue("Default Selected Row")
@@ -71,8 +70,7 @@ describe("AForce - Community Issues page validations", function () {
 
     agHelper.NavigateBacktoEditor()
     table.WaitUntilTableLoad()
-    ee.expandCollapseEntity("WIDGETS")
-    ee.SelectEntityByName("Table1")
+    ee.SelectEntityByName("Table1", 'WIDGETS')
     agHelper.ToggleOnOrOff('serversidepagination', 'Off')
     agHelper.DeployApp()
     table.WaitUntilTableLoad()

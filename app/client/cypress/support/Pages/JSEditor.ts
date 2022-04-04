@@ -20,7 +20,8 @@ export class JSEditor {
     cy.get(this._newJSobj).click({ force: true });
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
-    this.agHelper.WaitUntilEleDisappear(this.locator._toastMsg, 'created successfully')
+    //this.agHelper.WaitUntilEleDisappear(this.locator._toastMsg, 'created successfully')
+    this.agHelper.Sleep()
   }
 
   public CreateJSObject(JSCode: string, paste = true, completeReplace = false, toRun = true) {
@@ -67,7 +68,7 @@ export class JSEditor {
       });
 
     this.agHelper.AssertAutoSave()//Ample wait due to open bug # 10284
-    this.agHelper.Sleep(5000)//Ample wait due to open bug # 10284
+    //this.agHelper.Sleep(5000)//Ample wait due to open bug # 10284
 
     if (toRun) {
       //clicking 1 times & waits for 3 second for result to be populated!
@@ -81,6 +82,13 @@ export class JSEditor {
       cy.get(this.locator._toastMsg).should("have.length", 0)
     }
     this.GetJSObjectName()
+  }
+
+  //Not working - To improve!
+  public EditJSObj(existingTxt: string, newTxt: string) {
+    cy.get(this.locator._codeEditorTarget).contains(existingTxt).dblclick()//.type("{backspace}").type(newTxt)
+    cy.get('body').type("{backspace}").type(newTxt)
+    this.agHelper.AssertAutoSave()//Ample wait due to open bug # 10284
   }
 
   public EnterJSContext(endp: string, value: string, paste = true, toToggleOnJS = false) {
