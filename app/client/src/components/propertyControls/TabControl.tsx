@@ -2,14 +2,15 @@ import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
-import { generateReactKey } from "utils/generators";
 import {
   BaseItemProps,
   DroppableComponent,
   RenderComponentProps,
 } from "components/ads/DraggableListComponent";
-import { getNextEntityName, noop } from "utils/AppsmithUtils";
-import _, { orderBy } from "lodash";
+import { noop } from "utils/AppsmithUtils";
+import orderBy from "lodash/orderBy";
+import isString from "lodash/isString";
+import isUndefined from "lodash/isUndefined";
 import * as Sentry from "@sentry/react";
 import { Category, Size } from "components/ads/Button";
 import { useDispatch } from "react-redux";
@@ -29,10 +30,7 @@ const TabsWrapper = styled.div`
   flex-direction: column;
 `;
 
-type DroppableItem = BaseItemProps & {
-  index: number;
-  widgetId: string;
-};
+type DroppableItem = BaseItemProps;
 
 function AddTabButtonComponent({ widgetId }: any) {
   const dispatch = useDispatch();
@@ -113,7 +111,7 @@ class TabControl extends BaseControl<ControlProps, State> {
   ) {
     // Added a migration script for older tab data that was strings
     // deprecate after enough tabs have moved to the new format
-    if (_.isString(tabData)) {
+    if (isString(tabData)) {
       try {
         const parsedData: Array<{
           sid: string;
@@ -132,25 +130,33 @@ class TabControl extends BaseControl<ControlProps, State> {
     }
   }
 
-  updateItems = (items: DroppableItem[]) => {
-    const tabsObj = items.reduce<Record<string, DroppableItem>>(
-      (obj, each, index) => {
-        obj[each.id] = {
-          ...each,
-          index,
-        };
-        return obj;
-      },
-      {},
-    );
+  getTabItems = () => {
+    const menuItems: Array<{
+      id: string;
+      label: string;
+      isVisible: boolean;
+    }> =
+      isString(this.props.propertyValue) ||
+      isUndefined(this.props.propertyValue)
+        ? []
+        : Object.values(this.props.propertyValue);
+
+    return orderBy(menuItems, ["index"], ["asc"]);
+  };
+
+  updateItems = (items: Array<Record<string, any>>) => {
+    const tabsObj = items.reduce((obj: any, each: any, index: number) => {
+      obj[each.id] = {
+        ...each,
+        index,
+      };
+      return obj;
+    }, {});
     this.updateProperty(this.props.propertyName, tabsObj);
   };
 
   onEdit = (index: number) => {
-    const tabs: Array<{
-      id: string;
-      label: string;
-    }> = Object.values(this.props.propertyValue);
+    const tabs = this.getTabItems();
     const tabToChange = tabs[index];
     this.props.openNextPanel({
       index,
@@ -158,11 +164,8 @@ class TabControl extends BaseControl<ControlProps, State> {
       propPaneId: this.props.widgetProperties.widgetId,
     });
   };
-  render() {
-    const tabs: DroppableItem[] = _.isString(this.props.propertyValue)
-      ? []
-      : Object.values(this.props.propertyValue);
 
+  render() {
     return (
       <TabsWrapper>
         <DroppableComponent
@@ -170,7 +173,7 @@ class TabControl extends BaseControl<ControlProps, State> {
           fixedHeight={370}
           focusedIndex={this.state.focusedIndex}
           itemHeight={45}
-          items={orderBy(tabs, ["index"], ["asc"])}
+          items={this.getTabItems()}
           onEdit={this.onEdit}
           renderComponent={TabControlComponent}
           toggleVisibility={this.toggleVisibility}
@@ -186,12 +189,7 @@ class TabControl extends BaseControl<ControlProps, State> {
   }
 
   toggleVisibility = (index: number) => {
-    const tabs: Array<{
-      id: string;
-      label: string;
-      isVisible: boolean;
-      widgetId: string;
-    }> = this.props.propertyValue.slice();
+    const tabs = this.getTabItems();
     const isVisible = tabs[index].isVisible === true ? false : true;
     const updatedTabs = tabs.map((tab, tabIndex) => {
       if (index === tabIndex) {
@@ -206,33 +204,12 @@ class TabControl extends BaseControl<ControlProps, State> {
   };
 
   updateOption = (index: number, updatedLabel: string) => {
-    const tabsArray: any = Object.values(this.props.propertyValue);
+    const tabsArray = this.getTabItems();
     const { id: itemId } = tabsArray[index];
     this.updateProperty(
       `${this.props.propertyName}.${itemId}.label`,
       updatedLabel,
     );
-  };
-
-  addOption = () => {
-    let tabs = this.props.propertyValue;
-    const tabsArray = Object.values(tabs);
-    const newTabId = generateReactKey({ prefix: "tab" });
-    const newTabLabel = getNextEntityName(
-      "Tab ",
-      tabsArray.map((tab: any) => tab.label),
-    );
-    tabs = {
-      ...tabs,
-      [newTabId]: {
-        id: newTabId,
-        label: newTabLabel,
-        widgetId: generateReactKey(),
-        isVisible: true,
-      },
-    };
-
-    this.updateProperty(this.props.propertyName, tabs);
   };
 
   updateFocus = (index: number, isFocused: boolean) => {

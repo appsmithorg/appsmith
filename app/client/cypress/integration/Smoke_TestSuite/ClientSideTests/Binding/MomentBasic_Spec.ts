@@ -19,8 +19,7 @@ describe("Validate basic binding of Input widget to Input widget", () => {
     });
 
     it("1. Input widget test with default value from another Input widget", () => {
-        ee.expandCollapseEntity("WIDGETS")
-        ee.SelectEntityByName("Input1")
+        ee.SelectEntityByName("Input1", 'WIDGETS')
         jsEditor.EnterJSContext("defaulttext", dataSet.defaultInputBinding + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
     });
@@ -33,7 +32,7 @@ describe("Validate basic binding of Input widget to Input widget", () => {
 
     it("3. Publish widget and validate the data displayed in input widgets", function () {
         var currentTime = new Date();
-        agHelper.DeployApp()
+        agHelper.DeployApp(locator._inputWidgetInDeployed)
         cy.get(locator._inputWidgetInDeployed).first()
             .should("contain.value", currentTime.getFullYear());
         cy.get(locator._inputWidgetInDeployed).last()
