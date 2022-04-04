@@ -81,9 +81,9 @@ export interface ControlData {
   sectionName?: string;
   disabled?: boolean;
 }
-export type FormConfig = Omit<ControlData, "configProperty"> & {
+export type FormConfigType = Omit<ControlData, "configProperty"> & {
   configProperty?: string;
-  children?: FormConfig[];
+  children?: FormConfigType[];
   options?: DropdownOption[];
 };
 

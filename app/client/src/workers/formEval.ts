@@ -8,7 +8,7 @@ import {
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ActionConfig } from "entities/Action";
 import { FormEvalActionPayload } from "sagas/FormEvaluationSaga";
-import { FormConfig } from "components/formControls/BaseControl";
+import { FormConfigType } from "components/formControls/BaseControl";
 import { isEmpty, merge } from "lodash";
 import { extractEvalConfigFromFormConfig } from "components/formControls/utils";
 
@@ -25,7 +25,7 @@ export enum ConditionType {
 let finalEvalObj: FormEvalOutput;
 
 // Recursive function to generate the evaluation state for form config
-const generateInitialEvalState = (formConfig: FormConfig) => {
+const generateInitialEvalState = (formConfig: FormConfigType) => {
   const conditionals: Record<string, any> = {};
   const conditionTypes: Record<string, any> = {};
 
@@ -63,7 +63,7 @@ const generateInitialEvalState = (formConfig: FormConfig) => {
       // Setting the component as invisible since it has elements that will be evaluated later
       conditionTypes.visible = false;
       const evaluateFormConfig: EvaluatedFormConfig = {
-        executeEvaluation: true,
+        updateEvaluatedConfig: false,
         paths: formConfig.conditionals.evaluateFormConfig.paths,
         evaluateFormConfigObject: extractEvalConfigFromFormConfig(
           formConfig,
@@ -101,12 +101,12 @@ const generateInitialEvalState = (formConfig: FormConfig) => {
   }
 
   if ("children" in formConfig && !!formConfig.children)
-    formConfig.children.forEach((config: FormConfig) =>
+    formConfig.children.forEach((config: FormConfigType) =>
       generateInitialEvalState(config),
     );
 
   if ("schema" in formConfig && !!formConfig.schema)
-    formConfig.schema.forEach((config: FormConfig) =>
+    formConfig.schema.forEach((config: FormConfigType) =>
       generateInitialEvalState({ ...config }),
     );
 };
@@ -163,7 +163,7 @@ function evaluate(
               !!currentEvalState[key].evaluateFormConfig
             ) {
               (currentEvalState[key]
-                .evaluateFormConfig as EvaluatedFormConfig).executeEvaluation = output;
+                .evaluateFormConfig as EvaluatedFormConfig).updateEvaluatedConfig = output;
               currentEvalState[key].visible = output;
               if (output && !!currentEvalState[key].evaluateFormConfig)
                 (currentEvalState[key]
@@ -214,7 +214,7 @@ export function setFormEvaluationSaga(
       !!payload.editorConfig &&
       payload.editorConfig.length > 0
     ) {
-      payload.editorConfig.forEach((config: FormConfig) => {
+      payload.editorConfig.forEach((config: FormConfigType) => {
         generateInitialEvalState(config);
       });
     }
@@ -225,7 +225,7 @@ export function setFormEvaluationSaga(
       !!payload.settingConfig &&
       payload.settingConfig.length > 0
     ) {
-      payload.settingConfig.forEach((config: FormConfig) => {
+      payload.settingConfig.forEach((config: FormConfigType) => {
         generateInitialEvalState(config);
       });
     }

@@ -1,7 +1,7 @@
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
-import { isBoolean, get, set, bind } from "lodash";
+import { isBoolean, get, set } from "lodash";
 import { FormConfigEvalObject } from "reducers/evaluationReducers/formEvaluationReducer";
-import { FormConfig, HiddenType } from "./BaseControl";
+import { FormConfigType, HiddenType } from "./BaseControl";
 
 export const evaluateCondtionWithType = (
   conditions: Array<boolean> | undefined,
@@ -305,7 +305,7 @@ const extractExpressionObject = (
 };
 
 export const extractEvalConfigFromFormConfig = (
-  formConfig: FormConfig,
+  formConfig: FormConfigType,
   paths: string[],
   parentPath = "",
   bindingsFound: FormConfigEvalObject = {},

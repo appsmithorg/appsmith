@@ -15,7 +15,7 @@ import {
 } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FORM_EVALUATION_REDUX_ACTIONS } from "actions/evaluationActions";
 import { ActionConfig } from "entities/Action";
-import { FormConfig } from "components/formControls/BaseControl";
+import { FormConfigType } from "components/formControls/BaseControl";
 import PluginsApi from "api/PluginApi";
 
 let isEvaluating = false; // Flag to maintain the queue of evals
@@ -25,8 +25,8 @@ export type FormEvalActionPayload = {
   datasourceId?: string;
   pluginId?: string;
   actionConfiguration?: ActionConfig;
-  editorConfig?: FormConfig[];
-  settingConfig?: FormConfig[];
+  editorConfig?: FormConfigType[];
+  settingConfig?: FormConfigType[];
 };
 
 const evalQueue: ReduxAction<FormEvalActionPayload>[] = [];
