@@ -530,13 +530,13 @@ jobs:
           path: app/rts/node_modules/
 
       - name: Build  docker image
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        if: steps.run_result.outputs.run_result != 'success'
         working-directory: "."
         run: |
           docker build -t fatcontainer .
 
       - name: Load docker image
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        if: steps.run_result.outputs.run_result != 'success'
         env:
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
         working-directory: "."
