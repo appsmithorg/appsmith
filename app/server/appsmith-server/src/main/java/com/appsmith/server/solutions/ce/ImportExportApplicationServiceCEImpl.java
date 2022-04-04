@@ -591,9 +591,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     /**
      * This function will take the application reference object to hydrate the application in mongoDB
      *
-     * @param organizationId organization to which application is going to be stored
-     * @param applicationJson    application resource which contains necessary information to save the application
-     * @param applicationId  application which needs to be saved with the updated resources
+     * @param organizationId    organization to which application is going to be stored
+     * @param applicationJson   application resource which contains necessary information to import the application
+     * @param applicationId     application which needs to be saved with the updated resources
      * @return Updated application
      */
     public Mono<Application> importApplicationInOrganization(String organizationId,
@@ -689,6 +689,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             // Check for duplicate datasources to avoid duplicates in target organization
                             .flatMap(datasource -> {
 
+                                final String importedDatasourceName = datasource.getName();
                                 // Check if the datasource has gitSyncId and if it's already in DB
                                 if (datasource.getGitSyncId() != null
                                         && savedDatasourcesGitIdToDatasourceMap.containsKey(datasource.getGitSyncId())) {
@@ -702,7 +703,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     datasource.setPluginId(null);
                                     AppsmithBeanUtils.copyNestedNonNullProperties(datasource, existingDatasource);
                                     existingDatasource.setStructure(null);
-                                    return datasourceService.update(existingDatasource.getId(), existingDatasource);
+                                    return datasourceService.update(existingDatasource.getId(), existingDatasource)
+                                            .map(datasource1 -> {
+                                                datasourceMap.put(importedDatasourceName, datasource1.getId());
+                                                return datasource1;
+                                            });
                                 }
 
                                 // This is explicitly copied over from the map we created before
@@ -719,11 +724,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     updateAuthenticationDTO(datasource, decryptedFields);
                                 }
 
-                                return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, organizationId, applicationId);
-                            })
-                            .map(datasource -> {
-                                datasourceMap.put(datasource.getName(), datasource.getId());
-                                return datasource;
+                                return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, organizationId)
+                                        .map(datasource1 -> {
+                                            datasourceMap.put(importedDatasourceName, datasource1.getId());
+                                            return datasource1;
+                                        });
                             })
                             .collectList();
                 })
@@ -1726,9 +1731,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      */
     private Mono<Datasource> createUniqueDatasourceIfNotPresent(Flux<Datasource> existingDatasourceFlux,
                                                                 Datasource datasource,
-                                                                String organizationId,
-                                                                String applicationId) {
-
+                                                                String organizationId) {
         /*
             1. If same datasource is present return
             2. If unable to find the datasource create a new datasource with unique name and return
@@ -1743,16 +1746,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         }
 
         return existingDatasourceFlux
-                .map(ds -> {
-                    final DatasourceConfiguration dsAuthConfig = ds.getDatasourceConfiguration();
-                    if (dsAuthConfig != null && dsAuthConfig.getAuthentication() != null) {
-                        dsAuthConfig.getAuthentication().setAuthenticationResponse(null);
-                        dsAuthConfig.getAuthentication().setAuthenticationType(null);
-                    }
-                    return ds;
-                })
                 // For git import exclude datasource configuration
-                .filter(ds -> applicationId != null ? ds.getName().equals(datasource.getName()) : ds.softEquals(datasource))
+                .filter(ds -> ds.getName().equals(datasource.getName()) && datasource.getPluginId().equals(ds.getPluginId()))
                 .next()  // Get the first matching datasource, we don't need more than one here.
                 .switchIfEmpty(Mono.defer(() -> {
                     if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {
