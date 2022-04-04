@@ -38,6 +38,7 @@ import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.DateUtils;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -1025,7 +1026,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             "pageName", pageName,
                             "isSuccessfulExecution", ObjectUtils.defaultIfNull(actionExecutionResult.getIsExecutionSuccess(), false),
                             "statusCode", ObjectUtils.defaultIfNull(actionExecutionResult.getStatusCode(), ""),
-                            "timeElapsed", timeElapsed
+                            "timeElapsed", timeElapsed,
+                            "actionCreated", DateUtils.ISO_FORMATTER.format(action.getCreatedAt()),
+                            "actionId", ObjectUtils.defaultIfNull(action.getId(), ""),
+                            "dsId", ObjectUtils.defaultIfNull(datasource.getId(), ""),
+                            "dsCreatedAt", DateUtils.ISO_FORMATTER.format(datasource.getCreatedAt())
+
                     ));
 
                     // Add the error message in case of erroneous execution
