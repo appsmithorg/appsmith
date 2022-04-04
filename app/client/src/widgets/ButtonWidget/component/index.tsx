@@ -7,7 +7,6 @@ import {
   Button,
   Alignment,
   Position,
-  AnchorButton,
   Classes,
 } from "@blueprintjs/core";
 import { Popover2 } from "@blueprintjs/popover2";
@@ -199,20 +198,6 @@ const StyledButton = styled((props) => (
   ${buttonBaseStyle}
 `;
 
-const StyledAnchorButton = styled((props) => (
-  <AnchorButton
-    {..._.omit(props, [
-      "borderRadius",
-      "boxShadow",
-      "boxShadowColor",
-      "buttonColor",
-      "buttonVariant",
-    ])}
-  />
-))<ThemeProp & ButtonStyleProps>`
-  ${buttonBaseStyle}
-`;
-
 export type ButtonStyleProps = {
   buttonColor?: string;
   buttonVariant?: ButtonVariant;
@@ -223,7 +208,6 @@ export type ButtonStyleProps = {
   iconAlign?: Alignment;
   placement?: ButtonPlacement;
   renderMode?: RenderMode;
-  tooltip?: string;
 };
 
 // To be used in any other part of the app
@@ -245,7 +229,6 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
     renderMode,
     rightIcon,
     text,
-    tooltip,
   } = props;
 
   const isRightAlign = iconAlign === Alignment.RIGHT;
@@ -258,46 +241,26 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
       loading={loading}
       onClick={onClick}
       renderMode={renderMode}
+      showInAllModes
     >
-      {disabled && tooltip ? (
-        <StyledAnchorButton
-          alignText={getAlignText(isRightAlign, iconName)}
-          borderRadius={borderRadius}
-          boxShadow={boxShadow}
-          boxShadowColor={boxShadowColor}
-          buttonColor={buttonColor}
-          buttonVariant={buttonVariant}
-          className={className}
-          data-test-variant={buttonVariant}
-          disabled={disabled}
-          fill
-          icon={isRightAlign ? icon : iconName || icon}
-          loading={loading}
-          onClick={onClick}
-          placement={placement}
-          rightIcon={isRightAlign ? iconName || rightIcon : rightIcon}
-          text={text}
-        />
-      ) : (
-        <StyledButton
-          alignText={getAlignText(isRightAlign, iconName)}
-          borderRadius={borderRadius}
-          boxShadow={boxShadow}
-          boxShadowColor={boxShadowColor}
-          buttonColor={buttonColor}
-          buttonVariant={buttonVariant}
-          className={className}
-          data-test-variant={buttonVariant}
-          disabled={disabled}
-          fill
-          icon={isRightAlign ? icon : iconName || icon}
-          loading={loading}
-          onClick={onClick}
-          placement={placement}
-          rightIcon={isRightAlign ? iconName || rightIcon : rightIcon}
-          text={text}
-        />
-      )}
+      <StyledButton
+        alignText={getAlignText(isRightAlign, iconName)}
+        borderRadius={borderRadius}
+        boxShadow={boxShadow}
+        boxShadowColor={boxShadowColor}
+        buttonColor={buttonColor}
+        buttonVariant={buttonVariant}
+        className={className}
+        data-test-variant={buttonVariant}
+        disabled={disabled}
+        fill
+        icon={isRightAlign ? icon : iconName || icon}
+        loading={loading}
+        onClick={onClick}
+        placement={placement}
+        rightIcon={isRightAlign ? iconName || rightIcon : rightIcon}
+        text={text}
+      />
     </DragContainer>
   );
 }
@@ -501,7 +464,6 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
         renderMode={props.renderMode}
         rightIcon={props.rightIcon}
         text={props.text}
-        tooltip={props.tooltip}
         type={props.type}
       />
     </BtnWrapper>

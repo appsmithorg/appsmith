@@ -58,10 +58,11 @@ type DragContainerProps = ButtonContainerProps & {
   children?: React.ReactNode;
   onClick?: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   renderMode?: RenderMode;
+  showInAllModes?: boolean;
 };
 
 export function DragContainer(props: DragContainerProps) {
-  if (props.renderMode === RenderModes.CANVAS) {
+  if (props.renderMode === RenderModes.CANVAS || props.showInAllModes) {
     return (
       <ButtonContainer
         buttonColor={props.buttonColor}
