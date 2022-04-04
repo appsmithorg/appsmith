@@ -203,8 +203,8 @@ abstract class BaseWidget<
     };
   }
 
-  getLabelWidth = (cols?: number) => {
-    return (Number(cols) || 0) * this.props.parentColumnSpace;
+  getLabelWidth = () => {
+    return (Number(this.props.labelWidth) || 0) * this.props.parentColumnSpace;
   };
 
   getErrorCount = memoize((evalErrors: Record<string, EvaluationError[]>) => {

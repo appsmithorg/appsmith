@@ -330,10 +330,6 @@ export const MultiSelectContainer = styled.div<{
       compactMode &&
       `height: 100%; overflow: hidden`};
 
-    .rc-select-selector {
-      height: 36px !important;
-    }
-
     .rc-select-selection-placeholder {
       pointer-events: none;
       position: absolute;

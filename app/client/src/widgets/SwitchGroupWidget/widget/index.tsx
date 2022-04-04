@@ -365,7 +365,7 @@ class SwitchGroupWidget extends BaseWidget<
       widgetId,
     } = this.props;
 
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight } = this.getComponentDimensions();
 
     return (
       <SwitchGroupComponent
@@ -387,7 +387,6 @@ class SwitchGroupWidget extends BaseWidget<
         selected={selectedValues}
         valid={isValid}
         widgetId={widgetId}
-        width={componentWidth}
       />
     );
   }

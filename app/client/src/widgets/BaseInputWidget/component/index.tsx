@@ -548,13 +548,14 @@ class BaseInputComponent extends React.Component<
         {showLabelHeader && (
           <LabelWithTooltip
             alignment={labelAlignment}
-            className={`t--input-widget-label`}
+            className="t--input-widget-label"
             color={labelTextColor}
             compact={compactMode}
             disabled={disabled}
             fontSize={labelTextSize}
             fontStyle={labelStyle}
             helpText={tooltip}
+            helpTextClassName="t--input-widget-tooltip"
             loading={isLoading}
             position={labelPosition}
             text={label}

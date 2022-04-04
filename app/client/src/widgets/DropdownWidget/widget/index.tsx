@@ -407,7 +407,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
-        labelWidth={this.getLabelWidth(this.props.labelWidth)}
+        labelWidth={this.getLabelWidth()}
         onFilterChange={this.onFilterChange}
         onOptionSelected={this.onOptionSelected}
         options={options}

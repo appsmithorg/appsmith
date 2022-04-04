@@ -2,7 +2,12 @@ import React, { useCallback, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { Alignment, Classes, Label, Position } from "@blueprintjs/core";
 
-import { LabelPosition, LABEL_MAX_WIDTH_RATE } from "components/constants";
+import {
+  LabelPosition,
+  LABEL_DEFAULT_GAP,
+  LABEL_MAX_WIDTH_RATE,
+  LABEL_TOOLTIP_OPEN_DELAY,
+} from "components/constants";
 import {
   FontStyleTypes,
   TextSize,
@@ -23,6 +28,7 @@ export interface LabelWithTooltipProps {
   fontSize?: TextSize;
   fontStyle?: string;
   helpText?: string;
+  helpTextClassName?: string;
   inline?: boolean;
   loading?: boolean;
   optionCount?: number;
@@ -87,7 +93,7 @@ export const LabelContainer = styled.div<LabelContainerProps>`
     ${
       position !== LabelPosition.Top &&
       (position === LabelPosition.Left || compact)
-        ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
+        ? `&&& {margin-right: ${LABEL_DEFAULT_GAP}; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
         : `width: 100%;`
     }
     ${position === LabelPosition.Left &&
@@ -115,21 +121,19 @@ export const StyledTooltip = styled(Tooltip)`
 export const StyledLabel = styled(Label)<StyledLabelProps>`
   &&& {
     ${({ compact, hasHelpText, position }) => {
-      if (position === LabelPosition.Top) {
-        return `margin-bottom: 5px; ${
-          hasHelpText ? "margin-right: 5px" : "margin-right: 0px"
-        }`;
-      }
-      if (compact || position === LabelPosition.Left)
-        return "margin-bottom: 0px; margin-right: 5px";
-      return `margin-bottom: 5px; ${
-        hasHelpText ? "margin-right: 5px" : "margin-right: 0px"
+      if (
+        position === LabelPosition.Left ||
+        (position === LabelPosition.Auto && compact)
+      )
+        return `margin-bottom: 0px; margin-right: ${LABEL_DEFAULT_GAP}`;
+      return `margin-bottom: ${LABEL_DEFAULT_GAP}; ${
+        hasHelpText ? `margin-right: ${LABEL_DEFAULT_GAP}` : "margin-right: 0px"
       }`;
     }};
 
     ${({ color, disabled, fontSize, fontStyle }) => `
       color: ${disabled ? Colors.GREY_8 : color || "inherit"};
-      font-size: ${fontSize ? TEXT_SIZES[fontSize] : "14px"};
+      font-size: ${fontSize ? TEXT_SIZES[fontSize] : TEXT_SIZES.PARAGRAPH};
       font-weight: ${
         fontStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"
       };
@@ -146,17 +150,17 @@ const ToolTipIcon = styled(IconWrapper)<TooltipIconProps>`
   &&&:hover {
     svg {
       path {
-        fill: #716e6e;
+        fill: ${Colors.GREY_8};
       }
     }
   }
 
   ${({ compact, position }) => {
     if (position === LabelPosition.Top) {
-      return "margin-bottom: 5px";
+      return `margin-bottom: ${LABEL_DEFAULT_GAP}`;
     }
     if (compact || position === LabelPosition.Left) return "margin-bottom: 0px";
-    return "margin-bottom: 5px";
+    return `margin-bottom: ${LABEL_DEFAULT_GAP}`;
   }};
 `;
 
@@ -173,6 +177,7 @@ const LabelWithTooltip = React.forwardRef<
     fontSize,
     fontStyle,
     helpText,
+    helpTextClassName,
     inline,
     loading,
     optionCount,
@@ -209,7 +214,7 @@ const LabelWithTooltip = React.forwardRef<
     >
       <StyledTooltip
         content={text}
-        hoverOpenDelay={200}
+        hoverOpenDelay={LABEL_TOOLTIP_OPEN_DELAY}
         isOpen={tooltipOpen}
         position={Position.TOP}
       >
@@ -234,7 +239,7 @@ const LabelWithTooltip = React.forwardRef<
       {helpText && (
         <Tooltip
           content={helpText}
-          hoverOpenDelay={200}
+          hoverOpenDelay={LABEL_TOOLTIP_OPEN_DELAY}
           position={Position.TOP}
         >
           <ToolTipIcon
@@ -244,7 +249,7 @@ const LabelWithTooltip = React.forwardRef<
             position={position}
             width={14}
           >
-            <HelpIcon className="t--input-widget-tooltip" />
+            <HelpIcon className={helpTextClassName} />
           </ToolTipIcon>
         </Tooltip>
       )}
