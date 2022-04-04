@@ -188,8 +188,8 @@ function DateField({
     return (
       <DateComponent
         backgroundColor="white"
-        borderRadius={schemaItem.borderRadius || DEFAULT_BORDER_RADIUS}
-        boxShadow={schemaItem.boxShadow}
+        borderRadius={schemaItem.borderRadius ?? DEFAULT_BORDER_RADIUS}
+        boxShadow={schemaItem.boxShadow ?? "none"}
         closeOnSelection={schemaItem.closeOnSelection}
         dateFormat={schemaItem.dateFormat}
         datePickerType="DATE_PICKER"
