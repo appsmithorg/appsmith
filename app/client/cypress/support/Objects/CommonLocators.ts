@@ -15,8 +15,11 @@ export class CommonLocators {
     _textWidget = ".t--draggable-textwidget span"
     _inputWidget = ".t--draggable-inputwidgetv2 input"
     _publishButton = ".t--application-publish-btn"
-    _textWidgetInDeployed = ".t--widget-textwidget span"
-    _inputWidgetInDeployed = ".t--widget-inputwidgetv2 input"
+    _widgetInCanvas = (widgetType: string) => `.t--draggable-${widgetType}`
+    _widgetInDeployed = (widgetType: string) => `.t--widget-${widgetType}`
+    _textWidgetInDeployed = this._widgetInDeployed("textwidget") + " span"
+    _inputWidgetInDeployed = this._widgetInDeployed("inputwidgetv2") + " input"
+    _imageWidget = ".t--draggable-imagewidget"
     _backToEditor = ".t--back-to-editor"
     _newPage = ".pages .t--entity-add-btn"
     _toastMsg = ".t--toast-action"
@@ -26,7 +29,6 @@ export class CommonLocators {
     _openWidget = ".widgets .t--entity-add-btn"
     _dropHere = "#comment-overlay-wrapper-0"
     _activeTab = "span:contains('Active')"
-    _createQuery = ".t--create-query"
     _crossBtn = "span.cancel-icon"
     _createNew = ".t--entity-add-btn.group.files"
     _uploadFiles = "div.uppy-Dashboard-AddFiles input"
@@ -46,15 +48,15 @@ export class CommonLocators {
     _selectPropDropdown = (ddName: string) => "//div[contains(@class, 't--property-control-" + ddName + "')]//button[contains(@class, 't--open-dropdown-Select-Action')]"
     _dropDownValue = (ddOption: string) => ".single-select:contains('" + ddOption + "')"
     _selectOptionValue = (ddOption: string) => ".menu-item-link:contains('" + ddOption + "')"
+    _selectedDropdownValue = "//button[contains(@class, 'select-button')]/span[@class='bp3-button-text']"
     _actionTextArea = (actionName: string) => "//label[text()='" + actionName + "']/following-sibling::div//div[contains(@class, 'CodeMirror')]//textarea"
     _existingDefaultTextInput = ".t--property-control-defaulttext .CodeMirror-code"
     _widgetPageIcon = (widgetType: string) => `.t--widget-card-draggable-${widgetType}`
-    _widgetInCanvas = (widgetType: string) => `.t--draggable-${widgetType}`
-    _widgetInDeployed = (widgetType: string) => `.t--widget-${widgetType}`
     _propertyToggle = (controlToToggle: string) => ".t--property-control-" + controlToToggle + " input[type='checkbox']"
     _propertyToggleValue = (controlToToggle: string) => "//div[contains(@class, 't--property-control-" + controlToToggle + "')]//input[@type='checkbox']/parent::label"
     _openNavigationTab = (tabToOpen: string) => `#switcher--${tabToOpen}`
-    _selectWidgetDropdown = (widgetType: string) => "//div[contains(@class, 't--draggable-" + widgetType + "')]//button"
+    _selectWidgetDropdown = (widgetType: string) => `//div[contains(@class, 't--draggable-${widgetType}')]//button`
+    _selectWidgetDropdownInDeployed = (widgetType: string) => `//div[contains(@class, 't--widget-${widgetType}')]//button`
     _inputFieldByName = (fieldName: string) => "//p[text()='" + fieldName + "']/parent::label/following-sibling::div"
     _existingFieldValueByName = (fieldName: string) => "//label[text()='" + fieldName + "']/ancestor::div//div[contains(@class,'CodeMirror-code')]"
     _evaluatedCurrentValue = "div:last-of-type .t--CodeEditor-evaluatedValue > div:last-of-type pre"
