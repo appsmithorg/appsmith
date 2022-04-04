@@ -22,6 +22,10 @@ const StyledDateInput = styled(DateInput)`
     }
   }
 
+  .bp3-input-group input:focus {
+    border-color: var(--appsmith-color-black-900);
+  }
+
   button,
   select,
   [tabindex]:not([tabindex="-1"]) {
@@ -123,7 +127,7 @@ function DatePickerComponent(props: DatePickerComponentProps) {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
   const popoverRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   function handleDateInputClick() {
     setDatePickerVisibility(true);
@@ -196,16 +200,21 @@ function DatePickerComponent(props: DatePickerComponentProps) {
 
   function handleOnDayClick() {
     setDatePickerVisibility(false);
+    inputRef.current?.focus();
   }
 
   function handleInteraction(nextOpenState: boolean) {
     setDatePickerVisibility(nextOpenState);
+    if (!nextOpenState) {
+      inputRef.current?.focus();
+    }
   }
 
   function handleTimePickerKeydown(e: React.KeyboardEvent) {
     if (e.key === "Enter") {
       setDatePickerVisibility(false);
       e.stopPropagation();
+      inputRef.current?.focus();
     }
   }
 
