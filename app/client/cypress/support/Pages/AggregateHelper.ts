@@ -257,19 +257,20 @@ export class AggregateHelper {
 
         if (check) {
             options.forEach($each => {
-                cy.get(this.locator._multiSelectOptions($each)).check({ force: true })
+                cy.get(this.locator._multiSelectOptions($each)).check({ force: true }).wait(500)
             })
         }
         else {
             options.forEach($each => {
-                cy.get(this.locator._multiSelectOptions($each)).uncheck({ force: true })
+                cy.get(this.locator._multiSelectOptions($each)).uncheck({ force: true }).wait(500)
             })
         }
 
-        //closing multiselect dropdown
-        cy.get(this.locator._widgetInDeployed(endp))
-            .eq(index)
-            .click()
+        // //closing multiselect dropdown
+        cy.get('body').type("{esc}");
+        // cy.get(this.locator._widgetInDeployed(endp))
+        //     .eq(index)
+        //     .click()
     }
     public RemoveMultiSelectItems(items: string[]) {
         items.forEach($each => {

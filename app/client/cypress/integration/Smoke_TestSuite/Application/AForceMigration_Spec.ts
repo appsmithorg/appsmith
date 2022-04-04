@@ -264,8 +264,8 @@ describe("AForce - Community Issues page validations", function () {
 
     cy.get(table._trashIcon).closest('div').click()
     agHelper.AssertElementAbsence(locator._widgetInDeployed('tabswidget'))
-    cy.xpath(table._searchBoxCross).click()
     table.WaitForTableEmpty()
+    cy.xpath(table._searchBoxCross).click()
     table.SearchTable('Troubleshooting')
     table.WaitUntilTableLoad()
     table.ReadTableRowColumnData(0, 1).then((cellData) => {
