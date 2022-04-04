@@ -659,11 +659,11 @@ public class DatabaseChangelog2 {
         List<Plugin> pluginList =  mongockTemplate.findAll(Plugin.class);
         for(Plugin plugin : pluginList) {
             if(plugin.getType().equals("SAAS")) {
-                plugin.setIsConfigStoredAtDataSource(FALSE);
+                plugin.setIsConfigStoredAtdatasource(FALSE);
             } else if(plugin.getType().equals("REMOTE") && plugin.getPackageName().equals("Airtable")) {
-                plugin.setIsConfigStoredAtDataSource(FALSE);
+                plugin.setIsConfigStoredAtdatasource(FALSE);
             } else {
-                plugin.setIsConfigStoredAtDataSource(TRUE);
+                plugin.setIsConfigStoredAtdatasource(TRUE);
             }
             mongockTemplate.save(plugin);
         }

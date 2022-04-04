@@ -204,7 +204,7 @@ public class GitFileUtilsTest {
                         assertThat(newAction.getUnpublishedAction()).isNotNull();
                         assertThat(newAction.getPublishedAction()).isNull();
                         List<Plugin> actionPluginType = pluginList.stream().filter(plugin -> plugin.getType().equals(newAction.getPluginType())).collect(Collectors.toList());
-                        if(actionPluginType.size() > 0 && actionPluginType.get(0).getIsConfigStoredAtDataSource().equals(false)) {
+                        if(actionPluginType.size() > 0 && actionPluginType.get(0).getIsConfigStoredAtdatasource().equals(false)) {
                             // Check if the configs are excluded from actions of type such as SAAS, Airtable
                             assertThat(newAction.getUnpublishedAction().getActionConfiguration()).isNull();
                         } else {
