@@ -47,7 +47,6 @@ import { integrationEditorURL } from "RouteBuilder";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 const EmptyStateContainer = styled.div`
   display: flex;
