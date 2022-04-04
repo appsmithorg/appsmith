@@ -81,7 +81,8 @@ import {
   ActionValidationConfigMap,
   ValidationConfig,
 } from "constants/PropertyControlConstants";
-const clone = require("rfdc/default");
+import { klona as clone } from "klona/full";
+
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
   sortedDependencies: Array<string> = [];
@@ -291,12 +292,14 @@ export default class DataTreeEvaluator {
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
       ),
     );
-    this.logs.push({ differences, translatedDiffs });
     const diffCheckTimeStop = performance.now();
     // Check if dependencies have changed
     const updateDependenciesStart = performance.now();
 
-    this.logs.push({ differences: clone(differences), translatedDiffs });
+    this.logs.push({
+      differences: differences,
+      translatedDiffs,
+    });
 
     // Find all the paths that have changed as part of the difference and update the
     // global dependency map if an existing dynamic binding has now become legal
@@ -363,6 +366,10 @@ export default class DataTreeEvaluator {
     // Need to check why big api responses are getting split between two eval runs
     this.oldUnEvalTree = clone(localUnEvalTree);
     this.evalTree = newEvalTree;
+
+    this.logs.push({
+      newOld: this.oldUnEvalTree,
+    });
     const timeTakenForSubTreeEval = {
       total: (totalEnd - totalStart).toFixed(2),
       findDifferences: (diffCheckTimeStop - diffCheckTimeStart).toFixed(2),

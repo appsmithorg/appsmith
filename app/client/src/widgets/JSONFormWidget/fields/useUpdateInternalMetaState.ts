@@ -3,7 +3,7 @@ import { useContext, useEffect } from "react";
 
 import FormContext from "../FormContext";
 
-const clone = require("rfdc/default");
+import { klona as clone } from "klona/full";
 
 export type UseUpdateInternalMetaStateProps = {
   propertyName?: string;

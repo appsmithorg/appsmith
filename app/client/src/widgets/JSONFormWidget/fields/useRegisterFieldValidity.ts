@@ -6,7 +6,7 @@ import { useContext, useEffect } from "react";
 import FormContext from "../FormContext";
 import { FieldType } from "../constants";
 
-const clone = require("rfdc/default");
+import { klona as clone } from "klona/full";
 
 export type UseRegisterFieldValidityProps = {
   isValid: boolean;
