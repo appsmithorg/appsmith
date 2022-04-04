@@ -71,7 +71,7 @@ export type FieldComponentBaseProps = {
   label: string;
   labelStyle?: string;
   labelTextColor?: string;
-  labelTextSize?: TextSize;
+  labelTextSize?: string;
   tooltip?: string;
 };
 

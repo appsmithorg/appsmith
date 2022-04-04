@@ -25,6 +25,8 @@ import { createGlobalStyle } from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { Classes as DateTimeClasses } from "@blueprintjs/datetime";
 import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
+import { SchemaItem } from "./JSONFormWidget/constants";
+import { isEmpty } from "lodash";
 
 const punycode = require("punycode/");
 
@@ -444,4 +446,18 @@ export const sanitizeKey = (key: string, options?: SanitizeOptions) => {
   }
 
   return sanitizedKey;
+};
+
+export const parseSchemaItem = (
+  schemaItem: SchemaItem,
+  callback: (schemaItem: SchemaItem) => void,
+) => {
+  // Update the theme stuff for this schema
+  callback(schemaItem);
+  console.log("SCHEMA ITEM", schemaItem.fieldType);
+  if (!isEmpty(schemaItem.children)) {
+    Object.values(schemaItem.children).forEach((schemaItem) => {
+      parseSchemaItem(schemaItem, callback);
+    });
+  }
 };

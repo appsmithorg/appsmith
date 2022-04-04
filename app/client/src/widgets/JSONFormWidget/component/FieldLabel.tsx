@@ -27,7 +27,7 @@ type StyledLabelTextProps = {
 export type LabelStyles = {
   labelStyle?: string;
   labelTextColor?: string;
-  labelTextSize?: TextSize;
+  labelTextSize?: string;
 };
 
 export type FieldLabelProps = PropsWithChildren<
@@ -123,7 +123,7 @@ function FieldLabel({
     const styles = labelStyle?.split(",");
     return {
       color: labelTextColor,
-      fontSize: TEXT_SIZES[labelTextSize],
+      fontSize: labelTextSize,
       fontWeight: styles?.includes(FontStyleTypes.BOLD) ? "bold" : "normal",
       fontStyle: styles?.includes(FontStyleTypes.ITALIC) ? "italic" : "",
       textDecoration: styles?.includes(FontStyleTypes.UNDERLINE)
