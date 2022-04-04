@@ -26,8 +26,4 @@ describe("Table Widget Resize Functionality", function() {
     ).should("not.exist");
     cy.get(`${publish.tableWidget} ${publish.downloadBtn}`).should("not.exist");
   });
-
-  afterEach(() => {
-    // put your clean up code if any
-  });
 });
