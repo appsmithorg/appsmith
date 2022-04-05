@@ -274,7 +274,11 @@ const StyledNumericInput = styled(NumericInput)`
   }
 `;
 
-const TextInputWrapper = styled.div<{ inputHtmlType?: InputHTMLType }>`
+const TextInputWrapper = styled.div<{
+  inputHtmlType?: InputHTMLType;
+  compact: boolean;
+  labelPosition?: LabelPosition;
+}>`
   width: 100%;
   display: flex;
   flex: 1;
@@ -282,6 +286,10 @@ const TextInputWrapper = styled.div<{ inputHtmlType?: InputHTMLType }>`
   ${({ inputHtmlType }) =>
     inputHtmlType && inputHtmlType !== InputTypes.TEXT && `&&& {flex-grow: 0;}`}
   min-height: 36px;
+  ${({ compact, labelPosition }) => {
+    if (compact || labelPosition) return;
+    return "margin-top: -5px;";
+  }}
 `;
 
 export type InputHTMLType = "TEXT" | "NUMBER" | "PASSWORD" | "EMAIL" | "TEL";
@@ -563,7 +571,11 @@ class BaseInputComponent extends React.Component<
             width={labelWidth}
           />
         )}
-        <TextInputWrapper inputHtmlType={inputHTMLType}>
+        <TextInputWrapper
+          compact={compactMode}
+          inputHtmlType={inputHTMLType}
+          labelPosition={labelPosition}
+        >
           <ErrorTooltip
             isOpen={isInvalid && showError}
             message={

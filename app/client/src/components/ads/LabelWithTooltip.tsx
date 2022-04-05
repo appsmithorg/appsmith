@@ -108,7 +108,6 @@ export const labelLayoutStyles = css<{
 export const LabelContainer = styled.div<LabelContainerProps>`
   display: flex;
   align-items: center;
-  min-height: 30px;
 
   ${({ alignment, compact, inline, optionCount, position, width }) => `
     ${
@@ -142,9 +141,16 @@ export const StyledTooltip = styled(Tooltip)`
 export const StyledLabel = styled(Label)<StyledLabelProps>`
   &&& {
     ${({ compact, hasHelpText, position }) => {
+      if (!position && !compact) {
+        return `margin-bottom: 0px; ${
+          hasHelpText
+            ? `margin-right: ${LABEL_DEFAULT_GAP}`
+            : "margin-right: 0px"
+        }`;
+      }
       if (
         position === LabelPosition.Left ||
-        (position === LabelPosition.Auto && compact)
+        ((!position || position === LabelPosition.Auto) && compact)
       )
         return `margin-bottom: 0px; margin-right: ${LABEL_DEFAULT_GAP}`;
       return `margin-bottom: ${LABEL_DEFAULT_GAP}; ${
@@ -224,9 +230,9 @@ const LabelWithTooltip = React.forwardRef<
   return (
     <LabelContainer
       alignment={alignment}
-      className="label-container"
+      className={LABEL_CONTAINER_CLASS}
       compact={compact}
-      data-cy="label-container"
+      data-cy={LABEL_CONTAINER_CLASS}
       inline={inline}
       optionCount={optionCount}
       position={position}
