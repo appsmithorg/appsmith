@@ -40,6 +40,7 @@ export type DropdownOption = {
   data?: any;
   isSectionHeader?: boolean;
   disabled?: boolean;
+  disabledTooltipText?: string;
 };
 export interface DropdownSearchProps {
   enableSearch?: boolean;
@@ -719,7 +720,11 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
           }
           return !option.isSectionHeader ? (
             <TooltipComponent
-              content="Action not supported"
+              content={
+                !!option.disabledTooltipText
+                  ? option.disabledTooltipText
+                  : "Action not supported"
+              }
               disabled={!option.disabled}
             >
               <OptionWrapper
