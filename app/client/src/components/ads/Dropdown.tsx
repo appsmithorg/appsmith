@@ -726,6 +726,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
                   : "Action not supported"
               }
               disabled={!option.disabled}
+              key={`tootltip-${index}`}
             >
               <OptionWrapper
                 aria-selected={isSelected}
