@@ -206,6 +206,13 @@ class PhoneInputWidget extends BaseInputWidget<
       );
       this.props.updateWidgetMetaProperty("text", formattedValue);
     }
+
+    // If defaultText property has changed, reset isDirty to false
+    if (this.props.defaultText !== prevProps.defaultText) {
+      if (this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", false);
+      }
+    }
   }
 
   onISDCodeChange = (dialCode?: string) => {
