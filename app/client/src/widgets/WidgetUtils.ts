@@ -450,14 +450,15 @@ export const sanitizeKey = (key: string, options?: SanitizeOptions) => {
 
 export const parseSchemaItem = (
   schemaItem: SchemaItem,
-  callback: (schemaItem: SchemaItem) => void,
+  propertyPath: string,
+  callback: (schemaItem: SchemaItem, propertyPath: string) => void,
 ) => {
   // Update the theme stuff for this schema
-  callback(schemaItem);
-  console.log("SCHEMA ITEM", schemaItem.fieldType);
+  callback(schemaItem, propertyPath);
   if (!isEmpty(schemaItem.children)) {
     Object.values(schemaItem.children).forEach((schemaItem) => {
-      parseSchemaItem(schemaItem, callback);
+      const childPropertyPath = `${propertyPath}.children.${schemaItem.identifier}`;
+      parseSchemaItem(schemaItem, childPropertyPath, callback);
     });
   }
 };

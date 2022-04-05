@@ -6,11 +6,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { JSONFormWidgetProps } from ".";
 import { ROOT_SCHEMA_KEY } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import {
-  ButtonVariantTypes,
-  ButtonBorderRadiusTypes,
-  ButtonPlacementTypes,
-} from "components/constants";
+import { ButtonVariantTypes, ButtonPlacementTypes } from "components/constants";
 import { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
 import { OnButtonClickProps } from "components/propertyControls/ButtonControl";
 import { ComputedSchemaStatus, computeSchema } from "./helper";

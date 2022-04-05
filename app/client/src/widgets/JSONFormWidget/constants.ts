@@ -14,7 +14,6 @@ import {
   SelectField,
   SwitchField,
 } from "./fields";
-import { TextSize } from "constants/WidgetConstants";
 
 // CAUTION! When changing the enum value, make sure any direct comparison
 // eg fieldType === "Array" instead of fieldType === FieldType.ARRAY is taking place

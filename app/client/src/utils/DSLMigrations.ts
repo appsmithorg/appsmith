@@ -61,11 +61,7 @@ import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleCon
 import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 import { migratePhoneInputWidgetAllowFormatting } from "./migrations/PhoneInputWidgetMigrations";
-import {
-  ROOT_SCHEMA_KEY,
-  Schema,
-  SchemaItem,
-} from "widgets/JSONFormWidget/constants";
+import { ROOT_SCHEMA_KEY } from "widgets/JSONFormWidget/constants";
 import { parseSchemaItem } from "widgets/WidgetUtils";
 
 /**
@@ -1854,8 +1850,12 @@ export const migrateStylingPropertiesForTheming = (
               child,
             );
             break;
+          default:
+            set(child, propertyPathBorderRadius, "0px");
         }
-      } //Inital the borderRadius as theming binding
+      } else {
+        set(child, propertyPathBorderRadius, "0px");
+      }
 
       if (has(child, propertyPathBoxShadow)) {
         const jsonFormBoxShadow = get(child, propertyPathBoxShadow);
@@ -1893,9 +1893,11 @@ export const migrateStylingPropertiesForTheming = (
             addPropertyToDynamicPropertyPathList(propertyPathBoxShadow, child);
             break;
           default:
-            child.boxShadow = "none";
+            set(child, propertyPathBoxShadow, "none");
         }
-      } //Inital the borderRadius as theming binding
+      } else {
+        set(child, propertyPathBoxShadow, "none");
+      }
     });
 
     /**
@@ -1905,12 +1907,13 @@ export const migrateStylingPropertiesForTheming = (
       const clonedSchema = clone(child.schema);
       parseSchemaItem(
         clonedSchema[ROOT_SCHEMA_KEY],
-        (schemaItem: SchemaItem) => {
+        `schema.${ROOT_SCHEMA_KEY}`,
+        (schemaItem, propertyPath) => {
           switch (schemaItem.labelTextSize) {
             case TextSizes.PARAGRAPH2:
               schemaItem.labelTextSize = "0.75rem";
               addPropertyToDynamicPropertyPathList(
-                `schema.${ROOT_SCHEMA_KEY}.children.${schemaItem.identifier}.labelTextSize`,
+                `${propertyPath}.labelTextSize`,
                 child,
               );
               break;
@@ -1923,14 +1926,14 @@ export const migrateStylingPropertiesForTheming = (
             case TextSizes.HEADING2:
               schemaItem.labelTextSize = "1.125rem";
               addPropertyToDynamicPropertyPathList(
-                `schema.${ROOT_SCHEMA_KEY}.children.${schemaItem.identifier}.labelTextSize`,
+                `${propertyPath}.labelTextSize`,
                 child,
               );
               break;
             case TextSizes.HEADING1:
               schemaItem.labelTextSize = "1.5rem";
               addPropertyToDynamicPropertyPathList(
-                `schema.${ROOT_SCHEMA_KEY}.children.${schemaItem.identifier}.labelTextSize`,
+                `${propertyPath}.labelTextSize`,
                 child,
               );
               break;
@@ -1945,17 +1948,16 @@ export const migrateStylingPropertiesForTheming = (
           !has(schemaItem, "cellBorderRadius") &&
             set(schemaItem, "cellBorderRadius", "0px");
 
-          !has(schemaItem, "primaryColor") &&
-            set(schemaItem, "primaryColor", "{{appsmith.theme.primaryColor}}"); //Check if this property is needed for all the children widgets
-          !has(schemaItem, "checkColor") &&
-            set(schemaItem, "checkColor", Colors.GREEN);
-
           //Sets the default value for the boxShadow
           !has(schemaItem, "boxShadow") && set(schemaItem, "boxShadow", "none");
 
           //Sets the default value for the boxShadow property of Item styles inside an array:
           !has(schemaItem, "cellBoxShadow") &&
             set(schemaItem, "cellBoxShadow", "none");
+
+          //Sets default value as green for the accentColor(Most of the widgets require the below property):
+          !has(schemaItem, "accentColor") &&
+            set(schemaItem, "accentColor", Colors.GREEN);
         },
       );
 
