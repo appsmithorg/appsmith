@@ -22,6 +22,7 @@ import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import { LabelPosition } from "components/constants";
 import SelectButton from "./SelectButton";
 import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import { labelMargin } from "../../WidgetUtils";
 
 const FUSE_OPTIONS = {
   shouldSort: true,
@@ -218,18 +219,16 @@ class SelectComponent extends React.Component<
 
   getDropdownWidth = () => {
     const parentWidth = this.props.width - WidgetContainerDiff;
-    const dropDownWidth =
-      parentWidth > this.props.dropDownWidth
-        ? parentWidth
-        : this.props.dropDownWidth;
     if (this.props.compactMode && this.labelRef.current) {
-      const labelWidth = this.labelRef.current.clientWidth;
-      const widthDiff = dropDownWidth - labelWidth;
+      const labelWidth = this.labelRef.current.getBoundingClientRect().width;
+      const widthDiff = parentWidth - labelWidth - labelMargin;
       return widthDiff > this.props.dropDownWidth
         ? widthDiff
         : this.props.dropDownWidth;
     }
-    return dropDownWidth;
+    return parentWidth > this.props.dropDownWidth
+      ? parentWidth
+      : this.props.dropDownWidth;
   };
 
   render() {
