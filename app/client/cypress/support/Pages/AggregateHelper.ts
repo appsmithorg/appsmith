@@ -465,9 +465,9 @@ export class AggregateHelper {
 
     }
 
-    public AssertElementAbsence(selector: string, index = 0) {
+    public AssertElementAbsence(selector: string) {
         let locator = selector.startsWith("//") ? cy.xpath(selector) : cy.get(selector)
-        locator.eq(index).should('not.exist')
+        locator.should('not.exist')
     }
 
     public AssertElementPresence(selector: string, index = 0) {
