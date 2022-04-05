@@ -205,6 +205,13 @@ class CurrencyInputWidget extends BaseInputWidget<
     ) {
       this.formatText();
     }
+    // If defaultText property has changed, reset isDirty to false
+    if (
+      this.props.defaultText !== prevProps.defaultText &&
+      this.props.isDirty
+    ) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
   }
 
   formatText() {
@@ -304,6 +311,10 @@ class CurrencyInputWidget extends BaseInputWidget<
       this.props.decimals,
       String(value),
     );
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     this.props.updateWidgetMetaProperty("text", String(formattedValue), {
       triggerPropertyName: "onTextChanged",
       dynamicString: this.props.onTextChanged,

@@ -277,6 +277,8 @@ class RichTextEditorWidget extends BaseWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       text: undefined,
+      shouldReset: false,
+      isDirty: false,
     };
   }
 
@@ -293,7 +295,30 @@ class RichTextEditorWidget extends BaseWidget<
     };
   }
 
+  componentDidMount(): void {
+    if (this.props.defaultText) {
+      this.props.updateWidgetMetaProperty("shouldReset", true);
+    }
+  }
+
+  componentDidUpdate(prevProps: RichTextEditorWidgetProps): void {
+    if (this.props.defaultText !== prevProps.defaultText) {
+      if (this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", false);
+      }
+      if (this.props.defaultText) {
+        this.props.updateWidgetMetaProperty("shouldReset", true);
+      }
+    }
+  }
+
   onValueChange = (text: string) => {
+    if (this.props.shouldReset) {
+      this.props.updateWidgetMetaProperty("shouldReset", false);
+    } else if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     this.props.updateWidgetMetaProperty("text", text, {
       triggerPropertyName: "onTextChange",
       dynamicString: this.props.onTextChange,
@@ -364,6 +389,7 @@ export interface RichTextEditorWidgetProps extends WidgetProps {
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
+  isDirty: boolean;
 }
 
 export default RichTextEditorWidget;

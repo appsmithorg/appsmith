@@ -311,6 +311,7 @@ export const entityDefinitions: Record<string, unknown> = {
     "!url": "https://docs.appsmith.com/widget-reference/form",
     isVisible: isVisible,
     data: generateTypeDef(widget.data),
+    hasChanges: "bool",
   }),
   FORM_BUTTON_WIDGET: {
     "!doc":

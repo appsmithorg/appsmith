@@ -1,5 +1,6 @@
 import React from "react";
 import { Alignment } from "@blueprintjs/core";
+import { xor } from "lodash";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -325,6 +326,7 @@ class SwitchGroupWidget extends BaseWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedValuesArray: undefined,
+      isDirty: false,
     };
   }
 
@@ -343,6 +345,22 @@ class SwitchGroupWidget extends BaseWidget<
     return "SWITCH_GROUP_WIDGET";
   }
 
+  componentDidUpdate(prevProps: SwitchGroupWidgetProps): void {
+    if (
+      xor(this.props.defaultSelectedValues, prevProps.defaultSelectedValues)
+        .length > 0
+    ) {
+      if (this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", false);
+      }
+
+      this.props.updateWidgetMetaProperty(
+        "selectedValuesArray",
+        this.props.defaultSelectedValues,
+      );
+    }
+  }
+
   getPageView() {
     const {
       alignment,
@@ -357,9 +375,7 @@ class SwitchGroupWidget extends BaseWidget<
       labelText,
       labelTextColor,
       labelTextSize,
-      labelWidth,
       options,
-      parentColumnSpace,
       selectedValues,
       topRow,
       widgetId,
@@ -380,7 +396,7 @@ class SwitchGroupWidget extends BaseWidget<
         labelText={labelText}
         labelTextColor={labelTextColor}
         labelTextSize={labelTextSize}
-        labelWidth={(Number(labelWidth) || 0) * parentColumnSpace}
+        labelWidth={this.getLabelWidth()}
         onChange={this.handleSwitchStateChange}
         options={options}
         required={isRequired}
@@ -403,6 +419,10 @@ class SwitchGroupWidget extends BaseWidget<
         );
       }
 
+      if (!this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", true);
+      }
+
       this.props.updateWidgetMetaProperty(
         "selectedValuesArray",
         selectedValuesArray,
@@ -421,6 +441,7 @@ class SwitchGroupWidget extends BaseWidget<
 export interface SwitchGroupWidgetProps extends WidgetProps {
   options: OptionProps[];
   defaultSelectedValues: string[];
+  selectedValuesArray: string[];
   isInline: boolean;
   isRequired: boolean;
   isValid: boolean;

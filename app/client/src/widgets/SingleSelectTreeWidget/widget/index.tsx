@@ -382,7 +382,17 @@ class SingleSelectTreeWidget extends BaseWidget<
       selectedOption: undefined,
       selectedOptionValueArr: undefined,
       selectedLabel: [],
+      isDirty: false,
     };
+  }
+
+  componentDidUpdate(prevProps: SingleSelectTreeWidgetProps): void {
+    if (
+      this.props.defaultOptionValue !== prevProps.defaultOptionValue &&
+      this.props.isDirty
+    ) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
   }
 
   getPageView() {
@@ -438,6 +448,10 @@ class SingleSelectTreeWidget extends BaseWidget<
   }
 
   onOptionChange = (value?: DefaultValueType, labelList?: ReactNode[]) => {
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     this.props.updateWidgetMetaProperty("selectedOption", value);
     this.props.updateWidgetMetaProperty("selectedLabel", labelList, {
       triggerPropertyName: "onOptionChange",

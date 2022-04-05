@@ -13,7 +13,14 @@ import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { findIndex, isArray, isNumber, isString, LoDashStatic } from "lodash";
+import {
+  findIndex,
+  isArray,
+  isEqual,
+  isNumber,
+  isString,
+  LoDashStatic,
+} from "lodash";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -398,6 +405,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       value: undefined,
       label: undefined,
       filterText: "",
+      isDirty: false,
     };
   }
 
@@ -412,6 +420,16 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   componentDidMount() {
     super.componentDidMount();
     this.changeSelectedOption();
+  }
+
+  componentDidUpdate(prevProps: SelectWidgetProps): void {
+    // Reset isDirty to false if defaultOptionValue changes
+    if (
+      !isEqual(this.props.defaultOptionValue, prevProps.defaultOptionValue) &&
+      this.props.isDirty
+    ) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
   }
 
   isStringOrNumber = (value: any): value is string | number =>
@@ -474,6 +492,10 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       isChanged = !(this.props.selectedOptionValue === selectedOption.value);
     }
     if (isChanged) {
+      if (!this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", true);
+      }
+
       this.props.updateWidgetMetaProperty("label", selectedOption.label ?? "");
 
       this.props.updateWidgetMetaProperty("value", selectedOption.value ?? "", {
