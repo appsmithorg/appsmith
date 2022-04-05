@@ -368,9 +368,6 @@ export default class DataTreeEvaluator {
     this.oldUnEvalTree = clone(localUnEvalTree);
     this.evalTree = newEvalTree;
 
-    this.logs.push({
-      newOld: this.oldUnEvalTree,
-    });
     const timeTakenForSubTreeEval = {
       total: (totalEnd - totalStart).toFixed(2),
       findDifferences: (diffCheckTimeStop - diffCheckTimeStart).toFixed(2),
