@@ -3,7 +3,6 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tableWidgetDsl.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 
 describe("Table Widget Functionality", function() {
   before(() => {
@@ -216,39 +215,6 @@ describe("Table Widget Functionality", function() {
       cy.get(publish.canvas)
         .first()
         .click({ force: true });
-    });
-  });
-
-  it("Table Widget Functionality To Search The Data", function() {
-    cy.isSelectRow(1);
-    cy.readTabledataPublish("1", "3").then((tabData) => {
-      const tabValue = tabData;
-      expect(tabValue).to.be.equal("Lindsay Ferguson");
-      cy.log("the value is" + tabValue);
-      cy.get(publish.searchInput)
-        .first()
-        .type(tabData);
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(500);
-      cy.readTabledataPublish("1", "3").then((tabData) => {
-        const tabValue = tabData;
-        expect(tabValue).to.be.equal("Lindsay Ferguson");
-      });
-      cy.get(publish.downloadBtn).click({ force: true });
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(5000);
-      cy.get(publish.searchInput)
-        .first()
-        .within(() => {
-          return cy.get("input").clear();
-        })
-        .type("7434532");
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(1000);
-      cy.readTabledataPublish("3", "3").then((tabData) => {
-        const tabValue = tabData;
-        expect(tabValue).to.be.equal("Byron Fields");
-      });
     });
   });
 

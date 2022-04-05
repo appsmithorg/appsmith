@@ -15,7 +15,7 @@ describe("Table Widget Filter Functionality", function() {
     cy.wait("@updateLayout");
   });
 
-  it("2. Table Widget Functionality To validate download csv and download Excel", function() {
+  it("2. Table Widget Search Functionality & Validate download csv and download Excel", function() {
     //cy.isSelectRow(1);
     cy.readTabledataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;

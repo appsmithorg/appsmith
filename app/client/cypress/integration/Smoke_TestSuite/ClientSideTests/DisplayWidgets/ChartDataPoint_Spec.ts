@@ -30,7 +30,7 @@ describe("Input widget test with default value from chart datapoint", () => {
         jsEditor.EnterJSContext("defaulttext", dataSet.bindingSeriesTitle + "}}");
         agHelper.DeployApp()
         agHelper.Sleep(1500)//waiting for chart to load!
-        agHelper.XpathNClick("(//*[local-name()='rect'])[13]")
+        agHelper.GetNClick("(//*[local-name()='rect'])[13]")
         cy.get(locator._inputWidgetInDeployed).first().invoke('val').then($value => {
             let inputVal = ($value as string).replace(/\s/g, "")//removing space here
             //cy.get(locator._toastMsg).invoke('text').then(toastTxt => expect(toastTxt.trim()).to.eq(inputVal))

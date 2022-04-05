@@ -317,15 +317,9 @@ export class AggregateHelper {
         })
     }
 
-    public XpathNClick(selector: string, index = 0) {
-        return cy.xpath(selector)
-            .eq(index)
-            .click({ force: true });
-        this.Sleep(500)
-    }
-
     public GetNClick(selector: string, index = 0) {
-        return cy.get(selector).eq(index).click({ force: true });
+        let locator = selector.startsWith("//") ? cy.xpath(selector) : cy.get(selector)
+        return locator.eq(index).click({ force: true }).wait(500);
     }
 
     public ToggleOnOrOff(propertyName: string, toggle: 'On' | 'Off') {
@@ -471,25 +465,19 @@ export class AggregateHelper {
 
     }
 
-    public AssertElementAbsence(selector: string) {
-        if (selector.startsWith("//"))
-            cy.xpath(selector).should('not.exist')
-        else
-            cy.get(selector).should('not.exist')
+    public AssertElementAbsence(selector: string, index = 0) {
+        let locator = selector.startsWith("//") ? cy.xpath(selector) : cy.get(selector)
+        locator.eq(index).should('not.exist')
     }
 
-    public AssertElementPresence(selector: string) {
-        if (selector.startsWith("//"))
-            cy.xpath(selector).should('be.visible')
-        else
-            cy.get(selector).should('be.visible')
+    public AssertElementPresence(selector: string, index = 0) {
+        let locator = selector.startsWith("//") ? cy.xpath(selector) : cy.get(selector)
+        locator.eq(index).should('be.visible')
     }
 
-    public AssertElementLength(selector: string, length: number) {
-        if (selector.startsWith("//"))
-            cy.xpath(selector).should("have.length", length)
-        else
-            cy.get(selector).should("have.length", length);
+    public AssertElementLength(selector: string, length: number, index = 0) {
+        let locator = selector.startsWith("//") ? cy.xpath(selector) : cy.get(selector)
+        locator.eq(index).should("have.length", length)
     }
 
     //Not used:
