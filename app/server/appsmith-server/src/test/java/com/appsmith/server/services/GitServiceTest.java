@@ -1702,7 +1702,7 @@ public class GitServiceTest {
         StepVerifier
                 .create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().equals(AppsmithError.GIT_ACTION_FAILED.getMessage("checkout", "origin/branchInLocal already exists in remote")))
+                        && throwable.getMessage().equals(AppsmithError.GIT_ACTION_FAILED.getMessage("checkout", "origin/branchInLocal already exists in local - branchInLocal")))
                 .verify();
     }
 
@@ -1838,6 +1838,7 @@ public class GitServiceTest {
                     assertThat(commitMsg).contains("pushed successfully");
                     assertThat(application.getClientSchemaVersion()).isEqualTo(JsonSchemaVersions.clientVersion);
                     assertThat(application.getServerSchemaVersion()).isEqualTo(JsonSchemaVersions.serverVersion);
+                    assertThat(application.getIsManualUpdate()).isFalse();
                 })
                 .verifyComplete();
     }
@@ -2485,7 +2486,7 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfSameTypeCancelledMidway_Success() throws GitAPIException, IOException {
+    public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfSameTypeCancelledMidway_Success() {
         Organization organization = new Organization();
         organization.setName("gitImportOrgCancelledMidway");
         final String testOrgId = organizationService.create(organization)
@@ -2496,6 +2497,7 @@ public class GitServiceTest {
         GitAuth gitAuth = gitService.generateSSHKey().block();
 
         ApplicationJson applicationJson =  createAppJson(filePath).block();
+        applicationJson.getExportedApplication().setName(null);
         applicationJson.getDatasourceList().get(0).setName("db-auth-testGitImportRepo");
 
         String pluginId = pluginRepository.findByPackageName("mongo-plugin").block().getId();
@@ -2520,7 +2522,7 @@ public class GitServiceTest {
 
         // Wait for git clone to complete
         Mono<Application> gitConnectedAppFromDbMono = Mono.just(testOrgId)
-                .flatMap(application -> {
+                .flatMap(ignore -> {
                     try {
                         // Before fetching the git connected application, sleep for 5 seconds to ensure that the clone
                         // completes

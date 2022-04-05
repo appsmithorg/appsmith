@@ -3,7 +3,11 @@ import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
 import { Org } from "./orgConstants";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
-import { GitApplicationMetadata } from "api/ApplicationApi";
+import {
+  ApplicationPagePayload,
+  GitApplicationMetadata,
+} from "api/ApplicationApi";
+import { ApplicationVersion } from "actions/applicationActions";
 
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
@@ -679,13 +683,15 @@ export const ReduxActionTypes = {
   SET_TEMPLATE_NOTIFICATION_SEEN: "SET_TEMPLATE_NOTIFICATION_SEEN",
   GET_TEMPLATE_NOTIFICATION_SEEN: "GET_TEMPLATE_NOTIFICATION_SEEN",
   GET_SIMILAR_TEMPLATES_INIT: "GET_SIMILAR_TEMPLATES_INIT",
-  GET_SIMILAR_TEMPLATES_SUCCESS: "GET_SIMILAR_TEMPLATES_SUCCESS",
-  /* This action constants is for identifying the status of the updates of the entities */
+  GET_SIMILAR_TEMPLATES_SUCCESS:
+    "GET_SIMILAR_TEMPLATES_SUCCESS" /* This action constants is for identifying the status of the updates of the entities */,
   ENTITY_UPDATE_STARTED: "ENTITY_UPDATE_STARTED",
   ENTITY_UPDATE_SUCCESS: "ENTITY_UPDATE_SUCCESS",
   FETCH_PLUGIN_AND_JS_ACTIONS_SUCCESS: "FETCH_PLUGIN_AND_JS_ACTIONS_SUCCESS",
   GET_DEFAULT_PLUGINS_REQUEST: "GET_DEFAULT_PLUGINS_REQUEST",
   GET_DEFAULT_PLUGINS_SUCCESS: "GET_DEFAULT_PLUGINS_SUCCESS",
+  GET_TEMPLATE_INIT: "GET_TEMPLATES_INIT",
+  GET_TEMPLATE_SUCCESS: "GET_TEMPLATES_SUCCESS",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
@@ -853,6 +859,7 @@ export const ReduxActionErrorTypes = {
   IMPORT_TEMPLATE_TO_ORGANISATION_ERROR:
     "IMPORT_TEMPLATE_TO_ORGANISATION_ERROR",
   GET_DEFAULT_PLUGINS_ERROR: "GET_DEFAULT_PLUGINS_ERROR",
+  GET_TEMPLATE_ERROR: "GET_TEMPLATE_ERROR",
 };
 
 export const ReduxFormActionTypes = {
@@ -918,6 +925,7 @@ export interface PromisePayload {
   reject: any;
   resolve: any;
 }
+
 export interface ReduxActionWithPromise<T> extends ReduxAction<T> {
   payload: T & PromisePayload;
 }
@@ -950,6 +958,7 @@ export interface Page {
   isDefault: boolean;
   latest?: boolean;
   isHidden?: boolean;
+  slug?: string;
 }
 
 export interface ClonePageSuccessPayload {
@@ -967,10 +976,11 @@ export interface ApplicationPayload {
   color?: string;
   icon?: string;
   organizationId: string;
-  defaultPageId?: string;
+  defaultPageId: string;
   isPublic?: boolean;
   userPermissions?: string[];
   appIsExample: boolean;
+  slug?: string;
   forkingEnabled?: boolean;
   appLayout?: AppLayoutConfig;
   gitApplicationMetadata?: GitApplicationMetadata;
@@ -978,6 +988,10 @@ export interface ApplicationPayload {
   applicationId?: string;
   modifiedBy?: string;
   modifiedAt?: string;
+  pages: ApplicationPagePayload[];
+  applicationVersion: ApplicationVersion;
+  isAutoUpdate?: boolean;
+  isManualUpdate?: boolean;
 }
 
 export type OrganizationDetails = {
@@ -992,9 +1006,3 @@ export interface LoadWidgetEditorPayload {
 export interface LoadWidgetSidebarPayload {
   cards: { [id: string]: WidgetCardProps[] };
 }
-
-export type InitializeEditorPayload = {
-  applicationId: string;
-  pageId: string;
-  branch?: string;
-};

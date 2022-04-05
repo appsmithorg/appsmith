@@ -3,11 +3,7 @@ import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 import { getFormValues } from "redux-form";
 import styled from "styled-components";
-import {
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-  QueryEditorRouteParams,
-} from "constants/routes";
+import { INTEGRATION_TABS, QueryEditorRouteParams } from "constants/routes";
 import history from "utils/history";
 import QueryEditorForm from "./Form";
 import { deleteAction, runAction } from "actions/pluginActionActions";
@@ -43,6 +39,7 @@ import {
 import { getUIComponent } from "./helpers";
 import { diff } from "deep-diff";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
+import { integrationEditorURL } from "RouteBuilder";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -170,7 +167,6 @@ class QueryEditor extends React.Component<Props> {
 
   render() {
     const {
-      applicationId,
       dataSources,
       editorConfig,
       isCreating,
@@ -193,7 +189,10 @@ class QueryEditor extends React.Component<Props> {
     // custom function to return user to integrations page if action is not found
     const goToDatasourcePage = () =>
       history.push(
-        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+        integrationEditorURL({
+          pageId,
+          selectedTab: INTEGRATION_TABS.ACTIVE,
+        }),
       );
 
     // if the action can not be found, generate a entity not found page
@@ -223,7 +222,10 @@ class QueryEditor extends React.Component<Props> {
 
     const onCreateDatasourceClick = () => {
       history.push(
-        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+        integrationEditorURL({
+          pageId,
+          selectedTab: INTEGRATION_TABS.NEW,
+        }),
       );
     };
     return (

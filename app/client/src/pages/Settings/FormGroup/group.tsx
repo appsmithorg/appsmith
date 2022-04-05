@@ -54,23 +54,24 @@ const GroupBody = styled.div`
   }
   & .tag-input {
     .t--admin-settings-tag-input {
-      label {
-        + div {
-          margin: 0;
-        }
-      }
-      .${Classes.TAG_INPUT}, .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
-        border: 1.2px solid ${Colors.ALTO2};
-        box-shadow: none;
-        .bp3-tag {
-          background: #f8f8f8;
-          color: #000;
-          svg:hover {
-            cursor: pointer;
-            path {
-              fill: currentColor;
+      > div {
+        margin: 0;
+        .${Classes.TAG_INPUT}, .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
+          border: 1.2px solid var(--appsmith-color-black-250);
+          box-shadow: none;
+          .bp3-tag {
+            background: var(--appsmith-color-black-50);
+            color: ${Colors.BLACK};
+            svg:hover {
+              cursor: pointer;
+              path {
+                fill: currentColor;
+              }
             }
           }
+        }
+        .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
+          border: 1.2px solid var(--appsmith-input-focus-border-color);
         }
       }
     }
@@ -178,7 +179,7 @@ export default function Group({
                 return (
                   <div
                     className={setting.isHidden ? "hide" : ""}
-                    data-testid="admin-settings-redirect-url"
+                    data-testid="admin-settings-uneditable-field"
                     key={setting.name || setting.id}
                   >
                     <RedirectUrlReduxForm

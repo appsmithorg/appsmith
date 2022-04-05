@@ -61,10 +61,13 @@ const checkPathsInConfig = (
   };
 };
 
+// "originalWidget" param here always contains the complete widget props
+// as this function's widget parameter tends to change in each iteration
 const childHasPanelConfig = (
   config: any,
   widget: WidgetProps,
   basePath: string,
+  originalWidget: WidgetProps,
 ) => {
   const panelPropertyPath = config.propertyName;
   const widgetPanelPropertyValues = get(widget, panelPropertyPath);
@@ -76,22 +79,25 @@ const childHasPanelConfig = (
   if (widgetPanelPropertyValues) {
     Object.values(widgetPanelPropertyValues).forEach(
       (widgetPanelPropertyValue: any) => {
+        const { panelIdPropertyName } = config.panelConfig;
+        const propertyPath = `${basePath}.${widgetPanelPropertyValue[panelIdPropertyName]}`;
+
         config.panelConfig.children.forEach((panelColumnConfig: any) => {
           let isSectionHidden = false;
           if ("hidden" in panelColumnConfig) {
             isSectionHidden = panelColumnConfig.hidden(
-              widget,
-              `${basePath}.${widgetPanelPropertyValue.id}`,
+              originalWidget,
+              propertyPath,
             );
           }
           if (!isSectionHidden) {
             panelColumnConfig.children.forEach(
               (panelColumnControlConfig: any) => {
-                const panelPropertyConfigPath = `${basePath}.${widgetPanelPropertyValue.id}.${panelColumnControlConfig.propertyName}`;
+                const panelPropertyConfigPath = `${propertyPath}.${panelColumnControlConfig.propertyName}`;
                 let isControlHidden = false;
                 if ("hidden" in panelColumnControlConfig) {
                   isControlHidden = panelColumnControlConfig.hidden(
-                    widget,
+                    originalWidget,
                     panelPropertyConfigPath,
                   );
                 }
@@ -129,6 +135,7 @@ const childHasPanelConfig = (
                       panelColumnControlConfig,
                       widgetPanelPropertyValue,
                       panelPropertyConfigPath,
+                      originalWidget,
                     );
                     bindingPaths = {
                       ...panelBindingPaths,
@@ -173,6 +180,7 @@ export const getAllPathsFromPropertyConfig = (
   });
   let triggerPaths: Record<string, true> = {};
   let validationPaths: Record<any, ValidationConfig> = {};
+
   widgetConfig.forEach((config) => {
     if (config.children) {
       config.children.forEach((controlConfig: any) => {
@@ -207,6 +215,7 @@ export const getAllPathsFromPropertyConfig = (
             controlConfig,
             widget,
             basePath,
+            widget,
           );
           bindingPaths = {
             ...bindingPaths,
