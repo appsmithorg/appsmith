@@ -8,12 +8,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.Map;
 
 public class GetStructureMethodTest {
 
     @Test
-    public void testTransformResponse_missingJSON_throwsException() {
+    public void testTransformExecutionResponse_missingJSON_throwsException() {
         ObjectMapper objectMapper = new ObjectMapper();
 
         GetStructureMethod getStructureMethod = new GetStructureMethod(objectMapper);
@@ -26,7 +27,7 @@ public class GetStructureMethodTest {
     }
 
     @Test
-    public void testTransformResponse_missingValues_returnsEmpty() throws JsonProcessingException {
+    public void testTransformExecutionResponse_missingValues_returnsEmpty() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
         final String jsonString = "{\"valueRanges\":[{}]}";
@@ -44,7 +45,7 @@ public class GetStructureMethodTest {
     }
 
     @Test
-    public void testTransformResponse_HeadersOnly_returnsValue() throws JsonProcessingException {
+    public void testTransformExecutionResponse_HeadersOnly_returnsValue() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
         final String jsonString = "{\"valueRanges\":[" +
@@ -66,7 +67,7 @@ public class GetStructureMethodTest {
     }
 
     @Test
-    public void testTransformResponse_emptyStartingRows_toListOfObjects() throws JsonProcessingException {
+    public void testTransformExecutionResponse_emptyStartingRows_toListOfObjects() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
         final String jsonString = "{\"valueRanges\":[" +
@@ -93,7 +94,7 @@ public class GetStructureMethodTest {
     }
 
     @Test
-    public void testTransformResponse_emptyRows_returnsIndices() throws JsonProcessingException {
+    public void testTransformExecutionResponse_emptyRows_returnsIndices() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
         final String jsonString = "{\"valueRanges\":[" +
@@ -119,7 +120,7 @@ public class GetStructureMethodTest {
     }
 
     @Test
-    public void testTransformResponse_fetchNonEmptyRows() throws JsonProcessingException {
+    public void testTransformExecutionResponse_fetchNonEmptyRows() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
         final String jsonString = "{\"valueRanges\":[" +
@@ -145,7 +146,7 @@ public class GetStructureMethodTest {
 
 
     @Test
-    public void testTransformResponse_VerifyEndResult() throws JsonProcessingException {
+    public void testTransformExecutionResponse_VerifyEndResult() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
 
         final String jsonString = "{\"valueRanges\":[" +
@@ -166,6 +167,36 @@ public class GetStructureMethodTest {
 
         Assert.assertNotNull(result);
         Assert.assertEquals(result.toString(), "[{\"Name\":\"Luke\",\"Actor\":\"Make\",\"Music\":\"Duke\",\"Director\":\"Cake\",\"rowIndex\":\"0\"}]");
+
+    }
+
+    @Test
+    public void testTransformTriggerResponse_withValidHeaders_returnsDropdownOptions() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        final String jsonString = "{\"valueRanges\":[" +
+                "{\"range\":\"Sheet1!A1:D1\"," +
+                "\"majorDimension\":\"ROWS\"," +
+                "\"values\":[[\"Name\",\"Actor\",\"Music\",\"Director\"]]}," +
+                "{\"range\":\"Sheet1!A2:D2\"," +
+                "\"majorDimension\":\"ROWS\"," +
+                "\"values\":[[\"Luke\",\"Make\",\"Duke\",\"Cake\"]]}" +
+                "]}";
+
+        JsonNode jsonNode = objectMapper.readTree(jsonString);
+        Assert.assertNotNull(jsonNode);
+
+        TriggerMethod getStructureMethod = new GetStructureMethod(objectMapper);
+        JsonNode result = getStructureMethod.transformTriggerResponse(jsonNode, new MethodConfig(Map.of()));
+
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result.isArray());
+        final List<Map<String, String>> expectedColumnsList = List.of(
+                Map.of("label", "Name", "value", "Name"),
+                Map.of("label", "Actor", "value", "Actor"),
+                Map.of("label", "Music", "value", "Music"),
+                Map.of("label", "Director", "value", "Director"));
+        Assert.assertEquals(objectMapper.valueToTree(expectedColumnsList), result);
 
     }
 

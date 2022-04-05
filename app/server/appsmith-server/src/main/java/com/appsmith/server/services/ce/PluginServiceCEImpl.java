@@ -78,7 +78,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     private static final String UQI_QUERY_EDITOR_BASE_FOLDER = "editor";
     private static final String UQI_QUERY_EDITOR_ROOT_FILE = "root.json";
-    private static final String BASE_GOOGLE_SHEETS_UQI_URL = "https://testbucketforappsmithinternaltesting.s3.ap-south-1.amazonaws.com/uqi/google-sheets-plugin/";
+    private static final String BASE_UQI_URL = "https://raw.githubusercontent.com/appsmithorg/uqi-configurations/master/";
 
     private static final String KEY_EDITOR = "editor";
     private static final String KEY_CONFIG_PROPERTY = "configProperty";
@@ -547,8 +547,13 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     InputStream getConfigInputStream(Plugin plugin, String fileName) throws IOException {
         String resourcePath = UQI_QUERY_EDITOR_BASE_FOLDER + "/" + fileName;
-        if ("google-sheets-plugin".equals(plugin.getPackageName())) {
-            return new URL(BASE_GOOGLE_SHEETS_UQI_URL + fileName).openStream();
+        if (Set.of(
+                "google-sheets-plugin",
+                "mongo-plugin",
+                "amazons3-plugin",
+                "firestore-plugin"
+        ).contains(plugin.getPackageName())) {
+            return new URL(BASE_UQI_URL + plugin.getPackageName() + "/editor/" + fileName).openStream();
         }
         return pluginManager
                 .getPlugin(plugin.getPackageName())

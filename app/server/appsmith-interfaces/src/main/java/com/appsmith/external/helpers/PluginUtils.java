@@ -37,7 +37,7 @@ import static com.appsmith.external.constants.CommonFieldName.VALUE;
 @Slf4j
 public class PluginUtils {
 
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     public static final TypeReference<String> STRING_TYPE = new TypeReference<>() {
         @Override
         public Type getType() {
@@ -105,6 +105,10 @@ public class PluginUtils {
 
     public static Boolean validConfigurationPresentInFormData(Map<String, Object> formData, String field) {
         return getValueSafelyFromFormData(formData, field) != null;
+    }
+
+    public static <T> Boolean validDataConfigurationPresentInFormData(Map<String, Object> formData, String field, TypeReference<T> type) {
+        return getDataValueSafelyFromFormData(formData, field, type) != null;
     }
 
     private static <T> T getDataValueAsTypeFromFormData(Map<String, Object> formDataValueMap, TypeReference<T> type) {

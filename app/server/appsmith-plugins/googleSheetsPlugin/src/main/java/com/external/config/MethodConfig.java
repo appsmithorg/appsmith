@@ -20,8 +20,11 @@ import java.util.regex.Pattern;
 
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.parseWhereClause;
-import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
+import static com.appsmith.external.helpers.PluginUtils.validDataConfigurationPresentInFormData;
+import static com.external.constants.FieldName.SHEET_NAME;
+import static com.external.constants.FieldName.SHEET_URL;
 
 @Getter
 @Setter
@@ -49,8 +52,8 @@ public class MethodConfig {
 
     public MethodConfig(Map<String, Object> formData) {
 
-        if (validConfigurationPresentInFormData(formData, FieldName.SHEET_URL)) {
-            this.spreadsheetUrl = getDataValueSafelyFromFormData(formData, FieldName.SHEET_URL, STRING_TYPE, "");
+        if (validDataConfigurationPresentInFormData(formData, SHEET_URL, STRING_TYPE)) {
+            this.spreadsheetUrl = getDataValueSafelyFromFormData(formData, SHEET_URL, STRING_TYPE, "");
             setSpreadsheetUrlFromSpreadsheetId();
 
         }
@@ -59,11 +62,12 @@ public class MethodConfig {
         this.tableHeaderIndex = getDataValueSafelyFromFormData(formData, FieldName.TABLE_HEADER_INDEX, STRING_TYPE);
         this.queryFormat = getDataValueSafelyFromFormData(formData, FieldName.QUERY_FORMAT, STRING_TYPE);
         this.rowIndex = getDataValueSafelyFromFormData(formData, FieldName.ROW_INDEX, STRING_TYPE);
-        this.sheetName = getDataValueSafelyFromFormData(formData, FieldName.SHEET_NAME, STRING_TYPE);
+        this.sheetName = getDataValueSafelyFromFormData(formData, SHEET_NAME, STRING_TYPE);
         this.deleteFormat = getDataValueSafelyFromFormData(formData, FieldName.DELETE_FORMAT, STRING_TYPE);
         this.rowObjects = getDataValueSafelyFromFormData(formData, FieldName.ROW_OBJECTS, STRING_TYPE);
 
-        if (validConfigurationPresentInFormData(formData, FieldName.WHERE)) {
+        if (validDataConfigurationPresentInFormData(formData, FieldName.WHERE, new TypeReference<Map<String, Object>>() {
+        })) {
             Map<String, Object> whereForm = getDataValueSafelyFromFormData(
                     formData,
                     FieldName.WHERE,
@@ -91,12 +95,12 @@ public class MethodConfig {
     }
 
     public MethodConfig(TriggerRequestDTO triggerRequestDTO) {
-        final List<String> parameters = triggerRequestDTO.getParameters();
+        final Map<String, Object> parameters = triggerRequestDTO.getParameters();
         switch (parameters.size()) {
             case 2:
-                this.sheetName = parameters.get(1);
+                this.sheetName = (String) getValueSafelyFromFormData(parameters, SHEET_NAME);
             case 1:
-                this.spreadsheetUrl = parameters.get(0);
+                this.spreadsheetUrl = (String) getValueSafelyFromFormData(parameters, SHEET_URL);
                 setSpreadsheetUrlFromSpreadsheetId();
         }
     }

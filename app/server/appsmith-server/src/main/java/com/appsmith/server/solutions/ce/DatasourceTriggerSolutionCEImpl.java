@@ -17,12 +17,9 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -32,7 +29,6 @@ import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.constants.FieldName.DISPLAY_TYPE;
-import static com.appsmith.server.constants.FieldName.PARAMETERS;
 import static com.appsmith.server.constants.FieldName.REQUEST_TYPE;
 
 @RequiredArgsConstructor
@@ -46,7 +42,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
     private final AuthenticationValidator authenticationValidator;
     private final DatasourceContextService datasourceContextService;
 
-    public Mono<TriggerResultDTO> trigger(String datasourceId, MultiValueMap<String, Object> params) {
+    public Mono<TriggerResultDTO> trigger(String datasourceId, TriggerRequestDTO triggerRequestDTO) {
 
         Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId, READ_DATASOURCES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "datasourceId")))
@@ -60,36 +56,19 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                 .flatMap(plugin -> pluginExecutorHelper.getPluginExecutor(Mono.just(plugin)))
                 .cache();
 
-        Object requestTypeObject = params.getFirst(REQUEST_TYPE);
-        Object parametersObject = params.getFirst(PARAMETERS);
-        Object displayTypeObject = params.getFirst(DISPLAY_TYPE);
-
-        if (requestTypeObject == null) {
+        if (triggerRequestDTO.getRequestType() == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, REQUEST_TYPE));
         }
 
-        List<String> parameters;
-        if (parametersObject == null || StringUtils.isBlank((CharSequence) parametersObject)) {
-            parameters = new ArrayList<>();
-        } else {
-            parameters = new ArrayList<>(Arrays.asList(((String) parametersObject).split(",")));
+        if (triggerRequestDTO.getParameters() == null) {
+            triggerRequestDTO.setParameters(new HashMap<>());
         }
 
-        ClientDataDisplayType displayType;
-        if (displayTypeObject == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, DISPLAY_TYPE));
-        }
-        try {
-            displayType = ClientDataDisplayType.valueOf((String) displayTypeObject);
-        } catch (IllegalArgumentException e) {
+        final ClientDataDisplayType displayType = triggerRequestDTO.getDisplayType();
+        if (displayType == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, DISPLAY_TYPE));
         }
 
-        TriggerRequestDTO request = new TriggerRequestDTO(
-                (String) requestTypeObject,
-                parameters,
-                displayType
-        );
 
         Mono<Datasource> validatedDatasourceMono = datasourceMono
                 .flatMap(authenticationValidator::validateAuthentication)
@@ -118,7 +97,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                                         return (Mono<TriggerResultDTO>) pluginExecutor.trigger(
                                                 resourceContext.getConnection(),
                                                 datasource1.getDatasourceConfiguration(),
-                                                request
+                                                triggerRequestDTO
                                         );
                                     })
                             );
@@ -126,7 +105,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
 
         // If the plugin hasn't, go for the default implementation
         Mono<TriggerResultDTO> defaultResultMono = datasourceMono
-                .flatMap(datasource -> entitySelectorTriggerSolution(datasource, request))
+                .flatMap(datasource -> entitySelectorTriggerSolution(datasource, triggerRequestDTO))
                 .map(entityNames -> {
                     List<Object> result = new ArrayList<>();
 
@@ -152,7 +131,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
             return Mono.just(new HashSet<>());
         }
 
-        List<String> parameters = request.getParameters();
+        final Map<String, Object> parameters = request.getParameters();
         Mono<DatasourceStructure> structureMono = datasourceStructureSolution.getStructure(datasource, false);
 
         return structureMono
@@ -169,7 +148,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
 
                         } else if (parameters.size() == 1) {
                             // Given a table name, return all the columns
-                            String tableName = (String) parameters.get(0);
+                            String tableName = (String) parameters.get("tableName");
                             Optional<DatasourceStructure.Table> tableNamePresent = tables
                                     .stream()
                                     .filter(table -> table.getName().equals(tableName))

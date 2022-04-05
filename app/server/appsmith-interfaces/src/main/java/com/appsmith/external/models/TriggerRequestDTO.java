@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+import java.util.Map;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,7 +19,7 @@ public class TriggerRequestDTO {
     // e.g. for GSheets, it may look like the following :
     // fileUrl, Sheet1, <HeaderRowIndex>
     // The above parameters would return all the column names
-    List<String> parameters;
+    Map<String, Object> parameters;
 
     ClientDataDisplayType displayType;
 }
