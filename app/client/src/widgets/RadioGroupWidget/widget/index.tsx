@@ -476,15 +476,13 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       labelStyle,
       labelTextColor,
       labelTextSize,
-      labelWidth,
       options,
-      parentColumnSpace,
       selectedOptionValue,
       topRow,
       widgetId,
     } = this.props;
 
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight } = this.getComponentDimensions();
 
     return (
       <RadioGroupComponent
@@ -500,13 +498,12 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         labelText={label}
         labelTextColor={labelTextColor}
         labelTextSize={labelTextSize}
-        labelWidth={(Number(labelWidth) || 0) * parentColumnSpace}
+        labelWidth={this.getLabelWidth()}
         loading={isLoading}
         onRadioSelectionChange={this.onRadioSelectionChange}
         options={isArray(options) ? compact(options) : []}
         selectedOptionValue={selectedOptionValue}
         widgetId={widgetId}
-        width={componentWidth}
       />
     );
   }

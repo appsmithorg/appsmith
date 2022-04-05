@@ -131,7 +131,6 @@ export interface RadioGroupComponentProps extends ComponentProps {
   labelWidth?: number;
   widgetId: string;
   height?: number;
-  width?: number;
 }
 
 export default RadioGroupComponent;
