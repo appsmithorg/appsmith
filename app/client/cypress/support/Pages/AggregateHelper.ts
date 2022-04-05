@@ -240,9 +240,9 @@ export class AggregateHelper {
         })
     }
 
-    public XpathNClick(selector: string) {
+    public XpathNClick(selector: string, index = 0) {
         cy.xpath(selector)
-            .first()
+            .eq(0)
             .click({ force: true });
         this.Sleep()
     }
@@ -321,6 +321,7 @@ export class AggregateHelper {
                 this.UpdateCodeInput($field, valueToEnter);
             });
         }
+        this.AssertAutoSave()
     }
 
     public UpdateCodeInput($selector: string, value: string) {
@@ -414,6 +415,18 @@ export class AggregateHelper {
         else
             cy.get(selector).should("have.length", length);
     }
+
+
+    public CheckUncheck(selector: string, check = true) {
+        let locator = selector.startsWith("//") ? cy.xpath(selector) : cy.get(selector)
+        if (check) {
+            locator.check({ force: true }).should("be.checked");
+        }
+        else {
+            locator.uncheck({ force: true }).should("not.be.checked");
+        }
+    }
+
 
     //Not used:
     // private xPathToCss(xpath: string) {
