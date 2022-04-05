@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo } from "react";
+import React, { memo, useCallback } from "react";
 import _, { get, isEqual } from "lodash";
 import * as log from "loglevel";
 
@@ -43,6 +43,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import TooltipComponent from "components/ads/Tooltip";
 import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
+import { AppTheme } from "entities/AppTheming";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -74,10 +75,31 @@ const PropertyControl = memo((props: Props) => {
 
   const selectedTheme = useSelector(getSelectedAppTheme);
 
-  const stylesheetValue = get(
-    selectedTheme,
-    `stylesheet.${widgetProperties.type}.${props.propertyName}`,
-  );
+  /**
+   * A property's stylesheet value can be fetched in 2 ways
+   * 1. If a method is defined on the property config (getStylesheetValue), then
+   *   it's the methods responsibility to resolve the stylesheet value.
+   * 2. If no such method is defined, the value is assumed to be present in the
+   *   theme config and thus it is fetched from there.
+   */
+  const propertyStylesheetValue = (() => {
+    const widgetStylesheet: AppTheme["stylesheet"][string] = get(
+      selectedTheme,
+      `stylesheet.${widgetProperties.type}`,
+    );
+
+    if (props.getStylesheetValue) {
+      return props.getStylesheetValue(
+        widgetProperties,
+        props.propertyName,
+        widgetStylesheet,
+      );
+    }
+
+    return get(widgetStylesheet, props.propertyName);
+  })();
+
+  const propertyValue = _.get(widgetProperties, props.propertyName);
 
   /**
    * checks if property value is deviated or not.
@@ -85,26 +107,17 @@ const PropertyControl = memo((props: Props) => {
    * the one defined in the theme stylesheet. if values are different,
    * that means the property value is deviated from the theme stylesheet.
    */
-  const isPropertyDeviatedFromTheme = useMemo(() => {
-    // is theme stylesheet value binded to theme?
-    if (THEME_BINDING_REGEX.test(stylesheetValue)) {
-      // is theme stylesheet value same as widget property value?
-      if (THEME_BINDING_REGEX.test(widgetProperties[props.propertyName])) {
-        return false;
-      } else {
-        return true;
-      }
-    } else {
-      false;
-    }
-  }, [widgetProperties[props.propertyName], selectedTheme]);
+  const isPropertyDeviatedFromTheme =
+    typeof propertyStylesheetValue === "string" &&
+    THEME_BINDING_REGEX.test(propertyStylesheetValue) &&
+    propertyStylesheetValue !== propertyValue;
 
   /**
    * resets the value of property to theme stylesheet value
    * which is a binding to theme object defined in the stylesheet
    */
   const resetPropertyValueToTheme = () => {
-    onPropertyChange(props.propertyName, stylesheetValue);
+    onPropertyChange(props.propertyName, propertyStylesheetValue);
   };
 
   const {
@@ -357,7 +370,6 @@ const PropertyControl = memo((props: Props) => {
 
   const { label, propertyName } = props;
   if (widgetProperties) {
-    const propertyValue = _.get(widgetProperties, propertyName);
     // get the dataTreePath and apply enhancement if exists
     let dataTreePath: string =
       props.dataTreePath || `${widgetProperties.widgetName}.${propertyName}`;

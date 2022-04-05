@@ -17,6 +17,7 @@ import { getParentPropertyPath } from "../../helper";
 import {
   fieldTypeUpdateHook,
   getSchemaItem,
+  getStylesheetValue,
   HiddenFnParams,
   hiddenIfArrayItemIsObject,
   updateChildrenDisabledStateHook,
@@ -388,6 +389,7 @@ const COMMON_PROPERTIES = {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: { type: ValidationTypes.TEXT },
+      getStylesheetValue,
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeIncludes(FIELDS_WITHOUT_BORDER_RADIUS),
       dependencies: ["schema"],
@@ -401,6 +403,7 @@ const COMMON_PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
+      getStylesheetValue,
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeIncludes(FIELDS_WITHOUT_BOX_SHADOW),
       validation: { type: ValidationTypes.TEXT },

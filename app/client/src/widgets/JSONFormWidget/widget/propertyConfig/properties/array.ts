@@ -3,7 +3,7 @@ import { get } from "lodash";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { FieldType, SchemaItem } from "widgets/JSONFormWidget/constants";
 import { JSONFormWidgetProps } from "../..";
-import { HiddenFnParams, getSchemaItem } from "../helper";
+import { HiddenFnParams, getSchemaItem, getStylesheetValue } from "../helper";
 
 const PROPERTIES = {
   general: [
@@ -98,6 +98,7 @@ const PROPERTIES = {
           isJSConvertible: true,
           isBindProperty: true,
           isTriggerProperty: false,
+          getStylesheetValue,
           validation: { type: ValidationTypes.TEXT },
           dependencies: ["schema"],
         },
@@ -110,6 +111,7 @@ const PROPERTIES = {
           isJSConvertible: true,
           isBindProperty: true,
           isTriggerProperty: false,
+          getStylesheetValue,
           validation: { type: ValidationTypes.TEXT },
           dependencies: ["schema"],
         },
@@ -177,6 +179,7 @@ const PROPERTIES = {
           isJSConvertible: true,
           isBindProperty: true,
           isTriggerProperty: false,
+          getStylesheetValue,
           validation: { type: ValidationTypes.TEXT },
           dependencies: ["schema"],
         },
@@ -189,6 +192,7 @@ const PROPERTIES = {
           isJSConvertible: true,
           isBindProperty: true,
           isTriggerProperty: false,
+          getStylesheetValue,
           validation: { type: ValidationTypes.TEXT },
           dependencies: ["schema"],
         },

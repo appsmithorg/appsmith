@@ -7,9 +7,12 @@ import {
   ARRAY_ITEM_KEY,
   Schema,
   HookResponse,
+  FieldThemeStylesheet,
 } from "../../constants";
 import { getGrandParentPropertyPath, getParentPropertyPath } from "../helper";
 import { JSONFormWidgetProps } from "..";
+import { getFieldStylesheet } from "widgets/JSONFormWidget/helper";
+import { AppTheme } from "entities/AppTheming";
 
 export type HiddenFnParams = [JSONFormWidgetProps, string];
 
@@ -69,6 +72,7 @@ export const getSchemaItem = <TSchemaItem extends SchemaItem>(
 ) => {
   const parentPropertyPath = getParentPropertyPath(propertyPath);
   const schemaItem: TSchemaItem = get(props, parentPropertyPath, {});
+  const propertyName = propertyPath.split(".").slice(-1)[0]; // schema.__root_schema__.age.borderRadius -> borderRadius
 
   const fieldTypeMatches = (fieldType: FieldType) =>
     fieldType === schemaItem.fieldType;
@@ -83,7 +87,9 @@ export const getSchemaItem = <TSchemaItem extends SchemaItem>(
   const fieldTypeIncludes = (fieldTypes: Readonly<FieldType[]> | FieldType[]) =>
     fieldTypes.includes(schemaItem.fieldType);
 
-  const compute = (cb: (props: TSchemaItem) => any) => cb(schemaItem);
+  const compute = <TReturnValue>(
+    cb: (props: TSchemaItem, propertyName: string) => TReturnValue,
+  ): TReturnValue => cb(schemaItem, propertyName);
 
   return {
     fieldTypeMatches,
@@ -92,6 +98,23 @@ export const getSchemaItem = <TSchemaItem extends SchemaItem>(
     fieldTypeIncludes,
     compute,
   };
+};
+
+export const getStylesheetValue = (
+  props: JSONFormWidgetProps,
+  propertyPath: string,
+  widgetStylesheet?: AppTheme["stylesheet"][string],
+) => {
+  return getSchemaItem(props, propertyPath).compute(
+    (schemaItem, propertyName) => {
+      const fieldStylesheet = getFieldStylesheet(
+        schemaItem.fieldType,
+        widgetStylesheet?.childStylesheets as FieldThemeStylesheet,
+      );
+
+      return fieldStylesheet[propertyName] || "";
+    },
+  );
 };
 
 const getUpdatedSchemaFor = (

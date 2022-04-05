@@ -7,6 +7,7 @@ import {
   SchemaItem,
 } from "widgets/JSONFormWidget/constants";
 import { JSONFormWidgetProps } from "../..";
+import { getStylesheetValue } from "../helper";
 
 const objectStyleProperties = [
   {
@@ -61,6 +62,7 @@ const objectStyleProperties = [
     isJSConvertible: true,
     isBindProperty: true,
     isTriggerProperty: false,
+    getStylesheetValue,
     validation: { type: ValidationTypes.TEXT },
     dependencies: ["schema"],
   },
@@ -72,6 +74,7 @@ const objectStyleProperties = [
     isJSConvertible: true,
     isBindProperty: true,
     isTriggerProperty: false,
+    getStylesheetValue,
     validation: { type: ValidationTypes.TEXT },
     dependencies: ["schema"],
   },
@@ -148,6 +151,7 @@ const PROPERTIES = {
           isJSConvertible: true,
           isBindProperty: true,
           isTriggerProperty: false,
+          getStylesheetValue,
           validation: { type: ValidationTypes.TEXT },
           dependencies: ["schema"],
         },
@@ -160,6 +164,7 @@ const PROPERTIES = {
           isJSConvertible: true,
           isBindProperty: true,
           isTriggerProperty: false,
+          getStylesheetValue,
           validation: { type: ValidationTypes.TEXT },
           dependencies: ["schema"],
         },
