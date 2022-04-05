@@ -105,4 +105,27 @@ describe("Phone input widget - ", () => {
     cy.get(widgetInput).should("contain.value", "");
     cy.get(".t--widget-textwidget").should("contain", ":undefined");
   });
+
+  it("Check isDirty meta property", function() {
+    cy.openPropertyPane("textwidget");
+    cy.updateCodeInput(".t--property-control-text", `{{PhoneInput1.isDirty}}`);
+    // Change defaultText
+    cy.openPropertyPane(widgetName);
+    cy.updateCodeInput(".t--property-control-defaulttext", "1");
+    cy.closePropertyPane();
+    // Check if isDirty is set to false
+    cy.get(".t--widget-textwidget").should("contain", "false");
+    // Interact with UI
+    cy.get(widgetInput).clear();
+    cy.wait(300);
+    cy.get(widgetInput).type("2");
+    cy.wait(300);
+    // Check if isDirty is set to true
+    cy.get(".t--widget-textwidget").should("contain", "true");
+    // Reset isDirty by changing defaultText
+    cy.openPropertyPane(widgetName);
+    cy.updateCodeInput(".t--property-control-defaulttext", "3");
+    // Check if isDirty is set to false
+    cy.get(".t--widget-textwidget").should("contain", "false");
+  });
 });
