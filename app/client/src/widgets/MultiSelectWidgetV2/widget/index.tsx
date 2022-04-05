@@ -2,7 +2,15 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isArray, isString, isNumber, LoDashStatic } from "lodash";
+import {
+  isArray,
+  isEqual,
+  isFinite,
+  isString,
+  isNumber,
+  LoDashStatic,
+  xorWith,
+} from "lodash";
 import {
   ValidationResponse,
   ValidationTypes,
@@ -208,7 +216,7 @@ class MultiSelectWidget extends BaseWidget<
                 fn: defaultOptionValueValidation,
                 expected: {
                   type: "Array of values",
-                  example: `['option1', 'option2'] | [{ "label": "label1", "value": "value1" }]`,
+                  example: ` "option1, option2" | ['option1', 'option2'] | [{ "label": "label1", "value": "value1" }]`,
                   autocompleteDataType: AutocompleteDataType.ARRAY,
                 },
               },
@@ -431,12 +439,41 @@ class MultiSelectWidget extends BaseWidget<
     return {
       selectedOptions: undefined,
       filterText: "",
+      isDirty: false,
     };
+  }
+
+  componentDidUpdate(prevProps: MultiSelectWidgetProps): void {
+    // Check if defaultOptionValue is string
+    let isStringArray = false;
+    if (
+      this.props.defaultOptionValue.some(
+        (value: any) => isString(value) || isFinite(value),
+      )
+    ) {
+      isStringArray = true;
+    }
+
+    const hasChanges = isStringArray
+      ? xorWith(
+          this.props.defaultOptionValue as string[],
+          prevProps.defaultOptionValue as string[],
+          isEqual,
+        ).length > 0
+      : xorWith(
+          this.props.defaultOptionValue as OptionValue[],
+          prevProps.defaultOptionValue as OptionValue[],
+          isEqual,
+        ).length > 0;
+
+    if (hasChanges && this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
   }
 
   getPageView() {
     const options = isArray(this.props.options) ? this.props.options : [];
-    const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+    const minDropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
     const { componentWidth } = this.getComponentDimensions();
     const values: LabelValueType[] = this.props.selectedOptions
       ? this.props.selectedOptions.map((o) =>
@@ -456,7 +493,7 @@ class MultiSelectWidget extends BaseWidget<
           )
         }
         disabled={this.props.isDisabled ?? false}
-        dropDownWidth={dropDownWidth}
+        dropDownWidth={minDropDownWidth}
         dropdownStyle={{
           zIndex: Layers.dropdownModalWidget,
         }}
@@ -527,7 +564,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   options?: DropdownOption[];
   onOptionChange: string;
   onFilterChange: string;
-  defaultOptionValue: string | string[] | OptionValue[];
+  defaultOptionValue: string[] | OptionValue[];
   isRequired: boolean;
   isLoading: boolean;
   selectedOptions: LabelValueType[];
