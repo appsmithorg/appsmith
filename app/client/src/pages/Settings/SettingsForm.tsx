@@ -121,7 +121,8 @@ export function SettingsForm(
         settingsConfig[eachSetting.id]?.toString().trim() === "" ||
         settingsConfig[eachSetting.id] === undefined;
       const isInitialSettingNotBlank = settingsConfig[eachSetting.id];
-      const isNewSettingBlank = settings[eachSetting.id]?.trim() === "";
+      const isNewSettingBlank =
+        settings[eachSetting.id]?.toString()?.trim() === "";
       const isNewSettingNotBlank = !settings[eachSetting.id];
 
       if (
