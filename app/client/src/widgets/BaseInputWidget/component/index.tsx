@@ -30,6 +30,7 @@ import { InputType } from "widgets/InputWidget/constants";
 import { LabelPosition } from "components/constants";
 import LabelWithTooltip, {
   labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
 } from "components/ads/LabelWithTooltip";
 
 /**
@@ -68,7 +69,7 @@ const InputComponentWrapper = styled((props) => (
   ${labelLayoutStyles}
 
   &&&& {
-    .label-container {
+    & .${LABEL_CONTAINER_CLASS} {
       flex-grow: 0;
     }
     .currency-type-filter,
@@ -551,11 +552,11 @@ class BaseInputComponent extends React.Component<
             className="t--input-widget-label"
             color={labelTextColor}
             compact={compactMode}
+            cyHelpTextClassName="t--input-widget-tooltip"
             disabled={disabled}
             fontSize={labelTextSize}
             fontStyle={labelStyle}
             helpText={tooltip}
-            helpTextClassName="t--input-widget-tooltip"
             loading={isLoading}
             position={labelPosition}
             text={label}

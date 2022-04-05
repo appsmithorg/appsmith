@@ -93,18 +93,3 @@ export enum LabelPosition {
   Top = "Top",
   Left = "Left",
 }
-/**
- * Max width of the label, specified in percentage(%)
- */
-export const LABEL_MAX_WIDTH_RATE = 70;
-
-/**
- * Default margin-top or margin-right value between label, help text and input
- */
-export const LABEL_DEFAULT_GAP = "5px";
-
-/**
- * The amount of time in milliseconds the popover on the label with ellipsis
- * should wait before opening after the user hovers over the trigger
- */
-export const LABEL_TOOLTIP_OPEN_DELAY = 200;

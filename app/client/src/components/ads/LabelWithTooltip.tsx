@@ -2,12 +2,7 @@ import React, { useCallback, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { Alignment, Classes, Label, Position } from "@blueprintjs/core";
 
-import {
-  LabelPosition,
-  LABEL_DEFAULT_GAP,
-  LABEL_MAX_WIDTH_RATE,
-  LABEL_TOOLTIP_OPEN_DELAY,
-} from "components/constants";
+import { LabelPosition } from "components/constants";
 import {
   FontStyleTypes,
   TextSize,
@@ -28,7 +23,7 @@ export interface LabelWithTooltipProps {
   fontSize?: TextSize;
   fontStyle?: string;
   helpText?: string;
-  helpTextClassName?: string;
+  cyHelpTextClassName?: string;
   inline?: boolean;
   loading?: boolean;
   optionCount?: number;
@@ -60,6 +55,32 @@ interface TooltipIconProps {
   compact: boolean;
   position?: LabelPosition;
 }
+
+/**
+ * Class name for a label container
+ */
+export const LABEL_CONTAINER_CLASS = "label-container";
+
+/**
+ * Size of the icon used as a tooltip target, in pixels
+ */
+export const TOOLTIP_ICON_SIZE = 14;
+
+/**
+ * Max width of the label, specified in percentage(%)
+ */
+export const LABEL_MAX_WIDTH_RATE = 70;
+
+/**
+ * Default margin-top or margin-right value between label, help text and input
+ */
+export const LABEL_DEFAULT_GAP = "5px";
+
+/**
+ * The amount of time in milliseconds the popover on the label with ellipsis
+ * should wait before opening after the user hovers over the trigger
+ */
+export const LABEL_TOOLTIP_OPEN_DELAY = 200;
 
 export const labelLayoutStyles = css<{
   compactMode: boolean;
@@ -173,11 +194,11 @@ const LabelWithTooltip = React.forwardRef<
     className,
     color,
     compact,
+    cyHelpTextClassName,
     disabled,
     fontSize,
     fontStyle,
     helpText,
-    helpTextClassName,
     inline,
     loading,
     optionCount,
@@ -245,11 +266,11 @@ const LabelWithTooltip = React.forwardRef<
           <ToolTipIcon
             color={Colors.SILVER_CHALICE}
             compact={compact}
-            height={14}
+            height={TOOLTIP_ICON_SIZE}
             position={position}
-            width={14}
+            width={TOOLTIP_ICON_SIZE}
           >
-            <HelpIcon className={helpTextClassName} />
+            <HelpIcon className={cyHelpTextClassName} />
           </ToolTipIcon>
         </Tooltip>
       )}
