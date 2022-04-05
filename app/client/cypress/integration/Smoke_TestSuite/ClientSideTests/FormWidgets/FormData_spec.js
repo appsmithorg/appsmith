@@ -5,21 +5,22 @@ describe("Form data", function() {
     cy.addDsl(dsl);
   });
 
-  it("CheckboxGroupWidget, MultiSelectTreeWidget, MultiSelectWidgetV2, SingleSelectTreeWidget, SwitchGroupWidget, PhoneInputWidget, InputWidgetV2 and CurrencyInputWidget should have value props of which values are not null or undefined to be included as a form data", function() {
+  it("CheckboxGroupWidget, MultiSelectTreeWidget, MultiSelectWidgetV2, SelectWidget, SingleSelectTreeWidget, SwitchGroupWidget, PhoneInputWidget, InputWidgetV2 and CurrencyInputWidget should have value props of which values are not null or undefined to be included as a form data", function() {
     // Check form data
     cy.get("[data-testid='container-wrapper-vannrar7rd'] span", {
-      timeout: 25000,
+      timeout: 30000,
     })
       .should("exist")
       .and(($formData) => {
-        expect($formData).to.contain("CheckboxGroup");
-        expect($formData).to.contain("MultiTreeSelect");
-        expect($formData).to.contain("MultiSelect");
-        expect($formData).to.contain("TreeSelect");
-        expect($formData).to.contain("SwitchGroup");
-        expect($formData).to.contain("PhoneInput");
-        expect($formData).to.contain("Input");
-        expect($formData).to.contain("CurrencyInput");
+        expect($formData).to.contain("FormCheckboxGroupWidget");
+        expect($formData).to.contain("FormMultiSelectTreeWidget");
+        expect($formData).to.contain("FormMultiSelectWidgetV2");
+        expect($formData).to.contain("FormSingleSelectTreeWidget");
+        expect($formData).to.contain("FormSwitchGroupWidget");
+        expect($formData).to.contain("FormSelectWidget");
+        expect($formData).to.contain("FormPhoneInputWidget");
+        expect($formData).to.contain("FormInputWidgetV2");
+        expect($formData).to.contain("FormCurrencyInputWidget");
       });
   });
 });
