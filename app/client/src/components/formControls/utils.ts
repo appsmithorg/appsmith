@@ -143,6 +143,8 @@ export const switchViewType = (
     changeFormValue(formName, pathForComponentData, currentData);
     if (!!jsonData) {
       changeFormValue(formName, configProperty, jsonData);
+    } else {
+      changeFormValue(formName, configProperty, JSON.stringify(currentData));
     }
   } else {
     changeFormValue(formName, pathForJsonData, currentData);
