@@ -4189,9 +4189,9 @@ Cypress.Commands.add("CheckAndUnfoldEntityItem", (item) => {
 
 // Cypress.Commands.overwrite("type", (originalFn, element, text, options) => {
 //   const clearedText = '{selectall}{backspace}'+`${text}`;
-
 //   return originalFn(element, clearedText, options);
 // });
+
 addMatchImageSnapshotCommand({
   failureThreshold: 0.1, // threshold for entire image
   failureThresholdType: "percent",

@@ -321,7 +321,7 @@ export class AggregateHelper {
         return cy.xpath(selector)
             .eq(index)
             .click({ force: true });
-        //this.Sleep(500)
+        this.Sleep(500)
     }
 
     public GetNClick(selector: string, index = 0) {

@@ -32,14 +32,14 @@ describe("Input widget test with default value from chart datapoint", () => {
         agHelper.Sleep(1500)//waiting for chart to load!
         agHelper.XpathNClick("(//*[local-name()='rect'])[13]")
         cy.get(locator._inputWidgetInDeployed).first().invoke('val').then($value => {
-            let inputVal = ($value as string).replace(/\s/g, "")
+            let inputVal = ($value as string).replace(/\s/g, "")//removing space here
             //cy.get(locator._toastMsg).invoke('text').then(toastTxt => expect(toastTxt.trim()).to.eq(inputVal))
             cy.get(locator._toastMsg).should('have.text', inputVal)
         })
         cy.get(locator._inputWidgetInDeployed).last().should("have.value", dsl.dsl.children[0].chartData[0].seriesName);
     });
 
-    after(() => {
+    afterEach(() => {
         //this is to enable re-attempt passing!
         agHelper.NavigateBacktoEditor()
     })
