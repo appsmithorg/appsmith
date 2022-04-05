@@ -24,7 +24,7 @@ describe("Table Widget Filter Functionality", function() {
       cy.get(publish.searchInput)
         .first()
         .type(tabData);
-      cy.wait(500);
+      cy.wait(1000);
       cy.readTabledataPublish("1", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Lindsay Ferguson");
@@ -47,8 +47,8 @@ describe("Table Widget Filter Functionality", function() {
           return cy.get("input").clear();
         })
         .wait(1000)
-        .type("7434532");
-      cy.wait(1000);
+        .type("7434532")
+        .wait(1000);
       cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Byron Fields");
