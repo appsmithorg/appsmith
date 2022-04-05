@@ -61,8 +61,7 @@ export const hiddenIfArrayItemIsObject = (
 
   return (
     schemaItem.identifier === ARRAY_ITEM_KEY &&
-    (schemaItem.fieldType === FieldType.OBJECT ||
-      schemaItem.fieldType === FieldType.ARRAY)
+    schemaItem.fieldType === FieldType.OBJECT
   );
 };
 

@@ -215,9 +215,6 @@ const COMMON_PROPERTIES = {
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
       validation: { type: ValidationTypes.BOOLEAN },
       hidden: (...args: HiddenFnParams) => {
-        const isHidden = hiddenIfArrayItemIsObject(...args);
-        if (isHidden) return true;
-
         return getSchemaItem(...args).compute(
           (schemaItem) =>
             schemaItem.fieldType === FieldType.OBJECT ||
@@ -237,7 +234,11 @@ const COMMON_PROPERTIES = {
       isTriggerProperty: false,
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
       validation: { type: ValidationTypes.BOOLEAN },
-      hidden: hiddenIfArrayItemIsObject,
+      hidden: (...args: HiddenFnParams) => {
+        return getSchemaItem(...args).compute(
+          (schemaItem) => schemaItem.identifier === ARRAY_ITEM_KEY,
+        );
+      },
       dependencies: ["schema", "sourceData"],
     },
     {
@@ -250,7 +251,6 @@ const COMMON_PROPERTIES = {
       isTriggerProperty: false,
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
       validation: { type: ValidationTypes.BOOLEAN },
-      hidden: hiddenIfArrayItemIsObject,
       dependencies: ["schema", "sourceData"],
       updateHook: updateChildrenDisabledStateHook,
     },
