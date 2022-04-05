@@ -61,7 +61,7 @@ const LoadingContainer = styled(CenteredWrapper)`
 type ReduxDispatchProps = {
   runAction: (actionId: string) => void;
   deleteAction: (id: string, name: string) => void;
-  changeQueryPage: (queryId: string) => void;
+  changeQueryPage: (queryId: string, isSaas: boolean) => void;
   runFormEvaluation: (
     formId: string,
     formData: QueryActionConfig,
@@ -99,6 +99,7 @@ type ReduxStateProps = {
   applicationId: string;
   actionId: string;
   actionObjectDiff?: any;
+  isSaas: boolean;
 };
 
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
@@ -109,22 +110,24 @@ class QueryEditor extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
     // Call the first evaluations when the page loads
-    this.props.initFormEvaluation(
-      this.props.editorConfig,
-      this.props.settingConfig,
-      // this.props.match.params.queryId || this.props.match.params.apiId,
-      this.props.actionId,
-    );
+    // call evaluations only for queries and not google sheets (which uses apiId)
+    if (this.props.match.params.queryId) {
+      this.props.initFormEvaluation(
+        this.props.editorConfig,
+        this.props.settingConfig,
+        this.props.match.params.queryId,
+      );
+    }
   }
 
   componentDidMount() {
     // if the current action is non existent, do not dispatch change query page action
     // this action should only be dispatched when switching from an existent action.
     if (!this.props.pluginId) return;
-    this.props.changeQueryPage(this.props.actionId);
+    this.props.changeQueryPage(this.props.actionId, this.props.isSaas);
 
     // fixes missing where key issue by populating the action with a where object when the component is mounted.
-    if (this.props.match.params.apiId) {
+    if (this.props.isSaas) {
       const { path = "", value = "" } = {
         ...getPathAndValueFromActionDiffObject(this.props.actionObjectDiff),
       };
@@ -169,7 +172,7 @@ class QueryEditor extends React.Component<Props> {
       prevProps.actionId !== this.props.actionId ||
       prevProps.pluginId !== this.props.pluginId
     ) {
-      this.props.changeQueryPage(this.props.actionId);
+      this.props.changeQueryPage(this.props.actionId, this.props.isSaas);
     }
     // If statement to debounce and track changes in the formData to update evaluations
     if (
@@ -338,6 +341,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     responses: getActionResponses(state),
     isRunning: state.ui.queryPane.isRunning[actionId],
     isDeleting: state.ui.queryPane.isDeleting[actionId],
+    isSaas: !!apiId,
     formData,
     editorConfig,
     settingConfig,
@@ -353,8 +357,8 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   deleteAction: (id: string, name: string) =>
     dispatch(deleteAction({ id, name })),
   runAction: (actionId: string) => dispatch(runAction(actionId)),
-  changeQueryPage: (queryId: string) => {
-    dispatch(changeQuery(queryId));
+  changeQueryPage: (queryId: string, isSaas: boolean) => {
+    dispatch(changeQuery(queryId, isSaas));
   },
   runFormEvaluation: (
     formId: string,
