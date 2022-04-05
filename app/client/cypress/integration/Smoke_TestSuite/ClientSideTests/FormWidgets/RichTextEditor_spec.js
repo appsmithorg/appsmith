@@ -128,6 +128,28 @@ describe("RichTextEditor Widget Functionality", function() {
     );
   });
 
+  it("Check isDirty meta property", function() {
+    cy.openPropertyPane("textwidget");
+    cy.updateCodeInput(
+      ".t--property-control-text",
+      `{{RichtextEditor.isDirty}}`,
+    );
+    // Change defaultText
+    cy.openPropertyPane("richtexteditorwidget");
+    cy.testJsontext("defaulttext", "a");
+    // Check if isDirty has been changed into false
+    cy.get(".t--widget-textwidget").should("contain", "false");
+    // Interact with UI
+    cy.setTinyMceContent("rte-6h8j08u7ea", "abc");
+    // Check if isDirty is set to true
+    cy.get(".t--widget-textwidget").should("contain", "true");
+    // Change defaultText
+    cy.openPropertyPane("richtexteditorwidget");
+    cy.testJsontext("defaulttext", "b");
+    // Check if isDirty is reset to false
+    cy.get(".t--widget-textwidget").should("contain", "false");
+  });
+
   afterEach(() => {
     cy.goToEditFromPublish();
   });
