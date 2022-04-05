@@ -64,6 +64,7 @@ import { ReactComponent as RoseIcon } from "assets/icons/ads/app-icons/rose.svg"
 import { ReactComponent as RupeeIcon } from "assets/icons/ads/app-icons/rupee.svg";
 import { ReactComponent as SaturnIcon } from "assets/icons/ads/app-icons/saturn.svg";
 import { ReactComponent as ServerIcon } from "assets/icons/ads/app-icons/server.svg";
+import { ReactComponent as ServerLineIcon } from "assets/icons/ads/app-icons/server-line.svg";
 import { ReactComponent as ShakeHandsIcon } from "assets/icons/ads/app-icons/shake-hands.svg";
 import { ReactComponent as ShirtIcon } from "assets/icons/ads/app-icons/shirt.svg";
 import { ReactComponent as ShopIcon } from "assets/icons/ads/app-icons/shop.svg";
@@ -155,6 +156,7 @@ export const AppIconCollection = [
   "rupee",
   "saturn",
   "server",
+  "server-line",
   "shake-hands",
   "shirt",
   "shop",
@@ -437,6 +439,9 @@ function AppIcon(props: AppIconProps) {
       break;
     case "server":
       returnIcon = <ServerIcon />;
+      break;
+    case "server-line":
+      returnIcon = <ServerLineIcon />;
       break;
     case "shake-hands":
       returnIcon = <ShakeHandsIcon />;
