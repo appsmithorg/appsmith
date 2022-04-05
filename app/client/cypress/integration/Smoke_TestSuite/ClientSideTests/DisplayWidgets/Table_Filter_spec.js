@@ -16,7 +16,7 @@ describe("Table Widget Filter Functionality", function() {
   });
 
   it("2. Table Widget Functionality To validate download csv and download Excel", function() {
-    cy.isSelectRow(1);
+    //cy.isSelectRow(1);
     cy.readTabledataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Lindsay Ferguson");
@@ -25,7 +25,7 @@ describe("Table Widget Filter Functionality", function() {
         .first()
         .type(tabData);
       cy.wait(1000);
-      cy.readTabledataPublish("1", "3").then((tabData) => {
+      cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Lindsay Ferguson");
       });

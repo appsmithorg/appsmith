@@ -8,7 +8,8 @@ let agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("Input widget test with default value from chart datapoint", () => {
 
-    before(() => {
+    //beforeEach - becasuse to enable re-attempt passing!
+    beforeEach(() => {
         cy.fixture('ChartDsl').then((val: any) => {
             agHelper.AddDsl(val)
             dsl = val;
@@ -37,4 +38,10 @@ describe("Input widget test with default value from chart datapoint", () => {
         })
         cy.get(locator._inputWidgetInDeployed).last().should("have.value", dsl.dsl.children[0].chartData[0].seriesName);
     });
+
+    after(() => {
+        //this is to enable re-attempt passing!
+        agHelper.NavigateBacktoEditor()
+    })
+
 });

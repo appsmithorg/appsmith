@@ -23,7 +23,15 @@ export class Table {
   _addIcon = "button span[icon='add']"
   _trashIcon = "button span[icon='trash']"
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']"
-
+  _filterBtn = ".t--table-filter-toggle-btn"
+  _filterColumnsDropdown = ".t--table-filter-columns-dropdown"
+  _dropdownText = ".t--dropdown-option"
+  _filterConditionDropdown = ".t--table-filter-conditions-dropdown"
+  _filterInputValue = ".t--table-filter-value-input"
+  _filterApplyBtn = ".t--apply-filter-btn"
+  _filterCloseBtn = ".t--close-filter-btn"
+  _addFilter = ".t--add-filter-btn"
+  _filterOperatorDropdown = ".t--table-filter-operators-dropdown"
 
   public WaitUntilTableLoad() {
     // cy.waitUntil(() => cy.xpath(this._table, { timeout: 80000 }).should('be.visible'),
@@ -133,38 +141,53 @@ export class Table {
     cy.get(this._searchText).eq(index).type(searchTxt)
   }
 
+  public FilterTable(colName: string, colCondition: 'contains' | 'does not contain' | 'starts with' | 'ends with' | 'is exactly' | 'empty' | 'not empty', inputText = "", operator: 'AND' | 'OR' | '' = '') {
+    if (operator) {
+      this.agHelper.GetNClick(this._addFilter)
+      this.agHelper.GetNClick(this._filterOperatorDropdown)
+      cy.get(this._dropdownText).contains(operator).click()
+    }
+    this.agHelper.GetNClick(this._filterColumnsDropdown)
+    cy.get(this._dropdownText).contains(colName).click()
+    this.agHelper.GetNClick(this._filterConditionDropdown)
+    cy.get(this._dropdownText).contains(colCondition).click()
+
+    if(inputText)
+    this.agHelper.GetNClick(this._filterInputValue).type(inputText)
+}
+
   //List methods - keeping it for now!
   public NavigateToNextPage_List() {
-    let curPageNo: number;
-    cy.xpath(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
-      curPageNo = Number($currentPageNo))
-    cy.get(this._liNextPage).click()
-    cy.scrollTo('top', { easing: 'linear' })
-    cy.xpath(this._liCurrentSelectedPage).invoke('text').then($newPageNo =>
-      expect(Number($newPageNo)).to.eq(curPageNo + 1))
-  }
+  let curPageNo: number;
+  cy.xpath(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
+    curPageNo = Number($currentPageNo))
+  cy.get(this._liNextPage).click()
+  cy.scrollTo('top', { easing: 'linear' })
+  cy.xpath(this._liCurrentSelectedPage).invoke('text').then($newPageNo =>
+    expect(Number($newPageNo)).to.eq(curPageNo + 1))
+}
 
   public NavigateToPreviousPage_List() {
-    let curPageNo: number;
-    cy.xpath(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
-      curPageNo = Number($currentPageNo))
-    cy.get(this._liPreviousPage).click()
-    cy.scrollTo('top', { easing: 'linear' })
-    cy.xpath(this._liCurrentSelectedPage).invoke('text').then($newPageNo =>
-      expect(Number($newPageNo)).to.eq(curPageNo - 1))
-  }
+  let curPageNo: number;
+  cy.xpath(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
+    curPageNo = Number($currentPageNo))
+  cy.get(this._liPreviousPage).click()
+  cy.scrollTo('top', { easing: 'linear' })
+  cy.xpath(this._liCurrentSelectedPage).invoke('text').then($newPageNo =>
+    expect(Number($newPageNo)).to.eq(curPageNo - 1))
+}
 
   public AssertPageNumber_List(pageNo: number, checkNoNextPage = false) {
-    cy.xpath(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
-      expect(Number($currentPageNo)).to.eq(pageNo))
+  cy.xpath(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
+    expect(Number($currentPageNo)).to.eq(pageNo))
 
-    if (pageNo == 1)
-      cy.get(this._liPreviousPage).should("have.attr", "aria-disabled", 'true')
+  if (pageNo == 1)
+    cy.get(this._liPreviousPage).should("have.attr", "aria-disabled", 'true')
 
-    if (checkNoNextPage)
-      cy.get(this._liNextPage).should("have.attr", "aria-disabled", 'true')
-    else
-      cy.get(this._liNextPage).should("have.attr", "aria-disabled", 'false')
+  if (checkNoNextPage)
+    cy.get(this._liNextPage).should("have.attr", "aria-disabled", 'true')
+  else
+    cy.get(this._liNextPage).should("have.attr", "aria-disabled", 'false')
 
-  }
+}
 }
