@@ -5,8 +5,12 @@ import {
   getRouteBuilderParams,
   updateURLFactory,
 } from "RouteBuilder";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { selectURLSlugs } from "selectors/editorSelectors";
+import { Page, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  getCurrentPageId,
+  getPageById,
+  selectURLSlugs,
+} from "selectors/editorSelectors";
 import store from "store";
 import { render } from "test/testUtils";
 import { getUpdatedRoute, isURLDeprecated } from "utils/helpers";
@@ -19,6 +23,9 @@ import {
 } from "./mockData";
 import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
 import { updateCurrentPage } from "actions/pageActions";
+import { getCurrentApplication } from "selectors/applicationSelectors";
+import { getPageURL } from "utils/AppsmithUtils";
+import { APP_MODE } from "entities/App";
 
 describe("URL slug names", () => {
   beforeEach(async () => {
@@ -133,5 +140,26 @@ describe("URL slug names", () => {
         pageSlug: "page",
       }),
     ).toBe("/my-app/page-605c435a91dea93f0eaf91ba/edit");
+  });
+
+  it("tests getPageUrl utility method", () => {
+    const state = store.getState();
+    const currentApplication = getCurrentApplication(state);
+    const currentPageId = getCurrentPageId(state);
+    const page = getPageById(currentPageId)(state) as Page;
+
+    const editPageURL = getPageURL(page, APP_MODE.EDIT, currentApplication);
+    const viewPageURL = getPageURL(
+      page,
+      APP_MODE.PUBLISHED,
+      currentApplication,
+    );
+
+    expect(editPageURL).toBe(
+      `/${currentApplication?.slug}/${page.slug}-${page.pageId}/edit`,
+    );
+    expect(viewPageURL).toBe(
+      `/${currentApplication?.slug}/${page.slug}-${page.pageId}`,
+    );
   });
 });
