@@ -19,5 +19,5 @@ export default {
   fromAddress: ".t--admin-settings-APPSMITH_MAIL_FROM input",
   restartNotice: ".t--admin-settings-restart-notice",
   appsmithLogo: ".t--appsmith-logo",
-  appsmithHeader: ".t--appsmith-page-header",
+  appsmithHeader: "[data-testid='t--appsmith-page-header']",
 };

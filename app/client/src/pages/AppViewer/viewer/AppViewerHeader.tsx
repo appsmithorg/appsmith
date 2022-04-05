@@ -191,7 +191,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   return (
     <ThemeProvider theme={props.lightTheme}>
       <HeaderWrapper
-        className={"t--appsmith-app-viewer-header"}
+        data-testid={"t--appsmith-app-viewer-header"}
         hasPages={pages.length > 1}
       >
         <HtmlTitle />

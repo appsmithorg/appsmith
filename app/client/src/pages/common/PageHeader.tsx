@@ -162,7 +162,7 @@ export function PageHeader(props: PageHeaderProps) {
 
   return (
     <StyledPageHeader
-      className={"t--appsmith-page-header"}
+      data-testid="t--appsmith-page-header"
       hideShadow={props.hideShadow || false}
       isMobile={isMobile}
       showSeparator={props.showSeparator || false}
