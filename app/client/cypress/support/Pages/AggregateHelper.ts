@@ -475,9 +475,12 @@ export class AggregateHelper {
         locator.eq(index).should('be.visible')
     }
 
-    public AssertElementLength(selector: string, length: number, index = 0) {
+    public AssertElementLength(selector: string, length: number, index: number | null = null) {
         let locator = selector.startsWith("//") ? cy.xpath(selector) : cy.get(selector)
-        locator.eq(index).should("have.length", length)
+        if (index)
+            locator.eq(index).should("have.length", length)
+        else
+            locator.should("have.length", length)
     }
 
     //Not used:
