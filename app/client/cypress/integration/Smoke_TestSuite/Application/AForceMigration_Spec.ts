@@ -111,7 +111,7 @@ describe("AForce - Community Issues page validations", function () {
 
   });
 
-  it("5. Verify Default search text in table as per 'Default Search Text' property set + Bug 12228", () => {
+  it.skip("5. Verify Default search text in table as per 'Default Search Text' property set + Bug 12228", () => {
 
     ee.SelectEntityByName("Table1", 'WIDGETS')
     jsEditor.EnterJSContext("defaultsearchtext", "Bug", false)
@@ -143,7 +143,7 @@ describe("AForce - Community Issues page validations", function () {
 
   });
 
-  it("6. Validate Search table with Client Side Search enabled & disabled", () => {
+  it.skip("6. Validate Search table with Client Side Search enabled & disabled", () => {
     ee.SelectEntityByName("Table1", 'WIDGETS')
     agHelper.AssertExistingToggleState("enableclientsidesearch", 'checked')
 
@@ -262,7 +262,9 @@ describe("AForce - Community Issues page validations", function () {
   })
 
   it("10. Validate Deleting the newly created issue", () => {
-
+    agHelper.AssertElementAbsence(locator._widgetInDeployed('tabswidget'))
+    table.SelectTableRow(0)
+    agHelper.AssertElementPresence(locator._widgetInDeployed('tabswidget'))
     cy.get(table._trashIcon).closest('div').click()
     agHelper.AssertElementAbsence(locator._widgetInDeployed('tabswidget'))
     table.WaitForTableEmpty()
