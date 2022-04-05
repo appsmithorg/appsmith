@@ -41,7 +41,6 @@ import {
   refactorJSCollectionAction,
   updateJSCollectionBodySuccess,
   updateJSFunction,
-  executeJSFunction,
 } from "actions/jsPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
