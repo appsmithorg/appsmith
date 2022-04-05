@@ -222,14 +222,14 @@ describe("AForce - Community Issues page validations", function () {
     agHelper.AssertElementAbsence(locator._widgetInDeployed('tabswidget'))
     table.SelectTableRow(0)
     agHelper.AssertElementPresence(locator._widgetInDeployed('tabswidget'))
-    cy.get(locator._inputWidgetv1InDeployed).eq(0).type("-updating title")
-    cy.get(locator._textAreainputWidgetv1InDeployed).eq(0).type("-updating desc")
-    cy.get(locator._inputWidgetv1InDeployed).eq(1).type("-updating issue link")
+    agHelper.GetNClick(locator._inputWidgetv1InDeployed).type("-updating title")
+    agHelper.GetNClick(locator._textAreainputWidgetv1InDeployed).type("-updating desc")
+    agHelper.GetNClick(locator._inputWidgetv1InDeployed, 1).type("-updating issue link")
     agHelper.SelectFromDropDown('Troubleshooting', 't--widget-tabswidget')
     agHelper.SelectFromMultiSelect(['Epic', 'Task'], 0, false)
     agHelper.SelectFromMultiSelect(['High', 'Dependencies'], 0, true)
     agHelper.SelectFromDropDown('[Bug] TypeError: o is undefined', 't--widget-tabswidget', 1)
-    cy.get(locator._inputWidgetv1InDeployed).eq(2).type("-updating answer link")
+    agHelper.GetNClick(locator._inputWidgetv1InDeployed, 2).type("-updating answer link")
 
     //cy.get("body").tab().type("{enter}")
     

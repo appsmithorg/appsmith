@@ -317,15 +317,15 @@ export class AggregateHelper {
         })
     }
 
-    public XpathNClick(selector: string) {
-        cy.xpath(selector)
-            .first()
+    public XpathNClick(selector: string, index = 0) {
+        return cy.xpath(selector)
+            .eq(index)
             .click({ force: true });
-        this.Sleep()
+        //this.Sleep(500)
     }
 
-    public GetNClick(selector: string) {
-        cy.get(selector).click({ force: true });
+    public GetNClick(selector: string, index = 0) {
+        return cy.get(selector).eq(index).click({ force: true });
     }
 
     public ToggleOnOrOff(propertyName: string, toggle: 'On' | 'Off') {
