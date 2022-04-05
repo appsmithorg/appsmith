@@ -6,7 +6,10 @@ import { createGlobalStyle } from "constants/DefaultTheme";
 import Icon from "components/ads/Icon";
 import { LabelPosition } from "components/constants";
 import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
-import { labelLayoutStyles } from "components/ads/LabelWithTooltip";
+import {
+  labelLayoutStyles,
+  multiSelectInputContainerStyles,
+} from "components/ads/LabelWithTooltip";
 
 export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
   transform: rotate(${({ expanded }) => (expanded ? 0 : 270)}deg);
@@ -903,17 +906,5 @@ export const InputContainer = styled.div<{
   compactMode: boolean;
   labelPosition?: LabelPosition;
 }>`
-  display: flex;
-  align-items: ${({ compactMode, labelPosition }) =>
-    labelPosition === LabelPosition.Top
-      ? `flex-start`
-      : labelPosition === LabelPosition.Left
-      ? `center`
-      : compactMode
-      ? `center`
-      : `flex-start`};
-  width: 100%;
-  height: 100%;
-  ${({ compactMode, labelPosition }) =>
-    labelPosition !== LabelPosition.Top && compactMode && `overflow-x: hidden`};
+  ${multiSelectInputContainerStyles}
 `;

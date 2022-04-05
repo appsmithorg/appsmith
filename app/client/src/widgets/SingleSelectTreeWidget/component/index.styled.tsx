@@ -894,6 +894,10 @@ export const InputContainer = styled.div<{
   labelPosition?: LabelPosition;
 }>`
   width: 100%;
+  ${({ compactMode, labelPosition }) => {
+    if (compactMode || labelPosition) return;
+    return "margin-top: -5px;";
+  }}
   ${({ compactMode, labelPosition }) =>
     labelPosition !== LabelPosition.Top && compactMode && `overflow-x: hidden`};
 `;

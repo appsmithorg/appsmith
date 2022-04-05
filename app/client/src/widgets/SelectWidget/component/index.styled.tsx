@@ -12,14 +12,6 @@ import { isEmptyOrNill } from "../../../utils/helpers";
 import { LabelPosition } from "components/constants";
 import { labelLayoutStyles } from "components/ads/LabelWithTooltip";
 
-export const TextLabelWrapper = styled.div<{
-  compactMode: boolean;
-}>`
-  ${(props) =>
-    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
-  display: flex;
-`;
-
 export const StyledDiv = styled.div`
   display: flex;
 `;

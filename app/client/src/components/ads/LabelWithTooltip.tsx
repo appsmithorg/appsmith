@@ -105,6 +105,27 @@ export const labelLayoutStyles = css<{
     `overflow-x: hidden; overflow-y: auto;`}
 `;
 
+export const multiSelectInputContainerStyles = css<{
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
+}>`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: ${({ compactMode, labelPosition }) => {
+    if (labelPosition === LabelPosition.Top) return "flex-start";
+    if (labelPosition === LabelPosition.Left) return "center";
+    if (compactMode) return "center";
+    return "flex-start";
+  }};
+  ${({ compactMode, labelPosition }) =>
+    labelPosition !== LabelPosition.Top && compactMode && `overflow-x: hidden`};
+  ${({ compactMode, labelPosition }) => {
+    if (compactMode || labelPosition) return;
+    return "margin-top: -5px;";
+  }}
+`;
+
 export const LabelContainer = styled.div<LabelContainerProps>`
   display: flex;
   align-items: center;
@@ -157,6 +178,13 @@ export const StyledLabel = styled(Label)<StyledLabelProps>`
         hasHelpText ? `margin-right: ${LABEL_DEFAULT_GAP}` : "margin-right: 0px"
       }`;
     }};
+    &.select-label {
+      ${({ compact, position }) => {
+        if (!position && !compact) {
+          return `margin-bottom: ${LABEL_DEFAULT_GAP}`;
+        }
+      }};
+    }
 
     ${({ color, disabled, fontSize, fontStyle }) => `
       color: ${disabled ? Colors.GREY_8 : color || "inherit"};
