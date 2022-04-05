@@ -190,7 +190,10 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
 
   return (
     <ThemeProvider theme={props.lightTheme}>
-      <HeaderWrapper hasPages={pages.length > 1}>
+      <HeaderWrapper
+        data-testid={"t--appsmith-app-viewer-header"}
+        hasPages={pages.length > 1}
+      >
         <HtmlTitle />
         <HeaderRow className="px-3" justify={"space-between"}>
           <HeaderSection className="space-x-3 justify-start">
