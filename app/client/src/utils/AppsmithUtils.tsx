@@ -413,11 +413,13 @@ export const getPageURL = (
     );
   }
 
-  return builderURL({
-    applicationSlug: currentApplicationDetails?.slug || PLACEHOLDER_APP_SLUG,
-    pageSlug: page.slug || PLACEHOLDER_PAGE_SLUG,
-    pageId: page.pageId,
-  });
+  return trimQueryString(
+    builderURL({
+      applicationSlug: currentApplicationDetails?.slug || PLACEHOLDER_APP_SLUG,
+      pageSlug: page.slug || PLACEHOLDER_PAGE_SLUG,
+      pageId: page.pageId,
+    }),
+  );
 };
 
 /**

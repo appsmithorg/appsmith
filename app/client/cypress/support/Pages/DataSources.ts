@@ -4,6 +4,7 @@ export class DataSources {
 
     private agHelper = ObjectsRegistry.AggregateHelper
     private locator = ObjectsRegistry.CommonLocators;
+    private ee = ObjectsRegistry.EntityExplorer;
 
     private _dsCreateNewTab = "[data-cy=t--tab-CREATE_NEW]"
     private _addNewDataSource = ".datasources .t--entity-add-btn"
@@ -18,6 +19,7 @@ export class DataSources {
     private _saveDs = ".t--save-datasource"
     private _datasourceCard = ".t--datasource"
     _templateMenu = ".t--template-menu"
+    private _createQuery = ".t--create-query"
     _visibleTextSpan = (spanText: string) => "//span[contains(text(),'" + spanText + "')]"
     _dropdownTitle = (ddTitle: string) => "//p[contains(text(),'" + ddTitle + "')]/parent::label/following-sibling::div/div/div"
     _reconnectModal = "div.reconnect-datasource-modal"
@@ -81,9 +83,14 @@ export class DataSources {
             .should("be.visible")
             .closest(this._datasourceCard)
             .within(() => {
-                cy.get(this.locator._createQuery).click({ force: true });
+                cy.get(this._createQuery).click({ force: true });
             })
         this.agHelper.Sleep(2000); //for the CreateQuery page to load
+    }
+
+    public NavigateToActiveDSviaEntityExplorer(datasourceName: string) {
+        this.ee.SelectEntityByName(datasourceName, 'DATASOURCES')
+        cy.get(this._createQuery).click({ force: true });
     }
 
 
