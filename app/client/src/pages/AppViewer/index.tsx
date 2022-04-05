@@ -8,8 +8,6 @@ import {
   AppViewerRouteParams,
   BuilderRouteParams,
   GIT_BRANCH_QUERY_KEY,
-  VIEWER_FORK_PATH,
-  VIEWER_FORK_PATH_DEPRECATED,
   VIEWER_PATH,
   VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
@@ -193,23 +191,11 @@ class AppViewer extends Component<Props> {
                     <Switch>
                       <SentryRoute
                         component={AppViewerPageContainer}
-                        exact
                         path={VIEWER_PATH}
                       />
                       <SentryRoute
                         component={AppViewerPageContainer}
-                        exact
                         path={VIEWER_PATH_DEPRECATED}
-                      />
-                      <SentryRoute
-                        component={AppViewerPageContainer}
-                        exact
-                        path={VIEWER_FORK_PATH}
-                      />
-                      <SentryRoute
-                        component={AppViewerPageContainer}
-                        exact
-                        path={VIEWER_FORK_PATH_DEPRECATED}
                       />
                     </Switch>
                   )}

@@ -10,11 +10,9 @@ import {
   SETUP,
   SIGNUP_SUCCESS_URL,
   USER_AUTH_URL,
-  VIEWER_FORK_PATH,
   BUILDER_PATH_DEPRECATED,
   VIEWER_PATH_DEPRECATED,
   ADMIN_SETTINGS_CATEGORY_PATH,
-  VIEWER_FORK_PATH_DEPRECATED,
 } from "constants/routes";
 import { withRouter, RouteComponentProps } from "react-router";
 import AppViewerHeader from "pages/AppViewer/viewer/AppViewerHeader";
@@ -42,14 +40,8 @@ class AppHeader extends React.Component<Props, any> {
         <Route path={SIGNUP_SUCCESS_URL} />
         <Route component={AppEditorHeader} path={BUILDER_PATH} />
         <Route component={AppEditorHeader} path={BUILDER_PATH_DEPRECATED} />
-        <Route component={AppViewerHeader} exact path={VIEWER_PATH} />
-        <Route
-          component={AppViewerHeader}
-          exact
-          path={VIEWER_PATH_DEPRECATED}
-        />
-        <Route component={AppViewerHeader} path={VIEWER_FORK_PATH} />
-        <Route component={AppViewerHeader} path={VIEWER_FORK_PATH_DEPRECATED} />
+        <Route component={AppViewerHeader} path={VIEWER_PATH} />
+        <Route component={AppViewerHeader} path={VIEWER_PATH_DEPRECATED} />
         <Route component={PageHeader} path={BASE_URL} />
       </Switch>
     );
