@@ -461,13 +461,18 @@ function ReconnectDatasourceModal() {
   // checking of full configured
   useEffect(() => {
     if (isModalOpen && !isTesting) {
-      // if there is only one gsheet datasource, it shouldn't be redirected to app immediately
-      if (!queryIsImport && datasources.length && datasource) {
-        const authType =
-          datasource?.datasourceConfiguration?.authentication
-            ?.authenticationType;
+      // if selected datasource is gsheet datasource, it shouldn't be redirected to app immediately
+      if (!queryIsImport && datasources.length) {
+        const selectedDS = datasources.find(
+          (ds: Datasource) => ds.id === selectedDatasourceId,
+        );
+        if (selectedDS) {
+          const authType =
+            selectedDS.datasourceConfiguration?.authentication
+              ?.authenticationType;
 
-        if (authType === AuthType.OAUTH2) return;
+          if (authType === AuthType.OAUTH2) return;
+        }
       }
       const id = selectedDatasourceId;
       const pending = datasources.filter((ds: Datasource) => !ds.isConfigured);
