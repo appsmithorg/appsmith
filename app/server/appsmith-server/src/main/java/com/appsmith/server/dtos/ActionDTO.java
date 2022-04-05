@@ -41,6 +41,9 @@ public class ActionDTO {
     PluginType pluginType;
 
     @Transient
+    String pluginName;
+
+    @Transient
     String pluginId;
 
     String name;
