@@ -286,9 +286,9 @@ const TextInputWrapper = styled.div<{
   ${({ inputHtmlType }) =>
     inputHtmlType && inputHtmlType !== InputTypes.TEXT && `&&& {flex-grow: 0;}`}
   min-height: 36px;
-  ${({ compact, labelPosition }) => {
+  ${({ compact, inputHtmlType, labelPosition }) => {
     if (compact || labelPosition) return;
-    return "margin-top: -5px;";
+    if (inputHtmlType === InputTypes.TEXT) return "margin-top: -5px;";
   }}
 `;
 
