@@ -297,14 +297,12 @@ function* handleJSObjectNameChangeSuccessSaga(
   }
 }
 
-export function* handleExecuteJSFunctionSaga(
-  data: ReduxAction<{
-    collectionName: string;
-    action: JSAction;
-    collectionId: string;
-  }>,
-): any {
-  const { action, collectionId, collectionName } = data.payload;
+export function* handleExecuteJSFunctionSaga(data: {
+  collectionName: string;
+  action: JSAction;
+  collectionId: string;
+}): any {
+  const { action, collectionId, collectionName } = data;
   const actionId = action.id;
   try {
     const result = yield call(executeFunction, collectionName, action);
@@ -376,13 +374,11 @@ export function* handleStartExecuteJSFunctionSaga(
       throw new UserCancelledActionExecutionError();
     }
   }
-  yield put(
-    executeJSFunction({
-      collectionName: collectionName,
-      action: action,
-      collectionId: collectionId,
-    }),
-  );
+  yield call(handleExecuteJSFunctionSaga, {
+    collectionName: collectionName,
+    action: action,
+    collectionId: collectionId,
+  });
 }
 
 function* handleUpdateJSCollectionBody(
@@ -608,10 +604,6 @@ export default function* root() {
     takeEvery(
       ReduxActionTypes.SAVE_JS_COLLECTION_NAME_SUCCESS,
       handleJSObjectNameChangeSuccessSaga,
-    ),
-    takeEvery(
-      ReduxActionTypes.EXECUTE_JS_FUNCTION_INIT,
-      handleExecuteJSFunctionSaga,
     ),
     takeEvery(
       ReduxActionTypes.START_EXECUTE_JS_FUNCTION,

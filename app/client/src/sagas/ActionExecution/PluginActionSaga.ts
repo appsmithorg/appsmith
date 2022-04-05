@@ -91,7 +91,6 @@ import {
 } from "sagas/ActionExecution/errorUtils";
 import { trimQueryString } from "utils/helpers";
 import { JSCollection } from "entities/JSCollection";
-import { executeJSFunction } from "actions/jsPaneActions";
 import {
   executeAppAction,
   TriggerMeta,
@@ -103,7 +102,7 @@ import { CURL_IMPORT_FORM } from "constants/forms";
 import { submitCurlImportForm } from "actions/importActions";
 import { getBasePath } from "pages/Editor/Explorer/helpers";
 import { isTrueObject } from "workers/evaluationUtils";
-
+import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
 }
@@ -623,13 +622,12 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
           throw new UserCancelledActionExecutionError();
         }
       }
-      yield put(
-        executeJSFunction({
-          collectionName: collection.name,
-          action: jsAction,
-          collectionId: collectionId,
-        }),
-      );
+      const data = {
+        collectionName: collection.name,
+        action: jsAction,
+        collectionId: collectionId,
+      };
+      yield call(handleExecuteJSFunctionSaga, data);
     }
   }
 }
