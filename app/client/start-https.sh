@@ -84,7 +84,7 @@ case "${uname_out}" in
         "
         cat ./docker/templates/nginx-app.conf.template | sed -e "s|__APPSMITH_CLIENT_PROXY_PASS__|${client_proxy_pass}|g" | sed -e "s|__APPSMITH_SERVER_PROXY_PASS__|${server_proxy_pass}|g" | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > ./docker/nginx.conf  &&
         cat ./docker/templates/nginx-root.conf.template | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > ./docker/nginx-root.conf  &&
-        sudo docker run --network ${network_mode} --name wildcard-nginx -d -p 80:80 -p 443:443 -v `pwd`/docker/nginx-root.conf:/etc/nginx/nginx.conf -v `pwd`/docker/nginx.conf:/etc/nginx/conf.d/app.conf -v `pwd`/docker/_wildcard.appsmith.com.pem:/etc/certificate/dev.appsmith.com.pem -v `pwd`/docker/_wildcard.appsmith.com-key.pem:/etc/certificate/dev.appsmith.com-key.pem nginx:latest \
+        sudo docker run --network ${network_mode} --name wildcard-nginx -d -p 80:80 -p 443:443 -v "`pwd`/docker/nginx-root.conf:/etc/nginx/nginx.conf" -v "`pwd`/docker/nginx.conf:/etc/nginx/conf.d/app.conf" -v "`pwd`/docker/_wildcard.appsmith.com.pem:/etc/certificate/dev.appsmith.com.pem" -v "`pwd`/docker/_wildcard.appsmith.com-key.pem:/etc/certificate/dev.appsmith.com-key.pem" nginx:latest \
         && echo "
     nginx is listening on port 443 and forwarding to port 3000
     visit https://dev.appsmith.com
@@ -96,7 +96,7 @@ case "${uname_out}" in
         "
         cat ./docker/templates/nginx-app.conf.template | sed -e "s|__APPSMITH_CLIENT_PROXY_PASS__|${client_proxy_pass}|g" | sed -e "s|__APPSMITH_SERVER_PROXY_PASS__|${server_proxy_pass}|g" | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > ./docker/nginx.conf  &&
         cat ./docker/templates/nginx-root.conf.template | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > ./docker/nginx-root.conf  &&
-        docker run --name wildcard-nginx -d -p 80:80 -p 443:443 -v `pwd`/docker/nginx-root.conf:/etc/nginx/nginx.conf -v `pwd`/docker/nginx.conf:/etc/nginx/conf.d/app.conf -v `pwd`/docker/_wildcard.appsmith.com.pem:/etc/certificate/dev.appsmith.com.pem -v `pwd`/docker/_wildcard.appsmith.com-key.pem:/etc/certificate/dev.appsmith.com-key.pem nginx:latest \
+        docker run --name wildcard-nginx -d -p 80:80 -p 443:443 -v "`pwd`/docker/nginx-root.conf:/etc/nginx/nginx.conf" -v "`pwd`/docker/nginx.conf:/etc/nginx/conf.d/app.conf" -v "`pwd`/docker/_wildcard.appsmith.com.pem:/etc/certificate/dev.appsmith.com.pem" -v "`pwd`/docker/_wildcard.appsmith.com-key.pem:/etc/certificate/dev.appsmith.com-key.pem" nginx:latest \
         && echo "
     nginx is listening on port 443 and forwarding to port 3000
     visit https://dev.appsmith.com
