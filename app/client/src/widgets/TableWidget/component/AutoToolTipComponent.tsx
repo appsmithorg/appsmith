@@ -12,7 +12,8 @@ const TooltipContentWrapper = styled.div<{ width: number }>`
 
 export const OpenNewTabIconWrapper = styled.div`
   left: 4px;
-  top: 2px;
+  height: 28px;
+  align-items: center;
   position: relative;
 `;
 
