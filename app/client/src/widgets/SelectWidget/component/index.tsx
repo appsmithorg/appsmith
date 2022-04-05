@@ -136,7 +136,11 @@ class SelectComponent extends React.Component<
     const focusClassName = `${isFocused && "has-focus"}`;
     const selectedClassName = `${isSelected && "menu-item-active"}`;
     return (
-      <MenuItem key={option.value} onClick={itemProps.handleClick}>
+      <MenuItem
+        key={option.value}
+        onClick={itemProps.handleClick}
+        primaryColor={this.props.primaryColor}
+      >
         <a
           className={`menu-item-link ${selectedClassName} ${focusClassName}`}
           tabIndex={0}

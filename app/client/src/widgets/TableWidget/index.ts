@@ -1,5 +1,9 @@
 import { Colors } from "constants/Colors";
 import { cloneDeep, set } from "lodash";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
@@ -38,6 +42,12 @@ export const CONFIG = {
       },
       {
         key: "primaryColumns.action.buttonColor",
+      },
+      {
+        key: "primaryColumns.action.borderRadius",
+      },
+      {
+        key: "primaryColumns.action.menuColor",
       },
     ],
     primaryColumns: {
@@ -107,7 +117,6 @@ export const CONFIG = {
         isDisabled: false,
         isDerived: false,
         label: "action",
-        buttonColor: "{{appsmith.theme.colors.primaryColor}}",
         onClick:
           "{{currentRow.step === '#1' ? showAlert('Done', 'success') : currentRow.step === '#2' ? navigateTo('https://docs.appsmith.com/core-concepts/connecting-to-data-sources/querying-a-database',undefined,'NEW_WINDOW') : navigateTo('https://docs.appsmith.com/core-concepts/displaying-data-read/display-data-tables',undefined,'NEW_WINDOW')}}",
         computedValue:
@@ -155,7 +164,27 @@ export const CONFIG = {
                 `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${columnId}))}}`,
               );
               set(primaryColumns, `${columnId}.labelColor`, Colors.WHITE);
+
+              Object.keys(
+                widget.childStylesheets[primaryColumns[columnId].columnType] ||
+                  [],
+              ).map((propertyKey) => {
+                const { jsSnippets, stringSegments } = getDynamicBindings(
+                  widget.childStylesheets[primaryColumns[columnId].columnType][
+                    propertyKey
+                  ],
+                );
+
+                const js = combineDynamicBindings(jsSnippets, stringSegments);
+
+                set(
+                  primaryColumns,
+                  `${columnId}.${propertyKey}`,
+                  `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => ( ${js}))}}`,
+                );
+              });
             });
+
             const updatePropertyMap = [
               {
                 widgetId: widget.widgetId,
@@ -182,6 +211,7 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    loadingProperties: Widget.getLoadingProperties(),
   },
 };
 

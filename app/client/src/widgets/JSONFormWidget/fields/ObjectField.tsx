@@ -134,7 +134,15 @@ function ObjectField({
         boxShadow={schemaItem.boxShadow}
         withoutPadding={isRootField}
       >
-        {!hideLabel && <FieldLabel label={label} tooltip={tooltip} />}
+        {!hideLabel && (
+          <FieldLabel
+            label={label}
+            labelStyle={schemaItem.labelStyle}
+            labelTextColor={schemaItem.labelTextColor}
+            labelTextSize={schemaItem.labelTextSize}
+            tooltip={tooltip}
+          />
+        )}
         {isRootField || hideAccordion ? (
           field
         ) : (

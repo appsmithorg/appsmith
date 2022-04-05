@@ -18,7 +18,7 @@ import { Colors } from "constants/Colors";
 type SwitchComponentOwnProps = FieldComponentBaseProps &
   FieldEventProps & {
     alignWidget: AlignWidget;
-    backgroundColor?: string;
+    accentColor?: string;
     onChange?: string;
   };
 
@@ -90,7 +90,7 @@ function SwitchField({
     () => (
       <SwitchComponent
         alignWidget={schemaItem.alignWidget}
-        backgroundColor={schemaItem.backgroundColor || DEFAULT_BG_COLOR}
+        backgroundColor={schemaItem.accentColor || DEFAULT_BG_COLOR}
         inputRef={(e) => (inputRef.current = e)}
         isDisabled={schemaItem.isDisabled}
         isLoading={false}
@@ -102,7 +102,7 @@ function SwitchField({
     ),
     [
       schemaItem.alignWidget,
-      schemaItem.backgroundColor,
+      schemaItem.accentColor,
       schemaItem.isDisabled,
       onSwitchChange,
       value,

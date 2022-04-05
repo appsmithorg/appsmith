@@ -6,11 +6,7 @@ import Tooltip from "components/editorComponents/Tooltip";
 import { Colors } from "constants/Colors";
 import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
 import { IconWrapper } from "constants/IconConstants";
-import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
+import { FontStyleTypes } from "constants/WidgetConstants";
 import { AlignWidget } from "widgets/constants";
 
 type AlignField = AlignWidget;
@@ -115,7 +111,7 @@ function FieldLabel({
   label,
   labelStyle,
   labelTextColor = "",
-  labelTextSize = "PARAGRAPH",
+  labelTextSize = "inherit",
   tooltip,
 }: FieldLabelProps) {
   const labelStyleProps = useMemo(() => {

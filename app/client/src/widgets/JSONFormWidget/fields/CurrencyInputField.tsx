@@ -36,7 +36,7 @@ type CurrencyTypeDropdownComponentProps = {
   borderRadius?: string;
   currencyCountryCode: string;
   isDisabled: boolean;
-  primaryColor?: string;
+  accentColor?: string;
   propertyPath: string;
   fieldName: string;
 };
@@ -81,12 +81,12 @@ export const isValid = (
 };
 
 function CurrencyTypeDropdownComponent({
+  accentColor,
   allowCurrencyChange,
   borderRadius,
   currencyCountryCode,
   fieldName,
   isDisabled,
-  primaryColor,
   propertyPath,
 }: CurrencyTypeDropdownComponentProps) {
   const { renderMode, updateWidgetProperty } = useContext(FormContext);
@@ -110,7 +110,7 @@ function CurrencyTypeDropdownComponent({
       borderRadius={borderRadius}
       onCurrencyTypeChange={onCurrencyTypeChange}
       options={CurrencyDropdownOptions}
-      primaryColor={primaryColor}
+      primaryColor={accentColor}
       selected={selectedCurrencyCountryCode}
       widgetId={fieldName}
     />
@@ -152,12 +152,12 @@ function CurrencyInputField({
   const leftIcon = useMemo(
     () => (
       <CurrencyTypeDropdownComponent
+        accentColor={schemaItem.accentColor}
         allowCurrencyChange={schemaItem.allowCurrencyChange}
         borderRadius={schemaItem.borderRadius}
         currencyCountryCode={schemaItem.currencyCountryCode}
         fieldName={name}
         isDisabled={schemaItem.isDisabled}
-        primaryColor={schemaItem.primaryColor}
         propertyPath={propertyPath}
       />
     ),
@@ -166,7 +166,7 @@ function CurrencyInputField({
       schemaItem.currencyCountryCode,
       schemaItem.isDisabled,
       propertyPath,
-      schemaItem.primaryColor,
+      schemaItem.accentColor,
       schemaItem.borderRadius,
     ],
   );

@@ -13,7 +13,9 @@ const Input = styled.input`
   z-index: -1;
 `;
 
-export const CommonSelectFilterStyle = css`
+export const CommonSelectFilterStyle = css<{
+  primaryColor?: string;
+}>`
   &&&& .${Classes.ALIGN_LEFT} {
     font-size: 14px;
     padding-left: 42px;
@@ -22,7 +24,7 @@ export const CommonSelectFilterStyle = css`
       margin-right: 20px;
     }
     &.all-options.selected {
-      background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+      background: ${(props) => lightenColor(props.primaryColor)};
       color: ${Colors.GREY_10} !important;
     }
   }
@@ -173,6 +175,11 @@ ${({ dropDownWidth, id }) => `
 }
 .rc-select-item-option:hover {
 	background: ${({ primaryColor }) => lightenColor(primaryColor)};
+
+  & .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
+    border-color: ${({ primaryColor }) => primaryColor} !important;
+  }
+
   & .rc-select-item-option-content {
     color: ${Colors.GREY_9};
   }
@@ -297,12 +304,13 @@ ${({ dropDownWidth, id }) => `
     border-width: 1px;
     border-style: solid;
     border-color: ${Colors.GREY_3};
-    border-radius: 0px;
+    border-radius: ${({ borderRadius }) => borderRadius} !important;
     &::before {
       width: auto;
       height: 1em;
     }
   }
+
   .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
     background: ${({ primaryColor }) => primaryColor} !important;
     color: rgb(255, 255, 255);
@@ -473,6 +481,7 @@ export const MultiSelectContainer = styled.div<{
       transition: border-color 0.15s ease-in-out 0s,
         box-shadow 0.15s ease-in-out 0s;
       background-color: white;
+
       .rc-select-selection-item {
         background: none;
         border: 1px solid ${Colors.GREY_3};
@@ -589,7 +598,7 @@ export const MultiSelectContainer = styled.div<{
         ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
       &:hover {
         border: 1px solid
-          ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
+          ${(props) => (props.isValid ? Colors.GREY_5 : Colors.DANGER_SOLID)};
       }
     }
   }
@@ -615,6 +624,7 @@ export const MultiSelectContainer = styled.div<{
   .rc-select-show-arrow.rc-select-multiple.rc-select-focused {
     .rc-select-selector {
       outline: 0;
+
       ${(props) =>
         props.isValid
           ? `

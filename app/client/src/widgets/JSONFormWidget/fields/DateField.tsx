@@ -21,7 +21,7 @@ import { Colors } from "constants/Colors";
 
 type DateComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
-    primaryColor?: string;
+    accentColor?: string;
     borderRadius?: string;
     boxShadow?: string;
     closeOnSelection: boolean;
@@ -188,8 +188,8 @@ function DateField({
     return (
       <DateComponent
         backgroundColor="white"
-        borderRadius={schemaItem.borderRadius || DEFAULT_BORDER_RADIUS}
-        boxShadow={schemaItem.boxShadow}
+        borderRadius={schemaItem.borderRadius ?? DEFAULT_BORDER_RADIUS}
+        boxShadow={schemaItem.boxShadow ?? "none"}
         closeOnSelection={schemaItem.closeOnSelection}
         dateFormat={schemaItem.dateFormat}
         datePickerType="DATE_PICKER"
@@ -200,7 +200,7 @@ function DateField({
         maxDate={schemaItem.maxDate}
         minDate={schemaItem.minDate}
         onDateSelected={onDateSelected}
-        primaryColor={schemaItem.primaryColor || DEFAULT_PRIMARY_COLOR}
+        primaryColor={schemaItem.accentColor || DEFAULT_PRIMARY_COLOR}
         selectedDate={valueInISOFormat}
         shortcuts={schemaItem.shortcuts}
         timePrecision={schemaItem.timePrecision}
@@ -208,7 +208,7 @@ function DateField({
       />
     );
   }, [
-    schemaItem.primaryColor,
+    schemaItem.accentColor,
     schemaItem.boxShadow,
     schemaItem.borderRadius,
     schemaItem.closeOnSelection,

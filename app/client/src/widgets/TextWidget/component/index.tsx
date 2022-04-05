@@ -4,7 +4,11 @@ import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import Interweave from "interweave";
 import { UrlMatcher, EmailMatcher } from "interweave-autolink";
-import { FontStyleTypes } from "constants/WidgetConstants";
+import {
+  FontStyleTypes,
+  TextSize,
+  TEXT_SIZES,
+} from "constants/WidgetConstants";
 import Icon, { IconSize } from "components/ads/Icon";
 import { isEqual, get } from "lodash";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
@@ -24,7 +28,6 @@ export const TextContainer = styled.div`
     width: 100%;
     position: relative;
   }
-
   ul {
     list-style-type: disc;
     list-style-position: inside;
@@ -76,7 +79,6 @@ export const TextContainer = styled.div`
   a {
     color: #106ba3;
     text-decoration: none;
-
     &:hover {
       text-decoration: underline;
     }
@@ -100,9 +102,7 @@ export const StyledText = styled(Text)<{
   backgroundColor?: string;
   textColor?: string;
   fontStyle?: string;
-  fontSize?: string;
-  borderColor?: Color;
-  borderWidth?: number;
+  fontSize?: TextSize;
 }>`
   height: ${(props) =>
     props.overflow === OverflowTypes.TRUNCATE
@@ -126,10 +126,6 @@ export const StyledText = styled(Text)<{
       ? "flex-start"
       : "center"};
   background: ${(props) => props?.backgroundColor};
-  border-width: ${(props) => props.borderWidth}px;
-  border-color: ${(props) => props.borderColor || "transparent"};
-  border-style: solid;
-
   color: ${(props) => props?.textColor};
   font-style: ${(props) =>
     props?.fontStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
@@ -159,7 +155,6 @@ const Heading = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   .title {
     font-weight: 500;
     font-size: 20px;
@@ -167,14 +162,13 @@ const Heading = styled.div`
     letter-spacing: -0.24px;
     color: ${Colors.GREY_10};
   }
-
   .icon > svg > path {
     stroke: ${Colors.GREY_9};
   }
 `;
 
 const Content = styled.div<{
-  fontSize?: string;
+  fontSize?: TextSize;
   fontStyle?: string;
   textAlign: string;
   textColor?: string;
@@ -191,13 +185,15 @@ const Content = styled.div<{
     props?.fontStyle?.includes(FontStyleTypes.UNDERLINE) ? "underline" : ""};
   font-weight: ${(props) =>
     props?.fontStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
-  font-size: ${(props) => props?.fontSize};
+  font-size: ${({ fontSize }) =>
+    fontSizeUtility(fontSize) || DEFAULT_FONT_SIZE};
 `;
 export interface TextComponentProps extends ComponentProps {
   text?: string;
   textAlign: TextAlign;
   ellipsize?: boolean;
-  fontSize?: string;
+  fontSize?: TextSize;
+  fontFamily: string;
   isLoading: boolean;
   backgroundColor?: string;
   textColor?: string;
@@ -212,7 +208,6 @@ export interface TextComponentProps extends ComponentProps {
   leftColumn?: number;
   rightColumn?: number;
   topRow?: number;
-  fontFamily: string;
 }
 
 type State = {
@@ -277,7 +272,6 @@ class TextComponent extends React.Component<TextComponentProps, State> {
       backgroundColor,
       disableLink,
       ellipsize,
-      fontFamily,
       fontSize,
       fontStyle,
       overflow,
@@ -289,7 +283,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
 
     return (
       <>
-        <FontLoader fontFamily={fontFamily}>
+        <FontLoader fontFamily={this.props.fontFamily}>
           <TextContainer>
             <StyledText
               backgroundColor={backgroundColor}

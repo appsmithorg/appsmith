@@ -9,7 +9,7 @@ interface Props {
 function FontLoader(props: Props) {
   const fontFamily = useGoogleFont(props.fontFamily);
 
-  return <div style={{ fontFamily }}>{props.children}</div>;
+  return <div style={{ fontFamily, height: "100%" }}>{props.children}</div>;
 }
 
 export default FontLoader;

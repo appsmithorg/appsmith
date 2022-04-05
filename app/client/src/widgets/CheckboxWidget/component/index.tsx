@@ -33,6 +33,10 @@ const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
     width: 100%;
     &.${Alignment.RIGHT} {
       justify-content: flex-end;
+
+      label {
+        flex-direction: row-reverse;
+      }
     }
     & .bp3-control-indicator {
       border: ${(props) =>

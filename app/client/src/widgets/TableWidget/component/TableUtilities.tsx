@@ -23,7 +23,7 @@ import {
   TableStyles,
   MenuItems,
 } from "./Constants";
-import { isString, isEmpty, findIndex, isNil, isNaN } from "lodash";
+import { isString, isEmpty, findIndex, isNil, isNaN, set } from "lodash";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
@@ -48,6 +48,10 @@ import MenuButtonTableComponent from "./components/menuButtonTableComponent";
 import { stopClickEventPropagation } from "utils/helpers";
 import tinycolor from "tinycolor2";
 import { generateTableColumnId } from "./TableHelpers";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
 
 export const renderCell = (
   value: any,
@@ -653,7 +657,7 @@ export function TableHeaderCell(props: {
 export function getDefaultColumnProperties(
   accessor: string,
   index: number,
-  widgetName: string,
+  widgetProperties: any,
   isDerived?: boolean,
 ): ColumnProperties {
   const id = generateTableColumnId(accessor);
@@ -676,8 +680,22 @@ export function getDefaultColumnProperties(
     label: accessor,
     computedValue: isDerived
       ? ""
-      : `{{${widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${id}))}}`,
+      : `{{${widgetProperties.widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${id}))}}`,
   };
+
+  // Object.keys(widgetProperties.defaultProperties).map((propertyKey) => {
+  //   const { jsSnippets, stringSegments } = getDynamicBindings(
+  //     widgetProperties.defaultProperties[propertyKey],
+  //   );
+
+  //   const js = combineDynamicBindings(jsSnippets, stringSegments);
+
+  //   set(
+  //     columnProps,
+  //     `${propertyKey}`,
+  //     `{{${widgetProperties.widgetName}.sanitizedTableData.map((currentRow) => ( ${js}))}}`,
+  //   );
+  // });
 
   return columnProps;
 }

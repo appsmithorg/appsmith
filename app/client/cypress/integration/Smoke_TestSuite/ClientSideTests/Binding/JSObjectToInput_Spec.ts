@@ -1,10 +1,9 @@
-import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
-import { JSEditor } from "../../../../support/Pages/JSEditor";
-import { CommonLocators } from "../../../../support/Objects/CommonLocators";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry"
 
-const agHelper = new AggregateHelper();
-const jsEditor = new JSEditor();
-const locator = new CommonLocators();
+let agHelper = ObjectsRegistry.AggregateHelper,
+    ee = ObjectsRegistry.EntityExplorer,
+    jsEditor = ObjectsRegistry.JSEditor,
+    locator = ObjectsRegistry.CommonLocators;
 
 describe("Validate Create Api and Bind to Table widget via JSObject", () => {
   before(() => {
@@ -15,9 +14,9 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
 
   it("1. Bind Input widget with JSObject", function () {
     jsEditor.CreateJSObject('return "Success";', false);
-    agHelper.expandCollapseEntity("WIDGETS")//to expand widgets
-    agHelper.expandCollapseEntity("Form1")
-    agHelper.SelectEntityByName("Input2")
+    ee.expandCollapseEntity("WIDGETS")//to expand widgets
+    ee.expandCollapseEntity("Form1")
+    ee.SelectEntityByName("Input2")
     cy.get("@jsObjName").then((jsObjName) => {
       jsEditor.EnterJSContext("defaulttext", "{{" + jsObjName + ".myFun1()}}")
     });
@@ -33,8 +32,8 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
 
   it.skip("2. Bug 10284, 11529 - Verify timeout issue with running JS Objects", function () {
     jsEditor.CreateJSObject('return "Success";', true);
-    agHelper.expandCollapseEntity("Form1")
-    agHelper.SelectEntityByName("Input2")
+    ee.expandCollapseEntity("Form1")
+    ee.SelectEntityByName("Input2")
     cy.get("@jsObjName").then((jsObjName) => {
       jsEditor.EnterJSContext("defaulttext", "{{" + jsObjName + ".myFun1()}}")
     });
