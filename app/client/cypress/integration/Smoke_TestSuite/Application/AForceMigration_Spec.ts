@@ -98,7 +98,7 @@ describe("AForce - Community Issues page validations", function () {
 
   it("4. Change Default selected row in table and verify", () => {
 
-    jsEditor.EnterJSContext("defaultselectedrow", "1", true)
+    jsEditor.EnterJSContext("defaultselectedrow", "1", false)
     agHelper.DeployApp()
     table.WaitUntilTableLoad()
     table.AssertPageNumber(1);
@@ -111,10 +111,10 @@ describe("AForce - Community Issues page validations", function () {
 
   });
 
-  it.skip("5. Verify Default search text in table as per 'Default Search Text' property set + Bug 12228", () => {
+  it("5. Verify Default search text in table as per 'Default Search Text' property set + Bug 12228", () => {
 
     ee.SelectEntityByName("Table1", 'WIDGETS')
-    jsEditor.EnterJSContext("defaultsearchtext", "Bug", true)
+    jsEditor.EnterJSContext("defaultsearchtext", "Bug", false)
     agHelper.DeployApp()
     table.AssertSearchText('Bug')
     table.WaitUntilTableLoad()
@@ -122,7 +122,7 @@ describe("AForce - Community Issues page validations", function () {
     agHelper.NavigateBacktoEditor()
 
     ee.SelectEntityByName("Table1", 'WIDGETS')
-    jsEditor.EnterJSContext("defaultsearchtext", "Question", true)
+    jsEditor.EnterJSContext("defaultsearchtext", "Question", false)
     agHelper.DeployApp()
     table.AssertSearchText('Question')
     table.WaitUntilTableLoad()
@@ -130,7 +130,7 @@ describe("AForce - Community Issues page validations", function () {
     table.WaitUntilTableLoad()
 
     ee.SelectEntityByName("Table1", 'WIDGETS')
-    jsEditor.EnterJSContext("defaultsearchtext", "Epic", true)//Bug 12228 - Searching based on hidden column value should not be allowed
+    jsEditor.EnterJSContext("defaultsearchtext", "Epic", false)//Bug 12228 - Searching based on hidden column value should not be allowed
     agHelper.DeployApp()
     table.AssertSearchText('Epic')
     table.WaitForTableEmpty()
@@ -143,7 +143,7 @@ describe("AForce - Community Issues page validations", function () {
 
   });
 
-  it.skip("6. Validate Search table with Client Side Search enabled & disabled", () => {
+  it("6. Validate Search table with Client Side Search enabled & disabled", () => {
     ee.SelectEntityByName("Table1", 'WIDGETS')
     agHelper.AssertExistingToggleState("enableclientsidesearch", 'checked')
 
