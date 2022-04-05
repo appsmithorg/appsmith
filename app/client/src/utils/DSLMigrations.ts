@@ -1593,9 +1593,10 @@ export const migrateStylingPropertiesForTheming = (
         break;
       default:
         if (
-          child.type === "CONTAINER_WIDGET" ||
-          child.type === "FORM_WIDGET" ||
-          child.type === "JSON_FORM_WIDGET"
+          (child.type === "CONTAINER_WIDGET" ||
+            child.type === "FORM_WIDGET" ||
+            child.type === "JSON_FORM_WIDGET") &&
+          child.borderRadius
         ) {
           child.borderRadius = `${child.borderRadius}px`;
           addPropertyToDynamicPropertyPathList("borderRadius", child);
@@ -1622,7 +1623,7 @@ export const migrateStylingPropertiesForTheming = (
         addPropertyToDynamicPropertyPathList("boxShadow", child);
         break;
       case BoxShadowTypes.VARIANT4:
-        child.boxShadow = `2px 2px 0px  ${child.boxShadowColor ||
+        child.boxShadow = `2px 2px 0px ${child.boxShadowColor ||
           "rgba(0, 0, 0, 0.25)"}`;
         addPropertyToDynamicPropertyPathList("boxShadow", child);
         break;
@@ -1900,47 +1901,66 @@ export const migrateStylingPropertiesForTheming = (
     /**
      * Migrate the children level properties for JSON form
      */
+    if (has(child, "schema")) {
+      const clonedSchema = clone(child.schema);
+      parseSchemaItem(
+        clonedSchema[ROOT_SCHEMA_KEY],
+        (schemaItem: SchemaItem) => {
+          switch (schemaItem.labelTextSize) {
+            case TextSizes.PARAGRAPH2:
+              schemaItem.labelTextSize = "0.75rem";
+              addPropertyToDynamicPropertyPathList(
+                `schema.${ROOT_SCHEMA_KEY}.children.${schemaItem.identifier}.labelTextSize`,
+                child,
+              );
+              break;
+            case TextSizes.PARAGRAPH:
+              schemaItem.labelTextSize = "0.875rem";
+              break;
+            case TextSizes.HEADING3:
+              schemaItem.labelTextSize = "1rem";
+              break;
+            case TextSizes.HEADING2:
+              schemaItem.labelTextSize = "1.125rem";
+              addPropertyToDynamicPropertyPathList(
+                `schema.${ROOT_SCHEMA_KEY}.children.${schemaItem.identifier}.labelTextSize`,
+                child,
+              );
+              break;
+            case TextSizes.HEADING1:
+              schemaItem.labelTextSize = "1.5rem";
+              addPropertyToDynamicPropertyPathList(
+                `schema.${ROOT_SCHEMA_KEY}.children.${schemaItem.identifier}.labelTextSize`,
+                child,
+              );
+              break;
+            default:
+              schemaItem.labelTextSize = "0.875rem";
+          }
 
-    const clonedSchema = clone(child.schema);
-    parseSchemaItem(clonedSchema[ROOT_SCHEMA_KEY], (schemaItem: SchemaItem) => {
-      /**
-       * Extract fontSize
-       * Compare the fontSize with switch case
-       * apply particular fontSize based on Case
-       * If no case is present the apply default case
-       */
-      switch (schemaItem.labelTextSize) {
-        case TextSizes.PARAGRAPH2:
-          schemaItem.labelTextSize = "0.75rem";
-          // addPropertyToDynamicPropertyPathList("labelTextSize", schemaItem);
-          break;
-        case TextSizes.PARAGRAPH:
-          schemaItem.labelTextSize = "0.875rem";
-          break;
-        case TextSizes.HEADING3:
-          schemaItem.labelTextSize = "1rem";
-          break;
-        case TextSizes.HEADING2:
-          schemaItem.labelTextSize = "1.125rem";
-          // addPropertyToDynamicPropertyPathList("labelTextSize", schemaItem);
-          break;
-        case TextSizes.HEADING1:
-          schemaItem.labelTextSize = "1.5rem";
-          // addPropertyToDynamicPropertyPathList("labelTextSize", schemaItem);
-          break;
-        default:
-          schemaItem.labelTextSize = "0.875rem";
-      }
+          //Set the default borderRadius
+          !has(schemaItem, "borderRadius") &&
+            set(schemaItem, "borderRadius", "0px");
+          //Set the default borderRadius for the Item styles in an array type:
+          !has(schemaItem, "cellBorderRadius") &&
+            set(schemaItem, "cellBorderRadius", "0px");
 
-      !has(schemaItem, "borderRadius") &&
-        set(schemaItem, "borderRadius", "{{appsmith.theme.borderRadius}}");
-      !has(schemaItem, "primaryColor") &&
-        set(schemaItem, "primaryColor", "{{appsmith.theme.primaryColor}}"); //Check if this property is needed for all the children widgets
-      !has(schemaItem, "boxShadow") &&
-        set(schemaItem, "boxShadow", "{{appsmith.theme.borderRadius}}");
-    });
+          !has(schemaItem, "primaryColor") &&
+            set(schemaItem, "primaryColor", "{{appsmith.theme.primaryColor}}"); //Check if this property is needed for all the children widgets
+          !has(schemaItem, "checkColor") &&
+            set(schemaItem, "checkColor", Colors.GREEN);
 
-    child.schema = clonedSchema;
+          //Sets the default value for the boxShadow
+          !has(schemaItem, "boxShadow") && set(schemaItem, "boxShadow", "none");
+
+          //Sets the default value for the boxShadow property of Item styles inside an array:
+          !has(schemaItem, "cellBoxShadow") &&
+            set(schemaItem, "cellBoxShadow", "none");
+        },
+      );
+
+      child.schema = clonedSchema;
+    }
 
     // migrate font size
     switch (child.fontSize) {

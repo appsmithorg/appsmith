@@ -115,6 +115,7 @@ const generateButtonStyleControlsFor = (prefix: string) => [
     isJSConvertible: true,
     isBindProperty: true,
     isTriggerProperty: false,
+    validation: { type: ValidationTypes.TEXT },
   },
   {
     propertyName: `${prefix}.buttonVariant`,
@@ -155,15 +156,11 @@ const generateButtonStyleControlsFor = (prefix: string) => [
     label: "Border Radius",
     helpText: "Rounds the corners of the icon button's outer border edge",
     controlType: "BORDER_RADIUS_OPTIONS",
-    options: [ButtonBorderRadiusTypes.SHARP, ButtonBorderRadiusTypes.ROUNDED],
     isJSConvertible: true,
     isBindProperty: true,
     isTriggerProperty: false,
     validation: {
       type: ValidationTypes.TEXT,
-      params: {
-        allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
-      },
     },
   },
   {
