@@ -101,6 +101,18 @@ describe("Slug URLs", () => {
               `/applications/${application.id}/pages/${currentPageId}`,
             );
           });
+          cy.get(explorer.addWidget).click();
+          cy.dragAndDropToCanvas("textwidget", { x: 300, y: 700 });
+          cy.get(".t--widget-textwidget").should("exist");
+          cy.updateCodeInput(
+            ".t--property-control-text",
+            `{{appsmith.URL.pathname}}`,
+          );
+
+          cy.get(".t--draggable-textwidget .bp3-ui-text").should(
+            "contain.text",
+            `/applications/${application.id}/pages/${currentPageId}/edit`,
+          );
 
           cy.get(".t--upgrade").click({ force: true });
 
@@ -115,6 +127,11 @@ describe("Slug URLs", () => {
                 `/${application.slug}/${currentPage.slug}-${currentPage.id}`,
               );
             });
+
+            cy.get(".t--draggable-textwidget .bp3-ui-text").should(
+              "contain.text",
+              `/${application.slug}/${currentPage.slug}-${currentPage.id}/edit`,
+            );
           });
         });
       });

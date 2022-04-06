@@ -60,16 +60,16 @@ describe("Layout OnLoad Actions tests", function () {
     //Adding dependency in right order matters!
     ee.SelectEntityByName("WIDGETS");
     ee.SelectEntityByName("Image1");
-    jsEditor.EnterJSContext("image", `{{RandomFlora.data}}`, true);
+    jsEditor.EnterJSContext("Image", `{{RandomFlora.data}}`, true);
 
     ee.SelectEntityByName("Image2");
-    jsEditor.EnterJSContext("image", `{{RandomUser.data.results[0].picture.large}}`, true);
+    jsEditor.EnterJSContext("Image", `{{RandomUser.data.results[0].picture.large}}`, true);
 
     ee.SelectEntityByName("Text1");
-    jsEditor.EnterJSContext("text", `{{InspiringQuotes.data.quote.body}}\n--\n{{InspiringQuotes.data.quote.author}}\n`, true);
+    jsEditor.EnterJSContext("Text", `{{InspiringQuotes.data.quote.body}}\n--\n{{InspiringQuotes.data.quote.author}}\n`, true);
 
     ee.SelectEntityByName("Text2");
-    jsEditor.EnterJSContext("text", `Hi, here is {{RandomUser.data.results[0].name.first}} & I'm {{RandomUser.data.results[0].dob.age}}'yo\nI live in {{RandomUser.data.results[0].location.country}}\nMy Suggestion : {{Suggestions.data.activity}}\n\nI'm {{Genderize.data.gender}}`, true);
+    jsEditor.EnterJSContext("Text", `Hi, here is {{RandomUser.data.results[0].name.first}} & I'm {{RandomUser.data.results[0].dob.age}}'yo\nI live in {{RandomUser.data.results[0].location.country}}\nMy Suggestion : {{Suggestions.data.activity}}\n\nI'm {{Genderize.data.gender}}`, true);
 
     // cy.url().then((url) => {
     //   const pageid = url.split("/")[4]?.split("-").pop();

@@ -20,13 +20,13 @@ describe("Input widget test with default value from chart datapoint", () => {
 
     it("1. Chart widget - Input widget test with default value from another Input widget", () => {
         ee.SelectEntityByName("Input1", 'WIDGETS')
-        jsEditor.EnterJSContext("defaulttext", dataSet.bindChartData + "}}");
+        jsEditor.EnterJSContext("Default Text", dataSet.bindChartData + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
         ee.SelectEntityByName("Chart1")
         agHelper.SelectPropertiesDropDown("ondatapointclick", "Show message")
         agHelper.EnterActionValue("Message", dataSet.bindingDataPoint)
         ee.SelectEntityByName("Input2")
-        jsEditor.EnterJSContext("defaulttext", dataSet.bindingSeriesTitle + "}}");
+        jsEditor.EnterJSContext("Default Text", dataSet.bindingSeriesTitle + "}}");
         agHelper.DeployApp()
         agHelper.Sleep(1500)//waiting for chart to load!
         agHelper.XpathNClick("(//*[local-name()='rect'])[13]")

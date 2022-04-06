@@ -343,6 +343,7 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
     const response = xhr.response;
     expect(response.body.responseMeta.status).to.eq(201);
     localStorage.setItem("applicationId", response.body.data.id);
+    cy.wrap(response.body.data.id).as("currentApplicationId");
   });
 
   cy.get("#loading").should("not.exist");
