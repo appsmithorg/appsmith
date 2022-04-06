@@ -28,6 +28,7 @@ body, html {
 
 * {
   scrollbar-width: thin;
+  scrollbar-color:  rgba(209, 213, 219, var(--tw-bg-opacity)) white;
 }
 
 ::-webkit-scrollbar {

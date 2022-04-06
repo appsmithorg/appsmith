@@ -85,7 +85,7 @@ class ButtonGroupWidget extends BaseWidget<
             label: "",
             isBindProperty: false,
             isTriggerProperty: false,
-            dependencies: ["defaultProperties"],
+            dependencies: ["childStylesheets"],
             panelConfig: {
               editableTitle: true,
               titlePropertyName: "label",
