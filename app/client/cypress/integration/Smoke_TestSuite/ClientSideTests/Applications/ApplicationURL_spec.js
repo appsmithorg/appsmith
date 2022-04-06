@@ -7,7 +7,7 @@ describe("Slug URLs", () => {
     applicationId = localStorage.getItem("applicationId");
     cy.location("pathname").then((pathname) => {
       const pageId = pathname
-        .split("/")[2]
+        .split("/")[3]
         ?.split("-")
         .pop();
       cy.visit(`/applications/${applicationId}/pages/${pageId}/edit`).then(
@@ -15,7 +15,7 @@ describe("Slug URLs", () => {
           cy.wait(10000);
           cy.location("pathname").then((pathname) => {
             const pageId = pathname
-              .split("/")[2]
+              .split("/")[3]
               ?.split("-")
               .pop();
             const appName = localStorage.getItem("AppName");
@@ -40,7 +40,7 @@ describe("Slug URLs", () => {
       );
       cy.location("pathname").then((pathname) => {
         const pageId = pathname
-          .split("/")[2]
+          .split("/")[3]
           ?.split("-")
           .pop();
         expect(pathname).to.be.equal(`/app/${appName}/page1-${pageId}/edit`);
@@ -66,7 +66,7 @@ describe("Slug URLs", () => {
     );
     cy.location("pathname").then((pathname) => {
       const pageId = pathname
-        .split("/")[2]
+        .split("/")[3]
         ?.split("-")
         .pop();
       expect(pathname).to.be.equal(

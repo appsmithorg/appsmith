@@ -109,7 +109,7 @@ module.exports = class Perf {
     await this.page.waitForNavigation();
 
     const currentUrl = this.page.url();
-    const pageId = currentURL.split("/")[4]?.split("-").pop();
+    const pageId = currentURL.split("/")[5]?.split("-").pop();
 
     await this.page.evaluate(
       async ({ pageId, dsl }) => {
