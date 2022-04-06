@@ -356,6 +356,11 @@ public class MongoPlugin extends BasePlugin {
                     )
                     .flatMap(mongoOutput -> {
                         try {
+                            /*
+                             * Added Custom codec for JSON conversion since MongoDB Reactive API does not support
+                             * processing of DbRef Object.
+                             * https://github.com/spring-projects/spring-data-mongodb/issues/3015 : Mark Paluch commented
+                             */
                             DocumentCodec documentCodec = new DocumentCodec(
                                     DEFAULT_REGISTRY,
                                     DEFAULT_BSON_TYPE_CLASS_MAP
