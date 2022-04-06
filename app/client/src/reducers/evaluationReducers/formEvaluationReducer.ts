@@ -10,8 +10,11 @@ export type DynamicValues = {
   hasStarted: boolean;
   hasFetchFailed: boolean;
   data: any;
-  config: { url?: string; method: string; params: Record<string, any> };
+  config: DynamicValuesConfig;
+  evaluatedConfig: DynamicValuesConfig;
 };
+
+export type DynamicValuesConfig = { url?: string; params: Record<string, any> };
 
 export type EvaluatedFormConfig = {
   updateEvaluatedConfig: boolean;
