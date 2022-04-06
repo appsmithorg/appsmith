@@ -48,6 +48,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.DeployApp();
     agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog"));
     agHelper.ClickButton("Yes");
+    agHelper.Sleep(1000)
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
 
     table.ReadTableRowColumnData(0, 0).then((cellData) => {
