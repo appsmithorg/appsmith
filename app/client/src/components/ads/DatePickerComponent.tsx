@@ -12,8 +12,8 @@ const StyledDateInput = styled(DateInput)`
         props.theme.colors.propertyPane.buttonText};
       border: 1px solid ${Colors.ALTO2};
       border-radius: 0;
-      padding: 0px 8px;
-      height: 32px;
+      padding: 6px 8px;
+      height: 36px;
       box-shadow: none;
 
       &:focus {
