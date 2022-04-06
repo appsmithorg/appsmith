@@ -30,6 +30,7 @@ import {
   VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import history from "./history";
+import { sanitizeSlug } from "RouteBuilder";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -700,7 +701,7 @@ export const getUpdatedRoute = (
     if (params.applicationSlug)
       updatedPath = updatedPath.replace(
         applicationSlug,
-        params.applicationSlug,
+        sanitizeSlug(params.applicationSlug),
       );
     if (params.pageSlug)
       updatedPath = updatedPath.replace(pageSlug, `${params.pageSlug}-`);

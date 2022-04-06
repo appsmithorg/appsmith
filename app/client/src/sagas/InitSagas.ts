@@ -66,7 +66,7 @@ import {
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
 import { fetchCommentThreadsInit } from "actions/commentActions";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
-import { addBranchParam } from "constants/routes";
+import { addBranchParam, PLACEHOLDER_APP_SLUG } from "constants/routes";
 import history from "utils/history";
 import {
   fetchGitStatusInit,
@@ -76,7 +76,7 @@ import {
 } from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { isURLDeprecated, getUpdatedRoute } from "utils/helpers";
-import { viewerURL } from "RouteBuilder";
+import { sanitizeSlug, viewerURL } from "RouteBuilder";
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
 
@@ -133,7 +133,9 @@ function* initiateURLUpdate(
     );
     if (currentApplication.applicationVersion < ApplicationVersion.SLUG_URL)
       return;
-    const applicationSlug = currentApplication.slug as string;
+    const applicationSlug = sanitizeSlug(
+      currentApplication.slug || PLACEHOLDER_APP_SLUG,
+    );
     const currentPage: Page = yield select(getPageById(pageId));
     const pageSlug = currentPage?.slug as string;
 

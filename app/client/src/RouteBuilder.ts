@@ -31,6 +31,11 @@ export function convertToQueryParams(
   return queryParams.length ? "?" + queryParams.join("&") : "";
 }
 
+export function sanitizeSlug(slug: string) {
+  if (/^(api|oauth|login)/.test(slug)) return `app-${slug}`;
+  return slug;
+}
+
 const fetchParamsToPersist = () => {
   const existingParams = getQueryParamsObject() || {};
   // not persisting the entire query currently, since that's the current behaviour
@@ -129,6 +134,7 @@ function baseURLBuilder(
       applicationSlug ||
       BASE_URL_BUILDER_PARAMS.applicationSlug ||
       PLACEHOLDER_APP_SLUG;
+    applicationSlug = sanitizeSlug(applicationSlug);
     pageSlug =
       pageSlug || BASE_URL_BUILDER_PARAMS.pageSlug || PLACEHOLDER_PAGE_SLUG;
     basePath = `/${applicationSlug}/${pageSlug}-${pageId}`;
