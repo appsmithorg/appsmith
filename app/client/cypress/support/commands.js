@@ -343,6 +343,7 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
     const response = xhr.response;
     expect(response.body.responseMeta.status).to.eq(201);
     localStorage.setItem("applicationId", response.body.data.id);
+    cy.wrap(response.body.data.id).as("currentApplicationId");
   });
 
   cy.get("#loading").should("not.exist");
@@ -1908,6 +1909,7 @@ Cypress.Commands.add("Createpage", (pageName) => {
       cy.get(pages.editName).click({ force: true });
       cy.get(pages.editInput).type(pageName + "{enter}");
       pageidcopy = pageName;
+      cy.wrap(pageId).as("currentPageId");
     }
     cy.get(generatePage.buildFromScratchActionCard).click();
     cy.get("#loading").should("not.exist");

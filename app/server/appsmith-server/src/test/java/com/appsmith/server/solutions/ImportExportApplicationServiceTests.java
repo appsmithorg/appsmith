@@ -1948,7 +1948,7 @@ public class ImportExportApplicationServiceTests {
      */
     @Test
     @WithUserDetails(value = "api_user")
-    public void test1_exportApplication_withDatasourceConfig_exportedWithDecryptedFields() {
+    public void exportApplication_withDatasourceConfig_exportedWithDecryptedFields() {
         Organization newOrganization = new Organization();
         newOrganization.setName("template-org-with-ds");
 
@@ -2170,7 +2170,7 @@ public class ImportExportApplicationServiceTests {
      */
     @Test
     @WithUserDetails(value = "usertest@usertest.com")
-    public void test2_exportApplication_withReadOnlyAccess_exportedWithDecryptedFields() {
+    public void exportApplication_withReadOnlyAccess_exportedWithDecryptedFields() {
         Mono<ApplicationJson> exportApplicationMono = importExportApplicationService
                 .exportApplicationById(exportWithConfigurationAppId, SerialiseApplicationObjective.SHARE);
 
@@ -2285,6 +2285,45 @@ public class ImportExportApplicationServiceTests {
                         ActionDTO actionDTO = newAction.getUnpublishedAction();
                         assertThat(actionDTO.getDatasource()).isNotNull();
                     });
+                })
+                .verifyComplete();
+    }
+    
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void exportApplication_withMultiplePages_PagesOrderIsMaintainedINExportedAppJson() {
+        Organization newOrganization = new Organization();
+        newOrganization.setName("template-org-with-ds");
+
+        Application testApplication = new Application();
+        testApplication.setName("exportApplication_withMultiplePages_PagesOrderIsMaintainedINExportedAppJson");
+        testApplication.setExportWithConfiguration(true);
+        testApplication = applicationPageService.createApplication(testApplication, orgId).block();
+        assert testApplication != null;
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("123");
+        testPage.setApplicationId(testApplication.getId());
+        PageDTO page1 = applicationPageService.createPage(testPage).block();
+
+        testPage = new PageDTO();
+        testPage.setName("abc");
+        testPage.setApplicationId(testApplication.getId());
+        PageDTO page2 = applicationPageService.createPage(testPage).block();
+
+        // Set order for the newly created pages
+        applicationPageService.reorderPage(testApplication.getId(), page1.getId(), 0, null).block();
+        applicationPageService.reorderPage(testApplication.getId(), page2.getId(), 1, null).block();
+
+        Mono<ApplicationJson> applicationJsonMono = importExportApplicationService.exportApplicationById(testApplication.getId(), "");
+
+        StepVerifier
+                .create(applicationJsonMono)
+                .assertNext(applicationJson -> {
+                    List<NewPage> pageList = applicationJson.getPageList();
+                    assertThat(pageList.get(0).getUnpublishedPage().getName()).isEqualTo("123");
+                    assertThat(pageList.get(1).getUnpublishedPage().getName()).isEqualTo("abc");
+                    assertThat(pageList.get(2).getUnpublishedPage().getName()).isEqualTo("Page1");
                 })
                 .verifyComplete();
     }

@@ -223,6 +223,7 @@ class FilePickerWidget extends BaseWidget<
     return {
       selectedFiles: [],
       uploadedFileData: {},
+      isDirty: false,
     };
   }
 
@@ -383,6 +384,10 @@ class FilePickerWidget extends BaseWidget<
       });
 
       Promise.all(fileReaderPromises).then((files) => {
+        if (!this.props.isDirty) {
+          this.props.updateWidgetMetaProperty("isDirty", true);
+        }
+
         this.props.updateWidgetMetaProperty(
           "selectedFiles",
           dslFiles.concat(files),

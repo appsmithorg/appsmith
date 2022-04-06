@@ -94,17 +94,43 @@ describe("Slug URLs", () => {
           );
         });
 
-        cy.get(".t--upgrade").click({ force: true });
-
-        cy.get(".t--upgrade-confirm").click({ force: true });
-
-        cy.wait("@getPagesForCreateApp").then((intercept) => {
-          const { application, pages } = intercept.response.body.data;
-          const defaultPage = pages.find((p) => p.isDefault);
-
+        cy.Createpage("NewPage");
+        cy.get("@currentPageId").then((currentPageId) => {
           cy.location().should((loc) => {
             expect(loc.pathname).includes(
-              `/${application.slug}/${defaultPage.slug}-${defaultPage.id}`,
+              `/applications/${application.id}/pages/${currentPageId}`,
+            );
+          });
+          cy.get(explorer.addWidget).click();
+          cy.dragAndDropToCanvas("textwidget", { x: 300, y: 700 });
+          cy.get(".t--widget-textwidget").should("exist");
+          cy.updateCodeInput(
+            ".t--property-control-text",
+            `{{appsmith.URL.pathname}}`,
+          );
+
+          cy.get(".t--draggable-textwidget .bp3-ui-text").should(
+            "contain.text",
+            `/applications/${application.id}/pages/${currentPageId}/edit`,
+          );
+
+          cy.get(".t--upgrade").click({ force: true });
+
+          cy.get(".t--upgrade-confirm").click({ force: true });
+
+          cy.wait("@getPagesForCreateApp").then((intercept) => {
+            const { application, pages } = intercept.response.body.data;
+            const currentPage = pages.find((p) => p.id === currentPageId);
+
+            cy.location().should((loc) => {
+              expect(loc.pathname).includes(
+                `/${application.slug}/${currentPage.slug}-${currentPage.id}`,
+              );
+            });
+
+            cy.get(".t--draggable-textwidget .bp3-ui-text").should(
+              "contain.text",
+              `/${application.slug}/${currentPage.slug}-${currentPage.id}/edit`,
             );
           });
         });
