@@ -14,6 +14,7 @@ import { APP_MODE } from "entities/App";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 import { matchPath } from "react-router";
 import { ApplicationVersion } from "actions/applicationActions";
+import { ApplicationPayload, Page } from "constants/ReduxActionConstants";
 
 export function convertToQueryParams(
   params: Record<string, string> = {},
@@ -46,6 +47,16 @@ const fetchParamsToPersist = () => {
     params = { a: "b", ...params };
   }
   return params;
+};
+
+export const fillPathname = (
+  pathname: string,
+  application: ApplicationPayload,
+  page: Page,
+) => {
+  return pathname
+    .replace(`/applications/${application.id}`, `/${application.slug}`)
+    .replace(`/pages/${page.pageId}`, `/${page.slug}-${page.pageId}`);
 };
 
 type Optional<T extends { [k in keyof T]: T[k] }> = {
@@ -84,6 +95,8 @@ let BASE_URL_BUILDER_PARAMS = DEFAULT_BASE_URL_BUILDER_PARAMS;
 export function updateURLFactory(params: Optional<BaseURLBuilderParams>) {
   BASE_URL_BUILDER_PARAMS = { ...BASE_URL_BUILDER_PARAMS, ...params };
 }
+
+export const getRouteBuilderParams = () => BASE_URL_BUILDER_PARAMS;
 
 /**
  * Do not export this method directly. Please write wrappers for your URLs.

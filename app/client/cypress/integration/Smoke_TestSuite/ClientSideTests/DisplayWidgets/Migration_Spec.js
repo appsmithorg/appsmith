@@ -164,9 +164,7 @@ describe("Migration Validate", function() {
         cy.waitUntil(
           () =>
             cy
-              .xpath("//div[contains(@class, ' t--widget-textwidget')][2]", {
-                timeout: 50000,
-              })
+              .xpath("//div[contains(@class, ' t--widget-textwidget')][2]")
               .eq(0)
               .contains("State:", { timeout: 30000 })
               .should("exist"),
@@ -217,14 +215,11 @@ describe("Migration Validate", function() {
       // cy.wait(4000);
       // cy.get("div.tableWrap").should("be.visible"); //wait for page load!
 
-      cy.waitUntil(
-        () => cy.get("div.tableWrap", { timeout: 50000 }).should("be.visible"),
-        {
-          errorMsg: "Page is not loaded evn after 10 secs",
-          timeout: 30000,
-          interval: 2000,
-        },
-      ).then(() => cy.wait(1000)); //wait for page load!
+      cy.waitUntil(() => cy.get("div.tableWrap").should("be.visible"), {
+        errorMsg: "Page is not loaded evn after 10 secs",
+        timeout: 30000,
+        interval: 2000,
+      }).then(() => cy.wait(1000)); //wait for page load!
 
       cy.isSelectRow(2); //as aft refresh row selection is also gone
       cy.getTableDataSelector("2", "18").then((selector) => {
@@ -398,14 +393,11 @@ describe("Migration Validate", function() {
       //cy.wait(4000);
       //cy.get("div.tableWrap").should("be.visible");
 
-      cy.waitUntil(
-        () => cy.get("div.tableWrap", { timeout: 50000 }).should("be.visible"),
-        {
-          errorMsg: "Page is not loaded evn after 10 secs",
-          timeout: 30000,
-          interval: 2000,
-        },
-      ).then(() => cy.wait(1000)); //wait for page load!
+      cy.waitUntil(() => cy.get("div.tableWrap").should("be.visible"), {
+        errorMsg: "Page is not loaded evn after 10 secs",
+        timeout: 30000,
+        interval: 2000,
+      }).then(() => cy.wait(1000)); //wait for page load!
 
       //Manu Btn validation: - 1st menu item
       cy.isSelectRow(4); //as aft refresh row selection is also gone
