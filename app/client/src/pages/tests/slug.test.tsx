@@ -47,7 +47,7 @@ describe("URL slug names", () => {
   it("checks the update slug in URL method", () => {
     const newAppSlug = "modified-app-slug";
     const newPageSlug = "modified-page-slug";
-    const pathname = "/my-app/pages-605c435a91dea93f0eaf91ba";
+    const pathname = "/app/my-app/pages-605c435a91dea93f0eaf91ba";
     const url = getUpdatedRoute(pathname, {
       applicationSlug: newAppSlug,
       pageSlug: newPageSlug,
