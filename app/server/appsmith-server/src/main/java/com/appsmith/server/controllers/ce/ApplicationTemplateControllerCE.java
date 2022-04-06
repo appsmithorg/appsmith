@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import reactor.core.publisher.Mono;
 
@@ -51,9 +52,10 @@ public class ApplicationTemplateControllerCE {
 
     @PostMapping("{templateId}/merge/{applicationId}")
     public Mono<ResponseDTO<Application>> mergeTemplateWithApplication(@PathVariable String templateId,
-                                                                        @PathVariable String applicationId,
-                                                                       @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return applicationTemplateService.mergeTemplateWithApplication(templateId, applicationId, branchName)
+                                                                       @PathVariable String applicationId,
+                                                                       @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+                                                                       @RequestBody(required = false) List<String> pagesToImport) {
+        return applicationTemplateService.mergeTemplateWithApplication(templateId, applicationId, branchName, pagesToImport)
                 .map(importedApp -> new ResponseDTO<>(HttpStatus.OK.value(), importedApp, null));
     }
 }

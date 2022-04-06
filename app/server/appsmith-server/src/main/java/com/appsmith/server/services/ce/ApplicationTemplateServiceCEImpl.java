@@ -25,6 +25,7 @@ import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Type;
 import java.time.Instant;
+import java.util.List;
 
 @Service
 public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServiceCE {
@@ -145,9 +146,9 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     @Override
-    public Mono<Application> mergeTemplateWithApplication(String templateId, String applicationId, String branchName) {
+    public Mono<Application> mergeTemplateWithApplication(String templateId, String applicationId, String branchName, List<String> pagesToImport) {
         return getApplicationJsonFromTemplate(templateId).flatMap(applicationJson ->
-            importExportApplicationService.mergeApplicationJsonWithApplication(applicationId, branchName, applicationJson)
+            importExportApplicationService.mergeApplicationJsonWithApplication(applicationId, branchName, applicationJson, pagesToImport)
         );
     }
 }

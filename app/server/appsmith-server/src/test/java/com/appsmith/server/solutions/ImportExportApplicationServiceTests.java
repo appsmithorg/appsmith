@@ -2439,7 +2439,7 @@ public class ImportExportApplicationServiceTests {
 
         Mono<ApplicationPagesDTO> applicationPagesDTOMono = createAppAndPageMono.flatMap(application ->
                 // merge the application json with the application we've created
-                importExportApplicationService.mergeApplicationJsonWithApplication(application.getId(), null, applicationJson)
+                importExportApplicationService.mergeApplicationJsonWithApplication(application.getId(), null, applicationJson, null)
                         .thenReturn(application)
         ).flatMap(application ->
                 // fetch the application pages, this should contain pages from application json
