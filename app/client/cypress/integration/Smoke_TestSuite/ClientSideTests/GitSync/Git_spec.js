@@ -19,6 +19,11 @@ const mainBranch = "master";
 const inputNameTempBranch3 = "inputNameTempBranch3";
 const inputNameTempBranch31 = "inputNameTempBranch31";
 
+const cleanUrlBranch = "feat/clean_url";
+
+let applicationId = null;
+let applicationName = null;
+
 let repoName;
 describe("Git sync:", function() {
   before(() => {
@@ -27,6 +32,10 @@ describe("Git sync:", function() {
     cy.wait("@createOrg").then((interception) => {
       const newOrganizationName = interception.response.body.data.name;
       cy.CreateAppForOrg(newOrganizationName, newOrganizationName);
+      applicationName = newOrganizationName;
+      cy.get("@currentApplicationId").then(
+        (currentAppId) => (applicationId = currentAppId),
+      );
     });
 
     cy.generateUUID().then((uid) => {
@@ -198,6 +207,50 @@ describe("Git sync:", function() {
       .should("eq", "true");
     cy.get(gitSyncLocators.closeGitSyncModal).click({ force: true });
   });
+
+  it.only("checks clean url updates across branches", () => {
+    const legacyPathname = "";
+    const newPathname = "";
+    cy.reload();
+    cy.pause();
+    cy.wait("@getPagesForCreateApp").then((intercept) => {
+      const { application, pages } = intercept.response.body.data;
+      const defaultPage = pages.find((p) => p.isDefault);
+      legacyPathname = `/applications/${application.id}/pages/${defaultPage.id}`;
+      newPathname = `/${application.slug}/${currentPage.slug}-${currentPage.id}`;
+    });
+
+    cy.location().should((location) => {
+      expect(location.pathname).includes(newPathname);
+    });
+
+    cy.request("PUT", `/api/v1/applications/${applicationId}`, {
+      applicationVersion: 1,
+    });
+
+    cy.createGitBranch(cleanUrlBranch);
+
+    cy.location().should((location) => {
+      expect(location.pathname).includes(legacyPathname);
+    });
+
+    cy.switchGitBranch(mainBranch);
+
+    cy.get(".t--upgrade").click({ force: true });
+
+    cy.get(".t--upgrade-confirm").click({ force: true });
+
+    cy.location().should((location) => {
+      expect(location.pathname).includes(newPathname);
+    });
+
+    cy.createGitBranch(cleanUrlBranch);
+
+    cy.location().should((location) => {
+      expect(location.pathname).includes(legacyPathname);
+    });
+  });
+
   after(() => {
     cy.deleteTestGithubRepo(repoName);
 
