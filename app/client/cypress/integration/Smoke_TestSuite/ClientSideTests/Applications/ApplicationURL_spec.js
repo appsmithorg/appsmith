@@ -75,7 +75,7 @@ describe("Slug URLs", () => {
     });
   });
 
-  it("Check the url of old applications and upgrades version", () => {
+  it("Check the url of old applications, upgrades version and compares appsmith.URL values", () => {
     cy.request("PUT", `/api/v1/applications/${applicationId}`, {
       applicationVersion: 1,
     }).then((response) => {
