@@ -44,6 +44,7 @@ export function InputText(props: {
   inputType?: INPUT_TEXT_INPUT_TYPES;
   customStyles?: any;
   disabled?: boolean;
+  showLineNumbers?: boolean;
 }) {
   const { actionName, inputType, name, placeholder } = props;
   const dataTreePath = actionPathFromName(actionName, name);
@@ -75,6 +76,7 @@ export function InputText(props: {
         name={name}
         placeholder={placeholder}
         showLightningMenu={false}
+        showLineNumbers={props.showLineNumbers}
         {...editorProps}
       />
     </div>
@@ -92,6 +94,7 @@ class DynamicInputTextControl extends BaseControl<DynamicInputControlProps> {
       inputType,
       label,
       placeholderText,
+      showLineNumbers,
     } = this.props;
 
     let inputTypeProp = inputType;
@@ -108,6 +111,7 @@ class DynamicInputTextControl extends BaseControl<DynamicInputControlProps> {
         label={label}
         name={configProperty}
         placeholder={placeholderText}
+        showLineNumbers={showLineNumbers}
       />
     );
   }

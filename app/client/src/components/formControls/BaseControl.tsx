@@ -70,6 +70,7 @@ export interface ControlData {
   showError?: boolean;
   encrypted?: boolean;
   subtitle?: string;
+  showLineNumbers?: boolean;
   url?: string;
   urlText?: string;
   logicalTypes?: string[];
