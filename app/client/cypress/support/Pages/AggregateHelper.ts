@@ -1,8 +1,8 @@
 import 'cypress-wait-until';
 const uuid = require("uuid");
 import { ObjectsRegistry } from '../Objects/Registry';
-let LOCAL_STORAGE_MEMORY: any = {};
 
+let LOCAL_STORAGE_MEMORY: any = {};
 export class AggregateHelper {
     private locator = ObjectsRegistry.CommonLocators;
 
@@ -382,20 +382,26 @@ export class AggregateHelper {
         this.VerifyEvaluatedValue(valueToType);
     }
 
-    public EnterValue(valueToEnter: string, fieldName = "") {
-        if (fieldName) {
-            cy.xpath(this.locator._inputFieldByName(fieldName)).then(($field: any) => {
+    public EnterValue(valueToEnter: string, fieldName = "", notField = false) {
+        if (fieldName && !notField) {
+            cy.xpath(this.locator._existingFieldTextByName(fieldName)).then(($field: any) => {
                 this.UpdateCodeInput($field, valueToEnter);
             });
-        } else {
+        } else if (fieldName && notField) {
+            cy.get(fieldName).then(($field: any) => {
+                this.UpdateCodeInput($field, valueToEnter);
+            });
+        }
+        else {
             cy.get(this.locator._codeEditorTarget).then(($field: any) => {
                 this.UpdateCodeInput($field, valueToEnter);
             });
         }
+        this.AssertAutoSave()
     }
 
-    public UpdateCodeInput($selector: string, value: string) {
-        cy.get($selector)
+    public UpdateCodeInput(selector: string, value: string) {
+        cy.wrap(selector)
             .find(".CodeMirror")
             .first()
             .then((ins: any) => {
@@ -482,6 +488,19 @@ export class AggregateHelper {
         else
             locator.should("have.length", length)
     }
+
+
+    public CheckUncheck(selector: string, check = true) {
+        let locator = selector.startsWith("//") ? cy.xpath(selector) : cy.get(selector)
+        if (check) {
+            locator.check({ force: true }).should("be.checked");
+        }
+        else {
+            locator.uncheck({ force: true }).should("not.be.checked");
+        }
+        this.Sleep()
+    }
+
 
     //Not used:
     // private xPathToCss(xpath: string) {
