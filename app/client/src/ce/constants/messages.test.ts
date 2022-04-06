@@ -247,7 +247,7 @@ describe("git-sync messages", () => {
     { key: "REMOTE_URL", value: "Remote URL" },
     {
       key: "REMOTE_URL_INFO",
-      value: `Create an empty git repository and paste the remote URL here.`,
+      value: `Paste the remote url here.`,
     },
     { key: "REMOTE_URL_VIA", value: "Remote URL via" },
     {
