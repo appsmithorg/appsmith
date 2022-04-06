@@ -3,6 +3,7 @@ import { AxiosPromise } from "axios";
 import { GenericApiResponse } from "api/ApiResponses";
 import { PluginType } from "entities/Action";
 import { DependencyMap } from "utils/DynamicBindingUtils";
+import { DropdownOption } from "components/ads/Dropdown";
 
 export type PluginId = string;
 export type PluginPackageName = string;
@@ -40,6 +41,15 @@ export interface PluginFormPayload {
   editor: any[];
   setting: any[];
   dependencies: DependencyMap;
+  formButton: string[];
+}
+
+export interface DefaultPlugin {
+  id: string;
+  name: string;
+  packageName: string;
+  iconLocation?: string;
+  allowUserDatasources?: boolean;
 }
 
 class PluginsApi extends Api {
@@ -54,6 +64,20 @@ class PluginsApi extends Api {
     id: string,
   ): AxiosPromise<GenericApiResponse<PluginFormPayload>> {
     return Api.get(PluginsApi.url + `/${id}/form`);
+  }
+
+  // Definition to fetch the dynamic data via the URL passed in the config
+  static fetchDynamicFormValues(
+    url: string,
+    body: Record<string, any>,
+  ): AxiosPromise<GenericApiResponse<DropdownOption[]>> {
+    return Api.post(url, body);
+  }
+
+  static fetchDefaultPlugins(): AxiosPromise<
+    GenericApiResponse<DefaultPlugin[]>
+  > {
+    return Api.get(PluginsApi.url + `/default/icons`);
   }
 }
 

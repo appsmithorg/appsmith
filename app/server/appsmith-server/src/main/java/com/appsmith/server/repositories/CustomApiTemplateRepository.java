@@ -1,6 +1,6 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.external.models.ApiTemplate;
+import com.appsmith.server.repositories.ce.CustomApiTemplateRepositoryCE;
 
-public interface CustomApiTemplateRepository extends AppsmithRepository<ApiTemplate> {
+public interface CustomApiTemplateRepository extends CustomApiTemplateRepositoryCE {
 }

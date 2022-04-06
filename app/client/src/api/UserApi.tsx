@@ -62,6 +62,14 @@ export interface CommentsOnboardingStateRequest {
   commentOnboardingState: CommentsOnboardingState;
 }
 
+export interface SendTestEmailPayload {
+  smtpHost: string;
+  fromEmail: string;
+  smtpPort?: string;
+  username?: string;
+  password?: string;
+}
+
 export interface CreateSuperUserRequest {
   email: string;
   name: string;
@@ -214,8 +222,10 @@ class UserApi extends Api {
     return Api.post(UserApi.restartServerURL);
   }
 
-  static sendTestEmail(): AxiosPromise<ApiResponse> {
-    return Api.post(UserApi.sendTestEmailURL);
+  static sendTestEmail(
+    payload: SendTestEmailPayload,
+  ): AxiosPromise<ApiResponse> {
+    return Api.post(UserApi.sendTestEmailURL, payload);
   }
 }
 

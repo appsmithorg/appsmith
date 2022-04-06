@@ -15,7 +15,7 @@ const StyledDocsSearchModal = styled.div`
       .${Classes.OVERLAY_CONTENT} {
         overflow: hidden;
         top: 8vh;
-        box-shadow: 0 0 15px 10px lightgray;
+        box-shadow: 0px 6px 20px 0px #00000026;
       }
       .${Classes.OVERLAY_BACKDROP} {
         background: transparent;

@@ -1,9 +1,9 @@
 type FeatureFlag = {
+  APP_TEMPLATE: boolean;
   JS_EDITOR: boolean;
   MULTIPLAYER: boolean;
   SNIPPET: boolean;
   GIT: boolean;
-  ADMIN_SETTINGS: boolean;
   GIT_IMPORT: boolean;
 };
 

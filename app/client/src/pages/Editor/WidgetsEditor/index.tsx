@@ -1,6 +1,5 @@
 import React, { useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import * as log from "loglevel";
 
 import {
   getIsFetchingPage,
@@ -27,8 +26,13 @@ import {
   getIsOnboardingWidgetSelection,
 } from "selectors/entitiesSelector";
 import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
-import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import {
+  getIsFirstTimeUserOnboardingEnabled,
+  inGuidedTour,
+} from "selectors/onboardingSelectors";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
+import Guide from "../GuidedTour/Guide";
+import PropertyPaneContainer from "./PropertyPaneContainer";
 
 /* eslint-disable react/display-name */
 function WidgetsEditor() {
@@ -45,6 +49,7 @@ function WidgetsEditor() {
   const isOnboardingWidgetSelection = useSelector(
     getIsOnboardingWidgetSelection,
   );
+  const guidedTourEnabled = useSelector(inGuidedTour);
   useDynamicAppLayout();
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
@@ -64,13 +69,17 @@ function WidgetsEditor() {
 
   // navigate to widget
   useEffect(() => {
-    if (!isFetchingPage && window.location.hash.length > 0) {
+    if (
+      !isFetchingPage &&
+      window.location.hash.length > 0 &&
+      !guidedTourEnabled
+    ) {
       const widgetIdFromURLHash = window.location.hash.substr(1);
       flashElementsById(widgetIdFromURLHash);
       if (document.getElementById(widgetIdFromURLHash))
         selectWidget(widgetIdFromURLHash);
     }
-  }, [isFetchingPage, selectWidget]);
+  }, [isFetchingPage, selectWidget, guidedTourEnabled]);
 
   const allowDragToSelect = useAllowEditorDragToSelect();
 
@@ -102,8 +111,6 @@ function WidgetsEditor() {
     [allowDragToSelect],
   );
 
-  log.debug("Canvas rendered");
-
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider>
@@ -112,18 +119,24 @@ function WidgetsEditor() {
       !isOnboardingWidgetSelection ? (
         <OnboardingTasks />
       ) : (
-        <div
-          className="relative overflow-hidden flex flex-col"
-          data-testid="widgets-editor"
-          draggable
-          onClick={handleWrapperClick}
-          onDragStart={onDragStart}
-        >
-          <PageTabs />
-          <CanvasContainer />
-          <CrudInfoModal />
-          <Debugger />
-        </div>
+        <>
+          {guidedTourEnabled && <Guide />}
+          <div className="relative overflow-hidden flex flex-row w-full">
+            <div
+              className="relative overflow-hidden flex flex-row w-full"
+              data-testid="widgets-editor"
+              draggable
+              onClick={handleWrapperClick}
+              onDragStart={onDragStart}
+            >
+              <PageTabs />
+              <CanvasContainer />
+              <CrudInfoModal />
+              <Debugger />
+            </div>
+            <PropertyPaneContainer />
+          </div>
+        </>
       )}
     </EditorContextProvider>
   );

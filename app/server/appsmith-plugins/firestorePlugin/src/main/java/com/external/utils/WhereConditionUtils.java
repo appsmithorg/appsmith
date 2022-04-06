@@ -1,14 +1,18 @@
 package com.external.utils;
 
+import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.constants.ConditionalOperator;
+import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.firestore.FieldPath;
 import com.google.cloud.firestore.Query;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +20,9 @@ public class WhereConditionUtils {
 
     protected static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static Query applyWhereConditional(Query query, String path, String operatorString, String value) throws AppsmithPluginException {
+    public static Query applyWhereConditional(Query query, String strPath, String operatorString, String strValue) throws AppsmithPluginException {
+
+        String path = strPath.trim();
 
         if (query == null) {
             throw new AppsmithPluginException(
@@ -35,6 +41,44 @@ public class WhereConditionUtils {
                     "Appsmith server has encountered an invalid operator for Firestore query's where conditional." +
                             " Please contact Appsmith's customer support to resolve this."
             );
+        }
+
+        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(strValue);
+        Object value = strValue.trim();
+
+        switch (dataType) {
+            case INTEGER:
+            case LONG:
+            case FLOAT:
+            case DOUBLE:
+                value = Double.parseDouble(strValue);
+                break;
+
+            case BOOLEAN:
+                value = Boolean.parseBoolean(strValue);
+                break;
+
+            case DATE:
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                java.util.Date date = null;
+                try {
+                    date = sdf.parse(strValue);
+                } catch (ParseException e) {
+                    //Input may not be of above pattern
+                }
+                value = date;
+                break;
+
+            case TIMESTAMP:
+                SimpleDateFormat sdfTs = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                java.util.Date timeStamp = null;
+                try {
+                    timeStamp = sdfTs.parse(strValue);
+                } catch (ParseException e) {
+                    //Input may not be of above pattern
+                }
+                value = timeStamp;
+                break;
         }
 
         FieldPath fieldPath = FieldPath.of(path.split("\\."));
@@ -56,7 +100,7 @@ public class WhereConditionUtils {
                 return query.whereArrayContains(fieldPath, value);
             case ARRAY_CONTAINS_ANY:
                 try {
-                    return query.whereArrayContainsAny(fieldPath, parseList(value));
+                    return query.whereArrayContainsAny(fieldPath, parseList((String) value));
                 } catch (IOException e) {
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -65,7 +109,7 @@ public class WhereConditionUtils {
                 }
             case IN:
                 try {
-                    return query.whereIn(fieldPath, parseList(value));
+                    return query.whereIn(fieldPath, parseList((String) value));
                 } catch (IOException e) {
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,

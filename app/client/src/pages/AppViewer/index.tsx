@@ -9,7 +9,8 @@ import {
   BuilderRouteParams,
   GIT_BRANCH_QUERY_KEY,
   VIEWER_FORK_PATH,
-  VIEWER_URL,
+  VIEWER_PATH,
+  VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import {
   PageListPayload,
@@ -18,7 +19,11 @@ import {
 import { getIsInitialized } from "selectors/appViewSelectors";
 import { executeTrigger } from "actions/widgetActions";
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import { updateWidgetPropertyRequest } from "actions/controlActions";
+import {
+  BatchPropertyUpdatePayload,
+  batchUpdateWidgetProperty,
+  updateWidgetPropertyRequest,
+} from "actions/controlActions";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import {
@@ -36,19 +41,37 @@ import GlobalHotKeys from "./GlobalHotKeys";
 
 import { getSearchQuery } from "utils/helpers";
 import AppViewerCommentsSidebar from "./AppViewerComemntsSidebar";
+import { showPostCompletionMessage } from "selectors/onboardingSelectors";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
-const AppViewerBody = styled.section<{ hasPages: boolean }>`
+const AppViewerBody = styled.section<{
+  hasPages: boolean;
+  showGuidedTourMessage: boolean;
+  isEmbeded: boolean;
+}>`
   display: flex;
   flex-direction: row;
   align-items: stretch;
   justify-content: flex-start;
-  height: calc(
-    100vh -
-      ${(props) =>
-        !props.hasPages ? `${props.theme.smallHeaderHeight} - 1px` : "72px"}
-  );
+  height: ${(props) => {
+    // embeded page will not have top header
+    if (props.isEmbeded) return "100vh;";
+
+    let offsetHeight = "";
+
+    if (!props.hasPages) {
+      offsetHeight = `${props.theme.smallHeaderHeight} - 1px`;
+    } else {
+      offsetHeight = "72px";
+    }
+
+    if (props.showGuidedTourMessage) {
+      offsetHeight += " - 100px";
+    }
+
+    return `calc(100vh - ${offsetHeight});`;
+  }};
 `;
 
 const ContainerWithComments = styled.div`
@@ -66,11 +89,12 @@ const AppViewerBodyContainer = styled.div<{ width?: string }>`
 
 export type AppViewerProps = {
   initializeAppViewer: (params: {
-    applicationId: string;
+    applicationId?: string;
     pageId?: string;
     branch?: string;
   }) => void;
   isInitialized: boolean;
+  showGuidedTourMessage: boolean;
   isInitializeError: boolean;
   executeAction: (actionPayload: ExecuteTriggerPayload) => void;
   updateWidgetProperty: (
@@ -86,6 +110,10 @@ export type AppViewerProps = {
   resetChildrenMetaProperty: (widgetId: string) => void;
   pages: PageListPayload;
   lightTheme: Theme;
+  batchUpdateWidgetProperty: (
+    widgetId: string,
+    updates: BatchPropertyUpdatePayload,
+  ) => void;
 } & RouteComponentProps<BuilderRouteParams>;
 
 type Props = AppViewerProps & RouteComponentProps<AppViewerRouteParams>;
@@ -106,13 +134,11 @@ class AppViewer extends Component<Props> {
     } = this.props;
     const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
 
-    if (applicationId) {
-      this.props.initializeAppViewer({
-        branch: branch,
-        applicationId,
-        pageId,
-      });
-    }
+    this.props.initializeAppViewer({
+      branch: branch,
+      applicationId,
+      pageId,
+    });
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -127,7 +153,7 @@ class AppViewer extends Component<Props> {
     const prevBranch = getSearchQuery(prevSearch, GIT_BRANCH_QUERY_KEY);
     const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
 
-    if (branch && branch !== prevBranch && applicationId && pageId) {
+    if (branch && branch !== prevBranch && (applicationId || pageId)) {
       this.props.initializeAppViewer({
         applicationId,
         pageId,
@@ -141,7 +167,8 @@ class AppViewer extends Component<Props> {
   };
 
   public render() {
-    const { isInitialized } = this.props;
+    const { isInitialized, location } = this.props;
+    const isEmbeded = location.search.indexOf("embed=true") !== -1;
     return (
       <ThemeProvider theme={this.props.lightTheme}>
         <GlobalHotKeys>
@@ -150,18 +177,28 @@ class AppViewer extends Component<Props> {
               executeAction: this.props.executeAction,
               updateWidgetMetaProperty: this.props.updateWidgetMetaProperty,
               resetChildrenMetaProperty: this.props.resetChildrenMetaProperty,
+              batchUpdateWidgetProperty: this.props.batchUpdateWidgetProperty,
             }}
           >
             <ContainerWithComments>
               <AppViewerCommentsSidebar />
               <AppViewerBodyContainer>
-                <AppViewerBody hasPages={this.props.pages.length > 1}>
+                <AppViewerBody
+                  hasPages={this.props.pages.length > 1}
+                  isEmbeded={isEmbeded}
+                  showGuidedTourMessage={this.props.showGuidedTourMessage}
+                >
                   {isInitialized && this.state.registered && (
                     <Switch>
                       <SentryRoute
                         component={AppViewerPageContainer}
                         exact
-                        path={VIEWER_URL}
+                        path={VIEWER_PATH}
+                      />
+                      <SentryRoute
+                        component={AppViewerPageContainer}
+                        exact
+                        path={VIEWER_PATH_DEPRECATED}
                       />
                       <SentryRoute
                         component={AppViewerPageContainer}
@@ -186,6 +223,7 @@ const mapStateToProps = (state: AppState) => ({
   isInitialized: getIsInitialized(state),
   pages: getViewModePageList(state),
   lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
+  showGuidedTourMessage: showPostCompletionMessage(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -208,7 +246,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   resetChildrenMetaProperty: (widgetId: string) =>
     dispatch(resetChildrenMetaProperty(widgetId)),
   initializeAppViewer: (params: {
-    applicationId: string;
+    applicationId?: string;
     pageId?: string;
     branch?: string;
   }) => {
@@ -217,6 +255,10 @@ const mapDispatchToProps = (dispatch: any) => ({
       payload: params,
     });
   },
+  batchUpdateWidgetProperty: (
+    widgetId: string,
+    updates: BatchPropertyUpdatePayload,
+  ) => dispatch(batchUpdateWidgetProperty(widgetId, updates)),
 });
 
 export default withRouter(

@@ -35,7 +35,7 @@ import {
   SNIPPET_COPY,
   SNIPPET_EXECUTE,
   SNIPPET_INSERT,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { getExpectedValue } from "utils/validation/common";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -88,6 +88,8 @@ const SnippetContainer = styled.div`
   .snippet-title {
     color: ${(props) => props.theme.colors.globalSearch.primaryTextColor};
     ${(props) => getTypographyByKey(props, "h3")}
+    font-size: 1.5rem;
+    line-height: 1.5rem;
     display: flex;
     justify-content: space-between;
     .action-msg {

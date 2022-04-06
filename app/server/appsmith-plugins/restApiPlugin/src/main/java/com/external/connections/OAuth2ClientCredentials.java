@@ -79,7 +79,7 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
     private Mono<OAuth2> generateOAuth2Token(OAuth2 oAuth2) {
         // Webclient
         WebClient webClient = WebClient.builder()
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .exchangeStrategies(ExchangeStrategies
                         .builder()
                         .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(MAX_IN_MEMORY_SIZE))
@@ -165,6 +165,7 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
                 .fromFormData(Authentication.GRANT_TYPE, Authentication.CLIENT_CREDENTIALS)
                 .with(Authentication.CLIENT_ID, oAuth2.getClientId())
                 .with(Authentication.CLIENT_SECRET, oAuth2.getClientSecret());
+
         // Adding optional audience parameter
         if (!StringUtils.isEmpty(oAuth2.getAudience())) {
             body.with(Authentication.AUDIENCE, oAuth2.getAudience());
@@ -176,6 +177,12 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
         // Optionally add scope, if applicable
         if (!CollectionUtils.isEmpty(oAuth2.getScope())) {
             body.with(Authentication.SCOPE, StringUtils.collectionToDelimitedString(oAuth2.getScope(), " "));
+        }
+        //Custom Token Parameters
+        if (oAuth2.getCustomTokenParameters() != null) {
+             oAuth2.getCustomTokenParameters().forEach(params ->
+               body.with(params.getKey(), params.getValue().toString())
+                    );
         }
         return body;
     }

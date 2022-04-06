@@ -52,11 +52,11 @@ services:
       com.centurylinklabs.watchtower.enable: "true"
 
   auto_update:
-    image: containrrr/watchtower:latest-dev
+    image: containrrr/watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    # Update check interval in seconds.
-    command: --interval 300 --label-enable --cleanup
+    # Update check every hour.
+    command: --schedule "0 0 * ? * *" --label-enable --cleanup
 ```
 
 After saving this file, `cd` to the folder that contains this file and run the following command to start Appsmith:
@@ -154,12 +154,17 @@ This will need a restart of the Appsmith server, which can be done using the fol
 ```sh
 docker-compose exec appsmith-ce supervisorctl restart backend
 ```
-
+### Migrate To New Server
+To migrate a running container to a new server or other machine, you can use the following `migrate` command and replace the `<user>` and `<new-server-ip-address>` by the user and IP address of the destination server or machine.
+```
+docker exec appsmith-ce appsmithctl migrate <user>@<new-server-ip-address>
+```
+This command will migrate all data and configuration of running container on source machine to destination machine and start a new container on destination machine.
 ## Supervisor
 
 The container runs multiple processes, including the Appsmith server, Nginx, MongoDB etc., inside a single Docker container. These processes are started and managed by [supervisord](http://supervisord.org/).
 
-Supervisord comes with a web interface for managing the various processes, available at <http://localhost:9001>, as well as a command line interface towards the same goal.
+Supervisord comes with a web interface for managing the various processes, available at <http://localhost/supervisor/>, as well as a command line interface towards the same goal.
 
 Here's a screenshot of the web interface listing all the processes managed:
 

@@ -66,7 +66,6 @@ class SingleSelectTreeWidget extends BaseWidget<
                         type: ValidationTypes.TEXT,
                         params: {
                           default: "",
-                          required: true,
                         },
                       },
                       {
@@ -91,7 +90,6 @@ class SingleSelectTreeWidget extends BaseWidget<
                                   type: ValidationTypes.TEXT,
                                   params: {
                                     default: "",
-                                    required: true,
                                   },
                                 },
                               ],
@@ -172,6 +170,17 @@ class SingleSelectTreeWidget extends BaseWidget<
             label: "Disabled",
             helpText: "Disables input to this widget",
             controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -293,8 +302,8 @@ class SingleSelectTreeWidget extends BaseWidget<
     return {
       selectedOptionLabel: `{{  this.selectedLabel[0] }}`,
       selectedOptionValue:
-        '{{  JSON.stringify(this.options).match(new RegExp(`"value":"${this.selectedOption}"`), "g") ? this.selectedOption : undefined  }}',
-      isValid: `{{this.isRequired  ? !!this.selectedOptionValue?.length : true}}`,
+        '{{  JSON.stringify(this.options).match(new RegExp(`"value":${Number.isFinite(this.selectedOption) ? this.selectedOption : `"${this.selectedOption}"` }`), "g") ? this.selectedOption : undefined  }}',
+      isValid: `{{this.isRequired  ? !!this.selectedOptionValue || this.selectedOptionValue === 0 : true}}`,
     };
   }
 
@@ -310,7 +319,17 @@ class SingleSelectTreeWidget extends BaseWidget<
       selectedOption: undefined,
       selectedOptionValueArr: undefined,
       selectedLabel: [],
+      isDirty: false,
     };
+  }
+
+  componentDidUpdate(prevProps: SingleSelectTreeWidgetProps): void {
+    if (
+      this.props.defaultOptionValue !== prevProps.defaultOptionValue &&
+      this.props.isDirty
+    ) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
   }
 
   getPageView() {
@@ -319,11 +338,14 @@ class SingleSelectTreeWidget extends BaseWidget<
       !this.props.__evaluation__?.errors.options.length
         ? this.props.options
         : [];
-    const values: string | undefined = isString(this.props.selectedOption)
-      ? this.props.selectedOption
-      : undefined;
-
-    const filteredValue = this.filterValues(values);
+    const value: string | number | undefined =
+      isString(this.props.selectedOption) ||
+      Number.isFinite(this.props.selectedOption)
+        ? this.props.selectedOption
+        : undefined;
+    const isInvalid =
+      "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
+    const filteredValue = this.filterValue(value);
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
     const { componentWidth } = this.getComponentDimensions();
     return (
@@ -342,7 +364,8 @@ class SingleSelectTreeWidget extends BaseWidget<
           zIndex: Layers.dropdownModalWidget,
         }}
         expandAll={this.props.expandAll}
-        isValid={this.props.isValid}
+        isFilterable
+        isValid={!isInvalid}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
@@ -352,12 +375,18 @@ class SingleSelectTreeWidget extends BaseWidget<
         options={options}
         placeholder={this.props.placeholderText as string}
         value={filteredValue}
+        widgetId={this.props.widgetId}
         width={componentWidth}
       />
     );
   }
 
   onOptionChange = (value?: DefaultValueType, labelList?: ReactNode[]) => {
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
+    this.props.updateWidgetMetaProperty("selectedOption", value);
     this.props.updateWidgetMetaProperty("selectedLabel", labelList, {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,
@@ -365,18 +394,13 @@ class SingleSelectTreeWidget extends BaseWidget<
         type: EventType.ON_OPTION_CHANGE,
       },
     });
-
-    this.props.updateWidgetMetaProperty("selectedOption", value, {
-      triggerPropertyName: "onOptionChange",
-      dynamicString: this.props.onOptionChange,
-      event: {
-        type: EventType.ON_OPTION_CHANGE,
-      },
-    });
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
   };
 
   flat(array: DropdownOption[]) {
-    let result: { value: string }[] = [];
+    let result: { value: string | number }[] = [];
     array.forEach((a) => {
       result.push({ value: a.value });
       if (Array.isArray(a.children)) {
@@ -386,12 +410,12 @@ class SingleSelectTreeWidget extends BaseWidget<
     return result;
   }
 
-  filterValues(values: string | undefined) {
+  filterValue(value: string | number | undefined) {
     const options = this.props.options ? this.flat(this.props.options) : [];
 
-    if (isString(values)) {
-      const index = findIndex(options, { value: values as string });
-      return index > -1 ? values : undefined;
+    if (isString(value) || Number.isFinite(value)) {
+      const index = findIndex(options, { value: value as string });
+      return index > -1 ? value : undefined;
     }
   }
 
@@ -402,7 +426,7 @@ class SingleSelectTreeWidget extends BaseWidget<
 
 export interface DropdownOption {
   label: string;
-  value: string;
+  value: string | number;
   disabled?: boolean;
   children?: DropdownOption[];
 }
@@ -418,13 +442,14 @@ export interface SingleSelectTreeWidgetProps extends WidgetProps {
   allowClear: boolean;
   labelText?: string;
   selectedLabel: string[];
-  selectedOption: string;
+  selectedOption: string | number;
   selectedOptionValue: string;
   selectedOptionLabel: string;
   expandAll: boolean;
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
+  isDirty?: boolean;
 }
 
 export default SingleSelectTreeWidget;

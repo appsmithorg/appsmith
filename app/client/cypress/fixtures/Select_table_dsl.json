@@ -1,0 +1,240 @@
+{
+	"dsl": {
+		"widgetName": "MainContainer",
+		"backgroundColor": "none",
+		"rightColumn": 453,
+		"snapColumns": 64,
+		"detachFromLayout": true,
+		"widgetId": "0",
+		"topRow": 0,
+		"bottomRow": 1320,
+		"containerStyle": "none",
+		"snapRows": 125,
+		"parentRowSpace": 1,
+		"type": "CANVAS_WIDGET",
+		"canExtend": true,
+		"version": 54,
+		"minHeight": 1292,
+		"parentColumnSpace": 1,
+		"dynamicBindingPathList": [
+
+		],
+		"leftColumn": 0,
+		"children": [
+			{
+				"widgetName": "Select1",
+				"isFilterable": true,
+				"displayName": "Select",
+				"iconSVG": "/static/media/icon.bd99caba.svg",
+				"labelText": "",
+				"topRow": 16,
+				"bottomRow": 20,
+				"parentRowSpace": 10,
+				"type": "SELECT_WIDGET",
+				"serverSideFiltering": false,
+				"hideCard": false,
+				"defaultOptionValue": "{\n    \"label\": \"{{Table1.selectedRow.step}}\",\n    \"value\": \"{{Table1.selectedRow.step}}\"\n  }",
+				"animateLoading": true,
+				"parentColumnSpace": 21.203125,
+				"dynamicTriggerPathList": [
+
+				],
+				"leftColumn": 39,
+				"dynamicBindingPathList": [
+					{
+						"key": "defaultOptionValue"
+					}
+				],
+				"options": "[\n  {\n    \"label\": \"#1\",\n    \"value\": \"#1\"\n  },\n  {\n    \"label\": \"#2\",\n    \"value\": \"#2\"\n  }\n]",
+				"placeholderText": "Select option",
+				"isDisabled": false,
+				"key": "2zzcijdy0f",
+				"isRequired": false,
+				"rightColumn": 59,
+				"widgetId": "uiu9bz9s1b",
+				"isVisible": true,
+				"version": 1,
+				"parentId": "0",
+				"renderMode": "CANVAS",
+				"isLoading": false
+			},
+			{
+				"isVisible": true,
+				"animateLoading": true,
+				"defaultSelectedRow": "0",
+				"label": "Data",
+				"widgetName": "Table1",
+				"searchKey": "",
+				"textSize": "PARAGRAPH",
+				"horizontalAlignment": "LEFT",
+				"verticalAlignment": "CENTER",
+				"totalRecordsCount": 0,
+				"defaultPageSize": 0,
+				"dynamicBindingPathList": [
+					{
+						"key": "primaryColumns.step.computedValue"
+					},
+					{
+						"key": "primaryColumns.task.computedValue"
+					},
+					{
+						"key": "primaryColumns.status.computedValue"
+					},
+					{
+						"key": "primaryColumns.action.computedValue"
+					}
+				],
+				"primaryColumns": {
+					"step": {
+						"index": 0,
+						"width": 150,
+						"id": "step",
+						"horizontalAlignment": "LEFT",
+						"verticalAlignment": "CENTER",
+						"columnType": "text",
+						"textSize": "PARAGRAPH",
+						"enableFilter": true,
+						"enableSort": true,
+						"isVisible": true,
+						"isDisabled": false,
+						"isCellVisible": true,
+						"isDerived": false,
+						"label": "step",
+						"computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.step))}}"
+					},
+					"task": {
+						"index": 1,
+						"width": 150,
+						"id": "task",
+						"horizontalAlignment": "LEFT",
+						"verticalAlignment": "CENTER",
+						"columnType": "text",
+						"textSize": "PARAGRAPH",
+						"enableFilter": true,
+						"enableSort": true,
+						"isVisible": true,
+						"isDisabled": false,
+						"isCellVisible": true,
+						"isDerived": false,
+						"label": "task",
+						"computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.task))}}"
+					},
+					"status": {
+						"index": 2,
+						"width": 150,
+						"id": "status",
+						"horizontalAlignment": "LEFT",
+						"verticalAlignment": "CENTER",
+						"columnType": "text",
+						"textSize": "PARAGRAPH",
+						"enableFilter": true,
+						"enableSort": true,
+						"isVisible": true,
+						"isDisabled": false,
+						"isCellVisible": true,
+						"isDerived": false,
+						"label": "status",
+						"computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.status))}}"
+					},
+					"action": {
+						"index": 3,
+						"width": 150,
+						"id": "action",
+						"horizontalAlignment": "LEFT",
+						"verticalAlignment": "CENTER",
+						"columnType": "text",
+						"textSize": "PARAGRAPH",
+						"enableFilter": true,
+						"enableSort": true,
+						"isVisible": true,
+						"isDisabled": false,
+						"isCellVisible": true,
+						"isDerived": false,
+						"label": "action",
+						"computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.action))}}"
+					}
+				},
+				"derivedColumns": {
+				},
+				"tableData": "[\n  {\n    \"step\": \"#1\",\n    \"task\": \"Drop a table\",\n    \"status\": \"✅\",\n    \"action\": \"\"\n  },\n  {\n    \"step\": \"#2\",\n    \"task\": \"Create a query fetch_users with the Mock DB\",\n    \"status\": \"--\",\n    \"action\": \"\"\n  },\n  {\n    \"step\": \"#3\",\n    \"task\": \"Bind the query using => fetch_users.data\",\n    \"status\": \"--\",\n    \"action\": \"\"\n  }\n]",
+				"columnSizeMap": {
+					"task": 245,
+					"step": 62,
+					"status": 75
+				},
+				"columnOrder": [
+					"step",
+					"task",
+					"status",
+					"action"
+				],
+				"enableClientSideSearch": true,
+				"isVisibleSearch": true,
+				"isVisibleFilters": true,
+				"isVisibleDownload": true,
+				"isVisiblePagination": true,
+				"isSortable": true,
+				"delimiter": ",",
+				"version": 3,
+				"type": "TABLE_WIDGET",
+				"hideCard": false,
+				"displayName": "Table",
+				"key": "t22odw8rfj",
+				"iconSVG": "/static/media/icon.db8a9cbd.svg",
+				"widgetId": "f427h0lu92",
+				"renderMode": "CANVAS",
+				"isLoading": false,
+				"parentColumnSpace": 16.703125,
+				"parentRowSpace": 10,
+				"leftColumn": 6,
+				"rightColumn": 34,
+				"topRow": 9,
+				"bottomRow": 37,
+				"parentId": "0",
+				"dynamicTriggerPathList": [
+
+				],
+				"dynamicPropertyPathList": [
+
+				]
+			},
+			{
+				"isVisible": true,
+				"text": "{{Select1.selectedOptionValue}}",
+				"fontSize": "PARAGRAPH",
+				"fontStyle": "BOLD",
+				"textAlign": "LEFT",
+				"textColor": "#231F20",
+				"truncateButtonColor": "#FFC13D",
+				"widgetName": "Text1",
+				"shouldTruncate": false,
+				"overflow": "NONE",
+				"version": 1,
+				"animateLoading": true,
+				"type": "TEXT_WIDGET",
+				"hideCard": false,
+				"displayName": "Text",
+				"key": "cdb5qeydze",
+				"iconSVG": "/static/media/icon.97c59b52.svg",
+				"widgetId": "5qb4nik2gy",
+				"renderMode": "CANVAS",
+				"isLoading": false,
+				"parentColumnSpace": 16.703125,
+				"parentRowSpace": 10,
+				"leftColumn": 39,
+				"rightColumn": 59,
+				"topRow": 33,
+				"bottomRow": 37,
+				"parentId": "0",
+				"dynamicBindingPathList": [
+					{
+						"key": "text"
+					}
+				],
+				"dynamicTriggerPathList": [
+
+				]
+			}
+		]
+	}
+}

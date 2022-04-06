@@ -21,7 +21,7 @@
         "children": [
             {
                 "isVisible": true,
-                "label": "{{\nfunction() {\n  iron_man = {\n    hero: \"Iron Man\",\n    team: \"Avengers\",\n    skills: \"Superhuman strength\",\n    status: true,\n  };\n  return iron_man.status;\n}()\n}}",
+                "label": "{{\n(function() {\n  iron_man = {\n    hero: \"Iron Man\",\n    team: \"Avengers\",\n    skills: \"Superhuman strength\",\n    status: true,\n  };\n  return iron_man.status;\n})()\n}}",
                 "defaultCheckedState": true,
                 "widgetName": "Checkbox1",
                 "version": 1,

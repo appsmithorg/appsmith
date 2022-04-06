@@ -11,7 +11,7 @@ ENV APPSMITH_SERVER_PROXY_PASS="http://appsmith-internal-server:8080"
 # COPY ./docker/templates/nginx-app.conf.template /nginx.conf.template
 COPY ./docker/templates/nginx-root.conf.template /nginx-root.conf.template
 
-COPY ./docker/templates/nginx-app-http.conf.template /etc/nginx/templates/
+COPY ./docker/templates/nginx-app-http.conf.template /nginx-app-http.conf.template
 COPY ./docker/templates/nginx-app-https.conf.template /nginx-app-https.conf.template
 
 # This is the script that is used to start Nginx when the Docker container starts

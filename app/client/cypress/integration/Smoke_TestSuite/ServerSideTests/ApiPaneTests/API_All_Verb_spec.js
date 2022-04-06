@@ -1,11 +1,14 @@
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const ApiEditor = require("../../../../locators/ApiEditor.json");
+import ApiEditor from "../../../../locators/ApiEditor";
 
 describe("API Panel Test Functionality", function() {
   afterEach(function() {
-    cy.get(ApiEditor.ApiActionMenu).click({ force: true });
+    cy.get(ApiEditor.ApiActionMenu).click({ multiple: true });
     cy.get(apiwidget.deleteAPI).click({ force: true });
+    cy.get(apiwidget.deleteAPI)
+      .contains("Are you sure?")
+      .click({ force: true });
     cy.wait("@deleteAction").should(
       "have.nested.property",
       "response.body.responseMeta.status",

@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect } from "react";
 import { useSelector } from "react-redux";
 import {
   getCurrentPageId,
@@ -15,6 +15,8 @@ import { Spinner } from "@blueprintjs/core";
 import Canvas from "../Canvas";
 import { useParams } from "react-router";
 import classNames from "classnames";
+import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import { useDispatch } from "react-redux";
 
 const Container = styled.section`
   width: 100%;
@@ -39,6 +41,13 @@ function CanvasContainer() {
   const isPreviewMode = useSelector(previewModeSelector);
   const params = useParams<{ applicationId: string; pageId: string }>();
   const shouldHaveTopMargin = !isPreviewMode || pages.length > 1;
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    return () => {
+      dispatch(forceOpenWidgetPanel(false));
+    };
+  }, []);
 
   const pageLoading = (
     <Centered>
@@ -46,6 +55,7 @@ function CanvasContainer() {
     </Centered>
   );
   let node: ReactNode;
+
   if (isFetchingPage) {
     node = pageLoading;
   }
@@ -62,7 +72,9 @@ function CanvasContainer() {
         "mt-9": shouldHaveTopMargin,
       })}
       key={currentPageId}
-      style={{ height: `calc(100% - ${shouldHaveTopMargin ? "2rem" : "0px"})` }}
+      style={{
+        height: `calc(100vh - ${shouldHaveTopMargin ? "2rem" : "0px"})`,
+      }}
     >
       {node}
     </Container>

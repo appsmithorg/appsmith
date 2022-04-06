@@ -1,9 +1,9 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.domains.ActionCollection;
-import reactor.core.publisher.Flux;
+import com.appsmith.server.repositories.ce.ActionCollectionRepositoryCE;
+import org.springframework.stereotype.Repository;
 
-public interface ActionCollectionRepository extends BaseRepository<ActionCollection, String>, CustomActionCollectionRepository {
+@Repository
+public interface ActionCollectionRepository extends CustomActionCollectionRepository, ActionCollectionRepositoryCE {
 
-    Flux<ActionCollection> findByApplicationId(String applicationId);
 }

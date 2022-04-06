@@ -18,11 +18,9 @@ export const generateDataTreeJSAction = (
   const listVariables: Array<string> = [];
   dynamicBindingPathList.push({ key: "body" });
   const reg = /this\./g;
-  const removeThisReference = js.config.body.replaceAll(
-    reg,
-    `${js.config.name}.`,
-  );
+  const removeThisReference = js.config.body.replace(reg, `${js.config.name}.`);
   bindingPaths["body"] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
+
   if (variables) {
     for (let i = 0; i < variables.length; i++) {
       const variable = variables[i];
@@ -33,15 +31,21 @@ export const generateDataTreeJSAction = (
   const dependencyMap: DependencyMap = {};
   dependencyMap["body"] = [];
   const actions = js.config.actions;
+  const actionsData: Record<string, any> = {};
   if (actions) {
     for (let i = 0; i < actions.length; i++) {
       const action = actions[i];
       meta[action.name] = {
         arguments: action.actionConfiguration.jsArguments,
+        isAsync: action.actionConfiguration.isAsync,
+        confirmBeforeExecute: !!action.confirmBeforeExecute,
       };
       bindingPaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
       dynamicBindingPathList.push({ key: action.name });
       dependencyMap["body"].push(action.name);
+      actionsData[action.name] = {
+        data: (js.data && js.data[`${action.id}`]) || {},
+      };
     }
   }
   return {
@@ -56,5 +60,6 @@ export const generateDataTreeJSAction = (
     dynamicBindingPathList: dynamicBindingPathList,
     variables: listVariables,
     dependencyMap: dependencyMap,
+    ...actionsData,
   };
 };

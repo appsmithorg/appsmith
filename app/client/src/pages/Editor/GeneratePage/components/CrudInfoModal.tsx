@@ -15,7 +15,7 @@ import {
   GEN_CRUD_INFO_DIALOG_SUBTITLE,
   GEN_CRUD_SUCCESS_MESSAGE,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { getInfoImage, getInfoThumbnail } from "constants/ImagesURL";
 import ProgressiveImage, {

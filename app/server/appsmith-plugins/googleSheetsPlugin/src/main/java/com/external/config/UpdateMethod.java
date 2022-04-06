@@ -16,6 +16,8 @@ import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -99,10 +101,10 @@ public class UpdateMethod implements Method {
                 .map(response -> {// Choose body depending on response status
                     byte[] responseBody = response.getBody();
 
-                    if (responseBody == null || !response.getStatusCode().is2xxSuccessful()) {
+                    if (responseBody == null) {
                         throw Exceptions.propagate(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
-                                "Could not map request back to existing data"));
+                                "Expected to receive a response body."));
                     }
                     String jsonBody = new String(responseBody);
                     JsonNode jsonNodeBody = null;
@@ -114,6 +116,16 @@ public class UpdateMethod implements Method {
                                 new String(responseBody),
                                 e.getMessage()
                         ));
+                    }
+                    if (response.getStatusCode() != null && !response.getStatusCode().is2xxSuccessful()) {
+                        if (jsonNodeBody.get("error") != null && jsonNodeBody.get("error").get("message") != null) {
+                            throw Exceptions.propagate(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_ERROR,   jsonNodeBody.get("error").get("message").toString()));
+                        }
+
+                        throw Exceptions.propagate(new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_ERROR,
+                            "Could not map request back to existing data"));
                     }
 
                     // This is the object with the original values in the referred row
@@ -165,7 +177,8 @@ public class UpdateMethod implements Method {
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(this.BASE_SHEETS_API_URL,
                 methodConfig.getSpreadsheetId() /* spreadsheet Id */
                         + "/values/"
-                        + methodConfig.getSpreadsheetRange() /* spreadsheet Range */
+                        + URLEncoder.encode(methodConfig.getSpreadsheetRange(), StandardCharsets.UTF_8),  /* spreadsheet Range */
+                true
         );
 
         uriBuilder.queryParam("valueInputOption", "USER_ENTERED");

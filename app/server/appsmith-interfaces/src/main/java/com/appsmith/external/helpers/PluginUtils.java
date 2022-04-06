@@ -6,10 +6,13 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Property;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -30,6 +33,8 @@ import static com.appsmith.external.constants.FieldName.VALUE;
 
 @Slf4j
 public class PluginUtils {
+
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * - Regex to match everything inside double or single quotes, including the quotes.
@@ -89,6 +94,36 @@ public class PluginUtils {
 
     public static Boolean validConfigurationPresentInFormData(Map<String, Object> formData, String field) {
         return getValueSafelyFromFormData(formData, field) != null;
+    }
+
+    /**
+     * Get value from `formData` map and also type cast it to the class of type `T` before returning the value. In
+     * case the value is null, then the defaultValue is returned.
+     *
+     * @param formData
+     * @param field : key path used to fetch value from formData
+     * @param type : returned value is type casted to the type of this object before return.
+     * @param defaultValue : this value is returned if the obtained value is null
+     * @param <T> : type parameter to which the obtained value is cast to.
+     * @return : obtained value (post type cast) if non-null, otherwise defaultValue
+     */
+    public static <T> T getValueSafelyFromFormData(Map<String, Object> formData, String field, Class<T> type,
+                                                   T defaultValue) {
+        Object formDataValue = getValueSafelyFromFormData(formData, field);
+        return formDataValue != null ? (T) formDataValue : defaultValue;
+    }
+
+    /**
+     * Get value from `formData` map and also type cast it to the class of type `T` before returning the value.
+     *
+     * @param formData
+     * @param field : key path used to fetch value from formData
+     * @param type : returned value is type casted to the type of this object before return.
+     * @param <T> : type parameter to which the obtained value is cast to.
+     * @return : obtained value (post type cast) if non-null, otherwise null.
+     */
+    public static <T> T getValueSafelyFromFormData(Map<String, Object> formData, String field, Class<T> type) {
+        return (T) (getValueSafelyFromFormData(formData, field));
     }
 
     public static Object getValueSafelyFromFormData(Map<String, Object> formData, String field) {
@@ -212,7 +247,7 @@ public class PluginUtils {
     public static Condition parseWhereClause(Map<String, Object> whereClause) {
         Condition condition = new Condition();
 
-        Object unparsedOperator = whereClause.getOrDefault(CONDITION, ConditionalOperator.EQ.toString());
+        Object unparsedOperator = whereClause.getOrDefault(CONDITION, ConditionalOperator.EQ.name());
 
         ConditionalOperator operator;
         try {
@@ -249,5 +284,27 @@ public class PluginUtils {
         }
 
         return condition;
+    }
+
+    public static List<String> parseList(String arrayString) throws IOException {
+        return objectMapper.readValue(arrayString, ArrayList.class);
+    }
+
+    public static <T> T getValueSafelyFromPropertyList(List<Property> properties, int index, Class<T> type,
+                                                       T defaultValue) {
+        if (CollectionUtils.isEmpty(properties) || index > properties.size() - 1 || properties.get(index) == null
+                || properties.get(index).getValue() == null) {
+            return defaultValue;
+        }
+
+        return (T) properties.get(index).getValue();
+    }
+
+    public static <T> T getValueSafelyFromPropertyList(List<Property> properties, int index, Class<T> type) {
+        return getValueSafelyFromPropertyList(properties, index, type, null);
+    }
+
+    public static Object getValueSafelyFromPropertyList(List<Property> properties, int index) {
+        return getValueSafelyFromPropertyList(properties, index, Object.class);
     }
 }

@@ -28,6 +28,7 @@ describe("getBindingPathsOfAction", () => {
       data: EvaluationSubstitutionType.TEMPLATE,
       isLoading: EvaluationSubstitutionType.TEMPLATE,
       config: EvaluationSubstitutionType.TEMPLATE,
+      datasourceUrl: EvaluationSubstitutionType.TEMPLATE,
     });
   });
 
@@ -76,6 +77,7 @@ describe("getBindingPathsOfAction", () => {
     expect(response).toStrictEqual({
       data: EvaluationSubstitutionType.TEMPLATE,
       isLoading: EvaluationSubstitutionType.TEMPLATE,
+      datasourceUrl: EvaluationSubstitutionType.TEMPLATE,
       "config.body": EvaluationSubstitutionType.TEMPLATE,
       "config.body2": EvaluationSubstitutionType.TEMPLATE,
       "config.field1": EvaluationSubstitutionType.SMART_SUBSTITUTE,
@@ -141,6 +143,7 @@ describe("getBindingPathsOfAction", () => {
     expect(response).toStrictEqual({
       data: EvaluationSubstitutionType.TEMPLATE,
       isLoading: EvaluationSubstitutionType.TEMPLATE,
+      datasourceUrl: EvaluationSubstitutionType.TEMPLATE,
       "config.params[0].key": EvaluationSubstitutionType.TEMPLATE,
       "config.params[0].value": EvaluationSubstitutionType.TEMPLATE,
       "config.params[1].key": EvaluationSubstitutionType.TEMPLATE,
@@ -196,6 +199,7 @@ describe("getBindingPathsOfAction", () => {
     expect(response).toStrictEqual({
       data: EvaluationSubstitutionType.TEMPLATE,
       isLoading: EvaluationSubstitutionType.TEMPLATE,
+      datasourceUrl: EvaluationSubstitutionType.TEMPLATE,
       "config.key": EvaluationSubstitutionType.TEMPLATE,
       "config.value": EvaluationSubstitutionType.TEMPLATE,
     });
@@ -252,6 +256,7 @@ describe("getBindingPathsOfAction", () => {
     expect(response).toStrictEqual({
       data: EvaluationSubstitutionType.TEMPLATE,
       isLoading: EvaluationSubstitutionType.TEMPLATE,
+      datasourceUrl: EvaluationSubstitutionType.TEMPLATE,
       "config.body": EvaluationSubstitutionType.TEMPLATE,
       "config.field1": EvaluationSubstitutionType.SMART_SUBSTITUTE,
     });
@@ -262,6 +267,7 @@ describe("getBindingPathsOfAction", () => {
     expect(response2).toStrictEqual({
       data: EvaluationSubstitutionType.TEMPLATE,
       isLoading: EvaluationSubstitutionType.TEMPLATE,
+      datasourceUrl: EvaluationSubstitutionType.TEMPLATE,
       "config.body": EvaluationSubstitutionType.TEMPLATE,
       "config.body2": EvaluationSubstitutionType.TEMPLATE,
     });

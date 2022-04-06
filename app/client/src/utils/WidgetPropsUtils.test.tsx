@@ -13,9 +13,64 @@ import {
 } from "test/factories/WidgetFactoryUtils";
 import { cloneDeep } from "lodash";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { extractCurrentDSL } from "./WidgetPropsUtils";
+import {
+  extractCurrentDSL,
+  getDraggingSpacesFromBlocks,
+} from "./WidgetPropsUtils";
+import { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 
 describe("WidgetProps tests", () => {
+  it("should convert WidgetDraggingBlocks to occupied Spaces", () => {
+    const draggingBlocks: WidgetDraggingBlock[] = [
+      {
+        left: 100,
+        top: 100,
+        width: 210,
+        height: 220,
+        widgetId: "1",
+        isNotColliding: true,
+        columnWidth: 10,
+        rowHeight: 10,
+      },
+      {
+        left: 310,
+        top: 120,
+        width: 70,
+        height: 80,
+        widgetId: "2",
+        isNotColliding: true,
+        columnWidth: 10,
+        rowHeight: 10,
+      },
+    ];
+    const draggingSpaces = [
+      {
+        left: 10,
+        top: 10,
+        right: 31,
+        bottom: 32,
+        id: "1",
+      },
+      {
+        left: 31,
+        top: 12,
+        right: 38,
+        bottom: 20,
+        id: "2",
+      },
+    ];
+    const snapColumnSpace = 10,
+      snapRowSpace = 10;
+
+    expect(
+      getDraggingSpacesFromBlocks(
+        draggingBlocks,
+        snapColumnSpace,
+        snapRowSpace,
+      ),
+    ).toEqual(draggingSpaces);
+  });
+
   it("it checks if array to object migration functions for chart widget ", () => {
     const input = {
       type: "CANVAS_WIDGET",
@@ -243,7 +298,7 @@ describe("Initial value migration test", () => {
     expect(migrateInitialValues(input)).toEqual(output);
   });
 
-  it("DROP_DOWN_WIDGET", () => {
+  it("SELECT_WIDGET", () => {
     const input = {
       ...containerWidget,
       children: [
@@ -257,7 +312,9 @@ describe("Initial value migration test", () => {
           parentRowSpace: 40,
           isVisible: true,
           label: "",
-          type: "DROP_DOWN_WIDGET",
+          isRequired: false,
+          isDisabled: false,
+          type: "SELECT_WIDGET",
           version: 1,
           parentId: "0",
           isLoading: false,
@@ -296,7 +353,7 @@ describe("Initial value migration test", () => {
           isVisible: true,
           label: "",
           selectionType: "SINGLE_SELECT",
-          type: "DROP_DOWN_WIDGET",
+          type: "SELECT_WIDGET",
           version: 1,
           parentId: "0",
           isLoading: false,
@@ -318,7 +375,6 @@ describe("Initial value migration test", () => {
               value: "RED",
             },
           ],
-          // following properties get added
           isRequired: false,
           isDisabled: false,
         },

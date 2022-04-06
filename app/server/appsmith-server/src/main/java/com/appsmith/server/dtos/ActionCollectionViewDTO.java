@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,4 +21,5 @@ public class ActionCollectionViewDTO {
     List<JSValue> variables;
     List<ActionDTO> actions;
     String body;
+    DefaultResources defaultResources;
 }

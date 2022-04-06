@@ -45,8 +45,8 @@ const ALERT_STYLE_OPTIONS = [
 ];
 
 const RESET_CHILDREN_OPTIONS = [
-  { label: "Yes", value: "true", id: "true" },
-  { label: "No", value: "false", id: "false" },
+  { label: "true", value: "true", id: "true" },
+  { label: "false", value: "false", id: "false" },
 ];
 
 const FILE_TYPE_OPTIONS = [
@@ -73,7 +73,7 @@ const NAVIGATION_TARGET_FIELD_OPTIONS = [
   },
 ];
 
-export const FUNC_ARGS_REGEX = /((["][^"]*["])|([\[].*[\]])|([\{].*[\}])|(['][^']*['])|([\(].*[\)[=][>][{].*[}])|([^'",][^,"+]*[^'",]*))*/gi;
+export const FUNC_ARGS_REGEX = /((["][^"]*["])|([\[][\s\S]*[\]])|([\{][\s\S]*[\}])|(['][^']*['])|([\(][\s\S]*[\)][ ]*=>[ ]*[{][\s\S]*[}])|([^'",][^,"+]*[^'",]*))*/gi;
 export const ACTION_TRIGGER_REGEX = /^{{([\s\S]*?)\(([\s\S]*?)\)}}$/g;
 //Old Regex:: /\(\) => ([\s\S]*?)(\([\s\S]*?\))/g;
 export const ACTION_ANONYMOUS_FUNC_REGEX = /\(\) => (({[\s\S]*?})|([\s\S]*?)(\([\s\S]*?\)))/g;
@@ -134,7 +134,7 @@ export const JSToString = (js: string): string => {
     .join("");
 };
 
-const argsStringToArray = (funcArgs: string): string[] => {
+export const argsStringToArray = (funcArgs: string): string[] => {
   const argsplitMatches = [...funcArgs.matchAll(FUNC_ARGS_REGEX)];
   const arr: string[] = [];
   let isPrevUndefined = true;
@@ -404,6 +404,9 @@ const fieldConfigs: FieldConfigs = {
           break;
         case ActionType.getGeolocation:
           defaultParams = "(location) => { \n\t // add code here \n  }";
+          break;
+        case ActionType.resetWidget:
+          defaultParams = `"",true`;
           break;
         default:
           break;
@@ -831,7 +834,11 @@ function renderField(props: {
       break;
   }
 
-  return <div key={fieldType}>{viewElement}</div>;
+  return (
+    <div data-guided-tour-iid={field.label} key={fieldType}>
+      {viewElement}
+    </div>
+  );
 }
 
 function Fields(props: {
@@ -856,6 +863,7 @@ function Fields(props: {
           field: fields[0],
           ...otherProps,
         })}
+
         <ul className={props.depth === 1 ? "tree" : ""}>
           {remainingFields.map((field: any, index: number) => {
             if (Array.isArray(field)) {

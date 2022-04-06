@@ -27,6 +27,9 @@ import TabControl from "components/propertyControls/TabControl";
 import ActionSelectorControl from "components/propertyControls/ActionSelectorControl";
 import ColumnActionSelectorControl from "components/propertyControls/ColumnActionSelectorControl";
 import PrimaryColumnsControl from "components/propertyControls/PrimaryColumnsControl";
+import PrimaryColumnDropdownControl, {
+  PrimaryColumnDropdownControlProps,
+} from "components/propertyControls/PrimaryColumnDropdownControl";
 import ColorPickerControl, {
   ColorPickerControlProps,
 } from "components/propertyControls/ColorPickerControl";
@@ -45,10 +48,12 @@ import MultiSwitchControl, {
 import MenuItemsControl from "./MenuItemsControl";
 import ButtonListControl from "./ButtonListControl";
 import IconSelectControl from "./IconSelectControl";
-import IconAlignControl from "./IconAlignControl";
 import BoxShadowOptionsControl from "./BoxShadowOptionsControl";
 import BorderRadiusOptionsControl from "./BorderRadiusOptionsControl";
 import ButtonBorderRadiusOptionsControl from "./ButtonBorderRadiusControl";
+import FieldConfigurationControl from "components/propertyControls/FieldConfigurationControl";
+import JSONFormComputeControl from "./JSONFormComputeControl";
+import ButtonControl from "./ButtonControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -67,16 +72,19 @@ export const PropertyControls = {
   TabControl,
   ColorPickerControl,
   PrimaryColumnsControl,
+  PrimaryColumnDropdownControl,
   IconTabControl,
   ButtonTabControl,
   ComputeTablePropertyControl,
   MenuItemsControl,
   ButtonListControl,
   IconSelectControl,
-  IconAlignControl,
   BoxShadowOptionsControl,
   BorderRadiusOptionsControl,
   ButtonBorderRadiusOptionsControl,
+  FieldConfigurationControl,
+  JSONFormComputeControl,
+  ButtonControl,
 };
 
 export type PropertyControlPropsType =
@@ -91,7 +99,8 @@ export type PropertyControlPropsType =
   | ButtonTabControlProps
   | StepControlProps
   | ColorPickerControlProps
-  | ComputeTablePropertyControlProps;
+  | ComputeTablePropertyControlProps
+  | PrimaryColumnDropdownControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};

@@ -3,7 +3,6 @@ import { formValueSelector, change } from "redux-form";
 import { connect } from "react-redux";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
-import FormLabel from "components/editorComponents/FormLabel";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import {
   EditorSize,
@@ -64,7 +63,6 @@ class DynamicTextControl extends BaseControl<
       actionName,
       configProperty,
       evaluationSubstitutionType,
-      label,
       placeholderText,
       responseType,
     } = this.props;
@@ -81,7 +79,6 @@ class DynamicTextControl extends BaseControl<
 
     return (
       <Wrapper>
-        <FormLabel>{label}</FormLabel>
         {showTemplate ? (
           <TemplateMenu
             createTemplate={(templateString) => {
@@ -102,6 +99,7 @@ class DynamicTextControl extends BaseControl<
           <DynamicTextField
             className="dynamic-text-field"
             dataTreePath={dataTreePath}
+            disabled={this.props.disabled}
             evaluationSubstitutionType={evaluationSubstitutionType}
             mode={mode}
             name={this.props.configProperty}

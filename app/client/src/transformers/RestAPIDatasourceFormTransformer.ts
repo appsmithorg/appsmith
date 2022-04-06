@@ -11,6 +11,7 @@ import {
   Basic,
   ApiKey,
   BearerToken,
+  SSLType,
 } from "entities/Datasource/RestAPIForm";
 import _ from "lodash";
 
@@ -22,6 +23,11 @@ export const datasourceToFormValues = (
     "datasourceConfiguration.authentication.authenticationType",
     AuthType.NONE,
   );
+  const connection = _.get(datasource, "datasourceConfiguration.connection", {
+    ssl: {
+      authType: SSLType.DEFAULT,
+    },
+  });
   const authentication = datasourceToFormAuthentication(authType, datasource);
   const isSendSessionEnabled =
     _.get(datasource, "datasourceConfiguration.properties[0].value", "N") ===
@@ -36,10 +42,14 @@ export const datasourceToFormValues = (
     isValid: datasource.isValid,
     url: datasource.datasourceConfiguration.url,
     headers: cleanupProperties(datasource.datasourceConfiguration.headers),
+    queryParameters: cleanupProperties(
+      datasource.datasourceConfiguration.queryParameters,
+    ),
     isSendSessionEnabled: isSendSessionEnabled,
     sessionSignatureKey: sessionSignatureKey,
     authType: authType,
     authentication: authentication,
+    connection: connection,
   };
 };
 
@@ -57,6 +67,7 @@ export const formValuesToDatasource = (
     datasourceConfiguration: {
       url: form.url,
       headers: cleanupProperties(form.headers),
+      queryParameters: cleanupProperties(form.queryParameters),
       properties: [
         {
           key: "isSendSessionEnabled",
@@ -65,6 +76,7 @@ export const formValuesToDatasource = (
         { key: "sessionSignatureKey", value: form.sessionSignatureKey },
       ],
       authentication: authentication,
+      connection: form.connection,
     },
   } as Datasource;
 };
@@ -88,11 +100,17 @@ const formToDatasourceAuthentication = (
       isTokenHeader: authentication.isTokenHeader,
       audience: authentication.audience,
       resource: authentication.resource,
+      sendScopeWithRefreshToken: authentication.sendScopeWithRefreshToken,
+      refreshTokenClientCredentialsLocation:
+        authentication.refreshTokenClientCredentialsLocation,
     };
     if (isClientCredentials(authType, authentication)) {
       return {
         ...oAuth2Common,
         grantType: GrantType.ClientCredentials,
+        customTokenParameters: cleanupProperties(
+          authentication.customTokenParameters,
+        ),
       };
     }
     if (isAuthorizationCode(authType, authentication)) {
@@ -169,11 +187,17 @@ const datasourceToFormAuthentication = (
       isTokenHeader: !!authentication.isTokenHeader,
       audience: authentication.audience || "",
       resource: authentication.resource || "",
+      sendScopeWithRefreshToken: authentication.sendScopeWithRefreshToken || "",
+      refreshTokenClientCredentialsLocation:
+        authentication.refreshTokenClientCredentialsLocation || "",
     };
     if (isClientCredentials(authType, authentication)) {
       return {
         ...oAuth2Common,
         grantType: GrantType.ClientCredentials,
+        customTokenParameters: cleanupProperties(
+          authentication.customTokenParameters,
+        ),
       };
     }
     if (isAuthorizationCode(authType, authentication)) {

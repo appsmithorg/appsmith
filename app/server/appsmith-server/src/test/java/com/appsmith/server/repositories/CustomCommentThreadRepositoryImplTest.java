@@ -2,7 +2,7 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.CommentMode;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.CommentThreadFilterDTO;
@@ -40,7 +40,7 @@ public class CustomCommentThreadRepositoryImplTest {
         User user = new User();
         user.setEmail(userEmail);
 
-        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(AclPermission.READ_THREAD), user);
+        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(AclPermission.READ_THREADS), user);
         thread.setPolicies(Set.copyOf(policyMap.values()));
         return thread;
     }
@@ -49,12 +49,12 @@ public class CustomCommentThreadRepositoryImplTest {
         CommentThread thread = new CommentThread();
         thread.setPageId(pageId);
         thread.setApplicationId(applicationId);
-        thread.setMode(CommentMode.EDIT);
+        thread.setMode(ApplicationMode.EDIT);
         User user = new User();
         user.setEmail(userEmail);
 
         Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(
-                Set.of(AclPermission.MANAGE_THREAD, AclPermission.COMMENT_ON_THREAD), user);
+                Set.of(AclPermission.MANAGE_THREADS, AclPermission.COMMENT_ON_THREADS), user);
         HashSet<Policy> policySet = new HashSet<>();
 
         // not using Set.of here because the caller function may need to add more policies
@@ -167,7 +167,7 @@ public class CustomCommentThreadRepositoryImplTest {
                     CommentThreadFilterDTO filterDTO = new CommentThreadFilterDTO();
                     filterDTO.setApplicationId("sample-application-id-1");
                     filterDTO.setResolved(false);
-                    return commentThreadRepository.find(filterDTO, AclPermission.READ_THREAD).collectList();
+                    return commentThreadRepository.find(filterDTO, AclPermission.READ_THREADS).collectList();
                 });
 
         StepVerifier.create(listMono).assertNext(
@@ -254,8 +254,8 @@ public class CustomCommentThreadRepositoryImplTest {
 
         Mono<Map<String, Collection<CommentThread>>> pageIdThreadMono = commentThreadRepository.saveAll(threads)
                 .collectList()
-                .then(commentThreadRepository.archiveByPageId(pageOneId, CommentMode.EDIT))
-                .thenMany(commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD))
+                .then(commentThreadRepository.archiveByPageId(pageOneId, ApplicationMode.EDIT))
+                .thenMany(commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREADS))
                 .collectMultimap(CommentThread::getPageId);
 
         StepVerifier.create(pageIdThreadMono)
@@ -278,11 +278,11 @@ public class CustomCommentThreadRepositoryImplTest {
 
         // create few comment threads with pageId and permission that'll be deleted
         CommentThread thread = createThreadWithAllPermission(threadUser, applicationId, testPageId);
-        thread.setMode(CommentMode.PUBLISHED);
+        thread.setMode(ApplicationMode.PUBLISHED);
 
         // add api_user to thread policy with read thread permission
         for(Policy policy: thread.getPolicies()) {
-            if(policy.getPermission().equals(AclPermission.READ_THREAD.getValue())) {
+            if(policy.getPermission().equals(AclPermission.READ_THREADS.getValue())) {
                 Set<String> users = new HashSet<>();
                 users.addAll(policy.getUsers());
                 users.add("api_user");
@@ -291,8 +291,8 @@ public class CustomCommentThreadRepositoryImplTest {
         }
 
         Mono<Map<String, Collection<CommentThread>>> pageIdThreadMono = commentThreadRepository.save(thread)
-                .then(commentThreadRepository.archiveByPageId(testPageId, CommentMode.EDIT)) // this will do nothing
-                .thenMany(commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD))
+                .then(commentThreadRepository.archiveByPageId(testPageId, ApplicationMode.EDIT)) // this will do nothing
+                .thenMany(commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREADS))
                 .collectMultimap(CommentThread::getPageId);
 
         StepVerifier.create(pageIdThreadMono)

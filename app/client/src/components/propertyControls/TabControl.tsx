@@ -1,21 +1,21 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import {
-  StyledPropertyPaneButton,
-  StyledDragIcon,
-  StyledDeleteIcon,
-  StyledEditIcon,
-  StyledOptionControlInputGroup,
-} from "./StyledControls";
+import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
-import { generateReactKey } from "utils/generators";
-import { DroppableComponent } from "components/ads/DraggableListComponent";
-import { getNextEntityName, noop } from "utils/AppsmithUtils";
-import _, { debounce, orderBy } from "lodash";
+import {
+  BaseItemProps,
+  DroppableComponent,
+  RenderComponentProps,
+} from "components/ads/DraggableListComponent";
+import { noop } from "utils/AppsmithUtils";
+import orderBy from "lodash/orderBy";
+import isString from "lodash/isString";
+import isUndefined from "lodash/isUndefined";
 import * as Sentry from "@sentry/react";
 import { Category, Size } from "components/ads/Button";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { DraggableListCard } from "components/ads/DraggableListCard";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;
@@ -24,29 +24,13 @@ const StyledPropertyPaneButtonWrapper = styled.div`
   margin-top: 10px;
 `;
 
-const ItemWrapper = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-`;
-
 const TabsWrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
 `;
 
-type RenderComponentProps = {
-  index: number;
-  item: {
-    label: string;
-    isVisible?: boolean;
-  };
-  deleteOption: (index: number) => void;
-  updateOption: (index: number, value: string) => void;
-  toggleVisibility?: (index: number) => void;
-  onEdit?: (props: any) => void;
-};
+type DroppableItem = BaseItemProps;
 
 function AddTabButtonComponent({ widgetId }: any) {
   const dispatch = useDispatch();
@@ -73,8 +57,8 @@ function AddTabButtonComponent({ widgetId }: any) {
   );
 }
 
-function TabControlComponent(props: RenderComponentProps) {
-  const { index, item, updateOption } = props;
+function TabControlComponent(props: RenderComponentProps<DroppableItem>) {
+  const { index, item } = props;
   const dispatch = useDispatch();
   const deleteOption = () => {
     dispatch({
@@ -83,62 +67,40 @@ function TabControlComponent(props: RenderComponentProps) {
     });
   };
 
-  const [value, setValue] = useState(item.label);
-  const [isEditing, setEditing] = useState(false);
-
-  useEffect(() => {
-    if (!isEditing && item && item.label) setValue(item.label);
-  }, [item?.label, isEditing]);
-
-  const debouncedUpdate = debounce(updateOption, 1000);
-  const handleChange = useCallback(() => props.onEdit && props.onEdit(index), [
-    index,
-  ]);
-
-  const onChange = useCallback(
-    (index: number, value: string) => {
-      setValue(value);
-      debouncedUpdate(index, value);
-    },
-    [updateOption],
-  );
-
-  const onFocus = () => setEditing(true);
-  const onBlur = () => setEditing(false);
-
   return (
-    <ItemWrapper>
-      <StyledDragIcon height={20} width={20} />
-      <StyledOptionControlInputGroup
-        dataType="text"
-        onBlur={onBlur}
-        onChange={(value: string) => {
-          onChange(index, value);
-        }}
-        onFocus={onFocus}
-        placeholder="Tab Title"
-        value={value}
-      />
-      <StyledDeleteIcon
-        className="t--delete-tab-btn"
-        height={20}
-        marginRight={12}
-        onClick={deleteOption}
-        width={20}
-      />
-      <StyledEditIcon
-        className="t--edit-column-btn"
-        height={20}
-        onClick={handleChange}
-        width={20}
-      />
-    </ItemWrapper>
+    <DraggableListCard
+      {...props}
+      deleteOption={deleteOption}
+      isDelete
+      placeholder="Tab Title"
+    />
   );
 }
 
-class TabControl extends BaseControl<ControlProps> {
+type State = {
+  focusedIndex: number | null;
+};
+
+class TabControl extends BaseControl<ControlProps, State> {
+  constructor(props: ControlProps) {
+    super(props);
+
+    this.state = {
+      focusedIndex: null,
+    };
+  }
   componentDidMount() {
     this.migrateTabData(this.props.propertyValue);
+  }
+
+  componentDidUpdate(prevProps: ControlProps): void {
+    //on adding a new column last column should get focused
+    if (
+      Object.keys(prevProps.propertyValue).length + 1 ===
+      Object.keys(this.props.propertyValue).length
+    ) {
+      this.updateFocus(Object.keys(this.props.propertyValue).length - 1, true);
+    }
   }
 
   migrateTabData(
@@ -149,7 +111,7 @@ class TabControl extends BaseControl<ControlProps> {
   ) {
     // Added a migration script for older tab data that was strings
     // deprecate after enough tabs have moved to the new format
-    if (_.isString(tabData)) {
+    if (isString(tabData)) {
       try {
         const parsedData: Array<{
           sid: string;
@@ -168,6 +130,20 @@ class TabControl extends BaseControl<ControlProps> {
     }
   }
 
+  getTabItems = () => {
+    const menuItems: Array<{
+      id: string;
+      label: string;
+      isVisible: boolean;
+    }> =
+      isString(this.props.propertyValue) ||
+      isUndefined(this.props.propertyValue)
+        ? []
+        : Object.values(this.props.propertyValue);
+
+    return orderBy(menuItems, ["index"], ["asc"]);
+  };
+
   updateItems = (items: Array<Record<string, any>>) => {
     const tabsObj = items.reduce((obj: any, each: any, index: number) => {
       obj[each.id] = {
@@ -180,10 +156,7 @@ class TabControl extends BaseControl<ControlProps> {
   };
 
   onEdit = (index: number) => {
-    const tabs: Array<{
-      id: string;
-      label: string;
-    }> = Object.values(this.props.propertyValue);
+    const tabs = this.getTabItems();
     const tabToChange = tabs[index];
     this.props.openNextPanel({
       index,
@@ -191,23 +164,20 @@ class TabControl extends BaseControl<ControlProps> {
       propPaneId: this.props.widgetProperties.widgetId,
     });
   };
-  render() {
-    const tabs: Array<{
-      id: string;
-      label: string;
-    }> = _.isString(this.props.propertyValue)
-      ? []
-      : Object.values(this.props.propertyValue);
 
+  render() {
     return (
       <TabsWrapper>
         <DroppableComponent
           deleteOption={noop}
+          fixedHeight={370}
+          focusedIndex={this.state.focusedIndex}
           itemHeight={45}
-          items={orderBy(tabs, ["index"], ["asc"])}
+          items={this.getTabItems()}
           onEdit={this.onEdit}
           renderComponent={TabControlComponent}
           toggleVisibility={this.toggleVisibility}
+          updateFocus={this.updateFocus}
           updateItems={this.updateItems}
           updateOption={this.updateOption}
         />
@@ -219,12 +189,7 @@ class TabControl extends BaseControl<ControlProps> {
   }
 
   toggleVisibility = (index: number) => {
-    const tabs: Array<{
-      id: string;
-      label: string;
-      isVisible: boolean;
-      widgetId: string;
-    }> = this.props.propertyValue.slice();
+    const tabs = this.getTabItems();
     const isVisible = tabs[index].isVisible === true ? false : true;
     const updatedTabs = tabs.map((tab, tabIndex) => {
       if (index === tabIndex) {
@@ -239,7 +204,7 @@ class TabControl extends BaseControl<ControlProps> {
   };
 
   updateOption = (index: number, updatedLabel: string) => {
-    const tabsArray: any = Object.values(this.props.propertyValue);
+    const tabsArray = this.getTabItems();
     const { id: itemId } = tabsArray[index];
     this.updateProperty(
       `${this.props.propertyName}.${itemId}.label`,
@@ -247,25 +212,8 @@ class TabControl extends BaseControl<ControlProps> {
     );
   };
 
-  addOption = () => {
-    let tabs = this.props.propertyValue;
-    const tabsArray = Object.values(tabs);
-    const newTabId = generateReactKey({ prefix: "tab" });
-    const newTabLabel = getNextEntityName(
-      "Tab ",
-      tabsArray.map((tab: any) => tab.label),
-    );
-    tabs = {
-      ...tabs,
-      [newTabId]: {
-        id: newTabId,
-        label: newTabLabel,
-        widgetId: generateReactKey(),
-        isVisible: true,
-      },
-    };
-
-    this.updateProperty(this.props.propertyName, tabs);
+  updateFocus = (index: number, isFocused: boolean) => {
+    this.setState({ focusedIndex: isFocused ? index : null });
   };
 
   static getControlType() {

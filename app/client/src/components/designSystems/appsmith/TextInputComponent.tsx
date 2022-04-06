@@ -31,7 +31,9 @@ export const TextInput = styled(({ hasError, ...rest }) => (
       props.hasError ? Colors.DANGER_SOLID : Colors.CODE_GRAY};
     &:focus {
       border-color: ${(props) =>
-        props.hasError ? props.theme.colors.error : Colors.CRUSTA};
+        props.hasError
+          ? props.theme.colors.error
+          : "var(--appsmith-input-focus-border-color)"};
       background-color: ${(props) => props.theme.colors.textOnDarkBG};
       outline: 0;
       box-shadow: none;

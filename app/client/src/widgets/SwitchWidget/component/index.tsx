@@ -1,24 +1,30 @@
 import { Alignment, Classes, Switch } from "@blueprintjs/core";
+import { Colors } from "constants/Colors";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
 import React from "react";
 import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import { AlignWidget } from "widgets/constants";
 
-interface SwitchComponentProps extends ComponentProps {
+export interface SwitchComponentProps extends ComponentProps {
   label: string;
   isSwitchedOn: boolean;
   onChange: (isSwitchedOn: boolean) => void;
   isLoading: boolean;
   alignWidget: AlignWidget;
+  inputRef?: (ref: HTMLInputElement | null) => any;
 }
 
 const SwitchComponentContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  .${Classes.CONTROL} {
+  &&& .${Classes.CONTROL} {
     margin: 0;
+    input:checked ~ .${Classes.CONTROL_INDICATOR} {
+      background: ${Colors.GREEN};
+      border: 1px solid ${Colors.GREEN};
+    }
   }
   &.${Alignment.RIGHT} {
     justify-content: flex-end;
@@ -28,6 +34,7 @@ const SwitchComponentContainer = styled.div`
 
 export function SwitchComponent({
   alignWidget,
+  inputRef,
   isDisabled,
   isLoading,
   isSwitchedOn,
@@ -52,6 +59,7 @@ export function SwitchComponent({
               }`
         }
         disabled={isDisabled}
+        inputRef={inputRef}
         label={label}
         onChange={() => onChange(!isSwitchedOn)}
       />

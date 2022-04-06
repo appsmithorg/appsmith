@@ -56,7 +56,7 @@ function* executeInIntervals(
       yield call(executeAppAction, {
         dynamicString: `{{${callback}}}`,
         // pass empty object to execute it as a callback function
-        responseData: [{}],
+        callbackData: [{}],
         event: { type: eventType },
         triggerPropertyName: triggerMeta.triggerPropertyName,
         source: triggerMeta.source,
@@ -74,12 +74,10 @@ function* executeInIntervals(
 
 export function* clearIntervalSaga(
   payload: ClearIntervalDescription["payload"],
-  triggerMeta: TriggerMeta,
 ) {
   if (!(payload.id in activeTimers)) {
     throw new TriggerFailureError(
       `Failed to clear interval. No timer active with id "${payload.id}"`,
-      triggerMeta,
     );
   }
   delete activeTimers[payload.id];

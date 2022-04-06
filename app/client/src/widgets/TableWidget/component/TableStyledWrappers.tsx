@@ -134,7 +134,7 @@ export const TableWrapper = styled.div<{
     cursor: pointer;
     display: inline-block;
     width: 100%;
-    height: 38px;
+    height: 32px;
     &.reorder-line {
       width: 1px;
       height: 100%;
@@ -241,7 +241,7 @@ export const PaginationItemWrapper = styled.div<{
     border-color: ${Colors.GREEN};
   }
   .bp3-icon svg {
-    fill: ${(props) => (props.disabled ? Colors.GREY_4 : "")};
+    fill: ${(props) => (props.disabled ? Colors.GREY_8 : "")};
   }
 `;
 
@@ -279,7 +279,7 @@ export const ActionWrapper = styled.div<{
     }
     &&& .bp3-disabled {
       background: ${Colors.GREY_1};
-      color: ${Colors.GREY_4};
+      color: ${Colors.GREY_8};
     }
   }
 `;
@@ -353,6 +353,7 @@ export const DraggableHeaderWrapper = styled.div<{
 
 export const CellWrapper = styled.div<{
   isHidden?: boolean;
+  isPadding?: boolean;
   cellProperties?: CellLayoutProperties;
   isHyperLink?: boolean;
   useLinkToolTip?: boolean;
@@ -361,18 +362,17 @@ export const CellWrapper = styled.div<{
   lineHeight?: number;
 }>`
   display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
-
-  align-items: center;
+  align-items: ${(props) => (props.isPadding ? "center" : "flex-start")};
   justify-content: flex-start;
-  width: 100%;
+  width: ${(props) => (props.isPadding ? "100%" : "calc(100% - 10px)")};
   height: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   opacity: ${(props) => (props.isHidden ? "0.6" : "1")};
   ${TableStyles};
-  padding: 0 10px;
-  line-height: 36px;
+  padding: ${(props) => (props.isPadding ? "0 10px" : " 0px")};
+  line-height: 28px;
   .image-cell-wrapper {
     width: 100%;
     height: 100%;
@@ -423,7 +423,7 @@ export const CellWrapper = styled.div<{
   }
   &:hover {
     .hidden-icon {
-      display: inline;
+      display: flex;
     }
   }
 `;
@@ -574,4 +574,10 @@ export const MenuCategoryWrapper = styled.div`
 
 export const MenuStyledOptionHeader = styled.div`
   font-weight: 600;
+`;
+
+export const ColumnWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  height: 100%;
 `;

@@ -12,7 +12,7 @@ describe("Binding the multiple widgets and validating default data", function() 
   });
 
   it("Input widget test with default value from table widget", function() {
-    cy.openPropertyPane("inputwidget");
+    cy.openPropertyPane("inputwidgetv2");
     cy.testJsontext("defaulttext", testdata.defaultInputWidget + "}}");
 
     cy.wait("@updateLayout").should(
@@ -24,7 +24,7 @@ describe("Binding the multiple widgets and validating default data", function() 
 
   //To be enabled once the single select multi select issues are resolved
   it("Dropdown widget test with default value from table widget", function() {
-    cy.openPropertyPane("dropdownwidget");
+    cy.openPropertyPane("selectwidget");
     cy.testJsontext("options", JSON.stringify(testdata.deafultDropDownWidget));
 
     cy.wait("@updateLayout").should(

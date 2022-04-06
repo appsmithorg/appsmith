@@ -56,9 +56,10 @@ const TabHeader = styled.div<{ stickyTabHeader?: boolean }>`
 type MultiSwitchProps<T> = CommonComponentProps & {
   tabs: Array<TabProp<T>>;
   selected: { title: T; value: string };
-  onSelect: (title: T) => void;
+<!--   onSelect: (title: T) => void; -->
   stickyTabHeader?: boolean;
   customStyle?: Record<string, string>;
+  onSelect: (title: string) => void;
 };
 
 export default function MultiSwitch<T>(props: MultiSwitchProps<T>) {
@@ -86,6 +87,7 @@ export default function MultiSwitch<T>(props: MultiSwitchProps<T>) {
           ))}
         </TabList>
       </TabHeader>
+<!--             onClick={() => props.onSelect(tab.key)} -->
       {selectedTab && <TabContent>{selectedTab.panelComponent}</TabContent>}
     </div>
   );

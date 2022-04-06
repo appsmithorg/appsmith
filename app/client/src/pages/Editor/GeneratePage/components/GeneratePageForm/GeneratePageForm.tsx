@@ -18,23 +18,19 @@ import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
 import { useParams, useLocation } from "react-router";
 import { ExplorerURLParams } from "../../../Explorer/helpers";
-import {
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-  DATA_SOURCES_EDITOR_ID_URL,
-} from "constants/routes";
+import { INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 import DataSourceOption from "../DataSourceOption";
-import { convertToQueryParams } from "constants/routes";
+import { convertToQueryParams } from "RouteBuilder";
 import { IconName, IconSize } from "components/ads/Icon";
 import GoogleSheetForm from "./GoogleSheetForm";
 import {
   GENERATE_PAGE_FORM_TITLE,
   createMessage,
   GEN_CRUD_DATASOURCE_DROPDOWN_LABEL,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import {
   useDatasourceOptions,
@@ -65,6 +61,7 @@ import {
   getFirstTimeUserOnboardingComplete,
   getIsFirstTimeUserOnboardingEnabled,
 } from "selectors/onboardingSelectors";
+import { datasourcesEditorIdURL, integrationEditorURL } from "RouteBuilder";
 
 //  ---------- Styles ----------
 
@@ -244,7 +241,6 @@ function GeneratePageForm() {
   const {
     bucketList,
     failedFetchingBucketList,
-    fetchBucketList,
     isFetchingBucketList,
   } = useS3BucketList();
 
@@ -278,9 +274,6 @@ function GeneratePageForm() {
         setSelectedDatasourceIsInvalid(false);
         if (dataSourceObj.id) {
           switch (pluginPackageName) {
-            case PLUGIN_PACKAGE_NAME.S3:
-              fetchBucketList({ selectedDatasource: dataSourceObj });
-              break;
             case PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS:
               break;
             default: {
@@ -481,13 +474,11 @@ function GeneratePageForm() {
   const routeToCreateNewDatasource = () => {
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE");
     history.push(
-      INTEGRATION_EDITOR_URL(
-        applicationId,
-        currentPageId,
-        INTEGRATION_TABS.NEW,
-        "",
-        { isGeneratePageMode: "generate-page" },
-      ),
+      integrationEditorURL({
+        pageId: currentPageId,
+        selectedTab: INTEGRATION_TABS.NEW,
+        params: { isGeneratePageMode: "generate-page" },
+      }),
     );
   };
 
@@ -542,12 +533,11 @@ function GeneratePageForm() {
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_EDIT_DATASOURCE_CONFIG", {
       datasourceId: selectedDatasource.id,
     });
-    const redirectURL = DATA_SOURCES_EDITOR_ID_URL(
-      applicationId,
-      currentPageId,
-      selectedDatasource.id,
-      { isGeneratePageMode: "generate-page" },
-    );
+    const redirectURL = datasourcesEditorIdURL({
+      pageId: currentPageId,
+      datasourceId: selectedDatasource.id as string,
+      params: { isGeneratePageMode: "generate-page" },
+    });
     history.push(redirectURL);
   };
 
@@ -615,7 +605,7 @@ function GeneratePageForm() {
         </DescWrapper>
       </Wrapper>
       <FormWrapper>
-        <SelectWrapper className="space-y-3" width={DROPDOWN_DIMENSION.WIDTH}>
+        <SelectWrapper className="space-y-2" width={DROPDOWN_DIMENSION.WIDTH}>
           <Label>{createMessage(GEN_CRUD_DATASOURCE_DROPDOWN_LABEL)}</Label>
           <Dropdown
             cypressSelector="t--datasource-dropdown"
@@ -629,7 +619,7 @@ function GeneratePageForm() {
                 cypressSelector="t--datasource-dropdown-option"
                 extraProps={{ routeToCreateNewDatasource }}
                 isSelectedNode={isSelectedNode}
-                key={option.id}
+                key={(option as DropdownOption).id}
                 option={option}
                 optionClickHandler={optionClickHandler}
                 optionWidth={DROPDOWN_DIMENSION.WIDTH}
@@ -641,7 +631,7 @@ function GeneratePageForm() {
           />
         </SelectWrapper>
         {selectedDatasource.value ? (
-          <SelectWrapper className="space-y-3" width={DROPDOWN_DIMENSION.WIDTH}>
+          <SelectWrapper className="space-y-2" width={DROPDOWN_DIMENSION.WIDTH}>
             <Label>
               Select {pluginField.TABLE} from{" "}
               <Bold>{selectedDatasource.label}</Bold>
@@ -674,7 +664,7 @@ function GeneratePageForm() {
           <>
             {showSearchableColumn && (
               <SelectWrapper
-                className="space-y-3"
+                className="space-y-2"
                 width={DROPDOWN_DIMENSION.WIDTH}
               >
                 <Row>

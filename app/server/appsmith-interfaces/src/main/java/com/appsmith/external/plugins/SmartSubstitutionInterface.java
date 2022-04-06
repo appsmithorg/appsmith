@@ -1,5 +1,6 @@
 package com.appsmith.external.plugins;
 
+import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Param;
@@ -36,6 +37,7 @@ public interface SmartSubstitutionInterface {
                 // If the evaluated value of the mustache binding is present, set it in the prepared statement
                 if (matchingParam.isPresent()) {
                     String value = matchingParam.get().getValue();
+
                     input = substituteValueInInput(i + 1, key,
                             value, input, insertedParams, args);
                 } else {
@@ -53,5 +55,20 @@ public interface SmartSubstitutionInterface {
     default Object substituteValueInInput(int index, String binding, String value, Object input,
                                           List<Map.Entry<String, String>> insertedParams, Object... args) throws AppsmithPluginException {
         return input;
+    }
+
+
+    /**
+     * This method is part of the pre-processing of the replacement value before the final substitution that
+     * happens as part of smart substitution process.
+     * This is the default implementation. Each plugin that implements `SmartSubstitutionInterface` is supposed to
+     * override this method to provide plugin specific implementation.
+     *
+     * @param replacementValue - value to be substituted
+     * @param dataType
+     * @return - updated replacement value
+     */
+    default String sanitizeReplacement(String replacementValue, DataType dataType) {
+        return replacementValue;
     }
 }

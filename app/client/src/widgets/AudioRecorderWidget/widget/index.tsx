@@ -17,6 +17,7 @@ export interface AudioRecorderWidgetProps extends WidgetProps {
   onRecordingStart?: string;
   onRecordingComplete?: string;
   blobURL?: string;
+  isDirty: boolean;
 }
 
 class AudioRecorderWidget extends BaseWidget<
@@ -28,22 +29,6 @@ class AudioRecorderWidget extends BaseWidget<
       {
         sectionName: "General",
         children: [
-          {
-            propertyName: "backgroundColor",
-            helpText: "Sets the background color of the widget",
-            label: "Background color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "iconColor",
-            helpText: "Sets the icon color of the widget",
-            label: "Icon color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
           {
             propertyName: "isDisabled",
             label: "Disabled",
@@ -67,6 +52,17 @@ class AudioRecorderWidget extends BaseWidget<
             validation: {
               type: ValidationTypes.BOOLEAN,
             },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
@@ -93,6 +89,27 @@ class AudioRecorderWidget extends BaseWidget<
           },
         ],
       },
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "backgroundColor",
+            helpText: "Sets the background color of the widget",
+            label: "Background color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "iconColor",
+            helpText: "Sets the icon color of the widget",
+            label: "Icon color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+        ],
+      },
     ];
   }
 
@@ -101,6 +118,7 @@ class AudioRecorderWidget extends BaseWidget<
       blobURL: undefined,
       dataURL: undefined,
       rawBinary: undefined,
+      isDirty: false,
     };
   }
 
@@ -109,6 +127,10 @@ class AudioRecorderWidget extends BaseWidget<
   }
 
   handleRecordingStart = () => {
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     if (this.props.blobURL) {
       URL.revokeObjectURL(this.props.blobURL);
     }

@@ -1,5 +1,6 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const Layoutpage = require("../../../../locators/Layout.json");
+const explorer = require("../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tabdsl.json");
@@ -14,7 +15,13 @@ describe("Tab widget test", function() {
 
   it("Tab Widget Functionality To rename Tabs from entity explorer", function() {
     cy.GlobalSearchEntity("Tab1");
-    cy.RenameEntity(tabname);
+    cy.hoverAndClickParticularIndex(2);
+    cy.selectAction("Edit Name");
+    //cy.RenameEntity(tabname);
+    cy.get(explorer.editEntity)
+      .last()
+      .type(tabname, { force: true });
+    //cy.RenameEntity(tabname);
   });
 
   it("Tab name validation in properties and widget ", function() {
@@ -28,9 +35,16 @@ describe("Tab widget test", function() {
 
   it("Tab Widget Functionality To delete Tabs from entity explorer", function() {
     cy.GlobalSearchEntity("Tab2");
-    cy.RenameEntity(tabname);
+    cy.hoverAndClickParticularIndex(3);
+    cy.selectAction("Edit Name");
+    //cy.RenameEntity(tabname);
+    cy.get(explorer.editEntity)
+      .last()
+      .type(tabname, { force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(3000);
     cy.validateMessage(tabname);
-    cy.deleteEntity();
+    cy.deleteEntityWithoutConfirmation();
     cy.get(commonlocators.entityExplorersearch)
       .clear({ force: true })
       .type("Tab2", { force: true });

@@ -51,8 +51,10 @@ const OverlayDiv = styled.div`
 export interface IframeComponentProps extends ComponentProps {
   renderMode: RenderMode;
   source: string;
+  srcDoc?: string;
   title?: string;
   onURLChanged: (url: string) => void;
+  onSrcDocChanged: (srcDoc?: string) => void;
   onMessageReceived: (message: MessageEvent) => void;
   borderColor?: string;
   borderOpacity?: number;
@@ -65,22 +67,33 @@ function IframeComponent(props: IframeComponentProps) {
     borderOpacity,
     borderWidth,
     onMessageReceived,
+    onSrcDocChanged,
     onURLChanged,
     source,
+    srcDoc,
     title,
     widgetId,
   } = props;
+
+  const frameRef = useRef<HTMLIFrameElement>(null);
 
   const isFirstRender = useRef(true);
 
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      const iframeWindow =
+        frameRef.current?.contentWindow ||
+        frameRef.current?.contentDocument?.defaultView;
+      // Accept messages only from the current iframe
+      if (event.source !== iframeWindow) return;
+      onMessageReceived(event);
+    };
     // add a listener
-    window.addEventListener("message", onMessageReceived, false);
+    window.addEventListener("message", handler, false);
     // clean up
-    return () =>
-      window.removeEventListener("message", onMessageReceived, false);
+    return () => window.removeEventListener("message", handler, false);
   }, []);
 
   useEffect(() => {
@@ -89,12 +102,25 @@ function IframeComponent(props: IframeComponentProps) {
       return;
     }
     onURLChanged(source);
-    if (!source) {
-      setMessage("Valid source url is required");
-    } else {
+    if (source || srcDoc) {
       setMessage("");
+    } else {
+      setMessage("Valid source URL is required");
     }
   }, [source]);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    onSrcDocChanged(srcDoc);
+    if (srcDoc || source) {
+      setMessage("");
+    } else {
+      setMessage("At least either of source URL or srcDoc is required");
+    }
+  }, [srcDoc]);
 
   const appMode = useSelector(getAppMode);
   const selectedWidget = useSelector(getWidgetPropsForPropertyPane);
@@ -109,7 +135,13 @@ function IframeComponent(props: IframeComponentProps) {
         <OverlayDiv />
       )}
 
-      {message ? message : <iframe src={source} title={title} />}
+      {message ? (
+        message
+      ) : srcDoc ? (
+        <iframe ref={frameRef} src={source} srcDoc={srcDoc} title={title} />
+      ) : (
+        <iframe ref={frameRef} src={source} title={title} />
+      )}
     </IframeContainer>
   );
 }

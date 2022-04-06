@@ -2,7 +2,7 @@ import React, { ReactNode } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { TextSize, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isArray, findIndex } from "lodash";
+import { isArray, findIndex, xor } from "lodash";
 import {
   ValidationResponse,
   ValidationTypes,
@@ -102,7 +102,6 @@ class MultiSelectTreeWidget extends BaseWidget<
                         type: ValidationTypes.TEXT,
                         params: {
                           default: "",
-                          required: true,
                         },
                       },
                       {
@@ -127,7 +126,6 @@ class MultiSelectTreeWidget extends BaseWidget<
                                   type: ValidationTypes.TEXT,
                                   params: {
                                     default: "",
-                                    required: true,
                                   },
                                 },
                               ],
@@ -208,6 +206,17 @@ class MultiSelectTreeWidget extends BaseWidget<
             label: "Disabled",
             helpText: "Disables input to this widget",
             controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -345,8 +354,20 @@ class MultiSelectTreeWidget extends BaseWidget<
     return {
       selectedOptionValueArr: undefined,
       selectedLabel: [],
+      isDirty: false,
     };
   }
+
+  componentDidUpdate(prevProps: MultiSelectTreeWidgetProps): void {
+    if (
+      xor(this.props.defaultOptionValue, prevProps.defaultOptionValue).length >
+        0 &&
+      this.props.isDirty
+    ) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
+  }
+
   getPageView() {
     const options =
       isArray(this.props.options) &&
@@ -361,7 +382,8 @@ class MultiSelectTreeWidget extends BaseWidget<
     const filteredValue = this.filterValues(values);
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
     const { componentWidth } = this.getComponentDimensions();
-
+    const isInvalid =
+      "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     return (
       <MultiTreeSelectComponent
         allowClear={this.props.allowClear}
@@ -378,7 +400,8 @@ class MultiSelectTreeWidget extends BaseWidget<
           zIndex: Layers.dropdownModalWidget,
         }}
         expandAll={this.props.expandAll}
-        isValid={this.props.isValid}
+        isFilterable
+        isValid={!isInvalid}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
@@ -389,12 +412,17 @@ class MultiSelectTreeWidget extends BaseWidget<
         options={options}
         placeholder={this.props.placeholderText as string}
         value={filteredValue}
+        widgetId={this.props.widgetId}
         width={componentWidth}
       />
     );
   }
 
   onOptionChange = (value?: DefaultValueType, labelList?: ReactNode[]) => {
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+    this.props.updateWidgetMetaProperty("selectedOptionValueArr", value);
     this.props.updateWidgetMetaProperty("selectedLabel", labelList, {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,
@@ -402,14 +430,9 @@ class MultiSelectTreeWidget extends BaseWidget<
         type: EventType.ON_OPTION_CHANGE,
       },
     });
-
-    this.props.updateWidgetMetaProperty("selectedOptionValueArr", value, {
-      triggerPropertyName: "onOptionChange",
-      dynamicString: this.props.onOptionChange,
-      event: {
-        type: EventType.ON_OPTION_CHANGE,
-      },
-    });
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
   };
 
   flat(array: DropdownOption[]) {
@@ -424,9 +447,7 @@ class MultiSelectTreeWidget extends BaseWidget<
   }
 
   filterValues(values: string[] | undefined) {
-    const options = this.props.options
-      ? this.flat(this.props.options as DropdownOption[])
-      : [];
+    const options = this.props.options ? this.flat(this.props.options) : [];
     if (isArray(values)) {
       return values.filter((o) => {
         const index = findIndex(options, { value: o });
@@ -466,6 +487,7 @@ export interface MultiSelectTreeWidgetProps extends WidgetProps {
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
+  isDirty: boolean;
 }
 
 export default MultiSelectTreeWidget;

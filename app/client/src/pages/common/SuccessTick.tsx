@@ -1,5 +1,5 @@
 import { ReactComponent as CheckmarkSvg } from "assets/svg/checkmark.svg";
-import styled from "styled-components";
+import styled, { CSSProperties } from "styled-components";
 import React from "react";
 
 const CheckmarkWrapper = styled.div<{ $height: string; $width: string }>`
@@ -62,9 +62,17 @@ const CheckmarkWrapper = styled.div<{ $height: string; $width: string }>`
   }
 `;
 
-function SuccessTick(props: { height: string; width: string }) {
+function SuccessTick(props: {
+  height: string;
+  width: string;
+  style?: CSSProperties;
+}) {
   return (
-    <CheckmarkWrapper $height={props.height} $width={props.width}>
+    <CheckmarkWrapper
+      $height={props.height}
+      $width={props.width}
+      style={props.style}
+    >
       <CheckmarkSvg />
     </CheckmarkWrapper>
   );

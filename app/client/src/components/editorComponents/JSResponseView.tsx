@@ -13,7 +13,7 @@ import {
   PARSING_ERROR,
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_RESPONSE_LAST_HALF,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
@@ -21,7 +21,7 @@ import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import { executeJSFunction } from "actions/jsPaneActions";
+import { startExecutingJSFunction } from "actions/jsPaneActions";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
@@ -40,6 +40,9 @@ import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import EntityBottomTabs from "./EntityBottomTabs";
 import Icon from "components/ads/Icon";
+import { ReactComponent as FunctionSettings } from "assets/icons/menu/settings.svg";
+import JSFunctionSettings from "pages/Editor/JSEditor/JSFunctionSettings";
+import FlagBadge from "components/utils/FlagBadge";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -91,10 +94,18 @@ const ResponseTabAction = styled.li`
   .function-name {
     margin-left: 5px;
     display: inline-block;
+    flex: 1;
+  }
+  .function-actions {
+    margin-left: auto;
+    order: 2;
+    svg {
+      display: inline-block;
+    }
   }
   .run-button {
-    margin-left: auto;
-    margin-right: 15px;
+    margin: 0 15px;
+    margin-left: 10px;
   }
   &.active {
     background-color: #f0f0f0;
@@ -175,7 +186,7 @@ function JSResponseView(props: Props) {
   const actionList = jsObject?.actions;
   const sortedActionList = actionList && sortBy(actionList, "name");
   const response =
-    selectActionId && !!responses[selectActionId]
+    selectActionId && selectActionId in responses
       ? responses[selectActionId]
       : "";
   const isRunning = selectActionId && !!isExecuting[selectActionId];
@@ -189,6 +200,18 @@ function JSResponseView(props: Props) {
     });
     dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }, []);
+
+  const [openSettings, setOpenSettings] = useState(false);
+  const [selectedFunction, setSelectedFunction] = useState<
+    undefined | JSAction
+  >(undefined);
+  const isSelectedFunctionAsync = (id: string) => {
+    const jsAction = jsObject.actions.find((action) => action.id === id);
+    if (!!jsAction) {
+      return jsAction?.actionConfiguration.isAsync;
+    }
+    return false;
+  };
 
   const tabs = [
     {
@@ -212,7 +235,7 @@ function JSResponseView(props: Props) {
               ""
             )}
           </HelpSection>
-          <ResponseTabWrapper className={errors.length ? "disable" : ""}>
+          <ResponseTabWrapper className={errorsList.length ? "disable" : ""}>
             {sortedActionList && !sortedActionList?.length ? (
               <NoResponseContainer className="flex items-center">
                 {createMessage(EMPTY_JS_OBJECT)}
@@ -230,12 +253,35 @@ function JSResponseView(props: Props) {
                           }
                           key={action.id}
                           onClick={() => {
-                            runAction(action);
+                            setSelectActionId(action.id);
                           }}
                         >
                           <JSFunction />{" "}
                           <div className="function-name">{action.name}</div>
-                          <RunFunction className="run-button" />
+                          <div className="function-actions">
+                            {action.actionConfiguration.isAsync ? (
+                              <FlagBadge name={"ASYNC"} />
+                            ) : (
+                              ""
+                            )}
+                            {isSelectedFunctionAsync(action.id) ? (
+                              <FunctionSettings
+                                onClick={() => {
+                                  setSelectedFunction(action);
+                                  setOpenSettings(true);
+                                }}
+                              />
+                            ) : (
+                              ""
+                            )}
+
+                            <RunFunction
+                              className="run-button"
+                              onClick={() => {
+                                runAction(action);
+                              }}
+                            />
+                          </div>
                         </ResponseTabAction>
                       );
                     })}
@@ -264,6 +310,17 @@ function JSResponseView(props: Props) {
                     />
                   )}
                 </ResponseViewer>
+                {openSettings &&
+                  !!selectedFunction &&
+                  isSelectedFunctionAsync(selectedFunction.id) && (
+                    <JSFunctionSettings
+                      action={selectedFunction}
+                      openSettings={openSettings}
+                      toggleSettings={() => {
+                        setOpenSettings(!openSettings);
+                      }}
+                    />
+                  )}
               </>
             )}
           </ResponseTabWrapper>
@@ -286,7 +343,7 @@ function JSResponseView(props: Props) {
     setSelectActionId(action.id);
     const collectionId = getJSCollectionIdFromURL();
     dispatch(
-      executeJSFunction({
+      startExecutingJSFunction({
         collectionName: jsObject?.name || "",
         action: action,
         collectionId: collectionId || "",

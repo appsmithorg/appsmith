@@ -2,8 +2,6 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/chartUpdatedDsl.json");
-const pages = require("../../../../locators/Pages.json");
-const modalWidgetPage = require("../../../../locators/ModalWidget.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 
 describe("Chart Widget Functionality around custom chart feature", function() {
@@ -15,7 +13,7 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     cy.openPropertyPane("chartwidget");
   });
 
-  it("Fill the Chart Widget Properties.", function() {
+  it("1. Fill the Chart Widget Properties.", function() {
     //changing the Chart Name
     /**
      * @param{Text} Random Text
@@ -67,7 +65,7 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     cy.PublishtheApp();
   });
 
-  it("Custom Chart Widget Functionality", function() {
+  it("2. Custom Chart Widget Functionality", function() {
     //changing the Chart type
     //cy.get(widgetsPage.toggleChartType).click({ force: true });
     cy.UpdateChartType("Custom Chart");
@@ -91,7 +89,7 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     cy.PublishtheApp();
   });
 
-  it("Toggle JS - Custom Chart Widget Functionality", function() {
+  it("3. Toggle JS - Custom Chart Widget Functionality", function() {
     cy.get(widgetsPage.toggleChartType).click({ force: true });
     //changing the Chart type
     cy.testJsontext("charttype", "CUSTOM_FUSION_CHART");
@@ -119,7 +117,7 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     cy.PublishtheApp();
   });
 
-  it("Chart-Copy Verification", function() {
+  it("4. Chart-Copy Verification", function() {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     //Copy Chart and verify all properties
     cy.copyWidget("chartwidget", viewWidgetsPage.chartWidget);
@@ -127,7 +125,7 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     cy.PublishtheApp();
   });
 
-  it("Chart-Delete Verification", function() {
+  it("5. Chart-Delete Verification", function() {
     // Delete the Chart widget
     cy.deleteWidget(viewWidgetsPage.chartWidget);
     cy.PublishtheApp();

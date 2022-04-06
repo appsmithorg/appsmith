@@ -26,22 +26,32 @@ import {
   isSortableMigration,
   migrateTableWidgetIconButtonVariant,
 } from "./migrations/TableWidget";
-import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
+import {
+  migrateTextStyleFromTextWidget,
+  migrateScrollTruncateProperties,
+} from "./migrations/TextWidget";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 import { theme } from "constants/DefaultTheme";
 import { getCanvasSnapRows } from "./WidgetPropsUtils";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { FetchPageResponse } from "api/PageApi";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import defaultTemplate from "templates/default";
+// import defaultTemplate from "templates/default";
 import { renameKeyInObject } from "./helpers";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButtonWidget";
 import { ButtonStyleTypes, ButtonVariantTypes } from "../components/constants";
 import { Colors } from "../constants/Colors";
-import { migrateResizableModalWidgetProperties } from "./migrations/ModalWidget";
+import {
+  migrateModalIconButtonWidget,
+  migrateResizableModalWidgetProperties,
+} from "./migrations/ModalWidget";
+import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxGroupWidget";
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
 import { DSLWidget } from "widgets/constants";
+import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
+import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
+import { migratePhoneInputWidgetAllowFormatting } from "./migrations/PhoneInputWidgetMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -76,6 +86,32 @@ const addLogBlackListToAllListWidgetChildren = (
     }
 
     return children;
+  });
+
+  return currentDSL;
+};
+
+/**
+ * adds 'privateWidgets' key for all list widgets
+ *
+ * @param currentDSL
+ * @returns
+ */
+const addPrivateWidgetsToAllListWidgets = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === "LIST_WIDGET") {
+      const privateWidgets: PrivateWidgets = {};
+      Object.keys(child.template).forEach((entityName) => {
+        privateWidgets[entityName] = true;
+      });
+
+      if (!child.privateWidgets) {
+        set(child, `privateWidgets`, privateWidgets);
+      }
+    }
+    return child;
   });
 
   return currentDSL;
@@ -981,8 +1017,53 @@ export const transformDSL = (
     currentDSL = isSortableMigration(currentDSL);
     currentDSL.version = 45;
   }
+
   if (currentDSL.version === 45) {
     currentDSL = migrateTableWidgetIconButtonVariant(currentDSL);
+    currentDSL.version = 46;
+  }
+
+  if (currentDSL.version === 46) {
+    currentDSL = migrateCheckboxGroupWidgetInlineProperty(currentDSL);
+    currentDSL.version = 47;
+  }
+
+  if (currentDSL.version === 47) {
+    // We're skipping this to fix a bad table migration.
+    // skipped migration is added as version 51
+    currentDSL.version = 48;
+  }
+
+  if (currentDSL.version === 48) {
+    currentDSL = migrateRecaptchaType(currentDSL);
+    currentDSL.version = 49;
+  }
+
+  if (currentDSL.version === 49) {
+    currentDSL = addPrivateWidgetsToAllListWidgets(currentDSL);
+    currentDSL.version = 50;
+  }
+
+  if (currentDSL.version === 50) {
+    /*
+     * We're skipping this to fix a bad table migration - migrateTableWidgetNumericColumnName
+     * it overwrites the computedValue of the table columns
+     */
+    currentDSL.version = 51;
+  }
+
+  if (currentDSL.version === 51) {
+    currentDSL = migratePhoneInputWidgetAllowFormatting(currentDSL);
+    currentDSL.version = 52;
+  }
+
+  if (currentDSL.version === 52) {
+    currentDSL = migrateModalIconButtonWidget(currentDSL);
+    currentDSL.version = 53;
+  }
+
+  if (currentDSL.version === 53) {
+    currentDSL = migrateScrollTruncateProperties(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
@@ -1409,7 +1490,8 @@ export const migrateToNewLayout = (dsl: ContainerWidgetProps<WidgetProps>) => {
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
 ) => {
-  const currentDSL = fetchPageResponse?.data.layouts[0].dsl || defaultTemplate;
+  const currentDSL = fetchPageResponse?.data.layouts[0].dsl;
+  if (!currentDSL) return false;
   return currentDSL.version !== LATEST_PAGE_VERSION;
 };
 

@@ -2,7 +2,7 @@ const dsl = require("../../../../fixtures/DividerDsl.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 
 describe("Divider Widget Functionality", function() {
-  beforeEach(() => {
+  before(() => {
     cy.addDsl(dsl);
   });
 
@@ -13,7 +13,9 @@ describe("Divider Widget Functionality", function() {
   });
 
   it("Open Existing Divider from created Widgets list", () => {
-    cy.get(".widgets").click();
+    cy.get("#switcher--explorer").click({ force: true });
+    cy.GlobalSearchEntity("WIDGETS");
     cy.get(".t--entity-name:contains(Divider1)").click();
+    cy.get(".t--entity-name:contains(Divider2)").click();
   });
 });

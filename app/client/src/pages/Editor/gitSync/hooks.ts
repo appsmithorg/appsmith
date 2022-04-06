@@ -1,15 +1,11 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useState, useCallback, useEffect } from "react";
-import { generateSSHKeyPair, getSSHKeyPair } from "actions/applicationActions";
+import { generateSSHKeyPair, getSSHKeyPair } from "actions/gitSyncActions";
 import { connectToGitInit } from "actions/gitSyncActions";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
-import { getCurrentApplication } from "selectors/applicationSelectors";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import {
-  getGlobalGitConfig,
-  getLocalGitConfig,
-  getIsGlobalConfigDefined,
-  getIsLocalConfigDefined,
+  getSSHKeyDeployDocUrl,
+  getSshKeyPair,
 } from "selectors/gitSyncSelectors";
 
 export const useSSHKeyPair = () => {
@@ -18,14 +14,8 @@ export const useSSHKeyPair = () => {
 
   const dispatch = useDispatch();
 
-  const currentApplication = useSelector(getCurrentApplication);
-  //
-  //
-  // TODO: MAINTAIN SSHKeyPair in GitSyncReducer
-  //
-  //
-  const SSHKeyPair = currentApplication?.SSHKeyPair;
-  const deployKeyDocUrl = currentApplication?.deployKeyDocUrl || DOCS_BASE_URL;
+  const SSHKeyPair = useSelector(getSshKeyPair);
+  const deployKeyDocUrl = useSelector(getSSHKeyDeployDocUrl);
 
   const [generatingSSHKey, setIsGeneratingSSHKey] = useState(false);
 
@@ -58,18 +48,17 @@ export const useSSHKeyPair = () => {
   }, [setIsGeneratingSSHKey]);
 
   const generateSSHKey = useCallback(() => {
-    if (currentApplication?.id) {
-      setIsGeneratingSSHKey(true);
-      setFailedGeneratingSSHKey(false);
+    // if (currentApplication?.id) {
+    setIsGeneratingSSHKey(true);
+    setFailedGeneratingSSHKey(false);
 
-      // Here after the ssh key pair generation, we fetch the application data again and on success of it
-      dispatch(
-        generateSSHKeyPair({
-          onErrorCallback: onGenerateSSHKeyFailure,
-        }),
-      );
-    }
-  }, [onGenerateSSHKeyFailure, setIsGeneratingSSHKey, currentApplication?.id]);
+    dispatch(
+      generateSSHKeyPair({
+        onErrorCallback: onGenerateSSHKeyFailure,
+      }),
+    );
+    // }
+  }, [onGenerateSSHKeyFailure, setIsGeneratingSSHKey]);
 
   return {
     generatingSSHKey,
@@ -113,43 +102,5 @@ export const useGitConnect = () => {
   return {
     isConnectingToGit,
     connectToGit,
-  };
-};
-
-export const useUserGitConfig = () => {
-  const globalGitConfig = useSelector(getGlobalGitConfig);
-  const localGitConfig = useSelector(getLocalGitConfig);
-  const isLocalConfigDefined = useSelector(getIsLocalConfigDefined);
-  const isGlobalConfigDefined = useSelector(getIsGlobalConfigDefined);
-
-  const getInitGitConfig = useCallback(() => {
-    let initialAuthInfo = {
-      authorName: "",
-      authorEmail: "",
-    };
-
-    if (isGlobalConfigDefined) {
-      initialAuthInfo = {
-        authorName: globalGitConfig.authorName || "",
-        authorEmail: globalGitConfig.authorEmail || "",
-      };
-    }
-    // when local config is defined we will only show local config
-    if (isLocalConfigDefined) {
-      initialAuthInfo = {
-        authorName: localGitConfig.authorName || "",
-        authorEmail: localGitConfig.authorEmail || "",
-      };
-    }
-
-    return initialAuthInfo;
-  }, [globalGitConfig, localGitConfig]);
-
-  return {
-    getInitGitConfig,
-    globalGitConfig,
-    isGlobalConfigDefined,
-    isLocalConfigDefined,
-    localGitConfig,
   };
 };

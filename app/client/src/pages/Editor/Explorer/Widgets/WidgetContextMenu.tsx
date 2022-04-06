@@ -13,6 +13,9 @@ import {
   WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import WidgetFactory from "utils/WidgetFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { toggleShowDeviationDialog } from "actions/onboardingActions";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function WidgetContextMenu(props: {
@@ -32,6 +35,7 @@ export function WidgetContextMenu(props: {
     if (parentId) return state.ui.pageWidgets[props.pageId][parentId];
     return {};
   });
+  const guidedTourEnabled = useSelector(inGuidedTour);
   const dispatch = useDispatch();
   const dispatchDelete = useCallback(() => {
     // If the widget is a tab we are updating the `tabs` of the property of the widget
@@ -57,16 +61,38 @@ export function WidgetContextMenu(props: {
     });
   }, [dispatch, widgetId, parentId, widget, parentWidget]);
 
-  const editWidgetName = useCallback(
-    () => dispatch(initExplorerEntityNameEdit(widgetId)),
-    [dispatch, widgetId],
+  const showBinding = useCallback(
+    (widgetId, widgetName) =>
+      dispatch({
+        type: ReduxActionTypes.SET_ENTITY_INFO,
+        payload: {
+          entityId: widgetId,
+          entityName: widgetName,
+          entityType: ENTITY_TYPE.WIDGET,
+          show: true,
+        },
+      }),
+    [],
   );
+
+  const editWidgetName = useCallback(() => {
+    if (guidedTourEnabled) {
+      dispatch(toggleShowDeviationDialog(true));
+      return;
+    }
+    dispatch(initExplorerEntityNameEdit(widgetId));
+  }, [dispatch, widgetId, guidedTourEnabled]);
 
   const optionTree: TreeDropdownOption[] = [
     {
       value: "rename",
       onSelect: editWidgetName,
       label: "Edit Name",
+    },
+    {
+      value: "showBinding",
+      onSelect: () => showBinding(props.widgetId, widget.widgetName),
+      label: "Show Bindings",
     },
   ];
 

@@ -57,7 +57,7 @@ export default {
   getSelectedRows: (props, moment, _) => {
     const selectedRowIndices = Array.isArray(props.selectedRowIndices)
       ? props.selectedRowIndices
-      : [props.selectedRowIndices];
+      : [];
     const filteredTableData =
       props.filteredTableData || props.sanitizedTableData || [];
 
@@ -118,10 +118,13 @@ export default {
         const sanitizedData = {};
 
         for (const [key, value] of Object.entries(entry)) {
-          const sanitizedKey = key
+          let sanitizedKey = key
             .split(separatorRegex)
             .join("_")
             .slice(0, 200);
+          sanitizedKey = _.isNaN(Number(sanitizedKey))
+            ? sanitizedKey
+            : `_${sanitizedKey}`;
           sanitizedData[sanitizedKey] = value;
         }
         return sanitizedData;
@@ -264,6 +267,9 @@ export default {
     derivedTableData = derivedTableData.map((item, index) => ({
       ...item,
       __originalIndex__: index,
+      __primaryKey__: props.primaryColumnId
+        ? item[props.primaryColumnId]
+        : undefined,
     }));
     const columns = props.tableColumns;
     const sortedColumn = props.sortOrder.column;
@@ -420,17 +426,22 @@ export default {
       },
     };
 
-    const searchKey =
-      props.searchText && !props.onSearchTextChanged
-        ? props.searchText.toLowerCase()
-        : "";
+    const getSearchKey = () => {
+      if (
+        props.searchText &&
+        (!props.onSearchTextChanged || props.enableClientSideSearch)
+      ) {
+        return props.searchText.toLowerCase();
+      }
+      return "";
+    };
 
     const finalTableData = sortedTableData.filter((item) => {
-      const searchFound = searchKey
+      const searchFound = getSearchKey()
         ? Object.values(item)
             .join(", ")
             .toLowerCase()
-            .includes(searchKey)
+            .includes(getSearchKey())
         : true;
       if (!searchFound) return false;
       if (!props.filters || props.filters.length === 0) return true;

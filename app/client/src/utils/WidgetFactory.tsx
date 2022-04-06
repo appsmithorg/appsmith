@@ -65,8 +65,15 @@ function validatePropertyControl(
   if (_config.validation !== undefined) {
     _config.validation = validateValidationStructure(_config.validation);
   }
+
   if (_config.children) {
     _config.children = _config.children.map(validatePropertyControl);
+  }
+
+  if (_config.panelConfig) {
+    _config.panelConfig.children = _config.panelConfig.children.map(
+      validatePropertyControl,
+    );
   }
   return _config;
 }
@@ -114,6 +121,7 @@ class WidgetFactory {
     WidgetType,
     readonly PropertyPaneConfig[]
   > = new Map();
+  static loadingProperties: Map<WidgetType, Array<RegExp>> = new Map();
 
   static widgetConfigMap: Map<
     WidgetType,
@@ -127,6 +135,7 @@ class WidgetFactory {
     defaultPropertiesMap: Record<string, string>,
     metaPropertiesMap: Record<string, any>,
     propertyPaneConfig?: PropertyPaneConfig[],
+    loadingProperties?: Array<RegExp>,
   ) {
     if (!this.widgetTypes[widgetType]) {
       this.widgetTypes[widgetType] = widgetType;
@@ -134,6 +143,8 @@ class WidgetFactory {
       this.derivedPropertiesMap.set(widgetType, derivedPropertiesMap);
       this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
       this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
+      loadingProperties &&
+        this.loadingProperties.set(widgetType, loadingProperties);
 
       if (propertyPaneConfig) {
         const validatedPropertyPaneConfig = validatePropertyPaneConfig(
@@ -208,7 +219,7 @@ class WidgetFactory {
 
   static getWidgetMetaPropertiesMap(
     widgetType: WidgetType,
-  ): Record<string, string> {
+  ): Record<string, unknown> {
     const map = this.metaPropertiesMap.get(widgetType);
     if (!map) {
       log.error("Widget meta properties not defined: ", widgetType);
@@ -226,6 +237,10 @@ class WidgetFactory {
       return [];
     }
     return map;
+  }
+
+  static getLoadingProperties(type: WidgetType): Array<RegExp> | undefined {
+    return this.loadingProperties.get(type);
   }
 
   static getWidgetTypeConfigMap(): WidgetTypeConfigMap {

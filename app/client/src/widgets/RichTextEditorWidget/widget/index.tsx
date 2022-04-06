@@ -6,7 +6,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
-const showdown = require("showdown");
+import showdown from "showdown";
 
 export enum RTEFormats {
   MARKDOWN = "markdown",
@@ -88,6 +88,17 @@ class RichTextEditorWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             propertyName: "isToolbarHidden",
             label: "Hide toolbar",
             helpText: "Controls the visibility of the toolbar",
@@ -119,6 +130,8 @@ class RichTextEditorWidget extends BaseWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       text: undefined,
+      shouldReset: false,
+      isDirty: false,
     };
   }
 
@@ -135,7 +148,30 @@ class RichTextEditorWidget extends BaseWidget<
     };
   }
 
+  componentDidMount(): void {
+    if (this.props.defaultText) {
+      this.props.updateWidgetMetaProperty("shouldReset", true);
+    }
+  }
+
+  componentDidUpdate(prevProps: RichTextEditorWidgetProps): void {
+    if (this.props.defaultText !== prevProps.defaultText) {
+      if (this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", false);
+      }
+      if (this.props.defaultText) {
+        this.props.updateWidgetMetaProperty("shouldReset", true);
+      }
+    }
+  }
+
   onValueChange = (text: string) => {
+    if (this.props.shouldReset) {
+      this.props.updateWidgetMetaProperty("shouldReset", false);
+    } else if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     this.props.updateWidgetMetaProperty("text", text, {
       triggerPropertyName: "onTextChange",
       dynamicString: this.props.onTextChange,
@@ -146,21 +182,24 @@ class RichTextEditorWidget extends BaseWidget<
   };
 
   getPageView() {
-    let defaultValue = this.props.text || "";
+    let value = this.props.text ?? "";
     if (this.props.inputType === RTEFormats.MARKDOWN) {
       const converter = new showdown.Converter();
-      defaultValue = converter.makeHtml(defaultValue);
+      value = converter.makeHtml(value);
     }
+
     return (
       <Suspense fallback={<Skeleton />}>
         <RichTextEditorComponent
-          defaultValue={defaultValue}
           isDisabled={this.props.isDisabled}
+          isMarkdown={this.props.inputType === RTEFormats.MARKDOWN}
           isToolbarHidden={!!this.props.isToolbarHidden}
+          isValid={this.props.isValid}
           isVisible={this.props.isVisible}
           key={this.props.widgetId}
           onValueChange={this.onValueChange}
           placeholder={this.props.placeholder}
+          value={value}
           widgetId={this.props.widgetId}
         />
       </Suspense>
@@ -182,6 +221,7 @@ export interface RichTextEditorWidgetProps extends WidgetProps {
   isVisible?: boolean;
   isRequired?: boolean;
   isToolbarHidden?: boolean;
+  isDirty: boolean;
 }
 
 export default RichTextEditorWidget;

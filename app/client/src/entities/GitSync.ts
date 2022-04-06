@@ -7,6 +7,7 @@ export enum GitSyncModalTab {
 export type GitConfig = {
   authorName: string;
   authorEmail: string;
+  useGlobalProfile?: boolean;
 };
 
 export type Branch = {
@@ -19,4 +20,5 @@ export type MergeStatus = {
   conflictingFiles: Array<string>;
   status?: string;
   message?: string;
+  referenceDoc?: string;
 };

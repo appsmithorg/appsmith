@@ -1,12 +1,13 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
-import { ReduxActionWithCallbacks } from "constants/ReduxActionConstants";
+import {
+  ReduxActionWithCallbacks,
+  ReduxActionErrorTypes,
+} from "constants/ReduxActionConstants";
 import { GitSyncModalTab, GitConfig, MergeStatus } from "entities/GitSync";
 import { GitApplicationMetadata } from "api/ApplicationApi";
 import { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
-import { ReduxActionErrorTypes } from "../constants/ReduxActionConstants";
-
-// test comment
+import { ResponseMeta } from "../api/ApiResponses";
 
 export const setIsGitSyncModalOpen = (payload: {
   isOpen: boolean;
@@ -14,6 +15,13 @@ export const setIsGitSyncModalOpen = (payload: {
 }) => {
   return {
     type: ReduxActionTypes.SET_IS_GIT_SYNC_MODAL_OPEN,
+    payload,
+  };
+};
+
+export const setIsDisconnectGitModalOpen = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_SHOULD_SHOW_DISCONNECT_GIT_MODAL,
     payload,
   };
 };
@@ -32,14 +40,6 @@ export const commitToRepoSuccess = () => ({
 
 export const clearCommitSuccessfulState = () => ({
   type: ReduxActionTypes.CLEAR_COMMIT_SUCCESSFUL_STATE,
-});
-
-export const pushToRepoInit = () => ({
-  type: ReduxActionTypes.PUSH_TO_GIT_INIT,
-});
-
-export const pushToRepoSuccess = () => ({
-  type: ReduxActionTypes.PUSH_TO_GIT_SUCCESS,
 });
 
 export type ConnectToGitResponse = {
@@ -101,14 +101,6 @@ export const setIsGitErrorPopupVisible = (payload: { isVisible: boolean }) => ({
 
 export const showCreateBranchPopup = () => ({
   type: ReduxActionTypes.SHOW_CREATE_GIT_BRANCH_POPUP,
-});
-
-export const setIsImportAppViaGitModalOpen = (payload: {
-  isOpen: boolean;
-  organizationId?: string;
-}) => ({
-  type: ReduxActionTypes.SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN,
-  payload,
 });
 
 export const updateGlobalGitConfigInit = (payload: GitConfig) => ({
@@ -177,9 +169,12 @@ export const updateBranchLocally = (payload: string) => ({
 
 type MergeBranchPayload = { sourceBranch: string; destinationBranch: string };
 
-export const mergeBranchInit = (payload: MergeBranchPayload) => ({
+export const mergeBranchInit = (params: {
+  payload: { sourceBranch: string; destinationBranch: string };
+  onSuccessCallback: () => void;
+}) => ({
   type: ReduxActionTypes.MERGE_BRANCH_INIT,
-  payload,
+  ...params,
 });
 
 export const mergeBranchSuccess = () => ({
@@ -231,4 +226,152 @@ export const resetPullMergeStatus = () => ({
 export const remoteUrlInputValue = (payload?: { tempRemoteUrl?: string }) => ({
   type: ReduxActionTypes.SET_REMOTE_URL_INPUT_VALUE,
   payload,
+});
+
+export const setShowRepoLimitErrorModal = (payload: boolean) => ({
+  type: ReduxActionTypes.SET_SHOULD_SHOW_REPO_LIMIT_ERROR_MODAL,
+  payload,
+});
+
+export const showConnectGitModal = () => ({
+  type: ReduxActionTypes.SHOW_CONNECT_GIT_MODAL,
+});
+
+export const disconnectGit = () => ({
+  type: ReduxActionTypes.DISCONNECT_GIT,
+});
+
+export const setDisconnectingGitApplication = (payload: {
+  id: string;
+  name: string;
+}) => ({
+  type: ReduxActionTypes.SET_DISCONNECTING_GIT_APPLICATION,
+  payload,
+});
+
+export const importAppFromGit = ({
+  onErrorCallback,
+  onSuccessCallback,
+  payload,
+}: ConnectToGitRequestParams): ConnectToGitReduxAction => ({
+  type: ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_INIT,
+  payload,
+  onSuccessCallback,
+  onErrorCallback,
+});
+
+type ErrorPayload = string;
+export type GetSSHKeyResponseData = {
+  docUrl: string;
+  publicKey?: string;
+};
+
+export type GenerateSSHKeyPairResponsePayload<T> = {
+  responseMeta: ResponseMeta;
+  data: T;
+};
+
+export type GenerateSSHKeyPairReduxAction = ReduxActionWithCallbacks<
+  undefined,
+  GenerateSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
+  ErrorPayload
+>;
+
+export type GenerateKeyParams = {
+  onErrorCallback?: (payload: ErrorPayload) => void;
+  onSuccessCallback?: (
+    payload: GenerateSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
+  ) => void;
+  payload?: undefined;
+};
+
+export const generateSSHKeyPair = ({
+  onErrorCallback,
+  onSuccessCallback,
+  payload,
+}: GenerateKeyParams): GenerateSSHKeyPairReduxAction => {
+  return {
+    type: ReduxActionTypes.GENERATE_SSH_KEY_PAIR_INIT,
+    payload,
+    onErrorCallback,
+    onSuccessCallback,
+  };
+};
+
+export const generateSSHKeyPairSuccess = (
+  payload: GenerateSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
+) => {
+  return {
+    type: ReduxActionTypes.GENERATE_SSH_KEY_PAIR_SUCCESS,
+    payload,
+  };
+};
+
+export type GetSSHKeyPairResponsePayload<T> = {
+  responseMeta: ResponseMeta;
+  data: T;
+};
+
+export type GetSSHKeyPairReduxAction = ReduxActionWithCallbacks<
+  undefined,
+  GetSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
+  ErrorPayload
+>;
+
+export type GetKeyParams = {
+  onErrorCallback?: (payload: ErrorPayload) => void;
+  onSuccessCallback?: (
+    payload: GetSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
+  ) => void;
+  payload?: undefined;
+};
+
+export const getSSHKeyPair = ({
+  onErrorCallback,
+  onSuccessCallback,
+  payload,
+}: GetKeyParams): GetSSHKeyPairReduxAction => {
+  return {
+    type: ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT,
+    payload,
+    onErrorCallback,
+    onSuccessCallback,
+  };
+};
+
+export const getSSHKeyPairSuccess = (
+  payload: GetSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
+) => {
+  return {
+    type: ReduxActionTypes.FETCH_SSH_KEY_PAIR_SUCCESS,
+    payload,
+  };
+};
+
+export const getSSHKeyPairError = (payload: {
+  error: string;
+  show: boolean;
+}) => {
+  return {
+    type: ReduxActionErrorTypes.FETCH_SSH_KEY_PAIR_ERROR,
+    payload,
+  };
+};
+
+export const initSSHKeyPairWithNull = () => ({
+  type: ReduxActionTypes.INIT_SSH_KEY_PAIR_WITH_NULL,
+});
+
+export const importAppViaGitSuccess = () => ({
+  type: ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_SUCCESS,
+});
+
+// todo define type
+export const importAppViaGitError = (error: any) => ({
+  type: ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_ERROR,
+  payload: error,
+});
+
+export const resetSSHKeys = () => ({
+  type: ReduxActionTypes.RESET_SSH_KEY_PAIR,
 });

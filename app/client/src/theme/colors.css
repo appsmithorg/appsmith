@@ -1,0 +1,40 @@
+:root {
+  /* orange */
+  --appsmith-color-orange-900 : #B7491A;
+  --appsmith-color-orange-800 : #D15420;
+  --appsmith-color-orange-700 : #DF5B23;
+  --appsmith-color-orange-600 : #ED6227;
+  --appsmith-color-orange-500 : #F86A2B; /* Primary */
+  --appsmith-color-orange-400 : #F97D4A;
+  --appsmith-color-orange-300 : #F9936B;
+  --appsmith-color-orange-200 : #FBB195;
+  --appsmith-color-orange-100 : #FCCFBF;
+  --appsmith-color-orange-50 : #FAEAE8;
+
+  /* black */
+  --appsmith-color-black-900 : #191919;
+  --appsmith-color-black-800 : #393939;
+  --appsmith-color-black-700 : #575757;
+  --appsmith-color-black-600 : #6B6B6B;
+  --appsmith-color-black-500 : #939393;
+  --appsmith-color-black-400 : #B3B3B3;
+  --appsmith-color-black-300 : #D7D7D7;
+  --appsmith-color-black-250 : #E0DEDE;
+  --appsmith-color-black-200 : #E7E7E7;
+  --appsmith-color-black-100 : #F1F1F1;
+  --appsmith-color-black-50 : #F8F8F8;
+  --appsmith-color-black-0 : #FFFFFF;
+
+  /* green */
+  --appsmith-color-green-500 : #03B364;
+  --appsmith-color-green-50 : #E5F6EC;
+
+  /* yellow */
+  --appsmith-color-yellow-500 : #FEC518;
+  --appsmith-color-yellow-50 : #FFF8E2;
+
+  /* red */
+  --appsmith-color-red-500 : #F13125;
+  --appsmith-color-red-50 : #FFEAEC;
+
+}

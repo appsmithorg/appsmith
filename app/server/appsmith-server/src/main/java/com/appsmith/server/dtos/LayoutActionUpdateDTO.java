@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,5 +13,8 @@ import lombok.Setter;
 public class LayoutActionUpdateDTO {
     String id;
     String name;
+    String collectionId;
     Boolean executeOnLoad;
+    @JsonIgnore
+    String defaultActionId;
 }

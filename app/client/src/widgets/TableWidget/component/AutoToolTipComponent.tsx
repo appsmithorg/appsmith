@@ -1,6 +1,6 @@
 import React, { createRef, useEffect, useState } from "react";
 import { Tooltip } from "@blueprintjs/core";
-import { CellWrapper } from "./TableStyledWrappers";
+import { CellWrapper, ColumnWrapper } from "./TableStyledWrappers";
 import { CellLayoutProperties, ColumnTypes } from "./Constants";
 import { ReactComponent as OpenNewTabIcon } from "assets/icons/control/open-new-tab.svg";
 import styled from "styled-components";
@@ -12,13 +12,15 @@ const TooltipContentWrapper = styled.div<{ width: number }>`
 
 export const OpenNewTabIconWrapper = styled.div`
   left: 4px;
-  top: 2px;
+  height: 28px;
+  align-items: center;
   position: relative;
 `;
 
 interface Props {
   isHidden?: boolean;
   isCellVisible?: boolean;
+  noPadding?: boolean;
   children: React.ReactNode;
   title: string;
   cellProperties?: CellLayoutProperties;
@@ -43,6 +45,7 @@ function LinkWrapper(props: Props) {
       isCellVisible={props.isCellVisible}
       isHidden={props.isHidden}
       isHyperLink
+      isPadding
       isTextType
       onClick={() => {
         window.open(props.title, "_blank");
@@ -89,30 +92,34 @@ function AutoToolTipComponent(props: Props) {
     return <LinkWrapper {...props} />;
   }
   return (
-    <CellWrapper
-      cellProperties={props.cellProperties}
-      isCellVisible={props.isCellVisible}
-      isHidden={props.isHidden}
-      isTextType
-      ref={ref}
-    >
-      {useToolTip && props.children ? (
-        <Tooltip
-          autoFocus={false}
-          content={
-            <TooltipContentWrapper width={(props.tableWidth || 300) - 32}>
-              {props.title}
-            </TooltipContentWrapper>
-          }
-          hoverOpenDelay={1000}
-          position="top"
-        >
-          {props.children}
-        </Tooltip>
-      ) : (
-        props.children
-      )}
-    </CellWrapper>
+    <ColumnWrapper>
+      <CellWrapper
+        cellProperties={props.cellProperties}
+        isCellVisible={props.isCellVisible}
+        isHidden={props.isHidden}
+        isPadding={!props.noPadding}
+        isTextType
+        ref={ref}
+      >
+        {useToolTip && props.children ? (
+          <Tooltip
+            autoFocus={false}
+            content={
+              <TooltipContentWrapper width={(props.tableWidth || 300) - 32}>
+                {props.title}
+              </TooltipContentWrapper>
+            }
+            hoverOpenDelay={1000}
+            position="top"
+          >
+            {props.children}
+          </Tooltip>
+        ) : (
+          props.children
+        )}
+      </CellWrapper>
+      {useToolTip && props.children && "..."}
+    </ColumnWrapper>
   );
 }
 

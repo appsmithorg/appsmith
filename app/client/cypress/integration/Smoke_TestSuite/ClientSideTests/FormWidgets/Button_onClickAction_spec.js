@@ -1,12 +1,8 @@
 const widgetsPage = require("../../../../locators/Widgets.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/newFormDsl.json");
-const homePage = require("../../../../locators/HomePage.json");
-const pages = require("../../../../locators/Pages.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 const modalWidgetPage = require("../../../../locators/ModalWidget.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
-const queryLocators = require("../../../../locators/QueryEditor.json");
 
 describe("Button Widget Functionality", function() {
   before(() => {
@@ -17,7 +13,7 @@ describe("Button Widget Functionality", function() {
     cy.openPropertyPane("buttonwidget");
   });
 
-  it("Button-Modal Validation", function() {
+  it("1. Button-Modal Validation", function() {
     //creating the Modal and verify Modal name
     cy.createModal(this.data.ModalName);
     cy.PublishtheApp();
@@ -28,7 +24,7 @@ describe("Button Widget Functionality", function() {
     );
   });
 
-  it("Button-CallAnApi Validation", function() {
+  it("2. Button-CallAnApi Validation", function() {
     //creating an api and calling it from the onClickAction of the button widget.
     // Creating the api
     cy.NavigateToAPI_Panel();
@@ -54,7 +50,7 @@ describe("Button Widget Functionality", function() {
     cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
   });
 
-  it("Button-Call-Query Validation", function() {
+  it("3. Button-Call-Query Validation", function() {
     //creating a query and calling it from the onClickAction of the button widget.
     // Creating a mock query
     // cy.CreateMockQuery("Query1");
@@ -72,14 +68,16 @@ describe("Button Widget Functionality", function() {
         .type(postgresDatasourceName, { force: true })
         .should("have.value", postgresDatasourceName)
         .blur();
+
+      cy.wait("@saveDatasource").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        200,
+      );
+      cy.fillPostgresDatasourceForm();
+      cy.saveDatasource();
+      cy.NavigateToActiveDSQueryPane(postgresDatasourceName);
     });
-    cy.wait("@saveDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.fillPostgresDatasourceForm();
-    cy.saveDatasource();
 
     cy.CreateMockQuery("Query1");
 
@@ -100,7 +98,7 @@ describe("Button Widget Functionality", function() {
     cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
   });
 
-  it("Toggle JS - Button-CallAnApi Validation", function() {
+  it("4. Toggle JS - Button-CallAnApi Validation", function() {
     //creating an api and calling it from the onClickAction of the button widget.
     // calling the existing api
     cy.get(widgetsPage.toggleOnClick).click({ force: true });
@@ -116,7 +114,7 @@ describe("Button Widget Functionality", function() {
     cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
   });
 
-  it("Toggle JS - Button-Call-Query Validation", function() {
+  it("5. Toggle JS - Button-Call-Query Validation", function() {
     //creating a query and calling it from the onClickAction of the button widget.
     // Creating a mock query
     cy.testJsontext(

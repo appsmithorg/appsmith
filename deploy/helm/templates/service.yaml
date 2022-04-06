@@ -8,10 +8,10 @@ metadata:
   {{- if or .Values.service.annotations .Values.commonAnnotations }}
   annotations:
     {{- if .Values.service.annotations }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.service.annotations "context" $) | nindent 4 }}
+    {{- include "tplvalues.render" ( dict "value" .Values.service.annotations "context" $) | nindent 4 }}
     {{- end }}
     {{- if .Values.commonAnnotations }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- include "tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
     {{- end }}
   {{- end }}
 spec:

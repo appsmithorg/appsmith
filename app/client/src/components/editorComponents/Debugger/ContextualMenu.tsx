@@ -14,7 +14,7 @@ import {
   toggleShowGlobalSearchModal,
 } from "actions/globalSearchActions";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import {
   createMessage,
   DEBUGGER_APPSMITH_SUPPORT,
@@ -23,7 +23,7 @@ import {
   DEBUGGER_OPEN_DOCUMENTATION,
   DEBUGGER_SEARCH_GOOGLE,
   DEBUGGER_SEARCH_SNIPPET,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import { Colors } from "constants/Colors";
