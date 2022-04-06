@@ -56,45 +56,6 @@ describe("Table Widget Filter Functionality", function() {
     });
   });
 
-  it("3. Table Widget Functionality To Filter The Data using does not contain", function() {
-    //cy.isSelectRow(1);
-    cy.readTabledataPublish("1", "3").then((tabData) => {
-      const tabValue = tabData;
-      expect(tabValue).to.be.equal("Ryan Holmes");
-      cy.log("the value is" + tabValue);
-      cy.get(publish.filterBtn).click();
-      cy.get(publish.attributeDropdown).click();
-      cy.get(publish.attributeValue)
-        .contains("userName")
-        .click();
-      cy.get(publish.conditionDropdown).click();
-      cy.get(publish.attributeValue)
-        .contains("does not contain")
-        .click();
-      cy.get(publish.inputValue).type("Byron");
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(500);
-      cy.get(widgetsPage.filterApplyBtn).click({ force: true });
-      cy.wait(500);
-      cy.readTabledataPublish("0", "3").then((tabData) => {
-        const tabValue = tabData;
-        expect(tabValue).not.to.be.equal("Byron Fields");
-      });
-      cy.get(widgetsPage.filterCloseBtn).click({ force: true });
-      cy.get(publish.filterBtn).click();
-      cy.get(publish.removeFilter).click();
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(1000);
-      cy.readTabledataPublish("0", "3").then((tabData) => {
-        const tabValue = tabData;
-        expect(tabValue).to.be.equal("Byron Fields");
-      });
-      cy.get(publish.canvas)
-        .first()
-        .click({ force: true });
-    });
-  });
-
   it("4. Table Widget Functionality To Filter The Data using OR operator ", function() {
     cy.get(publish.searchInput)
       .first()

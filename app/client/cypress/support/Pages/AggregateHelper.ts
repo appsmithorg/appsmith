@@ -319,7 +319,7 @@ export class AggregateHelper {
 
     public GetNClick(selector: string, index = 0) {
         let locator = selector.startsWith("//") ? cy.xpath(selector) : cy.get(selector)
-        return locator.eq(index).click({ force: true }).wait(500);
+        return locator.eq(index).click().wait(500);
     }
 
     public ToggleOnOrOff(propertyName: string, toggle: 'On' | 'Off') {

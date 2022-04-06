@@ -23,28 +23,22 @@ export class Table {
   _addIcon = "button span[icon='add']"
   _trashIcon = "button span[icon='trash']"
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']"
-  _filterBtn = ".t--table-filter-toggle-btn"
-  _filterColumnsDropdown = ".t--table-filter-columns-dropdown"
-  _dropdownText = ".t--dropdown-option"
-  _filterConditionDropdown = ".t--table-filter-conditions-dropdown"
-  _filterInputValue = ".t--table-filter-value-input"
-  _filterApplyBtn = ".t--apply-filter-btn"
-  _filterCloseBtn = ".t--close-filter-btn"
-  _addFilter = ".t--add-filter-btn"
-  _filterOperatorDropdown = ".t--table-filter-operators-dropdown"
+  private _filterBtn = ".t--table-filter-toggle-btn"
+  private _filterColumnsDropdown = ".t--table-filter-columns-dropdown"
+  private _dropdownText = ".t--dropdown-option"
+  private _filterConditionDropdown = ".t--table-filter-conditions-dropdown"
+  private _filterInputValue = ".t--table-filter-value-input"
+  private _filterApplyBtn = ".t--apply-filter-btn"
+  private _filterCloseBtn = ".t--close-filter-btn"
+  private _removeFilter = ".t--table-filter-remove-btn"
+  private _clearAllFilter = ".t--clear-all-filter-btn"
+  private _addFilter = ".t--add-filter-btn"
+  private _filterOperatorDropdown = ".t--table-filter-operators-dropdown"
+  private _downloadBtn = ".t--table-download-btn"
+  private _downloadOption = ".t--table-download-data-option"
+
 
   public WaitUntilTableLoad() {
-    // cy.waitUntil(() => cy.xpath(this._table, { timeout: 80000 }).should('be.visible'),
-    //   {
-    //     errorMsg: "Element did not appear",
-    //     timeout: 10000,
-    //     interval: 2000
-    //   }).then(() => this.agHelper.Sleep(500))
-
-    // this.ReadTableRowColumnData(0, 0).then((cellData) => {
-    //   expect(cellData).not.empty;
-    // });
-
     cy.waitUntil(() => this.ReadTableRowColumnData(0, 0),
       {
         errorMsg: "Table is not populated",
@@ -141,53 +135,90 @@ export class Table {
     cy.get(this._searchText).eq(index).type(searchTxt)
   }
 
-  public FilterTable(colName: string, colCondition: 'contains' | 'does not contain' | 'starts with' | 'ends with' | 'is exactly' | 'empty' | 'not empty', inputText = "", operator: 'AND' | 'OR' | '' = '') {
+  public RemoveSearchTextNVerify(cellDataAfterSearchRemoved: string) {
+    this.agHelper.GetNClick(this._searchBoxCross)
+    this.ReadTableRowColumnData(0, 0).then(aftSearchRemoved => {
+      expect(aftSearchRemoved).to.eq(cellDataAfterSearchRemoved);
+    });
+  }
+
+  public FilterTable(colName: string, colCondition: 'contains' | 'does not contain' | 'starts with' | 'ends with' | 'is exactly' | 'empty' | 'not empty', inputText = "", operator: 'AND' | 'OR' | '' = '', index = 0) {
     if (operator) {
       this.agHelper.GetNClick(this._addFilter)
       this.agHelper.GetNClick(this._filterOperatorDropdown)
       cy.get(this._dropdownText).contains(operator).click()
     }
-    this.agHelper.GetNClick(this._filterColumnsDropdown)
+    else
+      this.agHelper.GetNClick(this._filterBtn)
+
+    this.agHelper.GetNClick(this._filterColumnsDropdown, index)
     cy.get(this._dropdownText).contains(colName).click()
-    this.agHelper.GetNClick(this._filterConditionDropdown)
+    this.agHelper.GetNClick(this._filterConditionDropdown, index)
     cy.get(this._dropdownText).contains(colCondition).click()
 
-    if(inputText)
-    this.agHelper.GetNClick(this._filterInputValue).type(inputText)
-}
+    if (inputText)
+      this.agHelper.GetNClick(this._filterInputValue, index).type(inputText).wait(500)
+
+    this.agHelper.GetNClick(this._filterApplyBtn)
+    //this.agHelper.ClickButton("APPLY")
+  }
+
+  public RemoveFilterNVerify(cellDataAfterFilterRemoved: string, toClose = true, removeOne = true, index = 0,) {
+    if (removeOne)
+      this.agHelper.GetNClick(this._removeFilter, index)
+    else
+      this.agHelper.GetNClick(this._clearAllFilter)
+
+    if (toClose)
+      this.CloseFilter()
+    this.ReadTableRowColumnData(0, 0).then(aftFilterRemoved => {
+      expect(aftFilterRemoved).to.eq(cellDataAfterFilterRemoved);
+    });
+  }
+
+  public CloseFilter() {
+    this.agHelper.GetNClick(this._filterCloseBtn)
+  }
+
+  public DownloadFromTable(filetype: "Download as CSV" | "Download as Excel") {
+    cy.get(this._downloadBtn).click({ force: true });
+    cy.get(this._downloadOption)
+      .contains(filetype)
+      .click({ force: true });
+  }
 
   //List methods - keeping it for now!
   public NavigateToNextPage_List() {
-  let curPageNo: number;
-  cy.xpath(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
-    curPageNo = Number($currentPageNo))
-  cy.get(this._liNextPage).click()
-  cy.scrollTo('top', { easing: 'linear' })
-  cy.xpath(this._liCurrentSelectedPage).invoke('text').then($newPageNo =>
-    expect(Number($newPageNo)).to.eq(curPageNo + 1))
-}
+    let curPageNo: number;
+    cy.xpath(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
+      curPageNo = Number($currentPageNo))
+    cy.get(this._liNextPage).click()
+    cy.scrollTo('top', { easing: 'linear' })
+    cy.xpath(this._liCurrentSelectedPage).invoke('text').then($newPageNo =>
+      expect(Number($newPageNo)).to.eq(curPageNo + 1))
+  }
 
   public NavigateToPreviousPage_List() {
-  let curPageNo: number;
-  cy.xpath(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
-    curPageNo = Number($currentPageNo))
-  cy.get(this._liPreviousPage).click()
-  cy.scrollTo('top', { easing: 'linear' })
-  cy.xpath(this._liCurrentSelectedPage).invoke('text').then($newPageNo =>
-    expect(Number($newPageNo)).to.eq(curPageNo - 1))
-}
+    let curPageNo: number;
+    cy.xpath(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
+      curPageNo = Number($currentPageNo))
+    cy.get(this._liPreviousPage).click()
+    cy.scrollTo('top', { easing: 'linear' })
+    cy.xpath(this._liCurrentSelectedPage).invoke('text').then($newPageNo =>
+      expect(Number($newPageNo)).to.eq(curPageNo - 1))
+  }
 
   public AssertPageNumber_List(pageNo: number, checkNoNextPage = false) {
-  cy.xpath(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
-    expect(Number($currentPageNo)).to.eq(pageNo))
+    cy.xpath(this._liCurrentSelectedPage).invoke('text').then($currentPageNo =>
+      expect(Number($currentPageNo)).to.eq(pageNo))
 
-  if (pageNo == 1)
-    cy.get(this._liPreviousPage).should("have.attr", "aria-disabled", 'true')
+    if (pageNo == 1)
+      cy.get(this._liPreviousPage).should("have.attr", "aria-disabled", 'true')
 
-  if (checkNoNextPage)
-    cy.get(this._liNextPage).should("have.attr", "aria-disabled", 'true')
-  else
-    cy.get(this._liNextPage).should("have.attr", "aria-disabled", 'false')
+    if (checkNoNextPage)
+      cy.get(this._liNextPage).should("have.attr", "aria-disabled", 'true')
+    else
+      cy.get(this._liNextPage).should("have.attr", "aria-disabled", 'false')
 
-}
+  }
 }

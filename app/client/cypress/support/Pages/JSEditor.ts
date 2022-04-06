@@ -94,7 +94,7 @@ export class JSEditor {
     this.agHelper.AssertAutoSave()//Ample wait due to open bug # 10284
   }
 
-  public EnterJSContext(endp: string, value: string, paste = true, toToggleOnJS = false) {
+  public EnterJSContext(endp: string, value: string, paste = true, toToggleOnJS = false, notField = false) {
     if (toToggleOnJS) {
       cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
         .invoke("attr", "class")
@@ -117,7 +117,7 @@ export class JSEditor {
     //   .type("{del}", { force: true });
 
     if (paste) {
-      this.agHelper.EnterValue(value, endp)
+      this.agHelper.EnterValue(value, endp, notField)
     }
     else {
       cy.get(this.locator._propertyControl + endp.replace(/ +/g, "").toLowerCase() + " " + this.locator._codeMirrorTextArea)
