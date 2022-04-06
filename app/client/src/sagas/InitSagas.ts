@@ -76,7 +76,7 @@ import {
 } from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { isURLDeprecated, getUpdatedRoute } from "utils/helpers";
-import { viewerURL } from "RouteBuilder";
+import { fillPathname, viewerURL, builderURL } from "RouteBuilder";
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
 
@@ -131,42 +131,52 @@ function* initiateURLUpdate(
     const currentApplication: ApplicationPayload = yield select(
       getCurrentApplication,
     );
-    if (currentApplication.applicationVersion < ApplicationVersion.SLUG_URL)
-      return;
+
     const applicationSlug = currentApplication.slug as string;
     const currentPage: Page = yield select(getPageById(pageId));
     const pageSlug = currentPage?.slug as string;
-
-    // Check if the the current route is a deprecated URL or if pageId is missing,
-    // generate a new route with the v2 structure.
     let originalUrl = "";
     const { pathname, search } = window.location;
-    if (isURLDeprecated(pathname) || !pageIdInUrl) {
-      if (appMode === APP_MODE.EDIT) {
-        originalUrl =
-          pathname
-            .replace(
-              `/applications/${currentApplication.id}`,
-              `/${applicationSlug}`,
-            )
-            .replace(
-              `/pages/${currentPage.pageId}`,
-              `/${pageSlug}-${currentPage.pageId}`,
-            ) + search;
-      } else {
-        originalUrl = viewerURL({ applicationSlug, pageSlug, pageId });
+
+    // For switching new URLs to old.
+    if (currentApplication.applicationVersion < ApplicationVersion.SLUG_URL) {
+      if (!isURLDeprecated(pathname)) {
+        // We do not allow downgrading application version but,
+        // when switch from a branch with updated URL to another one with legacy URLs,
+        // we need to compute the legacy url
+        // This scenario can happen only in edit mode.
+        originalUrl = builderURL({
+          applicationId: currentApplication.id,
+          pageId: pageId,
+        });
+        history.replace(originalUrl);
       }
     } else {
-      // For urls which has pageId in it,
-      // replace the placeholder values of application slug and page slug with real slug names.
-      originalUrl =
-        getUpdatedRoute(pathname, {
-          applicationSlug,
-          pageSlug,
-          pageId,
-        }) + search;
+      // For updated apps,
+      // Check if the the current route is a deprecated URL or if pageId is missing (bookmarked urls) and
+      // generate a new route with the v2 structure.
+      if (isURLDeprecated(pathname) || !pageIdInUrl) {
+        if (appMode === APP_MODE.EDIT) {
+          // If edit mode, replace /applications/appId/pages/pageId with /appSlug/pageSlug-pageId,
+          // to not affect the rest of the url. eg. /api/apiId
+          originalUrl =
+            fillPathname(pathname, currentApplication, currentPage) + search;
+        } else {
+          // View Mode - generate a new viewer URL - auto updates query params
+          originalUrl = viewerURL({ applicationSlug, pageSlug, pageId });
+        }
+      } else {
+        // For urls which has pageId in it,
+        // replace the placeholder values of application slug and page slug with real slug names.
+        originalUrl =
+          getUpdatedRoute(pathname, {
+            applicationSlug,
+            pageSlug,
+            pageId,
+          }) + search;
+      }
+      history.replace(originalUrl);
     }
-    history.replace(originalUrl);
   } catch (e) {
     log.error(e);
   }
@@ -193,6 +203,8 @@ function* initiateEditorApplicationAndPages(payload: InitializeEditorPayload) {
   let toLoadPageId = pageId;
   const defaultPageId: string = yield select(getDefaultPageId);
   toLoadPageId = toLoadPageId || defaultPageId;
+
+  yield call(initiateURLUpdate, toLoadPageId, APP_MODE.EDIT, payload.pageId);
 
   const fetchPageCallResult: boolean = yield failFastApiCalls(
     [fetchPage(toLoadPageId, true)],
@@ -295,12 +307,7 @@ function* initializeEditorSaga(
       PerformanceTransactionName.INIT_EDIT_APP,
     );
 
-    const toLoadPageId: string = yield call(
-      initiateEditorApplicationAndPages,
-      payload,
-    );
-
-    yield call(initiateURLUpdate, toLoadPageId, APP_MODE.EDIT, payload.pageId);
+    yield call(initiateEditorApplicationAndPages, payload);
 
     const { id: applicationId, name }: ApplicationPayload = yield select(
       getCurrentApplication,

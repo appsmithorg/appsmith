@@ -22,6 +22,10 @@ init_env_file() {
   CONF_PATH="/appsmith-stacks/configuration"
   ENV_PATH="$CONF_PATH/docker.env"
   TEMPLATES_PATH="/opt/appsmith/templates"
+
+  # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
+  printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\"'\"'/; s/=/='/; s/$/'/" > "$TEMPLATES_PATH/pre-define.env"
+  
   echo "Initialize .env file"
   if ! [[ -e "$ENV_PATH" ]]; then
     # Generate new docker.env file when initializing container for first time or in Heroku which does not have persistent volume
@@ -47,8 +51,6 @@ init_env_file() {
     bash "$TEMPLATES_PATH/docker.env.sh" "$APPSMITH_MONGODB_USER" "$APPSMITH_MONGODB_PASSWORD" "$APPSMITH_ENCRYPTION_PASSWORD" "$APPSMITH_ENCRYPTION_SALT" "$APPSMITH_AUTH_PASSWORD" > "$ENV_PATH"
   fi
 
-  # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
-  printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\"'\"'/; s/=/='/; s/$/'/" > "$TEMPLATES_PATH/pre-define.env"
 
   echo "Load environment configuration"
   set -o allexport

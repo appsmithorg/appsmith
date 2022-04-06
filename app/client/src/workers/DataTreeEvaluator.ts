@@ -706,17 +706,19 @@ export default class DataTreeEvaluator {
                 "config",
                 "actionConfiguration",
               );
-              const validationConfig = this.allActionValidationConfig[
-                entity.actionId
-              ][configProperty];
-              this.validateActionProperty(
-                fullPropertyPath,
-                entity,
-                currentTree,
-                evalPropertyValue,
-                unEvalPropertyValue,
-                validationConfig,
-              );
+              const validationConfig =
+                !!this.allActionValidationConfig[entity.actionId] &&
+                this.allActionValidationConfig[entity.actionId][configProperty];
+              if (!!validationConfig && !_.isEmpty(validationConfig)) {
+                this.validateActionProperty(
+                  fullPropertyPath,
+                  entity,
+                  currentTree,
+                  evalPropertyValue,
+                  unEvalPropertyValue,
+                  validationConfig,
+                );
+              }
             }
             const safeEvaluatedValue = removeFunctions(evalPropertyValue);
             _.set(

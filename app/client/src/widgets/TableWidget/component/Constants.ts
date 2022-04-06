@@ -284,9 +284,3 @@ export const ConditionFunctions: {
     return !moment(a).isBefore(moment(b), "d");
   },
 };
-
-export enum TableWidth {
-  Mobile = 576,
-  Small = 365,
-  Smaller = 288,
-}
