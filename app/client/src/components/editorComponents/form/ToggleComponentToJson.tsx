@@ -16,6 +16,7 @@ import { JSToggleButton } from "components/ads";
 
 type Props = {
   viewType: ViewTypes;
+  componentControlType: string;
   configProperty: string;
   children?: JSX.Element;
   formName: string;
