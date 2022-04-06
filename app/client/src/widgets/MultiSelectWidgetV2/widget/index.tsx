@@ -474,7 +474,7 @@ class MultiSelectWidget extends BaseWidget<
 
   getPageView() {
     const options = isArray(this.props.options) ? this.props.options : [];
-    const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+    const minDropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
     const { componentWidth } = this.getComponentDimensions();
     const values: LabelValueType[] = this.props.selectedOptions
       ? this.props.selectedOptions.map((o) =>
@@ -494,7 +494,7 @@ class MultiSelectWidget extends BaseWidget<
           )
         }
         disabled={this.props.isDisabled ?? false}
-        dropDownWidth={dropDownWidth}
+        dropDownWidth={minDropDownWidth}
         dropdownStyle={{
           zIndex: Layers.dropdownModalWidget,
         }}
