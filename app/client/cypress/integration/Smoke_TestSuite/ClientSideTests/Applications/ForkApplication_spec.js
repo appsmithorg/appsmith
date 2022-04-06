@@ -3,6 +3,7 @@ import homePage from "../../../../locators/HomePage";
 import applicationLocators from "../../../../locators/Applications.json";
 import signupPageLocators from "../../../../locators/SignupPage.json";
 import loginPageLocators from "../../../../locators/LoginPage.json";
+import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
 
 let forkedApplicationDsl;
 let parentApplicationDsl;
@@ -61,27 +62,36 @@ describe("Fork application across orgs", function() {
     cy.get(homePage.orgImportAppOption).click({ force: true });
     cy.get(homePage.orgImportAppModal).should("be.visible");
     cy.xpath(homePage.uploadLogo).attachFile("forkNonSignedInUser.json");
-    cy.wait("@importNewApplication");
-    cy.PublishtheApp();
-    cy.get(homePage.shareButton).click();
-    cy.enablePublicAccess();
+    cy.wait("@importNewApplication").then((interception) => {
+      const { isPartialImport } = interception.response.body.data;
+      if (isPartialImport) {
+        cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
+          force: true,
+        });
+        cy.wait(2000);
+      }
 
-    cy.url().then((url) => {
-      forkableAppUrl = url;
-      cy.get(homePage.profileMenu).click();
-      cy.get(homePage.signOutIcon).click();
+      cy.PublishtheApp();
+      cy.get(homePage.shareButton).click();
+      cy.enablePublicAccess();
 
-      cy.visit(forkableAppUrl);
-      cy.get(applicationLocators.forkButton).click();
+      cy.url().then((url) => {
+        forkableAppUrl = url;
+        cy.get(homePage.profileMenu).click();
+        cy.get(homePage.signOutIcon).click();
 
-      cy.get(loginPageLocators.signupLink).click();
+        cy.visit(forkableAppUrl);
+        cy.get(applicationLocators.forkButton).click();
 
-      cy.generateUUID().then((uid) => {
-        cy.get(signupPageLocators.username).type(`${uid}@appsmith.com`);
-        cy.get(signupPageLocators.password).type(uid);
-        cy.get(signupPageLocators.submitBtn).click();
-        cy.wait(1000);
-        cy.get(homePage.forkAppOrgButton).should("be.visible");
+        cy.get(loginPageLocators.signupLink).click();
+
+        cy.generateUUID().then((uid) => {
+          cy.get(signupPageLocators.username).type(`${uid}@appsmith.com`);
+          cy.get(signupPageLocators.password).type(uid);
+          cy.get(signupPageLocators.submitBtn).click();
+          cy.wait(1000);
+          cy.get(homePage.forkAppOrgButton).should("be.visible");
+        });
       });
     });
   });
