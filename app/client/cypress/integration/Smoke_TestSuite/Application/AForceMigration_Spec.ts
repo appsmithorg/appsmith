@@ -207,11 +207,11 @@ describe("AForce - Community Issues page validations", function () {
     table.SearchTable('Suggestion', 2)
     table.WaitUntilTableLoad()
 
-    table.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0, 1000).then((cellData) => {
       expect(cellData).to.be.equal("Suggestion");
     });
 
-    table.ReadTableRowColumnData(0, 1).then((cellData) => {
+    table.ReadTableRowColumnData(0, 1, 1000).then((cellData) => {
       expect(cellData).to.be.equal("Adding Title Suggestion via script");
     });
 
@@ -251,11 +251,11 @@ describe("AForce - Community Issues page validations", function () {
     agHelper.SelectFromMultiSelect(['Needs Product'], 0, true, 'multiselectwidget')
     agHelper.ClickButton('Save')
 
-    table.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0, 1000).then((cellData) => {
       expect(cellData).to.be.equal("Troubleshooting");
     });
 
-    table.ReadTableRowColumnData(0, 1).then((cellData) => {
+    table.ReadTableRowColumnData(0, 1, 1000).then((cellData) => {
       expect(cellData).to.be.equal("Adding Title Suggestion via script-updating title");
     });
 

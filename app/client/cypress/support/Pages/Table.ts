@@ -1,3 +1,4 @@
+import { time } from "console"
 import { ObjectsRegistry } from "../Objects/Registry"
 
 export class Table {
@@ -25,21 +26,21 @@ export class Table {
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']"
   private _filterBtn = ".t--table-filter-toggle-btn"
   private _filterColumnsDropdown = ".t--table-filter-columns-dropdown"
-  private _dropdownText = ".t--dropdown-option"
+  _dropdownText = ".t--dropdown-option"
   private _filterConditionDropdown = ".t--table-filter-conditions-dropdown"
-  private _filterInputValue = ".t--table-filter-value-input"
+  _filterInputValue = ".t--table-filter-value-input"
   private _filterApplyBtn = ".t--apply-filter-btn"
   private _filterCloseBtn = ".t--close-filter-btn"
   private _removeFilter = ".t--table-filter-remove-btn"
   private _clearAllFilter = ".t--clear-all-filter-btn"
   private _addFilter = ".t--add-filter-btn"
-  private _filterOperatorDropdown = ".t--table-filter-operators-dropdown"
+  _filterOperatorDropdown = ".t--table-filter-operators-dropdown"
   private _downloadBtn = ".t--table-download-btn"
   private _downloadOption = ".t--table-download-data-option"
 
 
   public WaitUntilTableLoad() {
-    cy.waitUntil(() => this.ReadTableRowColumnData(0, 0),
+    cy.waitUntil(() => this.ReadTableRowColumnData(0, 0, 2000),
       {
         errorMsg: "Table is not populated",
         timeout: 10000,
@@ -69,8 +70,8 @@ export class Table {
     });
   }
 
-  public ReadTableRowColumnData(rowNum: number, colNum: number) {
-    this.agHelper.Sleep(2000)//Settling time for table!
+  public ReadTableRowColumnData(rowNum: number, colNum: number, timeout = 1000) { //timeout can be sent higher values incase of larger tables
+    this.agHelper.Sleep(timeout)//Settling time for table!
     return cy.get(this._tableRowColumnData(rowNum, colNum)).invoke("text");
   }
 
