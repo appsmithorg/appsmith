@@ -4,6 +4,7 @@ import {
   FormEvalOutput,
   FormEvaluationState,
   FormConfigEvalObject,
+  DynamicValuesConfig,
 } from "../reducers/evaluationReducers/formEvaluationReducer";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ActionConfig } from "entities/Action";
@@ -11,6 +12,7 @@ import { FormEvalActionPayload } from "sagas/FormEvaluationSaga";
 import { FormConfigType } from "components/formControls/BaseControl";
 import { isEmpty, merge } from "lodash";
 import { extractEvalConfigFromFormConfig } from "components/formControls/utils";
+import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 
 export enum ConditionType {
   HIDE = "hide", // When set, the component will be shown until condition is true
@@ -82,11 +84,8 @@ const generateInitialEvalState = (formConfig: FormConfigType) => {
         hasStarted: false,
         hasFetchFailed: false,
         data: [],
-        config: {
-          url: formConfig.conditionals.fetchDynamicValues.url,
-          method: formConfig.conditionals.fetchDynamicValues.method,
-          params: formConfig.conditionals.fetchDynamicValues.params,
-        },
+        config: formConfig.conditionals.fetchDynamicValues.config,
+        evaluatedConfig: { params: {} },
       };
       conditionTypes.fetchDynamicValues = dynamicValues;
       conditionals.fetchDynamicValues =
@@ -110,6 +109,41 @@ const generateInitialEvalState = (formConfig: FormConfigType) => {
       generateInitialEvalState({ ...config }),
     );
 };
+
+function evaluateDynamicValuesConfig(
+  actionConfiguration: ActionConfig,
+  config: Record<string, any>,
+) {
+  const evaluatedConfig: Record<string, any> = config;
+  const configArray = Object.entries(config);
+  if (configArray.length > 0) {
+    configArray.forEach(([key, value]) => {
+      if (typeof value === "object") {
+        evaluatedConfig[key] = evaluateDynamicValuesConfig(
+          actionConfiguration,
+          value,
+        );
+      } else if (typeof value === "string" && value.length > 0) {
+        const regexMatches = value.match(DATA_BIND_REGEX_GLOBAL);
+        if (!!regexMatches && regexMatches?.length > 0) {
+          console.log("ayush", value, regexMatches);
+          let evaluatedValue = "";
+          try {
+            evaluatedValue = eval(value);
+          } catch (e) {
+            evaluatedValue = "error";
+          } finally {
+            evaluatedConfig[key] = evaluatedValue;
+          }
+          console.log("ayush", key, evaluatedValue, evaluatedConfig);
+        } else {
+          console.log("ayush no match", value, regexMatches);
+        }
+      }
+    });
+  }
+  return evaluatedConfig;
+}
 
 function evaluateFormConfigElements(
   actionConfiguration: ActionConfig,
@@ -157,6 +191,12 @@ function evaluate(
                 .fetchDynamicValues as DynamicValues).allowedToFetch = output;
               (currentEvalState[key]
                 .fetchDynamicValues as DynamicValues).isLoading = output;
+              (currentEvalState[key]
+                .fetchDynamicValues as DynamicValues).evaluatedConfig = evaluateDynamicValuesConfig(
+                actionConfiguration,
+                (currentEvalState[key].fetchDynamicValues as DynamicValues)
+                  .config,
+              ) as DynamicValuesConfig;
             } else if (
               conditionType === ConditionType.EVALUATE_FORM_CONFIG &&
               currentEvalState[key].hasOwnProperty("evaluateFormConfig") &&
