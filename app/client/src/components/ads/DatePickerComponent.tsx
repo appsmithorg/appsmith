@@ -126,6 +126,11 @@ function getKeyboardFocusableElements(element: HTMLDivElement) {
 function DatePickerComponent(props: DatePickerComponentProps) {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
+  const DatePickerVisibilityRef = useRef(isDatePickerVisible);
+  DatePickerVisibilityRef.current = isDatePickerVisible;
+
+  const clearButtonText = "Clear";
+
   const popoverRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -165,6 +170,27 @@ function DatePickerComponent(props: DatePickerComponentProps) {
             e.preventDefault();
             e.stopPropagation();
             setDatePickerVisibility(false);
+          }
+        }
+
+        if (DatePickerVisibilityRef.current) {
+          const focusableElements = getKeyboardFocusableElements(
+            popoverElement,
+          );
+          const lastFocusedElement = focusableElements.find(
+            (element) => document.activeElement === element,
+          );
+          if (lastFocusedElement) {
+            if (
+              lastFocusedElement.nodeName === "BUTTON" &&
+              lastFocusedElement.className === "bp3-button bp3-minimal" &&
+              (lastFocusedElement as HTMLElement).innerText === clearButtonText
+            ) {
+              const firstElement = focusableElements[0];
+              if (firstElement) {
+                (firstElement as HTMLElement).focus();
+              }
+            }
           }
         }
       }
@@ -221,6 +247,7 @@ function DatePickerComponent(props: DatePickerComponentProps) {
   return (
     <StyledDateInput
       className={Classes.DATE_PICKER_OVARLAY}
+      clearButtonText={clearButtonText}
       closeOnSelection={props.closeOnSelection}
       dayPickerProps={{ onDayClick: handleOnDayClick }}
       formatDate={props.formatDate}
