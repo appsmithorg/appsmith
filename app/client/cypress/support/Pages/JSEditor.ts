@@ -7,9 +7,14 @@ export class JSEditor {
   private _runButton = "//li//*[local-name() = 'svg' and @class='run-button']";
   private _jsObjName = ".t--js-action-name-edit-field span";
   private _jsObjTxt = ".t--js-action-name-edit-field input";
-  private _newJSobj = "span:contains('New JS Object')";
-  private _bindingsClose = ".t--entity-property-close";
-  private _propertyList = ".t--entity-property";
+  private _newJSobj = "span:contains('New JS Object')"
+  private _bindingsClose = ".t--entity-property-close"
+  private _propertyList = ".t--entity-property"
+  private _responseTabAction = (funName: string) => "//div[@class='function-name'][text()='" + funName + "']/following-sibling::div//*[local-name()='svg']"
+  private _functionSetting = (settingTxt: string) => "//span[text()='" + settingTxt + "']/parent::div/following-sibling::input[@type='checkbox']"
+  _dialog = (dialogHeader: string) => "//div[contains(@class, 'bp3-dialog')]//h4[contains(text(), '" + dialogHeader + "')]"
+  private _closeSettings = "span[icon='small-cross']"
+
 
   public NavigateToJSEditor() {
     cy.get(this.locator._createNew)
@@ -109,65 +114,72 @@ export class JSEditor {
     toToggleOnJS = false,
   ) {
     if (toToggleOnJS) {
-      cy.get(this.locator._jsToggle(endp))
+      cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
         .invoke("attr", "class")
         .then((classes: any) => {
           if (!classes.includes("is-active")) {
-            cy.get(this.locator._jsToggle(endp))
+            cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
               .first()
               .click({ force: true });
           }
         });
     }
-    cy.get(
-      this.locator._propertyControl +
-        endp +
-        " " +
-        this.locator._codeMirrorTextArea,
-    )
-      .first()
-      .focus()
-      .type("{uparrow}", { force: true })
-      .type("{ctrl}{shift}{downarrow}", { force: true })
-      .type("{del}", { force: true });
+    // cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
+    //   .first()
+    //   .focus()
+    //   //.type("{selectAll}")
+    //   .type("{uparrow}{uparrow}", { force: true })
+    //   .type("{selectAll}")
+    //   // .type("{ctrl}{shift}{downarrow}", { force: true })
+    //   .type("{del}", { force: true });
 
-    cy.focused().then(($cm: any) => {
-      if ($cm.contents != "") {
-        cy.log("The field is not empty");
-        cy.get(
-          this.locator._propertyControl +
-            endp +
-            " " +
-            this.locator._codeMirrorTextArea,
-        )
-          .first()
-          .click({ force: true })
-          .focused()
-          .clear({
-            force: true,
-          });
-      }
-      this.agHelper.Sleep();
-      cy.get(
-        this.locator._propertyControl +
-          endp +
-          " " +
-          this.locator._codeMirrorTextArea,
-      )
+    if (paste) {
+      this.agHelper.EnterValue(value, endp)
+    }
+    else {
+      cy.get(this.locator._propertyControl + endp.replace(/ +/g, "").toLowerCase() + " " + this.locator._codeMirrorTextArea)
         .first()
         .then((el: any) => {
           const input = cy.get(el);
-          if (paste) {
-            //input.invoke("val", value);
-            this.agHelper.Paste(el, value);
-          } else {
-            input.type(value, {
-              parseSpecialCharSequences: false,
-            });
-          }
-        });
-    });
-    this.agHelper.AssertAutoSave(); //Allowing time for Evaluate value to capture value
+          input.type(value, {
+            parseSpecialCharSequences: false,
+          });
+        })
+    }
+
+
+    // cy.focused().then(($cm: any) => {
+    //   if ($cm.contents != "") {
+    //     cy.log("The field is not empty");
+    //     cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
+    //       .first()
+    //       .click({ force: true })
+    //       .type("{selectAll}")
+    //       .focused()
+    //       .clear({
+    //         force: true,
+    //       });
+    //   }
+    //   this.agHelper.Sleep()
+    //   cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
+    //     .first()
+    //     .then((el: any) => {
+    //       const input = cy.get(el);
+    //       if (paste) {
+    //         //input.invoke("val", value);
+    //         this.agHelper.Paste(el, value)
+    //       } else {
+    //         this.agHelper.EnterValue(value, "Table Data")
+
+    //         // input.type(value, {
+    //         //   parseSpecialCharSequences: false,
+    //         // });
+    //       }
+    //     });
+    // });
+
+    this.agHelper.AssertAutoSave()//Allowing time for Evaluate value to capture value
+
   }
 
   public RenameJSObjFromForm(renameVal: string) {
@@ -219,4 +231,18 @@ export class JSEditor {
     });
     cy.get(this._bindingsClose).click({ force: true });
   }
+
+
+  public EnableOnPageLoad(funName: string, onLoad = true, bfrCalling = true) {
+
+    this.agHelper.XpathNClick(this._responseTabAction(funName))
+    this.agHelper.AssertElementPresence(this._dialog('Function settings'))
+    if (onLoad)
+      this.agHelper.CheckUncheck(this._functionSetting('Run Function on Page load'), true)
+    if (bfrCalling)
+      this.agHelper.CheckUncheck(this._functionSetting('Request confirmation before calling Function?'), true)
+
+    this.agHelper.GetNClick(this._closeSettings)
+  }
+
 }
