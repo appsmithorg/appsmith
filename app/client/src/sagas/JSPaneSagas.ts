@@ -67,6 +67,9 @@ export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 import { set } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
 import { jsCollectionIdURL } from "RouteBuilder";
+import { ModalType } from "reducers/uiReducers/modalActionReducer";
+import { requestModalConfirmationSaga } from "sagas/UtilSagas";
+import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
   const organizationId: string = yield select(getCurrentOrgId);
@@ -293,14 +296,12 @@ function* handleJSObjectNameChangeSuccessSaga(
   }
 }
 
-export function* handleExecuteJSFunctionSaga(
-  data: ReduxAction<{
-    collectionName: string;
-    action: JSAction;
-    collectionId: string;
-  }>,
-): any {
-  const { action, collectionId, collectionName } = data.payload;
+export function* handleExecuteJSFunctionSaga(data: {
+  collectionName: string;
+  action: JSAction;
+  collectionId: string;
+}): any {
+  const { action, collectionId, collectionName } = data;
   const actionId = action.id;
   try {
     const result = yield call(executeFunction, collectionName, action);
@@ -344,6 +345,39 @@ export function* handleExecuteJSFunctionSaga(
       showDebugButton: true,
     });
   }
+}
+
+export function* handleStartExecuteJSFunctionSaga(
+  data: ReduxAction<{
+    collectionName: string;
+    action: JSAction;
+    collectionId: string;
+  }>,
+): any {
+  const { action, collectionId, collectionName } = data.payload;
+  const actionId = action.id;
+  if (action.confirmBeforeExecute) {
+    const modalPayload = {
+      name: collectionName + "." + action.name,
+      modalOpen: true,
+      modalType: ModalType.RUN_ACTION,
+    };
+
+    const confirmed = yield call(requestModalConfirmationSaga, modalPayload);
+
+    if (!confirmed) {
+      yield put({
+        type: ReduxActionTypes.RUN_ACTION_CANCELLED,
+        payload: { id: actionId },
+      });
+      throw new UserCancelledActionExecutionError();
+    }
+  }
+  yield call(handleExecuteJSFunctionSaga, {
+    collectionName: collectionName,
+    action: action,
+    collectionId: collectionId,
+  });
 }
 
 function* handleUpdateJSCollectionBody(
@@ -571,8 +605,8 @@ export default function* root() {
       handleJSObjectNameChangeSuccessSaga,
     ),
     takeEvery(
-      ReduxActionTypes.EXECUTE_JS_FUNCTION_INIT,
-      handleExecuteJSFunctionSaga,
+      ReduxActionTypes.START_EXECUTE_JS_FUNCTION,
+      handleStartExecuteJSFunctionSaga,
     ),
     takeEvery(
       ReduxActionTypes.REFACTOR_JS_ACTION_NAME,
