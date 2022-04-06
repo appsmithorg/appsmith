@@ -313,7 +313,7 @@ export class AggregateHelper {
 
     public EnterValue(valueToEnter: string, fieldName = "") {
         if (fieldName) {
-            cy.xpath(this.locator._inputFieldByName(fieldName)).then(($field: any) => {
+            cy.xpath(this.locator._existingFieldTextByName(fieldName)).then(($field: any) => {
                 this.UpdateCodeInput($field, valueToEnter);
             });
         } else {
@@ -324,8 +324,8 @@ export class AggregateHelper {
         this.AssertAutoSave()
     }
 
-    public UpdateCodeInput($selector: string, value: string) {
-        cy.get($selector)
+    public UpdateCodeInput(selector: string, value: string) {
+        cy.wrap(selector)
             .find(".CodeMirror")
             .first()
             .then((ins: any) => {

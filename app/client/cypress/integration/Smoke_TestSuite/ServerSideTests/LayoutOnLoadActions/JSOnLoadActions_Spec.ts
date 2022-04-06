@@ -45,7 +45,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     });
     ee.expandCollapseEntity("WIDGETS");
     ee.SelectEntityByName("Table1");
-    jsEditor.EnterJSContext("tabledata", "{{GetUser.data}}");
+    jsEditor.EnterJSContext("Table Data", "{{GetUser.data}}");
 
     agHelper.DeployApp();
     agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog"));

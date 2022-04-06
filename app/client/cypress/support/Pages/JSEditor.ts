@@ -96,49 +96,71 @@ export class JSEditor {
 
   public EnterJSContext(endp: string, value: string, paste = true, toToggleOnJS = false) {
     if (toToggleOnJS) {
-      cy.get(this.locator._jsToggle(endp))
+      cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
         .invoke("attr", "class")
         .then((classes: any) => {
           if (!classes.includes("is-active")) {
-            cy.get(this.locator._jsToggle(endp))
+            cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
               .first()
               .click({ force: true });
           }
         });
     }
-    cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
-      .first()
-      .focus()
-      .type("{uparrow}", { force: true })
-      .type("{ctrl}{shift}{downarrow}", { force: true })
-      .type("{del}", { force: true });
 
-    cy.focused().then(($cm: any) => {
-      if ($cm.contents != "") {
-        cy.log("The field is not empty");
-        cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
-          .first()
-          .click({ force: true })
-          .focused()
-          .clear({
-            force: true,
-          });
-      }
-      this.agHelper.Sleep()
-      cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
+    // cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
+    //   .first()
+    //   .focus()
+    //   //.type("{selectAll}")
+    //   .type("{uparrow}{uparrow}", { force: true })
+    //   .type("{selectAll}")
+    //   // .type("{ctrl}{shift}{downarrow}", { force: true })
+    //   .type("{del}", { force: true });
+
+    if (paste) {
+      this.agHelper.EnterValue(value, endp)
+    }
+    else {
+      cy.get(this.locator._propertyControl + endp.replace(/ +/g, "").toLowerCase() + " " + this.locator._codeMirrorTextArea)
         .first()
         .then((el: any) => {
           const input = cy.get(el);
-          if (paste) {
-            //input.invoke("val", value);
-            this.agHelper.Paste(el, value)
-          } else {
-            input.type(value, {
-              parseSpecialCharSequences: false,
-            });
-          }
-        });
-    });
+          input.type(value, {
+            parseSpecialCharSequences: false,
+          });
+        })
+    }
+
+
+    // cy.focused().then(($cm: any) => {
+    //   if ($cm.contents != "") {
+    //     cy.log("The field is not empty");
+    //     cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
+    //       .first()
+    //       .click({ force: true })
+    //       .type("{selectAll}")
+    //       .focused()
+    //       .clear({
+    //         force: true,
+    //       });
+    //   }
+    //   this.agHelper.Sleep()
+    //   cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
+    //     .first()
+    //     .then((el: any) => {
+    //       const input = cy.get(el);
+    //       if (paste) {
+    //         //input.invoke("val", value);
+    //         this.agHelper.Paste(el, value)
+    //       } else {
+    //         this.agHelper.EnterValue(value, "Table Data")
+
+    //         // input.type(value, {
+    //         //   parseSpecialCharSequences: false,
+    //         // });
+    //       }
+    //     });
+    // });
+
     this.agHelper.AssertAutoSave()//Allowing time for Evaluate value to capture value
   }
 
