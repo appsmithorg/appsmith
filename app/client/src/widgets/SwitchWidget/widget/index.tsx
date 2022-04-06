@@ -105,9 +105,9 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         sectionName: "Styles",
         children: [
           {
-            propertyName: "backgroundColor",
+            propertyName: "accentColor",
             helpText: "Sets the background color of the widget",
-            label: "Background color",
+            label: "Accent color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -121,8 +121,8 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   getPageView() {
     return (
       <SwitchComponent
+        accentColor={this.props.accentColor}
         alignWidget={this.props.alignWidget ? this.props.alignWidget : "LEFT"}
-        backgroundColor={this.props.backgroundColor}
         isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading}
         isSwitchedOn={!!this.props.isSwitchedOn}
@@ -172,7 +172,7 @@ export interface SwitchWidgetProps extends WidgetProps {
   defaultSwitchState: boolean;
   alignWidget: AlignWidget;
   label: string;
-  backgroundColor: string;
+  accentColor: string;
 }
 
 export default SwitchWidget;

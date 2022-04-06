@@ -38,7 +38,7 @@ export type AppTheme = {
   stylesheet: {
     [key: string]: {
       [key: string]: string | Stylesheet;
-      childStylesheets: Stylesheet;
+      childStylesheet: Stylesheet;
     };
   };
   // current values for the theme

@@ -56,7 +56,7 @@ const InputComponentWrapper = styled((props) => (
       "inputType",
       "borderRadius",
       "boxShadow",
-      "primaryColor",
+      "accentColor",
     ])}
   />
 ))<{
@@ -68,7 +68,7 @@ const InputComponentWrapper = styled((props) => (
   inputType: InputType;
   borderRadius?: string;
   boxShadow?: string;
-  primaryColor?: string;
+  accentColor?: string;
 }>`
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
   height: 100%;
@@ -301,7 +301,7 @@ const TextLableWrapper = styled.div<{
 const TextInputWrapper = styled.div<{
   borderRadius?: string;
   boxShadow?: string;
-  primaryColor?: string;
+  accentColor?: string;
   hasError?: boolean;
   disabled?: boolean;
 }>`
@@ -319,11 +319,11 @@ const TextInputWrapper = styled.div<{
 
   &:focus-within {
     outline: 0;
-    border-color: ${({ hasError, primaryColor }) =>
-      hasError ? Colors.DANGER_SOLID : primaryColor};
-    box-shadow: ${({ hasError, primaryColor }) =>
+    border-color: ${({ accentColor, hasError }) =>
+      hasError ? Colors.DANGER_SOLID : accentColor};
+    box-shadow: ${({ accentColor, hasError }) =>
       `0px 0px 0px 3px ${lightenColor(
-        hasError ? Colors.DANGER_SOLID : primaryColor,
+        hasError ? Colors.DANGER_SOLID : accentColor,
       )} !important;`};
   }
 
@@ -573,6 +573,7 @@ class BaseInputComponent extends React.Component<
 
     return (
       <InputComponentWrapper
+        accentColor={this.props.accentColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         compactMode={this.props.compactMode}
@@ -585,7 +586,6 @@ class BaseInputComponent extends React.Component<
         labelTextSize={labelTextSize ?? "inherit"}
         multiline={(!!this.props.multiline).toString()}
         numeric={isNumberInputType(this.props.inputHTMLType)}
-        primaryColor={this.props.primaryColor}
       >
         {showLabelHeader && (
           <TextLableWrapper
@@ -623,11 +623,11 @@ class BaseInputComponent extends React.Component<
           </TextLableWrapper>
         )}
         <TextInputWrapper
+          accentColor={this.props.accentColor}
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
           disabled={this.props.disabled}
           hasError={this.props.isInvalid}
-          primaryColor={this.props.primaryColor}
         >
           <ErrorTooltip
             isOpen={this.props.isInvalid && this.props.showError}
@@ -693,7 +693,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   minNum?: number;
   borderRadius?: string;
   boxShadow?: string;
-  primaryColor?: string;
+  accentColor?: string;
   inputRef?: MutableRefObject<
     HTMLTextAreaElement | HTMLInputElement | undefined | null
   >;

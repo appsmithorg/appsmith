@@ -41,7 +41,7 @@ const DropdownTriggerIconWrapper = styled.button`
 export const PopoverStyles = createGlobalStyle<{
   borderRadius?: string;
   portalClassName: string;
-  primaryColor?: string;
+  accentColor?: string;
 }>`
   ${(props) => `
     .${props.portalClassName} .${Classes.POPOVER} {
@@ -62,15 +62,13 @@ export const PopoverStyles = createGlobalStyle<{
     .${props.portalClassName}  .${Classes.INPUT}:focus, .${
     props.portalClassName
   }  .${Classes.INPUT}:active {
-      border: 1px solid ${props.primaryColor} !important;
-      box-shadow: 0px 0px 0px 3px ${lightenColor(
-        props.primaryColor,
-      )} !important;
+      border: 1px solid ${props.accentColor} !important;
+      box-shadow: 0px 0px 0px 3px ${lightenColor(props.accentColor)} !important;
     }
 
     .${props.portalClassName} .t--dropdown-option:hover,
     .${props.portalClassName} .t--dropdown-option.selected {
-      background-color: ${lightenColor(props.primaryColor)} !important;
+      background-color: ${lightenColor(props.accentColor)} !important;
     }
 
     .${props.portalClassName} .ads-dropdown-options-wrapper {
@@ -138,7 +136,7 @@ interface CurrencyDropdownProps {
   options: Array<DropdownOption>;
   selected?: string;
   allowCurrencyChange?: boolean;
-  primaryColor?: string;
+  accentColor?: string;
   borderRadius?: string;
   widgetId: string;
 }
@@ -180,9 +178,9 @@ export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
         showLabelOnly
       />
       <PopoverStyles
+        accentColor={props.accentColor}
         borderRadius={props.borderRadius}
         portalClassName={`country-type-filter-dropdown-${props.widgetId}`}
-        primaryColor={props.primaryColor}
       />
     </>
   );

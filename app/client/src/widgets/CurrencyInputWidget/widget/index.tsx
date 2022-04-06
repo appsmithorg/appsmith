@@ -326,6 +326,7 @@ class CurrencyInputWidget extends BaseInputWidget<
 
     return (
       <CurrencyInputComponent
+        accentColor={this.props.accentColor}
         allowCurrencyChange={this.props.allowCurrencyChange}
         autoFocus={this.props.autoFocus}
         borderRadius={this.props.borderRadius}
@@ -357,7 +358,6 @@ class CurrencyInputWidget extends BaseInputWidget<
         onStep={this.onStep}
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
-        primaryColor={this.props.primaryColor}
         renderMode={this.props.renderMode}
         showError={!!this.props.isFocused}
         tooltip={this.props.tooltip}

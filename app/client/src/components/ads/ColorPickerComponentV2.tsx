@@ -192,12 +192,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
                   {Object.keys(themeColors).map((colorKey) => (
                     <div
                       className={`${COLOR_BOX_CLASSES} ${
-                        props.color ===
-                        getThemePropertyBinding(
-                          `${colorsPropertyName}.${colorKey}`,
-                        )
-                          ? "ring-1"
-                          : ""
+                        props.color === themeColors[colorKey] ? "ring-1" : ""
                       }`}
                       key={`color-picker-v2-${colorKey}`}
                       onClick={(e) => {

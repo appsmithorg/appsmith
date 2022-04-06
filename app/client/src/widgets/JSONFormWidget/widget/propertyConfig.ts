@@ -325,7 +325,7 @@ export default [
         isBindProperty: false,
         isTriggerProperty: false,
         panelConfig,
-        dependencies: ["schema", "childStylesheets"],
+        dependencies: ["schema", "childStylesheet"],
       },
       {
         propertyName: "disabledWhenInvalid",

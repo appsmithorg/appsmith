@@ -33,7 +33,7 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
-  primaryColor: string;
+  accentColor: string;
   hasError?: boolean;
 }>`
   div {
@@ -78,9 +78,9 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
     ${(props) =>
       !props.hasError
         ? `
-        border: 1px solid ${props.primaryColor};
+        border: 1px solid ${props.accentColor};
         box-shadow: 0px 0px 0px 3px ${lightenColor(
-          props.primaryColor,
+          props.accentColor,
         )} !important;
       `
         : `border: 1px solid ${Colors.DANGER_SOLID};`}
@@ -140,7 +140,7 @@ const DropdownStyles = createGlobalStyle<{
   dropDownWidth: number;
   borderRadius: string;
   id: string;
-  primaryColor: string;
+  accentColor: string;
   fontFamily?: string;
 }>`
 ${({ dropDownWidth, id, parentWidth }) => `
@@ -210,7 +210,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
         border-radius: ${({ borderRadius }) => borderRadius} !important;
 
         &:focus {
-          border: ${({ primaryColor }) => `1px solid ${primaryColor}`};
+          border: ${({ accentColor }) => `1px solid ${accentColor}`};
           box-shadow: none;
         }
       }
@@ -230,13 +230,13 @@ ${({ dropDownWidth, id, parentWidth }) => `
       border-radius: 0px;
       color: ${Colors.GREY_8};
       &:hover{
-        background: ${({ primaryColor }) => `${lightenColor(primaryColor)}`};
+        background: ${({ accentColor }) => `${lightenColor(accentColor)}`};
       }
       &.is-focused{
-        background: ${({ primaryColor }) => `${lightenColor(primaryColor)}`};
+        background: ${({ accentColor }) => `${lightenColor(accentColor)}`};
       }
       &.${Classes.ACTIVE} {
-        background: ${({ primaryColor }) => `${lightenColor(primaryColor)}`};
+        background: ${({ accentColor }) => `${lightenColor(accentColor)}`};
         color: ${Colors.GREY_10};
         position:relative;
       }
@@ -318,12 +318,12 @@ class DropDownComponent extends React.Component<
     return (
       <DropdownContainer compactMode={compactMode}>
         <DropdownStyles
+          accentColor={this.props.accentColor}
           borderRadius={this.props.borderRadius}
           dropDownWidth={this.props.dropDownWidth}
           fontFamily={this.props.fontFamily}
           id={this.props.widgetId}
           parentWidth={this.props.width - WidgetContainerDiff}
-          primaryColor={this.props.primaryColor}
         />
         {labelText && (
           <TextLabelWrapper compactMode={compactMode}>
@@ -344,6 +344,7 @@ class DropDownComponent extends React.Component<
         )}
         <StyledControlGroup fill>
           <StyledSingleDropDown
+            accentColor={this.props.accentColor}
             activeItem={activeItem}
             backgroundColor={this.props.backgroundColor}
             borderRadius={this.props.borderRadius}
@@ -382,7 +383,6 @@ class DropDownComponent extends React.Component<
               },
               popoverClassName: `select-popover-wrapper select-popover-width-${this.props.widgetId}`,
             }}
-            primaryColor={this.props.primaryColor}
           >
             <Button
               disabled={this.props.disabled}
@@ -468,7 +468,7 @@ export interface DropDownComponentProps extends ComponentProps {
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
-  primaryColor: string;
+  accentColor: string;
   fontFamily?: string;
 }
 

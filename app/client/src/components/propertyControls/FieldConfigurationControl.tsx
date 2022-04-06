@@ -122,7 +122,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
     const { propertyValue = {}, propertyName, widgetProperties } = this.props;
     const {
-      childStylesheets,
+      childStylesheet,
       widgetName,
     } = widgetProperties as JSONFormWidgetProps;
     const schema: Schema = propertyValue;
@@ -137,7 +137,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
       isCustomField: true,
       skipDefaultValueProcessing: true,
       identifier: nextFieldKey,
-      fieldThemeStylesheets: childStylesheets,
+      fieldThemeStylesheets: childStylesheet,
     });
 
     schemaItem.position = lastSchemaItemPosition + 1;

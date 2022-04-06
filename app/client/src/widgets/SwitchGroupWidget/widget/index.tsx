@@ -170,9 +170,9 @@ class SwitchGroupWidget extends BaseWidget<
         sectionName: "Styles",
         children: [
           {
-            propertyName: "backgroundColor",
+            propertyName: "accentColor",
             helpText: "Sets the background color of the widget",
-            label: "Background color",
+            label: "Accent color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -213,8 +213,8 @@ class SwitchGroupWidget extends BaseWidget<
 
   getPageView() {
     const {
+      accentColor,
       alignment,
-      backgroundColor,
       isDisabled,
       isInline,
       isRequired,
@@ -226,8 +226,8 @@ class SwitchGroupWidget extends BaseWidget<
 
     return (
       <SwitchGroupComponent
+        accentColor={accentColor}
         alignment={alignment}
-        backgroundColor={backgroundColor}
         disabled={isDisabled}
         inline={isInline}
         onChange={this.handleSwitchStateChange}
@@ -276,7 +276,7 @@ export interface SwitchGroupWidgetProps extends WidgetProps {
   isDisabled?: boolean;
   alignment: Alignment;
   onSelectionChange?: boolean;
-  backgroundColor: string;
+  accentColor: string;
 }
 
 export default SwitchGroupWidget;

@@ -77,7 +77,7 @@ const rcSelectDropdownSlideUpOut = keyframes`
 export const DropdownStyles = createGlobalStyle<{
   dropDownWidth: number;
   id: string;
-  primaryColor: string;
+  accentColor: string;
   borderRadius: string;
 }>`
 ${({ dropDownWidth, id }) => `
@@ -258,9 +258,9 @@ ${({ dropDownWidth, id }) => `
     }
   }
   .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
-    background: ${({ primaryColor }) => primaryColor} !important;
+    background: ${({ accentColor }) => accentColor} !important;
     color: rgb(255, 255, 255);
-    border-color: ${({ primaryColor }) => primaryColor} !important;
+    border-color: ${({ accentColor }) => accentColor} !important;
     box-shadow: none;
     outline: none !important;
   }
@@ -274,9 +274,9 @@ ${({ dropDownWidth, id }) => `
     border-radius: ${({ borderRadius }) =>
       borderRadius === "1.5rem" ? `0.375rem` : borderRadius};
     &:focus {
-      border: 1px solid  ${(props) => props.primaryColor};
+      border: 1px solid  ${(props) => props.accentColor};
         box-shadow: 0px 0px 0px 3px ${(props) =>
-          lightenColor(props.primaryColor)};
+          lightenColor(props.accentColor)};
     }
   }
 
@@ -411,7 +411,7 @@ ${({ dropDownWidth, id }) => `
     left: 50%;
     width: 8px;
     height: 8px;
-    background-color: ${({ primaryColor }) => primaryColor} !important;
+    background-color: ${({ accentColor }) => accentColor} !important;
     border: 0;
     transform: translate(-50%,-50%) scale(1);
     opacity: 1;
@@ -447,11 +447,11 @@ ${({ dropDownWidth, id }) => `
 
 
 .rc-tree-select-tree-checkbox-wrapper:hover .rc-tree-select-tree-checkbox-inner, .rc-tree-select-tree-checkbox:hover .rc-tree-select-tree-checkbox-inner, .rc-tree-select-tree-checkbox-input:focus+.rc-tree-select-tree-checkbox-inner {
- border-color: ${({ primaryColor }) => primaryColor} !important;
+ border-color: ${({ accentColor }) => accentColor} !important;
 }
 .rc-tree-select-tree-checkbox-checked .rc-tree-select-tree-checkbox-inner {
-  border-color: ${({ primaryColor }) => primaryColor} !important;
-  background: ${({ primaryColor }) => primaryColor} !important;
+  border-color: ${({ accentColor }) => accentColor} !important;
+  background: ${({ accentColor }) => accentColor} !important;
 }
 
 .rc-tree-select-tree-checkbox-inner {
@@ -472,8 +472,8 @@ ${({ dropDownWidth, id }) => `
 	.rc-tree-select-tree-treenode
 	span.rc-tree.select-tree-checkbox-checked {
     .rc-tree-select-tree-checkbox-inner {
-      border-color: ${({ primaryColor }) => primaryColor} !important;
-      background: ${({ primaryColor }) => primaryColor} !important;
+      border-color: ${({ accentColor }) => accentColor} !important;
+      background: ${({ accentColor }) => accentColor} !important;
     }
   }
   .single-tree-select-dropdown
@@ -573,10 +573,10 @@ ${({ dropDownWidth, id }) => `
 .rc-tree-select-tree-treenode-active,
 .rc-tree-select-tree-treenode-selected
 {
-	background: ${({ primaryColor }) => lightenColor(primaryColor)};
+	background: ${({ accentColor }) => lightenColor(accentColor)};
 }
 .rc-tree-select-tree-treenode:hover {
-	background: ${({ primaryColor }) => lightenColor(primaryColor)};
+	background: ${({ accentColor }) => lightenColor(accentColor)};
 }
 .rc-tree-select-tree-node-selected {
 	background-color: none;
@@ -590,9 +590,9 @@ ${({ dropDownWidth, id }) => `
   .rc-tree-select-tree-icon__customize {
     border: none !important;
     background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='2' y='2' width='10' height='10' rx='5' stroke='${({
-      primaryColor,
+      accentColor,
     }) =>
-      primaryColor?.replace(
+      accentColor?.replace(
         "#",
         "%23",
       )}' stroke-width='4'/%3E%3C/svg%3E%0A") !important;
@@ -643,7 +643,7 @@ export const TreeSelectContainer = styled.div<{
   isValid: boolean;
   borderRadius: string;
   boxShadow?: string;
-  primaryColor: string;
+  accentColor: string;
 }>`
   display: flex;
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
@@ -918,9 +918,9 @@ export const TreeSelectContainer = styled.div<{
       ${(props) =>
         props.isValid
           ? `
-          border: 1px solid ${props.primaryColor};
+          border: 1px solid ${props.accentColor};
           box-shadow: 0px 0px 0px 3px ${lightenColor(
-            props.isValid ? props.primaryColor : Colors.DANGER_SOLID,
+            props.isValid ? props.accentColor : Colors.DANGER_SOLID,
           )};`
           : `border: 1px solid ${Colors.DANGER_SOLID};`}
     }
@@ -973,8 +973,8 @@ export const TreeSelectContainer = styled.div<{
       ${(props) =>
         props.isValid
           ? `
-          border: 1px solid ${props.primaryColor};
-          box-shadow: 0px 0px 0px 2px ${props.primaryColor};`
+          border: 1px solid ${props.accentColor};
+          box-shadow: 0px 0px 0px 2px ${props.accentColor};`
           : `border: 1px solid ${Colors.DANGER_SOLID};`}
     }
   }

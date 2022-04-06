@@ -10,7 +10,7 @@ import { createBlobUrl } from "utils/AppsmithUtils";
 import { FileDataTypes } from "widgets/constants";
 
 export interface AudioRecorderWidgetProps extends WidgetProps {
-  backgroundColor: string;
+  accentColor: string;
   borderRadius: string;
   boxShadow?: string;
   iconColor: string;
@@ -94,7 +94,7 @@ class AudioRecorderWidget extends BaseWidget<
         sectionName: "Styles",
         children: [
           {
-            propertyName: "backgroundColor",
+            propertyName: "accentColor",
             helpText: "Changes the color of the recorder button",
             label: "Button Color",
             controlType: "COLOR_PICKER",
@@ -213,7 +213,7 @@ class AudioRecorderWidget extends BaseWidget<
 
     return (
       <AudioRecorderComponent
-        backgroundColor={this.props.backgroundColor}
+        accentColor={this.props.accentColor}
         blobUrl={blobURL}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}

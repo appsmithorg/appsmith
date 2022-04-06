@@ -302,7 +302,7 @@ const StyledPagination = styled(Pagination)<{
   disabled?: boolean;
   borderRadius: string;
   boxShadow?: string;
-  primaryColor: string;
+  accentColor: string;
 }>`
   ${paginatorCss}
   pointer-events: ${(props) => (props.disabled ? "none" : "all")};
@@ -311,7 +311,7 @@ const StyledPagination = styled(Pagination)<{
   .rc-pagination-item {
     border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
-    color:  ${({ primaryColor }) => primaryColor} !important;
+    color:  ${({ accentColor }) => accentColor} !important;
     border-color:  transparent !important;
 
   }
@@ -320,18 +320,18 @@ const StyledPagination = styled(Pagination)<{
     border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
     border-color:  transparent !important;
-    color:  ${({ primaryColor }) => primaryColor} !important;
+    color:  ${({ accentColor }) => accentColor} !important;
   }
 
   .rc-pagination-item:hover {
-    background-color: ${({ primaryColor }) => primaryColor} !important;
+    background-color: ${({ accentColor }) => accentColor} !important;
     a {
       color: white;
     }
   }
 
   .rc-pagination-item-active {
-    background-color: ${({ primaryColor }) => primaryColor} !important;
+    background-color: ${({ accentColor }) => accentColor} !important;
     a {
       color: white;
     }
@@ -349,12 +349,13 @@ interface ListPaginationProps {
   onChange: (page: number) => void;
   borderRadius: string;
   boxShadow?: string;
-  primaryColor: string;
+  accentColor: string;
 }
 
 function ListPagination(props: ListPaginationProps) {
   return (
     <StyledPagination
+      accentColor={props.accentColor}
       borderRadius={props.borderRadius}
       boxShadow={props.boxShadow}
       current={props.current}
@@ -362,7 +363,6 @@ function ListPagination(props: ListPaginationProps) {
       locale={locale}
       onChange={props.onChange}
       pageSize={props.perPage}
-      primaryColor={props.primaryColor}
       total={props.total}
     />
   );

@@ -11,7 +11,7 @@ type StyledCheckboxProps = {
   indeterminate?: boolean;
   rowSpace: number;
   borderRadius?: string;
-  backgroundColor?: string;
+  accentColor?: string;
 };
 
 type StyledCheckboxContainerProps = {
@@ -54,10 +54,10 @@ export const StyledCheckbox = styled(Checkbox)<StyledCheckboxProps>`
     box-shadow: none !important;
     outline: none !important;
     background: transparent;
-    ${({ backgroundColor, checked, indeterminate }) =>
+    ${({ accentColor, checked, indeterminate }) =>
       checked || indeterminate
         ? `
-        background-color: ${backgroundColor} !important;
+        background-color: ${accentColor} !important;
         background-image: none;
         border: none !important;
         `
@@ -114,10 +114,8 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
         noContainerPadding={this.props.noContainerPadding}
       >
         <StyledCheckbox
+          accentColor={this.props.accentColor || DEFAULT_BACKGROUND_COLOR}
           alignIndicator={checkboxAlignClass}
-          backgroundColor={
-            this.props.backgroundColor || DEFAULT_BACKGROUND_COLOR
-          }
           borderRadius={this.props.borderRadius || DEFAULT_BORDER_RADIUS}
           checked={this.props.isChecked}
           className={
@@ -149,7 +147,7 @@ export interface CheckboxComponentProps extends ComponentProps {
   onCheckChange: (isChecked: boolean) => void;
   rowSpace: number;
   inputRef?: (el: HTMLInputElement | null) => any;
-  backgroundColor: string;
+  accentColor: string;
   borderRadius: string;
 }
 

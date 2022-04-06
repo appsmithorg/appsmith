@@ -864,13 +864,13 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
             />
           ) : (
             <ListPagination
+              accentColor={this.props.accentColor}
               borderRadius={this.props.borderRadius}
               boxShadow={this.props.boxShadow}
               current={this.state.page}
               disabled={false && this.props.renderMode === RenderModes.CANVAS}
               onChange={(page: number) => this.setState({ page })}
               perPage={perPage}
-              primaryColor={this.props.primaryColor}
               total={(this.props.listData || []).length}
             />
           ))}
@@ -895,7 +895,7 @@ export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
-  primaryColor: string;
+  accentColor: string;
 }
 
 export default ListWidget;

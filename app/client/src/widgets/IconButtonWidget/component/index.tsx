@@ -50,9 +50,9 @@ const IconButtonContainer = styled.div<IconButtonContainerProps>`
     bottom: 0;
     position: absolute;
   }
-  
+
   `}
-  
+
   ${({ buttonColor, buttonVariant, hasOnClickAction, renderMode, theme }) => `
 
   ${
@@ -69,7 +69,7 @@ const IconButtonContainer = styled.div<IconButtonContainerProps>`
       } !important;
     }`
       : ""
-  }  
+  }
 `}
 
   ${({ disabled }) => disabled && "cursor: not-allowed;"}
@@ -100,6 +100,8 @@ export const StyledButton = styled((props) => (
   background-image: none !important;
   height: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
   width: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
+  min-height: 32px !important;
+  min-width: 32px !important;
   ${({ buttonColor, buttonVariant, hasOnClickAction, theme }) => `
     &:enabled {
       background: ${

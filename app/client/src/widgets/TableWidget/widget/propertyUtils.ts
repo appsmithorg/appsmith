@@ -333,11 +333,11 @@ function updateThemeStylesheetsInColumns(
     const newColumnType = propertyValue;
 
     const propertiesToRemove = Object.keys(
-      props.childStylesheets[oldColumnType] || {},
+      props.childStylesheet[oldColumnType] || {},
     );
 
     const propertiesToAdd = Object.keys(
-      props.childStylesheets[newColumnType] || {},
+      props.childStylesheet[newColumnType] || {},
     );
 
     propertiesToRemove.forEach((propertyKey) => {
@@ -354,7 +354,7 @@ function updateThemeStylesheetsInColumns(
 
     propertiesToAdd.forEach((propertyKey) => {
       const { jsSnippets, stringSegments } = getDynamicBindings(
-        props.childStylesheets[newColumnType][propertyKey],
+        props.childStylesheet[newColumnType][propertyKey],
       );
 
       const js = combineDynamicBindings(jsSnippets, stringSegments);
