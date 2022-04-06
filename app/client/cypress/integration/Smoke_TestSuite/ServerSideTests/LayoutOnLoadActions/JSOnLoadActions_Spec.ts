@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let guid: any;
+let guid: any, jsName : any;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
@@ -36,11 +36,13 @@ describe("JSObjects OnLoad Actions tests", function() {
       dataSources.NavigateToActiveDSQueryPane(guid);
       agHelper.GetNClick(dataSources._templateMenu);
       agHelper.RenameWithInPane("GetUser");
-      agHelper.EnterValue(
-        "SELECT * FROM public.users where id = {{JSObject1.getId.data}}",
-      );
+      cy.get("@jsObjName").then((jsObjName) => {
+        jsName = jsObjName;
+        agHelper.EnterValue(
+          "SELECT * FROM public.users where id = {{" + jsObjName + ".getId.data}}",
+        );;
+      })
     });
-
     ee.expandCollapseEntity("WIDGETS");
     ee.SelectEntityByName("Table1");
     jsEditor.EnterJSContext("tabledata", "{{GetUser.data}}");

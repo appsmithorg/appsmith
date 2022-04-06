@@ -425,6 +425,7 @@ export class AggregateHelper {
         else {
             locator.uncheck({ force: true }).should("not.be.checked");
         }
+        this.Sleep()
     }
 
 
