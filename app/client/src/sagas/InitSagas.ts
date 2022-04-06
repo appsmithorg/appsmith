@@ -80,12 +80,7 @@ import {
 } from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { isURLDeprecated, getUpdatedRoute } from "utils/helpers";
-import {
-  sanitizeSlug,
-  fillPathname,
-  viewerURL,
-  builderURL,
-} from "RouteBuilder";
+import { fillPathname, viewerURL, builderURL } from "RouteBuilder";
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
 
@@ -141,9 +136,7 @@ function* initiateURLUpdate(
       getCurrentApplication,
     );
 
-    const applicationSlug = sanitizeSlug(
-      currentApplication.slug || PLACEHOLDER_APP_SLUG,
-    );
+    const applicationSlug = currentApplication.slug || PLACEHOLDER_APP_SLUG;
     const currentPage: Page = yield select(getPageById(pageId));
     const pageSlug = currentPage?.slug || PLACEHOLDER_PAGE_SLUG;
     let originalUrl = "";
