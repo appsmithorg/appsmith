@@ -4,24 +4,19 @@ import React, {
   useEffect,
   useRef,
   useState,
-  createRef,
+  useCallback,
 } from "react";
 import styled, { css } from "styled-components";
 import { Button, MaybeElement } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 
 import { ComponentProps } from "widgets/BaseComponent";
-import {
-  TabsWidgetProps,
-  TabContainerWidgetProps,
-  SCROLL_NAV_CONTROL_CONTAINER_WIDTH,
-} from "../constants";
+import { TabsWidgetProps, TabContainerWidgetProps } from "../constants";
+import Icon, { IconSize } from "components/ads/Icon";
 import { generateClassName, getCanvasClassName } from "utils/generators";
-import ScrollIndicator from "components/ads/ScrollIndicator";
-import { ReactComponent as ScrollNavLeftIcon } from "assets/icons/widget/tabs/scroll-nav-left.svg";
-import { ReactComponent as ScrollNavRightIcon } from "assets/icons/widget/tabs/scroll-nav-right.svg";
 import { Colors } from "constants/Colors";
-import { lightenColor } from "widgets/WidgetUtils";
+import PageTabs from "./PageTabs";
+import useThrottledRAF from "utils/hooks/useThrottledRAF";
 
 interface TabsComponentProps extends ComponentProps {
   children?: ReactNode;
@@ -143,58 +138,75 @@ type TabProps = {
   primaryColor: string;
 };
 
-const StyledTab = styled.div`
-  height: ${TAB_CONTAINER_HEIGHT};
-  border-color: ${(props) => props.theme.colors.bodyBG};
+const Container = styled.div`
   width: 100%;
-  position: absolute;
+  align-items: center;
+  height: 44px;
+
+  & {
+    svg path,
+    svg:hover path {
+      fill: ${Colors.BLACK};
+      stroke: ${(props) => props.theme.colors.header.tabText};
+    }
+  }
+  border-bottom: 1px solid
+    ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
 `;
 
-const StyledText = styled.div<TabProps>`
-  white-space: nowrap;
-  background: ${Colors.WHITE};
-  color: ${(props) => props.theme.colors.menuIconColorInactive};
-  font-size: ${(props) => props.theme.fontSizes[3]}px;
-  line-height: 32px;
-  height: 32px;
-  padding: 0 16px;
-  border-bottom: ${(props) =>
-    props.selected
-      ? `3px solid ${props.primaryColor}`
-      : `0px solid ${props.theme.colors.bodyBG}`};
+const ScrollBtnContainer = styled.div<{ visible: boolean }>`
   cursor: pointer;
-  position: relative;
-  z-index: 1;
-  &:first-child {
-    margin-left: 10px;
-  }
-  &:hover {
-    background: ${(props) =>
-      props.selected ? Colors.WHITE : lightenColor(props.primaryColor)};
-
-    border-bottom: ${(props) =>
-      props.selected
-        ? `3px solid ${props.primaryColor}`
-        : `0px solid ${lightenColor(props.primaryColor)}`};
-  }
-`;
-
-const ScrollNavControlLeftContainer = styled.div`
-  ${scrollNavControlContainerBaseStyle}
-  left: 0;
-`;
-
-const ScrollNavControlRightContainer = styled.div`
-  ${scrollNavControlContainerBaseStyle}
-  right: 0;
-`;
-
-const TabsScrollWrapper = styled.div`
-  position: relative;
   display: flex;
-  width: 100%;
-  height: ${TAB_CONTAINER_HEIGHT};
-  background: ${(props) => props.theme.colors.builderBodyBG};
+  position: absolute;
+  height: 100%;
+  padding: 0 10px;
+
+  & > span {
+    background: white;
+    position: relative;
+    z-index: 1;
+  }
+
+  ${(props) =>
+    props.visible
+      ? `
+      visibility: visible;
+      opacity: 1;
+      z-index: 1;
+      transition: visibility 0s linear 0s, opacity 300ms;
+    `
+      : `
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s linear 300ms, opacity 300ms;
+    `}
+
+  &::after, &::before {
+    content: "";
+    display: block;
+    height: 100%;
+    width: 50px;
+    position: absolute;
+    right: 0;
+  }
+
+  &::before {
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(255, 255, 255, 0.5) 50%,
+      rgba(255, 255, 255, 1) 100%
+    );
+  }
+
+  &::after {
+    background: linear-gradient(
+      270deg,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(255, 255, 255, 0.5) 50%,
+      rgba(255, 255, 255, 1) 100%
+    );
+  }
 `;
 
 export interface ScrollNavControlProps {
@@ -223,78 +235,66 @@ function TabsComponent(props: TabsComponentProps) {
   const tabContainerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
     null,
   );
-  const tabsRef = useRef<HTMLDivElement>(null);
+  const tabsRef = useRef<HTMLElement | null>(null);
+  const [isScrolling, setIsScrolling] = useState(false);
+  const [tabsScrollable, setTabsScrollable] = useState(false);
+  const [isScrollingLeft, setIsScrollingLeft] = useState(false);
+  const [shouldShowLeftArrow, setShouldShowLeftArrow] = useState(false);
+  const [shouldShowRightArrow, setShouldShowRightArrow] = useState(true);
 
-  const [isScrollable, setIsScrollable] = useState(false);
-  const [isMaxScrolled, setIsMaxScrolled] = useState(false);
-  const [tabRefs, setTabRefs] = useState<RefObject<HTMLDivElement>[]>([]);
-  const [tabScrollIndex, setTabScrollIndex] = useState(0);
-  const [offsetLeft, setOffsetLeft] = useState(0);
-
-  useEffect(() => {
-    if (!props.shouldScrollContents) {
-      tabContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  }, [props.shouldScrollContents]);
-
-  useEffect(() => {
-    setTabRefs(tabs.map(() => createRef()));
-  }, [tabs]);
-
-  useEffect(() => {
+  const setShowScrollArrows = useCallback(() => {
     if (tabsRef.current) {
-      // Check if the current tabs container has scroll
-      const scrollWidth = tabsRef.current.scrollWidth;
-      const clientWidth = tabsRef.current.clientWidth;
-
-      if (scrollWidth > clientWidth) {
-        setIsScrollable(true);
-      } else {
-        setIsScrollable(false);
-      }
+      const { offsetWidth, scrollLeft, scrollWidth } = tabsRef.current;
+      setShouldShowLeftArrow(scrollLeft > 0);
+      setShouldShowRightArrow(scrollLeft + offsetWidth < scrollWidth);
     }
-  }, [tabs, width]);
+  }, [tabsRef.current]);
 
-  useEffect(() => {
-    // Decide right scroll nav visibility
-    const tabsWidth = tabRefs.slice(tabScrollIndex).reduce((total, tabRef) => {
-      const tabWidth = tabRef.current?.scrollWidth || 0;
-      return (total += tabWidth);
-    }, 0);
-    const visibleElementsWidth =
-      tabsWidth +
-      (tabScrollIndex === 0 ? 0 : SCROLL_NAV_CONTROL_CONTAINER_WIDTH);
-
-    if (visibleElementsWidth <= width) {
-      setIsMaxScrolled(true);
-    } else {
-      setIsMaxScrolled(false);
+  const measuredTabsRef = useCallback((node) => {
+    tabsRef.current = node;
+    if (node !== null) {
+      const { offsetWidth, scrollWidth } = node;
+      setTabsScrollable(scrollWidth > offsetWidth);
+      setShowScrollArrows();
     }
-  }, [tabRefs, tabScrollIndex, width]);
+  }, []);
 
-  useEffect(() => {
+  const scroll = useCallback(() => {
+    const currentOffset = tabsRef.current?.scrollLeft || 0;
+
     if (tabsRef.current) {
-      tabsRef.current.style.left = `${offsetLeft}px`;
+      tabsRef.current.scrollLeft = isScrollingLeft
+        ? currentOffset - 5
+        : currentOffset + 5;
+      setShowScrollArrows();
     }
-  }, [offsetLeft]);
+  }, [tabsRef.current, isScrollingLeft]);
+  // eslint-disable-next-line
+  const [_intervalRef, _rafRef, requestAF] = useThrottledRAF(scroll, 10);
 
-  const handleScrollLeft = () => {
-    const scrollSize = tabRefs[tabScrollIndex - 1].current?.scrollWidth || 0;
-
-    setOffsetLeft((prev) => (tabScrollIndex === 1 ? 0 : prev + scrollSize));
-    setTabScrollIndex((prev) => prev - 1);
+  const stopScrolling = () => {
+    setIsScrolling(false);
+    setIsScrollingLeft(false);
   };
 
-  const handleScrollRight = () => {
-    const scrollSize = tabRefs[tabScrollIndex].current?.scrollWidth || 0;
-
-    setOffsetLeft((prev) =>
-      tabScrollIndex === 0
-        ? prev - scrollSize + SCROLL_NAV_CONTROL_CONTAINER_WIDTH
-        : prev - scrollSize,
-    );
-    setTabScrollIndex((prev) => prev + 1);
+  const startScrolling = (isLeft: boolean) => {
+    setIsScrolling(true);
+    setIsScrollingLeft(isLeft);
   };
+
+  useEffect(() => {
+    let clear;
+    if (isScrolling) {
+      clear = requestAF();
+    }
+    return clear;
+  }, [isScrolling, isScrollingLeft]);
+
+  // useEffect(() => {
+  //   if (!props.shouldScrollContents) {
+  //     tabContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  //   }
+  // }, [props.shouldScrollContents]);
 
   return (
     <TabsContainerWrapper
@@ -302,49 +302,40 @@ function TabsComponent(props: TabsComponentProps) {
       boxShadow={props.boxShadow}
       ref={tabContainerRef}
     >
-      {props.shouldShowTabs ? (
-        <TabsScrollWrapper>
-          {!!tabScrollIndex && (
-            <ScrollNavControlLeftContainer>
-              <ScrollNavControl
-                className="scroll-nav-left-button"
-                icon={<ScrollNavLeftIcon />}
-                onClick={handleScrollLeft}
-              />
-            </ScrollNavControlLeftContainer>
-          )}
-          <TabsContainer isScrollable={isScrollable} ref={tabsRef}>
-            {props.tabs.map((tab, index) => (
-              <StyledText
-                className={`t--tab-${tab.label}`}
-                key={index}
-                onClick={(event: React.MouseEvent<HTMLDivElement>) => {
-                  onTabChange(tab.widgetId);
-                  event.stopPropagation();
-                }}
-                primaryColor={props.primaryColor}
-                ref={tabRefs[index]}
-                selected={props.selectedTabWidgetId === tab.widgetId}
-              >
-                {tab.label}
-              </StyledText>
-            ))}
-            <StyledTab />
-            <ScrollIndicator containerRef={tabContainerRef} mode="LIGHT" />
-          </TabsContainer>
-          {!isMaxScrolled && (
-            <ScrollNavControlRightContainer>
-              <ScrollNavControl
-                className="scroll-nav-right-button"
-                icon={<ScrollNavRightIcon />}
-                onClick={handleScrollRight}
-              />
-            </ScrollNavControlRightContainer>
-          )}
-        </TabsScrollWrapper>
-      ) : (
-        undefined
-      )}
+      {tabs.length > 1 ? (
+        <Container className="relative hidden px-6 h-9 md:flex">
+          <ScrollBtnContainer
+            className="left-0"
+            onMouseDown={() => startScrolling(true)}
+            onMouseLeave={stopScrolling}
+            onMouseUp={stopScrolling}
+            onTouchEnd={stopScrolling}
+            onTouchStart={() => startScrolling(true)}
+            visible={shouldShowLeftArrow}
+          >
+            <Icon name="left-arrow-2" size={IconSize.MEDIUM} />
+          </ScrollBtnContainer>
+          <PageTabs
+            measuredTabsRef={measuredTabsRef}
+            selectedTabWidgetId={props.selectedTabWidgetId}
+            setShowScrollArrows={setShowScrollArrows}
+            tabChange={onTabChange}
+            tabs={tabs}
+            tabsScrollable={tabsScrollable}
+          />
+          <ScrollBtnContainer
+            className="right-0"
+            onMouseDown={() => startScrolling(false)}
+            onMouseLeave={stopScrolling}
+            onMouseUp={stopScrolling}
+            onTouchEnd={stopScrolling}
+            onTouchStart={() => startScrolling(false)}
+            visible={shouldShowRightArrow}
+          >
+            <Icon name="right-arrow-2" size={IconSize.MEDIUM} />
+          </ScrollBtnContainer>
+        </Container>
+      ) : null}
       <ChildrenWrapper shouldShowTabs={props.shouldShowTabs}>
         <ScrollableCanvasWrapper
           {...remainingProps}

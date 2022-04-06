@@ -18,6 +18,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DropdownOption } from "widgets/SelectWidget/constants";
 import { isPrimitive } from "../helper";
 import { isNil } from "lodash";
+import { Colors } from "constants/Colors";
 
 type MetaProps = {
   filterText?: string;
@@ -27,13 +28,19 @@ type DefaultValue = string | number | DropdownOption | null | undefined;
 
 type SelectComponentProps = FieldComponentBaseProps &
   MetaProps & {
-    placeholderText?: string;
-    options: DropdownOption[];
-    onOptionChange?: string;
-    serverSideFiltering: boolean;
-    onFilterUpdate?: string;
+    borderRadius?: string;
+    boxShadow?: string;
     isFilterable: boolean;
+    onFilterUpdate?: string;
+    onOptionChange?: string;
+    options: DropdownOption[];
+    placeholderText?: string;
+    accentColor?: string;
+    serverSideFiltering: boolean;
   };
+
+const DEFAULT_PRIMARY_COLOR = Colors.GREEN;
+const DEFAULT_BORDER_RADIUS = "0";
 
 const COMPONENT_DEFAULT_VALUES: SelectComponentProps = {
   isDisabled: false,
@@ -152,7 +159,8 @@ function SelectField({
     () => (
       <StyledSelectWrapper ref={wrapperRef}>
         <SelectComponent
-          borderRadius="0px"
+          borderRadius={schemaItem.borderRadius || DEFAULT_BORDER_RADIUS}
+          boxShadow={schemaItem.boxShadow}
           compactMode={false}
           disabled={schemaItem.isDisabled}
           dropDownWidth={dropdownWidth || 100}
@@ -166,6 +174,7 @@ function SelectField({
           onOptionSelected={onOptionSelected}
           options={options}
           placeholder={schemaItem.placeholderText}
+          primaryColor={schemaItem.accentColor || DEFAULT_PRIMARY_COLOR}
           selectedIndex={selectedIndex}
           serverSideFiltering={schemaItem.serverSideFiltering}
           value={options[selectedOptionIndex]?.value}
@@ -179,6 +188,9 @@ function SelectField({
       selectedOptionIndex,
       schemaItem.serverSideFiltering,
       schemaItem.placeholderText,
+      schemaItem.accentColor,
+      schemaItem.boxShadow,
+      schemaItem.borderRadius,
       options,
       onFilterChange,
       schemaItem.isFilterable,

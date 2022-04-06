@@ -57,6 +57,12 @@ module.exports = (on, config) => {
       return launchOptions;
     }
 
+    if (browser.name === "electron") {
+      // && browser.isHeadless) {
+      launchOptions.preferences.fullscreen = true;
+      launchOptions.preferences.darkTheme = true;
+    }
+
     return launchOptions;
   });
 

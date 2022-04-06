@@ -3,6 +3,10 @@ import { ColumnProperties } from "../component/Constants";
 import { TableWidgetProps } from "../constants";
 import { Colors } from "constants/Colors";
 import { get, has } from "lodash";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
 
 export enum ColumnTypes {
   TEXT = "text",
@@ -295,12 +299,78 @@ export const updateDerivedColumnsHook = (
             },
           ];
         }
+
+        updateThemeStylesheetsInColumns(
+          props,
+          propertyValue,
+          columnId,
+          columnProperty,
+          propertiesToUpdate,
+        );
       }
     }
     if (propertiesToUpdate.length > 0) return propertiesToUpdate;
   }
   return;
 };
+
+/**
+ * updates theme stylesheets
+ *
+ * @param props
+ * @param propertyPath
+ * @param propertyValue
+ */
+function updateThemeStylesheetsInColumns(
+  props: TableWidgetProps,
+  propertyValue: any,
+  columnId: string,
+  columnProperty: string,
+  propertiesToUpdate: Array<{ propertyPath: string; propertyValue: any }>,
+) {
+  if (columnProperty === "columnType") {
+    const oldColumnType = props.columnType;
+    const newColumnType = propertyValue;
+
+    const propertiesToRemove = Object.keys(
+      props.childStylesheets[oldColumnType] || {},
+    );
+
+    const propertiesToAdd = Object.keys(
+      props.childStylesheets[newColumnType] || {},
+    );
+
+    propertiesToRemove.forEach((propertyKey) => {
+      propertiesToUpdate.push({
+        propertyPath: `derivedColumns.${columnId}.${propertyKey}`,
+        propertyValue: undefined,
+      });
+
+      propertiesToUpdate.push({
+        propertyPath: `primaryColumns.${columnId}.${propertyKey}`,
+        propertyValue: undefined,
+      });
+    });
+
+    propertiesToAdd.forEach((propertyKey) => {
+      const { jsSnippets, stringSegments } = getDynamicBindings(
+        props.childStylesheets[newColumnType][propertyKey],
+      );
+
+      const js = combineDynamicBindings(jsSnippets, stringSegments);
+
+      propertiesToUpdate.push({
+        propertyPath: `derivedColumns.${columnId}.${propertyKey}`,
+        propertyValue: `{{${props.widgetName}.sanitizedTableData.map((currentRow) => ( ${js}))}}`,
+      });
+
+      propertiesToUpdate.push({
+        propertyPath: `primaryColumns.${columnId}.${propertyKey}`,
+        propertyValue: `{{${props.widgetName}.sanitizedTableData.map((currentRow) => ( ${js}))}}`,
+      });
+    });
+  }
+}
 // Gets the base property path excluding the current property.
 // For example, for  `primaryColumns[5].computedValue` it will return
 // `primaryColumns[5]`

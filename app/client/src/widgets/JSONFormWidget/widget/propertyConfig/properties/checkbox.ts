@@ -1,7 +1,7 @@
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { FieldType } from "widgets/JSONFormWidget/constants";
-import { HiddenFnParams, getSchemaItem } from "../helper";
+import { HiddenFnParams, getSchemaItem, getStylesheetValue } from "../helper";
 
 type ExtendedControlConfig = PropertyPaneControlConfig & {
   options?: {
@@ -57,6 +57,22 @@ const PROPERTIES: Record<string, ExtendedControlConfig[]> = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.CHECKBOX),
+      dependencies: ["schema"],
+    },
+  ],
+  styles: [
+    {
+      propertyName: "accentColor",
+      helpText: "Sets the accent color of the checkbox",
+      label: "Accent Color",
+      controlType: "COLOR_PICKER",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: { type: ValidationTypes.TEXT },
+      getStylesheetValue,
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.CHECKBOX),
       dependencies: ["schema"],

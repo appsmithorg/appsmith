@@ -13,7 +13,9 @@ type DropdownTriggerIconWrapperProp = {
   disabled?: boolean;
 };
 
-const DropdownTriggerIconWrapper = styled.div<DropdownTriggerIconWrapperProp>`
+const DropdownTriggerIconWrapper = styled.button<
+  DropdownTriggerIconWrapperProp
+>`
   height: 100%;
   display: flex;
   align-items: center;
@@ -27,6 +29,14 @@ const DropdownTriggerIconWrapper = styled.div<DropdownTriggerIconWrapperProp>`
   z-index: 2;
   pointer-events: ${(props) => !props.allowDialCodeChange && "none"};
   ${(props) => (props.disabled ? `background-color: ${Colors.GREY_1};` : "")};
+  border-right: 1px solid ${Colors.GREY_3};
+  gap: 0.25rem;
+  padding: 0 0.75rem;
+  margin-right: 0.625rem;
+
+  &:focus {
+    background-color: ${Colors.GREY_1};
+  }
 
   .dropdown {
     svg {
@@ -153,10 +163,11 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
   const dropdownTrigger = (
     <DropdownTriggerIconWrapper
       allowDialCodeChange={props.allowDialCodeChange}
-      className={`gap-2 px-3 t--input-country-code-change bg-white focus:bg-gray-50 ${
+      className={`t--input-country-code-change isd-change-dropdown-trigger ${
         !props.allowDialCodeChange ? "country-type-trigger" : ""
       }`}
       disabled={props.disabled}
+      tabIndex={0}
     >
       <FlagWrapper>
         {selectedCountry.value && countryToFlag(selectedCountry.value)}

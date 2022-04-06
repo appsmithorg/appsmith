@@ -236,40 +236,38 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             defaultValue: "PARAGRAPH",
             options: [
               {
-                label: "sm",
-                value: "0.875rem",
-                subText: "0.875rem",
+                label: "Heading 1",
+                value: "HEADING1",
+                subText: "24px",
+                icon: "HEADING_ONE",
               },
               {
-                label: "base",
-                value: "1rem",
-                subText: "1rem",
+                label: "Heading 2",
+                value: "HEADING2",
+                subText: "18px",
+                icon: "HEADING_TWO",
               },
               {
-                label: "lg",
-                value: "1.25rem",
-                subText: "1.25rem",
+                label: "Heading 3",
+                value: "HEADING3",
+                subText: "16px",
+                icon: "HEADING_THREE",
               },
               {
-                label: "xl",
-                value: "1.875rem",
-                subText: "1.875rem",
+                label: "Paragraph",
+                value: "PARAGRAPH",
+                subText: "14px",
+                icon: "PARAGRAPH",
               },
               {
-                label: "2xl",
-                value: "3rem",
-                subText: "3rem",
-              },
-              {
-                label: "3xl",
-                value: "3.75rem",
-                subText: "3.75rem",
+                label: "Paragraph 2",
+                value: "PARAGRAPH2",
+                subText: "12px",
+                icon: "PARAGRAPH_TWO",
               },
             ],
-            isJSConvertible: true,
-            isBindProperty: true,
+            isBindProperty: false,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "labelStyle",
@@ -285,30 +283,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
                 value: "ITALIC",
               },
             ],
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "borderRadius",
-            label: "Border Radius",
-            helpText:
-              "Rounds the corners of the icon button's outer border edge",
-            controlType: "BORDER_RADIUS_OPTIONS",
-            isBindProperty: true,
-            isJSConvertible: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-            },
-          },
-          {
-            propertyName: "boxShadow",
-            label: "Box Shadow",
-            helpText:
-              "Enables you to cast a drop shadow from the frame of the widget",
-            controlType: "BOX_SHADOW_OPTIONS",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -494,6 +468,7 @@ export interface SelectWidgetProps extends WidgetProps {
   serverSideFiltering: boolean;
   onFilterUpdate: string;
   isDirty?: boolean;
+  filterText: string;
 }
 
 export default SelectWidget;

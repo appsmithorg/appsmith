@@ -1,6 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { FieldType } from "widgets/JSONFormWidget/constants";
-import { HiddenFnParams, getSchemaItem } from "../helper";
+import { HiddenFnParams, getSchemaItem, getStylesheetValue } from "../helper";
 
 const PROPERTIES = {
   general: [
@@ -53,6 +53,22 @@ const PROPERTIES = {
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.SWITCH),
       dependencies: ["schema", "sourceData"],
+    },
+  ],
+  styles: [
+    {
+      propertyName: "accentColor",
+      helpText: "Sets the accent color of the switch",
+      label: "Accent Color",
+      controlType: "COLOR_PICKER",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      getStylesheetValue,
+      validation: { type: ValidationTypes.TEXT },
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.SWITCH),
+      dependencies: ["schema"],
     },
   ],
 };

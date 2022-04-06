@@ -4,6 +4,8 @@ import {
   BUILDER_PATH_DEPRECATED,
   GEN_TEMPLATE_FORM_ROUTE,
   GEN_TEMPLATE_URL,
+  PLACEHOLDER_APP_SLUG,
+  PLACEHOLDER_PAGE_SLUG,
   TEMPLATES_PATH,
   VIEWER_PATH,
   VIEWER_PATH_DEPRECATED,
@@ -95,13 +97,13 @@ function baseURLBuilder(
 ): string {
   const { hash = "", params = {}, suffix } = { ...rest };
   applicationVersion =
-    applicationVersion ?? BASE_URL_BUILDER_PARAMS.applicationVersion;
+    applicationVersion || BASE_URL_BUILDER_PARAMS.applicationVersion;
   const shouldUseLegacyURLs =
     typeof applicationVersion !== "undefined" &&
     applicationVersion < ApplicationVersion.SLUG_URL;
 
   let basePath = "";
-  pageId = pageId ?? BASE_URL_BUILDER_PARAMS.pageId;
+  pageId = pageId || BASE_URL_BUILDER_PARAMS.pageId;
 
   // fallback incase pageId is not set
   if (!pageId) {
@@ -120,12 +122,15 @@ function baseURLBuilder(
   // fallback incase pageId is not set
 
   if (shouldUseLegacyURLs) {
-    applicationId = applicationId ?? BASE_URL_BUILDER_PARAMS.applicationId;
+    applicationId = applicationId || BASE_URL_BUILDER_PARAMS.applicationId;
     basePath = `/applications/${applicationId}/pages/${pageId}`;
   } else {
     applicationSlug =
-      applicationSlug ?? BASE_URL_BUILDER_PARAMS.applicationSlug;
-    pageSlug = pageSlug ?? BASE_URL_BUILDER_PARAMS.pageSlug;
+      applicationSlug ||
+      BASE_URL_BUILDER_PARAMS.applicationSlug ||
+      PLACEHOLDER_APP_SLUG;
+    pageSlug =
+      pageSlug || BASE_URL_BUILDER_PARAMS.pageSlug || PLACEHOLDER_PAGE_SLUG;
     basePath = `/${applicationSlug}/${pageSlug}-${pageId}`;
   }
   basePath += mode === APP_MODE.EDIT ? "/edit" : "";

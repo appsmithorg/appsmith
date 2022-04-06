@@ -21,6 +21,9 @@ import { Colors } from "constants/Colors";
 
 type DateComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
+    accentColor?: string;
+    borderRadius?: string;
+    boxShadow?: string;
     closeOnSelection: boolean;
     convertToISO: boolean;
     dateFormat: string;
@@ -31,6 +34,11 @@ type DateComponentProps = FieldComponentBaseProps &
     shortcuts: boolean;
     timePrecision: TimePrecision;
   };
+
+type DateFieldProps = BaseFieldComponentProps<DateComponentProps>;
+
+const DEFAULT_PRIMARY_COLOR = Colors.GREEN;
+const DEFAULT_BORDER_RADIUS = "0";
 
 const COMPONENT_DEFAULT_VALUES = {
   closeOnSelection: false,
@@ -78,8 +86,6 @@ const componentDefaultValues = ({
     dateFormat,
   };
 };
-
-type DateFieldProps = BaseFieldComponentProps<DateComponentProps>;
 
 export const isValidType = (value: string) =>
   dateFormatOptions.some(({ value: format }) =>
@@ -182,7 +188,8 @@ function DateField({
     return (
       <DateComponent
         backgroundColor="white"
-        borderRadius="0px"
+        borderRadius={schemaItem.borderRadius ?? DEFAULT_BORDER_RADIUS}
+        boxShadow={schemaItem.boxShadow ?? "none"}
         closeOnSelection={schemaItem.closeOnSelection}
         dateFormat={schemaItem.dateFormat}
         datePickerType="DATE_PICKER"
@@ -193,14 +200,17 @@ function DateField({
         maxDate={schemaItem.maxDate}
         minDate={schemaItem.minDate}
         onDateSelected={onDateSelected}
-        primaryColor={Colors.GREEN}
+        primaryColor={schemaItem.accentColor || DEFAULT_PRIMARY_COLOR}
         selectedDate={valueInISOFormat}
         shortcuts={schemaItem.shortcuts}
         timePrecision={schemaItem.timePrecision}
-        widgetId=""
+        widgetId={name}
       />
     );
   }, [
+    schemaItem.accentColor,
+    schemaItem.boxShadow,
+    schemaItem.borderRadius,
     schemaItem.closeOnSelection,
     schemaItem.dateFormat,
     schemaItem.isDisabled,
@@ -210,6 +220,7 @@ function DateField({
     schemaItem.shortcuts,
     schemaItem.timePrecision,
     inputRef,
+    name,
   ]);
 
   return (
@@ -223,6 +234,7 @@ function DateField({
       labelTextColor={schemaItem.labelTextColor}
       labelTextSize={schemaItem.labelTextSize}
       name={name}
+      tooltip={schemaItem.tooltip}
     >
       {fieldComponent}
     </Field>

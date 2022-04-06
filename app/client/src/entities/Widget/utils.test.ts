@@ -260,10 +260,16 @@ describe("getAllPathsFromPropertyConfig", () => {
           type: "TEXT",
         },
         "primaryColumns.status.borderRadius": {
-          type: "TEXT",
+          params: {
+            type: "TEXT",
+          },
+          type: "TABLE_PROPERTY",
         },
         "primaryColumns.status.boxShadow": {
-          type: "TEXT",
+          params: {
+            type: "TEXT",
+          },
+          type: "TABLE_PROPERTY",
         },
         "primaryColumns.createdAt.isCellVisible": {
           type: ValidationTypes.TABLE_PROPERTY,

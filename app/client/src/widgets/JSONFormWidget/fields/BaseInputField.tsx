@@ -35,18 +35,21 @@ import BaseInputComponent, {
 
 export type BaseInputComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
+    borderRadius?: string;
+    boxShadow?: string;
     errorMessage?: string;
     iconAlign?: Omit<Alignment, "center">;
     iconName?: IconName;
+    isSpellCheck: boolean;
     maxChars?: number;
     maxNum?: number;
     minNum?: number;
     onEnterKeyPress?: string;
     onTextChanged?: string;
     placeholderText?: string;
+    accentColor?: string;
     regex?: string;
     validation?: boolean;
-    isSpellCheck: boolean;
   };
 
 export type OnValueChangeOptions = {
@@ -325,6 +328,8 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     return (
       <BaseInputComponent
         {...conditionalProps}
+        borderRadius={schemaItem.borderRadius}
+        boxShadow={schemaItem.boxShadow}
         compactMode={false}
         disableNewLineOnPressEnterKey={Boolean(schemaItem.onEnterKeyPress)}
         disabled={schemaItem.isDisabled}
@@ -343,6 +348,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
         onKeyDown={(e) => keyDownHandler(e, onChange, isValueValid)}
         onValueChange={(value) => onTextChangeHandler(value, onChange)}
         placeholder={schemaItem.placeholderText}
+        primaryColor={schemaItem.accentColor}
         showError={isFocused}
         spellCheck={schemaItem.isSpellCheck}
         stepSize={1}

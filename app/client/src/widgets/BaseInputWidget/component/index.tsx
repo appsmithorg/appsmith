@@ -27,7 +27,6 @@ import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
-import { InputTypes } from "../constants";
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
@@ -79,16 +78,16 @@ const InputComponentWrapper = styled((props) => (
 
   .bp3-input-group {
     display: flex;
+    background-color: white;
+
     > {
+
       &:first-child:not(input) {
-        position: static;
         background: ${(props) =>
           props.disabled ? Colors.GREY_1 : Colors.WHITE};
-        color: ${(props) => (props.disabled ? Colors.GREY_7 : Colors.GREY_10)};
-        border-right: 0;
       }
       input:not(:first-child) {
-        padding-left: 0px;
+        padding-left: 0rem;
         z-index: 16;
         line-height: 16px;
       }
@@ -109,21 +108,8 @@ const InputComponentWrapper = styled((props) => (
       }
     }
     .${Classes.INPUT} {
+      padding-left: 0.5rem;
       min-height: 36px;
-      ${(props) =>
-        props.inputType === InputTypes.CURRENCY &&
-        props.allowCurrencyChange &&
-        `
-      padding-left: 45px;`};
-      ${(props) =>
-        props.inputType === InputTypes.CURRENCY &&
-        !props.allowCurrencyChange &&
-        `
-      padding-left: 35px;`};
-      ${(props) =>
-        props.inputType === InputTypes.PHONE_NUMBER &&
-        `padding-left: 85px;
-        `};
       box-shadow: none;
       border: 1px solid;
       border-radius: 0;
@@ -141,38 +127,10 @@ const InputComponentWrapper = styled((props) => (
         border-bottom-right-radius: 0px;
         ${props.hasError ? "" : "border-right-width: 0px;"}
       `}
-      ${(props) =>
-        props.inputType === "PASSWORD" &&
-        `
-        & + .bp3-input-action {
-          height: 36px;
-          width: 36px;
-          cursor: pointer;
-          padding: 1px;
-          .password-input {
-            color: ${Colors.GREY_6};
-            justify-content: center;
-            height: 100%;
-            svg {
-              width: 20px;
-              height: 20px;
-            }
-            &:hover {
-              background-color: ${Colors.GREY_2};
-              color: ${Colors.GREY_10};
-            }
-          }
-        }
-      `}
       transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
       &:active {
         border-color: ${({ hasError }) =>
           hasError ? Colors.DANGER_SOLID : Colors.HIT_GRAY};
-      }
-      input:not(:first-child) {
-        padding-left: 0px;
-        z-index: 16;
-        line-height: 16px;
       }
     }
   }
@@ -181,28 +139,19 @@ const InputComponentWrapper = styled((props) => (
   .country-type-filter .bp3-popover-open > div {
     border: 0px solid !important;
     box-shadow: none !important;
-    background-color: #fafafa;
+  }
+
+  .currency-type-filter .bp3-popover-open button
+  .country-type-filter .bp3-popover-open button {
+    border: 0px solid !important;
+    box-shadow: none !important;
+    background: ${Colors.GREY_3};
   }
 
   .${Classes.INPUT} {
-    ${(props) =>
-      props.inputType === InputTypes.CURRENCY &&
-      props.allowCurrencyChange &&
-      `
-  padding-left: 45px;`};
-    ${(props) =>
-      props.inputType === InputTypes.CURRENCY &&
-      !props.allowCurrencyChange &&
-      `
-  padding-left: 35px;`};
-    ${(props) =>
-      props.inputType === InputTypes.PHONE_NUMBER &&
-      `padding-left: 85px;
-    `};
     background: ${({ disabled }) => (disabled ? Colors.GREY_1 : Colors.WHITE)};
     border-radius: 0px;
     box-shadow: none !important;
-    height: 100%;
     width: 100%;
 
     ${(props) =>
@@ -264,6 +213,7 @@ const InputComponentWrapper = styled((props) => (
         display: flex;
         align-items: center;
         padding: 0 10px;
+        position: relative;
 
         svg {
           width: 14px;
@@ -304,23 +254,6 @@ const InputComponentWrapper = styled((props) => (
 `;
 
 const StyledNumericInput = styled(NumericInput)`
-  &&&& .bp3-input-group {
-    display: flex;
-    > {
-      &:first-child:not(input) {
-        position: static;
-        background: ${(props) =>
-          props.disabled ? Colors.GREY_1 : Colors.WHITE};
-        color: ${(props) => (props.disabled ? Colors.GREY_7 : Colors.GREY_10)};
-        border-right: 0;
-      }
-      input:not(:first-child) {
-        padding-left: 0px;
-        z-index: 16;
-        line-height: 16px;
-      }
-    }
-  }
   &&&& .bp3-button-group.bp3-vertical {
     button {
       background: ${Colors.WHITE};
@@ -346,7 +279,7 @@ const StyledNumericInput = styled(NumericInput)`
 
 const ToolTipIcon = styled(IconWrapper)`
   cursor: help;
-  margin-top: 1.5px;
+
   &&&:hover {
     svg {
       path {
@@ -361,6 +294,8 @@ const TextLableWrapper = styled.div<{
 }>`
   ${(props) => (props.compactMode ? "&&& {}" : "width: 100%;")}
   display: flex;
+  gap: 0.25rem;
+  align-items: center;
 `;
 
 const TextInputWrapper = styled.div<{

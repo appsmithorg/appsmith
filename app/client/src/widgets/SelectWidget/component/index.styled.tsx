@@ -8,7 +8,7 @@ import {
   BlueprintCSSTransform,
   createGlobalStyle,
 } from "constants/DefaultTheme";
-import { isEmptyOrNill } from ".";
+import { isEmptyOrNill } from "../../../utils/helpers";
 import { lightenColor } from "widgets/WidgetUtils";
 
 export const TextLabelWrapper = styled.div<{
@@ -108,6 +108,8 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
     border-radius: ${(props) => props.borderRadius} !important;
     box-shadow: ${(props) => props.boxShadow} !important;
     border: 1px solid;
+    transition: border-color 0.15s ease-in-out 0s,
+      box-shadow 0.15s ease-in-out 0s;
     border-color: ${(props) =>
       props.hasError ? Colors.DANGER_SOLID : Colors.GREY_3};
     ${(props) =>
@@ -270,5 +272,55 @@ export const DropdownContainer = styled.div<{ compactMode: boolean }>`
 
   label.bp3-label {
     margin: 0;
+  }
+`;
+
+export const MenuItem = styled.div<{
+  primaryColor?: string;
+}>`
+  & .menu-item-link {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    border-radius: 2px;
+    color: inherit;
+    line-height: 20px;
+    padding: 5px 7px;
+    text-decoration: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    border-radius: 0;
+
+    min-height: 38px;
+    padding: 9px 12px;
+    color: ${Colors.DOVE_GRAY2};
+    outline: none !important;
+    background-color: transparent;
+
+    &:hover {
+      background-color: ${({ primaryColor }) => lightenColor(primaryColor)};
+      color: ${Colors.GREY_10};
+      position: relative;
+    }
+  }
+
+  & .menu-item-active {
+    background-color: ${Colors.NARVIK_GREEN};
+  }
+
+  && .has-focus {
+    background-color: ${({ primaryColor }) =>
+      lightenColor(primaryColor)} !important;
+  }
+
+  & .menu-item-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: break-word;
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin-right: 0;
   }
 `;

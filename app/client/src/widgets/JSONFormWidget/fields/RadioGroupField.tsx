@@ -13,11 +13,14 @@ import { Colors } from "constants/Colors";
 type RadioGroupComponentProps = FieldComponentBaseProps & {
   options: RadioOption[];
   onSelectionChange?: string;
+  accentColor?: string;
 };
 
 export type RadioGroupFieldProps = BaseFieldComponentProps<
   RadioGroupComponentProps
 >;
+
+const DEFAULT_BG_COLOR = Colors.GREEN;
 
 const COMPONENT_DEFAULT_VALUES: RadioGroupComponentProps = {
   isDisabled: false,
@@ -87,7 +90,7 @@ function RadioGroupField({
       tooltip={schemaItem.tooltip}
     >
       <RadioGroupComponent
-        backgroundColor={Colors.GREEN}
+        backgroundColor={schemaItem.accentColor || DEFAULT_BG_COLOR}
         isDisabled={schemaItem.isDisabled}
         isLoading={false}
         label=""

@@ -43,7 +43,6 @@ const StyledControlGroup = styled(ControlGroup)<{
       border-color: ${({ isValid }) =>
         !isValid ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
       width: 100%;
-      height: 100%;
       align-items: center;
       &:active {
         border-color: ${({ isValid, primaryColor }) =>
@@ -97,12 +96,14 @@ class DatePickerComponent extends React.Component<
   }
 
   componentDidUpdate(prevProps: DatePickerComponentProps) {
+    // prevProps.selectedDate can undefined and moment(undefined) returns now
     if (
       this.props.selectedDate !== this.state.selectedDate &&
-      !moment(this.props.selectedDate).isSame(
+      (!moment(this.props.selectedDate).isSame(
         moment(prevProps.selectedDate),
         "seconds",
-      )
+      ) ||
+        (!prevProps.selectedDate && this.props.selectedDate))
     ) {
       this.setState({ selectedDate: this.props.selectedDate });
     }

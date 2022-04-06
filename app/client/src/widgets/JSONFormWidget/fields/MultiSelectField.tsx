@@ -22,10 +22,13 @@ import {
 import { DropdownOption } from "widgets/MultiSelectTreeWidget/widget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isPrimitive, validateOptions } from "../helper";
+import { Colors } from "constants/Colors";
 
 type MultiSelectComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
+    boxShadow?: string;
     allowSelectAll?: boolean;
+    borderRadius?: string;
     defaultValue?: string[];
     isFilterable: boolean;
     onFilterChange?: string;
@@ -33,12 +36,16 @@ type MultiSelectComponentProps = FieldComponentBaseProps &
     onOptionChange?: string;
     options: DropdownOption[];
     placeholderText?: string;
+    accentColor?: string;
     serverSideFiltering: boolean;
   };
 
 export type MultiSelectFieldProps = BaseFieldComponentProps<
   MultiSelectComponentProps
 >;
+
+const DEFAULT_ACCENT_COLOR = Colors.GREEN;
+const DEFAULT_BORDER_RADIUS = "0";
 
 const COMPONENT_DEFAULT_VALUES: MultiSelectComponentProps = {
   isDisabled: false,
@@ -192,7 +199,8 @@ function MultiSelectField({
       <StyledMultiSelectWrapper>
         <MultiSelect
           allowSelectAll={schemaItem.allowSelectAll}
-          borderRadius="0px"
+          borderRadius={schemaItem.borderRadius || DEFAULT_BORDER_RADIUS}
+          boxShadow={schemaItem.boxShadow}
           compactMode={false}
           disabled={schemaItem.isDisabled}
           dropDownWidth={90}
@@ -207,6 +215,7 @@ function MultiSelectField({
           onFocus={onFocusHandler}
           options={schemaItem.options || []}
           placeholder={schemaItem.placeholderText || ""}
+          primaryColor={schemaItem.accentColor || DEFAULT_ACCENT_COLOR}
           serverSideFiltering={schemaItem.serverSideFiltering}
           value={componentValues}
           widgetId={name}
@@ -224,6 +233,9 @@ function MultiSelectField({
     onFilterChange,
     onFocusHandler,
     onOptionChange,
+    schemaItem.accentColor,
+    schemaItem.boxShadow,
+    schemaItem.borderRadius,
     schemaItem.allowSelectAll,
     schemaItem.isDisabled,
     schemaItem.isFilterable,

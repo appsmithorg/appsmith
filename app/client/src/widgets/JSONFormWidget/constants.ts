@@ -14,7 +14,6 @@ import {
   SelectField,
   SwitchField,
 } from "./fields";
-import { TextSize } from "constants/WidgetConstants";
 
 // CAUTION! When changing the enum value, make sure any direct comparison
 // eg fieldType === "Array" instead of fieldType === FieldType.ARRAY is taking place
@@ -36,6 +35,16 @@ export enum FieldType {
   SWITCH = "Switch",
   TEXT_INPUT = "Text Input",
 }
+
+export type FieldTypeKey = keyof typeof FieldType;
+
+export const inverseFieldType = Object.entries(FieldType).reduce<
+  Record<FieldType, FieldTypeKey>
+>((previousValue, currentValue) => {
+  const [key, value] = currentValue;
+  previousValue[value] = key as FieldTypeKey;
+  return previousValue;
+}, {} as Record<FieldType, FieldTypeKey>);
 
 export enum DataType {
   STRING = "string",
@@ -61,7 +70,7 @@ export type FieldComponentBaseProps = {
   label: string;
   labelStyle?: string;
   labelTextColor?: string;
-  labelTextSize?: TextSize;
+  labelTextSize?: string;
   tooltip?: string;
 };
 
@@ -142,6 +151,11 @@ export type FieldState<TObj> =
 export type HookResponse =
   | Array<{ propertyPath: string; propertyValue: any }>
   | undefined;
+
+export type FieldThemeStylesheet = Record<
+  FieldTypeKey,
+  { [key: string]: string }
+>;
 
 export const ARRAY_ITEM_KEY = "__array_item__";
 export const ROOT_SCHEMA_KEY = "__root_schema__";

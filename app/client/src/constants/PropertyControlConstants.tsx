@@ -6,6 +6,7 @@ import {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import { AppTheme } from "entities/AppTheming";
 
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
@@ -65,6 +66,11 @@ export type PropertyPaneControlConfig = {
   dependencies?: string[];
   evaluatedDependencies?: string[]; // dependencies to be picked from the __evaluated__ object
   expected?: CodeEditorExpected;
+  getStylesheetValue?: (
+    props: any,
+    propertyPath: string,
+    stylesheet?: AppTheme["stylesheet"][string],
+  ) => AppTheme["stylesheet"][string][string];
 };
 
 type ValidationConfigParams = {
@@ -97,6 +103,7 @@ type ValidationConfigParams = {
   ignoreCase?: boolean; //to ignore the case of key
   type?: ValidationTypes; // Used for ValidationType.TABLE_PROPERTY to define sub type
   params?: ValidationConfigParams; // Used for ValidationType.TABLE_PROPERTY to define sub type params
+  limitLineBreaks?: boolean; // Used for ValidationType.TEXT to limit line breaks in a large json object.
 };
 
 export type ValidationConfig = {
