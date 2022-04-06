@@ -67,7 +67,7 @@ describe("Validate JSObj binding to Table widget", () => {
 
     it("3. Validate the List widget + Bug 12438 ", function () {
         ee.SelectEntityByName("List1", 'WIDGETS');
-        jsEditor.EnterJSContext("Item Spacing\\(px\\)", "50")
+        jsEditor.EnterJSContext("Item Spacing (px)", "50")
         cy.get(locator._textWidget).should("have.length", 6);
         agHelper.DeployApp(locator._textWidgetInDeployed);
         agHelper.AssertElementLength(locator._textWidgetInDeployed, 6)

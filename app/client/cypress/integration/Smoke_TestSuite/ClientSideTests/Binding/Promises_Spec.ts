@@ -103,7 +103,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
       true,
     );
     ee.SelectEntityByName("Image1");
-    jsEditor.EnterJSContext("image", `{{Christmas.data}}`, true);
+    jsEditor.EnterJSContext("Image", `{{Christmas.data}}`, true);
     agHelper.ValidateToastMessage('will be executed automatically on page load')
     agHelper.DeployApp()
     agHelper.ClickButton("Submit");
@@ -154,7 +154,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     );
     ee.SelectEntityByName("List1", 'WIDGETS');
     jsEditor.EnterJSContext(
-      "items",
+      "Items",
       `[{
   "name": {{ GetAnime.data.results[0].title }},
 "img": {{ GetAnime.data.results[0].image_url }},
