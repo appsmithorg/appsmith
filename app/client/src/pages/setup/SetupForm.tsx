@@ -148,6 +148,26 @@ function SetupForm(props: InjectedFormProps & DetailsFormValues) {
     return true;
   };
 
+  const onKeyPress = (event: React.KeyboardEvent<HTMLFormElement>) => {
+    if (event.key === "Enter") {
+      if (props.valid) {
+        if (showDetailsForm) {
+          // If we are on the details page we do not want to submit the form
+          // instead we move the user to the next page
+          event.preventDefault();
+          onNext();
+        }
+      } else {
+        // prevent submitting the form on enter if the values are invalid
+        event.preventDefault();
+      }
+    }
+  };
+
+  const onNext = () => {
+    setShowDetailsForm(false);
+  };
+
   return (
     <PageWrapper>
       <SetupFormContainer>
@@ -156,13 +176,15 @@ function SetupForm(props: InjectedFormProps & DetailsFormValues) {
         </LogoContainer>
         <form
           action={signupURL}
+          data-testid="super-user-form"
           id="super-user-form"
           method="POST"
+          onKeyPress={onKeyPress}
           onSubmit={onSubmit}
           ref={formRef}
         >
           <SetupStep active={showDetailsForm}>
-            <DetailsForm {...props} onNext={() => setShowDetailsForm(false)} />
+            <DetailsForm {...props} onNext={onNext} />
           </SetupStep>
           <SetupStep active={!showDetailsForm}>
             <DataCollectionForm />

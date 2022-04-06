@@ -87,6 +87,7 @@ export default function DetailsForm(
           label={createMessage(WELCOME_FORM_VERIFY_PASSWORD)}
         >
           <FormTextField
+            data-testid="verifyPassword"
             name="verifyPassword"
             placeholder="Type correctly"
             type="password"
