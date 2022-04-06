@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { saveSettings } from "actions/settingsAction";
 import { SETTINGS_FORM_NAME } from "constants/forms";
 import _ from "lodash";
@@ -30,6 +30,7 @@ import {
   connectedMethods,
   saveAllowed,
 } from "@appsmith/utils/adminSettingsHelpers";
+import { Classes } from "@blueprintjs/core";
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -41,6 +42,12 @@ const Wrapper = styled.div`
 
 const SettingsFormWrapper = styled.div`
   max-width: 40rem;
+
+  .openid_tag {
+    .${Classes.TAG_REMOVE} {
+      display: none;
+    }
+  }
 `;
 
 export const BottomSpace = styled.div`
@@ -85,7 +92,8 @@ export function OidcSettingsForm(
 ) {
   const params = useParams() as any;
   const { category, subCategory } = params;
-  const settings = useSettings(category, subCategory);
+  const settingsDetails = useSettings(category, subCategory);
+  const { settings, settingsConfig } = props;
   const details = getSettingDetail(category, subCategory);
   const dispatch = useDispatch();
   const isSavable = AdminConfig.savableCategories.includes(
@@ -94,9 +102,59 @@ export function OidcSettingsForm(
   const pageTitle = getSettingLabel(
     details?.title || (subCategory ?? category),
   );
+  const [defaultSettings, setDefaultSettings] = useState<string[]>([]);
 
   const onSave = () => {
-    if (saveAllowed(props.settings)) {
+    if (checkMandatoryFileds()) {
+      if (saveAllowed(props.settings)) {
+        _.forEach(defaultSettings, (name) => {
+          if (!props.settings[name]) {
+            props.settings[name] = props.settingsConfig[name].toString();
+          }
+        });
+        dispatch(saveSettings(props.settings));
+      } else {
+        saveBlocked();
+      }
+    } else {
+      Toaster.show({
+        text: "Mandatory fields cannot be empty",
+        variant: Variant.danger,
+      });
+    }
+  };
+
+  const checkMandatoryFileds = () => {
+    const requiredFields = settingsDetails.filter((eachSetting) => {
+      const isInitialSettingBlank =
+        settingsConfig[eachSetting.id]?.toString().trim() === "" ||
+        settingsConfig[eachSetting.id] === undefined;
+      const isInitialSettingNotBlank = settingsConfig[eachSetting.id];
+      const isNewSettingBlank =
+        settings[eachSetting.id]?.toString()?.trim() === "";
+      const isNewSettingNotBlank = !settings[eachSetting.id];
+
+      if (
+        eachSetting.isRequired &&
+        !eachSetting.isHidden &&
+        ((isInitialSettingBlank && isNewSettingNotBlank) ||
+          (isInitialSettingNotBlank && isNewSettingBlank))
+      ) {
+        return eachSetting.id;
+      }
+    });
+
+    return !(requiredFields.length > 0);
+  };
+
+  const onClear = () => {
+    _.forEach(props.settingsConfig, (value, settingName) => {
+      const setting = AdminConfig.settingsMap[settingName];
+      if (setting && setting.controlType == SettingTypes.TOGGLE) {
+        props.settingsConfig[settingName] =
+          props.settingsConfig[settingName].toString() == "true";
+      }
+
       const scopeConfigSettings =
           props.settingsConfig["APPSMITH_OAUTH2_OIDC_SCOPE"],
         userAttriConfigSettings =
@@ -112,7 +170,12 @@ export function OidcSettingsForm(
         ) ||
         (typeof scopeSettings === "string" && !scopeSettings.trim())
       ) {
-        props.settings["APPSMITH_OAUTH2_OIDC_SCOPE"] = "openid,profile,email";
+        props.settingsConfig["APPSMITH_OAUTH2_OIDC_SCOPE"] =
+          "openid,profile,email";
+        setDefaultSettings((oldDefaultSettings) => [
+          ...oldDefaultSettings,
+          "APPSMITH_OAUTH2_OIDC_SCOPE",
+        ]);
       }
 
       if (
@@ -122,20 +185,12 @@ export function OidcSettingsForm(
         ) ||
         (typeof userAttriSettings === "string" && !userAttriSettings.trim())
       ) {
-        props.settings["APPSMITH_OAUTH2_OIDC_USERNAME_ATTRIBUTE"] = "email";
-      }
-      dispatch(saveSettings(props.settings));
-    } else {
-      saveBlocked();
-    }
-  };
-
-  const onClear = () => {
-    _.forEach(props.settingsConfig, (value, settingName) => {
-      const setting = AdminConfig.settingsMap[settingName];
-      if (setting && setting.controlType == SettingTypes.TOGGLE) {
-        props.settingsConfig[settingName] =
-          props.settingsConfig[settingName].toString() == "true";
+        props.settingsConfig["APPSMITH_OAUTH2_OIDC_USERNAME_ATTRIBUTE"] =
+          "email";
+        setDefaultSettings((oldDefaultSettings) => [
+          ...oldDefaultSettings,
+          "APPSMITH_OAUTH2_OIDC_USERNAME_ATTRIBUTE",
+        ]);
       }
     });
     props.initialize(props.settingsConfig);
@@ -189,7 +244,7 @@ export function OidcSettingsForm(
         </HeaderWrapper>
         <Group
           category={category}
-          settings={settings}
+          settings={settingsDetails}
           subCategory={subCategory}
         />
         {isSavable && (
@@ -203,7 +258,7 @@ export function OidcSettingsForm(
         )}
         {details?.isConnected && (
           <DisconnectService
-            disconnect={() => disconnect(settings)}
+            disconnect={() => disconnect(settingsDetails)}
             subHeader={createMessage(DISCONNECT_SERVICE_SUBHEADER)}
             warning={`${pageTitle} ${createMessage(
               DISCONNECT_SERVICE_WARNING,
