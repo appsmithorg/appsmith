@@ -11,7 +11,7 @@ import {
   NO_FUNCTION_DROPDOWN_OPTION,
 } from "./constants";
 import { DropdownOption } from "components/ads/Dropdown";
-import { find } from "lodash";
+import { find, sortBy } from "lodash";
 
 interface IdentifierNode extends Node {
   type: NodeTypes.Identifier;
@@ -130,7 +130,7 @@ export const getJSFunctionLineGutter = (
 export const convertJSActionsToDropdownOptions = (
   JSActions: JSAction[],
 ): JSActionDropdownOption[] => {
-  return JSActions.map(convertJSActionToDropdownOption);
+  return sortBy(JSActions, ["name"]).map(convertJSActionToDropdownOption);
 };
 
 export const convertJSActionToDropdownOption = (
