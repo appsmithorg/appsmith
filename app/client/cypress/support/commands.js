@@ -1,6 +1,8 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 
+/* This file is used to maintain comman methods across tests , refer other *.js files for adding common methods */
+
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 

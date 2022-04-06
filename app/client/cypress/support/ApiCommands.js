@@ -4,40 +4,14 @@
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 
-const dayjs = require("dayjs");
 const {
   addMatchImageSnapshotCommand,
 } = require("cypress-image-snapshot/command");
-const loginPage = require("../locators/LoginPage.json");
-const signupPage = require("../locators/SignupPage.json");
-import homePage from "../locators/HomePage";
-const pages = require("../locators/Pages.json");
-const datasourceEditor = require("../locators/DatasourcesEditor.json");
-const datasourceFormData = require("../fixtures/datasources.json");
-const commonlocators = require("../locators/commonlocators.json");
-const queryEditor = require("../locators/QueryEditor.json");
-const modalWidgetPage = require("../locators/ModalWidget.json");
-const widgetsPage = require("../locators/Widgets.json");
-const LayoutPage = require("../locators/Layout.json");
-const formWidgetsPage = require("../locators/FormWidgets.json");
 import ApiEditor from "../locators/ApiEditor";
+const pages = require("../locators/Pages.json");
+const commonlocators = require("../locators/commonlocators.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
-const dynamicInputLocators = require("../locators/DynamicInput.json");
 const explorer = require("../locators/explorerlocators.json");
-const datasource = require("../locators/DatasourcesEditor.json");
-const viewWidgetsPage = require("../locators/ViewWidgets.json");
-const generatePage = require("../locators/GeneratePage.json");
-const jsEditorLocators = require("../locators/JSEditor.json");
-const commonLocators = require("../locators/commonlocators.json");
-import commentsLocators from "../locators/CommentsLocators";
-const queryLocators = require("../locators/QueryEditor.json");
-const welcomePage = require("../locators/welcomePage.json");
-const publishWidgetspage = require("../locators/publishWidgetspage.json");
-import gitSyncLocators from "../locators/gitSyncLocators";
-
-let pageidcopy = " ";
-const GITHUB_API_BASE = "https://api.github.com";
-const chainStart = Symbol();
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -63,7 +37,7 @@ Cypress.Commands.add("ResponseStatusCheck", (statusCode) => {
   cy.xpath(apiwidget.responseStatus).contains(statusCode);
 });
 
-Cypress.Commands.add("ResponseCheck", (textTocheck) => {
+Cypress.Commands.add("ResponseCheck", () => {
   //Explicit assert
   cy.get(apiwidget.responseText).should("be.visible");
 });
@@ -243,15 +217,12 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add(
-  "EnterSourceDetailsWithbody",
-  (baseUrl, v1method, hKey, hValue) => {
-    cy.enterDatasourceAndPath(baseUrl, v1method);
-    cy.get(apiwidget.addHeader)
-      .first()
-      .click({ first: true });
-  },
-);
+Cypress.Commands.add("EnterSourceDetailsWithbody", (baseUrl, v1method) => {
+  cy.enterDatasourceAndPath(baseUrl, v1method);
+  cy.get(apiwidget.addHeader)
+    .first()
+    .click({ first: true });
+});
 
 Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
   cy.get(pages.addEntityAPI).click();
@@ -276,7 +247,7 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
   cy.get(apiwidget.apiTxt).blur();
 });
 
-Cypress.Commands.add("MoveAPIToHome", (apiname) => {
+Cypress.Commands.add("MoveAPIToHome", () => {
   cy.xpath(apiwidget.popover)
     .last()
     .click({ force: true });
@@ -426,7 +397,7 @@ Cypress.Commands.add("deleteEntityWithoutConfirmation", () => {
   cy.get(apiwidget.delete).click({ force: true });
 });
 
-Cypress.Commands.add("DeleteAPI", (apiname) => {
+Cypress.Commands.add("DeleteAPI", () => {
   cy.get(ApiEditor.ApiActionMenu).click({ multiple: true });
   cy.get(apiwidget.deleteAPI)
     .first()

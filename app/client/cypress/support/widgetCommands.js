@@ -4,40 +4,21 @@
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 
-const dayjs = require("dayjs");
 const {
   addMatchImageSnapshotCommand,
 } = require("cypress-image-snapshot/command");
-const loginPage = require("../locators/LoginPage.json");
-const signupPage = require("../locators/SignupPage.json");
-import homePage from "../locators/HomePage";
 const pages = require("../locators/Pages.json");
-const datasourceEditor = require("../locators/DatasourcesEditor.json");
-const datasourceFormData = require("../fixtures/datasources.json");
 const commonlocators = require("../locators/commonlocators.json");
-const queryEditor = require("../locators/QueryEditor.json");
 const modalWidgetPage = require("../locators/ModalWidget.json");
 const widgetsPage = require("../locators/Widgets.json");
 const LayoutPage = require("../locators/Layout.json");
 const formWidgetsPage = require("../locators/FormWidgets.json");
-import ApiEditor from "../locators/ApiEditor";
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const dynamicInputLocators = require("../locators/DynamicInput.json");
-const explorer = require("../locators/explorerlocators.json");
-const datasource = require("../locators/DatasourcesEditor.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
 const generatePage = require("../locators/GeneratePage.json");
-const jsEditorLocators = require("../locators/JSEditor.json");
-const commonLocators = require("../locators/commonlocators.json");
-import commentsLocators from "../locators/CommentsLocators";
-const queryLocators = require("../locators/QueryEditor.json");
-const welcomePage = require("../locators/welcomePage.json");
-const publishWidgetspage = require("../locators/publishWidgetspage.json");
-import gitSyncLocators from "../locators/gitSyncLocators";
 
 let pageidcopy = " ";
-const GITHUB_API_BASE = "https://api.github.com";
-const chainStart = Symbol();
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -481,7 +462,7 @@ Cypress.Commands.add("toggleJsAndUpdate", (endp, value) => {
   cy.wait(200);
 });
 
-Cypress.Commands.add("assertControlVisibility", (endp, value) => {
+Cypress.Commands.add("assertControlVisibility", (endp) => {
   cy.get(".t--property-control-" + endp + " .CodeMirror")
     .first()
     .should("not.be.visible");
@@ -956,7 +937,7 @@ Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
     });
 });
 
-Cypress.Commands.add("deleteWidget", (widget) => {
+Cypress.Commands.add("deleteWidget", () => {
   // Delete the button widget
   cy.get(widgetsPage.removeWidget).click({ force: true });
   cy.wait(5000);
