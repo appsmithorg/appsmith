@@ -124,6 +124,9 @@ function DataSourceOption({
       disabled={
         isSupportedForTemplate || isSelectedNode || isConnectNewDataSourceBtn
       }
+      styles={{
+        width: "100%",
+      }}
     >
       <OptionWrapper
         className="t--dropdown-option"

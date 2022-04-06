@@ -26,14 +26,15 @@ export type TooltipProps = CommonComponentProps & {
   onOpening?: typeof noop;
   donotUsePortal?: boolean;
   underline?: boolean;
+  styles?: any;
 };
 
 const portalContainer = document.getElementById("tooltip-root");
 
-const TooltipWrapper = styled(Tooltip)`
+const TooltipWrapper = styled(Tooltip)<{ width?: string }>`
   display: flex;
-  width: fit-content;
-  text-align: center;
+  width: ${(props) => (props.width ? props.width : "fit-content")};
+  text-align: start;
 `;
 
 const TooltipChildrenWrapper = styled.div<{ helpCursor: boolean }>`
@@ -74,6 +75,7 @@ function TooltipComponent(props: TooltipProps) {
       portalContainer={portalContainer as HTMLDivElement}
       position={props.position}
       usePortal={!props.donotUsePortal}
+      {...(props.styles || {})}
     >
       <TooltipChildrenWrapper
         helpCursor={!!(!props.disabled && props.underline)}
