@@ -1,7 +1,7 @@
 import React, { RefObject, useRef, useState } from "react";
 import { InjectedFormProps } from "redux-form";
 import { Icon, Tag } from "@blueprintjs/core";
-import { isString, set } from "lodash";
+import { isString } from "lodash";
 import {
   components,
   MenuListComponentProps,
@@ -78,11 +78,16 @@ import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import { GUIDED_TOUR_STEPS } from "../GuidedTour/constants";
 import Spinner from "components/ads/Spinner";
 import {
-  ConditionalOutput,
-  FormConfigEvalObject,
   FormEvalOutput,
   isValidFormConfig,
 } from "reducers/evaluationReducers/formEvaluationReducer";
+import {
+  extractConditionalOutput,
+  checkIfSectionCanRender,
+  checkIfSectionIsEnabled,
+  updateEvaluatedSectionConfig,
+  modifySectionConfig,
+} from "sagas/FormEvaluationSaga";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -599,109 +604,6 @@ export function EditorJSONtoForm(props: Props) {
     }
   };
 
-  // Extract the output of conditionals attached to the form from the state
-  const extractConditionalOutput = (section: any): ConditionalOutput => {
-    let conditionalOutput: ConditionalOutput = {};
-    if (
-      section.hasOwnProperty("propertyName") &&
-      props.formEvaluationState.hasOwnProperty(section.propertyName)
-    ) {
-      conditionalOutput = props?.formEvaluationState[section.propertyName];
-    } else if (
-      section.hasOwnProperty("configProperty") &&
-      props.formEvaluationState.hasOwnProperty(section.configProperty)
-    ) {
-      conditionalOutput = props?.formEvaluationState[section.configProperty];
-    } else if (
-      section.hasOwnProperty("identifier") &&
-      !!section.identifier &&
-      props.formEvaluationState.hasOwnProperty(section.identifier)
-    ) {
-      conditionalOutput = props?.formEvaluationState[section.identifier];
-    }
-    return conditionalOutput;
-  };
-
-  // Function to check if the section config is allowed to render (Only for UQI forms)
-  const checkIfSectionCanRender = (conditionalOutput: ConditionalOutput) => {
-    // By default, allow the section to render. This is to allow for the case where no conditional is provided.
-    // The evaluation state disallows the section to render if the condition is not met. (Checkout formEval.ts)
-    let allowToRender = true;
-    if (
-      conditionalOutput.hasOwnProperty("visible") &&
-      typeof conditionalOutput.visible === "boolean"
-    ) {
-      allowToRender = conditionalOutput.visible;
-    }
-
-    if (
-      conditionalOutput.hasOwnProperty("evaluateFormConfig") &&
-      !!conditionalOutput.evaluateFormConfig &&
-      conditionalOutput.evaluateFormConfig.hasOwnProperty(
-        "updateEvaluatedConfig",
-      ) &&
-      typeof conditionalOutput.evaluateFormConfig.updateEvaluatedConfig ===
-        "boolean"
-    ) {
-      allowToRender =
-        conditionalOutput.evaluateFormConfig.updateEvaluatedConfig;
-    }
-    return allowToRender;
-  };
-
-  // Function to check if the section config is enabled (Only for UQI forms)
-  const checkIfSectionIsEnabled = (conditionalOutput: ConditionalOutput) => {
-    // By default, the section is enabled. This is to allow for the case where no conditional is provided.
-    // The evaluation state disables the section if the condition is not met. (Checkout formEval.ts)
-    let enabled = true;
-    if (
-      conditionalOutput.hasOwnProperty("enabled") &&
-      typeof conditionalOutput.enabled === "boolean"
-    ) {
-      enabled = conditionalOutput.enabled;
-    }
-    return enabled;
-  };
-
-  // Function to modify the section config based on the output of evaluations
-  const modifySectionConfig = (section: any, enabled: boolean): any => {
-    if (!enabled) {
-      section.disabled = true;
-    } else {
-      section.disabled = false;
-    }
-
-    return section;
-  };
-
-  const updateEvaluatedSectionConfig = (
-    section: any,
-    conditionalOutput: ConditionalOutput,
-  ) => {
-    const updatedSection = { ...section };
-    let evaluatedConfig: FormConfigEvalObject = {};
-    if (
-      conditionalOutput.hasOwnProperty("evaluateFormConfig") &&
-      !!conditionalOutput.evaluateFormConfig &&
-      conditionalOutput.evaluateFormConfig.hasOwnProperty(
-        "updateEvaluatedConfig",
-      ) &&
-      typeof conditionalOutput.evaluateFormConfig.updateEvaluatedConfig ===
-        "boolean" &&
-      conditionalOutput.evaluateFormConfig.updateEvaluatedConfig
-    ) {
-      evaluatedConfig =
-        conditionalOutput.evaluateFormConfig.evaluateFormConfigObject;
-
-      const paths = Object.keys(evaluatedConfig);
-      paths.forEach((path: string) => {
-        set(updatedSection, path, evaluatedConfig[path].output);
-      });
-    }
-
-    return updatedSection;
-  };
-
   // Render function to render the V2 of form editor type (UQI)
   // Section argument is a nested config object, this function recursively renders the UI based on the config
   const renderEachConfigV2 = (formName: string, section: any, idx: number) => {
@@ -713,10 +615,11 @@ export function EditorJSONtoForm(props: Props) {
         Array.isArray(section.schema) &&
         section.schema.length > 0
       ) {
-        section.schema.forEach((subSection: any) => {
-          const conditionalOutput = extractConditionalOutput({
-            ...subSection,
-          });
+        section.schema = section.schema.map((subSection: any) => {
+          const conditionalOutput = extractConditionalOutput(
+            subSection,
+            props.formEvaluationState,
+          );
           if (!checkIfSectionCanRender(conditionalOutput)) {
             subSection.hidden = true;
           } else {
@@ -726,13 +629,17 @@ export function EditorJSONtoForm(props: Props) {
           subSection = updateEvaluatedSectionConfig(
             subSection,
             conditionalOutput,
+            enabled,
           );
-          subSection = modifySectionConfig(subSection, enabled);
           if (!isValidFormConfig(subSection)) return null;
+          return subSection;
         });
       }
       // If the component is not allowed to render, return null
-      const conditionalOutput = extractConditionalOutput(section);
+      const conditionalOutput = extractConditionalOutput(
+        section,
+        props.formEvaluationState,
+      );
       if (!checkIfSectionCanRender(conditionalOutput)) return null;
       section = updateEvaluatedSectionConfig(section, conditionalOutput);
       enabled = checkIfSectionIsEnabled(conditionalOutput);

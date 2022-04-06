@@ -1,6 +1,10 @@
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 import { isBoolean, get, set } from "lodash";
-import { FormConfigEvalObject } from "reducers/evaluationReducers/formEvaluationReducer";
+import {
+  ConditionalOutput,
+  FormConfigEvalObject,
+  FormEvalOutput,
+} from "reducers/evaluationReducers/formEvaluationReducer";
 import { FormConfigType, HiddenType } from "./BaseControl";
 
 export const evaluateCondtionWithType = (
@@ -144,7 +148,11 @@ export const switchViewType = (
     if (!!jsonData) {
       changeFormValue(formName, configProperty, jsonData);
     } else {
-      changeFormValue(formName, configProperty, JSON.stringify(currentData));
+      changeFormValue(
+        formName,
+        configProperty,
+        JSON.stringify(currentData, null, "\t"),
+      );
     }
   } else {
     changeFormValue(formName, pathForJsonData, currentData);
@@ -335,4 +343,114 @@ export const extractEvalConfigFromFormConfig = (
   });
 
   return bindingsFound;
+};
+
+// Extract the output of conditionals attached to the form from the state
+export const extractConditionalOutput = (
+  section: any,
+  formEvaluationState: FormEvalOutput,
+): ConditionalOutput => {
+  let conditionalOutput: ConditionalOutput = {};
+  if (
+    section.hasOwnProperty("propertyName") &&
+    formEvaluationState.hasOwnProperty(section.propertyName)
+  ) {
+    conditionalOutput = formEvaluationState[section.propertyName];
+  } else if (
+    section.hasOwnProperty("configProperty") &&
+    formEvaluationState.hasOwnProperty(section.configProperty)
+  ) {
+    conditionalOutput = formEvaluationState[section.configProperty];
+  } else if (
+    section.hasOwnProperty("identifier") &&
+    !!section.identifier &&
+    formEvaluationState.hasOwnProperty(section.identifier)
+  ) {
+    conditionalOutput = formEvaluationState[section.identifier];
+  }
+  return conditionalOutput;
+};
+
+// Function to check if the section config is allowed to render (Only for UQI forms)
+export const checkIfSectionCanRender = (
+  conditionalOutput: ConditionalOutput,
+) => {
+  // By default, allow the section to render. This is to allow for the case where no conditional is provided.
+  // The evaluation state disallows the section to render if the condition is not met. (Checkout formEval.ts)
+  let allowToRender = true;
+  if (
+    conditionalOutput.hasOwnProperty("visible") &&
+    typeof conditionalOutput.visible === "boolean"
+  ) {
+    allowToRender = conditionalOutput.visible;
+  }
+
+  if (
+    conditionalOutput.hasOwnProperty("evaluateFormConfig") &&
+    !!conditionalOutput.evaluateFormConfig &&
+    conditionalOutput.evaluateFormConfig.hasOwnProperty(
+      "updateEvaluatedConfig",
+    ) &&
+    typeof conditionalOutput.evaluateFormConfig.updateEvaluatedConfig ===
+      "boolean"
+  ) {
+    allowToRender = conditionalOutput.evaluateFormConfig.updateEvaluatedConfig;
+  }
+  return allowToRender;
+};
+
+// Function to check if the section config is enabled (Only for UQI forms)
+export const checkIfSectionIsEnabled = (
+  conditionalOutput: ConditionalOutput,
+) => {
+  // By default, the section is enabled. This is to allow for the case where no conditional is provided.
+  // The evaluation state disables the section if the condition is not met. (Checkout formEval.ts)
+  let enabled = true;
+  if (
+    conditionalOutput.hasOwnProperty("enabled") &&
+    typeof conditionalOutput.enabled === "boolean"
+  ) {
+    enabled = conditionalOutput.enabled;
+  }
+  return enabled;
+};
+
+// Function to modify the section config based on the output of evaluations
+export const modifySectionConfig = (section: any, enabled: boolean): any => {
+  if (!enabled) {
+    section.disabled = true;
+  } else {
+    section.disabled = false;
+  }
+
+  return section;
+};
+
+export const updateEvaluatedSectionConfig = (
+  section: any,
+  conditionalOutput: ConditionalOutput,
+  enabled = true,
+) => {
+  const updatedSection = { ...section };
+  let evaluatedConfig: FormConfigEvalObject = {};
+  if (
+    conditionalOutput.hasOwnProperty("evaluateFormConfig") &&
+    !!conditionalOutput.evaluateFormConfig &&
+    conditionalOutput.evaluateFormConfig.hasOwnProperty(
+      "updateEvaluatedConfig",
+    ) &&
+    typeof conditionalOutput.evaluateFormConfig.updateEvaluatedConfig ===
+      "boolean" &&
+    conditionalOutput.evaluateFormConfig.updateEvaluatedConfig
+  ) {
+    evaluatedConfig =
+      conditionalOutput.evaluateFormConfig.evaluateFormConfigObject;
+
+    const paths = Object.keys(evaluatedConfig);
+    paths.forEach((path: string) => {
+      set(updatedSection, path, evaluatedConfig[path].output);
+    });
+  }
+
+  return modifySectionConfig(updatedSection, enabled);
 };
