@@ -84,6 +84,7 @@ export const DropdownStyles = createGlobalStyle<{
 ${({ dropDownWidth, id }) => `
   .treeselect-popover-width-${id} {
     min-width: ${dropDownWidth}px !important;
+     width: ${dropDownWidth}px !important;
   }
 `}
 .rc-tree-select-dropdown-hidden {

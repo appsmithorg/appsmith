@@ -80,6 +80,8 @@ export function updateURLFactory(params: Optional<BaseURLBuilderParams>) {
   BASE_URL_BUILDER_PARAMS = { ...BASE_URL_BUILDER_PARAMS, ...params };
 }
 
+export const getRouteBuilderParams = () => BASE_URL_BUILDER_PARAMS;
+
 /**
  * Do not export this method directly. Please write wrappers for your URLs.
  * Uses applicationVersion attribute to determine whether to use slug URLs or legacy URLs.
@@ -97,13 +99,13 @@ function baseURLBuilder(
 ): string {
   const { hash = "", params = {}, suffix } = { ...rest };
   applicationVersion =
-    applicationVersion ?? BASE_URL_BUILDER_PARAMS.applicationVersion;
+    applicationVersion || BASE_URL_BUILDER_PARAMS.applicationVersion;
   const shouldUseLegacyURLs =
     typeof applicationVersion !== "undefined" &&
     applicationVersion < ApplicationVersion.SLUG_URL;
 
   let basePath = "";
-  pageId = pageId ?? BASE_URL_BUILDER_PARAMS.pageId;
+  pageId = pageId || BASE_URL_BUILDER_PARAMS.pageId;
 
   // fallback incase pageId is not set
   if (!pageId) {
@@ -122,15 +124,15 @@ function baseURLBuilder(
   // fallback incase pageId is not set
 
   if (shouldUseLegacyURLs) {
-    applicationId = applicationId ?? BASE_URL_BUILDER_PARAMS.applicationId;
+    applicationId = applicationId || BASE_URL_BUILDER_PARAMS.applicationId;
     basePath = `/applications/${applicationId}/pages/${pageId}`;
   } else {
     applicationSlug =
-      applicationSlug ??
-      BASE_URL_BUILDER_PARAMS.applicationSlug ??
+      applicationSlug ||
+      BASE_URL_BUILDER_PARAMS.applicationSlug ||
       PLACEHOLDER_APP_SLUG;
     pageSlug =
-      pageSlug ?? BASE_URL_BUILDER_PARAMS.pageSlug ?? PLACEHOLDER_PAGE_SLUG;
+      pageSlug || BASE_URL_BUILDER_PARAMS.pageSlug || PLACEHOLDER_PAGE_SLUG;
     basePath = `/${applicationSlug}/${pageSlug}-${pageId}`;
   }
   basePath += mode === APP_MODE.EDIT ? "/edit" : "";
