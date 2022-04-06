@@ -131,8 +131,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.typeValueNValidate(deleteQuery);
     cy.runAndDeleteQuery();
   });
-
-  it("8. Verify generation of NewPage from New table & perform Add/Update/Delete operations", function() {
+  /* it.skip("8. Verify generation of NewPage from New table & perform Add/Update/Delete operations", function() {
     //Verifying Select from UI
     cy.NavigateToDSGeneratePage(datasourceName);
     cy.get(generatePage.selectTableDropdown).click();
@@ -240,7 +239,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.xpath(generatePage.currentNameField)
       .scrollIntoView()
       .should("have.value", "CRUD User30"); //Verifying Deletion of id # 31 is success
-  });
+  }); */
 
   it("9. Validate Deletion of the Newly Created Page", () => {
     cy.NavigateToQueryEditor();
