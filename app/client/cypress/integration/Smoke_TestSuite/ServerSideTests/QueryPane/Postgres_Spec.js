@@ -131,7 +131,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.typeValueNValidate(deleteQuery);
     cy.runAndDeleteQuery();
   });
-  /* it.skip("8. Verify generation of NewPage from New table & perform Add/Update/Delete operations", function() {
+  it("8. Verify generation of NewPage from New table & perform Add/Update/Delete operations", function() {
     //Verifying Select from UI
     cy.NavigateToDSGeneratePage(datasourceName);
     cy.get(generatePage.selectTableDropdown).click();
@@ -158,8 +158,9 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     ); //This verifies the Select on the table, ie page is created fine
 
     cy.ClickGotIt();
+  });
 
-    cy.wait(2000);
+  /* cy.wait(2000);
     //Verifying Update from UI
     cy.xpath(generatePage.selectRowinTable)
       .scrollIntoView()
