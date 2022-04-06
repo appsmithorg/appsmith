@@ -48,10 +48,45 @@ import {
   getJSFunctionLineGutter,
   JSActionDropdownOption,
 } from "./utils";
-import { JS_OBJECT_HOTKEYS_CLASSNAME } from "./constants";
+import {
+  JS_OBJECT_HOTKEYS_CLASSNAME,
+  RUN_GUTTER_CLASSNAME,
+  RUN_GUTTER_ID,
+} from "./constants";
 import { DropdownOnSelect } from "components/ads";
 import JSFunctionSettingsView from "./JSFunctionSettings";
 import JSObjectHotKeys from "./JSObjectHotKeys";
+
+export const CodeEditorStyles = `
+.${RUN_GUTTER_ID}{
+  width: 0.9em;
+  background: #f0f0f0;
+}
+.${RUN_GUTTER_CLASSNAME}{
+  cursor: pointer;
+  color: #f86a2b;
+}
+.CodeMirror-linenumbers{
+  width: max-content;
+}
+.CodeMirror-linenumber{
+  text-align: left;
+  padding-left:8px;
+}
+
+.CodeMirror-foldgutter{
+ width: .5em;
+}
+.CodeMirror-foldgutter-open:after {
+padding-left: 2px;
+}
+.CodeMirror-foldgutter-folded:after {
+padding-left: 2px;
+}
+.cm-s-duotone-light.CodeMirror {
+  padding:0
+}
+`;
 
 const FormWrapper = styled.div`
   height: ${({ theme }) =>
@@ -138,6 +173,7 @@ export const TabbedViewContainer = styled.div`
       height: calc(100% - 36px);
       margin-top: 2px;
       background-color: ${(props) => props.theme.colors.apiPane.bg};
+      ${CodeEditorStyles}
     }
   }
 `;

@@ -58,6 +58,27 @@ const ResponseContainer = styled.div`
   .react-tabs__tab-panel {
     overflow-y: auto;
     height: calc(100% - ${TAB_MIN_HEIGHT});
+
+    .CodeMirror-linenumbers {
+      width: max-content;
+    }
+    .CodeMirror-linenumber {
+      text-align: left;
+      padding-left: 8px;
+    }
+
+    .CodeMirror-foldgutter {
+      width: 0.5em;
+    }
+    .CodeMirror-foldgutter-open:after {
+      padding-left: 2px;
+    }
+    .CodeMirror-foldgutter-folded:after {
+      padding-left: 2px;
+    }
+    .cm-s-duotone-light.CodeMirror {
+      padding: 0;
+    }
   }
 `;
 
@@ -263,45 +284,40 @@ function JSResponseView(props: Props) {
           )}
           <ResponseTabWrapper className={errors.length ? "disable" : ""}>
             <ResponseViewer>
-              {(() => {
-                switch (responseStatus) {
-                  case JSResponseState.NoResponse:
-                    return (
-                      <NoResponseContainer>
-                        <Icon name="no-response" />
-                        <Text type={TextType.P1}>
-                          {createMessage(EMPTY_RESPONSE_FIRST_HALF)}
-                          <InlineButton
-                            disabled={disabled}
-                            isLoading={isLoading}
-                            onClick={onButtonClick}
-                            size={Size.medium}
-                            tag="button"
-                            text="Run"
-                            type="button"
-                          />
-                          {createMessage(EMPTY_JS_RESPONSE_LAST_HALF)}
-                        </Text>
-                      </NoResponseContainer>
-                    );
-                  case JSResponseState.IsExecuting:
-                    return (
-                      <LoadingOverlayScreen theme={props.theme}>
-                        {createMessage(EXECUTING_FUNCTION)}
-                      </LoadingOverlayScreen>
-                    );
-                  case JSResponseState.ShowResponse:
-                    return (
-                      <ReadOnlyEditor
-                        folding
-                        height={"100%"}
-                        input={{
-                          value: response,
-                        }}
+              <>
+                {responseStatus === JSResponseState.NoResponse && (
+                  <NoResponseContainer>
+                    <Icon name="no-response" />
+                    <Text type={TextType.P1}>
+                      {createMessage(EMPTY_RESPONSE_FIRST_HALF)}
+                      <InlineButton
+                        disabled={disabled}
+                        isLoading={isLoading}
+                        onClick={onButtonClick}
+                        size={Size.medium}
+                        tag="button"
+                        text="Run"
+                        type="button"
                       />
-                    );
-                }
-              })()}
+                      {createMessage(EMPTY_JS_RESPONSE_LAST_HALF)}
+                    </Text>
+                  </NoResponseContainer>
+                )}
+                {responseStatus === JSResponseState.IsExecuting && (
+                  <LoadingOverlayScreen theme={props.theme}>
+                    {createMessage(EXECUTING_FUNCTION)}
+                  </LoadingOverlayScreen>
+                )}
+                {responseStatus === JSResponseState.ShowResponse && (
+                  <ReadOnlyEditor
+                    folding
+                    height={"100%"}
+                    input={{
+                      value: response,
+                    }}
+                  />
+                )}
+              </>
             </ResponseViewer>
           </ResponseTabWrapper>
         </>
