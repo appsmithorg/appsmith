@@ -53,6 +53,9 @@ export interface DefaultPlugin {
 
 class PluginsApi extends Api {
   static url = "v1/plugins";
+  static defaultDynamicTriggerURL(datasourceId: string): string {
+    return `/v1/datasources/${datasourceId}/trigger`;
+  }
   static fetchPlugins(
     orgId: string,
   ): AxiosPromise<GenericApiResponse<Plugin[]>> {
