@@ -168,13 +168,12 @@ function SelectField({
           selectedIndex={selectedIndex}
           serverSideFiltering={schemaItem.serverSideFiltering}
           value={options[selectedOptionIndex]?.value}
-          widgetId={name}
+          widgetId={fieldClassName}
           width={10}
         />
       </StyledSelectWrapper>
     ),
     [
-      name,
       selectedOptionIndex,
       schemaItem.serverSideFiltering,
       schemaItem.placeholderText,
@@ -189,6 +188,7 @@ function SelectField({
       onOptionSelected,
       selectedIndex,
       dropdownWidth,
+      fieldClassName,
     ],
   );
 
