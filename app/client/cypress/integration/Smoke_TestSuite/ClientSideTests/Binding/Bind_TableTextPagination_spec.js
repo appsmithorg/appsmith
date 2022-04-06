@@ -73,6 +73,11 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.wait(500);
     cy.wait("@postExecute");
     cy.wait(500);
+    cy.get(".show-page-items").should("contain", "20 Records");
+    cy.get(".page-item")
+      .next()
+      .should("contain", "of 2");
+
     cy.get(".t--table-widget-next-page").should("not.have.attr", "disabled");
     cy.ValidateTableData("1");
 

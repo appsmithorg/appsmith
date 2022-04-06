@@ -165,6 +165,11 @@ function TableHeader(props: TableHeaderProps) {
 
       {props.isVisiblePagination && props.serverSidePaginationEnabled && (
         <PaginationWrapper>
+          {props.totalRecordsCount ? (
+            <RowWrapper className="show-page-items">
+              {props.totalRecordsCount} Records
+            </RowWrapper>
+          ) : null}
           <PaginationItemWrapper
             className="t--table-widget-prev-page"
             disabled={props.pageNo === 0}
@@ -174,9 +179,20 @@ function TableHeader(props: TableHeaderProps) {
           >
             <Icon color={Colors.HIT_GRAY} icon="chevron-left" iconSize={16} />
           </PaginationItemWrapper>
-          <PaginationItemWrapper className="page-item" selected>
-            {props.pageNo + 1}
-          </PaginationItemWrapper>
+          {props.totalRecordsCount ? (
+            <RowWrapper>
+              Page{" "}
+              <PaginationItemWrapper className="page-item" selected>
+                {props.pageNo + 1}
+              </PaginationItemWrapper>{" "}
+              <span>{`of ${props.pageCount}`}</span>
+            </RowWrapper>
+          ) : (
+            <PaginationItemWrapper className="page-item" selected>
+              {props.pageNo + 1}
+            </PaginationItemWrapper>
+          )}
+
           <PaginationItemWrapper
             className="t--table-widget-next-page"
             disabled={
