@@ -7,9 +7,10 @@ import { ActionResponse } from "api/ActionAPI";
 import { formatBytes } from "utils/helpers";
 import { APIEditorRouteParams } from "constants/routes";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
+import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
-import { isArray, isEmpty, isString } from "lodash";
+import { isArray, isEmpty, isString, chunk } from "lodash";
 import {
   CHECK_REQUEST_BODY,
   createMessage,
@@ -269,7 +270,7 @@ function ApiResponseView(props: Props) {
 
   const messages = response?.messages;
   let responseHeaders = {};
-  let responseBody;
+  let responseBody: string;
 
   // if no headers are present in the response, use the default body text.
   if (response.headers) {
@@ -306,7 +307,15 @@ function ApiResponseView(props: Props) {
   ): JSX.Element => {
     return {
       [API_RESPONSE_TYPE_OPTIONS.JSON]: (
-        <JSONViewer src={output.length > 150 ? _.chunk(output, 100) : output} />
+        // <JSONViewer src={output.length > 150 ? chunk(output, 100) : output} />
+        <ReadOnlyEditor
+          folding
+          height={"100%"}
+          input={{
+            value: response.body ? responseBody : "",
+          }}
+          isReadOnly
+        />
       ),
       [API_RESPONSE_TYPE_OPTIONS.TABLE]: (
         <Table data={output} tableBodyHeight={tableBodyHeight} />
@@ -334,57 +343,6 @@ function ApiResponseView(props: Props) {
               ))}
             </HelpSection>
           )}
-          {hasFailed && !isRunning && (
-            <StyledCallout
-              fill
-              label={
-                <FailedMessage>
-                  <DebugButton
-                    className="api-debugcta"
-                    onClick={onDebugClick}
-                  />
-                </FailedMessage>
-              }
-              text={createMessage(CHECK_REQUEST_BODY)}
-              variant={Variant.danger}
-            />
-          )}
-          <ResponseDataContainer>
-            {isEmpty(response.statusCode) ? (
-              <NoResponseContainer>
-                <Icon name="no-response" />
-                <Text type={TextType.P1}>
-                  {EMPTY_RESPONSE_FIRST_HALF()}
-                  <InlineButton
-                    isLoading={isRunning}
-                    onClick={onRunClick}
-                    size={Size.medium}
-                    tag="button"
-                    text="Run"
-                    type="button"
-                  />
-                  {EMPTY_RESPONSE_LAST_HALF()}
-                </Text>
-              </NoResponseContainer>
-            ) : (
-              <ReadOnlyEditor
-                folding
-                height={"100%"}
-                input={{
-                  value: response.body ? (responseBody as string) : "",
-                }}
-                isReadOnly
-              />
-            )}
-          </ResponseDataContainer>
-        </ResponseTabWrapper>
-      ),
-    },
-    {
-      key: "headers",
-      title: "Headers",
-      panelComponent: (
-        <ResponseTabWrapper>
           {hasFailed && !isRunning && (
             <StyledCallout
               fill
@@ -447,8 +405,50 @@ function ApiResponseView(props: Props) {
                   )}
                 />
               </MultiSwitchContainer>
-
-<!--               <ReadOnlyEditor
+            )}
+          </ResponseDataContainer>
+        </ResponseTabWrapper>
+      ),
+    },
+    {
+      key: "headers",
+      title: "Headers",
+      panelComponent: (
+        <ResponseTabWrapper>
+          {hasFailed && !isRunning && (
+            <StyledCallout
+              fill
+              label={
+                <FailedMessage>
+                  <DebugButton
+                    className="api-debugcta"
+                    onClick={onDebugClick}
+                  />
+                </FailedMessage>
+              }
+              text={createMessage(CHECK_REQUEST_BODY)}
+              variant={Variant.danger}
+            />
+          )}
+          <ResponseDataContainer>
+            {isEmpty(response.statusCode) ? (
+              <NoResponseContainer>
+                <Icon name="no-response" />
+                <Text type={TextType.P1}>
+                  {EMPTY_RESPONSE_FIRST_HALF()}
+                  <InlineButton
+                    isLoading={isRunning}
+                    onClick={onRunClick}
+                    size={Size.medium}
+                    tag="button"
+                    text="Run"
+                    type="button"
+                  />
+                  {EMPTY_RESPONSE_LAST_HALF()}
+                </Text>
+              </NoResponseContainer>
+            ) : (
+              <ReadOnlyEditor
                 folding
                 height={"100%"}
                 input={{
@@ -457,8 +457,7 @@ function ApiResponseView(props: Props) {
                     : "",
                 }}
                 isReadOnly
-              /> -->
-
+              />
             )}
           </ResponseDataContainer>
         </ResponseTabWrapper>

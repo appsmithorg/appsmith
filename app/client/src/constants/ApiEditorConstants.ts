@@ -97,7 +97,6 @@ export const API_RESPONSE_TYPE_OPTIONS: {
   RAW: "RAW",
 };
 export const POST_BODY_FORMATS = Object.values(POST_BODY_FORMAT_OPTIONS).map(
-
   (option) => {
     return option;
   },

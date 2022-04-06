@@ -690,7 +690,6 @@ export function EditorJSONtoForm(props: Props) {
       const conditionalOutput = extractConditionalOutput(section);
       if (!checkIfSectionCanRender(conditionalOutput)) return null;
       enabled = checkIfSectionIsEnabled(conditionalOutput);
-
     }
     if (section.hasOwnProperty("controlType")) {
       // If component is type section, render it's children
@@ -767,7 +766,15 @@ export function EditorJSONtoForm(props: Props) {
   ): JSX.Element => {
     return {
       [API_RESPONSE_TYPE_OPTIONS.JSON]: (
-        <JSONViewer src={output.length > 150 ? _.chunk(output, 100) : output} />
+        // <JSONViewer src={output.length > 150 ? _.chunk(output, 100) : output} />
+        <ReadOnlyEditor
+          folding
+          height={"100%"}
+          input={{
+            value: JSON.stringify(output, null, 2),
+          }}
+          isReadOnly
+        />
       ),
       [API_RESPONSE_TYPE_OPTIONS.TABLE]: (
         <Table data={output} tableBodyHeight={tableBodyHeight} />

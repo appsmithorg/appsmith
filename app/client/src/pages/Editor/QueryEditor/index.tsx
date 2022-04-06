@@ -6,7 +6,7 @@ import styled from "styled-components";
 import { INTEGRATION_TABS, QueryEditorRouteParams } from "constants/routes";
 import history from "utils/history";
 import QueryEditorForm from "./Form";
-import { 
+import {
   deleteAction,
   runAction,
   setActionResponseDisplayFormat,

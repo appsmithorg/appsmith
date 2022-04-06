@@ -70,10 +70,10 @@ function ActionForm(props: Props) {
     match: {
       params: { apiId, pageId },
     },
+    pluginId,
     responseDataTypes,
     responseDisplayFormat,
     updateActionResponseDisplayFormat,
-    pluginId,
   } = props;
 
   const dispatch = useDispatch();
