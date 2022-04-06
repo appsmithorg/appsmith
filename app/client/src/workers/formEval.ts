@@ -126,7 +126,6 @@ function evaluateDynamicValuesConfig(
       } else if (typeof value === "string" && value.length > 0) {
         const regexMatches = value.match(DATA_BIND_REGEX_GLOBAL);
         if (!!regexMatches && regexMatches?.length > 0) {
-          console.log("ayush", value, regexMatches);
           let evaluatedValue = "";
           try {
             evaluatedValue = eval(value);
@@ -135,9 +134,6 @@ function evaluateDynamicValuesConfig(
           } finally {
             evaluatedConfig[key] = evaluatedValue;
           }
-          console.log("ayush", key, evaluatedValue, evaluatedConfig);
-        } else {
-          console.log("ayush no match", value, regexMatches);
         }
       }
     });

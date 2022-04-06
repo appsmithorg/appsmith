@@ -59,7 +59,8 @@ export const getBindingPathsOfAction = (
         formConfig.alternateViewTypes.includes(ViewTypes.JSON)
       ) {
         bindingPaths[configPath] = getCorrectEvaluationSubstitutionType(
-          alternateViewTypeInputConfig.evaluationSubstitutionType,
+          alternateViewTypeInputConfig(formConfig.controlType)
+            .evaluationSubstitutionType,
         );
       } else if (formConfig.controlType === "ARRAY_FIELD") {
         let actionValue = _.get(action, formConfig.configProperty);
