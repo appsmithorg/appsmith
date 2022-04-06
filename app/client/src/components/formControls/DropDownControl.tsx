@@ -158,10 +158,7 @@ const mapStateToProps = (
 
   try {
     if (ownProps.fetchOptionsCondtionally) {
-      const dynamicFetchedValues = getDynamicFetchedValues(
-        state,
-        ownProps.configProperty,
-      );
+      const dynamicFetchedValues = getDynamicFetchedValues(state, ownProps);
       isLoading = dynamicFetchedValues.isLoading;
       options = dynamicFetchedValues.data;
     }
