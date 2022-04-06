@@ -31,11 +31,13 @@ describe("Git sync:", function() {
     cy.createOrg();
     cy.wait("@createOrg").then((interception) => {
       const newOrganizationName = interception.response.body.data.name;
-      cy.CreateAppForOrg(newOrganizationName, newOrganizationName);
-      applicationName = newOrganizationName;
-      cy.get("@currentApplicationId").then(
-        (currentAppId) => (applicationId = currentAppId),
-      );
+      cy.generateUUID().then((uid) => {
+        cy.CreateAppForOrg(newOrganizationName, uid);
+        applicationName = uid;
+        cy.get("@currentApplicationId").then(
+          (currentAppId) => (applicationId = currentAppId),
+        );
+      });
     });
 
     cy.generateUUID().then((uid) => {
@@ -208,20 +210,22 @@ describe("Git sync:", function() {
     cy.get(gitSyncLocators.closeGitSyncModal).click({ force: true });
   });
 
-  it.only("checks clean url updates across branches", () => {
+  it("checks clean url updates across branches", () => {
+    cy.Deletepage("NewPage");
+    cy.wait(1000);
     let legacyPathname = "";
     let newPathname = "";
+    cy.intercept("GET", "/api/v1/pages?*mode=EDIT", (req) => {
+      req.continue();
+    }).as("appAndPages");
     cy.reload();
     //cy.pause();
-    cy.wait("@getPagesForCreateApp")
-      .wait("@getPagesForCreateApp")
-      .then((intercept) => {
-        const { application, pages } = intercept.response.body.data;
-        let currentPage = pages.find((p) => p.id);
-        const defaultPage = pages.find((p) => p.isDefault);
-        legacyPathname = `/applications/${application.id}/pages/${defaultPage.id}`;
-        newPathname = `/${application.slug}/${currentPage.slug}-${currentPage.id}`;
-      });
+    cy.wait("@appAndPages").then((intercept2) => {
+      const { application, pages } = intercept2.response.body.data;
+      const defaultPage = pages.find((p) => p.isDefault);
+      legacyPathname = `/applications/${application.id}/pages/${defaultPage.id}`;
+      newPathname = `/${application.slug}/${defaultPage.slug}-${defaultPage.id}`;
+    });
 
     cy.location().should((location) => {
       expect(location.pathname).includes(newPathname);
