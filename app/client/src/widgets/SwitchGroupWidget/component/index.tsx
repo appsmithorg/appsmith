@@ -8,6 +8,7 @@ import { LabelPosition } from "components/constants";
 import { TextSize } from "constants/WidgetConstants";
 import LabelWithTooltip, {
   labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
 } from "components/ads/LabelWithTooltip";
 
 export interface SwitchGroupContainerProps {
@@ -17,7 +18,10 @@ export interface SwitchGroupContainerProps {
 
 export const SwitchGroupContainer = styled.div<SwitchGroupContainerProps>`
   ${labelLayoutStyles}
-  overflow-x: hidden;
+  & .${LABEL_CONTAINER_CLASS} {
+    ${({ labelPosition }) =>
+      labelPosition === LabelPosition.Left && "min-height: 30px"};
+  }
 `;
 
 export interface InputContainerProps {
@@ -32,6 +36,7 @@ export interface InputContainerProps {
 
 export const InputContainer = styled.div<ThemeProp & InputContainerProps>`
   ${BlueprintRadioSwitchGroupTransform}
+  height: ${({ inline }) => (inline ? "32px" : "100%")};
   border: 1px solid transparent;
   ${({ theme, valid }) =>
     !valid &&

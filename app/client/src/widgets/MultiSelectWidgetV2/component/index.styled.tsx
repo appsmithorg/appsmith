@@ -6,6 +6,7 @@ import { createGlobalStyle } from "constants/DefaultTheme";
 import { LabelPosition } from "components/constants";
 import {
   labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
   multiSelectInputContainerStyles,
 } from "components/ads/LabelWithTooltip";
 
@@ -317,11 +318,21 @@ export const MultiSelectContainer = styled.div<{
   labelPosition?: LabelPosition;
 }>`
   ${labelLayoutStyles}
+  & .${LABEL_CONTAINER_CLASS} {
+    label {
+      ${({ labelPosition }) => {
+        if (!labelPosition) {
+          return "margin-bottom: 5px";
+        }
+      }};
+    }
+  }
 
   .rc-select {
     display: inline-block;
     font-size: 12px;
     width: 100%;
+    height: 100%;
     position: relative;
     cursor: pointer;
 
@@ -579,7 +590,5 @@ export const InputContainer = styled.div<{
   labelPosition?: LabelPosition;
 }>`
   ${multiSelectInputContainerStyles}
-  & .rc-select-selector {
-    min-height: 36px;
-  }
+  ${({ labelPosition }) => labelPosition && "height: 32px"};
 `;

@@ -16,6 +16,7 @@ import { StyledCheckbox } from "widgets/CheckboxWidget/component";
 import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
 import LabelWithTooltip, {
   labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
 } from "components/ads/LabelWithTooltip";
 
 export interface InputContainerProps {
@@ -41,7 +42,7 @@ const InputContainer = styled.div<ThemeProp & InputContainerProps>`
       ? `flex-start`
       : `center`};
   width: 100%;
-  height: 100%;
+  height: ${({ inline }) => (inline ? "32px" : "100%")};
   border: 1px solid transparent;
   ${({ theme, valid }) =>
     !valid &&
@@ -68,8 +69,10 @@ export interface CheckboxGroupContainerProps {
 
 export const CheckboxGroupContainer = styled.div<CheckboxGroupContainerProps>`
   ${labelLayoutStyles}
-  overflow-x: hidden;
-
+  & .${LABEL_CONTAINER_CLASS} {
+    ${({ labelPosition }) =>
+      labelPosition === LabelPosition.Left && "min-height: 30px"};
+  }
   & .select-all {
     white-space: nowrap;
     color: ${Colors.GREY_9} !important;

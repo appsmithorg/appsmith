@@ -8,6 +8,7 @@ import { BlueprintRadioSwitchGroupTransform } from "constants/DefaultTheme";
 import { LabelPosition } from "components/constants";
 import LabelWithTooltip, {
   labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
 } from "components/ads/LabelWithTooltip";
 
 export interface RadioGroupContainerProps {
@@ -17,7 +18,10 @@ export interface RadioGroupContainerProps {
 
 export const RadioGroupContainer = styled.div<RadioGroupContainerProps>`
   ${labelLayoutStyles}
-  overflow-x: hidden;
+  & .${LABEL_CONTAINER_CLASS} {
+    ${({ labelPosition }) =>
+      labelPosition === LabelPosition.Left && "min-height: 30px"};
+  }
 `;
 
 export interface StyledRadioGroupProps {
@@ -31,6 +35,7 @@ export interface StyledRadioGroupProps {
 
 const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
   ${BlueprintRadioSwitchGroupTransform}
+  height: ${({ inline }) => (inline ? "32px" : "100%")};
 `;
 
 function RadioGroupComponent(props: RadioGroupComponentProps) {

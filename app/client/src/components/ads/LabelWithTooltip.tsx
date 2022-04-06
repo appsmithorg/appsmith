@@ -99,10 +99,11 @@ export const labelLayoutStyles = css<{
     if (compactMode || labelPosition === LabelPosition.Left) return "center";
     return "flex-start";
   }};
-  ${({ compactMode, labelPosition }) =>
-    ((labelPosition !== LabelPosition.Left && !compactMode) ||
-      labelPosition === LabelPosition.Top) &&
-    `overflow-x: hidden; overflow-y: auto;`}
+  justify-content: ${({ compactMode, labelPosition }) => {
+    if (labelPosition && labelPosition !== LabelPosition.Left && !compactMode) {
+      return "space-between";
+    }
+  }};
 `;
 
 export const multiSelectInputContainerStyles = css<{
@@ -120,15 +121,14 @@ export const multiSelectInputContainerStyles = css<{
   }};
   ${({ compactMode, labelPosition }) =>
     labelPosition !== LabelPosition.Top && compactMode && `overflow-x: hidden`};
-  ${({ compactMode, labelPosition }) => {
-    if (compactMode || labelPosition) return;
-    return "margin-top: -5px;";
-  }}
 `;
 
 export const LabelContainer = styled.div<LabelContainerProps>`
-  display: flex;
-  align-items: center;
+  &&& {
+    display: flex;
+    align-items: center;
+    flex-grow: 0;
+  }
 
   ${({ alignment, compact, inline, optionCount, position, width }) => `
     ${
@@ -139,7 +139,7 @@ export const LabelContainer = styled.div<LabelContainerProps>`
     }
     ${position === LabelPosition.Left &&
       `
-      ${!width && width !== 0 && `width: 33%`};
+      ${!width && `width: 33%`};
       ${alignment === Alignment.RIGHT && `justify-content: flex-end`};
       label {
         ${width && `width: ${width}px`};
@@ -162,13 +162,7 @@ export const StyledTooltip = styled(Tooltip)`
 export const StyledLabel = styled(Label)<StyledLabelProps>`
   &&& {
     ${({ compact, hasHelpText, position }) => {
-      if (!position && !compact) {
-        return `margin-bottom: 0px; ${
-          hasHelpText
-            ? `margin-right: ${LABEL_DEFAULT_GAP}`
-            : "margin-right: 0px"
-        }`;
-      }
+      if (!position && !compact) return;
       if (
         position === LabelPosition.Left ||
         ((!position || position === LabelPosition.Auto) && compact)
@@ -178,13 +172,6 @@ export const StyledLabel = styled(Label)<StyledLabelProps>`
         hasHelpText ? `margin-right: ${LABEL_DEFAULT_GAP}` : "margin-right: 0px"
       }`;
     }};
-    &.select-label {
-      ${({ compact, position }) => {
-        if (!position && !compact) {
-          return `margin-bottom: ${LABEL_DEFAULT_GAP}`;
-        }
-      }};
-    }
 
     ${({ color, disabled, fontSize, fontStyle }) => `
       color: ${disabled ? Colors.GREY_8 : color || "inherit"};

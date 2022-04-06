@@ -69,8 +69,24 @@ const InputComponentWrapper = styled((props) => (
   ${labelLayoutStyles}
 
   &&&& {
+    ${({ inputType, labelPosition }) => {
+      if (!labelPosition && inputType !== InputTypes.TEXT) {
+        return "flex-direction: row";
+      }
+    }};
     & .${LABEL_CONTAINER_CLASS} {
       flex-grow: 0;
+      ${({ inputType, labelPosition }) => {
+        if (!labelPosition && inputType !== InputTypes.TEXT) {
+          return "flex: 1; margin-right: 5px; label { margin-right: 5px; margin-bottom: 0;}";
+        }
+      }}
+      align-items: flex-start;
+      ${({ compactMode, labelPosition }) => {
+        if (!labelPosition && !compactMode) {
+          return "max-height: 20px; .bp3-popover-wrapper {max-height: 20px}";
+        }
+      }};
     }
     .currency-type-filter,
     .country-type-filter {
@@ -186,16 +202,26 @@ const InputComponentWrapper = styled((props) => (
       justify-content: flex-start;
     }
     height: 100%;
-    align-items: ${({ compactMode, inputType, labelPosition }) =>
-      labelPosition === LabelPosition.Top
-        ? `flex-start`
-        : compactMode
-        ? `center`
-        : labelPosition === LabelPosition.Left
-        ? inputType === InputTypes.TEXT
-          ? `stretch`
-          : `center`
-        : `flex-start`};
+    align-items: ${({ compactMode, inputType, labelPosition }) => {
+      if (!labelPosition && inputType !== InputTypes.TEXT) {
+        return "center";
+      }
+      if (labelPosition === LabelPosition.Top) {
+        return "flex-start";
+      }
+      if (compactMode) {
+        return "center";
+      }
+      if (labelPosition === LabelPosition.Left) {
+        if (inputType === InputTypes.TEXT) {
+          return "stretch";
+        }
+        return "center";
+      }
+      return "flex-start";
+    }};
+
+
   }
   &&&& .bp3-input-group {
     display: flex;
@@ -286,10 +312,6 @@ const TextInputWrapper = styled.div<{
   ${({ inputHtmlType }) =>
     inputHtmlType && inputHtmlType !== InputTypes.TEXT && `&&& {flex-grow: 0;}`}
   min-height: 36px;
-  ${({ compact, inputHtmlType, labelPosition }) => {
-    if (compact || labelPosition) return;
-    if (inputHtmlType === InputTypes.TEXT) return "margin-top: -5px;";
-  }}
 `;
 
 export type InputHTMLType = "TEXT" | "NUMBER" | "PASSWORD" | "EMAIL" | "TEL";

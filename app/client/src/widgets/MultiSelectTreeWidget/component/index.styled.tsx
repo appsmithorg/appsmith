@@ -8,6 +8,7 @@ import { LabelPosition } from "components/constants";
 import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
 import {
   labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
   multiSelectInputContainerStyles,
 } from "components/ads/LabelWithTooltip";
 
@@ -550,11 +551,20 @@ export const TreeSelectContainer = styled.div<{
   labelPosition?: LabelPosition;
 }>`
   ${labelLayoutStyles}
-
+  & .${LABEL_CONTAINER_CLASS} {
+    label {
+      ${({ labelPosition }) => {
+        if (!labelPosition) {
+          return "margin-bottom: 5px";
+        }
+      }};
+    }
+  }
   .rc-tree-select {
     display: inline-block;
     font-size: 12px;
     width: 100%;
+    height: 100%;
     position: relative;
     cursor: pointer;
 
@@ -562,10 +572,6 @@ export const TreeSelectContainer = styled.div<{
       labelPosition !== LabelPosition.Top &&
       compactMode &&
       `height: 100%; overflow: hidden`};
-
-    .rc-tree-select-selector {
-      height: 36px !important;
-    }
 
     .rc-tree-select-selection-placeholder {
       pointer-events: none;
@@ -907,4 +913,5 @@ export const InputContainer = styled.div<{
   labelPosition?: LabelPosition;
 }>`
   ${multiSelectInputContainerStyles}
+  ${({ labelPosition }) => labelPosition && "height: 32px"};
 `;

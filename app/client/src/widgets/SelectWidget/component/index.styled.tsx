@@ -10,7 +10,10 @@ import {
 } from "constants/DefaultTheme";
 import { isEmptyOrNill } from "../../../utils/helpers";
 import { LabelPosition } from "components/constants";
-import { labelLayoutStyles } from "components/ads/LabelWithTooltip";
+import {
+  labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
+} from "components/ads/LabelWithTooltip";
 
 export const StyledDiv = styled.div`
   display: flex;
@@ -222,6 +225,15 @@ export const DropdownContainer = styled.div<{
 }>`
   ${BlueprintCSSTransform}
   ${labelLayoutStyles}
+  & .${LABEL_CONTAINER_CLASS} {
+    label {
+      ${({ labelPosition }) => {
+        if (!labelPosition) {
+          return "margin-bottom: 5px";
+        }
+      }};
+    }
+  }
 `;
 
 export const MenuItem = styled.div`

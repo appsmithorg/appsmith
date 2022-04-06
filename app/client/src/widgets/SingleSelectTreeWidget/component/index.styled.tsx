@@ -6,7 +6,10 @@ import { createGlobalStyle } from "constants/DefaultTheme";
 import Icon from "components/ads/Icon";
 import { LabelPosition } from "components/constants";
 import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
-import { labelLayoutStyles } from "components/ads/LabelWithTooltip";
+import {
+  labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
+} from "components/ads/LabelWithTooltip";
 
 export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
   transform: rotate(${({ expanded }) => (expanded ? 0 : 270)}deg);
@@ -561,17 +564,23 @@ export const TreeSelectContainer = styled.div<{
   labelPosition?: LabelPosition;
 }>`
   ${labelLayoutStyles}
+  & .${LABEL_CONTAINER_CLASS} {
+    label {
+      ${({ labelPosition }) => {
+        if (!labelPosition) {
+          return "margin-bottom: 5px";
+        }
+      }};
+    }
+  }
 
   .rc-tree-select {
     display: inline-block;
     font-size: 12px;
     width: 100%;
+    height: 100%;
     position: relative;
     cursor: pointer;
-
-    .rc-tree-select-selector {
-      height: 36px !important;
-    }
 
     .rc-tree-select-selection-placeholder {
       pointer-events: none;
@@ -894,10 +903,13 @@ export const InputContainer = styled.div<{
   labelPosition?: LabelPosition;
 }>`
   width: 100%;
-  ${({ compactMode, labelPosition }) => {
-    if (compactMode || labelPosition) return;
-    return "margin-top: -5px;";
-  }}
+  height: 100%;
+
   ${({ compactMode, labelPosition }) =>
     labelPosition !== LabelPosition.Top && compactMode && `overflow-x: hidden`};
+
+  &,
+  & .rc-tree-select {
+    ${({ labelPosition }) => labelPosition && "height: 32px"};
+  }
 `;
