@@ -1,6 +1,7 @@
 import 'cypress-wait-until';
 const uuid = require("uuid");
 import { ObjectsRegistry } from '../Objects/Registry';
+
 export class AggregateHelper {
     private locator = ObjectsRegistry.CommonLocators;
 
@@ -311,12 +312,17 @@ export class AggregateHelper {
         this.VerifyEvaluatedValue(valueToType);
     }
 
-    public EnterValue(valueToEnter: string, fieldName = "") {
-        if (fieldName) {
+    public EnterValue(valueToEnter: string, fieldName = "", notField = false) {
+        if (fieldName && !notField) {
             cy.xpath(this.locator._existingFieldTextByName(fieldName)).then(($field: any) => {
                 this.UpdateCodeInput($field, valueToEnter);
             });
-        } else {
+        } else if (fieldName && notField) {
+            cy.get(fieldName).then(($field: any) => {
+                this.UpdateCodeInput($field, valueToEnter);
+            });
+        }
+        else {
             cy.get(this.locator._codeEditorTarget).then(($field: any) => {
                 this.UpdateCodeInput($field, valueToEnter);
             });
