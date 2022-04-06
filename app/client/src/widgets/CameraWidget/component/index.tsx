@@ -906,7 +906,9 @@ function CameraComponent(props: CameraComponentProps) {
   }, [isAudioMuted, isVideoMuted]);
 
   useEffect(() => {
-    setIsReadyPlayerTimer(false);
+    // Clean up
+    resetMedia();
+
     if (mode === CameraModeTypes.CAMERA) {
       setMediaCaptureStatus(MediaCaptureStatusTypes.IMAGE_DEFAULT);
       return;

@@ -422,7 +422,7 @@ export const CellWrapper = styled.div<{
   }
   &:hover {
     .hidden-icon {
-      display: inline;
+      display: flex;
     }
   }
 `;

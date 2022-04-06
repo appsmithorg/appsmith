@@ -61,24 +61,24 @@ export class ApiPage {
     }
 
     EnterURL(url: string) {
-        this.agHelper.UpdateCodeInput(this._resourceUrl, url)
+        this.agHelper.EnterValue(url, this._resourceUrl, true)
         this.agHelper.AssertAutoSave()
     }
 
     EnterHeader(hKey: string, hValue: string) {
         this.SelectPaneTab('Headers');
-        this.agHelper.UpdateCodeInput(this._headerKey(0), hKey)
+        this.agHelper.EnterValue(hKey, this._headerKey(0), true)
         cy.get('body').type("{esc}");
-        this.agHelper.UpdateCodeInput(this._headerValue(0), hValue)
+        this.agHelper.EnterValue(hValue, this._headerValue(0), true)
         cy.get('body').type("{esc}");
         this.agHelper.AssertAutoSave()
     }
 
     EnterParams(pKey: string, pValue: string) {
         this.SelectPaneTab('Params')
-        this.agHelper.UpdateCodeInput(this._paramKey(0), pKey)
+        this.agHelper.EnterValue(pKey, this._paramKey(0), true)
         cy.get('body').type("{esc}");
-        this.agHelper.UpdateCodeInput(this._paramValue(0), pValue)
+        this.agHelper.EnterValue(pValue, this._paramValue(0), true)
         cy.get('body').type("{esc}");
         this.agHelper.AssertAutoSave()
     }
@@ -90,14 +90,14 @@ export class ApiPage {
             cy.get(this._trashDelete).click()
             cy.xpath(this._visibleTextSpan('Add more')).click()
         }
-        this.agHelper.UpdateCodeInput(this._bodyKey(0), bKey)
+        this.agHelper.EnterValue(bKey, this._bodyKey(0), true)
         cy.get('body').type("{esc}");
 
         if (type) {
             cy.xpath(this._bodyTypeDropdown).eq(0).click()
             cy.xpath(this._visibleTextDiv(type)).click()
         }
-        this.agHelper.UpdateCodeInput(this._bodyValue(0), bValue)
+        this.agHelper.EnterValue(bValue, this._bodyValue(0), true)
         cy.get('body').type("{esc}");
         this.agHelper.AssertAutoSave()
     }
