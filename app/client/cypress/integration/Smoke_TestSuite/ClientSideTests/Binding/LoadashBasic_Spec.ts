@@ -20,13 +20,13 @@ describe("Loadash basic test with input Widget", () => {
 
     it("1. Input widget test with default value for atob method", () => {
         ee.SelectEntityByName("Input1", 'WIDGETS')
-        jsEditor.EnterJSContext("defaulttext", dataSet.defaultInputBinding + "}}");
+        jsEditor.EnterJSContext("Default Text", dataSet.defaultInputBinding + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
     });
 
     it("2. Input widget test with default value for btoa method", function () {
         ee.SelectEntityByName("Input2")
-        jsEditor.EnterJSContext("defaulttext", dataSet.loadashInput + "}}");
+        jsEditor.EnterJSContext("Default Text", dataSet.loadashInput + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
     });
 
