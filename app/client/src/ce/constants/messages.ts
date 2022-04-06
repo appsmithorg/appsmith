@@ -522,8 +522,7 @@ export const BULK_WIDGET_ADDED = (widgetName: string) =>
 export const UNSUPPORTED_PLUGIN_DIALOG_TITLE = () =>
   `Couldn't auto generate a page from this datasource.`;
 
-export const UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE = () =>
-  `You can continue building your app with it using our drag & Drop
+export const UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE = () => `You can continue building your app with it using our drag & Drop
   builder`;
 export const UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING = () => `Heads up`;
 
@@ -735,6 +734,13 @@ export const CONNECTING_TO_REPO_DISABLED = () =>
   "Connecting to a git repo is disabled";
 export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
 export const MERGED_SUCCESSFULLY = () => "Merged successfully";
+
+// GIT ERRORS begin
+export const ERROR_GIT_AUTH_FAIL = () =>
+  "Please make sure that regenerated SSH key is added and has write access to the repo.";
+export const ERROR_GIT_INVALID_REMOTE = () =>
+  "Remote repo doesn't exist or is unreachable.";
+// GIT ERRORS end
 
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>
@@ -1113,7 +1119,7 @@ export const REQUEST_TEMPLATE = () => "Request for a template";
 export const SEARCH_TEMPLATES = () => "Search templates";
 export const INTRODUCING_TEMPLATES = () => "Introducing Templates";
 export const TEMPLATE_NOTIFICATION_DESCRIPTION = () =>
-  "You can browse, fork, and make them your own here";
+  "Use these templates to learn, create, and build apps even faster";
 export const GO_BACK = () => "GO BACK";
 export const OVERVIEW = () => "Overview";
 export const FUNCTION = () => "Function";
@@ -1123,6 +1129,8 @@ export const NOTE = () => "Note:";
 export const NOTE_MESSAGE = () => "You can add your datasources as well";
 export const WIDGET_USED = () => "Widgets Used";
 export const SIMILAR_TEMPLATES = () => "Similar Templates";
+export const VIEW_ALL_TEMPLATES = () => "VIEW ALL TEMPLATES";
+export const FILTERS = () => "FILTERS";
 
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 

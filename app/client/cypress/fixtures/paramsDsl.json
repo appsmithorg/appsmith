@@ -168,7 +168,7 @@
           "isFilterable": false,
           "displayName": "Select",
           "iconSVG": "/static/media/icon.bd99caba.svg",
-          "labelText": "Label",
+          "labelText": "Select an option to populate its records in Table!",
           "topRow": 5,
           "bottomRow": 12,
           "parentRowSpace": 10,

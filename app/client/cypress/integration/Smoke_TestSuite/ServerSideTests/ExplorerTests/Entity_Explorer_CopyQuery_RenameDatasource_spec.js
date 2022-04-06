@@ -1,8 +1,9 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
-const agHelper = new AggregateHelper();
+
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let ee = ObjectsRegistry.EntityExplorer;
 
 const pageid = "MyPage";
 let updatedName;
@@ -56,7 +57,7 @@ describe("Entity explorer tests related to copy query", function() {
       datasourceName = httpResponse.response.body.data.name;
 
       cy.CheckAndUnfoldEntityItem("QUERIES/JS");
-      agHelper.ActionContextMenuByEntityName("Query1", "Show Bindings");
+      ee.ActionContextMenuByEntityName("Query1", "Show Bindings");
       cy.get(apiwidget.propertyList).then(function($lis) {
         expect($lis).to.have.length(5);
         expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
@@ -73,13 +74,13 @@ describe("Entity explorer tests related to copy query", function() {
       .contains("Page1")
       .trigger("mouseover", { force: true })
       .click({ force: true });
-    agHelper.ActionContextMenuByEntityName("Query1", "Copy to page", pageid);
+    ee.ActionContextMenuByEntityName("Query1", "Copy to page", pageid);
     cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.get(".t--entity-name")
       .contains("Query1")
       .click({ force: true });
     cy.runQuery();
-    agHelper.ActionContextMenuByEntityName("Query1", "Show Bindings");
+    ee.ActionContextMenuByEntityName("Query1", "Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
       expect($lis.eq(1)).to.contain("{{Query1.data}}");
@@ -103,11 +104,7 @@ describe("Entity explorer tests related to copy query", function() {
       cy.CheckAndUnfoldEntityItem("QUERIES/JS");
       cy.EditEntityNameByDoubleClick(datasourceName, updatedName);
       cy.wait(1000);
-      agHelper.ActionContextMenuByEntityName(
-        updatedName,
-        "Delete",
-        "Are you sure?",
-      );
+      ee.ActionContextMenuByEntityName(updatedName, "Delete", "Are you sure?");
       cy.wait(1000);
       //This is check to make sure if a datasource is active 409
       cy.wait("@deleteDatasource").should(
@@ -119,6 +116,6 @@ describe("Entity explorer tests related to copy query", function() {
     cy.get(".t--entity-name")
       .contains("Query1")
       .click();
-    agHelper.ActionContextMenuByEntityName("Query1", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("Query1", "Delete", "Are you sure?");
   });
 });

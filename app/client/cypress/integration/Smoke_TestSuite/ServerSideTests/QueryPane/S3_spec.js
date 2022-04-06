@@ -400,7 +400,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     //Verifying Searching File from UI
     cy.xpath(queryLocators.searchFilefield)
       .type("CRUD")
-      .wait(500); //for search to finish
+      .wait(7000); //for search to finish
     expect(
       cy.xpath(
         "//div[@data-cy='overlay-comments-wrapper']//span[text()='CRUDNewPageFile']",
@@ -428,9 +428,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
     });
-    cy.get("span:contains('CRUDNewPageFile')", { timeout: 10000 }).should(
-      "not.exist",
-    ); //verify Deletion of file is success from UI also
+    cy.get("span:contains('CRUDNewPageFile')").should("not.exist"); //verify Deletion of file is success from UI also
   });
 
   it("6. Validate Deletion of the Newly Created Page", () => {
@@ -543,7 +541,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
         fixturePath +
         "']",
-      { timeout: 10000 },
     ).should("not.exist"); //verify Deletion of file is success from UI also
 
     //Upload: 2 - Bug verification 9201
@@ -609,7 +606,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
         fixturePath +
         "']",
-      { timeout: 10000 },
     ).should("not.exist"); //verify Deletion of file is success from UI also
 
     //Deleting the page:
