@@ -692,6 +692,7 @@ export const ReduxActionTypes = {
   GET_DEFAULT_PLUGINS_SUCCESS: "GET_DEFAULT_PLUGINS_SUCCESS",
   GET_TEMPLATE_INIT: "GET_TEMPLATES_INIT",
   GET_TEMPLATE_SUCCESS: "GET_TEMPLATES_SUCCESS",
+  START_EXECUTE_JS_FUNCTION: "START_EXECUTE_JS_FUNCTION",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
