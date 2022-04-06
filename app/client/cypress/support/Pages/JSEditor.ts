@@ -166,7 +166,7 @@ export class JSEditor {
   public validateDefaultJSObjProperties(jsObjName: string) {
     this.ee.ActionContextMenuByEntityName(jsObjName, "Show Bindings");
     cy.get(this._propertyList).then(function ($lis) {
-      expect($lis).to.have.length(4);
+      expect($lis).to.have.length(5);
       expect($lis.eq(0).text()).to.be.oneOf([
         "{{" + jsObjName + ".myFun2()}}",
         "{{" + jsObjName + ".myFun1()}}",
