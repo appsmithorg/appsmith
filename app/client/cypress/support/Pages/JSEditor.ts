@@ -218,7 +218,7 @@ export class JSEditor {
 
   public EnableOnPageLoad(funName: string, onLoad = true, bfrCalling = true) {
 
-    this.agHelper.XpathNClick(this._responseTabAction(funName))
+    this.agHelper.GetNClick(this._responseTabAction(funName))
     this.agHelper.AssertElementPresence(this._dialog('Function settings'))
     if (onLoad)
       this.agHelper.CheckUncheck(this._functionSetting('Run Function on Page load'), true)
