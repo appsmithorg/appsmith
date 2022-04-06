@@ -209,16 +209,19 @@ describe("Git sync:", function() {
   });
 
   it.only("checks clean url updates across branches", () => {
-    const legacyPathname = "";
-    const newPathname = "";
+    let legacyPathname = "";
+    let newPathname = "";
     cy.reload();
-    cy.pause();
-    cy.wait("@getPagesForCreateApp").then((intercept) => {
-      const { application, pages } = intercept.response.body.data;
-      const defaultPage = pages.find((p) => p.isDefault);
-      legacyPathname = `/applications/${application.id}/pages/${defaultPage.id}`;
-      newPathname = `/${application.slug}/${currentPage.slug}-${currentPage.id}`;
-    });
+    //cy.pause();
+    cy.wait("@getPagesForCreateApp")
+      .wait("@getPagesForCreateApp")
+      .then((intercept) => {
+        const { application, pages } = intercept.response.body.data;
+        let currentPage = pages.find((p) => p.id);
+        const defaultPage = pages.find((p) => p.isDefault);
+        legacyPathname = `/applications/${application.id}/pages/${defaultPage.id}`;
+        newPathname = `/${application.slug}/${currentPage.slug}-${currentPage.id}`;
+      });
 
     cy.location().should((location) => {
       expect(location.pathname).includes(newPathname);
