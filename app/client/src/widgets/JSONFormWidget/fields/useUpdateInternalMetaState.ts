@@ -41,7 +41,7 @@ function useUpdateInternalMetaState({
 
   const debouncedUpdateProperty = useMemo(
     () => debounce(updateProperty, DEBOUNCE_TIMEOUT),
-    [setMetaInternalFieldState, updateProperty],
+    [updateProperty],
   );
 
   return [debouncedUpdateProperty];
