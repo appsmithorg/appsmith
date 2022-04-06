@@ -329,7 +329,6 @@ export const extractEvalConfigFromFormConfig = (
   paths.forEach((path: string) => {
     if (!(path in formConfig)) return;
     const config = get(formConfig, path, "");
-    // console.log("Ayush", config, typeof config);
     if (typeof config === "string") {
       bindingsFound = {
         ...bindingsFound,
