@@ -23,7 +23,7 @@ import {
   TableStyles,
   MenuItems,
 } from "./Constants";
-import { isString, isEmpty, findIndex, isNil, isNaN, set } from "lodash";
+import { isString, isEmpty, findIndex, isNil, isNaN } from "lodash";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
@@ -48,10 +48,6 @@ import MenuButtonTableComponent from "./components/menuButtonTableComponent";
 import { stopClickEventPropagation } from "utils/helpers";
 import tinycolor from "tinycolor2";
 import { generateTableColumnId } from "./TableHelpers";
-import {
-  combineDynamicBindings,
-  getDynamicBindings,
-} from "utils/DynamicBindingUtils";
 
 export const renderCell = (
   value: any,

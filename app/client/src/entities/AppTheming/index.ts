@@ -1,3 +1,9 @@
+type Stylesheet = {
+  [key: string]: {
+    [key: string]: string;
+  };
+};
+
 export type AppTheme = {
   id: string;
   name: string;
@@ -31,7 +37,8 @@ export type AppTheme = {
   // styles for specific widgets
   stylesheet: {
     [key: string]: {
-      [key: string]: string;
+      [key: string]: string | Stylesheet;
+      childStylesheets: Stylesheet;
     };
   };
   // current values for the theme

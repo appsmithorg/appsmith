@@ -6,11 +6,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { JSONFormWidgetProps } from ".";
 import { ROOT_SCHEMA_KEY } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import {
-  ButtonVariantTypes,
-  ButtonBorderRadiusTypes,
-  ButtonPlacementTypes,
-} from "components/constants";
+import { ButtonVariantTypes, ButtonPlacementTypes } from "components/constants";
 import { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
 import { OnButtonClickProps } from "components/propertyControls/ButtonControl";
 import { ComputedSchemaStatus, computeSchema } from "./helper";
@@ -156,16 +152,10 @@ const generateButtonStyleControlsFor = (prefix: string) => [
     label: "Border Radius",
     helpText: "Rounds the corners of the icon button's outer border edge",
     controlType: "BORDER_RADIUS_OPTIONS",
-    options: [ButtonBorderRadiusTypes.SHARP, ButtonBorderRadiusTypes.ROUNDED],
     isJSConvertible: true,
     isBindProperty: true,
     isTriggerProperty: false,
-    validation: {
-      type: ValidationTypes.TEXT,
-      params: {
-        allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
-      },
-    },
+    validation: { type: ValidationTypes.TEXT },
   },
   {
     propertyName: `${prefix}.boxShadow`,

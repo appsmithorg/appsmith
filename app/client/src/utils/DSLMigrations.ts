@@ -9,7 +9,7 @@ import {
 } from "constants/WidgetConstants";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { nextAvailableRowInContainer } from "entities/Widget/utils";
-import { get, has, isEmpty, isString, omit, set } from "lodash";
+import { clone, get, has, isEmpty, isString, omit, set } from "lodash";
 import * as Sentry from "@sentry/react";
 import { CANVAS_DEFAULT_HEIGHT_PX } from "constants/AppConstants";
 import { ChartDataPoint } from "widgets/ChartWidget/constants";
@@ -61,6 +61,8 @@ import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleCon
 import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 import { migratePhoneInputWidgetAllowFormatting } from "./migrations/PhoneInputWidgetMigrations";
+import { ROOT_SCHEMA_KEY } from "widgets/JSONFormWidget/constants";
+import { parseSchemaItem } from "widgets/WidgetUtils";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1586,7 +1588,12 @@ export const migrateStylingPropertiesForTheming = (
         addPropertyToDynamicPropertyPathList("borderRadius", child);
         break;
       default:
-        if (child.type === "CONTAINER_WIDGET" || child.type === "FORM_WIDGET") {
+        if (
+          (child.type === "CONTAINER_WIDGET" ||
+            child.type === "FORM_WIDGET" ||
+            child.type === "JSON_FORM_WIDGET") &&
+          child.borderRadius
+        ) {
           child.borderRadius = `${child.borderRadius}px`;
           addPropertyToDynamicPropertyPathList("borderRadius", child);
         } else {
@@ -1612,7 +1619,7 @@ export const migrateStylingPropertiesForTheming = (
         addPropertyToDynamicPropertyPathList("boxShadow", child);
         break;
       case BoxShadowTypes.VARIANT4:
-        child.boxShadow = `2px 2px 0px  ${child.boxShadowColor ||
+        child.boxShadow = `2px 2px 0px ${child.boxShadowColor ||
           "rgba(0, 0, 0, 0.25)"}`;
         addPropertyToDynamicPropertyPathList("boxShadow", child);
         break;
@@ -1816,6 +1823,145 @@ export const migrateStylingPropertiesForTheming = (
             break;
         }
       });
+    }
+
+    /**
+     * Migrate the parent level properties for JSON Form
+     */
+    const parentLevelProperties = ["submitButtonStyles", "resetButtonStyles"];
+    parentLevelProperties.forEach((propertyName: string) => {
+      const propertyPathBorderRadius = `${propertyName}.borderRadius`;
+      const propertyPathBoxShadow = `${propertyName}.boxShadow`;
+      const propertyPathBoxShadowColor = `${propertyName}.boxShadowColor`;
+
+      if (has(child, propertyPathBorderRadius)) {
+        const jsonFormBorderRadius = get(child, propertyPathBorderRadius);
+        switch (jsonFormBorderRadius) {
+          case ButtonBorderRadiusTypes.SHARP:
+            set(child, propertyPathBorderRadius, "0px");
+            break;
+          case ButtonBorderRadiusTypes.ROUNDED:
+            set(child, propertyPathBorderRadius, "0.375rem");
+            break;
+          case ButtonBorderRadiusTypes.CIRCLE:
+            set(child, propertyPathBorderRadius, "9999px");
+            addPropertyToDynamicPropertyPathList(
+              propertyPathBorderRadius,
+              child,
+            );
+            break;
+          default:
+            set(child, propertyPathBorderRadius, "0px");
+        }
+      } else {
+        set(child, propertyPathBorderRadius, "0px");
+      }
+
+      if (has(child, propertyPathBoxShadow)) {
+        const jsonFormBoxShadow = get(child, propertyPathBoxShadow);
+        const boxShadowColor =
+          (has(child, propertyPathBoxShadowColor) &&
+            get(child, propertyPathBoxShadowColor)) ||
+          "rgba(0, 0, 0, 0.25)";
+        switch (jsonFormBoxShadow) {
+          case BoxShadowTypes.VARIANT1:
+            set(
+              child,
+              propertyPathBoxShadow,
+              `0px 0px 4px 3px ${boxShadowColor}`,
+            );
+            addPropertyToDynamicPropertyPathList(propertyPathBoxShadow, child);
+            break;
+          case BoxShadowTypes.VARIANT2:
+            set(child, propertyPathBoxShadow, `3px 3px 4px ${boxShadowColor}`);
+            addPropertyToDynamicPropertyPathList(propertyPathBoxShadow, child);
+            break;
+          case BoxShadowTypes.VARIANT3:
+            set(child, propertyPathBoxShadow, `0px 1px 3px ${boxShadowColor}`);
+            addPropertyToDynamicPropertyPathList(propertyPathBoxShadow, child);
+            break;
+          case BoxShadowTypes.VARIANT4:
+            set(child, propertyPathBoxShadow, `2px 2px 0px ${boxShadowColor}`);
+            addPropertyToDynamicPropertyPathList(propertyPathBoxShadow, child);
+            break;
+          case BoxShadowTypes.VARIANT5:
+            set(
+              child,
+              propertyPathBoxShadow,
+              `-2px -2px 0px ${boxShadowColor}`,
+            );
+            addPropertyToDynamicPropertyPathList(propertyPathBoxShadow, child);
+            break;
+          default:
+            set(child, propertyPathBoxShadow, "none");
+        }
+      } else {
+        set(child, propertyPathBoxShadow, "none");
+      }
+    });
+
+    /**
+     * Migrate the children level properties for JSON form
+     */
+    if (has(child, "schema")) {
+      const clonedSchema = clone(child.schema);
+      parseSchemaItem(
+        clonedSchema[ROOT_SCHEMA_KEY],
+        `schema.${ROOT_SCHEMA_KEY}`,
+        (schemaItem, propertyPath) => {
+          switch (schemaItem.labelTextSize) {
+            case TextSizes.PARAGRAPH2:
+              schemaItem.labelTextSize = "0.75rem";
+              addPropertyToDynamicPropertyPathList(
+                `${propertyPath}.labelTextSize`,
+                child,
+              );
+              break;
+            case TextSizes.PARAGRAPH:
+              schemaItem.labelTextSize = "0.875rem";
+              break;
+            case TextSizes.HEADING3:
+              schemaItem.labelTextSize = "1rem";
+              break;
+            case TextSizes.HEADING2:
+              schemaItem.labelTextSize = "1.125rem";
+              addPropertyToDynamicPropertyPathList(
+                `${propertyPath}.labelTextSize`,
+                child,
+              );
+              break;
+            case TextSizes.HEADING1:
+              schemaItem.labelTextSize = "1.5rem";
+              addPropertyToDynamicPropertyPathList(
+                `${propertyPath}.labelTextSize`,
+                child,
+              );
+              break;
+            default:
+              schemaItem.labelTextSize = "0.875rem";
+          }
+
+          //Set the default borderRadius
+          !has(schemaItem, "borderRadius") &&
+            set(schemaItem, "borderRadius", "0px");
+          //Set the default borderRadius for the Item styles in an array type:
+          !has(schemaItem, "cellBorderRadius") &&
+            set(schemaItem, "cellBorderRadius", "0px");
+
+          //Sets the default value for the boxShadow
+          !has(schemaItem, "boxShadow") && set(schemaItem, "boxShadow", "none");
+
+          //Sets the default value for the boxShadow property of Item styles inside an array:
+          !has(schemaItem, "cellBoxShadow") &&
+            set(schemaItem, "cellBoxShadow", "none");
+
+          //Sets default value as green for the accentColor(Most of the widgets require the below property):
+          !has(schemaItem, "accentColor") &&
+            set(schemaItem, "accentColor", Colors.GREEN);
+        },
+      );
+
+      child.schema = clonedSchema;
     }
 
     // migrate font size

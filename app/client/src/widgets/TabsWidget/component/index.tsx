@@ -4,7 +4,6 @@ import React, {
   useEffect,
   useRef,
   useState,
-  createRef,
   useCallback,
 } from "react";
 import styled, { css } from "styled-components";
@@ -12,18 +11,10 @@ import { Button, MaybeElement } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 
 import { ComponentProps } from "widgets/BaseComponent";
-import {
-  TabsWidgetProps,
-  TabContainerWidgetProps,
-  SCROLL_NAV_CONTROL_CONTAINER_WIDTH,
-} from "../constants";
+import { TabsWidgetProps, TabContainerWidgetProps } from "../constants";
 import Icon, { IconSize } from "components/ads/Icon";
 import { generateClassName, getCanvasClassName } from "utils/generators";
-import ScrollIndicator from "components/ads/ScrollIndicator";
-import { ReactComponent as ScrollNavLeftIcon } from "assets/icons/widget/tabs/scroll-nav-left.svg";
-import { ReactComponent as ScrollNavRightIcon } from "assets/icons/widget/tabs/scroll-nav-right.svg";
 import { Colors } from "constants/Colors";
-import { lightenColor } from "widgets/WidgetUtils";
 import PageTabs from "./PageTabs";
 import useThrottledRAF from "utils/hooks/useThrottledRAF";
 
