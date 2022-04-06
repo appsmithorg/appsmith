@@ -17,6 +17,7 @@ import { FORM_EVALUATION_REDUX_ACTIONS } from "actions/evaluationActions";
 import { ActionConfig } from "entities/Action";
 import { FormConfigType } from "components/formControls/BaseControl";
 import PluginsApi from "api/PluginApi";
+import { ApiResponse } from "api/ApiResponses";
 
 let isEvaluating = false; // Flag to maintain the queue of evals
 
@@ -147,21 +148,30 @@ function* fetchDynamicValueSaga(
 ) {
   try {
     const { config } = value.fetchDynamicValues as DynamicValues;
-    const { params, url } = config;
+    const { params } = config;
 
     dynamicFetchedValues.hasStarted = true;
 
+    let url = PluginsApi.defaultDynamicTriggerURL(datasourceId);
+
+    if ("url" in config && !!config.url && config.url.length > 0)
+      url = config.url;
+
     // Call the API to fetch the dynamic values
-    const response = yield call(PluginsApi.fetchDynamicFormValues, url, {
-      actionId,
-      configProperty,
-      datasourceId,
-      pluginId,
-      ...params,
-    });
+    const response: ApiResponse = yield call(
+      PluginsApi.fetchDynamicFormValues,
+      url,
+      {
+        actionId,
+        configProperty,
+        datasourceId,
+        pluginId,
+        ...params,
+      },
+    );
     dynamicFetchedValues.isLoading = false;
-    if (!!response && response instanceof Array) {
-      dynamicFetchedValues.data = response;
+    if (response.responseMeta.status === 200 && "trigger" in response.data) {
+      dynamicFetchedValues.data = response.data.trigger;
       dynamicFetchedValues.hasFetchFailed = false;
     } else {
       dynamicFetchedValues.hasFetchFailed = true;
