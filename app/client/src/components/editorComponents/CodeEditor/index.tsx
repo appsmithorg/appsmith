@@ -355,12 +355,12 @@ class CodeEditor extends Component<Props, State> {
             (hinter) => hinter.update && hinter.update(this.props.dynamicData),
           );
         }
-        this.handleCustomGutter(this.editor, true);
       }
     });
   }
 
-  handleMouseMove = () => {
+  handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    this.handleCustomGutter(this.editor.lineAtHeight(e.clientY, "window"));
     // this code only runs when we want custom tool tip for any highlighted text inside codemirror instance
     if (
       this.props.showCustomToolTipForHighlightedText &&
@@ -443,15 +443,16 @@ class CodeEditor extends Component<Props, State> {
     });
   }
 
-  handleCustomGutter = (editor: CodeMirror.Editor, focused: boolean) => {
+  handleCustomGutter = (lineNumber: number | null) => {
     const { customGutter } = this.props;
+    const editor = this.editor;
     if (!customGutter || !editor) return;
     editor.clearGutter(customGutter.gutterId);
 
-    if (focused && customGutter.getGutterConfig) {
+    if (lineNumber && customGutter.getGutterConfig) {
       const gutterConfig = customGutter.getGutterConfig(
         editor.getValue(),
-        editor.getCursor().line,
+        lineNumber,
       );
       if (!gutterConfig) return;
       editor.setGutterMarker(
@@ -476,7 +477,6 @@ class CodeEditor extends Component<Props, State> {
     } else {
       this.editor.setOption("matchBrackets", false);
     }
-    this.handleCustomGutter(this.editor, true);
   };
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
@@ -489,14 +489,13 @@ class CodeEditor extends Component<Props, State> {
           (hinter) => hinter.showHint && hinter.showHint(cm, entityInformation),
         );
     }
-    this.handleCustomGutter(this.editor, true);
   };
 
   handleEditorBlur = () => {
     this.handleChange();
     this.setState({ isFocused: false });
     this.editor.setOption("matchBrackets", false);
-    this.handleCustomGutter(this.editor, false);
+    this.handleCustomGutter(null);
   };
 
   handleBeforeChange = (

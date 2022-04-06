@@ -4,15 +4,9 @@ import {
   ReduxActionTypes,
   ReduxAction,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { set, keyBy } from "lodash";
+} from "constants/ReduxActionConstants";
+import { set, keyBy, findIndex } from "lodash";
 import produce from "immer";
-
-export enum JSCollectionActiveActionUpdateStatus {
-  NoUpdates = "NoUpdates",
-  Update = "Update",
-  Reset = "Reset",
-}
 
 const initialState: JSCollectionDataState = [];
 export interface JSCollectionData {
@@ -70,28 +64,24 @@ const jsActionsReducer = createReducer(initialState, {
     state: JSCollectionDataState,
     action: ReduxAction<{
       data: JSCollection;
-      activeActionStatus: JSCollectionActiveActionUpdateStatus;
-      activeActionId: string;
     }>,
-  ): JSCollectionDataState => {
-    const { activeActionId, activeActionStatus } = action.payload;
-    return state.map((jsCollection) => {
+  ): JSCollectionDataState =>
+    state.map((jsCollection) => {
       if (jsCollection.config.id === action.payload.data.id) {
         return {
           ...jsCollection,
           isLoading: false,
           config: action.payload.data,
           activeJSActionId:
-            activeActionStatus === JSCollectionActiveActionUpdateStatus.Reset
+            findIndex(jsCollection.config.actions, {
+              id: jsCollection.activeJSActionId,
+            }) === -1
               ? undefined
-              : action.payload.data.actions.find(
-                  (action) => action.id === activeActionId,
-                )?.id ?? jsCollection.activeJSActionId,
+              : jsCollection.activeJSActionId,
         };
       }
       return jsCollection;
-    });
-  },
+    }),
   [ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS]: (
     state: JSCollectionDataState,
     action: ReduxAction<{ data: JSCollection }>,

@@ -18,10 +18,7 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getJSCollection, getJSCollections } from "selectors/entitiesSelector";
-import {
-  JSCollectionActiveActionUpdateStatus,
-  JSCollectionData,
-} from "reducers/entityReducers/jsActionsReducer";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSFunctionName, getQueryParams } from "utils/AppsmithUtils";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import { createJSCollectionRequest } from "actions/jsActionActions";
@@ -264,35 +261,9 @@ function* updateJSCollection(data: {
           );
         }
 
-        // handle update of active js function
-        let updateStatus: JSCollectionActiveActionUpdateStatus =
-          JSCollectionActiveActionUpdateStatus.NoUpdates;
-        let newActiveActionId = "";
-        const responseData: JSCollection = response.data;
-
-        if (newActions && newActions.length) {
-          updateStatus = JSCollectionActiveActionUpdateStatus.Update;
-          newActiveActionId =
-            responseData.actions.find(
-              (action) =>
-                action.name === newActions[newActions.length - 1].name,
-            )?.id || "";
-        } else if (updatedActions && updatedActions.length) {
-          updateStatus = JSCollectionActiveActionUpdateStatus.Update;
-          newActiveActionId =
-            responseData.actions.find(
-              (action) =>
-                action.name === updatedActions[updatedActions.length - 1].name,
-            )?.id || "";
-        } else if (deletedActions && deletedActions.length) {
-          updateStatus = JSCollectionActiveActionUpdateStatus.Reset;
-        }
-
         yield put(
           updateJSCollectionSuccess({
             data: response?.data,
-            activeActionStatus: updateStatus,
-            activeActionId: newActiveActionId,
           }),
         );
       }

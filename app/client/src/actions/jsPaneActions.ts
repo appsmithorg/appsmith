@@ -4,7 +4,6 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import { RefactorAction, SetFunctionPropertyPayload } from "api/JSActionAPI";
-import { JSCollectionActiveActionUpdateStatus } from "reducers/entityReducers/jsActionsReducer";
 
 export const createNewJSCollection = (
   pageId: string,
@@ -30,11 +29,7 @@ export const updateJSCollectionBody = (
   payload: { body, id, isReplay },
 });
 
-export const updateJSCollectionSuccess = (payload: {
-  data: JSCollection;
-  activeActionStatus: JSCollectionActiveActionUpdateStatus;
-  activeActionId: string;
-}) => {
+export const updateJSCollectionSuccess = (payload: { data: JSCollection }) => {
   return {
     type: ReduxActionTypes.UPDATE_JS_ACTION_SUCCESS,
     payload,

@@ -89,7 +89,7 @@ export const createGutterMarker = (gutterOnclick: () => void) => {
   const marker = document.createElement("button");
   marker.innerHTML = "&#9654;";
   marker.classList.add(RUN_GUTTER_CLASSNAME);
-  marker.onclick = function(e) {
+  marker.onmousedown = function(e) {
     e.preventDefault();
     gutterOnclick();
   };

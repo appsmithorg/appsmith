@@ -223,12 +223,6 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
       // only update when there is a new active action
       if (jsAction.id !== selectedJSActionOption.data.id) {
         setSelectedJSActionOption(convertJSActionToDropdownOption(jsAction));
-        dispatch(
-          setActiveJSAction({
-            jsCollectionId: currentJSCollection.id || "",
-            jsActionId: jsAction.id || "",
-          }),
-        );
       }
     },
     [selectedJSActionOption],
@@ -242,7 +236,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
         handleActiveActionChange,
         !parseErrors.length,
       ),
-    [jsActions, parseErrors, selectedJSActionOption],
+    [jsActions, parseErrors, handleActiveActionChange],
   );
 
   const handleJSActionOptionSelection: DropdownOnSelect = (
