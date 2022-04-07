@@ -25,15 +25,15 @@ export default {
     }
     const filteredTableData =
       props.filteredTableData || props.sanitizedTableData || [];
+    const omitInternalKeys = ["__originalIndex__", "__primaryKey__"];
     if (selectedRowIndex === -1) {
       const emptyRow = { ...filteredTableData[0] };
       Object.keys(emptyRow).forEach((key) => {
         emptyRow[key] = "";
       });
-      return emptyRow;
+      return _.omit(emptyRow, omitInternalKeys);
     }
     const selectedRow = { ...filteredTableData[selectedRowIndex] };
-    const omitInternalKeys = ["__originalIndex__", "__primaryKey__"];
     return _.omit(selectedRow, omitInternalKeys);
   },
   //
@@ -44,15 +44,15 @@ export default {
         ? -1
         : parseInt(props.triggeredRowIndex);
     const tableData = props.sanitizedTableData || [];
+    const omitInternalKeys = ["__originalIndex__", "__primaryKey__"];
     if (triggeredRowIndex === -1) {
       const emptyRow = { ...tableData[0] };
       Object.keys(emptyRow).forEach((key) => {
         emptyRow[key] = "";
       });
-      return emptyRow;
+      return _.omit(emptyRow, omitInternalKeys);
     }
     const triggeredRow = { ...tableData[triggeredRowIndex] };
-    const omitInternalKeys = ["__originalIndex__", "__primaryKey__"];
     return _.omit(triggeredRow, omitInternalKeys);
   },
   //
