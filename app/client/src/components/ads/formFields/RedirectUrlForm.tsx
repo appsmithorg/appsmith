@@ -13,6 +13,8 @@ import {
   createMessage,
   REDIRECT_URL_TOOLTIP,
 } from "@appsmith/constants/messages";
+import { REDIRECT_URL_FORM } from "constants/forms";
+import { Colors } from "constants/Colors";
 
 const HelpIcon = HelpIcons.HELP_ICON;
 
@@ -34,7 +36,7 @@ const HeaderWrapper = styled.div`
     cursor: pointer;
     svg {
       border-radius: 50%;
-      border: 1px solid #858282;
+      border: 1px solid ${Colors.GREY_7};
       padding: 1px;
     }
   }
@@ -74,14 +76,14 @@ function RedirectUrlForm(
         <TooltipComponent
           autoFocus={false}
           content={createMessage(REDIRECT_URL_TOOLTIP)}
-          hoverOpenDelay={1000}
+          hoverOpenDelay={0}
           minWidth={"180px"}
           openOnTargetFocus={false}
           position={Position.RIGHT}
         >
           <HelpIcon
             className={"help-icon"}
-            color={"#858282"}
+            color={Colors.GREY_7}
             height={13}
             width={13}
           />
@@ -102,6 +104,6 @@ function RedirectUrlForm(
 }
 
 export const RedirectUrlReduxForm = reduxForm<any, any>({
-  form: "Redirect URL",
+  form: REDIRECT_URL_FORM,
   touchOnBlur: true,
 })(RedirectUrlForm);

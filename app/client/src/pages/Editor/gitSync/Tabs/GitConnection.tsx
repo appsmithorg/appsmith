@@ -122,11 +122,12 @@ const RemoteUrlInfoWrapper = styled.div`
 const Section = styled.div``;
 
 const StickyMenuWrapper = styled.div`
-  position: sticky;
+  position: static;
   top: 0px;
   height: fit-content;
   z-index: 9999;
   background: white;
+  margin-right: 10px;
 `;
 
 const TooltipWrapper = styled.div`
@@ -392,7 +393,7 @@ function GitConnection({ isImport }: Props) {
   }, []);
 
   return (
-    <Container ref={scrollWrapperRef}>
+    <Container data-test="t--git-connection-container" ref={scrollWrapperRef}>
       <Section>
         <StickyMenuWrapper>
           <Title>
@@ -402,7 +403,7 @@ function GitConnection({ isImport }: Props) {
           </Title>
           <Subtitle>{createMessage(CONNECT_TO_GIT_SUBTITLE)}</Subtitle>
         </StickyMenuWrapper>
-        <UrlOptionContainer>
+        <UrlOptionContainer data-test="t--remote-url-container">
           <Text color={Colors.GREY_9} type={TextType.P1}>
             {createMessage(REMOTE_URL)}
           </Text>

@@ -26,14 +26,17 @@ import {
   isSortableMigration,
   migrateTableWidgetIconButtonVariant,
 } from "./migrations/TableWidget";
-import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
+import {
+  migrateTextStyleFromTextWidget,
+  migrateScrollTruncateProperties,
+} from "./migrations/TextWidget";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 import { theme } from "constants/DefaultTheme";
 import { getCanvasSnapRows } from "./WidgetPropsUtils";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { FetchPageResponse } from "api/PageApi";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import defaultTemplate from "templates/default";
+// import defaultTemplate from "templates/default";
 import { renameKeyInObject } from "./helpers";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButtonWidget";
@@ -1056,6 +1059,11 @@ export const transformDSL = (
 
   if (currentDSL.version === 52) {
     currentDSL = migrateModalIconButtonWidget(currentDSL);
+    currentDSL.version = 53;
+  }
+
+  if (currentDSL.version === 53) {
+    currentDSL = migrateScrollTruncateProperties(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
@@ -1482,7 +1490,8 @@ export const migrateToNewLayout = (dsl: ContainerWidgetProps<WidgetProps>) => {
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
 ) => {
-  const currentDSL = fetchPageResponse?.data.layouts[0].dsl || defaultTemplate;
+  const currentDSL = fetchPageResponse?.data.layouts[0].dsl;
+  if (!currentDSL) return false;
   return currentDSL.version !== LATEST_PAGE_VERSION;
 };
 

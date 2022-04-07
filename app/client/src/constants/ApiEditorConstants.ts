@@ -112,6 +112,7 @@ export const POST_BODY_FORMAT_TITLES = Object.entries(
 export enum MultiPartOptionTypes {
   TEXT = "Text",
   FILE = "File",
+  ARRAY = "Array",
 }
 
 export interface MULTI_PART_DROPDOWN_OPTION {
@@ -127,6 +128,10 @@ export const MULTI_PART_DROPDOWN_OPTIONS: MULTI_PART_DROPDOWN_OPTION[] = [
   {
     label: MultiPartOptionTypes.FILE,
     value: "FILE",
+  },
+  {
+    label: MultiPartOptionTypes.ARRAY,
+    value: "ARRAY",
   },
 ];
 

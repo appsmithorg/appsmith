@@ -28,8 +28,8 @@ import log from "loglevel";
 import {
   formatCurrencyNumber,
   getLocaleDecimalSeperator,
+  getLocaleThousandSeparator,
   limitDecimalValue,
-  parseLocaleFormattedStringToNumber,
 } from "../component/utilities";
 import { mergeWidgetConfig } from "utils/helpers";
 
@@ -204,6 +204,13 @@ class CurrencyInputWidget extends BaseInputWidget<
     ) {
       this.formatText();
     }
+    // If defaultText property has changed, reset isDirty to false
+    if (
+      this.props.defaultText !== prevProps.defaultText &&
+      this.props.isDirty
+    ) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
   }
 
   formatText() {
@@ -253,18 +260,17 @@ class CurrencyInputWidget extends BaseInputWidget<
   handleFocusChange = (isFocused?: boolean) => {
     try {
       if (isFocused) {
-        const deFormattedValue = parseLocaleFormattedStringToNumber(
-          this.props.text,
+        const text = this.props.text || "";
+        const deFormattedValue = text.replace(
+          new RegExp("\\" + getLocaleThousandSeparator(), "g"),
+          "",
         );
-        this.props.updateWidgetMetaProperty(
-          "text",
-          isNaN(deFormattedValue) ? "" : String(deFormattedValue),
-        );
+        this.props.updateWidgetMetaProperty("text", deFormattedValue);
       } else {
         if (this.props.text) {
           const formattedValue = formatCurrencyNumber(
             this.props.decimals,
-            String(this.props.value),
+            this.props.text,
           );
           this.props.updateWidgetMetaProperty("text", formattedValue);
         }
@@ -304,6 +310,10 @@ class CurrencyInputWidget extends BaseInputWidget<
       this.props.decimals,
       String(value),
     );
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     this.props.updateWidgetMetaProperty("text", String(formattedValue), {
       triggerPropertyName: "onTextChanged",
       dynamicString: this.props.onTextChanged,
