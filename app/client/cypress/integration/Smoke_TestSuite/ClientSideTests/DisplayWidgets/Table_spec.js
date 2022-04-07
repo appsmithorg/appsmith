@@ -59,6 +59,7 @@ describe("Table Widget Functionality", function() {
   });
 
   it("Table Widget Functionality To Check if Table is Sortable", function() {
+    cy.get(commonlocators.editPropBackButton).click();
     cy.openPropertyPane("tablewidget");
     // Confirm if isSortable is true
     cy.get(commonlocators.isSortable).should("be.checked");
