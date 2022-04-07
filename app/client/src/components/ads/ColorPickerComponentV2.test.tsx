@@ -100,13 +100,98 @@ describe("<ColorPicker /> - Keyboard Navigation", () => {
     ).toHaveFocus();
   });
 
-  it.todo("Pressing {ArrowRight} should shift focus to color to the right");
+  it("Pressing {ArrowRight} should shift focus to color to the right", () => {
+    render(getTestComponent());
+    userEvent.tab();
+    userEvent.keyboard("{Enter}");
 
-  it.todo("Pressing {ArrowLeft} should shift focus to color to the left");
+    userEvent.tab();
+    userEvent.tab();
 
-  it.todo("Pressing {ArrowDown} should shift focus to color to the bottom");
+    expect(
+      document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1],
+    ).toHaveFocus();
 
-  it.todo("Pressing {ArrowUp} should shift focus to color to the top");
+    userEvent.keyboard("{ArrowRight}");
+
+    expect(
+      document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
+        .parentElement?.childNodes[1],
+    ).toHaveFocus();
+  });
+
+  it("Pressing {ArrowLeft} should shift focus to color to the left", () => {
+    render(getTestComponent());
+    userEvent.tab();
+    userEvent.keyboard("{Enter}");
+
+    userEvent.tab();
+    userEvent.tab();
+
+    expect(
+      document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1],
+    ).toHaveFocus();
+
+    userEvent.keyboard("{ArrowRight}");
+    userEvent.keyboard("{ArrowRight}");
+
+    expect(
+      document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
+        .parentElement?.childNodes[2],
+    ).toHaveFocus();
+
+    userEvent.keyboard("{ArrowLeft}");
+    expect(
+      document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
+        .parentElement?.childNodes[1],
+    ).toHaveFocus();
+  });
+
+  it("Pressing {ArrowDown} should shift focus to color to the bottom", () => {
+    render(getTestComponent());
+    userEvent.tab();
+    userEvent.keyboard("{Enter}");
+
+    userEvent.tab();
+    userEvent.tab();
+
+    expect(
+      document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1],
+    ).toHaveFocus();
+
+    userEvent.keyboard("{ArrowDown}");
+    expect(
+      document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
+        .parentElement?.childNodes[10],
+    ).toHaveFocus();
+  });
+
+  it("Pressing {ArrowUp} should shift focus to color to the top", () => {
+    render(getTestComponent());
+    userEvent.tab();
+    userEvent.keyboard("{Enter}");
+
+    userEvent.tab();
+    userEvent.tab();
+
+    expect(
+      document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1],
+    ).toHaveFocus();
+
+    userEvent.keyboard("{ArrowRight}");
+    userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{ArrowDown}");
+    expect(
+      document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
+        .parentElement?.childNodes[21],
+    ).toHaveFocus();
+
+    userEvent.keyboard("{ArrowUp}");
+    expect(
+      document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
+        .parentElement?.childNodes[11],
+    ).toHaveFocus();
+  });
 
   it("Pressing {Enter} should select the color in focus", async () => {
     const onColorChange = jest.fn();
