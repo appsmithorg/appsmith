@@ -1,8 +1,17 @@
 const dsl = require("../../../../fixtures/textNewDsl.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Text Widget Truncate Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
+  });
+
+  it("Check default overflow property is No overflow", function() {
+    cy.openPropertyPane("textwidget");
+    cy.get(commonlocators.textOverflowDropdown)
+      .last()
+      .should("have.text", "No overflow");
+    cy.closePropertyPane();
   });
 
   it("Validate long text is not truncating in default", function() {
@@ -23,7 +32,13 @@ describe("Text Widget Truncate Functionality", function() {
   });
 
   it("Enable Truncate Text option and Validate", function() {
-    cy.get(".t--property-control-truncatetext > .bp3-switch").click();
+    cy.selectDropdownValue(
+      commonlocators.textOverflowDropdown,
+      "Truncate text",
+    );
+    cy.get(commonlocators.textOverflowDropdown)
+      .last()
+      .should("have.text", "Truncate text");
     cy.wait("@updateLayout");
     cy.get(
       `.appsmith_widget_${dsl.dsl.children[0].widgetId} .t--widget-textwidget-truncate`,

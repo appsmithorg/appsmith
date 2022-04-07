@@ -97,6 +97,7 @@ type ValidationConfigParams = {
   ignoreCase?: boolean; //to ignore the case of key
   type?: ValidationTypes; // Used for ValidationType.TABLE_PROPERTY to define sub type
   params?: ValidationConfigParams; // Used for ValidationType.TABLE_PROPERTY to define sub type params
+  limitLineBreaks?: boolean; // Used for ValidationType.TEXT to limit line breaks in a large json object.
 };
 
 export type ValidationConfig = {

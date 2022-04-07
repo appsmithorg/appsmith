@@ -62,6 +62,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
         createActionRequest({
           name: newQueryName,
           pageId: currentPageId,
+          pluginId: dataSource?.pluginId,
           datasource: {
             id: props.datasourceId,
           },

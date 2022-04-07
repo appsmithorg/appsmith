@@ -23,7 +23,7 @@ jobs:
       (github.event_name == 'pull_request_review' &&
       github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository)
-    runs-on: ubuntu-latest
+    runs-on: buildjet-8vcpu-ubuntu-2004
     defaults:
       run:
         working-directory: app/client
@@ -530,13 +530,13 @@ jobs:
           path: app/rts/node_modules/
 
       - name: Build  docker image
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        if: steps.run_result.outputs.run_result != 'success'
         working-directory: "."
         run: |
           docker build -t fatcontainer .
 
       - name: Load docker image
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        if: steps.run_result.outputs.run_result != 'success'
         env:
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
         working-directory: "."
@@ -547,11 +547,11 @@ jobs:
             -v "$PWD/stacks:/appsmith-stacks" fatcontainer
           sudo chmod a+rw stacks/configuration/docker.env
           sudo echo  "APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY" >> stacks/configuration/docker.env
-      
-#      - name: Restart Appsmith
-#        if: steps.run_result.outputs.run_result != 'success'
-#        run: |
-#          docker restart appsmith
+
+      #      - name: Restart Appsmith
+      #        if: steps.run_result.outputs.run_result != 'success'
+      #        run: |
+      #          docker restart appsmith
 
       - name: Use Node.js 14.15.4
         if: steps.run_result.outputs.run_result != 'success'
@@ -763,7 +763,33 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+        job:
+          [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+          ]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -1133,7 +1159,7 @@ jobs:
       - run: echo "::set-output name=run_result::success" > ~/run_result
 
   ui-test-result:
-    needs: ui-test
+    needs: [ui-test, fat-container-test]
     if: always() &&
       (github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
@@ -1194,7 +1220,7 @@ jobs:
           fi
 
   package:
-    needs: ui-test
+    needs: [ui-test, fat-container-test]
     runs-on: ubuntu-latest
 
     # Run this job irrespective of tests failing, if this is the release branch; or only if the tests pass, if this is the master branch.
