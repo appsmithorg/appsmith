@@ -123,6 +123,17 @@ function getKeyboardFocusableElements(element: HTMLDivElement) {
   );
 }
 
+function whetherItIsTheLastButtonInDatepicker(
+  element: HTMLElement,
+  buttonText: string,
+) {
+  return (
+    element.nodeName === "BUTTON" &&
+    element.className === "bp3-button bp3-minimal" &&
+    element.innerText === buttonText
+  );
+}
+
 function DatePickerComponent(props: DatePickerComponentProps) {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
@@ -177,18 +188,38 @@ function DatePickerComponent(props: DatePickerComponentProps) {
           const focusableElements = getKeyboardFocusableElements(
             popoverElement,
           );
-          const lastFocusedElement = focusableElements.find(
-            (element) => document.activeElement === element,
-          );
-          if (lastFocusedElement) {
+          if (e.shiftKey) {
+            const lastFocusedElementIndex = focusableElements.findIndex(
+              (element) => document.activeElement === element,
+            );
             if (
-              lastFocusedElement.nodeName === "BUTTON" &&
-              lastFocusedElement.className === "bp3-button bp3-minimal" &&
-              (lastFocusedElement as HTMLElement).innerText === clearButtonText
+              lastFocusedElementIndex === 1 ||
+              lastFocusedElementIndex === 0
             ) {
-              const firstElement = focusableElements[0];
-              if (firstElement) {
-                (firstElement as HTMLElement).focus();
+              const lastFocusableElement = focusableElements.find((element) =>
+                whetherItIsTheLastButtonInDatepicker(
+                  element as HTMLElement,
+                  clearButtonText,
+                ),
+              );
+              if (lastFocusableElement) {
+                (lastFocusableElement as HTMLElement).focus();
+                e.preventDefault();
+              }
+            }
+          } else {
+            const lastFocusedElement = focusableElements.find(
+              (element) => document.activeElement === element,
+            );
+            if (lastFocusedElement) {
+              if (
+                whetherItIsTheLastButtonInDatepicker(
+                  lastFocusedElement as HTMLElement,
+                  clearButtonText,
+                )
+              ) {
+                (focusableElements[0] as HTMLElement).focus();
+                e.preventDefault();
               }
             }
           }
