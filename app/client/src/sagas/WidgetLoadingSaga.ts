@@ -3,13 +3,13 @@ import { call, fork, put, select, take } from "redux-saga/effects";
 import {
   getEvaluationInverseDependencyMap,
   getDataTree,
-} from "../selectors/dataTreeSelectors";
+} from "selectors/dataTreeSelectors";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { getActions } from "../selectors/entitiesSelector";
+import { getActions } from "selectors/entitiesSelector";
 import {
   ActionData,
   ActionDataState,
-} from "../reducers/entityReducers/actionsReducer";
+} from "reducers/entityReducers/actionsReducer";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,

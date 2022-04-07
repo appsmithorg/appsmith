@@ -1,8 +1,8 @@
 import React, { ReactElement } from "react";
 import { render, RenderOptions, queries } from "@testing-library/react";
 import { Provider } from "react-redux";
-import { ThemeProvider } from "../src/constants/DefaultTheme";
-import { getCurrentThemeDetails } from "../src/selectors/themeSelectors";
+import { ThemeProvider } from "constants/DefaultTheme";
+import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import * as customQueries from "./customQueries";
 import { BrowserRouter } from "react-router-dom";
 import appReducer, { AppState } from "reducers";

@@ -2,7 +2,7 @@ import { createSelector } from "reselect";
 import { AppState } from "reducers";
 import { AppCollabReducerState } from "reducers/uiReducers/appCollabReducer";
 import { getCurrentUser } from "./usersSelectors";
-import getFeatureFlags from "../utils/featureFlags";
+import getFeatureFlags from "utils/featureFlags";
 import { User } from "entities/AppCollab/CollabInterfaces";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 

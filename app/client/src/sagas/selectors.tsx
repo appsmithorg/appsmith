@@ -6,7 +6,7 @@ import _ from "lodash";
 import { WidgetType } from "constants/WidgetConstants";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { Page } from "@appsmith/constants/ReduxActionConstants";
-import { getActions, getPlugins } from "../selectors/entitiesSelector";
+import { getActions, getPlugins } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
 
 export const getWidgets = (

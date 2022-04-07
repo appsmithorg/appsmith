@@ -10,7 +10,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import Fuse from "fuse.js";
 import { Organization } from "constants/orgConstants";
-import { GitApplicationMetadata } from "../api/ApplicationApi";
+import { GitApplicationMetadata } from "api/ApplicationApi";
 import {
   isPermitted,
   PERMISSION_TYPE,

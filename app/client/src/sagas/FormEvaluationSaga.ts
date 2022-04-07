@@ -5,7 +5,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
-import { getFormEvaluationState } from "../selectors/formSelectors";
+import { getFormEvaluationState } from "selectors/formSelectors";
 import { evalFormConfig } from "./EvaluationsSaga";
 import {
   ConditionalOutput,

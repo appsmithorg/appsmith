@@ -28,7 +28,7 @@ import {
 } from "@appsmith/constants/messages";
 
 import * as Sentry from "@sentry/react";
-import { axiosConnectionAbortedCode } from "../api/ApiUtils";
+import { axiosConnectionAbortedCode } from "api/ApiUtils";
 
 /**
  * making with error message with action name
