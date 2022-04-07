@@ -45,7 +45,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
           },
           {
             helpText: "Sets the value of the progress indicator",
-            propertyName: "value",
+            propertyName: "progress",
             label: "Progress",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter progress value",
@@ -155,10 +155,10 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
       counterClockwise,
       fillColor,
       isIndeterminate,
+      progress,
       progressType,
       showResult,
       steps,
-      value,
     } = this.props;
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     const isScaleY = componentHeight > componentWidth;
@@ -171,7 +171,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
         showResult={showResult}
         steps={steps}
         type={progressType}
-        value={value}
+        value={progress}
         variant={
           isIndeterminate
             ? ProgressVariant.INDETERMINATE
@@ -189,7 +189,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
 export interface ProgressWidgetProps extends WidgetProps {
   isIndeterminate: boolean;
   progressType: ProgressType;
-  value: number;
+  progress: number;
   steps: number;
   showResult: boolean;
   counterClockwise: boolean;

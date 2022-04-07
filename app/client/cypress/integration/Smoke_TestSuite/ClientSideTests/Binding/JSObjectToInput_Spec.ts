@@ -22,7 +22,7 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
     cy.get(locator._inputWidget).last().invoke("attr", "value").should("equal", 'Hello');//Before mapping JSObject value of input
     cy.get("@jsObjName").then((jsObjName) => {
       jsOjbNameReceived = jsObjName;
-      jsEditor.EnterJSContext("defaulttext", "{{" + jsObjName + ".myFun1()}}")
+      jsEditor.EnterJSContext("Default Text", "{{" + jsObjName + ".myFun1()}}")
     });
     cy.get(locator._inputWidget).last().invoke("attr", "value").should("equal", 'Success');//After mapping JSObject value of input
     agHelper.DeployApp(locator._inputWidgetInDeployed)

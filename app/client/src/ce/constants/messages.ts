@@ -450,11 +450,11 @@ export const JS_EXECUTION_SUCCESS = () => "JS Function executed successfully";
 export const JS_EXECUTION_FAILURE = () => "JS Function execution failed";
 export const JS_EXECUTION_FAILURE_TOASTER = () =>
   "There was an error while executing function";
-export const JS_SETTINGS_ONPAGELOAD = () => "Run Function on Page load";
+export const JS_SETTINGS_ONPAGELOAD = () => "Run function on page load (Beta)";
 export const JS_SETTINGS_ONPAGELOAD_SUBTEXT = () =>
   "Will refresh data every time page is reloaded";
 export const JS_SETTINGS_CONFIRM_EXECUTION = () =>
-  "Request confirmation before calling Function?";
+  "Request confirmation before calling function?";
 export const JS_SETTINGS_CONFIRM_EXECUTION_SUBTEXT = () =>
   "Ask confirmation from the user every time before refreshing data";
 export const JS_SETTINGS_EXECUTE_TIMEOUT = () =>
@@ -588,7 +588,6 @@ export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure ?`;
 
 export const GIT_CONNECTION = () => "Git Connection";
 export const GIT_IMPORT = () => "Git Import";
-export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
 export const GIT_SETTINGS = () => "Git Settings";
 export const CONNECT_TO_GIT = () => "Connect to git repository";
@@ -618,7 +617,6 @@ export const CHECK_DP = () => "CHECK";
 export const DEPLOY_TO_CLOUD = () => "Deploy to cloud";
 export const DEPLOY_WITHOUT_GIT = () =>
   "Deploy your application without version control";
-export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
 export const COMMIT_CHANGES = () => "Commit changes";
 export const COMMIT_TO = () => "Commit to";
 export const COMMIT_AND_PUSH = () => "Commit & push";
@@ -734,6 +732,16 @@ export const CONNECTING_TO_REPO_DISABLED = () =>
   "Connecting to a git repo is disabled";
 export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
 export const MERGED_SUCCESSFULLY = () => "Merged successfully";
+
+// GIT DEPLOY begin
+export const DEPLOY = () => "Deploy";
+export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
+export const CHANGES_ONLY_USER = () => "Changes since last commit";
+export const CHANGES_ONLY_MIGRATION = () =>
+  "Appsmith update changes since last commit";
+export const CHANGES_USER_AND_MIGRATION = () =>
+  "Appsmith update and user changes since last commit";
+// GIT DEPLOY end
 
 // GIT ERRORS begin
 export const ERROR_GIT_AUTH_FAIL = () =>
@@ -1149,4 +1157,12 @@ export const CLEAN_URL_UPDATE = {
   name: () => "Update URLs",
   shortDesc: () =>
     "All URLs in your applications will update to a new readable format that includes the application and page names.",
+  description: [
+    () =>
+      "All URLs in your applications will be updated to match our new style. This will make your apps easier to find, and URLs easier to remember.",
+    (url: string) =>
+      `The current app’s URL will be:<br /><code style="line-break: anywhere; padding: 2px 4px; line-height: 22px">${url}</code>`,
+  ],
+  disclaimer: () =>
+    "Existing references to <strong>appsmith.URL.fullpath</strong> and <strong>appsmith.URL.pathname</strong> properties will behave differently.",
 };

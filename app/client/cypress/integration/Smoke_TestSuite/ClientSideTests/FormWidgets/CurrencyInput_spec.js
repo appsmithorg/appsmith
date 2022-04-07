@@ -248,4 +248,28 @@ describe("Currency widget - ", () => {
       enterAndTest(d[0], d[1]);
     });
   });
+
+  it("Check isDirty meta property", function() {
+    cy.openPropertyPane("textwidget");
+    cy.updateCodeInput(
+      ".t--property-control-text",
+      `{{CurrencyInput1.isDirty}}`,
+    );
+    // Init isDirty
+    cy.openPropertyPane(widgetName);
+    cy.updateCodeInput(".t--property-control-defaulttext", "1");
+    cy.closePropertyPane();
+    // Check if initial value of isDirty is false
+    cy.get(".t--widget-textwidget").should("contain", "false");
+    // Interact with UI
+    cy.get(widgetInput).clear();
+    cy.wait(300);
+    // Check if isDirty is set to true
+    cy.get(".t--widget-textwidget").should("contain", "true");
+    // Change defaultText
+    cy.openPropertyPane(widgetName);
+    cy.updateCodeInput(".t--property-control-defaulttext", "5");
+    // Check if isDirty is reset to false
+    cy.get(".t--widget-textwidget").should("contain", "false");
+  });
 });
