@@ -1,4 +1,4 @@
-import { createReducer } from "utils/AppsmithUtils";
+import { createImmerReducer } from "utils/AppsmithUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -12,7 +12,7 @@ const initialState: MainCanvasReduxState = {
   height: 0,
 };
 
-const mainCanvasReducer = createReducer(initialState, {
+const mainCanvasReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.INIT_CANVAS_LAYOUT]: (
     state: MainCanvasReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
