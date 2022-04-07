@@ -184,7 +184,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               onCommandClick: (action: string, onComplete: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
               backgroundColor:
-                cellProperties.buttonColor || this.props.primaryColor,
+                cellProperties.buttonColor || this.props.accentColor,
               buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
               isDisabled: cellProperties.isDisabled || false,
               isCellVisible: cellProperties.isCellVisible ?? true,
@@ -241,7 +241,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               menuVariant: cellProperties.menuVariant ?? "PRIMARY",
               menuColor:
                 cellProperties.menuColor ||
-                this.props.primaryColor ||
+                this.props.accentColor ||
                 Colors.GREEN,
               borderRadius:
                 borderRadiusUtility(cellProperties.borderRadius) ||
@@ -280,7 +280,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               iconName: (cellProperties.iconName || IconNames.ADD) as IconName,
               buttonColor:
                 cellProperties.buttonColor ||
-                this.props.primaryColor ||
+                this.props.accentColor ||
                 Colors.GREEN,
               buttonVariant: cellProperties.buttonVariant || "PRIMARY",
               borderRadius:
@@ -835,6 +835,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
+          accentColor={this.props.accentColor}
           applyFilter={this.applyFilters}
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
@@ -863,7 +864,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             isVisibleHeaderOptions ? Math.max(1, pageSize) : pageSize + 1
           }
           prevPageClick={this.handlePrevPageClick}
-          primaryColor={this.props.primaryColor}
           searchKey={this.props.searchText}
           searchTableData={this.handleSearchTable}
           selectAllRow={this.handleAllRowSelect}

@@ -326,6 +326,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <DropDownComponent
+        accentColor={this.props.accentColor}
         backgroundColor={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
@@ -352,7 +353,6 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         onOptionSelected={this.onOptionSelected}
         options={options}
         placeholder={this.props.placeholderText}
-        primaryColor={this.props.primaryColor}
         selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
         serverSideFiltering={this.props.serverSideFiltering}
         widgetId={this.props.widgetId}
@@ -426,7 +426,7 @@ export interface DropdownWidgetProps extends WidgetProps {
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
-  primaryColor: string;
+  accentColor: string;
   fontFamily?: string;
   isDirty?: boolean;
 }

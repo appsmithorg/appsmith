@@ -9,10 +9,14 @@ class ColorPickerControl extends BaseControl<ColorPickerControlProps> {
   };
 
   render() {
+    const computedEvaluatedValue = Array.isArray(this.props.evaluatedValue)
+      ? this.props.evaluatedValue[0]
+      : this.props.evaluatedValue;
+
     return (
       <ColorPickerComponent
         changeColor={this.handleChangeColor}
-        color={this.props.evaluatedValue}
+        color={computedEvaluatedValue}
         showApplicationColors
         showThemeColors
       />

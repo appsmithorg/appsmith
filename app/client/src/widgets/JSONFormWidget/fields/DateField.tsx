@@ -187,6 +187,7 @@ function DateField({
   const fieldComponent = useMemo(() => {
     return (
       <DateComponent
+        accentColor={schemaItem.accentColor || DEFAULT_PRIMARY_COLOR}
         backgroundColor="white"
         borderRadius={schemaItem.borderRadius ?? DEFAULT_BORDER_RADIUS}
         boxShadow={schemaItem.boxShadow ?? "none"}
@@ -200,7 +201,6 @@ function DateField({
         maxDate={schemaItem.maxDate}
         minDate={schemaItem.minDate}
         onDateSelected={onDateSelected}
-        primaryColor={schemaItem.accentColor || DEFAULT_PRIMARY_COLOR}
         selectedDate={valueInISOFormat}
         shortcuts={schemaItem.shortcuts}
         timePrecision={schemaItem.timePrecision}

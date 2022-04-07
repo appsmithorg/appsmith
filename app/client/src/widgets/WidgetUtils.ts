@@ -270,7 +270,7 @@ export const isDark = (color: string) => {
 export const PopoverStyles = createGlobalStyle<{
   borderRadius: string;
   portalClassName: string;
-  primaryColor: string;
+  accentColor: string;
 }>`
   ${(props) => `
     .${props.portalClassName} .${Classes.POPOVER} {
@@ -285,7 +285,7 @@ export const PopoverStyles = createGlobalStyle<{
       border-radius: ${props.borderRadius} !important;
     }
     .${props.portalClassName} .${DateTimeClasses.DATEPICKER_DAY_SELECTED} {
-      background-color: ${props.primaryColor} !important;
+      background-color: ${props.accentColor} !important;
     }
 
     .${props.portalClassName}  .${Classes.INPUT} {
@@ -295,9 +295,9 @@ export const PopoverStyles = createGlobalStyle<{
     .${props.portalClassName}  .${Classes.INPUT}:focus, .${
     props.portalClassName
   }  .${Classes.INPUT}:active {
-      border: 1px solid ${props.primaryColor} !important;
+      border: 1px solid ${props.accentColor} !important;
       box-shadow:  0px 0px 0px 2px ${lightenColor(
-        props.primaryColor,
+        props.accentColor,
       )} !important;
     }
 

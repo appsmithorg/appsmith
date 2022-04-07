@@ -30,7 +30,7 @@ const StyledControlGroup = styled(ControlGroup)<{
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
-  primaryColor: string;
+  accentColor: string;
 }>`
   & {
     .${Classes.INPUT} {
@@ -45,16 +45,16 @@ const StyledControlGroup = styled(ControlGroup)<{
       width: 100%;
       align-items: center;
       &:active {
-        border-color: ${({ isValid, primaryColor }) =>
-          !isValid ? Colors.DANGER_SOLID : primaryColor};
+        border-color: ${({ accentColor, isValid }) =>
+          !isValid ? Colors.DANGER_SOLID : accentColor};
       }
       &:focus {
         outline: 0;
         border: 1px solid;
-        border-color: ${({ isValid, primaryColor }) =>
-          !isValid ? Colors.DANGER_SOLID : primaryColor};
-        box-shadow: ${({ primaryColor }) =>
-          `0px 0px 0px 2px ${lightenColor(primaryColor)} !important;`}
+        border-color: ${({ accentColor, isValid }) =>
+          !isValid ? Colors.DANGER_SOLID : accentColor};
+        box-shadow: ${({ accentColor }) =>
+          `0px 0px 0px 2px ${lightenColor(accentColor)} !important;`}
       }
     }
     .${Classes.INPUT}:disabled {
@@ -139,6 +139,7 @@ class DatePickerComponent extends React.Component<
 
     return (
       <StyledControlGroup
+        accentColor={this.props.accentColor}
         backgroundColor={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
@@ -147,7 +148,6 @@ class DatePickerComponent extends React.Component<
         onClick={(e: any) => {
           e.stopPropagation();
         }}
-        primaryColor={this.props.primaryColor}
       >
         {this.props.label && (
           <Label
@@ -198,9 +198,9 @@ class DatePickerComponent extends React.Component<
           </ErrorTooltip>
         }
         <PopoverStyles
+          accentColor={this.props.accentColor}
           borderRadius={this.props.borderRadius}
           portalClassName={`${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`}
-          primaryColor={this.props.primaryColor}
         />
       </StyledControlGroup>
     );
@@ -288,7 +288,7 @@ export interface DatePickerComponentProps extends ComponentProps {
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
-  primaryColor: string;
+  accentColor: string;
   firstDayOfWeek?: number;
   timePrecision: TimePrecision;
   inputRef?: IRef<HTMLInputElement>;

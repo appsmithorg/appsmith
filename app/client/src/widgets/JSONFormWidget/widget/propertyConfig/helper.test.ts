@@ -83,7 +83,7 @@ describe(".fieldTypeUpdateHook", () => {
         ({
           schema,
           widgetName,
-          childStylesheets: schemaTestData.fieldThemeStylesheets,
+          childStylesheet: schemaTestData.fieldThemeStylesheets,
         } as unknown) as JSONFormWidgetProps,
         propertyPath,
         fieldType,
@@ -151,7 +151,7 @@ describe(".fieldTypeUpdateHook", () => {
         ({
           schema: oldSchema,
           widgetName,
-          childStylesheets: schemaTestData.fieldThemeStylesheets,
+          childStylesheet: schemaTestData.fieldThemeStylesheets,
         } as unknown) as JSONFormWidgetProps,
         propertyPath,
         fieldType,
@@ -379,7 +379,7 @@ describe(".getStylesheetValue", () => {
 
     inputAndExpectedOutput.forEach(([input, expectedOutput]) => {
       const result = getStylesheetValue(props, input, {
-        childStylesheets: schemaTestData.fieldThemeStylesheets,
+        childStylesheet: schemaTestData.fieldThemeStylesheets,
       });
 
       expect(result).toEqual(expectedOutput);

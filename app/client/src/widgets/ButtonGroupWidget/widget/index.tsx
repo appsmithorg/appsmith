@@ -85,7 +85,7 @@ class ButtonGroupWidget extends BaseWidget<
             label: "",
             isBindProperty: false,
             isTriggerProperty: false,
-            dependencies: ["defaultProperties"],
+            dependencies: ["childStylesheet"],
             panelConfig: {
               editableTitle: true,
               titlePropertyName: "label",
@@ -529,7 +529,6 @@ class ButtonGroupWidget extends BaseWidget<
         isDisabled={this.props.isDisabled}
         minPopoverWidth={minPopoverWidth}
         orientation={this.props.orientation}
-        primaryColor={this.props.primaryColor}
         renderMode={this.props.renderMode}
         widgetId={this.props.widgetId}
         width={componentWidth}
@@ -548,7 +547,6 @@ export interface ButtonGroupWidgetProps extends WidgetProps {
   borderRadius?: string;
   boxShadow?: string;
   buttonVariant: ButtonVariant;
-  primaryColor?: string;
   groupButtons: Record<
     string,
     {

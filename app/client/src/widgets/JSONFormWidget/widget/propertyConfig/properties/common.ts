@@ -110,7 +110,7 @@ const COMMON_PROPERTIES = {
         label: option,
         value: option,
       })),
-      dependencies: ["schema", "childStylesheets", "dynamicBindingPathList"],
+      dependencies: ["schema", "childStylesheet", "dynamicBindingPathList"],
       updateHook: fieldTypeUpdateHook,
     },
   ],

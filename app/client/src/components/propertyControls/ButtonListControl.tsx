@@ -188,7 +188,8 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
         widgetId: generateReactKey(),
         isDisabled: false,
         isVisible: true,
-        buttonColor: this.props.widgetProperties.defaultProperties.buttonColor,
+        buttonColor: this.props.widgetProperties.childStylesheet.button
+          .buttonColor,
       },
     };
 

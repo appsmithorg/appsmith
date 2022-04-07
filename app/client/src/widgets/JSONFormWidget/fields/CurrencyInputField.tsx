@@ -106,11 +106,11 @@ function CurrencyTypeDropdownComponent({
 
   return (
     <CurrencyTypeDropdown
+      accentColor={accentColor}
       allowCurrencyChange={allowCurrencyChange && !isDisabled}
       borderRadius={borderRadius}
       onCurrencyTypeChange={onCurrencyTypeChange}
       options={CurrencyDropdownOptions}
-      primaryColor={accentColor}
       selected={selectedCurrencyCountryCode}
       widgetId={fieldName}
     />

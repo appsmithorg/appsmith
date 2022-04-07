@@ -380,6 +380,7 @@ class SingleSelectTreeWidget extends BaseWidget<
     const { componentWidth } = this.getComponentDimensions();
     return (
       <SingleSelectTreeComponent
+        accentColor={this.props.accentColor}
         allowClear={this.props.allowClear}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
@@ -406,7 +407,6 @@ class SingleSelectTreeWidget extends BaseWidget<
         onChange={this.onOptionChange}
         options={options}
         placeholder={this.props.placeholderText as string}
-        primaryColor={this.props.primaryColor}
         value={filteredValue}
         widgetId={this.props.widgetId}
         width={componentWidth}
@@ -480,7 +480,7 @@ export interface SingleSelectTreeWidgetProps extends WidgetProps {
   labelStyle?: string;
   borderRadius: string;
   boxShadow?: string;
-  primaryColor: string;
+  accentColor: string;
   isDirty?: boolean;
 }
 

@@ -166,11 +166,11 @@ export const CONFIG = {
               set(primaryColumns, `${columnId}.labelColor`, Colors.WHITE);
 
               Object.keys(
-                widget.childStylesheets[primaryColumns[columnId].columnType] ||
+                widget.childStylesheet[primaryColumns[columnId].columnType] ||
                   [],
               ).map((propertyKey) => {
                 const { jsSnippets, stringSegments } = getDynamicBindings(
-                  widget.childStylesheets[primaryColumns[columnId].columnType][
+                  widget.childStylesheet[primaryColumns[columnId].columnType][
                     propertyKey
                   ],
                 );

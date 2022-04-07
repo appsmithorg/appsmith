@@ -23,7 +23,7 @@ export const fieldTypeUpdateHook = (
   propertyPath: string,
   fieldType: FieldType,
 ): HookResponse => {
-  const { childStylesheets, schema, widgetName } = props;
+  const { childStylesheet, schema, widgetName } = props;
   const schemaItemPath = getParentPropertyPath(propertyPath);
   const schemaItem: SchemaItem = get(props, schemaItemPath, {});
 
@@ -32,7 +32,7 @@ export const fieldTypeUpdateHook = (
     schemaItemPath,
     schema,
     widgetName,
-    fieldThemeStylesheets: childStylesheets,
+    fieldThemeStylesheets: childStylesheet,
   });
 
   /**
@@ -108,7 +108,7 @@ export const getStylesheetValue = (
     (schemaItem, propertyName) => {
       const fieldStylesheet = getFieldStylesheet(
         schemaItem.fieldType,
-        widgetStylesheet?.childStylesheets as FieldThemeStylesheet,
+        widgetStylesheet?.childStylesheet as FieldThemeStylesheet,
       );
 
       return fieldStylesheet[propertyName] || "";

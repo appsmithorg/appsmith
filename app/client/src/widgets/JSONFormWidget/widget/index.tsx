@@ -51,7 +51,7 @@ export interface JSONFormWidgetProps extends WidgetProps {
   submitButtonLabel: string;
   submitButtonStyles: ButtonStyleProps;
   title: string;
-  childStylesheets: FieldThemeStylesheet;
+  childStylesheet: FieldThemeStylesheet;
 }
 
 export type MetaInternalFieldState = FieldState<{
@@ -171,7 +171,7 @@ class JSONFormWidget extends BaseWidget<
       prevSchema: widget.schema,
       prevSourceData,
       widgetName: widget.widgetName,
-      fieldThemeStylesheets: widget.childStylesheets,
+      fieldThemeStylesheets: widget.childStylesheet,
     });
 
     if (status === ComputedSchemaStatus.UNCHANGED) return;

@@ -89,8 +89,8 @@ function SwitchField({
   const fieldComponent = useMemo(
     () => (
       <SwitchComponent
+        accentColor={schemaItem.accentColor || DEFAULT_BG_COLOR}
         alignWidget={schemaItem.alignWidget}
-        backgroundColor={schemaItem.accentColor || DEFAULT_BG_COLOR}
         inputRef={(e) => (inputRef.current = e)}
         isDisabled={schemaItem.isDisabled}
         isLoading={false}
