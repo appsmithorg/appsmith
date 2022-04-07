@@ -561,8 +561,8 @@ jobs:
           cd fatcontainerlocal
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
             -v "$PWD/stacks:/appsmith-stacks" fatcontainer
-          sudo chmod a+rw stacks/configuration/docker.env
-          sudo echo  "APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY" >> stacks/configuration/docker.env
+#          sudo chmod a+rw stacks/configuration/docker.env
+#          sudo echo  "APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY" >> stacks/configuration/docker.env
       
 #      - name: Restart Appsmith
 #        if: steps.run_result.outputs.run_result != 'success'
@@ -1097,7 +1097,7 @@ jobs:
       - run: echo "::set-output name=run_result::success" > ~/run_result
 
   ui-test-result:
-    needs: ui-test
+    needs: [ui-test, fat-conatiner-test]
     # Only run if the ui-test with matrices step is successful
     if: always()
     runs-on: ubuntu-latest
@@ -1209,7 +1209,7 @@ jobs:
         run: echo "$PAYLOAD_CONTEXT"
 
   package:
-    needs: ui-test
+    needs: [ui-test, fat-conatiner-test]
     runs-on: ubuntu-latest
     defaults:
       run:

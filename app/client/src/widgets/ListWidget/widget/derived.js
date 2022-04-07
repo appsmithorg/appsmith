@@ -113,7 +113,7 @@ export default {
 
     return updatedItems;
   },
-  //
+  // Patch #12438 - hard-coded DEFAULT_GRID_ROW_HEIGHT(parentRowSpace) for calculating template/component height. Ideally it should be dynamic based on props.
   getPageSize: (props, moment, _) => {
     const LIST_WIDGET_PAGINATION_HEIGHT = 36;
     const DEFAULT_GRID_ROW_HEIGHT = 10;
@@ -140,7 +140,7 @@ export default {
     const templateBottomRow = props.templateBottomRow;
     const templateHeight = templateBottomRow * DEFAULT_GRID_ROW_HEIGHT;
     const componentHeight =
-      (props.bottomRow - props.topRow) * props.parentRowSpace;
+      (props.bottomRow - props.topRow) * DEFAULT_GRID_ROW_HEIGHT;
 
     const spaceAvailableWithoutPaginationControls =
       componentHeight - WIDGET_PADDING * 2;
