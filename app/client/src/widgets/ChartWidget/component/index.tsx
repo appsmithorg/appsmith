@@ -302,6 +302,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   };
 
   getCustomFusionChartDataSource = () => {
+    // in case of evaluation error, customFusionChartConfig can be undefined
     let config = this.props.customFusionChartConfig as CustomFusionChartConfig;
     if (config && config.dataSource) {
       config = {
@@ -316,7 +317,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         },
       };
     }
-    return config;
+    return config || {};
   };
 
   getScrollChartDataSource = () => {
