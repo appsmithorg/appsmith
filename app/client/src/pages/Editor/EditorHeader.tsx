@@ -341,7 +341,7 @@ export function EditorHeader(props: EditorHeaderProps) {
 
   return (
     <ThemeProvider theme={theme}>
-      <HeaderWrapper className="pr-3">
+      <HeaderWrapper className="pr-3" data-testid="t--appsmith-editor-header">
         <HeaderSection className="space-x-3">
           <HamburgerContainer className="text-gray-800 transform transition-all duration-400 relative p-0 flex items-center justify-center">
             <TooltipComponent

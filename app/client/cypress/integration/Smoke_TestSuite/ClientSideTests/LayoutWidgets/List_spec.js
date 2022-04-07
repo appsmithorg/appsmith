@@ -116,9 +116,10 @@ describe("Container Widget Functionality", function() {
 
     cy.PublishtheApp();
     // Verify Widget Button by clicking on it
-    cy.get(`${widgetsPage.widgetBtn}`)
+    cy.get(widgetsPage.widgetBtn)
+      .closest("div")
       .first()
-      .click();
+      .click({ force: true });
     // Verify the click on first button
     cy.get(commonlocators.toastmsg).contains(items[0].last_name);
   });
