@@ -1943,6 +1943,15 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             application.setIsManualUpdate(false);
     }
 
+    /**
+     *
+     * @param applicationId default ID of the application where this ApplicationJSON is going to get merged with
+     * @param branchName name of the branch of the application where this ApplicationJSON is going to get merged with
+     * @param applicationJson ApplicationJSON of the application that will be merged to
+     * @param pagesToImport Name of the pages that should be merged from the ApplicationJSON.
+     *                      If null or empty, all pages will be merged.
+     * @return Merged Application
+     */
     @Override
     public Mono<Application> mergeApplicationJsonWithApplication(String applicationId, String branchName, ApplicationJson applicationJson, List<String> pagesToImport) {
         // Start the stopwatch to log the execution time
@@ -1964,19 +1973,42 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         List<Datasource> importedDatasourceList = importedDoc.getDatasourceList();
 
-        // we'll merge unpublished pages only to filtering out pages that has no unpublished version
+        // we'll merge unpublished pages only so filtering out pages that has no unpublished version
         List<NewPage> importedNewPageList = importedDoc.getPageList().stream()
-                .filter(newPage -> newPage.getUnpublishedPage()!=null).collect(Collectors.toList());
+                .filter(newPage -> newPage.getUnpublishedPage() != null && (
+                        // either the pagesToImport should be empty or the newPage name should be in the list
+                        CollectionUtils.isEmpty(pagesToImport)
+                                || pagesToImport.contains(newPage.getUnpublishedPage().getName()))
+                ).collect(Collectors.toList());
 
-        List<NewAction> importedNewActionList = importedDoc.getActionList();
-        if(importedNewActionList != null) {
-            importedNewActionList.forEach(newAction -> newAction.setGitSyncId(null));
+        // filter the unpublished actions. Also filter by pagesToImport if it's not empty
+        final List<NewAction> importedNewActionList;
+        if(!CollectionUtils.isEmpty(importedDoc.getActionList())) {
+            importedNewActionList = importedDoc.getActionList().stream()
+                    .filter(newAction ->
+                            // if pagesToImport is not empty, we need actions from the pagesToImport pages only
+                            newAction.getUnpublishedAction() != null && (CollectionUtils.isEmpty(pagesToImport)
+                                    || pagesToImport.contains(newAction.getUnpublishedAction().getPageId()))
+                    ).peek(newAction -> newAction.setGitSyncId(null))
+                    .collect(Collectors.toList());
+        } else {
+            importedNewActionList = List.of();
         }
 
-        List<ActionCollection> importedActionCollectionList = importedDoc.getActionCollectionList();
-        if(importedActionCollectionList != null) {
-            importedActionCollectionList.forEach(newActionCollection -> newActionCollection.setGitSyncId(null));
+        // filter the unpublished actions collections. Also filter by pagesToImport if it's not empty
+        final List<ActionCollection> importedActionCollectionList;
+        if(!CollectionUtils.isEmpty(importedDoc.getActionCollectionList())) {
+            importedActionCollectionList = importedDoc.getActionCollectionList().stream()
+                    .filter(actionCollection ->
+                            // if pagesToImport is not empty, we need actions from the pagesToImport pages only
+                            CollectionUtils.isEmpty(pagesToImport)
+                                    || pagesToImport.contains(actionCollection.getUnpublishedCollection().getPageId())
+                    ).peek(actionCollection -> actionCollection.setGitSyncId(null))
+                    .collect(Collectors.toList());
+        } else {
+            importedActionCollectionList = List.of();
         }
+
         Mono<Application> applicationMono;
         if(StringUtils.isNotEmpty(branchName)) {
             applicationMono = applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS);
