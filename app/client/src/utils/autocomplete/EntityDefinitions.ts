@@ -572,6 +572,13 @@ export const entityDefinitions: Record<string, unknown> = {
     sourceData: generateTypeDef(widget.sourceData),
     fieldState: generateTypeDef(widget.fieldState),
   }),
+  PROGRESS_WIDGET: {
+    "!doc":
+      "Progress indicators commonly known as spinners, express an unspecified wait time or display the length of a process.",
+    "!url": "https://docs.appsmith.com/widget-reference/progress",
+    isVisible: isVisible,
+    progress: "number",
+  },
 };
 
 export const GLOBAL_DEFS = {
