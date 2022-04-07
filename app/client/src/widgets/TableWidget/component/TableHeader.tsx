@@ -181,10 +181,11 @@ function TableHeader(props: TableHeaderProps) {
           </PaginationItemWrapper>
           {props.totalRecordsCount ? (
             <RowWrapper>
-              Page{" "}
+              Page&nbsp;
               <PaginationItemWrapper className="page-item" selected>
                 {props.pageNo + 1}
-              </PaginationItemWrapper>{" "}
+              </PaginationItemWrapper>
+              &nbsp;
               <span>{`of ${props.pageCount}`}</span>
             </RowWrapper>
           ) : (
@@ -223,14 +224,14 @@ function TableHeader(props: TableHeaderProps) {
             <Icon color={Colors.GRAY} icon="chevron-left" iconSize={16} />
           </PaginationItemWrapper>
           <RowWrapper>
-            Page{" "}
+            Page&nbsp;
             <PageNumberInput
               disabled={props.pageCount === 1}
               pageCount={props.pageCount}
               pageNo={props.pageNo + 1}
               updatePageNo={props.updatePageNo}
-            />{" "}
-            of {props.pageCount}
+            />
+            &nbsp; of {props.pageCount}
           </RowWrapper>
           <PaginationItemWrapper
             className="t--table-widget-next-page"
