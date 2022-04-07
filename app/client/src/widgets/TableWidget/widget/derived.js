@@ -25,16 +25,16 @@ export default {
     }
     const filteredTableData =
       props.filteredTableData || props.sanitizedTableData || [];
-    const omitInternalKeys = ["__originalIndex__", "__primaryKey__"];
+    const internalKeysToOmit = ["__originalIndex__", "__primaryKey__"];
     if (selectedRowIndex === -1) {
       const emptyRow = { ...filteredTableData[0] };
       Object.keys(emptyRow).forEach((key) => {
         emptyRow[key] = "";
       });
-      return _.omit(emptyRow, omitInternalKeys);
+      return _.omit(emptyRow, internalKeysToOmit);
     }
     const selectedRow = { ...filteredTableData[selectedRowIndex] };
-    return _.omit(selectedRow, omitInternalKeys);
+    return _.omit(selectedRow, internalKeysToOmit);
   },
   //
   getTriggeredRow: (props, moment, _) => {
@@ -44,16 +44,16 @@ export default {
         ? -1
         : parseInt(props.triggeredRowIndex);
     const tableData = props.sanitizedTableData || [];
-    const omitInternalKeys = ["__originalIndex__", "__primaryKey__"];
+    const internalKeysToOmit = ["__originalIndex__", "__primaryKey__"];
     if (triggeredRowIndex === -1) {
       const emptyRow = { ...tableData[0] };
       Object.keys(emptyRow).forEach((key) => {
         emptyRow[key] = "";
       });
-      return _.omit(emptyRow, omitInternalKeys);
+      return _.omit(emptyRow, internalKeysToOmit);
     }
     const triggeredRow = { ...tableData[triggeredRowIndex] };
-    return _.omit(triggeredRow, omitInternalKeys);
+    return _.omit(triggeredRow, internalKeysToOmit);
   },
   //
   getSelectedRows: (props, moment, _) => {
@@ -63,9 +63,9 @@ export default {
     const filteredTableData =
       props.filteredTableData || props.sanitizedTableData || [];
 
-    const omitInternalKeys = ["__originalIndex__", "__primaryKey__"];
+    const internalKeysToOmit = ["__originalIndex__", "__primaryKey__"];
     const selectedRows = selectedRowIndices.map((ind) =>
-      _.omit(filteredTableData[ind], omitInternalKeys),
+      _.omit(filteredTableData[ind], internalKeysToOmit),
     );
     return selectedRows;
   },
