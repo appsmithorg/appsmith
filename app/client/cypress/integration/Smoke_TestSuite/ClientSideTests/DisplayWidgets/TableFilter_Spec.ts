@@ -10,7 +10,7 @@ describe("Verify various Table_Filter combinations", function () {
   before(() => {
     cy.fixture("example").then(function (data: any) {
       dataSet = data;
-    });    
+    });
   });
 
   it("1. Adding Data to Table Widget", function () {
@@ -136,7 +136,81 @@ describe("Verify various Table_Filter combinations", function () {
     table.RemoveFilterNVerify("2381224")
   });
 
-  it("12. Verify Table Filter for OR operator - different row match", function () {
+  it("13. Verify Table Filter - Where Edit - Single condition with input value", function () {
+
+    table.ReadTableRowColumnData(0, 3).then(($cellData) => {
+      expect($cellData).to.eq("Michael Lawson");
+    });
+
+    table.FilterTable("orderAmount", "is exactly", "4.99")
+    table.ReadTableRowColumnData(1, 3).then(($cellData) => {
+      expect($cellData).to.eq("Byron Fields");
+    });
+
+    //Change condition - 1st time
+    agHelper.GetNClick(table._filterConditionDropdown)
+    cy.get(table._dropdownText).contains("empty").click()
+    agHelper.ClickButton("APPLY")
+    table.WaitForTableEmpty()
+
+    //Change condition - 2nd time
+    agHelper.GetNClick(table._filterConditionDropdown)
+    cy.get(table._dropdownText).contains("contains").click()
+    agHelper.GetNClick(table._filterInputValue, 0).type('19').wait(500)
+    agHelper.ClickButton("APPLY")
+    table.ReadTableRowColumnData(0, 3).then(($cellData) => {
+      expect($cellData).to.eq("Tobias Funke");
+    });
+    table.RemoveFilterNVerify("2381224", true, false)
+  });
+
+  it("14. Verify Table Filter - Where Edit - Single Column, Condition & input value", function () {
+
+    table.ReadTableRowColumnData(0, 3).then(($cellData) => {
+      expect($cellData).to.eq("Michael Lawson");
+    });
+
+    table.FilterTable("productName", "contains", "e")
+    table.ReadTableRowColumnData(0, 4).then(($cellData) => {
+      expect($cellData).to.eq("Chicken Sandwich");
+    });
+    table.ReadTableRowColumnData(1, 4, 200).then(($cellData) => {
+      expect($cellData).to.eq("Beef steak");
+    });
+    table.ReadTableRowColumnData(2, 4, 200).then(($cellData) => {
+      expect($cellData).to.eq("Chicken Sandwich");
+    });
+
+    //Change condition - 1st time
+    agHelper.GetNClick(table._filterConditionDropdown)
+    cy.get(table._dropdownText).contains("does not contain").click()
+    agHelper.ClickButton("APPLY")
+    table.ReadTableRowColumnData(0, 4).then(($cellData) => {
+      expect($cellData).to.eq("Tuna Salad");
+    });
+    table.ReadTableRowColumnData(1, 4).then(($cellData) => {
+      expect($cellData).to.eq("Avocado Panini");
+    });
+
+    //Change condition - column value
+    agHelper.GetNClick(table._filterColumnsDropdown)
+    cy.get(table._dropdownText).contains("userName").click()
+    agHelper.GetNClick(table._filterConditionDropdown)
+    cy.get(table._dropdownText).contains("does not contain").click()
+    agHelper.ClickButton("APPLY")
+    table.WaitForTableEmpty()
+
+    //Change input value
+    agHelper.GetNClick(table._filterInputValue, 0).clear().type('i').wait(500)
+    agHelper.ClickButton("APPLY")
+    table.ReadTableRowColumnData(0, 3).then(($cellData) => {
+      expect($cellData).to.eq("Ryan Holmes");
+    });
+
+    table.RemoveFilterNVerify("2381224", true, false)
+  });
+
+  it("15. Verify Table Filter for OR operator - different row match", function () {
 
     table.ReadTableRowColumnData(2, 3).then(($cellData) => {
       expect($cellData).to.eq("Tobias Funke");
@@ -154,7 +228,7 @@ describe("Verify various Table_Filter combinations", function () {
 
   });
 
-  it("13. Verify Table Filter for OR operator - same row match", function () {
+  it("16. Verify Table Filter for OR operator - same row match", function () {
 
     table.ReadTableRowColumnData(0, 3).then(($cellData) => {
       expect($cellData).to.eq("Michael Lawson");
@@ -170,7 +244,7 @@ describe("Verify various Table_Filter combinations", function () {
     table.RemoveFilterNVerify("2381224", true, false)
   });
 
-  it("14. Verify Table Filter for OR operator - two 'ORs'", function () {
+  it("17. Verify Table Filter for OR operator - two 'ORs'", function () {
 
     table.ReadTableRowColumnData(0, 3).then(($cellData) => {
       expect($cellData).to.eq("Michael Lawson");
@@ -190,7 +264,7 @@ describe("Verify various Table_Filter combinations", function () {
     table.RemoveFilterNVerify("2381224", true, false)
   });
 
-  it("15. Verify Table Filter for AND operator - different row match", function () {
+  it("18. Verify Table Filter for AND operator - different row match", function () {
     table.ReadTableRowColumnData(3, 3).then(($cellData) => {
       expect($cellData).to.eq("Byron Fields");
     });
@@ -204,7 +278,7 @@ describe("Verify various Table_Filter combinations", function () {
 
   });
 
-  it("16. Verify Table Filter for AND operator - same row match", function () {
+  it("19. Verify Table Filter for AND operator - same row match", function () {
 
     table.ReadTableRowColumnData(0, 3).then(($cellData) => {
       expect($cellData).to.eq("Michael Lawson");
@@ -220,7 +294,7 @@ describe("Verify various Table_Filter combinations", function () {
     table.RemoveFilterNVerify("2381224", true, false)
   });
 
-  it("17. Verify Table Filter for AND operator - same row match - edit input text value", function () {
+  it("20. Verify Table Filter for AND operator - same row match - edit input text value", function () {
 
     table.ReadTableRowColumnData(0, 3).then(($cellData) => {
       expect($cellData).to.eq("Michael Lawson");
@@ -241,7 +315,28 @@ describe("Verify various Table_Filter combinations", function () {
     table.RemoveFilterNVerify("2381224", true, false)
   });
 
-  it("18. Verify Table Filter for AND operator - two 'ANDs' - clearAll", function () {
+  it("21. Verify Table Filter for AND operator - same row match - Where Edit - input value", function () {
+
+    table.ReadTableRowColumnData(0, 3).then(($cellData) => {
+      expect($cellData).to.eq("Michael Lawson");
+    });
+    table.FilterTable("userName", "ends with", "s")
+    table.ReadTableRowColumnData(1, 3).then(($cellData) => {
+      expect($cellData).to.eq("Ryan Holmes");
+    });
+    table.FilterTable("orderAmount", "is exactly", "4.99", 'AND', 1)
+    table.ReadTableRowColumnData(0, 3).then(($cellData) => {
+      expect($cellData).to.eq("Byron Fields");
+    });
+    agHelper.GetNClick(table._filterInputValue, 1).clear().type('7.99').wait(500)
+    agHelper.ClickButton("APPLY")
+    table.ReadTableRowColumnData(0, 3).then(($cellData) => {
+      expect($cellData).to.eq("Ryan Holmes");
+    });
+    table.RemoveFilterNVerify("2381224", true, false)
+  });
+
+  it("22. Verify Table Filter for AND operator - two 'ANDs' - clearAll", function () {
 
     table.ReadTableRowColumnData(0, 3).then(($cellData) => {
       expect($cellData).to.eq("Michael Lawson");
@@ -261,7 +356,7 @@ describe("Verify various Table_Filter combinations", function () {
     table.RemoveFilterNVerify("2381224", true, false)
   });
 
-  it("19. Verify Table Filter for AND operator - two 'ANDs' - removeOne filter condition + Bug 12638", function () {
+  it("23. Verify Table Filter for AND operator - two 'ANDs' - removeOne filter condition + Bug 12638", function () {
     table.FilterTable("id", "contains", "2")
     table.ReadTableRowColumnData(1, 3).then(($cellData) => {
       expect($cellData).to.eq("Lindsay Ferguson");
@@ -283,7 +378,7 @@ describe("Verify various Table_Filter combinations", function () {
 
   });
 
-  it("20. Verify Table Filter for AND operator - two 'ANDs' - removeOne filter twice + Bug 12638", function () {
+  it("24. Verify Table Filter for AND operator - two 'ANDs' - removeOne filter twice + Bug 12638", function () {
     table.FilterTable("id", "starts with", "2")
     table.ReadTableRowColumnData(1, 3).then(($cellData) => {
       expect($cellData).to.eq("Lindsay Ferguson");
@@ -307,7 +402,7 @@ describe("Verify various Table_Filter combinations", function () {
     table.RemoveFilterNVerify("2381224", true, false)
   });
 
-  it("21. Verify Table Filter for changing from AND -> OR -> AND", function () {
+  it("25. Verify Table Filter for changing from AND -> OR -> AND", function () {
     table.FilterTable("id", "contains", "7")
     table.ReadTableRowColumnData(1, 4).then(($cellData) => {
       expect($cellData).to.eq("Beef steak");
@@ -340,8 +435,84 @@ describe("Verify various Table_Filter combinations", function () {
 
   });
 
+  it("26. Verify Table Filter for changing from AND -> OR -> along with changing Where clause condions", function () {
+
+    table.FilterTable("id", "starts with", "2")
+    table.ReadTableRowColumnData(0, 3).then(($cellData) => {
+      expect($cellData).to.eq("Michael Lawson");
+    });
+    table.ReadTableRowColumnData(1, 3, 200).then(($cellData) => {
+      expect($cellData).to.eq("Lindsay Ferguson");
+    });
+
+    table.FilterTable("orderAmount", "contains", "19", 'OR', 1)
+    table.ReadTableRowColumnData(2, 3).then(($cellData) => {
+      expect($cellData).to.eq("Tobias Funke");
+    });
+
+    //Changing filter conditions of both where rows - 1st row
+    agHelper.GetNClick(table._filterInputValue, 0).clear().type('7').wait(500)
+    agHelper.ClickButton("APPLY")
+    table.ReadTableRowColumnData(0, 3).then(($cellData) => {
+      expect($cellData).to.eq("Tobias Funke");
+    });
+    table.ReadTableRowColumnData(1, 3, 200).then(($cellData) => {
+      expect($cellData).to.eq("Byron Fields");
+    });
+    table.ReadTableRowColumnData(2, 3, 200).then(($cellData) => {
+      expect($cellData).to.eq("Ryan Holmes");
+    });
+
+    //Changing filter conditions of both where rows - 2nd row
+    agHelper.GetNClick(table._filterConditionDropdown, 1)
+    cy.get(table._dropdownText).contains("does not contain").click()
+    agHelper.ClickButton("APPLY")
+    table.ReadTableRowColumnData(0, 3).then(($cellData) => {
+      expect($cellData).to.eq("Michael Lawson");
+    });
+    table.ReadTableRowColumnData(1, 3, 200).then(($cellData) => {
+      expect($cellData).to.eq("Lindsay Ferguson");
+    });
+    table.ReadTableRowColumnData(2, 3, 200).then(($cellData) => {
+      expect($cellData).to.eq("Byron Fields");
+    });
+    table.ReadTableRowColumnData(3, 3, 200).then(($cellData) => {
+      expect($cellData).to.eq("Ryan Holmes");
+    });
+
+    //Changing OR to AND
+    agHelper.GetNClick(table._filterOperatorDropdown)
+    cy.get(table._dropdownText).contains("AND").click()
+    agHelper.ClickButton("APPLY")
+    table.ReadTableRowColumnData(0, 3).then(($cellData) => {
+      expect($cellData).to.eq("Byron Fields");
+    });
+    table.ReadTableRowColumnData(1, 3, 200).then(($cellData) => {
+      expect($cellData).to.eq("Ryan Holmes");
+    });
+
+    //Changing AND to OR
+    agHelper.GetNClick(table._filterOperatorDropdown)
+    cy.get(table._dropdownText).contains("OR").click()
+    agHelper.GetNClick(table._filterConditionDropdown, 1)
+    cy.get(table._dropdownText).contains("starts with").click()
+    agHelper.GetNClick(table._filterInputValue, 1).clear().type('9').wait(500)
+    agHelper.ClickButton("APPLY")
+    table.ReadTableRowColumnData(0, 3).then(($cellData) => {
+      expect($cellData).to.eq("Lindsay Ferguson");
+    });
+    table.ReadTableRowColumnData(1, 3, 200).then(($cellData) => {
+      expect($cellData).to.eq("Byron Fields");
+    });
+    table.ReadTableRowColumnData(2, 3, 200).then(($cellData) => {
+      expect($cellData).to.eq("Ryan Holmes");
+    });
+    table.RemoveFilterNVerify("2381224", true, false)
+
+  });
+
   //Skipping until bug closed
-  it.skip("22. Verify Table Filter for changing from AND -> OR [Remove a filter] -> AND + Bug 12642", function () {
+  it.skip("27. Verify Table Filter for changing from AND -> OR [Remove a filter] -> AND + Bug 12642", function () {
 
     table.FilterTable("id", "contains", "7")
     table.ReadTableRowColumnData(1, 4).then(($cellData) => {
