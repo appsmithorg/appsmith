@@ -18,6 +18,12 @@ export type MenuProps = CommonComponentProps & {
   canEscapeKeyClose?: boolean;
   canOutsideClickClose?: boolean;
   menuItemWrapperWidth?: string;
+
+  /* dontUsePortal: This needs negative prefix, because usePortal is true by default.
+      If we don't pass dontUsePortal, then it is false by default
+      If we pass dontUsePortal, then it is true, and will be passed to usePortal as !true i.e. false.
+   */
+  dontUsePortal?: boolean;
 };
 
 const MenuWrapper = styled.div<{ width?: string }>`
@@ -45,6 +51,7 @@ function Menu(props: MenuProps) {
       onOpening={props.onOpening}
       portalClassName={props.className}
       position={props.position || Position.BOTTOM}
+      usePortal={!props.dontUsePortal}
     >
       {props.target}
       <MenuWrapper width={props.menuItemWrapperWidth}>
