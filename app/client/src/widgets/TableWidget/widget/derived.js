@@ -33,7 +33,8 @@ export default {
       return emptyRow;
     }
     const selectedRow = { ...filteredTableData[selectedRowIndex] };
-    return selectedRow;
+    const omitInternalKeys = ["__originalIndex__", "__primaryKey__"];
+    return _.omit(selectedRow, omitInternalKeys);
   },
   //
   getTriggeredRow: (props, moment, _) => {
@@ -51,7 +52,8 @@ export default {
       return emptyRow;
     }
     const triggeredRow = { ...tableData[triggeredRowIndex] };
-    return triggeredRow;
+    const omitInternalKeys = ["__originalIndex__", "__primaryKey__"];
+    return _.omit(triggeredRow, omitInternalKeys);
   },
   //
   getSelectedRows: (props, moment, _) => {
@@ -61,8 +63,9 @@ export default {
     const filteredTableData =
       props.filteredTableData || props.sanitizedTableData || [];
 
-    const selectedRows = selectedRowIndices.map(
-      (ind) => filteredTableData[ind],
+    const omitInternalKeys = ["__originalIndex__", "__primaryKey__"];
+    const selectedRows = selectedRowIndices.map((ind) =>
+      _.omit(filteredTableData[ind], omitInternalKeys),
     );
     return selectedRows;
   },

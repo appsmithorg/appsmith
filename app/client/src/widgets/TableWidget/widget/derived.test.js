@@ -1267,11 +1267,10 @@ describe("Validate getSelectedRow function", () => {
       id: 234,
       name: "Jane Doe",
       extra: "Extra2",
-      __originalIndex__: 2,
     });
   });
 
-  it("Multple row selection, with no selected rows", () => {
+  it("Multiple row selection, with no selected rows", () => {
     const { getSelectedRow } = derivedProperty;
     const input = {
       multiRowSelection: true,
@@ -1287,8 +1286,25 @@ describe("Validate getSelectedRow function", () => {
       id: "",
       name: "",
       extra: "",
-      __originalIndex__: "",
     });
+  });
+  it("Multiple row selection, with selected rows", () => {
+    const { getSelectedRows } = derivedProperty;
+    const input = {
+      multiRowSelection: true,
+      selectedRowIndices: [1, 2],
+      selectedRowIndex: 1,
+      sanitizedTableData: [
+        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
+        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
+        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
+      ],
+    };
+    const expected = [
+      { id: 234, name: "Jane Doe", extra: "Extra2" },
+      { id: 123, name: "John Doe", extra: "Extra1" },
+    ];
+    expect(getSelectedRows(input, moment, _)).toStrictEqual(expected);
   });
 
   it("Single row selection, with selected row", () => {
@@ -1307,7 +1323,6 @@ describe("Validate getSelectedRow function", () => {
       id: 234,
       name: "Jane Doe",
       extra: "Extra2",
-      __originalIndex__: 2,
     });
   });
 
@@ -1328,7 +1343,6 @@ describe("Validate getSelectedRow function", () => {
       id: "",
       name: "",
       extra: "",
-      __originalIndex__: "",
     });
   });
 
@@ -1349,7 +1363,6 @@ describe("Validate getSelectedRow function", () => {
       id: "",
       name: "",
       extra: "",
-      __originalIndex__: "",
     });
   });
   it("Single row selection, with indices undefined", () => {
@@ -1369,7 +1382,6 @@ describe("Validate getSelectedRow function", () => {
       id: "",
       name: "",
       extra: "",
-      __originalIndex__: "",
     });
   });
   it("Single row selection, with invalid indices", () => {
@@ -1389,7 +1401,6 @@ describe("Validate getSelectedRow function", () => {
       id: "",
       name: "",
       extra: "",
-      __originalIndex__: "",
     });
   });
   it("Single row selection, with invalid indices", () => {
@@ -1409,7 +1420,6 @@ describe("Validate getSelectedRow function", () => {
       id: "",
       name: "",
       extra: "",
-      __originalIndex__: "",
     });
   });
   it("Single row selection, with invalid indices", () => {
@@ -1429,7 +1439,6 @@ describe("Validate getSelectedRow function", () => {
       id: "",
       name: "",
       extra: "",
-      __originalIndex__: "",
     });
   });
   it("Single row selection, with invalid indices", () => {
@@ -1449,7 +1458,6 @@ describe("Validate getSelectedRow function", () => {
       id: "",
       name: "",
       extra: "",
-      __originalIndex__: "",
     });
   });
   it("Single row selection, with invalid indices", () => {
@@ -1469,7 +1477,6 @@ describe("Validate getSelectedRow function", () => {
       id: "",
       name: "",
       extra: "",
-      __originalIndex__: "",
     });
   });
 });
