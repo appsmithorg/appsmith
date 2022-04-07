@@ -239,6 +239,7 @@ const getMainContainer = (
     rightColumn: mainCanvasProps.width,
     minHeight: mainCanvasProps.height,
   };
+  //TODO: Need to verify why `evaluatedDataTree` is required here.
   const evaluatedWidget = find(evaluatedDataTree, {
     widgetId: MAIN_CONTAINER_WIDGET_ID,
   }) as DataTreeWidget;

@@ -21,19 +21,15 @@ const mainCanvasReducer = createImmerReducer(initialState, {
       action.payload.widgets &&
       action.payload.widgets[MAIN_CONTAINER_WIDGET_ID];
 
-    return {
-      width: mainCanvas?.rightColumn || state.width,
-      height: mainCanvas?.minHeight || state.height,
-    };
+    state.width = mainCanvas?.rightColumn || state.width;
+    state.height = mainCanvas?.minHeight || state.height;
   },
   [ReduxActionTypes.UPDATE_CANVAS_LAYOUT]: (
     state: MainCanvasReduxState,
     action: ReduxAction<UpdateCanvasLayoutPayload>,
   ) => {
-    return {
-      width: action.payload.width || state.width,
-      height: action.payload.height || state.height,
-    };
+    state.width = action.payload.width || state.width;
+    state.height = action.payload.height || state.height;
   },
 });
 
