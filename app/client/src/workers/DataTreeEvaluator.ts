@@ -521,22 +521,12 @@ export default class DataTreeEvaluator {
 
     if (isWidget(entity)) {
       // Adding the dynamic triggers in the dependency list as they need linting whenever updated
-      // To keep linting in trigger fields in sync, nodes they depend on need to be added to their dependencies
-      const dynamicTriggerPathlist = entity.dynamicTriggerPathList;
-
-      if (dynamicTriggerPathlist && dynamicTriggerPathlist.length) {
-        dynamicTriggerPathlist.forEach((dynamicPath) => {
-          const propertyPath = dynamicPath.key;
-          const unevalPropValue = _.get(entity, propertyPath);
-          const { jsSnippets } = getDynamicBindings(unevalPropValue);
-          const existingDeps =
-            dependencies[`${entityName}.${propertyPath}`] || [];
-          dependencies[`${entityName}.${propertyPath}`] = existingDeps.concat(
-            jsSnippets.filter((jsSnippet) => !!jsSnippet),
-          );
+      // we don't make it dependent on anything else
+      if (entity.dynamicTriggerPathList) {
+        Object.values(entity.dynamicTriggerPathList).forEach(({ key }) => {
+          dependencies[`${entityName}.${key}`] = [];
         });
       }
-
       const widgetDependencies = addWidgetPropertyDependencies({
         entity,
         entityName,
@@ -1346,10 +1336,7 @@ export default class DataTreeEvaluator {
                 entity,
                 entityPropertyPath,
               );
-              const isATriggerPath =
-                isWidget(entity) &&
-                isPathADynamicTrigger(entity, entityPropertyPath);
-              if (isABindingPath || isATriggerPath) {
+              if (isABindingPath) {
                 didUpdateDependencyMap = true;
 
                 const { jsSnippets } = getDynamicBindings(
