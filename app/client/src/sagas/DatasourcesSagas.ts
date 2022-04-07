@@ -16,7 +16,7 @@ import {
   ReduxActionWithCallbacks,
   ReduxActionWithMeta,
   ReduxFormActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   getCurrentApplicationId,
   getCurrentPageId,

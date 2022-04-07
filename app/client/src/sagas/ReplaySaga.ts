@@ -24,7 +24,7 @@ import {
   ReduxAction,
   ReduxActionTypes,
   ReplayReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { flashElementsById } from "utils/helpers";
 import {
   scrollWidgetIntoView,

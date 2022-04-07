@@ -3,7 +3,7 @@ import styled, { withTheme } from "styled-components";
 import { Icon, Popover, PopoverPosition } from "@blueprintjs/core";
 import { Theme } from "constants/DefaultTheme";
 import { useSelector, useDispatch } from "react-redux";
-import { getIsGitConnected } from "../../../../selectors/gitSyncSelectors";
+import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { Colors } from "constants/Colors";

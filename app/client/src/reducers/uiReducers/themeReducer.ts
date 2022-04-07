@@ -1,5 +1,8 @@
 import { createImmerReducer } from "utils/AppsmithUtils";
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { dark, light, theme } from "constants/DefaultTheme";
 import { ThemeMode } from "../../selectors/themeSelectors";
 

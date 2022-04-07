@@ -2,7 +2,7 @@ import { createReducer } from "../../utils/AppsmithUtils";
 import {
   ReduxActionErrorTypes,
   ReduxAction,
-} from "../../constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 
 export type JSExecutionRecord = Record<string, string>;
 const initialState: JSExecutionRecord = {};

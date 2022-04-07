@@ -2,7 +2,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { put, takeLatest, all, call, select } from "redux-saga/effects";
 import {
   createUnpublishedCommentThreadSuccess,

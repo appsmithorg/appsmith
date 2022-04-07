@@ -54,10 +54,7 @@ import { useParams } from "react-router";
 import get from "lodash/get";
 import DataSourceList from "./ApiRightPane";
 import { Datasource } from "entities/Datasource";
-import {
-  getAction,
-  getActionResponses,
-} from "../../../selectors/entitiesSelector";
+import { getAction, getActionResponses } from "selectors/entitiesSelector";
 import { isEmpty, isEqual } from "lodash";
 import { Colors } from "constants/Colors";
 import SearchSnippets from "components/ads/SnippetButton";

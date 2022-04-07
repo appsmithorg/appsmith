@@ -1,5 +1,5 @@
 import React from "react";
-import { ReduxAction } from "constants/ReduxActionConstants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { Dispatch } from "react";
 
 export enum SettingTypes {

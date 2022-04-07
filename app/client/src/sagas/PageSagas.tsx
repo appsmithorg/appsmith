@@ -7,7 +7,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   UpdateCanvasPayload,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   clonePageSuccess,
   deletePageSuccess,
