@@ -22,7 +22,7 @@ import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggi
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { useWidgetSelection } from "../../../../utils/hooks/useWidgetSelection";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { snapToGrid } from "utils/helpers";
 import { stopReflowAction } from "actions/reflowActions";

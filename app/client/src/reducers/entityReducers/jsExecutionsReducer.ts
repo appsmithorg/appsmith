@@ -1,4 +1,4 @@
-import { createReducer } from "../../utils/AppsmithUtils";
+import { createReducer } from "utils/AppsmithUtils";
 import {
   ReduxActionErrorTypes,
   ReduxAction,

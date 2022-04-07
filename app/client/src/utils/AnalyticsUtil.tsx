@@ -3,7 +3,7 @@ import * as log from "loglevel";
 import smartlookClient from "smartlook-client";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
-import { ANONYMOUS_USERNAME, User } from "../constants/userConstants";
+import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { sha256 } from "js-sha256";
 
 export type EventLocation =

@@ -26,7 +26,7 @@ import { waitForInit } from "sagas/InitSagas";
 
 import CommentsApi from "api/CommentsAPI";
 
-import { validateResponse } from "../ErrorSagas";
+import { validateResponse } from "sagas/ErrorSagas";
 
 import {
   getCurrentApplicationId,

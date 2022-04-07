@@ -30,11 +30,11 @@ import {
   JSUpdate,
   pushLogsForObjectUpdate,
   createDummyJSCollectionActions,
-} from "../utils/JSPaneUtils";
+} from "utils/JSPaneUtils";
 import JSActionAPI, {
   RefactorAction,
   SetFunctionPropertyPayload,
-} from "../api/JSActionAPI";
+} from "api/JSActionAPI";
 import ActionAPI from "api/ActionAPI";
 import {
   updateJSCollectionSuccess,

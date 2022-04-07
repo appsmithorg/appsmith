@@ -4,7 +4,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { dark, light, theme } from "constants/DefaultTheme";
-import { ThemeMode } from "../../selectors/themeSelectors";
+import { ThemeMode } from "selectors/themeSelectors";
 
 const initialState: ThemeState = {
   mode: ThemeMode.LIGHT,
