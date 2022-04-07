@@ -550,6 +550,8 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                             actionConfiguration.setBody(matcher.replaceAll(key ->
                                     mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()))
                             );
+                        } else {
+                            actionConfiguration.setBody(actionBody);
                         }
 
                         // Reassign the previous column mapping
