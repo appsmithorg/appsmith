@@ -1072,11 +1072,8 @@ export default class DataTreeEvaluator {
               name: action.name,
               body: action.body,
               arguments: action.arguments,
-              isAsync: isFunctionAsync(
-                action.value,
-                unEvalDataTree,
-                this.resolvedFunctions,
-              ),
+              value: action.value,
+              isAsync: false,
             };
           });
 
@@ -1125,7 +1122,7 @@ export default class DataTreeEvaluator {
     differences?: DataTreeDiff[],
     oldUnEvalTree?: DataTree,
   ) {
-    let jsUpdates = {};
+    let jsUpdates: Record<string, any> = {};
     if (!!differences && !!oldUnEvalTree) {
       differences.forEach((diff) => {
         const { entityName, propertyPath } = getEntityNameAndPropertyPath(
@@ -1179,6 +1176,18 @@ export default class DataTreeEvaluator {
         );
       });
     }
+    Object.keys(jsUpdates).forEach((entityName) => {
+      jsUpdates[entityName].parsedBody?.actions.forEach(
+        (action: { isAsync: boolean; value: unknown }) => {
+          action.isAsync = isFunctionAsync(
+            action.value,
+            unEvalDataTree,
+            this.resolvedFunctions,
+          );
+          delete action.value;
+        },
+      );
+    });
     return { jsUpdates };
   }
 
