@@ -515,7 +515,6 @@ function ReconnectDatasourceModal() {
 
   const shouldShowDBForm =
     isConfigFetched && !isLoading && !datasource?.isConfigured;
-  const shouldShowSuccessMessages = datasource && datasource.isConfigured;
 
   return (
     <>
@@ -559,7 +558,7 @@ function ReconnectDatasourceModal() {
                   />
                 </DBFormWrapper>
               )}
-              {shouldShowSuccessMessages && SuccessMessages()}
+              {datasource?.isConfigured && SuccessMessages()}
             </ContentWrapper>
           </BodyContainer>
           <SkipToAppButtonWrapper>
