@@ -31,6 +31,7 @@ function PropertyHelpLabel(props: Props) {
       }
       disabled={!toolTipDefined}
       hoverOpenDelay={200}
+      openOnTargetFocus={false}
       position={Position.TOP}
     >
       <div

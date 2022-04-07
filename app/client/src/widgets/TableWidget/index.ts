@@ -180,6 +180,7 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    loadingProperties: Widget.getLoadingProperties(),
   },
 };
 

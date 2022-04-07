@@ -89,7 +89,8 @@ export function SettingsForm(
 ) {
   const params = useParams() as any;
   const { category, subCategory } = params;
-  const settings = useSettings(category, subCategory);
+  const settingsDetails = useSettings(category, subCategory);
+  const { settings, settingsConfig } = props;
   const details = getSettingDetail(category, subCategory);
   const dispatch = useDispatch();
   const isSavable = AdminConfig.savableCategories.includes(
@@ -100,11 +101,41 @@ export function SettingsForm(
   );
 
   const onSave = () => {
-    if (saveAllowed(props.settings)) {
-      dispatch(saveSettings(props.settings));
+    if (checkMandatoryFileds()) {
+      if (saveAllowed(props.settings)) {
+        dispatch(saveSettings(props.settings));
+      } else {
+        saveBlocked();
+      }
     } else {
-      saveBlocked();
+      Toaster.show({
+        text: "Mandatory fields cannot be empty",
+        variant: Variant.danger,
+      });
     }
+  };
+
+  const checkMandatoryFileds = () => {
+    const requiredFields = settingsDetails.filter((eachSetting) => {
+      const isInitialSettingBlank =
+        settingsConfig[eachSetting.id]?.toString().trim() === "" ||
+        settingsConfig[eachSetting.id] === undefined;
+      const isInitialSettingNotBlank = settingsConfig[eachSetting.id];
+      const isNewSettingBlank =
+        settings[eachSetting.id]?.toString()?.trim() === "";
+      const isNewSettingNotBlank = !settings[eachSetting.id];
+
+      if (
+        eachSetting.isRequired &&
+        !eachSetting.isHidden &&
+        ((isInitialSettingBlank && isNewSettingNotBlank) ||
+          (isInitialSettingNotBlank && isNewSettingBlank))
+      ) {
+        return eachSetting.id;
+      }
+    });
+
+    return !(requiredFields.length > 0);
   };
 
   const onClear = () => {
@@ -159,7 +190,7 @@ export function SettingsForm(
         </HeaderWrapper>
         <Group
           category={category}
-          settings={settings}
+          settings={settingsDetails}
           subCategory={subCategory}
         />
         {isSavable && (
@@ -173,7 +204,7 @@ export function SettingsForm(
         )}
         {details?.isConnected && (
           <DisconnectService
-            disconnect={() => disconnect(settings)}
+            disconnect={() => disconnect(settingsDetails)}
             subHeader={createMessage(DISCONNECT_SERVICE_SUBHEADER)}
             warning={`${pageTitle} ${createMessage(
               DISCONNECT_SERVICE_WARNING,

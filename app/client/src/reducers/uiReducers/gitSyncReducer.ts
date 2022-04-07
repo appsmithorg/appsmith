@@ -450,6 +450,7 @@ export type GitStatusData = {
   modifiedPages: number;
   modifiedQueries: number;
   remoteBranch: string;
+  modifiedJSObjects: number;
 };
 
 type GitErrorPayloadType = {
