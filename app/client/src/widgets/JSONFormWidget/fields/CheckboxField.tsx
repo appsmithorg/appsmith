@@ -50,7 +50,6 @@ const isValid = (
 
 function CheckboxField({
   fieldClassName,
-  hideLabel,
   name,
   passedDefaultValue,
   schemaItem,
@@ -128,7 +127,6 @@ function CheckboxField({
       alignField={schemaItem.alignWidget}
       defaultValue={passedDefaultValue ?? schemaItem.defaultValue}
       fieldClassName={fieldClassName}
-      hideLabel={hideLabel}
       inlineLabel
       isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}

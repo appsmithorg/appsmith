@@ -72,7 +72,10 @@ function generatePanelPropertyConfig(
         hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
           const schemaItem: SchemaItem = get(props, propertyPath, {});
 
-          return schemaItem.identifier === ARRAY_ITEM_KEY;
+          return (
+            schemaItem.identifier === ARRAY_ITEM_KEY &&
+            schemaItem.fieldType === FieldType.OBJECT
+          );
         },
       },
       {

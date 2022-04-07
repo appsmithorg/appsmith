@@ -12,6 +12,7 @@ import { JSONFormWidgetProps } from "..";
 import {
   fieldTypeUpdateHook,
   getSchemaItem,
+  getStylesheetValue,
   hiddenIfArrayItemIsObject,
   updateChildrenDisabledStateHook,
 } from "./helper";
@@ -357,5 +358,31 @@ describe(".updateChildrenDisabledStateHook", () => {
     expect(updatedSchema.__array_item__.children.boolean.isDisabled).toEqual(
       true,
     );
+  });
+});
+
+describe(".getStylesheetValue", () => {
+  it("returns valid stylesheet value", () => {
+    const props = ({
+      schema: schemaTestData.initialDataset.schemaOutput,
+    } as unknown) as JSONFormWidgetProps;
+
+    const inputAndExpectedOutput = [
+      ["", ""],
+      ["schema.__root_schema__.children.education.isDisabled", ""],
+      [
+        "schema.__root_schema__.children.name.borderRadius",
+        "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      ],
+      ["schema", ""],
+    ];
+
+    inputAndExpectedOutput.forEach(([input, expectedOutput]) => {
+      const result = getStylesheetValue(props, input, {
+        childStylesheets: schemaTestData.fieldThemeStylesheets,
+      });
+
+      expect(result).toEqual(expectedOutput);
+    });
   });
 });

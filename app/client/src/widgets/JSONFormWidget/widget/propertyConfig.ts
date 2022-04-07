@@ -155,9 +155,7 @@ const generateButtonStyleControlsFor = (prefix: string) => [
     isJSConvertible: true,
     isBindProperty: true,
     isTriggerProperty: false,
-    validation: {
-      type: ValidationTypes.TEXT,
-    },
+    validation: { type: ValidationTypes.TEXT },
   },
   {
     propertyName: `${prefix}.boxShadow`,

@@ -21,9 +21,9 @@ import {
   ROOT_SCHEMA_KEY,
   Schema,
   SchemaItem,
-  inverseFieldType,
   FieldThemeStylesheet,
 } from "./constants";
+import { getFieldStylesheet } from "./helper";
 
 const clone = require("rfdc/default");
 
@@ -347,16 +347,6 @@ export const sanitizeSchemaItemKey = (key: string, schema: Schema) => {
   ];
 
   return sanitizeKey(key, { existingKeys });
-};
-
-const getFieldStylesheet = (
-  fieldType: FieldType,
-  fieldThemeStylesheets?: FieldThemeStylesheet,
-) => {
-  const fieldTypeKey = inverseFieldType[fieldType];
-  return fieldThemeStylesheets && fieldTypeKey in fieldThemeStylesheets
-    ? fieldThemeStylesheets[fieldTypeKey]
-    : {};
 };
 
 class SchemaParser {

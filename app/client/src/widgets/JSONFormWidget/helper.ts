@@ -1,7 +1,14 @@
 import { isNil, isPlainObject, merge } from "lodash";
 import { LabelValueType } from "rc-select/lib/interface/generator";
 
-import { ARRAY_ITEM_KEY, FieldType, Schema, SchemaItem } from "./constants";
+import {
+  ARRAY_ITEM_KEY,
+  FieldThemeStylesheet,
+  FieldType,
+  inverseFieldType,
+  Schema,
+  SchemaItem,
+} from "./constants";
 
 type ConvertFormDataOptions = {
   fromId: keyof SchemaItem | (keyof SchemaItem)[];
@@ -32,6 +39,16 @@ const valueLookup = (
   }
 
   return;
+};
+
+export const getFieldStylesheet = (
+  fieldType: FieldType,
+  fieldThemeStylesheets?: FieldThemeStylesheet,
+) => {
+  const fieldTypeKey = inverseFieldType[fieldType];
+  return fieldThemeStylesheets && fieldTypeKey in fieldThemeStylesheets
+    ? fieldThemeStylesheets[fieldTypeKey]
+    : {};
 };
 
 const convertObjectTypeToFormData = (
