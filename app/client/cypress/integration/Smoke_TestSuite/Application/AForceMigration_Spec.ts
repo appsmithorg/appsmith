@@ -181,9 +181,51 @@ describe("AForce - Community Issues page validations", function () {
     agHelper.ToggleOnOrOff("enableclientsidesearch", 'On')
   })
 
-  // it.skip("7. Validate Filter table", () => {
+  it("7. Validate Filter table", () => {
+    agHelper.DeployApp()
+    table.WaitUntilTableLoad()
 
-  // })
+    //One filter
+    table.FilterTable("Type", "is exactly", "Bug")
+    table.ReadTableRowColumnData(0, 1).then(($cellData) => {
+      expect($cellData).to.eq("[Bug]:  Postgres queries unable to execute with more than 9 placeholders");
+    });
+    table.ReadTableRowColumnData(4, 1).then(($cellData) => {
+      expect($cellData).to.eq("[Bug] App header overlaps the Table filter pane when table is placed at top of the canvas ");
+    });
+    table.RemoveFilterNVerify("Question")
+
+    //Two filters - OR
+    table.FilterTable("Type", "starts with", "Trouble")
+    table.ReadTableRowColumnData(0, 0).then(($cellData) => {
+      expect($cellData).to.eq("Troubleshooting");
+    });
+    table.ReadTableRowColumnData(0, 1).then(($cellData) => {
+      expect($cellData).to.eq("Renew expired SSL certificate on a self-hosted instance");
+    });
+
+    table.FilterTable("Title", "contains", "query", 'OR', 1)
+    table.ReadTableRowColumnData(0, 0).then(($cellData) => {
+      expect($cellData).to.eq("Question");
+    });
+    table.ReadTableRowColumnData(5, 1).then(($cellData) => {
+      expect($cellData).to.eq("Run storeValue commands before a Query.run()");
+    });
+    table.RemoveFilterNVerify("Question")
+
+     //Two filters - AND
+     table.FilterTable("Votes", "greater than", "Trouble")
+     table.ReadTableRowColumnData(0, 1).then(($cellData) => {
+       expect($cellData).to.eq("Combine queries from different datasources");
+     });
+ 
+     table.FilterTable("Title", "contains", "button", 'AND', 1)
+     table.ReadTableRowColumnData(0, 1).then(($cellData) => {
+       expect($cellData).to.eq("Change the video in the video player with a button click");
+     });
+     table.RemoveFilterNVerify("Question")
+
+  })
 
 
   it("8. Validate Adding a New issue from Add Modal", () => {
@@ -232,7 +274,7 @@ describe("AForce - Community Issues page validations", function () {
     agHelper.GetNClick(locator._inputWidgetv1InDeployed, 2).type("-updating answer link")
 
     //cy.get("body").tab().type("{enter}")
-    
+
     //agHelper.TypeTab()
     // cy.get(locator._widgetInDeployed('multiselectwidget'))
     // .eq(0).typeTab(false, false)
@@ -247,7 +289,7 @@ describe("AForce - Community Issues page validations", function () {
 
     agHelper.RemoveMultiSelectItems(['Documented', 'Needs App'])
 
-   //agHelper.SelectFromMultiSelect(['Documented', 'Needs App', 'App Built'], 0, false, 'multiselectwidget')
+    //agHelper.SelectFromMultiSelect(['Documented', 'Needs App', 'App Built'], 0, false, 'multiselectwidget')
     agHelper.SelectFromMultiSelect(['Needs Product'], 0, true, 'multiselectwidget')
     agHelper.ClickButton('Save')
 
@@ -268,7 +310,7 @@ describe("AForce - Community Issues page validations", function () {
     cy.get(table._trashIcon).closest('div').click()
     agHelper.AssertElementAbsence(locator._widgetInDeployed('tabswidget'))
     table.WaitForTableEmpty()
-    
+
     //2nd search is not working, hence commenting below
     // cy.xpath(table._searchBoxCross).click()
     // table.SearchTable('Troubleshooting')

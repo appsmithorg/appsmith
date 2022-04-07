@@ -1,6 +1,8 @@
 import { ObjectsRegistry } from "../Objects/Registry"
 const path = require("path");
 
+type filterTypes ='contains' | 'does not contain' | 'starts with' | 'ends with' | 'is exactly' | 'empty' | 'not empty' | 'is equal to' |'not equal to' |'greater than' |'greater than or equal to' |'less than'|'less than or equal to';
+
 export class Table {
   public agHelper = ObjectsRegistry.AggregateHelper
   public locator = ObjectsRegistry.CommonLocators
@@ -143,7 +145,7 @@ export class Table {
     });
   }
 
-  public FilterTable(colName: string, colCondition: 'contains' | 'does not contain' | 'starts with' | 'ends with' | 'is exactly' | 'empty' | 'not empty', inputText = "", operator: 'AND' | 'OR' | '' = '', index = 0) {
+  public FilterTable(colName: string, colCondition: filterTypes, inputText = "", operator: 'AND' | 'OR' | '' = '', index = 0) {
     if (operator) {
       this.agHelper.GetNClick(this._addFilter)
       this.agHelper.GetNClick(this._filterOperatorDropdown)

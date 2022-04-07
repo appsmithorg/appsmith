@@ -220,7 +220,7 @@ describe("Verify various Table_Filter combinations", function () {
     table.ReadTableRowColumnData(2, 3).then(($cellData) => {
       expect($cellData).to.eq("Byron Fields");
     });
-    table.FilterTable("productName", "ends with", "steak", 'OR', 1)//need not pass index 1st time
+    table.FilterTable("productName", "ends with", "steak", 'OR', 1)
     table.ReadTableRowColumnData(2, 3).then(($cellData) => {
       expect($cellData).to.eq("Tobias Funke");
     });
@@ -272,7 +272,7 @@ describe("Verify various Table_Filter combinations", function () {
     table.ReadTableRowColumnData(0, 3).then(($cellData) => {
       expect($cellData).to.eq("Byron Fields");
     });
-    table.FilterTable("productName", "does not contain", "WICH", 'AND', 1)//need not pass index 1st time
+    table.FilterTable("productName", "does not contain", "WICH", 'AND', 1)
     table.WaitForTableEmpty()
     table.RemoveFilterNVerify("2381224", true, false)
 
