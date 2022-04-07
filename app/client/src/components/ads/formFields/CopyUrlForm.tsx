@@ -13,7 +13,6 @@ import {
   createMessage,
   REDIRECT_URL_TOOLTIP,
 } from "@appsmith/constants/messages";
-import { REDIRECT_URL_FORM } from "constants/forms";
 import { Colors } from "constants/Colors";
 
 const HelpIcon = HelpIcons.HELP_ICON;
@@ -51,34 +50,34 @@ export const HeaderSecondary = styled.h3`
   text-align: left;
 `;
 
-function RedirectUrlForm(
+function CopyUrlForm(
   props: InjectedFormProps & {
     value: string;
+    form: string;
+    fieldName: string;
+    title: string;
     helpText?: string;
-    title?: string;
   },
 ) {
   useEffect(() => {
     props.initialize({
-      "redirect-url-form": `${window.location.origin}${props.value}`,
+      [props.fieldName]: `${window.location.origin}${props.value}`,
     });
   }, []);
 
   const handleCopy = (value: string) => {
     copy(value);
     Toaster.show({
-      text: "Redirect URL copied to clipboard",
+      text: `${props.title} copied to clipboard`,
       variant: Variant.success,
     });
-    AnalyticsUtil.logEvent("REDIRECT_URL_COPIED", { snippet: value });
+    AnalyticsUtil.logEvent("URL_COPIED", { snippet: value });
   };
 
   return (
     <Wrapper>
       <HeaderWrapper>
-        <HeaderSecondary>
-          {props.title ? props.title : "Redirect URL"}
-        </HeaderSecondary>
+        <HeaderSecondary>{props.title}</HeaderSecondary>
         <TooltipComponent
           autoFocus={false}
           content={createMessage(REDIRECT_URL_TOOLTIP)}
@@ -102,14 +101,13 @@ function RedirectUrlForm(
           helperText={props.helpText}
           iscopy={"true"}
           label={"URL"}
-          name={"redirect-url-form"}
+          name={props.fieldName}
         />
       </BodyContainer>
     </Wrapper>
   );
 }
 
-export const RedirectUrlReduxForm = reduxForm<any, any>({
-  form: REDIRECT_URL_FORM,
+export const CopyUrlReduxForm = reduxForm<any, any>({
   touchOnBlur: true,
-})(RedirectUrlForm);
+})(CopyUrlForm);

@@ -50,6 +50,8 @@ export interface Setting {
   calloutType?: "Info" | "Warning";
   advanced?: Setting[];
   isRequired?: boolean;
+  formName?: string;
+  fieldName?: string;
 }
 
 export interface Category {
