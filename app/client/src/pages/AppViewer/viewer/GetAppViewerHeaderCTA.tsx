@@ -19,12 +19,6 @@ import history from "utils/history";
 const Cta = styled(Button)`
   ${(props) => getTypographyByKey(props, "btnLarge")}
   height: 21px;
-  span > svg {
-    height: 10px;
-    path {
-      stroke: white;
-    }
-  }
 `;
 
 const ForkButton = styled(Cta)`
@@ -67,7 +61,7 @@ function GetAppViewerHeaderCTA(props: any) {
         <ForkButton
           className="t--fork-app"
           href={forkUrl}
-          icon="compasses-line"
+          icon="fork-2"
           text={createMessage(FORK_APP)}
         />
       );
@@ -79,7 +73,7 @@ function GetAppViewerHeaderCTA(props: any) {
             trigger={
               <TriggerButton
                 className="t--fork-app"
-                icon="compasses-line"
+                icon="fork-2"
                 onClick={() => dispatch(getAllApplications())}
                 size={Size.small}
                 text={createMessage(FORK_APP)}

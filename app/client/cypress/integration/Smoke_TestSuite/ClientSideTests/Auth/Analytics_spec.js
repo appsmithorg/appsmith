@@ -6,12 +6,14 @@ describe("Checks for analytics initialization", function() {
   it("Should check analytics is not initialised when enableTelemtry is false", function() {
     cy.visit("/applications");
     cy.reload();
-    cy.wait(6000);
-    cy.wait("@getUser").should(
-      "have.nested.property",
-      "response.body.data.enableTelemetry",
-      false,
-    );
+    cy.wait(3000);
+    cy.wait("@getMe")
+      .wait("@getMe")
+      .should(
+        "have.nested.property",
+        "response.body.data.enableTelemetry",
+        false,
+      );
     cy.window().then((window) => {
       expect(window.analytics).to.be.equal(undefined);
     });
@@ -35,7 +37,7 @@ describe("Checks for analytics initialization", function() {
     cy.visit("/applications");
     cy.reload();
     cy.wait(3000);
-    cy.wait("@getUser");
+    cy.wait("@getMe");
     cy.window().then((window) => {
       expect(window.smartlook).to.be.equal(undefined);
     });
@@ -59,7 +61,7 @@ describe("Checks for analytics initialization", function() {
     cy.visit("/applications");
     cy.reload();
     cy.wait(3000);
-    cy.wait("@getUser");
+    cy.wait("@getMe");
     cy.window().then((window) => {
       expect(window.Sentry).to.be.equal(undefined);
     });

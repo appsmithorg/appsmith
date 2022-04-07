@@ -7,6 +7,7 @@ import {
   Category,
   Icon,
   IconSize,
+  IconWrapper,
   Size,
   Text,
   TextType,
@@ -18,23 +19,15 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
+  getCurrentPageId,
   selectApplicationVersion,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import { createMessage, CLEAN_URL_UPDATE } from "@appsmith/constants/messages";
-
-const updates = [
-  {
-    name: createMessage(CLEAN_URL_UPDATE.name),
-    shortDesc: createMessage(CLEAN_URL_UPDATE.shortDesc),
-    description: [
-      "All URLs in your applications will update to a new readable format that includes the application and page names.",
-      'Existing references to <code style="background:#ebebeb;padding:2px 5px;border-radius:2px">appsmith.URL.fullpath</code> and <code style="background:#ebebeb;padding:2px 5px;border-radius:2px">appsmith.URL.pathname</code> properties will behave differently.',
-    ],
-    version: ApplicationVersion.SLUG_URL,
-  },
-];
+import { useLocation } from "react-router";
+import DisclaimerIcon from "remixicon-react/ErrorWarningLineIcon";
 
 function RedDot() {
   return (
@@ -51,6 +44,9 @@ const StyledList = styled.ul`
   li {
     font-size: 14px;
     font-weight: 400;
+    line-height: 19px;
+    letter-spacing: -0.24px;
+    margin: 4px 0;
     a {
       color: rgb(248, 106, 43);
     }
@@ -70,16 +66,44 @@ const StyledIconContainer = styled.div`
   border-radius: 50%;
 `;
 
+const DisclaimerContainer = styled.div`
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  background: ${Colors.WARNING_ORANGE};
+  color: ${Colors.BROWN};
+  margin: 24px 0 0;
+`;
+
+const BodyContainer = styled.div`
+  .close-modal > svg {
+    height: 28px;
+    width: 28px;
+  }
+`;
+
 function UpdatesModal({
   applicationVersion,
   closeModal,
   latestVersion,
   showModal,
+  updates,
 }: {
   showModal: boolean;
   closeModal: () => void;
   latestVersion: ApplicationVersion;
   applicationVersion: ApplicationVersion;
+  updates: {
+    name: string;
+    shortDesc: string;
+    description: string[];
+    version: ApplicationVersion;
+    disclaimer: {
+      desc: string;
+    };
+  }[];
 }) {
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
@@ -97,7 +121,7 @@ function UpdatesModal({
       scrollContents
       width={600}
     >
-      <div className="p-6">
+      <BodyContainer className="p-6">
         <div className="flex justify-between items-center">
           <div className="flex items-center justify-start">
             <StyledIconContainer>
@@ -110,6 +134,7 @@ function UpdatesModal({
             <Text type={TextType.H1}>Product Updates</Text>
           </div>
           <Icon
+            className="close-modal"
             fillColor={Colors.SCORPION}
             name="close-modal"
             onClick={closeModal}
@@ -126,6 +151,14 @@ function UpdatesModal({
                 <li dangerouslySetInnerHTML={{ __html: desc }} key={idx} />
               ))}
             </StyledList>
+            <DisclaimerContainer>
+              <IconWrapper size={IconSize.XXXL}>
+                <DisclaimerIcon color={Colors.WARNING_SOLID} />
+              </IconWrapper>
+              <span
+                dangerouslySetInnerHTML={{ __html: update.disclaimer.desc }}
+              />
+            </DisclaimerContainer>
           </div>
         ))}
         <div className="flex justify-end gap-2 items-center">
@@ -157,7 +190,7 @@ function UpdatesModal({
             text="Update"
           />
         </div>
-      </div>
+      </BodyContainer>
     </ModalComponent>
   );
 }
@@ -168,6 +201,36 @@ function ManualUpgrades() {
     "",
   );
   const applicationVersion = useSelector(selectApplicationVersion);
+  const applicationId = useSelector(getCurrentApplicationId);
+  const pageId = useSelector(getCurrentPageId);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
+  const location = useLocation();
+
+  const updates = React.useMemo(
+    () => [
+      {
+        name: createMessage(CLEAN_URL_UPDATE.name),
+        shortDesc: createMessage(CLEAN_URL_UPDATE.shortDesc),
+        description: CLEAN_URL_UPDATE.description.map((formatter) =>
+          createMessage(
+            formatter.bind(
+              null,
+              window.location.href.replace(
+                `/applications/${applicationId}/pages/${pageId}`,
+                `/app/${applicationSlug}/${pageSlug}-${pageId}`,
+              ),
+            ),
+          ),
+        ),
+        disclaimer: {
+          severity: "MODERATE",
+          desc: createMessage(CLEAN_URL_UPDATE.disclaimer),
+        },
+        version: ApplicationVersion.SLUG_URL,
+      },
+    ],
+    [location, applicationSlug, pageSlug, pageId, applicationId],
+  );
   const latestVersion = React.useMemo(
     () => updates.reduce((max, u) => (max > u.version ? max : u.version), 0),
     [],
@@ -225,6 +288,7 @@ function ManualUpgrades() {
         }}
         latestVersion={latestVersion}
         showModal={showModal}
+        updates={updates}
       />
     </div>
   );

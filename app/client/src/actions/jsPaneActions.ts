@@ -62,6 +62,17 @@ export const executeJSFunction = (payload: {
   };
 };
 
+export const startExecutingJSFunction = (payload: {
+  collectionName: string;
+  action: JSAction;
+  collectionId: string;
+}) => {
+  return {
+    type: ReduxActionTypes.START_EXECUTE_JS_FUNCTION,
+    payload,
+  };
+};
+
 export const updateFunctionProperty = (payload: SetFunctionPropertyPayload) => {
   return {
     type: ReduxActionTypes.SET_FUNCTION_PROPERTY,

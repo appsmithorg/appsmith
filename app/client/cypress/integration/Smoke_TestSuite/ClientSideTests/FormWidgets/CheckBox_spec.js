@@ -5,6 +5,7 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/newFormDsl.json");
 const formWidgetDsl = require("../../../../fixtures/formWidgetdsl.json");
 const pages = require("../../../../locators/Pages.json");
+const explorer = require("../../../../locators/explorerlocators.json");
 
 describe("Checkbox Widget Functionality", function() {
   before(() => {
@@ -71,6 +72,26 @@ describe("Checkbox Widget Functionality", function() {
     cy.PublishtheApp();
     cy.get(publish.checkboxWidget + " " + "input").should("be.checked");
     cy.get(publish.backToEditor).click();
+  });
+
+  it("Check isDirty meta property", function() {
+    cy.openPropertyPane("textwidget");
+    cy.updateCodeInput(".t--property-control-text", `{{checker.isDirty}}`);
+    // Check if initial value of isDirty is false
+    cy.get(".t--widget-textwidget").should("contain", "false");
+    // Interact with UI
+    cy.get(`${formWidgetsPage.checkboxWidget} label`)
+      .first()
+      .click();
+    // Check if isDirty is set to true
+    cy.get(".t--widget-textwidget").should("contain", "true");
+    // Change defaultCheckedState property
+    cy.openPropertyPane("checkboxwidget");
+    cy.get(".t--property-control-defaultselected label")
+      .last()
+      .click();
+    // Check if isDirty is reset to false
+    cy.get(".t--widget-textwidget").should("contain", "false");
   });
 });
 

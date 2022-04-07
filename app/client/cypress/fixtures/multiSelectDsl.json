@@ -62,6 +62,25 @@
                         "dynamicBindingPathList": [],
                         "children": [
                             {
+                                "widgetName": "Text1",
+                                "rightColumn": 10,
+                                "widgetId": "4d8d2eh4xg",
+                                "dynamicPropertyPathList": [],
+                                "topRow": 0,
+                                "bottomRow": 3,
+                                "parentRowSpace": 38,
+                                "isVisible": true,
+                                "type": "TEXT_WIDGET",
+                                "dynamicBindingPathList": [],
+                                "shouldScroll": true,
+                                "parentId": "hjiybwqair",
+                                "isLoading": false,
+                                "parentColumnSpace": 71.75,
+                                "leftColumn": 1,
+                                "text": "Test text",
+                                "textStyle": "HEADING"
+                            },
+                            {
                                 "isRequired": false,
                                 "widgetName": "Input1",
                                 "rightColumn": 20,

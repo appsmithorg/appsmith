@@ -422,6 +422,29 @@ describe("Input widget V2 - ", () => {
     cy.get(".t--widget-textwidget").should("contain", "1.0001:1.0001:true");
   });
 
+  it("Check isDirty meta property", function() {
+    cy.openPropertyPane("textwidget");
+    cy.updateCodeInput(".t--property-control-text", `{{Input1.isDirty}}`);
+    // Init isDirty
+    cy.openPropertyPane(widgetName);
+    cy.selectDropdownValue(".t--property-control-datatype", "Text");
+    cy.updateCodeInput(".t--property-control-defaulttext", "a");
+    // Check if initial value of isDirty is false
+    cy.get(".t--widget-textwidget").should("contain", "false");
+    // Interact with UI
+    cy.get(widgetInput).clear();
+    cy.wait(300);
+    cy.get(widgetInput).type("b");
+    cy.wait(300);
+    // Check if isDirty is set to true
+    cy.get(".t--widget-textwidget").should("contain", "true");
+    // Change defaultText
+    cy.openPropertyPane(widgetName);
+    cy.updateCodeInput(".t--property-control-defaulttext", "c");
+    // Check if isDirty is reset to false
+    cy.get(".t--widget-textwidget").should("contain", "false");
+  });
+
   function enterAndTest(text, expected) {
     cy.get(`.t--widget-${widgetName} input`).clear();
     cy.wait(300);
