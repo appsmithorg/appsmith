@@ -14,7 +14,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
       agHelper.AddDsl(val, locator._spanButton('Submit'))
     });
     ee.SelectEntityByName("Button1", 'WIDGETS');
-    jsEditor.EnterJSContext('onclick', "{{storeValue('date', Date()).then(() => showAlert(appsmith.store.date))}}", true, true);
+    jsEditor.EnterJSContext('onClick', "{{storeValue('date', Date()).then(() => showAlert(appsmith.store.date))}}", true, true);
     agHelper.DeployApp()
     agHelper.ClickButton('Submit')
     agHelper.ValidateToastMessage(date)
@@ -27,7 +27,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
     });
     ee.SelectEntityByName("Button1", 'WIDGETS');
     jsEditor.EnterJSContext(
-      "onclick",
+      "onClick",
       `{{
           new Promise((resolve) => {
             resolve("We are on planet")
@@ -58,7 +58,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
     }); // verifies Bug 10055
     ee.SelectEntityByName("Button1", 'WIDGETS');
     jsEditor.EnterJSContext(
-      "onclick",
+      "onClick",
       `{{(async function(){
           const user = await RandomUser.run();
           const gender = await Genderize.run({ country: user.results[0].location.country });
@@ -91,7 +91,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
     );
     ee.SelectEntityByName("Button1", 'WIDGETS');
     jsEditor.EnterJSContext(
-      "onclick",
+      "onClick",
       `{{
             (function () {
           return Christmas.run()
@@ -103,7 +103,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
       true,
     );
     ee.SelectEntityByName("Image1");
-    jsEditor.EnterJSContext("image", `{{Christmas.data}}`, true);
+    jsEditor.EnterJSContext("Image", `{{Christmas.data}}`, true);
     agHelper.ValidateToastMessage('will be executed automatically on page load')
     agHelper.DeployApp()
     agHelper.ClickButton("Submit");
@@ -122,7 +122,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
 return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " is " + JSON.stringify(res.quote.body), 'success') }).catch(() => showAlert("Unable to fetch quote for " + user, 'warning'))`);
     ee.SelectEntityByName("Button1", 'WIDGETS');
     cy.get("@jsObjName").then((jsObjName) => {
-      jsEditor.EnterJSContext('onclick', "{{" + jsObjName + ".myFun1()}}", true, true);
+      jsEditor.EnterJSContext('onClick', "{{" + jsObjName + ".myFun1()}}", true, true);
     })
     agHelper.DeployApp()
     agHelper.ClickButton("Submit");
@@ -137,7 +137,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     apiPage.CreateAndFillApi("https://api.agify.io?name={{this.params.person}}", "Agify")
     apiPage.ValidateQueryParams({ key: "name", value: "{{this.params.person}}" }); // verifies Bug 10055
     ee.SelectEntityByName("Button1", 'WIDGETS');
-    jsEditor.EnterJSContext('onclick', `{{ Promise.race([Agify.run({ person: 'Melinda' }), Agify.run({ person: 'Trump' })]).then((res) => { showAlert('Winner is ' + JSON.stringify(res.name), 'success') }) }} `, true, true);
+    jsEditor.EnterJSContext('onClick', `{{ Promise.race([Agify.run({ person: 'Melinda' }), Agify.run({ person: 'Trump' })]).then((res) => { showAlert('Winner is ' + JSON.stringify(res.name), 'success') }) }} `, true, true);
     agHelper.DeployApp()
     agHelper.ClickButton('Submit')
     cy.get(locator._toastMsg).should("have.length", 1).contains(/Melinda|Trump/g)
@@ -154,7 +154,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     );
     ee.SelectEntityByName("List1", 'WIDGETS');
     jsEditor.EnterJSContext(
-      "items",
+      "Items",
       `[{
   "name": {{ GetAnime.data.results[0].title }},
 "img": {{ GetAnime.data.results[0].image_url }},
@@ -175,7 +175,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     agHelper.ValidateToastMessage('will be executed automatically on page load')//Validating 'Run API on Page Load' is set once api response is mapped
     ee.SelectEntityByName("Button1");
     jsEditor.EnterJSContext(
-      "onclick",
+      "onClick",
       `{{
     (function () {
       const anime = "fruits basket : the final";
@@ -200,7 +200,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
       agHelper.AddDsl(val, locator._spanButton('Submit'))
     });
     ee.SelectEntityByName("Button1", 'WIDGETS');
-    jsEditor.EnterJSContext('onclick', `{{
+    jsEditor.EnterJSContext('onClick', `{{
     (function () {
       let agifyy = [];
       let animals = ['cat', 'dog', 'camel', 'rabbit', 'rat'];
@@ -235,7 +235,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
 
     ee.SelectEntityByName("Button1", 'WIDGETS');
     cy.get("@jsObjName").then((jsObjName) => {
-      jsEditor.EnterJSContext('onclick', "{{storeValue('date', Date()).then(() => { showAlert(appsmith.store.date, 'success'); return " + jsObjName + ".myFun1()})}}", true, true);
+      jsEditor.EnterJSContext('onClick', "{{storeValue('date', Date()).then(() => { showAlert(appsmith.store.date, 'success'); return " + jsObjName + ".myFun1()})}}", true, true);
     });
     agHelper.DeployApp()
     agHelper.ClickButton('Submit')
@@ -270,7 +270,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
     }`, true, true)
     ee.SelectEntityByName("Button1", 'WIDGETS');
     cy.get("@jsObjName").then((jsObjName) => {
-      jsEditor.EnterJSContext('onclick', "{{" + jsObjName + ".runAny()}}", true, true);
+      jsEditor.EnterJSContext('onClick', "{{" + jsObjName + ".runAny()}}", true, true);
     });
     agHelper.DeployApp()
     agHelper.ClickButton('Submit')
@@ -287,7 +287,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
     });
     ee.SelectEntityByName("Button1", 'WIDGETS');
     jsEditor.EnterJSContext(
-      "onclick",
+      "onClick",
       "{{resetWidget('Input1').then(() => showAlert(Input1.text))}}",
       true,
       true,
@@ -308,7 +308,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
 InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " is " + JSON.stringify(res.quote.body), 'success') }).catch(() => showAlert("Unable to fetch quote for " + user, 'warning'))`);
     ee.SelectEntityByName("Button1");
     cy.get("@jsObjName").then((jsObjName) => {
-      jsEditor.EnterJSContext('onclick', "{{" + jsObjName + ".myFun1()}}", true, true);
+      jsEditor.EnterJSContext('onClick', "{{" + jsObjName + ".myFun1()}}", true, true);
     });
     agHelper.ClickButton('Submit')
     agHelper.ValidateToastMessage("Today's quote for You")

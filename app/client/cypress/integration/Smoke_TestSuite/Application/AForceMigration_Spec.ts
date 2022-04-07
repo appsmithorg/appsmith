@@ -85,7 +85,7 @@ describe("AForce - Community Issues page validations", function () {
 
   it("4. Change Default selected row in table and verify", () => {
 
-    jsEditor.EnterJSContext("defaultselectedrow", "1", true)
+    jsEditor.EnterJSContext("Default Selected Row", "1")
     agHelper.DeployApp()
     table.WaitUntilTableLoad()
     table.AssertPageNumber(1);
