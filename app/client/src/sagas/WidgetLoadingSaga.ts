@@ -13,7 +13,7 @@ import {
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "../constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { findLoadingEntities } from "utils/WidgetLoadingStateUtils";

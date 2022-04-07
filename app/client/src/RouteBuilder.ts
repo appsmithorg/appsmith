@@ -14,7 +14,10 @@ import { APP_MODE } from "entities/App";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 import { matchPath } from "react-router";
 import { ApplicationVersion } from "actions/applicationActions";
-import { ApplicationPayload, Page } from "constants/ReduxActionConstants";
+import {
+  ApplicationPayload,
+  Page,
+} from "@appsmith/constants/ReduxActionConstants";
 
 export function convertToQueryParams(
   params: Record<string, string> = {},

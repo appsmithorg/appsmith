@@ -4,7 +4,7 @@ import {
   ReduxActionTypes,
   ReduxActionWithMeta,
   ReduxFormActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import history from "utils/history";
 import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { Datasource } from "entities/Datasource";

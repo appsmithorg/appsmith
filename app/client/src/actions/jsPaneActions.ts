@@ -1,4 +1,7 @@
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import { RefactorAction, SetFunctionPropertyPayload } from "api/JSActionAPI";
 export const createNewJSCollection = (

@@ -1,4 +1,7 @@
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
 import { takeLatest } from "redux-saga/effects";
 import localStorage from "utils/localStorage";
 import { ThemeMode } from "../selectors/themeSelectors";

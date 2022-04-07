@@ -6,7 +6,7 @@ import {
   ReduxActionTypes,
   ReduxActionWithMeta,
   ReduxFormActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { getFormData } from "selectors/formSelectors";
 import { DATASOURCE_DB_FORM, QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import history from "utils/history";

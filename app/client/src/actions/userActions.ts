@@ -1,7 +1,7 @@
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   CommentsOnboardingState,
   CurrentUserDetailsRequestPayload,
@@ -10,7 +10,7 @@ import {
   TokenPasswordUpdateRequest,
   UpdateUserRequest,
   VerifyTokenRequest,
-} from "api/UserApi";
+} from "@appsmith/api/UserApi";
 
 export const logoutUser = (payload?: { redirectURL: string }) => ({
   type: ReduxActionTypes.LOGOUT_USER_INIT,

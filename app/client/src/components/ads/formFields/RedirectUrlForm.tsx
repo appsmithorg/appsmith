@@ -52,7 +52,11 @@ export const HeaderSecondary = styled.h3`
 `;
 
 function RedirectUrlForm(
-  props: InjectedFormProps & { value: string; helpText?: string },
+  props: InjectedFormProps & {
+    value: string;
+    helpText?: string;
+    title?: string;
+  },
 ) {
   useEffect(() => {
     props.initialize({
@@ -72,7 +76,9 @@ function RedirectUrlForm(
   return (
     <Wrapper>
       <HeaderWrapper>
-        <HeaderSecondary>Redirect URL</HeaderSecondary>
+        <HeaderSecondary>
+          {props.title ? props.title : "Redirect URL"}
+        </HeaderSecondary>
         <TooltipComponent
           autoFocus={false}
           content={createMessage(REDIRECT_URL_TOOLTIP)}

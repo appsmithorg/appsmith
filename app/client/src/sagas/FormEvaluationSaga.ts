@@ -2,7 +2,7 @@ import { call, fork, take, select, put } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionTypes,
-} from "../constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { getFormEvaluationState } from "../selectors/formSelectors";

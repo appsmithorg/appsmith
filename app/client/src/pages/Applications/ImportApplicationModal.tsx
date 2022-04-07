@@ -24,10 +24,10 @@ import { Theme } from "constants/DefaultTheme";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getIsImportingApplication } from "selectors/applicationSelectors";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import Dialog from "../../components/ads/DialogComponent";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import Dialog from "components/ads/DialogComponent";
 import { Classes } from "@blueprintjs/core";
-import getFeatureFlags from "../../utils/featureFlags";
+import getFeatureFlags from "utils/featureFlags";
 
 const StyledDialog = styled(Dialog)`
   && .${Classes.DIALOG_HEADER} {

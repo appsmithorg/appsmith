@@ -16,7 +16,7 @@ import {
   ReduxAction,
   ReduxActionType,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   getDataTree,
   getUnevaluatedDataTree,

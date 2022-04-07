@@ -17,7 +17,7 @@ import classNames from "classnames";
 import { JSCollection } from "entities/JSCollection";
 import styled from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 const CloseIcon = ControlIcons.CLOSE_CONTROL;
 

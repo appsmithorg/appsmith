@@ -1,5 +1,8 @@
 import { takeLeading, all, put, select } from "redux-saga/effects";
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
 import history from "../utils/history";
 import { getCurrentPageId } from "../selectors/editorSelectors";
 import { ActionData } from "../reducers/entityReducers/actionsReducer";
