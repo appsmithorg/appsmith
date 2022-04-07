@@ -11,7 +11,7 @@ export class JSEditor {
   private _bindingsClose = ".t--entity-property-close"
   private _propertyList = ".t--entity-property"
   private _responseTabAction = (funName: string) => "//div[@class='function-name'][text()='" + funName + "']/following-sibling::div//*[local-name()='svg']"
-  private _functionSetting = (settingTxt: string) => "//span[text()='" + settingTxt + "']/parent::div/following-sibling::input[@type='checkbox']"
+  private _functionSetting = (settingTxt: string) => "//span[contains(text(),'" + settingTxt + "')]/parent::div/following-sibling::input[@type='checkbox']"
   _dialog = (dialogHeader: string) => "//div[contains(@class, 'bp3-dialog')]//h4[contains(text(), '" + dialogHeader + "')]"
   private _closeSettings = "span[icon='small-cross']"
 
@@ -240,7 +240,7 @@ export class JSEditor {
     if (onLoad)
       this.agHelper.CheckUncheck(this._functionSetting('Run Function on Page load'), true)
     if (bfrCalling)
-      this.agHelper.CheckUncheck(this._functionSetting('Request confirmation before calling Function?'), true)
+      this.agHelper.CheckUncheck(this._functionSetting('Request confirmation before calling function?'), true)
 
     this.agHelper.GetNClick(this._closeSettings)
   }

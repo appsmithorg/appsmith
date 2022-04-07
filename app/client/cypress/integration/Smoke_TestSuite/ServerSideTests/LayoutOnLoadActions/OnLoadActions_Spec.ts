@@ -20,7 +20,7 @@ describe("Layout OnLoad Actions tests", function () {
     ee.SelectEntityByName("WIDGETS");
     ee.SelectEntityByName("Page1");
     cy.url().then((url) => {
-      const pageid = url.split("/")[4]?.split("-").pop();
+      const pageid = url.split("/")[5]?.split("-").pop();
       cy.log(pageid + "page id");
       cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
         const respBody = JSON.stringify(response.body);
