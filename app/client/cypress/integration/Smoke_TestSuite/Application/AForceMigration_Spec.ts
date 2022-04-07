@@ -211,10 +211,10 @@ describe("AForce - Community Issues page validations", function () {
     table.ReadTableRowColumnData(5, 1).then(($cellData) => {
       expect($cellData).to.eq("Run storeValue commands before a Query.run()");
     });
-    table.RemoveFilterNVerify("Question")
+    table.RemoveFilterNVerify("Question", true, false)
 
      //Two filters - AND
-     table.FilterTable("Votes", "greater than", "Trouble")
+     table.FilterTable("Votes", "greater than", "3")
      table.ReadTableRowColumnData(0, 1).then(($cellData) => {
        expect($cellData).to.eq("Combine queries from different datasources");
      });
@@ -227,10 +227,9 @@ describe("AForce - Community Issues page validations", function () {
 
   })
 
-
   it("8. Validate Adding a New issue from Add Modal", () => {
-    agHelper.DeployApp()
-    table.WaitUntilTableLoad()
+    // agHelper.DeployApp()
+    // table.WaitUntilTableLoad()
 
     cy.get(table._addIcon).closest('div').click()
     agHelper.AssertElementPresence(locator._modal)
