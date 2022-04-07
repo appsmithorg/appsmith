@@ -15,7 +15,7 @@ import {
   getBasePropertyPath,
   hideByColumnType,
   uniqueColumnNameValidation,
-  boxShadowHook,
+  removeBoxShadowColorProp,
 } from "./propertyUtils";
 import {
   createMessage,
@@ -1030,7 +1030,7 @@ export default [
                   controlType: "BOX_SHADOW_OPTIONS",
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
-                  updateHook: boxShadowHook,
+                  updateHook: removeBoxShadowColorProp,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.ICON_BUTTON,

@@ -10,7 +10,7 @@ import {
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import generate from "nanoid/generate";
-import { WidgetPositionProps } from "./BaseWidget";
+import { WidgetPositionProps, WidgetProps } from "./BaseWidget";
 import { Theme } from "constants/DefaultTheme";
 import {
   ButtonStyleTypes,
@@ -26,7 +26,9 @@ import { Classes } from "@blueprintjs/core";
 import { Classes as DateTimeClasses } from "@blueprintjs/datetime";
 import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { SchemaItem } from "./JSONFormWidget/constants";
-import { isEmpty } from "lodash";
+import { find, isEmpty } from "lodash";
+import { WidgetProperties } from "selectors/propertyPaneSelectors";
+import { rgbaMigrationConstant } from "./constants";
 
 const punycode = require("punycode/");
 
@@ -328,6 +330,11 @@ export const fontSizeUtility = (fontSize: string | undefined) => {
   }
 };
 
+/**
+ * Function to map Old borderRadius(with dynamic binding) to the new theming border radius in theming migration
+ * @param borderRadius
+ * @returns
+ */
 export const borderRadiusUtility = (borderRadius: string | undefined) => {
   switch (borderRadius) {
     case ButtonBorderRadiusTypes.SHARP:
@@ -336,13 +343,13 @@ export const borderRadiusUtility = (borderRadius: string | undefined) => {
       return "0.375rem";
     case ButtonBorderRadiusTypes.CIRCLE:
       return "9999px";
-
     default:
       return borderRadius;
   }
 };
 
 /**
+ * Function used inside boxShadowDynamicChecker to map dynamicBinding based boxShadowColor in theming migration.
  * @param boxShadow
  * @param boxShadowColor
  * @returns
@@ -352,30 +359,85 @@ export const boxShadowColorUtility = (
   boxShadowColor: string,
 ) => {
   if (boxShadowColor) {
-    return boxShadow.replace(
-      /(?:#|0x)(?:[a-f0-9]{3}|[a-f0-9]{6})\b|(?:rgb)a?\([^\)]*\)/g,
-      boxShadowColor,
-    );
+    return boxShadow.replace("rgba(0, 0, 0, 0.25)", boxShadowColor);
   }
   return boxShadow;
 };
 
+/**
+ * Function used inside boxShadowDynamicChecker to map dynamicBinding based boxShadow in theming migration.
+ * @param boxShadow
+ * @param boxShadowColor
+ * @returns
+ */
 export const boxShadowUtility = (boxShadow: string, boxShadowColor: string) => {
+  const newBoxShadowColor = boxShadowColor || rgbaMigrationConstant;
   switch (boxShadow) {
     case BoxShadowTypes.VARIANT1:
-      return `0px 0px 4px 3px ${boxShadowColor || "rgba(0, 0, 0, 0.25)"}`;
+      return `0px 0px 4px 3px ${newBoxShadowColor}`;
     case BoxShadowTypes.VARIANT2:
-      return `3px 3px 4px ${boxShadowColor || "rgba(0, 0, 0, 0.25)"}`;
+      return `3px 3px 4px ${newBoxShadowColor}`;
     case BoxShadowTypes.VARIANT3:
-      return `0px 1px 3px ${boxShadowColor || "rgba(0, 0, 0, 0.25)"}`;
+      return `0px 1px 3px ${newBoxShadowColor}`;
     case BoxShadowTypes.VARIANT4:
-      return `2px 2px 0px  ${boxShadowColor || "rgba(0, 0, 0, 0.25)"}`;
+      return `2px 2px 0px  ${newBoxShadowColor}`;
     case BoxShadowTypes.VARIANT5:
-      return `-2px -2px 0px ${boxShadowColor || "rgba(0, 0, 0, 0.25)"}`;
-    default:
-      return boxShadowColorUtility(boxShadow, boxShadowColor);
+      return `-2px -2px 0px ${newBoxShadowColor}`;
   }
 };
+
+/**
+ * Function usd inside table widget cell properties for Icon and menu button types.
+ * This function is used to run theming migration boxShadow and boxShadowColor has dynamic bindings
+ * Function runs for the following scenarios, when:
+ * 1. boxShadow: Static; boxShadowColor: Dynamic
+ * 2. boxShadow: Dynamic; boxShadowColor: Static
+ * 3. boxShadow: Dynamic; boxShadowColor: empty
+ * 4. boxShadow: Dynamic; boxShadowColor: dynamic
+ *
+ * @param child Child containing widget props
+ * @param columnName Current column name
+ * @param boxShadow current box shadow
+ * @param boxShadowColor current box shadow color
+ * @returns
+ */
+export const boxShadowDynamicChecker = (
+  child: WidgetProps,
+  columnName: string,
+  boxShadow: string,
+  boxShadowColor: any,
+) => {
+  const boxShadowRegex = new RegExp(columnName + ".boxShadow$");
+  const boxShadowColorRegex = new RegExp(columnName + ".boxShadowColor$");
+
+  const isBoxShadowDynamic = find(
+    child.dynamicBindingPathList,
+    (value: { key: string }) => boxShadowRegex.test(value.key),
+  );
+  const isBoxShadowColorDynamic = find(
+    child.dynamicBindingPathList,
+    (value: { key: string }) => boxShadowColorRegex.test(value.key),
+  );
+
+  //Case:1
+  if (!isBoxShadowDynamic && isBoxShadowColorDynamic) {
+    return boxShadowColorUtility(boxShadow, boxShadowColor);
+  } else if (
+    //Case 2 & 3:
+    isBoxShadowDynamic &&
+    (!isBoxShadowColorDynamic || boxShadowColor === "")
+  ) {
+    return boxShadowUtility(boxShadow, boxShadowColor);
+  } else if (
+    //Case 4:
+    isBoxShadowDynamic &&
+    isBoxShadowColorDynamic
+  ) {
+    const constantBoxShadow = boxShadowUtility(boxShadow, "");
+    return boxShadowColorUtility(constantBoxShadow as string, boxShadowColor);
+  }
+};
+
 // Creates a map between the string part of a key with max suffixed number found
 // eg. keys -> ["key1", "key10", "newKey"]
 // returns -> {key: 10, newKey: 0 }
@@ -448,6 +510,12 @@ export const sanitizeKey = (key: string, options?: SanitizeOptions) => {
   return sanitizedKey;
 };
 
+/**
+ * Recursive function to traverse through all the children of the JSON form in theming migration.
+ * @param schemaItem
+ * @param propertyPath
+ * @param callback
+ */
 export const parseSchemaItem = (
   schemaItem: SchemaItem,
   propertyPath: string,
