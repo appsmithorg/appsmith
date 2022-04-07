@@ -1220,7 +1220,7 @@ jobs:
           fi
 
   package:
-    needs: [ui-test, fat-container-test]
+    needs: ui-test
     runs-on: ubuntu-latest
 
     # Run this job irrespective of tests failing, if this is the release branch; or only if the tests pass, if this is the master branch.
