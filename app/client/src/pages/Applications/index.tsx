@@ -40,7 +40,7 @@ import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import Dialog from "components/ads/DialogComponent";
 import { User } from "constants/userConstants";
-import { getCurrentUser } from "selectors/usersSelectors";
+import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
 import { CREATE_ORGANIZATION_FORM_NAME } from "constants/forms";
 import {
   DropdownOnSelectActions,
@@ -85,7 +85,6 @@ import {
 import { ReactComponent as NoAppsFoundIcon } from "assets/svg/no-apps-icon.svg";
 
 import { setHeaderMeta } from "actions/themeActions";
-import getFeatureFlags from "utils/featureFlags";
 import SharedUserList from "pages/common/SharedUserList";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { Indices } from "constants/Layers";
@@ -523,6 +522,7 @@ function ApplicationsSection(props: any) {
   ) => {
     dispatch(updateApplication(id, data));
   };
+  const featureFlags = useSelector(selectFeatureFlags);
 
   useEffect(() => {
     // Clears URL params cache
@@ -931,7 +931,7 @@ function ApplicationsSection(props: any) {
       isMobile={isMobile}
     >
       {organizationsListComponent}
-      {getFeatureFlags().GIT_IMPORT && <GitSyncModal isImport />}
+      {featureFlags.GIT_IMPORT && <GitSyncModal isImport />}
       <ReconnectDatasourceModal />
     </ApplicationContainer>
   );
