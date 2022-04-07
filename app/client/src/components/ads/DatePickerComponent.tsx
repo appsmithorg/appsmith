@@ -134,16 +134,12 @@ function whetherItIsTheLastButtonInDatepicker(
   );
 }
 
-function DatePickerComponent(props: DatePickerComponentProps) {
+function useKeyboardNavigation(clearButtonText: string) {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
   // to get the latest visibility value
   const DatePickerVisibilityRef = useRef(isDatePickerVisible);
   DatePickerVisibilityRef.current = isDatePickerVisible;
-
-  // this was added to check the Datepickers
-  // footer action bar last Clear button
-  const clearButtonText = "Clear";
 
   const popoverRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -277,6 +273,37 @@ function DatePickerComponent(props: DatePickerComponentProps) {
       inputRef.current?.focus();
     }
   }
+
+  return {
+    // state
+    isDatePickerVisible,
+
+    // references
+    inputRef,
+    popoverRef,
+
+    // event handlers
+    handleTimePickerKeydown,
+    handleOnDayClick,
+    handleDateInputClick,
+    handleInteraction,
+  };
+}
+
+function DatePickerComponent(props: DatePickerComponentProps) {
+  // this was added to check the Datepickers
+  // footer action bar last Clear button
+  const clearButtonText = "Clear";
+
+  const {
+    handleDateInputClick,
+    handleInteraction,
+    handleOnDayClick,
+    handleTimePickerKeydown,
+    inputRef,
+    isDatePickerVisible,
+    popoverRef,
+  } = useKeyboardNavigation(clearButtonText);
 
   return (
     <StyledDateInput
