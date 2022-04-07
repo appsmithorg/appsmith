@@ -48,7 +48,6 @@ import {
   getSelectRowIndices,
   getCellProperties,
 } from "./utilities";
-
 import {
   ColumnProperties,
   ReactTableColumnProps,
@@ -72,6 +71,9 @@ import {
 import { renderImage } from "../component/renderHelpers/ImageRenderer";
 import { renderVideo } from "../component/renderHelpers/VideoRenders";
 import { renderIconButton } from "../component/renderHelpers/IconButtonRenderer";
+import { renderEditActions } from "../component/renderHelpers/EditActionsRenderer";
+
+const clone = require("rfdc/default");
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -180,6 +182,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           const cellProperties = getCellProperties(column, originalIndex);
           let isSelected = false;
 
+          if (this.props.transientTableData) {
+            cellProperties.hasUnsavedChanged =
+              this.props.transientTableData.hasOwnProperty(originalIndex) &&
+              this.props.transientTableData[originalIndex].hasOwnProperty(
+                props.cell.column.columnProperties.alias,
+              );
+          }
+
           if (multiRowSelection) {
             isSelected =
               _.isArray(selectedRowIndices) &&
@@ -192,7 +202,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
           switch (column.columnType) {
             case ColumnTypes.BUTTON:
-              const buttonProps = {
+              return renderButton({
                 compactMode,
                 isSelected: isSelected,
                 onCommandClick: (action: string, onComplete: () => void) =>
@@ -216,8 +226,52 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                     dynamicTrigger: column.onClick || "",
                   },
                 ],
-              };
-              return renderButton(buttonProps, isHidden, cellProperties);
+                cellProperties,
+                isHidden,
+              });
+
+            case ColumnTypes.EDIT_ACTIONS:
+              return renderEditActions({
+                compactMode,
+                isSelected: isSelected,
+                onCommandClick: (
+                  action: string,
+                  onComplete: () => void,
+                  eventType: EventType,
+                ) =>
+                  this.onColumnEvent({
+                    rowIndex,
+                    action,
+                    onComplete,
+                    triggerPropertyName: "onClick",
+                    eventType: eventType,
+                  }),
+                backgroundColor:
+                  cellProperties.buttonColor || DEFAULT_BUTTON_COLOR,
+                buttonLabelColor:
+                  cellProperties.buttonLabelColor || DEFAULT_BUTTON_LABEL_COLOR,
+                isDisabled: !!cellProperties.isDisabled,
+                isCellVisible: cellProperties.isCellVisible ?? true,
+                columnActions: [
+                  {
+                    id: EditableCellActions.SAVE,
+                    label: cellProperties.saveActionLabel || "Save",
+                    dynamicTrigger: column.onSave || "",
+                    eventType: EventType.ON_ROW_SAVE,
+                  },
+                  {
+                    id: EditableCellActions.DISCARD,
+                    label: cellProperties.discardActionLabel || "Discard",
+                    dynamicTrigger: column.onDiscard || "",
+                    eventType: EventType.ON_ROW_DISCARD,
+                  },
+                ],
+                cellProperties,
+                isHidden,
+                onDiscard: () => {
+                  this.removeRowFromTransientTableData(originalIndex);
+                },
+              });
 
             case ColumnTypes.SELECT:
               const onSelect = (value: string) => {
@@ -412,7 +466,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                           props.cell.value,
                       });
 
-                      if (props.cell.column.columnProperties.onSubmit) {
+                      if (
+                        props.cell.column.columnProperties.onSubmit &&
+                        !this.props.allowBulkEditActions &&
+                        !this.hasRowEditActionsColumn()
+                      ) {
                         this.onColumnEvent({
                           rowIndex: rowIndex,
                           action: props.cell.column.columnProperties.onSubmit,
@@ -1033,6 +1091,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           isVisibleSearch={isVisibleSearch}
           multiRowSelection={this.props.multiRowSelection}
           nextPageClick={this.handleNextPageClick}
+          onBulkEditDiscard={this.onBulkEditDiscard}
+          onBulkEditSave={this.onBulkEditSave}
           onRowClick={this.handleRowClick}
           pageNo={this.props.pageNo}
           pageSize={
@@ -1049,6 +1109,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           }
           selectedRowIndices={this.getSelectedRowIndices()}
           serverSidePaginationEnabled={!!this.props.serverSidePaginationEnabled}
+          showTableLevelEditActions={
+            this.props.allowBulkEditActions &&
+            !!this.props.updatedRows.length &&
+            !this.hasRowEditActionsColumn()
+          }
           sortTableColumn={this.handleColumnSorting}
           tableData={transformedData}
           totalRecordsCount={totalRecordsCount}
@@ -1354,6 +1419,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       return column.originalId === originalId;
     });
   }
+
   updateTransientTableData = (data: TransientDataPayload) => {
     const { __original_index__, ...transientData } = data;
 
@@ -1364,6 +1430,19 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         ...transientData,
       },
     });
+  };
+
+  removeRowFromTransientTableData = (__original_index__: string) => {
+    const newTransientTableData = clone(this.props.transientTableData);
+
+    if (newTransientTableData) {
+      delete newTransientTableData[__original_index__];
+
+      this.props.updateWidgetMetaProperty(
+        "transientTableData",
+        newTransientTableData,
+      );
+    }
   };
 
   getRowOriginalIndex = (index: number) => {
@@ -1378,6 +1457,44 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     return -1;
+  };
+
+  onBulkEditSave = () => {
+    this.props.updateWidgetMetaProperty(
+      "transientTableData",
+      this.props.transientTableData,
+      {
+        triggerPropertyName: "onBulkSave",
+        dynamicString: this.props.onBulkSave,
+        event: {
+          type: EventType.ON_BULK_SAVE,
+        },
+      },
+    );
+  };
+
+  onBulkEditDiscard = () => {
+    this.props.updateWidgetMetaProperty(
+      "transientTableData",
+      {},
+      {
+        triggerPropertyName: "onBulkDiscard",
+        dynamicString: this.props.onBulkDiscard,
+        event: {
+          type: EventType.ON_BULK_DISCARD,
+        },
+      },
+    );
+  };
+
+  hasRowEditActionsColumn = () => {
+    if (this.props.primaryColumns) {
+      return !!Object.values(this.props.primaryColumns).find(
+        (column) => column.columnType === ColumnTypes.EDIT_ACTIONS,
+      );
+    } else {
+      return false;
+    }
   };
 }
 

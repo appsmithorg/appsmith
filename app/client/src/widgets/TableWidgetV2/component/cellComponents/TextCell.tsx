@@ -33,6 +33,7 @@ const Wrapper = styled.div<{
   isCellEditMode?: boolean;
 }>`
   display: flex;
+  position: relative;
   align-items: center;
   width: 100%;
   opacity: ${(props) => (props.isCellEditMode ? 0 : 1)};
@@ -62,6 +63,18 @@ const StyledEditIcon = styled.div<{
   & path {
     fill: #fff;
   }
+`;
+
+const UnsavedChangesMarker = styled.div`
+  position: absolute;
+  top: -1px;
+  right: -3px;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid ${Colors.GREEN_1};
+  transform: rotateZ(45deg);
 `;
 
 interface PropType extends RenderDefaultPropsType {
@@ -123,6 +136,7 @@ export function TextCell({
         onDoubleClick={onEdit}
         ref={contentRef}
       >
+        {cellProperties.hasUnsavedChanged && <UnsavedChangesMarker />}
         <StyledAutoToolTipComponent
           cellProperties={cellProperties}
           className={isCellEditable ? "editable-cell" : ""}

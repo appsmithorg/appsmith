@@ -124,6 +124,9 @@ export interface CellLayoutProperties {
   onItemClicked?: (onClick: string | undefined) => void;
   isCellEditable: boolean;
   allowCellWrapping: boolean;
+  hasUnsavedChanged?: boolean;
+  saveActionLabel?: string;
+  discardActionLabel?: string;
 }
 
 export type MenuItems = Record<
@@ -216,6 +219,8 @@ export interface ColumnProperties {
   isCellEditable: boolean; // Cell level editability
   isEditable: boolean; // column level edtitability
   allowCellWrapping: boolean;
+  saveActionLabel?: string;
+  discardActionLabel?: string;
 }
 
 export const ConditionFunctions: {

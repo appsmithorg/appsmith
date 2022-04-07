@@ -361,3 +361,30 @@ export const SelectColumnOptionsValidations = (
     messages: [message],
   };
 };
+
+/*
+ * Hook that updates column isDiabled binding when columnType is
+ * changed to ColumnTypes.EDIT_ACTIONS.
+ */
+export const updateEditActionsColumnEventsHook = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: any,
+): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
+  if (propertyValue === ColumnTypes.EDIT_ACTIONS) {
+    const baseProperty = getBasePropertyPath(propertyPath);
+    const isDisabled = get(props, `${baseProperty}.isDisabled`, "");
+    const widgetName = get(props, "widgetName", "");
+
+    if (typeof isDisabled === "boolean" && widgetName) {
+      return [
+        {
+          propertyPath: `${baseProperty}.isDisabled`,
+          propertyValue: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowIndices.includes(currentIndex)))}}`,
+        },
+      ];
+    }
+  }
+
+  return;
+};
