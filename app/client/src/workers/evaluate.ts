@@ -415,7 +415,8 @@ export function isFunctionAsync(
         }
       }
     } catch (e) {
-      console.error("Error when determining async function", e);
+      // We do not want to throw errors for internal operations
+      // console.error("Error when determining async function", e);
     }
     const isAsync = !!self.IS_ASYNC;
     for (const entity in GLOBAL_DATA) {
