@@ -7,7 +7,7 @@ describe("Slug URLs", () => {
     applicationId = localStorage.getItem("applicationId");
     cy.location("pathname").then((pathname) => {
       const pageId = pathname
-        .split("/")[2]
+        .split("/")[3]
         ?.split("-")
         .pop();
       cy.visit(`/applications/${applicationId}/pages/${pageId}/edit`).then(
@@ -15,11 +15,13 @@ describe("Slug URLs", () => {
           cy.wait(10000);
           cy.location("pathname").then((pathname) => {
             const pageId = pathname
-              .split("/")[2]
+              .split("/")[3]
               ?.split("-")
               .pop();
             const appName = localStorage.getItem("AppName");
-            expect(pathname).to.be.equal(`/${appName}/page1-${pageId}/edit`);
+            expect(pathname).to.be.equal(
+              `/app/${appName}/page1-${pageId}/edit`,
+            );
           });
         },
       );
@@ -38,10 +40,10 @@ describe("Slug URLs", () => {
       );
       cy.location("pathname").then((pathname) => {
         const pageId = pathname
-          .split("/")[2]
+          .split("/")[3]
           ?.split("-")
           .pop();
-        expect(pathname).to.be.equal(`/${appName}/page1-${pageId}/edit`);
+        expect(pathname).to.be.equal(`/app/${appName}/page1-${pageId}/edit`);
       });
     });
   });
@@ -64,16 +66,16 @@ describe("Slug URLs", () => {
     );
     cy.location("pathname").then((pathname) => {
       const pageId = pathname
-        .split("/")[2]
+        .split("/")[3]
         ?.split("-")
         .pop();
       expect(pathname).to.be.equal(
-        `/${applicationName}/page-renamed-${pageId}/edit`,
+        `/app/${applicationName}/page-renamed-${pageId}/edit`,
       );
     });
   });
 
-  it("Check the url of old applications and upgrades version", () => {
+  it("Check the url of old applications, upgrades version and compares appsmith.URL values", () => {
     cy.request("PUT", `/api/v1/applications/${applicationId}`, {
       applicationVersion: 1,
     }).then((response) => {
@@ -124,13 +126,13 @@ describe("Slug URLs", () => {
 
             cy.location().should((loc) => {
               expect(loc.pathname).includes(
-                `/${application.slug}/${currentPage.slug}-${currentPage.id}`,
+                `/app/${application.slug}/${currentPage.slug}-${currentPage.id}`,
               );
             });
 
             cy.get(".t--draggable-textwidget .bp3-ui-text").should(
               "contain.text",
-              `/${application.slug}/${currentPage.slug}-${currentPage.id}/edit`,
+              `/app/${application.slug}/${currentPage.slug}-${currentPage.id}/edit`,
             );
           });
         });
