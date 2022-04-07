@@ -70,10 +70,6 @@ export function InputText(props: {
             Access the current cell using <CurlyBraces>{"{{"}</CurlyBraces>
             currentRow.columnName
             <CurlyBraces>{"}}"}</CurlyBraces>
-            <br />
-            Access the current index using <CurlyBraces>{"{{"}</CurlyBraces>
-            currentIndex
-            <CurlyBraces>{"}}"}</CurlyBraces>
           </PromptMessage>
         }
         size={EditorSize.EXTENDED}

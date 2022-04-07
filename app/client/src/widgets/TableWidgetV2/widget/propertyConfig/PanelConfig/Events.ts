@@ -69,7 +69,11 @@ export default {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
         const isEditable = get(props, `${baseProperty}.isEditable`, "");
-        return columnType !== ColumnTypes.TEXT || !isEditable;
+        return (
+          columnType !== ColumnTypes.TEXT ||
+          !isEditable ||
+          props.allowBulkEditActions
+        );
       },
       dependencies: ["primaryColumns"],
       isJSConvertible: true,
@@ -85,6 +89,34 @@ export default {
         const columnType = get(props, `${baseProperty}.columnType`, "");
         const isEditable = get(props, `${baseProperty}.isEditable`, "");
         return columnType !== ColumnTypes.SELECT || !isEditable;
+      },
+      dependencies: ["primaryColumns"],
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: true,
+    },
+    {
+      propertyName: "onSave",
+      label: "onSave",
+      controlType: "ACTION_SELECTOR",
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        const baseProperty = getBasePropertyPath(propertyPath);
+        const columnType = get(props, `${baseProperty}.columnType`, "");
+        return columnType !== ColumnTypes.EDIT_ACTIONS;
+      },
+      dependencies: ["primaryColumns"],
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: true,
+    },
+    {
+      propertyName: "onDiscard",
+      label: "onDiscard",
+      controlType: "ACTION_SELECTOR",
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        const baseProperty = getBasePropertyPath(propertyPath);
+        const columnType = get(props, `${baseProperty}.columnType`, "");
+        return columnType !== ColumnTypes.EDIT_ACTIONS;
       },
       dependencies: ["primaryColumns"],
       isJSConvertible: true,

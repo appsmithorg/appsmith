@@ -106,6 +106,10 @@ export enum EventType {
   ON_ENTER_KEY_PRESS = "ON_ENTER_KEY_PRESS",
   ON_BLUR = "ON_BLUR",
   ON_FOCUS = "ON_FOCUS",
+  ON_BULK_SAVE = "ON_BULK_SAVE",
+  ON_BULK_DISCARD = "ON_BULK_DISCARD",
+  ON_ROW_SAVE = "ON_ROW_SAVE",
+  ON_ROW_DISCARD = "ON_ROW_DISCARD",
 }
 
 export interface PageAction {

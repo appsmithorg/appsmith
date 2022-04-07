@@ -185,7 +185,7 @@ export function getDefaultColumnProperties(
     isDerived: !!isDerived,
     label: id,
     computedValue: isDerived
-      ? "{{'test'}}"
+      ? ""
       : `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( currentRow["${escapeString(
           id,
         )}"]))}}`,
@@ -331,6 +331,16 @@ export const getCellProperties = (
       allowCellWrapping: getBooleanPropertyValue(
         columnProperties.allowCellWrapping,
         rowIndex,
+      ),
+      saveActionLabel: getPropertyValue(
+        columnProperties.saveActionLabel,
+        rowIndex,
+        true,
+      ),
+      discardActionLabel: getPropertyValue(
+        columnProperties.discardActionLabel,
+        rowIndex,
+        true,
       ),
     } as CellLayoutProperties;
   }
