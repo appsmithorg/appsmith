@@ -37,4 +37,8 @@ public enum EnvVariables {
     APPSMITH_OAUTH2_OIDC_SCOPE,
     APPSMITH_OAUTH2_OIDC_USERNAME_ATTRIBUTE,
 
+    // SSO SAML using Keycloak Configuration variables
+    APPSMITH_BASE_URL,
+    APPSMITH_SSO_SAML_ENABLED
+
 }

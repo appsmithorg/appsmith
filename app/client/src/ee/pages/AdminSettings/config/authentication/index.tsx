@@ -18,6 +18,7 @@ import OIDC from "assets/images/oidc.svg";
 import React from "react";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import Oidc from "@appsmith/pages/AdminSettings/oidc";
+import { OIDC_SIGNUP_SETUP_DOC } from "constants/ThirdPartyConstants";
 
 const { enableOidcOAuth } = getAppsmithConfigs();
 
@@ -37,6 +38,7 @@ const OIDC_Auth: AdminConfigType = {
       subCategory: SettingSubCategories.OIDC,
       controlType: SettingTypes.LINK,
       label: "How to configure?",
+      url: OIDC_SIGNUP_SETUP_DOC,
     },
     {
       id: "APPSMITH_OAUTH2_OIDC_REDIRECT_URL",
@@ -45,7 +47,6 @@ const OIDC_Auth: AdminConfigType = {
       controlType: SettingTypes.UNEDITABLEFIELD,
       value: "/login/oauth2/code/oidc",
       helpText: "Paste this URL in your IdP service providers console.",
-      isRequired: true,
     },
     {
       id: "APPSMITH_OAUTH2_OIDC_CLIENT_ID",
@@ -108,7 +109,7 @@ const OIDC_Auth: AdminConfigType = {
       controlType: SettingTypes.TAGINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Scope",
-      subText: "Can have multiple values",
+      subText: "It accepts multiple values",
       isRequired: true,
     },
     {
@@ -118,6 +119,7 @@ const OIDC_Auth: AdminConfigType = {
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Username Attribute",
+      subText: "Name of the claim which represents the email of the user",
       isRequired: true,
     },
   ],

@@ -29,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.internal.Base64;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -197,6 +198,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                     }
                     return builder.build()
                             .method(HttpMethod.POST)
+                            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                             .body(BodyInserters.fromFormData(map))
                             .exchange()
                             .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
@@ -230,8 +232,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 if (expiresAtResponse != null) {
                                     expiresAt = Instant.ofEpochSecond(Long.valueOf((Integer) expiresAtResponse));
                                 } else if (expiresInResponse != null) {
-                                    expiresAt = issuedAt.plusSeconds(Long.valueOf((Integer) expiresInResponse));
-
+                                    expiresAt = issuedAt.plusSeconds(Long.parseLong((String) expiresInResponse));
                                 }
                                 authenticationResponse.setExpiresAt(expiresAt);
                                 // Replacing with returned scope instead
