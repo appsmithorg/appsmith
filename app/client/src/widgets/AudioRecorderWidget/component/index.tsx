@@ -66,7 +66,7 @@ const TimerContainer = styled.div<ThemeProp>`
 `;
 
 interface RecorderLeftButtonStyleProps {
-  backgroundColor: string;
+  accentColor: string;
   boxShadow?: string;
   borderRadius: string;
   dimension: number;
@@ -109,13 +109,13 @@ const StyledRecorderLeftButton = styled(Button)<
     }
   }
 
-  ${({ backgroundColor, permissionDenied, theme }) => `
+  ${({ accentColor, permissionDenied, theme }) => `
     &:enabled {
       background: ${
-        backgroundColor
+        accentColor
           ? permissionDenied
             ? theme.colors.button.disabled.bgColor
-            : backgroundColor
+            : accentColor
           : "none"
       } !important;
     }
@@ -123,7 +123,7 @@ const StyledRecorderLeftButton = styled(Button)<
       background: ${darkenHover(
         permissionDenied
           ? theme.colors.button.disabled.bgColor
-          : backgroundColor || "#f6f6f6",
+          : accentColor || "#f6f6f6",
       )} !important;
       animation: none;
     }
@@ -163,7 +163,7 @@ const renderRecorderIcon = (
 };
 
 interface RecorderLeftProps {
-  backgroundColor: string;
+  accentColor: string;
   borderRadius: string;
   boxShadow?: string;
   dimension: number;
@@ -176,7 +176,7 @@ interface RecorderLeftProps {
 
 function RecorderLeft(props: RecorderLeftProps) {
   const {
-    backgroundColor,
+    accentColor,
     borderRadius,
     boxShadow,
     denied,
@@ -193,7 +193,7 @@ function RecorderLeft(props: RecorderLeftProps) {
 
   return (
     <StyledRecorderLeftButton
-      backgroundColor={backgroundColor}
+      accentColor={accentColor}
       borderRadius={borderRadius}
       boxShadow={boxShadow}
       dimension={dimension}
@@ -516,7 +516,7 @@ function RecorderRight(props: RecorderRightProps) {
 }
 
 export interface RecorderComponentProps {
-  backgroundColor: string;
+  accentColor: string;
   borderRadius: string;
   boxShadow?: string;
   height: number;
@@ -530,7 +530,7 @@ export interface RecorderComponentProps {
 
 function AudioRecorderComponent(props: RecorderComponentProps) {
   const {
-    backgroundColor,
+    accentColor,
     blobUrl,
     borderRadius,
     boxShadow,
@@ -709,7 +709,7 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
   return (
     <RecorderContainer ref={recorderContainerRef}>
       <RecorderLeft
-        backgroundColor={backgroundColor}
+        accentColor={accentColor}
         borderRadius={borderRadius}
         boxShadow={boxShadow}
         denied={isPermissionDenied}

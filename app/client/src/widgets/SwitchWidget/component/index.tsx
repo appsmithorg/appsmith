@@ -11,12 +11,12 @@ export interface SwitchComponentProps extends ComponentProps {
   onChange: (isSwitchedOn: boolean) => void;
   isLoading: boolean;
   alignWidget: AlignWidget;
-  backgroundColor: string;
+  accentColor: string;
   inputRef?: (ref: HTMLInputElement | null) => any;
 }
 
 const SwitchComponentContainer = styled.div<{
-  backgroundColor: string;
+  accentColor: string;
 }>`
   display: flex;
   flex-direction: row;
@@ -28,7 +28,7 @@ const SwitchComponentContainer = styled.div<{
 `;
 
 export const StyledSwitch = styled(Switch)<{
-  backgroundColor: string;
+  accentColor: string;
 }>`
   &.${Classes.CONTROL} {
     margin: 0;
@@ -36,21 +36,21 @@ export const StyledSwitch = styled(Switch)<{
 
   &.${Classes.CONTROL} {
     & input:checked ~ .${Classes.CONTROL_INDICATOR} {
-      background: ${({ backgroundColor }) => `${backgroundColor}`} !important;
-      border: 1px solid ${({ backgroundColor }) => `${backgroundColor}`} !important;
+      background: ${({ accentColor }) => `${accentColor}`} !important;
+      border: 1px solid ${({ accentColor }) => `${accentColor}`} !important;
     }
   }
 
   &.${Classes.SWITCH} {
     & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
-      background: ${({ backgroundColor }) => `${backgroundColor}`} !important;
+      background: ${({ accentColor }) => `${accentColor}`} !important;
     }
   }
 `;
 
 export function SwitchComponent({
+  accentColor,
   alignWidget,
-  backgroundColor,
   inputRef,
   isDisabled,
   isLoading,
@@ -63,12 +63,12 @@ export function SwitchComponent({
 
   return (
     <SwitchComponentContainer
-      backgroundColor={backgroundColor}
+      accentColor={accentColor}
       className={switchAlignClass}
     >
       <StyledSwitch
+        accentColor={accentColor}
         alignIndicator={switchAlignClass}
-        backgroundColor={backgroundColor}
         checked={isSwitchedOn}
         className={
           isLoading

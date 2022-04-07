@@ -13,6 +13,8 @@ import {
   sortBy,
   xorWith,
   isEmpty,
+  has,
+  find,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -51,7 +53,12 @@ import { IconName } from "@blueprintjs/icons";
 import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
 import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
-import { borderRadiusUtility, boxShadowUtility } from "widgets/WidgetUtils";
+import {
+  borderRadiusUtility,
+  boxShadowColorUtility,
+  boxShadowDynamicChecker,
+  boxShadowUtility,
+} from "widgets/WidgetUtils";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -122,7 +129,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     let totalColumnSizes = 0;
     const defaultColumnWidth = 150;
     const allColumnProperties = this.props.tableColumns || [];
-
+    console.log("This props = ", this.props);
     for (let index = 0; index < allColumnProperties.length; index++) {
       const isAllCellVisible: boolean | boolean[] =
         allColumnProperties[index].isCellVisible;
@@ -152,7 +159,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           const rowIndex: number = props.cell.row.index;
           const data = this.props.filteredTableData[rowIndex];
           const originalIndex = data.__originalIndex__ ?? rowIndex;
-
+          const isBoxShadowColorInDynamicList = find(
+            this.props.dynamicBindingPathList,
+            (value: { key: string }) =>
+              value.key.includes(`${columnProperties.id}.boxShadowColor`),
+          );
           // cellProperties order or size does not change when filter/sorting/grouping is applied
           // on the data thus original index is need to identify the column's cell property.
           const cellProperties = getCellProperties(
@@ -173,7 +184,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               onCommandClick: (action: string, onComplete: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
               backgroundColor:
-                cellProperties.buttonColor || this.props.primaryColor,
+                cellProperties.buttonColor || this.props.accentColor,
               buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
               isDisabled: cellProperties.isDisabled || false,
               isCellVisible: cellProperties.isCellVisible ?? true,
@@ -230,15 +241,25 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               menuVariant: cellProperties.menuVariant ?? "PRIMARY",
               menuColor:
                 cellProperties.menuColor ||
-                this.props.primaryColor ||
+                this.props.accentColor ||
                 Colors.GREEN,
               borderRadius:
                 borderRadiusUtility(cellProperties.borderRadius) ||
                 this.props.borderRadius,
-              boxShadow: boxShadowUtility(
-                cellProperties.boxShadow,
-                cellProperties.boxShadowColor,
-              ),
+              boxShadow:
+                // Conditionally Render the below migration function
+                columnProperties.hasOwnProperty("boxShadowColor") ||
+                (columnProperties.hasOwnProperty("boxShadow") &&
+                  cellProperties.boxShadow.includes("VARIANT"))
+                  ? boxShadowDynamicChecker(
+                      this.props,
+                      columnProperties.id,
+                      cellProperties.boxShadow,
+                      isBoxShadowColorInDynamicList
+                        ? columnProperties.boxShadowColor[originalIndex]
+                        : columnProperties.boxShadowColor,
+                    )
+                  : cellProperties.boxShadow,
               iconName: cellProperties.iconName,
               iconAlign: cellProperties.iconAlign,
               isCellVisible: cellProperties.isCellVisible ?? true,
@@ -259,17 +280,26 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               iconName: (cellProperties.iconName || IconNames.ADD) as IconName,
               buttonColor:
                 cellProperties.buttonColor ||
-                this.props.primaryColor ||
+                this.props.accentColor ||
                 Colors.GREEN,
               buttonVariant: cellProperties.buttonVariant || "PRIMARY",
               borderRadius:
                 borderRadiusUtility(cellProperties.borderRadius) ||
                 this.props.borderRadius,
               boxShadow:
-                boxShadowUtility(
-                  cellProperties.boxShadow,
-                  cellProperties.boxShadowColor,
-                ) || "NONE",
+                // Conditionally Render the below migration function
+                (columnProperties.hasOwnProperty("boxShadowColor") ||
+                (columnProperties.hasOwnProperty("boxShadow") &&
+                  cellProperties.boxShadow.includes("VARIANT"))
+                  ? boxShadowDynamicChecker(
+                      this.props,
+                      columnProperties.id,
+                      cellProperties.boxShadow,
+                      isBoxShadowColorInDynamicList
+                        ? columnProperties.boxShadowColor[originalIndex]
+                        : columnProperties.boxShadowColor,
+                    )
+                  : cellProperties.boxShadow) || "NONE",
               isCellVisible: cellProperties.isCellVisible ?? true,
               disabled: !!cellProperties.isDisabled,
             };
@@ -804,6 +834,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
+          accentColor={this.props.accentColor}
           applyFilter={this.applyFilters}
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
@@ -832,7 +863,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             isVisibleHeaderOptions ? Math.max(1, pageSize) : pageSize + 1
           }
           prevPageClick={this.handlePrevPageClick}
-          primaryColor={this.props.primaryColor}
           searchKey={this.props.searchText}
           searchTableData={this.handleSearchTable}
           selectAllRow={this.handleAllRowSelect}

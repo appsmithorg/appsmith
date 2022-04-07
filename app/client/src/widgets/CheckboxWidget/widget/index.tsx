@@ -113,9 +113,9 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
         sectionName: "Styles",
         children: [
           {
-            propertyName: "backgroundColor",
+            propertyName: "accentColor",
             helpText: "Sets the checked state color of the checkbox",
-            label: "Checked Color",
+            label: "Accent Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -160,8 +160,8 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   getPageView() {
     return (
       <CheckboxComponent
+        accentColor={this.props.accentColor}
         alignWidget={this.props.alignWidget}
-        backgroundColor={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         isChecked={!!this.props.isChecked}
         isDisabled={this.props.isDisabled}
@@ -199,7 +199,7 @@ export interface CheckboxWidgetProps extends WidgetProps {
   onCheckChange?: string;
   isRequired?: boolean;
   alignWidget: AlignWidget;
-  backgroundColor: string;
+  accentColor: string;
   borderRadius: string;
 }
 

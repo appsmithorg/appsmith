@@ -55,7 +55,7 @@ export interface TreeSelectProps
   isValid: boolean;
   borderRadius: string;
   boxShadow?: string;
-  primaryColor: string;
+  accentColor: string;
   widgetId: string;
   filterText?: string;
   isFilterable: boolean;
@@ -98,6 +98,7 @@ const switcherIcon = (treeNode: TreeNodeProps) => {
 const FOCUS_TIMEOUT = 500;
 
 function MultiTreeSelectComponent({
+  accentColor,
   allowClear,
   borderRadius,
   boxShadow,
@@ -118,7 +119,6 @@ function MultiTreeSelectComponent({
   onChange,
   options,
   placeholder,
-  primaryColor,
   value,
   widgetId,
   width,
@@ -200,19 +200,19 @@ function MultiTreeSelectComponent({
   const onClear = useCallback(() => onChange([], []), []);
   return (
     <TreeSelectContainer
+      accentColor={accentColor}
       allowClear={allowClear}
       borderRadius={borderRadius}
       boxShadow={boxShadow}
       compactMode={compactMode}
       isValid={isValid}
-      primaryColor={primaryColor}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
       <DropdownStyles
+        accentColor={accentColor}
         borderRadius={borderRadius}
         dropDownWidth={memoDropDownWidth}
         id={widgetId}
-        primaryColor={primaryColor}
       />
       {labelText && (
         <TextLabelWrapper compactMode={compactMode} ref={labelRef}>

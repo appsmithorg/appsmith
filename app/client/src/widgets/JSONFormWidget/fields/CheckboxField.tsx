@@ -102,7 +102,7 @@ function CheckboxField({
     () => (
       <StyledCheckboxWrapper>
         <CheckboxComponent
-          backgroundColor={schemaItem.accentColor || Colors.GREEN}
+          accentColor={schemaItem.accentColor || Colors.GREEN}
           borderRadius={schemaItem.borderRadius || DEFAULT_BORDER_RADIUS}
           inputRef={(e) => (inputRef.current = e)}
           isChecked={value}

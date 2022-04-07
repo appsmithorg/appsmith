@@ -9,7 +9,7 @@ export const TableWrapper = styled.div<{
   width: number;
   height: number;
   tableSizes: TableSizes;
-  primaryColor: string;
+  accentColor: string;
   backgroundColor?: Color;
   triggerRowSelection: boolean;
   isHeaderVisible?: boolean;
@@ -68,12 +68,12 @@ export const TableWrapper = styled.div<{
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
       background: ${Colors.WHITE};
       &.selected-row {
-        background: ${({ primaryColor }) =>
-          `${lightenColor(primaryColor)}`} !important;
+        background: ${({ accentColor }) =>
+          `${lightenColor(accentColor)}`} !important;
       }
       &:hover {
-        background: ${({ primaryColor }) =>
-          `${lightenColor(primaryColor)}`} !important;
+        background: ${({ accentColor }) =>
+          `${lightenColor(accentColor)}`} !important;
       }
     }
     .th,

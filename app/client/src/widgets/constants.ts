@@ -26,3 +26,5 @@ export type AlignWidget = "LEFT" | "RIGHT";
 
 // Minimum Rows for Widget Popups
 export const MinimumPopupRows = 12;
+
+export const rgbaMigrationConstant = "rgba(0, 0, 0, 0.25)";

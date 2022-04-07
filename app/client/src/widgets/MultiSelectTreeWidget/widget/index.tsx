@@ -415,6 +415,7 @@ class MultiSelectTreeWidget extends BaseWidget<
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     return (
       <MultiTreeSelectComponent
+        accentColor={this.props.accentColor}
         allowClear={this.props.allowClear}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
@@ -442,7 +443,6 @@ class MultiSelectTreeWidget extends BaseWidget<
         onChange={this.onOptionChange}
         options={options}
         placeholder={this.props.placeholderText as string}
-        primaryColor={this.props.primaryColor}
         value={filteredValue}
         widgetId={this.props.widgetId}
         width={componentWidth}
@@ -518,7 +518,7 @@ export interface MultiSelectTreeWidgetProps extends WidgetProps {
   labelStyle?: string;
   borderRadius: string;
   boxShadow?: string;
-  primaryColor: string;
+  accentColor: string;
   isDirty?: boolean;
 }
 

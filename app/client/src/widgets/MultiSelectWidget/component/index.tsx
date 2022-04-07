@@ -23,12 +23,12 @@ import { Colors } from "constants/Colors";
 
 const menuItemSelectedIcon = (props: {
   isSelected: boolean;
-  primaryColor: string;
+  accentColor: string;
 }) => {
   return (
     <StyledCheckbox
+      accentColor={props.accentColor}
       checked={props.isSelected}
-      primaryColor={props.primaryColor}
     />
   );
 };
@@ -56,7 +56,7 @@ export interface MultiSelectProps
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
-  primaryColor: string;
+  accentColor: string;
   allowSelectAll?: boolean;
   widgetId: string;
   onFocus?: (e: React.FocusEvent) => void;
@@ -66,6 +66,7 @@ export interface MultiSelectProps
 const DEBOUNCE_TIMEOUT = 800;
 
 function MultiSelectComponent({
+  accentColor,
   allowSelectAll,
   backgroundColor,
   borderRadius,
@@ -86,7 +87,6 @@ function MultiSelectComponent({
   onFocus,
   options,
   placeholder,
-  primaryColor,
   serverSideFiltering,
   value,
   widgetId,
@@ -133,14 +133,14 @@ function MultiSelectComponent({
     ) => (
       <div className={loading ? Classes.SKELETON : ""}>
         {options.length && allowSelectAll ? (
-          <SelectAllMenuItem primaryColor={primaryColor}>
+          <SelectAllMenuItem accentColor={accentColor}>
             <StyledCheckbox
+              accentColor={accentColor}
               alignIndicator="left"
               checked={isSelectAll}
               className={`all-options ${isSelectAll ? "selected" : ""}`}
               label="Select all"
               onChange={handleSelectAll}
-              primaryColor={primaryColor}
             />
           </SelectAllMenuItem>
         ) : null}
@@ -174,21 +174,21 @@ function MultiSelectComponent({
 
   return (
     <MultiSelectContainer
+      accentColor={accentColor}
       backgroundColor={backgroundColor}
       borderRadius={borderRadius}
       boxShadow={boxShadow}
       className={loading ? Classes.SKELETON : ""}
       compactMode={compactMode}
       isValid={isValid}
-      primaryColor={primaryColor}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
       <DropdownStyles
+        accentColor={accentColor}
         borderRadius={borderRadius}
         dropDownWidth={dropDownWidth}
         id={widgetId}
         parentWidth={width - WidgetContainerDiff}
-        primaryColor={primaryColor}
       />
       {labelText && (
         <TextLabelWrapper compactMode={compactMode}>

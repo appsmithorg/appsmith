@@ -59,13 +59,13 @@ export interface StyledSwitchProps {
   inline?: boolean;
   optionCount: number;
   rowSpace: number;
-  backgroundColor: string;
+  accentColor: string;
 }
 
 function SwitchGroupComponent(props: SwitchGroupComponentProps) {
   const {
+    accentColor,
     alignment,
-    backgroundColor,
     disabled,
     inline,
     onChange,
@@ -85,8 +85,8 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
         options.length > 0 &&
         options.map((option: OptionProps) => (
           <StyledSwitch
+            accentColor={accentColor}
             alignIndicator={alignment}
-            backgroundColor={backgroundColor}
             checked={(selected || []).includes(option.value)}
             disabled={disabled}
             inline={inline}
@@ -122,7 +122,7 @@ export interface SwitchGroupComponentProps {
   rowSpace: number;
   selected: string[];
   valid?: boolean;
-  backgroundColor: string;
+  accentColor: string;
 }
 
 export default SwitchGroupComponent;

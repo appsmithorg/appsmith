@@ -364,6 +364,7 @@ class MultiSelectWidget extends BaseWidget<
 
     return (
       <MultiSelectComponent
+        accentColor={this.props.accentColor}
         allowSelectAll={this.props.allowSelectAll}
         backgroundColor={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
@@ -390,7 +391,6 @@ class MultiSelectWidget extends BaseWidget<
         onFilterChange={this.onFilterChange}
         options={options}
         placeholder={this.props.placeholderText as string}
-        primaryColor={this.props.primaryColor}
         serverSideFiltering={this.props.serverSideFiltering}
         value={values}
         widgetId={this.props.widgetId}
@@ -457,7 +457,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
-  primaryColor: string;
+  accentColor: string;
   allowSelectAll?: boolean;
 }
 

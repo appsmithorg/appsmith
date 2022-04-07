@@ -15,7 +15,7 @@ import {
   getBasePropertyPath,
   hideByColumnType,
   uniqueColumnNameValidation,
-  boxShadowHook,
+  removeBoxShadowColorProp,
 } from "./propertyUtils";
 import {
   createMessage,
@@ -55,7 +55,7 @@ export default [
         controlType: "PRIMARY_COLUMNS",
         label: "Columns",
         updateHook: updateDerivedColumnsHook,
-        dependencies: ["derivedColumns", "columnOrder", "childStylesheets"],
+        dependencies: ["derivedColumns", "columnOrder", "childStylesheet"],
         isBindProperty: false,
         isTriggerProperty: false,
         validation: {
@@ -127,7 +127,7 @@ export default [
                     "primaryColumns",
                     "derivedColumns",
                     "columnOrder",
-                    "childStylesheets",
+                    "childStylesheet",
                   ],
                   isBindProperty: false,
                   isTriggerProperty: false,
@@ -1030,7 +1030,7 @@ export default [
                   controlType: "BOX_SHADOW_OPTIONS",
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
-                  updateHook: boxShadowHook,
+                  updateHook: removeBoxShadowColorProp,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.ICON_BUTTON,

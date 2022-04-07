@@ -333,11 +333,11 @@ function updateThemeStylesheetsInColumns(
     const newColumnType = propertyValue;
 
     const propertiesToRemove = Object.keys(
-      props.childStylesheets[oldColumnType] || {},
+      props.childStylesheet[oldColumnType] || {},
     );
 
     const propertiesToAdd = Object.keys(
-      props.childStylesheets[newColumnType] || {},
+      props.childStylesheet[newColumnType] || {},
     );
 
     propertiesToRemove.forEach((propertyKey) => {
@@ -354,7 +354,7 @@ function updateThemeStylesheetsInColumns(
 
     propertiesToAdd.forEach((propertyKey) => {
       const { jsSnippets, stringSegments } = getDynamicBindings(
-        props.childStylesheets[newColumnType][propertyKey],
+        props.childStylesheet[newColumnType][propertyKey],
       );
 
       const js = combineDynamicBindings(jsSnippets, stringSegments);
@@ -409,20 +409,38 @@ export const hideByColumnType = (
  * @param propertyPath
  * @param propertyValue
  */
-export const boxShadowHook = (
+export const removeBoxShadowColorProp = (
   props: TableWidgetProps,
   propertyPath: string,
 ) => {
-  if (has(props, propertyPath)) {
-    const boxShadowColorPath = propertyPath.replace(
-      "boxShadow",
-      "boxShadowColor",
-    ); //Create a new path for the boxShadowColor;
-    return [
-      {
-        propertyPath: boxShadowColorPath,
-        propertyValue: undefined,
-      },
-    ];
-  }
+  const boxShadowColorPath = replacePropertyName(
+    propertyPath,
+    "boxShadowColor",
+  );
+  return [
+    {
+      propertyPath: boxShadowColorPath,
+      propertyValue: undefined,
+    },
+  ];
+};
+
+/**
+ * This function will replace the property present at the end of the propertyPath with the targetPropertyName.
+ * e.g.
+ * propertyPath = primaryColumns.action.boxShadow
+ * Running this function will give the new propertyPath like below:
+ * propertyPath = primaryColumns.action.boxShadowColor
+ *
+ * @param propertyPath The property path inside a widget
+ * @param targetPropertyName Target property name
+ * @returns New property path with target property name at the end.
+ */
+export const replacePropertyName = (
+  propertyPath: string,
+  targetPropertyName: string,
+) => {
+  const path = propertyPath.split(".");
+  path.pop();
+  return `${path.join(".")}.${targetPropertyName}`;
 };

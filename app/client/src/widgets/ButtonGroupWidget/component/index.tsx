@@ -556,16 +556,14 @@ class ButtonGroupComponent extends React.Component<
                   popoverClassName={`menu-button-popover menu-button-width-${popoverId}`}
                 >
                   <DragContainer
-                    buttonColor={button.buttonColor || this.props.primaryColor}
+                    buttonColor={button.buttonColor}
                     buttonVariant={buttonVariant}
                     disabled={isButtonDisabled}
                     renderMode={this.props.renderMode}
                   >
                     <StyledButton
                       borderRadius={this.props.borderRadius}
-                      buttonColor={
-                        button.buttonColor || this.props.primaryColor
-                      }
+                      buttonColor={button.buttonColor}
                       buttonVariant={buttonVariant}
                       disabled={isButtonDisabled}
                       iconAlign={button.iconAlign}
@@ -593,7 +591,7 @@ class ButtonGroupComponent extends React.Component<
           }
           return (
             <DragContainer
-              buttonColor={button.buttonColor || this.props.primaryColor}
+              buttonColor={button.buttonColor}
               buttonVariant={buttonVariant}
               disabled={isButtonDisabled}
               key={button.id}
@@ -605,7 +603,7 @@ class ButtonGroupComponent extends React.Component<
             >
               <StyledButton
                 borderRadius={this.props.borderRadius}
-                buttonColor={button.buttonColor || this.props.primaryColor}
+                buttonColor={button.buttonColor}
                 buttonVariant={buttonVariant}
                 disabled={isButtonDisabled}
                 iconAlign={button.iconAlign}
@@ -675,7 +673,6 @@ export interface ButtonGroupComponentProps {
   orientation: string;
   renderMode: RenderMode;
   width: number;
-  primaryColor?: string;
   minPopoverWidth: number;
   widgetId: string;
 }

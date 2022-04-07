@@ -44,7 +44,7 @@ const PageNumberInputWrapper = styled(NumericInput)<{
 const SearchComponentWrapper = styled.div<{
   borderRadius: string;
   boxShadow?: string;
-  primaryColor: string;
+  accentColor: string;
 }>`
   margin: 3px 10px;
   flex: 0 0 200px;
@@ -56,7 +56,7 @@ const SearchComponentWrapper = styled.div<{
   & .${Classes.INPUT}:active, & .${Classes.INPUT}:focus {
     border-radius: ${({ borderRadius }) => borderRadius};
     border: 0px solid !important;
-    border-color: ${({ primaryColor }) => primaryColor} !important;
+    border-color: ${({ accentColor }) => accentColor} !important;
     box-shadow: none !important;
   }
 `;
@@ -145,7 +145,7 @@ interface TableHeaderProps {
   delimiter: string;
   borderRadius: string;
   boxShadow?: string;
-  primaryColor: string;
+  accentColor: string;
 }
 
 function TableHeader(props: TableHeaderProps) {
@@ -153,9 +153,9 @@ function TableHeader(props: TableHeaderProps) {
     <>
       {props.isVisibleSearch && (
         <SearchComponentWrapper
+          accentColor={props.accentColor}
           borderRadius={props.borderRadius}
           boxShadow={props.boxShadow}
-          primaryColor={props.primaryColor}
         >
           <SearchComponent
             onSearch={props.searchTableData}

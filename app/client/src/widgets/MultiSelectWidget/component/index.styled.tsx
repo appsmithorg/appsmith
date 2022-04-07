@@ -34,7 +34,7 @@ export const DropdownStyles = createGlobalStyle<{
   parentWidth: number;
   dropDownWidth: number;
   id: string;
-  primaryColor: string;
+  accentColor: string;
   borderRadius: string;
 }>`
 ${({ dropDownWidth, id, parentWidth }) => `
@@ -75,13 +75,13 @@ ${({ dropDownWidth, id, parentWidth }) => `
   font-weight: 400;
 }
 .rc-select-item-option-active {
-	background: ${({ primaryColor }) => lightenColor(primaryColor)};
+	background: ${({ accentColor }) => lightenColor(accentColor)};
   & .rc-select-item-option-content {
     color: ${Colors.GREY_9};
   }
 }
 .rc-select-item-option-selected {
-	background: ${({ primaryColor }) => lightenColor(primaryColor)};
+	background: ${({ accentColor }) => lightenColor(accentColor)};
 
   & .rc-select-item-option-content {
     color: ${Colors.GREY_10};
@@ -191,7 +191,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
       margin-right: 20px;
     }
     &.all-options.selected {
-      background: ${({ primaryColor }) => lightenColor(primaryColor)};
+      background: ${({ accentColor }) => lightenColor(accentColor)};
       color: ${Colors.GREY_10} !important;
     }
   }
@@ -208,9 +208,9 @@ ${({ dropDownWidth, id, parentWidth }) => `
     }
   }
   .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
-    background: ${({ primaryColor }) => primaryColor} !important;
+    background: ${({ accentColor }) => accentColor} !important;
     color: rgb(255, 255, 255);
-    border-color: ${({ primaryColor }) => primaryColor} !important;
+    border-color: ${({ accentColor }) => accentColor} !important;
     box-shadow: none;
     outline: none !important;
   }
@@ -236,7 +236,7 @@ export const MultiSelectContainer = styled.div<{
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
-  primaryColor: string;
+  accentColor: string;
 }>`
   display: flex;
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
@@ -472,23 +472,23 @@ export const MultiSelectContainer = styled.div<{
       ${(props) =>
         props.isValid
           ? `
-          border: 1px solid  ${props.primaryColor};
-          box-shadow: 0px 0px 0px 2px ${lightenColor(props.primaryColor)};`
+          border: 1px solid  ${props.accentColor};
+          box-shadow: 0px 0px 0px 2px ${lightenColor(props.accentColor)};`
           : `border: 1px solid ${Colors.DANGER_SOLID};`}
     }
   }
 `;
 
 export const SelectAllMenuItem = styled.div<{
-  primaryColor: string;
+  accentColor: string;
 }>`
   &:hover {
-    background: ${({ primaryColor }) => lightenColor(primaryColor)};
+    background: ${({ accentColor }) => lightenColor(accentColor)};
   }
 `;
 
 export const StyledCheckbox = styled(Checkbox)<{
-  primaryColor: string;
+  accentColor: string;
 }>`
   &&.${Classes.CHECKBOX}.${Classes.CONTROL} {
     white-space: nowrap;

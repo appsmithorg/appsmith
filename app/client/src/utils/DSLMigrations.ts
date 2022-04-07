@@ -39,7 +39,10 @@ import { theme } from "constants/DefaultTheme";
 import { getCanvasSnapRows } from "./WidgetPropsUtils";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { FetchPageResponse } from "api/PageApi";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import {
+  GRID_DENSITY_MIGRATION_V1,
+  rgbaMigrationConstant,
+} from "widgets/constants";
 // import defaultTemplate from "templates/default";
 import { renameKeyInObject } from "./helpers";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
@@ -63,6 +66,7 @@ import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 import { migratePhoneInputWidgetAllowFormatting } from "./migrations/PhoneInputWidgetMigrations";
 import { ROOT_SCHEMA_KEY } from "widgets/JSONFormWidget/constants";
 import { parseSchemaItem } from "widgets/WidgetUtils";
+import { isDynamicValue } from "./DynamicBindingUtils";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1739,85 +1743,86 @@ export const migrateStylingPropertiesForTheming = (
         /**
          * Migrate the boxShadow if exists for the primary columns and derived columns:
          */
+        const isBoxShadowColorDynamic = isDynamicValue(column.boxShadowColor);
+        const newBoxShadowColor =
+          column.boxShadowColor || rgbaMigrationConstant;
         switch (column.boxShadow) {
           case BoxShadowTypes.VARIANT1:
-            if (!DATA_BIND_REGEX.test(column.boxShadowColor)) {
-              //Checks is boxShadowColor is not dynamic
-              column.boxShadow = `0px 0px 4px 3px ${column.boxShadowColor ||
-                "rgba(0, 0, 0, 0.25)"}`;
+            if (!isBoxShadowColorDynamic) {
+              // Checks is boxShadowColor is not dynamic
+              column.boxShadow = `0px 0px 4px 3px ${newBoxShadowColor}`;
               if (isDerivedColumn) {
-                derivedColumn.boxShadow = `0px 0px 4px 3px ${column.boxShadowColor ||
-                  "rgba(0, 0, 0, 0.25)"}`;
+                derivedColumn.boxShadow = `0px 0px 4px 3px ${newBoxShadowColor}`;
               }
               delete column.boxShadowColor;
             } else {
-              column.boxShadow = `0px 0px 4px 3px rgba(0, 0, 0, 0.25)`;
+              // Dynamic
+              column.boxShadow = `0px 0px 4px 3px ${rgbaMigrationConstant}`;
               if (isDerivedColumn) {
-                derivedColumn.boxShadow = `0px 0px 4px 3px rgba(0, 0, 0, 0.25)`;
+                derivedColumn.boxShadow = `0px 0px 4px 3px ${rgbaMigrationConstant}`;
               }
             }
             break;
           case BoxShadowTypes.VARIANT2:
-            if (!DATA_BIND_REGEX.test(column.boxShadowColor)) {
-              column.boxShadow = `3px 3px 4px ${column.boxShadowColor ||
-                "rgba(0, 0, 0, 0.25)"}`;
+            if (!isBoxShadowColorDynamic) {
+              // Checks is boxShadowColor is not dynamic
+              column.boxShadow = `3px 3px 4px ${newBoxShadowColor}`;
               if (isDerivedColumn) {
-                derivedColumn.boxShadow = `3px 3px 4px ${column.boxShadowColor ||
-                  "rgba(0, 0, 0, 0.25)"}`;
+                derivedColumn.boxShadow = `3px 3px 4px ${newBoxShadowColor}`;
               }
               delete column.boxShadowColor;
             } else {
-              column.boxShadow = `3px 3px 4px rgba(0, 0, 0, 0.25)`;
+              // Dynamic
+              column.boxShadow = `3px 3px 4px ${rgbaMigrationConstant}`;
               if (isDerivedColumn) {
-                derivedColumn.boxShadow = `3px 3px 4px rgba(0, 0, 0, 0.25)`;
+                derivedColumn.boxShadow = `3px 3px 4px ${rgbaMigrationConstant}`;
               }
             }
             break;
           case BoxShadowTypes.VARIANT3:
-            if (!DATA_BIND_REGEX.test(column.boxShadowColor)) {
-              column.boxShadow = `0px 1px 3px ${column.boxShadowColor ||
-                "rgba(0, 0, 0, 0.25)"}`;
+            if (!isBoxShadowColorDynamic) {
+              // Checks is boxShadowColor is not dynamic
+              column.boxShadow = `0px 1px 3px ${newBoxShadowColor}`;
               if (isDerivedColumn) {
-                derivedColumn.boxShadow = `0px 1px 3px ${column.boxShadowColor ||
-                  "rgba(0, 0, 0, 0.25)"}`;
+                derivedColumn.boxShadow = `0px 1px 3px ${newBoxShadowColor}`;
               }
               delete column.boxShadowColor;
             } else {
-              column.boxShadow = `0px 1px 3px rgba(0, 0, 0, 0.25)`;
+              // Dynamic
+              column.boxShadow = `0px 1px 3px ${rgbaMigrationConstant}`;
               if (isDerivedColumn) {
-                derivedColumn.boxShadow = `0px 1px 3px rgba(0, 0, 0, 0.25)`;
+                derivedColumn.boxShadow = `0px 1px 3px ${rgbaMigrationConstant}`;
               }
             }
             break;
           case BoxShadowTypes.VARIANT4:
-            if (!DATA_BIND_REGEX.test(column.boxShadowColor)) {
-              column.boxShadow = `2px 2px 0px  ${column.boxShadowColor ||
-                "rgba(0, 0, 0, 0.25)"}`;
+            if (!isBoxShadowColorDynamic) {
+              // Checks is boxShadowColor is not dynamic
+              column.boxShadow = `2px 2px 0px ${newBoxShadowColor}`;
               if (isDerivedColumn) {
-                derivedColumn.boxShadow = `2px 2px 0px  ${column.boxShadowColor ||
-                  "rgba(0, 0, 0, 0.25)"}`;
+                derivedColumn.boxShadow = `2px 2px 0px ${newBoxShadowColor}`;
               }
               delete column.boxShadowColor;
             } else {
-              column.boxShadow = `2px 2px 0px rgba(0, 0, 0, 0.25)`;
+              column.boxShadow = `2px 2px 0px ${rgbaMigrationConstant}`;
               if (isDerivedColumn) {
-                derivedColumn.boxShadow = `2px 2px 0px rgba(0, 0, 0, 0.25)`;
+                derivedColumn.boxShadow = `2px 2px 0px ${rgbaMigrationConstant}`;
               }
             }
             break;
           case BoxShadowTypes.VARIANT5:
-            if (!DATA_BIND_REGEX.test(column.boxShadowColor)) {
-              column.boxShadow = `-2px -2px 0px ${column.boxShadowColor ||
-                "rgba(0, 0, 0, 0.25)"}`;
+            if (!isBoxShadowColorDynamic) {
+              // Checks is boxShadowColor is not dynamic
+              column.boxShadow = `-2px -2px 0px ${newBoxShadowColor}`;
               if (isDerivedColumn) {
-                derivedColumn.boxShadow = `-2px -2px 0px ${column.boxShadowColor ||
-                  "rgba(0, 0, 0, 0.25)"}`;
+                derivedColumn.boxShadow = `-2px -2px 0px ${newBoxShadowColor}`;
               }
               delete column.boxShadowColor;
             } else {
-              column.boxShadow = `-2px -2px 0px rgba(0, 0, 0, 0.25)`;
+              // Dynamic
+              column.boxShadow = `-2px -2px 0px ${rgbaMigrationConstant}`;
               if (isDerivedColumn) {
-                derivedColumn.boxShadow = `-2px -2px 0px rgba(0, 0, 0, 0.25)`;
+                derivedColumn.boxShadow = `-2px -2px 0px ${rgbaMigrationConstant}`;
               }
             }
             break;

@@ -564,6 +564,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
       {showDateInput ? (
         <DatePickerWrapper className="t--table-filter-date-input">
           <DatePickerComponent
+            accentColor="blue"
             backgroundColor="#fff"
             borderRadius="SHARP"
             closeOnSelection
@@ -573,7 +574,6 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
             isLoading={false}
             label=""
             onDateSelected={onDateSelected}
-            primaryColor="blue"
             selectedDate={value}
             shortcuts={false}
             timePrecision={TimePrecision.MINUTE}
