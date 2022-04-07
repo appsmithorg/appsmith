@@ -217,7 +217,7 @@ function ManualUpgrades() {
               null,
               window.location.href.replace(
                 `/applications/${applicationId}/pages/${pageId}`,
-                `/${applicationSlug}/${pageSlug}-${pageId}`,
+                `/app/${applicationSlug}/${pageSlug}-${pageId}`,
               ),
             ),
           ),
