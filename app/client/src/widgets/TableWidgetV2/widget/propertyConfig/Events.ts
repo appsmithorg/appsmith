@@ -1,3 +1,5 @@
+import { TableWidgetProps } from "widgets/TableWidgetV2/constants";
+
 export default {
   sectionName: "Events",
   children: [
@@ -44,6 +46,28 @@ export default {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
+    },
+    {
+      helpText: "Triggers an action when bulk save button is clicked",
+      propertyName: "onBulkSave",
+      label: "onBulkSave",
+      controlType: "ACTION_SELECTOR",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: true,
+      hidden: (props: TableWidgetProps) => !props.allowBulkEditActions,
+      dependencies: ["allowBulkEditActions"],
+    },
+    {
+      helpText: "Triggers an action when bulk discard button is clicked",
+      propertyName: "onBulkDiscard",
+      label: "onBulkDiscard",
+      controlType: "ACTION_SELECTOR",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: true,
+      hidden: (props: TableWidgetProps) => !props.allowBulkEditActions,
+      dependencies: ["allowBulkEditActions"],
     },
   ],
 };

@@ -61,6 +61,7 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
     [key: string]: Record<string, string>;
   };
   editableCell: EditableCell;
+  allowBulkEditActions: boolean;
 }
 
 export const getCurrentRowBinding = (
@@ -92,6 +93,7 @@ export enum ColumnTypes {
   ICON_BUTTON = "iconButton",
   MENU_BUTTON = "menuButton",
   SELECT = "select",
+  EDIT_ACTIONS = "editActions",
 }
 
 export enum ReadOnlyColumnTypes {

@@ -5,7 +5,7 @@ import { ColumnAction } from "components/propertyControls/ColumnActionSelectorCo
 import { CellLayoutProperties } from "../Constants";
 import Button from "components/editorComponents/Button";
 
-function TableButton(props: {
+export function TableButton(props: {
   isSelected: boolean;
   action: ColumnAction;
   backgroundColor: string;
@@ -48,7 +48,7 @@ function TableButton(props: {
   );
 }
 
-interface RenderActionProps {
+export interface RenderActionProps {
   compactMode: string;
   isSelected: boolean;
   columnActions?: ColumnAction[];
@@ -57,29 +57,27 @@ interface RenderActionProps {
   isDisabled: boolean;
   isCellVisible: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
+  cellProperties: CellLayoutProperties;
+  isHidden: boolean;
 }
 
-export const renderButton = (
-  props: RenderActionProps,
-  isHidden: boolean,
-  cellProperties: CellLayoutProperties,
-) => {
+export const renderButton = (props: RenderActionProps) => {
   if (!props.columnActions)
     return (
       <CellWrapper
-        cellProperties={cellProperties}
+        cellProperties={props.cellProperties}
         compactMode={props.compactMode}
         isCellVisible={props.isCellVisible}
-        isHidden={isHidden}
+        isHidden={props.isHidden}
       />
     );
 
   return (
     <CellWrapper
-      cellProperties={cellProperties}
+      cellProperties={props.cellProperties}
       compactMode={props.compactMode}
       isCellVisible={props.isCellVisible}
-      isHidden={isHidden}
+      isHidden={props.isHidden}
     >
       {props.columnActions.map((action: ColumnAction, index: number) => {
         return (
