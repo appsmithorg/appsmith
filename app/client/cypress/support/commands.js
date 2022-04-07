@@ -1940,7 +1940,7 @@ Cypress.Commands.add("addDsl", (dsl) => {
   cy.url().then((url) => {
     currentURL = url;
     pageid = currentURL
-      .split("/")[4]
+      .split("/")[5]
       ?.split("-")
       .pop();
     cy.log(pageidcopy + "page id copy");

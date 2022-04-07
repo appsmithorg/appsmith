@@ -66,7 +66,11 @@ import {
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
 import { fetchCommentThreadsInit } from "actions/commentActions";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
-import { addBranchParam } from "constants/routes";
+import {
+  addBranchParam,
+  PLACEHOLDER_APP_SLUG,
+  PLACEHOLDER_PAGE_SLUG,
+} from "constants/routes";
 import history from "utils/history";
 import {
   fetchGitStatusInit,
@@ -132,11 +136,11 @@ function* initiateURLUpdate(
       getCurrentApplication,
     );
 
-    const applicationSlug = currentApplication.slug as string;
+    const applicationSlug = currentApplication.slug || PLACEHOLDER_APP_SLUG;
     const currentPage: Page = yield select(getPageById(pageId));
-    const pageSlug = currentPage?.slug as string;
+    const pageSlug = currentPage?.slug || PLACEHOLDER_PAGE_SLUG;
     let originalUrl = "";
-    const { pathname, search } = window.location;
+    const { hash, pathname, search } = window.location;
 
     // For switching new URLs to old.
     if (currentApplication.applicationVersion < ApplicationVersion.SLUG_URL) {
@@ -145,10 +149,11 @@ function* initiateURLUpdate(
         // when switch from a branch with updated URL to another one with legacy URLs,
         // we need to compute the legacy url
         // This scenario can happen only in edit mode.
-        originalUrl = builderURL({
-          applicationId: currentApplication.id,
-          pageId: pageId,
-        });
+        originalUrl =
+          builderURL({
+            applicationId: currentApplication.id,
+            pageId: pageId,
+          }) + hash;
         history.replace(originalUrl);
       }
     } else {
@@ -160,10 +165,12 @@ function* initiateURLUpdate(
           // If edit mode, replace /applications/appId/pages/pageId with /appSlug/pageSlug-pageId,
           // to not affect the rest of the url. eg. /api/apiId
           originalUrl =
-            fillPathname(pathname, currentApplication, currentPage) + search;
+            fillPathname(pathname, currentApplication, currentPage) +
+            search +
+            hash;
         } else {
           // View Mode - generate a new viewer URL - auto updates query params
-          originalUrl = viewerURL({ applicationSlug, pageSlug, pageId });
+          originalUrl = viewerURL({ applicationSlug, pageSlug, pageId }) + hash;
         }
       } else {
         // For urls which has pageId in it,
@@ -173,7 +180,9 @@ function* initiateURLUpdate(
             applicationSlug,
             pageSlug,
             pageId,
-          }) + search;
+          }) +
+          search +
+          hash;
       }
       history.replace(originalUrl);
     }
