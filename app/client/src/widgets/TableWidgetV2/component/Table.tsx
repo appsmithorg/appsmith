@@ -34,6 +34,7 @@ import {
 } from "./renderHelpers/CheckboxCellRenderer";
 import { HeaderCell } from "./cellComponents/HeaderCell";
 import { EditableCell } from "../constants";
+import { EditActions } from "./EditActions";
 
 interface TableProps {
   width: number;
@@ -80,6 +81,9 @@ interface TableProps {
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
   delimiter: string;
+  onBulkEditDiscard: () => void;
+  onBulkEditSave: () => void;
+  showTableLevelEditActions?: boolean;
 }
 
 const defaultColumn = {
@@ -273,6 +277,12 @@ export function Table(props: TableProps) {
             </TableHeaderInnerWrapper>
           </Scrollbars>
         </TableHeaderWrapper>
+      )}
+      {props.showTableLevelEditActions && (
+        <EditActions
+          onDiscard={props.onBulkEditDiscard}
+          onSave={props.onBulkEditSave}
+        />
       )}
       <div
         className={props.isLoading ? Classes.SKELETON : "tableWrap"}
