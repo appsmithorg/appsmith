@@ -29,6 +29,7 @@ import { stopReflowAction } from "actions/reflowActions";
 import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
 import { XYCord } from "./useCanvasDragging";
+import { createContainerJumpMetrics } from "./ContainerJumpMetricsUtil";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -45,6 +46,12 @@ export type WidgetDraggingBlock = {
   isNotColliding: boolean;
   detachFromLayout?: boolean;
 };
+
+const {
+  clearContainerJumpMetrics,
+  getContainerJumpMetrics,
+  updateContainerJumpMetrics,
+} = createContainerJumpMetrics();
 
 export const useBlocksToBeDraggedOnCanvas = ({
   noPad,
@@ -104,6 +111,52 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const { updateWidget } = useContext(EditorContext);
 
   const allWidgets = useSelector(getWidgets);
+  //This method is called whenever a there is a canvas change
+  const logContainerJump = (
+    canvasId: string,
+    dragSpeed?: number,
+    dragAcceleration?: number,
+  ) => {
+    //If triggered on the same canvas that it started dragging on return
+    if (!dragDetails.draggedOn || canvasId === dragDetails.draggedOn) return;
+
+    const { acceleration, movingInto, speed } = getContainerJumpMetrics();
+
+    // record Only
+    // if it was not previously recorded
+    // if not moving into mainContainer
+    // dragSpeed and dragAcceleration is not undefined
+    if (
+      !movingInto &&
+      canvasId !== MAIN_CONTAINER_WIDGET_ID &&
+      dragSpeed &&
+      dragAcceleration
+    ) {
+      updateContainerJumpMetrics(dragSpeed, dragAcceleration, canvasId);
+    } // record only for mainContainer jumps,
+    //If it is coming back to main canvas after moving into a container then it is a accidental container jump
+    else if (movingInto && canvasId === MAIN_CONTAINER_WIDGET_ID) {
+      AnalyticsUtil.logEvent("CONTAINER_JUMP", {
+        speed: speed,
+        acceleration: acceleration,
+        accidental: true,
+      });
+      clearContainerJumpMetrics();
+    }
+  };
+  // This method is called on drop
+  const logContainerJumpOnDrop = () => {
+    const { acceleration, movingInto, speed } = getContainerJumpMetrics();
+    // If it is dropped into a container after jumping, then
+    if (movingInto) {
+      AnalyticsUtil.logEvent("CONTAINER_JUMP", {
+        speed: speed,
+        acceleration: acceleration,
+        accidental: true,
+      });
+    }
+    clearContainerJumpMetrics();
+  };
   const getDragCenterSpace = () => {
     if (dragCenter && dragCenter.widgetId) {
       // Dragging by widget
@@ -203,6 +256,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     drawingBlocks: WidgetDraggingBlock[],
     reflowedPositionsUpdatesWidgets: OccupiedSpace[],
   ) => {
+    logContainerJumpOnDrop();
     const reflowedBlocks: WidgetDraggingBlock[] = reflowedPositionsUpdatesWidgets.map(
       (each) => {
         const widget = allWidgets[each.id];
@@ -412,6 +466,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     isNewWidgetInitialTargetCanvas,
     isResizing,
     lastDraggedCanvas,
+    logContainerJump,
     occSpaces,
     draggingSpaces,
     onDrop,
