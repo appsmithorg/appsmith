@@ -193,7 +193,7 @@ describe("AForce - Community Issues page validations", function () {
     table.ReadTableRowColumnData(4, 1).then(($cellData) => {
       expect($cellData).to.eq("[Bug] App header overlaps the Table filter pane when table is placed at top of the canvas ");
     });
-    table.RemoveFilterNVerify("Question")
+    table.RemoveFilterNVerify("Question", true, false)
 
     //Two filters - OR
     table.FilterTable("Type", "starts with", "Trouble")
@@ -223,8 +223,7 @@ describe("AForce - Community Issues page validations", function () {
      table.ReadTableRowColumnData(0, 1).then(($cellData) => {
        expect($cellData).to.eq("Change the video in the video player with a button click");
      });
-     table.RemoveFilterNVerify("Question")
-
+     table.RemoveFilterNVerify("Question", true, false)
   })
 
   it("8. Validate Adding a New issue from Add Modal", () => {
