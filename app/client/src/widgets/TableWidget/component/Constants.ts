@@ -112,7 +112,6 @@ export interface CellLayoutProperties {
   buttonVariant: ButtonVariant;
   borderRadius: string;
   boxShadow: string;
-  boxShadowColor: string;
   isCellVisible: boolean;
   isCompact?: boolean;
   menuItems: MenuItems;
