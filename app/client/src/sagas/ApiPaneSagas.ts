@@ -14,7 +14,7 @@ import {
   ReduxFormActionTypes,
 } from "constants/ReduxActionConstants";
 import { getFormData } from "selectors/formSelectors";
-import { API_EDITOR_FORM_NAME, SAAS_EDITOR_FORM } from "constants/forms";
+import { API_EDITOR_FORM_NAME, QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import {
   DEFAULT_API_ACTION_CONFIG,
   POST_BODY_FORMAT_OPTIONS_ARRAY,
@@ -259,7 +259,7 @@ function* changeApiSaga(
   if (!action) action = yield select(getAction, id);
   if (!action) return;
   if (isSaas) {
-    yield put(initialize(SAAS_EDITOR_FORM, action));
+    yield put(initialize(QUERY_EDITOR_FORM_NAME, action));
   } else {
     yield put(initialize(API_EDITOR_FORM_NAME, action));
 

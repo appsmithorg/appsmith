@@ -262,19 +262,14 @@ export const MenuColumnWrapper = styled.div<{ selected: boolean }>`
   }
 `;
 
-export const ActionWrapper = styled.div<{
-  background: string;
-  buttonLabelColor: string;
-}>`
+export const ActionWrapper = styled.div`
   margin: 0 5px 0 0;
   &&&&&& {
     .bp3-button {
-      background: ${(props) => props.background};
-      color: ${(props) => props.buttonLabelColor};
-      border: none;
+      min-width: 50px;
     }
     .bp3-button span {
-      font-weight: 400;
+      font-weight: 500;
       text-decoration: none;
     }
     &&& .bp3-disabled {
