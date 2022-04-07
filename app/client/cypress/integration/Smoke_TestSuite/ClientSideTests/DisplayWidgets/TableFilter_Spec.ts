@@ -548,5 +548,64 @@ describe("Verify various Table_Filter combinations", function () {
 
   });
 
+  it("28. Verify Full table data - download csv and download Excel", function () {
+
+    table.DownloadFromTable("Download as CSV")
+    //This plugin works only from cypress ^9.2
+    //cy.verifyDownload("Table1.csv")
+    table.ValidateDownloadNVerify("Table1.csv", "Michael Lawson")
+
+    table.DownloadFromTable("Download as Excel")
+    table.ValidateDownloadNVerify("Table1.xlsx", "Michael Lawson");    
+  });
+
+  it("28. Verify Searched data - download csv and download Excel", function () {
+    table.SearchTable("7434532")
+    table.ReadTableRowColumnData(0, 3).then((afterSearch) => {
+      expect(afterSearch).to.eq("Byron Fields");
+    });
+
+    table.DownloadFromTable("Download as CSV")
+    //This plugin works only from cypress ^9.2
+    //cy.verifyDownload("Table1.csv")
+    table.ValidateDownloadNVerify("Table1.csv", "byron.fields@reqres.in")
+
+    table.DownloadFromTable("Download as Excel")
+    table.ValidateDownloadNVerify("Table1.xlsx", "Ryan Holmes");    
+
+    table.RemoveSearchTextNVerify("2381224")
+
+    table.DownloadFromTable("Download as CSV")
+    table.ValidateDownloadNVerify("Table1.csv", "2736212")
+
+    table.DownloadFromTable("Download as Excel")
+    table.ValidateDownloadNVerify("Table1.xlsx", "Beef steak"); 
+  });
+
+  it("29. Verify Filtered data - download csv and download Excel", function () {
+    table.FilterTable("id", "starts with", "6")
+    table.ReadTableRowColumnData(0, 3).then(($cellData) => {
+      expect($cellData).to.eq("Tobias Funke");
+    });
+    table.CloseFilter()
+
+    table.DownloadFromTable("Download as CSV")
+    //This plugin works only from cypress ^9.2
+    //cy.verifyDownload("Table1.csv")
+    table.ValidateDownloadNVerify("Table1.csv", "Beef steak")
+
+    table.DownloadFromTable("Download as Excel")
+    table.ValidateDownloadNVerify("Table1.xlsx", "tobias.funke@reqres.in");    
+
+    agHelper.GetNClick(table._filterBtn)
+    table.RemoveFilterNVerify("2381224", true, false)
+
+    table.DownloadFromTable("Download as CSV")
+    table.ValidateDownloadNVerify("Table1.csv", "Tuna Salad")
+
+    table.DownloadFromTable("Download as Excel")
+    table.ValidateDownloadNVerify("Table1.xlsx", "Avocado Panini"); 
+  });
+
 });
 

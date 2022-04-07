@@ -1,5 +1,5 @@
-import { time } from "console"
 import { ObjectsRegistry } from "../Objects/Registry"
+const path = require("path");
 
 export class Table {
   public agHelper = ObjectsRegistry.AggregateHelper
@@ -24,7 +24,7 @@ export class Table {
   _addIcon = "button span[icon='add']"
   _trashIcon = "button span[icon='trash']"
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']"
-  private _filterBtn = ".t--table-filter-toggle-btn"
+  _filterBtn = ".t--table-filter-toggle-btn"
   _filterColumnsDropdown = ".t--table-filter-columns-dropdown"
   _dropdownText = ".t--dropdown-option"
   _filterConditionDropdown = ".t--table-filter-conditions-dropdown"
@@ -186,6 +186,22 @@ export class Table {
     cy.get(this._downloadOption)
       .contains(filetype)
       .click({ force: true });
+  }
+
+  public ValidateDownloadNVerify(fileName: string, textToBePresent: string) {
+    let downloadsFolder = Cypress.config("downloadsFolder");
+    cy.log("downloadsFolder is:" + downloadsFolder);
+    cy.readFile(path.join(downloadsFolder, fileName)).should("exist");
+    this.VerifyDownloadedFile(fileName, textToBePresent)
+  }
+
+  public VerifyDownloadedFile(fileName: string, textToBePresent: string) {
+    const downloadedFilename = Cypress.config("downloadsFolder")
+      .concat("/")
+      .concat(fileName);
+    cy.readFile(downloadedFilename, "binary", {
+      timeout: 15000,
+    }).should((buffer) => expect(buffer).to.contain(textToBePresent));
   }
 
   //List methods - keeping it for now!
