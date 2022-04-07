@@ -9,26 +9,23 @@ import {
   getPlugin,
 } from "selectors/entitiesSelector";
 import { EditorJSONtoForm, EditorJSONtoFormProps } from "./EditorJSONtoForm";
-import { getFormValues } from "redux-form";
-import { QueryAction } from "entities/Action";
 import { getFormEvaluationState } from "selectors/formSelectors";
 
 const valueSelector = formValueSelector(QUERY_EDITOR_FORM_NAME);
-const mapStateToProps = (state: AppState) => {
+const mapStateToProps = (state: AppState, props: any) => {
   const actionName = valueSelector(state, "name");
   const pluginId = valueSelector(state, "datasource.pluginId");
   const selectedDbId = valueSelector(state, "datasource.id");
 
   const responseTypes = getPluginResponseTypes(state);
   const documentationLinks = getPluginDocumentationLinks(state);
-  const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as QueryAction;
   const plugin = getPlugin(state, pluginId);
   // State to manage the evaluations for the form
   let formEvaluationState = {};
 
   // Fetching evaluations state only once the formData is populated
-  if (!!formData) {
-    formEvaluationState = getFormEvaluationState(state)[formData.id];
+  if (!!props.formData) {
+    formEvaluationState = getFormEvaluationState(state)[props.formData.id];
   }
 
   return {
@@ -39,7 +36,6 @@ const mapStateToProps = (state: AppState) => {
     responseType: responseTypes[pluginId],
     documentationLink: documentationLinks[pluginId],
     formName: QUERY_EDITOR_FORM_NAME,
-    formData: formData,
     formEvaluationState,
   };
 };
