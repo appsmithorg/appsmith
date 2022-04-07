@@ -110,7 +110,7 @@ module.exports = class Perf {
 
     const currentUrl = this.page.url();
     const pageId = currentURL
-      .split("/")[4]
+      .split("/")[5]
       ?.split("-")
       .pop();
 
