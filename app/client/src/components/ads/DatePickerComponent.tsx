@@ -187,38 +187,40 @@ function useKeyboardNavigation(clearButtonText: string) {
           const focusableElements = getKeyboardFocusableElements(
             popoverElement,
           );
-          if (e.shiftKey) {
-            const lastFocusedElementIndex = focusableElements.findIndex(
-              (element) => document.activeElement === element,
-            );
-            if (
-              lastFocusedElementIndex === 1 ||
-              lastFocusedElementIndex === 0
-            ) {
-              const lastFocusableElement = focusableElements.find((element) =>
-                whetherItIsTheLastButtonInDatepicker(
-                  element as HTMLElement,
-                  clearButtonText,
-                ),
+          if (e.key === "Tab") {
+            if (e.shiftKey) {
+              const lastFocusedElementIndex = focusableElements.findIndex(
+                (element) => document.activeElement === element,
               );
-              if (lastFocusableElement) {
-                (lastFocusableElement as HTMLElement).focus();
-                e.preventDefault();
-              }
-            }
-          } else {
-            const lastFocusedElement = focusableElements.find(
-              (element) => document.activeElement === element,
-            );
-            if (lastFocusedElement) {
               if (
-                whetherItIsTheLastButtonInDatepicker(
-                  lastFocusedElement as HTMLElement,
-                  clearButtonText,
-                )
+                lastFocusedElementIndex === 1 ||
+                lastFocusedElementIndex === 0
               ) {
-                (focusableElements[0] as HTMLElement).focus();
-                e.preventDefault();
+                const lastFocusableElement = focusableElements.find((element) =>
+                  whetherItIsTheLastButtonInDatepicker(
+                    element as HTMLElement,
+                    clearButtonText,
+                  ),
+                );
+                if (lastFocusableElement) {
+                  (lastFocusableElement as HTMLElement).focus();
+                  e.preventDefault();
+                }
+              }
+            } else {
+              const lastFocusedElement = focusableElements.find(
+                (element) => document.activeElement === element,
+              );
+              if (lastFocusedElement) {
+                if (
+                  whetherItIsTheLastButtonInDatepicker(
+                    lastFocusedElement as HTMLElement,
+                    clearButtonText,
+                  )
+                ) {
+                  (focusableElements[0] as HTMLElement).focus();
+                  e.preventDefault();
+                }
               }
             }
           }
