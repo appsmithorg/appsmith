@@ -137,9 +137,12 @@ function whetherItIsTheLastButtonInDatepicker(
 function DatePickerComponent(props: DatePickerComponentProps) {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
+  // to get the latest visibility value
   const DatePickerVisibilityRef = useRef(isDatePickerVisible);
   DatePickerVisibilityRef.current = isDatePickerVisible;
 
+  // this was added to check the Datepickers
+  // footer action bar last Clear button
   const clearButtonText = "Clear";
 
   const popoverRef = useRef<HTMLDivElement>(null);
