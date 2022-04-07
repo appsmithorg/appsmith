@@ -8,6 +8,7 @@ import {
   uniqueColumnAliasValidation,
   updateColumnAccessorHook,
   updateColumnLevelEditability,
+  updateEditActionsColumnEventsHook,
 } from "../../propertyUtils";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { isColumnTypeEditable } from "../../utilities";
@@ -61,7 +62,12 @@ export default {
           label: "Select",
           value: "select",
         },
+        {
+          label: "Edit Actions",
+          value: "editActions",
+        },
       ],
+      updateHook: updateEditActionsColumnEventsHook,
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: false,
       isTriggerProperty: false,
@@ -231,6 +237,7 @@ export default {
           ColumnTypes.ICON_BUTTON,
           ColumnTypes.MENU_BUTTON,
           ColumnTypes.BUTTON,
+          ColumnTypes.EDIT_ACTIONS,
         ]);
       },
     },

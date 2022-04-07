@@ -17,7 +17,12 @@ export default {
     return hideByColumnType(
       props,
       propertyPath,
-      [ColumnTypes.BUTTON, ColumnTypes.MENU_BUTTON, ColumnTypes.ICON_BUTTON],
+      [
+        ColumnTypes.BUTTON,
+        ColumnTypes.MENU_BUTTON,
+        ColumnTypes.ICON_BUTTON,
+        ColumnTypes.EDIT_ACTIONS,
+      ],
       true,
     );
   },
@@ -59,7 +64,10 @@ export default {
       isBindProperty: false,
       isTriggerProperty: false,
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.MENU_BUTTON,
+          ColumnTypes.EDIT_ACTIONS,
+        ]);
       },
       dependencies: ["primaryColumns", "columnOrder"],
       validation: {
@@ -388,6 +396,34 @@ export default {
           regex: /^(?![<|{{]).+/,
         },
       },
+    },
+    {
+      propertyName: "saveActionLabel",
+      label: "Save action label",
+      controlType: "COMPUTE_VALUE_V2",
+      defaultValue: "Save",
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.EDIT_ACTIONS,
+        ]);
+      },
+      dependencies: ["primaryColumns", "columnOrder"],
+      isBindProperty: true,
+      isTriggerProperty: false,
+    },
+    {
+      propertyName: "discardActionLabel",
+      label: "Discard action label",
+      controlType: "COMPUTE_VALUE_V2",
+      defaultValue: "Discard",
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.EDIT_ACTIONS,
+        ]);
+      },
+      dependencies: ["primaryColumns", "columnOrder"],
+      isBindProperty: true,
+      isTriggerProperty: false,
     },
   ],
 };

@@ -48,6 +48,8 @@ interface ReactTableComponentProps {
   totalRecordsCount?: number;
   tableData: Array<Record<string, unknown>>;
   disableDrag: (disable: boolean) => void;
+  onBulkEditDiscard: () => void;
+  onBulkEditSave: () => void;
   onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
   selectAllRow: (pageData: Row<Record<string, unknown>>[]) => void;
   unSelectAllRow: (pageData: Row<Record<string, unknown>>[]) => void;
@@ -76,6 +78,7 @@ interface ReactTableComponentProps {
   isVisiblePagination?: boolean;
   delimiter: string;
   isSortable?: boolean;
+  showTableLevelEditActions?: boolean;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -100,6 +103,8 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     isVisibleSearch,
     multiRowSelection,
     nextPageClick,
+    onBulkEditDiscard,
+    onBulkEditSave,
     onRowClick,
     pageNo,
     pageSize,
@@ -110,6 +115,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     selectedRowIndex,
     selectedRowIndices,
     serverSidePaginationEnabled,
+    showTableLevelEditActions,
     sortTableColumn: _sortTableColumn,
     tableData,
     totalRecordsCount,
@@ -273,6 +279,8 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       isVisibleSearch={isVisibleSearch}
       multiRowSelection={multiRowSelection}
       nextPageClick={nextPageClick}
+      onBulkEditDiscard={onBulkEditDiscard}
+      onBulkEditSave={onBulkEditSave}
       pageNo={pageNo - 1}
       pageSize={pageSize || 1}
       prevPageClick={prevPageClick}
@@ -282,6 +290,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       selectedRowIndex={selectedRowIndex}
       selectedRowIndices={selectedRowIndices}
       serverSidePaginationEnabled={serverSidePaginationEnabled}
+      showTableLevelEditActions={showTableLevelEditActions}
       sortTableColumn={sortTableColumn}
       toggleAllRowSelect={toggleAllRowSelect}
       totalRecordsCount={totalRecordsCount}
@@ -333,6 +342,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     // Using JSON stringify becuase isEqual doesnt work with functions,
     // and we are not changing the columns manually.
     JSON.stringify(prev.columns) === JSON.stringify(next.columns) &&
-    JSON.stringify(prev.editableCell) === JSON.stringify(next.editableCell)
+    JSON.stringify(prev.editableCell) === JSON.stringify(next.editableCell) &&
+    prev.showTableLevelEditActions === next.showTableLevelEditActions
   );
 });
