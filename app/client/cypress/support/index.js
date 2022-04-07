@@ -25,7 +25,7 @@ import { initLocalstorage } from "./commands";
 import "./dataSourceCommands";
 import "./gitSync";
 import { initLocalstorageRegistry } from "./Objects/Registry";
-import "./orgCommands";
+import "./OrgCommands";
 import "./queryCommands";
 import "./widgetCommands";
 /// <reference types="cypress-xpath" />
