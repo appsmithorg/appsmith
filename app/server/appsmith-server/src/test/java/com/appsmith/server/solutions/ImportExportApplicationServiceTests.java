@@ -1948,7 +1948,7 @@ public class ImportExportApplicationServiceTests {
      */
     @Test
     @WithUserDetails(value = "api_user")
-    public void test1_exportApplication_withDatasourceConfig_exportedWithDecryptedFields() {
+    public void exportApplication_withDatasourceConfig_exportedWithDecryptedFields() {
         Organization newOrganization = new Organization();
         newOrganization.setName("template-org-with-ds");
 
@@ -2170,7 +2170,7 @@ public class ImportExportApplicationServiceTests {
      */
     @Test
     @WithUserDetails(value = "usertest@usertest.com")
-    public void test2_exportApplication_withReadOnlyAccess_exportedWithDecryptedFields() {
+    public void exportApplication_withReadOnlyAccess_exportedWithDecryptedFields() {
         Mono<ApplicationJson> exportApplicationMono = importExportApplicationService
                 .exportApplicationById(exportWithConfigurationAppId, SerialiseApplicationObjective.SHARE);
 
@@ -2179,6 +2179,151 @@ public class ImportExportApplicationServiceTests {
                 .assertNext(applicationJson -> {
                     assertThat(applicationJson.getExportedApplication()).isNotNull();
                     assertThat(applicationJson.getDecryptedFields()).isNotNull();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplication_datasourceWithSameNameAndDifferentPlugin_importedWithValidActionsAndSuffixedDatasource() {
+
+        ApplicationJson applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json").block();
+
+        Organization testOrganization = new Organization();
+        testOrganization.setName("Duplicate datasource with different plugin org");
+        testOrganization = organizationService.create(testOrganization).block();
+
+        Datasource testDatasource = new Datasource();
+        // Chose any plugin except for mongo, as json static file has mongo plugin for datasource
+        Plugin postgreSQLPlugin = pluginRepository.findByName("PostgreSQL").block();
+        testDatasource.setPluginId(postgreSQLPlugin.getId());
+        testDatasource.setOrganizationId(testOrganization.getId());
+        final String datasourceName = applicationJson.getDatasourceList().get(0).getName();
+        testDatasource.setName(datasourceName);
+        datasourceService.create(testDatasource).block();
+
+        final Mono<Application> resultMono = importExportApplicationService.importApplicationInOrganization(testOrganization.getId(), applicationJson);
+
+        StepVerifier
+                .create(resultMono
+                        .flatMap(application -> Mono.zip(
+                                Mono.just(application),
+                                datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList(),
+                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList()
+                        )))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1();
+                    final List<Datasource> datasourceList = tuple.getT2();
+                    final List<NewAction> actionList = tuple.getT3();
+
+                    assertThat(application.getName()).isEqualTo("valid_application");
+
+                    List<String> datasourceNameList = new ArrayList<>();
+                    assertThat(datasourceList).isNotEmpty();
+                    datasourceList.forEach(datasource -> {
+                        assertThat(datasource.getOrganizationId()).isEqualTo(application.getOrganizationId());
+                        datasourceNameList.add(datasource.getName());
+                    });
+                    // Check if both suffixed and newly imported datasource are present
+                    assertThat(datasourceNameList).contains(datasourceName, datasourceName + " #1");
+
+                    assertThat(actionList).isNotEmpty();
+                    actionList.forEach(newAction -> {
+                        ActionDTO actionDTO = newAction.getUnpublishedAction();
+                        assertThat(actionDTO.getDatasource()).isNotNull();
+                    });
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplication_datasourceWithSameNameAndPlugin_importedWithValidActionsWithoutSuffixedDatasource() {
+
+        ApplicationJson applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json").block();
+
+        Organization testOrganization = new Organization();
+        testOrganization.setName("Duplicate datasource with same plugin org");
+        testOrganization = organizationService.create(testOrganization).block();
+
+        Datasource testDatasource = new Datasource();
+        // Chose plugin same as mongo, as json static file has mongo plugin for datasource
+        Plugin postgreSQLPlugin = pluginRepository.findByName("MongoDB").block();
+        testDatasource.setPluginId(postgreSQLPlugin.getId());
+        testDatasource.setOrganizationId(testOrganization.getId());
+        final String datasourceName = applicationJson.getDatasourceList().get(0).getName();
+        testDatasource.setName(datasourceName);
+        datasourceService.create(testDatasource).block();
+
+        final Mono<Application> resultMono = importExportApplicationService.importApplicationInOrganization(testOrganization.getId(), applicationJson);
+
+        StepVerifier
+                .create(resultMono
+                        .flatMap(application -> Mono.zip(
+                                Mono.just(application),
+                                datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList(),
+                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList()
+                        )))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1();
+                    final List<Datasource> datasourceList = tuple.getT2();
+                    final List<NewAction> actionList = tuple.getT3();
+
+                    assertThat(application.getName()).isEqualTo("valid_application");
+
+                    List<String> datasourceNameList = new ArrayList<>();
+                    assertThat(datasourceList).isNotEmpty();
+                    datasourceList.forEach(datasource -> {
+                        assertThat(datasource.getOrganizationId()).isEqualTo(application.getOrganizationId());
+                        datasourceNameList.add(datasource.getName());
+                    });
+                    // Check that there are no datasources are created with suffix names as datasource's are of same plugin
+                    assertThat(datasourceNameList).contains(datasourceName);
+
+                    assertThat(actionList).isNotEmpty();
+                    actionList.forEach(newAction -> {
+                        ActionDTO actionDTO = newAction.getUnpublishedAction();
+                        assertThat(actionDTO.getDatasource()).isNotNull();
+                    });
+                })
+                .verifyComplete();
+    }
+    
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void exportApplication_withMultiplePages_PagesOrderIsMaintainedINExportedAppJson() {
+        Organization newOrganization = new Organization();
+        newOrganization.setName("template-org-with-ds");
+
+        Application testApplication = new Application();
+        testApplication.setName("exportApplication_withMultiplePages_PagesOrderIsMaintainedINExportedAppJson");
+        testApplication.setExportWithConfiguration(true);
+        testApplication = applicationPageService.createApplication(testApplication, orgId).block();
+        assert testApplication != null;
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("123");
+        testPage.setApplicationId(testApplication.getId());
+        PageDTO page1 = applicationPageService.createPage(testPage).block();
+
+        testPage = new PageDTO();
+        testPage.setName("abc");
+        testPage.setApplicationId(testApplication.getId());
+        PageDTO page2 = applicationPageService.createPage(testPage).block();
+
+        // Set order for the newly created pages
+        applicationPageService.reorderPage(testApplication.getId(), page1.getId(), 0, null).block();
+        applicationPageService.reorderPage(testApplication.getId(), page2.getId(), 1, null).block();
+
+        Mono<ApplicationJson> applicationJsonMono = importExportApplicationService.exportApplicationById(testApplication.getId(), "");
+
+        StepVerifier
+                .create(applicationJsonMono)
+                .assertNext(applicationJson -> {
+                    List<NewPage> pageList = applicationJson.getPageList();
+                    assertThat(pageList.get(0).getUnpublishedPage().getName()).isEqualTo("123");
+                    assertThat(pageList.get(1).getUnpublishedPage().getName()).isEqualTo("abc");
+                    assertThat(pageList.get(2).getUnpublishedPage().getName()).isEqualTo("Page1");
                 })
                 .verifyComplete();
     }

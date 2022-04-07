@@ -230,7 +230,17 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       value: undefined,
+      isDirty: false,
     };
+  }
+
+  componentDidUpdate(prevProps: DatePickerWidget2Props): void {
+    if (
+      this.props.defaultDate !== prevProps.defaultDate &&
+      this.props.isDirty
+    ) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
   }
 
   getPageView() {
@@ -255,6 +265,10 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   }
 
   onDateSelected = (selectedDate: string) => {
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     this.props.updateWidgetMetaProperty("value", selectedDate, {
       triggerPropertyName: "onDateSelected",
       dynamicString: this.props.onDateSelected,
