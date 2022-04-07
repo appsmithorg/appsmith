@@ -95,9 +95,12 @@ describe("Klona clone test", () => {
       },
     });
 
-    const nestedObject = Object.create({
-      Input: { text: "abc" },
-    });
+    const nestedObject = Object.assign(
+      {},
+      {
+        Input: { text: "abc" },
+      },
+    );
 
     const input = {
       meta: {
@@ -120,7 +123,7 @@ describe("Klona clone test", () => {
     // mutate
     input.meta.nestedArray[0] = "abc";
     input.meta.nestedArray[1] = { a: "bc" };
-    input.meta.nestedObject.value = "hello";
+    input.meta.nestedObject.Input = "hello";
 
     expect(
       isEqual(expected.meta.nestedArray[0], result.meta.nestedArray[0]),
@@ -135,7 +138,10 @@ describe("Klona clone test", () => {
       ),
     ).toEqual(true);
     expect(
-      isEqual(expected.meta.nestedObject.value, result.meta.nestedObject.value),
+      isEqual(
+        expected.meta.nestedObject.Input.text,
+        result.meta.nestedObject.Input.text,
+      ),
     ).toEqual(true);
   });
 
