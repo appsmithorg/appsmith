@@ -213,7 +213,7 @@ export class JSEditor {
     if (onLoad)
       this.agHelper.CheckUncheck(this._functionSetting('Run Function on Page load'), true)
     if (bfrCalling)
-      this.agHelper.CheckUncheck(this._functionSetting('Request confirmation before calling Function?'), true)
+      this.agHelper.CheckUncheck(this._functionSetting('Request confirmation before calling function?'), true)
 
     this.agHelper.GetNClick(this._closeSettings)
   }
