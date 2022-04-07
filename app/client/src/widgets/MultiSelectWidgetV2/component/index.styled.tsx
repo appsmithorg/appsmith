@@ -3,7 +3,11 @@ import { Checkbox, Classes } from "@blueprintjs/core";
 import styled, { css, keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
-import { LabelPosition } from "components/constants";
+import {
+  LabelPosition,
+  LABEL_MARGIN_OLD_SELECT,
+  SELECT_DEFAULT_HEIGHT,
+} from "components/constants";
 import {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
@@ -322,7 +326,7 @@ export const MultiSelectContainer = styled.div<{
     label {
       ${({ labelPosition }) => {
         if (!labelPosition) {
-          return "margin-bottom: 5px";
+          return `margin-bottom: ${LABEL_MARGIN_OLD_SELECT}`;
         }
       }};
     }
@@ -590,5 +594,5 @@ export const InputContainer = styled.div<{
   labelPosition?: LabelPosition;
 }>`
   ${multiSelectInputContainerStyles}
-  ${({ labelPosition }) => labelPosition && "height: 32px"};
+  ${({ labelPosition }) => labelPosition && `height: ${SELECT_DEFAULT_HEIGHT}`};
 `;

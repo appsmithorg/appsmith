@@ -4,7 +4,11 @@ import styled, { keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
 import Icon from "components/ads/Icon";
-import { LabelPosition } from "components/constants";
+import {
+  LabelPosition,
+  LABEL_MARGIN_OLD_SELECT,
+  SELECT_DEFAULT_HEIGHT,
+} from "components/constants";
 import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
 import {
   labelLayoutStyles,
@@ -555,7 +559,7 @@ export const TreeSelectContainer = styled.div<{
     label {
       ${({ labelPosition }) => {
         if (!labelPosition) {
-          return "margin-bottom: 5px";
+          return `margin-bottom: ${LABEL_MARGIN_OLD_SELECT}`;
         }
       }};
     }
@@ -913,5 +917,5 @@ export const InputContainer = styled.div<{
   labelPosition?: LabelPosition;
 }>`
   ${multiSelectInputContainerStyles}
-  ${({ labelPosition }) => labelPosition && "height: 32px"};
+  ${({ labelPosition }) => labelPosition && `height: ${SELECT_DEFAULT_HEIGHT}`};
 `;

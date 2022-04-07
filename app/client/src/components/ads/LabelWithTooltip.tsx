@@ -62,11 +62,6 @@ interface TooltipIconProps {
 export const LABEL_CONTAINER_CLASS = "label-container";
 
 /**
- * Size of the icon used as a tooltip target, in pixels
- */
-export const TOOLTIP_ICON_SIZE = 14;
-
-/**
  * Max width of the label, specified in percentage(%)
  */
 export const LABEL_MAX_WIDTH_RATE = 70;
@@ -81,6 +76,16 @@ export const LABEL_DEFAULT_GAP = "5px";
  * should wait before opening after the user hovers over the trigger
  */
 export const LABEL_TOOLTIP_OPEN_DELAY = 200;
+
+/**
+ * Default label width in percentage
+ */
+export const LABEL_DEFAULT_WIDTH_RATE = 33;
+
+/**
+ * Size of the icon used as a tooltip target, in pixels
+ */
+export const TOOLTIP_ICON_SIZE = 14;
 
 export const labelLayoutStyles = css<{
   compactMode: boolean;
@@ -139,7 +144,7 @@ export const LabelContainer = styled.div<LabelContainerProps>`
     }
     ${position === LabelPosition.Left &&
       `
-      ${!width && `width: 33%`};
+      ${!width && `width: ${LABEL_DEFAULT_WIDTH_RATE}%`};
       ${alignment === Alignment.RIGHT && `justify-content: flex-end`};
       label {
         ${width && `width: ${width}px`};

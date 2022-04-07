@@ -9,7 +9,7 @@ import {
   createGlobalStyle,
 } from "constants/DefaultTheme";
 import { isEmptyOrNill } from "../../../utils/helpers";
-import { LabelPosition } from "components/constants";
+import { LabelPosition, LABEL_MARGIN_OLD_SELECT } from "components/constants";
 import {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
@@ -229,7 +229,7 @@ export const DropdownContainer = styled.div<{
     label {
       ${({ labelPosition }) => {
         if (!labelPosition) {
-          return "margin-bottom: 5px";
+          return `margin-bottom: ${LABEL_MARGIN_OLD_SELECT}`;
         }
       }};
     }
