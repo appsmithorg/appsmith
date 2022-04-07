@@ -288,18 +288,19 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 this.props.borderRadius,
               boxShadow:
                 // Conditionally Render the below migration function
-                (columnProperties.hasOwnProperty("boxShadowColor") ||
-                (columnProperties.hasOwnProperty("boxShadow") &&
-                  cellProperties.boxShadow.includes("VARIANT"))
-                  ? boxShadowDynamicChecker(
-                      this.props,
-                      columnProperties.id,
-                      cellProperties.boxShadow,
-                      isBoxShadowColorInDynamicList
-                        ? columnProperties.boxShadowColor[originalIndex]
-                        : columnProperties.boxShadowColor,
-                    )
-                  : cellProperties.boxShadow) || "NONE",
+                // (columnProperties.hasOwnProperty("boxShadowColor") ||
+                // (columnProperties.hasOwnProperty("boxShadow") &&
+                //   cellProperties.boxShadow.includes("VARIANT"))
+                //   ? boxShadowDynamicChecker(
+                //       this.props,
+                //       columnProperties.id,
+                //       cellProperties.boxShadow,
+                //       isBoxShadowColorInDynamicList
+                //         ? columnProperties.boxShadowColor[originalIndex]
+                //         : columnProperties.boxShadowColor,
+                //     )
+                //   : )
+                cellProperties.boxShadow || "NONE",
               isCellVisible: cellProperties.isCellVisible ?? true,
               disabled: !!cellProperties.isDisabled,
             };

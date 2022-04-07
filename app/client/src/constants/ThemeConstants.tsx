@@ -142,15 +142,26 @@ export const colorsPropertyName = "colors";
 
 export const DEFAULT_FONT_SIZE = "1rem";
 
-//Text sizes in theming
+// Text sizes in theming
 export const THEMEING_TEXT_SIZES = {
+  xs: "0.75rem",
   sm: "0.875rem",
   base: "1rem",
-  lg: "1.25rem",
+  md: "1.125rem",
+  lg: "1.5rem",
   xl: "1.875rem",
   "2xl": "3rem",
   "3xl": "3.75rem",
 };
 
-//Text sizes type
+// Text sizes type
 export type ThemingTextSizes = keyof typeof THEMEING_TEXT_SIZES;
+
+// Theming borderRadius:
+export const THEMING_BORDER_RADIUS = {
+  none: "0px",
+  rounded: "0.375rem",
+  circle: "9999px",
+};
+
+export const DEFAULT_BOXSHADOW = "none";

@@ -40,8 +40,11 @@ import { getCanvasSnapRows } from "./WidgetPropsUtils";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { FetchPageResponse } from "api/PageApi";
 import {
+  BUTTON_GROUP_CHILD_STYLESHEET,
   GRID_DENSITY_MIGRATION_V1,
+  JSON_FORM_WIDGET_CHILD_STYLESHEET,
   rgbaMigrationConstant,
+  TABLE_WIDGET_CHILD_STYLESHEET,
 } from "widgets/constants";
 // import defaultTemplate from "templates/default";
 import { renameKeyInObject } from "./helpers";
@@ -67,6 +70,11 @@ import { migratePhoneInputWidgetAllowFormatting } from "./migrations/PhoneInputW
 import { ROOT_SCHEMA_KEY } from "widgets/JSONFormWidget/constants";
 import { parseSchemaItem } from "widgets/WidgetUtils";
 import { isDynamicValue } from "./DynamicBindingUtils";
+import {
+  DEFAULT_BOXSHADOW,
+  THEMEING_TEXT_SIZES,
+  THEMING_BORDER_RADIUS,
+} from "constants/ThemeConstants";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1576,19 +1584,20 @@ export const migrateStylingPropertiesForTheming = (
     "CURRENCY_INPUT_WIDGET",
     "SELECT_WIDGET",
     "MULTI_SELECT_WIDGET_V2",
+    "MULTI_SELECT_WIDGET",
   ];
 
   currentDSL.children = currentDSL.children?.map((child) => {
     // migrate border radius
     switch (child.borderRadius) {
       case ButtonBorderRadiusTypes.SHARP:
-        child.borderRadius = "0px";
+        child.borderRadius = THEMING_BORDER_RADIUS.none;
         break;
       case ButtonBorderRadiusTypes.ROUNDED:
-        child.borderRadius = "0.375rem";
+        child.borderRadius = THEMING_BORDER_RADIUS.rounded;
         break;
       case ButtonBorderRadiusTypes.CIRCLE:
-        child.borderRadius = "9999px";
+        child.borderRadius = THEMING_BORDER_RADIUS.circle;
         addPropertyToDynamicPropertyPathList("borderRadius", child);
         break;
       default:
@@ -1601,7 +1610,7 @@ export const migrateStylingPropertiesForTheming = (
           child.borderRadius = `${child.borderRadius}px`;
           addPropertyToDynamicPropertyPathList("borderRadius", child);
         } else {
-          child.borderRadius = "0px";
+          child.borderRadius = THEMING_BORDER_RADIUS.none;
         }
     }
 
@@ -1633,7 +1642,7 @@ export const migrateStylingPropertiesForTheming = (
         addPropertyToDynamicPropertyPathList("boxShadow", child);
         break;
       default:
-        child.boxShadow = "none";
+        child.boxShadow = DEFAULT_BOXSHADOW;
     }
 
     // migrate table text sizes
@@ -1642,25 +1651,25 @@ export const migrateStylingPropertiesForTheming = (
      */
     switch (child.textSize) {
       case TextSizes.PARAGRAPH2:
-        child.textSize = "0.75rem";
+        child.textSize = THEMEING_TEXT_SIZES.xs;
         addPropertyToDynamicPropertyPathList("textSize", child);
         break;
       case TextSizes.PARAGRAPH:
-        child.textSize = "0.875rem";
+        child.textSize = THEMEING_TEXT_SIZES.sm;
         break;
       case TextSizes.HEADING3:
-        child.textSize = "1rem";
+        child.textSize = THEMEING_TEXT_SIZES.base;
         break;
       case TextSizes.HEADING2:
-        child.textSize = "1.125rem";
+        child.textSize = THEMEING_TEXT_SIZES.md;
         addPropertyToDynamicPropertyPathList("textSize", child);
         break;
       case TextSizes.HEADING1:
-        child.textSize = "1.5rem";
+        child.textSize = THEMEING_TEXT_SIZES.lg;
         addPropertyToDynamicPropertyPathList("textSize", child);
         break;
       default:
-        child.textSize = "0.875rem";
+        child.textSize = THEMEING_TEXT_SIZES.sm;
     }
     if (child.hasOwnProperty("primaryColumns")) {
       Object.keys(child.primaryColumns).forEach((key: string) => {
@@ -1673,9 +1682,9 @@ export const migrateStylingPropertiesForTheming = (
         const derivedColumn = child.derivedColumns[key];
         switch (column.textSize) {
           case TextSizes.PARAGRAPH2:
-            column.textSize = "0.75rem";
+            column.textSize = THEMEING_TEXT_SIZES.xs;
             if (isDerivedColumn) {
-              derivedColumn.textSize = "0.75rem";
+              derivedColumn.textSize = THEMEING_TEXT_SIZES.xs;
             }
             addPropertyToDynamicPropertyPathList(
               `primaryColumns.${key}.textSize`,
@@ -1683,21 +1692,21 @@ export const migrateStylingPropertiesForTheming = (
             );
             break;
           case TextSizes.PARAGRAPH:
-            column.textSize = "0.875rem";
+            column.textSize = THEMEING_TEXT_SIZES.sm;
             if (isDerivedColumn) {
-              derivedColumn.textSize = "0.875rem";
+              derivedColumn.textSize = THEMEING_TEXT_SIZES.sm;
             }
             break;
           case TextSizes.HEADING3:
-            column.textSize = "1rem";
+            column.textSize = THEMEING_TEXT_SIZES.base;
             if (isDerivedColumn) {
-              derivedColumn.textSize = "1rem";
+              derivedColumn.textSize = THEMEING_TEXT_SIZES.base;
             }
             break;
           case TextSizes.HEADING2:
-            column.textSize = "1.125rem";
+            column.textSize = THEMEING_TEXT_SIZES.md;
             if (isDerivedColumn) {
-              derivedColumn.textSize = "1.125rem";
+              derivedColumn.textSize = THEMEING_TEXT_SIZES.md;
             }
             addPropertyToDynamicPropertyPathList(
               `primaryColumns.${key}.textSize`,
@@ -1705,9 +1714,9 @@ export const migrateStylingPropertiesForTheming = (
             );
             break;
           case TextSizes.HEADING1:
-            column.textSize = "1.5rem";
+            column.textSize = THEMEING_TEXT_SIZES.lg;
             if (isDerivedColumn) {
-              derivedColumn.textSize = "1.5rem";
+              derivedColumn.textSize = THEMEING_TEXT_SIZES.lg;
             }
             addPropertyToDynamicPropertyPathList(
               `primaryColumns.${key}.textSize`,
@@ -1721,21 +1730,21 @@ export const migrateStylingPropertiesForTheming = (
          */
         switch (column.borderRadius) {
           case ButtonBorderRadiusTypes.SHARP:
-            column.borderRadius = "0px";
+            column.borderRadius = THEMING_BORDER_RADIUS.none;
             if (isDerivedColumn) {
-              derivedColumn.borderRadius = "0px";
+              derivedColumn.borderRadius = THEMING_BORDER_RADIUS.none;
             }
             break;
           case ButtonBorderRadiusTypes.ROUNDED:
-            column.borderRadius = "0.375rem";
+            column.borderRadius = THEMING_BORDER_RADIUS.rounded;
             if (isDerivedColumn) {
-              derivedColumn.borderRadius = "0.375rem";
+              derivedColumn.borderRadius = THEMING_BORDER_RADIUS.rounded;
             }
             break;
           case ButtonBorderRadiusTypes.CIRCLE:
-            column.borderRadius = "9999px";
+            column.borderRadius = THEMING_BORDER_RADIUS.circle;
             if (isDerivedColumn) {
-              derivedColumn.borderRadius = "9999px";
+              derivedColumn.borderRadius = THEMING_BORDER_RADIUS.circle;
             }
             break;
         }
@@ -1833,197 +1842,235 @@ export const migrateStylingPropertiesForTheming = (
     /**
      * Migrate the parent level properties for JSON Form
      */
-    const parentLevelProperties = ["submitButtonStyles", "resetButtonStyles"];
-    parentLevelProperties.forEach((propertyName: string) => {
-      const propertyPathBorderRadius = `${propertyName}.borderRadius`;
-      const propertyPathBoxShadow = `${propertyName}.boxShadow`;
-      const propertyPathBoxShadowColor = `${propertyName}.boxShadowColor`;
+    if (child.type === "JSON_FORM_WIDGET") {
+      const parentLevelProperties = ["submitButtonStyles", "resetButtonStyles"];
+      parentLevelProperties.forEach((propertyName: string) => {
+        const propertyPathBorderRadius = `${propertyName}.borderRadius`;
+        const propertyPathBoxShadow = `${propertyName}.boxShadow`;
+        const propertyPathBoxShadowColor = `${propertyName}.boxShadowColor`;
 
-      if (has(child, propertyPathBorderRadius)) {
-        const jsonFormBorderRadius = get(child, propertyPathBorderRadius);
-        switch (jsonFormBorderRadius) {
-          case ButtonBorderRadiusTypes.SHARP:
-            set(child, propertyPathBorderRadius, "0px");
-            break;
-          case ButtonBorderRadiusTypes.ROUNDED:
-            set(child, propertyPathBorderRadius, "0.375rem");
-            break;
-          case ButtonBorderRadiusTypes.CIRCLE:
-            set(child, propertyPathBorderRadius, "9999px");
-            addPropertyToDynamicPropertyPathList(
-              propertyPathBorderRadius,
-              child,
-            );
-            break;
-          default:
-            set(child, propertyPathBorderRadius, "0px");
-        }
-      } else {
-        set(child, propertyPathBorderRadius, "0px");
-      }
-
-      if (has(child, propertyPathBoxShadow)) {
-        const jsonFormBoxShadow = get(child, propertyPathBoxShadow);
-        const boxShadowColor =
-          (has(child, propertyPathBoxShadowColor) &&
-            get(child, propertyPathBoxShadowColor)) ||
-          "rgba(0, 0, 0, 0.25)";
-        switch (jsonFormBoxShadow) {
-          case BoxShadowTypes.VARIANT1:
-            set(
-              child,
-              propertyPathBoxShadow,
-              `0px 0px 4px 3px ${boxShadowColor}`,
-            );
-            addPropertyToDynamicPropertyPathList(propertyPathBoxShadow, child);
-            break;
-          case BoxShadowTypes.VARIANT2:
-            set(child, propertyPathBoxShadow, `3px 3px 4px ${boxShadowColor}`);
-            addPropertyToDynamicPropertyPathList(propertyPathBoxShadow, child);
-            break;
-          case BoxShadowTypes.VARIANT3:
-            set(child, propertyPathBoxShadow, `0px 1px 3px ${boxShadowColor}`);
-            addPropertyToDynamicPropertyPathList(propertyPathBoxShadow, child);
-            break;
-          case BoxShadowTypes.VARIANT4:
-            set(child, propertyPathBoxShadow, `2px 2px 0px ${boxShadowColor}`);
-            addPropertyToDynamicPropertyPathList(propertyPathBoxShadow, child);
-            break;
-          case BoxShadowTypes.VARIANT5:
-            set(
-              child,
-              propertyPathBoxShadow,
-              `-2px -2px 0px ${boxShadowColor}`,
-            );
-            addPropertyToDynamicPropertyPathList(propertyPathBoxShadow, child);
-            break;
-          default:
-            set(child, propertyPathBoxShadow, "none");
-        }
-      } else {
-        set(child, propertyPathBoxShadow, "none");
-      }
-    });
-
-    /**
-     * Migrate the children level properties for JSON form
-     */
-    if (has(child, "schema")) {
-      const clonedSchema = clone(child.schema);
-      parseSchemaItem(
-        clonedSchema[ROOT_SCHEMA_KEY],
-        `schema.${ROOT_SCHEMA_KEY}`,
-        (schemaItem, propertyPath) => {
-          switch (schemaItem.labelTextSize) {
-            case TextSizes.PARAGRAPH2:
-              schemaItem.labelTextSize = "0.75rem";
-              addPropertyToDynamicPropertyPathList(
-                `${propertyPath}.labelTextSize`,
+        if (has(child, propertyPathBorderRadius)) {
+          const jsonFormBorderRadius = get(child, propertyPathBorderRadius);
+          switch (jsonFormBorderRadius) {
+            case ButtonBorderRadiusTypes.SHARP:
+              set(child, propertyPathBorderRadius, THEMING_BORDER_RADIUS.none);
+              break;
+            case ButtonBorderRadiusTypes.ROUNDED:
+              set(
                 child,
+                propertyPathBorderRadius,
+                THEMING_BORDER_RADIUS.rounded,
               );
               break;
-            case TextSizes.PARAGRAPH:
-              schemaItem.labelTextSize = "0.875rem";
-              break;
-            case TextSizes.HEADING3:
-              schemaItem.labelTextSize = "1rem";
-              break;
-            case TextSizes.HEADING2:
-              schemaItem.labelTextSize = "1.125rem";
-              addPropertyToDynamicPropertyPathList(
-                `${propertyPath}.labelTextSize`,
+            case ButtonBorderRadiusTypes.CIRCLE:
+              set(
                 child,
+                propertyPathBorderRadius,
+                THEMING_BORDER_RADIUS.circle,
               );
-              break;
-            case TextSizes.HEADING1:
-              schemaItem.labelTextSize = "1.5rem";
               addPropertyToDynamicPropertyPathList(
-                `${propertyPath}.labelTextSize`,
+                propertyPathBorderRadius,
                 child,
               );
               break;
             default:
-              schemaItem.labelTextSize = "0.875rem";
+              set(child, propertyPathBorderRadius, THEMING_BORDER_RADIUS.none);
           }
+        } else {
+          set(child, propertyPathBorderRadius, THEMING_BORDER_RADIUS.none);
+        }
 
-          //Set the default borderRadius
-          !has(schemaItem, "borderRadius") &&
-            set(schemaItem, "borderRadius", "0px");
-          //Set the default borderRadius for the Item styles in an array type:
-          !has(schemaItem, "cellBorderRadius") &&
-            set(schemaItem, "cellBorderRadius", "0px");
+        if (has(child, propertyPathBoxShadow)) {
+          const jsonFormBoxShadow = get(child, propertyPathBoxShadow);
+          const boxShadowColor =
+            (has(child, propertyPathBoxShadowColor) &&
+              get(child, propertyPathBoxShadowColor)) ||
+            "rgba(0, 0, 0, 0.25)";
+          switch (jsonFormBoxShadow) {
+            case BoxShadowTypes.VARIANT1:
+              set(
+                child,
+                propertyPathBoxShadow,
+                `0px 0px 4px 3px ${boxShadowColor}`,
+              );
+              addPropertyToDynamicPropertyPathList(
+                propertyPathBoxShadow,
+                child,
+              );
+              break;
+            case BoxShadowTypes.VARIANT2:
+              set(
+                child,
+                propertyPathBoxShadow,
+                `3px 3px 4px ${boxShadowColor}`,
+              );
+              addPropertyToDynamicPropertyPathList(
+                propertyPathBoxShadow,
+                child,
+              );
+              break;
+            case BoxShadowTypes.VARIANT3:
+              set(
+                child,
+                propertyPathBoxShadow,
+                `0px 1px 3px ${boxShadowColor}`,
+              );
+              addPropertyToDynamicPropertyPathList(
+                propertyPathBoxShadow,
+                child,
+              );
+              break;
+            case BoxShadowTypes.VARIANT4:
+              set(
+                child,
+                propertyPathBoxShadow,
+                `2px 2px 0px ${boxShadowColor}`,
+              );
+              addPropertyToDynamicPropertyPathList(
+                propertyPathBoxShadow,
+                child,
+              );
+              break;
+            case BoxShadowTypes.VARIANT5:
+              set(
+                child,
+                propertyPathBoxShadow,
+                `-2px -2px 0px ${boxShadowColor}`,
+              );
+              addPropertyToDynamicPropertyPathList(
+                propertyPathBoxShadow,
+                child,
+              );
+              break;
+            default:
+              set(child, propertyPathBoxShadow, DEFAULT_BOXSHADOW);
+          }
+        } else {
+          set(child, propertyPathBoxShadow, DEFAULT_BOXSHADOW);
+        }
+      });
 
-          //Sets the default value for the boxShadow
-          !has(schemaItem, "boxShadow") && set(schemaItem, "boxShadow", "none");
+      /**
+       * Migrate the children level properties for JSON form
+       */
+      if (has(child, "schema")) {
+        const clonedSchema = clone(child.schema);
+        parseSchemaItem(
+          clonedSchema[ROOT_SCHEMA_KEY],
+          `schema.${ROOT_SCHEMA_KEY}`,
+          (schemaItem, propertyPath) => {
+            switch (schemaItem.labelTextSize) {
+              case TextSizes.PARAGRAPH2:
+                schemaItem.labelTextSize = THEMEING_TEXT_SIZES.xs;
+                addPropertyToDynamicPropertyPathList(
+                  `${propertyPath}.labelTextSize`,
+                  child,
+                );
+                break;
+              case TextSizes.PARAGRAPH:
+                schemaItem.labelTextSize = THEMEING_TEXT_SIZES.sm;
+                break;
+              case TextSizes.HEADING3:
+                schemaItem.labelTextSize = THEMEING_TEXT_SIZES.base;
+                break;
+              case TextSizes.HEADING2:
+                schemaItem.labelTextSize = THEMEING_TEXT_SIZES.md;
+                addPropertyToDynamicPropertyPathList(
+                  `${propertyPath}.labelTextSize`,
+                  child,
+                );
+                break;
+              case TextSizes.HEADING1:
+                schemaItem.labelTextSize = THEMEING_TEXT_SIZES.lg;
+                addPropertyToDynamicPropertyPathList(
+                  `${propertyPath}.labelTextSize`,
+                  child,
+                );
+                break;
+              default:
+                schemaItem.labelTextSize = THEMEING_TEXT_SIZES.sm;
+            }
 
-          //Sets the default value for the boxShadow property of Item styles inside an array:
-          !has(schemaItem, "cellBoxShadow") &&
-            set(schemaItem, "cellBoxShadow", "none");
+            // Set the default borderRadius
+            !has(schemaItem, "borderRadius") &&
+              set(schemaItem, "borderRadius", THEMING_BORDER_RADIUS.none);
+            // Set the default borderRadius for the Item styles in an array type:
+            !has(schemaItem, "cellBorderRadius") &&
+              set(schemaItem, "cellBorderRadius", THEMING_BORDER_RADIUS.none);
 
-          //Sets default value as green for the accentColor(Most of the widgets require the below property):
-          !has(schemaItem, "accentColor") &&
-            set(schemaItem, "accentColor", Colors.GREEN);
-        },
-      );
+            // Sets the default value for the boxShadow
+            !has(schemaItem, "boxShadow") &&
+              set(schemaItem, "boxShadow", DEFAULT_BOXSHADOW);
 
-      child.schema = clonedSchema;
+            // Sets the default value for the boxShadow property of Item styles inside an array:
+            !has(schemaItem, "cellBoxShadow") &&
+              set(schemaItem, "cellBoxShadow", DEFAULT_BOXSHADOW);
+
+            // Sets default value as green for the accentColor(Most of the widgets require the below property):
+            !has(schemaItem, "accentColor") &&
+              set(schemaItem, "accentColor", Colors.GREEN);
+          },
+        );
+
+        child.schema = clonedSchema;
+      }
     }
 
     // migrate font size
     switch (child.fontSize) {
       case TextSizes.PARAGRAPH2:
-        child.fontSize = "0.75rem";
+        child.fontSize = THEMEING_TEXT_SIZES.xs;
         addPropertyToDynamicPropertyPathList("fontSize", child);
         break;
       case TextSizes.PARAGRAPH:
-        child.fontSize = "0.875rem";
+        child.fontSize = THEMEING_TEXT_SIZES.sm;
         break;
       case TextSizes.HEADING3:
-        child.fontSize = "1rem";
+        child.fontSize = THEMEING_TEXT_SIZES.base;
         break;
       case TextSizes.HEADING2:
-        child.fontSize = "1.125rem";
+        child.fontSize = THEMEING_TEXT_SIZES.md;
         addPropertyToDynamicPropertyPathList("fontSize", child);
         break;
       case TextSizes.HEADING1:
-        child.fontSize = "1.5rem";
+        child.fontSize = THEMEING_TEXT_SIZES.lg;
         addPropertyToDynamicPropertyPathList("fontSize", child);
         break;
     }
 
-    //migrate label text sizes
+    // migrate label text sizes
     switch (child.labelTextSize) {
       case TextSizes.PARAGRAPH2:
-        child.labelTextSize = "0.75rem";
+        child.labelTextSize = THEMEING_TEXT_SIZES.xs;
         addPropertyToDynamicPropertyPathList("labelTextSize", child);
         break;
       case TextSizes.PARAGRAPH:
-        child.labelTextSize = "0.875rem";
+        child.labelTextSize = THEMEING_TEXT_SIZES.sm;
         break;
       case TextSizes.HEADING3:
-        child.labelTextSize = "1rem";
+        child.labelTextSize = THEMEING_TEXT_SIZES.base;
         break;
       case TextSizes.HEADING2:
-        child.labelTextSize = "1.125rem";
+        child.labelTextSize = THEMEING_TEXT_SIZES.md;
         addPropertyToDynamicPropertyPathList("labelTextSize", child);
         break;
       case TextSizes.HEADING1:
-        child.labelTextSize = "1.5rem";
+        child.labelTextSize = THEMEING_TEXT_SIZES.lg;
         addPropertyToDynamicPropertyPathList("labelTextSize", child);
         break;
       default:
-        child.labelTextSize = "0.875rem";
+        child.labelTextSize = THEMEING_TEXT_SIZES.sm;
     }
 
     /**
      * Add primaryColor color to missing widgets
      */
     if (widgetsWithPrimaryColorProp.includes(child.type)) {
-      child.primaryColor = "{{appsmith.theme.colors.primaryColor}}";
+      child.accentColor = "{{appsmith.theme.colors.primaryColor}}";
 
       const resultantElement = (child.dynamicBindingPathList || []).find(
         (bindingPath) => {
-          return bindingPath.key === "primaryColor";
+          return bindingPath.key === "accentColor";
         },
       );
 
@@ -2031,7 +2078,7 @@ export const migrateStylingPropertiesForTheming = (
         child.dynamicBindingPathList = [
           ...(child.dynamicBindingPathList || []),
           {
-            key: "primaryColor",
+            key: "accentColor",
           },
         ];
       }
@@ -2039,7 +2086,7 @@ export const migrateStylingPropertiesForTheming = (
 
     // specific fixes
     if (child.type === "AUDIO_RECORDER_WIDGET") {
-      child.borderRadius = "9999px";
+      child.borderRadius = THEMING_BORDER_RADIUS.circle;
     }
 
     if (child.type === "FILE_PICKER_WIDGET_V2") {
@@ -2052,7 +2099,20 @@ export const migrateStylingPropertiesForTheming = (
       child.type === "SWITCH_WIDGET" ||
       child.type === "SWITCH_GROUP_WIDGET"
     ) {
-      child.backgroundColor = Colors.GREEN;
+      child.accentColor = Colors.GREEN;
+    }
+
+    // Adds childStyleSheets
+    switch (child.type) {
+      case "BUTTON_GROUP_WIDGET":
+        child.childStylesheet = BUTTON_GROUP_CHILD_STYLESHEET;
+        break;
+      case "JSON_FORM_WIDGET":
+        child.childStylesheet = JSON_FORM_WIDGET_CHILD_STYLESHEET;
+        break;
+      case "TABLE_WIDGET":
+        child.childStylesheet = TABLE_WIDGET_CHILD_STYLESHEET;
+        break;
     }
 
     if (child.children && child.children.length > 0) {
