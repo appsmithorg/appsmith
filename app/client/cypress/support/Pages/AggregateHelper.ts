@@ -257,12 +257,12 @@ export class AggregateHelper {
 
         if (check) {
             options.forEach($each => {
-                cy.get(this.locator._multiSelectOptions($each)).check({ force: true }).wait(500)
+                cy.get(this.locator._multiSelectOptions($each)).check().wait(800).should("be.checked")
             })
         }
         else {
             options.forEach($each => {
-                cy.get(this.locator._multiSelectOptions($each)).uncheck({ force: true }).wait(500)
+                cy.get(this.locator._multiSelectOptions($each)).uncheck().wait(800).should("not.be.checked")
             })
         }
 
@@ -331,9 +331,20 @@ export class AggregateHelper {
         else {
             cy.get(this.locator._propertyToggle(propertyName))
                 .uncheck({ force: true })
-                .should("not.checked");
+                .should("not.be.checked");
         }
         this.AssertAutoSave()
+    }
+
+    public CheckUncheck(selector: string, check = true) {
+        let locator = selector.startsWith("//") ? cy.xpath(selector) : cy.get(selector)
+        if (check) {
+            locator.check({ force: true }).should("be.checked");
+        }
+        else {
+            locator.uncheck({ force: true }).should("not.be.checked");
+        }
+        this.Sleep()
     }
 
     public AssertExistingToggleState(propertyName: string, toggle: 'checked' | 'unchecked') {
@@ -490,16 +501,7 @@ export class AggregateHelper {
     }
 
 
-    public CheckUncheck(selector: string, check = true) {
-        let locator = selector.startsWith("//") ? cy.xpath(selector) : cy.get(selector)
-        if (check) {
-            locator.check({ force: true }).should("be.checked");
-        }
-        else {
-            locator.uncheck({ force: true }).should("not.be.checked");
-        }
-        this.Sleep()
-    }
+    
 
 
     //Not used:

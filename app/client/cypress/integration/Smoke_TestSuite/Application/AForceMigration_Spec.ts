@@ -225,7 +225,7 @@ describe("AForce - Community Issues page validations", function () {
      });
      table.RemoveFilterNVerify("Question", true, false)
   })
-
+  
   it("8. Validate Adding a New issue from Add Modal", () => {
     // agHelper.DeployApp()
     // table.WaitUntilTableLoad()
