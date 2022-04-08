@@ -9,7 +9,7 @@ import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
 export const requiresUnauth = (Component: React.ComponentType) => {
   function Wrapped(props: any) {
     const user = useSelector(getCurrentUser);
-
+    if (!user) return null;
     if (user?.email && user?.email !== ANONYMOUS_USERNAME) {
       return <Redirect to={APPLICATIONS_URL} />;
     }
@@ -22,7 +22,7 @@ export const requiresUnauth = (Component: React.ComponentType) => {
 export const requiresAuth = (Component: React.ComponentType) => {
   return function Wrapped(props: any) {
     const user = useSelector(getCurrentUser);
-
+    if (!user) return null;
     if (user?.email && user?.email !== ANONYMOUS_USERNAME) {
       return <Component {...props} />;
     }
