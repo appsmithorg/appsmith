@@ -209,8 +209,8 @@ export const ALL_WIDGETS_AND_CONFIG = [
 
 export const registerWidgets = () => {
   const start = performance.now();
-  for (const widget of ALL_WIDGETS_AND_CONFIG) {
-    registerWidget(widget[0], widget[1] as WidgetConfiguration);
+  for (const [widget, widgetConfig] of ALL_WIDGETS_AND_CONFIG) {
+    registerWidget(widget, widgetConfig as WidgetConfiguration);
   }
 
   log.debug("Widget registration took: ", performance.now() - start, "ms");

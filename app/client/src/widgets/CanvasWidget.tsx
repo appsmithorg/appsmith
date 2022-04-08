@@ -58,7 +58,7 @@ class CanvasWidget extends ContainerWidget {
     }
 
     const snapSpaces = this.getSnapSpaces();
-
+    console.log({ childWidgetData });
     childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
     childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
     if (this.props.noPad) childWidgetData.noContainerOffset = true;
