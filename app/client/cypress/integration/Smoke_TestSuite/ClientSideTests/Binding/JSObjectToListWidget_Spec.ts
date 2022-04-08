@@ -38,7 +38,7 @@ describe("Validate JSObj binding to Table widget", () => {
 
     it("2. Validate the Api data is updated on List widget + Bug 12438", function () {
         ee.SelectEntityByName("List1", 'WIDGETS');
-        jsEditor.EnterJSContext("items", "{{" + jsName as string + ".myFun1()}}")
+        jsEditor.EnterJSContext("Items", "{{" + jsName as string + ".myFun1()}}")
         cy.get(locator._textWidget).should("have.length", 8);
         agHelper.DeployApp(locator._textWidgetInDeployed);
         agHelper.AssertElementLength(locator._textWidgetInDeployed, 8)
@@ -67,7 +67,7 @@ describe("Validate JSObj binding to Table widget", () => {
 
     it("3. Validate the List widget + Bug 12438 ", function () {
         ee.SelectEntityByName("List1", 'WIDGETS');
-        jsEditor.EnterJSContext("itemspacing\\(px\\)", "50")
+        jsEditor.EnterJSContext("Item Spacing (px)", "50")
         cy.get(locator._textWidget).should("have.length", 6);
         agHelper.DeployApp(locator._textWidgetInDeployed);
         agHelper.AssertElementLength(locator._textWidgetInDeployed, 6)

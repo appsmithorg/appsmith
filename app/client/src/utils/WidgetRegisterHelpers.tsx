@@ -26,7 +26,6 @@ export interface WidgetConfiguration {
     default: Record<string, string>;
     meta: Record<string, any>;
     derived: DerivedPropertiesMap;
-    loadingProperties?: Array<RegExp>;
   };
 }
 
@@ -56,7 +55,6 @@ export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
     config.properties.default,
     config.properties.meta,
     config.properties.config,
-    config.properties.loadingProperties,
   );
   configureWidget(config);
 };
