@@ -31,8 +31,8 @@ export const SIGNUP_SUCCESS_URL = `/signup-success`;
 export const ORG_INVITE_USERS_PAGE_URL = `${ORG_URL}/invite`;
 export const ORG_SETTINGS_PAGE_URL = `${ORG_URL}/settings`;
 export const BUILDER_PATH_DEPRECATED = `/applications/:applicationId/(pages)?/:pageId?/edit`;
-export const BUILDER_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
-export const VIEWER_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId`;
+export const BUILDER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
+export const VIEWER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId`;
 export const VIEWER_PATH_DEPRECATED = `/applications/:applicationId/(pages)?/:pageId?`;
 export const VIEWER_FORK_PATH = `${VIEWER_PATH}/fork`;
 export const INTEGRATION_EDITOR_PATH = `/datasources/:selectedTab`;
@@ -99,7 +99,8 @@ export type ProviderViewerRouteParams = {
 
 export type QueryEditorRouteParams = {
   pageId: string;
-  queryId: string;
+  queryId?: string;
+  apiId?: string;
 };
 
 export type JSEditorRouteParams = {
