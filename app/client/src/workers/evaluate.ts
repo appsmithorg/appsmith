@@ -414,10 +414,7 @@ export function isFunctionAsync(
           self.IS_ASYNC = true;
         }
       }
-    } catch (e) {
-      // We do not want to throw errors for internal operations
-      // console.error("Error when determining async function", e);
-    }
+    } catch (e) {}
     const isAsync = !!self.IS_ASYNC;
     for (const entity in GLOBAL_DATA) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
