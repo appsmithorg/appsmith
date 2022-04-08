@@ -4,8 +4,8 @@ import {
   DataTreeAppsmith,
 } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
-import { JSCollection } from "entities/JSCollection";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
 const isVisible = {
   "!type": "bool",
@@ -572,6 +572,13 @@ export const entityDefinitions: Record<string, unknown> = {
     sourceData: generateTypeDef(widget.sourceData),
     fieldState: generateTypeDef(widget.fieldState),
   }),
+  PROGRESS_WIDGET: {
+    "!doc":
+      "Progress indicators commonly known as spinners, express an unspecified wait time or display the length of a process.",
+    "!url": "https://docs.appsmith.com/widget-reference/progress",
+    isVisible: isVisible,
+    progress: "number",
+  },
 };
 
 export const GLOBAL_DEFS = {
@@ -662,17 +669,21 @@ export const GLOBAL_FUNCTIONS = {
   },
 };
 
-export const getPropsForJSActionEntity = (
-  entity: JSCollection,
-): Record<string, string> => {
-  const properties: Record<string, string> = {};
-  const actions = entity.actions;
+export const getPropsForJSActionEntity = ({
+  config,
+  data,
+}: JSCollectionData): Record<string, string> => {
+  const properties: Record<string, any> = {};
+  const actions = config.actions;
   if (actions && actions.length > 0)
-    for (let i = 0; i < entity.actions.length; i++) {
-      const action = entity.actions[i];
+    for (let i = 0; i < config.actions.length; i++) {
+      const action = config.actions[i];
       properties[action.name + "()"] = "Function";
+      if (data && action.id in data) {
+        properties[action.name + ".data"] = data[action.id];
+      }
     }
-  const variablesProps = entity.variables;
+  const variablesProps = config.variables;
   if (variablesProps && variablesProps.length > 0) {
     for (let i = 0; i < variablesProps.length; i++) {
       const variableProp = variablesProps[i];

@@ -4,6 +4,7 @@ import tablePropertyPaneConfig from "widgets/TableWidget/widget/propertyConfig";
 import chartPorpertyConfig from "widgets/ChartWidget/widget/propertyConfig";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { ButtonVariantTypes } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 describe("getAllPathsFromPropertyConfig", () => {
@@ -170,11 +171,11 @@ describe("getAllPathsFromPropertyConfig", () => {
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonLabel":
           EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.buttonVariant":
+          EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonColor":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.status.buttonLabelColor":
-          EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
       },
@@ -208,6 +209,20 @@ describe("getAllPathsFromPropertyConfig", () => {
         },
         isVisible: {
           type: "BOOLEAN",
+        },
+        "primaryColumns.status.buttonVariant": {
+          type: "TABLE_PROPERTY",
+          params: {
+            params: {
+              allowedValues: [
+                ButtonVariantTypes.PRIMARY,
+                ButtonVariantTypes.SECONDARY,
+                ButtonVariantTypes.TERTIARY,
+              ],
+              default: ButtonVariantTypes.PRIMARY,
+            },
+            type: "TEXT",
+          },
         },
         isSortable: {
           type: "BOOLEAN",
@@ -435,15 +450,6 @@ describe("getAllPathsFromPropertyConfig", () => {
           },
         },
         "primaryColumns.status.buttonColor": {
-          type: ValidationTypes.TABLE_PROPERTY,
-          params: {
-            type: ValidationTypes.TEXT,
-            params: {
-              regex: /^(?![<|{{]).+/,
-            },
-          },
-        },
-        "primaryColumns.status.buttonLabelColor": {
           type: ValidationTypes.TABLE_PROPERTY,
           params: {
             type: ValidationTypes.TEXT,

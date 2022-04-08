@@ -397,7 +397,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
       const evaluatedDatasourceUrl =
         "id" in datasource
-          ? datasource.datasourceConfiguration.url
+          ? datasource.datasourceConfiguration?.url
           : entity.datasourceUrl;
 
       const fullDatasourceUrlPath =
