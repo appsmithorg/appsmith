@@ -544,7 +544,7 @@ describe(".computeSchema", () => {
 
     expect(response.status).toEqual(ComputedSchemaStatus.LIMIT_EXCEEDED);
     expect(response.dynamicPropertyPathList).toBeUndefined();
-    expect(response.schema).toBeUndefined();
+    expect(response.schema).toEqual({});
   });
 
   it("returns UNCHANGED status no source data is passed", () => {
@@ -558,7 +558,7 @@ describe(".computeSchema", () => {
 
       expect(response.status).toEqual(ComputedSchemaStatus.UNCHANGED);
       expect(response.dynamicPropertyPathList).toBeUndefined();
-      expect(response.schema).toBeUndefined();
+      expect(response.schema).toEqual({});
     });
   });
 
@@ -587,7 +587,7 @@ describe(".computeSchema", () => {
 
     expect(response.status).toEqual(ComputedSchemaStatus.UNCHANGED);
     expect(response.dynamicPropertyPathList).toBeUndefined();
-    expect(response.schema).toBeUndefined();
+    expect(response.schema).toEqual({});
   });
 
   it("returns new schema when prevSchema is not provided", () => {
