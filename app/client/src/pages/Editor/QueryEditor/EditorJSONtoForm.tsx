@@ -1,6 +1,5 @@
 import React, { RefObject, useRef, useState } from "react";
 import { InjectedFormProps } from "redux-form";
-import _ from "lodash";
 import { Icon, Tag } from "@blueprintjs/core";
 import { isString } from "lodash";
 import {
@@ -71,7 +70,6 @@ import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
-import MultiSwitch from "components/ads/MultiSwitch";
 import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants";
 import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import Guide from "pages/Editor/GuidedTour/Guide";
@@ -381,10 +379,6 @@ const SidebarWrapper = styled.div<{ show: boolean }>`
   border: 1px solid #e8e8e8;
   display: ${(props) => (props.show ? "flex" : "none")};
   width: ${(props) => props.theme.actionSidePane.width}px;
-`;
-
-const MultiSwitchContainer = styled.div`
-  height: 100%;
 `;
 
 type QueryFormProps = {
@@ -788,7 +782,11 @@ export function EditorJSONtoForm(props: Props) {
         index: index,
         key: dataType.key,
         title: dataType.title,
-        panelComponent: responseTabComponent(dataType.key, output),
+        panelComponent: responseTabComponent(
+          dataType.key,
+          output,
+          tableBodyHeight,
+        ),
       };
     });
 
