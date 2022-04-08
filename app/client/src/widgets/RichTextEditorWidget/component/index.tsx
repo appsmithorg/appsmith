@@ -90,8 +90,12 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
         key={`editor_${props.isToolbarHidden}`}
         onEditorChange={onEditorChange}
         onInit={(evt, editor) => {
-          editorRef.current = editor;
-          isInit.current = true;
+          setValue(props.value as string);
+          // Prevents calling onTextChange when initialized
+          setTimeout(() => {
+            editorRef.current = editor;
+            isInit.current = true;
+          }, 200);
         }}
         tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.1/tinymce.min.js"
         toolbar={props.isToolbarHidden ? false : toolbarConfig}
