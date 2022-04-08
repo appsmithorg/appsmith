@@ -1,6 +1,9 @@
 import {
   CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
   CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES,
+  CHANGES_ONLY_MIGRATION,
+  CHANGES_ONLY_USER,
+  CHANGES_USER_AND_MIGRATION,
   COMMIT_AND_PUSH,
   COMMIT_CHANGES,
   COMMIT_TO,
@@ -256,10 +259,25 @@ describe("git-sync messages", () => {
       key: "ERROR_GIT_INVALID_REMOTE",
       value: "Remote repo doesn't exist or is unreachable.",
     },
+    {
+      key: "CHANGES_ONLY_USER",
+      value: "Changes since last commit",
+    },
+    {
+      key: "CHANGES_ONLY_MIGRATION",
+      value: "Appsmith update changes since last commit",
+    },
+    {
+      key: "CHANGES_USER_AND_MIGRATION",
+      value: "Appsmith update and user changes since last commit",
+    },
   ];
   const functions = [
     CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
     CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES,
+    CHANGES_ONLY_MIGRATION,
+    CHANGES_ONLY_USER,
+    CHANGES_USER_AND_MIGRATION,
     COMMITTING_AND_PUSHING_CHANGES,
     COMMIT_AND_PUSH,
     COMMIT_CHANGES,

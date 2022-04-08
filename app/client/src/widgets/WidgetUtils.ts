@@ -72,8 +72,10 @@ export const hexToRgb = (
         b: -1,
       };
 };
-// Padding between PostionContainer and Widget
+// Padding between PositionContainer and Widget
 export const WidgetContainerDiff = 8;
+// MArgin between Label and Input
+export const labelMargin = 5;
 export const hexToRgba = (color: string, alpha: number) => {
   const value = hexToRgb(color);
   return `rgba(${value.r}, ${value.g}, ${value.b}, ${alpha});`;
