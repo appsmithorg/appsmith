@@ -5,8 +5,12 @@ import {
   getRouteBuilderParams,
   updateURLFactory,
 } from "RouteBuilder";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { selectURLSlugs } from "selectors/editorSelectors";
+import { Page, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  getCurrentPageId,
+  getPageById,
+  selectURLSlugs,
+} from "selectors/editorSelectors";
 import store from "store";
 import { render } from "test/testUtils";
 import { getUpdatedRoute, isURLDeprecated } from "utils/helpers";
@@ -19,6 +23,9 @@ import {
 } from "./mockData";
 import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
 import { updateCurrentPage } from "actions/pageActions";
+import { getCurrentApplication } from "selectors/applicationSelectors";
+import { getPageURL } from "utils/AppsmithUtils";
+import { APP_MODE } from "entities/App";
 
 describe("URL slug names", () => {
   beforeEach(async () => {
@@ -40,12 +47,14 @@ describe("URL slug names", () => {
   it("checks the update slug in URL method", () => {
     const newAppSlug = "modified-app-slug";
     const newPageSlug = "modified-page-slug";
-    const pathname = "/my-app/pages-605c435a91dea93f0eaf91ba";
+    const pathname = "/app/my-app/pages-605c435a91dea93f0eaf91ba";
     const url = getUpdatedRoute(pathname, {
       applicationSlug: newAppSlug,
       pageSlug: newPageSlug,
     });
-    expect(url).toBe(`/${newAppSlug}/${newPageSlug}-605c435a91dea93f0eaf91ba`);
+    expect(url).toBe(
+      `/app/${newAppSlug}/${newPageSlug}-605c435a91dea93f0eaf91ba`,
+    );
   });
 
   it("checks the isDeprecatedURL method", () => {
@@ -55,6 +64,10 @@ describe("URL slug names", () => {
       "/applications/605c435a91dea93f0eaf91ba/pages/605c435a91dea93f0eaf91ba";
     expect(isURLDeprecated(pathname1)).toBe(true);
     expect(isURLDeprecated(pathname2)).toBe(true);
+
+    const pathname3 = "/app/apSlug/pages-605c435a91dea93f0eaf91ba";
+
+    expect(isURLDeprecated(pathname3)).toBe(false);
   });
 
   it("verifies that the baseURLBuilder uses applicationVersion", () => {
@@ -79,9 +92,9 @@ describe("URL slug names", () => {
     });
     const url4 = builderURL(params);
     expect(url1).toBe("/applications/appId/pages/pageId/edit");
-    expect(url2).toBe("/appSlug/pageSlug-pageId/edit");
+    expect(url2).toBe("/app/appSlug/pageSlug-pageId/edit");
     expect(url3).toBe("/applications/appId/pages/pageId/edit");
-    expect(url4).toBe("/appSlug/pageSlug-pageId/edit");
+    expect(url4).toBe("/app/appSlug/pageSlug-pageId/edit");
   });
 
   it("tests the manual upgrade option", () => {
@@ -122,7 +135,7 @@ describe("URL slug names", () => {
   it("tests slug URLs utility methods", () => {
     const legacyURL =
       "/applications/605c435a91dea93f0eaf91ba/pages/605c435a91dea93f0eaf91ba/edit";
-    const slugURL = "/my-application/my-page-605c435a91dea93f0eaf91ba/edit";
+    const slugURL = "/app/my-application/my-page-605c435a91dea93f0eaf91ba/edit";
 
     expect(isURLDeprecated(legacyURL)).toBe(true);
     expect(isURLDeprecated(slugURL)).toBe(false);
@@ -132,6 +145,27 @@ describe("URL slug names", () => {
         applicationSlug: "my-app",
         pageSlug: "page",
       }),
-    ).toBe("/my-app/page-605c435a91dea93f0eaf91ba/edit");
+    ).toBe("/app/my-app/page-605c435a91dea93f0eaf91ba/edit");
+  });
+
+  it("tests getPageUrl utility method", () => {
+    const state = store.getState();
+    const currentApplication = getCurrentApplication(state);
+    const currentPageId = getCurrentPageId(state);
+    const page = getPageById(currentPageId)(state) as Page;
+
+    const editPageURL = getPageURL(page, APP_MODE.EDIT, currentApplication);
+    const viewPageURL = getPageURL(
+      page,
+      APP_MODE.PUBLISHED,
+      currentApplication,
+    );
+
+    expect(editPageURL).toBe(
+      `/app/${currentApplication?.slug}/${page.slug}-${page.pageId}/edit`,
+    );
+    expect(viewPageURL).toBe(
+      `/app/${currentApplication?.slug}/${page.slug}-${page.pageId}`,
+    );
   });
 });

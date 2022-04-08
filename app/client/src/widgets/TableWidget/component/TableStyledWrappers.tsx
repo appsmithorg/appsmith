@@ -212,19 +212,14 @@ export const IconOptionWrapper = styled.div`
   cursor: pointer;
 `;
 
-export const PaginationWrapper = styled.div<{
-  isMobileScreenTableWidth: boolean;
-  isSmallerTableWidth: boolean;
-}>`
+export const PaginationWrapper = styled.div`
   box-sizing: border-box;
   display: flex;
   width: 100%;
-  justify-content: ${(props) =>
-    props.isSmallerTableWidth ? "center" : "flex-end"};
+  justify-content: flex-end;
   align-items: center;
   padding: 8px 20px;
   color: ${Colors.GRAY};
-  ${(props) => (props.isMobileScreenTableWidth ? "padding: 8px;" : "")};
 `;
 
 export const PaginationItemWrapper = styled.div<{
@@ -267,19 +262,14 @@ export const MenuColumnWrapper = styled.div<{ selected: boolean }>`
   }
 `;
 
-export const ActionWrapper = styled.div<{
-  background: string;
-  buttonLabelColor: string;
-}>`
+export const ActionWrapper = styled.div`
   margin: 0 5px 0 0;
   &&&&&& {
     .bp3-button {
-      background: ${(props) => props.background};
-      color: ${(props) => props.buttonLabelColor};
-      border: none;
+      min-width: 50px;
     }
     .bp3-button span {
-      font-weight: 400;
+      font-weight: 500;
       text-decoration: none;
     }
     &&& .bp3-disabled {
@@ -427,7 +417,7 @@ export const CellWrapper = styled.div<{
   }
   &:hover {
     .hidden-icon {
-      display: inline;
+      display: flex;
     }
   }
 `;
