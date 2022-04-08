@@ -50,7 +50,7 @@ export const fillPathname = (
   page: Page,
 ) => {
   return pathname
-    .replace(`/applications/${application.id}`, `/${application.slug}`)
+    .replace(`/applications/${application.id}`, `/app/${application.slug}`)
     .replace(`/pages/${page.pageId}`, `/${page.slug}-${page.pageId}`);
 };
 
@@ -144,7 +144,7 @@ function baseURLBuilder(
       PLACEHOLDER_APP_SLUG;
     pageSlug =
       pageSlug || BASE_URL_BUILDER_PARAMS.pageSlug || PLACEHOLDER_PAGE_SLUG;
-    basePath = `/${applicationSlug}/${pageSlug}-${pageId}`;
+    basePath = `/app/${applicationSlug}/${pageSlug}-${pageId}`;
   }
   basePath += mode === APP_MODE.EDIT ? "/edit" : "";
 
