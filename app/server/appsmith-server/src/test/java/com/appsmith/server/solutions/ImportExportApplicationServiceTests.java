@@ -1346,6 +1346,52 @@ public class ImportExportApplicationServiceTests {
 
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importUpdatedApplicationIntoOrganizationFromFile_publicApplication_visibilityFlagNotReset() {
+        // Create a application and make it public
+        // Now add a page and export the same import it to the app
+        // Check if the policies and visibility flag are not reset
+
+        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
+                .build();
+
+        Application testApplication = new Application();
+        testApplication.setName("importUpdatedApplicationIntoOrganizationFromFile_publicApplication_visibilityFlagNotReset");
+        testApplication.setOrganizationId(orgId);
+        testApplication.setUpdatedAt(Instant.now());
+        testApplication.setLastDeployedAt(Instant.now());
+        testApplication.setModifiedBy("some-user");
+        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        gitData.setBranchName("master");
+        testApplication.setGitApplicationMetadata(gitData);
+
+        Application application = applicationPageService.createApplication(testApplication, orgId)
+                .flatMap(application1 -> {
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    return applicationService.save(application1);
+                }).block();
+        ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+        applicationAccessDTO.setPublicAccess(true);
+        applicationService.changeViewAccess(application.getId(), "master", applicationAccessDTO).block();
+
+        Mono<Application> applicationMono = importExportApplicationService.exportApplicationById(application.getId(), "master")
+                .flatMap(applicationJson -> importExportApplicationService.importApplicationInOrganization(orgId, applicationJson, application.getId(), "master"));
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application1 -> {
+                    assertThat(application1.getIsPublic()).isEqualTo(Boolean.TRUE);
+                    assertThat(application1.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+                })
+                .verifyComplete();
+    }
+
     /**
      * Testcase for checking the discard changes flow for following events:
      * 1. Import application in org
