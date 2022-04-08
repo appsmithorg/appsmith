@@ -1,8 +1,7 @@
 import { createSelector } from "reselect";
 import { AppState } from "reducers";
 import { AppCollabReducerState } from "reducers/uiReducers/appCollabReducer";
-import { getCurrentUser } from "./usersSelectors";
-import getFeatureFlags from "../utils/featureFlags";
+import { getCurrentUser, selectFeatureFlags } from "./usersSelectors";
 import { User } from "entities/AppCollab/CollabInterfaces";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 
@@ -15,7 +14,10 @@ export const getRealtimeAppEditors = createSelector(
     appCollab.editors.filter((el) => el.email !== currentUser?.email),
 );
 
-export const isMultiplayerEnabledForUser = () => getFeatureFlags().MULTIPLAYER;
+export const isMultiplayerEnabledForUser = createSelector(
+  selectFeatureFlags,
+  (featureFlags) => featureFlags.MULTIPLAYER,
+);
 
 export const getConcurrentPageEditors = (state: AppState) =>
   state.ui.appCollab.pageEditors;
