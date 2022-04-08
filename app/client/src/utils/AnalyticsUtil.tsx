@@ -211,7 +211,9 @@ export type EventName =
   | "RECONNECTING_DATASOURCE_ITEM_CLICK"
   | "ADD_MISSING_DATASOURCE_LINK_CLICK"
   | "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK"
-  | "TEMPLATE_FILTER_SELECTED";
+  | "TEMPLATE_FILTER_SELECTED"
+  | "MANUAL_UPGRADE_CLICK"
+  | "PAGE_NOT_FOUND";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
