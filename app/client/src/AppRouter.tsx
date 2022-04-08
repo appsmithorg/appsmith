@@ -24,6 +24,8 @@ import {
   BUILDER_PATH_DEPRECATED,
   VIEWER_PATH_DEPRECATED,
   TEMPLATES_PATH,
+  VIEWER_PATCH_PATH,
+  BUILDER_PATCH_PATH,
 } from "constants/routes";
 import OrganizationLoader from "pages/organization/loader";
 import ApplicationListLoader from "pages/Applications/loader";
@@ -161,6 +163,8 @@ function AppRouter(props: {
                 component={AppViewerLoader}
                 path={VIEWER_PATH_DEPRECATED}
               />
+              <Redirect from={BUILDER_PATCH_PATH} to={BUILDER_PATH} />
+              <Redirect from={VIEWER_PATCH_PATH} to={VIEWER_PATH} />
               <SentryRoute component={PageNotFound} />
             </Switch>
           </>
