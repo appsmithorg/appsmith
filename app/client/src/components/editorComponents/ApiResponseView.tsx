@@ -225,6 +225,39 @@ const ResponseDataContainer = styled.div`
   }
 `;
 
+export const responseTabComponent = (
+  responseType: string,
+  output: any,
+  tableBodyHeight?: number,
+): JSX.Element => {
+  return {
+    [API_RESPONSE_TYPE_OPTIONS.JSON]: (
+      <ReadOnlyEditor
+        folding
+        height={"100%"}
+        input={{
+          value: output ? JSON.stringify(output, null, 2) : "",
+        }}
+        isReadOnly
+      />
+    ),
+    [API_RESPONSE_TYPE_OPTIONS.TABLE]: (
+      <Table data={output} tableBodyHeight={tableBodyHeight} />
+    ),
+    [API_RESPONSE_TYPE_OPTIONS.RAW]: (
+      <ReadOnlyEditor
+        folding
+        height={"100%"}
+        input={{
+          value: output ? JSON.stringify(output, null, 2) : "",
+        }}
+        isRawView
+        isReadOnly
+      />
+    ),
+  }[responseType];
+};
+
 function ApiResponseView(props: Props) {
   const {
     match: {
@@ -281,39 +314,6 @@ function ApiResponseView(props: Props) {
     responseHeaders = {};
   }
 
-  const responseTabComponent = (
-    responseType: string,
-    output: any,
-    tableBodyHeight?: number,
-  ): JSX.Element => {
-    return {
-      [API_RESPONSE_TYPE_OPTIONS.JSON]: (
-        <ReadOnlyEditor
-          folding
-          height={"100%"}
-          input={{
-            value: output ? JSON.stringify(output, null, 2) : "",
-          }}
-          isReadOnly
-        />
-      ),
-      [API_RESPONSE_TYPE_OPTIONS.TABLE]: (
-        <Table data={output} tableBodyHeight={tableBodyHeight} />
-      ),
-      [API_RESPONSE_TYPE_OPTIONS.RAW]: (
-        <ReadOnlyEditor
-          folding
-          height={"100%"}
-          input={{
-            value: output ? JSON.stringify(output, null, 2) : "",
-          }}
-          isRawView
-          isReadOnly
-        />
-      ),
-    }[responseType];
-  };
-
   const responseTabs =
     responseDataTypes &&
     responseDataTypes.map((dataType, index) => {
@@ -336,7 +336,7 @@ function ApiResponseView(props: Props) {
   const selectedTabIndex =
     responseDataTypes &&
     responseDataTypes.findIndex(
-      (dataType) => dataType.title === responseDisplayFormat.title,
+      (dataType) => dataType.title === responseDisplayFormat?.title,
     );
 
   const tabs = [
@@ -398,11 +398,13 @@ function ApiResponseView(props: Props) {
                 )}
                 {!isString(response.body) &&
                 responseTabs &&
-                responseTabs.length > 0 ? (
+                responseTabs.length > 0 &&
+                selectedTabIndex !== -1 ? (
                   <EntityBottomTabs
                     defaultIndex={selectedTabIndex}
                     onSelect={onResponseTabSelect}
                     responseViewer
+                    selectedTabIndex={selectedTabIndex}
                     tabs={responseTabs}
                   />
                 ) : null}

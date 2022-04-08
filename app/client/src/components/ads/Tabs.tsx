@@ -56,7 +56,7 @@ const TabsWrapper = styled.div<{
       display: flex;
       align-items: center;
       height: 24px;
-      background-color: ${props.theme.colors.multiSwitch.bg};
+      background-color: ${props.theme.colors.multiSwitch.bg} !important;
       width: fit-content;
       padding-left: 1px;
       margin-top: 10px !important;
@@ -77,14 +77,7 @@ const TabsWrapper = styled.div<{
     ${(props) =>
       props.responseViewer &&
       `
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-        height: 22px;
-        padding: 0 12px;
-        border-right: 1px solid ${props.theme.colors.multiSwitch.border};
-        margin-right: -1px;
-        margin-left: -1px;
+       
       `}
   }
 
@@ -99,7 +92,14 @@ const TabsWrapper = styled.div<{
     ${(props) =>
       props.responseViewer &&
       `
-        border-right: 1px solid ${props.theme.colors.multiSwitch.border};
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        height: 22px;
+        padding: 0 12px;
+        border: 1px solid ${props.theme.colors.multiSwitch.border};
+        margin-right: -1px;
+        margin-left: -1px;
         margin-top: -2px;
         height: 100%;
       `}

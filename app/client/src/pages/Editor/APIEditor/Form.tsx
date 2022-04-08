@@ -876,8 +876,8 @@ export default connect((state: AppState, props: { pluginId: string }) => {
   } else {
     responseDataTypes = [];
     responseDisplayFormat = {
-      title: "JSON",
-      value: "JSON",
+      title: "",
+      value: "",
     };
   }
 

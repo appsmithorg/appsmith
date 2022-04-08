@@ -35,8 +35,8 @@ const mapStateToProps = (state: AppState, props: any) => {
   } else {
     responseDataTypes = [];
     responseDisplayFormat = {
-      title: "JSON",
-      value: "JSON",
+      title: "",
+      value: "",
     };
   }
 

@@ -12,7 +12,6 @@ import {
 import { Datasource } from "entities/Datasource";
 import { Colors } from "constants/Colors";
 import FormControl from "../FormControl";
-import Table from "./Table";
 import { Action, QueryAction, SaaSAction } from "entities/Action";
 import { useDispatch, useSelector } from "react-redux";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
@@ -70,7 +69,6 @@ import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
-import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants";
 import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import Guide from "pages/Editor/GuidedTour/Guide";
 import { inGuidedTour } from "selectors/onboardingSelectors";
@@ -80,7 +78,7 @@ import {
   ConditionalOutput,
   FormEvalOutput,
 } from "reducers/evaluationReducers/formEvaluationReducer";
-import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
+import { responseTabComponent } from "components/editorComponents/ApiResponseView";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -742,39 +740,6 @@ export function EditorJSONtoForm(props: Props) {
     });
   };
 
-  const responseTabComponent = (
-    responseType: string,
-    output: any,
-    tableBodyHeight?: number,
-  ): JSX.Element => {
-    return {
-      [API_RESPONSE_TYPE_OPTIONS.JSON]: (
-        <ReadOnlyEditor
-          folding
-          height={"100%"}
-          input={{
-            value: output ? JSON.stringify(output, null, 2) : "",
-          }}
-          isReadOnly
-        />
-      ),
-      [API_RESPONSE_TYPE_OPTIONS.TABLE]: (
-        <Table data={output} tableBodyHeight={tableBodyHeight} />
-      ),
-      [API_RESPONSE_TYPE_OPTIONS.RAW]: (
-        <ReadOnlyEditor
-          folding
-          height={"100%"}
-          input={{
-            value: output ? JSON.stringify(output, null, 2) : "",
-          }}
-          isRawView
-          isReadOnly
-        />
-      ),
-    }[responseType];
-  };
-
   const responseBodyTabs =
     responseDataTypes &&
     responseDataTypes.map((dataType, index) => {
@@ -801,7 +766,7 @@ export function EditorJSONtoForm(props: Props) {
   const selectedTabIndex =
     responseDataTypes &&
     responseDataTypes.findIndex(
-      (dataType) => dataType.title === responseDisplayFormat.title,
+      (dataType) => dataType.title === responseDisplayFormat?.title,
     );
 
   const responseTabs = [
@@ -851,11 +816,13 @@ export function EditorJSONtoForm(props: Props) {
           {currentActionConfig &&
             output &&
             responseBodyTabs &&
-            responseBodyTabs.length > 0 && (
+            responseBodyTabs.length > 0 &&
+            selectedTabIndex !== -1 && (
               <EntityBottomTabs
                 defaultIndex={selectedTabIndex}
                 onSelect={onResponseTabSelect}
                 responseViewer
+                selectedTabIndex={selectedTabIndex}
                 tabs={responseBodyTabs}
               />
             )}

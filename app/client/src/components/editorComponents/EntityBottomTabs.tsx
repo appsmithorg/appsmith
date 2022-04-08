@@ -11,6 +11,7 @@ type EntityBottomTabsProps = {
   tabs: TabProp[];
   responseViewer?: boolean;
   onSelect?: (tab: any) => void;
+  selectedTabIndex?: number; // this is used in the event you want to directly control the index changes.
 };
 // Using this if there are debugger related tabs
 function EntityBottomTabs(props: EntityBottomTabsProps) {
@@ -46,7 +47,9 @@ function EntityBottomTabs(props: EntityBottomTabsProps) {
     <TabComponent
       onSelect={onTabSelect}
       responseViewer={props.responseViewer}
-      selectedIndex={selectedIndex}
+      selectedIndex={
+        props.selectedTabIndex ? props.selectedTabIndex : selectedIndex
+      }
       tabs={props.tabs}
     />
   );
