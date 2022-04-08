@@ -438,6 +438,7 @@ const TextInput = forwardRef(
           placeholder={props.placeholder}
           readOnly={props.readOnly}
           rightSideComponentWidth={rightSideComponentWidth}
+          tabIndex={0}
         />
         {validation?.isValid &&
           props.helperText &&

@@ -76,7 +76,7 @@ class DatePickerControl extends BaseControl<
           : this.parseDate(this.props.propertyValue)
         : null;
     return (
-      <DatePickerControlWrapper isValid>
+      <DatePickerControlWrapper isValid tabIndex={0}>
         <DatePickerComponent
           closeOnSelection
           formatDate={this.formatDate}

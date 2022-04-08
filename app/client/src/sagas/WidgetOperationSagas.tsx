@@ -354,6 +354,7 @@ export function* setWidgetDynamicPropertySaga(
     );
     widget = set(widget, propertyPath, parsed);
   }
+
   widget.dynamicPropertyPathList = dynamicPropertyPathList;
   widget.dynamicBindingPathList = dynamicBindingPathList;
   const stateWidgets = yield select(getWidgets);
@@ -1065,7 +1066,10 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
   );
 
   yield put(updateAndSaveLayout(widgets));
-
+  yield put({
+    type: "ADD_NEW_WIDGET",
+    payload: newlyCreatedWidgetIds,
+  });
   flashElementsById(newlyCreatedWidgetIds, 100);
 
   yield put(selectMultipleWidgetsInitAction(newlyCreatedWidgetIds));

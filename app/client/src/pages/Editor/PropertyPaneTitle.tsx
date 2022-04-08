@@ -45,10 +45,15 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   props: PropertyPaneTitleProps,
 ) {
   const dispatch = useDispatch();
+  const containerRef = useRef<HTMLDivElement | null>();
   const updating = useSelector(
     (state: AppState) => state.ui.editor.loadingStates.updatingWidgetName,
   );
   const isNew = useSelector((state: AppState) => state.ui.propertyPane.isNew);
+  const newWidgetId = useSelector(
+    (state: AppState) =>
+      state.ui.canvasSelection.newWidgets[props.widgetId || ""],
+  );
   const guidedTourEnabled = useSelector(inGuidedTour);
 
   // Pass custom equality check function. Shouldn't be expensive than the render
@@ -111,6 +116,28 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   );
 
   useEffect(() => {
+    if (props.widgetId === newWidgetId) {
+      containerRef.current?.focus();
+    } else {
+      setTimeout(() => {
+        document
+          .querySelector(
+            '.t--property-pane-section-wrapper [tabindex]:not([tabindex="-1"])',
+          )
+          // @ts-expect-error: Focus
+          ?.focus();
+      }, 0);
+    }
+
+    return () => {
+      dispatch({
+        type: "REMOVE_NEW_WIDGET",
+        payload: props.widgetId,
+      });
+    };
+  }, []);
+
+  useEffect(() => {
     setName(props.title);
   }, [props.title]);
 
@@ -133,7 +160,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  });
+  }, []);
 
   return props.widgetId || props.isPanelTitle ? (
     <div className="flex items-center w-full px-3 space-x-1 z-3">
@@ -147,9 +174,20 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
         </button>
       )}
       {/* EDITABLE TEXT */}
-      <div className="flex-grow" style={{ maxWidth: `calc(100% - 52px)` }}>
+      <div
+        className="flex-grow"
+        onKeyDown={(e) => {
+          if (e.key === " ") {
+            setIsEditingDefault(true);
+          }
+        }}
+        // @ts-expect-error: Ref
+        ref={containerRef}
+        style={{ maxWidth: `calc(100% - 52px)` }}
+        tabIndex={0}
+      >
         <EditableText
-          className="flex-grow text-lg font-semibold t--propery-page-title"
+          className="flex-grow text-lg font-semibold t--property-pane-title"
           defaultValue={name}
           editInteractionKind={EditInteractionKind.SINGLE}
           fill
