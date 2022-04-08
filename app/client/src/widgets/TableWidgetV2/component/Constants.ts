@@ -127,6 +127,8 @@ export interface CellLayoutProperties {
   hasUnsavedChanged?: boolean;
   saveActionLabel?: string;
   discardActionLabel?: string;
+  saveActionIconName?: string;
+  discardActionIconName?: string;
 }
 
 export type MenuItems = Record<
@@ -221,6 +223,8 @@ export interface ColumnProperties {
   allowCellWrapping: boolean;
   saveActionLabel?: string;
   discardActionLabel?: string;
+  saveActionIconName?: string;
+  discardActionIconName?: string;
 }
 
 export const ConditionFunctions: {

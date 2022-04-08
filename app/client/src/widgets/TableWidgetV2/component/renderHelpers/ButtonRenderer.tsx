@@ -13,6 +13,7 @@ export function TableButton(props: {
   isDisabled: boolean;
   isCellVisible: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
+  icon?: string;
 }) {
   const [loading, setLoading] = useState(false);
   const onComplete = () => {
@@ -33,6 +34,7 @@ export function TableButton(props: {
         <Button
           disabled={props.isDisabled}
           filled
+          icon={props.icon}
           intent="PRIMARY_BUTTON"
           loading={loading}
           onClick={(e) => {
