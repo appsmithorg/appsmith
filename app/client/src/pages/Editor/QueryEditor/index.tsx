@@ -6,7 +6,11 @@ import styled from "styled-components";
 import { INTEGRATION_TABS, QueryEditorRouteParams } from "constants/routes";
 import history from "utils/history";
 import QueryEditorForm from "./Form";
-import { deleteAction, runAction } from "actions/pluginActionActions";
+import {
+  deleteAction,
+  runAction,
+  setActionProperty,
+} from "actions/pluginActionActions";
 import { AppState } from "reducers";
 import {
   getCurrentApplicationId,
@@ -24,7 +28,7 @@ import {
   getDBAndRemoteDatasources,
 } from "selectors/entitiesSelector";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
-import { QueryAction, QueryActionConfig } from "entities/Action";
+import { QueryAction, QueryActionConfig, SaaSAction } from "entities/Action";
 import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { changeQuery } from "actions/queryPaneActions";
@@ -37,9 +41,12 @@ import {
   startFormEvaluations,
 } from "actions/evaluationActions";
 import { getUIComponent } from "./helpers";
-import { diff } from "deep-diff";
+import { diff, Diff } from "deep-diff";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { integrationEditorURL } from "RouteBuilder";
+import { getConfigInitialValues } from "components/formControls/utils";
+import { merge } from "lodash";
+import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -54,7 +61,7 @@ const LoadingContainer = styled(CenteredWrapper)`
 type ReduxDispatchProps = {
   runAction: (actionId: string) => void;
   deleteAction: (id: string, name: string) => void;
-  changeQueryPage: (queryId: string) => void;
+  changeQueryPage: (queryId: string, isSaas: boolean) => void;
   runFormEvaluation: (
     formId: string,
     formData: QueryActionConfig,
@@ -66,6 +73,11 @@ type ReduxDispatchProps = {
     settingConfig: any,
     formId: string,
   ) => void;
+  setActionProperty: (
+    actionId: string,
+    propertyName: string,
+    value: string,
+  ) => void;
 };
 
 type ReduxStateProps = {
@@ -73,7 +85,7 @@ type ReduxStateProps = {
   dataSources: Datasource[];
   isRunning: boolean;
   isDeleting: boolean;
-  formData: QueryAction;
+  formData: QueryAction | SaaSAction;
   runErrorMessage: Record<string, string>;
   pluginId: string | undefined;
   pluginIds: Array<string> | undefined;
@@ -85,6 +97,9 @@ type ReduxStateProps = {
   isEditorInitialized: boolean;
   uiComponent: UIComponentTypes;
   applicationId: string;
+  actionId: string;
+  actionObjectDiff?: any;
+  isSaas: boolean;
 };
 
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
@@ -95,40 +110,53 @@ class QueryEditor extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
     // Call the first evaluations when the page loads
-    this.props.initFormEvaluation(
-      this.props.editorConfig,
-      this.props.settingConfig,
-      this.props.match.params.queryId,
-    );
+    // call evaluations only for queries and not google sheets (which uses apiId)
+    if (this.props.match.params.queryId) {
+      this.props.initFormEvaluation(
+        this.props.editorConfig,
+        this.props.settingConfig,
+        this.props.match.params.queryId,
+      );
+    }
   }
 
   componentDidMount() {
     // if the current action is non existent, do not dispatch change query page action
     // this action should only be dispatched when switching from an existent action.
     if (!this.props.pluginId) return;
-    this.props.changeQueryPage(this.props.match.params.queryId);
+    this.props.changeQueryPage(this.props.actionId, this.props.isSaas);
+
+    // fixes missing where key issue by populating the action with a where object when the component is mounted.
+    if (this.props.isSaas) {
+      const { path = "", value = "" } = {
+        ...getPathAndValueFromActionDiffObject(this.props.actionObjectDiff),
+      };
+      if (value && path) {
+        this.props.setActionProperty(this.props.actionId, path, value);
+      }
+    }
 
     PerformanceTracker.stopTracking(PerformanceTransactionName.OPEN_ACTION, {
       actionType: "QUERY",
     });
   }
+
   handleDeleteClick = () => {
-    const { queryId } = this.props.match.params;
     const { formData } = this.props;
-    this.props.deleteAction(queryId, formData.name);
+    this.props.deleteAction(this.props.actionId, formData.name);
   };
 
   handleRunClick = () => {
-    const { dataSources, match } = this.props;
+    const { dataSources } = this.props;
     PerformanceTracker.startTracking(
       PerformanceTransactionName.RUN_QUERY_CLICK,
-      { queryId: this.props.match.params.queryId },
+      { actionId: this.props.actionId },
     );
     AnalyticsUtil.logEvent("RUN_QUERY_CLICK", {
-      queryId: this.props.match.params.queryId,
+      actionId: this.props.actionId,
       dataSourceSize: dataSources.length,
     });
-    this.props.runAction(match.params.queryId);
+    this.props.runAction(this.props.actionId);
   };
 
   componentDidUpdate(prevProps: Props) {
@@ -141,10 +169,10 @@ class QueryEditor extends React.Component<Props> {
     // URL or selecting new query from the query pane
     // reusing same logic for changing query panes for switching query editor datasources, since the operations are similar.
     if (
-      prevProps.match.params.queryId !== this.props.match.params.queryId ||
+      prevProps.actionId !== this.props.actionId ||
       prevProps.pluginId !== this.props.pluginId
     ) {
-      this.props.changeQueryPage(this.props.match.params.queryId);
+      this.props.changeQueryPage(this.props.actionId, this.props.isSaas);
     }
     // If statement to debounce and track changes in the formData to update evaluations
     if (
@@ -167,15 +195,13 @@ class QueryEditor extends React.Component<Props> {
 
   render() {
     const {
+      actionId,
       dataSources,
       editorConfig,
       isCreating,
       isDeleting,
       isEditorInitialized,
       isRunning,
-      match: {
-        params: { queryId },
-      },
       pluginId,
       pluginIds,
       pluginImages,
@@ -196,7 +222,7 @@ class QueryEditor extends React.Component<Props> {
       );
 
     // if the action can not be found, generate a entity not found page
-    if (!pluginId && queryId) {
+    if (!pluginId && actionId) {
       return <EntityNotFoundPane goBackFn={goToDatasourcePage} />;
     }
 
@@ -233,14 +259,15 @@ class QueryEditor extends React.Component<Props> {
         DATASOURCES_OPTIONS={DATASOURCES_OPTIONS}
         dataSources={dataSources}
         editorConfig={editorConfig}
-        executedQueryData={responses[queryId]}
+        executedQueryData={responses[actionId]}
+        formData={this.props.formData}
         isDeleting={isDeleting}
         isRunning={isRunning}
         location={this.props.location}
         onCreateDatasourceClick={onCreateDatasourceClick}
         onDeleteClick={this.handleDeleteClick}
         onRunClick={this.handleRunClick}
-        runErrorMessage={runErrorMessage[queryId]}
+        runErrorMessage={runErrorMessage[actionId]}
         settingConfig={settingConfig}
         uiComponent={uiComponent}
       />
@@ -249,19 +276,19 @@ class QueryEditor extends React.Component<Props> {
 }
 
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
+  const { apiId, queryId } = props.match.params;
+  const actionId = queryId || apiId;
   const { runErrorMessage } = state.ui.queryPane;
   const { plugins } = state.entities;
 
   const { editorConfigs, settingConfigs } = plugins;
-  const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as QueryAction;
-  const queryAction = getAction(
-    state,
-    props.match.params.queryId,
-  ) as QueryAction;
+
+  const action = getAction(state, actionId) as QueryAction | SaaSAction;
   let pluginId;
-  if (queryAction) {
-    pluginId = queryAction.pluginId;
+  if (action) {
+    pluginId = action.pluginId;
   }
+
   let editorConfig: any;
 
   if (editorConfigs && pluginId) {
@@ -274,11 +301,37 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     settingConfig = settingConfigs[pluginId];
   }
 
+  const initialValues = {};
+
+  if (editorConfig) {
+    merge(initialValues, getConfigInitialValues(editorConfig));
+  }
+
+  if (settingConfig) {
+    merge(initialValues, getConfigInitialValues(settingConfig));
+  }
+
+  // initialValues contains merge of action, editorConfig, settingsConfig and will be passed to redux form
+  merge(initialValues, action);
+
+  // getting diff between action and initialValues
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const actionObjectDiff: undefined | Diff<Action | undefined, Action>[] = diff(
+    action,
+    initialValues,
+  );
+
   const allPlugins = getPlugins(state);
   let uiComponent = UIComponentTypes.DbEditorForm;
   if (!!pluginId) uiComponent = getUIComponent(pluginId, allPlugins);
 
+  const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as
+    | QueryAction
+    | SaaSAction;
+
   return {
+    actionId,
     pluginImages: getPluginImages(state),
     pluginId,
     plugins: allPlugins,
@@ -286,8 +339,9 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginIds: getPluginIdsOfPackageNames(state, PLUGIN_PACKAGE_DBS),
     dataSources: getDBAndRemoteDatasources(state),
     responses: getActionResponses(state),
-    isRunning: state.ui.queryPane.isRunning[props.match.params.queryId],
-    isDeleting: state.ui.queryPane.isDeleting[props.match.params.queryId],
+    isRunning: state.ui.queryPane.isRunning[actionId],
+    isDeleting: state.ui.queryPane.isDeleting[actionId],
+    isSaas: !!apiId,
     formData,
     editorConfig,
     settingConfig,
@@ -295,6 +349,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isEditorInitialized: getIsEditorInitialized(state),
     uiComponent,
     applicationId: getCurrentApplicationId(state),
+    actionObjectDiff,
   };
 };
 
@@ -302,8 +357,8 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   deleteAction: (id: string, name: string) =>
     dispatch(deleteAction({ id, name })),
   runAction: (actionId: string) => dispatch(runAction(actionId)),
-  changeQueryPage: (queryId: string) => {
-    dispatch(changeQuery(queryId));
+  changeQueryPage: (queryId: string, isSaas: boolean) => {
+    dispatch(changeQuery(queryId, isSaas));
   },
   runFormEvaluation: (
     formId: string,
@@ -319,6 +374,13 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
     formId: string,
   ) => {
     dispatch(initFormEvaluations(editorConfig, settingsConfig, formId));
+  },
+  setActionProperty: (
+    actionId: string,
+    propertyName: string,
+    value: string,
+  ) => {
+    dispatch(setActionProperty({ actionId, propertyName, value }));
   },
 });
 
