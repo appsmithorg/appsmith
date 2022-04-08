@@ -2074,9 +2074,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .onErrorResume(throwable -> {
                                 log.error(" Delete branch failed ", throwable.getMessage());
                                 if(throwable instanceof CannotDeleteCurrentBranchException) {
-                                    return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " delete branch", throwable.getMessage()));
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "delete branch", throwable.getMessage()));
                                 }
-                                return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " delete branch"));
+                                return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "delete branch"));
                             })
                             .flatMap(isBranchDeleted -> {
                                 if(Boolean.FALSE.equals(isBranchDeleted)) {
