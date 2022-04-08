@@ -191,6 +191,7 @@ class SwitchGroupWidget extends BaseWidget<
           selectedValue => this.options.map(option => option.value).includes(selectedValue)
         )
       }}`,
+      value: `{{this.selectedValues}}`,
     };
   }
 
