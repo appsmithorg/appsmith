@@ -30,7 +30,7 @@ import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import { generateReactKey } from "utils/generators";
 import { schemaItemDefaultValue } from "../helper";
 
-const clone = require("rfdc/default");
+import { klona as clone } from "klona/full";
 
 type ArrayComponentProps = FieldComponentBaseProps & {
   backgroundColor?: string;

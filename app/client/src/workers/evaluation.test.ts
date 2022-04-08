@@ -11,19 +11,7 @@ import DataTreeEvaluator from "workers/DataTreeEvaluator/DataTreeEvaluator";
 import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetFactory from "utils/WidgetFactory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
-
-/**
- * This function sorts the object's value which is array of string.
- *
- * @param {Record<string, Array<string>>} data
- * @return {*}
- */
-const sortObject = (data: Record<string, Array<string>>) => {
-  Object.entries(data).map(([key, value]) => {
-    data[key] = value.sort();
-  });
-  return data;
-};
+import { sortObjectWithArray } from "../utils/treeUtils";
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {
@@ -426,7 +414,7 @@ describe("DataTreeEvaluator", () => {
 
     expect(evaluation).toHaveProperty("Text2.text", "Label");
     expect(evaluation).toHaveProperty("Text3.text", "Label");
-    expect(sortObject(dependencyMap)).toStrictEqual(dependencyMap);
+    expect(sortObjectWithArray(dependencyMap)).toStrictEqual(dependencyMap);
   });
 
   it("Evaluates a value change in update run", () => {
@@ -457,7 +445,9 @@ describe("DataTreeEvaluator", () => {
     expect(dataTree).toHaveProperty("Text2.text", "Label");
     expect(dataTree).toHaveProperty("Text3.text", "Label 3");
 
-    expect(sortObject(updatedDependencyMap)).toStrictEqual(dependencyMap);
+    expect(sortObjectWithArray(updatedDependencyMap)).toStrictEqual(
+      dependencyMap,
+    );
   });
 
   it("Overrides with default value", () => {
@@ -539,7 +529,7 @@ describe("DataTreeEvaluator", () => {
       },
     ]);
 
-    expect(sortObject(updatedDependencyMap)).toStrictEqual({
+    expect(sortObjectWithArray(updatedDependencyMap)).toStrictEqual({
       Api1: ["Api1.data"],
       ...dependencyMap,
       "Table1.tableData": ["Api1.data", "Text1.text"],
@@ -585,7 +575,7 @@ describe("DataTreeEvaluator", () => {
       },
     ]);
     expect(dataTree).toHaveProperty("Text4.text", "Hey");
-    expect(sortObject(updatedDependencyMap)).toStrictEqual({
+    expect(sortObjectWithArray(updatedDependencyMap)).toStrictEqual({
       Api1: ["Api1.data"],
       ...dependencyMap,
       "Table1.tableData": ["Api1.data", "Text1.text"],

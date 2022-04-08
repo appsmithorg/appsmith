@@ -16,7 +16,7 @@ import {
   updateChildrenDisabledStateHook,
 } from "./helper";
 
-const clone = require("rfdc/default");
+import { klona as clone } from "klona/full";
 
 const widgetName = "JSONForm1";
 

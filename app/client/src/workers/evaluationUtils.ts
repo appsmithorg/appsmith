@@ -28,7 +28,7 @@ import { Severity } from "entities/AppsmithConsole";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { Variable } from "entities/JSCollection";
 import { PluginType } from "entities/Action";
-const clone = require("rfdc/default");
+import { klona as clone } from "klona/full";
 import { warn as logWarn } from "loglevel";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]

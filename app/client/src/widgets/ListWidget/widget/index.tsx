@@ -39,7 +39,7 @@ import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { escapeSpecialChars } from "../../WidgetUtils";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 
-const clone = require("rfdc/default");
+import { klona as clone } from "klona/full";
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
