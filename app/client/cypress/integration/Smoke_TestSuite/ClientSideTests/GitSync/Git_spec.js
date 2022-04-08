@@ -224,7 +224,7 @@ describe("Git sync:", function() {
       const { application, pages } = intercept2.response.body.data;
       const defaultPage = pages.find((p) => p.isDefault);
       legacyPathname = `/applications/${application.id}/pages/${defaultPage.id}`;
-      newPathname = `/${application.slug}/${defaultPage.slug}-${defaultPage.id}`;
+      newPathname = `/app/${application.slug}/${defaultPage.slug}-${defaultPage.id}`;
     });
 
     cy.location().should((location) => {

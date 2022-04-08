@@ -10,7 +10,7 @@ export class AggregateHelper {
         let pageid: string;
         let layoutId;
         cy.url().then((url) => {
-            pageid = url.split("/")[4]?.split("-").pop() as string;
+            pageid = url.split("/")[5]?.split("-").pop() as string;
             cy.log(pageid + "page id");
             //Fetch the layout id
             cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
