@@ -1,4 +1,6 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import { JS_SETTINGS_ONPAGELOAD, JS_SETTINGS_CONFIRM_EXECUTION } from "../../../src/ce/constants/messages"
+
 export class JSEditor {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
@@ -11,7 +13,7 @@ export class JSEditor {
   private _bindingsClose = ".t--entity-property-close"
   private _propertyList = ".t--entity-property"
   private _responseTabAction = (funName: string) => "//div[@class='function-name'][text()='" + funName + "']/following-sibling::div//*[local-name()='svg']"
-  private _functionSetting = (settingTxt: string) => "//span[contains(text(),'" + settingTxt + "')]/parent::div/following-sibling::input[@type='checkbox']"
+  private _functionSetting = (settingTxt: string) => "//span[text()='" + settingTxt + "']/parent::div/following-sibling::input[@type='checkbox']"
   _dialog = (dialogHeader: string) => "//div[contains(@class, 'bp3-dialog')]//h4[contains(text(), '" + dialogHeader + "')]"
   private _closeSettings = "span[icon='small-cross']"
 
@@ -214,7 +216,7 @@ export class JSEditor {
 
   public validateDefaultJSObjProperties(jsObjName: string) {
     this.ee.ActionContextMenuByEntityName(jsObjName, "Show Bindings");
-    cy.get(this._propertyList).then(function($lis) {
+    cy.get(this._propertyList).then(function ($lis) {
       const bindingsLength = $lis.length;
       expect(bindingsLength).to.be.at.least(4);
       expect($lis.eq(0).text()).to.be.oneOf([
@@ -243,9 +245,9 @@ export class JSEditor {
     this.agHelper.GetNClick(this._responseTabAction(funName))
     this.agHelper.AssertElementPresence(this._dialog('Function settings'))
     if (onLoad)
-      this.agHelper.CheckUncheck(this._functionSetting('Run Function on Page load'), true)
+      this.agHelper.CheckUncheck(this._functionSetting(JS_SETTINGS_ONPAGELOAD().toString()), true)
     if (bfrCalling)
-      this.agHelper.CheckUncheck(this._functionSetting('Request confirmation before calling function?'), true)
+      this.agHelper.CheckUncheck(this._functionSetting(JS_SETTINGS_CONFIRM_EXECUTION().toString()), true)
 
     this.agHelper.GetNClick(this._closeSettings)
   }

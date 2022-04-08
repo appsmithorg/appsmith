@@ -31,7 +31,7 @@
       "./node_modules/@types"
     ],
     "sourceMap": true,
-    "baseUrl": "./cypress",
+    "baseUrl": "./client",
     "noFallthroughCasesInSwitch": true,
     "types": ["cypress", "node"]
   },
