@@ -1436,8 +1436,7 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           POSTGRES_PASSWORD: postgres
         run: |
-          chmod a+x ./cypress/setup-test-fat.sh
-          ./cypress/setup-test-fat.sh
+          ./cypress/setup-test.sh
 
       - name: Installing performance tests dependencies
         if: steps.run_result.outputs.run_result != 'success'
