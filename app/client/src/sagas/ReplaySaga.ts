@@ -69,7 +69,6 @@ import {
   DATASOURCE_DB_FORM,
   DATASOURCE_REST_API_FORM,
   QUERY_EDITOR_FORM_NAME,
-  SAAS_EDITOR_FORM,
 } from "constants/forms";
 
 export type UndoRedoPayload = {
@@ -248,11 +247,10 @@ function* replayActionSaga(
   if (didSwitch) yield delay(REPLAY_FOCUS_DELAY);
 
   //Reinitialize form
-  const currentFormName = isQueryAction(replayEntity)
-    ? QUERY_EDITOR_FORM_NAME
-    : isSaaSAction(replayEntity)
-    ? SAAS_EDITOR_FORM
-    : API_EDITOR_FORM_NAME;
+  const currentFormName =
+    isQueryAction(replayEntity) || isSaaSAction(replayEntity)
+      ? QUERY_EDITOR_FORM_NAME
+      : API_EDITOR_FORM_NAME;
   yield put(initialize(currentFormName, replayEntity));
 
   //Begin modified field highlighting
