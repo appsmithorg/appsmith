@@ -257,12 +257,12 @@ export class AggregateHelper {
 
         if (check) {
             options.forEach($each => {
-                cy.get(this.locator._multiSelectOptions($each)).check().wait(800).should("be.checked")
+                cy.get(this.locator._multiSelectOptions($each)).check({ force: true }).wait(800).should("be.checked")
             })
         }
         else {
             options.forEach($each => {
-                cy.get(this.locator._multiSelectOptions($each)).uncheck().wait(800).should("not.be.checked")
+                cy.get(this.locator._multiSelectOptions($each)).uncheck({ force: true }).wait(800).should("not.be.checked")
             })
         }
 
@@ -499,9 +499,6 @@ export class AggregateHelper {
         else
             locator.should("have.length", length)
     }
-
-
-    
 
 
     //Not used:
