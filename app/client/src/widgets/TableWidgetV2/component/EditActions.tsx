@@ -1,6 +1,4 @@
-import { Button } from "components/ads";
 import { ButtonVariantTypes } from "components/constants";
-import { Colors } from "constants/Colors";
 import { noop } from "lodash";
 import React from "react";
 import styled from "styled-components";

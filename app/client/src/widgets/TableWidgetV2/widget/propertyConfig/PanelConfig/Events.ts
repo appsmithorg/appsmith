@@ -70,7 +70,9 @@ export default {
         const columnType = get(props, `${baseProperty}.columnType`, "");
         const isEditable = get(props, `${baseProperty}.isEditable`, "");
         return (
-          columnType !== ColumnTypes.TEXT ||
+          !(
+            columnType === ColumnTypes.TEXT || columnType === ColumnTypes.NUMBER
+          ) ||
           !isEditable ||
           props.allowBulkEditActions
         );
