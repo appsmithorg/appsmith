@@ -58,14 +58,17 @@ const StyledEditIcon = styled.div<{
   position: absolute;
   right: 6px;
   top: ${(props) => TABLE_SIZES[props.compactMode].EDIT_ICON_TOP}px;
-  background: ${Colors.GREEN_1};
-  padding: 3px;
+  background: ${Colors.GREEN};
+  padding: 2px;
   cursor: pointer;
-  border-radius: 3px;
   display: none;
 
-  & path {
-    fill: #fff;
+  & svg {
+    transform: scale(0.9);
+
+    path {
+      fill: #fff;
+    }
   }
 `;
 

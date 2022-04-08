@@ -44,7 +44,7 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
     ROW_HEIGHT: 40,
     ROW_FONT_SIZE: 14,
     VERTICAL_PADDING: 6,
-    EDIT_ICON_TOP: 11,
+    EDIT_ICON_TOP: 10,
   },
   [CompactModeTypes.SHORT]: {
     COLUMN_HEADER_HEIGHT: 32,
