@@ -42,7 +42,6 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   if (branch) {
     config.headers.branchName = branch;
   }
-
   if (config.url?.indexOf("/git/") !== -1) {
     config.timeout = 1000 * 120; // increase timeout for git specific APIs
   }

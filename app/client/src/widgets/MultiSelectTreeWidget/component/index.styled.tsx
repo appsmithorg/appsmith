@@ -84,6 +84,7 @@ export const DropdownStyles = createGlobalStyle<{
 ${({ dropDownWidth, id }) => `
   .multiselecttree-popover-width-${id} {
     min-width: ${dropDownWidth}px !important;
+    width: ${dropDownWidth}px !important;
   }
 `}
 .rc-tree-select-dropdown-hidden {
@@ -268,17 +269,15 @@ border: 1px solid #E8E8E8;
   margin-top: 5px;
   background: white;
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
-  > div {
-      min-width: ${({ dropDownWidth }) => dropDownWidth}px;
-    }
-    ${CommonSelectFilterStyle}
-    .rc-tree-select-item {
-	font-size: 16px;
-	line-height: 1.5;
-	padding: 5px 16px;
-	align-items: center;
-	cursor: pointer;
-}
+
+  ${CommonSelectFilterStyle}
+  .rc-tree-select-item {
+    font-size: 16px;
+    line-height: 1.5;
+    padding: 5px 16px;
+    align-items: center;
+    cursor: pointer;
+  }
 .rc-tree-select-tree-list-holder-inner {
   overflow: hidden;
 }

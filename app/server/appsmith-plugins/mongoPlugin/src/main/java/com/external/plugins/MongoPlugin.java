@@ -73,7 +73,15 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.external.plugins.constants.FieldName.NATIVE_QUERY_PATH_DATA;
+import static com.external.plugins.constants.FieldName.NATIVE_QUERY_PATH_STATUS;
+import static com.external.plugins.constants.FieldName.SUCCESS;
+import static com.external.plugins.utils.MongoPluginUtils.convertMongoFormInputToRawCommand;
+import static com.external.plugins.utils.MongoPluginUtils.generateTemplatesAndStructureForACollection;
+import static com.external.plugins.utils.MongoPluginUtils.getDatabaseName;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.external.plugins.utils.MongoPluginUtils.getRawQuery;
+import static com.external.plugins.utils.MongoPluginUtils.isRawCommand;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINES;
@@ -88,12 +96,9 @@ import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
 import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
-import static com.external.plugins.utils.MongoPluginUtils.convertMongoFormInputToRawCommand;
-import static com.external.plugins.utils.MongoPluginUtils.generateTemplatesAndStructureForACollection;
-import static com.external.plugins.utils.MongoPluginUtils.getDatabaseName;
-import static com.external.plugins.utils.MongoPluginUtils.isRawCommand;
 import static com.external.plugins.utils.MongoPluginUtils.urlEncode;
 import static java.lang.Boolean.TRUE;
+import static org.apache.logging.log4j.util.Strings.isBlank;
 
 public class MongoPlugin extends BasePlugin {
 
@@ -222,7 +227,8 @@ public class MongoPlugin extends BasePlugin {
 
             Boolean smartBsonSubstitution = TRUE;
 
-            Object smartSubstitutionObject = formData.getOrDefault(SMART_SUBSTITUTION, TRUE);
+            Object smartSubstitutionObject = getValueSafelyFromFormData(formData, SMART_SUBSTITUTION, Object.class,
+                    TRUE);
             if (smartSubstitutionObject instanceof Boolean) {
                 smartBsonSubstitution = (Boolean) smartSubstitutionObject;
             } else if (smartSubstitutionObject instanceof String) {
@@ -1059,6 +1065,44 @@ public class MongoPlugin extends BasePlugin {
             // Unused function
             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
         }
+
+        /**
+         * This method coverts Mongo plugin's form data to Mongo's native query. Currently, it is meant to help users
+         * switch easily from form based input to raw input mode by providing a readily available translation of the
+         * form data to raw query.
+         * @param actionConfiguration
+         * @return Mongo's native/raw query set at path `formData.formToNativeQuery.data`
+         */
+        @Override
+        public ActionConfiguration extractAndSetNativeQueryFromFormData(ActionConfiguration actionConfiguration) {
+            Map<String, Object> formData = actionConfiguration.getFormData();
+            if (formData != null && !formData.isEmpty()) {
+                /* If it is not raw command, then it must be one of the mongo form commands */
+                if (!isRawCommand(formData)) {
+
+                    /**
+                     * This translation must happen only if the user has not edited the raw mode. Hence, check that
+                     * user has not provided any raw query.
+                     */
+                    if (isBlank(getValueSafelyFromFormData(formData, BODY, String.class))) {
+                        try {
+                            String rawQuery = getRawQuery(actionConfiguration);
+                            if (rawQuery != null) {
+                                setValueSafelyInFormData(formData, NATIVE_QUERY_PATH_STATUS, SUCCESS);
+                                setValueSafelyInFormData(formData, NATIVE_QUERY_PATH_DATA, rawQuery);
+                            }
+                        } catch (Exception e) {
+                            throw new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_FORM_TO_NATIVE_TRANSLATION_ERROR,
+                                    e.getMessage()
+                            );
+                        }
+                    }
+                }
+            }
+
+            return actionConfiguration;
+        }
     }
 
     private static Object cleanUp(Object object) {
@@ -1109,5 +1153,4 @@ public class MongoPlugin extends BasePlugin {
         }
         return false;
     }
-
 }

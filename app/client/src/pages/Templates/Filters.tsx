@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { Collapse } from "@blueprintjs/core";
@@ -6,7 +6,7 @@ import { Classes } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
 import Icon, { IconSize } from "components/ads/Icon";
 import { filterTemplates } from "actions/templateActions";
-import { createMessage, MORE, SHOW_LESS } from "@appsmith/constants/messages";
+import { createMessage, FILTERS } from "@appsmith/constants/messages";
 import {
   getFilterListSelector,
   getTemplateFilterSelector,
@@ -14,6 +14,7 @@ import {
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const FilterWrapper = styled.div`
   overflow: auto;
@@ -38,7 +39,6 @@ const Wrapper = styled.div`
   padding-left: ${(props) => props.theme.spaces[7]}px;
   padding-top: ${(props) => props.theme.spaces[11]}px;
   flex-direction: column;
-  box-shadow: 1px 0px 0px ${Colors.GALLERY_2};
 `;
 
 const SecondWrapper = styled.div`
@@ -80,6 +80,12 @@ const StyledFilterItem = styled.div<{ selected: boolean }>`
 const StyledFilterCategory = styled(Text)`
   margin-bottom: ${(props) => props.theme.spaces[4]}px;
   padding-left: ${(props) => props.theme.spaces[6]}px;
+  font-weight: bold;
+
+  &.title {
+    margin-bottom: ${(props) => props.theme.spaces[12] - 2}px;
+    display: inline-block;
+  }
 `;
 
 const ListWrapper = styled.div`
@@ -110,7 +116,13 @@ interface FilterCategoryProps {
 function FilterItem({ item, onSelect, selected }: FilterItemProps) {
   const onClick = () => {
     const action = selected ? "remove" : "add";
-    onSelect(item?.value ?? item.label, action);
+    const filterValue = item?.value ?? item.label;
+    onSelect(filterValue, action);
+    if (action === "add") {
+      AnalyticsUtil.logEvent("TEMPLATE_FILTER_SELECTED", {
+        filter: filterValue,
+      });
+    }
   };
 
   return (
@@ -128,11 +140,11 @@ function FilterCategory({
   label,
   selectedFilters,
 }: FilterCategoryProps) {
-  const [expand, setExpand] = useState(false);
+  // const [expand, setExpand] = useState(!!selectedFilters.length);
   const dispatch = useDispatch();
   // This indicates how many filter items do we want to show, the rest are hidden
   // behind show more.
-  const FILTERS_TO_SHOW = 3;
+  const FILTERS_TO_SHOW = 4;
   const onSelect = (item: string, type: string) => {
     if (type === "add") {
       dispatch(filterTemplates(label, [...selectedFilters, item]));
@@ -146,9 +158,9 @@ function FilterCategory({
     }
   };
 
-  const toggleExpand = () => {
-    setExpand((expand) => !expand);
-  };
+  // const toggleExpand = () => {
+  //   setExpand((expand) => !expand);
+  // };
 
   const isSelected = (filter: Filter) => {
     return selectedFilters.includes(filter?.value ?? filter.label);
@@ -156,7 +168,7 @@ function FilterCategory({
 
   return (
     <FilterCategoryWrapper>
-      <StyledFilterCategory type={TextType.SIDE_HEAD}>
+      <StyledFilterCategory type={TextType.P4}>
         {label.toLocaleUpperCase()}{" "}
         {!!selectedFilters.length && `(${selectedFilters.length})`}
       </StyledFilterCategory>
@@ -171,7 +183,7 @@ function FilterCategory({
             />
           );
         })}
-        <Collapse isOpen={expand}>
+        <Collapse isOpen>
           {filterList.slice(FILTERS_TO_SHOW).map((filter) => {
             return (
               <FilterItem
@@ -183,7 +195,8 @@ function FilterCategory({
             );
           })}
         </Collapse>
-        {!!filterList.slice(FILTERS_TO_SHOW).length && (
+        {/* We will be adding this back later */}
+        {/* {!!filterList.slice(FILTERS_TO_SHOW).length && (
           <Text
             className={`more ${selectedFilters.length && expand && "hide"}`}
             onClick={toggleExpand}
@@ -192,9 +205,11 @@ function FilterCategory({
           >
             {expand
               ? `- ${createMessage(SHOW_LESS)}`
-              : `+ ${filterList.slice(3).length} ${createMessage(MORE)}`}
+              : `+ ${filterList.slice(FILTERS_TO_SHOW).length} ${createMessage(
+                  MORE,
+                )}`}
           </Text>
-        )}
+        )} */}
       </ListWrapper>
     </FilterCategoryWrapper>
   );
@@ -208,6 +223,9 @@ function Filters() {
     <Wrapper>
       <SecondWrapper>
         <FilterWrapper>
+          <StyledFilterCategory className={"title"} type={TextType.H5}>
+            {createMessage(FILTERS)}
+          </StyledFilterCategory>
           {Object.keys(filters).map((filter) => {
             return (
               <FilterCategory
