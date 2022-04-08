@@ -48,14 +48,15 @@ import { trimTrailingSlash } from "utils/helpers";
 import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
 import UserProfile from "pages/UserProfile";
 import { getCurrentUser } from "actions/authActions";
-import { getFeatureFlagsFetched } from "selectors/usersSelectors";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 import Setup from "pages/setup";
 import Settings from "pages/Settings";
 import SignupSuccess from "pages/setup/SignupSuccess";
 import { Theme } from "constants/DefaultTheme";
 import { ERROR_CODES } from "ce/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
-import getFeatureFlags from "utils/featureFlags";
+import { fetchFeatureFlagsInit } from "actions/userActions";
+import FeatureFlags from "entities/FeatureFlags";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -78,27 +79,27 @@ function changeAppBackground(currentTheme: any) {
 function AppRouter(props: {
   safeCrash: boolean;
   getCurrentUser: () => void;
+  getFeatureFlags: () => void;
   currentTheme: Theme;
-  featureFlagsFetched: boolean;
   safeCrashCode?: ERROR_CODES;
+  featureFlags: FeatureFlags;
   setTheme: (theme: ThemeMode) => void;
 }) {
+  const { featureFlags, getCurrentUser, getFeatureFlags } = props;
   useEffect(() => {
     AnalyticsUtil.logEvent("ROUTE_CHANGE", { path: window.location.pathname });
     const stopListener = history.listen((location: any) => {
       AnalyticsUtil.logEvent("ROUTE_CHANGE", { path: location.pathname });
       changeAppBackground(props.currentTheme);
     });
-    props.getCurrentUser();
-
+    getCurrentUser();
+    getFeatureFlags();
     return stopListener;
   }, []);
 
   useEffect(() => {
     changeAppBackground(props.currentTheme);
   }, [props.currentTheme]);
-
-  if (!props.featureFlagsFetched) return null;
 
   return (
     <Router history={history}>
@@ -128,14 +129,13 @@ function AppRouter(props: {
                 exact
                 path={SIGNUP_SUCCESS_URL}
               />
-
               <SentryRoute component={UserProfile} path={PROFILE} />
               <SentryRoute
                 component={UnsubscribeEmail}
                 path={UNSUBSCRIBE_EMAIL_URL}
               />
               <SentryRoute component={Setup} exact path={SETUP} />
-              {getFeatureFlags().APP_TEMPLATE && (
+              {featureFlags.APP_TEMPLATE && (
                 <SentryRoute
                   component={TemplatesListLoader}
                   path={TEMPLATES_PATH}
@@ -174,7 +174,7 @@ const mapStateToProps = (state: AppState) => ({
   currentTheme: getCurrentThemeDetails(state),
   safeCrash: getSafeCrash(state),
   safeCrashCode: getSafeCrashCode(state),
-  featureFlagsFetched: getFeatureFlagsFetched(state),
+  featureFlags: selectFeatureFlags(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -182,6 +182,7 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(setThemeMode(mode));
   },
   getCurrentUser: () => dispatch(getCurrentUser()),
+  getFeatureFlags: () => dispatch(fetchFeatureFlagsInit()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppRouter);
