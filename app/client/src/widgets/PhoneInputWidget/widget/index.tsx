@@ -146,7 +146,7 @@ class PhoneInputWidget extends BaseInputWidget<
 
   static getMetaPropertiesMap(): Record<string, any> {
     return _.merge(super.getMetaPropertiesMap(), {
-      value: undefined,
+      value: "",
     });
   }
 
