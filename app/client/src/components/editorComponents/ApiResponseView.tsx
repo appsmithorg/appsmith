@@ -10,7 +10,7 @@ import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScre
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
-import { isArray, isEmpty, isString, chunk } from "lodash";
+import { isArray, isEmpty, isString } from "lodash";
 import {
   CHECK_REQUEST_BODY,
   createMessage,
@@ -37,9 +37,7 @@ import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import { setCurrentTab } from "actions/debuggerActions";
 import Table from "pages/Editor/QueryEditor/Table";
-import JSONViewer from "pages/Editor/QueryEditor/JSONViewer";
 import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants";
-import MultiSwitch from "components/ads/MultiSwitch";
 import {
   setActionResponseDisplayFormat,
   UpdateActionPropertyActionPayload,
@@ -92,7 +90,9 @@ const TabbedViewWrapper = styled.div`
 
   &&& {
     ul.react-tabs__tab-list {
-      padding: 0px ${(props) => props.theme.spaces[12]}px;
+      // padding: 0px ${(props) => props.theme.spaces[12]}px;
+      margin: 0px ${(props) => props.theme.spaces[11]}px;
+      // margin: 0px 23px;
     }
   }
 
@@ -163,12 +163,6 @@ const InlineButton = styled(Button)`
 const HelpSection = styled.div`
   padding-bottom: 5px;
   padding-top: 10px;
-`;
-
-const MultiSwitchContainer = styled.div`
-  padding: 12px 0px;
-  height: 100%;
-  margin: 0px 10px;
 `;
 
 interface ReduxStateProps {
@@ -270,8 +264,6 @@ function ApiResponseView(props: Props) {
 
   const messages = response?.messages;
   let responseHeaders = {};
-  // let responseBody: string;
-  let responseBody;
 
   // if no headers are present in the response, use the default body text.
   if (response.headers) {
@@ -291,78 +283,63 @@ function ApiResponseView(props: Props) {
     responseHeaders = {};
   }
 
-  if (response.body) {
-    // if the response is already a string and is of type html, do not stringify further but simply return the response string.
-    if (isString(response.body) && isHtml(response.body)) {
-      responseBody = response.body || "";
-    } else {
-      responseBody = JSON.stringify(response.body, null, 2);
-    }
-  }
-
-  // const responseTabComponent = (
-  //   key: string,
-  //   responseType: string,
-  //   output: any,
-  //   tableBodyHeight?: number,
-  // ): JSX.Element => {
-  //   return {
-  //     [API_RESPONSE_TYPE_OPTIONS.JSON]: (
-  //       // <JSONViewer src={output.length > 150 ? chunk(output, 100) : output} />
-  //       <ReadOnlyEditor
-  //         folding
-  //         height={"100%"}
-  //         input={{
-  //           value: response.body ? responseBody : "",
-  //         }}
-  //         isReadOnly
-  //       />
-  //     ),
-  //     [API_RESPONSE_TYPE_OPTIONS.TABLE]: (
-  //       <Table data={output} tableBodyHeight={tableBodyHeight} />
-  //     ),
-  //     [API_RESPONSE_TYPE_OPTIONS.RAW]: (
-  //       <div
-  //         style={{ width: "95%", backgroundColor: "#f5f6f7", padding: "10px" }}
-  //       >
-  //         <p>{JSON.stringify(output, null, 3)}</p>
-  //       </div>
-  //     ),
-  //   }[responseType];
-  // };
-
-  const responseTabs = [
-    {
-      key: "JSON",
-      title: "JSON",
-      panelComponent: (
+  const responseTabComponent = (
+    responseType: string,
+    output: any,
+    tableBodyHeight?: number,
+  ): JSX.Element => {
+    return {
+      [API_RESPONSE_TYPE_OPTIONS.JSON]: (
         <ReadOnlyEditor
           folding
           height={"100%"}
           input={{
-            value: responseBody ? (responseBody as string) : "",
+            value: output ? JSON.stringify(output, null, 2) : "",
           }}
           isReadOnly
         />
       ),
-    },
-    {
-      key: "TABLE",
-      title: "TABLE",
-      panelComponent: <Table data={response.body as any} />,
-    },
-    {
-      key: "RAW",
-      title: "RAW",
-      panelComponent: (
-        <div
-          style={{ width: "95%", backgroundColor: "#f5f6f7", padding: "10px" }}
-        >
-          <p>{JSON.stringify(response.body, null, 3)}</p>
-        </div>
+      [API_RESPONSE_TYPE_OPTIONS.TABLE]: (
+        <Table data={output} tableBodyHeight={tableBodyHeight} />
       ),
-    },
-  ];
+      [API_RESPONSE_TYPE_OPTIONS.RAW]: (
+        <ReadOnlyEditor
+          folding
+          height={"100%"}
+          input={{
+            value: output ? JSON.stringify(output, null, 2) : "",
+          }}
+          isRawView
+          isReadOnly
+        />
+      ),
+    }[responseType];
+  };
+
+  const responseTabs =
+    responseDataTypes &&
+    responseDataTypes.map((dataType, index) => {
+      return {
+        index: index,
+        key: dataType.key,
+        title: dataType.title,
+        panelComponent: responseTabComponent(dataType.key, response.body),
+      };
+    });
+
+  const onResponseTabSelect = (tab: any) => {
+    updateActionResponseDisplayFormat({
+      id: apiId ? apiId : "",
+      field: "responseDisplayFormat",
+      value: tab.title,
+    });
+  };
+
+  const selectedTabIndex =
+    responseDataTypes &&
+    responseDataTypes.findIndex(
+      (dataType) => dataType.title === responseDisplayFormat.title,
+    );
 
   const tabs = [
     {
@@ -410,44 +387,28 @@ function ApiResponseView(props: Props) {
                 </Text>
               </NoResponseContainer>
             ) : (
-              <EntityBottomTabs defaultIndex={0} tabs={responseTabs} />
-              // <MultiSwitchContainer>
-              // <MultiSwitch
-              //   customStyle={{
-              //     paddingTop: "20px",
-              //   }}
-              //   onSelect={(title: string) =>
-              //     updateActionResponseDisplayFormat({
-              //       id: apiId ? apiId : "",
-              //       field: "responseDisplayFormat",
-              //       value: title,
-              //     })
-              //   }
-              //   selected={responseDisplayFormat}
-              //   stickyTabHeader
-              //   tabs={responseDataTypes.map(
-              //     (el: { key: string; title: string }) => {
-              //       return {
-              //         key: el.key,
-              //         title: el.title,
-              //         panelComponent: responseTabComponent(
-              //           el.key,
-              //           el.title,
-              //           response.body,
-              //         ),
-              //       };
-              //     },
-              //   )}
-              // />
-              // </MultiSwitchContainer>
-              // <ReadOnlyEditor
-              //   folding
-              //   height={"100%"}
-              //   input={{
-              //     value: responseBody ? (responseBody as any) : "",
-              //   }}
-              //   isReadOnly
-              // />
+              <>
+                {isString(response.body) && isHtml(response.body) && (
+                  <ReadOnlyEditor
+                    folding
+                    height={"100%"}
+                    input={{
+                      value: response.body,
+                    }}
+                    isReadOnly
+                  />
+                )}
+                {!isString(response.body) &&
+                responseTabs &&
+                responseTabs.length > 0 ? (
+                  <EntityBottomTabs
+                    defaultIndex={selectedTabIndex}
+                    onSelect={onResponseTabSelect}
+                    responseViewer
+                    tabs={responseTabs}
+                  />
+                ) : null}
+              </>
             )}
           </ResponseDataContainer>
         </ResponseTabWrapper>

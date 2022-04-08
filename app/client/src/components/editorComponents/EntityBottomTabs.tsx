@@ -9,6 +9,8 @@ import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 type EntityBottomTabsProps = {
   defaultIndex: number;
   tabs: TabProp[];
+  responseViewer?: boolean;
+  onSelect?: (tab: any) => void;
 };
 // Using this if there are debugger related tabs
 function EntityBottomTabs(props: EntityBottomTabsProps) {
@@ -17,11 +19,12 @@ function EntityBottomTabs(props: EntityBottomTabsProps) {
   const dispatch = useDispatch();
   const onTabSelect = (index: number) => {
     dispatch(setCurrentTab(props.tabs[index].key));
+    props.onSelect && props.onSelect(props.tabs[index]);
     setIndex(index);
   };
 
   const setIndex = (index: number) => {
-    const tabKey = props.tabs[index].key;
+    const tabKey = props.tabs[index]?.key;
     setSelectedIndex(index);
     if (Object.values<string>(DEBUGGER_TAB_KEYS).includes(tabKey)) {
       AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
@@ -42,6 +45,7 @@ function EntityBottomTabs(props: EntityBottomTabsProps) {
   return (
     <TabComponent
       onSelect={onTabSelect}
+      responseViewer={props.responseViewer}
       selectedIndex={selectedIndex}
       tabs={props.tabs}
     />

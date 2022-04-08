@@ -129,7 +129,7 @@ export const TabbedViewContainer = styled.div`
   }
   &&& {
     ul.react-tabs__tab-list {
-      padding: 0px ${(props) => props.theme.spaces[12]}px;
+      margin: 0px ${(props) => props.theme.spaces[11]}px;
       background-color: ${(props) =>
         props.theme.colors.apiPane.responseBody.bg};
     }
@@ -186,7 +186,7 @@ const SecondaryWrapper = styled.div`
 const HelpSection = styled.div``;
 
 const ResponseContentWrapper = styled.div`
-  padding: 10px 15px;
+  padding: 10px 0px;
   overflow-y: auto;
   height: 100%;
 
@@ -326,15 +326,6 @@ const StyledSpinner = styled.div`
   width: 5vw;
 `;
 
-// const ActionButton = styled(BaseButton)`
-//   &&&& {
-//     min-width: 72px;
-//     width: auto;
-//     margin: 0 5px;
-//     min-height: 30px;
-//   }
-// `;
-
 const NoDataSourceContainer = styled.div`
   align-items: center;
   display: flex;
@@ -368,7 +359,7 @@ const TabContainerView = styled.div`
   }
   &&& {
     ul.react-tabs__tab-list {
-      padding-left: 23px;
+      margin-left: 24px;
     }
   }
   position: relative;
@@ -757,21 +748,18 @@ export function EditorJSONtoForm(props: Props) {
     });
   };
 
-  // multi switch response tab for display different data types
   const responseTabComponent = (
-    key: string,
     responseType: string,
     output: any,
-    tableBodyHeight: number,
+    tableBodyHeight?: number,
   ): JSX.Element => {
     return {
       [API_RESPONSE_TYPE_OPTIONS.JSON]: (
-        // <JSONViewer src={output.length > 150 ? _.chunk(output, 100) : output} />
         <ReadOnlyEditor
           folding
           height={"100%"}
           input={{
-            value: JSON.stringify(output, null, 2),
+            value: output ? JSON.stringify(output, null, 2) : "",
           }}
           isReadOnly
         />
@@ -780,14 +768,43 @@ export function EditorJSONtoForm(props: Props) {
         <Table data={output} tableBodyHeight={tableBodyHeight} />
       ),
       [API_RESPONSE_TYPE_OPTIONS.RAW]: (
-        <div
-          style={{ width: "95%", backgroundColor: "#f5f6f7", padding: "10px" }}
-        >
-          <p>{JSON.stringify(output, null, 3)}</p>
-        </div>
+        <ReadOnlyEditor
+          folding
+          height={"100%"}
+          input={{
+            value: output ? JSON.stringify(output, null, 2) : "",
+          }}
+          isRawView
+          isReadOnly
+        />
       ),
     }[responseType];
   };
+
+  const responseBodyTabs =
+    responseDataTypes &&
+    responseDataTypes.map((dataType, index) => {
+      return {
+        index: index,
+        key: dataType.key,
+        title: dataType.title,
+        panelComponent: responseTabComponent(dataType.key, output),
+      };
+    });
+
+  const onResponseTabSelect = (tab: any) => {
+    updateActionResponseDisplayFormat({
+      id: currentActionConfig?.id || "",
+      field: "responseDisplayFormat",
+      value: tab.title,
+    });
+  };
+
+  const selectedTabIndex =
+    responseDataTypes &&
+    responseDataTypes.findIndex(
+      (dataType) => dataType.title === responseDisplayFormat.title,
+    );
 
   const responseTabs = [
     {
@@ -833,33 +850,17 @@ export function EditorJSONtoForm(props: Props) {
               ))}
             </HelpSection>
           )}
-          {currentActionConfig && output && (
-            <MultiSwitchContainer>
-              <MultiSwitch
-                onSelect={(title: string) =>
-                  updateActionResponseDisplayFormat({
-                    id: currentActionConfig.id,
-                    field: "responseDisplayFormat",
-                    value: title,
-                  })
-                }
-                selected={responseDisplayFormat}
-                stickyTabHeader
-                tabs={responseDataTypes.map((el) => {
-                  return {
-                    key: el.key,
-                    title: el.title,
-                    panelComponent: responseTabComponent(
-                      el.key,
-                      el.title,
-                      output,
-                      tableBodyHeight,
-                    ),
-                  };
-                })}
+          {currentActionConfig &&
+            output &&
+            responseBodyTabs &&
+            responseBodyTabs.length > 0 && (
+              <EntityBottomTabs
+                defaultIndex={selectedTabIndex}
+                onSelect={onResponseTabSelect}
+                responseViewer
+                tabs={responseBodyTabs}
               />
-            </MultiSwitchContainer>
-          )}
+            )}
           {!output && !error && (
             <NoResponseContainer>
               <AdsIcon name="no-response" />
