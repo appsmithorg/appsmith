@@ -343,6 +343,7 @@ Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
     const response = xhr.response;
     expect(response.body.responseMeta.status).to.eq(201);
     localStorage.setItem("applicationId", response.body.data.id);
+    cy.wrap(response.body.data.id).as("currentApplicationId");
   });
 
   cy.get("#loading").should("not.exist");
@@ -1687,6 +1688,24 @@ Cypress.Commands.add("tableColumnPopertyUpdate", (colId, newColName) => {
     .should("be.visible");
 });
 
+Cypress.Commands.add("tabPopertyUpdate", (tabId, newTabName) => {
+  cy.get("[data-rbd-draggable-id='" + tabId + "'] input")
+    .scrollIntoView()
+    .should("be.visible")
+    .click({
+      force: true,
+    });
+  cy.get("[data-rbd-draggable-id='" + tabId + "'] input").clear({
+    force: true,
+  });
+  cy.get("[data-rbd-draggable-id='" + tabId + "'] input").type(newTabName, {
+    force: true,
+  });
+  cy.get(`.t--tabid-${tabId}`)
+    .contains(newTabName)
+    .should("be.visible");
+});
+
 Cypress.Commands.add("hideColumn", (colId) => {
   cy.get("[data-rbd-draggable-id='" + colId + "'] .t--show-column-btn").click({
     force: true,
@@ -1939,7 +1958,7 @@ Cypress.Commands.add("addDsl", (dsl) => {
   cy.url().then((url) => {
     currentURL = url;
     pageid = currentURL
-      .split("/")[4]
+      .split("/")[5]
       ?.split("-")
       .pop();
     cy.log(pageidcopy + "page id copy");
