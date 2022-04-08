@@ -309,11 +309,6 @@ function* initializeEditorSaga(
       PerformanceTransactionName.INIT_EDIT_APP,
     );
 
-    yield put({
-      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
-      payload: { error: "Hello" },
-    });
-
     yield call(initiateEditorApplicationAndPages, payload);
 
     const { id: applicationId, name }: ApplicationPayload = yield select(
