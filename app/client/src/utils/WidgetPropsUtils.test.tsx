@@ -89,6 +89,24 @@ describe("WidgetProps tests", () => {
       right: 50,
     });
   });
+  it("getMousePositionsOnCanvas should even return negative Mouse Position relative to Canvas", () => {
+    const gridProps = {
+      parentColumnSpace: 10,
+      parentRowSpace: 10,
+      maxGridColumns: 64,
+    };
+    const mouseEvent = ({
+      offsetX: 2,
+      offsetY: 5,
+    } as unknown) as MouseEvent;
+    expect(getMousePositionsOnCanvas(mouseEvent, gridProps)).toEqual({
+      id: "mouse",
+      top: -0,
+      left: -1,
+      bottom: 1,
+      right: 0,
+    });
+  });
   it("it checks if array to object migration functions for chart widget ", () => {
     const input = {
       type: "CANVAS_WIDGET",

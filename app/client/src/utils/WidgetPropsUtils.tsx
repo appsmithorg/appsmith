@@ -106,12 +106,14 @@ export const getMousePositionsOnCanvas = (
   e: MouseEvent,
   gridProps: GridProps,
 ) => {
-  const mouseTop =
-    Math.round(e.offsetY - CONTAINER_GRID_PADDING - WIDGET_PADDING) /
-    gridProps.parentRowSpace;
-  const mouseLeft =
-    Math.round(e.offsetX - CONTAINER_GRID_PADDING - WIDGET_PADDING) /
-    gridProps.parentColumnSpace;
+  const mouseTop = Math.round(
+    (e.offsetY - CONTAINER_GRID_PADDING - WIDGET_PADDING) /
+      gridProps.parentRowSpace,
+  );
+  const mouseLeft = Math.round(
+    (e.offsetX - CONTAINER_GRID_PADDING - WIDGET_PADDING) /
+      gridProps.parentColumnSpace,
+  );
 
   return {
     id: "mouse",
