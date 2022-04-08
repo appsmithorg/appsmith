@@ -7,7 +7,10 @@ import { CellLayoutProperties } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
 import { TableButton } from "./ButtonRenderer";
 
-type EditColumnActions = ColumnAction & { eventType: EventType };
+type EditColumnActions = ColumnAction & {
+  eventType: EventType;
+  iconName?: string;
+};
 
 type RenderEditActionsProps = {
   compactMode: string;
@@ -52,6 +55,7 @@ export function renderEditActions(props: RenderEditActionsProps) {
             action={action}
             backgroundColor={props.backgroundColor}
             buttonLabelColor={props.buttonLabelColor}
+            icon={action.iconName}
             isCellVisible={props.isCellVisible}
             isDisabled={props.isDisabled}
             isSelected={props.isSelected}

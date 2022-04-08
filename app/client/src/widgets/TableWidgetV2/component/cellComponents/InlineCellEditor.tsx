@@ -65,6 +65,7 @@ const Wrapper = styled.div<{
 type InlineEditorPropsType = {
   cellProperties: CellLayoutProperties;
   compactMode: string;
+  inputType: InputTypes.TEXT | InputTypes.NUMBER;
   multiline: boolean;
   onChange: (text: string) => void;
   onDiscard: () => void;
@@ -75,6 +76,7 @@ type InlineEditorPropsType = {
 export function InlineCellEditor({
   cellProperties,
   compactMode,
+  inputType = InputTypes.TEXT,
   multiline,
   onChange,
   onDiscard,
@@ -129,8 +131,9 @@ export function InlineCellEditor({
         autoFocus
         compactMode
         disableNewLineOnPressEnterKey={false}
+        inputHTMLType={inputType}
         inputRef={inputRef}
-        inputType={InputTypes.TEXT}
+        inputType={inputType}
         isInvalid={false}
         isLoading={false}
         label=""

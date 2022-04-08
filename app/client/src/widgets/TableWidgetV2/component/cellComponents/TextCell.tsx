@@ -5,8 +5,12 @@ import { RenderDefaultPropsType } from "../renderHelpers/DefaultRenderer";
 import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.svg";
 import { Colors } from "constants/Colors";
 import { InlineCellEditor } from "./InlineCellEditor";
-import { EditableCellActions } from "widgets/TableWidgetV2/constants";
+import {
+  ColumnTypes,
+  EditableCellActions,
+} from "widgets/TableWidgetV2/constants";
 import { ALIGN_ITEMS, CellLayoutProperties, TABLE_SIZES } from "../Constants";
+import { InputTypes } from "widgets/BaseInputWidget/constants";
 
 const Container = styled.div<{
   cellProperties: CellLayoutProperties;
@@ -115,6 +119,11 @@ export function TextCell({
       <InlineCellEditor
         cellProperties={cellProperties}
         compactMode={compactMode}
+        inputType={
+          columnType === ColumnTypes.NUMBER
+            ? InputTypes.NUMBER
+            : InputTypes.TEXT
+        }
         multiline={
           !!contentRef.current?.offsetHeight &&
           contentRef.current?.offsetHeight > TABLE_SIZES[compactMode].ROW_HEIGHT
