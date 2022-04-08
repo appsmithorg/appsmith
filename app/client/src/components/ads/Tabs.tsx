@@ -52,12 +52,13 @@ const TabsWrapper = styled.div<{
     ${(props) =>
       props.responseViewer &&
       `
+      margin-left: 30px;
       display: flex;
       align-items: center;
       height: 24px;
-      background-color: ${props.theme.colors.multiSwitch.bg} !important;
+      background-color: ${props.theme.colors.multiSwitch.bg};
       width: fit-content;
-      padding: 0px 3px !important;
+      padding-left: 1px;
       margin-top: 10px !important;
       margin-bottom: 10px !important;
     `}
@@ -77,11 +78,13 @@ const TabsWrapper = styled.div<{
       props.responseViewer &&
       `
         display: flex;
+        align-items: center;
         cursor: pointer;
         height: 22px;
         padding: 0 12px;
         border-right: 1px solid ${props.theme.colors.multiSwitch.border};
-        margin-right: 0px;
+        margin-right: -1px;
+        margin-left: -1px;
       `}
   }
 
@@ -92,6 +95,14 @@ const TabsWrapper = styled.div<{
     &:after {
       content: none;
     }
+
+    ${(props) =>
+      props.responseViewer &&
+      `
+        border-right: 1px solid ${props.theme.colors.multiSwitch.border};
+        margin-top: -2px;
+        height: 100%;
+      `}
   }
 
   .react-tabs__tab--selected {
@@ -104,6 +115,9 @@ const TabsWrapper = styled.div<{
       props.responseViewer &&
       `
         background-color: ${props.theme.colors.multiSwitch.selectedBg};
+        border: 1px solid ${props.theme.colors.multiSwitch.border};
+        border-radius: 0px;
+        font-weight: normal;
       `}
   }
 
@@ -115,7 +129,7 @@ const TabsWrapper = styled.div<{
   `}
 `;
 
-export const TabTitle = styled.span`
+export const TabTitle = styled.span<{ responseViewer?: boolean }>`
   font-size: ${(props) => props.theme.typography.h5.fontSize}px;
   font-weight: ${(props) => props.theme.typography.h5.fontWeight};
   line-height: ${(props) => props.theme.typography.h5.lineHeight - 3}px;
@@ -123,6 +137,17 @@ export const TabTitle = styled.span`
   margin: 0;
   display: flex;
   align-items: center;
+
+  ${(props) =>
+    props.responseViewer &&
+    `
+    font-size: 12px;
+    font-weight: normal;
+    line-height: 16px;
+    letter-spacing: normal;
+    text-transform: uppercase;
+    color: ${props.theme.colors.text.normal};
+    `}
 `;
 
 export const TabCount = styled.div`
@@ -162,6 +187,12 @@ const TabTitleWrapper = styled.div<{
     }
   }
 
+  ${(props) =>
+    props.responseViewer &&
+    `
+      padding: 0px;
+    `}
+
   .${Classes.ICON} {
     margin-right: ${(props) => props.theme.spaces[1]}px;
     border-radius: 50%;
@@ -192,6 +223,10 @@ const TabTitleWrapper = styled.div<{
 
   .tab-title {
     font-weight: 700;
+    ${props.responseViewer &&
+      `
+        font-weight: normal;
+      `}
   }
 
   &::after {
@@ -237,7 +272,9 @@ function DefaultTabItem(props: TabItemProps) {
           size={tab.iconSize ? tab.iconSize : IconSize.XXXL}
         />
       ) : null}
-      <TabTitle className="tab-title">{tab.title}</TabTitle>
+      <TabTitle className="tab-title" responseViewer={responseViewer}>
+        {tab.title}
+      </TabTitle>
       {tab.count && tab.count > 0 ? <TabCount>{tab.count}</TabCount> : null}
     </TabTitleWrapper>
   );
