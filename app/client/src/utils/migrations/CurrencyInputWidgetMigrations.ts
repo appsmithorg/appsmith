@@ -1,7 +1,7 @@
 import { WidgetProps } from "widgets/BaseWidget";
 import { DSLWidget } from "widgets/constants";
 
-export const migrateCurrencyInputWidgetDefaultCountryCode = (
+export const migrateCurrencyInputWidgetDefaultCurrencyCode = (
   currentDSL: DSLWidget,
 ): DSLWidget => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
@@ -25,7 +25,7 @@ export const migrateCurrencyInputWidgetDefaultCountryCode = (
         });
       }
     } else if (child.children && child.children.length > 0) {
-      child = migrateCurrencyInputWidgetDefaultCountryCode(child);
+      child = migrateCurrencyInputWidgetDefaultCurrencyCode(child);
     }
     return child;
   });

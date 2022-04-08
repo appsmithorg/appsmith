@@ -1,5 +1,5 @@
 import { DSLWidget } from "widgets/constants";
-import { migrateCurrencyInputWidgetDefaultCountryCode } from "./CurrencyInputWidgetMigrations";
+import { migrateCurrencyInputWidgetDefaultCurrencyCode } from "./CurrencyInputWidgetMigrations";
 
 const oldDSLWithCurrencyCode = {
   widgetName: "MainContainer",
@@ -1989,7 +1989,7 @@ describe("CurrencyInputWidgetMigrations - ", () => {
   describe("migrateCurrencyInputWidgetDefaultCountryCode - ", () => {
     it("should test that its only migrating default country code with dynamic value", () => {
       expect(
-        migrateCurrencyInputWidgetDefaultCountryCode(
+        migrateCurrencyInputWidgetDefaultCurrencyCode(
           (oldDSLWithCurrencyCode as unknown) as DSLWidget,
         ),
       ).toEqual(expectedDSLWithDefaultCurrencyCode);
@@ -1997,7 +1997,7 @@ describe("CurrencyInputWidgetMigrations - ", () => {
 
     it("should test that its only migrating default country code without dynamic value", () => {
       expect(
-        migrateCurrencyInputWidgetDefaultCountryCode(
+        migrateCurrencyInputWidgetDefaultCurrencyCode(
           (oldDSLWithCurrencyCode2 as unknown) as DSLWidget,
         ),
       ).toEqual(expectedDSLWithDefaultCurrencyCode2);

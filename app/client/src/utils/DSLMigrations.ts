@@ -55,7 +55,7 @@ import {
   migratePhoneInputWidgetAllowFormatting,
   migratePhoneInputWidgetDefaultDialCode,
 } from "./migrations/PhoneInputWidgetMigrations";
-import { migrateCurrencyInputWidgetDefaultCountryCode } from "./migrations/CurrencyInputWidgetMigrations";
+import { migrateCurrencyInputWidgetDefaultCurrencyCode } from "./migrations/CurrencyInputWidgetMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1077,7 +1077,7 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 55) {
-    currentDSL = migrateCurrencyInputWidgetDefaultCountryCode(currentDSL);
+    currentDSL = migrateCurrencyInputWidgetDefaultCurrencyCode(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
