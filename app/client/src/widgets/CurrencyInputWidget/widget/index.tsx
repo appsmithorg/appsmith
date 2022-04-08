@@ -218,6 +218,13 @@ class CurrencyInputWidget extends BaseInputWidget<
     ) {
       this.props.updateWidgetMetaProperty("isDirty", false);
     }
+
+    if (
+      this.props.currencyCode === this.props.defaultCurrencyCode &&
+      prevProps.currencyCode !== this.props.currencyCode
+    ) {
+      this.onCurrencyTypeChange(this.props.currencyCode);
+    }
   }
 
   formatText() {

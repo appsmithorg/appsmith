@@ -1,6 +1,6 @@
 import React from "react";
 import { WidgetState } from "widgets/BaseWidget";
-import { RenderModes, WidgetType } from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import PhoneInputComponent, { PhoneInputComponentProps } from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
@@ -187,10 +187,7 @@ class PhoneInputWidget extends BaseInputWidget<
   }
 
   componentDidUpdate(prevProps: PhoneInputWidgetProps) {
-    if (
-      this.props.renderMode === RenderModes.CANVAS &&
-      prevProps.dialCode !== this.props.dialCode
-    ) {
+    if (prevProps.dialCode !== this.props.dialCode) {
       this.onISDCodeChange(this.props.dialCode);
     }
 
