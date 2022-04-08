@@ -369,8 +369,14 @@ function ConditionBlock(props: any) {
         marginLeft={`${props.fields.length > 1 ? DropdownWidth + Margin : 0}px`}
       >
         <AddMoreAction
-          onClick={() =>
-            props.fields.push({ condition: props.comparisonTypes[0].value })
+          onClick={
+            () =>
+              props.fields.push({
+                key: "",
+                condition: props.comparisonTypes[0].value,
+                value: "",
+              })
+            // Add empty and key and value as it will required to create binding paths in getBindingPathsOfAction() at ActionProperties.ts
           }
         >
           <Icon name="add-more-fill" size={IconSize.XL} />
