@@ -224,12 +224,13 @@ if [[ -z "${DYNO}" ]]; then
   # Don't run MongoDB if running in a Heroku dyno.
   init_mongodb
   init_replica_set
+else 
+  # These functions are used to limit heap size for Backend process when deployed on Heroku
+  get_maximum_heap
+  setup_backend_heap_arg
 fi
 mount_letsencrypt_directory
 check_redis_compatible_page_size
-# These functions are used to limit heap size for Backend process when deployed on Heroku
-get_maximum_heap
-setup_backend_heap_arg
 configure_supervisord
 
 CREDENTIAL_PATH="/etc/nginx/passwords"
