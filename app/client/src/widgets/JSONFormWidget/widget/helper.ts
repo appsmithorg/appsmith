@@ -30,7 +30,7 @@ type MetaFieldState = FieldState<FieldStateItem>;
 type PathList = Array<{ key: string }>;
 type ComputedSchema = {
   status: ComputedSchemaStatus;
-  schema?: Schema;
+  schema: Schema;
   dynamicPropertyPathList?: PathList;
 };
 
@@ -250,7 +250,7 @@ const computeDynamicPropertyPathList = (
 export const computeSchema = ({
   currentDynamicPropertyPathList,
   currSourceData,
-  prevSchema,
+  prevSchema = {},
   prevSourceData,
   widgetName,
 }: ComputeSchemaProps): ComputedSchema => {
@@ -258,6 +258,7 @@ export const computeSchema = ({
   if (isEmpty(currSourceData) || equal(prevSourceData, currSourceData)) {
     return {
       status: ComputedSchemaStatus.UNCHANGED,
+      schema: prevSchema,
     };
   }
 
@@ -265,6 +266,7 @@ export const computeSchema = ({
   if (count > MAX_ALLOWED_FIELDS) {
     return {
       status: ComputedSchemaStatus.LIMIT_EXCEEDED,
+      schema: prevSchema,
     };
   }
 
