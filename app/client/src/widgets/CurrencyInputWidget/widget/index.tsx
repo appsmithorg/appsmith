@@ -1,6 +1,6 @@
 import React from "react";
 import { WidgetState } from "widgets/BaseWidget";
-import { RenderModes, WidgetType } from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import CurrencyInputComponent, {
   CurrencyInputComponentProps,
 } from "../component";
@@ -113,7 +113,7 @@ class CurrencyInputWidget extends BaseInputWidget<
             },
             {
               helpText: "Changes the type of currency",
-              propertyName: "currencyCode",
+              propertyName: "defaultCurrencyCode",
               label: "Currency",
               enableSearch: true,
               dropdownHeight: "195px",
@@ -188,6 +188,13 @@ class CurrencyInputWidget extends BaseInputWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return _.merge(super.getMetaPropertiesMap(), {
       text: undefined,
+      currencyCode: undefined,
+    });
+  }
+
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return _.merge(super.getDefaultPropertiesMap(), {
+      currencyCode: "defaultCurrencyCode",
     });
   }
 
@@ -288,12 +295,7 @@ class CurrencyInputWidget extends BaseInputWidget<
     const countryCode = getCountryCodeFromCurrencyCode(currencyCode);
 
     this.props.updateWidgetMetaProperty("countryCode", countryCode);
-
-    if (this.props.renderMode === RenderModes.CANVAS) {
-      super.updateWidgetProperty("currencyCode", currencyCode);
-    } else {
-      this.props.updateWidgetMetaProperty("currencyCode", currencyCode);
-    }
+    this.props.updateWidgetMetaProperty("currencyCode", currencyCode);
   };
 
   handleKeyDown = (
