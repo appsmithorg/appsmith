@@ -12,6 +12,8 @@ import { getWidgets, getWidgetsMeta } from "sagas/selectors";
 import "url-search-params-polyfill";
 import { getPageList } from "./appViewSelectors";
 import { AppState } from "reducers";
+import { find } from "lodash";
+import { DataTreeWidget } from "../entities/DataTree/dataTreeFactory";
 
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
@@ -59,6 +61,16 @@ export const getLoadingEntities = (state: AppState) =>
  */
 export const getDataTree = (state: AppState): DataTree =>
   state.evaluations.tree;
+
+export const getWidgetEvalValues = createSelector(
+  [getDataTree, (_state: AppState, widgetId: string) => widgetId],
+  (tree: DataTree, widgetId: string) => {
+    const evaluatedWidget = find(tree, {
+      widgetId: widgetId,
+    }) as DataTreeWidget;
+    return evaluatedWidget;
+  },
+);
 
 // For autocomplete. Use actions cached responses if
 // there isn't a response already
