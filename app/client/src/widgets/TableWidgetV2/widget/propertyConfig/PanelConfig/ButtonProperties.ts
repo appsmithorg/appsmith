@@ -425,5 +425,59 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
     },
+    {
+      propertyName: "saveActionIconName",
+      label: "Save action Icon",
+      helpText: "Sets the icon to be used for the save action button",
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.EDIT_ACTIONS,
+        ]);
+      },
+      dependencies: ["primaryColumns", "columnOrder"],
+      controlType: "ICON_SELECT",
+      customJSControl: "COMPUTE_VALUE_V2",
+      defaultIconName: "tick",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.TABLE_PROPERTY,
+        params: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: ICON_NAMES,
+            default: IconNames.TICK,
+          },
+        },
+      },
+    },
+    {
+      propertyName: "discardActionIconName",
+      label: "Discard action Icon",
+      helpText: "Sets the icon to be used for the discard action button",
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.EDIT_ACTIONS,
+        ]);
+      },
+      dependencies: ["primaryColumns", "columnOrder"],
+      controlType: "ICON_SELECT",
+      customJSControl: "COMPUTE_VALUE_V2",
+      defaultIconName: "cross",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.TABLE_PROPERTY,
+        params: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: ICON_NAMES,
+            default: IconNames.CROSS,
+          },
+        },
+      },
+    },
   ],
 };

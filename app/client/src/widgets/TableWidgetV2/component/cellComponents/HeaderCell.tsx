@@ -4,7 +4,7 @@ import { AnyStyledComponent } from "styled-components";
 import { Colors } from "constants/Colors";
 import styled from "constants/DefaultTheme";
 import { ControlIcons } from "icons/ControlIcons";
-import { CellAlignment, JUSTIFY_CONTENT, TEXT_ALIGN } from "../Constants";
+import { CellAlignment, JUSTIFY_CONTENT } from "../Constants";
 import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.svg";
 
 const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
