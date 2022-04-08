@@ -10,6 +10,7 @@ import {
   createMessage,
   PAGE_NOT_FOUND,
 } from "@appsmith/constants/messages";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Wrapper = styled.div`
   text-align: center;
@@ -53,7 +54,10 @@ function PageNotFound(props: Props) {
           icon="arrow-right"
           iconAlignment="right"
           intent="primary"
-          onClick={() => flushErrorsAndRedirect(APPLICATIONS_URL)}
+          onClick={() => {
+            AnalyticsUtil.logEvent("PAGE_NOT_FOUND");
+            flushErrorsAndRedirect(APPLICATIONS_URL);
+          }}
           size="small"
           text={createMessage(BACK_TO_HOMEPAGE)}
         />
