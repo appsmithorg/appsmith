@@ -163,7 +163,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       "primaryColumns.status.buttonLabel": EvaluationSubstitutionType.TEMPLATE,
       "primaryColumns.status.buttonColor": EvaluationSubstitutionType.TEMPLATE,
       "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
-      "primaryColumns.status.buttonLabelColor":
+      "primaryColumns.status.buttonVariant":
         EvaluationSubstitutionType.TEMPLATE,
       "primaryColumns.status.isCellVisible":
         EvaluationSubstitutionType.TEMPLATE,
@@ -223,8 +223,6 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.createdAt.cellBackground":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonLabel":
-          EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.status.buttonVariant":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonColor":
           EvaluationSubstitutionType.TEMPLATE,
