@@ -166,6 +166,26 @@ class WidgetFactory {
     widgetData: WidgetDataProps,
     renderMode: RenderMode,
   ): React.ReactNode {
+    // Object.keys(canvasWidgets)
+    //   .filter((each) => each !== MAIN_CONTAINER_WIDGET_ID)
+    //   .forEach((widgetKey) => {
+    //     const canvasWidget = canvasWidgets[widgetKey];
+    //     const evaluatedWidget = find(evaluatedDataTree, {
+    //       widgetId: widgetKey,
+    //     }) as DataTreeWidget;
+    //     if (evaluatedWidget) {
+    //       widgets[widgetKey] = createCanvasWidget(
+    //         canvasWidget,
+    //         evaluatedWidget,
+    //       );
+    //     } else {
+    //       widgets[widgetKey] = createLoadingWidget(canvasWidget);
+    //     }
+    //     widgets[widgetKey].isLoading = loadingEntities.has(
+    //       canvasWidget.widgetName,
+    //     );
+    //   });
+
     const widgetProps: WidgetProps = {
       key: widgetData.widgetId,
       isVisible: true,

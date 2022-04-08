@@ -229,49 +229,54 @@ export const getWidgetCards = createSelector(
 
 const getMainContainer = (
   canvasWidgets: CanvasWidgetsReduxState,
-  evaluatedDataTree: DataTree,
+  // evaluatedDataTree: DataTree,
 ) => {
   const canvasWidget = canvasWidgets[MAIN_CONTAINER_WIDGET_ID];
-  const evaluatedWidget = find(evaluatedDataTree, {
-    widgetId: MAIN_CONTAINER_WIDGET_ID,
-  }) as DataTreeWidget;
-  return createCanvasWidget(canvasWidget, evaluatedWidget);
+  // const evaluatedWidget = find(evaluatedDataTree, {
+  //   widgetId: MAIN_CONTAINER_WIDGET_ID,
+  // }) as DataTreeWidget;
+  return createCanvasWidget(
+    canvasWidget,
+    // evaluatedWidget
+  );
 };
 
 export const getCanvasWidgetDsl = createSelector(
   getCanvasWidgets,
-  getDataTree,
-  getLoadingEntities,
+  // getDataTree,
+  // getLoadingEntities,
   (
     canvasWidgets: CanvasWidgetsReduxState,
-    evaluatedDataTree,
-    loadingEntities,
+    // evaluatedDataTree,
+    // loadingEntities,
   ): ContainerWidgetProps<WidgetProps> => {
-    const widgets: Record<string, DataTreeWidget> = {
+    // Change type from unknown here
+    const widgets: Record<string, unknown> = {
       [MAIN_CONTAINER_WIDGET_ID]: getMainContainer(
         canvasWidgets,
-        evaluatedDataTree,
+        // evaluatedDataTree,
       ),
     };
-    Object.keys(canvasWidgets)
-      .filter((each) => each !== MAIN_CONTAINER_WIDGET_ID)
-      .forEach((widgetKey) => {
-        const canvasWidget = canvasWidgets[widgetKey];
-        const evaluatedWidget = find(evaluatedDataTree, {
-          widgetId: widgetKey,
-        }) as DataTreeWidget;
-        if (evaluatedWidget) {
-          widgets[widgetKey] = createCanvasWidget(
-            canvasWidget,
-            evaluatedWidget,
-          );
-        } else {
-          widgets[widgetKey] = createLoadingWidget(canvasWidget);
-        }
-        widgets[widgetKey].isLoading = loadingEntities.has(
-          canvasWidget.widgetName,
-        );
-      });
+
+    // Object.keys(canvasWidgets)
+    //   .filter((each) => each !== MAIN_CONTAINER_WIDGET_ID)
+    //   .forEach((widgetKey) => {
+    // const canvasWidget = canvasWidgets[widgetKey];
+    // const evaluatedWidget = find(evaluatedDataTree, {
+    //   widgetId: widgetKey,
+    // }) as DataTreeWidget;
+    // if (evaluatedWidget) {
+    //   widgets[widgetKey] = createCanvasWidget(
+    //     canvasWidget,
+    //     evaluatedWidget,
+    //   );
+    // } else {
+    //   widgets[widgetKey] = createLoadingWidget(canvasWidget);
+    // }
+    // widgets[widgetKey].isLoading = loadingEntities.has(
+    //   canvasWidget.widgetName,
+    // );
+    // });
 
     return CanvasWidgetsNormalizer.denormalize("0", {
       canvasWidgets: widgets,
@@ -423,14 +428,14 @@ export const getActionById = createSelector(
 
 const createCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,
-  evaluatedWidget: DataTreeWidget,
+  // evaluatedWidget: DataTreeWidget,
 ) => {
   const widgetStaticProps = pick(
     canvasWidget,
     Object.keys(WIDGET_STATIC_PROPS),
   );
   return {
-    ...evaluatedWidget,
+    // ...evaluatedWidget,
     ...widgetStaticProps,
   };
 };
