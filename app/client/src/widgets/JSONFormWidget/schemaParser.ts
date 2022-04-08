@@ -23,7 +23,7 @@ import {
   SchemaItem,
 } from "./constants";
 
-import { klona as clone } from "klona/full";
+const clone = require("rfdc/default");
 
 type Obj = Record<string, any>;
 type JSON = Obj | Obj[];

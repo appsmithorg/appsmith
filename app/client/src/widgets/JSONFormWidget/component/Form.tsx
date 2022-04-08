@@ -16,7 +16,7 @@ import { ROOT_SCHEMA_KEY, Schema } from "../constants";
 import { convertSchemaItemToFormData, schemaItemDefaultValue } from "../helper";
 import { TEXT_SIZES } from "constants/WidgetConstants";
 
-import { klona as clone } from "klona/full";
+const clone = require("rfdc/default");
 
 export type FormProps<TValues = any> = PropsWithChildren<{
   backgroundColor?: string;

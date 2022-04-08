@@ -4,7 +4,7 @@ import { useMemo, useContext, useCallback } from "react";
 import { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
 import FormContext from "../FormContext";
 
-import { klona as clone } from "klona/full";
+const clone = require("rfdc/default");
 
 export type UseUpdateInternalMetaStateProps = {
   propertyName?: string;

@@ -82,7 +82,7 @@ import {
   ActionValidationConfigMap,
   ValidationConfig,
 } from "constants/PropertyControlConstants";
-import { klona as clone } from "klona/full";
+const clone = require("rfdc/default");
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};

@@ -7,7 +7,7 @@ import FieldLabel, { FieldLabelProps } from "./FieldLabel";
 import useUpdateAccessor from "../fields/useObserveAccessor";
 import { FIELD_MARGIN_BOTTOM } from "./styleConstants";
 
-import { klona as clone } from "klona/full";
+const clone = require("rfdc/default");
 
 type FieldProps<TValue> = React.PropsWithChildren<
   {

@@ -19,7 +19,7 @@ import { StyledPropertyPaneButton } from "./StyledControls";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { InputText } from "./InputTextControl";
 
-import { klona as clone } from "klona/full";
+const clone = require("rfdc/default");
 
 type DroppableItem = BaseItemProps & {
   index: number;

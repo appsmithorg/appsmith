@@ -8,7 +8,7 @@ import {
 } from "entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { promisifyAction } from "workers/PromisifyAction";
-import { klona as clone } from "klona/full";
+const clone = require("rfdc/default");
 declare global {
   interface Window {
     ALLOW_ASYNC?: boolean;
