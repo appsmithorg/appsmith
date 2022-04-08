@@ -1007,7 +1007,9 @@ export default function Dropdown(props: DropdownProps) {
           )
         )}
       </Selected>
-      {errorMsg && <ErrorMsg>{errorMsg}</ErrorMsg>}
+      {errorMsg && (
+        <ErrorMsg className="ads-dropdown-errorMsg">{errorMsg}</ErrorMsg>
+      )}
       {helperText && !isOpen && !errorMsg && (
         <HelperMsg>{helperText}</HelperMsg>
       )}
