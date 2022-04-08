@@ -36,7 +36,6 @@ import StoreAsDatasource, {
 } from "components/editorComponents/StoreAsDatasource";
 import { urlGroupsRegexExp } from "constants/AppsmithActionConstants/ActionConstants";
 import styled from "styled-components";
-import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
 import Text, { FontWeight, TextType } from "components/ads/Text";
 import history from "utils/history";
@@ -59,6 +58,7 @@ import {
   getDatasource,
   getDatasourcesByPluginId,
 } from "selectors/entitiesSelector";
+import { datasourcesEditorIdURL } from "RouteBuilder";
 
 type ReduxStateProps = {
   orgId: string;
@@ -397,7 +397,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
       const evaluatedDatasourceUrl =
         "id" in datasource
-          ? datasource.datasourceConfiguration.url
+          ? datasource.datasourceConfiguration?.url
           : entity.datasourceUrl;
 
       const fullDatasourceUrlPath =
@@ -512,12 +512,11 @@ class EmbeddedDatasourcePathComponent extends React.Component<
             onClick={() => {
               this.props.setDatasourceEditorMode(datasource.id, false);
               history.push(
-                DATA_SOURCES_EDITOR_ID_URL(
-                  this.props.applicationId,
-                  this.props.currentPageId,
-                  datasource.id,
-                  getQueryParams(),
-                ),
+                datasourcesEditorIdURL({
+                  pageId: this.props.currentPageId ?? "",
+                  datasourceId: datasource.id,
+                  params: getQueryParams(),
+                }),
               );
             }}
           >

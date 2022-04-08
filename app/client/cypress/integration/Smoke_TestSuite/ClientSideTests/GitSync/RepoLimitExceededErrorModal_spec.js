@@ -3,6 +3,9 @@ import gitSyncLocators from "../../../../locators/gitSyncLocators";
 let repoName1, repoName2, repoName3, repoName4, windowOpenSpy;
 describe("Repo Limit Exceeded Error Modal", function() {
   before(() => {
+    cy.generateUUID().then((uid) => {
+      cy.Signup(`${uid}@appsmithtest.com`, uid);
+    });
     const uuid = require("uuid");
     repoName1 = uuid.v4().split("-")[0];
     repoName2 = uuid.v4().split("-")[0];
@@ -50,6 +53,10 @@ describe("Repo Limit Exceeded Error Modal", function() {
     cy.get(gitSyncLocators.repoLimitExceededErrorModal).should("not.exist");
     cy.get(gitSyncLocators.disconnectGitModal).should("exist");
 
+    cy.get(gitSyncLocators.closeRevokeModal).click();
+    cy.get(gitSyncLocators.repoLimitExceededErrorModal).should("not.exist");
+  });
+  after(() => {
     cy.request({
       method: "DELETE",
       url: "api/v1/applications/" + repoName1,

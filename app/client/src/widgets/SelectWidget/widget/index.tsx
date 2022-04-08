@@ -11,12 +11,19 @@ import {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { findIndex, isArray, isNumber, isString } from "lodash";
+import {
+  findIndex,
+  isArray,
+  isEqual,
+  isNumber,
+  isString,
+  LoDashStatic,
+} from "lodash";
 
 export function defaultOptionValueValidation(
   value: unknown,
   props: SelectWidgetProps,
-  _: any,
+  _: LoDashStatic,
 ): ValidationResponse {
   let isValid;
   let parsed;
@@ -40,7 +47,10 @@ export function defaultOptionValueValidation(
    */
   if (typeof value === "string") {
     try {
-      value = JSON.parse(value);
+      const parsedValue = JSON.parse(value);
+      if (_.isObject(parsedValue)) {
+        value = parsedValue;
+      }
     } catch (e) {}
   }
 
@@ -53,7 +63,7 @@ export function defaultOptionValueValidation(
   } else {
     isValid = false;
     parsed = {};
-    message = `value does not evaluate to type: string | { "label": "label1", "value": "value1" }`;
+    message = `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`;
   }
 
   return {
@@ -332,6 +342,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       value: undefined,
       label: undefined,
       filterText: "",
+      isDirty: false,
     };
   }
 
@@ -346,6 +357,16 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   componentDidMount() {
     super.componentDidMount();
     this.changeSelectedOption();
+  }
+
+  componentDidUpdate(prevProps: SelectWidgetProps): void {
+    // Reset isDirty to false if defaultOptionValue changes
+    if (
+      !isEqual(this.props.defaultOptionValue, prevProps.defaultOptionValue) &&
+      this.props.isDirty
+    ) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
   }
 
   isStringOrNumber = (value: any): value is string | number =>
@@ -405,6 +426,10 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       isChanged = !(this.props.selectedOptionValue === selectedOption.value);
     }
     if (isChanged) {
+      if (!this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", true);
+      }
+
       this.props.updateWidgetMetaProperty("label", selectedOption.label ?? "");
 
       this.props.updateWidgetMetaProperty("value", selectedOption.value ?? "", {
@@ -465,6 +490,7 @@ export interface SelectWidgetProps extends WidgetProps {
   serverSideFiltering: boolean;
   onFilterUpdate: string;
   isDirty?: boolean;
+  filterText: string;
 }
 
 export default SelectWidget;

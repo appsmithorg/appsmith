@@ -14,16 +14,11 @@ import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 import { TriggerButton } from "pages/Applications/ForkModalStyles";
 import { Size } from "components/ads/Button";
 import { getAllApplications } from "actions/applicationActions";
+import history from "utils/history";
 
 const Cta = styled(Button)`
   ${(props) => getTypographyByKey(props, "btnLarge")}
   height: 21px;
-  span > svg {
-    height: 10px;
-    path {
-      stroke: white;
-    }
-  }
 `;
 
 const ForkButton = styled(Cta)`
@@ -48,9 +43,12 @@ function GetAppViewerHeaderCTA(props: any) {
     CTA = (
       <Cta
         className="t--back-to-editor"
-        href={url}
         icon="chevron-left"
         iconPosition={IconPositions.left}
+        onClick={(e) => {
+          e.stopPropagation();
+          history.push(url);
+        }}
         text={createMessage(EDIT_APP)}
       />
     );
@@ -63,7 +61,7 @@ function GetAppViewerHeaderCTA(props: any) {
         <ForkButton
           className="t--fork-app"
           href={forkUrl}
-          icon="compasses-line"
+          icon="fork-2"
           text={createMessage(FORK_APP)}
         />
       );
@@ -75,7 +73,7 @@ function GetAppViewerHeaderCTA(props: any) {
             trigger={
               <TriggerButton
                 className="t--fork-app"
-                icon="compasses-line"
+                icon="fork-2"
                 onClick={() => dispatch(getAllApplications())}
                 size={Size.small}
                 text={createMessage(FORK_APP)}

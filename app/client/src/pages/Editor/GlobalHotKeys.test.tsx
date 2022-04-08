@@ -30,6 +30,13 @@ import {
   SAVE_HOTKEY_TOASTER_MESSAGE,
 } from "@appsmith/constants/messages";
 
+jest.mock("constants/routes", () => {
+  return {
+    ...jest.requireActual("constants/routes"),
+    matchBuilderPath: () => true,
+  };
+});
+
 describe("Canvas Hot Keys", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
@@ -74,7 +81,7 @@ describe("Canvas Hot Keys", () => {
 
       const component = render(
         <MemoryRouter
-          initialEntries={["/applications/app_id/pages/page_id/edit"]}
+          initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
         >
           <MockApplication>
             <GlobalHotKeys>
@@ -194,7 +201,7 @@ describe("Canvas Hot Keys", () => {
 
       const component = render(
         <MemoryRouter
-          initialEntries={["/applications/app_id/pages/page_id/edit"]}
+          initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
         >
           <MockApplication>
             <GlobalHotKeys>
@@ -236,7 +243,7 @@ describe("Canvas Hot Keys", () => {
 
       const component = render(
         <MemoryRouter
-          initialEntries={["/applications/app_id/pages/page_id/edit"]}
+          initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
         >
           <MockApplication>
             <GlobalHotKeys>
@@ -321,7 +328,7 @@ describe("Canvas Hot Keys", () => {
 
       const component = render(
         <MemoryRouter
-          initialEntries={["/applications/app_id/pages/page_id/edit"]}
+          initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
         >
           <MockApplication>
             <GlobalHotKeys>

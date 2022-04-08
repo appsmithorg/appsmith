@@ -97,8 +97,8 @@ export const FORGOT_PASSWORD_PAGE_TITLE = () => `Reset password`;
 export const FORGOT_PASSWORD_PAGE_SUBTITLE = () =>
   `We will send a reset link to the email below`;
 export const FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT = () => `Reset`;
-export const FORGOT_PASSWORD_SUCCESS_TEXT = () =>
-  `A password reset link has been sent to`;
+export const FORGOT_PASSWORD_SUCCESS_TEXT = (email: string) =>
+  `A password reset link has been sent to your email address ${email} registered with Appsmith.`;
 
 export const PRIVACY_POLICY_LINK = () => `Privacy policy`;
 export const TERMS_AND_CONDITIONS_LINK = () => `Terms and conditions`;
@@ -450,11 +450,11 @@ export const JS_EXECUTION_SUCCESS = () => "JS Function executed successfully";
 export const JS_EXECUTION_FAILURE = () => "JS Function execution failed";
 export const JS_EXECUTION_FAILURE_TOASTER = () =>
   "There was an error while executing function";
-export const JS_SETTINGS_ONPAGELOAD = () => "Run Function on Page load";
+export const JS_SETTINGS_ONPAGELOAD = () => "Run function on page load (Beta)";
 export const JS_SETTINGS_ONPAGELOAD_SUBTEXT = () =>
   "Will refresh data every time page is reloaded";
 export const JS_SETTINGS_CONFIRM_EXECUTION = () =>
-  "Request confirmation before calling Function?";
+  "Request confirmation before calling function?";
 export const JS_SETTINGS_CONFIRM_EXECUTION_SUBTEXT = () =>
   "Ask confirmation from the user every time before refreshing data";
 export const JS_SETTINGS_EXECUTE_TIMEOUT = () =>
@@ -522,8 +522,7 @@ export const BULK_WIDGET_ADDED = (widgetName: string) =>
 export const UNSUPPORTED_PLUGIN_DIALOG_TITLE = () =>
   `Couldn't auto generate a page from this datasource.`;
 
-export const UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE = () =>
-  `You can continue building your app with it using our drag & Drop
+export const UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE = () => `You can continue building your app with it using our drag & Drop
   builder`;
 export const UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING = () => `Heads up`;
 
@@ -589,7 +588,6 @@ export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure ?`;
 
 export const GIT_CONNECTION = () => "Git Connection";
 export const GIT_IMPORT = () => "Git Import";
-export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
 export const GIT_SETTINGS = () => "Git Settings";
 export const CONNECT_TO_GIT = () => "Connect to git repository";
@@ -619,7 +617,6 @@ export const CHECK_DP = () => "CHECK";
 export const DEPLOY_TO_CLOUD = () => "Deploy to cloud";
 export const DEPLOY_WITHOUT_GIT = () =>
   "Deploy your application without version control";
-export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
 export const COMMIT_CHANGES = () => "Commit changes";
 export const COMMIT_TO = () => "Commit to";
 export const COMMIT_AND_PUSH = () => "Commit & push";
@@ -677,6 +674,9 @@ export const DISCONNECT_SERVICE_SUBHEADER = () =>
   "Changes to this section can disrupt user authentication. Proceed with caution.";
 export const DISCONNECT_SERVICE_WARNING = () =>
   "will be removed as primary method of authentication";
+export const AUTHENTICATION_METHOD_ENABLED = (methodName: string) => `
+  ${methodName} authentication method is enabled
+`;
 
 export const DISCONNECT_EXISTING_REPOSITORIES = () =>
   "Disconnect existing Repositories";
@@ -732,6 +732,23 @@ export const CONNECTING_TO_REPO_DISABLED = () =>
   "Connecting to a git repo is disabled";
 export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
 export const MERGED_SUCCESSFULLY = () => "Merged successfully";
+
+// GIT DEPLOY begin
+export const DEPLOY = () => "Deploy";
+export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
+export const CHANGES_ONLY_USER = () => "Changes since last commit";
+export const CHANGES_ONLY_MIGRATION = () =>
+  "Appsmith update changes since last commit";
+export const CHANGES_USER_AND_MIGRATION = () =>
+  "Appsmith update and user changes since last commit";
+// GIT DEPLOY end
+
+// GIT ERRORS begin
+export const ERROR_GIT_AUTH_FAIL = () =>
+  "Please make sure that regenerated SSH key is added and has write access to the repo.";
+export const ERROR_GIT_INVALID_REMOTE = () =>
+  "Remote repo doesn't exist or is unreachable.";
+// GIT ERRORS end
 
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>
@@ -994,11 +1011,6 @@ export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
 export const CREATE_DATASOURCE_TOOLTIP = () => "Add a new datasource";
 export const ADD_QUERY_JS_TOOLTIP = () => "Create New";
 
-// Add datasource
-export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
-export const GENERATE_APPLICATION_DESCRIPTION = () =>
-  "Quickly generate a page to perform CRUD operations on your database tables";
-
 export const DELETE_ORG_SUCCESSFUL = () => "Organization deleted successfully";
 
 export const UPGRADE_TO_EE = (authLabel: string) =>
@@ -1007,6 +1019,8 @@ export const ADMIN_AUTH_SETTINGS_TITLE = () => "Select Authentication Method";
 export const ADMIN_AUTH_SETTINGS_SUBTITLE = () =>
   "Select a protocol you want to authenticate users with";
 export const DANGER_ZONE = () => "Danger Zone";
+export const DISCONNECT_AUTH_METHOD = () => "Disconnect";
+export const DISCONNECT_CONFIRMATION = () => "Are you sure?";
 
 // Guided tour
 // -- STEPS ---
@@ -1113,7 +1127,7 @@ export const REQUEST_TEMPLATE = () => "Request for a template";
 export const SEARCH_TEMPLATES = () => "Search templates";
 export const INTRODUCING_TEMPLATES = () => "Introducing Templates";
 export const TEMPLATE_NOTIFICATION_DESCRIPTION = () =>
-  "You can browse, fork, and make them your own here";
+  "Use these templates to learn, create, and build apps even faster";
 export const GO_BACK = () => "GO BACK";
 export const OVERVIEW = () => "Overview";
 export const FUNCTION = () => "Function";
@@ -1123,6 +1137,8 @@ export const NOTE = () => "Note:";
 export const NOTE_MESSAGE = () => "You can add your datasources as well";
 export const WIDGET_USED = () => "Widgets Used";
 export const SIMILAR_TEMPLATES = () => "Similar Templates";
+export const VIEW_ALL_TEMPLATES = () => "VIEW ALL TEMPLATES";
+export const FILTERS = () => "FILTERS";
 
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 
@@ -1136,3 +1152,17 @@ export const FORK_APP_MODAL_EMPTY_TITLE = () =>
 export const FORK_APP_MODAL_SUCCESS_TITLE = () =>
   "Choose where to fork the app";
 export const FORK = () => `FORK`;
+
+export const CLEAN_URL_UPDATE = {
+  name: () => "Update URLs",
+  shortDesc: () =>
+    "All URLs in your applications will update to a new readable format that includes the application and page names.",
+  description: [
+    () =>
+      "All URLs in your applications will be updated to match our new style. This will make your apps easier to find, and URLs easier to remember.",
+    (url: string) =>
+      `The current app’s URL will be:<br /><code style="line-break: anywhere; padding: 2px 4px; line-height: 22px">${url}</code>`,
+  ],
+  disclaimer: () =>
+    "Existing references to <strong>appsmith.URL.fullpath</strong> and <strong>appsmith.URL.pathname</strong> properties will behave differently.",
+};
