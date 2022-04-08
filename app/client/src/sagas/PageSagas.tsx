@@ -53,11 +53,7 @@ import {
   takeLeading,
 } from "redux-saga/effects";
 import history from "utils/history";
-import {
-  captureInvalidDynamicBindingPath,
-  isNameValid,
-  updateSlugNamesInURL,
-} from "utils/helpers";
+import { captureInvalidDynamicBindingPath, isNameValid } from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { checkIfMigrationIsNeeded } from "utils/DSLMigrations";
 import {
@@ -321,7 +317,7 @@ export function* fetchPublishedPageSaga(
       // Update the canvas
       yield put(initCanvasLayout(canvasWidgetsPayload));
       // set current page
-      yield put(updateCurrentPage(pageId));
+      yield put(updateCurrentPage(pageId, response.data.slug));
       // dispatch fetch page success
       yield put(
         fetchPublishedPageSuccess(
@@ -606,10 +602,6 @@ export function* updatePageSaga(action: ReduxAction<UpdatePageRequest>) {
         payload: response.data,
       });
     }
-    updateSlugNamesInURL({
-      // @ts-expect-error: response.data is of type unknown
-      pageSlug: response.data.slug,
-    });
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_PAGE_ERROR,

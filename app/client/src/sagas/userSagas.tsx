@@ -15,12 +15,7 @@ import UserApi, {
   UpdateUserRequest,
   LeaveOrgRequest,
 } from "api/UserApi";
-import {
-  APPLICATIONS_URL,
-  AUTH_LOGIN_URL,
-  BASE_URL,
-  SETUP,
-} from "constants/routes";
+import { AUTH_LOGIN_URL, SETUP } from "constants/routes";
 import history from "utils/history";
 import { ApiResponse } from "api/ApiResponses";
 import {
@@ -37,7 +32,6 @@ import {
   invitedUserSignupSuccess,
   fetchFeatureFlagsSuccess,
   fetchFeatureFlagsError,
-  fetchFeatureFlagsInit,
 } from "actions/userActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
@@ -131,11 +125,6 @@ export function* getCurrentUserSaga() {
       ) {
         //@ts-expect-error: response is of type unknown
         enableTelemetry && AnalyticsUtil.identifyUser(response.data);
-        // make fetch feature call only if logged in
-        yield put(fetchFeatureFlagsInit());
-      } else {
-        // reset the flagsFetched flag
-        yield put(fetchFeatureFlagsSuccess());
       }
       yield put({
         type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
@@ -144,13 +133,6 @@ export function* getCurrentUserSaga() {
       //@ts-expect-error: response is of type unknown
       if (response.data.emptyInstance) {
         history.replace(SETUP);
-      } else if (window.location.pathname === BASE_URL) {
-        //@ts-expect-error: response is of type unknown
-        if (response.data.isAnonymous) {
-          history.replace(AUTH_LOGIN_URL);
-        } else {
-          history.replace(APPLICATIONS_URL);
-        }
       }
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.USER_ME_API,
@@ -169,7 +151,7 @@ export function* getCurrentUserSaga() {
     });
 
     yield put({
-      type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
       payload: {
         code: ERROR_CODES.SERVER_ERROR,
       },
@@ -457,8 +439,8 @@ function* fetchFeatureFlags() {
     const response: ApiResponse = yield call(UserApi.fetchFeatureFlags);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      (window as any).FEATURE_FLAGS = response.data;
-      yield put(fetchFeatureFlagsSuccess());
+      // @ts-expect-error: response.data is of type unknown
+      yield put(fetchFeatureFlagsSuccess(response.data));
     }
   } catch (error) {
     log.error(error);

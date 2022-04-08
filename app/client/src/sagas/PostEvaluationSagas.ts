@@ -38,6 +38,8 @@ import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import TernServer from "utils/autocomplete/TernServer";
+import { selectFeatureFlags } from "selectors/usersSelectors";
+import FeatureFlags from "entities/FeatureFlags";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 /**
@@ -371,8 +373,10 @@ export function* updateTernDefinitions(
     const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(
       dataTree,
     );
+    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
     const { def, entityInfo } = dataTreeTypeDefCreator(
       treeWithoutPrivateWidgets,
+      !!featureFlags.JS_EDITOR,
     );
     TernServer.updateDef("DATA_TREE", def, entityInfo);
     const end = performance.now();

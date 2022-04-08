@@ -91,7 +91,6 @@ import {
 } from "sagas/ActionExecution/errorUtils";
 import { shouldBeDefined, trimQueryString } from "utils/helpers";
 import { JSCollection } from "entities/JSCollection";
-import { executeJSFunction } from "actions/jsPaneActions";
 import {
   executeAppAction,
   TriggerMeta,
@@ -104,7 +103,7 @@ import { submitCurlImportForm } from "actions/importActions";
 import { curlImportFormValues } from "pages/Editor/APIEditor/helpers";
 import { getBasePath } from "pages/Editor/Explorer/helpers";
 import { isTrueObject } from "workers/evaluationUtils";
-
+import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
 }
@@ -613,13 +612,31 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
     );
     const jsAction = collection.actions.find((d) => d.id === pageAction.id);
     if (!!jsAction) {
-      yield put(
-        executeJSFunction({
-          collectionName: collection.name,
-          action: jsAction,
-          collectionId: collectionId,
-        }),
-      );
+      if (jsAction.confirmBeforeExecute) {
+        const modalPayload = {
+          name: pageAction.name,
+          modalOpen: true,
+          modalType: ModalType.RUN_ACTION,
+        };
+
+        const confirmed: unknown = yield call(
+          requestModalConfirmationSaga,
+          modalPayload,
+        );
+        if (!confirmed) {
+          yield put({
+            type: ReduxActionTypes.RUN_ACTION_CANCELLED,
+            payload: { id: pageAction.id },
+          });
+          throw new UserCancelledActionExecutionError();
+        }
+      }
+      const data = {
+        collectionName: collection.name,
+        action: jsAction,
+        collectionId: collectionId,
+      };
+      yield call(handleExecuteJSFunctionSaga, data);
     }
   }
 }

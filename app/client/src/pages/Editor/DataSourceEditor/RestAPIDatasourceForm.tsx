@@ -534,21 +534,29 @@ class DatasourceRestAPIEditor extends React.Component<
         </FormInputContainer>
         {this.renderAuthFields()}
         {this.renderSelfSignedCertificateFields()}
-        <FormInputContainer>
-          <AuthorizeButton
-            disabled={this.disableSave()}
-            filled
-            intent="primary"
-            loading={isSaving}
-            onClick={() =>
-              this.save(
-                redirectAuthorizationCode(pageId, datasourceId, PluginType.API),
-              )
-            }
-            size="small"
-            text={isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"}
-          />
-        </FormInputContainer>
+        {formData.authType && formData.authType === AuthType.OAuth2 && (
+          <FormInputContainer>
+            <AuthorizeButton
+              disabled={this.disableSave()}
+              filled
+              intent="primary"
+              loading={isSaving}
+              onClick={() =>
+                this.save(
+                  redirectAuthorizationCode(
+                    pageId,
+                    datasourceId,
+                    PluginType.API,
+                  ),
+                )
+              }
+              size="small"
+              text={
+                isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"
+              }
+            />
+          </FormInputContainer>
+        )}
       </>
     );
   };

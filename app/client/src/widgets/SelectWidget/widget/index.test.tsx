@@ -13,6 +13,32 @@ describe("defaultOptionValueValidation - ", () => {
       messages: [""],
     });
   });
+  it("should get tested with number", () => {
+    const testValues = [
+      [
+        "1",
+        {
+          isValid: true,
+          parsed: "1",
+          messages: [""],
+        },
+      ],
+      [
+        1,
+        {
+          isValid: true,
+          parsed: 1,
+          messages: [""],
+        },
+      ],
+    ];
+
+    testValues.forEach(([input, expected]) => {
+      expect(
+        defaultOptionValueValidation(input, {} as SelectWidgetProps, _),
+      ).toEqual(expected);
+    });
+  });
 
   it("should get tested with simple string", () => {
     const input = "green";
@@ -43,6 +69,40 @@ describe("defaultOptionValueValidation - ", () => {
       messages: [""],
     });
   });
+  it("should get tested with valid strings", () => {
+    const testValues = [
+      [
+        "undefined",
+        {
+          isValid: true,
+          parsed: "undefined",
+          messages: [""],
+        },
+      ],
+      [
+        "null",
+        {
+          isValid: true,
+          parsed: "null",
+          messages: [""],
+        },
+      ],
+      [
+        "true",
+        {
+          isValid: true,
+          parsed: "true",
+          messages: [""],
+        },
+      ],
+    ];
+
+    testValues.forEach(([input, expected]) => {
+      expect(
+        defaultOptionValueValidation(input, {} as SelectWidgetProps, _),
+      ).toEqual(expected);
+    });
+  });
 
   it("should get tested with invalid values", () => {
     const testValues = [
@@ -52,7 +112,7 @@ describe("defaultOptionValueValidation - ", () => {
           isValid: false,
           parsed: {},
           messages: [
-            `value does not evaluate to type: string | { "label": "label1", "value": "value1" }`,
+            `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
           ],
         },
       ],
@@ -62,7 +122,7 @@ describe("defaultOptionValueValidation - ", () => {
           isValid: false,
           parsed: {},
           messages: [
-            `value does not evaluate to type: string | { "label": "label1", "value": "value1" }`,
+            `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
           ],
         },
       ],
@@ -72,7 +132,7 @@ describe("defaultOptionValueValidation - ", () => {
           isValid: false,
           parsed: {},
           messages: [
-            `value does not evaluate to type: string | { "label": "label1", "value": "value1" }`,
+            `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
           ],
         },
       ],
@@ -82,7 +142,7 @@ describe("defaultOptionValueValidation - ", () => {
           isValid: false,
           parsed: {},
           messages: [
-            `value does not evaluate to type: string | { "label": "label1", "value": "value1" }`,
+            `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
           ],
         },
       ],
@@ -94,7 +154,7 @@ describe("defaultOptionValueValidation - ", () => {
           isValid: false,
           parsed: {},
           messages: [
-            `value does not evaluate to type: string | { "label": "label1", "value": "value1" }`,
+            `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
           ],
         },
       ],

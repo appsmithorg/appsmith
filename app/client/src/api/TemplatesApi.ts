@@ -19,6 +19,7 @@ export interface Template {
 }
 
 export type FetchTemplatesResponse = ApiResponse<Template[]>;
+export type FilterKeys = "widgets" | "datasources";
 
 export type FetchTemplateResponse = ApiResponse<Template>;
 
