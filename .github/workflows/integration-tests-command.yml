@@ -1277,7 +1277,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        machine: [ubuntu-latest,buildjet-8vcpu-ubuntu-2004]
+        machine: [ubuntu-latest,buildjet-4vcpu-ubuntu-2004]
     runs-on: ${{ matrix.machine }}
     defaults:
       run:
