@@ -7,7 +7,7 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 
-type DebouncedExecuteActionPayload = Omit<
+export type DebouncedExecuteActionPayload = Omit<
   ExecuteTriggerPayload,
   "dynamicString"
 > & {
@@ -62,8 +62,8 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
         controlled by itself and the platform will not interfere except:
         When we reset the meta property value.
 
-        Property which has default value is set to default value and 
-        other meta property are set to initial value. 
+        Property which has default value is set to default value and
+        other meta property are set to initial value.
         For eg:- In Input widget, after reset text = "" and isDirty = false
       */
 
@@ -81,7 +81,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       const defaultProperties = WrappedWidget.getDefaultPropertiesMap();
       Object.keys(metaProperties).forEach((metaProperty) => {
         const defaultProperty = defaultProperties[metaProperty];
-        /* 
+        /*
             Reset operation happens by the platform and is outside the widget logic
             so to identify this change, we want to see if the meta value has
             changed to the current default value. If this has happened, we should

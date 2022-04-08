@@ -766,6 +766,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                 )
                                                 .flatMap(existingApplication -> {
                                                     importedApplication.setId(existingApplication.getId());
+                                                    // For the existing application we don't need to default value of the flag
+                                                    // The isPublic flag has a default value as false and this would be confusing to user
+                                                    // when it is reset to false during importing where the application already is present in DB
+                                                    importedApplication.setIsPublic(null);
                                                     AppsmithBeanUtils.copyNestedNonNullProperties(importedApplication, existingApplication);
                                                     // Here we are expecting the changes present in DB are committed to git directory
                                                     // so that these won't be lost when we are pulling changes from remote and
