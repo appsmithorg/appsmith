@@ -342,6 +342,16 @@ export const getCellProperties = (
         rowIndex,
         true,
       ),
+      saveActionIconName: getPropertyValue(
+        columnProperties.saveActionIconName,
+        rowIndex,
+        true,
+      ),
+      discardActionIconName: getPropertyValue(
+        columnProperties.discardActionIconName,
+        rowIndex,
+        true,
+      ),
     } as CellLayoutProperties;
   }
   return {} as CellLayoutProperties;
