@@ -4,7 +4,10 @@ import {
   MetaArgs,
 } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
-import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
+import {
+  DATA_DEFS,
+  entityDefinitions,
+} from "utils/autocomplete/EntityDefinitions";
 import { getType, Types } from "utils/TypeHelpers";
 import { Def } from "tern";
 import {

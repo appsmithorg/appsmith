@@ -40,6 +40,7 @@ import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreato
 import TernServer from "utils/autocomplete/TernServer";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
+import { DATA_DEFS } from "utils/autocomplete/EntityDefinitions";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 /**
@@ -363,7 +364,8 @@ export function* updateTernDefinitions(
     shouldUpdate = some(updates, (update) => {
       return (
         update.event === DataTreeDiffEvent.NEW ||
-        update.event === DataTreeDiffEvent.DELETE
+        update.event === DataTreeDiffEvent.DELETE ||
+        !!DATA_DEFS[update.payload.propertyPath]
       );
     });
   }

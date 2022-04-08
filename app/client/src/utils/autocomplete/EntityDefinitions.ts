@@ -12,6 +12,8 @@ const isVisible = {
   "!doc": "Boolean value indicating if the widget is in visible state",
 };
 
+export const DATA_DEFS: Record<string, any> = {};
+
 export const entityDefinitions: Record<string, unknown> = {
   APPSMITH: (entity: DataTreeAppsmith) => {
     const generatedTypeDef = generateTypeDef(
@@ -39,15 +41,28 @@ export const entityDefinitions: Record<string, unknown> = {
     return generatedTypeDef;
   },
   ACTION: (entity: DataTreeAction) => {
-    const dataDef = generateTypeDef(entity.data);
     let data: Record<string, any> = {
       "!doc": "The response of the action",
     };
-    if (_.isString(dataDef)) {
-      data["!type"] = dataDef;
+
+    delete DATA_DEFS[entity.actionId];
+    if (Array.isArray(entity.data) && entity.data.length) {
+      const dataDef = generateTypeDef(entity.data[0]);
+      if (_.isString(dataDef)) {
+        data["!type"] = `[${dataDef}]`;
+      } else {
+        DATA_DEFS[entity.actionId] = dataDef;
+        data["!type"] = `[${entity.actionId}]`;
+      }
     } else {
-      data = { ...data, ...dataDef };
+      const dataDef = generateTypeDef(entity.data);
+      if (_.isString(dataDef)) {
+        data["!type"] = dataDef;
+      } else {
+        data = { ...data, ...dataDef };
+      }
     }
+
     return {
       "!doc":
         "Actions allow you to connect your widgets to your backend data in a secure manner.",

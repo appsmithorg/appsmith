@@ -14,6 +14,7 @@ import {
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
 import {
+  DATA_DEFS,
   GLOBAL_DEFS,
   GLOBAL_FUNCTIONS,
 } from "utils/autocomplete/EntityDefinitions";
@@ -27,6 +28,7 @@ const DEFS: Def[] = [
   ecma,
   GLOBAL_FUNCTIONS,
   GLOBAL_DEFS,
+  DATA_DEFS,
   lodash,
   base64,
   moment,
