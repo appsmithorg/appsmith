@@ -3,6 +3,7 @@ import { TableSizes, CellLayoutProperties, CellAlignment } from "./Constants";
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar } from "constants/DefaultTheme";
 import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
+import { Classes } from "@blueprintjs/core";
 
 export const TableWrapper = styled.div<{
   width: number;
@@ -25,7 +26,7 @@ export const TableWrapper = styled.div<{
     height: 100%;
     display: block;
     position: relative;
-    width: ${(props) => props.width - 8}px;
+    width: ${(props) => props.width}px;
     overflow-x: auto;
     ${hideScrollbar};
     .thumb-horizontal {
@@ -212,19 +213,14 @@ export const IconOptionWrapper = styled.div`
   cursor: pointer;
 `;
 
-export const PaginationWrapper = styled.div<{
-  isMobileScreenTableWidth: boolean;
-  isSmallerTableWidth: boolean;
-}>`
+export const PaginationWrapper = styled.div`
   box-sizing: border-box;
   display: flex;
   width: 100%;
-  justify-content: ${(props) =>
-    props.isSmallerTableWidth ? "center" : "flex-end"};
+  justify-content: flex-end;
   align-items: center;
   padding: 8px 20px;
   color: ${Colors.GRAY};
-  ${(props) => (props.isMobileScreenTableWidth ? "padding: 8px;" : "")};
 `;
 
 export const PaginationItemWrapper = styled.div<{
@@ -267,19 +263,14 @@ export const MenuColumnWrapper = styled.div<{ selected: boolean }>`
   }
 `;
 
-export const ActionWrapper = styled.div<{
-  background: string;
-  buttonLabelColor: string;
-}>`
+export const ActionWrapper = styled.div`
   margin: 0 5px 0 0;
   &&&&&& {
     .bp3-button {
-      background: ${(props) => props.background};
-      color: ${(props) => props.buttonLabelColor};
-      border: none;
+      min-width: 50px;
     }
     .bp3-button span {
-      font-weight: 400;
+      font-weight: 500;
       text-decoration: none;
     }
     &&& .bp3-disabled {
@@ -377,6 +368,11 @@ export const CellWrapper = styled.div<{
   ${TableStyles};
   padding: ${(props) => (props.isPadding ? "0 10px" : " 0px")};
   line-height: 28px;
+  .${Classes.POPOVER_WRAPPER}, > span > span > span {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   .image-cell-wrapper {
     width: 100%;
     height: 100%;

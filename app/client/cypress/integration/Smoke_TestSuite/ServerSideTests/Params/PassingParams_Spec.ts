@@ -40,14 +40,14 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
       jsEditor.EnterJSContext(
-        "onclick",
+        "onClick",
         "{{" + jsObjName + ".myFun1()}}",
         true,
         true,
       );
     });
     ee.SelectEntityByName("Table1");
-    jsEditor.EnterJSContext("tabledata", "{{ParamsTest.data}}");
+    jsEditor.EnterJSContext("Table Data", "{{ParamsTest.data}}");
 
     ee.SelectEntityByName("ParamsTest", 'QUERIES/JS');
     apiPage.DisableOnPageLoadRun()//Bug 12476
