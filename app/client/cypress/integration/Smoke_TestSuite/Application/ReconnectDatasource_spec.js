@@ -46,13 +46,9 @@ describe("Reconnect Datasource Modal validation while importing application", fu
             ).should("contain", "Read / Write");
             cy.get("[data-cy='section-SSL (optional)']").click({ force: true });
             // should expand ssl pan
-            cy.get("*[class^='StyledFormComponents__StyledFormLabel']").should(
-              "contain",
-              "SSL Mode",
-            );
             cy.get(
               "[data-cy='datasourceConfiguration.connection.ssl.authType']",
-            ).contains("Default");
+            ).should("contain", "Default");
             cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
               force: true,
             });
