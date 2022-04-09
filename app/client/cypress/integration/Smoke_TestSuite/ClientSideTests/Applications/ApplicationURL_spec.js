@@ -134,6 +134,16 @@ describe("Slug URLs", () => {
               "contain.text",
               `/app/${application.slug}/${currentPage.slug}-${currentPage.id}/edit`,
             );
+
+            cy.visit(
+              `/${application.slug}/${currentPage.slug}-${currentPage.id}/edit`,
+            );
+
+            cy.location().should((loc) => {
+              expect(loc.pathname).includes(
+                `/app/${application.slug}/${currentPage.slug}-${currentPage.id}/edit`,
+              );
+            });
           });
         });
       });

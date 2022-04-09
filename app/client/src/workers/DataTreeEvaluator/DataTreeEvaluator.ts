@@ -1387,6 +1387,7 @@ export default class DataTreeEvaluator {
                 entity.bindingPaths[entityPropertyPath] &&
                 fullPropertyPath in this.dependencyMap
               ) {
+                didUpdateDependencyMap = true;
                 delete this.dependencyMap[fullPropertyPath];
               }
             }
