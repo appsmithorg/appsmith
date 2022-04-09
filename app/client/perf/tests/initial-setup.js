@@ -8,13 +8,13 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     ignoreHTTPSErrors: true,
   });
   let page = await browser.newPage();
-  // await page.goto("https://dev.appsmith.com/setup/welcome");
-  await page.goto("http://localhost/setup/welcome");
+  await page.goto("https://dev.appsmith.com/setup/welcome");
+  // await page.goto("http://localhost/setup/welcome");
   // Since we are not testing the initial setup, just send the post request directly.
   // Could be moved to bash script as well.
   await page.evaluate(async () => {
-    // const url = "https://dev.appsmith.com/api/v1/users/super";
-    const url = "http://localhost/api/v1/users/super";
+    const url = "https://dev.appsmith.com/api/v1/users/super";
+    // const url = "http://localhost/api/v1/users/super";
     await fetch(url, {
       headers: {
         accept:
