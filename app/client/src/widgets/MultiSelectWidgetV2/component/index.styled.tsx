@@ -157,6 +157,7 @@ export const DropdownStyles = createGlobalStyle<{
 }>`
 ${({ dropDownWidth, id }) => `
   .multiselect-popover-width-${id} {
+    width: ${dropDownWidth}px !important;
     min-width: ${dropDownWidth}px !important;
   }
 `}
@@ -283,7 +284,6 @@ ${({ dropDownWidth, id }) => `
 	animation-name: ${rcSelectDropdownSlideUpOut};
 	animation-play-state: running;
 }
-
 .multi-select-dropdown {
   min-height: 100px;
   position: absolute;
@@ -294,9 +294,6 @@ ${({ dropDownWidth, id }) => `
   background: white;
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
    overflow-x: scroll;
-  > div {
-      min-width: ${({ dropDownWidth }) => dropDownWidth}px;
-    }
     ${CommonSelectFilterStyle}
   .rc-select-item {
     font-size: 14px;

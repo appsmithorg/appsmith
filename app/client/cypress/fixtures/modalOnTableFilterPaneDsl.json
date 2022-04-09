@@ -235,7 +235,7 @@
                         "key": "primaryColumns.action.computedValue"
                     }
                 ],
-                "leftColumn": 8,
+                "leftColumn": 18,
                 "primaryColumns": {
                     "step": {
                         "index": 0,
@@ -307,7 +307,7 @@
                 "delimiter": ",",
                 "key": "xpckfzcfqi",
                 "derivedColumns": {},
-                "rightColumn": 58,
+                "rightColumn": 48,
                 "textSize": "PARAGRAPH",
                 "widgetId": "0qst46493x",
                 "isVisibleFilters": true,

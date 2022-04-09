@@ -79,7 +79,7 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
     private Mono<OAuth2> generateOAuth2Token(OAuth2 oAuth2) {
         // Webclient
         WebClient webClient = WebClient.builder()
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .exchangeStrategies(ExchangeStrategies
                         .builder()
                         .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(MAX_IN_MEMORY_SIZE))

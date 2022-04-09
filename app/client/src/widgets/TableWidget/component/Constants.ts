@@ -105,7 +105,6 @@ export interface CellLayoutProperties {
   textColor?: string;
   cellBackground?: string;
   buttonColor?: string;
-  buttonLabelColor?: string;
   buttonLabel?: string;
   menuButtonLabel?: string;
   isVisible?: boolean;
@@ -187,7 +186,6 @@ export interface ColumnProperties {
   buttonLabel?: string;
   menuButtonLabel?: string;
   buttonColor?: string;
-  buttonLabelColor?: string;
   onClick?: string;
   outputFormat?: string;
   inputFormat?: string;
@@ -284,9 +282,3 @@ export const ConditionFunctions: {
     return !moment(a).isBefore(moment(b), "d");
   },
 };
-
-export enum TableWidth {
-  Mobile = 576,
-  Small = 365,
-  Smaller = 288,
-}

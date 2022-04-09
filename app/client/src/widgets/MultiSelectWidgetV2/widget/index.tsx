@@ -425,6 +425,7 @@ class MultiSelectWidget extends BaseWidget<
       selectedOptionLabels: `{{ this.selectedOptions ? this.selectedOptions.map((o) => _.isNil(o.label) ? o : o.label ) : [] }}`,
       selectedOptionValues: `{{ this.selectedOptions ? this.selectedOptions.map((o) =>  _.isNil(o.value) ? o : o.value  ) : [] }}`,
       isValid: `{{this.isRequired ? !!this.selectedOptionValues && this.selectedOptionValues.length > 0 : true}}`,
+      value: `{{this.selectedOptionValues}}`,
     };
   }
 
@@ -473,7 +474,7 @@ class MultiSelectWidget extends BaseWidget<
 
   getPageView() {
     const options = isArray(this.props.options) ? this.props.options : [];
-    const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+    const minDropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
     const { componentWidth } = this.getComponentDimensions();
     const values: LabelValueType[] = this.props.selectedOptions
       ? this.props.selectedOptions.map((o) =>
@@ -493,7 +494,7 @@ class MultiSelectWidget extends BaseWidget<
           )
         }
         disabled={this.props.isDisabled ?? false}
-        dropDownWidth={dropDownWidth}
+        dropDownWidth={minDropDownWidth}
         dropdownStyle={{
           zIndex: Layers.dropdownModalWidget,
         }}
