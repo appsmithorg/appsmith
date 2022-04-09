@@ -170,5 +170,11 @@
   "filepickerv2": ".t--draggable-filepickerwidgetv2",
   "dashboardItemName": ".uppy-Dashboard-Item-name",
   "mapChartShowLabels": ".t--property-control-showlabels input",
-  "widgetSection": ".t--entity.widgets > .t--entity-item > a.t--entity-collapse-toggle"
+  "widgetSection": ".t--entity.widgets > .t--entity-item > a.t--entity-collapse-toggle",
+  "changeThemeBtn": ".t--change-theme-btn",
+  "editThemeBtn": ".t--edit-theme-btn",
+  "themeCard": ".t--theme-card",
+  "saveThemeBtn": ".t--save-theme-btn",
+  "selectThemeBackBtn": ".t--theme-select-back-btn",
+  "themeAppBorderRadiusBtn": ".t--theme-appBorderRadius"
 }
