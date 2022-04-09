@@ -290,6 +290,9 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         return actionCollectionMono
                 .map(dbActionCollection -> {
                     copyNewFieldValuesIntoOldObject(actionCollectionDTO, dbActionCollection.getUnpublishedCollection());
+                    // No need to save defaultPageId at actionCollection level as this will be stored inside the
+                    // actionCollectionDTO
+                    dbActionCollection.getDefaultResources().setPageId(null);
                     return dbActionCollection;
                 })
                 .flatMap(actionCollection -> this.update(id, actionCollection))
