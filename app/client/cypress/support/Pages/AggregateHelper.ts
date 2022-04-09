@@ -1,6 +1,7 @@
 import 'cypress-wait-until';
 const uuid = require("uuid");
 import { ObjectsRegistry } from '../Objects/Registry';
+
 export class AggregateHelper {
     private locator = ObjectsRegistry.CommonLocators;
 
@@ -9,7 +10,7 @@ export class AggregateHelper {
         let pageid: string;
         let layoutId;
         cy.url().then((url) => {
-            pageid = url.split("/")[4]?.split("-").pop() as string;
+            pageid = url.split("/")[5]?.split("-").pop() as string;
             cy.log(pageid + "page id");
             //Fetch the layout id
             cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
@@ -240,9 +241,9 @@ export class AggregateHelper {
         })
     }
 
-    public XpathNClick(selector: string) {
+    public XpathNClick(selector: string, index = 0) {
         cy.xpath(selector)
-            .first()
+            .eq(0)
             .click({ force: true });
         this.Sleep()
     }
@@ -311,20 +312,26 @@ export class AggregateHelper {
         this.VerifyEvaluatedValue(valueToType);
     }
 
-    public EnterValue(valueToEnter: string, fieldName = "") {
-        if (fieldName) {
-            cy.xpath(this.locator._inputFieldByName(fieldName)).then(($field: any) => {
+    public EnterValue(valueToEnter: string, fieldName = "", notField = false) {
+        if (fieldName && !notField) {
+            cy.xpath(this.locator._existingFieldTextByName(fieldName)).then(($field: any) => {
                 this.UpdateCodeInput($field, valueToEnter);
             });
-        } else {
+        } else if (fieldName && notField) {
+            cy.get(fieldName).then(($field: any) => {
+                this.UpdateCodeInput($field, valueToEnter);
+            });
+        }
+        else {
             cy.get(this.locator._codeEditorTarget).then(($field: any) => {
                 this.UpdateCodeInput($field, valueToEnter);
             });
         }
+        this.AssertAutoSave()
     }
 
-    public UpdateCodeInput($selector: string, value: string) {
-        cy.get($selector)
+    public UpdateCodeInput(selector: string, value: string) {
+        cy.wrap(selector)
             .find(".CodeMirror")
             .first()
             .then((ins: any) => {
@@ -414,6 +421,19 @@ export class AggregateHelper {
         else
             cy.get(selector).should("have.length", length);
     }
+
+
+    public CheckUncheck(selector: string, check = true) {
+        let locator = selector.startsWith("//") ? cy.xpath(selector) : cy.get(selector)
+        if (check) {
+            locator.check({ force: true }).should("be.checked");
+        }
+        else {
+            locator.uncheck({ force: true }).should("not.be.checked");
+        }
+        this.Sleep()
+    }
+
 
     //Not used:
     // private xPathToCss(xpath: string) {

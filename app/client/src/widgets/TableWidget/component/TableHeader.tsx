@@ -13,7 +13,6 @@ import {
   ReactTableColumnProps,
   TableSizes,
   ReactTableFilter,
-  TableWidth,
 } from "./Constants";
 import TableDataDownload from "./TableDataDownload";
 import { Colors } from "constants/Colors";
@@ -43,12 +42,9 @@ const PageNumberInputWrapper = styled(NumericInput)`
   margin: 0 8px;
 `;
 
-const SearchComponentWrapper = styled.div<{
-  isMobileScreenTableWidth: boolean;
-}>`
+const SearchComponentWrapper = styled.div`
   margin: 3px 10px;
-  flex: ${(props) =>
-    props.isMobileScreenTableWidth ? "0 0 120px" : "0 0 200px"};
+  flex: 0 0 200px;
 `;
 
 function PageNumberInput(props: {
@@ -130,19 +126,14 @@ interface TableHeaderProps {
   isVisibleFilters?: boolean;
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
-  isMobileScreenTableWidth: boolean;
   delimiter: string;
-  width: number;
 }
 
 function TableHeader(props: TableHeaderProps) {
-  const isSmallerTableWidth = props.width <= TableWidth["Smaller"];
   return (
     <>
-      {props.isVisibleSearch && !isSmallerTableWidth && (
-        <SearchComponentWrapper
-          isMobileScreenTableWidth={props.isMobileScreenTableWidth}
-        >
+      {props.isVisibleSearch && (
+        <SearchComponentWrapper>
           <SearchComponent
             onSearch={props.searchTableData}
             placeholder="Search..."
@@ -150,36 +141,30 @@ function TableHeader(props: TableHeaderProps) {
           />
         </SearchComponentWrapper>
       )}
-      {(props.isVisibleFilters || props.isVisibleDownload) &&
-        props.width > TableWidth["Small"] && (
-          <CommonFunctionsMenuWrapper tableSizes={props.tableSizes}>
-            {props.isVisibleFilters && (
-              <TableFilters
-                applyFilter={props.applyFilter}
-                columns={props.columns}
-                filters={props.filters}
-                isMobileScreenTableWidth={props.isMobileScreenTableWidth}
-                widgetId={props.widgetId}
-              />
-            )}
+      {(props.isVisibleFilters || props.isVisibleDownload) && (
+        <CommonFunctionsMenuWrapper tableSizes={props.tableSizes}>
+          {props.isVisibleFilters && (
+            <TableFilters
+              applyFilter={props.applyFilter}
+              columns={props.columns}
+              filters={props.filters}
+              widgetId={props.widgetId}
+            />
+          )}
 
-            {props.isVisibleDownload && (
-              <TableDataDownload
-                columns={props.tableColumns}
-                data={props.tableData}
-                delimiter={props.delimiter}
-                isMobileScreenTableWidth={props.isMobileScreenTableWidth}
-                widgetName={props.widgetName}
-              />
-            )}
-          </CommonFunctionsMenuWrapper>
-        )}
+          {props.isVisibleDownload && (
+            <TableDataDownload
+              columns={props.tableColumns}
+              data={props.tableData}
+              delimiter={props.delimiter}
+              widgetName={props.widgetName}
+            />
+          )}
+        </CommonFunctionsMenuWrapper>
+      )}
 
       {props.isVisiblePagination && props.serverSidePaginationEnabled && (
-        <PaginationWrapper
-          isMobileScreenTableWidth={props.isMobileScreenTableWidth}
-          isSmallerTableWidth={isSmallerTableWidth}
-        >
+        <PaginationWrapper>
           <PaginationItemWrapper
             className="t--table-widget-prev-page"
             disabled={props.pageNo === 0}
@@ -206,10 +191,7 @@ function TableHeader(props: TableHeaderProps) {
         </PaginationWrapper>
       )}
       {props.isVisiblePagination && !props.serverSidePaginationEnabled && (
-        <PaginationWrapper
-          isMobileScreenTableWidth={props.isMobileScreenTableWidth}
-          isSmallerTableWidth={isSmallerTableWidth}
-        >
+        <PaginationWrapper>
           <RowWrapper className="show-page-items">
             {props.tableData?.length} Records
           </RowWrapper>
@@ -225,14 +207,14 @@ function TableHeader(props: TableHeaderProps) {
             <Icon color={Colors.GRAY} icon="chevron-left" iconSize={16} />
           </PaginationItemWrapper>
           <RowWrapper>
-            {!props.isMobileScreenTableWidth && "Page "}
+            Page{" "}
             <PageNumberInput
               disabled={props.pageCount === 1}
               pageCount={props.pageCount}
               pageNo={props.pageNo + 1}
               updatePageNo={props.updatePageNo}
-            />
-            {!props.isMobileScreenTableWidth && `of ${props.pageCount}`}
+            />{" "}
+            of {props.pageCount}
           </RowWrapper>
           <PaginationItemWrapper
             className="t--table-widget-next-page"

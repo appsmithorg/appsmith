@@ -152,6 +152,7 @@ export type EditorProps = EditorStyleProps &
     handleMouseEnter?: (event: MouseEvent) => void;
     handleMouseLeave?: () => void;
     isReadOnly?: boolean;
+    isRawView?: boolean;
   };
 
 type Props = ReduxStateProps &
@@ -793,6 +794,7 @@ class CodeEditor extends Component<Props, State> {
             hoverInteraction={hoverInteraction}
             isFocused={this.state.isFocused}
             isNotHover={this.state.isFocused || this.state.isOpened}
+            isRawView={this.props.isRawView}
             isReadOnly={this.props.isReadOnly}
             onMouseMove={this.handleLintTooltip}
             onMouseOver={this.handleMouseMove}
