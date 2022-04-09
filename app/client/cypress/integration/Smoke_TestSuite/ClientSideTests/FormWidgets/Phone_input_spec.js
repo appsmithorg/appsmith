@@ -103,7 +103,7 @@ describe("Phone input widget - ", () => {
     cy.get(widgetInput).type("{enter}");
     cy.wait(300);
     cy.get(widgetInput).should("contain.value", "");
-    cy.get(".t--widget-textwidget").should("contain", ":undefined");
+    cy.get(".t--widget-textwidget").should("contain", ":");
   });
 
   it("Check isDirty meta property", function() {
