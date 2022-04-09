@@ -82,7 +82,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-import reactor.util.function.Tuple2;
+import reactor.util.function.Tuple3;
 
 import java.lang.reflect.Type;
 import java.time.Duration;
@@ -2405,6 +2405,7 @@ public class ImportExportApplicationServiceTests {
         // add pages and actions
         List<NewPage> newPageList = new ArrayList<>(pageNames.size());
         List<NewAction> actionList = new ArrayList<>();
+        List<ActionCollection> actionCollectionList = new ArrayList<>();
 
         for(String pageName : pageNames) {
             NewPage newPage = new NewPage();
@@ -2424,10 +2425,21 @@ public class ImportExportApplicationServiceTests {
             action.getUnpublishedAction().getDatasource().setId("SampleDS");
             action.getUnpublishedAction().getDatasource().setPluginId("restapi-plugin");
             actionList.add(action);
+
+            ActionCollection actionCollection = new ActionCollection();
+            actionCollection.setId(pageName + "_SampleJS");
+            actionCollection.setUnpublishedCollection(new ActionCollectionDTO());
+            actionCollection.getUnpublishedCollection().setName("SampleJS");
+            actionCollection.getUnpublishedCollection().setPageId(pageName);
+            actionCollection.getUnpublishedCollection().setPluginId("js-plugin");
+            actionCollection.getUnpublishedCollection().setPluginType(PluginType.JS);
+            actionCollection.getUnpublishedCollection().setBody("export default {\\n\\t\\n}");
+            actionCollectionList.add(actionCollection);
         }
+
         applicationJson.setPageList(newPageList);
         applicationJson.setActionList(actionList);
-        applicationJson.setActionCollectionList(List.of());
+        applicationJson.setActionCollectionList(actionCollectionList);
         return applicationJson;
     }
 
@@ -2449,25 +2461,31 @@ public class ImportExportApplicationServiceTests {
         // let's create an ApplicationJSON which we'll merge with application created by createAppAndPageMono
         ApplicationJson applicationJson = createApplicationJSON(List.of("Home", "About"));
 
-        Mono<Tuple2<ApplicationPagesDTO, List<NewAction>>> tuple2Mono = createAppAndPageMono.flatMap(application ->
+        Mono<Tuple3<ApplicationPagesDTO, List<NewAction>, List<ActionCollection>>> tuple2Mono = createAppAndPageMono.flatMap(application ->
                 // merge the application json with the application we've created
                 importExportApplicationService.mergeApplicationJsonWithApplication(application.getId(), null, applicationJson, null)
                         .thenReturn(application)
         ).flatMap(application ->
                 // fetch the application pages, this should contain pages from application json
-                newPageService.findApplicationPages(application.getId(), null, null, ApplicationMode.EDIT)
-                        .zipWith(newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList())
+                Mono.zip(
+                        newPageService.findApplicationPages(application.getId(), null, null, ApplicationMode.EDIT),
+                        newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList(),
+                        actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
+                )
         );
 
         StepVerifier.create(tuple2Mono).assertNext(objects -> {
             ApplicationPagesDTO applicationPagesDTO = objects.getT1();
             List<NewAction> newActionList = objects.getT2();
+            List<ActionCollection> actionCollectionList = objects.getT3();
+
             assertThat(applicationPagesDTO.getPages().size()).isEqualTo(4);
             List<String> pageNames = applicationPagesDTO.getPages().stream()
                     .map(PageNameIdDTO::getName)
                     .collect(Collectors.toList());
             assertThat(pageNames).contains("Home", "Home2", "About");
-            assertThat(newActionList.size()).isEqualTo(2); // we imported two pages and each page has a action
+            assertThat(newActionList.size()).isEqualTo(2); // we imported two pages and each page has one action
+            assertThat(actionCollectionList.size()).isEqualTo(2); // we imported two pages and each page has one Collection
         }).verifyComplete();
     }
 
