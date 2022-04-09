@@ -354,7 +354,7 @@ export function isFunctionAsync(
   userFunction: unknown,
   dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
-  logs: unknown[],
+  logs: unknown[] = [],
 ) {
   return (function() {
     /**** Setting the eval context ****/
