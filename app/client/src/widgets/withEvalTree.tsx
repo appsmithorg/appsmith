@@ -2,20 +2,29 @@ import BaseWidget from "widgets/BaseWidget";
 import { WidgetProps } from "./BaseWidget";
 import React from "react";
 import { useSelector } from "react-redux";
-// import { MAIN_CONTAINER_WIDGET_ID } from "../constants/WidgetConstants";
-import { getWidgetEvalValues } from "../selectors/dataTreeSelectors";
+import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
+import { getWidgetEvalValues } from "selectors/dataTreeSelectors";
 import { AppState } from "reducers/index";
+import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import pick from "lodash/pick";
+import isEqual from "lodash/isEqual";
 
 export const withEvalTree = (WrappedWidget: typeof BaseWidget) => {
   return function Widget(props: WidgetProps) {
-    const evaluatedWidget = useSelector((state: AppState) =>
-      getWidgetEvalValues(state, props.widgetId),
+    const evaluatedWidget: DataTreeWidget = useSelector(
+      (state: AppState) => getWidgetEvalValues(state, props.widgetId),
+      (prev, next) => {
+        return !isEqual(prev, next);
+      },
     );
-    // if (props.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
-    //   console.log("MAIN_CONTAINER_WIDGET_ID");
-    // }
 
-    // console.log({ props, evaluatedWidget });
-    return <WrappedWidget {...props} {...evaluatedWidget} />;
+    const widgetStaticProps = pick(props, Object.keys(WIDGET_STATIC_PROPS));
+    const widgetProps = {
+      ...evaluatedWidget,
+      ...widgetStaticProps,
+    };
+
+    console.log("widgetProps", widgetProps.widgetId, { widgetProps });
+    return <WrappedWidget {...widgetProps} />;
   };
 };

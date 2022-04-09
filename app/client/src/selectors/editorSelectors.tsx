@@ -225,32 +225,8 @@ export const getWidgetCards = createSelector(
 
 const getMainContainer = (canvasWidgets: CanvasWidgetsReduxState) => {
   const canvasWidget = canvasWidgets[MAIN_CONTAINER_WIDGET_ID];
-  // const dataTree = getDataTree(store.getState());
-  // const evaluatedWidget = find(dataTree, {
-  //   widgetId: MAIN_CONTAINER_WIDGET_ID,
-  // }) as DataTreeWidget;
   return createCanvasWidget(canvasWidget);
 };
-
-// Object.keys(canvasWidgets)
-//   .filter((each) => each !== MAIN_CONTAINER_WIDGET_ID)
-//   .forEach((widgetKey) => {
-//     const canvasWidget = canvasWidgets[widgetKey];
-//     const evaluatedWidget = find(evaluatedDataTree, {
-//       widgetId: widgetKey,
-//     }) as DataTreeWidget;
-//     if (evaluatedWidget) {
-// widgets[widgetKey] = createCanvasWidget(
-//   canvasWidget,
-//   evaluatedWidget,
-// );
-//     } else {
-//       widgets[widgetKey] = createLoadingWidget(canvasWidget);
-//     }
-//     widgets[widgetKey].isLoading = loadingEntities.has(
-//       canvasWidget.widgetName,
-//     );
-//   });
 
 export const getCanvasWidgetDsl = createSelector(
   getCanvasWidgets,
@@ -268,7 +244,7 @@ export const getCanvasWidgetDsl = createSelector(
       .filter((each) => each !== MAIN_CONTAINER_WIDGET_ID)
       .forEach((widgetId) => {
         const canvasWidget = canvasWidgets[widgetId];
-        widgets[widgetId] = createLoadingWidget(canvasWidget);
+        widgets[widgetId] = createCanvasWidget(canvasWidget);
         widgets[widgetId].isLoading = loadingEntities.has(
           canvasWidget.widgetName,
         );
