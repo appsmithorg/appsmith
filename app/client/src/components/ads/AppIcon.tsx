@@ -64,7 +64,6 @@ import { ReactComponent as RoseIcon } from "assets/icons/ads/app-icons/rose.svg"
 import { ReactComponent as RupeeIcon } from "assets/icons/ads/app-icons/rupee.svg";
 import { ReactComponent as SaturnIcon } from "assets/icons/ads/app-icons/saturn.svg";
 import { ReactComponent as ServerIcon } from "assets/icons/ads/app-icons/server.svg";
-import { ReactComponent as ServerLineIcon } from "assets/icons/ads/app-icons/server-line.svg";
 import { ReactComponent as ShakeHandsIcon } from "assets/icons/ads/app-icons/shake-hands.svg";
 import { ReactComponent as ShirtIcon } from "assets/icons/ads/app-icons/shirt.svg";
 import { ReactComponent as ShopIcon } from "assets/icons/ads/app-icons/shop.svg";
@@ -86,6 +85,7 @@ import ArrowLeftIcon from "remixicon-react/ArrowLeftSLineIcon";
 import ArrowRightIcon from "remixicon-react/ArrowRightSLineIcon";
 import HelpIcon from "remixicon-react/QuestionLineIcon";
 import OpenNewTabIcon from "remixicon-react/ShareBoxLineIcon";
+import ServerLineIcon from "remixicon-react/ServerLineIcon";
 
 import styled from "styled-components";
 import { Size } from "./Button";

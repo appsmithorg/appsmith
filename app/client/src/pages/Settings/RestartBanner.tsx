@@ -94,7 +94,6 @@ const AppIconWrapper = styled.div`
   svg {
     width: 18px;
     height: 18px;
-    padding: 2px;
 
     path {
       fill: var(--appsmith-color-red-200);

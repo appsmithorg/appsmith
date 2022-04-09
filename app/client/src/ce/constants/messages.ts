@@ -971,7 +971,7 @@ export const SETTINGS_TOOLTIP = () => "Settings";
 export const ADMIN_SETTINGS = () => "Admin Settings";
 export const RESTART_BANNER_BODY = () =>
   "Hang in there. This should be done soon.";
-export const RESTART_BANNER_HEADER = () => "Restarting Your Server";
+export const RESTART_BANNER_HEADER = () => "Restarting your server";
 export const RESTART_ERROR_BODY = () =>
   "You can try refreshing the page for the settings to take place.";
 export const RESTART_ERROR_HEADER = () => "Restarting failed";
