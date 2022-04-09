@@ -61,6 +61,7 @@ import { Toaster, Variant } from "components/ads";
 import { getOAuthAccessToken } from "actions/datasourceActions";
 import { builderURL } from "RouteBuilder";
 import { PLACEHOLDER_APP_SLUG } from "constants/routes";
+import { setApplicationImportSuccessModal } from "actions/gitSyncActions";
 
 const Container = styled.div`
   height: 765px;
@@ -478,6 +479,8 @@ function ReconnectDatasourceModal() {
         setSelectedDatasourceId(next.id);
         setDatasource(next);
       } else if (appURL) {
+        // open application import successfule
+        dispatch(setApplicationImportSuccessModal(true));
         window.open(appURL, "_self");
       }
     }

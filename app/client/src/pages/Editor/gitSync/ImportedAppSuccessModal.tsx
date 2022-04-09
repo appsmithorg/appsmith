@@ -1,0 +1,90 @@
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import Dialog from "components/ads/DialogComponent";
+import { setApplicationImportSuccessModal } from "actions/gitSyncActions";
+import styled, { useTheme } from "styled-components";
+import Text, { TextType } from "components/ads/Text";
+import { Colors } from "constants/Colors";
+import {
+  createMessage,
+  APPLICATION_IMPORT_SUCCESS,
+  APPLICATION_IMPORT_SUCCESS_DESCRIPTION,
+} from "@appsmith/constants/messages";
+import Icon from "components/ads/Icon";
+import { Theme } from "constants/DefaultTheme";
+import { getIsImportApplicationSuccessModalOpen } from "selectors/entitiesSelector";
+import { getCurrentUser } from "selectors/usersSelectors";
+
+const Container = styled.div`
+  height: 461px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-y: hidden;
+  justify-content: center;
+  align-content: center;
+`;
+
+const BodyContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  .cs-icon {
+    margin: auto;
+    svg {
+      width: 68px;
+      height: 68px;
+    }
+  }
+
+  .cs-text {
+    text-align: center;
+  }
+`;
+
+function ImportedApplicationSuccessModal() {
+  const isOpen = useSelector(getIsImportApplicationSuccessModalOpen);
+  const currentUser = useSelector(getCurrentUser);
+  const dispatch = useDispatch();
+
+  const onClose = () => dispatch(setApplicationImportSuccessModal(false));
+  const theme = useTheme() as Theme;
+  return (
+    <Dialog
+      canEscapeKeyClose
+      canOutsideClickClose
+      className="t--git-repo-limited-modal"
+      isOpen={isOpen}
+      maxWidth={"900px"}
+      noModalBodyMarginTop
+      onClose={onClose}
+      width={"600px"}
+    >
+      <Container>
+        <BodyContainer>
+          <Icon fillColor={Colors.GREEN_1} name="oval-check-fill" />
+          <Text
+            color={Colors.BLACK}
+            style={{ marginTop: 64 }}
+            type={TextType.DANGER_HEADING}
+            weight="bold"
+          >
+            {createMessage(
+              APPLICATION_IMPORT_SUCCESS,
+              currentUser?.name || currentUser?.username,
+            )}
+          </Text>
+          <Text
+            color={Colors.GRAY_700}
+            style={{ marginTop: theme.spaces[3] }}
+            type={TextType.P1}
+          >
+            {createMessage(APPLICATION_IMPORT_SUCCESS_DESCRIPTION)}
+          </Text>
+        </BodyContainer>
+      </Container>
+    </Dialog>
+  );
+}
+
+export default ImportedApplicationSuccessModal;

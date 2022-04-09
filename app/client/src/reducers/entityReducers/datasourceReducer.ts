@@ -24,6 +24,7 @@ export interface DatasourceDataState {
   executingDatasourceQuery: boolean;
   isReconnectingModalOpen: boolean; // reconnect datasource modal for import application
   unconfiguredList: Datasource[];
+  isApplicationImportSuccessModalOpen: boolean; // Application import success modal
 }
 
 const initialState: DatasourceDataState = {
@@ -40,6 +41,7 @@ const initialState: DatasourceDataState = {
   executingDatasourceQuery: false,
   isReconnectingModalOpen: false,
   unconfiguredList: [],
+  isApplicationImportSuccessModalOpen: false,
 };
 
 const datasourceReducer = createReducer(initialState, {
@@ -377,6 +379,16 @@ const datasourceReducer = createReducer(initialState, {
       ...state,
       isListing: true,
       unconfiguredList: [],
+    };
+  },
+  // when imported application successful with full datasource configured
+  [ReduxActionTypes.SET_IS_APPLICATION_IMPORT_SUCCESS_MODAL_OPEN]: (
+    state: DatasourceDataState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      isApplicationImportSuccessModalOpen: action.payload,
     };
   },
 });
