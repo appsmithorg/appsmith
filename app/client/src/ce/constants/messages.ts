@@ -975,7 +975,7 @@ export const RESTART_BANNER_HEADER = () => "Restarting your server";
 export const RESTART_ERROR_BODY = () =>
   "You can try refreshing the page for the settings to take place.";
 export const RESTART_ERROR_HEADER = () => "Restarting failed";
-export const REFRESH_BUTTON = () => "Refresh";
+export const RETRY_BUTTON = () => "Retry";
 export const INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST = () =>
   "Hey! There is a new version of Appsmith available. Please consider refreshing your window.";
 export const TEST_EMAIL_SUCCESS = (email: string) => () =>

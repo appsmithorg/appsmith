@@ -8,7 +8,7 @@ import { useSelector } from "store";
 import styled from "styled-components";
 import {
   createMessage,
-  REFRESH_BUTTON,
+  RETRY_BUTTON,
   RESTART_BANNER_BODY,
   RESTART_BANNER_HEADER,
   RESTART_ERROR_BODY,
@@ -18,6 +18,8 @@ import { Colors } from "constants/Colors";
 import Button, { Category, Size } from "components/ads/Button";
 import { hexToRgba } from "components/ads/common";
 import AppIcon from "components/ads/AppIcon";
+import { retryServerRestart } from "actions/settingsAction";
+import { useDispatch } from "react-redux";
 
 const RestartBannerWrapper = styled.div`
   position: fixed;
@@ -140,6 +142,7 @@ function Header() {
 export default function RestartBanner() {
   const isRestartFailed = useSelector(getIsRestartFailed);
   const isRestarting = useSelector(getRestartingState);
+  const dispatch = useDispatch();
   return isRestarting ? (
     <RestartBannerWrapper>
       <OverlayBackdrop />
@@ -156,9 +159,9 @@ export default function RestartBanner() {
           <Button
             category={Category.primary}
             data-cy="btn-refresh"
-            onClick={() => window.location.reload()}
+            onClick={() => dispatch(retryServerRestart())}
             size={Size.large}
-            text={createMessage(REFRESH_BUTTON)}
+            text={createMessage(RETRY_BUTTON)}
           />
         )}
       </RestartContainer>
