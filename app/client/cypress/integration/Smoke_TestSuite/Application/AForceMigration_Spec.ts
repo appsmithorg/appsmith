@@ -187,7 +187,7 @@ describe("AForce - Community Issues page validations", function () {
 
     //One filter
     table.FilterTable("Type", "is exactly", "Bug")
-    table.ReadTableRowColumnData(0, 1).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, 2000).then(($cellData) => {
       expect($cellData).to.eq("[Bug]:  Postgres queries unable to execute with more than 9 placeholders");
     });
     table.ReadTableRowColumnData(4, 1).then(($cellData) => {
@@ -197,7 +197,7 @@ describe("AForce - Community Issues page validations", function () {
 
     //Two filters - OR
     table.FilterTable("Type", "starts with", "Trouble")
-    table.ReadTableRowColumnData(0, 0).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
       expect($cellData).to.eq("Troubleshooting");
     });
     table.ReadTableRowColumnData(0, 1).then(($cellData) => {
@@ -205,7 +205,7 @@ describe("AForce - Community Issues page validations", function () {
     });
 
     table.FilterTable("Title", "contains", "query", 'OR', 1)
-    table.ReadTableRowColumnData(0, 0).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
       expect($cellData).to.eq("Question");
     });
     table.ReadTableRowColumnData(5, 1).then(($cellData) => {
@@ -215,12 +215,12 @@ describe("AForce - Community Issues page validations", function () {
 
      //Two filters - AND
      table.FilterTable("Votes", "greater than", "3")
-     table.ReadTableRowColumnData(0, 1).then(($cellData) => {
+     table.ReadTableRowColumnData(0, 1, 2000).then(($cellData) => {
        expect($cellData).to.eq("Combine queries from different datasources");
      });
  
      table.FilterTable("Title", "contains", "button", 'AND', 1)
-     table.ReadTableRowColumnData(0, 1).then(($cellData) => {
+     table.ReadTableRowColumnData(0, 1, 2000).then(($cellData) => {
        expect($cellData).to.eq("Change the video in the video player with a button click");
      });
      table.RemoveFilterNVerify("Question", true, false)
