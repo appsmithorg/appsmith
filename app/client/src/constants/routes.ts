@@ -55,6 +55,8 @@ export const BUILDER_CHECKLIST_PATH = `/checklist`;
 export const ADMIN_SETTINGS_PATH = "/settings";
 export const ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH = "/settings/general";
 export const ADMIN_SETTINGS_CATEGORY_PATH = "/settings/:category/:subCategory?";
+export const BUILDER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
+export const VIEWER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId`;
 
 export const matchApplicationPath = match(APPLICATIONS_URL);
 export const matchApiBasePath = match(API_EDITOR_BASE_PATH);

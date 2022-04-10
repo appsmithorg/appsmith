@@ -47,7 +47,7 @@ export const generateDataTreeAction = (
     pluginType: action.config.pluginType,
     config: action.config.actionConfiguration,
     dynamicBindingPathList,
-    data: action.data ? action.data.body : {},
+    data: action.data ? action.data.body : undefined,
     responseMeta: {
       statusCode: action.data?.statusCode,
       isExecutionSuccess: action.data?.isExecutionSuccess || false,
