@@ -525,6 +525,24 @@ Cypress.Commands.add("PublishtheApp", () => {
   cy.wait(1000); //wait time for page to load!
 });
 
+Cypress.Commands.add("tabPopertyUpdate", (tabId, newTabName) => {
+  cy.get("[data-rbd-draggable-id='" + tabId + "'] input")
+    .scrollIntoView()
+    .should("be.visible")
+    .click({
+      force: true,
+    });
+  cy.get("[data-rbd-draggable-id='" + tabId + "'] input").clear({
+    force: true,
+  });
+  cy.get("[data-rbd-draggable-id='" + tabId + "'] input").type(newTabName, {
+    force: true,
+  });
+  cy.get(`.t--tabid-${tabId}`)
+    .contains(newTabName)
+    .should("be.visible");
+});
+
 Cypress.Commands.add("generateUUID", () => {
   const uuid = require("uuid");
   const id = uuid.v4();
@@ -538,7 +556,7 @@ Cypress.Commands.add("addDsl", (dsl) => {
   cy.url().then((url) => {
     currentURL = url;
     pageid = currentURL
-      .split("/")[4]
+      .split("/")[5]
       ?.split("-")
       .pop();
     cy.log(pageidcopy + "page id copy");

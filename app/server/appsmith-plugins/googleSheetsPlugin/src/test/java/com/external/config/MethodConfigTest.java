@@ -1,11 +1,18 @@
 package com.external.config;
 
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.Property;
 import com.external.config.MethodConfig;
 import org.junit.Assert;
 import org.junit.Test;
 import java.util.*;
+
+import static com.external.config.MethodConfig.OPERATOR_KEY;
+import static com.external.config.MethodConfig.PATH_KEY;
+import static com.external.config.MethodConfig.VALUE_KEY;
+import static org.junit.Assert.assertEquals;
 
 public class MethodConfigTest {
 
@@ -41,24 +48,61 @@ public class MethodConfigTest {
 
                 switch (testPropKeys[i]){
                     case "range":
-                        Assert.assertEquals(methodConfig.getSpreadsheetRange(), e.getKey());
+                        assertEquals(methodConfig.getSpreadsheetRange(), e.getKey());
                         break;
                     case "tableHeaderIndex":
-                        Assert.assertEquals(methodConfig.getTableHeaderIndex(), e.getKey());
+                        assertEquals(methodConfig.getTableHeaderIndex(), e.getKey());
                         break;
                     case "rowLimit":
-                        Assert.assertEquals(methodConfig.getRowLimit(), e.getKey());
+                        assertEquals(methodConfig.getRowLimit(), e.getKey());
                         break;
                     case "rowOffset":
-                        Assert.assertEquals(methodConfig.getRowOffset(), e.getKey());
+                        assertEquals(methodConfig.getRowOffset(), e.getKey());
                         break;
                     case "rowIndex":
-                        Assert.assertEquals(methodConfig.getRowIndex(), e.getKey());
+                        assertEquals(methodConfig.getRowIndex(), e.getKey());
                         break;
                 }
 
             }
         }
+    }
+
+    @Test
+    public void testInitialEmptyWhereCondition() {
+        Map condition = new LinkedHashMap();
+        condition.put(PATH_KEY, "");
+        condition.put(VALUE_KEY, "");
+
+        List<Map> listOfConditions = new ArrayList<>();
+        listOfConditions.add(condition);
+
+        Property property = new Property("where", listOfConditions);
+        List<Property> propertyList = new ArrayList();
+        propertyList.add(property);
+
+        MethodConfig methodConfig = new MethodConfig(propertyList);
+        List<Condition> parsedWhereConditions = methodConfig.getWhereConditions();
+        assertEquals(0, parsedWhereConditions.size());
+    }
+
+    @Test(expected = AppsmithPluginException.class)
+    public void testNonEmptyOperatorWithEmptyColumnWhereCondition() {
+        Map condition = new LinkedHashMap();
+        condition.put(PATH_KEY, "");
+        condition.put(OPERATOR_KEY, "EQ");
+        condition.put(VALUE_KEY, "");
+
+        List<Map> listOfConditions = new ArrayList<>();
+        listOfConditions.add(condition);
+
+        Property property = new Property("where", listOfConditions);
+        List<Property> propertyList = new ArrayList();
+        propertyList.add(property);
+
+        MethodConfig methodConfig = new MethodConfig(propertyList);
+        List<Condition> parsedWhereConditions = methodConfig.getWhereConditions();
+        assertEquals(0, parsedWhereConditions.size());
     }
 }
 
