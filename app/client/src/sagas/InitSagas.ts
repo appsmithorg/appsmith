@@ -271,6 +271,13 @@ function* initiatePluginsAndDatasources() {
     ],
   );
   if (!pluginsAndDatasourcesCalls) return;
+
+  const pluginFormCall: boolean = yield failFastApiCalls(
+    [fetchPluginFormConfigs()],
+    [ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS],
+    [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR],
+  );
+  if (!pluginFormCall) return;
 }
 
 function* initiateGit(applicationId: string) {
@@ -324,8 +331,6 @@ function* initializeEditorSaga(
       call(initiatePluginsAndDatasources),
       call(populatePageDSLsSaga),
     ]);
-
-    yield put(fetchPluginFormConfigs());
 
     AnalyticsUtil.logEvent("EDITOR_OPEN", {
       appId: applicationId,
