@@ -9,6 +9,8 @@ import QueryEditorForm from "./Form";
 import {
   deleteAction,
   runAction,
+  setActionResponseDisplayFormat,
+  UpdateActionPropertyActionPayload,
   setActionProperty,
 } from "actions/pluginActionActions";
 import { AppState } from "reducers";
@@ -73,6 +75,11 @@ type ReduxDispatchProps = {
     settingConfig: any,
     formId: string,
   ) => void;
+  updateActionResponseDisplayFormat: ({
+    field,
+    id,
+    value,
+  }: UpdateActionPropertyActionPayload) => void;
   setActionProperty: (
     actionId: string,
     propertyName: string,
@@ -209,6 +216,7 @@ class QueryEditor extends React.Component<Props> {
       runErrorMessage,
       settingConfig,
       uiComponent,
+      updateActionResponseDisplayFormat,
     } = this.props;
     const { pageId } = this.props.match.params;
 
@@ -270,6 +278,7 @@ class QueryEditor extends React.Component<Props> {
         runErrorMessage={runErrorMessage[actionId]}
         settingConfig={settingConfig}
         uiComponent={uiComponent}
+        updateActionResponseDisplayFormat={updateActionResponseDisplayFormat}
       />
     );
   }
@@ -374,6 +383,13 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
     formId: string,
   ) => {
     dispatch(initFormEvaluations(editorConfig, settingsConfig, formId));
+  },
+  updateActionResponseDisplayFormat: ({
+    field,
+    id,
+    value,
+  }: UpdateActionPropertyActionPayload) => {
+    dispatch(setActionResponseDisplayFormat({ id, field, value }));
   },
   setActionProperty: (
     actionId: string,

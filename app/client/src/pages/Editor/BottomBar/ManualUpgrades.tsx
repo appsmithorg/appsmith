@@ -28,6 +28,7 @@ import { useLocalStorage } from "utils/hooks/localstorage";
 import { createMessage, CLEAN_URL_UPDATE } from "@appsmith/constants/messages";
 import { useLocation } from "react-router";
 import DisclaimerIcon from "remixicon-react/ErrorWarningLineIcon";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 function RedDot() {
   return (
@@ -175,6 +176,7 @@ function UpdatesModal({
             isLoading={isLoading}
             onClick={() => {
               setIsLoading(true);
+              AnalyticsUtil.logEvent("MANUAL_UPGRADE_CLICK");
               dispatch(
                 updateApplication(
                   applicationId as string,

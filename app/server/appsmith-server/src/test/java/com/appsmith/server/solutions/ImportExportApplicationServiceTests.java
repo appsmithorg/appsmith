@@ -2337,7 +2337,7 @@ public class ImportExportApplicationServiceTests {
     
     @Test
     @WithUserDetails(value = "api_user")
-    public void exportApplication_withMultiplePages_PagesOrderIsMaintainedINExportedAppJson() {
+    public void exportAndImportApplication_withMultiplePages_PagesOrderIsMaintained() {
         Organization newOrganization = new Organization();
         newOrganization.setName("template-org-with-ds");
 
@@ -2372,6 +2372,31 @@ public class ImportExportApplicationServiceTests {
                     assertThat(pageList.get(2).getUnpublishedPage().getName()).isEqualTo("Page1");
                 })
                 .verifyComplete();
+
+        ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(testApplication.getId(), "").block();
+        Application application = importExportApplicationService.importApplicationInOrganization(orgId, applicationJson).block();
+
+        List<ApplicationPage> pageDTOS = application.getPages();
+        Mono<NewPage> newPageMono1 = newPageService.findById(pageDTOS.get(0).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPageMono2 = newPageService.findById(pageDTOS.get(1).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPageMono3 = newPageService.findById(pageDTOS.get(2).getId(), MANAGE_PAGES);
+
+        StepVerifier
+                .create(Mono.zip(newPageMono1, newPageMono2, newPageMono3))
+                .assertNext(objects -> {
+                    NewPage newPage1 = objects.getT1();
+                    NewPage newPage2 = objects.getT2();
+                    NewPage newPage3 = objects.getT3();
+                    assertThat(newPage1.getUnpublishedPage().getName()).isEqualTo("123");
+                    assertThat(newPage2.getUnpublishedPage().getName()).isEqualTo("abc");
+                    assertThat(newPage3.getUnpublishedPage().getName()).isEqualTo("Page1");
+
+                    assertThat(newPage1.getId()).isEqualTo(pageDTOS.get(0).getId());
+                    assertThat(newPage2.getId()).isEqualTo(pageDTOS.get(1).getId());
+                    assertThat(newPage3.getId()).isEqualTo(pageDTOS.get(2).getId());
+                })
+                .verifyComplete();
+
     }
     
 }
