@@ -12,8 +12,8 @@ import { getWidgets, getWidgetsMeta } from "sagas/selectors";
 import "url-search-params-polyfill";
 import { getPageList } from "./appViewSelectors";
 import { AppState } from "reducers";
-import { find } from "lodash";
-import { DataTreeWidget } from "../entities/DataTree/dataTreeFactory";
+import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
@@ -54,6 +54,11 @@ export const getEvaluationInverseDependencyMap = (state: AppState) =>
 export const getLoadingEntities = (state: AppState) =>
   state.evaluations.loadingEntities;
 
+export const getIsWidgetLoading = createSelector(
+  [getLoadingEntities, (_state: AppState, widgetName: string) => widgetName],
+  (loadingEntities: LoadingEntitiesState, widgetName: string) =>
+    loadingEntities.has(widgetName),
+);
 /**
  * returns evaluation tree object
  *

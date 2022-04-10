@@ -26,7 +26,6 @@ import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { pick, sortBy } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import { APP_MODE } from "entities/App";
-import { getLoadingEntities } from "selectors/dataTreeSelectors";
 import { Page } from "constants/ReduxActionConstants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { builderURL } from "RouteBuilder";
@@ -225,33 +224,21 @@ export const getWidgetCards = createSelector(
 
 const getMainContainer = (canvasWidgets: CanvasWidgetsReduxState) => {
   const canvasWidget = canvasWidgets[MAIN_CONTAINER_WIDGET_ID];
-  return createCanvasWidget(canvasWidget);
+  return createLoadingWidget(canvasWidget);
 };
 
 export const getCanvasWidgetDsl = createSelector(
   getCanvasWidgets,
-  getLoadingEntities,
   (
     canvasWidgets: CanvasWidgetsReduxState,
-    loadingEntities,
   ): ContainerWidgetProps<WidgetProps> => {
-    // Change type from unknown here
-    const widgets: Record<string, any> = {
+    // TODO: Change type from unknown here
+    const widgets: Record<string, unknown> = {
       [MAIN_CONTAINER_WIDGET_ID]: getMainContainer(canvasWidgets),
     };
 
-    Object.keys(canvasWidgets)
-      .filter((each) => each !== MAIN_CONTAINER_WIDGET_ID)
-      .forEach((widgetId) => {
-        const canvasWidget = canvasWidgets[widgetId];
-        widgets[widgetId] = createCanvasWidget(canvasWidget);
-        widgets[widgetId].isLoading = loadingEntities.has(
-          canvasWidget.widgetName,
-        );
-      });
-
     return CanvasWidgetsNormalizer.denormalize("0", {
-      canvasWidgets: widgets,
+      canvasWidgets: { ...widgets, ...canvasWidgets },
     });
   },
 );
@@ -398,23 +385,22 @@ export const getActionById = createSelector(
   },
 );
 
-const createCanvasWidget = (
+export const createCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,
-  evaluatedWidget?: DataTreeWidget,
+  evaluatedWidget: DataTreeWidget,
 ) => {
   const widgetStaticProps = pick(
     canvasWidget,
     Object.keys(WIDGET_STATIC_PROPS),
   );
-  const evalValues = evaluatedWidget ? evaluatedWidget : {};
   return {
-    ...evalValues,
+    ...evaluatedWidget,
     ...widgetStaticProps,
   };
 };
 
 const WidgetTypes = WidgetFactory.widgetTypes;
-const createLoadingWidget = (
+export const createLoadingWidget = (
   canvasWidget: FlattenedWidgetProps,
 ): DataTreeWidget => {
   const widgetStaticProps = pick(
