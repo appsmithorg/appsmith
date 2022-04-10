@@ -766,6 +766,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                 )
                                                 .flatMap(existingApplication -> {
                                                     importedApplication.setId(existingApplication.getId());
+                                                    // For the existing application we don't need to default value of the flag
+                                                    // The isPublic flag has a default value as false and this would be confusing to user
+                                                    // when it is reset to false during importing where the application already is present in DB
+                                                    importedApplication.setIsPublic(null);
                                                     AppsmithBeanUtils.copyNestedNonNullProperties(importedApplication, existingApplication);
                                                     // Here we are expecting the changes present in DB are committed to git directory
                                                     // so that these won't be lost when we are pulling changes from remote and
@@ -843,41 +847,48 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             importedDoc.getUnpublishedLayoutmongoEscapedWidgets(),
                             branchName,
                             existingPagesMono
-                    )
-                            .map(newPage -> {
-                                ApplicationPage unpublishedAppPage = new ApplicationPage();
-                                ApplicationPage publishedAppPage = new ApplicationPage();
+                    ).collectList()
+                            .map(newPageList -> {
+                                // Check if the pages order match with json file
+                                List<String> pageOrderList = importedNewPageList.stream().map(newPage -> newPage.getUnpublishedPage().getName()).collect(Collectors.toList());
+                                Collections.sort(newPageList,
+                                        Comparator.comparing(newPage -> pageOrderList.indexOf(newPage.getUnpublishedPage().getName())));
+                                for (NewPage newPage : newPageList) {
 
-                                if (newPage.getUnpublishedPage() != null && newPage.getUnpublishedPage().getName() != null) {
-                                    unpublishedAppPage.setIsDefault(
-                                            StringUtils.equals(
-                                                    newPage.getUnpublishedPage().getName(), importedDoc.getUnpublishedDefaultPageName()
-                                            )
-                                    );
-                                    unpublishedAppPage.setId(newPage.getId());
-                                    if (newPage.getDefaultResources() != null) {
-                                        unpublishedAppPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
-                                    }
-                                    pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
-                                }
+                                    ApplicationPage unpublishedAppPage = new ApplicationPage();
+                                    ApplicationPage publishedAppPage = new ApplicationPage();
 
-                                if (newPage.getPublishedPage() != null && newPage.getPublishedPage().getName() != null) {
-                                    publishedAppPage.setIsDefault(
-                                            StringUtils.equals(
-                                                    newPage.getPublishedPage().getName(), importedDoc.getPublishedDefaultPageName()
-                                            )
-                                    );
-                                    publishedAppPage.setId(newPage.getId());
-                                    if (newPage.getDefaultResources() != null) {
-                                        publishedAppPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
+                                    if (newPage.getUnpublishedPage() != null && newPage.getUnpublishedPage().getName() != null) {
+                                        unpublishedAppPage.setIsDefault(
+                                                StringUtils.equals(
+                                                        newPage.getUnpublishedPage().getName(), importedDoc.getUnpublishedDefaultPageName()
+                                                )
+                                        );
+                                        unpublishedAppPage.setId(newPage.getId());
+                                        if (newPage.getDefaultResources() != null) {
+                                            unpublishedAppPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
+                                        }
+                                        pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
                                     }
-                                    pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
-                                }
-                                if (unpublishedAppPage.getId() != null && newPage.getUnpublishedPage().getDeletedAt() == null) {
-                                    applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
-                                }
-                                if (publishedAppPage.getId() != null && newPage.getPublishedPage().getDeletedAt() == null) {
-                                    applicationPages.get(PublishType.PUBLISHED).add(publishedAppPage);
+
+                                    if (newPage.getPublishedPage() != null && newPage.getPublishedPage().getName() != null) {
+                                        publishedAppPage.setIsDefault(
+                                                StringUtils.equals(
+                                                        newPage.getPublishedPage().getName(), importedDoc.getPublishedDefaultPageName()
+                                                )
+                                        );
+                                        publishedAppPage.setId(newPage.getId());
+                                        if (newPage.getDefaultResources() != null) {
+                                            publishedAppPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
+                                        }
+                                        pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
+                                    }
+                                    if (unpublishedAppPage.getId() != null && newPage.getUnpublishedPage().getDeletedAt() == null) {
+                                        applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
+                                    }
+                                    if (publishedAppPage.getId() != null && newPage.getPublishedPage().getDeletedAt() == null) {
+                                        applicationPages.get(PublishType.PUBLISHED).add(publishedAppPage);
+                                    }
                                 }
                                 return applicationPages;
                             })
@@ -895,7 +906,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                             .flatMap(existingPagesList -> {
                                                 Set<String> invalidPageIds = new HashSet<>();
                                                 for (NewPage newPage : existingPagesList) {
-                                                    if(!validPageIds.contains(newPage.getId())) {
+                                                    if (!validPageIds.contains(newPage.getId())) {
                                                         invalidPageIds.add(newPage.getId());
                                                     }
                                                 }
