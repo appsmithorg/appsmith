@@ -13,7 +13,6 @@ import {
   ReflowedSpaceMap,
 } from "reflow/reflowTypes";
 import { getZoomLevel } from "selectors/editorSelectors";
-import { isReflowEnabled } from "selectors/widgetReflowSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { getAbsolutePixels } from "utils/helpers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
@@ -49,7 +48,6 @@ export const useCanvasDragging = (
   const canvasZoomLevel = useSelector(getZoomLevel);
   const currentDirection = useRef<ReflowDirection>(ReflowDirection.UNSET);
   const { devicePixelRatio: scale = 1 } = window;
-  const reflowEnabled = useSelector(isReflowEnabled);
   const {
     blocksToDraw,
     defaultHandlePositions,
@@ -365,8 +363,7 @@ export const useCanvasDragging = (
         const triggerReflow = (e: any, firstMove: boolean) => {
           const canReflowBasedOnMouseSpeed = canReflowForCurrentMouseMove();
           const isReflowing = !isEmpty(currentReflowParams.movementMap);
-          const canReflow =
-            reflowEnabled && !currentRectanglesToDraw[0].detachFromLayout;
+          const canReflow = !currentRectanglesToDraw[0].detachFromLayout;
           const currentBlock = currentRectanglesToDraw[0];
           const [leftColumn, topRow] = getDropZoneOffsets(
             snapColumnSpace,
@@ -751,14 +748,7 @@ export const useCanvasDragging = (
         resetCanvasState();
       }
     }
-  }, [
-    isDragging,
-    isResizing,
-    blocksToDraw,
-    snapRows,
-    canExtend,
-    reflowEnabled,
-  ]);
+  }, [isDragging, isResizing, blocksToDraw, snapRows, canExtend]);
   return {
     showCanvas: isDragging && !isResizing,
   };
