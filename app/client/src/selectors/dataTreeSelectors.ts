@@ -63,13 +63,8 @@ export const getDataTree = (state: AppState): DataTree =>
   state.evaluations.tree;
 
 export const getWidgetEvalValues = createSelector(
-  [getDataTree, (_state: AppState, widgetId: string) => widgetId],
-  (tree: DataTree, widgetId: string) => {
-    const evaluatedWidget = find(tree, {
-      widgetId: widgetId,
-    }) as DataTreeWidget;
-    return evaluatedWidget;
-  },
+  [getDataTree, (_state: AppState, widgetName: string) => widgetName],
+  (tree: DataTree, widgetName: string) => tree[widgetName] as DataTreeWidget,
 );
 
 // For autocomplete. Use actions cached responses if

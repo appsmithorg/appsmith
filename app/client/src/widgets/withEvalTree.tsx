@@ -10,11 +10,11 @@ import pick from "lodash/pick";
 import isEqual from "lodash/isEqual";
 
 export const withEvalTree = (WrappedWidget: typeof BaseWidget) => {
-  return function Widget(props: WidgetProps) {
+  return React.memo(function Widget(props: WidgetProps) {
     const evaluatedWidget: DataTreeWidget = useSelector(
-      (state: AppState) => getWidgetEvalValues(state, props.widgetId),
+      (state: AppState) => getWidgetEvalValues(state, props.widgetName),
       (prev, next) => {
-        return !isEqual(prev, next);
+        return isEqual(prev, next);
       },
     );
 
@@ -24,7 +24,6 @@ export const withEvalTree = (WrappedWidget: typeof BaseWidget) => {
       ...widgetStaticProps,
     };
 
-    console.log("widgetProps", widgetProps.widgetId, { widgetProps });
     return <WrappedWidget {...widgetProps} />;
-  };
+  });
 };
