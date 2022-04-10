@@ -121,7 +121,7 @@ describe("Theme validation", function() {
       });
   });
 
-  it("Update Font and validate across app", function() {
+  it("Validate Default font and Update Font and validate across app", function() {
     cy.goToEditFromPublish();
     cy.get("#canvas-selection-0").click({ force: true });
     //Change the font
@@ -129,9 +129,15 @@ describe("Theme validation", function() {
     cy.get("span[name='expand-more']").then(($elem) => {
       cy.get($elem).click({ force: true });
       cy.wait(250);
+      cy.fixture("fontData").then(function(testdata) {
+        this.testdata = testdata;
+      });
       cy.get(".leading-normal")
         .eq(0)
         .should("have.text", "System Default");
+      cy.get(selector).each(($ele, i) => {
+        expect($ele).to.have.text(this.testdata.dropdownValues[i]);
+      });
       cy.get(".ads-dropdown-options-wrapper div")
         .children()
         .eq(2)
