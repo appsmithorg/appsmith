@@ -10,7 +10,7 @@ let themeBackgroudColor;
 let themeFont;
 
 describe("Theme validation", function() {
-  it("Drag and drop form widget and validate default theme validation", function() {
+  it("Drag and drop form widget and validate Default font and list of font validation", function() {
     cy.log("Login Successful");
     cy.reload(); // To remove the rename tooltip
     cy.get(explorer.addWidget).click();
@@ -19,13 +19,81 @@ describe("Theme validation", function() {
       .clear()
       .type("form");
     cy.dragAndDropToCanvas("formwidget", { x: 300, y: 80 });
-    cy.get("[data-testid='div-selection-0']").click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait(5000);
+    cy.wait(3000);
+    cy.get("#canvas-selection-0").click({ force: true });
+    cy.wait(2000);
+    cy.contains("Font").click({ force: true });
+    cy.get("span[name='expand-more']").then(($elem) => {
+      cy.get($elem).click({ force: true });
+      cy.wait(250);
+      cy.fixture("fontData").then(function(testdata) {
+        this.testdata = testdata;
+      });
+      /*
+            cy.get(".leading-normal")
+              .eq(0)
+              .should("have.text", "System Default");
+              */
+      cy.get(".leading-normal").each(($ele, i) => {
+        //cy.log($ele);
+        expect($ele).to.have.text(this.testdata.dropdownValues[i]);
+      });
+      cy.get(".ads-dropdown-options-wrapper div")
+        .children()
+        .eq(2)
+        .then(($childElem) => {
+          cy.get($childElem).click({ force: true });
+          cy.get(
+            ".t--draggable-formbuttonwidget button :contains('Submit')",
+          ).should(
+            "have.css",
+            "font-family",
+            $childElem
+              .children()
+              .last()
+              .text(),
+          );
+          themeFont = $childElem
+            .children()
+            .last()
+            .text();
+        });
+    });
+  });
+
+  it("Publish the App and validate Font across the app", function() {
+    cy.PublishtheApp();
+    cy.get(".bp3-button:contains('Submit')").should(
+      "have.css",
+      "font-family",
+      themeFont,
+    );
+    cy.get(".bp3-button:contains('Edit App')").should(
+      "have.css",
+      "font-family",
+      themeFont,
+    );
+    cy.get(".bp3-button:contains('Share')").should(
+      "have.css",
+      "font-family",
+      themeFont,
+    );
+    cy.get(".bp3-button:contains('Reset')").should(
+      "have.css",
+      "font-family",
+      themeFont,
+    );
+  });
+
+  it("Validate Theme change across application", function() {
+    cy.goToEditFromPublish();
+    cy.get("#canvas-selection-0").click({ force: true });
+    //Change the Theme
     cy.get(commonlocators.changeThemeBtn)
       .should("be.visible")
       .click({ force: true });
@@ -84,6 +152,7 @@ describe("Theme validation", function() {
      * @param{FormWidget}Mouseover
      * @param{FormPre Css} Assertion
      */
+
     cy.widgetText(
       "FormTest",
       formWidgetsPage.formWidget,
@@ -108,6 +177,9 @@ describe("Theme validation", function() {
   it("Publish the App and validate Theme across the app", function() {
     cy.PublishtheApp();
     cy.wait(10000);
+    cy.get(formWidgetsPage.formD)
+      .should("have.css", "background-color")
+      .and("eq", "rgb(21, 128, 61)");
     cy.get(".bp3-button:contains('Submit')")
       .invoke("css", "background-color")
       .then((CurrentBackgroudColor) => {
@@ -119,69 +191,5 @@ describe("Theme validation", function() {
             expect(selectedBackgroudColor).to.equal(themeBackgroudColor);
           });
       });
-  });
-
-  it("Validate Default font and Update Font and validate across app", function() {
-    cy.goToEditFromPublish();
-    cy.get("#canvas-selection-0").click({ force: true });
-    //Change the font
-    cy.contains("Font").click({ force: true });
-    cy.get("span[name='expand-more']").then(($elem) => {
-      cy.get($elem).click({ force: true });
-      cy.wait(250);
-      cy.fixture("fontData").then(function(testdata) {
-        this.testdata = testdata;
-      });
-      cy.get(".leading-normal")
-        .eq(0)
-        .should("have.text", "System Default");
-      cy.get(selector).each(($ele, i) => {
-        expect($ele).to.have.text(this.testdata.dropdownValues[i]);
-      });
-      cy.get(".ads-dropdown-options-wrapper div")
-        .children()
-        .eq(2)
-        .then(($childElem) => {
-          cy.get($childElem).click({ force: true });
-          cy.get(
-            ".t--draggable-formbuttonwidget button :contains('Submit')",
-          ).should(
-            "have.css",
-            "font-family",
-            $childElem
-              .children()
-              .last()
-              .text(),
-          );
-          themeFont = $childElem
-            .children()
-            .last()
-            .text();
-        });
-    });
-  });
-
-  it("Publish the App and validate Theme across the app", function() {
-    cy.PublishtheApp();
-    cy.get(".bp3-button:contains('Submit')").should(
-      "have.css",
-      "font-family",
-      themeFont,
-    );
-    cy.get(".bp3-button:contains('Edit App')").should(
-      "have.css",
-      "font-family",
-      themeFont,
-    );
-    cy.get(".bp3-button:contains('Share')").should(
-      "have.css",
-      "font-family",
-      themeFont,
-    );
-    cy.get(".bp3-button:contains('Reset')").should(
-      "have.css",
-      "font-family",
-      themeFont,
-    );
   });
 });
