@@ -969,11 +969,13 @@ export const DELETE_TOOLTIP = () => "Delete";
 export const SETTINGS_TOOLTIP = () => "Settings";
 //settings
 export const ADMIN_SETTINGS = () => "Admin Settings";
-export const RESTART_BANNER_BODY = () => "We will notify you once we are done!";
-export const RESTART_BANNER_HEADER = () => "Restarting Server";
+export const RESTART_BANNER_BODY = () =>
+  "Hang in there. This should be done soon.";
+export const RESTART_BANNER_HEADER = () => "Restarting your server";
 export const RESTART_ERROR_BODY = () =>
-  "Something went wrong. Please contact your administrator.";
-export const RESTART_ERROR_HEADER = () => "Restart failed";
+  "You can try restarting the server again for the settings to take place.";
+export const RESTART_ERROR_HEADER = () => "Restarting failed";
+export const RETRY_BUTTON = () => "Retry";
 export const INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST = () =>
   "Hey! There is a new version of Appsmith available. Please consider refreshing your window.";
 export const TEST_EMAIL_SUCCESS = (email: string) => () =>
