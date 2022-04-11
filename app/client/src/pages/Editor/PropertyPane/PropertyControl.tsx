@@ -39,6 +39,10 @@ import { ControlData } from "components/propertyControls/BaseControl";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import * as log from "loglevel";
 import { Tooltip } from "components/ads";
+import SwitchControl from "components/propertyControls/SwitchControl";
+import DropDownControl from "components/propertyControls/DropDownControl";
+import IconTabControl from "components/propertyControls/IconTabControl";
+import ButtonTabControl from "components/propertyControls/ButtonTabControl";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -403,10 +407,26 @@ const PropertyControl = memo((props: Props) => {
     };
 
     const uniqId = btoa(`${widgetProperties.widgetId}.${propertyName}`);
+
+    const allowedValues = new Set<string>([]);
+    switch (props.controlType) {
+      case SwitchControl.getControlType():
+        allowedValues.add("true");
+        allowedValues.add("false");
+        break;
+      case DropDownControl.getControlType():
+      case IconTabControl.getControlType():
+      case ButtonTabControl.getControlType():
+        (props as any).options
+          .map((x: { value: string }) => x.value)
+          .forEach(allowedValues.add, allowedValues);
+        break;
+    }
+    if ((props as any).defaultValue) {
+      allowedValues.add((props as any).defaultValue);
+    }
     const isToggleDisabled =
-      isDynamic &&
-      propertyValue !== "" &&
-      propertyValue !== (props as any)?.defaultValue;
+      isDynamic && propertyValue !== "" && !allowedValues.has(propertyValue);
 
     try {
       return (
