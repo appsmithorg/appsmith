@@ -37,7 +37,7 @@ const OverlayBackdrop = styled.div`
   left: 0;
   right: 0;
   top: 0;
-  background-color: ${hexToRgba(Colors.GREY_900, 0.7)};
+  background-color: ${hexToRgba(Colors.COD_GRAY, 0.7)};
   overflow: auto;
   pointer-events: none;
   user-select: none;
@@ -91,7 +91,7 @@ const AppIconWrapper = styled.div`
   background: var(--appsmith-color-red-50);
   border-radius: 50%;
   padding: 4px;
-  margin-right: 10px;
+  margin-right: 12px;
 
   svg {
     width: 18px;
@@ -105,7 +105,7 @@ const AppIconWrapper = styled.div`
 
 const StyledLoader = styled(Icon)`
   animation: spin 2s linear infinite;
-  margin-right: 10px;
+  margin-right: 12px;
   @keyframes spin {
     100% {
       transform: rotate(360deg);
