@@ -101,9 +101,9 @@ describe("WidgetProps tests", () => {
     } as unknown) as MouseEvent;
     expect(getMousePositionsOnCanvas(mouseEvent, gridProps)).toEqual({
       id: "mouse",
-      top: -0,
+      top: -1,
       left: -1,
-      bottom: 1,
+      bottom: 0,
       right: 0,
     });
   });

@@ -29,7 +29,7 @@ import {
   WidgetDraggingBlock,
 } from "./useBlocksToBeDraggedOnCanvas";
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
-import { createThresholdTracker } from "./ContainerJumpMetricsUtil";
+import ContainerJumpMetrics from "./ContainerJumpMetric";
 
 export interface XYCord {
   x: number;
@@ -40,11 +40,10 @@ const CONTAINER_JUMP_ACC_THRESHOLD = 8000;
 const CONTAINER_JUMP_SPEED_THRESHOLD = 800;
 
 //Since useCanvasDragging's Instance changes during container jump, metrics is stored outside
-const {
-  clearContainerJumpThresholdMetrics,
-  getContainerJumpThresholdMetrics,
-  updateContainerJumpThresholdMetrics,
-} = createThresholdTracker();
+const containerJumpThresholdMetrics = new ContainerJumpMetrics<{
+  speed?: number;
+  acceleration?: number;
+}>();
 
 export const useCanvasDragging = (
   slidingArenaRef: React.RefObject<HTMLDivElement>,
@@ -319,9 +318,9 @@ export const useCanvasDragging = (
               const {
                 acceleration,
                 speed,
-              } = getContainerJumpThresholdMetrics();
+              } = containerJumpThresholdMetrics.getMetrics();
               logContainerJump(widgetId, speed, acceleration);
-              clearContainerJumpThresholdMetrics();
+              containerJumpThresholdMetrics.clearMetrics();
               // we can just use canvasIsDragging but this is needed to render the relative DragLayerComponent
               setDraggingCanvas(widgetId);
             }
@@ -448,7 +447,10 @@ export const useCanvasDragging = (
                   prevSpeed: speed,
                 } = mouseAttributesRef.current;
                 const acceleration = Math.abs(prevAcceleration);
-                updateContainerJumpThresholdMetrics(speed, acceleration);
+                containerJumpThresholdMetrics.setMetrics({
+                  speed,
+                  acceleration,
+                });
               }
 
               for (const block of currentRectanglesToDraw) {
