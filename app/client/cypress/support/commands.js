@@ -3902,6 +3902,28 @@ Cypress.Commands.add(
   },
 );
 
+Cypress.Commands.add("latestDeployPreview",()=>{
+  cy.server();
+  cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
+  // Wait before publish
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(2000);
+  cy.assertPageSave();
+
+  // Stubbing window.open to open in the same tab
+  cy.window().then((window) => {
+    cy.stub(window, "open").callsFake((url) => {
+      window.location.href = Cypress.config().baseUrl + url.substring(1);
+      window.location.target = "_self";
+    });
+  });
+  cy.get(gitSyncLocators.bottomBarCommitButton).click()
+  cy.xpath("//span[text()='Latest deployed preview']").click()
+  cy.log("pagename: " + localStorage.getItem("PageName"));
+  cy.wait(2000); //wait time for page to load!
+})
+
+
 Cypress.Commands.add("ReconnectDatasource", (datasource) => {
   cy.xpath(`//span[text()='${datasource}']`).click();
 });

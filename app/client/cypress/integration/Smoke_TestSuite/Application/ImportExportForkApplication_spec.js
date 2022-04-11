@@ -1,11 +1,13 @@
 const homePage = require("../../../locators/HomePage");
 const reconnectDatasourceModal = require("../../../locators/ReconnectLocators");
+const commonlocators = require("../../../locators/commonlocators.json")
 
 describe("Import, Export and Fork application and validate data binding", function() {
   let orgid;
   let appid;
   let newOrganizationName;
   let appName;
+  let repoName;
   it("Import application from json and validate data on pageload", function() {
     // import application
     cy.get(homePage.homeIcon).click();
@@ -17,12 +19,15 @@ describe("Import, Export and Fork application and validate data binding", functi
     cy.xpath(homePage.uploadLogo).attachFile("forkedApp.json");
     cy.wait("@importNewApplication").then((interception) => {
       cy.wait(100);
-      // should check reconnect modal openning
+      // should check reconnect modal opening
       const { isPartialImport } = interception.response.body.data;
       if (isPartialImport) {
         // should reconnect button
         cy.get(reconnectDatasourceModal.Modal).should("be.visible");
-        cy.get(reconnectDatasourceModal.SkipToAppBtn).click({ force: true });
+        cy.ReconnectDatasource("PostgreSQL");
+        cy.fillPostgresDatasourceForm();
+        cy.testSaveDatasource();
+        //  cy.get(reconnectDatasourceModal.SkipToAppBtn).click({ force: true });
         cy.wait(2000);
       } else {
         cy.get(homePage.toastMessage).should(
@@ -115,17 +120,22 @@ describe("Import, Export and Fork application and validate data binding", functi
               const { isPartialImport } = interception.response.body.data;
               if (isPartialImport) {
                 // should reconnect button
+                // cy.get(reconnectDatasourceModal.Modal).should("be.visible");
+                // cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
+                //   force: true,
+                // });
                 cy.get(reconnectDatasourceModal.Modal).should("be.visible");
-                cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
-                  force: true,
-                });
+                cy.ReconnectDatasource("PostgreSQL");
+                cy.fillPostgresDatasourceForm();
+                //  cy.testSaveDatasource();
                 cy.wait(2000);
-              } else {
-                cy.get(homePage.toastMessage).should(
-                  "contain",
-                  "Application imported successfully",
-                );
               }
+              // else {
+              //  cy.get(homePage.toastMessage).should(
+              //      "contain",
+              //      "Application imported successfully",
+              //    );
+              //  }
               const importedApp = interception.response.body.data.application;
               const appSlug = importedApp.slug;
               cy.wait("@getPagesForCreateApp").then((interception) => {
@@ -154,4 +164,30 @@ describe("Import, Export and Fork application and validate data binding", functi
       });
     });
   });
+  it("Connect the appplication to git and validate data in deploy mode and edit mode", function() {
+    cy.generateUUID().then((uid) => {
+      repoName = uid;
+      cy.createTestGithubRepo(repoName);
+      cy.connectToGitRepo(repoName);
+    });
+    cy.latestDeployPreview();
+    cy.wait(2000);
+    // verify data binding in deploy mode
+    cy.xpath("//input[@value='Submit']").should("be.visible");
+    cy.xpath("//div[text()='schema_name']").should("be.visible");
+    cy.xpath("//div[text()='id']").should("be.visible");
+    cy.xpath("//div[text()='title']").should("be.visible");
+    cy.xpath("//div[text()='due']").should("be.visible");
+    cy.get(commonlocators.backToEditor).click();
+    cy.wait(1000);
+    // verify data binding in edit mode
+    cy.xpath("//input[@value='Submit']").should("be.visible");
+    cy.xpath("//div[text()='schema_name']").should("be.visible");
+    cy.xpath("//div[text()='id']").should("be.visible");
+    cy.xpath("//div[text()='title']").should("be.visible");
+    cy.xpath("//div[text()='due']").should("be.visible");
+    // cy.deleteTestGithubRepo(repoName);
+  });
+
 });
+

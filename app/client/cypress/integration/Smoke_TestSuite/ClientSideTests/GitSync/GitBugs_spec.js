@@ -1,11 +1,18 @@
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
+const dsl = require("../../../../fixtures/JsObjecWithGitdsl.json");
+const commonlocators = require("../../../../locators/commonlocators.json")
+const apiwidget = require("../../../../locators/apiWidgetslocator.json");
+const pages = require("../../../../locators/Pages.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let ee = ObjectsRegistry.EntityExplorer;
 const pagename = "ChildPage";
-const tempBranch = "tempBranch";
+const tempBranch = "feat/tempBranch";
 const tempBranch0 = "tempBranch0";
 const mainBranch = "master";
+const jsObject = "JSObject1"
 let repoName;
 
-describe("Git sync Bugs", function() {
+describe("Git sync Bug #10773", function() {
   before(() => {
     cy.NavigateToHome();
     cy.createOrg();
@@ -48,7 +55,99 @@ describe("Git sync Bugs", function() {
     cy.CheckAndUnfoldEntityItem("PAGES");
     cy.get(`.t--entity-name:contains("${pagename}")`).should("not.exist");
   });
-  after(() => {
+  
+}); 
+describe("Git Bug: Fix clone page issue where JSObject are not showing up in destination page when application is connected to git", function() {
+  before(() => {
+    cy.addDsl(dsl);
+  });
+  it("Connect app to git and clone the Page ,verify JSobject duplication should not happen and validate data binding in deploy mode and edit mode", () => {
+    // connect app to git
+    cy.generateUUID().then((uid) => {
+      repoName = uid;
+      cy.createTestGithubRepo(repoName);
+      cy.connectToGitRepo(repoName);
+    });
+    ee.expandCollapseEntity("QUERIES/JS", true);
+    // create JS object and validate its data on Page1
+    cy.createJSObject('return "Success";');
+    cy.get(`.t--entity-name:contains("Page1")`)
+      .should("be.visible")
+      .click({ force: true });
+    cy.wait(1000);
+    cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+      "be.visible",
+    );
+    // clone the page1 and validate data binding
+    cy.get(".t--entity-name:contains(Page1)")
+      .trigger("mouseover")
+      .click({ force: true });
+    cy.xpath(apiwidget.popover)
+      .first()
+      .should("be.hidden")
+      .invoke("show")
+      .click({ force: true });
+    cy.get(pages.clonePage).click({ force: true });
+    cy.wait("@clonePage").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    // verify jsObject is not duplicated
+    cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
+    cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+      "be.visible",
+    );
+    // deploy the app and validate data binding
+    cy.commitAndPush();
+    cy.latestDeployPreview();
+    cy.wait(2000);
+    cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+      "be.visible",
+    );
+    // switch to Page1 and validate data binding
+    cy.get(".t--page-switch-tab")
+      .contains("Page1")
+      .click({ force: true });
+    cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+      "be.visible",
+    );
+    cy.get(commonlocators.backToEditor).click();
+    cy.wait(1000);
+  });
+  it("Bug:12724 Js objects are merged to single page when user creates a new branch", () => {
+    // create a new branch, clone page and validate jsObject data binding
+    cy.createGitBranch(tempBranch);
+    cy.wait(2000);
+    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.get(".t--entity-name:contains(Page1)").last()
+      .trigger("mouseover")
+      .click({ force: true });
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    // verify jsObject is not duplicated
+    cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
+    cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+      "be.visible",
+    );
+     cy.get(".t--entity-name:contains(Page1)").first()
+      .trigger("mouseover")
+      .click({ force: true });
+    cy.xpath(apiwidget.popover)
+      .first()
+      .should("be.hidden")
+      .invoke("show")
+      .click({ force: true });
+    cy.get(pages.clonePage).click({ force: true });
+    cy.wait("@clonePage").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    ); 
+  });
+ 
+  afterEach(() => {
     cy.deleteTestGithubRepo(repoName);
   });
 });
+
