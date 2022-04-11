@@ -167,6 +167,15 @@ describe("Select Widget Functionality", function() {
     cy.get(widgetsPage.disable).scrollIntoView({ force: true });
     cy.get(widgetsPage.selectWidgetDisabled).click({ force: true });
     cy.get(".bp3-button").should("be.visible");
+
+    // Set default value as RANDOM11
+    cy.updateCodeInput(
+      ".t--property-control-defaultvalue",
+      `{
+        "label": "RANDOM11",
+        "value": "RANDOM11"
+      }`,
+    );
     cy.PublishtheApp();
     cy.get(".bp3-button")
       .eq(0)
@@ -174,7 +183,7 @@ describe("Select Widget Functionality", function() {
       .click({ force: true });
     cy.get(commonlocators.singleSelectActiveMenuItem).should(
       "contain.text",
-      "Active",
+      "RANDOM11",
     );
     cy.goToEditFromPublish();
   });
