@@ -14,7 +14,7 @@ const Input = styled.input`
 `;
 
 export const CommonSelectFilterStyle = css<{
-  primaryColor?: string;
+  accentColor?: string;
 }>`
   &&&& .${Classes.ALIGN_LEFT} {
     font-size: 14px;
@@ -24,7 +24,7 @@ export const CommonSelectFilterStyle = css<{
       margin-right: 20px;
     }
     &.all-options.selected {
-      background: ${(props) => lightenColor(props.primaryColor)};
+      background: ${(props) => lightenColor(props.accentColor)};
       color: ${Colors.GREY_10} !important;
     }
   }
@@ -135,7 +135,7 @@ const rcSelectDropdownSlideUpOut = keyframes`
 export const DropdownStyles = createGlobalStyle<{
   dropDownWidth: number;
   id: string;
-  primaryColor?: string;
+  accentColor?: string;
   borderRadius: string;
 }>`
 ${({ dropDownWidth, id }) => `
@@ -174,10 +174,10 @@ ${({ dropDownWidth, id }) => `
   font-weight: 400;
 }
 .rc-select-item-option:hover {
-	background: ${({ primaryColor }) => lightenColor(primaryColor)};
+	background: ${({ accentColor }) => lightenColor(accentColor)};
 
   & .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
-    border-color: ${({ primaryColor }) => primaryColor} !important;
+    border-color: ${({ accentColor }) => accentColor} !important;
   }
 
   & .rc-select-item-option-content {
@@ -294,7 +294,7 @@ ${({ dropDownWidth, id }) => `
       margin-right: 20px;
     }
     &.all-options.selected {
-      background: ${({ primaryColor }) => lightenColor(primaryColor)};
+      background: ${({ accentColor }) => lightenColor(accentColor)};
       color: ${Colors.GREY_10} !important;
     }
   }
@@ -312,9 +312,9 @@ ${({ dropDownWidth, id }) => `
   }
 
   .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
-    background: ${({ primaryColor }) => primaryColor} !important;
+    background: ${({ accentColor }) => accentColor} !important;
     color: rgb(255, 255, 255);
-    border-color: ${({ primaryColor }) => primaryColor} !important;
+    border-color: ${({ accentColor }) => accentColor} !important;
     box-shadow: none;
     outline: none !important;
   }
@@ -364,9 +364,9 @@ ${({ dropDownWidth, id }) => `
       border-radius: ${({ borderRadius }) =>
         borderRadius === "1.5rem" ? `0.375rem` : borderRadius};
       &:focus {
-        border: 1px solid  ${(props) => props.primaryColor};
+        border: 1px solid  ${(props) => props.accentColor};
           box-shadow: 0px 0px 0px 3px ${(props) =>
-            lightenColor(props.primaryColor)};
+            lightenColor(props.accentColor)};
       }
     }
   }
@@ -392,7 +392,7 @@ export const MultiSelectContainer = styled.div<{
   isValid: boolean;
   borderRadius: string;
   boxShadow?: string;
-  primaryColor?: string;
+  accentColor?: string;
 }>`
   display: flex;
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
@@ -628,9 +628,9 @@ export const MultiSelectContainer = styled.div<{
       ${(props) =>
         props.isValid
           ? `
-          border: 1px solid  ${props.primaryColor};
+          border: 1px solid  ${props.accentColor};
           box-shadow: 0px 0px 0px 3px ${lightenColor(
-            props.primaryColor,
+            props.accentColor,
           )} !important;`
           : `border: 1px solid ${Colors.DANGER_SOLID};`}
     }
@@ -638,15 +638,15 @@ export const MultiSelectContainer = styled.div<{
 `;
 
 export const SelectAllMenuItem = styled.div<{
-  primaryColor?: string;
+  accentColor?: string;
 }>`
   &:hover {
-    background: ${({ primaryColor }) => lightenColor(primaryColor)};
+    background: ${({ accentColor }) => lightenColor(accentColor)};
   }
 `;
 
 export const StyledCheckbox = styled(Checkbox)<{
-  primaryColor?: string;
+  accentColor?: string;
 }>`
   &&.${Classes.CHECKBOX}.${Classes.CONTROL} {
     white-space: nowrap;

@@ -198,6 +198,7 @@ function MultiSelectField({
     return (
       <StyledMultiSelectWrapper>
         <MultiSelect
+          accentColor={schemaItem.accentColor || DEFAULT_ACCENT_COLOR}
           allowSelectAll={schemaItem.allowSelectAll}
           borderRadius={schemaItem.borderRadius || DEFAULT_BORDER_RADIUS}
           boxShadow={schemaItem.boxShadow}
@@ -215,7 +216,6 @@ function MultiSelectField({
           onFocus={onFocusHandler}
           options={schemaItem.options || []}
           placeholder={schemaItem.placeholderText || ""}
-          primaryColor={schemaItem.accentColor || DEFAULT_ACCENT_COLOR}
           serverSideFiltering={schemaItem.serverSideFiltering}
           value={componentValues}
           widgetId={name}

@@ -82,7 +82,7 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
   hasError?: boolean;
   borderRadius: string;
   boxShadow?: string;
-  primaryColor?: string;
+  accentColor?: string;
 }>`
   div {
     flex: 1 1 auto;
@@ -121,10 +121,10 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
         &:focus {
           outline: 0;
           border-color:
-            ${props.hasError ? Colors.DANGER_SOLID : props.primaryColor};
+            ${props.hasError ? Colors.DANGER_SOLID : props.accentColor};
           box-shadow:
             ${`0px 0px 0px 3px ${lightenColor(
-              props.hasError ? Colors.DANGER_SOLID : props.primaryColor,
+              props.hasError ? Colors.DANGER_SOLID : props.accentColor,
             )} !important;`};
         }
       `
@@ -136,10 +136,10 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
       !props.hasError
         ? `
         border-color: ${
-          props.hasError ? Colors.DANGER_SOLID : props.primaryColor
+          props.hasError ? Colors.DANGER_SOLID : props.accentColor
         };
         box-shadow: ${`0px 0px 0px 3px ${lightenColor(
-          props.hasError ? Colors.DANGER_SOLID : props.primaryColor,
+          props.hasError ? Colors.DANGER_SOLID : props.accentColor,
         )} !important;`};
       `
         : `border: 1px solid ${Colors.DANGER_SOLID};`}
@@ -174,7 +174,7 @@ export const DropdownStyles = createGlobalStyle<{
   dropDownWidth: number;
   id: string;
   borderRadius: string;
-  primaryColor?: string;
+  accentColor?: string;
 }>`
 ${({ dropDownWidth, id }) => `
   .select-popover-width-${id} {
@@ -229,9 +229,9 @@ ${({ dropDownWidth, id }) => `
         color: ${Colors.GREY_10};
         border-radius: ${({ borderRadius }) => borderRadius} !important;
         &:focus {
-          border: ${({ primaryColor }) => `1px solid ${primaryColor}`};
-          box-shadow: ${({ primaryColor }) =>
-            `0px 0px 0px 3px ${lightenColor(primaryColor)} !important;`}
+          border: ${({ accentColor }) => `1px solid ${accentColor}`};
+          box-shadow: ${({ accentColor }) =>
+            `0px 0px 0px 3px ${lightenColor(accentColor)} !important;`}
         }
       }
     }
@@ -247,13 +247,13 @@ ${({ dropDownWidth, id }) => `
       border-radius: 0;
       color: ${Colors.GREY_8};
       &:hover{
-        background: ${({ primaryColor }) => `${lightenColor(primaryColor)}`};
+        background: ${({ accentColor }) => `${lightenColor(accentColor)}`};
       }
       &.is-focused{
-        background: ${({ primaryColor }) => `${lightenColor(primaryColor)}`};
+        background: ${({ accentColor }) => `${lightenColor(accentColor)}`};
       }
       &.${Classes.ACTIVE} {
-        background: ${({ primaryColor }) => `${lightenColor(primaryColor)}`};
+        background: ${({ accentColor }) => `${lightenColor(accentColor)}`};
         color: ${Colors.GREY_10};
         position:relative;
       }
@@ -276,7 +276,7 @@ export const DropdownContainer = styled.div<{ compactMode: boolean }>`
 `;
 
 export const MenuItem = styled.div<{
-  primaryColor?: string;
+  accentColor?: string;
 }>`
   & .menu-item-link {
     display: flex;
@@ -299,7 +299,7 @@ export const MenuItem = styled.div<{
     background-color: transparent;
 
     &:hover {
-      background-color: ${({ primaryColor }) => lightenColor(primaryColor)};
+      background-color: ${({ accentColor }) => lightenColor(accentColor)};
       color: ${Colors.GREY_10};
       position: relative;
     }
@@ -310,8 +310,8 @@ export const MenuItem = styled.div<{
   }
 
   && .has-focus {
-    background-color: ${({ primaryColor }) =>
-      lightenColor(primaryColor)} !important;
+    background-color: ${({ accentColor }) =>
+      lightenColor(accentColor)} !important;
   }
 
   & .menu-item-text {

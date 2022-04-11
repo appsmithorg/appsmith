@@ -103,7 +103,6 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
 const MenuButtonWrapper = styled.div<{ renderMode: RenderMode }>`
   flex: 1 1 auto;
   cursor: pointer;
-  height: 100%;
   position: relative;
 
   ${({ renderMode }) => renderMode === RenderModes.CANVAS && `height: 100%`};

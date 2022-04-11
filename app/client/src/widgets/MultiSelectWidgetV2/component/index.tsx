@@ -60,7 +60,7 @@ export interface MultiSelectProps
   isFilterable: boolean;
   borderRadius: string;
   boxShadow?: string;
-  primaryColor?: string;
+  accentColor?: string;
   onFocus?: (e: React.FocusEvent) => void;
   onBlur?: (e: React.FocusEvent) => void;
 }
@@ -69,6 +69,7 @@ const DEBOUNCE_TIMEOUT = 1000;
 const FOCUS_TIMEOUT = 500;
 
 function MultiSelectComponent({
+  accentColor,
   allowSelectAll,
   borderRadius,
   boxShadow,
@@ -90,7 +91,6 @@ function MultiSelectComponent({
   onFocus,
   options,
   placeholder,
-  primaryColor,
   serverSideFiltering,
   value,
   widgetId,
@@ -236,12 +236,12 @@ function MultiSelectComponent({
         <div className={`${loading ? Classes.SKELETON : ""}`}>
           {filteredOptions.length && allowSelectAll ? (
             <StyledCheckbox
+              accentColor={accentColor}
               alignIndicator="left"
               checked={isSelectAll}
               className={`all-options ${isSelectAll ? "selected" : ""}`}
               label="Select all"
               onChange={handleSelectAll}
-              primaryColor={primaryColor}
             />
           ) : null}
           {menu}
@@ -261,18 +261,18 @@ function MultiSelectComponent({
 
   return (
     <MultiSelectContainer
+      accentColor={accentColor}
       borderRadius={borderRadius}
       boxShadow={boxShadow}
       compactMode={compactMode}
       isValid={isValid}
-      primaryColor={primaryColor}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
       <DropdownStyles
+        accentColor={accentColor}
         borderRadius={borderRadius}
         dropDownWidth={memoDropDownWidth}
         id={widgetId}
-        primaryColor={primaryColor}
       />
       {labelText && (
         <TextLabelWrapper compactMode={compactMode} ref={labelRef}>

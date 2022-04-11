@@ -473,6 +473,7 @@ class MultiSelectWidget extends BaseWidget<
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     return (
       <MultiSelectComponent
+        accentColor={this.props.accentColor}
         allowSelectAll={this.props.allowSelectAll}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
@@ -500,7 +501,6 @@ class MultiSelectWidget extends BaseWidget<
         onFilterChange={this.onFilterChange}
         options={options}
         placeholder={this.props.placeholderText as string}
-        primaryColor={this.props.primaryColor}
         serverSideFiltering={this.props.serverSideFiltering}
         value={values}
         widgetId={this.props.widgetId}

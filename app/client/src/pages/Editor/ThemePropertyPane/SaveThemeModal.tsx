@@ -27,6 +27,7 @@ function SaveThemeModal(props: SaveThemeModalProps) {
   const [inputValidator, setInputValidator] = useState({
     isValid: false,
     message: "",
+    isDirty: false,
   });
   const applicationId = useSelector(getCurrentApplicationId);
   const themes = useSelector(getAppThemes);
@@ -39,7 +40,7 @@ function SaveThemeModal(props: SaveThemeModalProps) {
     event.preventDefault();
 
     // if input validations fails, don't do anything
-    if (!inputValidator.isValid) return;
+    if (!inputValidator.isValid || inputValidator.isDirty === false) return;
 
     AnalyticsUtil.logEvent("APP_THEMING_SAVE_THEME_SUCCESS", {
       themeName: name,
@@ -78,6 +79,7 @@ function SaveThemeModal(props: SaveThemeModalProps) {
     return {
       isValid: isValid,
       message: errorMessage,
+      isDirty: true,
     };
   };
 
@@ -99,8 +101,9 @@ function SaveThemeModal(props: SaveThemeModalProps) {
   const onClose = () => {
     // reset validations
     setInputValidator({
-      isValid: true,
+      isValid: false,
       message: "",
+      isDirty: false,
     });
 
     props.onClose();

@@ -137,9 +137,9 @@ class SelectComponent extends React.Component<
     const selectedClassName = `${isSelected && "menu-item-active"}`;
     return (
       <MenuItem
+        accentColor={this.props.accentColor}
         key={option.value}
         onClick={itemProps.handleClick}
-        primaryColor={this.props.primaryColor}
       >
         <a
           className={`menu-item-link ${selectedClassName} ${focusClassName}`}
@@ -238,6 +238,7 @@ class SelectComponent extends React.Component<
 
   render() {
     const {
+      accentColor,
       borderRadius,
       boxShadow,
       compactMode,
@@ -247,7 +248,6 @@ class SelectComponent extends React.Component<
       labelText,
       labelTextColor,
       labelTextSize,
-      primaryColor,
       widgetId,
     } = this.props;
     // active focused item
@@ -286,10 +286,10 @@ class SelectComponent extends React.Component<
     return (
       <DropdownContainer compactMode={compactMode}>
         <DropdownStyles
+          accentColor={accentColor}
           borderRadius={borderRadius}
           dropDownWidth={this.getDropdownWidth()}
           id={widgetId}
-          primaryColor={primaryColor}
         />
         {labelText && (
           <TextLabelWrapper compactMode={compactMode} ref={this.labelRef}>
@@ -310,6 +310,7 @@ class SelectComponent extends React.Component<
         )}
         <StyledControlGroup fill>
           <StyledSingleDropDown
+            accentColor={accentColor}
             activeItem={activeItem()}
             borderRadius={borderRadius}
             boxShadow={boxShadow}
@@ -352,7 +353,6 @@ class SelectComponent extends React.Component<
               },
               popoverClassName: `select-popover-wrapper select-popover-width-${this.props.widgetId}`,
             }}
-            primaryColor={primaryColor}
             query={this.state.query}
             scrollToActiveItem
             value={this.props.value as string}
@@ -398,7 +398,7 @@ export interface SelectComponentProps extends ComponentProps {
   filterText?: string;
   borderRadius: string;
   boxShadow?: string;
-  primaryColor?: string;
+  accentColor?: string;
 }
 
 export default React.memo(SelectComponent);

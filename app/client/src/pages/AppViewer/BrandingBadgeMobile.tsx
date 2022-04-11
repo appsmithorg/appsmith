@@ -5,7 +5,7 @@ import { ReactComponent as AppsmithLogo } from "assets/svg/appsmith-logo-no-pad.
 function BrandingBadge() {
   return (
     <a
-      className="flex items-center p-1 px-2 space-x-2 bg-white rounded-md md:border md:flex z-2 hover:no-underline bg-opacity-30"
+      className="flex items-center p-1 px-2 space-x-2 bg-white rounded-md md:border md:flex z-2 hover:no-underline"
       href="/"
     >
       <h4 className="text-xs text-gray-500">Built on</h4>

@@ -249,6 +249,7 @@ const InputComponentWrapper = styled((props) => (
         props?.labelStyle?.includes(FontStyleTypes.UNDERLINE)
           ? "underline"
           : ""};
+      overflow: visible;
     }
   }
 `;

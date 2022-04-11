@@ -365,6 +365,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <SelectComponent
+        accentColor={this.props.accentColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         compactMode={
@@ -391,7 +392,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         onOptionSelected={this.onOptionSelected}
         options={options}
         placeholder={this.props.placeholderText}
-        primaryColor={this.props.primaryColor}
         selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
         serverSideFiltering={this.props.serverSideFiltering}
         value={this.props.selectedOptionValue}

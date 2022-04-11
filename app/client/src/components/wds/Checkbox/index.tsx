@@ -80,7 +80,7 @@ const Checkbox = styled(BlueprintCheckbox)<StyledCheckboxProps>`
     }
 
     // CHECKED
-    &.bp3-control.bp3-checkbox:active input:checked ~ .bp3-control-indicator {
+    &.bp3-control.bp3-checkbox input:checked ~ .bp3-control-indicator {
       background: ${backgroundColor} !important;
     }
 

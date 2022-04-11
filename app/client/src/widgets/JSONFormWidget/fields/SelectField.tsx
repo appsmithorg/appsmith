@@ -159,6 +159,7 @@ function SelectField({
     () => (
       <StyledSelectWrapper ref={wrapperRef}>
         <SelectComponent
+          accentColor={schemaItem.accentColor || DEFAULT_PRIMARY_COLOR}
           borderRadius={schemaItem.borderRadius || DEFAULT_BORDER_RADIUS}
           boxShadow={schemaItem.boxShadow}
           compactMode={false}
@@ -174,7 +175,6 @@ function SelectField({
           onOptionSelected={onOptionSelected}
           options={options}
           placeholder={schemaItem.placeholderText}
-          primaryColor={schemaItem.accentColor || DEFAULT_PRIMARY_COLOR}
           selectedIndex={selectedIndex}
           serverSideFiltering={schemaItem.serverSideFiltering}
           value={options[selectedOptionIndex]?.value}
