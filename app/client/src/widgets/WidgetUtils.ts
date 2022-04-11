@@ -27,7 +27,6 @@ import { Classes as DateTimeClasses } from "@blueprintjs/datetime";
 import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { SchemaItem } from "./JSONFormWidget/constants";
 import { find, isEmpty } from "lodash";
-import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { rgbaMigrationConstant } from "./constants";
 
 const punycode = require("punycode/");

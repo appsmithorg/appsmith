@@ -1,4 +1,8 @@
-import { defaultSelectedRowValidation } from "./propertyUtils";
+import {
+  defaultSelectedRowValidation,
+  removeBoxShadowColorProp,
+  replacePropertyName,
+} from "./propertyUtils";
 import _ from "lodash";
 
 const tableWProps = {
@@ -158,5 +162,31 @@ describe("unit test case for property utils", () => {
 
     expect(value.isValid).toBeTruthy();
     expect(value.parsed).toEqual(undefined);
+  });
+
+  it("case: check if the removeBoxShadowColorProp returns undefined propertyValue for boxShadowColor propertyPath", () => {
+    const updatedProperty = removeBoxShadowColorProp(
+      tableWProps as any,
+      "primaryColumns.action.boxShadow",
+    );
+    const expectedUpdatedProperty = [
+      {
+        propertyPath: "primaryColumns.action.boxShadowColor",
+        propertyValue: undefined,
+      },
+    ];
+    expect(updatedProperty).toEqual(expectedUpdatedProperty);
+  });
+
+  it("case: check if the replacePropertyName returns expected values", () => {
+    const propertyPath = "primaryColumns.action.boxShadow";
+    const targetPropertyname = "boxShadowColor";
+    const targetPropertyPath = "primaryColumns.action.boxShadowColor";
+    const newPropertyName = replacePropertyName(
+      propertyPath,
+      targetPropertyname,
+    );
+
+    expect(newPropertyName).toEqual(targetPropertyPath);
   });
 });

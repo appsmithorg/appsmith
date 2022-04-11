@@ -13,7 +13,6 @@ import {
   sortBy,
   xorWith,
   isEmpty,
-  has,
   find,
 } from "lodash";
 
@@ -55,9 +54,7 @@ import { Colors } from "constants/Colors";
 import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
 import {
   borderRadiusUtility,
-  boxShadowColorUtility,
   boxShadowDynamicChecker,
-  boxShadowUtility,
 } from "widgets/WidgetUtils";
 
 const ReactTableComponent = lazy(() =>

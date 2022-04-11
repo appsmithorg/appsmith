@@ -31,10 +31,7 @@ import {
   migrateTextStyleFromTextWidget,
   migrateScrollTruncateProperties,
 } from "./migrations/TextWidget";
-import {
-  DATA_BIND_REGEX,
-  DATA_BIND_REGEX_GLOBAL,
-} from "constants/BindingsConstants";
+import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 import { theme } from "constants/DefaultTheme";
 import { getCanvasSnapRows } from "./WidgetPropsUtils";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
