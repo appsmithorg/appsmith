@@ -1,5 +1,4 @@
 import { ObjectsRegistry } from "../Objects/Registry";
-import { JS_SETTINGS_ONPAGELOAD, JS_SETTINGS_CONFIRM_EXECUTION } from "../../../src/ce/constants/messages"
 
 export class JSEditor {
   public agHelper = ObjectsRegistry.AggregateHelper;
@@ -245,9 +244,9 @@ export class JSEditor {
     this.agHelper.GetNClick(this._responseTabAction(funName))
     this.agHelper.AssertElementPresence(this._dialog('Function settings'))
     if (onLoad)
-      this.agHelper.CheckUncheck(this._functionSetting(JS_SETTINGS_ONPAGELOAD().toString()), true)
+      this.agHelper.CheckUncheck(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_ONPAGELOAD()), true)
     if (bfrCalling)
-      this.agHelper.CheckUncheck(this._functionSetting(JS_SETTINGS_CONFIRM_EXECUTION().toString()), true)
+      this.agHelper.CheckUncheck(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_CONFIRM_EXECUTION()), true)
 
     this.agHelper.GetNClick(this._closeSettings)
   }
