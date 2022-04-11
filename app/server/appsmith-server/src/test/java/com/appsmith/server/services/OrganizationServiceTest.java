@@ -280,6 +280,41 @@ public class OrganizationServiceTest {
                 .verifyComplete();
     }
 
+    /**
+     * This test tests for updating the organization with an empty name.
+     * The organization name should not be empty.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void inValidUpdateOrganizationEmptyName() {
+        Policy manageOrgAppPolicy = Policy.builder().permission(ORGANIZATION_MANAGE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        Policy manageOrgPolicy = Policy.builder().permission(MANAGE_ORGANIZATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        Organization organization = new Organization();
+        organization.setName("Test Update Name");
+        organization.setDomain("example.com");
+        organization.setWebsite("https://example.com");
+        organization.setSlug("test-update-name");
+        Mono<Organization> createOrganization = organizationService.create(organization);
+        Mono<Organization> updateOrganization = createOrganization
+                .map(t -> {
+                    t.setName("");
+                    return t;
+                })
+                .flatMap(t -> organizationService.update(t.getId(), t))
+                .flatMap(t -> organizationService.getById(t.getId()));
+
+        StepVerifier.create(updateOrganization)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ORGANIZATION_NAME)))
+                .verify();
+    }
+
     @Test
     @WithUserDetails(value = "api_user")
     public void uniqueSlugs() {
