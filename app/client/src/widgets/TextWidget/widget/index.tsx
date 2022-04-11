@@ -12,6 +12,7 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import TextComponent, { TextAlign } from "../component";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { OverflowTypes } from "../constants";
 
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -27,21 +28,31 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             placeholderText: "Name:",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: { limitLineBreaks: true },
+            },
           },
           {
-            propertyName: "shouldScroll",
-            label: "Enable Scroll",
-            helpText: "Allows scrolling text instead of truncation",
-            controlType: "SWITCH",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "shouldTruncate",
-            label: "Truncate Text",
-            helpText: "Set truncate text",
-            controlType: "SWITCH",
+            propertyName: "overflow",
+            label: "Overflow",
+            helpText: "Controls the text behavior when length of text exceeds",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Scroll contents",
+                value: OverflowTypes.SCROLL,
+              },
+              {
+                label: "Truncate text",
+                value: OverflowTypes.TRUNCATE,
+              },
+              {
+                label: "No overflow",
+                value: OverflowTypes.NONE,
+              },
+            ],
+            defaultValue: OverflowTypes.NONE,
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -127,9 +138,9 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
                 regex: /^(?![<|{{]).+/,
               },
             },
-            dependencies: ["shouldTruncate"],
+            dependencies: ["overflow"],
             hidden: (props: TextWidgetProps) => {
-              return !props.shouldTruncate;
+              return props.overflow !== OverflowTypes.TRUNCATE;
             },
           },
           {
@@ -272,9 +283,8 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           isLoading={this.props.isLoading}
           key={this.props.widgetId}
           leftColumn={this.props.leftColumn}
+          overflow={this.props.overflow}
           rightColumn={this.props.rightColumn}
-          shouldScroll={this.props.shouldScroll}
-          shouldTruncate={this.props.shouldTruncate}
           text={this.props.text}
           textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
           textColor={this.props.textColor}
@@ -312,9 +322,8 @@ export interface TextWidgetProps
     WidgetStyleContainerProps {
   text?: string;
   isLoading: boolean;
-  shouldScroll: boolean;
-  shouldTruncate: boolean;
   disableLink: boolean;
+  overflow: OverflowTypes;
 }
 
 export default TextWidget;

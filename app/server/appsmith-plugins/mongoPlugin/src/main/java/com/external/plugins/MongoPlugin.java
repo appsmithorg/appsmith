@@ -30,14 +30,25 @@ import com.external.plugins.utils.MongoErrorUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.mongodb.DBObjectCodecProvider;
+import com.mongodb.DBRefCodecProvider;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoSocketWriteException;
 import com.mongodb.MongoTimeoutException;
+import com.mongodb.client.gridfs.codecs.GridFSFileCodecProvider;
+import com.mongodb.client.model.geojson.codecs.GeoJsonCodecProvider;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
+import org.bson.codecs.BsonTypeClassMap;
+import org.bson.codecs.BsonValueCodecProvider;
+import org.bson.codecs.DocumentCodec;
+import org.bson.codecs.DocumentCodecProvider;
+import org.bson.codecs.ValueCodecProvider;
+import org.bson.codecs.configuration.CodecRegistries;
+import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.conversions.Bson;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -73,7 +84,15 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.external.plugins.constants.FieldName.NATIVE_QUERY_PATH_DATA;
+import static com.external.plugins.constants.FieldName.NATIVE_QUERY_PATH_STATUS;
+import static com.external.plugins.constants.FieldName.SUCCESS;
+import static com.external.plugins.utils.MongoPluginUtils.convertMongoFormInputToRawCommand;
+import static com.external.plugins.utils.MongoPluginUtils.generateTemplatesAndStructureForACollection;
+import static com.external.plugins.utils.MongoPluginUtils.getDatabaseName;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.external.plugins.utils.MongoPluginUtils.getRawQuery;
+import static com.external.plugins.utils.MongoPluginUtils.isRawCommand;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINES;
@@ -88,12 +107,10 @@ import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
 import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
-import static com.external.plugins.utils.MongoPluginUtils.convertMongoFormInputToRawCommand;
-import static com.external.plugins.utils.MongoPluginUtils.generateTemplatesAndStructureForACollection;
-import static com.external.plugins.utils.MongoPluginUtils.getDatabaseName;
-import static com.external.plugins.utils.MongoPluginUtils.isRawCommand;
 import static com.external.plugins.utils.MongoPluginUtils.urlEncode;
 import static java.lang.Boolean.TRUE;
+import static java.util.Arrays.asList;
+import static org.apache.logging.log4j.util.Strings.isBlank;
 
 public class MongoPlugin extends BasePlugin {
 
@@ -173,7 +190,7 @@ public class MongoPlugin extends BasePlugin {
 
     private static final Integer MONGO_COMMAND_EXCEPTION_UNAUTHORIZED_ERROR_CODE = 13;
 
-    private static final Set<String> bsonFields = new HashSet<>(Arrays.asList(
+    private static final Set<String> bsonFields = new HashSet<>(asList(
             AGGREGATE_PIPELINES,
             COUNT_QUERY,
             DELETE_QUERY,
@@ -187,6 +204,18 @@ public class MongoPlugin extends BasePlugin {
     ));
 
     private static final MongoErrorUtils mongoErrorUtils = MongoErrorUtils.getInstance();
+
+    private static final CodecRegistry DEFAULT_REGISTRY = CodecRegistries.fromProviders(
+            asList(new ValueCodecProvider(),
+                    new BsonValueCodecProvider(),
+                    new DocumentCodecProvider(),
+                    new DBRefCodecProvider(),
+                    new DBObjectCodecProvider(),
+                    new BsonValueCodecProvider(),
+                    new GeoJsonCodecProvider(),
+                    new GridFSFileCodecProvider()));
+
+    private static final BsonTypeClassMap DEFAULT_BSON_TYPE_CLASS_MAP = new org.bson.codecs.BsonTypeClassMap();
 
     public MongoPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -222,7 +251,8 @@ public class MongoPlugin extends BasePlugin {
 
             Boolean smartBsonSubstitution = TRUE;
 
-            Object smartSubstitutionObject = formData.getOrDefault(SMART_SUBSTITUTION, TRUE);
+            Object smartSubstitutionObject = getValueSafelyFromFormData(formData, SMART_SUBSTITUTION, Object.class,
+                    TRUE);
             if (smartSubstitutionObject instanceof Boolean) {
                 smartBsonSubstitution = (Boolean) smartSubstitutionObject;
             } else if (smartSubstitutionObject instanceof String) {
@@ -326,7 +356,17 @@ public class MongoPlugin extends BasePlugin {
                     )
                     .flatMap(mongoOutput -> {
                         try {
-                            JSONObject outputJson = new JSONObject(mongoOutput.toJson());
+                            /*
+                             * Added Custom codec for JSON conversion since MongoDB Reactive API does not support
+                             * processing of DbRef Object.
+                             * https://github.com/spring-projects/spring-data-mongodb/issues/3015 : Mark Paluch commented
+                             */
+                            DocumentCodec documentCodec = new DocumentCodec(
+                                    DEFAULT_REGISTRY,
+                                    DEFAULT_BSON_TYPE_CLASS_MAP
+                            );
+
+                            JSONObject outputJson = new JSONObject(mongoOutput.toJson(documentCodec));
 
                             //The output json contains the key "ok". This is the status of the command
                             BigInteger status = outputJson.getBigInteger("ok");
@@ -1059,6 +1099,44 @@ public class MongoPlugin extends BasePlugin {
             // Unused function
             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
         }
+
+        /**
+         * This method coverts Mongo plugin's form data to Mongo's native query. Currently, it is meant to help users
+         * switch easily from form based input to raw input mode by providing a readily available translation of the
+         * form data to raw query.
+         * @param actionConfiguration
+         * @return Mongo's native/raw query set at path `formData.formToNativeQuery.data`
+         */
+        @Override
+        public ActionConfiguration extractAndSetNativeQueryFromFormData(ActionConfiguration actionConfiguration) {
+            Map<String, Object> formData = actionConfiguration.getFormData();
+            if (formData != null && !formData.isEmpty()) {
+                /* If it is not raw command, then it must be one of the mongo form commands */
+                if (!isRawCommand(formData)) {
+
+                    /**
+                     * This translation must happen only if the user has not edited the raw mode. Hence, check that
+                     * user has not provided any raw query.
+                     */
+                    if (isBlank(getValueSafelyFromFormData(formData, BODY, String.class))) {
+                        try {
+                            String rawQuery = getRawQuery(actionConfiguration);
+                            if (rawQuery != null) {
+                                setValueSafelyInFormData(formData, NATIVE_QUERY_PATH_STATUS, SUCCESS);
+                                setValueSafelyInFormData(formData, NATIVE_QUERY_PATH_DATA, rawQuery);
+                            }
+                        } catch (Exception e) {
+                            throw new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_FORM_TO_NATIVE_TRANSLATION_ERROR,
+                                    e.getMessage()
+                            );
+                        }
+                    }
+                }
+            }
+
+            return actionConfiguration;
+        }
     }
 
     private static Object cleanUp(Object object) {
@@ -1109,5 +1187,4 @@ public class MongoPlugin extends BasePlugin {
         }
         return false;
     }
-
 }

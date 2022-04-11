@@ -13,7 +13,9 @@ import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReduc
 import { transformDSL } from "./DSLMigrations";
 import { WidgetType } from "./WidgetFactory";
 import { DSLWidget } from "widgets/constants";
+import { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -37,8 +39,47 @@ export const extractCurrentDSL = (
   const currentDSL = fetchPageResponse?.data.layouts[0].dsl || {
     ...defaultDSL,
   };
-  return transformDSL(currentDSL, newPage);
+  return transformDSL(currentDSL as ContainerWidgetProps<WidgetProps>, newPage);
 };
+
+/**
+ * To get updated positions of the dragging blocks
+ *
+ * @param draggingBlocks
+ * @param snapColumnSpace
+ * @param snapRowSpace
+ * @returns An array of updated positions of the dragging blocks
+ */
+export function getDraggingSpacesFromBlocks(
+  draggingBlocks: WidgetDraggingBlock[],
+  snapColumnSpace: number,
+  snapRowSpace: number,
+): OccupiedSpace[] {
+  const draggingSpaces = [];
+  for (const draggingBlock of draggingBlocks) {
+    //gets top and left position of the block
+    const [leftColumn, topRow] = getDropZoneOffsets(
+      snapColumnSpace,
+      snapRowSpace,
+      {
+        x: draggingBlock.left,
+        y: draggingBlock.top,
+      },
+      {
+        x: 0,
+        y: 0,
+      },
+    );
+    draggingSpaces.push({
+      left: leftColumn,
+      top: topRow,
+      right: leftColumn + draggingBlock.width / snapColumnSpace,
+      bottom: topRow + draggingBlock.height / snapRowSpace,
+      id: draggingBlock.widgetId,
+    });
+  }
+  return draggingSpaces;
+}
 
 export const getDropZoneOffsets = (
   colWidth: number,

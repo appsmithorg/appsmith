@@ -38,7 +38,10 @@ public enum AppsmithPluginError {
     PLUGIN_UQI_WHERE_CONDITION_UNKNOWN(500, 5011, "{0} is not a known conditional operator. Please reach out to Appsmith customer support to report this",
             AppsmithErrorAction.LOG_EXTERNALLY, "Where condition could not be parsed", ErrorType.INTERNAL_ERROR),
     UNSUPPORTED_PLUGIN_OPERATION(500, 5012, "Unsupported operation", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
-    REPOSITORY_NOT_FOUND(500, 5013, "Unable to find the repository for application {0}, please refresh the page to auto-sync with the remote. This might take couple of minutes", AppsmithErrorAction.DEFAULT, "Repository Not Found Exception", ErrorType.CONNECTIVITY_ERROR),
+    PLUGIN_FORM_TO_NATIVE_TRANSLATION_ERROR(500, 5013, "Plugin failed to convert formData into native query with " +
+            "error: {0}", AppsmithErrorAction.LOG_EXTERNALLY, "Failed to convert form data to native",
+            ErrorType.INTERNAL_ERROR),
+    REPOSITORY_NOT_FOUND(500, 5014, "Unable to find the repository for application {0}, please refresh the page to auto-sync with the remote. This might take couple of minutes", AppsmithErrorAction.DEFAULT, "Repository Not Found Exception", ErrorType.CONNECTIVITY_ERROR),
     ;
 
     private final Integer httpErrorCode;

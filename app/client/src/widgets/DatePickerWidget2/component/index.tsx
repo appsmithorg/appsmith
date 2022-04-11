@@ -5,7 +5,7 @@ import {
   IntentColors,
   getBorderCSSShorthand,
 } from "constants/DefaultTheme";
-import { ControlGroup, Classes, Label } from "@blueprintjs/core";
+import { ControlGroup, Classes, Label, IRef } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
 import moment from "moment-timezone";
@@ -19,6 +19,7 @@ import {
   createMessage,
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
+import { parseDate } from "./utils";
 
 const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
   &&& {
@@ -90,12 +91,14 @@ class DatePickerComponent extends React.Component<
   }
 
   componentDidUpdate(prevProps: DatePickerComponentProps) {
+    // prevProps.selectedDate can undefined and moment(undefined) returns now
     if (
       this.props.selectedDate !== this.state.selectedDate &&
-      !moment(this.props.selectedDate).isSame(
+      (!moment(this.props.selectedDate).isSame(
         moment(prevProps.selectedDate),
         "seconds",
-      )
+      ) ||
+        (!prevProps.selectedDate && this.props.selectedDate))
     ) {
       this.setState({ selectedDate: this.props.selectedDate });
     }
@@ -160,6 +163,9 @@ class DatePickerComponent extends React.Component<
               }}
               disabled={this.props.isDisabled}
               formatDate={this.formatDate}
+              inputProps={{
+                inputRef: this.props.inputRef,
+              }}
               maxDate={maxDate}
               minDate={minDate}
               onChange={this.onDateSelected}
@@ -224,10 +230,8 @@ class DatePickerComponent extends React.Component<
     if (!dateStr) {
       return null;
     } else {
-      const date = moment(dateStr);
       const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
-      if (date.isValid()) return moment(dateStr, dateFormat).toDate();
-      else return moment().toDate();
+      return parseDate(dateStr, dateFormat);
     }
   };
 
@@ -251,7 +255,7 @@ class DatePickerComponent extends React.Component<
   };
 }
 
-interface DatePickerComponentProps extends ComponentProps {
+export interface DatePickerComponentProps extends ComponentProps {
   label: string;
   dateFormat: string;
   selectedDate?: string;
@@ -267,6 +271,7 @@ interface DatePickerComponentProps extends ComponentProps {
   shortcuts: boolean;
   firstDayOfWeek?: number;
   timePrecision: TimePrecision;
+  inputRef?: IRef<HTMLInputElement>;
 }
 
 interface DatePickerComponentState {

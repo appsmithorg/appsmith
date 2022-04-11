@@ -87,6 +87,7 @@ import static com.external.plugins.constants.FieldName.LIST_UNSIGNED_URL;
 import static com.external.plugins.constants.FieldName.LIST_WHERE;
 import static com.external.plugins.constants.FieldName.PATH;
 import static com.external.plugins.constants.FieldName.READ_DATATYPE;
+import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
 import static com.external.utils.TemplateUtils.getTemplates;
 import static java.lang.Boolean.TRUE;
@@ -96,7 +97,6 @@ public class AmazonS3Plugin extends BasePlugin {
     private static final String S3_DRIVER = "com.amazonaws.services.s3.AmazonS3";
     public static final int S3_SERVICE_PROVIDER_PROPERTY_INDEX = 1;
     public static final int CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX = 2;
-    public static final String SMART_SUBSTITUTION = "smartSubstitution";
     public static final int CUSTOM_ENDPOINT_INDEX = 0;
     public static final String DEFAULT_URL_EXPIRY_IN_MINUTES = "5"; // max 7 days is possible
     public static final String YES = "YES";
@@ -402,7 +402,8 @@ public class AmazonS3Plugin extends BasePlugin {
 
             Boolean smartJsonSubstitution = TRUE;
 
-            Object smartSubstitutionObject = formData.getOrDefault(SMART_SUBSTITUTION, TRUE);
+            Object smartSubstitutionObject = getValueSafelyFromFormData(formData, SMART_SUBSTITUTION, Object.class,
+                    TRUE);
 
             if (smartSubstitutionObject instanceof Boolean) {
                 smartJsonSubstitution = (Boolean) smartSubstitutionObject;
@@ -967,17 +968,6 @@ public class AmazonS3Plugin extends BasePlugin {
                 invalids.add("Required parameter 'Endpoint URL' is empty. Did you forget to edit the 'Endpoint" +
                         " URL' field in the datasource creation form ? You need to fill it with " +
                         "the endpoint URL of your S3 instance.");
-            }
-
-            final boolean usingCustomServiceProvider =
-                    OTHER_S3_SERVICE_PROVIDER.equals(properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue());
-            if (usingCustomServiceProvider
-                    && (properties.size() < (CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX + 1)
-                    || properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX) == null
-                    || StringUtils.isNullOrEmpty((String) properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX).getValue()))) {
-                invalids.add("Required parameter 'Region' is empty. Did you forget to edit the 'Region' field" +
-                        " in the datasource creation form ? You need to fill it with the region where " +
-                        "your S3 instance is hosted.");
             }
 
             return invalids;

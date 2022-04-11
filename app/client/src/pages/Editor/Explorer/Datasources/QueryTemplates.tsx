@@ -13,8 +13,9 @@ import { QueryAction } from "entities/Action";
 import { Classes } from "@blueprintjs/core";
 import history from "utils/history";
 import { Datasource, QueryTemplate } from "entities/Datasource";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import { INTEGRATION_TABS } from "constants/routes";
 import { getDatasource } from "selectors/entitiesSelector";
+import { integrationEditorURL } from "RouteBuilder";
 
 const Container = styled.div`
   background-color: ${(props) => props.theme.colors.queryTemplate.bg};
@@ -61,6 +62,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
         createActionRequest({
           name: newQueryName,
           pageId: currentPageId,
+          pluginId: dataSource?.pluginId,
           datasource: {
             id: props.datasourceId,
           },
@@ -73,11 +75,10 @@ export function QueryTemplates(props: QueryTemplatesProps) {
         }),
       );
       history.push(
-        INTEGRATION_EDITOR_URL(
-          applicationId,
-          currentPageId,
-          INTEGRATION_TABS.ACTIVE,
-        ),
+        integrationEditorURL({
+          pageId: currentPageId,
+          selectedTab: INTEGRATION_TABS.ACTIVE,
+        }),
       );
     },
     [

@@ -120,7 +120,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
         "File content is not base64 encoded.",
       );
     });
-    cy.validateNSelectDropdown("File Data Type", "Base64", "Text / Binary");
+    cy.validateNSelectDropdown("File Data Type", "Base64", "Text");
 
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
@@ -249,7 +249,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.typeValueNValidate("AutoFile", "File Path");
 
     //Commenting below since below dropdown is removed from Read
-    //cy.validateNSelectDropdown("File Data Type", "Base64", "Text / Binary");
+    //cy.validateNSelectDropdown("File Data Type", "Base64", "Text");
 
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
@@ -343,7 +343,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     );
     cy.typeValueNValidate("assets-test.appsmith.com", "Bucket Name");
     cy.typeValueNValidate("CRUDNewPageFile", "File Path");
-    cy.validateNSelectDropdown("File Data Type", "Base64", "Text / Binary");
+    cy.validateNSelectDropdown("File Data Type", "Base64", "Text");
     cy.typeValueNValidate(
       '{"data": "Hi, this is Automation script adding file for S3 CRUD New Page validation!"}',
       "Content",
@@ -400,7 +400,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     //Verifying Searching File from UI
     cy.xpath(queryLocators.searchFilefield)
       .type("CRUD")
-      .wait(500); //for search to finish
+      .wait(7000); //for search to finish
     expect(
       cy.xpath(
         "//div[@data-cy='overlay-comments-wrapper']//span[text()='CRUDNewPageFile']",
@@ -428,9 +428,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
     });
-    cy.get("span:contains('CRUDNewPageFile')", { timeout: 10000 }).should(
-      "not.exist",
-    ); //verify Deletion of file is success from UI also
+    cy.get("span:contains('CRUDNewPageFile')").should("not.exist"); //verify Deletion of file is success from UI also
   });
 
   it("6. Validate Deletion of the Newly Created Page", () => {
@@ -543,7 +541,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
         fixturePath +
         "']",
-      { timeout: 10000 },
     ).should("not.exist"); //verify Deletion of file is success from UI also
 
     //Upload: 2 - Bug verification 9201
@@ -609,7 +606,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
         fixturePath +
         "']",
-      { timeout: 10000 },
     ).should("not.exist"); //verify Deletion of file is success from UI also
 
     //Deleting the page:

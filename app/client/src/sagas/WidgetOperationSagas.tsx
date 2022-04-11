@@ -52,10 +52,7 @@ import { flashElementsById } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 
 import { getDataTree } from "selectors/dataTreeSelectors";
@@ -322,7 +319,7 @@ function* updateWidgetPropertySaga(
   );
 }
 
-function* setWidgetDynamicPropertySaga(
+export function* setWidgetDynamicPropertySaga(
   action: ReduxAction<SetWidgetDynamicPropertyPayload>,
 ) {
   const { isDynamic, propertyPath, widgetId } = action.payload;
@@ -331,6 +328,7 @@ function* setWidgetDynamicPropertySaga(
   const propertyValue = _.get(widget, propertyPath);
 
   let dynamicPropertyPathList = getWidgetDynamicPropertyPathList(widget);
+  let dynamicBindingPathList = getEntityDynamicBindingPathList(widget);
   if (isDynamic) {
     const keyExists =
       dynamicPropertyPathList.findIndex((path) => path.key === propertyPath) >
@@ -345,6 +343,9 @@ function* setWidgetDynamicPropertySaga(
     dynamicPropertyPathList = _.reject(dynamicPropertyPathList, {
       key: propertyPath,
     });
+    dynamicBindingPathList = _.reject(dynamicBindingPathList, {
+      key: propertyPath,
+    });
     const { parsed } = yield call(
       validateProperty,
       propertyPath,
@@ -354,7 +355,7 @@ function* setWidgetDynamicPropertySaga(
     widget = set(widget, propertyPath, parsed);
   }
   widget.dynamicPropertyPathList = dynamicPropertyPathList;
-
+  widget.dynamicBindingPathList = dynamicBindingPathList;
   const stateWidgets = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: widget };
 
@@ -1165,13 +1166,11 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
       payload: newWidget,
     });
 
-    const pageId = yield select(getCurrentPageId);
-    const applicationId = yield select(getCurrentApplicationId);
+    const pageId: string = yield select(getCurrentPageId);
 
     navigateToCanvas({
       pageId,
       widgetId: newWidget.newWidgetId,
-      applicationId,
     });
   } catch (error) {
     log.error(error);
