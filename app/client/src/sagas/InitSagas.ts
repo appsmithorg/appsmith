@@ -2,6 +2,7 @@ import { get } from "lodash";
 import {
   all,
   call,
+  fork,
   put,
   race,
   select,
@@ -215,14 +216,6 @@ function* initiateEditorApplicationAndPages(payload: InitializeEditorPayload) {
 
   yield call(initiateURLUpdate, toLoadPageId, APP_MODE.EDIT, payload.pageId);
 
-  const fetchPageCallResult: boolean = yield failFastApiCalls(
-    [fetchPage(toLoadPageId, true)],
-    [ReduxActionTypes.FETCH_PAGE_SUCCESS],
-    [ReduxActionErrorTypes.FETCH_PAGE_ERROR],
-  );
-
-  if (!fetchPageCallResult) return;
-
   return toLoadPageId;
 }
 
@@ -316,7 +309,17 @@ function* initializeEditorSaga(
       PerformanceTransactionName.INIT_EDIT_APP,
     );
 
-    yield call(initiateEditorApplicationAndPages, payload);
+    const toLoadPageId: string = yield call(
+      initiateEditorApplicationAndPages,
+      payload,
+    );
+
+    yield fork(
+      failFastApiCalls,
+      [fetchPage(toLoadPageId, true)],
+      [ReduxActionTypes.FETCH_PAGE_SUCCESS],
+      [ReduxActionErrorTypes.FETCH_PAGE_ERROR],
+    );
 
     const { id: applicationId, name }: ApplicationPayload = yield select(
       getCurrentApplication,
