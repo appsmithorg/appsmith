@@ -18,7 +18,7 @@ export const withEvalTree = (WrappedWidget: typeof BaseWidget) => {
     const evaluatedWidget: DataTreeWidget = useSelector(
       (state: AppState) => getWidgetEvalValues(state, canvasWidget.widgetName),
       (prev, next) => {
-        return isEqual(prev, next);
+        return prev === next;
       },
     );
 
