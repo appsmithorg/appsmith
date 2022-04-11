@@ -70,6 +70,7 @@ export interface ActionExecutionResponse {
     isExecutionSuccess: boolean;
     request: ActionApiResponseReq;
     errorType?: string;
+    dataTypes: any[];
   };
   clientMeta: {
     duration: string;
@@ -87,6 +88,7 @@ export interface ActionResponse {
   headers: Record<string, string[]>;
   request?: ActionApiResponseReq;
   statusCode: string;
+  dataTypes: Record<string, string>[];
   duration: string;
   size: string;
   isExecutionSuccess?: boolean;
@@ -94,6 +96,7 @@ export interface ActionResponse {
   messages?: Array<string>;
   errorType?: string;
   readableError?: string;
+  responseDisplayFormat?: string;
 }
 
 export interface MoveActionRequest {

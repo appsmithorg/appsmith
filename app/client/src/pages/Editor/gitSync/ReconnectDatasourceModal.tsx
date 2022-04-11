@@ -17,7 +17,7 @@ import { Colors } from "constants/Colors";
 
 import GitErrorPopup from "./components/GitErrorPopup";
 import styled, { useTheme } from "styled-components";
-import _, { get } from "lodash";
+import { get } from "lodash";
 import { Title } from "./components/StyledComponents";
 import {
   createMessage,
@@ -32,7 +32,6 @@ import {
 } from "@appsmith/constants/messages";
 import Button, { Category, Size } from "components/ads/Button";
 import {
-  getDatasourceDrafts,
   getIsDatasourceTesting,
   getIsListing,
   getIsReconnectingDatasourcesModalOpen,
@@ -48,8 +47,6 @@ import {
   setOrgIdForImport,
 } from "actions/applicationActions";
 import { AuthType, Datasource } from "entities/Datasource";
-import { DATASOURCE_DB_FORM } from "constants/forms";
-import { initialize } from "redux-form";
 import TooltipComponent from "components/ads/Tooltip";
 import DatasourceForm from "../DataSourceEditor";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -274,7 +271,6 @@ function ReconnectDatasourceModal() {
   const datasources = useSelector(getUnconfiguredDatasources);
   const pluginImages = useSelector(getPluginImages);
   const pluginNames = useSelector(getPluginNames);
-  const datasourceDrafts = useSelector(getDatasourceDrafts);
   const isLoading = useSelector(getIsListing);
   const isDatasourceTesting = useSelector(getIsDatasourceTesting);
 
@@ -398,21 +394,6 @@ function ReconnectDatasourceModal() {
       setSelectedDatasourceId(datasources[0].id ?? "");
     }
   }, [isConfigFetched, selectedDatasourceId, queryIsImport]);
-
-  useEffect(() => {
-    const id = selectedDatasourceId;
-    if (id) {
-      const config = datasources.find(
-        (datasource: Datasource) => datasource.id === id,
-      );
-      const notConfigured = config && !config.isConfigured;
-      if (notConfigured) {
-        const data = id in datasourceDrafts ? datasourceDrafts[id] : config;
-
-        dispatch(initialize(DATASOURCE_DB_FORM, _.omit(data, ["name"])));
-      }
-    }
-  }, [selectedDatasourceId]);
 
   const menuOptions = [
     {

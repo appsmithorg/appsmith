@@ -1,6 +1,6 @@
 import React from "react";
 import { WidgetState } from "widgets/BaseWidget";
-import { RenderModes, WidgetType } from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import PhoneInputComponent, { PhoneInputComponentProps } from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
@@ -85,7 +85,7 @@ class PhoneInputWidget extends BaseInputWidget<
             },
             {
               helpText: "Changes the country code",
-              propertyName: "dialCode",
+              propertyName: "defaultDialCode",
               label: "Default Country Code",
               enableSearch: true,
               dropdownHeight: "195px",
@@ -146,6 +146,13 @@ class PhoneInputWidget extends BaseInputWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return _.merge(super.getMetaPropertiesMap(), {
       value: "",
+      dialCode: undefined,
+    });
+  }
+
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return _.merge(super.getDefaultPropertiesMap(), {
+      dialCode: "defaultDialCode",
     });
   }
 
@@ -180,10 +187,7 @@ class PhoneInputWidget extends BaseInputWidget<
   }
 
   componentDidUpdate(prevProps: PhoneInputWidgetProps) {
-    if (
-      this.props.renderMode === RenderModes.CANVAS &&
-      prevProps.dialCode !== this.props.dialCode
-    ) {
+    if (prevProps.dialCode !== this.props.dialCode) {
       this.onISDCodeChange(this.props.dialCode);
     }
 
@@ -218,13 +222,8 @@ class PhoneInputWidget extends BaseInputWidget<
   onISDCodeChange = (dialCode?: string) => {
     const countryCode = getCountryCode(dialCode);
 
-    if (this.props.renderMode === RenderModes.CANVAS) {
-      super.updateWidgetProperty("dialCode", dialCode);
-      super.updateWidgetProperty("countryCode", countryCode);
-    } else {
-      this.props.updateWidgetMetaProperty("dialCode", dialCode);
-      this.props.updateWidgetMetaProperty("countryCode", countryCode);
-    }
+    this.props.updateWidgetMetaProperty("dialCode", dialCode);
+    this.props.updateWidgetMetaProperty("countryCode", countryCode);
 
     if (this.props.value && this.props.allowFormatting) {
       const formattedValue = this.getFormattedPhoneNumber(this.props.value);

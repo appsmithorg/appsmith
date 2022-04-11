@@ -1385,6 +1385,7 @@ export default class DataTreeEvaluator {
               // In this case if the path exists in the dependency map
               // remove it.
               else if (fullPropertyPath in this.dependencyMap) {
+                didUpdateDependencyMap = true;
                 delete this.dependencyMap[fullPropertyPath];
               }
             }
