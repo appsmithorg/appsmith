@@ -233,6 +233,17 @@ export const getDBAndRemotePlugins = createSelector(getPlugins, (plugins) =>
   ),
 );
 
+export const getDBAndRemoteAndSaasPlugins = createSelector(
+  getPlugins,
+  (plugins) =>
+    plugins.filter(
+      (plugin) =>
+        plugin.type === PluginType.DB ||
+        plugin.type === PluginType.REMOTE ||
+        plugin.type === PluginType.SAAS,
+    ),
+);
+
 export const getUnconfiguredDatasources = (state: AppState) =>
   state.entities.datasources.unconfiguredList ?? [];
 
@@ -254,6 +265,19 @@ export const getDBDatasources = createSelector(
 
 export const getDBAndRemoteDatasources = createSelector(
   getDBAndRemotePlugins,
+  getEntities,
+  (plugins, entities) => {
+    const datasources = entities.datasources.list;
+    const pluginIds = plugins.map((plugin) => plugin.id);
+
+    return datasources.filter((datasource) =>
+      pluginIds.includes(datasource.pluginId),
+    );
+  },
+);
+
+export const getDBAndRemoteAndSaasDatasources = createSelector(
+  getDBAndRemoteAndSaasPlugins,
   getEntities,
   (plugins, entities) => {
     const datasources = entities.datasources.list;
