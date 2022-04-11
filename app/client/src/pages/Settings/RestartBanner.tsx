@@ -144,7 +144,7 @@ export default function RestartBanner() {
   const isRestarting = useSelector(getRestartingState);
   const dispatch = useDispatch();
   return isRestarting ? (
-    <RestartBannerWrapper>
+    <RestartBannerWrapper className="t--admin-settings-restart-notice">
       <OverlayBackdrop />
       <RestartContainer>
         <RestartMessageWrapper>
