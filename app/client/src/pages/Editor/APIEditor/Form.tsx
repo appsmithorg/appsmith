@@ -54,8 +54,13 @@ import { useParams } from "react-router";
 import get from "lodash/get";
 import DataSourceList from "./ApiRightPane";
 import { Datasource } from "entities/Datasource";
-import { getAction, getActionResponses } from "selectors/entitiesSelector";
+import {
+  getActionResponses,
+  getActionData,
+  getAction,
+} from "selectors/entitiesSelector";
 import { isEmpty, isEqual } from "lodash";
+
 import { Colors } from "constants/Colors";
 import SearchSnippets from "components/ads/SnippetButton";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
@@ -151,7 +156,7 @@ export const TabbedViewContainer = styled.div`
 
   &&& {
     ul.react-tabs__tab-list {
-      padding: 0px ${(props) => props.theme.spaces[12]}px;
+      margin: 0px ${(props) => props.theme.spaces[11]}px;
       background-color: ${(props) =>
         props.theme.colors.apiPane.responseBody.bg};
       li.react-tabs__tab--selected {
@@ -253,6 +258,8 @@ interface APIFormProps {
   currentPageId?: string;
   applicationId?: string;
   hasResponse: boolean;
+  responseDataTypes: { key: string; title: string }[];
+  responseDisplayFormat: { title: string; value: string };
   suggestedWidgets?: SuggestedWidget[];
   updateDatasource: (datasource: Datasource) => void;
   currentActionDatasourceId: string;
@@ -543,6 +550,8 @@ function ApiEditorForm(props: Props) {
     onRunClick,
     paramsCount,
     pluginId,
+    responseDataTypes,
+    responseDisplayFormat,
     settingsConfig,
     updateDatasource,
   } = props;
@@ -748,6 +757,8 @@ function ApiEditorForm(props: Props) {
             <ApiResponseView
               apiName={actionName}
               onRunClick={onRunClick}
+              responseDataTypes={responseDataTypes}
+              responseDisplayFormat={responseDisplayFormat}
               theme={theme}
             />
           </SecondaryWrapper>
@@ -848,6 +859,28 @@ export default connect((state: AppState, props: { pluginId: string }) => {
     suggestedWidgets = response.suggestedWidgets;
   }
 
+  const actionData = getActionData(state, apiId);
+  let responseDisplayFormat: { title: string; value: string };
+  let responseDataTypes: { key: string; title: string }[];
+  if (!!actionData && actionData.responseDisplayFormat) {
+    responseDataTypes = actionData.dataTypes.map((data) => {
+      return {
+        key: data.dataType,
+        title: data.dataType,
+      };
+    });
+    responseDisplayFormat = {
+      title: actionData.responseDisplayFormat,
+      value: actionData.responseDisplayFormat,
+    };
+  } else {
+    responseDataTypes = [];
+    responseDisplayFormat = {
+      title: "",
+      value: "",
+    };
+  }
+
   return {
     actionName,
     apiId,
@@ -865,6 +898,8 @@ export default connect((state: AppState, props: { pluginId: string }) => {
     ),
     currentPageId: state.entities.pageList.currentPageId,
     applicationId: state.entities.pageList.applicationId,
+    responseDataTypes,
+    responseDisplayFormat,
     suggestedWidgets,
     hasResponse,
   };

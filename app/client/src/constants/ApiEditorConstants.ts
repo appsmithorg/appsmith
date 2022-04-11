@@ -82,6 +82,20 @@ export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
 export const DEFAULT_PROVIDER_OPTION = "Business Software";
 export const CONTENT_TYPE_HEADER_KEY = "content-type";
 
+export enum ApiResponseTypes {
+  JSON = "JSON",
+  TABLE = "TABLE",
+  RAW = "RAW",
+}
+
+// export const ApiResponseTypesOptions:
+export const API_RESPONSE_TYPE_OPTIONS: {
+  [key in keyof typeof ApiResponseTypes]: string;
+} = {
+  JSON: "JSON",
+  TABLE: "TABLE",
+  RAW: "RAW",
+};
 export const POST_BODY_FORMATS = Object.values(POST_BODY_FORMAT_OPTIONS).map(
   (option) => {
     return option;
