@@ -330,7 +330,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                 category={Category.tertiary}
                 className="t--reconnect-btn"
                 onClick={editDatasource}
-                text="RECONNECT APPLICATION"
+                text="RECONNECT"
               />
 
               <MenuWrapper
