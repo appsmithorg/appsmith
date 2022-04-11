@@ -2,7 +2,7 @@ import { Alignment } from "@blueprintjs/core";
 import { ColumnProperties } from "../component/Constants";
 import { TableWidgetProps } from "../constants";
 import { Colors } from "constants/Colors";
-import { get, has } from "lodash";
+import { get } from "lodash";
 import {
   combineDynamicBindings,
   getDynamicBindings,
