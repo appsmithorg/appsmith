@@ -15,26 +15,28 @@
 /// <reference types="Cypress" />
 
 import "cypress-real-events/support";
-import "cypress-xpath";
 import "cypress-wait-until";
-/// <reference types="cypress-xpath" />
-
-let appName;
-let applicationId;
-
+import "cypress-xpath";
+import * as MESSAGES from "../../../client/src/ce/constants/messages.ts";
+import "./ApiCommands";
 // Import commands.js using ES2015 syntax:
 import "./commands";
 import { initLocalstorage } from "./commands";
+import "./dataSourceCommands";
+import "./gitSync";
 import { initLocalstorageRegistry } from "./Objects/Registry";
-import * as MESSAGES from "../../../client/src/ce/constants/messages.ts";
+import "./OrgCommands";
+import "./queryCommands";
+import "./widgetCommands";
+/// <reference types="cypress-xpath" />
 
-Cypress.on("uncaught:exception", (err, runnable) => {
+Cypress.on("uncaught:exception", () => {
   // returning false here prevents Cypress from
   // failing the test
   return false;
 });
 
-Cypress.on("fail", (error, runnable) => {
+Cypress.on("fail", (error) => {
   throw error; // throw error to have test still fail
 });
 

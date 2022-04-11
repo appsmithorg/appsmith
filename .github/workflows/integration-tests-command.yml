@@ -560,14 +560,8 @@ jobs:
           mkdir -p fatcontainerlocal/stacks/configuration/
           cd fatcontainerlocal
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
-            -v "$PWD/stacks:/appsmith-stacks" fatcontainer
-#          sudo chmod a+rw stacks/configuration/docker.env
-#          sudo echo  "APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY" >> stacks/configuration/docker.env
-      
-#      - name: Restart Appsmith
-#        if: steps.run_result.outputs.run_result != 'success'
-#        run: |
-#          docker restart appsmith
+            -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
+            fatcontainer
 
       - name: Use Node.js 14.15.4
         if: steps.run_result.outputs.run_result != 'success'
@@ -1280,13 +1274,15 @@ jobs:
     needs: [build, server-build]
     # Only run if the build step is successful
     if: success()
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        machine: [ubuntu-latest,buildjet-4vcpu-ubuntu-2004]
+    runs-on: ${{ matrix.machine }}
     defaults:
       run:
         working-directory: app/client
         shell: bash
-    strategy:
-      fail-fast: false
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -1466,6 +1462,7 @@ jobs:
           APPSMITH_DISABLE_TELEMETRY: true
           POSTGRES_PASSWORD: postgres
           NODE_TLS_REJECT_UNAUTHORIZED: "0"
+          MACHINE: ${{matrix.machine}}
         run: ./start-test.sh
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
