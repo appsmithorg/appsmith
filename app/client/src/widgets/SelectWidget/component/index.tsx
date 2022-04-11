@@ -193,11 +193,11 @@ class SelectComponent extends React.Component<
     renderItem: (item: any, index: number) => JSX.Element | null,
   ): JSX.Element | null => {
     // Don't scroll if the list is filtered.
-    const lastItemIndex = this.props.options.length;
+    const optionsCount = this.props.options.length;
     const scrollOffset: number =
       !this.state.query &&
       isNumber(activeItemIndex) &&
-      lastItemIndex * ITEM_SIZE > MAX_RENDER_MENU_ITEMS_HEIGHT
+      optionsCount * ITEM_SIZE > MAX_RENDER_MENU_ITEMS_HEIGHT
         ? activeItemIndex * ITEM_SIZE
         : 0;
     const RowRenderer = (itemProps: any) => (
