@@ -232,10 +232,7 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
         color: ${theme.colors.button.disabled.textColor} !important;
       }
     }
-<<<<<<< HEAD
 
-=======
->>>>>>> 2e79006e983f04f6289709cd9c2516d2aed8a6f9
   `}
 `;
 

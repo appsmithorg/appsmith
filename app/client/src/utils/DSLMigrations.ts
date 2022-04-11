@@ -1101,7 +1101,7 @@ export const transformDSL = (
     currentDSL.version = 56;
   }
 
-  if ((currentDSL.version = 56)) {
+  if (currentDSL.version === 56) {
     currentDSL = migrateStylingPropertiesForTheming(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
