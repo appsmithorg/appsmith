@@ -35,6 +35,7 @@ const FUSE_OPTIONS = {
 
 const DEBOUNCE_TIMEOUT = 800;
 const ITEM_SIZE = 40;
+const MAX_RENDER_MENU_ITEMS_HEIGHT = 300;
 
 interface SelectComponentState {
   activeItemIndex: number | undefined;
@@ -185,15 +186,18 @@ class SelectComponent extends React.Component<
       props.renderItem,
     );
   };
-  menuListStyle = { height: "auto", maxHeight: 300 };
+  menuListStyle = { height: "auto", maxHeight: MAX_RENDER_MENU_ITEMS_HEIGHT };
   renderList = (
     items: DropdownOption[],
     activeItemIndex: number | null,
     renderItem: (item: any, index: number) => JSX.Element | null,
   ): JSX.Element | null => {
     // Don't scroll if the list is filtered.
+    const optionsCount = this.props.options.length;
     const scrollOffset: number =
-      !this.state.query && isNumber(activeItemIndex)
+      !this.state.query &&
+      isNumber(activeItemIndex) &&
+      optionsCount * ITEM_SIZE > MAX_RENDER_MENU_ITEMS_HEIGHT
         ? activeItemIndex * ITEM_SIZE
         : 0;
     const RowRenderer = (itemProps: any) => (
@@ -204,7 +208,7 @@ class SelectComponent extends React.Component<
     return (
       <FixedSizeList
         className="menu-virtual-list"
-        height={300}
+        height={MAX_RENDER_MENU_ITEMS_HEIGHT}
         initialScrollOffset={scrollOffset}
         itemCount={items.length}
         itemSize={ITEM_SIZE}

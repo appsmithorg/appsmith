@@ -14,10 +14,11 @@ import {
   defaultSelectedRowValidation,
   totalRecordsCountValidation,
   updateColumnStyles,
-  updateIconAlignment,
+  updateIconAlignmentHook,
   getBasePropertyPath,
   hideByColumnType,
   uniqueColumnNameValidation,
+  updateIconNameHook,
 } from "./propertyUtils";
 import {
   createMessage,
@@ -124,7 +125,7 @@ export default [
                       value: "iconButton",
                     },
                   ],
-                  updateHook: updateDerivedColumnsHook,
+                  updateHook: updateIconNameHook,
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
@@ -826,7 +827,7 @@ export default [
                       ColumnTypes.MENU_BUTTON,
                     ]);
                   },
-                  updateHook: updateIconAlignment,
+                  updateHook: updateIconAlignmentHook,
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
@@ -834,7 +835,6 @@ export default [
                   ],
                   controlType: "ICON_SELECT",
                   customJSControl: "COMPUTE_VALUE",
-                  defaultIconName: "add",
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,
@@ -844,7 +844,6 @@ export default [
                       type: ValidationTypes.TEXT,
                       params: {
                         allowedValues: ICON_NAMES,
-                        default: IconNames.ADD,
                       },
                     },
                   },
@@ -958,10 +957,12 @@ export default [
                   label: "Button Variant",
                   controlType: "DROP_DOWN",
                   customJSControl: "COMPUTE_VALUE",
+                  defaultValue: ButtonVariantTypes.PRIMARY,
                   isJSConvertible: true,
-                  helpText: "Sets the variant of the icon button",
+                  helpText: "Sets the variant",
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.BUTTON,
                       ColumnTypes.ICON_BUTTON,
                     ]);
                   },
@@ -984,8 +985,6 @@ export default [
                       value: ButtonVariantTypes.TERTIARY,
                     },
                   ],
-                  defaultValue: ButtonVariantTypes.PRIMARY,
-
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
@@ -1104,36 +1103,6 @@ export default [
                   },
                   isTriggerProperty: false,
                 },
-                {
-                  propertyName: "buttonLabelColor",
-                  label: "Label Color",
-                  controlType: "COLOR_PICKER",
-                  isJSConvertible: true,
-                  customJSControl: "COMPUTE_VALUE",
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    return hideByColumnType(props, propertyPath, [
-                      ColumnTypes.BUTTON,
-                    ]);
-                  },
-                  dependencies: [
-                    "primaryColumns",
-                    "derivedColumns",
-                    "columnOrder",
-                  ],
-                  updateHook: updateDerivedColumnsHook,
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                  validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
-                    params: {
-                      type: ValidationTypes.TEXT,
-                      params: {
-                        regex: /^(?![<|{{]).+/,
-                      },
-                    },
-                  },
-                },
-
                 {
                   propertyName: "menuColor",
                   helpText:

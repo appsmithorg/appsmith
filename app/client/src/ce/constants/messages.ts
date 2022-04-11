@@ -450,11 +450,11 @@ export const JS_EXECUTION_SUCCESS = () => "JS Function executed successfully";
 export const JS_EXECUTION_FAILURE = () => "JS Function execution failed";
 export const JS_EXECUTION_FAILURE_TOASTER = () =>
   "There was an error while executing function";
-export const JS_SETTINGS_ONPAGELOAD = () => "Run Function on Page load";
+export const JS_SETTINGS_ONPAGELOAD = () => "Run function on page load (Beta)";
 export const JS_SETTINGS_ONPAGELOAD_SUBTEXT = () =>
   "Will refresh data every time page is reloaded";
 export const JS_SETTINGS_CONFIRM_EXECUTION = () =>
-  "Request confirmation before calling Function?";
+  "Request confirmation before calling function?";
 export const JS_SETTINGS_CONFIRM_EXECUTION_SUBTEXT = () =>
   "Ask confirmation from the user every time before refreshing data";
 export const JS_SETTINGS_EXECUTE_TIMEOUT = () =>
@@ -969,11 +969,13 @@ export const DELETE_TOOLTIP = () => "Delete";
 export const SETTINGS_TOOLTIP = () => "Settings";
 //settings
 export const ADMIN_SETTINGS = () => "Admin Settings";
-export const RESTART_BANNER_BODY = () => "We will notify you once we are done!";
-export const RESTART_BANNER_HEADER = () => "Restarting Server";
+export const RESTART_BANNER_BODY = () =>
+  "Hang in there. This should be done soon.";
+export const RESTART_BANNER_HEADER = () => "Restarting your server";
 export const RESTART_ERROR_BODY = () =>
-  "Something went wrong. Please contact your administrator.";
-export const RESTART_ERROR_HEADER = () => "Restart failed";
+  "You can try restarting the server again for the settings to take place.";
+export const RESTART_ERROR_HEADER = () => "Restarting failed";
+export const RETRY_BUTTON = () => "Retry";
 export const INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST = () =>
   "Hey! There is a new version of Appsmith available. Please consider refreshing your window.";
 export const TEST_EMAIL_SUCCESS = (email: string) => () =>
