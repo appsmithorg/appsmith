@@ -12,7 +12,10 @@ import Button from "./Button";
 import { getFormValues } from "redux-form";
 import { SETTINGS_FORM_NAME } from "constants/forms";
 import { useSelector } from "store";
-import { createMessage } from "@appsmith/constants/messages";
+import {
+  createMessage,
+  REDIRECT_URL_TOOLTIP,
+} from "@appsmith/constants/messages";
 import { Callout } from "components/ads/CalloutV2";
 import { CopyUrlReduxForm } from "components/ads/formFields/CopyUrlForm";
 import Accordion from "./Accordion";
@@ -187,6 +190,7 @@ export default function Group({
                       form={setting.formName}
                       helpText={setting.helpText}
                       title={setting.label}
+                      tooltip={createMessage(REDIRECT_URL_TOOLTIP)}
                       value={setting.value}
                     />
                   </div>

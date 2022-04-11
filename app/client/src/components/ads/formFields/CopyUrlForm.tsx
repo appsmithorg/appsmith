@@ -9,10 +9,6 @@ import { Variant } from "components/ads/common";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import TooltipComponent from "../Tooltip";
 import { Position } from "@blueprintjs/core";
-import {
-  createMessage,
-  REDIRECT_URL_TOOLTIP,
-} from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 
 const HelpIcon = HelpIcons.HELP_ICON;
@@ -31,7 +27,7 @@ const HeaderWrapper = styled.div`
   align-items: center;
   margin-bottom: 8px;
   .help-icon {
-    margin-left: 4px;
+    margin-left: 8px;
     cursor: pointer;
     svg {
       border-radius: 50%;
@@ -57,6 +53,7 @@ function CopyUrlForm(
     fieldName: string;
     title: string;
     helpText?: string;
+    tooltip?: string;
   },
 ) {
   useEffect(() => {
@@ -78,21 +75,23 @@ function CopyUrlForm(
     <Wrapper>
       <HeaderWrapper>
         <HeaderSecondary>{props.title}</HeaderSecondary>
-        <TooltipComponent
-          autoFocus={false}
-          content={createMessage(REDIRECT_URL_TOOLTIP)}
-          hoverOpenDelay={0}
-          minWidth={"180px"}
-          openOnTargetFocus={false}
-          position={Position.RIGHT}
-        >
-          <HelpIcon
-            className={"help-icon"}
-            color={Colors.GREY_7}
-            height={13}
-            width={13}
-          />
-        </TooltipComponent>
+        {props.tooltip && (
+          <TooltipComponent
+            autoFocus={false}
+            content={props.tooltip}
+            hoverOpenDelay={0}
+            minWidth={"180px"}
+            openOnTargetFocus={false}
+            position={Position.RIGHT}
+          >
+            <HelpIcon
+              className={"help-icon"}
+              color={Colors.GREY_7}
+              height={13}
+              width={13}
+            />
+          </TooltipComponent>
+        )}
       </HeaderWrapper>
       <BodyContainer>
         <UneditableField
