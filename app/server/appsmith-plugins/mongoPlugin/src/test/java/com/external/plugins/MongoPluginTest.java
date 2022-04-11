@@ -17,7 +17,9 @@ import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.MongoCommandException;
@@ -26,6 +28,7 @@ import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.MongoDatabase;
+import com.mongodb.DBRef;
 import org.bson.Document;
 import org.bson.types.BSONTimestamp;
 import org.bson.types.Decimal128;
@@ -135,8 +138,25 @@ public class MongoPluginTest {
                                 )),
                                 new Document(Map.of("name", "Kierra Gentry", "gender", "F", "age", 40))
                         ))).block();
-                    }
 
+
+                        final MongoCollection<Document> addressCollection = mongoClient.getDatabase("test")
+                                .getCollection("address");
+                        Mono.from(addressCollection.insertMany(List.of(
+                                new Document(Map.of(
+                                        "user", new DBRef("test", "users", "1"),
+                                        "street", "First Street",
+                                        "city", "Line One",
+                                        "state", "UP"
+                                )),
+                                new Document(Map.of(
+                                        "user", new DBRef("AAA", "BBB", "2000"),
+                                        "street", "Second Street",
+                                        "city", "Line Two",
+                                        "state", "UP"
+                                ))
+                        ))).block();
+                    }
                     return Mono.empty();
                 }).block();
     }
@@ -248,6 +268,55 @@ public class MongoPluginTest {
                 })
                 .verifyComplete();
     }
+
+    /**
+     * Test for DBRef after codec implementation
+     */
+    @Test
+    public void testExecuteQueryDBRef() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
+                "      find: \"address\",\n" +
+                "      limit: 10,\n" +
+                "    }");
+        actionConfiguration.setFormData(configMap);
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+
+                    assertEquals(2, ((ArrayNode) result.getBody()).size());
+
+                    /*
+                     * Provided Input : new DBRef("test", "users", "1")
+                     * To test if we are getting the expected output after external codec implementation.
+                     * Note: when the codec is removed from the MongoDBPlugin, this is found failing
+                     */
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+                        String expectedOutputJsonString = "{\"$db\":\"test\",\"$ref\":\"users\",\"$id\":\"1\"}";
+                        JsonNode outputNode = mapper.readTree(expectedOutputJsonString);
+                        assertEquals(outputNode, (((ArrayNode) result.getBody()).findValue("user")));
+                    } catch (JsonProcessingException e) {
+                        assert false;
+                    }
+
+                })
+                .verifyComplete();
+    }
+
 
     @Test
     public void testExecuteReadQuery() {
@@ -475,8 +544,13 @@ public class MongoPluginTest {
 
         StepVerifier.create(structureMono)
                 .assertNext(structure -> {
+                    //Sort the Tables since one more table is added and to maintain sequence
+                    structure.getTables().sort(
+                            (DatasourceStructure.Table t1, DatasourceStructure.Table t2)
+                                    ->t2.getName().compareTo(t1.getName())
+                    );
                     assertNotNull(structure);
-                    assertEquals(1, structure.getTables().size());
+                    assertEquals(2, structure.getTables().size());
 
                     final DatasourceStructure.Table usersTable = structure.getTables().get(0);
                     assertEquals("users", usersTable.getName());
