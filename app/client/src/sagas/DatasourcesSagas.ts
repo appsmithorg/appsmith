@@ -674,9 +674,12 @@ function* updateDraftsSaga() {
 }
 
 function* changeDatasourceSaga(
-  actionPayload: ReduxAction<{ datasource: Datasource }>,
+  actionPayload: ReduxAction<{
+    datasource: Datasource;
+    shouldNotRedirect?: boolean;
+  }>,
 ) {
-  const { datasource } = actionPayload.payload;
+  const { datasource, shouldNotRedirect } = actionPayload.payload;
   const { id } = datasource;
   const draft = yield select(getDatasourceDraft, id);
   let data;
@@ -688,6 +691,8 @@ function* changeDatasourceSaga(
   }
 
   yield put(initialize(DATASOURCE_DB_FORM, _.omit(data, ["name"])));
+  // on reconnect modal, it shouldn't be redirected to datasource edit page
+  if (shouldNotRedirect) return;
   // this redirects to the same route, so checking first.
   const datasourcePath = trimQueryString(
     datasourcesEditorIdURL({
@@ -707,11 +712,16 @@ function* changeDatasourceSaga(
   );
 }
 
-function* switchDatasourceSaga(action: ReduxAction<{ datasourceId: string }>) {
-  const { datasourceId } = action.payload;
+function* switchDatasourceSaga(
+  action: ReduxAction<{
+    datasourceId: string;
+    shouldNotRedirect: boolean;
+  }>,
+) {
+  const { datasourceId, shouldNotRedirect } = action.payload;
   const datasource: Datasource = yield select(getDatasource, datasourceId);
   if (datasource) {
-    yield put(changeDatasource({ datasource }));
+    yield put(changeDatasource({ datasource, shouldNotRedirect }));
   }
 }
 
