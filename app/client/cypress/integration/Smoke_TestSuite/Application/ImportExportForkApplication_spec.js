@@ -39,9 +39,9 @@ describe("Import, Export and Fork application and validate data binding", functi
       });
       cy.wait(2000);
       cy.get(homePage.applicationName)
-        // .clear()
+        .clear()
         .type(appName);
-      cy.wrap(`app${name}`).as("appname");
+      cy.wrap(appName).as("appname");
       cy.wait(2000);
       // validating data binding for the imported application
       cy.xpath("//input[@value='Submit']").should("be.visible");
@@ -108,7 +108,8 @@ describe("Import, Export and Fork application and validate data binding", functi
             cy.get(homePage.orgImportAppOption).click({ force: true });
 
             cy.get(homePage.orgImportAppModal).should("be.visible");
-            cy.get(".t--import-json-card input").attachFile("exportedApp.json");
+            // cy.get(".t--import-json-card input").attachFile("exportedApp.json");
+            cy.xpath(homePage.uploadLogo).attachFile("exportedApp.json");
             // import exported application in new organization
             // cy.get(homePage.orgImportAppButton).click({ force: true });
             cy.wait("@importNewApplication").then((interception) => {

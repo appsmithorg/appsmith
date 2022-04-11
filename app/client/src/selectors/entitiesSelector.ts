@@ -385,6 +385,14 @@ export const getAction = (
   return action ? action.config : undefined;
 };
 
+export const getActionData = (
+  state: AppState,
+  actionId: string,
+): ActionResponse | undefined => {
+  const action = find(state.entities.actions, (a) => a.config.id === actionId);
+  return action ? action.data : undefined;
+};
+
 export const getJSCollection = (
   state: AppState,
   actionId: string,

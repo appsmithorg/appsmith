@@ -16,12 +16,19 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.ObjectUtils.isEmpty;
+
 @Getter
 @Setter
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @ToString
 public class MethodConfig {
+    public static final String PATH_KEY = "path";
+    public static final String VALUE_KEY = "value";
+    public static final String OPERATOR_KEY = "operator";
+
     String spreadsheetId;
     String spreadsheetUrl;
     String spreadsheetRange;
@@ -91,13 +98,15 @@ public class MethodConfig {
                         this.rowObjects = propertyValue;
                         break;
                     case "where":
+                        /**
+                         * Here, value represents a list of where condition rows.
+                         * e.g. value = [{"path": "Country", "operator": "==", "value": "India"}, {...}, ...]
+                         */
                         if (value instanceof List) {
-                            // Check if all values in the where condition are null.
-                            boolean allValuesNull = ((List) value).stream()
-                                    .allMatch(valueMap -> valueMap == null ||
-                                            ((Map) valueMap).entrySet().stream().allMatch(e -> ((Map.Entry) e).getValue() == null));
+                            boolean isAllColumnAndOperatorEmpty = ((List) value).stream()
+                                    .allMatch(condition -> isEmpty(condition) || isColumnNameAndOperatorEmpty((Map) condition));
 
-                            if (!allValuesNull) {
+                            if (!isAllColumnAndOperatorEmpty) {
                                 this.whereConditions = Condition.generateFromConfiguration((List<Object>) value);
                             }
                         }
@@ -105,5 +114,9 @@ public class MethodConfig {
                 }
             }
         });
+    }
+
+    private boolean isColumnNameAndOperatorEmpty(Map condition) {
+        return isBlank((String) condition.get(PATH_KEY)) && isBlank((String) condition.get(OPERATOR_KEY));
     }
 }

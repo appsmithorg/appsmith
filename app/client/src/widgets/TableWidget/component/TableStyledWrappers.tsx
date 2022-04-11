@@ -355,6 +355,7 @@ export const CellWrapper = styled.div<{
   useLinkToolTip?: boolean;
   isCellVisible?: boolean;
   isTextType?: boolean;
+  lineHeight?: number;
 }>`
   display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
   align-items: ${(props) => (props.isPadding ? "center" : "flex-start")};

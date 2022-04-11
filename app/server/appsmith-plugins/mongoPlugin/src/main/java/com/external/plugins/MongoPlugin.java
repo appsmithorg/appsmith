@@ -30,14 +30,25 @@ import com.external.plugins.utils.MongoErrorUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.mongodb.DBObjectCodecProvider;
+import com.mongodb.DBRefCodecProvider;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoSocketWriteException;
 import com.mongodb.MongoTimeoutException;
+import com.mongodb.client.gridfs.codecs.GridFSFileCodecProvider;
+import com.mongodb.client.model.geojson.codecs.GeoJsonCodecProvider;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
+import org.bson.codecs.BsonTypeClassMap;
+import org.bson.codecs.BsonValueCodecProvider;
+import org.bson.codecs.DocumentCodec;
+import org.bson.codecs.DocumentCodecProvider;
+import org.bson.codecs.ValueCodecProvider;
+import org.bson.codecs.configuration.CodecRegistries;
+import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.conversions.Bson;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -98,6 +109,7 @@ import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
 import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
 import static com.external.plugins.utils.MongoPluginUtils.urlEncode;
 import static java.lang.Boolean.TRUE;
+import static java.util.Arrays.asList;
 import static org.apache.logging.log4j.util.Strings.isBlank;
 
 public class MongoPlugin extends BasePlugin {
@@ -178,7 +190,7 @@ public class MongoPlugin extends BasePlugin {
 
     private static final Integer MONGO_COMMAND_EXCEPTION_UNAUTHORIZED_ERROR_CODE = 13;
 
-    private static final Set<String> bsonFields = new HashSet<>(Arrays.asList(
+    private static final Set<String> bsonFields = new HashSet<>(asList(
             AGGREGATE_PIPELINES,
             COUNT_QUERY,
             DELETE_QUERY,
@@ -192,6 +204,18 @@ public class MongoPlugin extends BasePlugin {
     ));
 
     private static final MongoErrorUtils mongoErrorUtils = MongoErrorUtils.getInstance();
+
+    private static final CodecRegistry DEFAULT_REGISTRY = CodecRegistries.fromProviders(
+            asList(new ValueCodecProvider(),
+                    new BsonValueCodecProvider(),
+                    new DocumentCodecProvider(),
+                    new DBRefCodecProvider(),
+                    new DBObjectCodecProvider(),
+                    new BsonValueCodecProvider(),
+                    new GeoJsonCodecProvider(),
+                    new GridFSFileCodecProvider()));
+
+    private static final BsonTypeClassMap DEFAULT_BSON_TYPE_CLASS_MAP = new org.bson.codecs.BsonTypeClassMap();
 
     public MongoPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -332,7 +356,17 @@ public class MongoPlugin extends BasePlugin {
                     )
                     .flatMap(mongoOutput -> {
                         try {
-                            JSONObject outputJson = new JSONObject(mongoOutput.toJson());
+                            /*
+                             * Added Custom codec for JSON conversion since MongoDB Reactive API does not support
+                             * processing of DbRef Object.
+                             * https://github.com/spring-projects/spring-data-mongodb/issues/3015 : Mark Paluch commented
+                             */
+                            DocumentCodec documentCodec = new DocumentCodec(
+                                    DEFAULT_REGISTRY,
+                                    DEFAULT_BSON_TYPE_CLASS_MAP
+                            );
+
+                            JSONObject outputJson = new JSONObject(mongoOutput.toJson(documentCodec));
 
                             //The output json contains the key "ok". This is the status of the command
                             BigInteger status = outputJson.getBigInteger("ok");
