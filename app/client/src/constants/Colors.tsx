@@ -157,7 +157,7 @@ export const Colors = {
   GREY_11: "#9F9F9F",
   GREY_200: "#E7E7E7",
   GREY_800: "#393939",
-  GREY_OVERLAY: "#10161A",
+  GREY_900: "#191919",
 
   PRIMARY_ORANGE: "#F86A2B",
 

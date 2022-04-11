@@ -37,7 +37,7 @@ const OverlayBackdrop = styled.div`
   left: 0;
   right: 0;
   top: 0;
-  background-color: ${hexToRgba(Colors.GREY_OVERLAY, 0.7)};
+  background-color: ${hexToRgba(Colors.GREY_900, 0.7)};
   overflow: auto;
   pointer-events: none;
   user-select: none;
@@ -88,7 +88,7 @@ const Heading = styled.span`
 `;
 
 const AppIconWrapper = styled.div`
-  background: var(--appsmith-color-red-100);
+  background: var(--appsmith-color-red-50);
   border-radius: 50%;
   padding: 4px;
   margin-right: 10px;
@@ -98,7 +98,7 @@ const AppIconWrapper = styled.div`
     height: 18px;
 
     path {
-      fill: var(--appsmith-color-red-200);
+      fill: var(--appsmith-color-red-500);
     }
   }
 `;
