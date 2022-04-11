@@ -418,7 +418,7 @@ export function isFunctionAsync(
     } catch (e) {
       // We do not want to throw errors for internal operations, to users.
       // logLevel should help us in debugging this.
-      logs.push("Error when determining async function", e);
+      logs.push({ error: "Error when determining async function" + e });
     }
     const isAsync = !!self.IS_ASYNC;
     for (const entity in GLOBAL_DATA) {
