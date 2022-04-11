@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "store";
 import { getUserApplicationsOrgs } from "selectors/applicationSelectors";
@@ -22,6 +22,7 @@ import {
   FORK_APP_MODAL_LOADING_TITLE,
   FORK_APP_MODAL_SUCCESS_TITLE,
 } from "@appsmith/constants/messages";
+import { getAllApplications } from "actions/applicationActions";
 
 type ForkApplicationModalProps = {
   applicationId: string;
@@ -43,6 +44,12 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
   const forkingApplication = useSelector(
     (state: AppState) => state.ui.applications.forkingApplication,
   );
+
+  useEffect(() => {
+    if (!userOrgs.length) {
+      dispatch(getAllApplications());
+    }
+  }, [userOrgs.length]);
 
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const { pathname } = useLocation();

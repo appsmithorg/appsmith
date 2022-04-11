@@ -608,12 +608,15 @@ public class PageServiceTest {
                     assertThat(collectionDefaultResource.getBranchName()).isEqualTo(branchName);
                     assertThat(collection.getUnpublishedCollection().getDefaultResources().getPageId()).isEqualTo(clonedPage.getDefaultResources().getPageId());
 
-
                     // Check if the parent page collections are not altered
                     List<ActionCollection> parentPageCollections = tuple.getT4();
                     assertThat(parentPageCollections.size()).isEqualTo(1);
                     assertThat(parentPageCollections.get(0).getUnpublishedCollection()).isNotNull();
                     assertThat(parentPageCollections.get(0).getUnpublishedCollection().getPageId()).isEqualTo(page.getId());
+
+                    assertThat(parentPageCollections.get(0).getGitSyncId()).isNotEmpty();
+                    assertThat(collection.getGitSyncId()).isNotEmpty();
+                    assertThat(collection.getGitSyncId()).isNotEqualTo(parentPageCollections.get(0).getGitSyncId());
                 })
                 .verifyComplete();
     }
