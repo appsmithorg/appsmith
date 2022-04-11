@@ -10,6 +10,7 @@ import Button from "components/ads/Button";
 import TextInput from "components/ads/TextInput";
 import Dropdown from "components/ads/Dropdown";
 import MultiSelectDropdown from "components/ads/MultiselectDropdown";
+import { IconWrapper } from "constants/IconConstants";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
@@ -53,23 +54,34 @@ export const ControlPropertyLabelContainer = styled.div`
 export const JSToggleButton = styled.button<{ active: boolean }>`
   margin: 4px;
   margin-top: 0px;
-  cursor: pointer;
+
+  & ${IconWrapper} {
+    cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  }
+
   height: auto;
   width: 28px;
   height: 16px;
-  border: 0.5px solid ${Colors.BLACK};
+  border: 0.5px solid
+    ${(props) => (props.disabled ? Colors.GRAY_400 : Colors.GRAY_700)};
   background-color: ${(props) =>
-    props.active ? Colors.GREY_10 : Colors.GREY_2};
+    props.active
+      ? props.disabled
+        ? Colors.GRAY_400
+        : Colors.GRAY_800
+      : props.disabled
+      ? Colors.GRAY_200
+      : Colors.WHITE};
 
   &:hover {
     background-color: ${(props) =>
-      props.active ? Colors.GREY_9 : Colors.GREY_3};
-
-    &&& svg {
-      path {
-        fill: ${(props) => (props.active ? Colors.GREY_2 : Colors.GREY_9)};
-      }
-    }
+      props.disabled
+        ? props.active
+          ? Colors.GRAY_400
+          : Colors.GRAY_200
+        : props.active
+        ? Colors.GRAY_900
+        : Colors.GRAY_200};
   }
 
   & > div {
@@ -89,8 +101,7 @@ export const JSToggleButton = styled.button<{ active: boolean }>`
     }
 
     path {
-      fill: ${(props) =>
-        props.active ? props.theme.colors.GREY_2 : Colors.GREY_9};
+      fill: ${(props) => (props.active ? Colors.WHITE : Colors.GRAY_700)};
     }
   }
 `;

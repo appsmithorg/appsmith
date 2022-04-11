@@ -176,9 +176,11 @@ export const Colors = {
   YELLOW_LIGHT: "#F4AF0A",
   BROWN: "#864C17",
 
+  GRAY_200: "#E7E7E7",
+  GRAY_400: "#B3B3B3",
   GRAY_700: "#575757",
   GRAY_800: "#393939",
-  GRAY_900: "#101828",
+  GRAY_900: "#191919",
   SCORPION: "#575757",
 
   COD_GRAY: "#191919",

@@ -18,7 +18,7 @@ import {
   UpdateWidgetPropertyPayload,
 } from "actions/controlActions";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
-import { IPanelProps } from "@blueprintjs/core";
+import { IPanelProps, Position } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import {
   getEvalValuePath,
@@ -38,6 +38,7 @@ import { getExpectedValue } from "utils/validation/common";
 import { ControlData } from "components/propertyControls/BaseControl";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import * as log from "loglevel";
+import { Tooltip } from "components/ads";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -402,6 +403,10 @@ const PropertyControl = memo((props: Props) => {
     };
 
     const uniqId = btoa(`${widgetProperties.widgetId}.${propertyName}`);
+    const isToggleDisabled =
+      isDynamic &&
+      propertyValue !== "" &&
+      propertyValue !== (props as any)?.defaultValue;
 
     try {
       return (
@@ -423,15 +428,24 @@ const PropertyControl = memo((props: Props) => {
               tooltip={props.helpText}
             />
             {isConvertible && (
-              <JSToggleButton
-                active={isDynamic}
-                className={`focus:ring-2 t--js-toggle ${
-                  isDynamic ? "is-active" : ""
-                }`}
-                onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
+              <Tooltip
+                content="Clear the field to enable the button!"
+                disabled={!isToggleDisabled}
+                hoverOpenDelay={200}
+                openOnTargetFocus={false}
+                position={Position.TOP}
               >
-                <ControlIcons.JS_TOGGLE />
-              </JSToggleButton>
+                <JSToggleButton
+                  active={isDynamic}
+                  className={`focus:ring-2 t--js-toggle ${
+                    isDynamic ? "is-active" : ""
+                  }`}
+                  disabled={isToggleDisabled}
+                  onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
+                >
+                  <ControlIcons.JS_TOGGLE />
+                </JSToggleButton>
+              </Tooltip>
             )}
           </ControlPropertyLabelContainer>
           {PropertyControlFactory.createControl(
