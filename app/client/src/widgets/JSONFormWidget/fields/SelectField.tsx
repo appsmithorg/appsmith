@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useContext,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useContext, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { useController } from "react-hook-form";
 
@@ -84,7 +78,6 @@ function SelectField({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const isDirtyRef = useRef<boolean>(false);
   const { executeAction } = useContext(FormContext);
-  const [filterText, setFilterText] = useState<string>();
   const {
     field: { onChange, value },
   } = useController({
@@ -105,17 +98,16 @@ function SelectField({
     fieldType: schemaItem.fieldType,
   });
 
-  useUpdateInternalMetaState({
+  const [updateFilterText] = useUpdateInternalMetaState({
     propertyName: `${name}.filterText`,
-    propertyValue: filterText,
   });
 
   const onFilterChange = useCallback(
     (value: string) => {
-      setFilterText(value);
-
-      if (schemaItem.onFilterUpdate) {
-        executeAction({
+      if (!schemaItem.onFilterUpdate) {
+        updateFilterText(value);
+      } else {
+        updateFilterText(value, {
           triggerPropertyName: "onFilterUpdate",
           dynamicString: schemaItem.onFilterUpdate,
           event: {
@@ -165,7 +157,6 @@ function SelectField({
           compactMode={false}
           disabled={schemaItem.isDisabled}
           dropDownWidth={dropdownWidth || 100}
-          filterText={filterText}
           hasError={isDirtyRef.current ? !isValueValid : false}
           height={10}
           isFilterable={schemaItem.isFilterable}
@@ -178,13 +169,12 @@ function SelectField({
           selectedIndex={selectedIndex}
           serverSideFiltering={schemaItem.serverSideFiltering}
           value={options[selectedOptionIndex]?.value}
-          widgetId={name}
+          widgetId={fieldClassName}
           width={10}
         />
       </StyledSelectWrapper>
     ),
     [
-      name,
       selectedOptionIndex,
       schemaItem.serverSideFiltering,
       schemaItem.placeholderText,
@@ -196,12 +186,12 @@ function SelectField({
       schemaItem.isFilterable,
       schemaItem.isDisabled,
       isDirtyRef,
-      filterText,
       wrapperRef,
       isValueValid,
       onOptionSelected,
       selectedIndex,
       dropdownWidth,
+      fieldClassName,
     ],
   );
 

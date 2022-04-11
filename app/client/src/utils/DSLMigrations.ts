@@ -63,7 +63,6 @@ import { DSLWidget } from "widgets/constants";
 import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
-import { migratePhoneInputWidgetAllowFormatting } from "./migrations/PhoneInputWidgetMigrations";
 import { ROOT_SCHEMA_KEY } from "widgets/JSONFormWidget/constants";
 import { parseSchemaItem } from "widgets/WidgetUtils";
 import { isDynamicValue } from "./DynamicBindingUtils";
@@ -72,6 +71,11 @@ import {
   THEMEING_TEXT_SIZES,
   THEMING_BORDER_RADIUS,
 } from "constants/ThemeConstants";
+import {
+  migratePhoneInputWidgetAllowFormatting,
+  migratePhoneInputWidgetDefaultDialCode,
+} from "./migrations/PhoneInputWidgetMigrations";
+import { migrateCurrencyInputWidgetDefaultCurrencyCode } from "./migrations/CurrencyInputWidgetMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1088,6 +1092,16 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 54) {
+    currentDSL = migratePhoneInputWidgetDefaultDialCode(currentDSL);
+    currentDSL.version = 55;
+  }
+
+  if (currentDSL.version === 55) {
+    currentDSL = migrateCurrencyInputWidgetDefaultCurrencyCode(currentDSL);
+    currentDSL.version = 56;
+  }
+
+  if ((currentDSL.version = 56)) {
     currentDSL = migrateStylingPropertiesForTheming(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }

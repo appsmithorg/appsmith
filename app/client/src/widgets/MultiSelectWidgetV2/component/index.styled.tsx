@@ -140,6 +140,7 @@ export const DropdownStyles = createGlobalStyle<{
 }>`
 ${({ dropDownWidth, id }) => `
   .multiselect-popover-width-${id} {
+    width: ${dropDownWidth}px !important;
     min-width: ${dropDownWidth}px !important;
   }
 `}
@@ -269,7 +270,6 @@ ${({ dropDownWidth, id }) => `
 	animation-name: ${rcSelectDropdownSlideUpOut};
 	animation-play-state: running;
 }
-
 .multi-select-dropdown {
   min-height: 100px;
   position: absolute;

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { Link, RouteComponentProps } from "react-router-dom";
+import { Link, RouteComponentProps, withRouter } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getIsFetchingPage } from "selectors/appViewSelectors";
 import styled from "styled-components";
@@ -113,4 +113,4 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
   );
 }
 
-export default AppViewerPageContainer;
+export default withRouter(AppViewerPageContainer);

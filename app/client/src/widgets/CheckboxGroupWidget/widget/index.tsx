@@ -1,5 +1,5 @@
 import React from "react";
-import { compact } from "lodash";
+import { compact, xor } from "lodash";
 
 import {
   ValidationResponse,
@@ -295,12 +295,14 @@ class CheckboxGroupWidget extends BaseWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedValues: undefined,
+      isDirty: false,
     };
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{ this.isRequired ? !!this.selectedValues.length : true }}`,
+      value: `{{this.selectedValues}}`,
     };
   }
 
@@ -335,6 +337,14 @@ class CheckboxGroupWidget extends BaseWidget<
           type: EventType.ON_CHECK_CHANGE,
         },
       });
+    }
+    // Reset isDirty to false whenever defaultSelectedValues changes
+    if (
+      xor(this.props.defaultSelectedValues, prevProps.defaultSelectedValues)
+        .length > 0 &&
+      this.props.isDirty
+    ) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
     }
   }
 
@@ -376,6 +386,11 @@ class CheckboxGroupWidget extends BaseWidget<
         );
       }
 
+      // Update isDirty to true whenever value changes
+      if (!this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", true);
+      }
+
       this.props.updateWidgetMetaProperty("selectedValues", selectedValues, {
         triggerPropertyName: "onSelectionChange",
         dynamicString: this.props.onSelectionChange,
@@ -398,6 +413,10 @@ class CheckboxGroupWidget extends BaseWidget<
         default:
           selectedValues = [];
           break;
+      }
+
+      if (!this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", true);
       }
 
       this.props.updateWidgetMetaProperty("selectedValues", selectedValues, {

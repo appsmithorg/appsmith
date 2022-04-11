@@ -27,6 +27,7 @@ import {
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { convertSchemaItemToFormData } from "../helper";
+import { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -120,8 +121,11 @@ class JSONFormWidget extends BaseWidget<
       this.state.resetObserverCallback(this.props.schema);
     }
 
-    this.constructAndSaveSchemaIfRequired(prevProps);
-    this.debouncedParseAndSaveFieldState();
+    const { schema } = this.constructAndSaveSchemaIfRequired(prevProps);
+    this.debouncedParseAndSaveFieldState(
+      this.state.metaInternalFieldState,
+      schema,
+    );
   }
 
   computeDynamicPropertyPathList = (schema: Schema) => {
@@ -157,7 +161,11 @@ class JSONFormWidget extends BaseWidget<
    * So it will always stay 1 step behind the actual value.
    */
   constructAndSaveSchemaIfRequired = (prevProps?: JSONFormWidgetProps) => {
-    if (!this.props.autoGenerateForm) return;
+    if (!this.props.autoGenerateForm)
+      return {
+        status: ComputedSchemaStatus.UNCHANGED,
+        schema: prevProps?.schema || {},
+      };
 
     const widget = this.props.canvasWidgets[
       this.props.widgetId
@@ -165,7 +173,7 @@ class JSONFormWidget extends BaseWidget<
     const prevSourceData = this.getPreviousSourceData(prevProps);
     const currSourceData = this.props?.sourceData;
 
-    const { dynamicPropertyPathList, schema, status } = computeSchema({
+    const computedSchema = computeSchema({
       currentDynamicPropertyPathList: this.props.dynamicPropertyPathList,
       currSourceData,
       prevSchema: widget.schema,
@@ -173,22 +181,20 @@ class JSONFormWidget extends BaseWidget<
       widgetName: widget.widgetName,
       fieldThemeStylesheets: widget.childStylesheet,
     });
-
-    if (status === ComputedSchemaStatus.UNCHANGED) return;
+    const { dynamicPropertyPathList, schema, status } = computedSchema;
 
     if (
       status === ComputedSchemaStatus.LIMIT_EXCEEDED &&
       !this.props.fieldLimitExceeded
     ) {
       this.updateWidgetProperty("fieldLimitExceeded", true);
-      return;
-    }
-
-    if (status === ComputedSchemaStatus.UPDATED) {
+    } else if (status === ComputedSchemaStatus.UPDATED) {
       this.batchUpdateWidgetProperty({
         modify: { schema, dynamicPropertyPathList, fieldLimitExceeded: false },
       });
     }
+
+    return computedSchema;
   };
 
   updateFormData = (values: any, skipConversion = false) => {
@@ -205,14 +211,19 @@ class JSONFormWidget extends BaseWidget<
     this.props.updateWidgetMetaProperty("formData", formData);
   };
 
-  parseAndSaveFieldState = () => {
-    const fieldState = generateFieldState(
-      this.props.schema,
-      this.state.metaInternalFieldState,
-    );
+  parseAndSaveFieldState = (
+    metaInternalFieldState: MetaInternalFieldState,
+    schema: Schema,
+    afterUpdateAction?: DebouncedExecuteActionPayload,
+  ) => {
+    const fieldState = generateFieldState(schema, metaInternalFieldState);
 
     if (!equal(fieldState, this.props.fieldState)) {
-      this.props.updateWidgetMetaProperty("fieldState", fieldState);
+      this.props.updateWidgetMetaProperty(
+        "fieldState",
+        fieldState,
+        afterUpdateAction,
+      );
     }
   };
 
@@ -255,9 +266,20 @@ class JSONFormWidget extends BaseWidget<
   };
 
   setMetaInternalFieldState = (
-    cb: (prevState: JSONFormWidgetState) => JSONFormWidgetState,
+    updateCallback: (prevState: JSONFormWidgetState) => JSONFormWidgetState,
+    afterUpdateAction?: DebouncedExecuteActionPayload,
   ) => {
-    this.setState(cb);
+    this.setState((prevState) => {
+      const newState = updateCallback(prevState);
+
+      this.parseAndSaveFieldState(
+        newState.metaInternalFieldState,
+        this.props.schema,
+        afterUpdateAction,
+      );
+
+      return newState;
+    });
   };
 
   registerResetObserver = (callback: () => void) => {

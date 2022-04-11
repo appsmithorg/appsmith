@@ -1,7 +1,6 @@
 import {
   defaultSelectedRowValidation,
-  removeBoxShadowColorProp,
-  replacePropertyName,
+  updateIconNameHook,
 } from "./propertyUtils";
 import _ from "lodash";
 
@@ -156,6 +155,7 @@ const tableWProps = {
     status: 75,
   },
 };
+
 describe("unit test case for property utils", () => {
   it("case: check if the defaultSelectedRowValiation returns parsed value as undefined", () => {
     const value = defaultSelectedRowValidation("", tableWProps as any, _);
@@ -163,30 +163,40 @@ describe("unit test case for property utils", () => {
     expect(value.isValid).toBeTruthy();
     expect(value.parsed).toEqual(undefined);
   });
-
-  it("case: check if the removeBoxShadowColorProp returns undefined propertyValue for boxShadowColor propertyPath", () => {
-    const updatedProperty = removeBoxShadowColorProp(
+  it("case: when columnType is menuButton, iconName should be empty string", () => {
+    const propertiesToUpdate = updateIconNameHook(
       tableWProps as any,
-      "primaryColumns.action.boxShadow",
+      "primaryColumns.action.columnType",
+      "menuButton",
     );
-    const expectedUpdatedProperty = [
+    const output = [
       {
-        propertyPath: "primaryColumns.action.boxShadowColor",
-        propertyValue: undefined,
+        propertyPath: "primaryColumns.action.columnType",
+        propertyValue: "menuButton",
+      },
+      {
+        propertyPath: "primaryColumns.action.iconName",
+        propertyValue: "",
       },
     ];
-    expect(updatedProperty).toEqual(expectedUpdatedProperty);
+    expect(propertiesToUpdate).toEqual(output);
   });
-
-  it("case: check if the replacePropertyName returns expected values", () => {
-    const propertyPath = "primaryColumns.action.boxShadow";
-    const targetPropertyname = "boxShadowColor";
-    const targetPropertyPath = "primaryColumns.action.boxShadowColor";
-    const newPropertyName = replacePropertyName(
-      propertyPath,
-      targetPropertyname,
+  it("case: when columnType is iconButton, iconName value should be add", () => {
+    const propertiesToUpdate = updateIconNameHook(
+      tableWProps as any,
+      "primaryColumns.action.columnType",
+      "iconButton",
     );
-
-    expect(newPropertyName).toEqual(targetPropertyPath);
+    const output = [
+      {
+        propertyPath: "primaryColumns.action.columnType",
+        propertyValue: "iconButton",
+      },
+      {
+        propertyPath: "primaryColumns.action.iconName",
+        propertyValue: "add",
+      },
+    ];
+    expect(propertiesToUpdate).toEqual(output);
   });
 });

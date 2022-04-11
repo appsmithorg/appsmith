@@ -39,7 +39,6 @@ import {
   getCustomJustifyContent,
   getAlignText,
 } from "widgets/WidgetUtils";
-import { RenderMode } from "constants/WidgetConstants";
 import { DragContainer } from "./DragContainer";
 import { buttonHoverActiveStyles } from "./utils";
 
@@ -187,7 +186,6 @@ export type ButtonStyleProps = {
   iconName?: IconName;
   iconAlign?: Alignment;
   placement?: ButtonPlacement;
-  renderMode?: RenderMode;
 };
 
 // To be used in any other part of the app
@@ -205,7 +203,6 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
     loading,
     onClick,
     placement,
-    renderMode,
     rightIcon,
     text,
   } = props;
@@ -239,7 +236,7 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
       disabled={disabled}
       loading={loading}
       onClick={onClick}
-      renderMode={renderMode}
+      showInAllModes
     >
       <StyledButton
         alignText={iconName ? Alignment.RIGHT : Alignment.CENTER}
@@ -289,7 +286,6 @@ interface ButtonComponentProps extends ComponentProps {
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   isDisabled?: boolean;
   isLoading: boolean;
-  renderMode: RenderMode;
   rightIcon?: IconName | MaybeElement;
   type: ButtonType;
   buttonColor?: string;
@@ -455,7 +451,6 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
         iconName={props.iconName}
         loading={props.isLoading}
         placement={props.placement}
-        renderMode={props.renderMode}
         rightIcon={props.rightIcon}
         text={props.text}
         type={props.type}

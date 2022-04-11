@@ -731,7 +731,7 @@
     "config": {
       "colors": {
         "primaryColor": "#3B7DDD",
-        "backgroundColor": "#153D77"
+        "backgroundColor": "#fff"
       },
       "borderRadius": {
         "appBorderRadius": {
@@ -1075,7 +1075,7 @@
     "properties": {
       "colors": {
         "primaryColor": "#3B7DDD",
-        "backgroundColor": "#153D77"
+        "backgroundColor": "#fff"
       },
       "borderRadius": {
         "appBorderRadius": "0px"

@@ -51,11 +51,11 @@ import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { IconName } from "@blueprintjs/icons";
 import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
-import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
 import {
   borderRadiusUtility,
   boxShadowDynamicChecker,
 } from "widgets/WidgetUtils";
+import { ButtonVariantTypes } from "components/constants";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -112,10 +112,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       selectedRowIndex: "defaultSelectedRow",
       selectedRowIndices: "defaultSelectedRow",
     };
-  }
-
-  static getLoadingProperties(): Array<RegExp> | undefined {
-    return [/.tableData$/];
   }
 
   getTableColumns = () => {
@@ -182,6 +178,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               backgroundColor:
                 cellProperties.buttonColor || this.props.accentColor,
               buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
+              buttonVariant:
+                cellProperties.buttonVariant || ButtonVariantTypes.PRIMARY,
               isDisabled: cellProperties.isDisabled || false,
               isCellVisible: cellProperties.isCellVisible ?? true,
               borderRadius:
@@ -264,7 +262,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                         : columnProperties.boxShadowColor,
                     )
                   : cellProperties.boxShadow,
-              iconName: cellProperties.iconName,
+              iconName: cellProperties.iconName || undefined,
               iconAlign: cellProperties.iconAlign,
               isCellVisible: cellProperties.isCellVisible ?? true,
               label: cellProperties.menuButtonLabel ?? "Open menu",
@@ -281,7 +279,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                   dynamicTrigger: columnProperties.onClick || "",
                 },
               ],
-              iconName: (cellProperties.iconName || IconNames.ADD) as IconName,
+              iconName: cellProperties.iconName as IconName,
               buttonColor:
                 cellProperties.buttonColor ||
                 this.props.accentColor ||
