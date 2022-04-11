@@ -413,7 +413,7 @@ const fieldConfigs: FieldConfigs = {
           defaultParams = `"",true`;
           break;
         case ActionType.postMessage:
-          defaultParams = `"",*,undefined`;
+          defaultParams = `,'*'`;
           break;
         default:
           break;
