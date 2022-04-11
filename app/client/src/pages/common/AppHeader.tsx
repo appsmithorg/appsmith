@@ -40,12 +40,8 @@ class AppHeader extends React.Component<Props, any> {
         <Route path={SIGNUP_SUCCESS_URL} />
         <Route component={AppEditorHeader} path={BUILDER_PATH} />
         <Route component={AppEditorHeader} path={BUILDER_PATH_DEPRECATED} />
-        <Route component={AppViewerHeader} exact path={VIEWER_PATH} />
-        <Route
-          component={AppViewerHeader}
-          exact
-          path={VIEWER_PATH_DEPRECATED}
-        />
+        <Route component={AppViewerHeader} path={VIEWER_PATH} />
+        <Route component={AppViewerHeader} path={VIEWER_PATH_DEPRECATED} />
         <Route component={PageHeader} path={BASE_URL} />
       </Switch>
     );
