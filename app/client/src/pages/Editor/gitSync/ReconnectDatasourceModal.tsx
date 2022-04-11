@@ -32,6 +32,7 @@ import {
 } from "@appsmith/constants/messages";
 import Button, { Category, Size } from "components/ads/Button";
 import {
+  getDatasourceLoading,
   getIsDatasourceTesting,
   getIsListing,
   getIsReconnectingDatasourcesModalOpen,
@@ -273,6 +274,7 @@ function ReconnectDatasourceModal() {
   const pluginNames = useSelector(getPluginNames);
   const isLoading = useSelector(getIsListing);
   const isDatasourceTesting = useSelector(getIsDatasourceTesting);
+  const isDatasourceUpdating = useSelector(getDatasourceLoading);
 
   // getting query from redirection url
   const userOrgs = useSelector(getUserApplicationsOrgsList);
@@ -288,7 +290,7 @@ function ReconnectDatasourceModal() {
   const [pageId, setPageId] = useState<string | null>(queryPageId);
   const [appId, setAppId] = useState<string | null>(queryAppId);
   const [appURL, setAppURL] = useState("");
-  const [datasouce, setDatasource] = useState<Datasource | null>(null);
+  const [datasource, setDatasource] = useState<Datasource | null>(null);
   const [isImport, setIsImport] = useState(queryIsImport);
   const [isTesting, setIsTesting] = useState(false);
 
@@ -359,10 +361,17 @@ function ReconnectDatasourceModal() {
   }, [organizationId, isModalOpen]);
 
   useEffect(() => {
-    if (isModalOpen && isDatasourceTesting) {
-      setIsTesting(true);
+    if (isModalOpen) {
+      // while updating datasource, testing flag should be false
+      if (isDatasourceUpdating) {
+        setIsTesting(false);
+      }
+      // while testing datasource, testing flag should be true
+      if (isDatasourceTesting) {
+        setIsTesting(true);
+      }
     }
-  }, [isModalOpen, isDatasourceTesting]);
+  }, [isModalOpen, isDatasourceTesting, isDatasourceUpdating]);
 
   const handleClose = useCallback(() => {
     dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
@@ -433,17 +442,18 @@ function ReconnectDatasourceModal() {
   // checking of full configured
   useEffect(() => {
     if (isModalOpen && !isTesting) {
-      // if there is only one gsheet datasource, it shouldn't be redirected to app immediately
-      if (
-        !queryIsImport &&
-        datasources.length === 1 &&
-        datasources[0].isConfigured
-      ) {
-        const authType =
-          datasources[0].datasourceConfiguration?.authentication
-            ?.authenticationType;
+      // if selected datasource is gsheet datasource, it shouldn't be redirected to app immediately
+      if (!queryIsImport && datasources.length) {
+        const selectedDS = datasources.find(
+          (ds: Datasource) => ds.id === selectedDatasourceId,
+        );
+        if (selectedDS) {
+          const authType =
+            selectedDS.datasourceConfiguration?.authentication
+              ?.authenticationType;
 
-        if (authType === AuthType.OAUTH2) return;
+          if (authType === AuthType.OAUTH2) return;
+        }
       }
       const id = selectedDatasourceId;
       const pending = datasources.filter((ds: Datasource) => !ds.isConfigured);
@@ -451,6 +461,9 @@ function ReconnectDatasourceModal() {
         let next: Datasource | undefined = undefined;
         if (id) {
           const index = datasources.findIndex((ds: Datasource) => ds.id === id);
+          if (index > -1 && !datasources[index].isConfigured) {
+            return;
+          }
           next = datasources
             .slice(index + 1)
             .find((ds: Datasource) => !ds.isConfigured);
@@ -482,8 +495,7 @@ function ReconnectDatasourceModal() {
   });
 
   const shouldShowDBForm =
-    isConfigFetched && !isLoading && !datasouce?.isConfigured;
-  const shouldShowSuccessMessages = datasouce && datasouce.isConfigured;
+    isConfigFetched && !isLoading && !datasource?.isConfigured;
 
   return (
     <>
@@ -527,7 +539,7 @@ function ReconnectDatasourceModal() {
                   />
                 </DBFormWrapper>
               )}
-              {shouldShowSuccessMessages && SuccessMessages()}
+              {datasource?.isConfigured && SuccessMessages()}
             </ContentWrapper>
           </BodyContainer>
           <SkipToAppButtonWrapper>
