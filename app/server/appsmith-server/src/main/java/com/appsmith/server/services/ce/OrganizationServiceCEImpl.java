@@ -216,9 +216,11 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
 
     @Override
     public Mono<Organization> update(String id, Organization resource) {
+        // Organization name should not be empty
         if (resource.getName().isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_NAME));
         }
+
         return repository.updateById(id, resource, MANAGE_ORGANIZATIONS)
                 .flatMap(analyticsService::sendUpdateEvent);
     }
