@@ -9,7 +9,7 @@ import {
   getGitStatus,
   getIsFetchingGitStatus,
 } from "selectors/gitSyncSelectors";
-import { GitStatusData } from "../../../../reducers/uiReducers/gitSyncReducer";
+import { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 
 const DummyChange = styled.div`
   width: 50%;

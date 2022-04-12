@@ -2,10 +2,10 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/AppsmithUtils";
 
-const initialState: SettingsReduxState = {
+export const initialState: SettingsReduxState = {
   isLoading: false,
   isSaving: false,
   isRestarting: false,
@@ -25,7 +25,7 @@ export interface SettingsReduxState {
   };
 }
 
-export default createReducer(initialState, {
+export const handlers = {
   [ReduxActionTypes.FETCH_ADMIN_SETTINGS]: (state: SettingsReduxState) => ({
     ...state,
     isLoading: true,
@@ -74,10 +74,19 @@ export default createReducer(initialState, {
     ...state,
     isRestarting: true,
   }),
+  [ReduxActionTypes.RETRY_RESTART_SERVER_POLL]: (
+    state: SettingsReduxState,
+  ) => ({
+    ...state,
+    isRestarting: true,
+    isRestartFailed: false,
+  }),
   [ReduxActionErrorTypes.RESTART_SERVER_ERROR]: (
     state: SettingsReduxState,
   ) => ({
     ...state,
     isRestartFailed: true,
   }),
-});
+};
+
+export default createReducer(initialState, handlers);

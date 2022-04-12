@@ -8,7 +8,7 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Theme } from "constants/DefaultTheme";
-import { getCurrentUser } from "../../selectors/usersSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import bootIntercom from "utils/bootIntercom";
 import { Colors } from "constants/Colors";

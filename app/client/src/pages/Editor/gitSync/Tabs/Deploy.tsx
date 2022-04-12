@@ -43,7 +43,7 @@ import {
   gitPullInit,
 } from "actions/gitSyncActions";
 import StatusLoader from "../components/StatusLoader";
-import { clearCommitSuccessfulState } from "../../../../actions/gitSyncActions";
+import { clearCommitSuccessfulState } from "actions/gitSyncActions";
 import Statusbar, {
   StatusbarWrapper,
 } from "pages/Editor/gitSync/components/Statusbar";

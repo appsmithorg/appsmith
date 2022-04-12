@@ -304,5 +304,8 @@
     "hooks": {
       "pre-commit": "lint-staged"
     }
+  },
+  "resolutions": {
+    "react-error-overlay": "6.0.9"
   }
 }
