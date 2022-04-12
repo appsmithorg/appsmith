@@ -51,6 +51,7 @@ const CheckboxGroupContainer = styled.div<
     align-items: center;
     margin-bottom: 0;
     margin: 0px 12px;
+    min-height: 30px;
   }
 
   & .select-all {
