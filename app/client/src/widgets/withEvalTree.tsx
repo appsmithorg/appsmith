@@ -5,7 +5,6 @@ import { useSelector } from "react-redux";
 import { getWidgetEvalValues } from "selectors/dataTreeSelectors";
 import { AppState } from "reducers/index";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
-import isEqual from "lodash/isEqual";
 import { getIsWidgetLoading } from "selectors/dataTreeSelectors";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import {

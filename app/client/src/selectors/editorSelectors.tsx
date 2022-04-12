@@ -232,13 +232,8 @@ export const getCanvasWidgetDsl = createSelector(
   (
     canvasWidgets: CanvasWidgetsReduxState,
   ): ContainerWidgetProps<WidgetProps> => {
-    // TODO: Change type from unknown here
-    const widgets: Record<string, unknown> = {
-      [MAIN_CONTAINER_WIDGET_ID]: getMainContainer(canvasWidgets),
-    };
-
     return CanvasWidgetsNormalizer.denormalize("0", {
-      canvasWidgets: { ...widgets, ...canvasWidgets },
+      canvasWidgets,
     });
   },
 );
