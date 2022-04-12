@@ -476,7 +476,7 @@ export const IMPORT_FROM_GIT_REPOSITORY_MESSAGE = () =>
 export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS = () =>
   "Reconnect missing datasource credentials";
 export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION = () =>
-  "Fill these with utmost care as the application will not behave normally otherwsie";
+  "Fill these with utmost care as the application will not behave normally otherwise";
 export const RECONNECT_DATASOURCE_SUCCESS_MESSAGE1 = () =>
   "These datasources were imported successfully!";
 export const RECONNECT_DATASOURCE_SUCCESS_MESSAGE2 = () =>
