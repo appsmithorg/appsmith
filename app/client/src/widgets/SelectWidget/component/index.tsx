@@ -33,7 +33,7 @@ const FUSE_OPTIONS = {
   keys: ["label", "value"],
 };
 
-const DEBOUNCE_TIMEOUT = 300;
+const DEBOUNCE_TIMEOUT = 800;
 const ITEM_SIZE = 40;
 const MAX_RENDER_MENU_ITEMS_HEIGHT = 300;
 
