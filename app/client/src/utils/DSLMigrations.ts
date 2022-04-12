@@ -26,7 +26,10 @@ import {
   isSortableMigration,
   migrateTableWidgetIconButtonVariant,
 } from "./migrations/TableWidget";
-import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
+import {
+  migrateTextStyleFromTextWidget,
+  migrateScrollTruncateProperties,
+} from "./migrations/TextWidget";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 import { theme } from "constants/DefaultTheme";
 import { getCanvasSnapRows } from "./WidgetPropsUtils";
@@ -48,7 +51,11 @@ import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget"
 import { DSLWidget } from "widgets/constants";
 import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
-import { migratePhoneInputWidgetAllowFormatting } from "./migrations/PhoneInputWidgetMigrations";
+import {
+  migratePhoneInputWidgetAllowFormatting,
+  migratePhoneInputWidgetDefaultDialCode,
+} from "./migrations/PhoneInputWidgetMigrations";
+import { migrateCurrencyInputWidgetDefaultCurrencyCode } from "./migrations/CurrencyInputWidgetMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1056,6 +1063,21 @@ export const transformDSL = (
 
   if (currentDSL.version === 52) {
     currentDSL = migrateModalIconButtonWidget(currentDSL);
+    currentDSL.version = 53;
+  }
+
+  if (currentDSL.version === 53) {
+    currentDSL = migrateScrollTruncateProperties(currentDSL);
+    currentDSL.version = 54;
+  }
+
+  if (currentDSL.version === 54) {
+    currentDSL = migratePhoneInputWidgetDefaultDialCode(currentDSL);
+    currentDSL.version = 55;
+  }
+
+  if (currentDSL.version === 55) {
+    currentDSL = migrateCurrencyInputWidgetDefaultCurrencyCode(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

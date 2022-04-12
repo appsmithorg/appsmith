@@ -11,7 +11,7 @@ import { Severity } from "entities/AppsmithConsole";
 import { enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
 import { getLintingErrors } from "workers/lint";
-import { completePromise, confirmationPromise } from "workers/PromisifyAction";
+import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 
 export type EvalResult = {
@@ -148,19 +148,21 @@ export const createGlobalData = (
         const dataTreeKey = GLOBAL_DATA[datum];
         if (dataTreeKey) {
           const data = dataTreeKey[key]?.data;
-          const isAsync = dataTreeKey?.meta[key]?.isAsync || false;
-          const confirmBeforeExecute =
-            dataTreeKey?.meta[key]?.confirmBeforeExecute || false;
-          if (isAsync && confirmBeforeExecute) {
-            dataTreeKey[key] = confirmationPromise.bind(
-              {},
-              context?.requestId,
-              resolvedObject[key],
-              dataTreeKey.name + "." + key,
-            );
-          } else {
-            dataTreeKey[key] = resolvedObject[key];
-          }
+          //do not remove we will be investigating this
+          //const isAsync = dataTreeKey?.meta[key]?.isAsync || false;
+          //const confirmBeforeExecute =
+          dataTreeKey?.meta[key]?.confirmBeforeExecute || false;
+          dataTreeKey[key] = resolvedObject[key];
+          // if (isAsync && confirmBeforeExecute) {
+          //   dataTreeKey[key] = confirmationPromise.bind(
+          //     {},
+          //     context?.requestId,
+          //     resolvedObject[key],
+          //     dataTreeKey.name + "." + key,
+          //   );
+          // } else {
+          //   dataTreeKey[key] = resolvedObject[key];
+          // }
           if (!!data) {
             dataTreeKey[key]["data"] = data;
           }
@@ -372,19 +374,21 @@ export function isFunctionAsync(
           const dataTreeKey = GLOBAL_DATA[datum];
           if (dataTreeKey) {
             const data = dataTreeKey[key]?.data;
-            const isAsync = dataTreeKey.meta[key]?.isAsync || false;
-            const confirmBeforeExecute =
-              dataTreeKey.meta[key]?.confirmBeforeExecute || false;
-            if (isAsync && confirmBeforeExecute) {
-              dataTreeKey[key] = confirmationPromise.bind(
-                {},
-                "",
-                resolvedObject[key],
-                key,
-              );
-            } else {
-              dataTreeKey[key] = resolvedObject[key];
-            }
+            //do not remove, we will be investigating this
+            // const isAsync = dataTreeKey.meta[key]?.isAsync || false;
+            // const confirmBeforeExecute =
+            //   dataTreeKey.meta[key]?.confirmBeforeExecute || false;
+            dataTreeKey[key] = resolvedObject[key];
+            // if (isAsync && confirmBeforeExecute) {
+            //   dataTreeKey[key] = confirmationPromise.bind(
+            //     {},
+            //     "",
+            //     resolvedObject[key],
+            //     key,
+            //   );
+            // } else {
+            //   dataTreeKey[key] = resolvedObject[key];
+            // }
             if (!!data) {
               dataTreeKey[key].data = data;
             }

@@ -557,9 +557,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                             unpublishedCollection.setPageId(newPageId);
                                             actionCollection.setApplicationId(clonedPage.getApplicationId());
 
-                                            DefaultResources defaultResourcesForCollection = new DefaultResources();
-                                            defaultResourcesForCollection.setApplicationId(clonedPageDefaultResources.getApplicationId());
-                                            actionCollection.setDefaultResources(defaultResourcesForCollection);
+                                            actionCollection.setDefaultResources(clonedPageDefaultResources);
 
                                             DefaultResources defaultResourcesForDTO = new DefaultResources();
                                             defaultResourcesForDTO.setPageId(clonedPageDefaultResources.getPageId());
@@ -595,9 +593,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                             // Set published version to null as the published version of the page does
                                             // not exists when we clone the page.
                                             actionCollection.setPublishedCollection(null);
+                                            actionCollection.getDefaultResources().setPageId(null);
+                                            // Assign new gitSyncId for cloned actionCollection
+                                            actionCollection.setGitSyncId(actionCollection.getApplicationId() + "_" + new ObjectId());
                                             return actionCollectionService.create(actionCollection)
                                                     .flatMap(savedActionCollection -> {
-                                                        if (StringUtils.isEmpty(savedActionCollection.getDefaultResources().getCollectionId())) {
+                                                        if (!StringUtils.hasLength(savedActionCollection.getDefaultResources().getCollectionId())) {
                                                             savedActionCollection.getDefaultResources().setCollectionId(savedActionCollection.getId());
                                                             return actionCollectionService.update(savedActionCollection.getId(), savedActionCollection);
                                                         }

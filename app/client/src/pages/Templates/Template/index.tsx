@@ -26,14 +26,15 @@ const TemplateWrapper = styled.div`
 `;
 
 const ImageWrapper = styled.div`
-  padding: ${(props) =>
-    `${props.theme.spaces[9]}px ${props.theme.spaces[11]}px`};
+  padding: ${(props) => props.theme.spaces[9]}px;
   overflow: hidden;
 `;
 
 const StyledImage = styled.img`
   box-shadow: 0px 17.52px 24.82px rgba(0, 0, 0, 0.09);
-  object-fit: cover;
+  object-fit: contain;
+  width: 100%;
+  height: 236px;
 `;
 
 const TemplateContent = styled.div`
@@ -44,18 +45,19 @@ const TemplateContent = styled.div`
   flex: 1;
 
   .title {
-    ${(props) => getTypographyByKey(props, "h4")}
+    ${(props) => getTypographyByKey(props, "h1")}
     color: ${Colors.EBONY_CLAY};
   }
   .categories {
-    ${(props) => getTypographyByKey(props, "p1")}
+    ${(props) => getTypographyByKey(props, "h4")}
+    font-weight: normal;
     color: var(--appsmith-color-black-800);
     margin-top: ${(props) => props.theme.spaces[1]}px;
   }
   .description {
     margin-top: ${(props) => props.theme.spaces[2]}px;
     color: var(--appsmith-color-black-700);
-    ${(props) => getTypographyByKey(props, "p2")}
+    ${(props) => getTypographyByKey(props, "p1")}
   }
 `;
 
@@ -83,8 +85,8 @@ const StyledButton = styled(Button)`
   width: 31px;
 
   svg {
-    height: 15px;
-    width: 15px;
+    height: 20px;
+    width: 20px;
   }
 `;
 
@@ -159,7 +161,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
               <Tooltip content={createMessage(FORK_THIS_TEMPLATE)}>
                 <StyledButton
                   className="t--fork-template fork-button"
-                  icon="compasses-line"
+                  icon="fork-2"
                   size={Size.medium}
                   tag="button"
                 />

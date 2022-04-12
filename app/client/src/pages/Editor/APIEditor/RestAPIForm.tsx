@@ -21,6 +21,7 @@ import get from "lodash/get";
 import { Datasource } from "entities/Datasource";
 import {
   getAction,
+  getActionData,
   getActionResponses,
 } from "../../../selectors/entitiesSelector";
 import { isEmpty } from "lodash";
@@ -153,6 +154,28 @@ export default connect((state: AppState, props: { pluginId: string }) => {
     suggestedWidgets = response.suggestedWidgets;
   }
 
+  const actionData = getActionData(state, apiId);
+  let responseDisplayFormat: { title: string; value: string };
+  let responseDataTypes: { key: string; title: string }[];
+  if (!!actionData && actionData.responseDisplayFormat) {
+    responseDataTypes = actionData.dataTypes.map((data) => {
+      return {
+        key: data.dataType,
+        title: data.dataType,
+      };
+    });
+    responseDisplayFormat = {
+      title: actionData.responseDisplayFormat,
+      value: actionData.responseDisplayFormat,
+    };
+  } else {
+    responseDataTypes = [];
+    responseDisplayFormat = {
+      title: "",
+      value: "",
+    };
+  }
+
   return {
     actionName,
     apiId,
@@ -170,6 +193,8 @@ export default connect((state: AppState, props: { pluginId: string }) => {
     ),
     currentPageId: state.entities.pageList.currentPageId,
     applicationId: state.entities.pageList.applicationId,
+    responseDataTypes,
+    responseDisplayFormat,
     suggestedWidgets,
     hasResponse,
   };

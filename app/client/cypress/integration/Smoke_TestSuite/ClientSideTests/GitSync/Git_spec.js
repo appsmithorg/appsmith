@@ -19,6 +19,11 @@ const mainBranch = "master";
 const inputNameTempBranch3 = "inputNameTempBranch3";
 const inputNameTempBranch31 = "inputNameTempBranch31";
 
+const cleanUrlBranch = "feat/clean_url";
+
+let applicationId = null;
+let applicationName = null;
+
 let repoName;
 describe("Git sync:", function() {
   before(() => {
@@ -26,7 +31,13 @@ describe("Git sync:", function() {
     cy.createOrg();
     cy.wait("@createOrg").then((interception) => {
       const newOrganizationName = interception.response.body.data.name;
-      cy.CreateAppForOrg(newOrganizationName, newOrganizationName);
+      cy.generateUUID().then((uid) => {
+        cy.CreateAppForOrg(newOrganizationName, uid);
+        applicationName = uid;
+        cy.get("@currentApplicationId").then(
+          (currentAppId) => (applicationId = currentAppId),
+        );
+      });
     });
 
     cy.generateUUID().then((uid) => {
@@ -197,6 +208,54 @@ describe("Git sync:", function() {
       .invoke("attr", "aria-selected")
       .should("eq", "true");
     cy.get(gitSyncLocators.closeGitSyncModal).click({ force: true });
+  });
+
+  it("checks clean url updates across branches", () => {
+    cy.Deletepage("NewPage");
+    cy.wait(1000);
+    let legacyPathname = "";
+    let newPathname = "";
+    cy.intercept("GET", "/api/v1/pages?*mode=EDIT", (req) => {
+      req.continue();
+    }).as("appAndPages");
+    cy.reload();
+    //cy.pause();
+    cy.wait("@appAndPages").then((intercept2) => {
+      const { application, pages } = intercept2.response.body.data;
+      const defaultPage = pages.find((p) => p.isDefault);
+      legacyPathname = `/applications/${application.id}/pages/${defaultPage.id}`;
+      newPathname = `/app/${application.slug}/${defaultPage.slug}-${defaultPage.id}`;
+    });
+
+    cy.location().should((location) => {
+      expect(location.pathname).includes(newPathname);
+    });
+
+    cy.request("PUT", `/api/v1/applications/${applicationId}`, {
+      applicationVersion: 1,
+    });
+
+    cy.createGitBranch(cleanUrlBranch);
+
+    cy.location().should((location) => {
+      expect(location.pathname).includes(legacyPathname);
+    });
+
+    cy.switchGitBranch(mainBranch);
+
+    cy.get(".t--upgrade").click({ force: true });
+
+    cy.get(".t--upgrade-confirm").click({ force: true });
+
+    cy.location().should((location) => {
+      expect(location.pathname).includes(newPathname);
+    });
+
+    cy.createGitBranch(cleanUrlBranch);
+
+    cy.location().should((location) => {
+      expect(location.pathname).includes(legacyPathname);
+    });
   });
 
   after(() => {

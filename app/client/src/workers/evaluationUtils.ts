@@ -164,11 +164,17 @@ export const translateDiffEventToDataTreeDiffEvent = (
       } else if (difference.lhs === undefined || difference.rhs === undefined) {
         // Handle static value changes that change structure that can lead to
         // old bindings being eligible
-        if (difference.lhs === undefined && isTrueObject(difference.rhs)) {
+        if (
+          difference.lhs === undefined &&
+          (isTrueObject(difference.rhs) || Array.isArray(difference.rhs))
+        ) {
           result.event = DataTreeDiffEvent.NEW;
           result.payload = { propertyPath };
         }
-        if (difference.rhs === undefined && isTrueObject(difference.lhs)) {
+        if (
+          difference.rhs === undefined &&
+          (isTrueObject(difference.lhs) || Array.isArray(difference.lhs))
+        ) {
           result.event = DataTreeDiffEvent.DELETE;
           result.payload = { propertyPath };
         }
@@ -426,7 +432,10 @@ export function getValidatedTree(tree: DataTree) {
       const safeEvaluatedValue = removeFunctions(evaluatedValue);
       _.set(
         parsedEntity,
-        getEvalValuePath(`${entityKey}.${property}`, false),
+        getEvalValuePath(`${entityKey}.${property}`, {
+          isPopulated: false,
+          fullPath: false,
+        }),
         safeEvaluatedValue,
       );
       if (!isValid) {
@@ -440,7 +449,10 @@ export function getValidatedTree(tree: DataTree) {
         addErrorToEntityProperty(
           evalErrors,
           tree,
-          getEvalErrorPath(`${entityKey}.${property}`, false),
+          getEvalErrorPath(`${entityKey}.${property}`, {
+            isPopulated: false,
+            fullPath: false,
+          }),
         );
       }
     });

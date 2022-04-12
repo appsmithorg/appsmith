@@ -335,7 +335,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
                     ),
                   )
                   .map((datasource: Datasource) => ({
-                    text: datasource.datasourceConfiguration.url,
+                    text: datasource.datasourceConfiguration?.url,
                     data: datasource,
                     className: !datasource.isValid
                       ? "datasource-hint custom invalid"
@@ -396,7 +396,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
       const evaluatedDatasourceUrl =
         "id" in datasource
-          ? datasource.datasourceConfiguration.url
+          ? datasource.datasourceConfiguration?.url
           : entity.datasourceUrl;
 
       const fullDatasourceUrlPath =

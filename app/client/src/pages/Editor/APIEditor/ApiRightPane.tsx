@@ -263,7 +263,7 @@ function ApiRightPane(props: any) {
                             </IconContainer>
                           </DataSourceNameContainer>
                           <DatasourceURL>
-                            {d.datasourceConfiguration.url}
+                            {d.datasourceConfiguration?.url}
                           </DatasourceURL>
                           {dataSourceInfo && (
                             <>
