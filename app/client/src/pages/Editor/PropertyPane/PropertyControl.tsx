@@ -43,6 +43,8 @@ import SwitchControl from "components/propertyControls/SwitchControl";
 import DropDownControl from "components/propertyControls/DropDownControl";
 import IconTabControl from "components/propertyControls/IconTabControl";
 import ButtonTabControl from "components/propertyControls/ButtonTabControl";
+import WidgetFactory from "utils/WidgetFactory";
+import OptionControl from "components/propertyControls/OptionControl";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -409,21 +411,33 @@ const PropertyControl = memo((props: Props) => {
     const uniqId = btoa(`${widgetProperties.widgetId}.${propertyName}`);
 
     const allowedValues = new Set<string>([]);
-    switch (props.controlType) {
-      case SwitchControl.getControlType():
-        allowedValues.add("true");
-        allowedValues.add("false");
-        break;
-      case DropDownControl.getControlType():
-      case IconTabControl.getControlType():
-      case ButtonTabControl.getControlType():
-        (props as any).options
-          .map((x: { value: string }) => x.value)
-          .forEach(allowedValues.add, allowedValues);
-        break;
-    }
-    if ((props as any).defaultValue) {
-      allowedValues.add((props as any).defaultValue);
+    if (isDynamic) {
+      const widgetDefaultConfig = WidgetFactory.widgetConfigMap.get(
+        widgetProperties.type,
+      );
+      switch (props.controlType) {
+        case SwitchControl.getControlType():
+          allowedValues.add("true");
+          allowedValues.add("false");
+          break;
+        case DropDownControl.getControlType():
+        case IconTabControl.getControlType():
+        case ButtonTabControl.getControlType():
+          (props as any).options
+            .map((x: { value: string }) => x.value)
+            .forEach(allowedValues.add, allowedValues);
+          break;
+        case OptionControl.getControlType():
+          allowedValues.add(
+            JSON.stringify((widgetDefaultConfig as any)[propertyName], null, 2),
+          );
+          break;
+      }
+      if ((props as any).defaultValue) {
+        allowedValues.add((props as any).defaultValue);
+      } else {
+        allowedValues.add((widgetDefaultConfig as any)[propertyName]);
+      }
     }
     const isToggleDisabled =
       isDynamic && propertyValue !== "" && !allowedValues.has(propertyValue);
