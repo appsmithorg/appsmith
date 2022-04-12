@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { all, takeLatest, select, put } from "redux-saga/effects";
 import { getActiveTourIndex, getActiveTourType } from "selectors/tourSelectors";
 import { setActiveTourIndex, resetActiveTour } from "actions/tourActions";
