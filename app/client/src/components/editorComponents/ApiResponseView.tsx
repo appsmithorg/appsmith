@@ -163,6 +163,10 @@ const HelpSection = styled.div`
   padding-top: 10px;
 `;
 
+const ResponseBodyContainer = styled.div`
+  padding-bottom: 5px;
+`;
+
 interface ReduxStateProps {
   responses: Record<string, ActionResponse | undefined>;
   isRunning: Record<string, boolean>;
@@ -385,7 +389,7 @@ function ApiResponseView(props: Props) {
                 </Text>
               </NoResponseContainer>
             ) : (
-              <>
+              <ResponseBodyContainer>
                 {isString(response.body) && isHtml(response.body) && (
                   <ReadOnlyEditor
                     folding
@@ -408,7 +412,7 @@ function ApiResponseView(props: Props) {
                     tabs={responseTabs}
                   />
                 ) : null}
-              </>
+              </ResponseBodyContainer>
             )}
           </ResponseDataContainer>
         </ResponseTabWrapper>
