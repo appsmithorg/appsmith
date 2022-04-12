@@ -464,3 +464,9 @@ export const setPageOrder = (
     },
   };
 };
+
+export const populatePageDSL = () => {
+  return {
+    type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
+  };
+};

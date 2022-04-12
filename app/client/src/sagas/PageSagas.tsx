@@ -902,9 +902,6 @@ function* fetchPageDSLSaga(pageId: string) {
 
 export function* populatePageDSLsSaga() {
   try {
-    yield put({
-      type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
-    });
     const pageIds: string[] = yield select((state: AppState) =>
       state.entities.pageList.pages.map((page: Page) => page.pageId),
     );
@@ -1038,5 +1035,6 @@ export default function* pageSagas() {
       generateTemplatePageSaga,
     ),
     takeLatest(ReduxActionTypes.SET_PAGE_ORDER_INIT, setPageOrderSaga),
+    takeLatest(ReduxActionTypes.POPULATE_PAGEDSLS_INIT, populatePageDSLsSaga),
   ]);
 }

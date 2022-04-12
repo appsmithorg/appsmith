@@ -84,6 +84,7 @@ import {
   builderURL,
   jsCollectionIdURL,
 } from "RouteBuilder";
+import { populatePageDSL } from "actions/pageActions";
 
 const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
   width: ${({ category, query }) =>
@@ -287,6 +288,15 @@ function GlobalSearch() {
       dispatch(setGlobalSearchQuery(""));
     }
   }, [modalOpen]);
+
+  const [pageDSLFetched, setPageDSLFetched] = useState(false);
+
+  useEffect(() => {
+    if (isNavigation(category) && !pageDSLFetched) {
+      dispatch(populatePageDSL());
+      setPageDSLFetched(true);
+    }
+  }, [category, pageDSLFetched]);
 
   useEffect(() => {
     if (query) setActiveItemIndex(0);
