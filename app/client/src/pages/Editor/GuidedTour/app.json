@@ -10,7 +10,8 @@
 		"appLayout":{
 			"type":"DESKTOP"
 		},
-		"new":true
+		"new":true,
+		"applicationVersion": 2
 	},
 	"datasourceList":[
 		{
