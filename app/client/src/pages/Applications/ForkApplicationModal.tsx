@@ -132,16 +132,16 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
                 disabled={forkingApplication}
                 onClick={() => setModalClose && setModalClose(false)}
                 size={Size.large}
+                tag="button"
                 text={createMessage(CANCEL)}
-                type="button"
               />
               <Button
                 className="t--fork-app-to-org-button"
                 isLoading={forkingApplication}
                 onClick={forkApplication}
                 size={Size.large}
+                tag="button"
                 text={createMessage(FORK)}
-                type="button"
               />
             </ButtonWrapper>
           </>
