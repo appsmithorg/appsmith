@@ -667,6 +667,10 @@ export const getIsListing = (state: AppState) => {
   return state.entities.datasources.isListing;
 };
 
+export const getDatasourceLoading = (state: AppState) => {
+  return state.entities.datasources.loading;
+};
+
 export const selectFilesForExplorer = createSelector(
   getActionsForCurrentPage,
   getJSCollectionsForCurrentPage,
