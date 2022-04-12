@@ -60,6 +60,7 @@ export interface DataTreeAction
     | Record<string, unknown>;
   dynamicBindingPathList: DynamicPath[];
   bindingPaths: Record<string, EvaluationSubstitutionType>;
+  reactivePaths: Record<string, EvaluationSubstitutionType>;
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
   dependencyMap: DependencyMap;
   logBlackList: Record<string, true>;
@@ -75,6 +76,7 @@ export interface DataTreeJSAction {
   meta: Record<string, MetaArgs>;
   dynamicBindingPathList: DynamicPath[];
   bindingPaths: Record<string, EvaluationSubstitutionType>;
+  reactivePaths: Record<string, EvaluationSubstitutionType>;
   variables: Array<string>;
   dependencyMap: DependencyMap;
 }
@@ -106,6 +108,7 @@ export type PropertyOverrideDependency = Record<
 
 export interface DataTreeWidget extends WidgetProps {
   bindingPaths: Record<string, EvaluationSubstitutionType>;
+  reactivePaths: Record<string, EvaluationSubstitutionType>;
   triggerPaths: Record<string, boolean>;
   validationPaths: Record<string, ValidationConfig>;
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
