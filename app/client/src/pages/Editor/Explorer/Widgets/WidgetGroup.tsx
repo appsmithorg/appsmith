@@ -31,14 +31,10 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const pageId = useSelector(getCurrentPageId) || "";
   const widgets = useSelector(selectWidgetsForCurrentPage);
   const guidedTour = useSelector(inGuidedTour);
-  let isWidgetsOpen = getExplorerStatus(applicationId, "widgets");
-  if (isWidgetsOpen === null) {
-    isWidgetsOpen = widgets?.children?.length === 0 || guidedTour;
-    saveExplorerStatus(applicationId, "widgets", isWidgetsOpen);
-  } else if (guidedTour) {
-    isWidgetsOpen = guidedTour;
-    saveExplorerStatus(applicationId, "widgets", isWidgetsOpen);
-  }
+  const isWidgetsOpen = React.useState(
+    getExplorerStatus(applicationId, "widgets") ??
+      (widgets?.children?.length === 0 || guidedTour),
+  );
 
   const widgetsInStep = useMemo(() => {
     return widgets?.children?.map((child) => child.widgetId) || [];
