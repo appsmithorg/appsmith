@@ -594,6 +594,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                             // not exists when we clone the page.
                                             actionCollection.setPublishedCollection(null);
                                             actionCollection.getDefaultResources().setPageId(null);
+                                            // Assign new gitSyncId for cloned actionCollection
+                                            actionCollection.setGitSyncId(actionCollection.getApplicationId() + "_" + new ObjectId());
                                             return actionCollectionService.create(actionCollection)
                                                     .flatMap(savedActionCollection -> {
                                                         if (!StringUtils.hasLength(savedActionCollection.getDefaultResources().getCollectionId())) {

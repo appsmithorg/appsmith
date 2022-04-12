@@ -2,8 +2,8 @@ import {
   DynamicValues,
   FormEvalOutput,
   FormEvaluationState,
-} from "../reducers/evaluationReducers/formEvaluationReducer";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+} from "reducers/evaluationReducers/formEvaluationReducer";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { ActionConfig } from "entities/Action";
 import { FormEvalActionPayload } from "sagas/FormEvaluationSaga";
 import { FormConfig } from "components/formControls/BaseControl";

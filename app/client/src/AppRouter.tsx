@@ -55,7 +55,7 @@ import Setup from "pages/setup";
 import Settings from "pages/Settings";
 import SignupSuccess from "pages/setup/SignupSuccess";
 import { Theme } from "constants/DefaultTheme";
-import { ERROR_CODES } from "ce/constants/ApiConstants";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
 import { fetchFeatureFlagsInit } from "actions/userActions";
 import FeatureFlags from "entities/FeatureFlags";

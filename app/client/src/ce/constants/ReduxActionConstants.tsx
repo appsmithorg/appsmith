@@ -1,6 +1,6 @@
 import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
-import { Org } from "./orgConstants";
+import { Org } from "constants/orgConstants";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import {
@@ -635,6 +635,7 @@ export const ReduxActionTypes = {
   TOGGLE_RELEASE_NOTES: "TOGGLE_RELEASE_NOTES",
   FETCH_RELEASES: "FETCH_RELEASES",
   RESTART_SERVER_POLL: "RESTART_SERVER_POLL",
+  RETRY_RESTART_SERVER_POLL: "RETRY_RESTART_SERVER_POLL",
   SET_EXPLORER_PINNED: "SET_EXPLORER_PINNED",
   SET_EXPLORER_ACTIVE: "SET_EXPLORER_ACTIVE",
   SET_PREVIEW_MODE: "SET_PREVIEW_MODE",
