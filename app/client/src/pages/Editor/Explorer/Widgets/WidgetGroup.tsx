@@ -31,7 +31,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const pageId = useSelector(getCurrentPageId) || "";
   const widgets = useSelector(selectWidgetsForCurrentPage);
   const guidedTour = useSelector(inGuidedTour);
-  const isWidgetsOpen = React.useState(
+  const [isWidgetsOpen] = React.useState(
     getExplorerStatus(applicationId, "widgets") ??
       (widgets?.children?.length === 0 || guidedTour),
   );
