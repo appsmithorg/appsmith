@@ -14,6 +14,7 @@ import {
   escapeSpecialChars,
   fontSizeUtility,
   lightenColor,
+  composePropertyUpdateHook,
   sanitizeKey,
 } from "./WidgetUtils";
 import {
@@ -427,5 +428,54 @@ describe("Test widget utility functions", () => {
       tableWidgetProps.primaryColumns.action.boxShadowColor[0],
     );
     expect(newBoxShadow).toEqual("0px 0px 4px 3px rgba(0, 0, 0, 0.25)");
+type composePropertyUpdateHookInputType = Array<
+  (
+    props: unknown,
+    propertyPath: string,
+    propertyValue: any,
+  ) =>
+    | {
+        propertyPath: string;
+        propertyValue: any;
+      }
+    | undefined
+>;
+describe("composePropertyUpdateHook", () => {
+  it("should test that it's returning a function", () => {
+    expect(typeof composePropertyUpdateHook([() => undefined])).toEqual(
+      "function",
+    );
+  });
+
+  it("should test that calling the function concats the returned values of input functions in the given order", () => {
+    const input = [() => [1], () => [2], () => [3], () => [4]];
+
+    const expected = [1, 2, 3, 4];
+
+    expect(
+      composePropertyUpdateHook(
+        (input as unknown) as composePropertyUpdateHookInputType,
+      )(null, "", null),
+    ).toEqual(expected);
+  });
+
+  it("should test that calling the function concats the returned values of input functions in the given order and ignores undefined", () => {
+    const input = [() => [1], () => undefined, () => [3], () => [4]];
+
+    const expected = [1, 3, 4];
+
+    expect(
+      composePropertyUpdateHook(
+        (input as unknown) as composePropertyUpdateHookInputType,
+      )(null, "", null),
+    ).toEqual(expected);
+  });
+
+  it("should test that calling the function without any function returns undefined", () => {
+    const input: any = [];
+
+    const expected = undefined;
+
+    expect(composePropertyUpdateHook(input)(null, "", null)).toEqual(expected);
   });
 });

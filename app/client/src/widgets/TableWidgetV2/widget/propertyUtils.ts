@@ -1,5 +1,5 @@
 import { Alignment } from "@blueprintjs/core";
-import { ColumnProperties } from "../component/Constants";
+import { CellAlignmentTypes, ColumnProperties } from "../component/Constants";
 import { ColumnTypes, TableWidgetProps } from "../constants";
 import _, { get } from "lodash";
 import { Colors } from "constants/Colors";
@@ -384,6 +384,32 @@ export const updateEditActionsColumnEventsHook = (
         },
       ];
     }
+  }
+
+  return;
+};
+
+export const updateNumberColumnTypeTextAlignment = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: any,
+): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
+  const baseProperty = getBasePropertyPath(propertyPath);
+
+  if (propertyValue === ColumnTypes.NUMBER) {
+    return [
+      {
+        propertyPath: `${baseProperty}.horizontalAlignment`,
+        propertyValue: CellAlignmentTypes.RIGHT,
+      },
+    ];
+  } else {
+    return [
+      {
+        propertyPath: `${baseProperty}.horizontalAlignment`,
+        propertyValue: CellAlignmentTypes.LEFT,
+      },
+    ];
   }
 
   return;
