@@ -59,7 +59,7 @@ import { Toaster, Variant } from "components/ads";
 import { getOAuthAccessToken } from "actions/datasourceActions";
 import { builderURL } from "RouteBuilder";
 import { PLACEHOLDER_APP_SLUG } from "constants/routes";
-import { setApplicationImportSuccessModal } from "actions/gitSyncActions";
+import localStorage from "utils/localStorage";
 
 const Container = styled.div`
   height: 765px;
@@ -474,7 +474,7 @@ function ReconnectDatasourceModal() {
         setDatasource(next);
       } else if (appURL) {
         // open application import successfule
-        dispatch(setApplicationImportSuccessModal(true));
+        localStorage.setItem("importApplicationSuccess", "true");
         window.open(appURL, "_self");
       }
     }

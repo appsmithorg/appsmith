@@ -1,7 +1,6 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import Dialog from "components/ads/DialogComponent";
-import { setApplicationImportSuccessModal } from "actions/gitSyncActions";
 import styled, { useTheme } from "styled-components";
 import Text, { TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
@@ -12,7 +11,6 @@ import {
 } from "@appsmith/constants/messages";
 import Icon from "components/ads/Icon";
 import { Theme } from "constants/DefaultTheme";
-import { getIsImportApplicationSuccessModalOpen } from "selectors/entitiesSelector";
 import { getCurrentUser } from "selectors/usersSelectors";
 
 const Container = styled.div`
@@ -43,17 +41,19 @@ const BodyContainer = styled.div`
 `;
 
 function ImportedApplicationSuccessModal() {
-  const isOpen = useSelector(getIsImportApplicationSuccessModalOpen);
+  const importedAppSuccess = localStorage.getItem("importApplicationSuccess");
+  const isOpen = importedAppSuccess === "true";
   const currentUser = useSelector(getCurrentUser);
-  const dispatch = useDispatch();
 
-  const onClose = () => dispatch(setApplicationImportSuccessModal(false));
+  const onClose = () => {
+    localStorage.setItem("importApplicationSuccess", "false");
+  };
   const theme = useTheme() as Theme;
   return (
     <Dialog
       canEscapeKeyClose
       canOutsideClickClose
-      className="t--git-repo-limited-modal"
+      className="t--import-app-success-modal"
       isOpen={isOpen}
       maxWidth={"900px"}
       noModalBodyMarginTop

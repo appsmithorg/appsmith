@@ -233,11 +233,6 @@ export const setShowRepoLimitErrorModal = (payload: boolean) => ({
   payload,
 });
 
-export const setApplicationImportSuccessModal = (payload: boolean) => ({
-  type: ReduxActionTypes.SET_IS_APPLICATION_IMPORT_SUCCESS_MODAL_OPEN,
-  payload,
-});
-
 export const showConnectGitModal = () => ({
   type: ReduxActionTypes.SHOW_CONNECT_GIT_MODAL,
 });
