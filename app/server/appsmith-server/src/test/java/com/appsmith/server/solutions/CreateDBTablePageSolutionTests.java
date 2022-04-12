@@ -123,7 +123,7 @@ public class CreateDBTablePageSolutionTests {
 
     private final Map<String, String> actionNameToBodyMap = Map.of(
         "DeleteQuery", "DELETE FROM sampleTable\n" +
-            "  WHERE \"primaryKey\" = {{Table1.triggeredRow.primaryKey}};",
+            "  WHERE \"id\" = {{data_table.triggeredRow.id}};",
 
         "InsertQuery", "INSERT INTO sampleTable (\n" +
             "\t\"field1.something\", \n" +
@@ -132,42 +132,36 @@ public class CreateDBTablePageSolutionTests {
             "\t\"field4\"\n" +
             ")\n" +
             "VALUES (\n" +
-            "\t\t\t\t{{insert_col_input2.text}}, \n" +
-            "\t\t\t\t{{insert_col_input3.text}}, \n" +
-            "\t\t\t\t{{insert_col_input4.text}}, \n" +
-            "\t\t\t\t{{insert_col_input5.text}}\n" +
+            "\t\t\t\t{{insert_form.formData.field1.something}}, \n" +
+            "\t\t\t\t{{insert_form.formData.field2}}, \n" +
+            "\t\t\t\t{{insert_form.formData.field3}}, \n" +
+            "\t\t\t\t{{insert_form.formData.field4}}\n" +
             ");",
 
         "SelectQuery", "SELECT * FROM sampleTable\n" +
-            "WHERE \"field1.something\" like '%{{Table1.searchText || \"\"}}%'\n" +
-            "ORDER BY \"{{col_select.selectedOptionValue}}\" {{order_select.selectedOptionValue}}\n" +
-            "LIMIT {{Table1.pageSize}}" +
-            "OFFSET {{(Table1.pageNo - 1) * Table1.pageSize}};",
+            "WHERE \"field1.something\" like '%{{data_table.searchText || \"\"}}%'\n" +
+            "ORDER BY \"{{data_table.sortOrder.column || 'id'}}\" {{data_table.sortOrder.order || 'ASC'}}\n" +
+            "LIMIT {{data_table.pageSize}}" +
+            "OFFSET {{(data_table.pageNo - 1) * data_table.pageSize}};",
 
         "UpdateQuery", "UPDATE sampleTable SET\n" +
-            "\t\t\"field1.something\" = '{{update_col_2.text}}',\n" +
-            "    \"field2\" = '{{update_col_3.text}}',\n" +
-            "    \"field3\" = '{{update_col_4.text}}',\n" +
-            "\t\t\"field4\" = '{{update_col_5.text}}'\n" +
-            "  WHERE \"primaryKey\" = {{Table1.selectedRow.primaryKey}};",
+            "\t\t\"field1.something\" = '{{update_form.formData.field1.something}}',\n" +
+            "    \"field2\" = '{{update_form.formData.field2}}',\n" +
+            "    \"field3\" = '{{update_form.formData.field3}}',\n" +
+            "\t\t\"field4\" = '{{update_form.formData.field4}}'\n" +
+            "  WHERE \"id\" = {{data_table.selectedRow.id}};",
 
         "UpdateActionWithLessColumns", "UPDATE limitedColumnTable SET\n" +
-                "\t\t\"field1.something\" = '{{update_col_2.text}}'\n" +
-                "  WHERE \"primaryKey\" = {{Table1.selectedRow.primaryKey}};",
+                "\t\t\"field1.something\" = '{{update_form.formData.field1.something}}'\n" +
+                "  WHERE \"id\" = {{data_table.selectedRow.id}};",
 
         "InsertActionWithLessColumns", "INSERT INTO limitedColumnTable (\n" +
                     "\t\"field1.something\" \n" +
                     ")\n" +
                     "VALUES (\n" +
-                    "\t\t\t\t{{insert_col_input2.text}} \n" +
+                    "\t\t\t\t{{insert_form.formData.field1.something}} \n" +
                     ");"
     );
-
-    private final String dropdownOptions = "options -> [\n" +
-        "{\n\t\"label\": \"field3\",\n\t\"value\": \"field3\"\n}, \n{\n\t\"label\": \"field4\",\n" +
-        "\t\"value\": \"field4\"\n}, \n{\n\t\"label\": \"field1_something\",\n\t\"value\": \"field1.something\"\n" +
-        "}, \n{\n\t\"label\": \"field2\",\n\t\"value\": \"field2\"\n}, \n{\n\t\"label\": \"primaryKey\",\n" +
-        "\t\"value\": \"primaryKey\"\n}]";
 
     @Before
     @WithUserDetails(value = "api_user")
@@ -194,17 +188,17 @@ public class CreateDBTablePageSolutionTests {
         // have more number of columns than the user provided table which leads to deleting the column names from action configuration
 
         List<Column> limitedColumns = List.of(
-                new Column("primaryKey", "type1", null, true),
+                new Column("id", "type1", null, true),
                 new Column("field1.something", "VARCHAR(23)", null, false)
         );
-            List<Key> keys = List.of(new DatasourceStructure.PrimaryKey("pKey", List.of("primaryKey")));
-            List<Column> columns = List.of(
-                new Column("primaryKey", "type1", null, true),
-                new Column("field1.something", "VARCHAR(23)", null, false),
-                new Column("field2", "type3", null, false),
-                new Column("field3", "type4", null, false),
-                new Column("field4", "type5", null, false)
-            );
+        List<Key> keys = List.of(new DatasourceStructure.PrimaryKey("pKey", List.of("id")));
+        List<Column> columns = List.of(
+            new Column("id", "type1", null, true),
+            new Column("field1.something", "VARCHAR(23)", null, false),
+            new Column("field2", "type3", null, false),
+            new Column("field3", "type4", null, false),
+            new Column("field4", "type5", null, false)
+        );
         List<Table> tables = List.of(
                 new Table(TableType.TABLE, "", "sampleTable", columns, keys, new ArrayList<>()),
                 new Table(TableType.TABLE, "", "limitedColumnTable", limitedColumns, keys, new ArrayList<>())
@@ -230,7 +224,7 @@ public class CreateDBTablePageSolutionTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void createPageWithInvalidApplicationIdTest() {
-        
+
         Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(testApp.getPages().get(0).getId(), resource, "");
 
         StepVerifier
@@ -311,8 +305,6 @@ public class CreateDBTablePageSolutionTests {
                 assertThat(layout.getId()).isNotNull();
                 assertThat(layout.getWidgetNames()).isNotEmpty();
                 assertThat(layout.getActionsUsedInDynamicBindings()).isNotEmpty();
-                assertThat(layout.getDsl().get("children").toString().replaceAll(specialCharactersRegex, ""))
-                    .containsIgnoringCase(dropdownOptions.replaceAll(specialCharactersRegex, ""));
                 assertThat(crudPage.getSuccessMessage()).isNotNull();
                 assertThat(crudPage.getSuccessImageUrl()).isNotNull();
             })
@@ -358,8 +350,6 @@ public class CreateDBTablePageSolutionTests {
                     PageDTO page = newPage1.getUnpublishedPage();
                     Layout layout = page.getLayouts().get(0);
                     assertThat(page.getName()).isEqualTo("crud-admin-page-with-git-connected-app");
-                    assertThat(layout.getDsl().get("children").toString().replaceAll(specialCharactersRegex, ""))
-                            .containsIgnoringCase(dropdownOptions.replaceAll(specialCharactersRegex, ""));
 
                     assertThat(newPage1.getDefaultResources()).isNotNull();
                     assertThat(newPage1.getDefaultResources().getBranchName()).isEqualTo(gitData.getBranchName());
@@ -495,7 +485,7 @@ public class CreateDBTablePageSolutionTests {
         newPage.setName("crud-admin-page-mysql");
         StringBuilder pluginName = new StringBuilder();
 
-        Mono<Datasource> datasourceMono = pluginRepository.findByName("Mysql")
+        Mono<Datasource> datasourceMono = pluginRepository.findByName("MySQL")
                 .flatMap(plugin -> {
                     pluginName.append(plugin.getName());
                     Datasource datasource = new Datasource();
@@ -566,7 +556,7 @@ public class CreateDBTablePageSolutionTests {
         newPage.setName("crud-admin-page-mysql");
         StringBuilder pluginName = new StringBuilder();
 
-        Mono<Datasource> datasourceMono = pluginRepository.findByName("Mysql")
+        Mono<Datasource> datasourceMono = pluginRepository.findByName("MySQL")
             .flatMap(plugin -> {
                 pluginName.append(plugin.getName());
                 Datasource datasource = new Datasource();
@@ -680,13 +670,16 @@ public class CreateDBTablePageSolutionTests {
             .verifyComplete();
     }
 
+
+    // TODO this has been disabled as we don't have the getStructure method for mssql-plugin
+    /*
     @Test
     @WithUserDetails(value = "api_user")
     public void createPageWithNullPageIdForMSSqlDS() {
 
         resource.setApplicationId(testApp.getId());
 
-        Mono<Datasource> datasourceMono = pluginRepository.findByName("MsSQL")
+        Mono<Datasource> datasourceMono = pluginRepository.findByPackageName("mssql-plugin")
             .flatMap(plugin -> {
                 Datasource datasource = new Datasource();
                 datasource.setPluginId(plugin.getId());
@@ -733,6 +726,7 @@ public class CreateDBTablePageSolutionTests {
             })
             .verifyComplete();
     }
+    */
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -831,11 +825,11 @@ public class CreateDBTablePageSolutionTests {
                 for (NewAction action : actions) {
                     ActionConfiguration actionConfiguration = action.getUnpublishedAction().getActionConfiguration();
                     assertThat(action.getUnpublishedAction().getDatasource().getStructure()).isNull();
-                    assertThat(actionConfiguration.getFormData().get("bucket"))
+                    assertThat(((Map<String, String>) actionConfiguration.getFormData().get("bucket")).get("componentData"))
                         .isEqualTo(resource.getTableName());
                     if (action.getUnpublishedAction().getName().equals(LIST_QUERY)) {
                         Map<String, Object> listObject = (Map<String, Object>) actionConfiguration.getFormData().get("list");
-                        assertThat(((Map<String, Object>) listObject.get("where")).get("condition"))
+                        assertThat(((Map<String, Object>)((Map<String, Object>) listObject.get("where")).get("componentData")).get("condition"))
                                 .isEqualTo("AND");
                     }
                 }
@@ -965,12 +959,12 @@ public class CreateDBTablePageSolutionTests {
                     }
 
                     Map<String, Object> formData = actionConfiguration.getFormData();
-                    assertThat(formData.get("collection")).isEqualTo("sampleTable");
+                    assertThat(((Map<String, String>)formData.get("collection")).get("componentData")).isEqualTo("sampleTable");
                     String queryType = formData.get("command").toString();
                     if (queryType.equals("UPDATE")) {
                         Map<String, Object> updateMany = (Map<String, Object>) formData.get("updateMany");
                         assertThat(updateMany.get("query"))
-                            .isEqualTo("{ primaryKey: ObjectId('{{data_table.selectedRow.primaryKey}}') }");
+                            .isEqualTo("{ id: ObjectId('{{data_table.selectedRow.id}}') }");
 
                         assertThat(updateMany.get("update").toString().replaceAll(specialCharactersRegex, ""))
                             .isEqualTo("{\"field2\" : {{update_col_1.text}},\"field1.something\" : {{update_col_2.text}},\"field3\" : {{update_col_3.text}},\"field4\" : {{update_col_4.text}}\"}"
@@ -979,7 +973,7 @@ public class CreateDBTablePageSolutionTests {
                     } else if (queryType.equals("DELETE")) {
                         Map<String, Object> delete = (Map<String, Object>) formData.get("delete");
                         assertThat(delete.get("query").toString().replaceAll(specialCharactersRegex, ""))
-                            .contains("{ primaryKey: ObjectId('{{data_table.triggeredRow.primaryKey}}') }"
+                            .contains("{ id: ObjectId('{{data_table.triggeredRow.id}}') }"
                                 .replaceAll(specialCharactersRegex, ""));
                         assertThat(formData.get("smartSubstitution")).isEqualTo(true);
                     } else if (queryType.equals("FIND")) {
