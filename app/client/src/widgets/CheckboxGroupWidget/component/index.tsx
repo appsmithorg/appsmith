@@ -163,7 +163,6 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
             borderRadius={props.borderRadius}
             checked={(selectedValues || []).includes(option.value)}
             disabled={isDisabled}
-            indeterminate={isDisabled ? true : undefined}
             inline={isInline}
             key={generateReactKey()}
             label={option.label}

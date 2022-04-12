@@ -440,6 +440,7 @@ export const ReduxActionTypes = {
   FETCH_ACTIONS_FOR_PAGE_SUCCESS: "FETCH_ACTIONS_FOR_PAGE_SUCCESS",
   EXECUTE_PLUGIN_ACTION_REQUEST: "EXECUTE_PLUGIN_ACTION_REQUEST",
   EXECUTE_PLUGIN_ACTION_SUCCESS: "EXECUTE_PLUGIN_ACTION_SUCCESS",
+  SET_ACTION_RESPONSE_DISPLAY_FORMAT: "SET_ACTION_RESPONSE_DISPLAY_FORMAT",
   FETCH_IMPORTED_COLLECTIONS_INIT: "FETCH_IMPORTED_COLLECTIONS_INIT",
   FETCH_IMPORTED_COLLECTIONS_SUCCESS: "FETCH_IMPORTED_COLLECTIONS_SUCCESS",
   SEARCH_APIORPROVIDERS_INIT: "SEARCH_APIORPROVIDERS_INIT",
@@ -697,8 +698,8 @@ export const ReduxActionTypes = {
   SET_TEMPLATE_NOTIFICATION_SEEN: "SET_TEMPLATE_NOTIFICATION_SEEN",
   GET_TEMPLATE_NOTIFICATION_SEEN: "GET_TEMPLATE_NOTIFICATION_SEEN",
   GET_SIMILAR_TEMPLATES_INIT: "GET_SIMILAR_TEMPLATES_INIT",
-  GET_SIMILAR_TEMPLATES_SUCCESS: "GET_SIMILAR_TEMPLATES_SUCCESS",
-  /* This action constants is for identifying the status of the updates of the entities */
+  GET_SIMILAR_TEMPLATES_SUCCESS:
+    "GET_SIMILAR_TEMPLATES_SUCCESS" /* This action constants is for identifying the status of the updates of the entities */,
   ENTITY_UPDATE_STARTED: "ENTITY_UPDATE_STARTED",
   ENTITY_UPDATE_SUCCESS: "ENTITY_UPDATE_SUCCESS",
   FETCH_PLUGIN_AND_JS_ACTIONS_SUCCESS: "FETCH_PLUGIN_AND_JS_ACTIONS_SUCCESS",
@@ -709,6 +710,7 @@ export const ReduxActionTypes = {
   GET_DEFAULT_PLUGINS_SUCCESS: "GET_DEFAULT_PLUGINS_SUCCESS",
   GET_TEMPLATE_INIT: "GET_TEMPLATES_INIT",
   GET_TEMPLATE_SUCCESS: "GET_TEMPLATES_SUCCESS",
+  START_EXECUTE_JS_FUNCTION: "START_EXECUTE_JS_FUNCTION",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
@@ -948,6 +950,7 @@ export interface PromisePayload {
   reject: any;
   resolve: any;
 }
+
 export interface ReduxActionWithPromise<T> extends ReduxAction<T> {
   payload: T & PromisePayload;
 }
@@ -1012,6 +1015,8 @@ export interface ApplicationPayload {
   modifiedAt?: string;
   pages: ApplicationPagePayload[];
   applicationVersion: ApplicationVersion;
+  isAutoUpdate?: boolean;
+  isManualUpdate?: boolean;
 }
 
 export type OrganizationDetails = {

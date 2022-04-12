@@ -379,6 +379,13 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         getParsedText(this.props.inputText, this.props.inputType),
       );
     }
+    // If defaultText property has changed, reset isDirty to false
+    if (
+      this.props.defaultText !== prevProps.defaultText &&
+      this.props.isDirty
+    ) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
   };
 
   onValueChange = (value: string) => {

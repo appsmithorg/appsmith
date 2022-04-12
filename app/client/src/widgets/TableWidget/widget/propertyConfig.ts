@@ -11,11 +11,12 @@ import {
   defaultSelectedRowValidation,
   totalRecordsCountValidation,
   updateColumnStyles,
-  updateIconAlignment,
+  updateIconAlignmentHook,
   getBasePropertyPath,
   hideByColumnType,
   uniqueColumnNameValidation,
   removeBoxShadowColorProp,
+  updateIconNameHook,
 } from "./propertyUtils";
 import {
   createMessage,
@@ -122,7 +123,7 @@ export default [
                       value: "iconButton",
                     },
                   ],
-                  updateHook: updateDerivedColumnsHook,
+                  updateHook: updateIconNameHook,
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
@@ -816,7 +817,7 @@ export default [
                       ColumnTypes.MENU_BUTTON,
                     ]);
                   },
-                  updateHook: updateIconAlignment,
+                  updateHook: updateIconAlignmentHook,
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
@@ -824,7 +825,6 @@ export default [
                   ],
                   controlType: "ICON_SELECT",
                   customJSControl: "COMPUTE_VALUE",
-                  defaultIconName: "add",
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,
@@ -834,7 +834,6 @@ export default [
                       type: ValidationTypes.TEXT,
                       params: {
                         allowedValues: ICON_NAMES,
-                        default: IconNames.ADD,
                       },
                     },
                   },
@@ -948,10 +947,12 @@ export default [
                   label: "Button Variant",
                   controlType: "DROP_DOWN",
                   customJSControl: "COMPUTE_VALUE",
+                  defaultValue: ButtonVariantTypes.PRIMARY,
                   isJSConvertible: true,
-                  helpText: "Sets the variant of the icon button",
+                  helpText: "Sets the variant",
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.BUTTON,
                       ColumnTypes.ICON_BUTTON,
                     ]);
                   },
@@ -974,8 +975,6 @@ export default [
                       value: ButtonVariantTypes.TERTIARY,
                     },
                   ],
-                  defaultValue: ButtonVariantTypes.PRIMARY,
-
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
@@ -1083,7 +1082,6 @@ export default [
                     },
                   },
                 },
-
                 {
                   propertyName: "menuColor",
                   helpText:

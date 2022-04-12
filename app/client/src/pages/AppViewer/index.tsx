@@ -1,16 +1,12 @@
 import React, { useCallback, useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { useDispatch } from "react-redux";
-import { withRouter, RouteComponentProps, Route } from "react-router";
-import { Switch } from "react-router-dom";
+import { withRouter, RouteComponentProps } from "react-router";
 import { AppState } from "reducers";
 import {
   AppViewerRouteParams,
   BuilderRouteParams,
   GIT_BRANCH_QUERY_KEY,
-  VIEWER_FORK_PATH,
-  VIEWER_PATH,
-  VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
@@ -44,8 +40,6 @@ import {
 } from "actions/controlActions";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { showPostCompletionMessage } from "selectors/onboardingSelectors";
-
-const SentryRoute = Sentry.withSentryRouting(Route);
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -218,25 +212,7 @@ function AppViewer(props: Props) {
                 headerHeight={headerHeight}
                 showGuidedTourMessage={showGuidedTourMessage}
               >
-                {isInitialized && registered && (
-                  <Switch>
-                    <SentryRoute
-                      component={AppViewerPageContainer}
-                      exact
-                      path={VIEWER_PATH}
-                    />
-                    <SentryRoute
-                      component={AppViewerPageContainer}
-                      exact
-                      path={VIEWER_PATH_DEPRECATED}
-                    />
-                    <SentryRoute
-                      component={AppViewerPageContainer}
-                      exact
-                      path={VIEWER_FORK_PATH}
-                    />
-                  </Switch>
-                )}
+                {isInitialized && registered && <AppViewerPageContainer />}
               </AppViewerBody>
               <BuiltOn />
             </AppViewerBodyContainer>

@@ -506,13 +506,13 @@ export default function BranchList(props: {
                 shouldScrollIntoView={activeHoverIndex === 0}
               />
             )}
-            <SegmentHeader title={"Local branches"} />
+            <SegmentHeader hideStyledHr title={"Local branches"} />
             {filteredBranches.map((branch: string, index: number) => (
               <>
                 {getIsStartingWithRemoteBranches(
                   filteredBranches[index - 1],
                   branch,
-                ) && <SegmentHeader title={"Remote branches"} />}
+                ) && <SegmentHeader hideStyledHr title={"Remote branches"} />}
                 <BranchListItem
                   active={currentBranch === branch}
                   branch={branch}

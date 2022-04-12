@@ -287,7 +287,17 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedOptionValue: undefined,
+      isDirty: false,
     };
+  }
+
+  componentDidUpdate(prevProps: RadioGroupWidgetProps): void {
+    if (
+      this.props.defaultOptionValue !== prevProps.defaultOptionValue &&
+      this.props.isDirty
+    ) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
   }
 
   getPageView() {
@@ -313,6 +323,11 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
     } else {
       newVal = updatedValue;
     }
+    // Set isDirty to true when the selection changes
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     this.props.updateWidgetMetaProperty("selectedOptionValue", newVal, {
       triggerPropertyName: "onSelectionChange",
       dynamicString: this.props.onSelectionChange,
@@ -335,6 +350,7 @@ export interface RadioGroupWidgetProps extends WidgetProps {
   defaultOptionValue: string;
   isRequired?: boolean;
   backgroundColor: string;
+  isDirty: boolean;
 }
 
 export default RadioGroupWidget;

@@ -145,6 +145,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
       <>
         <HeaderWrapper
           className="relative js-appviewer-header"
+          data-testid={"t--appsmith-app-viewer-header"}
           hasPages={pages.length > 1}
           ref={headerRef}
         >

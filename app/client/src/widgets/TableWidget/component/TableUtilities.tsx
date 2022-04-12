@@ -25,7 +25,6 @@ import {
 } from "./Constants";
 import { isString, isEmpty, findIndex, isNil, isNaN } from "lodash";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
-import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
 import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
@@ -284,6 +283,7 @@ interface RenderActionProps {
   boxShadow?: string;
 
   buttonLabelColor: string;
+  buttonVariant: ButtonVariant;
   isDisabled: boolean;
   isCellVisible: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
@@ -335,6 +335,7 @@ export const renderActions = (
             borderRadius={props.borderRadius}
             boxShadow={props.boxShadow}
             buttonLabelColor={props.buttonLabelColor}
+            buttonVariant={props.buttonVariant}
             isCellVisible={props.isCellVisible}
             isDisabled={props.isDisabled}
             isSelected={props.isSelected}
@@ -420,6 +421,7 @@ function TableAction(props: {
   boxShadow?: string;
 
   buttonLabelColor: string;
+  buttonVariant: ButtonVariant;
   isDisabled: boolean;
   isCellVisible: boolean;
   borderRadius: string;
@@ -429,11 +431,15 @@ function TableAction(props: {
   const onComplete = () => {
     setLoading(false);
   };
+  const handleClick = () => {
+    if (props.action.dynamicTrigger) {
+      setLoading(true);
+      props.onCommandClick(props.action.dynamicTrigger, onComplete);
+    }
+  };
 
   return (
     <ActionWrapper
-      background={props.backgroundColor}
-      buttonLabelColor={props.buttonLabelColor}
       onClick={(e) => {
         if (props.isSelected) {
           e.stopPropagation();
@@ -441,18 +447,16 @@ function TableAction(props: {
       }}
     >
       {props.isCellVisible ? (
-        <Button
+        <StyledButton
           borderRadius={props.borderRadius}
           boxShadow={props.boxShadow}
+          buttonColor={props.backgroundColor}
+          buttonVariant={props.buttonVariant}
           disabled={props.isDisabled}
           filled
-          intent="PRIMARY_BUTTON"
           loading={loading}
-          onClick={() => {
-            setLoading(true);
-            props.onCommandClick(props.action.dynamicTrigger, onComplete);
-          }}
-          size="small"
+          onClick={handleClick}
+          small
           text={props.action.label}
         />
       ) : null}

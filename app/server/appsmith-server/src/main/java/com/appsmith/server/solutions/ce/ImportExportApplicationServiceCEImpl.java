@@ -71,6 +71,8 @@ import reactor.util.function.Tuple2;
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -226,6 +228,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     // Refactor application to remove the ids
                     final String organizationId = application.getOrganizationId();
+                    List<String> pageOrderList = application.getPages().stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toList());
                     removeUnwantedFieldsFromApplicationDuringExport(application);
                     examplesOrganizationCloner.makePristine(application);
                     applicationJson.setExportedApplication(application);
@@ -237,6 +240,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     return pageFlux
                             .collectList()
+                            // Maintain the page order while exporting the application
+                            .flatMap(newPages ->  {
+                                Collections.sort(newPages, Comparator.comparing(newPage -> pageOrderList.indexOf(newPage.getId())));
+                                return Mono.just(newPages);
+                            })
                             .flatMap(newPageList -> {
                                 // Extract mongoEscapedWidgets from pages and save it to applicationJson object as this
                                 // field is JsonIgnored. Also remove any ids those are present in the page objects
@@ -591,9 +599,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     /**
      * This function will take the application reference object to hydrate the application in mongoDB
      *
-     * @param organizationId organization to which application is going to be stored
-     * @param applicationJson    application resource which contains necessary information to save the application
-     * @param applicationId  application which needs to be saved with the updated resources
+     * @param organizationId    organization to which application is going to be stored
+     * @param applicationJson   application resource which contains necessary information to import the application
+     * @param applicationId     application which needs to be saved with the updated resources
      * @return Updated application
      */
     public Mono<Application> importApplicationInOrganization(String organizationId,
@@ -689,6 +697,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             // Check for duplicate datasources to avoid duplicates in target organization
                             .flatMap(datasource -> {
 
+                                final String importedDatasourceName = datasource.getName();
                                 // Check if the datasource has gitSyncId and if it's already in DB
                                 if (datasource.getGitSyncId() != null
                                         && savedDatasourcesGitIdToDatasourceMap.containsKey(datasource.getGitSyncId())) {
@@ -702,7 +711,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     datasource.setPluginId(null);
                                     AppsmithBeanUtils.copyNestedNonNullProperties(datasource, existingDatasource);
                                     existingDatasource.setStructure(null);
-                                    return datasourceService.update(existingDatasource.getId(), existingDatasource);
+                                    return datasourceService.update(existingDatasource.getId(), existingDatasource)
+                                            .map(datasource1 -> {
+                                                datasourceMap.put(importedDatasourceName, datasource1.getId());
+                                                return datasource1;
+                                            });
                                 }
 
                                 // This is explicitly copied over from the map we created before
@@ -719,11 +732,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     updateAuthenticationDTO(datasource, decryptedFields);
                                 }
 
-                                return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, organizationId, applicationId);
-                            })
-                            .map(datasource -> {
-                                datasourceMap.put(datasource.getName(), datasource.getId());
-                                return datasource;
+                                return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, organizationId)
+                                        .map(datasource1 -> {
+                                            datasourceMap.put(importedDatasourceName, datasource1.getId());
+                                            return datasource1;
+                                        });
                             })
                             .collectList();
                 })
@@ -752,6 +765,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                 )
                                                 .flatMap(existingApplication -> {
                                                     importedApplication.setId(existingApplication.getId());
+                                                    // For the existing application we don't need to default value of the flag
+                                                    // The isPublic flag has a default value as false and this would be confusing to user
+                                                    // when it is reset to false during importing where the application already is present in DB
+                                                    importedApplication.setIsPublic(null);
                                                     AppsmithBeanUtils.copyNestedNonNullProperties(importedApplication, existingApplication);
                                                     // Here we are expecting the changes present in DB are committed to git directory
                                                     // so that these won't be lost when we are pulling changes from remote and
@@ -829,41 +846,48 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             importedDoc.getUnpublishedLayoutmongoEscapedWidgets(),
                             branchName,
                             existingPagesMono
-                    )
-                            .map(newPage -> {
-                                ApplicationPage unpublishedAppPage = new ApplicationPage();
-                                ApplicationPage publishedAppPage = new ApplicationPage();
+                    ).collectList()
+                            .map(newPageList -> {
+                                // Check if the pages order match with json file
+                                List<String> pageOrderList = importedNewPageList.stream().map(newPage -> newPage.getUnpublishedPage().getName()).collect(Collectors.toList());
+                                Collections.sort(newPageList,
+                                        Comparator.comparing(newPage -> pageOrderList.indexOf(newPage.getUnpublishedPage().getName())));
+                                for (NewPage newPage : newPageList) {
 
-                                if (newPage.getUnpublishedPage() != null && newPage.getUnpublishedPage().getName() != null) {
-                                    unpublishedAppPage.setIsDefault(
-                                            StringUtils.equals(
-                                                    newPage.getUnpublishedPage().getName(), importedDoc.getUnpublishedDefaultPageName()
-                                            )
-                                    );
-                                    unpublishedAppPage.setId(newPage.getId());
-                                    if (newPage.getDefaultResources() != null) {
-                                        unpublishedAppPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
-                                    }
-                                    pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
-                                }
+                                    ApplicationPage unpublishedAppPage = new ApplicationPage();
+                                    ApplicationPage publishedAppPage = new ApplicationPage();
 
-                                if (newPage.getPublishedPage() != null && newPage.getPublishedPage().getName() != null) {
-                                    publishedAppPage.setIsDefault(
-                                            StringUtils.equals(
-                                                    newPage.getPublishedPage().getName(), importedDoc.getPublishedDefaultPageName()
-                                            )
-                                    );
-                                    publishedAppPage.setId(newPage.getId());
-                                    if (newPage.getDefaultResources() != null) {
-                                        publishedAppPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
+                                    if (newPage.getUnpublishedPage() != null && newPage.getUnpublishedPage().getName() != null) {
+                                        unpublishedAppPage.setIsDefault(
+                                                StringUtils.equals(
+                                                        newPage.getUnpublishedPage().getName(), importedDoc.getUnpublishedDefaultPageName()
+                                                )
+                                        );
+                                        unpublishedAppPage.setId(newPage.getId());
+                                        if (newPage.getDefaultResources() != null) {
+                                            unpublishedAppPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
+                                        }
+                                        pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
                                     }
-                                    pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
-                                }
-                                if (unpublishedAppPage.getId() != null && newPage.getUnpublishedPage().getDeletedAt() == null) {
-                                    applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
-                                }
-                                if (publishedAppPage.getId() != null && newPage.getPublishedPage().getDeletedAt() == null) {
-                                    applicationPages.get(PublishType.PUBLISHED).add(publishedAppPage);
+
+                                    if (newPage.getPublishedPage() != null && newPage.getPublishedPage().getName() != null) {
+                                        publishedAppPage.setIsDefault(
+                                                StringUtils.equals(
+                                                        newPage.getPublishedPage().getName(), importedDoc.getPublishedDefaultPageName()
+                                                )
+                                        );
+                                        publishedAppPage.setId(newPage.getId());
+                                        if (newPage.getDefaultResources() != null) {
+                                            publishedAppPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
+                                        }
+                                        pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
+                                    }
+                                    if (unpublishedAppPage.getId() != null && newPage.getUnpublishedPage().getDeletedAt() == null) {
+                                        applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
+                                    }
+                                    if (publishedAppPage.getId() != null && newPage.getPublishedPage().getDeletedAt() == null) {
+                                        applicationPages.get(PublishType.PUBLISHED).add(publishedAppPage);
+                                    }
                                 }
                                 return applicationPages;
                             })
@@ -881,7 +905,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                             .flatMap(existingPagesList -> {
                                                 Set<String> invalidPageIds = new HashSet<>();
                                                 for (NewPage newPage : existingPagesList) {
-                                                    if(!validPageIds.contains(newPage.getId())) {
+                                                    if (!validPageIds.contains(newPage.getId())) {
                                                         invalidPageIds.add(newPage.getId());
                                                     }
                                                 }
@@ -1366,7 +1390,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
                     final ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
 
-                    // If pageId is missing in the actionDTO create a fallback pageId
+                    // If pageId is missing in the actionCollectionDTO create a fallback pageId
                     final String fallbackParentPageId = unpublishedCollection.getPageId();
 
                     if (unpublishedCollection.getName() != null) {
@@ -1726,9 +1750,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      */
     private Mono<Datasource> createUniqueDatasourceIfNotPresent(Flux<Datasource> existingDatasourceFlux,
                                                                 Datasource datasource,
-                                                                String organizationId,
-                                                                String applicationId) {
-
+                                                                String organizationId) {
         /*
             1. If same datasource is present return
             2. If unable to find the datasource create a new datasource with unique name and return
@@ -1743,16 +1765,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         }
 
         return existingDatasourceFlux
-                .map(ds -> {
-                    final DatasourceConfiguration dsAuthConfig = ds.getDatasourceConfiguration();
-                    if (dsAuthConfig != null && dsAuthConfig.getAuthentication() != null) {
-                        dsAuthConfig.getAuthentication().setAuthenticationResponse(null);
-                        dsAuthConfig.getAuthentication().setAuthenticationType(null);
-                    }
-                    return ds;
-                })
                 // For git import exclude datasource configuration
-                .filter(ds -> applicationId != null ? ds.getName().equals(datasource.getName()) : ds.softEquals(datasource))
+                .filter(ds -> ds.getName().equals(datasource.getName()) && datasource.getPluginId().equals(ds.getPluginId()))
                 .next()  // Get the first matching datasource, we don't need more than one here.
                 .switchIfEmpty(Mono.defer(() -> {
                     if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {

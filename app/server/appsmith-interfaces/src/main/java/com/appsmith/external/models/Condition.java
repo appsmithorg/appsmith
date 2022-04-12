@@ -18,12 +18,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.DataTypeStringUtils.stringToKnownDataTypeConverter;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Condition {
+
+    public static final String PATH_KEY = "path";
+    public static final String OPERATOR_KEY = "operator";
 
     String path;
 
@@ -103,7 +107,7 @@ public class Condition {
             if (condition.entrySet().isEmpty()) {
                 // Its an empty object set by the client for UX. Ignore the same
                 continue;
-            } else if (!condition.keySet().containsAll(Set.of("path", "operator"))) {
+            } else if (isColumnOrOperatorEmpty(condition)) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Filtering Condition not configured properly");
             }
             conditionList.add(new Condition(
@@ -114,5 +118,9 @@ public class Condition {
         }
 
         return conditionList;
+    }
+
+    private static boolean isColumnOrOperatorEmpty(Map<String, String> condition) {
+        return isBlank(condition.get(PATH_KEY)) || isBlank(condition.get(OPERATOR_KEY));
     }
 }

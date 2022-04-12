@@ -51,8 +51,13 @@ import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget"
 import { DSLWidget } from "widgets/constants";
 import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
-import { migratePhoneInputWidgetAllowFormatting } from "./migrations/PhoneInputWidgetMigrations";
 import { migrateStylingPropertiesForTheming } from "./migrations/ThemingMigrations";
+
+import {
+  migratePhoneInputWidgetAllowFormatting,
+  migratePhoneInputWidgetDefaultDialCode,
+} from "./migrations/PhoneInputWidgetMigrations";
+import { migrateCurrencyInputWidgetDefaultCurrencyCode } from "./migrations/CurrencyInputWidgetMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1068,10 +1073,15 @@ export const transformDSL = (
     currentDSL.version = 54;
   }
 
-  // if (currentDSL.version === 54) {
-  //   currentDSL = migrateStylingPropertiesForTheming(currentDSL);
-  //   currentDSL.version = LATEST_PAGE_VERSION;
-  // } // Add the migration from the release
+  if (currentDSL.version === 54) {
+    currentDSL = migratePhoneInputWidgetDefaultDialCode(currentDSL);
+    currentDSL.version = 55;
+  }
+
+  if (currentDSL.version === 55) {
+    currentDSL = migrateCurrencyInputWidgetDefaultCurrencyCode(currentDSL);
+    currentDSL.version = 56;
+  }
 
   if (currentDSL.version === 56) {
     currentDSL = migrateStylingPropertiesForTheming(currentDSL);

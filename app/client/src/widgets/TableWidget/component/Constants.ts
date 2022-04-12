@@ -103,7 +103,6 @@ export interface CellLayoutProperties {
   textColor?: string;
   cellBackground?: string;
   buttonColor?: string;
-  buttonLabelColor?: string;
   buttonLabel?: string;
   menuButtonLabel?: string;
   isVisible?: boolean;
@@ -120,6 +119,7 @@ export interface CellLayoutProperties {
   iconName?: IconName;
   iconAlign?: Alignment;
   onItemClicked?: (onClick: string | undefined) => void;
+  buttonLabelColor?: string;
 }
 
 export type MenuItems = Record<
@@ -184,7 +184,6 @@ export interface ColumnProperties {
   buttonLabel?: string;
   menuButtonLabel?: string;
   buttonColor?: string;
-  buttonLabelColor?: string;
   onClick?: string;
   outputFormat?: string;
   inputFormat?: string;

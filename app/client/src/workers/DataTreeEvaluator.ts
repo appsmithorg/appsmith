@@ -82,6 +82,7 @@ import {
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 const clone = require("rfdc/default");
+
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
   sortedDependencies: Array<string> = [];
@@ -336,6 +337,7 @@ export default class DataTreeEvaluator {
       }
       return false;
     });
+
     this.logs.push({
       sortedDependencies: this.sortedDependencies,
       inverse: this.inverseDependencyMap,
@@ -519,22 +521,12 @@ export default class DataTreeEvaluator {
 
     if (isWidget(entity)) {
       // Adding the dynamic triggers in the dependency list as they need linting whenever updated
-      // To keep linting in trigger fields in sync, nodes they depend on need to be added to their dependencies
-      const dynamicTriggerPathlist = entity.dynamicTriggerPathList;
-
-      if (dynamicTriggerPathlist && dynamicTriggerPathlist.length) {
-        dynamicTriggerPathlist.forEach((dynamicPath) => {
-          const propertyPath = dynamicPath.key;
-          const unevalPropValue = _.get(entity, propertyPath);
-          const { jsSnippets } = getDynamicBindings(unevalPropValue);
-          const existingDeps =
-            dependencies[`${entityName}.${propertyPath}`] || [];
-          dependencies[`${entityName}.${propertyPath}`] = existingDeps.concat(
-            jsSnippets.filter((jsSnippet) => !!jsSnippet),
-          );
+      // we don't make it dependent on anything else
+      if (entity.dynamicTriggerPathList) {
+        Object.values(entity.dynamicTriggerPathList).forEach(({ key }) => {
+          dependencies[`${entityName}.${key}`] = [];
         });
       }
-
       const widgetDependencies = addWidgetPropertyDependencies({
         entity,
         entityName,
@@ -704,17 +696,19 @@ export default class DataTreeEvaluator {
                 "config",
                 "actionConfiguration",
               );
-              const validationConfig = this.allActionValidationConfig[
-                entity.actionId
-              ][configProperty];
-              this.validateActionProperty(
-                fullPropertyPath,
-                entity,
-                currentTree,
-                evalPropertyValue,
-                unEvalPropertyValue,
-                validationConfig,
-              );
+              const validationConfig =
+                !!this.allActionValidationConfig[entity.actionId] &&
+                this.allActionValidationConfig[entity.actionId][configProperty];
+              if (!!validationConfig && !_.isEmpty(validationConfig)) {
+                this.validateActionProperty(
+                  fullPropertyPath,
+                  entity,
+                  currentTree,
+                  evalPropertyValue,
+                  unEvalPropertyValue,
+                  validationConfig,
+                );
+              }
             }
             const safeEvaluatedValue = removeFunctions(evalPropertyValue);
             _.set(
@@ -1320,7 +1314,6 @@ export default class DataTreeEvaluator {
             });
             break;
           }
-
           case DataTreeDiffEvent.EDIT: {
             // We only care if the difference is in dynamic bindings since static values do not need
             // an evaluation.
@@ -1343,10 +1336,7 @@ export default class DataTreeEvaluator {
                 entity,
                 entityPropertyPath,
               );
-              const isATriggerPath =
-                isWidget(entity) &&
-                isPathADynamicTrigger(entity, entityPropertyPath);
-              if (isABindingPath || isATriggerPath) {
+              if (isABindingPath) {
                 didUpdateDependencyMap = true;
 
                 const { jsSnippets } = getDynamicBindings(
@@ -1395,6 +1385,7 @@ export default class DataTreeEvaluator {
               // In this case if the path exists in the dependency map
               // remove it.
               else if (fullPropertyPath in this.dependencyMap) {
+                didUpdateDependencyMap = true;
                 delete this.dependencyMap[fullPropertyPath];
               }
             }
@@ -1497,9 +1488,28 @@ export default class DataTreeEvaluator {
         if (!isAction(entity) && !isWidget(entity)) {
           continue;
         }
+        let entityDynamicBindingPaths: string[] = [];
+        if (isAction(entity)) {
+          const entityDynamicBindingPathList = getEntityDynamicBindingPathList(
+            entity,
+          );
+          entityDynamicBindingPaths = entityDynamicBindingPathList.map(
+            (path) => {
+              return path.key;
+            },
+          );
+        }
         const parentPropertyPath = convertPathToString(d.path);
         Object.keys(entity.bindingPaths).forEach((relativePath) => {
           const childPropertyPath = `${entityName}.${relativePath}`;
+          // Check if relative path has dynamic binding
+          if (
+            entityDynamicBindingPaths &&
+            entityDynamicBindingPaths.length &&
+            entityDynamicBindingPaths.includes(relativePath)
+          ) {
+            changePaths.add(childPropertyPath);
+          }
           if (isChildPropertyPath(parentPropertyPath, childPropertyPath)) {
             changePaths.add(childPropertyPath);
           }
