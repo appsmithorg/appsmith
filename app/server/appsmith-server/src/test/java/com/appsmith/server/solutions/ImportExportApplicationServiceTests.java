@@ -2463,7 +2463,7 @@ public class ImportExportApplicationServiceTests {
 
         Mono<Tuple3<ApplicationPagesDTO, List<NewAction>, List<ActionCollection>>> tuple2Mono = createAppAndPageMono.flatMap(application ->
                 // merge the application json with the application we've created
-                importExportApplicationService.mergeApplicationJsonWithApplication(application.getId(), null, applicationJson, null)
+                importExportApplicationService.mergeApplicationJsonWithApplication(application.getOrganizationId(), application.getId(), null, applicationJson, null)
                         .thenReturn(application)
         ).flatMap(application ->
                 // fetch the application pages, this should contain pages from application json
@@ -2509,7 +2509,7 @@ public class ImportExportApplicationServiceTests {
 
         Mono<ApplicationPagesDTO> applicationPagesDTOMono = createAppAndPageMono.flatMap(application ->
                 // merge the application json with the application we've created
-                importExportApplicationService.mergeApplicationJsonWithApplication(application.getId(), null, applicationJson, List.of("About", "Contact US"))
+                importExportApplicationService.mergeApplicationJsonWithApplication(application.getOrganizationId(), application.getId(), null, applicationJson, List.of("About", "Contact US"))
                         .thenReturn(application)
         ).flatMap(application ->
                 // fetch the application pages, this should contain pages from application json

@@ -148,8 +148,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     @Override
     public Mono<Application> mergeTemplateWithApplication(String templateId, String applicationId, String organizationId, String branchName, List<String> pagesToImport) {
         return getApplicationJsonFromTemplate(templateId).flatMap(applicationJson ->
-                importExportApplicationService.importApplicationInOrganization(
-                        organizationId, applicationJson, applicationId, null, true
+                importExportApplicationService.mergeApplicationJsonWithApplication(
+                        organizationId, applicationId, null, applicationJson, null
                 )
         );
     }

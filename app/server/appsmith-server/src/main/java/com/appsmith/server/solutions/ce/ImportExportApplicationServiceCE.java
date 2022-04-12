@@ -32,7 +32,7 @@ public interface ImportExportApplicationServiceCE {
      */
     Mono<ApplicationImportDTO> extractFileAndSaveApplication(String orgId, Part filePart);
 
-    Mono<Application> mergeApplicationJsonWithApplication(String applicationId, String branchName, ApplicationJson applicationJson, List<String> pagesToImport);
+    Mono<Application> mergeApplicationJsonWithApplication(String organizationId, String applicationId, String branchName, ApplicationJson applicationJson, List<String> pagesToImport);
 
     /**
      * This function will save the application to organisation from the application resource
@@ -51,12 +51,6 @@ public interface ImportExportApplicationServiceCE {
      * @param applicationId  application which needs to be saved with the updated resources
      * @return Updated application
      */
-    Mono<Application> importApplicationInOrganization(String organizationId,
-                                                      ApplicationJson importedDoc,
-                                                      String applicationId,
-                                                      String branchName,
-                                                      boolean appendToApp);
-
     Mono<Application> importApplicationInOrganization(String organizationId,
                                                       ApplicationJson importedDoc,
                                                       String applicationId,
