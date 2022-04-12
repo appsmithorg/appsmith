@@ -9,9 +9,11 @@ import {
   updateColumnAccessorHook,
   updateColumnLevelEditability,
   updateEditActionsColumnEventsHook,
+  updateNumberColumnTypeTextAlignment,
 } from "../../propertyUtils";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { isColumnTypeEditable } from "../../utilities";
+import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 
 export default {
   sectionName: "Column Control",
@@ -67,7 +69,10 @@ export default {
           value: "editActions",
         },
       ],
-      updateHook: updateEditActionsColumnEventsHook,
+      updateHook: composePropertyUpdateHook([
+        updateEditActionsColumnEventsHook,
+        updateNumberColumnTypeTextAlignment,
+      ]),
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: false,
       isTriggerProperty: false,
