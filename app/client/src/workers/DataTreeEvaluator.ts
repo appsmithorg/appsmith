@@ -95,7 +95,7 @@ export default class DataTreeEvaluator {
   errors: EvalError[] = [];
   resolvedFunctions: Record<string, any> = {};
   currentJSCollectionState: Record<string, any> = {};
-  logs: any[] = [];
+  logs: unknown[] = [];
   allActionValidationConfig?: { [actionId: string]: ActionValidationConfigMap };
   public hasCyclicalDependency = false;
   constructor(
@@ -1177,6 +1177,7 @@ export default class DataTreeEvaluator {
             action.parsedFunction,
             unEvalDataTree,
             this.resolvedFunctions,
+            this.logs,
           ),
           // parsedFunction - used only to determine if function is async
           parsedFunction: undefined,

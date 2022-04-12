@@ -1146,6 +1146,8 @@ export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 
 export const REDIRECT_URL_TOOLTIP = () =>
   "This URL will be used while configuring your Identity Provider's Callback/Redirect URL";
+export const ENTITY_ID_TOOLTIP = () =>
+  "This URL will be used while configuring your Identity Provider's Entity ID URL";
 
 export const FORK_APP_MODAL_LOADING_TITLE = () =>
   "Fetching organisations to fork to...";

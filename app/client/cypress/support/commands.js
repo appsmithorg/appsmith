@@ -1,10 +1,11 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
-
 /* This file is used to maintain comman methods across tests , refer other *.js files for adding common methods */
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
+//require('cy-verify-downloads').addCustomCommand();
+const path = require("path");
 
 const dayjs = require("dayjs");
 const {
@@ -76,12 +77,16 @@ Cypress.Commands.add("downloadData", (filetype) => {
 });
 
 Cypress.Commands.add("validateDownload", (fileName) => {
-  const downloadedFilename = Cypress.config("downloadsFolder")
-    .concat("/")
-    .concat(fileName);
-  cy.readFile(downloadedFilename, "binary", {
-    timeout: 15000,
-  }).should((buffer) => expect(buffer.length).to.be.gt(100));
+  // const downloadedFilename = Cypress.config("downloadsFolder")
+  //   .concat("/")
+  //   .concat(fileName);
+  // cy.readFile(downloadedFilename, "binary", {
+  //   timeout: 15000,
+  // }).should((buffer) => expect(buffer.length).to.be.gt(100));
+
+  let downloadsFolder = Cypress.config("downloadsFolder");
+  cy.log("downloadsFolder is:" + downloadsFolder);
+  cy.readFile(path.join(downloadsFolder, fileName)).should("exist");
 });
 
 Cypress.Commands.add(
@@ -1526,9 +1531,9 @@ Cypress.Commands.add("CheckAndUnfoldEntityItem", (item) => {
 
 // Cypress.Commands.overwrite("type", (originalFn, element, text, options) => {
 //   const clearedText = '{selectall}{backspace}'+`${text}`;
-
 //   return originalFn(element, clearedText, options);
 // });
+
 addMatchImageSnapshotCommand({
   failureThreshold: 0.1, // threshold for entire image
   failureThresholdType: "percent",
@@ -1548,3 +1553,30 @@ Cypress.Commands.add("DeleteEntityStateLocalStorage", () => {
     }
   });
 });
+
+let LOCAL_STORAGE_MEMORY = {};
+
+Cypress.Commands.add("saveLocalStorageCache", () => {
+  Object.keys(localStorage).forEach((key) => {
+    LOCAL_STORAGE_MEMORY[key] = localStorage[key];
+  });
+});
+
+Cypress.Commands.add("restoreLocalStorageCache", () => {
+  Object.keys(LOCAL_STORAGE_MEMORY).forEach((key) => {
+    localStorage.setItem(key, LOCAL_STORAGE_MEMORY[key]);
+  });
+});
+
+Cypress.Commands.add(
+  "typeTab",
+  { prevSubject: "element" },
+  (subject, shiftKey, ctrlKey) => {
+    cy.wrap(subject).trigger("keydown", {
+      keyCode: 9,
+      which: 9,
+      shiftKey: shiftKey,
+      ctrlKey: ctrlKey,
+    });
+  },
+);

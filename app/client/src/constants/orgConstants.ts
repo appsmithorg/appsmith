@@ -1,4 +1,4 @@
-import { ApplicationPayload } from "./ReduxActionConstants";
+import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 
 export type OrgRole = {
   id: string;
