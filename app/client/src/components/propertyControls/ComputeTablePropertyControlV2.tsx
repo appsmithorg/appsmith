@@ -31,7 +31,7 @@ const CurlyBraces = styled.span`
   font-size: 10px;
 `;
 
-export function InputText(props: {
+function InputText(props: {
   label: string;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
@@ -39,7 +39,7 @@ export function InputText(props: {
   expected?: CodeEditorExpected;
   placeholder?: string;
   dataTreePath?: string;
-  additionalDynamicData: Record<string, Record<string, unknown>>;
+  additionalDynamicData: Record<string, Record<string, unknown> | unknown>;
   theme: EditorTheme;
 }) {
   const {
@@ -107,6 +107,7 @@ class ComputeTablePropertyControlV2 extends BaseControl<
     Object.values(columns).forEach((column) => {
       currentRow[column.alias || column.originalId] = undefined;
     });
+    const currentIndex = -1;
     // Load default value in evaluated value
     if (value && !propertyValue) {
       this.onTextChange(value);
@@ -115,6 +116,7 @@ class ComputeTablePropertyControlV2 extends BaseControl<
       <InputText
         additionalDynamicData={{
           currentRow,
+          currentIndex: -1,
         }}
         dataTreePath={dataTreePath}
         expected={expected}

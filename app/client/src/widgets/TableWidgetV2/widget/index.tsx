@@ -88,6 +88,8 @@ const defaultFilter = [
 ];
 
 class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
+  editTimer: number | null = null;
+
   static getPropertyPaneConfig() {
     return tablePropertyPaneConfig;
   }
@@ -431,6 +433,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                   action?: EditableCellActions,
                 ) => {
                   if (enable) {
+                    if (this.editTimer) {
+                      clearTimeout(this.editTimer);
+                    }
+
                     this.props.updateWidgetMetaProperty("editableCell", {
                       column: props.cell.column.alias,
                       index: rowIndex,
@@ -478,18 +484,22 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                           action: props.cell.column.columnProperties.onSubmit,
                           triggerPropertyName: "onSubmit",
                           eventType: EventType.ON_SUBMIT,
+                          row: {
+                            ...this.props.filteredTableData[rowIndex],
+                            [this.props.editableCell.column]: this.props
+                              .editableCell.value,
+                          },
                         });
                       }
                     }
-                    this.props.updateWidgetMetaProperty("editableCell", {});
+
                     /*
                      * We need to let the evaulations compute derived property (filteredTableData)
                      * before we clear the editableCell to avoid the text flickering
-                     * TODO(Balaji): Need to find a different way to wait before clearing
                      */
-                    // setTimeout(() => {
-                    //   this.props.updateWidgetMetaProperty("editableCell", {});
-                    // }, 100);
+                    this.editTimer = setTimeout(() => {
+                      this.props.updateWidgetMetaProperty("editableCell", {});
+                    }, 100);
                   }
                 },
               });
@@ -1207,11 +1217,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     onComplete = noop,
     triggerPropertyName,
     eventType,
+    row,
   }: OnColumnEventArgs) => {
     const { filteredTableData = [] } = this.props;
 
     try {
-      const row = filteredTableData[rowIndex];
+      row = row || filteredTableData[rowIndex];
 
       const { jsSnippets } = getDynamicBindings(action);
       const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
@@ -1221,7 +1232,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       if (modifiedAction) {
         this.props.updateWidgetMetaProperty(
           "triggeredRowIndex",
-          row[ORIGINAL_INDEX_KEY],
+          row?.[ORIGINAL_INDEX_KEY],
           {
             triggerPropertyName: triggerPropertyName,
             dynamicString: modifiedAction,

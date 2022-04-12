@@ -165,7 +165,7 @@ export type EditorProps = EditorStyleProps &
   EditorConfig & {
     input: Partial<WrappedFieldInputProps>;
   } & {
-    additionalDynamicData?: Record<string, Record<string, unknown>>;
+    additionalDynamicData?: Record<string, Record<string, unknown> | unknown>;
     promptMessage?: React.ReactNode | string;
     hideEvaluatedValue?: boolean;
     errors?: any;
