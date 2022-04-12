@@ -1,10 +1,13 @@
 const explorer = require("../../../../locators/explorerlocators.json");
 
 describe("Progress Widget", function() {
-  it("Add a new Progress widget", function() {
+  it("Add a new Progress widget and text widget", function() {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("progresswidget", { x: 300, y: 300 });
     cy.get(".t--widget-progresswidget").should("exist");
+    cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
+    cy.openPropertyPane("textwidget");
+    cy.updateCodeInput(".t--property-control-text", "");
   });
 
   // Linear progress
@@ -131,5 +134,15 @@ describe("Progress Widget", function() {
     cy.get("[data-testvalue='50']")
       .invoke("css", "stroke-dashoffset")
       .should("not.match", /-/);
+  });
+
+  it("The binding property, progress should be exposed for an auto suggestion", function() {
+    cy.openPropertyPane("textwidget");
+    cy.get(
+      ".t--property-control-text .CodeMirror textarea",
+    ).type("{{Progress1.", { force: true });
+    cy.get("ul.CodeMirror-hints")
+      .contains("progress")
+      .should("exist");
   });
 });

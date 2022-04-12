@@ -21,9 +21,9 @@ import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer"
 import { JSCollection } from "entities/JSCollection";
 import { DefaultPlugin, GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
 import { APP_MODE } from "entities/App";
-import getFeatureFlags from "utils/featureFlags";
 import { ExplorerFileEntity } from "pages/Editor/Explorer/helpers";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
+import { selectFeatureFlags } from "./usersSelectors";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -385,6 +385,14 @@ export const getAction = (
   return action ? action.config : undefined;
 };
 
+export const getActionData = (
+  state: AppState,
+  actionId: string,
+): ActionResponse | undefined => {
+  const action = find(state.entities.actions, (a) => a.config.id === actionId);
+  return action ? action.data : undefined;
+};
+
 export const getJSCollection = (
   state: AppState,
   actionId: string,
@@ -659,12 +667,17 @@ export const getIsListing = (state: AppState) => {
   return state.entities.datasources.isListing;
 };
 
+export const getDatasourceLoading = (state: AppState) => {
+  return state.entities.datasources.loading;
+};
+
 export const selectFilesForExplorer = createSelector(
   getActionsForCurrentPage,
   getJSCollectionsForCurrentPage,
   selectDatasourceIdToNameMap,
-  (actions, jsActions, datasourceIdToNameMap) => {
-    const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
+  selectFeatureFlags,
+  (actions, jsActions, datasourceIdToNameMap, featureFlags) => {
+    const { JS_EDITOR: isJSEditorEnabled } = featureFlags;
     const files = [...actions, ...(isJSEditorEnabled ? jsActions : [])].reduce(
       (acc, file) => {
         let group = "";
