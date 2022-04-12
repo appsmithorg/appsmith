@@ -329,6 +329,7 @@ export function* setWidgetDynamicPropertySaga(
 
   let dynamicPropertyPathList = getWidgetDynamicPropertyPathList(widget);
   let dynamicBindingPathList = getEntityDynamicBindingPathList(widget);
+
   if (isDynamic) {
     const keyExists =
       dynamicPropertyPathList.findIndex((path) => path.key === propertyPath) >
@@ -343,9 +344,32 @@ export function* setWidgetDynamicPropertySaga(
     dynamicPropertyPathList = _.reject(dynamicPropertyPathList, {
       key: propertyPath,
     });
-    dynamicBindingPathList = _.reject(dynamicBindingPathList, {
-      key: propertyPath,
-    });
+
+    /*
+      The Below if loop removes the "derived" properties for the table
+      we are doing this because when you toggle js off we only 
+      receive the  `primaryColumns.` properties not the `derivedColumns.`
+      properties therefore we need just a hard-codded check.
+      In Table widget v2 we are removing the `derivedColumns.`
+      properties altogether.
+    */
+    if (_.startsWith(propertyPath, "primaryColumns")) {
+      // primaryColumns.customColumn1.isVisible -> customColumn.isVisible
+      const tableProperty = propertyPath
+        .split(".")
+        .splice(1)
+        .join(".");
+      // remove all bindings with customColumn1.isVisible both
+      // primaryColumns and derivedColumns
+      dynamicBindingPathList = _.reject(dynamicBindingPathList, ({ key }) =>
+        _.includes(key, tableProperty),
+      );
+    } else {
+      dynamicBindingPathList = _.reject(dynamicBindingPathList, {
+        key: propertyPath,
+      });
+    }
+
     const { parsed } = yield call(
       validateProperty,
       propertyPath,
