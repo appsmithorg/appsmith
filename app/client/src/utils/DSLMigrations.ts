@@ -40,8 +40,8 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { renameKeyInObject } from "./helpers";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButtonWidget";
-import { ButtonStyleTypes, ButtonVariantTypes } from "../components/constants";
-import { Colors } from "../constants/Colors";
+import { ButtonStyleTypes, ButtonVariantTypes } from "components/constants";
+import { Colors } from "constants/Colors";
 import {
   migrateModalIconButtonWidget,
   migrateResizableModalWidgetProperties,

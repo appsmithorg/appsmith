@@ -4,7 +4,7 @@ import { editorInitializer } from "utils/EditorUtils";
 import {
   PageListPayload,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { initEditor } from "actions/initActions";
 import { useDispatch } from "react-redux";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";

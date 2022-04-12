@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from "react";
-import { saveSettings } from "actions/settingsAction";
+import { saveSettings } from "@appsmith/actions/settingsAction";
 import { SETTINGS_FORM_NAME } from "constants/forms";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import _ from "lodash";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { connect, useDispatch } from "react-redux";
