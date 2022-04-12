@@ -463,7 +463,7 @@ const PropertyControl = memo((props: Props) => {
             />
             {isConvertible && (
               <Tooltip
-                content="Clear the field to enable the button!"
+                content="A dynamic or invalid value cannot be represented in the UI mode. Please update the value or clear the value to toggle back to UI mode."
                 disabled={!isToggleDisabled}
                 hoverOpenDelay={200}
                 openOnTargetFocus={false}
