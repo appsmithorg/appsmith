@@ -607,7 +607,7 @@ describe("correctly migrate dsl", () => {
           labelTextSize: "0.875rem",
           dynamicBindingPathList: [
             {
-              key: "primaryColor",
+              key: "accentColor",
             },
           ],
           labelStyle: "",
@@ -629,7 +629,7 @@ describe("correctly migrate dsl", () => {
           defaultText: "",
           borderRadius: "0px",
           boxShadow: "none",
-          primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
         },
         {
           widgetName: "Button1",
@@ -711,10 +711,10 @@ describe("correctly migrate dsl", () => {
           defaultText: "",
           borderRadius: "0px",
           boxShadow: "none",
-          primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
           dynamicBindingPathList: [
             {
-              key: "primaryColor",
+              key: "accentColor",
             },
           ],
         },
@@ -862,7 +862,7 @@ describe("correctly migrate dsl", () => {
               key: "template.Text2.text",
             },
             {
-              key: "primaryColor",
+              key: "accentColor",
             },
           ],
           gridType: "vertical",
@@ -1197,7 +1197,7 @@ describe("correctly migrate dsl", () => {
           version: 1,
           borderRadius: "0px",
           boxShadow: "none",
-          primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
         },
       ],
       containerStyle: "none",
@@ -1223,6 +1223,7 @@ describe("correctly migrate dsl", () => {
 
     expect(actualNextDsl).toEqual(expectedNextDSL);
   });
+
   it("transformDSL for theming v1", () => {
     const currentVersion = 53;
     const nextVersion = LATEST_PAGE_VERSION;
@@ -1824,7 +1825,7 @@ describe("correctly migrate dsl", () => {
           leftColumn: 23,
           dynamicBindingPathList: [
             {
-              key: "primaryColor",
+              key: "accentColor",
             },
           ],
           labelStyle: "",
@@ -1847,7 +1848,7 @@ describe("correctly migrate dsl", () => {
           defaultText: "",
           borderRadius: "0px",
           boxShadow: "none",
-          primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
         },
         {
           widgetName: "Button1",
@@ -1929,10 +1930,10 @@ describe("correctly migrate dsl", () => {
           defaultText: "",
           borderRadius: "0px",
           boxShadow: "none",
-          primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
           dynamicBindingPathList: [
             {
-              key: "primaryColor",
+              key: "accentColor",
             },
           ],
         },
@@ -2080,7 +2081,7 @@ describe("correctly migrate dsl", () => {
               key: "template.Text2.text",
             },
             {
-              key: "primaryColor",
+              key: "accentColor",
             },
           ],
           gridType: "vertical",
@@ -2410,7 +2411,7 @@ describe("correctly migrate dsl", () => {
           version: 1,
           borderRadius: "0px",
           boxShadow: "none",
-          primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
         },
       ],
       containerStyle: "none",

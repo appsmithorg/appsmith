@@ -139,6 +139,11 @@ describe("getAllPathsFromPropertyConfig", () => {
         delimiter: EvaluationSubstitutionType.TEMPLATE,
         borderRadius: EvaluationSubstitutionType.TEMPLATE,
         boxShadow: EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.borderRadius":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.boxShadow": EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.buttonLabelColor":
+          EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.computedValue":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.horizontalAlignment":
@@ -464,9 +469,18 @@ describe("getAllPathsFromPropertyConfig", () => {
           },
         },
         "primaryColumns.status.buttonColor": {
-          type: ValidationTypes.TABLE_PROPERTY,
+          type: "TABLE_PROPERTY",
           params: {
-            type: ValidationTypes.TEXT,
+            type: "TEXT",
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+          },
+        },
+        "primaryColumns.status.buttonLabelColor": {
+          type: "TABLE_PROPERTY",
+          params: {
+            type: "TEXT",
             params: {
               regex: /^(?![<|{{]).+/,
             },
