@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
   ReduxAction,
   ShowPropertyPanePayload,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 
 const initialState: TableFilterPaneReduxState = {
   isVisible: false,

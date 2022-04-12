@@ -6,7 +6,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { ActionResponse } from "api/ActionAPI";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MetaState } from "reducers/entityReducers/metaReducer";
-import { PageListPayload } from "constants/ReduxActionConstants";
+import { PageListPayload } from "@appsmith/constants/ReduxActionConstants";
 import { ActionConfig, PluginType } from "entities/Action";
 import { AppDataState } from "reducers/entityReducers/appReducer";
 import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";

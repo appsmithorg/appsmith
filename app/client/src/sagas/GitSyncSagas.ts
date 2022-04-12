@@ -4,7 +4,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   ReduxActionWithCallbacks,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
 import GitSyncAPI, {
@@ -18,6 +18,8 @@ import {
 import { validateResponse } from "./ErrorSagas";
 import {
   commitToRepoSuccess,
+  ConnectToGitReduxAction,
+  connectToGitSuccess,
   fetchBranchesInit,
   fetchBranchesSuccess,
   fetchGitStatusInit,
@@ -35,6 +37,7 @@ import {
   getSSHKeyPairSuccess,
   gitPullSuccess,
   importAppViaGitSuccess,
+  mergeBranchSuccess,
   setIsDisconnectGitModalOpen,
   setIsGitErrorPopupVisible,
   setIsGitSyncModalOpen,
@@ -45,11 +48,6 @@ import {
 
 import { showReconnectDatasourceModal } from "actions/applicationActions";
 
-import {
-  ConnectToGitReduxAction,
-  connectToGitSuccess,
-  mergeBranchSuccess,
-} from "../actions/gitSyncActions";
 import { ApiResponse } from "api/ApiResponses";
 import { GitConfig, GitSyncModalTab } from "entities/GitSync";
 import { Toaster } from "components/ads/Toast";
@@ -65,7 +63,7 @@ import {
   ERROR_GIT_INVALID_REMOTE,
   GIT_USER_UPDATED_SUCCESSFULLY,
 } from "@appsmith/constants/messages";
-import { GitApplicationMetadata } from "../api/ApplicationApi";
+import { GitApplicationMetadata } from "api/ApplicationApi";
 
 import history from "utils/history";
 import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";

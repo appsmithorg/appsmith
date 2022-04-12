@@ -31,7 +31,7 @@ import {
 import {
   ApplicationPayload,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import PageWrapper from "pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
 import ApplicationCard from "./ApplicationCard";
@@ -70,11 +70,11 @@ import EditableText, {
 import { notEmptyValidator } from "components/ads/TextInput";
 import { deleteOrg, saveOrg } from "actions/orgActions";
 import { leaveOrganization } from "actions/userActions";
-import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
-import NoSearchImage from "../../assets/images/NoSearchResult.svg";
+import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import NoSearchImage from "assets/images/NoSearchResult.svg";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
 import { AppIconCollection } from "components/ads/AppIcon";
-import { createOrganizationSubmitHandler } from "../organization/helpers";
+import { createOrganizationSubmitHandler } from "pages/organization/helpers";
 import ImportApplicationModal from "./ImportApplicationModal";
 import {
   createMessage,
