@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { saveSettings } from "actions/settingsAction";
+import { saveSettings } from "@appsmith/actions/settingsAction";
 import { SETTINGS_FORM_NAME } from "constants/forms";
 import _ from "lodash";
 import { connect, useDispatch } from "react-redux";
@@ -215,7 +215,11 @@ export function OidcSettingsForm(
             SettingTypes.LINK,
             SettingTypes.ACCORDION,
             SettingTypes.UNEDITABLEFIELD,
-          ].indexOf(setting.controlType) === -1
+          ].indexOf(setting.controlType) === -1 &&
+          [
+            "APPSMITH_OAUTH2_OIDC_CLIENT_ID",
+            "APPSMITH_OAUTH2_OIDC_CLIENT_SECRET",
+          ].indexOf(setting.id) !== -1
         ) {
           updatedSettings[setting.id] = "";
         }
