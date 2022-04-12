@@ -93,17 +93,23 @@ export const saveDatasourceName = (payload: { id: string; name: string }) => ({
   payload: payload,
 });
 
-export const changeDatasource = (payload: { datasource?: Datasource }) => {
+export const changeDatasource = (payload: {
+  datasource?: Datasource;
+  shouldNotRedirect?: boolean;
+}) => {
   return {
     type: ReduxActionTypes.CHANGE_DATASOURCE,
     payload,
   };
 };
 
-export const switchDatasource = (id: string) => {
+export const switchDatasource = (id: string, shouldNotRedirect: boolean) => {
   return {
     type: ReduxActionTypes.SWITCH_DATASOURCE,
-    payload: { datasourceId: id },
+    payload: {
+      datasourceId: id,
+      shouldNotRedirect,
+    },
   };
 };
 

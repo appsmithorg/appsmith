@@ -3,13 +3,14 @@ import {
   updateReflowOnBoardingAction,
 } from "actions/reflowActions";
 import {
+  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
   ReflowReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { User } from "constants/userConstants";
 import { isBoolean } from "lodash";
-import { all, put, select, takeLatest } from "redux-saga/effects";
+import { all, put, select, takeLatest, take } from "redux-saga/effects";
 import { getCurrentUser } from "selectors/usersSelectors";
 import {
   getReflowBetaFlag,
@@ -20,7 +21,13 @@ import {
 
 function* initReflowStates() {
   try {
-    const user: User = yield select(getCurrentUser);
+    let user: User = yield select(getCurrentUser);
+    if (!user) {
+      const userFetched: ReduxAction<User> = yield take(
+        ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
+      );
+      user = userFetched.payload;
+    }
     const { email } = user;
     if (email) {
       const enableReflow: boolean = yield getReflowBetaFlag(email);
@@ -62,8 +69,8 @@ function* closeReflowOnboardingCard() {
 }
 
 export default function* reflowSagas() {
-  yield all([takeLatest(ReduxActionTypes.INITIALIZE_EDITOR, initReflowStates)]);
   yield all([
+    takeLatest(ReduxActionTypes.INITIALIZE_EDITOR, initReflowStates),
     takeLatest(
       ReflowReduxActionTypes.CLOSE_ONBOARDING_CARD,
       closeReflowOnboardingCard,

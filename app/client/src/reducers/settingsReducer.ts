@@ -74,6 +74,13 @@ export default createReducer(initialState, {
     ...state,
     isRestarting: true,
   }),
+  [ReduxActionTypes.RETRY_RESTART_SERVER_POLL]: (
+    state: SettingsReduxState,
+  ) => ({
+    ...state,
+    isRestarting: true,
+    isRestartFailed: false,
+  }),
   [ReduxActionErrorTypes.RESTART_SERVER_ERROR]: (
     state: SettingsReduxState,
   ) => ({
