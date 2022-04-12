@@ -17,6 +17,8 @@ public class AuthenticationConfigurationDTO {
 
     String importFromUrl;
 
+    String importFromXml;
+
     Map<String, Object> configuration;
 
 }

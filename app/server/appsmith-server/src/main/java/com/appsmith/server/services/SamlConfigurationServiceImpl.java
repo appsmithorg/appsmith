@@ -65,7 +65,7 @@ public class SamlConfigurationServiceImpl implements SamlConfigurationService {
 
                     // In Keycloak, create a realm and client
                     Mono<Boolean> initializeKeycloakMono = keycloakIntegrationService.createRealm()
-                            .then(keycloakIntegrationService.createClient(exchange));
+                            .then(keycloakIntegrationService.createClient(baseUrl));
 
 
                     if (configuration.getImportFromUrl() != null && !configuration.getImportFromUrl().isEmpty()) {
@@ -73,11 +73,19 @@ public class SamlConfigurationServiceImpl implements SamlConfigurationService {
                         // We seem to be importing from a URL
                         return initializeKeycloakMono
                                 .then(keycloakIntegrationService.createSamlIdentityProviderFromIdpConfigFromUrl(
-                                        Map.of("url", configuration.getImportFromUrl()))
+                                        Map.of("url", configuration.getImportFromUrl()), baseUrl)
                                 );
-                    } else if (configuration.getConfiguration() != null) {
+                    } else if (configuration.getImportFromXml() != null && !configuration.getImportFromXml().isEmpty()) {
+
+                        // We seem to be importing from XML
+
                         return initializeKeycloakMono
-                                .then(keycloakIntegrationService.createSamlIdentityProviderExplicitConfiguration(configuration.getConfiguration()));
+                                .then(keycloakIntegrationService.createSamlIdentityProviderFromXml(configuration.getImportFromXml(), baseUrl));
+
+                    } else if (configuration.getConfiguration() != null) {
+
+                        return initializeKeycloakMono
+                                .then(keycloakIntegrationService.createSamlIdentityProviderExplicitConfiguration(configuration.getConfiguration(), baseUrl));
                     }
 
                     return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
