@@ -12,7 +12,7 @@ export const CONFIG = {
   defaults: {
     widgetName: "SwitchGroup",
     rows: 6,
-    columns: 18,
+    columns: 26,
     options: [
       { label: "Blue", value: "BLUE" },
       { label: "Green", value: "GREEN" },

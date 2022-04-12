@@ -10,7 +10,7 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     rows: 6,
-    columns: 16,
+    columns: 23,
     animateLoading: true,
     options: [
       { label: "Blue", value: "BLUE" },
