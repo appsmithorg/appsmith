@@ -1,8 +1,10 @@
 import { Action, PluginType } from "entities/Action";
 import _ from "lodash";
 import {
+  EVAL_VALUE_PATH,
   getDynamicBindingsChangesSaga,
   getDynamicStringSegments,
+  getEvalValuePath,
   isChildPropertyPath,
 } from "./DynamicBindingUtils";
 
@@ -151,5 +153,28 @@ describe("DynamicBindingPathlist", () => {
     const actualResult = getDynamicBindingsChangesSaga(action, value, field);
 
     expect(_.isEqual(expectedResult, actualResult)).toBeTruthy();
+  });
+});
+
+describe("getNestedEvalPath", () => {
+  it("returns valid nested path", () => {
+    const actualUnpopulatedNestedPath = getEvalValuePath(
+      "Table1.primaryColumns.state",
+      {
+        isPopulated: false,
+        fullPath: true,
+      },
+    );
+    const actualPopulatedNestedPath = getEvalValuePath(
+      "Table1.primaryColumns.state",
+      {
+        isPopulated: true,
+        fullPath: true,
+      },
+    );
+    const expectedUnpopulatedNestedPath = `Table1.${EVAL_VALUE_PATH}.['primaryColumns.state']`;
+    const expectedPopulatedNestedPath = `Table1.${EVAL_VALUE_PATH}.primaryColumns.state`;
+    expect(actualPopulatedNestedPath).toEqual(expectedPopulatedNestedPath);
+    expect(actualUnpopulatedNestedPath).toEqual(expectedUnpopulatedNestedPath);
   });
 });

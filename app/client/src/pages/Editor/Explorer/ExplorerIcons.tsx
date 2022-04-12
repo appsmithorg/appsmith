@@ -1,8 +1,6 @@
 import React, { ReactNode } from "react";
 import { MenuIcons } from "icons/MenuIcons";
 import { Colors } from "constants/Colors";
-import { WidgetType } from "constants/WidgetConstants";
-import { WidgetIcons } from "icons/WidgetIcons";
 import { Plugin } from "api/PluginApi";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import styled from "styled-components";
@@ -149,13 +147,6 @@ export const datasourceColumnIcon = (
 export const DATASOURCE_FIELD_ICONS_MAP: Record<string, ReactNode> = {
   [PRIMARY_KEY]: primaryKeyIcon,
   [FOREIGN_KEY]: foreignKeyIcon,
-};
-
-export const getWidgetIcon = (type: WidgetType) => {
-  const WidgetIcon = WidgetIcons[type];
-  if (WidgetIcon)
-    return <WidgetIcon height={ENTITY_ICON_SIZE} width={ENTITY_ICON_SIZE} />;
-  return null;
 };
 
 const PluginIcon = styled.img`

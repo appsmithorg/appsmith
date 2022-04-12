@@ -11,6 +11,8 @@ ssl_conf_path="/appsmith-stacks/data/certificate/conf"
 
 APP_TEMPLATE="$http_conf"
 
+mkdir -pv "$ssl_conf_path"
+
 cat <<EOF > "$ssl_conf_path/options-ssl-nginx.conf"
 # This file contains important security parameters. If you modify this file
 # manually, Certbot will be unable to automatically provide future security
@@ -40,18 +42,20 @@ ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
 EOF
 
 # Check exist certificate with given custom domain
-if [[ -n ${APPSMITH_CUSTOM_DOMAIN:-} ]]; then
-	APP_TEMPLATE="$https_conf"
-	if ! [[ -e "/etc/letsencrypt/live/$APPSMITH_CUSTOM_DOMAIN" ]]; then
-		source "/opt/appsmith/init_ssl_cert.sh"
-		if ! init_ssl_cert "$APPSMITH_CUSTOM_DOMAIN"; then
-			echo "Status code from init_ssl_cert is $?"
-			APP_TEMPLATE="$http_conf"
-		fi
-	fi
+# Heroku not support for custom domain, only generate HTTP config if deploying on Heroku
+if [[ -n ${APPSMITH_CUSTOM_DOMAIN-} ]] && [[ -z ${DYNO-} ]]; then
+  APP_TEMPLATE="$https_conf"
+  if ! [[ -e "/etc/letsencrypt/live/$APPSMITH_CUSTOM_DOMAIN" ]]; then
+    source "/opt/appsmith/init_ssl_cert.sh"
+    init_ssl_cert "$APPSMITH_CUSTOM_DOMAIN"
+    if ! init_ssl_cert "$APPSMITH_CUSTOM_DOMAIN"; then
+      echo "Status code from init_ssl_cert is $?"
+      APP_TEMPLATE="$http_conf"
+    fi
+  fi
 fi
 
-bash "$APP_TEMPLATE" "${APPSMITH_CUSTOM_DOMAIN:-}" > /etc/nginx/sites-available/default
+bash "$APP_TEMPLATE" "${APPSMITH_CUSTOM_DOMAIN-}" > /etc/nginx/sites-available/default
 
 index_html_served=/opt/appsmith/editor/index.html
 index_html_original=/opt/appsmith/index.html.original
@@ -62,10 +66,10 @@ fi
 node -e '
 const fs = require("fs")
 const content = fs.readFileSync("'"$index_html_original"'", "utf8").replace(
-	/\b__(APPSMITH_[A-Z0-9_]+)__\b/g,
-	(placeholder, name) => (process.env[name] || "")
+  /\b__(APPSMITH_[A-Z0-9_]+)__\b/g,
+  (placeholder, name) => (process.env[name] || "")
 )
 fs.writeFileSync("'"$index_html_served"'", content)
 '
 
-exec nginx -g "daemon off;"
+exec nginx -g "daemon off;error_log stderr info;"

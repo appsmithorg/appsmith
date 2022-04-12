@@ -14,11 +14,13 @@ type StyledCheckboxProps = {
 
 type StyledCheckboxContainerProps = {
   isValid: boolean;
+  noContainerPadding?: boolean;
 };
 
 const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
   && {
-    padding: 9px 12px;
+    padding: ${({ noContainerPadding }) =>
+      noContainerPadding ? 0 : "9px 12px"};
     align-items: center;
     display: flex;
     height: 100%;
@@ -93,10 +95,21 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
     const checkboxAlignClass =
       this.props.alignWidget === "RIGHT" ? Alignment.RIGHT : Alignment.LEFT;
 
+    // If the prop isValid has a value true/false (it was explicitly passed to this component),
+    // it take priority over the internal logic to determine if the field is valid or not.
+    const isValid = (() => {
+      if (this.props.isValid !== undefined) {
+        return this.props.isValid;
+      }
+
+      return !(this.props.isRequired && !this.props.isChecked);
+    })();
+
     return (
       <CheckboxContainer
         className={checkboxAlignClass}
-        isValid={!(this.props.isRequired && !this.props.isChecked)}
+        isValid={isValid}
+        noContainerPadding={this.props.noContainerPadding}
       >
         <StyledCheckbox
           alignIndicator={checkboxAlignClass}
@@ -105,6 +118,7 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
             this.props.isLoading ? Classes.SKELETON : Classes.RUNNING_TEXT
           }
           disabled={this.props.isDisabled}
+          inputRef={this.props.inputRef}
           label={this.props.label}
           onChange={this.onCheckChange}
           rowSpace={this.props.rowSpace}
@@ -120,12 +134,15 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
 
 export interface CheckboxComponentProps extends ComponentProps {
   alignWidget?: AlignWidget;
+  noContainerPadding?: boolean;
   isChecked: boolean;
   isLoading: boolean;
   isRequired?: boolean;
+  isValid?: boolean;
   label: string;
   onCheckChange: (isChecked: boolean) => void;
   rowSpace: number;
+  inputRef?: (el: HTMLInputElement | null) => any;
 }
 
 export default CheckboxComponent;

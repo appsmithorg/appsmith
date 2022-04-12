@@ -84,11 +84,15 @@ function* SaveAdminSettingsSaga(action: ReduxAction<Record<string, string>>) {
   }
 }
 
-const RESTART_POLL_TIMEOUT = 60000;
+const RESTART_POLL_TIMEOUT = 2 * 60 * 1000;
 const RESTART_POLL_INTERVAL = 2000;
 
 function* RestartServerPoll() {
   yield call(UserApi.restartServer);
+  yield call(RestryRestartServerPoll);
+}
+
+function* RestryRestartServerPoll() {
   let pollCount = 0;
   const maxPollCount = RESTART_POLL_TIMEOUT / RESTART_POLL_INTERVAL;
   while (pollCount < maxPollCount) {
@@ -110,34 +114,32 @@ function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
   try {
     const response = yield call(UserApi.sendTestEmail, action.payload);
     const currentUser = yield select(getCurrentUser);
-    let actionElement;
-    if (response.data) {
-      actionElement = (
-        <>
-          <br />
-          <span onClick={() => window.open(EMAIL_SETUP_DOC, "blank")}>
-            {createMessage(TEST_EMAIL_SUCCESS_TROUBLESHOOT)}
-          </span>
-        </>
-      );
+    const isValidResponse = yield validateResponse(response);
+
+    if (isValidResponse) {
+      let actionElement;
+      if (response.data) {
+        actionElement = (
+          <>
+            <br />
+            <span onClick={() => window.open(EMAIL_SETUP_DOC, "blank")}>
+              {createMessage(TEST_EMAIL_SUCCESS_TROUBLESHOOT)}
+            </span>
+          </>
+        );
+      }
+      Toaster.show({
+        actionElement,
+        text: createMessage(
+          response.data
+            ? TEST_EMAIL_SUCCESS(currentUser?.email)
+            : TEST_EMAIL_FAILURE,
+        ),
+        hideProgressBar: true,
+        variant: response.data ? Variant.info : Variant.danger,
+      });
     }
-    Toaster.show({
-      actionElement,
-      text: createMessage(
-        response.data
-          ? TEST_EMAIL_SUCCESS(currentUser?.email)
-          : TEST_EMAIL_FAILURE,
-      ),
-      hideProgressBar: true,
-      variant: response.data ? Variant.info : Variant.danger,
-    });
-  } catch (e) {
-    Toaster.show({
-      text: e?.message || createMessage(TEST_EMAIL_FAILURE),
-      hideProgressBar: true,
-      variant: Variant.danger,
-    });
-  }
+  } catch (e) {}
 }
 
 function* InitSuperUserSaga(action: ReduxAction<User>) {
@@ -151,6 +153,10 @@ function* InitSuperUserSaga(action: ReduxAction<User>) {
       ),
       takeLatest(ReduxActionTypes.SAVE_ADMIN_SETTINGS, SaveAdminSettingsSaga),
       takeLatest(ReduxActionTypes.RESTART_SERVER_POLL, RestartServerPoll),
+      takeLatest(
+        ReduxActionTypes.RETRY_RESTART_SERVER_POLL,
+        RestryRestartServerPoll,
+      ),
       takeLatest(ReduxActionTypes.SEND_TEST_EMAIL, SendTestEmail),
     ]);
   }

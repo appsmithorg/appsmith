@@ -65,8 +65,15 @@ function validatePropertyControl(
   if (_config.validation !== undefined) {
     _config.validation = validateValidationStructure(_config.validation);
   }
+
   if (_config.children) {
     _config.children = _config.children.map(validatePropertyControl);
+  }
+
+  if (_config.panelConfig) {
+    _config.panelConfig.children = _config.panelConfig.children.map(
+      validatePropertyControl,
+    );
   }
   return _config;
 }

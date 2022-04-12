@@ -29,6 +29,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
@@ -308,6 +309,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         // For all new applications being created, set it to use the latest evaluation version.
         application.setEvaluationVersion(EVALUATION_VERSION);
+        application.setApplicationVersion(ApplicationVersion.LATEST_VERSION);
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
         Mono<Application> applicationWithPoliciesMono = setApplicationPolicies(userMono, orgId, application);
@@ -400,7 +402,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         // Delete git repo from local and delete the applications from DB
                         return gitFileUtils.detachRemote(repoPath)
                                 .flatMapMany(isCleared -> applicationService
-                                        .findAllApplicationsByDefaultApplicationId(gitData.getDefaultApplicationId()));
+                                        .findAllApplicationsByDefaultApplicationId(gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS));
                     }
                     return Flux.fromIterable(List.of(application));
                 })
@@ -555,9 +557,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                             unpublishedCollection.setPageId(newPageId);
                                             actionCollection.setApplicationId(clonedPage.getApplicationId());
 
-                                            DefaultResources defaultResourcesForCollection = new DefaultResources();
-                                            defaultResourcesForCollection.setApplicationId(clonedPageDefaultResources.getApplicationId());
-                                            actionCollection.setDefaultResources(defaultResourcesForCollection);
+                                            actionCollection.setDefaultResources(clonedPageDefaultResources);
 
                                             DefaultResources defaultResourcesForDTO = new DefaultResources();
                                             defaultResourcesForDTO.setPageId(clonedPageDefaultResources.getPageId());
@@ -593,9 +593,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                             // Set published version to null as the published version of the page does
                                             // not exists when we clone the page.
                                             actionCollection.setPublishedCollection(null);
+                                            actionCollection.getDefaultResources().setPageId(null);
+                                            // Assign new gitSyncId for cloned actionCollection
+                                            actionCollection.setGitSyncId(actionCollection.getApplicationId() + "_" + new ObjectId());
                                             return actionCollectionService.create(actionCollection)
                                                     .flatMap(savedActionCollection -> {
-                                                        if (StringUtils.isEmpty(savedActionCollection.getDefaultResources().getCollectionId())) {
+                                                        if (!StringUtils.hasLength(savedActionCollection.getDefaultResources().getCollectionId())) {
                                                             savedActionCollection.getDefaultResources().setCollectionId(savedActionCollection.getId());
                                                             return actionCollectionService.update(savedActionCollection.getId(), savedActionCollection);
                                                         }
@@ -688,6 +691,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     newApplication.setName(newName);
                     newApplication.setLastEditedAt(Instant.now());
                     newApplication.setEvaluationVersion(sourceApplication.getEvaluationVersion());
+
+                    if(sourceApplication.getApplicationVersion() != null) {
+                        newApplication.setApplicationVersion(sourceApplication.getApplicationVersion());
+                    } else {
+                        newApplication.setApplicationVersion(ApplicationVersion.EARLIEST_VERSION);
+                    }
+
                     Mono<User> userMono = sessionUserService.getCurrentUser().cache();
                     // First set the correct policies for the new cloned application
                     return setApplicationPolicies(userMono, sourceApplication.getOrganizationId(), newApplication)
