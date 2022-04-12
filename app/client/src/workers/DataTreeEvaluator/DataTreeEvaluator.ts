@@ -96,7 +96,7 @@ export default class DataTreeEvaluator {
   errors: EvalError[] = [];
   resolvedFunctions: Record<string, any> = {};
   currentJSCollectionState: Record<string, any> = {};
-  logs: any[] = [];
+  logs: unknown[] = [];
   allActionValidationConfig?: { [actionId: string]: ActionValidationConfigMap };
   public hasCyclicalDependency = false;
   constructor(
@@ -1079,6 +1079,7 @@ export default class DataTreeEvaluator {
                 action.value,
                 unEvalDataTree,
                 this.resolvedFunctions,
+                this.logs,
               ),
             };
           });
