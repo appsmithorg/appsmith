@@ -132,14 +132,14 @@ public class DatasourceTriggerSolutionTest {
                 new TriggerRequestDTO(
                         "ENTITY_SELECTOR",
                         Map.of(),
-                        ClientDataDisplayType.DROPDOWN));
+                        ClientDataDisplayType.DROP_DOWN));
 
         Mono<TriggerResultDTO> columnNamesMono = datasourceTriggerSolution.trigger(
                 datasourceId,
                 new TriggerRequestDTO(
                         "ENTITY_SELECTOR",
                         Map.of("tableName", "Table1"),
-                        ClientDataDisplayType.DROPDOWN));
+                        ClientDataDisplayType.DROP_DOWN));
 
         StepVerifier.create(tableNameMono)
                 .assertNext(tablesResult -> {

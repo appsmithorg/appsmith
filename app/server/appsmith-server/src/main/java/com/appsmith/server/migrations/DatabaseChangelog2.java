@@ -641,20 +641,21 @@ public class DatabaseChangelog2 {
 //    @ChangeSet(order = "005", id = "migrate-google-sheets-to-uqi", author = "")
 //    public void migrateGoogleSheetsToUqi(MongockTemplate mongockTemplate) {
 //
-//        // Get all plugin references to Mongo, S3 and Firestore actions
+//        // Get plugin references to Google Sheets actions
 //        List<Plugin> uqiPlugins = mongockTemplate.find(
 //                query(where("packageName").in("google-sheets-plugin")),
 //                Plugin.class
 //        );
 //
-//        final Map<String, String> pluginMap = uqiPlugins.stream()
-//                .collect(Collectors.toMap(Plugin::getId, Plugin::getPackageName));
+//        if (uqiPlugins.size() < 1) {
+//            return;
+//        }
 //
-//        final Set<String> pluginIds = pluginMap.keySet();
+//        final String pluginId = uqiPlugins.get(0).getId();
 //
 //        // Find all relevant actions
 //        final Query actionQuery = query(
-//                where(fieldName(QNewAction.newAction.pluginId)).in(pluginIds)
+//                where(fieldName(QNewAction.newAction.pluginId)).is(pluginId)
 //                        .and(fieldName(QNewAction.newAction.deleted)).ne(true)); // setting `deleted` != `true`
 //        actionQuery.fields()
 //                .include(fieldName(QNewAction.newAction.id));
@@ -773,8 +774,10 @@ public class DatabaseChangelog2 {
                 convertToFormDataObject(f, "command", "UPDATE_MANY");
                 convertToFormDataObject(f, "entityType", "ROWS");
                 break;
-            default: return;
+            default:
         }
+
+
     }
 
     private static Map<String, Object> updateWhereClauseFormat(Object oldWhereClauseArray) {

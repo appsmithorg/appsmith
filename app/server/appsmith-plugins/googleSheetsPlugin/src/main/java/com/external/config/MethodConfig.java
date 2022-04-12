@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +26,7 @@ import static com.appsmith.external.helpers.PluginUtils.parseWhereClause;
 import static com.appsmith.external.helpers.PluginUtils.validDataConfigurationPresentInFormData;
 import static com.external.constants.FieldName.SHEET_NAME;
 import static com.external.constants.FieldName.SHEET_URL;
+import static com.external.constants.FieldName.TABLE_HEADER_INDEX;
 
 @Getter
 @Setter
@@ -97,7 +99,12 @@ public class MethodConfig {
     public MethodConfig(TriggerRequestDTO triggerRequestDTO) {
         final Map<String, Object> parameters = triggerRequestDTO.getParameters();
         switch (parameters.size()) {
+            case 3:
             case 2:
+                this.tableHeaderIndex = (String) getValueSafelyFromFormData(parameters, TABLE_HEADER_INDEX);
+                if (!StringUtils.hasLength(this.tableHeaderIndex)) {
+                    this.tableHeaderIndex = "1";
+                }
                 this.sheetName = (String) getValueSafelyFromFormData(parameters, SHEET_NAME);
             case 1:
                 this.spreadsheetUrl = (String) getValueSafelyFromFormData(parameters, SHEET_URL);

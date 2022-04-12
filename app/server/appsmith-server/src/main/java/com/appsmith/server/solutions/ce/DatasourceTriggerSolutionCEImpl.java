@@ -65,10 +65,6 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
         }
 
         final ClientDataDisplayType displayType = triggerRequestDTO.getDisplayType();
-        if (displayType == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, DISPLAY_TYPE));
-        }
-
 
         Mono<Datasource> validatedDatasourceMono = datasourceMono
                 .flatMap(authenticationValidator::validateAuthentication)
@@ -109,7 +105,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                 .map(entityNames -> {
                     List<Object> result = new ArrayList<>();
 
-                    if (ClientDataDisplayType.DROPDOWN.equals(displayType)) {
+                    if (ClientDataDisplayType.DROP_DOWN.equals(displayType)) {
                         // label, value
                         for (String entityName : entityNames) {
                             Map<String, String> entity = new HashMap<>();
@@ -127,6 +123,10 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
     }
 
     private Mono<Set<String>> entitySelectorTriggerSolution(Datasource datasource, TriggerRequestDTO request) {
+        if (request.getDisplayType() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, DISPLAY_TYPE));
+        }
+
         if ("ENTITY_SELECTOR".equals(request.getRequestType())) {
             return Mono.just(new HashSet<>());
         }
