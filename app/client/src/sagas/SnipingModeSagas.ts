@@ -1,16 +1,19 @@
 import { takeLeading, all, put, select } from "redux-saga/effects";
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
-import history from "../utils/history";
-import { getCurrentPageId } from "../selectors/editorSelectors";
-import { ActionData } from "../reducers/entityReducers/actionsReducer";
-import { getCanvasWidgets } from "../selectors/entitiesSelector";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
+import history from "utils/history";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { ActionData } from "reducers/entityReducers/actionsReducer";
+import { getCanvasWidgets } from "selectors/entitiesSelector";
 import {
   setWidgetDynamicProperty,
   updateWidgetPropertyRequest,
-} from "../actions/controlActions";
-import { Toaster } from "../components/ads/Toast";
-import { Variant } from "../components/ads/common";
-import AnalyticsUtil from "../utils/AnalyticsUtil";
+} from "actions/controlActions";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import {
   SNIPING_NOT_SUPPORTED,

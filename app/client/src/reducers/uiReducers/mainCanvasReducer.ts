@@ -3,7 +3,7 @@ import {
   ReduxAction,
   ReduxActionTypes,
   UpdateCanvasPayload,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { UpdateCanvasLayoutPayload } from "actions/controlActions";
 

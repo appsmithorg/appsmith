@@ -29,7 +29,13 @@ const ListLabels = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  .t--ds-list-description {
+`;
+
+const DsTitle = styled.div`
+  width: 100%;
+  display: flex;
+  margin-bottom: ${(props) => props.theme.spaces[1]}px;
+  .t--ds-list-title {
     max-width: 120px;
     white-space: nowrap;
     overflow: hidden;
@@ -57,23 +63,21 @@ function ListItemWrapper(props: {
     >
       <PluginImage alt="Datasource" src={plugin.image} />
       <ListLabels>
-        <Text
-          color={Colors.GRAY_800}
-          style={{ marginBottom: 2, display: "flex" }}
-          type={TextType.H4}
-        >
-          {ds.name}
+        <DsTitle>
+          <Text
+            className="t--ds-list-title"
+            color={Colors.GRAY_800}
+            type={TextType.H4}
+          >
+            {ds.name}
+          </Text>
           <Icon
             fillColor={ds.isConfigured ? Colors.GREEN : Colors.ERROR_RED}
             name={ds.isConfigured ? "oval-check" : "info"}
             size={IconSize.MEDIUM}
           />
-        </Text>
-        <Text
-          className="t--ds-list-description"
-          color={Colors.GRAY_700}
-          type={TextType.H5}
-        >
+        </DsTitle>
+        <Text color={Colors.GRAY_700} type={TextType.H5}>
           {plugin.name}
         </Text>
       </ListLabels>
