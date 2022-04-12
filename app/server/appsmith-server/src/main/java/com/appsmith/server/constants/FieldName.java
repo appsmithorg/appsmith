@@ -77,6 +77,7 @@ public class FieldName {
     public static String CONTAINER_WIDGET = "CONTAINER_WIDGET";
     public static String CANVAS_WIDGET = "CANVAS_WIDGET";
     public static String FORM_WIDGET = "FORM_WIDGET";
+    public static String JSON_FORM_WIDGET = "JSON_FORM_WIDGET";
     public static String DROP_DOWN_WIDGET = "DROP_DOWN_WIDGET";
     public static String OPTIONS = "options";
     public static String DEFAULT_OPTION = "defaultOptionValue";
@@ -107,5 +108,7 @@ public class FieldName {
     public static final String ACTION_COLLECTION_LIST = "actionCollectionList";
     public static final String DECRYPTED_FIELDS = "decryptedFields";
     public static final String THEME = "theme";
+    public static final String SCHEMA = "schema";
+    public static final String ROOT_SCHEMA = "__root_schema__";
 
 }
