@@ -12,5 +12,5 @@ public interface ApplicationTemplateServiceCE {
     Flux<ApplicationTemplate> getSimilarTemplates(String templateId);
     Mono<ApplicationTemplate> getTemplateDetails(String templateId);
     Mono<Application> importApplicationFromTemplate(String templateId, String organizationId);
-    Mono<Application> mergeTemplateWithApplication(String templateId, String applicationId, String branchName, List<String> pagesToImport);
+    Mono<Application> mergeTemplateWithApplication(String templateId, String applicationId, String organizationId, String branchName, List<String> pagesToImport);
 }

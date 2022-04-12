@@ -54,6 +54,12 @@ public interface ImportExportApplicationServiceCE {
     Mono<Application> importApplicationInOrganization(String organizationId,
                                                       ApplicationJson importedDoc,
                                                       String applicationId,
+                                                      String branchName,
+                                                      boolean appendToApp);
+
+    Mono<Application> importApplicationInOrganization(String organizationId,
+                                                      ApplicationJson importedDoc,
+                                                      String applicationId,
                                                       String branchName);
 
     Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String orgId);
