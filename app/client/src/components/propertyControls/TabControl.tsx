@@ -7,10 +7,11 @@ import {
   DroppableComponent,
   RenderComponentProps,
 } from "components/ads/DraggableListComponent";
-import { noop } from "utils/AppsmithUtils";
 import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
+import includes from "lodash/includes";
+import map from "lodash/map";
 import * as Sentry from "@sentry/react";
 import { Category, Size } from "components/ads/Button";
 import { useDispatch } from "react-redux";
@@ -46,6 +47,7 @@ function AddTabButtonComponent({ widgetId }: any) {
     <StyledPropertyPaneButtonWrapper>
       <StyledPropertyPaneButton
         category={Category.tertiary}
+        className="t--add-tab-btn"
         icon="plus"
         onClick={addOption}
         size={Size.medium}
@@ -65,6 +67,7 @@ function TabControlComponent(props: RenderComponentProps<DroppableItem>) {
       type: ReduxActionTypes.WIDGET_DELETE_TAB_CHILD,
       payload: { ...item, index },
     });
+    if (props.deleteOption) props.deleteOption(index);
   };
 
   return (
@@ -79,6 +82,7 @@ function TabControlComponent(props: RenderComponentProps<DroppableItem>) {
 
 type State = {
   focusedIndex: number | null;
+  duplicateTabIds: string[];
 };
 
 class TabControl extends BaseControl<ControlProps, State> {
@@ -87,8 +91,27 @@ class TabControl extends BaseControl<ControlProps, State> {
 
     this.state = {
       focusedIndex: null,
+      duplicateTabIds: this.getDuplicateTabIds(props.propertyValue),
     };
   }
+
+  getDuplicateTabIds = (propertyValue: ControlProps["propertyValue"]) => {
+    const duplicateTabIds = [];
+    const tabIds = Object.keys(propertyValue);
+    const tabNames = map(propertyValue, "label");
+
+    for (let index = 0; index < tabNames.length; index++) {
+      const currLabel = tabNames[index] as string;
+      const duplicateValueIndex = tabNames.indexOf(currLabel);
+      if (duplicateValueIndex !== index) {
+        // get tab id from propertyValue index
+        duplicateTabIds.push(propertyValue[tabIds[index]].id);
+      }
+    }
+
+    return duplicateTabIds;
+  };
+
   componentDidMount() {
     this.migrateTabData(this.props.propertyValue);
   }
@@ -131,17 +154,22 @@ class TabControl extends BaseControl<ControlProps, State> {
   }
 
   getTabItems = () => {
-    const menuItems: Array<{
+    let menuItems: Array<{
       id: string;
       label: string;
-      isVisible: boolean;
+      isVisible?: boolean;
+      isDuplicateLabel?: boolean;
     }> =
       isString(this.props.propertyValue) ||
       isUndefined(this.props.propertyValue)
         ? []
         : Object.values(this.props.propertyValue);
-
-    return orderBy(menuItems, ["index"], ["asc"]);
+    menuItems = orderBy(menuItems, ["index"], ["asc"]);
+    menuItems = menuItems.map((tab: DroppableItem) => ({
+      ...tab,
+      isDuplicateLabel: includes(this.state.duplicateTabIds, tab.id),
+    }));
+    return menuItems;
   };
 
   updateItems = (items: Array<Record<string, any>>) => {
@@ -164,12 +192,11 @@ class TabControl extends BaseControl<ControlProps, State> {
       propPaneId: this.props.widgetProperties.widgetId,
     });
   };
-
   render() {
     return (
       <TabsWrapper>
         <DroppableComponent
-          deleteOption={noop}
+          deleteOption={this.deleteOption}
           fixedHeight={370}
           focusedIndex={this.state.focusedIndex}
           itemHeight={45}
@@ -203,6 +230,15 @@ class TabControl extends BaseControl<ControlProps, State> {
     this.updateProperty(this.props.propertyName, updatedTabs);
   };
 
+  deleteOption = (index: number) => {
+    const tabIds = Object.keys(this.props.propertyValue);
+    const newPropertyValue = { ...this.props.propertyValue };
+    // detele current item from propertyValue
+    delete newPropertyValue[tabIds[index]];
+    const duplicateTabIds = this.getDuplicateTabIds(newPropertyValue);
+    this.setState({ duplicateTabIds });
+  };
+
   updateOption = (index: number, updatedLabel: string) => {
     const tabsArray = this.getTabItems();
     const { id: itemId } = tabsArray[index];
@@ -210,6 +246,17 @@ class TabControl extends BaseControl<ControlProps, State> {
       `${this.props.propertyName}.${itemId}.label`,
       updatedLabel,
     );
+    // check entered label is unique or duplicate
+    const tabNames = map(tabsArray, "label");
+    let duplicateTabIds = [...this.state.duplicateTabIds];
+    // if duplicate, add into array
+    if (includes(tabNames, updatedLabel)) {
+      duplicateTabIds.push(itemId);
+      this.setState({ duplicateTabIds });
+    } else {
+      duplicateTabIds = duplicateTabIds.filter((id) => id !== itemId);
+      this.setState({ duplicateTabIds });
+    }
   };
 
   updateFocus = (index: number, isFocused: boolean) => {

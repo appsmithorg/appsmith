@@ -8,13 +8,18 @@ import {
   PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
 import {
+  DataTreeDiff,
+  DataTreeDiffEvent,
   getAllPaths,
   getAllPrivateWidgetsInDataTree,
   getDataTreeWithoutPrivateWidgets,
   isPrivateEntityPath,
   makeParentsDependOnChildren,
+  translateDiffEventToDataTreeDiffEvent,
 } from "./evaluationUtils";
 import { warn as logWarn } from "loglevel";
+import { Diff } from "deep-diff";
+import { flatten } from "lodash";
 
 // to check if logWarn was called.
 // use jest.unmock, if the mock needs to be removed.
@@ -272,5 +277,120 @@ describe("makeParentsDependOnChildren", () => {
       "makeParentsDependOnChild - Widget1.defaultText is not present in dataTree.",
       "This might result in a cyclic dependency.",
     );
+  });
+});
+
+describe("translateDiffEvent", () => {
+  it("noop when diff path does not exist", () => {
+    const noDiffPath: Diff<any, any> = {
+      kind: "E",
+      lhs: undefined,
+      rhs: undefined,
+    };
+    const result = translateDiffEventToDataTreeDiffEvent(noDiffPath, {});
+    expect(result).toStrictEqual({
+      payload: {
+        propertyPath: "",
+        value: "",
+      },
+      event: DataTreeDiffEvent.NOOP,
+    });
+  });
+  it("translates new and delete events", () => {
+    const diffs: Diff<any, any>[] = [
+      {
+        kind: "N",
+        path: ["Widget1"],
+        rhs: {},
+      },
+      {
+        kind: "N",
+        path: ["Widget1", "name"],
+        rhs: "Widget1",
+      },
+      {
+        kind: "D",
+        path: ["Widget1"],
+        lhs: {},
+      },
+      {
+        kind: "D",
+        path: ["Widget1", "name"],
+        lhs: "Widget1",
+      },
+      {
+        kind: "E",
+        path: ["Widget2", "name"],
+        rhs: "test",
+        lhs: "test2",
+      },
+    ];
+
+    const expectedTranslations: DataTreeDiff[] = [
+      {
+        payload: {
+          propertyPath: "Widget1",
+        },
+        event: DataTreeDiffEvent.NEW,
+      },
+      {
+        payload: {
+          propertyPath: "Widget1.name",
+        },
+        event: DataTreeDiffEvent.NEW,
+      },
+      {
+        payload: {
+          propertyPath: "Widget1",
+        },
+        event: DataTreeDiffEvent.DELETE,
+      },
+      {
+        payload: {
+          propertyPath: "Widget1.name",
+        },
+        event: DataTreeDiffEvent.DELETE,
+      },
+      {
+        payload: {
+          propertyPath: "",
+          value: "",
+        },
+        event: DataTreeDiffEvent.NOOP,
+      },
+    ];
+
+    const actualTranslations = flatten(
+      diffs.map((diff) => translateDiffEventToDataTreeDiffEvent(diff, {})),
+    );
+
+    expect(expectedTranslations).toStrictEqual(actualTranslations);
+  });
+
+  it("properly categorises the edit events", () => {
+    const diffs: Diff<any, any>[] = [
+      {
+        kind: "E",
+        path: ["Widget2", "name"],
+        rhs: "test",
+        lhs: "test2",
+      },
+    ];
+
+    const expectedTranslations: DataTreeDiff[] = [
+      {
+        payload: {
+          propertyPath: "",
+          value: "",
+        },
+        event: DataTreeDiffEvent.NOOP,
+      },
+    ];
+
+    const actualTranslations = flatten(
+      diffs.map((diff) => translateDiffEventToDataTreeDiffEvent(diff, {})),
+    );
+
+    expect(expectedTranslations).toStrictEqual(actualTranslations);
   });
 });

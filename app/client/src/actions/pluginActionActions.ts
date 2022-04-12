@@ -221,6 +221,13 @@ export const executePluginActionSuccess = (payload: {
   payload: payload,
 });
 
+export const setActionResponseDisplayFormat = (
+  payload: UpdateActionPropertyActionPayload,
+) => ({
+  type: ReduxActionTypes.SET_ACTION_RESPONSE_DISPLAY_FORMAT,
+  payload: payload,
+});
+
 export const executePluginActionError = (
   executeErrorPayload: ExecuteErrorPayload,
 ): ReduxAction<ExecuteErrorPayload> => {
