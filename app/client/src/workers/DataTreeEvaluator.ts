@@ -72,7 +72,7 @@ import { Severity } from "entities/AppsmithConsole";
 import { getLintingErrors } from "workers/lint";
 import { error as logError } from "loglevel";
 import { extractIdentifiersFromCode } from "workers/ast";
-import { JSUpdate } from "utils/JSPaneUtils";
+import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import {
   addWidgetPropertyDependencies,
   overrideWidgetProperties,
@@ -1018,7 +1018,7 @@ export default class DataTreeEvaluator {
 
   saveResolvedFunctionsAndJSUpdates(
     entity: DataTreeJSAction,
-    jsUpdates: Record<string, any>,
+    jsUpdates: Record<string, JSUpdate>,
     unEvalDataTree: DataTree,
     entityName: string,
   ) {
@@ -1031,7 +1031,7 @@ export default class DataTreeEvaluator {
         delete this.resolvedFunctions[`${entityName}`];
         delete this.currentJSCollectionState[`${entityName}`];
         if (result) {
-          const actions: any = [];
+          const actions: ParsedJSSubAction[] = [];
           const variables: any = [];
           Object.keys(result).forEach((unEvalFunc) => {
             const unEvalValue = result[unEvalFunc];
@@ -1052,7 +1052,8 @@ export default class DataTreeEvaluator {
                 name: unEvalFunc,
                 body: functionString,
                 arguments: params,
-                value: unEvalValue,
+                parsedFunction: unEvalValue,
+                isAsync: false,
               });
             } else {
               variables.push({
@@ -1067,19 +1068,9 @@ export default class DataTreeEvaluator {
             }
           });
 
-          const modifiedActions = actions.map((action: any) => {
-            return {
-              name: action.name,
-              body: action.body,
-              arguments: action.arguments,
-              value: action.value,
-              isAsync: false,
-            };
-          });
-
           const parsedBody = {
             body: entity.body,
-            actions: modifiedActions,
+            actions: actions,
             variables,
           };
           _.set(jsUpdates, `${entityName}`, {
@@ -1122,7 +1113,7 @@ export default class DataTreeEvaluator {
     differences?: DataTreeDiff[],
     oldUnEvalTree?: DataTree,
   ) {
-    let jsUpdates: Record<string, any> = {};
+    let jsUpdates: Record<string, JSUpdate> = {};
     if (!!differences && !!oldUnEvalTree) {
       differences.forEach((diff) => {
         const { entityName, propertyPath } = getEntityNameAndPropertyPath(
@@ -1177,16 +1168,20 @@ export default class DataTreeEvaluator {
       });
     }
     Object.keys(jsUpdates).forEach((entityName) => {
-      jsUpdates[entityName].parsedBody?.actions.forEach(
-        (action: { isAsync: boolean; value: unknown }) => {
-          action.isAsync = isFunctionAsync(
-            action.value,
+      const parsedBody = jsUpdates[entityName].parsedBody;
+      if (!parsedBody) return;
+      parsedBody.actions = parsedBody.actions.map((action) => {
+        return {
+          ...action,
+          isAsync: isFunctionAsync(
+            action.parsedFunction,
             unEvalDataTree,
             this.resolvedFunctions,
-          );
-          delete action.value;
-        },
-      );
+          ),
+          // parsedFunction - used only to determine if function is async
+          parsedFunction: undefined,
+        } as ParsedJSSubAction;
+      });
     });
     return { jsUpdates };
   }
