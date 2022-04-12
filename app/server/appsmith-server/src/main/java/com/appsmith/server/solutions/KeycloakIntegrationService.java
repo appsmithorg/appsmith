@@ -15,9 +15,9 @@ public interface KeycloakIntegrationService {
 
     Mono<Map<String, Object>> importSamlConfigFromUrl(Map<String, String> config);
 
-    Mono<Boolean> createSamlIdentityProvider();
+    Mono<Boolean> createSamlIdentityProviderOnKeycloak(Map<String, Object> identityProviderRequest);
 
-    Mono<Boolean> createSamlIdentityProvider(Map<String, Object> identityProviderRequest);
+    Mono<Boolean> createSamlIdentityProviderExplicitConfiguration(Map<String, Object> configuration);
 
     Mono<Boolean> createSamlIdentityProviderFromIdpConfigFromUrl(Map<String, String> request);
 

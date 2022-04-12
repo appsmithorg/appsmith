@@ -14,4 +14,7 @@ public class KeycloakConfig {
     @Value("${appsmith.keycloak.admin.password}")
     private String password;
 
+    @Value("${appsmith.keycloak.admin.baseUrl}")
+    private String baseUrl;
+
 }

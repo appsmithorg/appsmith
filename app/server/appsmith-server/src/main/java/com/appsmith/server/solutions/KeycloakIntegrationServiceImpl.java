@@ -33,6 +33,7 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 @Service
 @Slf4j
 public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationService {
+
     private static final String AUTHORIZATION = "Authorization";
     private static final String REALM_URI = "/auth/admin/realms/";
     private static String REALM_NAME = "appsmith";
@@ -333,18 +334,7 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
     }
 
     @Override
-    public Mono<Boolean> createSamlIdentityProvider() {
-        Map<String, Object> identityProviderRequest = new HashMap();
-        identityProviderRequest.put("alias", IDP_NAME);
-        identityProviderRequest.put("displayName", IDP_NAME);
-        identityProviderRequest.put("enabled", true);
-        identityProviderRequest.put("providerId", IDP_NAME);
-
-        return createSamlIdentityProvider(identityProviderRequest);
-    }
-
-    @Override
-    public Mono<Boolean> createSamlIdentityProvider(Map<String, Object> identityProviderRequest) {
+    public Mono<Boolean> createSamlIdentityProviderOnKeycloak(Map<String, Object> identityProviderRequest) {
 
         WebClient.Builder webClientBuilder = WebClient.builder();
         webClientBuilder.defaultHeader(HttpHeaders.CONTENT_TYPE, String.valueOf(MediaType.APPLICATION_JSON));
@@ -384,6 +374,52 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
     }
 
     @Override
+    public Mono<Boolean> createSamlIdentityProviderExplicitConfiguration(Map<String, Object> configuration) {
+        if (configuration == null || configuration.isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "SAML configuration"));
+        }
+
+        Object singleSignOnServiceUrlObj = configuration.get("singleSignOnServiceUrl");
+        if (singleSignOnServiceUrlObj == null || ((String) singleSignOnServiceUrlObj).isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Single Sign On URL"));
+        }
+        String singleSignOnServiceUrl = (String) singleSignOnServiceUrlObj;
+
+        Object signingCertificate = configuration.get("signingCertificate");
+        if (signingCertificate == null || ((String) signingCertificate).isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "X509 Certificate"));
+        }
+
+        Object emailField = configuration.get("emailField");
+        if (emailField == null || ((String) emailField).isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Email Format"));
+        }
+
+        configuration.put("singleSignOnServiceUrl", singleSignOnServiceUrl);
+        // Now add default values which do not require user intervention
+        configuration.put("postBindingResponse", true);
+        configuration.put("postBindingAuthnRequest", true);
+        configuration.put("validateSignature", false);
+        configuration.put("syncMode", "IMPORT");
+        configuration.put("nameIDPolicyFormat", emailField);
+
+        return createSamlIdentityProviderOnKeycloak(generateSamlIdpFromConfig(configuration));
+
+    }
+
+    private Map<String, Object> generateSamlIdpFromConfig(Map<String, Object> configuration) {
+        Map<String, Object> identityProviderRequest = new HashMap();
+        identityProviderRequest.put("alias", IDP_NAME);
+        identityProviderRequest.put("displayName", IDP_NAME);
+        identityProviderRequest.put("enabled", true);
+        identityProviderRequest.put("providerId", IDP_NAME);
+        identityProviderRequest.put("config", configuration);
+
+        return identityProviderRequest;
+    }
+
+
+    @Override
     public Mono<Boolean> createSamlIdentityProviderFromIdpConfigFromUrl(Map<String, String> request) {
 
         WebClient.Builder webClientBuilder = WebClient.builder();
@@ -399,17 +435,7 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
         URI uri = uriBuilder.build(true).toUri();
 
         return importSamlConfigFromUrl(request)
-                .flatMap(parsedConfigMap -> {
-
-                    Map<String, Object> identityProviderRequest = new HashMap();
-                    identityProviderRequest.put("alias", IDP_NAME);
-                    identityProviderRequest.put("displayName", IDP_NAME);
-                    identityProviderRequest.put("enabled", true);
-                    identityProviderRequest.put("providerId", IDP_NAME);
-                    identityProviderRequest.put("config", parsedConfigMap);
-
-                    return createSamlIdentityProvider(identityProviderRequest);
-                });
+                .flatMap(parsedConfigMap -> createSamlIdentityProviderOnKeycloak(generateSamlIdpFromConfig(parsedConfigMap)));
     }
 
     private Mono<String> getAccessTokenForAdministrativeTask() {

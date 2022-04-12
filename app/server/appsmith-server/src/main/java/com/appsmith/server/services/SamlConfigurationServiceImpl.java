@@ -68,13 +68,16 @@ public class SamlConfigurationServiceImpl implements SamlConfigurationService {
                             .then(keycloakIntegrationService.createClient(exchange));
 
 
-                    if (!configuration.getImportFromUrl().isEmpty()) {
+                    if (configuration.getImportFromUrl() != null && !configuration.getImportFromUrl().isEmpty()) {
 
                         // We seem to be importing from a URL
                         return initializeKeycloakMono
                                 .then(keycloakIntegrationService.createSamlIdentityProviderFromIdpConfigFromUrl(
                                         Map.of("url", configuration.getImportFromUrl()))
                                 );
+                    } else if (configuration.getConfiguration() != null) {
+                        return initializeKeycloakMono
+                                .then(keycloakIntegrationService.createSamlIdentityProviderExplicitConfiguration(configuration.getConfiguration()));
                     }
 
                     return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
