@@ -20,9 +20,9 @@ import { DropTargetContext } from "components/editorComponents/DropTargetCompone
 import { isEmpty, isEqual } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { useDispatch } from "react-redux";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { useWidgetSelection } from "../../../../utils/hooks/useWidgetSelection";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { snapToGrid } from "utils/helpers";
 import { stopReflowAction } from "actions/reflowActions";
@@ -141,25 +141,42 @@ export const useBlocksToBeDraggedOnCanvas = ({
       Y: topRow * parentRowHeight,
     };
   };
-  const getBlocksToDraw = (): WidgetDraggingBlock[] => {
+  const getBlocksToDraw = (): {
+    blocksToDraw: WidgetDraggingBlock[];
+    draggingSpaces: OccupiedSpace[];
+  } => {
     if (isNewWidget) {
-      return [
-        {
-          top: 0,
-          left: 0,
-          width: newWidget.columns * snapColumnSpace,
-          height: newWidget.rows * snapRowSpace,
-          columnWidth: newWidget.columns,
-          rowHeight: newWidget.rows,
-          widgetId: newWidget.widgetId,
-          detachFromLayout: newWidget.detachFromLayout,
-          isNotColliding: true,
-        },
-      ];
+      return {
+        blocksToDraw: [
+          {
+            top: 0,
+            left: 0,
+            width: newWidget.columns * snapColumnSpace,
+            height: newWidget.rows * snapRowSpace,
+            columnWidth: newWidget.columns,
+            rowHeight: newWidget.rows,
+            widgetId: newWidget.widgetId,
+            detachFromLayout: newWidget.detachFromLayout,
+            isNotColliding: true,
+          },
+        ],
+        draggingSpaces: [
+          {
+            top: 0,
+            left: 0,
+            right: newWidget.columns,
+            bottom: newWidget.rows,
+            id: newWidget.widgetId,
+          },
+        ],
+      };
     } else {
-      return childrenOccupiedSpaces
-        .filter((each) => selectedWidgets.includes(each.id))
-        .map((each) => ({
+      const draggingSpaces = childrenOccupiedSpaces.filter((each) =>
+        selectedWidgets.includes(each.id),
+      );
+      return {
+        draggingSpaces,
+        blocksToDraw: draggingSpaces.map((each) => ({
           top: each.top * snapRowSpace + containerPadding,
           left: each.left * snapColumnSpace + containerPadding,
           width: (each.right - each.left) * snapColumnSpace,
@@ -168,10 +185,11 @@ export const useBlocksToBeDraggedOnCanvas = ({
           rowHeight: each.bottom - each.top,
           widgetId: each.id,
           isNotColliding: true,
-        }));
+        })),
+      };
     }
   };
-  const blocksToDraw = getBlocksToDraw();
+  const { blocksToDraw, draggingSpaces } = getBlocksToDraw();
   const dragCenterSpace: any = getDragCenterSpace();
 
   const filteredChildOccupiedSpaces = childrenOccupiedSpaces.filter(
@@ -395,6 +413,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     isResizing,
     lastDraggedCanvas,
     occSpaces,
+    draggingSpaces,
     onDrop,
     parentDiff,
     relativeStartPoints,

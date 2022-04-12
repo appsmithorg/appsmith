@@ -10,11 +10,11 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { GridDefaults } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { flattenDeep, omit } from "lodash";
+import { flattenDeep, omit, orderBy } from "lodash";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -54,7 +54,11 @@ function* deleteTabChildSaga(
   const tabWidget = allWidgets[widgetId];
   if (tabWidget && tabWidget.parentId) {
     const tabParentWidget = allWidgets[tabWidget.parentId];
-    const tabsArray: any = Object.values(tabParentWidget.tabsObj);
+    const tabsArray: any = orderBy(
+      Object.values(tabParentWidget.tabsObj),
+      "index",
+      "asc",
+    );
     if (tabsArray && tabsArray.length === 1) return;
     const updatedArray = tabsArray.filter((eachItem: any, i: number) => {
       return i !== index;
