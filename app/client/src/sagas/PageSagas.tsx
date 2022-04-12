@@ -233,8 +233,11 @@ export function* handleFetchedPage({
     yield put(setLastUpdatedTime(lastUpdatedTime));
     const extractedDSL = extractCurrentDSL(fetchPageResponse);
     yield put({
-      type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
-      payload: extractedDSL,
+      type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
+      payload: {
+        pageId,
+        dsl: extractedDSL,
+      },
     });
 
     if (willPageBeMigrated) {
@@ -375,11 +378,6 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
         pageId: savePageRequest.pageId,
         dsl: savePageRequest.dsl,
       },
-    });
-
-    yield put({
-      type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
-      payload: savePageRequest.dsl,
     });
 
     captureInvalidDynamicBindingPath(

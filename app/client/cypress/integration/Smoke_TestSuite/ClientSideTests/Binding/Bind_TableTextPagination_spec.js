@@ -9,7 +9,6 @@ describe("Test Create Api and Bind to Table widget", function() {
   });
 
   it("Test_Add Paginate with Table Page No and Execute the Api", function() {
-    cy.wait(30000);
     /**Create an Api1 of Paginate with Table Page No */
     cy.createAndFillApi(
       this.data.paginationUrl,
@@ -63,7 +62,6 @@ describe("Test Create Api and Bind to Table widget", function() {
 
   it("Table-Text, Validate Server Side Pagination of Paginate with Total Records Count", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
-    cy.wait(30000);
     cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.get(".t--entity-name")
       .contains("Table1")
@@ -84,7 +82,6 @@ describe("Test Create Api and Bind to Table widget", function() {
 
   it("Test_Add Paginate with Response URL and Execute the Api", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
-    cy.wait(30000);
     /** Create Api2 of Paginate with Response URL*/
     cy.createAndFillApi(this.data.paginationUrl, "users");
     cy.RunAPI();
@@ -113,9 +110,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.PublishtheApp();
     cy.ValidatePaginationInputData();
     cy.get(publishPage.backToEditor).click({ force: true });
-    cy.wait(30000);
     cy.SearchEntityandOpen("Table1");
     cy.ValidatePaginateResponseUrlData(apiPage.apiPaginationNextTest);
-    cy.wait(5000);
   });
 });
