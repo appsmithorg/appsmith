@@ -5,7 +5,7 @@ import OverlayCommentsWrapper from "../inlineComments/OverlayCommentsWrapper";
 import store from "store";
 import { createEvent, fireEvent, render, waitFor } from "test/testUtils";
 import { fetchApplicationCommentsRequest } from "actions/commentActions";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { setCommentMode } from "actions/commentActions";
 import { resetEditorSuccess } from "actions/initActions";
 import setMockPages from "./setMockPages";

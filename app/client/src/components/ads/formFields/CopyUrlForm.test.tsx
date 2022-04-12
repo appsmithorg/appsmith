@@ -1,19 +1,28 @@
 import { render, screen } from "test/testUtils";
 import React from "react";
-import { RedirectUrlReduxForm } from "./RedirectUrlForm";
+import { CopyUrlReduxForm } from "./CopyUrlForm";
+import { REDIRECT_URL_FORM } from "constants/forms";
 
 let container: any = null;
 
 const useSelector = jest.fn();
 const values = {
+  fieldName: "redirect-url-form",
   helpText: "some helper text",
+  title: "Redirect URL",
   value: "/link-to-be-copied",
 };
 useSelector.mockReturnValue(values);
 
 function renderComponent() {
   render(
-    <RedirectUrlReduxForm helpText={values.helpText} value={values.value} />,
+    <CopyUrlReduxForm
+      fieldName={values.fieldName}
+      form={REDIRECT_URL_FORM}
+      helpText={values.helpText}
+      title={values.title}
+      value={values.value}
+    />,
   );
 }
 

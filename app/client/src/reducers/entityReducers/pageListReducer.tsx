@@ -5,7 +5,7 @@ import {
   PageListPayload,
   ClonePageSuccessPayload,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/AppsmithUtils";
 import { GenerateCRUDSuccess } from "actions/pageActions";
 
