@@ -247,16 +247,19 @@ function TabsComponent(props: TabsComponentProps) {
       setShouldShowLeftArrow(scrollLeft > 0);
       setShouldShowRightArrow(scrollLeft + offsetWidth < scrollWidth);
     }
-  }, [tabsRef.current]);
+  }, [tabsRef.current, tabs]);
 
-  const measuredTabsRef = useCallback((node) => {
-    tabsRef.current = node;
-    if (node !== null) {
-      const { offsetWidth, scrollWidth } = node;
-      setTabsScrollable(scrollWidth > offsetWidth);
-      setShowScrollArrows();
-    }
-  }, []);
+  const measuredTabsRef = useCallback(
+    (node) => {
+      tabsRef.current = node;
+      if (node !== null) {
+        const { offsetWidth, scrollWidth } = node;
+        setTabsScrollable(scrollWidth > offsetWidth);
+        setShowScrollArrows();
+      }
+    },
+    [tabs],
+  );
 
   const scroll = useCallback(() => {
     const currentOffset = tabsRef.current?.scrollLeft || 0;
@@ -301,40 +304,39 @@ function TabsComponent(props: TabsComponentProps) {
       boxShadow={props.boxShadow}
       ref={tabContainerRef}
     >
-      {tabs.length > 1 ? (
-        <Container className="relative hidden px-6 h-9 md:flex">
-          <ScrollBtnContainer
-            className="left-0"
-            onMouseDown={() => startScrolling(true)}
-            onMouseLeave={stopScrolling}
-            onMouseUp={stopScrolling}
-            onTouchEnd={stopScrolling}
-            onTouchStart={() => startScrolling(true)}
-            visible={shouldShowLeftArrow}
-          >
-            <Icon name="left-arrow-2" size={IconSize.MEDIUM} />
-          </ScrollBtnContainer>
-          <PageTabs
-            measuredTabsRef={measuredTabsRef}
-            selectedTabWidgetId={props.selectedTabWidgetId}
-            setShowScrollArrows={setShowScrollArrows}
-            tabChange={onTabChange}
-            tabs={tabs}
-            tabsScrollable={tabsScrollable}
-          />
-          <ScrollBtnContainer
-            className="right-0"
-            onMouseDown={() => startScrolling(false)}
-            onMouseLeave={stopScrolling}
-            onMouseUp={stopScrolling}
-            onTouchEnd={stopScrolling}
-            onTouchStart={() => startScrolling(false)}
-            visible={shouldShowRightArrow}
-          >
-            <Icon name="right-arrow-2" size={IconSize.MEDIUM} />
-          </ScrollBtnContainer>
-        </Container>
-      ) : null}
+      <Container className="relative hidden px-6 h-9 md:flex">
+        <ScrollBtnContainer
+          className="left-0"
+          onMouseDown={() => startScrolling(true)}
+          onMouseLeave={stopScrolling}
+          onMouseUp={stopScrolling}
+          onTouchEnd={stopScrolling}
+          onTouchStart={() => startScrolling(true)}
+          visible={shouldShowLeftArrow}
+        >
+          <Icon name="left-arrow-2" size={IconSize.MEDIUM} />
+        </ScrollBtnContainer>
+        <PageTabs
+          measuredTabsRef={measuredTabsRef}
+          selectedTabWidgetId={props.selectedTabWidgetId}
+          setShowScrollArrows={setShowScrollArrows}
+          tabChange={onTabChange}
+          tabs={tabs}
+          tabsScrollable={tabsScrollable}
+        />
+        <ScrollBtnContainer
+          className="right-0"
+          onMouseDown={() => startScrolling(false)}
+          onMouseLeave={stopScrolling}
+          onMouseUp={stopScrolling}
+          onTouchEnd={stopScrolling}
+          onTouchStart={() => startScrolling(false)}
+          visible={shouldShowRightArrow}
+        >
+          <Icon name="right-arrow-2" size={IconSize.MEDIUM} />
+        </ScrollBtnContainer>
+      </Container>
+
       <ChildrenWrapper shouldShowTabs={props.shouldShowTabs}>
         <ScrollableCanvasWrapper
           {...remainingProps}
