@@ -514,17 +514,17 @@ export default {
   getUpdatedRows: (props, moment, _) => {
     const keysToBeOmitted = ["__originalIndex__", "__primaryKey__"];
     /*
-     * case 1. If transientTableData is not empty return aray of updated row.
-     * case 2. If transientTableData is empty return empty array
+     * case 1. If transientTableData is not empty, return aray of updated row.
+     * case 2. If transientTableData is empty, return empty array
      *
      * updated row structure
      *  {
      *    index: {{original index of the row}},
      *    {{primary_column}}: {{primary_column_value}} // only if primary has been set
-     *    updated_fields: {
+     *    updatedFields: {
      *      {{updated_column_1}}: {{updated_column_1_value}}
      *    },
-     *    all_fields: {
+     *    allFields: {
      *      {{updated_column_1}}: {{updated_column_1_value}}
      *      {{rest of the fields from the row}}
      *    }
@@ -556,7 +556,7 @@ export default {
             index: Number(key),
             [props.primaryColumnId]: row[props.primaryColumnId],
             updatedFields: value,
-            all_fields: _.omit(row, keysToBeOmitted) || {},
+            allFields: _.omit(row, keysToBeOmitted) || {},
           });
         });
 

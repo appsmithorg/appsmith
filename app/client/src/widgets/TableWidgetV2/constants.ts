@@ -126,4 +126,5 @@ export type OnColumnEventArgs = {
   onComplete?: () => void;
   triggerPropertyName: string;
   eventType: EventType;
+  row?: Record<string, unknown>;
 };
