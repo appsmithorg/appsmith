@@ -109,9 +109,10 @@ module.exports = class Perf {
     await this.page.waitForNavigation();
 
     const currentUrl = this.page.url();
-    const pageIdRegex = /pages(.*)/;
-    const match = pageIdRegex.exec(currentUrl);
-    const pageId = match[1].split("/")[1];
+    const pageId = currentURL
+      .split("/")[5]
+      ?.split("-")
+      .pop();
 
     await this.page.evaluate(
       async ({ pageId, dsl }) => {
@@ -155,7 +156,6 @@ module.exports = class Perf {
 
     const elementHandle = await this.page.$(selectors.fileInput);
     await elementHandle.uploadFile(jsonPath);
-    await this.page.click(selectors.importButton);
 
     await this.page.waitForNavigation();
     await this.page.reload();

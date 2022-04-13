@@ -4,7 +4,9 @@ import com.appsmith.external.dtos.MultipartFormDataDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Property;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonSyntaxException;
 import net.minidev.json.JSONArray;
@@ -41,7 +43,8 @@ public class DataUtils {
 
     public enum MultipartFormDataType {
         TEXT,
-        FILE
+        FILE,
+        ARRAY,
     }
 
     private DataUtils() {
@@ -73,7 +76,7 @@ public class DataUtils {
             case MediaType.MULTIPART_FORM_DATA_VALUE:
                 return parseMultipartFileData((List<Property>) body);
             default:
-                return BodyInserters.fromValue(((String) body).getBytes(StandardCharsets.UTF_8));
+                return BodyInserters.fromValue(((String) body).getBytes(StandardCharsets.ISO_8859_1));
         }
     }
 
@@ -156,25 +159,46 @@ public class DataUtils {
 
                         final MultipartFormDataType multipartFormDataType =
                                 MultipartFormDataType.valueOf(property.getType().toUpperCase(Locale.ROOT));
-                        if (MultipartFormDataType.TEXT.equals(multipartFormDataType)) {
-                            byte[] valueBytesArray = new byte[0];
-                            if (StringUtils.hasLength(String.valueOf(property.getValue()))) {
-                                valueBytesArray = String.valueOf(property.getValue()).getBytes(StandardCharsets.ISO_8859_1);
-                            }
-                            bodyBuilder.part(
-                                    key,
-                                    valueBytesArray,
-                                    MediaType.TEXT_PLAIN);
-                        } else if (MultipartFormDataType.FILE.equals(multipartFormDataType)) {
-                            try {
-                                populateFileTypeBodyBuilder(bodyBuilder, property, outputMessage);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                                throw new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                        "Unable to parse content. Expected to receive an array or object of multipart data"
-                                );
-                            }
+
+                        switch (multipartFormDataType) {
+                            case TEXT:
+                                byte[] valueBytesArray = new byte[0];
+                                if (StringUtils.hasLength(String.valueOf(property.getValue()))) {
+                                    valueBytesArray = String.valueOf(property.getValue()).getBytes(StandardCharsets.ISO_8859_1);
+                                }
+                                bodyBuilder.part(key, valueBytesArray, MediaType.TEXT_PLAIN);
+                                break;
+                            case FILE:
+                                try {
+                                    populateFileTypeBodyBuilder(bodyBuilder, property, outputMessage);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                    throw new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                            "Unable to parse content. Expected to receive an array or object of multipart data"
+                                    );
+                                }
+                                break;
+                            case ARRAY:
+                                if (property.getValue() instanceof String) {
+                                    final String value = (String) property.getValue();
+                                    try {
+                                        final JsonNode jsonNode = objectMapper.readTree(value);
+                                        if (jsonNode.isArray()) {
+                                            for (JsonNode node : jsonNode) {
+                                                if (node.isTextual()) bodyBuilder.part(key, node.asText());
+                                                else bodyBuilder.part(key, node);
+                                            }
+                                        } else {
+                                            bodyBuilder.part(key, value);
+                                        }
+                                    } catch (JsonProcessingException e) {
+                                        bodyBuilder.part(key, value);
+                                    }
+                                } else {
+                                    bodyBuilder.part(key, property.getValue());
+                                }
+                                break;
                         }
                     }
 
@@ -203,7 +227,7 @@ public class DataUtils {
             // Check whether the JSON string is an array
             multipartFormDataDTOs = Arrays.asList(
                     objectMapper.readValue(
-                            (String) (fileValue),
+                            fileValue,
                             MultipartFormDataDTO[].class));
         } else {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,

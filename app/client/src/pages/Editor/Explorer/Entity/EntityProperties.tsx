@@ -14,10 +14,10 @@ import { getPropsForJSActionEntity } from "utils/autocomplete/EntityDefinitions"
 import { isEmpty } from "lodash";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import classNames from "classnames";
-import { JSCollection } from "entities/JSCollection";
 import styled from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
 const CloseIcon = ControlIcons.CLOSE_CONTROL;
 
@@ -122,15 +122,15 @@ export function EntityProperties() {
   if (!entity) return null;
   switch (entityType) {
     case ENTITY_TYPE.JSACTION:
-      const jsAction = entity.config as JSCollection;
-      const properties = getPropsForJSActionEntity(jsAction);
+      const jsCollection = entity as JSCollectionData;
+      const properties = getPropsForJSActionEntity(jsCollection);
       if (properties) {
         entityProperties = Object.keys(properties).map(
           (actionProperty: string) => {
             const value = properties[actionProperty];
             return {
               propertyName: actionProperty,
-              entityName: jsAction.name,
+              entityName: jsCollection.config.name,
               value: value,
             };
           },

@@ -6,6 +6,7 @@ import com.appsmith.server.configurations.GoogleRecaptchaConfig;
 import com.appsmith.server.helpers.FileUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.ce.EnvManagerCEImpl;
@@ -19,6 +20,7 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
 
     public EnvManagerImpl(SessionUserService sessionUserService,
                           UserService userService,
+                          UserRepository userRepository,
                           PolicyUtils policyUtils,
                           EmailSender emailSender,
                           CommonConfig commonConfig,
@@ -27,7 +29,7 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
                           GoogleRecaptchaConfig googleRecaptchaConfig,
                           FileUtils fileUtils) {
 
-        super(sessionUserService, userService, policyUtils, emailSender, commonConfig, emailConfig, javaMailSender,
+        super(sessionUserService, userService, userRepository, policyUtils, emailSender, commonConfig, emailConfig, javaMailSender,
                 googleRecaptchaConfig, fileUtils);
     }
 }

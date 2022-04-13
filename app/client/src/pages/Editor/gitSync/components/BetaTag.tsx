@@ -15,7 +15,7 @@ const StyledTag = styled.div`
 `;
 
 function BetaTag() {
-  return <StyledTag>BETA</StyledTag>;
+  return <StyledTag data-testid="t--beta-tag">BETA</StyledTag>;
 }
 
 export default BetaTag;

@@ -23,15 +23,15 @@ import java.util.Map;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static com.external.plugins.constants.FieldName.AGGREGATE;
 import static com.external.plugins.constants.FieldName.AGGREGATE_LIMIT;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINES;
+import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-
 
 @Getter
 @Setter
@@ -111,6 +111,39 @@ public class Aggregate extends MongoCommand {
         return commandDocument;
     }
 
+    /**
+     * This method coverts Mongo plugin's form inputs to Mongo's native query. Currently, it is meant to help users
+     * switch easily from form based input to raw input mode by providing a readily available translation of the form
+     * data to raw query.
+     * The `parseCommand` method defined in this class could not be used since it tries to parse and validate the form
+     * data and fails if the data is bad or if it contains mustache binding. However, this is not the desired behavior
+     * wrt the use case this method is intended to solve i.e. we should be able to covert the form data to raw query
+     * irrespective of whether the data provided by the user is valid or not since we are not trying to execute it
+     * immediately.
+     * When writing this method the following two alternative implementations were also considered - using JSONObject
+     * and JsonNode. The issue with JSONObject is that it does not maintain the keys in order, which causes the final
+     * query to fail since order of keys is essential - e.g. `find` must be the first key in the native query for
+     * Mongo to recognize it as a valid command. JsonNode could not be used because it would enclose all values
+     * inside double quotes - which is not a true translation of what the user might have fed into the form.
+     * @return : Mongo's native query
+     */
+    @Override
+    public String getRawQuery() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\n");
+        sb.append("  \"aggregate\": \"" + this.collection + "\",\n");
+
+        String pipeline = "[]";
+        if (!isBlank(this.pipeline)) {
+            pipeline = this.pipeline;
+        }
+        sb.append("  \"pipeline\": " + pipeline + ",\n");
+        sb.append("  \"cursor\": " + "{}" + "\n");
+        sb.append("}\n");
+
+        return sb.toString();
+    }
+
     @Override
     public List<DatasourceStructure.Template> generateTemplate(Map<String, Object> templateConfiguration) {
         String collectionName = (String) templateConfiguration.get("collectionName");
@@ -123,17 +156,17 @@ public class Aggregate extends MongoCommand {
         setValueSafelyInFormData(configMap, AGGREGATE_PIPELINES, "[ {\"$sort\" : {\"_id\": 1} } ]");
         setValueSafelyInFormData(configMap, AGGREGATE_LIMIT, "10");
 
-
         String rawQuery = "{\n" +
                 "  \"aggregate\": \"" + collectionName + "\",\n" +
                 "  \"pipeline\": " + "[ {\"$sort\" : {\"_id\": 1} } ],\n" +
                 "  \"limit\": 10,\n" +
                 "  \"explain\": \"true\"\n" + // Specifies to return the information on the processing of the pipeline. (This also avoids the use of the 'cursor' aggregate key according to Mongo doc)
                 "}\n";
+        setValueSafelyInFormData(configMap, BODY, rawQuery);
 
         return Collections.singletonList(new DatasourceStructure.Template(
                 "Aggregate",
-                rawQuery,
+                null,
                 configMap
         ));
     }

@@ -66,13 +66,14 @@ function ForkTemplate({
   return (
     <StyledDialog
       canOutsideClickClose={!isImportingTemplate}
-      headerIcon={{ name: "compasses-line", bgColor: Colors.GEYSER_LIGHT }}
+      headerIcon={{ name: "fork-2", bgColor: Colors.GEYSER_LIGHT }}
       isOpen={showForkModal}
       onClose={isImportingTemplate ? noop : onClose}
       title={createMessage(CHOOSE_WHERE_TO_FORK)}
       trigger={children}
     >
       <Dropdown
+        boundary="viewport"
         dropdownMaxHeight={"200px"}
         fillOptions
         onSelect={(_value, dropdownOption) =>
@@ -90,16 +91,16 @@ function ForkTemplate({
           disabled={isImportingTemplate}
           onClick={onClose}
           size={Size.large}
+          tag="button"
           text={createMessage(CANCEL)}
-          type="button"
         />
         <Button
           className="t--fork-template-button"
           isLoading={isImportingTemplate}
           onClick={onFork}
           size={Size.large}
+          tag="button"
           text={createMessage(FORK_TEMPLATE)}
-          type="button"
         />
       </ButtonsWrapper>
     </StyledDialog>

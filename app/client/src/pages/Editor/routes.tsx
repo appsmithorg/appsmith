@@ -1,26 +1,15 @@
-import React, { useEffect, ReactNode } from "react";
-import {
-  Switch,
-  withRouter,
-  RouteComponentProps,
-  Route,
-  matchPath,
-} from "react-router-dom";
+import React, { useEffect, ReactNode, useCallback } from "react";
+import { Switch, Route } from "react-router-dom";
+import { useLocation, useRouteMatch } from "react-router";
 import ApiEditor from "./APIEditor";
 import IntegrationEditor from "./IntegrationEditor";
 import QueryEditor from "./QueryEditor";
 import DataSourceEditor from "./DataSourceEditor";
 import JSEditor from "./JSEditor";
-
 import GeneratePage from "./GeneratePage";
 import CurlImportForm from "./APIEditor/CurlImportForm";
 import ProviderTemplates from "./APIEditor/ProviderTemplates";
 import {
-  API_EDITOR_ID_URL,
-  QUERIES_EDITOR_ID_URL,
-  BUILDER_PAGE_URL,
-  BuilderRouteParams,
-  INTEGRATION_EDITOR_URL,
   INTEGRATION_EDITOR_PATH,
   API_EDITOR_ID_PATH,
   QUERIES_EDITOR_ID_PATH,
@@ -33,26 +22,23 @@ import {
   GENERATE_TEMPLATE_PATH,
   GENERATE_TEMPLATE_FORM_PATH,
   matchBuilderPath,
+  BUILDER_CHECKLIST_PATH,
 } from "constants/routes";
 import styled from "styled-components";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import { closeAllModals } from "actions/widgetActions";
-import { connect, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-
 import * as Sentry from "@sentry/react";
 const SentryRoute = Sentry.withSentryRouting(Route);
-
 import { SaaSEditorRoutes } from "./SaaSEditor/routes";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import PagesEditor from "./PagesEditor";
-
-import { AppState } from "reducers";
-
-import { trimQueryString } from "utils/helpers";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { builderURL } from "RouteBuilder";
+import history from "utils/history";
+import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
@@ -67,7 +53,6 @@ const Wrapper = styled.div<{ isVisible: boolean }>`
 
 const DrawerWrapper = styled.div<{
   isVisible: boolean;
-  isActionPath: any;
 }>`
   background-color: white;
   width: ${(props) => (!props.isVisible ? "0" : "100%")};
@@ -76,141 +61,116 @@ const DrawerWrapper = styled.div<{
   flex-direction: column;
 `;
 
-interface RouterState {
-  isVisible: boolean;
-  isActionPath: Record<any, any> | null;
+function EditorsRouter() {
+  const { path } = useRouteMatch();
+  const { pathname } = useLocation();
+  const [isVisible, setIsVisible] = React.useState(
+    () => !matchBuilderPath(pathname),
+  );
+
+  useEffect(() => {
+    const isOnBuilder = matchBuilderPath(pathname);
+    setIsVisible(!isOnBuilder);
+  }, [pathname]);
+
+  const handleClose = useCallback(
+    (e: React.MouseEvent) => {
+      PerformanceTracker.startTracking(
+        PerformanceTransactionName.CLOSE_SIDE_PANE,
+        { path: pathname },
+      );
+      e.stopPropagation();
+      setIsVisible(false);
+      history.replace(builderURL());
+    },
+    [pathname],
+  );
+
+  const preventClose = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+  }, []);
+
+  return (
+    <Wrapper isVisible={isVisible} onClick={handleClose}>
+      <PaneDrawer isVisible={isVisible} onClick={preventClose}>
+        <Switch key={path}>
+          <SentryRoute
+            component={IntegrationEditor}
+            exact
+            path={`${path}${INTEGRATION_EDITOR_PATH}`}
+          />
+          <SentryRoute
+            component={OnboardingChecklist}
+            exact
+            path={`${path}${BUILDER_CHECKLIST_PATH}`}
+          />
+          <SentryRoute
+            component={ApiEditor}
+            exact
+            path={`${path}${API_EDITOR_ID_PATH}`}
+          />
+          <SentryRoute
+            component={QueryEditor}
+            exact
+            path={`${path}${QUERIES_EDITOR_ID_PATH}`}
+          />
+          <SentryRoute
+            component={JSEditor}
+            exact
+            path={`${path}${JS_COLLECTION_EDITOR_PATH}`}
+          />
+          <SentryRoute
+            component={JSEditor}
+            exact
+            path={`${path}${JS_COLLECTION_ID_PATH}`}
+          />
+
+          <SentryRoute
+            component={CurlImportForm}
+            exact
+            path={`${path}${CURL_IMPORT_PAGE_PATH}`}
+          />
+          {SaaSEditorRoutes.map(({ component, path: childPath }) => (
+            <SentryRoute
+              component={component}
+              exact
+              key={path}
+              path={`${path}${childPath}`}
+            />
+          ))}
+          <SentryRoute
+            component={PagesEditor}
+            exact
+            path={`${path}${PAGE_LIST_EDITOR_PATH}`}
+          />
+          <SentryRoute
+            component={DataSourceEditor}
+            exact
+            path={`${path}${DATA_SOURCES_EDITOR_ID_PATH}`}
+          />
+          <SentryRoute
+            component={ProviderTemplates}
+            exact
+            path={`${path}${PROVIDER_TEMPLATE_PATH}`}
+          />
+          <SentryRoute
+            component={GeneratePage}
+            exact
+            path={`${path}${GENERATE_TEMPLATE_PATH}`}
+          />
+          <SentryRoute
+            component={GeneratePage}
+            exact
+            path={`${path}${GENERATE_TEMPLATE_FORM_PATH}`}
+          />
+        </Switch>
+      </PaneDrawer>
+    </Wrapper>
+  );
 }
 
-type Props = RouteComponentProps<BuilderRouteParams> & {
-  applicationId: string;
-};
-
-class EditorsRouter extends React.Component<Props, RouterState> {
-  constructor(props: Props) {
-    super(props);
-    const isOnBuilder = matchBuilderPath(window.location.pathname);
-    this.state = {
-      isVisible: !isOnBuilder,
-      isActionPath: this.isMatchPath(),
-    };
-  }
-
-  componentDidUpdate(prevProps: Readonly<RouteComponentProps>): void {
-    if (this.props.location.pathname !== prevProps.location.pathname) {
-      const isOnBuilder = matchBuilderPath(window.location.pathname);
-      this.setState({
-        isVisible: !isOnBuilder,
-        isActionPath: this.isMatchPath(),
-      });
-    }
-  }
-
-  isMatchPath = () => {
-    return matchPath(this.props.location.pathname, {
-      path: [
-        trimQueryString(INTEGRATION_EDITOR_URL()),
-        trimQueryString(API_EDITOR_ID_URL()),
-        trimQueryString(QUERIES_EDITOR_ID_URL()),
-      ],
-      exact: true,
-      strict: false,
-    });
-  };
-
-  handleClose = (e: React.MouseEvent) => {
-    PerformanceTracker.startTracking(
-      PerformanceTransactionName.CLOSE_SIDE_PANE,
-      { path: this.props.location.pathname },
-    );
-    e.stopPropagation();
-    const { applicationId, pageId } = this.props.match.params;
-    this.setState({
-      isVisible: false,
-    });
-    this.props.history.replace(BUILDER_PAGE_URL({ applicationId, pageId }));
-  };
-
-  preventClose = (e: React.MouseEvent) => {
-    e.stopPropagation();
-  };
-
-  render(): React.ReactNode {
-    return (
-      <Wrapper isVisible={this.state.isVisible} onClick={this.handleClose}>
-        <PaneDrawer
-          isActionPath={this.state.isActionPath}
-          isVisible={this.state.isVisible}
-          onClick={this.preventClose}
-        >
-          <Switch>
-            <SentryRoute
-              component={IntegrationEditor}
-              exact
-              path={INTEGRATION_EDITOR_PATH}
-            />
-            <SentryRoute
-              component={ApiEditor}
-              exact
-              path={API_EDITOR_ID_PATH}
-            />
-            <SentryRoute
-              component={QueryEditor}
-              exact
-              path={QUERIES_EDITOR_ID_PATH}
-            />
-            <SentryRoute
-              component={JSEditor}
-              exact
-              path={JS_COLLECTION_EDITOR_PATH}
-            />
-            <SentryRoute
-              component={JSEditor}
-              exact
-              path={JS_COLLECTION_ID_PATH}
-            />
-
-            <SentryRoute
-              component={CurlImportForm}
-              exact
-              path={CURL_IMPORT_PAGE_PATH}
-            />
-            {SaaSEditorRoutes.map((props) => (
-              <SentryRoute exact key={props.path} {...props} />
-            ))}
-            <SentryRoute
-              component={PagesEditor}
-              exact
-              path={PAGE_LIST_EDITOR_PATH}
-            />
-            <SentryRoute
-              component={DataSourceEditor}
-              exact
-              path={DATA_SOURCES_EDITOR_ID_PATH}
-            />
-            <SentryRoute
-              component={ProviderTemplates}
-              exact
-              path={PROVIDER_TEMPLATE_PATH}
-            />
-            <SentryRoute
-              component={GeneratePage}
-              exact
-              path={GENERATE_TEMPLATE_PATH}
-            />
-            <SentryRoute
-              component={GeneratePage}
-              exact
-              path={GENERATE_TEMPLATE_FORM_PATH}
-            />
-          </Switch>
-        </PaneDrawer>
-      </Wrapper>
-    );
-  }
-}
 type PaneDrawerProps = {
   isVisible: boolean;
-  isActionPath: Record<any, any> | null;
   onClick: (e: React.MouseEvent) => void;
   children: ReactNode;
 };
@@ -236,8 +196,4 @@ function PaneDrawer(props: PaneDrawerProps) {
 
 PaneDrawer.displayName = "PaneDrawer";
 
-const mapStateToProps = (state: AppState) => ({
-  applicationId: getCurrentApplicationId(state),
-});
-
-export default connect(mapStateToProps)(withRouter(EditorsRouter));
+export default EditorsRouter;

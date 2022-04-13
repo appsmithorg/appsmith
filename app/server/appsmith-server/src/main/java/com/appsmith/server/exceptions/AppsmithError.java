@@ -1,8 +1,8 @@
 package com.appsmith.server.exceptions;
 
+import com.appsmith.external.constants.ErrorReferenceDocUrl;
 import com.appsmith.external.exceptions.AppsmithErrorAction;
 import com.appsmith.external.models.ErrorType;
-import com.appsmith.external.constants.ErrorReferenceDocUrl;
 import lombok.Getter;
 
 import java.text.MessageFormat;
@@ -138,7 +138,9 @@ public enum AppsmithError {
     GIT_UPSTREAM_CHANGES(400, 4048, "Looks like there are pending upstream changes. To prevent you from losing history, we will pull the changes and push them to your repo.", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_ACTION_EXECUTION_ERROR, ErrorReferenceDocUrl.GIT_UPSTREAM_CHANGES),
     GENERIC_JSON_IMPORT_ERROR(400, 4049, "Unable to import application in organization {0} with error {1}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST, null),
     FILE_PART_DATA_BUFFER_ERROR(500, 5017, "Failed to upload file with error: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST, null),
-    UNKNOWN_SERVER_VARIABLE_TYPE(500, 5018, "Unexpected state. Server side variable type is unknown. Please contact Appsmith support to report this issue.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
+    UNKNOWN_SERVER_VARIABLE_TYPE(500, 5019, "Unexpected state. Server side variable type is unknown. Please contact Appsmith support to report this issue.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
+    MIGRATION_ERROR(500, 5018, "This action is already migrated", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
+    SAML_ALREADY_CONFIGURED(500, 5019, "SAML configuration already exists. Please disconnect SAML before trying to configure it again", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     ;
 
     private final Integer httpErrorCode;

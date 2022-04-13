@@ -1,20 +1,16 @@
 import { call, select } from "redux-saga/effects";
 import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
 import _ from "lodash";
-import { Page } from "constants/ReduxActionConstants";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import {
-  BUILDER_PAGE_URL,
-  convertToQueryParams,
-  getApplicationViewerPageURL,
-} from "constants/routes";
+import { convertToQueryParams } from "RouteBuilder";
 import history from "utils/history";
 import { setDataUrl } from "sagas/PageSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { NavigateActionDescription } from "entities/DataTree/actionTriggers";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { builderURL, viewerURL } from "RouteBuilder";
 
 export enum NavigationTargetType {
   SAME_WINDOW = "SAME_WINDOW",
@@ -37,8 +33,7 @@ const isValidUrlScheme = (url: string): boolean => {
 export default function* navigateActionSaga(
   action: NavigateActionDescription["payload"],
 ) {
-  const pageList = yield select(getPageList);
-  const applicationId = yield select(getCurrentApplicationId);
+  const pageList: Page[] = yield select(getPageList);
   const {
     pageNameOrUrl,
     params,
@@ -49,22 +44,19 @@ export default function* navigateActionSaga(
     (page: Page) => page.pageName === pageNameOrUrl,
   );
   if (page) {
-    const currentPageId = yield select(getCurrentPageId);
+    const currentPageId: string = yield select(getCurrentPageId);
     AnalyticsUtil.logEvent("NAVIGATE", {
       pageName: pageNameOrUrl,
       pageParams: params,
     });
-    const appMode = yield select(getAppMode);
-    // uses query BUILDER_PAGE_URL
+    const appMode: APP_MODE = yield select(getAppMode);
     const path =
       appMode === APP_MODE.EDIT
-        ? BUILDER_PAGE_URL({
-            applicationId,
+        ? builderURL({
             pageId: page.pageId,
             params,
           })
-        : getApplicationViewerPageURL({
-            applicationId,
+        : viewerURL({
             pageId: page.pageId,
             params,
           });

@@ -4,13 +4,16 @@ import { Template as TemplateInterface } from "api/TemplatesApi";
 import history from "utils/history";
 import Button, { Size } from "components/ads/Button";
 import Tooltip from "components/ads/Tooltip";
-import { TEMPLATE_ID_URL } from "constants/routes";
 import ForkTemplateDialog from "../ForkTemplate";
 import DatasourceChip from "../DatasourceChip";
 import LargeTemplate from "./LargeTemplate";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import { createMessage, FORK_THIS_TEMPLATE } from "ce/constants/messages";
+import {
+  createMessage,
+  FORK_THIS_TEMPLATE,
+} from "@appsmith/constants/messages";
+import { templateIdUrl } from "RouteBuilder";
 
 const TemplateWrapper = styled.div`
   border: 1px solid ${Colors.GEYSER_LIGHT};
@@ -26,14 +29,15 @@ const TemplateWrapper = styled.div`
 `;
 
 const ImageWrapper = styled.div`
-  padding: ${(props) =>
-    `${props.theme.spaces[9]}px ${props.theme.spaces[11]}px`};
+  padding: ${(props) => props.theme.spaces[9]}px;
   overflow: hidden;
 `;
 
 const StyledImage = styled.img`
   box-shadow: 0px 17.52px 24.82px rgba(0, 0, 0, 0.09);
-  object-fit: cover;
+  object-fit: contain;
+  width: 100%;
+  height: 236px;
 `;
 
 const TemplateContent = styled.div`
@@ -44,18 +48,19 @@ const TemplateContent = styled.div`
   flex: 1;
 
   .title {
-    ${(props) => getTypographyByKey(props, "h4")}
+    ${(props) => getTypographyByKey(props, "h1")}
     color: ${Colors.EBONY_CLAY};
   }
   .categories {
-    ${(props) => getTypographyByKey(props, "p1")}
+    ${(props) => getTypographyByKey(props, "h4")}
+    font-weight: normal;
     color: var(--appsmith-color-black-800);
     margin-top: ${(props) => props.theme.spaces[1]}px;
   }
   .description {
     margin-top: ${(props) => props.theme.spaces[2]}px;
     color: var(--appsmith-color-black-700);
-    ${(props) => getTypographyByKey(props, "p2")}
+    ${(props) => getTypographyByKey(props, "p1")}
   }
 `;
 
@@ -83,8 +88,8 @@ const StyledButton = styled(Button)`
   width: 31px;
 
   svg {
-    height: 15px;
-    width: 15px;
+    height: 20px;
+    width: 20px;
   }
 `;
 
@@ -117,7 +122,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
   } = props.template;
   const [showForkModal, setShowForkModal] = useState(false);
   const onClick = () => {
-    history.push(TEMPLATE_ID_URL(id));
+    history.push(templateIdUrl({ id }));
   };
 
   const onForkButtonTrigger = (e: React.MouseEvent<HTMLElement>) => {
@@ -159,7 +164,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
               <Tooltip content={createMessage(FORK_THIS_TEMPLATE)}>
                 <StyledButton
                   className="t--fork-template fork-button"
-                  icon="compasses-line"
+                  icon="fork-2"
                   size={Size.medium}
                   tag="button"
                 />

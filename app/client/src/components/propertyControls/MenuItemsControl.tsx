@@ -5,7 +5,9 @@ import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
 import { DroppableComponent } from "components/ads/DraggableListComponent";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import _, { orderBy } from "lodash";
+import orderBy from "lodash/orderBy";
+import isString from "lodash/isString";
+import isUndefined from "lodash/isUndefined";
 import { Category, Size } from "components/ads/Button";
 import { DraggableListCard } from "components/ads/DraggableListCard";
 
@@ -52,7 +54,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
     }
   }
   updateItems = (items: Array<Record<string, any>>) => {
-    const menuItems = items.reduce((obj: any, each: any, index: number) => {
+    const menuItems = items.reduce((obj: any, each: any, index) => {
       obj[each.id] = {
         ...each,
         index,
@@ -62,11 +64,24 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
     this.updateProperty(this.props.propertyName, menuItems);
   };
 
-  onEdit = (index: number) => {
+  getMenuItems = () => {
     const menuItems: Array<{
       id: string;
       label: string;
-    }> = Object.values(this.props.propertyValue);
+      isDisabled: boolean;
+      isVisible: boolean;
+      widgetId: string;
+    }> =
+      isString(this.props.propertyValue) ||
+      isUndefined(this.props.propertyValue)
+        ? []
+        : Object.values(this.props.propertyValue);
+
+    return orderBy(menuItems, ["index"], ["asc"]);
+  };
+
+  onEdit = (index: number) => {
+    const menuItems = this.getMenuItems();
     const targetMenuItem = menuItems[index];
     this.props.openNextPanel({
       index,
@@ -76,14 +91,6 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
   };
 
   render() {
-    const menuItems: Array<{
-      id: string;
-      label: string;
-    }> =
-      _.isString(this.props.propertyValue) ||
-      _.isUndefined(this.props.propertyValue)
-        ? []
-        : Object.values(this.props.propertyValue);
     return (
       <MenuItemsWrapper>
         <DroppableComponent
@@ -91,7 +98,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
           fixedHeight={370}
           focusedIndex={this.state.focusedIndex}
           itemHeight={45}
-          items={orderBy(menuItems, ["index"], ["asc"])}
+          items={this.getMenuItems()}
           onEdit={this.onEdit}
           renderComponent={(props) =>
             DraggableListCard({
@@ -122,13 +129,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
   }
 
   toggleVisibility = (index: number) => {
-    const menuItems: Array<{
-      id: string;
-      label: string;
-      isDisabled: boolean;
-      isVisible: boolean;
-      widgetId: string;
-    }> = this.props.propertyValue.slice();
+    const menuItems = this.getMenuItems();
     const isVisible = menuItems[index].isVisible === true ? false : true;
     const updatedMenuItems = menuItems.map((item, itemIndex) => {
       if (index === itemIndex) {
@@ -143,9 +144,8 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
   };
 
   deleteOption = (index: number) => {
-    const menuItemsArray: any = Object.values(this.props.propertyValue);
-    const itemId = menuItemsArray[index].id;
-    if (menuItemsArray && menuItemsArray.length === 1) return;
+    const menuItemsArray = this.getMenuItems();
+    if (menuItemsArray.length === 1) return;
     const updatedArray = menuItemsArray.filter((eachItem: any, i: number) => {
       return i !== index;
     });
@@ -159,12 +159,11 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
       },
       {},
     );
-    this.deleteProperties([`${this.props.propertyName}.${itemId}.isVisible`]);
     this.updateProperty(this.props.propertyName, updatedObj);
   };
 
   updateOption = (index: number, updatedLabel: string) => {
-    const menuItemsArray: any = Object.values(this.props.propertyValue);
+    const menuItemsArray = this.getMenuItems();
     const itemId = menuItemsArray[index].id;
     this.updateProperty(
       `${this.props.propertyName}.${itemId}.label`,
@@ -174,7 +173,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
 
   addOption = () => {
     let menuItems = this.props.propertyValue || [];
-    const menuItemsArray = Object.values(menuItems);
+    const menuItemsArray = this.getMenuItems();
     const newMenuItemId = generateReactKey({ prefix: "menuItem" });
     const newMenuItemLabel = getNextEntityName(
       "Menu Item ",
@@ -184,6 +183,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
       ...menuItems,
       [newMenuItemId]: {
         id: newMenuItemId,
+        index: menuItemsArray.length,
         label: newMenuItemLabel,
         widgetId: generateReactKey(),
         isDisabled: false,

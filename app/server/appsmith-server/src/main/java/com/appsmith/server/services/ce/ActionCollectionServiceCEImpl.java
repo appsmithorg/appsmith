@@ -14,6 +14,7 @@ import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -290,6 +291,9 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         return actionCollectionMono
                 .map(dbActionCollection -> {
                     copyNewFieldValuesIntoOldObject(actionCollectionDTO, dbActionCollection.getUnpublishedCollection());
+                    // No need to save defaultPageId at actionCollection level as this will be stored inside the
+                    // actionCollectionDTO
+                    DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds(dbActionCollection, dbActionCollection.getDefaultResources().getBranchName());
                     return dbActionCollection;
                 })
                 .flatMap(actionCollection -> this.update(id, actionCollection))
