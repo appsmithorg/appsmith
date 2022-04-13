@@ -262,12 +262,11 @@ public class OrganizationServiceTest {
 
         Mono<Organization> createOrganization = organizationService.create(organization);
         Mono<Organization> updateOrganization = createOrganization
-                .map(t -> {
-                    t.setDomain("abc.com");
-                    return t;
-                })
-                .flatMap(t -> organizationService.update(t.getId(), t))
-                .flatMap(t -> organizationService.getById(t.getId()));
+                .flatMap(t -> {
+                    Organization newOrganization = new Organization();
+                    newOrganization.setDomain("abc.com");
+                    return organizationService.update(t.getId(), newOrganization);
+                });
 
         StepVerifier.create(updateOrganization)
                 .assertNext(t -> {
@@ -302,16 +301,15 @@ public class OrganizationServiceTest {
         organization.setSlug("test-update-name");
         Mono<Organization> createOrganization = organizationService.create(organization);
         Mono<Organization> updateOrganization = createOrganization
-                .map(t -> {
-                    t.setName("");
-                    return t;
-                })
-                .flatMap(t -> organizationService.update(t.getId(), t))
-                .flatMap(t -> organizationService.getById(t.getId()));
+                .flatMap(t -> {
+                    Organization newOrganization = new Organization();
+                    newOrganization.setName("");
+                    return organizationService.update(t.getId(), newOrganization);
+                });
 
         StepVerifier.create(updateOrganization)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ORGANIZATION_NAME)))
+                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME)))
                 .verify();
     }
 
