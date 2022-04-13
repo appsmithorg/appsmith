@@ -55,6 +55,7 @@ import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { getSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
+  getCurrentApplicationId,
   selectPageSlugToIdMap,
   selectURLSlugs,
 } from "selectors/editorSelectors";
@@ -183,6 +184,7 @@ function GlobalSearch() {
   const dispatch = useDispatch();
   const [snippets, setSnippetsState] = useState([]);
   const [query, setQueryInState] = useState("");
+  const applicationId = useSelector(getCurrentApplicationId);
   const setQuery = useCallback(
     (value: string) => {
       setQueryInState(value);
@@ -296,7 +298,7 @@ function GlobalSearch() {
       dispatch(populatePageDSL());
       setPageDSLFetched(true);
     }
-  }, [category, pageDSLFetched]);
+  }, [applicationId, category, pageDSLFetched]);
 
   useEffect(() => {
     if (query) setActiveItemIndex(0);

@@ -52,6 +52,7 @@ import {
 } from "actions/globalSearchActions";
 import {
   InitializeEditorPayload,
+  resetEditorRequest,
   resetEditorSuccess,
 } from "actions/initActions";
 import PerformanceTracker, {
@@ -119,7 +120,7 @@ export function* failFastApiCalls(
 
 function* bootstrapEditor(payload: InitializeEditorPayload) {
   const { branch } = payload;
-  yield put(resetEditorSuccess());
+  yield put(resetEditorRequest());
   yield put(updateBranchLocally(branch || ""));
   yield put(setAppMode(APP_MODE.EDIT));
   yield put({ type: ReduxActionTypes.START_EVALUATION });
