@@ -17,6 +17,9 @@ const StyledNumericInput = styled(NumericInput)<ThemeProp & INumericInputProps>`
       }
       .bp3-input-group {
         border-radius: 0;
+        .bp3-input {
+          font-size: 14px;
+        }
       }
       .bp3-button-group {
         .bp3-button {
