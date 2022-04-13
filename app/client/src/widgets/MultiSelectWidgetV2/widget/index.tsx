@@ -10,6 +10,7 @@ import {
   isNumber,
   LoDashStatic,
   xorWith,
+  intersectionBy,
 } from "lodash";
 import {
   ValidationResponse,
@@ -476,11 +477,13 @@ class MultiSelectWidget extends BaseWidget<
     const options = isArray(this.props.options) ? this.props.options : [];
     const minDropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
     const { componentWidth } = this.getComponentDimensions();
-    const values: LabelValueType[] = this.props.selectedOptions
+    let values: LabelValueType[] = this.props.selectedOptions
       ? this.props.selectedOptions.map((o) =>
           isString(o) || isNumber(o) ? { value: o } : { value: o.value },
         )
       : [];
+    values = intersectionBy(options, values, "value");
+
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     return (
