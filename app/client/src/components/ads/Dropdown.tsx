@@ -252,7 +252,8 @@ const Selected = styled.div<{
         ? props.hasError
           ? Colors.FAIR_PINK
           : props.theme.colors.dropdown.hovered.bg
-        : Colors.WHITE}
+        : Colors.WHITE};
+  }
 `;
 
 export const DropdownContainer = styled.div<{ width: string; height?: string }>`
@@ -453,6 +454,14 @@ const SelectedDropDownHolder = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  &.custom-render-option > * {
+    // below if to override any custom margin and padding added in the render option
+    // because the above container already comes with a padding
+    // which will result broken UI
+    margin: 0 !important;
+    padding: 0 !important;
+  }
 `;
 
 const SelectedIcon = styled(Icon)`
@@ -599,7 +608,9 @@ function DefaultDropDownValueNode({
   }
 
   return (
-    <SelectedDropDownHolder>
+    <SelectedDropDownHolder
+      className={renderNode ? "custom-render-option" : ""}
+    >
       {renderNode ? (
         renderNode({
           isSelectedNode: true,
