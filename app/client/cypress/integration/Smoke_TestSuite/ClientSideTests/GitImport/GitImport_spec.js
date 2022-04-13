@@ -5,6 +5,7 @@ const reconnectDatasourceModal = require("../../../../locators/ReconnectLocators
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const pages = require("../../../../locators/Pages.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 const jsObject = "JSObject1";
 const newBranch = "feat/temp";
 const mainBranch = "master";
@@ -34,16 +35,19 @@ describe("Git import flow", function() {
       cy.ReconnectDatasource("TEDPostgres");
       cy.wait(1000);
       cy.fillPostgresDatasourceForm();
+      cy.get(datasourceEditor.sectionAuthentication).click();
       cy.testSaveDatasource();
-      cy.wait(2000);
+      cy.wait(1000);
       cy.ReconnectDatasource("TEDMySQL");
-      cy.wait(2000);
+      cy.wait(500);
       cy.fillMySQLDatasourceForm();
+      cy.get(datasourceEditor.sectionAuthentication).click();
       cy.testSaveDatasource();
-      cy.wait(2000);
+      cy.wait(1000);
       cy.ReconnectDatasource("TEDMongo");
-      cy.wait(2000);
+      cy.wait(1000);
       cy.fillMongoDatasourceForm();
+      cy.get(datasourceEditor.sectionAuthentication).click();
       cy.testSaveDatasource();
       cy.wait(2000);
       /*cy.get(homePage.toastMessage).should(
@@ -79,16 +83,19 @@ describe("Git import flow", function() {
     cy.ReconnectDatasource("TEDPostgres");
     cy.wait(500);
     cy.fillPostgresDatasourceForm();
+    cy.get(datasourceEditor.sectionAuthentication).click();
     cy.testSaveDatasource();
     cy.wait(500);
     cy.ReconnectDatasource("TEDMySQL");
     cy.wait(500);
     cy.fillMySQLDatasourceForm();
+    cy.get(datasourceEditor.sectionAuthentication).click();
     cy.testSaveDatasource();
     cy.wait(500);
     cy.ReconnectDatasource("TEDMongo");
     cy.wait(500);
     cy.fillMongoDatasourceForm();
+    cy.get(datasourceEditor.sectionAuthentication).click();
     cy.testSaveDatasource();
     cy.wait(2000);
     /* cy.get(homePage.toastMessage).should(
