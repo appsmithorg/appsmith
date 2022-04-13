@@ -153,7 +153,6 @@ describe("Git import flow", function() {
     cy.wait(8000);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.merge(mainBranch);
-    cy.pause;
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.wait(2000);
     cy.latestDeployPreview();
@@ -207,7 +206,6 @@ describe("Git import flow", function() {
     cy.wait(3000);
     cy.commitAndPush();
     cy.merge(newBranch);
-    cy.wait(10000);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.wait(2000);
     cy.switchGitBranch(newBranch);
