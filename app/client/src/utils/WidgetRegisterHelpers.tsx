@@ -12,7 +12,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import withMeta from "widgets/MetaHOC";
 import { generateReactKey } from "./generators";
 import { memoize } from "lodash";
-import { withEvalTree } from "../widgets/withEvalTree";
+import { withWidgetProps } from "widgets/withWidgetProps";
 
 export interface WidgetConfiguration {
   type: string;
@@ -34,8 +34,8 @@ const generateWidget = memoize(function getWidgetComponent(
   Widget: typeof BaseWidget,
   needsMeta: boolean,
 ) {
-  const metaWidget = needsMeta ? withMeta(Widget) : Widget;
-  const ConfiguredWidget = withEvalTree(metaWidget as typeof BaseWidget);
+  const MetaWidget = needsMeta ? withMeta(Widget) : Widget;
+  const ConfiguredWidget = withWidgetProps(MetaWidget as typeof BaseWidget);
 
   return Sentry.withProfiler(ConfiguredWidget);
 });

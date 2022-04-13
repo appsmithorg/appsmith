@@ -12,7 +12,7 @@ import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
 import {
   getActions,
-  getCanvasWidgets,
+  getCanvasWidgetsStructure,
   getJSCollections,
 } from "selectors/entitiesSelector";
 import {
@@ -22,7 +22,7 @@ import {
 } from "constants/WidgetConstants";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { DataTreeWidget, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+// import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { pick, sortBy } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import { APP_MODE } from "entities/App";
@@ -222,18 +222,16 @@ export const getWidgetCards = createSelector(
   },
 );
 
-const getMainContainer = (canvasWidgets: CanvasWidgetsReduxState) => {
-  const canvasWidget = canvasWidgets[MAIN_CONTAINER_WIDGET_ID];
-  return createLoadingWidget(canvasWidget);
-};
+// const getMainContainer = (canvasWidgets: CanvasWidgetsReduxState) => {
+//   const canvasWidget = canvasWidgets[MAIN_CONTAINER_WIDGET_ID];
+//   return createLoadingWidget(canvasWidget);
+// };
 
 export const getCanvasWidgetDsl = createSelector(
-  getCanvasWidgets,
-  (
-    canvasWidgets: CanvasWidgetsReduxState,
-  ): ContainerWidgetProps<WidgetProps> => {
+  getCanvasWidgetsStructure,
+  (canvasWidgetsStructure) => {
     return CanvasWidgetsNormalizer.denormalize("0", {
-      canvasWidgets,
+      canvasWidgets: canvasWidgetsStructure,
     });
   },
 );

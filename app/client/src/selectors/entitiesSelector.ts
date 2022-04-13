@@ -12,9 +12,12 @@ import {
   isEmbeddedRestDatasource,
 } from "entities/Datasource";
 import { Action, PluginType } from "entities/Action";
-import { find, sortBy } from "lodash";
+import { find, sortBy, memoize } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
-import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
+import {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "../reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppStoreState } from "reducers/entityReducers/appReducer";
 import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
@@ -24,6 +27,8 @@ import { APP_MODE } from "entities/App";
 import { ExplorerFileEntity } from "pages/Editor/Explorer/helpers";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { selectFeatureFlags } from "./usersSelectors";
+import { WidgetProps } from "../widgets/BaseWidget";
+import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -460,6 +465,35 @@ export const getAppStoreData = (state: AppState): AppStoreState =>
 
 export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
+
+export const getWidgetCanvasValues = createSelector(
+  [getCanvasWidgets, (_state: AppState, widgetId: string) => widgetId],
+  (canvasWidgets: CanvasWidgetsReduxState, widgetId: string) =>
+    CanvasWidgetsNormalizer.denormalize(widgetId, {
+      canvasWidgets: canvasWidgets[widgetId],
+    }),
+);
+
+function getWidgetsStructure(canvasWidgets: CanvasWidgetsReduxState) {
+  const canvasWidgetStructure: Record<string, Partial<WidgetProps>> = {};
+  Object.values(canvasWidgets).map(
+    ({ children, parentId, widgetId, widgetName, ...rest }) => {
+      canvasWidgetStructure[widgetId] = {
+        widgetId,
+        children,
+        parentId,
+        widgetName,
+        ...rest,
+      };
+    },
+  );
+  return canvasWidgetStructure;
+}
+
+export const getCanvasWidgetsStructure = createSelector(
+  getCanvasWidgets,
+  memoize(getWidgetsStructure),
+);
 
 const getPageWidgets = (state: AppState) => state.ui.pageWidgets;
 export const getCurrentPageWidgets = createSelector(
