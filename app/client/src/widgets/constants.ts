@@ -27,7 +27,7 @@ export type AlignWidget = "LEFT" | "RIGHT";
 // Minimum Rows for Widget Popups
 export const MinimumPopupRows = 12;
 
-export const rgbaMigrationConstant = "rgba(0, 0, 0, 0.25)";
+export const rgbaMigrationConstantV56 = "rgba(0, 0, 0, 0.25)";
 
 export const BUTTON_GROUP_CHILD_STYLESHEET = {
   button: {

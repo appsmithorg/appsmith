@@ -27,7 +27,7 @@ import { Classes as DateTimeClasses } from "@blueprintjs/datetime";
 import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { SchemaItem } from "./JSONFormWidget/constants";
 import { find, isEmpty } from "lodash";
-import { rgbaMigrationConstant } from "./constants";
+import { rgbaMigrationConstantV56 } from "./constants";
 
 const punycode = require("punycode/");
 
@@ -372,7 +372,7 @@ export const boxShadowColorUtility = (
  * @returns
  */
 export const boxShadowUtility = (boxShadow: string, boxShadowColor: string) => {
-  const newBoxShadowColor = boxShadowColor || rgbaMigrationConstant;
+  const newBoxShadowColor = boxShadowColor || rgbaMigrationConstantV56;
   switch (boxShadow) {
     case BoxShadowTypes.VARIANT1:
       return `0px 0px 4px 3px ${newBoxShadowColor}`;

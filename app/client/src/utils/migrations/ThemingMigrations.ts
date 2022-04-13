@@ -13,7 +13,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import {
   BUTTON_GROUP_CHILD_STYLESHEET,
   JSON_FORM_WIDGET_CHILD_STYLESHEET,
-  rgbaMigrationConstant,
+  rgbaMigrationConstantV56,
   TABLE_WIDGET_CHILD_STYLESHEET,
 } from "widgets/constants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
@@ -42,7 +42,6 @@ export const migrateStylingPropertiesForTheming = (
   ];
 
   currentDSL.children = currentDSL.children?.map((child) => {
-    // migrate border radius
     switch (child.borderRadius) {
       case ButtonBorderRadiusTypes.SHARP:
         child.borderRadius = THEMING_BORDER_RADIUS.none;
@@ -68,7 +67,6 @@ export const migrateStylingPropertiesForTheming = (
         }
     }
 
-    // migrate box shadow
     switch (child.boxShadow) {
       case BoxShadowTypes.VARIANT1:
         child.boxShadow = `0px 0px 4px 3px ${child.boxShadowColor ||
@@ -99,203 +97,205 @@ export const migrateStylingPropertiesForTheming = (
         child.boxShadow = DEFAULT_BOXSHADOW;
     }
 
-    // migrate table text sizes
     /**
      * Migrates the textSize property present at the table level.
      */
-    switch (child.textSize) {
-      case TextSizes.PARAGRAPH2:
-        child.textSize = THEMEING_TEXT_SIZES.xs;
-        addPropertyToDynamicPropertyPathList("textSize", child);
-        break;
-      case TextSizes.PARAGRAPH:
-        child.textSize = THEMEING_TEXT_SIZES.sm;
-        break;
-      case TextSizes.HEADING3:
-        child.textSize = THEMEING_TEXT_SIZES.base;
-        break;
-      case TextSizes.HEADING2:
-        child.textSize = THEMEING_TEXT_SIZES.md;
-        addPropertyToDynamicPropertyPathList("textSize", child);
-        break;
-      case TextSizes.HEADING1:
-        child.textSize = THEMEING_TEXT_SIZES.lg;
-        addPropertyToDynamicPropertyPathList("textSize", child);
-        break;
-      default:
-        child.textSize = THEMEING_TEXT_SIZES.sm;
-    }
-    if (child.hasOwnProperty("primaryColumns")) {
-      Object.keys(child.primaryColumns).forEach((key: string) => {
-        /**
-         * Migrates the textSize property present at the primaryColumn and derivedColumn level.
-         */
-        const column = child.primaryColumns[key];
-        const isDerivedColumn =
-          child.hasOwnProperty("derivedColumns") && key in child.derivedColumns;
-        const derivedColumn = child.derivedColumns[key];
-        switch (column.textSize) {
-          case TextSizes.PARAGRAPH2:
-            column.textSize = THEMEING_TEXT_SIZES.xs;
-            if (isDerivedColumn) {
-              derivedColumn.textSize = THEMEING_TEXT_SIZES.xs;
-            }
-            addPropertyToDynamicPropertyPathList(
-              `primaryColumns.${key}.textSize`,
-              child,
-            );
-            break;
-          case TextSizes.PARAGRAPH:
-            column.textSize = THEMEING_TEXT_SIZES.sm;
-            if (isDerivedColumn) {
-              derivedColumn.textSize = THEMEING_TEXT_SIZES.sm;
-            }
-            break;
-          case TextSizes.HEADING3:
-            column.textSize = THEMEING_TEXT_SIZES.base;
-            if (isDerivedColumn) {
-              derivedColumn.textSize = THEMEING_TEXT_SIZES.base;
-            }
-            break;
-          case TextSizes.HEADING2:
-            column.textSize = THEMEING_TEXT_SIZES.md;
-            if (isDerivedColumn) {
-              derivedColumn.textSize = THEMEING_TEXT_SIZES.md;
-            }
-            addPropertyToDynamicPropertyPathList(
-              `primaryColumns.${key}.textSize`,
-              child,
-            );
-            break;
-          case TextSizes.HEADING1:
-            column.textSize = THEMEING_TEXT_SIZES.lg;
-            if (isDerivedColumn) {
-              derivedColumn.textSize = THEMEING_TEXT_SIZES.lg;
-            }
-            addPropertyToDynamicPropertyPathList(
-              `primaryColumns.${key}.textSize`,
-              child,
-            );
-            break;
-        }
+    if (child.type === "TABLE_WIDGET") {
+      switch (child.textSize) {
+        case TextSizes.PARAGRAPH2:
+          child.textSize = THEMEING_TEXT_SIZES.xs;
+          addPropertyToDynamicPropertyPathList("textSize", child);
+          break;
+        case TextSizes.PARAGRAPH:
+          child.textSize = THEMEING_TEXT_SIZES.sm;
+          break;
+        case TextSizes.HEADING3:
+          child.textSize = THEMEING_TEXT_SIZES.base;
+          break;
+        case TextSizes.HEADING2:
+          child.textSize = THEMEING_TEXT_SIZES.md;
+          addPropertyToDynamicPropertyPathList("textSize", child);
+          break;
+        case TextSizes.HEADING1:
+          child.textSize = THEMEING_TEXT_SIZES.lg;
+          addPropertyToDynamicPropertyPathList("textSize", child);
+          break;
+        default:
+          child.textSize = THEMEING_TEXT_SIZES.sm;
+      }
+      if (child.hasOwnProperty("primaryColumns")) {
+        Object.keys(child.primaryColumns).forEach((key: string) => {
+          /**
+           * Migrates the textSize property present at the primaryColumn and derivedColumn level.
+           */
+          const column = child.primaryColumns[key];
+          const isDerivedColumn =
+            child.hasOwnProperty("derivedColumns") &&
+            key in child.derivedColumns;
+          const derivedColumn = child.derivedColumns[key];
+          switch (column.textSize) {
+            case TextSizes.PARAGRAPH2:
+              column.textSize = THEMEING_TEXT_SIZES.xs;
+              if (isDerivedColumn) {
+                derivedColumn.textSize = THEMEING_TEXT_SIZES.xs;
+              }
+              addPropertyToDynamicPropertyPathList(
+                `primaryColumns.${key}.textSize`,
+                child,
+              );
+              break;
+            case TextSizes.PARAGRAPH:
+              column.textSize = THEMEING_TEXT_SIZES.sm;
+              if (isDerivedColumn) {
+                derivedColumn.textSize = THEMEING_TEXT_SIZES.sm;
+              }
+              break;
+            case TextSizes.HEADING3:
+              column.textSize = THEMEING_TEXT_SIZES.base;
+              if (isDerivedColumn) {
+                derivedColumn.textSize = THEMEING_TEXT_SIZES.base;
+              }
+              break;
+            case TextSizes.HEADING2:
+              column.textSize = THEMEING_TEXT_SIZES.md;
+              if (isDerivedColumn) {
+                derivedColumn.textSize = THEMEING_TEXT_SIZES.md;
+              }
+              addPropertyToDynamicPropertyPathList(
+                `primaryColumns.${key}.textSize`,
+                child,
+              );
+              break;
+            case TextSizes.HEADING1:
+              column.textSize = THEMEING_TEXT_SIZES.lg;
+              if (isDerivedColumn) {
+                derivedColumn.textSize = THEMEING_TEXT_SIZES.lg;
+              }
+              addPropertyToDynamicPropertyPathList(
+                `primaryColumns.${key}.textSize`,
+                child,
+              );
+              break;
+          }
 
-        /**
-         * Migrate the borderRadius if exists for the primary columns and derived columns
-         */
-        switch (column.borderRadius) {
-          case ButtonBorderRadiusTypes.SHARP:
-            column.borderRadius = THEMING_BORDER_RADIUS.none;
-            if (isDerivedColumn) {
-              derivedColumn.borderRadius = THEMING_BORDER_RADIUS.none;
-            }
-            break;
-          case ButtonBorderRadiusTypes.ROUNDED:
-            column.borderRadius = THEMING_BORDER_RADIUS.rounded;
-            if (isDerivedColumn) {
-              derivedColumn.borderRadius = THEMING_BORDER_RADIUS.rounded;
-            }
-            break;
-          case ButtonBorderRadiusTypes.CIRCLE:
-            column.borderRadius = THEMING_BORDER_RADIUS.circle;
-            if (isDerivedColumn) {
-              derivedColumn.borderRadius = THEMING_BORDER_RADIUS.circle;
-            }
-            break;
-        }
+          /**
+           * Migrate the borderRadius if exists for the primary columns and derived columns
+           */
+          switch (column.borderRadius) {
+            case ButtonBorderRadiusTypes.SHARP:
+              column.borderRadius = THEMING_BORDER_RADIUS.none;
+              if (isDerivedColumn) {
+                derivedColumn.borderRadius = THEMING_BORDER_RADIUS.none;
+              }
+              break;
+            case ButtonBorderRadiusTypes.ROUNDED:
+              column.borderRadius = THEMING_BORDER_RADIUS.rounded;
+              if (isDerivedColumn) {
+                derivedColumn.borderRadius = THEMING_BORDER_RADIUS.rounded;
+              }
+              break;
+            case ButtonBorderRadiusTypes.CIRCLE:
+              column.borderRadius = THEMING_BORDER_RADIUS.circle;
+              if (isDerivedColumn) {
+                derivedColumn.borderRadius = THEMING_BORDER_RADIUS.circle;
+              }
+              break;
+          }
 
-        /**
-         * Migrate the boxShadow if exists for the primary columns and derived columns:
-         */
-        const isBoxShadowColorDynamic = isDynamicValue(column.boxShadowColor);
-        const newBoxShadowColor =
-          column.boxShadowColor || rgbaMigrationConstant;
+          /**
+           * Migrate the boxShadow if exists for the primary columns and derived columns:
+           */
+          const isBoxShadowColorDynamic = isDynamicValue(column.boxShadowColor);
+          const newBoxShadowColor =
+            column.boxShadowColor || rgbaMigrationConstantV56;
 
-        addPropertyToDynamicPropertyPathList(
-          `primaryColumns.${key}.boxShadow`,
-          child,
-        );
-        switch (column.boxShadow) {
-          case BoxShadowTypes.VARIANT1:
-            if (!isBoxShadowColorDynamic) {
-              // Checks is boxShadowColor is not dynamic
-              column.boxShadow = `0px 0px 4px 3px ${newBoxShadowColor}`;
-              if (isDerivedColumn) {
-                derivedColumn.boxShadow = `0px 0px 4px 3px ${newBoxShadowColor}`;
+          addPropertyToDynamicPropertyPathList(
+            `primaryColumns.${key}.boxShadow`,
+            child,
+          );
+          switch (column.boxShadow) {
+            case BoxShadowTypes.VARIANT1:
+              if (!isBoxShadowColorDynamic) {
+                // Checks is boxShadowColor is not dynamic
+                column.boxShadow = `0px 0px 4px 3px ${newBoxShadowColor}`;
+                if (isDerivedColumn) {
+                  derivedColumn.boxShadow = `0px 0px 4px 3px ${newBoxShadowColor}`;
+                }
+                delete column.boxShadowColor;
+              } else {
+                // Dynamic
+                column.boxShadow = `0px 0px 4px 3px ${rgbaMigrationConstantV56}`;
+                if (isDerivedColumn) {
+                  derivedColumn.boxShadow = `0px 0px 4px 3px ${rgbaMigrationConstantV56}`;
+                }
               }
-              delete column.boxShadowColor;
-            } else {
-              // Dynamic
-              column.boxShadow = `0px 0px 4px 3px ${rgbaMigrationConstant}`;
-              if (isDerivedColumn) {
-                derivedColumn.boxShadow = `0px 0px 4px 3px ${rgbaMigrationConstant}`;
+              break;
+            case BoxShadowTypes.VARIANT2:
+              if (!isBoxShadowColorDynamic) {
+                // Checks is boxShadowColor is not dynamic
+                column.boxShadow = `3px 3px 4px ${newBoxShadowColor}`;
+                if (isDerivedColumn) {
+                  derivedColumn.boxShadow = `3px 3px 4px ${newBoxShadowColor}`;
+                }
+                delete column.boxShadowColor;
+              } else {
+                // Dynamic
+                column.boxShadow = `3px 3px 4px ${rgbaMigrationConstantV56}`;
+                if (isDerivedColumn) {
+                  derivedColumn.boxShadow = `3px 3px 4px ${rgbaMigrationConstantV56}`;
+                }
               }
-            }
-            break;
-          case BoxShadowTypes.VARIANT2:
-            if (!isBoxShadowColorDynamic) {
-              // Checks is boxShadowColor is not dynamic
-              column.boxShadow = `3px 3px 4px ${newBoxShadowColor}`;
-              if (isDerivedColumn) {
-                derivedColumn.boxShadow = `3px 3px 4px ${newBoxShadowColor}`;
+              break;
+            case BoxShadowTypes.VARIANT3:
+              if (!isBoxShadowColorDynamic) {
+                // Checks is boxShadowColor is not dynamic
+                column.boxShadow = `0px 1px 3px ${newBoxShadowColor}`;
+                if (isDerivedColumn) {
+                  derivedColumn.boxShadow = `0px 1px 3px ${newBoxShadowColor}`;
+                }
+                delete column.boxShadowColor;
+              } else {
+                // Dynamic
+                column.boxShadow = `0px 1px 3px ${rgbaMigrationConstantV56}`;
+                if (isDerivedColumn) {
+                  derivedColumn.boxShadow = `0px 1px 3px ${rgbaMigrationConstantV56}`;
+                }
               }
-              delete column.boxShadowColor;
-            } else {
-              // Dynamic
-              column.boxShadow = `3px 3px 4px ${rgbaMigrationConstant}`;
-              if (isDerivedColumn) {
-                derivedColumn.boxShadow = `3px 3px 4px ${rgbaMigrationConstant}`;
+              break;
+            case BoxShadowTypes.VARIANT4:
+              if (!isBoxShadowColorDynamic) {
+                // Checks is boxShadowColor is not dynamic
+                column.boxShadow = `2px 2px 0px ${newBoxShadowColor}`;
+                if (isDerivedColumn) {
+                  derivedColumn.boxShadow = `2px 2px 0px ${newBoxShadowColor}`;
+                }
+                delete column.boxShadowColor;
+              } else {
+                column.boxShadow = `2px 2px 0px ${rgbaMigrationConstantV56}`;
+                if (isDerivedColumn) {
+                  derivedColumn.boxShadow = `2px 2px 0px ${rgbaMigrationConstantV56}`;
+                }
               }
-            }
-            break;
-          case BoxShadowTypes.VARIANT3:
-            if (!isBoxShadowColorDynamic) {
-              // Checks is boxShadowColor is not dynamic
-              column.boxShadow = `0px 1px 3px ${newBoxShadowColor}`;
-              if (isDerivedColumn) {
-                derivedColumn.boxShadow = `0px 1px 3px ${newBoxShadowColor}`;
+              break;
+            case BoxShadowTypes.VARIANT5:
+              if (!isBoxShadowColorDynamic) {
+                // Checks is boxShadowColor is not dynamic
+                column.boxShadow = `-2px -2px 0px ${newBoxShadowColor}`;
+                if (isDerivedColumn) {
+                  derivedColumn.boxShadow = `-2px -2px 0px ${newBoxShadowColor}`;
+                }
+                delete column.boxShadowColor;
+              } else {
+                // Dynamic
+                column.boxShadow = `-2px -2px 0px ${rgbaMigrationConstantV56}`;
+                if (isDerivedColumn) {
+                  derivedColumn.boxShadow = `-2px -2px 0px ${rgbaMigrationConstantV56}`;
+                }
               }
-              delete column.boxShadowColor;
-            } else {
-              // Dynamic
-              column.boxShadow = `0px 1px 3px ${rgbaMigrationConstant}`;
-              if (isDerivedColumn) {
-                derivedColumn.boxShadow = `0px 1px 3px ${rgbaMigrationConstant}`;
-              }
-            }
-            break;
-          case BoxShadowTypes.VARIANT4:
-            if (!isBoxShadowColorDynamic) {
-              // Checks is boxShadowColor is not dynamic
-              column.boxShadow = `2px 2px 0px ${newBoxShadowColor}`;
-              if (isDerivedColumn) {
-                derivedColumn.boxShadow = `2px 2px 0px ${newBoxShadowColor}`;
-              }
-              delete column.boxShadowColor;
-            } else {
-              column.boxShadow = `2px 2px 0px ${rgbaMigrationConstant}`;
-              if (isDerivedColumn) {
-                derivedColumn.boxShadow = `2px 2px 0px ${rgbaMigrationConstant}`;
-              }
-            }
-            break;
-          case BoxShadowTypes.VARIANT5:
-            if (!isBoxShadowColorDynamic) {
-              // Checks is boxShadowColor is not dynamic
-              column.boxShadow = `-2px -2px 0px ${newBoxShadowColor}`;
-              if (isDerivedColumn) {
-                derivedColumn.boxShadow = `-2px -2px 0px ${newBoxShadowColor}`;
-              }
-              delete column.boxShadowColor;
-            } else {
-              // Dynamic
-              column.boxShadow = `-2px -2px 0px ${rgbaMigrationConstant}`;
-              if (isDerivedColumn) {
-                derivedColumn.boxShadow = `-2px -2px 0px ${rgbaMigrationConstant}`;
-              }
-            }
-            break;
-        }
-      });
+              break;
+          }
+        });
+      }
     }
 
     /**
@@ -475,7 +475,6 @@ export const migrateStylingPropertiesForTheming = (
       }
     }
 
-    // migrate font size
     switch (child.fontSize) {
       case TextSizes.PARAGRAPH2:
         child.fontSize = THEMEING_TEXT_SIZES.xs;
@@ -497,7 +496,6 @@ export const migrateStylingPropertiesForTheming = (
         break;
     }
 
-    // migrate label text sizes
     switch (child.labelTextSize) {
       case TextSizes.PARAGRAPH2:
         child.labelTextSize = THEMEING_TEXT_SIZES.xs;
@@ -527,20 +525,12 @@ export const migrateStylingPropertiesForTheming = (
     if (widgetsWithPrimaryColorProp.includes(child.type)) {
       child.accentColor = "{{appsmith.theme.colors.primaryColor}}";
 
-      const resultantElement = (child.dynamicBindingPathList || []).find(
-        (bindingPath) => {
-          return bindingPath.key === "accentColor";
+      child.dynamicBindingPathList = [
+        ...(child.dynamicBindingPathList || []),
+        {
+          key: "accentColor",
         },
-      );
-
-      if (!resultantElement) {
-        child.dynamicBindingPathList = [
-          ...(child.dynamicBindingPathList || []),
-          {
-            key: "accentColor",
-          },
-        ];
-      }
+      ];
     }
 
     // specific fixes
@@ -592,10 +582,10 @@ export const addPropertyToDynamicPropertyPathList = (
   propertyName: string,
   child: WidgetProps,
 ) => {
-  const resultantDynamicProp = (child.dynamicPropertyPathList || []).find(
+  const isPropertyPathPresent = (child.dynamicPropertyPathList || []).find(
     (property) => property.key === propertyName,
   );
-  if (!resultantDynamicProp) {
+  if (!isPropertyPathPresent) {
     child.dynamicPropertyPathList = [
       ...(child.dynamicPropertyPathList || []),
       { key: propertyName },
