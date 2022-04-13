@@ -249,7 +249,8 @@ const Selected = styled.div<{
         ? props.hasError
           ? Colors.FAIR_PINK
           : props.theme.colors.dropdown.hovered.bg
-        : Colors.WHITE}
+        : Colors.WHITE};
+  }
 `;
 
 export const DropdownContainer = styled.div<{ width: string; height?: string }>`
@@ -448,6 +449,14 @@ const SelectedDropDownHolder = styled.div`
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  & > * {
+    // below if to override any custom margin and padding added in the render option
+    // because the above container already comes with a padding
+    // which will result broken UI
+    margin: 0 !important;
+    padding: 0 !important;
   }
 `;
 
