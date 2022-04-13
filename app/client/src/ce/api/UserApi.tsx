@@ -1,7 +1,7 @@
 import { AxiosPromise } from "axios";
 import Api from "api/Api";
-import { ApiResponse } from "./ApiResponses";
-import { CommentsOnboardingState } from "../constants/userConstants";
+import { ApiResponse } from "api/ApiResponses";
+import { CommentsOnboardingState } from "constants/userConstants";
 
 export interface LoginUserRequest {
   email: string;
@@ -83,7 +83,7 @@ export interface CreateSuperUserRequest {
   signupForNewsletter: boolean;
 }
 
-class UserApi extends Api {
+export class UserApi extends Api {
   static usersURL = "v1/users";
   static forgotPasswordURL = `${UserApi.usersURL}/forgotPassword`;
   static verifyResetPasswordTokenURL = `${UserApi.usersURL}/verifyPasswordResetToken`;

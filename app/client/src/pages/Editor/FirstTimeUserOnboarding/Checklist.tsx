@@ -21,7 +21,7 @@ import {
 } from "selectors/editorSelectors";
 import history from "utils/history";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   getFirstTimeUserOnboardingComplete,
   getEnableFirstTimeUserOnboarding,
