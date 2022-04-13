@@ -7,7 +7,8 @@ import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 
-const reg = /this\./g;
+const THIS_DOT_REGEX = /this\./g;
+const THIS_SQUARE_BRACKET_REGEX = /this\[/g;
 
 export const generateDataTreeJSAction = (
   js: JSCollectionData,
@@ -20,7 +21,9 @@ export const generateDataTreeJSAction = (
   const listVariables: Array<string> = [];
   dynamicBindingPathList.push({ key: "body" });
 
-  const removeThisReference = js.config.body.replace(reg, `${js.config.name}.`);
+  const removeThisReference = js.config.body
+    .replace(THIS_DOT_REGEX, `${js.config.name}.`)
+    .replace(THIS_SQUARE_BRACKET_REGEX, `${js.config.name}[`);
   bindingPaths["body"] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
 
   if (variables) {

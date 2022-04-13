@@ -126,6 +126,17 @@ const isArrayAccessorNode = (node: Node): node is MemberExpressionNode => {
   );
 };
 
+const isStringLiteralAccessorNode = (
+  node: Node,
+): node is MemberExpressionNode => {
+  return (
+    isMemberExpressionNode(node) &&
+    node.computed &&
+    isLiteralNode(node.property) &&
+    typeof node.property.value === "string"
+  );
+};
+
 const wrapCode = (code: string) => {
   return `
     (function() {
@@ -144,7 +155,10 @@ export const getAST = (code: string) =>
  * should run again.
  * @param code: The piece of script where identifiers need to be extracted from
  */
-export const extractIdentifiersFromCode = (code: string): string[] => {
+export const extractIdentifiersFromCode = (
+  code: string,
+  includeStringLiteralAccessor = false,
+): string[] => {
   // List of all identifiers found
   const identifiers = new Set<string>();
   // List of variables declared within the script. This will be removed from identifier list
@@ -202,7 +216,14 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
              Member expressions that are array accessors with static index - [9]
              will not be considered top level.
              We will continue looking further. */
-          (!parent.computed || isArrayAccessorNode(parent)) &&
+          /* "computed" exception - isStringLiteralAccessorNode (toggled by includeStringLiteralAccessor param)
+             Member expressions that are array accessors with string index - ["myProp"]
+             will not be considered top level.
+             We will continue looking further. */
+          (!parent.computed ||
+            isArrayAccessorNode(parent) ||
+            (includeStringLiteralAccessor &&
+              isStringLiteralAccessorNode(parent))) &&
           !parent.optional
         ) {
           candidateTopLevelNode = parent;
@@ -251,6 +272,11 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
     },
   });
 
+  console.log(
+    "dependency ast",
+    includeStringLiteralAccessor,
+    Array.from(identifiers),
+  );
   // Remove declared variables and function params
   variableDeclarations.forEach((variable) => identifiers.delete(variable));
   functionalParams.forEach((param) => identifiers.delete(param));

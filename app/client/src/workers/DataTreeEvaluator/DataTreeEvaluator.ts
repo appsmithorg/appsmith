@@ -484,21 +484,17 @@ export default class DataTreeEvaluator {
       }
     });
     Object.keys(dependencyMap).forEach((key) => {
+      const { entityName } = getEntityNameAndPropertyPath(key);
+      const entityType = (unEvalTree[entityName] as DataTreeJSAction)
+        ?.ENTITY_TYPE;
       dependencyMap[key] = _.flatten(
-        dependencyMap[key].map((path) => {
-          try {
-            return extractReferencesFromBinding(path, this.allKeys);
-          } catch (e) {
-            this.errors.push({
-              type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
-              message: e.message,
-              context: {
-                script: path,
-              },
-            });
-            return [];
-          }
-        }),
+        dependencyMap[key].map((path) =>
+          this.extractReferencesFromBinding(
+            path,
+            this.allKeys,
+            entityType === ENTITY_TYPE.JSACTION,
+          ),
+        ),
       );
     });
     dependencyMap = makeParentsDependOnChildren(dependencyMap, this.allKeys);
@@ -1409,22 +1405,18 @@ export default class DataTreeEvaluator {
     if (didUpdateDependencyMap) {
       // TODO Optimise
       Object.keys(this.dependencyMap).forEach((key) => {
+        const { entityName } = getEntityNameAndPropertyPath(key);
+        const entity = unEvalDataTree[entityName];
         this.dependencyMap[key] = _.uniq(
           _.flatten(
-            this.dependencyMap[key].map((path) => {
-              try {
-                return extractReferencesFromBinding(path, this.allKeys);
-              } catch (e) {
-                this.errors.push({
-                  type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
-                  message: e.message,
-                  context: {
-                    script: path,
-                  },
-                });
-                return [];
-              }
-            }),
+            this.dependencyMap[key].map((path) =>
+              this.extractReferencesFromBinding(
+                path,
+                this.allKeys,
+                (entity as DataTreeJSAction)?.ENTITY_TYPE ===
+                  ENTITY_TYPE.JSACTION,
+              ),
+            ),
           ),
         );
       });
@@ -1590,22 +1582,14 @@ export default class DataTreeEvaluator {
         Object.keys(entityPropertyBindings).forEach((path) => {
           const propertyBindings = entityPropertyBindings[path];
           const references = _.flatten(
-            propertyBindings.map((binding) => {
-              {
-                try {
-                  return extractReferencesFromBinding(binding, this.allKeys);
-                } catch (e) {
-                  this.errors.push({
-                    type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
-                    message: e.message,
-                    context: {
-                      script: binding,
-                    },
-                  });
-                  return [];
-                }
-              }
-            }),
+            propertyBindings.map((binding) =>
+              this.extractReferencesFromBinding(
+                binding,
+                this.allKeys,
+                (entity as DataTreeJSAction)?.ENTITY_TYPE ===
+                  ENTITY_TYPE.JSACTION,
+              ),
+            ),
           );
           references.forEach((value) => {
             if (isChildPropertyPath(propertyPath, value)) {
@@ -1689,39 +1673,55 @@ export default class DataTreeEvaluator {
       EvaluationScriptType.TRIGGERS,
     );
   }
-}
 
-export const extractReferencesFromBinding = (
-  script: string,
-  allPaths: Record<string, true>,
-): string[] => {
-  const references: Set<string> = new Set<string>();
-  const identifiers = extractIdentifiersFromCode(script);
-
-  identifiers.forEach((identifier: string) => {
-    // If the identifier exists directly, add it and return
-    if (allPaths.hasOwnProperty(identifier)) {
-      references.add(identifier);
-      return;
+  private extractReferencesFromBinding = (
+    script: string,
+    allPaths: Record<string, true>,
+    includeLiteralAccessorString: boolean,
+  ): string[] => {
+    const references: Set<string> = new Set<string>();
+    let identifiers: string[] = [];
+    try {
+      identifiers = extractIdentifiersFromCode(
+        script,
+        includeLiteralAccessorString,
+      );
+    } catch (e) {
+      this.errors.push({
+        type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
+        message: e.message,
+        context: {
+          script,
+        },
+      });
+      return [];
     }
-    const subpaths = _.toPath(identifier);
-    let current = "";
-    // We want to keep going till we reach top level, but not add top level
-    // Eg: Input1.text should not depend on entire Table1 unless it explicitly asked for that.
-    // This is mainly to avoid a lot of unnecessary evals, if we feel this is wrong
-    // we can remove the length requirement, and it will still work
-    while (subpaths.length > 1) {
-      current = convertPathToString(subpaths);
-      // We've found the dep, add it and return
-      if (allPaths.hasOwnProperty(current)) {
-        references.add(current);
+    identifiers.forEach((identifier: string) => {
+      // If the identifier exists directly, add it and return
+      if (allPaths.hasOwnProperty(identifier)) {
+        references.add(identifier);
         return;
       }
-      subpaths.pop();
-    }
-  });
-  return Array.from(references);
-};
+      const subpaths = _.toPath(identifier);
+      let current = "";
+      // We want to keep going till we reach top level, but not add top level
+      // Eg: Input1.text should not depend on entire Table1 unless it explicitly asked for that.
+      // This is mainly to avoid a lot of unnecessary evals, if we feel this is wrong
+      // we can remove the length requirement, and it will still work
+      while (subpaths.length > 1) {
+        current = convertPathToString(subpaths);
+        // We've found the dep, add it and return
+        if (allPaths.hasOwnProperty(current)) {
+          references.add(current);
+          return;
+        }
+        subpaths.pop();
+      }
+    });
+    console.log("dependency", script, identifiers, Array.from(references));
+    return Array.from(references);
+  };
+}
 
 // TODO cryptic comment below. Dont know if we still need this. Duplicate function
 // referencing DATA_BIND_REGEX fails for the value "{{Table1.tableData[Table1.selectedRowIndex]}}" if you run it multiple times and don't recreate
