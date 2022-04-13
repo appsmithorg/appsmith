@@ -33,14 +33,14 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import { ApplicationPayload } from "constants/ReduxActionConstants";
+import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
   getPageList,
   getPlugins,
   getPluginSettingConfigs,
 } from "selectors/entitiesSelector";
-import { SAAS_EDITOR_API_ID_URL } from "../SaaSEditor/constants";
 import history from "utils/history";
+import { saasEditorApiIdURL } from "RouteBuilder";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -230,15 +230,15 @@ class ApiEditor extends React.Component<Props> {
         )}
         {formUiComponent === "SaaSEditorForm" &&
           history.push(
-            SAAS_EDITOR_API_ID_URL(
-              this.props.applicationId,
-              this.props.match.params.pageId,
-              getPackageNameFromPluginId(
-                this.props.pluginId,
-                this.props.plugins,
-              ) ?? "",
-              this.props.match.params.apiId,
-            ),
+            saasEditorApiIdURL({
+              pageId: this.props.match.params.pageId,
+              pluginPackageName:
+                getPackageNameFromPluginId(
+                  this.props.pluginId,
+                  this.props.plugins,
+                ) ?? "",
+              apiId: this.props.match.params.apiId,
+            }),
           )}
       </div>
     );

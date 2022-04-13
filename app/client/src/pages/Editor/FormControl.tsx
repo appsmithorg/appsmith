@@ -7,7 +7,7 @@ import {
 } from "components/formControls/utils";
 import { useSelector, shallowEqual } from "react-redux";
 import { getFormValues } from "redux-form";
-import FormControlFactory from "utils/FormControlFactory";
+import FormControlFactory from "utils/formControl/FormControlFactory";
 
 import { AppState } from "reducers";
 import { Action } from "entities/Action";
@@ -62,7 +62,10 @@ function FormControl(props: FormControlProps) {
           formName={props.formName}
           multipleConfig={props?.multipleConfig}
         >
-          <div className={`t--form-control-${props.config.controlType}`}>
+          <div
+            className={`t--form-control-${props.config.controlType}`}
+            data-replay-id={btoa(props.config.configProperty)}
+          >
             {viewTypes.length > 0 && viewTypes.includes(ViewTypes.JSON) ? (
               <ToggleComponentToJson
                 configProperty={props.config.configProperty}

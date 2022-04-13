@@ -2,14 +2,20 @@ import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
-import { generateReactKey } from "utils/generators";
-import { DroppableComponent } from "components/ads/DraggableListComponent";
-import { getNextEntityName, noop } from "utils/AppsmithUtils";
-import _, { orderBy } from "lodash";
+import {
+  BaseItemProps,
+  DroppableComponent,
+  RenderComponentProps,
+} from "components/ads/DraggableListComponent";
+import orderBy from "lodash/orderBy";
+import isString from "lodash/isString";
+import isUndefined from "lodash/isUndefined";
+import includes from "lodash/includes";
+import map from "lodash/map";
 import * as Sentry from "@sentry/react";
 import { Category, Size } from "components/ads/Button";
 import { useDispatch } from "react-redux";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { DraggableListCard } from "components/ads/DraggableListCard";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
@@ -25,20 +31,7 @@ const TabsWrapper = styled.div`
   flex-direction: column;
 `;
 
-type RenderComponentProps = {
-  focusedIndex: number | null | undefined;
-  index: number;
-  isDragging: boolean;
-  item: {
-    label: string;
-    isVisible?: boolean;
-  };
-  deleteOption: (index: number) => void;
-  updateFocus?: (index: number, isFocused: boolean) => void;
-  updateOption: (index: number, value: string) => void;
-  toggleVisibility?: (index: number) => void;
-  onEdit?: (props: any) => void;
-};
+type DroppableItem = BaseItemProps;
 
 function AddTabButtonComponent({ widgetId }: any) {
   const dispatch = useDispatch();
@@ -54,6 +47,7 @@ function AddTabButtonComponent({ widgetId }: any) {
     <StyledPropertyPaneButtonWrapper>
       <StyledPropertyPaneButton
         category={Category.tertiary}
+        className="t--add-tab-btn"
         icon="plus"
         onClick={addOption}
         size={Size.medium}
@@ -65,7 +59,7 @@ function AddTabButtonComponent({ widgetId }: any) {
   );
 }
 
-function TabControlComponent(props: RenderComponentProps) {
+function TabControlComponent(props: RenderComponentProps<DroppableItem>) {
   const { index, item } = props;
   const dispatch = useDispatch();
   const deleteOption = () => {
@@ -73,6 +67,7 @@ function TabControlComponent(props: RenderComponentProps) {
       type: ReduxActionTypes.WIDGET_DELETE_TAB_CHILD,
       payload: { ...item, index },
     });
+    if (props.deleteOption) props.deleteOption(index);
   };
 
   return (
@@ -87,6 +82,7 @@ function TabControlComponent(props: RenderComponentProps) {
 
 type State = {
   focusedIndex: number | null;
+  duplicateTabIds: string[];
 };
 
 class TabControl extends BaseControl<ControlProps, State> {
@@ -95,8 +91,27 @@ class TabControl extends BaseControl<ControlProps, State> {
 
     this.state = {
       focusedIndex: null,
+      duplicateTabIds: this.getDuplicateTabIds(props.propertyValue),
     };
   }
+
+  getDuplicateTabIds = (propertyValue: ControlProps["propertyValue"]) => {
+    const duplicateTabIds = [];
+    const tabIds = Object.keys(propertyValue);
+    const tabNames = map(propertyValue, "label");
+
+    for (let index = 0; index < tabNames.length; index++) {
+      const currLabel = tabNames[index] as string;
+      const duplicateValueIndex = tabNames.indexOf(currLabel);
+      if (duplicateValueIndex !== index) {
+        // get tab id from propertyValue index
+        duplicateTabIds.push(propertyValue[tabIds[index]].id);
+      }
+    }
+
+    return duplicateTabIds;
+  };
+
   componentDidMount() {
     this.migrateTabData(this.props.propertyValue);
   }
@@ -119,7 +134,7 @@ class TabControl extends BaseControl<ControlProps, State> {
   ) {
     // Added a migration script for older tab data that was strings
     // deprecate after enough tabs have moved to the new format
-    if (_.isString(tabData)) {
+    if (isString(tabData)) {
       try {
         const parsedData: Array<{
           sid: string;
@@ -138,6 +153,25 @@ class TabControl extends BaseControl<ControlProps, State> {
     }
   }
 
+  getTabItems = () => {
+    let menuItems: Array<{
+      id: string;
+      label: string;
+      isVisible?: boolean;
+      isDuplicateLabel?: boolean;
+    }> =
+      isString(this.props.propertyValue) ||
+      isUndefined(this.props.propertyValue)
+        ? []
+        : Object.values(this.props.propertyValue);
+    menuItems = orderBy(menuItems, ["index"], ["asc"]);
+    menuItems = menuItems.map((tab: DroppableItem) => ({
+      ...tab,
+      isDuplicateLabel: includes(this.state.duplicateTabIds, tab.id),
+    }));
+    return menuItems;
+  };
+
   updateItems = (items: Array<Record<string, any>>) => {
     const tabsObj = items.reduce((obj: any, each: any, index: number) => {
       obj[each.id] = {
@@ -150,10 +184,7 @@ class TabControl extends BaseControl<ControlProps, State> {
   };
 
   onEdit = (index: number) => {
-    const tabs: Array<{
-      id: string;
-      label: string;
-    }> = Object.values(this.props.propertyValue);
+    const tabs = this.getTabItems();
     const tabToChange = tabs[index];
     this.props.openNextPanel({
       index,
@@ -162,21 +193,14 @@ class TabControl extends BaseControl<ControlProps, State> {
     });
   };
   render() {
-    const tabs: Array<{
-      id: string;
-      label: string;
-    }> = _.isString(this.props.propertyValue)
-      ? []
-      : Object.values(this.props.propertyValue);
-
     return (
       <TabsWrapper>
         <DroppableComponent
-          deleteOption={noop}
+          deleteOption={this.deleteOption}
           fixedHeight={370}
           focusedIndex={this.state.focusedIndex}
           itemHeight={45}
-          items={orderBy(tabs, ["index"], ["asc"])}
+          items={this.getTabItems()}
           onEdit={this.onEdit}
           renderComponent={TabControlComponent}
           toggleVisibility={this.toggleVisibility}
@@ -192,12 +216,7 @@ class TabControl extends BaseControl<ControlProps, State> {
   }
 
   toggleVisibility = (index: number) => {
-    const tabs: Array<{
-      id: string;
-      label: string;
-      isVisible: boolean;
-      widgetId: string;
-    }> = this.props.propertyValue.slice();
+    const tabs = this.getTabItems();
     const isVisible = tabs[index].isVisible === true ? false : true;
     const updatedTabs = tabs.map((tab, tabIndex) => {
       if (index === tabIndex) {
@@ -211,34 +230,33 @@ class TabControl extends BaseControl<ControlProps, State> {
     this.updateProperty(this.props.propertyName, updatedTabs);
   };
 
+  deleteOption = (index: number) => {
+    const tabIds = Object.keys(this.props.propertyValue);
+    const newPropertyValue = { ...this.props.propertyValue };
+    // detele current item from propertyValue
+    delete newPropertyValue[tabIds[index]];
+    const duplicateTabIds = this.getDuplicateTabIds(newPropertyValue);
+    this.setState({ duplicateTabIds });
+  };
+
   updateOption = (index: number, updatedLabel: string) => {
-    const tabsArray: any = Object.values(this.props.propertyValue);
+    const tabsArray = this.getTabItems();
     const { id: itemId } = tabsArray[index];
     this.updateProperty(
       `${this.props.propertyName}.${itemId}.label`,
       updatedLabel,
     );
-  };
-
-  addOption = () => {
-    let tabs = this.props.propertyValue;
-    const tabsArray = Object.values(tabs);
-    const newTabId = generateReactKey({ prefix: "tab" });
-    const newTabLabel = getNextEntityName(
-      "Tab ",
-      tabsArray.map((tab: any) => tab.label),
-    );
-    tabs = {
-      ...tabs,
-      [newTabId]: {
-        id: newTabId,
-        label: newTabLabel,
-        widgetId: generateReactKey(),
-        isVisible: true,
-      },
-    };
-
-    this.updateProperty(this.props.propertyName, tabs);
+    // check entered label is unique or duplicate
+    const tabNames = map(tabsArray, "label");
+    let duplicateTabIds = [...this.state.duplicateTabIds];
+    // if duplicate, add into array
+    if (includes(tabNames, updatedLabel)) {
+      duplicateTabIds.push(itemId);
+      this.setState({ duplicateTabIds });
+    } else {
+      duplicateTabIds = duplicateTabIds.filter((id) => id !== itemId);
+      this.setState({ duplicateTabIds });
+    }
   };
 
   updateFocus = (index: number, isFocused: boolean) => {

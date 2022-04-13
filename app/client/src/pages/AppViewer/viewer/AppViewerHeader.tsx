@@ -12,19 +12,11 @@ import {
 import {
   ApplicationPayload,
   PageListPayload,
-} from "constants/ReduxActionConstants";
-import {
-  APPLICATIONS_URL,
-  AUTH_LOGIN_URL,
-  getApplicationViewerPageURL,
-} from "constants/routes";
+} from "@appsmith/constants/ReduxActionConstants";
+import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
 import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { getEditorURL } from "selectors/appViewSelectors";
-import {
-  getCurrentApplicationId,
-  getViewModePageList,
-} from "selectors/editorSelectors";
+import { getViewModePageList } from "selectors/editorSelectors";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
@@ -47,6 +39,7 @@ import { showAppInviteUsersDialogSelector } from "selectors/applicationSelectors
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { ShareButtonComponent } from "../../Editor/EditorHeader";
 import TourCompletionMessage from "pages/Editor/GuidedTour/TourCompletionMessage";
+import { builderURL, viewerURL } from "RouteBuilder";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   box-shadow: unset;
@@ -143,6 +136,19 @@ type AppViewerHeaderProps = {
   lightTheme: Theme;
 };
 
+function HtmlTitle({
+  currentApplicationDetails,
+}: {
+  currentApplicationDetails?: ApplicationPayload;
+}) {
+  if (!currentApplicationDetails?.name) return null;
+  return (
+    <Helmet>
+      <title>{currentApplicationDetails?.name}</title>
+    </Helmet>
+  );
+}
+
 export function AppViewerHeader(props: AppViewerHeaderProps) {
   const { currentApplicationDetails, currentOrgId, currentUser, pages } = props;
   const userPermissions = currentApplicationDetails?.userPermissions ?? [];
@@ -152,34 +158,29 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed");
   const hideHeader = !!isEmbed;
-  const applicationId = useSelector(getCurrentApplicationId);
-  const pageId = useSelector(getCurrentPageId);
+  const pageId = useSelector(getCurrentPageId) as string;
   const shouldHideComments = useHideComments();
   const showAppInviteUsersDialog = useSelector(
     showAppInviteUsersDialogSelector,
   );
 
-  function HtmlTitle() {
-    if (!currentApplicationDetails?.name) return null;
-    return (
-      <Helmet>
-        <title>{currentApplicationDetails?.name}</title>
-      </Helmet>
-    );
-  }
-  if (hideHeader) return <HtmlTitle />;
+  if (hideHeader)
+    return <HtmlTitle currentApplicationDetails={currentApplicationDetails} />;
 
   const forkUrl = `${AUTH_LOGIN_URL}?redirectUrl=${
     window.location.origin
-  }${getApplicationViewerPageURL({
-    applicationId,
+  }${viewerURL({
     pageId,
+    applicationVersion: currentApplicationDetails?.applicationVersion,
     suffix: "fork",
   })}`;
   const loginUrl = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;
 
   const CTA = GetAppViewerHeaderCTA({
-    url: props.url,
+    url: builderURL({
+      pageId,
+      applicationVersion: currentApplicationDetails?.applicationVersion,
+    }),
     canEdit,
     currentApplicationDetails,
     currentUser,
@@ -189,7 +190,10 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
 
   return (
     <ThemeProvider theme={props.lightTheme}>
-      <HeaderWrapper hasPages={pages.length > 1}>
+      <HeaderWrapper
+        data-testid={"t--appsmith-app-viewer-header"}
+        hasPages={pages.length > 1}
+      >
         <HtmlTitle />
         <HeaderRow className="px-3" justify={"space-between"}>
           <HeaderSection className="space-x-3 justify-start">
@@ -259,7 +263,6 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
 
 const mapStateToProps = (state: AppState): AppViewerHeaderProps => ({
   pages: getViewModePageList(state),
-  url: getEditorURL(state),
   currentApplicationDetails: state.ui.applications.currentApplication,
   currentOrgId: getCurrentOrgId(state),
   currentUser: getCurrentUser(state),

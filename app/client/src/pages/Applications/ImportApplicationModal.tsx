@@ -24,10 +24,10 @@ import { Theme } from "constants/DefaultTheme";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getIsImportingApplication } from "selectors/applicationSelectors";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import Dialog from "../../components/ads/DialogComponent";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import Dialog from "components/ads/DialogComponent";
 import { Classes } from "@blueprintjs/core";
-import getFeatureFlags from "../../utils/featureFlags";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 const StyledDialog = styled(Dialog)`
   && .${Classes.DIALOG_HEADER} {
@@ -74,8 +74,8 @@ const Row = styled.div`
   justify-content: space-between;
 `;
 
-const FileImportCard = styled.div`
-  width: 320px;
+const FileImportCard = styled.div<{ gitEnabled?: boolean }>`
+  width: ${(props) => (props.gitEnabled ? "320px" : "100%")};
   height: 200px;
   border: 1px solid ${Colors.GREY_4};
   display: flex;
@@ -259,7 +259,9 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
   }, [appFileToBeUploaded, importingApplication]);
 
   const onRemoveFile = useCallback(() => setAppFileToBeUploaded(null), []);
-  const isGitImportFeatureEnabled = getFeatureFlags().GIT_IMPORT;
+
+  const featureFlags = useSelector(selectFeatureFlags);
+  const { GIT_IMPORT: isGitImportFeatureEnabled } = featureFlags;
 
   return (
     <StyledDialog
@@ -281,7 +283,10 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
         </Text>
       </TextWrapper>
       <Row>
-        <FileImportCard className="t--import-json-card">
+        <FileImportCard
+          className="t--import-json-card"
+          gitEnabled={isGitImportFeatureEnabled}
+        >
           <FilePickerV2
             containerClickable
             description={createMessage(IMPORT_APP_FROM_FILE_MESSAGE)}

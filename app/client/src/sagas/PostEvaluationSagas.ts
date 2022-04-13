@@ -18,14 +18,14 @@ import {
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { find, get, some } from "lodash";
-import LOG_TYPE from "../entities/AppsmithConsole/logtype";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { put, select } from "redux-saga/effects";
-import { AnyReduxAction } from "constants/ReduxActionConstants";
+import { AnyReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import AppsmithConsole from "../utils/AppsmithConsole";
+import AppsmithConsole from "utils/AppsmithConsole";
 import * as Sentry from "@sentry/react";
-import AnalyticsUtil from "../utils/AnalyticsUtil";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
   ERROR_EVAL_ERROR_GENERIC,
@@ -38,6 +38,8 @@ import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import TernServer from "utils/autocomplete/TernServer";
+import { selectFeatureFlags } from "selectors/usersSelectors";
+import FeatureFlags from "entities/FeatureFlags";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 /**
@@ -70,7 +72,10 @@ function logLatestEvalPropertyErrors(
       }
       let allEvalErrors: EvaluationError[] = get(
         entity,
-        getEvalErrorPath(evaluatedPath, false),
+        getEvalErrorPath(evaluatedPath, {
+          fullPath: false,
+          isPopulated: false,
+        }),
         [],
       );
 
@@ -84,7 +89,10 @@ function logLatestEvalPropertyErrors(
 
       const evaluatedValue = get(
         entity,
-        getEvalValuePath(evaluatedPath, false),
+        getEvalValuePath(evaluatedPath, {
+          isPopulated: false,
+          fullPath: false,
+        }),
       );
       const evalErrors: EvaluationError[] = [];
       const evalWarnings: EvaluationError[] = [];
@@ -295,7 +303,7 @@ export function* logSuccessfulBindings(
   dataTree: DataTree,
   evaluationOrder: string[],
 ) {
-  const appMode = yield select(getAppMode);
+  const appMode: APP_MODE = yield select(getAppMode);
   if (appMode === APP_MODE.PUBLISHED) return;
   if (!evaluationOrder) return;
   evaluationOrder.forEach((evaluatedPath) => {
@@ -365,8 +373,10 @@ export function* updateTernDefinitions(
     const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(
       dataTree,
     );
+    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
     const { def, entityInfo } = dataTreeTypeDefCreator(
       treeWithoutPrivateWidgets,
+      !!featureFlags.JS_EDITOR,
     );
     TernServer.updateDef("DATA_TREE", def, entityInfo);
     const end = performance.now();

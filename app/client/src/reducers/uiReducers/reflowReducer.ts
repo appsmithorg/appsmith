@@ -2,7 +2,7 @@ import { createReducer } from "utils/AppsmithUtils";
 import {
   ReduxAction,
   ReflowReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { ReflowedSpaceMap } from "reflow/reflowTypes";
 
 const initialState: widgetReflowState = {

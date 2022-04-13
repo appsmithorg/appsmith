@@ -46,7 +46,6 @@ import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData
 import static com.external.plugins.AmazonS3Plugin.DEFAULT_FILE_NAME;
 import static com.external.plugins.AmazonS3Plugin.DEFAULT_URL_EXPIRY_IN_MINUTES;
 import static com.external.plugins.AmazonS3Plugin.NO;
-import static com.external.plugins.AmazonS3Plugin.SMART_SUBSTITUTION;
 import static com.external.plugins.AmazonS3Plugin.YES;
 import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.BUCKET;
@@ -61,6 +60,7 @@ import static com.external.plugins.constants.FieldName.LIST_WHERE;
 import static com.external.plugins.constants.FieldName.PATH;
 import static com.external.plugins.constants.FieldName.READ_DATATYPE;
 import static com.external.plugins.constants.FieldName.READ_EXPIRY;
+import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
 import static com.external.utils.TemplateUtils.CREATE_FILE_TEMPLATE_NAME;
 import static com.external.utils.TemplateUtils.CREATE_MULTIPLE_FILES_TEMPLATE_NAME;
@@ -176,12 +176,7 @@ public class AmazonS3PluginTest {
         StepVerifier.create(pluginExecutorMono)
                 .assertNext(executor -> {
                     Set<String> res = executor.validateDatasource(datasourceConfiguration);
-                    assertNotEquals(0, res.size());
-
-                    List<String> errorList = new ArrayList<>(res);
-                    assertTrue(errorList.get(0).contains("Required parameter 'Region' is empty. Did you forget to " +
-                            "edit the 'Region' field in the datasource creation form ? You need to fill it with the " +
-                            "region where your S3 instance is hosted."));
+                    assertEquals(0, res.size());
                 })
                 .verifyComplete();
     }

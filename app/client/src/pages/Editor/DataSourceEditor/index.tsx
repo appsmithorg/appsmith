@@ -18,16 +18,19 @@ import RestAPIDatasourceForm from "./RestAPIDatasourceForm";
 import { Datasource } from "entities/Datasource";
 import { RouteComponentProps } from "react-router";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
 import { setGlobalSearchQuery } from "actions/globalSearchActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import DatasourceSaasForm from "../SaaSEditor/DatasourceForm";
 
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  selectURLSlugs,
+} from "selectors/editorSelectors";
+import { saasEditorDatasourceIdURL } from "RouteBuilder";
 
 interface ReduxStateProps {
-  datasourceId: string | null;
+  datasourceId: string;
   formData: Datasource;
   isSaving: boolean;
   isTesting: boolean;
@@ -42,6 +45,8 @@ interface ReduxStateProps {
   pluginDatasourceForm: string;
   pluginPackageName: string;
   applicationId: string;
+  applicationSlug: string;
+  pageSlug: string;
   fromImporting?: boolean;
 }
 
@@ -126,6 +131,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const formData = getFormValues(DATASOURCE_DB_FORM)(state) as Datasource;
   const pluginId = _.get(datasource, "pluginId", "");
   const plugin = getPlugin(state, pluginId);
+  const { applicationSlug, pageSlug } = selectURLSlugs(state);
 
   return {
     datasourceId,
@@ -146,6 +152,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
       plugin?.datasourceComponent ?? DatasourceComponentTypes.AutoForm,
     pluginPackageName: plugin?.packageName ?? "",
     applicationId: props.applicationId ?? getCurrentApplicationId(state),
+    applicationSlug,
+    pageSlug,
   };
 };
 
@@ -154,7 +162,8 @@ const mapDispatchToProps = (
   ownProps: any,
 ): DatasourcePaneFunctions => ({
   switchDatasource: (id: string) => {
-    if (!ownProps.fromImporting) dispatch(switchDatasource(id));
+    // on reconnect data modal, it shouldn't be redirected to datasource edit page
+    dispatch(switchDatasource(id, ownProps.fromImporting));
   },
   setDatasourceEditorMode: (id: string, viewMode: boolean) =>
     dispatch(setDatsourceEditorMode({ id, viewMode })),
@@ -224,12 +233,13 @@ class DatasourceEditorRouter extends React.Component<Props> {
         );
       }
       history.push(
-        SAAS_EDITOR_DATASOURCE_ID_URL(
-          this.props.applicationId,
+        saasEditorDatasourceIdURL({
+          applicationSlug: this.props.applicationSlug,
+          pageSlug: this.props.pageSlug,
           pageId,
           pluginPackageName,
-          datasourceId ?? undefined,
-        ),
+          datasourceId,
+        }),
       );
       return;
     }

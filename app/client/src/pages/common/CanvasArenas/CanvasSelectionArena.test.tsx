@@ -47,7 +47,7 @@ describe("Canvas selection test cases", () => {
     mockGetIsFetchingPage.mockImplementation(() => false);
     const component = render(
       <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
+        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
       >
         <MockApplication>
           <GlobalHotKeys>
@@ -105,7 +105,7 @@ describe("Canvas selection test cases", () => {
     mockGetIsFetchingPage.mockImplementation(() => false);
     const component = render(
       <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
+        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
       >
         <MockApplication>
           <GlobalHotKeys>
@@ -197,7 +197,7 @@ describe("Canvas selection test cases", () => {
 
     const component = render(
       <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
+        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
       >
         <MockApplication>
           <GlobalHotKeys>
@@ -328,7 +328,7 @@ describe("Canvas selection test cases", () => {
 
     const component = render(
       <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
+        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
       >
         <MockApplication>
           <GlobalHotKeys>
@@ -416,7 +416,7 @@ describe("Canvas selection test cases", () => {
 
     const component = render(
       <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
+        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
       >
         <MockApplication>
           <GlobalHotKeys>

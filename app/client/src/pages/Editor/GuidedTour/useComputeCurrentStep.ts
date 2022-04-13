@@ -13,7 +13,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { getApplicationLastDeployedAt } from "selectors/editorSelectors";
 import {
   getHadReachedStep,
-  isQueryLimitUpdated,
   isQueryExecutionSuccessful,
   isTableWidgetSelected,
   tableWidgetHasBinding,
@@ -43,8 +42,7 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
   };
   const dispatch = useDispatch();
   const hadReachedStep = useSelector(getHadReachedStep);
-  // Step 1(Update limit and run the query) selectors
-  const queryLimitUpdated = useSelector(isQueryLimitUpdated);
+  // Step 1(Run the query) selectors
   const queryExecutedSuccessfully = useSelector(isQueryExecutionSuccessful);
   // 2 selectors
   const tableWidgetSelected = useSelector(isTableWidgetSelected);
@@ -73,22 +71,14 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
 
   // If we are on the first step
   if (step === GUIDED_TOUR_STEPS.RUN_QUERY) {
-    // If query limit is updated
-    if (queryLimitUpdated) {
-      // Step 1 shows two different contents
-      // 1) We tell the user to update the limit
-      // 2) To click on the run button.
-      // The hintCount is to which one of these to show the user
-      meta.hintCount += 1;
-      // If the query is executed successfully and if the user had gone to further steps before
-      // i.e probably the user is here after finishing step 5. This can happen if the query is updated
-      // to something unexpected.
-      // So we have `hadReachedStep` to keep track of the furthest the user had reached.
-      // Initially we don't automatically go to the next step, instead the user clicks on a button in the guide
-      // shown on top of the screen for the user clicking on which we update the current step
-      if (queryExecutedSuccessfully && hadReachedStep > 1) {
-        step = GUIDED_TOUR_STEPS.SELECT_TABLE_WIDGET;
-      }
+    // If the query is executed successfully and if the user had gone to further steps before
+    // i.e probably the user is here after finishing step 5. This can happen if the query is updated
+    // to something unexpected.
+    // So we have `hadReachedStep` to keep track of the furthest the user had reached.
+    // Initially we don't automatically go to the next step, instead the user clicks on a button in the guide
+    // shown on top of the screen for the user clicking on which we update the current step
+    if (queryExecutedSuccessfully && hadReachedStep > 1) {
+      step = GUIDED_TOUR_STEPS.SELECT_TABLE_WIDGET;
     }
   }
 
@@ -174,12 +164,7 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
       step === GUIDED_TOUR_STEPS.RUN_QUERY &&
       hadReachedStep <= GUIDED_TOUR_STEPS.RUN_QUERY
     ) {
-      if (!queryLimitUpdated) {
-        showIndicator(`span[role="presentation"]`, "right", {
-          top: -4,
-          left: 18,
-        });
-      } else if (queryExecutedSuccessfully) {
+      if (queryExecutedSuccessfully) {
         dispatch(forceShowContent(GUIDED_TOUR_STEPS.RUN_QUERY));
         // Hide the indicator after the user has successfully run the query
         hideIndicator();
@@ -199,7 +184,7 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
         showIndicator(`[data-guided-tour-iid='run-query']`, "top");
       }
     }
-  }, [queryExecutedSuccessfully, queryLimitUpdated, step, hadReachedStep]);
+  }, [queryExecutedSuccessfully, step, hadReachedStep]);
 
   // Step 3(table widget binding) side effects
   // Focus the tableData input in the property pane
