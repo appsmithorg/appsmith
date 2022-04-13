@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useCallback, useEffect, useState } from "react";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";

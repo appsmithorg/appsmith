@@ -203,8 +203,8 @@ describe("Migration Validate", function() {
         cy.get(selector + " span.bp3-popover-target span")
           .invoke("text")
           .then((url) => {
-            cy.get(selector + " span.bp3-popover-target")
-              .click()
+            cy.get(selector + " span.bp3-popover-target span")
+              .click({ force: true })
               .wait(2000);
             cy.wait("@postExecute");
             cy.url().should("contain", url);
@@ -382,7 +382,7 @@ describe("Migration Validate", function() {
           .invoke("text")
           .then((url) => {
             cy.get(selector + " span.bp3-popover-target")
-              .click()
+              .click({ force: true })
               .wait(2000);
             cy.wait("@postExecute");
             cy.url().should("contain", url);

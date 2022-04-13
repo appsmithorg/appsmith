@@ -8,7 +8,7 @@ import { getDefaultPlugins } from "./entitiesSelector";
 import { Filter } from "pages/Templates/Filters";
 
 const fuzzySearchOptions = {
-  keys: ["title", "id"],
+  keys: ["title", "id", "datasources", "widgets"],
   shouldSort: true,
   threshold: 0.5,
   location: 0,

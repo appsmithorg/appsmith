@@ -53,6 +53,25 @@
             "orientation": "VERTICAL",
             "children": [
               {
+                "widgetName": "Text1",
+                "rightColumn": 3,
+                "widgetId": "4d8d2eh4xg",
+                "dynamicPropertyPathList": [],
+                "topRow": 0,
+                "bottomRow": 1,
+                "parentRowSpace": 38,
+                "isVisible": true,
+                "type": "TEXT_WIDGET",
+                "dynamicBindingPathList": [],
+                "shouldScroll": true,
+                "parentId": "hjiybwqair",
+                "isLoading": false,
+                "parentColumnSpace": 71.75,
+                "leftColumn": 1,
+                "text": "Test text",
+                "textStyle": "HEADING"
+              },
+              {
                 "isVisible": true,
                 "inputType": "TEXT",
                 "label": "",

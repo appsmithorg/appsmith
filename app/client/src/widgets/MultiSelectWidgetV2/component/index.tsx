@@ -26,14 +26,13 @@ import {
 } from "constants/WidgetConstants";
 import Icon from "components/ads/Icon";
 import { Button, Classes, InputGroup } from "@blueprintjs/core";
-import { WidgetContainerDiff } from "widgets/WidgetUtils";
+import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
 import { uniqBy } from "lodash";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <MenuItemCheckBox checked={props.isSelected} />;
 };
-
 export interface MultiSelectProps
   extends Required<
     Pick<
@@ -93,6 +92,8 @@ function MultiSelectComponent({
   const [isSelectAll, setIsSelectAll] = useState(false);
   const [filter, setFilter] = useState(filterText ?? "");
   const [filteredOptions, setFilteredOptions] = useState(options);
+  const [memoDropDownWidth, setMemoDropDownWidth] = useState(0);
+
   const _menu = useRef<HTMLElement | null>(null);
   const labelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -193,15 +194,20 @@ function MultiSelectComponent({
     },
     serverSideFiltering ? [options] : [filter, options],
   );
-  const memoDropDownWidth = useMemo(() => {
-    if (compactMode && labelRef.current) {
-      const labelWidth = labelRef.current.clientWidth;
-      const widthDiff = dropDownWidth - labelWidth;
-      return widthDiff > dropDownWidth ? widthDiff : dropDownWidth;
-    }
+  useEffect(() => {
     const parentWidth = width - WidgetContainerDiff;
-    return parentWidth > dropDownWidth ? parentWidth : dropDownWidth;
-  }, [compactMode, dropDownWidth, width]);
+    if (compactMode && labelRef.current) {
+      const labelWidth = labelRef.current.getBoundingClientRect().width;
+      const widthDiff = parentWidth - labelWidth - labelMargin;
+      setMemoDropDownWidth(
+        widthDiff > dropDownWidth ? widthDiff : dropDownWidth,
+      );
+      return;
+    }
+    setMemoDropDownWidth(
+      parentWidth > dropDownWidth ? parentWidth : dropDownWidth,
+    );
+  }, [compactMode, dropDownWidth, width, labelText]);
 
   const onQueryChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
