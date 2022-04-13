@@ -53,7 +53,6 @@ import {
 } from "actions/globalSearchActions";
 import {
   InitializeEditorPayload,
-  resetEditorRequest,
   resetEditorSuccess,
 } from "actions/initActions";
 import PerformanceTracker, {

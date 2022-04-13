@@ -126,8 +126,7 @@ const applicationsReducer = createReducer(initialState, {
     currentApplication: action.payload,
     isFetchingApplication: false,
   }),
-  [ReduxActionTypes.RESET_APPLICATION]: (state: ApplicationsReduxState) =>
-    initialState,
+  [ReduxActionTypes.RESET_APPLICATION]: () => initialState,
   [ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE]: (
     state: ApplicationsReduxState,
     action: ReduxAction<{ name: string; slug: string }>,
