@@ -196,19 +196,24 @@ describe("generateDataTreeWidget", () => {
       isDirty: true,
     });
 
+    const bindingPaths = {
+      defaultText: EvaluationSubstitutionType.TEMPLATE,
+      placeholderText: EvaluationSubstitutionType.TEMPLATE,
+      regex: EvaluationSubstitutionType.TEMPLATE,
+      resetOnSubmit: EvaluationSubstitutionType.TEMPLATE,
+      isVisible: EvaluationSubstitutionType.TEMPLATE,
+      isRequired: EvaluationSubstitutionType.TEMPLATE,
+      isDisabled: EvaluationSubstitutionType.TEMPLATE,
+      errorMessage: EvaluationSubstitutionType.TEMPLATE,
+    };
+
     const expected: DataTreeWidget = {
-      bindingPaths: {
-        defaultText: EvaluationSubstitutionType.TEMPLATE,
-        errorMessage: EvaluationSubstitutionType.TEMPLATE,
+      bindingPaths,
+      reactivePaths: {
+        ...bindingPaths,
         isDirty: EvaluationSubstitutionType.TEMPLATE,
-        isDisabled: EvaluationSubstitutionType.TEMPLATE,
         isFocused: EvaluationSubstitutionType.TEMPLATE,
-        isRequired: EvaluationSubstitutionType.TEMPLATE,
         isValid: EvaluationSubstitutionType.TEMPLATE,
-        isVisible: EvaluationSubstitutionType.TEMPLATE,
-        placeholderText: EvaluationSubstitutionType.TEMPLATE,
-        regex: EvaluationSubstitutionType.TEMPLATE,
-        resetOnSubmit: EvaluationSubstitutionType.TEMPLATE,
         text: EvaluationSubstitutionType.TEMPLATE,
         value: EvaluationSubstitutionType.TEMPLATE,
         "meta.text": EvaluationSubstitutionType.TEMPLATE,

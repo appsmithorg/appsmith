@@ -58,7 +58,7 @@ import {
   getActionResponses,
   getActionData,
   getAction,
-} from "../../../selectors/entitiesSelector";
+} from "selectors/entitiesSelector";
 import { isEmpty, isEqual } from "lodash";
 
 import { Colors } from "constants/Colors";

@@ -43,8 +43,8 @@ import gitSyncSagas from "./GitSyncSagas";
 import log from "loglevel";
 import * as sentry from "@sentry/react";
 import formEvaluationChangeListener from "./FormEvaluationSaga";
-import SuperUserSagas from "./SuperUserSagas";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import SuperUserSagas from "@appsmith/sagas/SuperUserSagas";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 const sagas = [
   initSagas,

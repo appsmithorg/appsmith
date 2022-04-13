@@ -21,7 +21,6 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
@@ -1391,7 +1390,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
                     final ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
 
-                    // If pageId is missing in the actionDTO create a fallback pageId
+                    // If pageId is missing in the actionCollectionDTO create a fallback pageId
                     final String fallbackParentPageId = unpublishedCollection.getPageId();
 
                     if (unpublishedCollection.getName() != null) {

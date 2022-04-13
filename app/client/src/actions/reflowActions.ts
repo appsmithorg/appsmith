@@ -1,7 +1,7 @@
 import {
   ReduxAction,
   ReflowReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { ReflowedSpaceMap } from "reflow/reflowTypes";
 
 export const reflowMoveAction = (

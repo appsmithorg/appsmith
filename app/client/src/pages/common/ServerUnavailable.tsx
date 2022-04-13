@@ -13,6 +13,7 @@ const Wrapper = styled.div`
   }
   .page-unavailable-img {
     width: 35%;
+    margin: auto;
   }
   .button-position {
     margin: auto;
@@ -27,6 +28,7 @@ const RetryButton = styled.button`
   cursor: pointer;
   font-weight: 600;
   font-size: 17px;
+  margin-top: 16px;
 `;
 
 function ServerUnavailable() {
