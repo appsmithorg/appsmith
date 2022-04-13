@@ -54,7 +54,7 @@ import { GitSyncModalTab } from "entities/GitSync";
 
 type Props = {
   copySelectedWidget: () => void;
-  pasteCopiedWidget: () => void;
+  pasteCopiedWidget: (mouseLocation: { top: number; left: number }) => void;
   deleteSelectedWidget: () => void;
   cutSelectedWidget: () => void;
   groupSelectedWidget: () => void;
@@ -79,6 +79,7 @@ type Props = {
   isExplorerPinned: boolean;
   setExplorerPinnedAction: (shouldPinned: boolean) => void;
   showCommitModal: () => void;
+  getMousePosition: () => { top: number; left: number };
 };
 
 @HotkeysTarget
@@ -214,7 +215,9 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Paste Widget"
           onKeyDown={() => {
-            this.props.pasteCopiedWidget();
+            this.props.pasteCopiedWidget(
+              this.props.getMousePosition() || { top: 0, left: 0 },
+            );
           }}
         />
         <Hotkey
@@ -417,7 +420,8 @@ const mapStateToProps = (state: AppState) => ({
 const mapDispatchToProps = (dispatch: any) => {
   return {
     copySelectedWidget: () => dispatch(copyWidget(true)),
-    pasteCopiedWidget: () => dispatch(pasteWidget()),
+    pasteCopiedWidget: (mouseLocation: { top: number; left: number }) =>
+      dispatch(pasteWidget(false, mouseLocation)),
     deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
     cutSelectedWidget: () => dispatch(cutWidget()),
     groupSelectedWidget: () => dispatch(groupWidgets()),

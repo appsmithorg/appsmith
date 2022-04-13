@@ -122,6 +122,7 @@ export type ModalComponentProps = {
   resizeModal?: (dimensions: UIElementSize) => void;
   maxWidth?: number;
   minSize?: number;
+  widgetId: string;
   widgetName: string;
 };
 
@@ -198,6 +199,7 @@ export default function ModalComponent(props: ModalComponentProps) {
   };
 
   const getResizableContent = () => {
+    //id for Content is required for Copy Paste inside the modal
     return (
       <Resizable
         allowResize
@@ -215,6 +217,7 @@ export default function ModalComponent(props: ModalComponentProps) {
       >
         <Content
           className={`${getCanvasClassName()} ${props.className}`}
+          id={props.widgetId}
           ref={modalContentRef}
           scroll={props.scrollContents}
         >
