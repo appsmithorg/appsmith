@@ -699,6 +699,26 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     /**
+     * validates whether a ApplicationJSON contains the required fields or not.
+     * @param importedDoc ApplicationJSON object that needs to be validated
+     * @return Name of the field that have error. Empty string otherwise
+     */
+    private String validateApplicationJson(ApplicationJson importedDoc) {
+        String errorField = "";
+        if (CollectionUtils.isEmpty(importedDoc.getPageList())) {
+            errorField = FieldName.PAGES;
+        } else if (importedDoc.getExportedApplication() == null) {
+            errorField = FieldName.APPLICATION;
+        } else if (importedDoc.getActionList() == null) {
+            errorField = FieldName.ACTIONS;
+        } else if (importedDoc.getDatasourceList() == null) {
+            errorField = FieldName.DATASOURCE;
+        }
+
+        return errorField;
+    }
+
+    /**
      * This function will take the application reference object to hydrate the application in mongoDB
      *
      * @param organizationId    organization to which application is going to be stored
@@ -730,6 +750,12 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         ApplicationJson importedDoc = JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
 
+        // check for validation error and raise exception if error found
+        String errorField = validateApplicationJson(importedDoc);
+        if (!errorField.isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, errorField, INVALID_JSON_FILE));
+        }
+
         Map<String, String> pluginMap = new HashMap<>();
         Map<String, String> datasourceMap = new HashMap<>();
         Map<String, NewPage> pageNameMap = new HashMap<>();
@@ -745,31 +771,47 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         Application importedApplication = importedDoc.getExportedApplication();
 
         List<Datasource> importedDatasourceList = importedDoc.getDatasourceList();
-        List<NewPage> importedNewPageList = importedDoc.getPageList();
-        List<NewAction> importedNewActionList = importedDoc.getActionList();
-        List<ActionCollection> importedActionCollectionList = importedDoc.getActionCollectionList();
+
+        final List<NewPage> importedNewPageList;
+        final List<NewAction> importedNewActionList;
+        final List<ActionCollection> importedActionCollectionList;
+
+        if(appendToApp && !CollectionUtils.isEmpty(unpublishedPagesToImport)) {
+            // need to append the specified unpublished pages, actions, actionCollections only, filter those from others
+            // getPageList() is not null, checked while validating this ApplicationJSON
+            importedNewPageList = importedDoc.getPageList().stream()
+                    .filter(newPage -> newPage.getUnpublishedPage() != null &&
+                            unpublishedPagesToImport.contains(newPage.getUnpublishedPage().getName())
+                    ).collect(Collectors.toList());
+
+            // getActionList() is not null, checked while validating this ApplicationJSON
+            importedNewActionList = importedDoc.getActionList().stream()
+                    .filter(newAction ->
+                            newAction.getUnpublishedAction() != null &&
+                                    unpublishedPagesToImport.contains(newAction.getUnpublishedAction().getPageId())
+                    ).peek(newAction -> newAction.setGitSyncId(null)) // setting this null so that this action can be imported again
+                    .collect(Collectors.toList());
+
+            // check for null as we didn't check this during validation
+            if(importedDoc.getActionCollectionList() != null) {
+                importedActionCollectionList = importedDoc.getActionCollectionList().stream()
+                        .filter(actionCollection ->
+                                unpublishedPagesToImport.contains(actionCollection.getUnpublishedCollection().getPageId())
+                        ).peek(actionCollection -> actionCollection.setGitSyncId(null)) // setting this null so that this action collection can be imported again
+                        .collect(Collectors.toList());
+            } else {
+                importedActionCollectionList = null;
+            }
+        } else {
+            importedNewPageList = importedDoc.getPageList();
+            importedNewActionList = importedDoc.getActionList();
+            importedActionCollectionList = importedDoc.getActionCollectionList();
+        }
 
         Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
         final Flux<Datasource> existingDatasourceFlux = datasourceRepository
                 .findAllByOrganizationId(organizationId, AclPermission.MANAGE_DATASOURCES)
                 .cache();
-
-        String errorField = "";
-        if (CollectionUtils.isEmpty(importedNewPageList)) {
-            errorField = FieldName.PAGES;
-        } else if (importedApplication == null) {
-            errorField = FieldName.APPLICATION;
-        } else if (importedNewActionList == null) {
-            errorField = FieldName.ACTIONS;
-        } else if (importedDatasourceList == null) {
-            errorField = FieldName.DATASOURCE;
-        }
-
-        if (!errorField.isEmpty()) {
-            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, errorField, INVALID_JSON_FILE));
-        }
-
-
 
         assert importedApplication != null;
         if(importedApplication.getApplicationVersion() == null) {
