@@ -46,7 +46,7 @@ export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
   WidgetFactory.registerWidgetBuilder(
     config.type,
     {
-      buildWidget(widgetData: any): JSX.Element {
+      buildWidget(widgetData: WidgetProps): JSX.Element {
         return <ProfiledWidget {...widgetData} key={widgetData.widgetId} />;
       },
     },
