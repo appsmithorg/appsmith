@@ -272,7 +272,7 @@ describe("git-sync messages", () => {
       key: "CHANGES_USER_AND_MIGRATION",
       value: "Appsmith update and user changes since last commit",
     },
-    { key: "MERGED_SUCCESSFULLY", value: "MERGED SUCCESSFULLY" },
+    { key: "MERGED_SUCCESSFULLY", value: "Merged successfully" },
   ];
   const functions = [
     CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
