@@ -53,6 +53,7 @@ import {
 } from "actions/globalSearchActions";
 import {
   InitializeEditorPayload,
+  resetEditorRequest,
   resetEditorSuccess,
 } from "actions/initActions";
 import PerformanceTracker, {
@@ -120,7 +121,7 @@ export function* failFastApiCalls(
 
 function* bootstrapEditor(payload: InitializeEditorPayload) {
   const { branch } = payload;
-  yield put(resetEditorSuccess());
+  yield put(resetEditorRequest());
   yield put(updateBranchLocally(branch || ""));
   yield put(setAppMode(APP_MODE.EDIT));
   yield put({ type: ReduxActionTypes.START_EVALUATION });
@@ -463,6 +464,13 @@ export function* initializeAppViewerSaga(
 }
 
 function* resetEditorSaga() {
+  yield put({
+    type: ReduxActionTypes.RESET_APPLICATION,
+  });
+  yield put({
+    type: ReduxActionTypes.RESET_PAGE_LIST,
+  });
+  yield put({ type: ReduxActionTypes.RESET_PAGE_DSLS });
   yield put(resetRecentEntities());
   // End guided tour once user exits editor
   yield put(enableGuidedTour(false));

@@ -13,9 +13,9 @@ export interface PageWidgetsReduxState {
   };
 }
 
-const initalState: PageWidgetsReduxState = {};
+const initialState: PageWidgetsReduxState = {};
 
-const pageWidgetsReducer = createImmerReducer(initalState, {
+const pageWidgetsReducer = createImmerReducer(initialState, {
   // Reducer to clear all pageWidgets before finishing creating
   // a new application
   [ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST]: () => ({}),
@@ -40,6 +40,9 @@ const pageWidgetsReducer = createImmerReducer(initalState, {
         action.payload.dsl,
       ).entities.canvasWidgets;
     }
+  },
+  [ReduxActionTypes.RESET_PAGE_DSLS]: (state: PageWidgetsReduxState) => {
+    Object.keys(state).forEach((key) => delete state[key]);
   },
 });
 
