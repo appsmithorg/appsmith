@@ -680,8 +680,6 @@ export function EditorJSONtoForm(props: Props) {
         section.controlType === "SECTION" &&
         section.hasOwnProperty("children")
       ) {
-        // eslint-disable-next-line no-debugger
-        debugger;
         return section.children.map((section: any, idx: number) => {
           return renderEachConfigV2(formName, section, idx);
         });

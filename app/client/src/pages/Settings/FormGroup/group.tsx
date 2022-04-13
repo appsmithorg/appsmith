@@ -12,9 +12,12 @@ import Button from "./Button";
 import { getFormValues } from "redux-form";
 import { SETTINGS_FORM_NAME } from "constants/forms";
 import { useSelector } from "store";
-import { createMessage } from "@appsmith/constants/messages";
+import {
+  createMessage,
+  REDIRECT_URL_TOOLTIP,
+} from "@appsmith/constants/messages";
 import { Callout } from "components/ads/CalloutV2";
-import { RedirectUrlReduxForm } from "components/ads/formFields/RedirectUrlForm";
+import { CopyUrlReduxForm } from "components/ads/formFields/CopyUrlForm";
 import Accordion from "./Accordion";
 import TagInputField from "./TagInputField";
 import { Classes } from "@blueprintjs/core";
@@ -182,8 +185,12 @@ export default function Group({
                     data-testid="admin-settings-uneditable-field"
                     key={setting.name || setting.id}
                   >
-                    <RedirectUrlReduxForm
+                    <CopyUrlReduxForm
+                      fieldName={setting.fieldName}
+                      form={setting.formName}
                       helpText={setting.helpText}
+                      title={setting.label}
+                      tooltip={createMessage(REDIRECT_URL_TOOLTIP)}
                       value={setting.value}
                     />
                   </div>

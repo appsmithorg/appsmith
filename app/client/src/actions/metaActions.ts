@@ -1,4 +1,7 @@
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
 import { BatchAction, batchAction } from "actions/batchActions";
 import { Diff } from "deep-diff";
 import { DataTree } from "entities/DataTree/dataTreeFactory";

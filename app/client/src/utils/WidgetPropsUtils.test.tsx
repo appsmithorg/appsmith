@@ -1,4 +1,4 @@
-import * as generators from "../utils/generators";
+import * as generators from "utils/generators";
 import { RenderModes } from "constants/WidgetConstants";
 import {
   migrateChartDataFromArrayToObject,
