@@ -1868,7 +1868,7 @@ public class DatabaseChangelog {
         }
     }
 
-    private Set<String> getInvalidDynamicBindingPathsInAction(ObjectMapper mapper, NewAction action, List<String> dynamicBindingPathNames) {
+    private static Set<String> getInvalidDynamicBindingPathsInAction(ObjectMapper mapper, NewAction action, List<String> dynamicBindingPathNames) {
         Set<String> pathsToRemove = new HashSet<>();
         for (String path : dynamicBindingPathNames) {
 
@@ -3695,7 +3695,7 @@ public class DatabaseChangelog {
      *                     reference, please check out the `s3MigrationMap` defined above.
      * @return : updated dynamicBindingPathList - ported to UQI model.
      */
-    private List<Property> getUpdatedDynamicBindingPathList(List<Property> dynamicBindingPathList,
+    static List<Property> getUpdatedDynamicBindingPathList(List<Property> dynamicBindingPathList,
                                                             ObjectMapper objectMapper, NewAction action,
                                                             Map<Integer, List<String>> migrationMap) {
         // Return if empty.

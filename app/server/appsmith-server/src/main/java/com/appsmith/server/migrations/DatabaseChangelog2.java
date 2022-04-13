@@ -10,12 +10,14 @@ import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
@@ -29,6 +31,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.migrations.DatabaseChangelog.getUpdatedDynamicBindingPathList;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -37,6 +40,8 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 @Slf4j
 @ChangeLog(order = "002")
 public class DatabaseChangelog2 {
+
+    public static ObjectMapper objectMapper = new ObjectMapper();
 
     @ChangeSet(order = "001", id = "fix-plugin-title-casing", author = "")
     public void fixPluginTitleCasing(MongockTemplate mongockTemplate) {
@@ -695,6 +700,26 @@ public class DatabaseChangelog2 {
 //    }
 
     public static void migrateGoogleSheetsToUqi(NewAction uqiAction) {
+
+        final Map<Integer, List<String>> googleSheetsMigrationMap = Map.ofEntries(
+                Map.entry(0, List.of("command.data", "entityType.data")),
+                Map.entry(1, List.of("sheetUrl.data")),
+                Map.entry(2, List.of("range.data")),
+                Map.entry(3, List.of("spreadsheetName.data")),
+                Map.entry(4, List.of("tableHeaderIndex.data")),
+                Map.entry(5, List.of("queryFormat.data")),
+                Map.entry(6, List.of("pagination.data.limit")),
+                Map.entry(7, List.of("sheetName.data")),
+                Map.entry(8, List.of("pagination.data.offset")),
+                Map.entry(9, List.of("rowObjects.data")),
+                Map.entry(10, List.of("rowObjects.data")),
+                Map.entry(11, List.of("rowIndex.data")),
+                Map.entry(12, List.of("")), // We do not expect deleteFormat to have been dynamically bound at all
+                Map.entry(13, List.of("smartSubstitution.data")),
+                Map.entry(14, List.of("where.data"))
+
+        );
+
         ActionDTO unpublishedAction = uqiAction.getUnpublishedAction();
         /**
          * Migrate unpublished action configuration data.
@@ -712,6 +737,11 @@ public class DatabaseChangelog2 {
             mapGoogleSheetsToNewFormData(publishedAction, newPublishedFormDataMap);
             publishedAction.getActionConfiguration().setFormData(newPublishedFormDataMap);
         }
+
+        List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
+        List<Property> newDynamicBindingPathList = getUpdatedDynamicBindingPathList(dynamicBindingPathList,
+                objectMapper, uqiAction, googleSheetsMigrationMap);
+        unpublishedAction.setDynamicBindingPathList(newDynamicBindingPathList);
     }
 
     private static void mapGoogleSheetsToNewFormData(ActionDTO action, Map<String, Object> f) {
@@ -731,9 +761,7 @@ public class DatabaseChangelog2 {
 
         final String oldCommand = (String) pluginSpecifiedTemplates.get(0).getValue();
 
-        final int pluginSpecifiedTemplatesSize = pluginSpecifiedTemplates.size();
-
-        switch(oldCommand) {
+        switch (oldCommand) {
             case "GET":
                 convertToFormDataObject(f, "command", "FETCH_MANY");
                 convertToFormDataObject(f, "entityType", "ROWS");
@@ -764,7 +792,6 @@ public class DatabaseChangelog2 {
                 break;
             case "DELETE":
                 convertToFormDataObject(f, "command", "DELETE_ONE");
-
                 break;
             case "BULK_APPEND":
                 convertToFormDataObject(f, "command", "INSERT_MANY");
@@ -777,6 +804,82 @@ public class DatabaseChangelog2 {
             default:
         }
 
+        final int pluginSpecifiedTemplatesSize = pluginSpecifiedTemplates.size();
+
+        switch (pluginSpecifiedTemplatesSize) {
+            case 15:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(14).getValue())) {
+                    convertToFormDataObject(f, "where", updateWhereClauseFormat(pluginSpecifiedTemplates.get(14).getValue()));
+                }
+            case 14:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(13).getValue())) {
+                    convertToFormDataObject(f, "smartSubstitution", pluginSpecifiedTemplates.get(13).getValue());
+                }
+            case 13:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(12).getValue()) && "DELETE".equals(oldCommand)) {
+                    convertToFormDataObject(f, "entityType", pluginSpecifiedTemplates.get(12).getValue());
+                }
+            case 12:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(11).getValue())) {
+                    convertToFormDataObject(f, "rowIndex", pluginSpecifiedTemplates.get(11).getValue());
+                }
+            case 11:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(10).getValue())) {
+                    convertToFormDataObject(f, "rowObjects", pluginSpecifiedTemplates.get(10).getValue());
+                }
+            case 10:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(9).getValue())) {
+                    convertToFormDataObject(f, "rowObjects", pluginSpecifiedTemplates.get(9).getValue());
+                }
+            case 9:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(8).getValue())) {
+                    if (!f.containsKey("pagination")) {
+                        convertToFormDataObject(f, "pagination", Map.of("offset", pluginSpecifiedTemplates.get(6).getValue()));
+                    } else {
+                        final Map<String, Object> pagination = (Map<String, Object>) f.get("pagination");
+                        final Map<String, Object> data = (Map<String, Object>) pagination.get("data");
+                        final Map<String, Object> componentData = (Map<String, Object>) pagination.get("componentData");
+                        data.put("offset", pluginSpecifiedTemplates.get(6).getValue());
+                        componentData.put("offset", pluginSpecifiedTemplates.get(6).getValue());
+                    }
+                }
+            case 8:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(7).getValue())) {
+                    convertToFormDataObject(f, "sheetName", pluginSpecifiedTemplates.get(7).getValue());
+                }
+            case 7:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(6).getValue())) {
+                    if (!f.containsKey("pagination")) {
+                        convertToFormDataObject(f, "pagination", Map.of("limit", pluginSpecifiedTemplates.get(6).getValue()));
+                    } else {
+                        final Map<String, Object> pagination = (Map<String, Object>) f.get("pagination");
+                        final Map<String, Object> data = (Map<String, Object>) pagination.get("data");
+                        final Map<String, Object> componentData = (Map<String, Object>) pagination.get("componentData");
+                        data.put("limit", pluginSpecifiedTemplates.get(6).getValue());
+                        componentData.put("limit", pluginSpecifiedTemplates.get(6).getValue());
+                    }
+                }
+            case 6:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(5).getValue())) {
+                    convertToFormDataObject(f, "queryFormat", pluginSpecifiedTemplates.get(5).getValue());
+                }
+            case 5:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(4).getValue())) {
+                    convertToFormDataObject(f, "tableHeaderIndex", pluginSpecifiedTemplates.get(4).getValue());
+                }
+            case 4:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(3).getValue())) {
+                    convertToFormDataObject(f, "spreadsheetName", pluginSpecifiedTemplates.get(3).getValue());
+                }
+            case 3:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(2).getValue())) {
+                    convertToFormDataObject(f, "range", pluginSpecifiedTemplates.get(2).getValue());
+                }
+            case 2:
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(1).getValue())) {
+                    convertToFormDataObject(f, "sheetUrl", pluginSpecifiedTemplates.get(1).getValue());
+                }
+        }
 
     }
 

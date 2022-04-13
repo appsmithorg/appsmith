@@ -43,7 +43,7 @@ public class MethodConfig {
     String queryFormat;
     String rowIndex;
     String sheetName;
-    String deleteFormat;
+   // String deleteFormat;
     String rowObjects;
     Object body;
     Condition whereConditions;
@@ -65,7 +65,7 @@ public class MethodConfig {
         this.queryFormat = getDataValueSafelyFromFormData(formData, FieldName.QUERY_FORMAT, STRING_TYPE);
         this.rowIndex = getDataValueSafelyFromFormData(formData, FieldName.ROW_INDEX, STRING_TYPE);
         this.sheetName = getDataValueSafelyFromFormData(formData, SHEET_NAME, STRING_TYPE);
-        this.deleteFormat = getDataValueSafelyFromFormData(formData, FieldName.DELETE_FORMAT, STRING_TYPE);
+        // this.deleteFormat = getDataValueSafelyFromFormData(formData, FieldName.DELETE_FORMAT, STRING_TYPE);
         this.rowObjects = getDataValueSafelyFromFormData(formData, FieldName.ROW_OBJECTS, STRING_TYPE);
 
         if (validDataConfigurationPresentInFormData(formData, FieldName.WHERE, new TypeReference<Map<String, Object>>() {
