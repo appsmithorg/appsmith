@@ -33,6 +33,7 @@ import commentsLocators from "../locators/CommentsLocators";
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
+const themelocator = require("../../../../locators/ThemeLocators.json");
 import gitSyncLocators from "../locators/gitSyncLocators";
 
 let pageidcopy = " ";
@@ -2115,6 +2116,48 @@ Cypress.Commands.add(
   },
 );
 
+Cypress.Commands.add("borderMouseover", (index, text) => {
+  cy.get(themelocator.border)
+    .eq(index)
+    .trigger("mouseover");
+  cy.get(themelocator.popover).should("have.text", text);
+  cy.wait(2000);
+});
+
+Cypress.Commands.add("shadowMouseover", (index, text) => {
+  cy.xpath(themelocator.shadow)
+    .eq(index)
+    .trigger("mouseover");
+  cy.get(themelocator.popover).should("have.text", text);
+  cy.wait(2000);
+});
+
+Cypress.Commands.add("colorMouseover", (index, text) => {
+  cy.get(themelocator.color)
+    .eq(index)
+    .trigger("mouseover");
+  cy.get(themelocator.popover).should("have.text", text);
+  cy.wait(2000);
+});
+
+Cypress.Commands.add("validateColor", (index, text) => {
+  cy.get(themelocator.color)
+    .eq(index)
+    .trigger("mouseover");
+  cy.get(themelocator.inputColor).should("have.text", text);
+  cy.wait(2000);
+});
+
+Cypress.Commands.add("chooseColor", (index, color) => {
+  cy.get(themelocator.colorPicker)
+    .eq(index)
+    .click({ force: true });
+  cy.get(color)
+    .last()
+    .click();
+  cy.wait(2000);
+});
+
 Cypress.Commands.add("typeIntoDraftEditor", (selector, text) => {
   cy.get(selector).then((input) => {
     var textarea = input.get(0);
@@ -3001,6 +3044,7 @@ Cypress.Commands.add("startRoutesForDatasource", () => {
 Cypress.Commands.add("startServerAndRoutes", () => {
   //To update route with intercept after working on alias wrt wait and alias
   cy.server();
+  cy.route("PUT", "/api/v1/themes/applications/*").as("updateTheme");
   cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
   cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
   cy.route("GET", "/api/v1/applications/new").as("applications");
