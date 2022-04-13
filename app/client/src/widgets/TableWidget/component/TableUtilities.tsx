@@ -680,7 +680,7 @@ export function getDefaultColumnProperties(
     label: accessor,
     computedValue: isDerived
       ? ""
-      : `{{${widgetProperties.widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${id}))}}`,
+      : `{{${widgetProperties}.sanitizedTableData.map((currentRow) => ( currentRow.${id}))}}`,
   };
 
   // Object.keys(widgetProperties.defaultProperties).map((propertyKey) => {
