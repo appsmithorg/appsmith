@@ -695,7 +695,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                              ApplicationJson applicationJson,
                                                              String applicationId,
                                                              String branchName) {
-        return importApplicationInOrganization(organizationId, applicationJson, applicationId, branchName, false);
+        return importApplicationInOrganization(organizationId, applicationJson, applicationId, branchName, false, null);
     }
 
     /**
@@ -706,14 +706,16 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * @param applicationId     application which needs to be saved with the updated resources
      * @param branchName name of the branch of application with applicationId
      * @param appendToApp whether applicationJson will be appended to the existing app or not
+     * @param unpublishedPagesToImport List of unpublished page names that will be imported.
+     *                                 If null or empty, all pages from the JSON will be imported.
      * @return Updated application
      */
     private Mono<Application> importApplicationInOrganization(String organizationId,
-                                                             ApplicationJson applicationJson,
-                                                             String applicationId,
-                                                             String branchName,
-                                                             boolean appendToApp) {
-
+                                                              ApplicationJson applicationJson,
+                                                              String applicationId,
+                                                              String branchName,
+                                                              boolean appendToApp,
+                                                              List<String> unpublishedPagesToImport) {
         /*
             1. Migrate resource to latest schema
             2. Fetch organization by id
@@ -766,6 +768,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         if (!errorField.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, errorField, INVALID_JSON_FILE));
         }
+
+
+
         assert importedApplication != null;
         if(importedApplication.getApplicationVersion() == null) {
             importedApplication.setApplicationVersion(ApplicationVersion.EARLIEST_VERSION);
@@ -2032,7 +2037,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      */
     @Override
     public Mono<Application> mergeApplicationJsonWithApplication(String organizationId, String applicationId, String branchName, ApplicationJson applicationJson, List<String> pagesToImport) {
-        return importApplicationInOrganization(organizationId, applicationJson, applicationId, branchName, true);
+        return importApplicationInOrganization(organizationId, applicationJson, applicationId, branchName, true, pagesToImport);
     }
 
     private Mono<Map<String, String>> updateNewPagesBeforeMerge(Mono<List<NewPage>> existingPagesMono, List<NewPage> newPagesList) {
