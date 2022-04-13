@@ -1,5 +1,5 @@
 {
-	"baseUrl": "https://dev.appsmith.com/",
+	"baseUrl": "https://appsmith-git-theming-phase-1-get-appsmith.vercel.app/",
 	"defaultCommandTimeout": 30000,
 	"requestTimeout": 21000,
 	"responseTimeout": 30000,
