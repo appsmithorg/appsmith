@@ -45,6 +45,9 @@ describe("Test Create Api and Bind to Table widget", function() {
 
   it("3. Validate onSearchTextChanged function is called when configured for search text", function() {
     cy.SearchEntityandOpen("Table1");
+    cy.togglebarDisable(
+      ".t--property-control-enableclientsidesearch input[type='checkbox']",
+    );
     cy.get(".t--widget-tablewidget .t--search-input")
       .first()
       .type("Currey");

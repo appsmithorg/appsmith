@@ -16,7 +16,7 @@ import {
   ReduxActionWithCallbacks,
   ReduxActionWithMeta,
   ReduxFormActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -77,9 +77,9 @@ import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import { PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import { getQueryParams } from "../utils/AppsmithUtils";
-import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
-import { getIsGeneratePageInitiator } from "../utils/GenerateCrudUtil";
+import { getQueryParams } from "utils/AppsmithUtils";
+import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
+import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { trimQueryString } from "utils/helpers";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { updateReplayEntity } from "actions/pageActions";

@@ -14,7 +14,7 @@ import ContextMenu from "./ContextMenu";
 import { FormIcons } from "icons/FormIcons";
 import { ControlIcons } from "icons/ControlIcons";
 
-import { Page } from "constants/ReduxActionConstants";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
 import { MenuIcons } from "icons/MenuIcons";

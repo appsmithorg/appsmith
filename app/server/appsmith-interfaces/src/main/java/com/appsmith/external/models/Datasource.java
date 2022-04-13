@@ -28,6 +28,11 @@ public class Datasource extends BaseDomain {
 
     String pluginId;
 
+    // name of the plugin. used to log analytics events where pluginName is a required attribute
+    // It'll be null if not set
+    @Transient
+    String pluginName;
+
     String organizationId;
 
     String templateName;

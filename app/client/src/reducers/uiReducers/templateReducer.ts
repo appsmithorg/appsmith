@@ -3,7 +3,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { Template } from "api/TemplatesApi";
 
 const initialState: TemplatesReduxState = {

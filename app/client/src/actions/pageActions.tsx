@@ -6,18 +6,16 @@ import {
   UpdateCanvasPayload,
   ReduxActionErrorTypes,
   AnyReduxAction,
-} from "constants/ReduxActionConstants";
+  WidgetReduxActionTypes,
+  ReplayReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetOperation } from "widgets/BaseWidget";
 import { FetchPageRequest, PageLayout, SavePageResponse } from "api/PageApi";
 import { UrlDataState } from "reducers/entityReducers/appReducer";
 import { APP_MODE } from "entities/App";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { GenerateTemplatePageRequest } from "../api/PageApi";
-import {
-  WidgetReduxActionTypes,
-  ReplayReduxActionTypes,
-} from "constants/ReduxActionConstants";
+import { GenerateTemplatePageRequest } from "api/PageApi";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 
