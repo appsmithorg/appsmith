@@ -86,7 +86,14 @@ export const getIsGitConnected = createSelector(
   getCurrentAppGitMetaData,
   (gitMetaData) => !!(gitMetaData && gitMetaData.remoteUrl),
 );
-export const getGitBranches = (state: AppState) => state.ui.gitSync.branches;
+
+/**
+ * getGitBranches: returns list of git branches in redux store
+ * @param state {AppState}
+ * @return Branch[]
+ */
+export const getGitBranches = (state: AppState): Branch[] =>
+  state.ui.gitSync.branches;
 
 export const getGitBranchNames = createSelector(getGitBranches, (branches) =>
   branches.map((branchObj) => branchObj.branchName),

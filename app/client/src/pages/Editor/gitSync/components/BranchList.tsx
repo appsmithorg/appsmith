@@ -80,8 +80,8 @@ const CreateNewBranchContainer = styled.div`
     display: inline;
   }
 
-  & span {
-    display: inline;
+  & div {
+    display: inline-block;
     word-break: break-all;
   }
 

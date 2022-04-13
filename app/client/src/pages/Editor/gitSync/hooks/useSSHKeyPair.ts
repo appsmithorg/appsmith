@@ -2,12 +2,9 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getSSHKeyDeployDocUrl,
   getSshKeyPair,
-} from "../../../../selectors/gitSyncSelectors";
+} from "selectors/gitSyncSelectors";
 import { useCallback, useEffect, useState } from "react";
-import {
-  generateSSHKeyPair,
-  getSSHKeyPair,
-} from "../../../../actions/gitSyncActions";
+import { generateSSHKeyPair, getSSHKeyPair } from "actions/gitSyncActions";
 
 export const useSSHKeyPair = () => {
   // As SSHKeyPair fetching and generation is only done only for GitConnection part,

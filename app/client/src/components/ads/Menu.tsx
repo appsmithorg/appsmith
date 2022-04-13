@@ -19,9 +19,10 @@ export type MenuProps = CommonComponentProps & {
   canOutsideClickClose?: boolean;
   menuItemWrapperWidth?: string;
 
-  /* dontUsePortal: This needs negative prefix, because usePortal is true by default.
-      If we don't pass dontUsePortal, then it is false by default
-      If we pass dontUsePortal, then it is true, and will be passed to usePortal as !true i.e. false.
+  /**
+   * (optional) dontUsePortal {boolean}
+   * For Popover usePortal=true by default.
+   * All existing Menu usages don't need to change if we signal usePortal=false via dontUsePortal=true.
    */
   dontUsePortal?: boolean;
 };

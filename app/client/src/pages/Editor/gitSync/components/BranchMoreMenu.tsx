@@ -14,8 +14,8 @@ import {
 } from "@appsmith/constants/messages";
 import DangerMenuItem from "./DangerMenuItem";
 import { Dispatch } from "redux";
-import { GitApplicationMetadata } from "../../../../api/ApplicationApi";
-import { getCurrentAppGitMetaData } from "../../../../selectors/applicationSelectors";
+import { GitApplicationMetadata } from "api/ApplicationApi";
+import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 
 interface Props {
   branchName: string;
