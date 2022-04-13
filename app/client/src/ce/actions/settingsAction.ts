@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export const saveSettings = (settings: Record<string, string>) => ({
   type: ReduxActionTypes.SAVE_ADMIN_SETTINGS,

@@ -29,7 +29,7 @@ import {
 } from "./testFixtures";
 import { CommentThread } from "entities/Comments/CommentsInterfaces";
 import * as reactRedux from "react-redux";
-import { useHasUnreadCommentThread } from "../../../pages/Editor/ToggleModeButton";
+import { useHasUnreadCommentThread } from "pages/Editor/ToggleModeButton";
 
 describe("Test comments reducer handles", () => {
   const useSelectorMock = jest.spyOn(reactRedux, "useSelector");

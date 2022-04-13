@@ -476,7 +476,7 @@ export const IMPORT_FROM_GIT_REPOSITORY_MESSAGE = () =>
 export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS = () =>
   "Reconnect missing datasource credentials";
 export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION = () =>
-  "Fill these with utmost care as the application will not behave normally otherwsie";
+  "Fill these with utmost care as the application will not behave normally otherwise";
 export const RECONNECT_DATASOURCE_SUCCESS_MESSAGE1 = () =>
   "These datasources were imported successfully!";
 export const RECONNECT_DATASOURCE_SUCCESS_MESSAGE2 = () =>
@@ -1146,6 +1146,8 @@ export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 
 export const REDIRECT_URL_TOOLTIP = () =>
   "This URL will be used while configuring your Identity Provider's Callback/Redirect URL";
+export const ENTITY_ID_TOOLTIP = () =>
+  "This URL will be used while configuring your Identity Provider's Entity ID URL";
 
 export const FORK_APP_MODAL_LOADING_TITLE = () =>
   "Fetching organisations to fork to...";
