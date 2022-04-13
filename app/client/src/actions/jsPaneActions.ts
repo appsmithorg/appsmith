@@ -54,7 +54,7 @@ export const refactorJSCollectionAction = (payload: {
   };
 };
 
-export const executeJSFunction = (payload: {
+export const executeJSFunctionInit = (payload: {
   collectionName: string;
   action: JSAction;
   collectionId: string;
