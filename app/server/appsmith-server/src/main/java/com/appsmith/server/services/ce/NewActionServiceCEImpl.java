@@ -38,6 +38,7 @@ import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.DateUtils;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -97,6 +98,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
+import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -111,6 +113,13 @@ import static java.lang.Boolean.TRUE;
 
 @Slf4j
 public class NewActionServiceCEImpl extends BaseService<NewActionRepository, NewAction, String> implements NewActionServiceCE {
+
+    public static final String DATA = "data";
+    public static final String STATUS = "status";
+    public static final String ERROR = "ERROR";
+    public static final String NATIVE_QUERY_PATH = "formToNativeQuery";
+    public static final String NATIVE_QUERY_PATH_DATA = NATIVE_QUERY_PATH + "." + DATA;
+    public static final String NATIVE_QUERY_PATH_STATUS = NATIVE_QUERY_PATH + "." + STATUS;
 
     private final NewActionRepository repository;
     private final DatasourceService datasourceService;
@@ -360,6 +369,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     Datasource datasource = tuple.getT2();
                     action.setDatasource(datasource);
                     action.setInvalids(invalids);
+                    action.setPluginName(plugin.getName());
                     newAction.setUnpublishedAction(action);
                     newAction.setPluginType(plugin.getType());
                     newAction.setPluginId(plugin.getId());
@@ -374,6 +384,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         Datasource datasource = new Datasource();
                         datasource.setId(unpublishedAction.getDatasource().getId());
                         datasource.setPluginId(updatedAction.getPluginId());
+                        datasource.setName(unpublishedAction.getDatasource().getName());
                         unpublishedAction.setDatasource(datasource);
                         updatedAction.setUnpublishedAction(unpublishedAction);
                     }
@@ -381,11 +392,25 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 })
                 .flatMap(repository::save)
                 .flatMap(savedAction -> {
+                    ActionDTO unpublishedAction = savedAction.getUnpublishedAction();
+                    Map<String, Object> analyticsProperties = new HashMap<>();
+                    analyticsProperties.put("pluginType", ObjectUtils.defaultIfNull(savedAction.getPluginType(), ""));
+                    analyticsProperties.put("pluginName", ObjectUtils.defaultIfNull(unpublishedAction.getPluginName(), ""));
+                    analyticsProperties.put("applicationId", ObjectUtils.defaultIfNull(savedAction.getApplicationId(), ""));
+                    analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedAction.getOrganizationId(), ""));
+                    analyticsProperties.put("actionName", ObjectUtils.defaultIfNull(unpublishedAction.getValidName(), ""));
+                    if(unpublishedAction.getDatasource() != null) {
+                        analyticsProperties.put("dsName", ObjectUtils.defaultIfNull(unpublishedAction.getDatasource().getName(), ""));
+                    }
+
+                    Mono<NewAction> analyticsMono = analyticsService.sendCreateEvent(savedAction, analyticsProperties);
+
                     // If the default action is not set then current action will be the default one
                     if (StringUtils.isEmpty(savedAction.getDefaultResources().getActionId())) {
                         savedAction.getDefaultResources().setActionId(savedAction.getId());
+                        return analyticsMono.then(repository.save(savedAction));
                     }
-                    return repository.save(savedAction);
+                    return analyticsMono;
                 })
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)))
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
@@ -511,6 +536,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     copyNewFieldValuesIntoOldObject(action, dbAction.getUnpublishedAction());
                     return dbAction;
                 })
+                .flatMap(this::extractAndSetNativeQueryFromFormData)
                 .cache();
 
         Mono<ActionDTO> savedUpdatedActionMono = updatedActionMono
@@ -526,6 +552,33 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .then(analyticsUpdateMono)
                 // Now return the updated action back.
                 .then(savedUpdatedActionMono);
+    }
+
+    private Mono<NewAction> extractAndSetNativeQueryFromFormData(NewAction action) {
+        Mono<Plugin> pluginMono = pluginService.getById(action.getPluginId());
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
+
+        return pluginExecutorMono
+                .flatMap(pluginExecutor -> {
+                    action.getUnpublishedAction().setActionConfiguration(pluginExecutor
+                            .extractAndSetNativeQueryFromFormData(action.getUnpublishedAction().getActionConfiguration()));
+
+                    return Mono.just(action);
+                })
+                .onErrorResume(e -> {
+                    /**
+                     * In the event of any failure, it does not make sense to stop the flow since this error is not
+                     * caused by user input, and it does not impact the execution of the action in any way. This
+                     * method is part of the action configuration persistence flow and hence
+                     * users are free to persist any data in the action configuration as they see fit. At best, a
+                     * failure here would only cause a minor inconvenience to a beginner user since the form data would
+                     * not be auto translated to the raw query.
+                     */
+                    Map<String, Object> formData = action.getUnpublishedAction().getActionConfiguration().getFormData();
+                    setValueSafelyInFormData(formData, NATIVE_QUERY_PATH_STATUS, ERROR);
+                    setValueSafelyInFormData(formData, NATIVE_QUERY_PATH_DATA, e.getMessage());
+                    return Mono.just(action);
+                });
     }
 
     @Override
@@ -989,7 +1042,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             "pageName", pageName,
                             "isSuccessfulExecution", ObjectUtils.defaultIfNull(actionExecutionResult.getIsExecutionSuccess(), false),
                             "statusCode", ObjectUtils.defaultIfNull(actionExecutionResult.getStatusCode(), ""),
-                            "timeElapsed", timeElapsed
+                            "timeElapsed", timeElapsed,
+                            "actionCreated", DateUtils.ISO_FORMATTER.format(action.getCreatedAt()),
+                            "actionId", ObjectUtils.defaultIfNull(action.getId(), ""),
+                            "dsId", ObjectUtils.defaultIfNull(datasource.getId(), ""),
+                            "dsCreatedAt", DateUtils.ISO_FORMATTER.format(datasource.getCreatedAt())
+
                     ));
 
                     // Add the error message in case of erroneous execution

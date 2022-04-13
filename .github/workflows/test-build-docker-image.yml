@@ -530,13 +530,13 @@ jobs:
           path: app/rts/node_modules/
 
       - name: Build  docker image
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        if: steps.run_result.outputs.run_result != 'success'
         working-directory: "."
         run: |
           docker build -t fatcontainer .
 
       - name: Load docker image
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        if: steps.run_result.outputs.run_result != 'success'
         env:
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
         working-directory: "."
@@ -544,14 +544,8 @@ jobs:
           mkdir -p fatcontainerlocal/stacks/configuration/
           cd fatcontainerlocal
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
-            -v "$PWD/stacks:/appsmith-stacks" fatcontainer
-          sudo chmod a+rw stacks/configuration/docker.env
-          sudo echo  "APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY" >> stacks/configuration/docker.env
-
-      #      - name: Restart Appsmith
-      #        if: steps.run_result.outputs.run_result != 'success'
-      #        run: |
-      #          docker restart appsmith
+            -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
+            fatcontainer
 
       - name: Use Node.js 14.15.4
         if: steps.run_result.outputs.run_result != 'success'
@@ -1159,7 +1153,7 @@ jobs:
       - run: echo "::set-output name=run_result::success" > ~/run_result
 
   ui-test-result:
-    needs: ui-test
+    needs: [ui-test, fat-container-test]
     if: always() &&
       (github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||

@@ -25,7 +25,7 @@ import {
   TextSize,
 } from "constants/WidgetConstants";
 import { Button, Classes, InputGroup } from "@blueprintjs/core";
-import { WidgetContainerDiff } from "widgets/WidgetUtils";
+import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 
@@ -122,6 +122,7 @@ function MultiTreeSelectComponent({
   const _menu = useRef<HTMLElement | null>(null);
   const labelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [memoDropDownWidth, setMemoDropDownWidth] = useState(0);
 
   // treeDefaultExpandAll is uncontrolled after first render,
   // using this to force render to respond to changes in expandAll
@@ -151,15 +152,20 @@ function MultiTreeSelectComponent({
     setFilter(event.target.value);
   }, []);
 
-  const memoDropDownWidth = useMemo(() => {
-    if (compactMode && labelRef.current) {
-      const labelWidth = labelRef.current.clientWidth;
-      const widthDiff = dropDownWidth - labelWidth;
-      return widthDiff > dropDownWidth ? widthDiff : dropDownWidth;
-    }
+  useEffect(() => {
     const parentWidth = width - WidgetContainerDiff;
-    return parentWidth > dropDownWidth ? parentWidth : dropDownWidth;
-  }, [compactMode, dropDownWidth, width, labelRef.current]);
+    if (compactMode && labelRef.current) {
+      const labelWidth = labelRef.current.getBoundingClientRect().width;
+      const widthDiff = parentWidth - labelWidth - labelMargin;
+      setMemoDropDownWidth(
+        widthDiff > dropDownWidth ? widthDiff : dropDownWidth,
+      );
+      return;
+    }
+    setMemoDropDownWidth(
+      parentWidth > dropDownWidth ? parentWidth : dropDownWidth,
+    );
+  }, [compactMode, dropDownWidth, width, labelText]);
   const dropdownRender = useCallback(
     (
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,

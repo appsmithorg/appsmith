@@ -4,7 +4,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ApplicationPayload,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { Organization, OrgUser } from "constants/orgConstants";
 import {
   createMessage,
@@ -380,10 +380,6 @@ const applicationsReducer = createReducer(initialState, {
     return {
       ...state,
       userOrgs: _organizations,
-      currentApplication: {
-        ...state.currentApplication,
-        applicationVersion: action.payload.applicationVersion,
-      },
       isSavingAppName: false,
       isErrorSavingAppName: false,
     };

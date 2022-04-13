@@ -1,5 +1,5 @@
 import { FetchApplicationResponse } from "api/ApplicationApi";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import store from "store";
 
 export const fetchPagesMockResponse = {
@@ -43,6 +43,12 @@ export const fetchApplicationMockResponse: FetchApplicationResponse = {
         isDefault: true,
         slug: "page-1",
       },
+      {
+        id: "605c435a91dea93f0eaf91bc",
+        name: "Page2",
+        isDefault: false,
+        slug: "page-2",
+      },
     ],
     organizationId: "",
   },
@@ -66,4 +72,22 @@ export const setMockApplication = () => {
       pages: fetchApplicationMockResponse.data.pages,
     },
   });
+};
+
+export const updatedApplicationPayload = {
+  id: "605c435a91dea93f0eaf91b8",
+  name: "Renamed application",
+  slug: "renamed-application",
+  organizationId: "",
+  evaluationVersion: 1,
+  appIsExample: false,
+  gitApplicationMetadata: undefined,
+  applicationVersion: 2,
+};
+
+export const updatedPagePayload = {
+  id: "605c435a91dea93f0eaf91bc",
+  name: "My Page 2",
+  isDefault: false,
+  slug: "my-page-2",
 };

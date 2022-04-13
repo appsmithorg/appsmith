@@ -12,7 +12,7 @@ import {
 import {
   ApplicationPayload,
   PageListPayload,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
 import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
@@ -190,7 +190,10 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
 
   return (
     <ThemeProvider theme={props.lightTheme}>
-      <HeaderWrapper hasPages={pages.length > 1}>
+      <HeaderWrapper
+        data-testid={"t--appsmith-app-viewer-header"}
+        hasPages={pages.length > 1}
+      >
         <HtmlTitle />
         <HeaderRow className="px-3" justify={"space-between"}>
           <HeaderSection className="space-x-3 justify-start">

@@ -94,7 +94,7 @@ describe("Entity explorer datasource structure", function() {
       .replace(/[^a-z]+/g, "");
     cy.typeValueNValidate(`CREATE TABLE public.${tableName} ( ID int );`);
     cy.onlyQueryRun();
-    cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
+    cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.request.requestParams.Query.value).to.contain(
         tableName,
       );

@@ -28,7 +28,7 @@ import {
   redirectAuthorizationCode,
   updateDatasource,
 } from "actions/datasourceActions";
-import { ReduxAction } from "constants/ReduxActionConstants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   datasourceToFormValues,
   formValuesToDatasource,
@@ -56,7 +56,7 @@ import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import Callout from "components/ads/Callout";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { ButtonVariantTypes } from "components/constants";
-import { updateReplayEntity } from "../../../actions/pageActions";
+import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 interface DatasourceRestApiEditorProps {
@@ -534,21 +534,29 @@ class DatasourceRestAPIEditor extends React.Component<
         </FormInputContainer>
         {this.renderAuthFields()}
         {this.renderSelfSignedCertificateFields()}
-        <FormInputContainer>
-          <AuthorizeButton
-            disabled={this.disableSave()}
-            filled
-            intent="primary"
-            loading={isSaving}
-            onClick={() =>
-              this.save(
-                redirectAuthorizationCode(pageId, datasourceId, PluginType.API),
-              )
-            }
-            size="small"
-            text={isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"}
-          />
-        </FormInputContainer>
+        {formData.authType && formData.authType === AuthType.OAuth2 && (
+          <FormInputContainer>
+            <AuthorizeButton
+              disabled={this.disableSave()}
+              filled
+              intent="primary"
+              loading={isSaving}
+              onClick={() =>
+                this.save(
+                  redirectAuthorizationCode(
+                    pageId,
+                    datasourceId,
+                    PluginType.API,
+                  ),
+                )
+              }
+              size="small"
+              text={
+                isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"
+              }
+            />
+          </FormInputContainer>
+        )}
       </>
     );
   };

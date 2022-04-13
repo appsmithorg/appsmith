@@ -31,12 +31,13 @@ import { find, pick, sortBy } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import { APP_MODE } from "entities/App";
 import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
-import { Page } from "constants/ReduxActionConstants";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { builderURL } from "RouteBuilder";
 import { ApplicationVersion } from "actions/applicationActions";
 
-const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
+export const getWidgetConfigs = (state: AppState) =>
+  state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
 
 export const getProviderCategories = (state: AppState) =>
@@ -379,7 +380,7 @@ export function getOccupiedSpacesSelectorForContainer(
   });
 }
 
-// same as getOccupiedSpaces but gets only the container specific ocupied Spaces
+// same as getOccupiedSpaces but gets only the container specific occupied Spaces
 export function getWidgetSpacesSelectorForContainer(
   containerId: string | undefined,
 ) {
@@ -447,6 +448,7 @@ const createLoadingWidget = (
     type: WidgetTypes.SKELETON_WIDGET,
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     bindingPaths: {},
+    reactivePaths: {},
     triggerPaths: {},
     validationPaths: {},
     logBlackList: {},

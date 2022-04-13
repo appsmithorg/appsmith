@@ -110,7 +110,7 @@ module.exports = class Perf {
 
     const currentUrl = this.page.url();
     const pageId = currentURL
-      .split("/")[4]
+      .split("/")[5]
       ?.split("-")
       .pop();
 
@@ -156,7 +156,6 @@ module.exports = class Perf {
 
     const elementHandle = await this.page.$(selectors.fileInput);
     await elementHandle.uploadFile(jsonPath);
-    // await this.page.click(selectors.importButton);
 
     await this.page.waitForNavigation();
     await this.page.reload();
