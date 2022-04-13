@@ -165,8 +165,8 @@ exports.handler = async (event, context, callback) => {
               .forEach(page => {
                 if (page.markdown) {
                   const size = JSON.stringify(page).length;
-                  if (size > 10000) { 
-                    page.markdown = page.markdown.substr(0, page.markdown.length - (JSON.stringify(page).length - 9900));
+                  if (size > 10000) {
+                    page.markdown = page.markdown.slice(0, -(size - 9900));
                   }
                   if (orderMap[page.path]) {
                     page.isDefault = true;
