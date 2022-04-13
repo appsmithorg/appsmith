@@ -30,6 +30,7 @@ export const generatePropertyControl = (
       const sectionConfig: PropertyPaneSectionConfig = config as PropertyPaneSectionConfig;
       return (
         <Boxed
+          key={config.id + props.id}
           show={
             sectionConfig.sectionName !== "General" &&
             props.type === "TABLE_WIDGET"
