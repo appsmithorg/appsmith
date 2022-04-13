@@ -119,6 +119,8 @@ public class CreateDBTablePageSolutionTests {
 
     private final String INSERT_QUERY = "InsertQuery";
 
+    private final static String DATA = "data";
+
     DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
 
     private final Map<String, String> actionNameToBodyMap = Map.of(
@@ -825,11 +827,11 @@ public class CreateDBTablePageSolutionTests {
                 for (NewAction action : actions) {
                     ActionConfiguration actionConfiguration = action.getUnpublishedAction().getActionConfiguration();
                     assertThat(action.getUnpublishedAction().getDatasource().getStructure()).isNull();
-                    assertThat(((Map<String, String>) actionConfiguration.getFormData().get("bucket")).get("componentData"))
+                    assertThat(((Map<String, String>) actionConfiguration.getFormData().get("bucket")).get(DATA))
                         .isEqualTo(resource.getTableName());
                     if (action.getUnpublishedAction().getName().equals(LIST_QUERY)) {
                         Map<String, Object> listObject = (Map<String, Object>) actionConfiguration.getFormData().get("list");
-                        assertThat(((Map<String, Object>)((Map<String, Object>) listObject.get("where")).get("componentData")).get("condition"))
+                        assertThat(((Map<String, Object>)((Map<String, Object>) listObject.get("where")).get(DATA)).get("condition"))
                                 .isEqualTo("AND");
                     }
                 }
@@ -959,46 +961,42 @@ public class CreateDBTablePageSolutionTests {
                     }
 
                     Map<String, Object> formData = actionConfiguration.getFormData();
-                    assertThat(((Map<String, String>)formData.get("collection")).get("componentData")).isEqualTo("sampleTable");
-                    String queryType = formData.get("command").toString();
+                    assertThat(((Map<String, Object>) formData.get("collection")).get(DATA)).isEqualTo("sampleTable");
+                    String queryType = ((Map<String, String>) formData.get("command")).get(DATA);
                     if (queryType.equals("UPDATE")) {
                         Map<String, Object> updateMany = (Map<String, Object>) formData.get("updateMany");
-                        assertThat(updateMany.get("query"))
-                            .isEqualTo("{ id: ObjectId('{{data_table.selectedRow.id}}') }");
+                        assertThat(((Map<String, String>)updateMany.get("query")).get(DATA).replaceAll(specialCharactersRegex, ""))
+                            .isEqualTo("{ id: ObjectId('{{data_table.selectedRow.id}}') }".replaceAll(specialCharactersRegex, ""));
 
-                        assertThat(updateMany.get("update").toString().replaceAll(specialCharactersRegex, ""))
-                            .isEqualTo("{\"field2\" : {{update_col_1.text}},\"field1.something\" : {{update_col_2.text}},\"field3\" : {{update_col_3.text}},\"field4\" : {{update_col_4.text}}\"}"
-                                .replaceAll(specialCharactersRegex, ""));
-                        assertThat(formData.get("smartSubstitution")).isEqualTo(true);
+                        assertThat(((Map<String, Object>) updateMany.get("update")).get(DATA))
+                            .isEqualTo("{{update_form.formData}}");
+                        assertThat(((Map<String, Object>) formData.get("smartSubstitution")).get(DATA)).isEqualTo(true);
                     } else if (queryType.equals("DELETE")) {
                         Map<String, Object> delete = (Map<String, Object>) formData.get("delete");
-                        assertThat(delete.get("query").toString().replaceAll(specialCharactersRegex, ""))
-                            .contains("{ id: ObjectId('{{data_table.triggeredRow.id}}') }"
-                                .replaceAll(specialCharactersRegex, ""));
-                        assertThat(formData.get("smartSubstitution")).isEqualTo(true);
+                        assertThat(((Map<String, String>) delete.get("query")).get(DATA).replaceAll(specialCharactersRegex, ""))
+                            .isEqualTo("{ id: ObjectId('{{data_table.triggeredRow.id}}') }".replaceAll(specialCharactersRegex, ""));
+                        assertThat(((Map<String, Object>) formData.get("smartSubstitution")).get(DATA)).isEqualTo(true);
                     } else if (queryType.equals("FIND")) {
 
                         Map<String, Object> find = (Map<String, Object>) formData.get("find");
-                        assertThat(find.get("sort").toString().replaceAll(specialCharactersRegex, ""))
-                            .isEqualTo("{ \n\"{{key_select.selectedOptionValue}}: {{order_select.selectedOptionValue}} \n}"
+                        assertThat(((Map<String, Object>) find.get("sort")).get(DATA).toString().replaceAll(specialCharactersRegex, ""))
+                            .isEqualTo("{ \n{{data_table.sortOrder.column || 'field2'}}: {{data_table.sortOrder.order == \"desc\" ? -1 : 1}}}"
                                 .replaceAll(specialCharactersRegex, ""));
 
-                        assertThat(find.get("limit").toString()).isEqualTo("{{data_table.pageSize}}");
+                        assertThat(((Map<String, Object>) find.get("limit")).get(DATA).toString()).isEqualTo("{{data_table.pageSize}}");
 
-                        assertThat(find.get("skip").toString().replaceAll(specialCharactersRegex, ""))
-                            .isEqualTo("{{(data_table.pageNo - 1) * data_table.pageSize}}".replaceAll(specialCharactersRegex, ""));
+                        assertThat(((Map<String, Object>) find.get("skip")).get(DATA).toString())
+                            .isEqualTo("{{(data_table.pageNo - 1) * data_table.pageSize}}");
 
-                        assertThat(find.get("query").toString().replaceAll(specialCharactersRegex, ""))
+                        assertThat(((Map<String, Object>) find.get("query")).get(DATA).toString().replaceAll(specialCharactersRegex, ""))
                             .isEqualTo("{ field1.something: /{{data_table.searchText||\"\"}}/i }".replaceAll(specialCharactersRegex, ""));
 
-                        assertThat(formData.get("smartSubstitution")).isEqualTo(false);
+                        assertThat(((Map<String, Object>) formData.get("smartSubstitution")).get(DATA)).isEqualTo(false);
                     } else if (queryType.equals("INSERT")) {
                         Map<String, Object> insert = (Map<String, Object>) formData.get("insert");
 
-                        assertThat(insert.get("documents").toString().replaceAll(specialCharactersRegex, ""))
-                                .isEqualTo("{ \\\"field2\\\": {{insert_col_input1.text}}, \\\"field1.something\\\": {{insert_col_input2.text}}, \\\"field3\\\": {{insert_col_input3.text}}, \\\"field4\\\": {{insert_col_input4.text}}}"
-                                        .replaceAll(specialCharactersRegex, ""));
-                        assertThat(formData.get("smartSubstitution")).isEqualTo(true);
+                        assertThat(((Map<String, Object>) insert.get("documents")).get(DATA)).isEqualTo("{{insert_form.formData}}");
+                        assertThat(((Map<String, Object>) formData.get("smartSubstitution")).get(DATA)).isEqualTo(true);
                     }
                 }
             })

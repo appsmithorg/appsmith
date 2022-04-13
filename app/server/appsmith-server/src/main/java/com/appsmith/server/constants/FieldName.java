@@ -108,7 +108,5 @@ public class FieldName {
     public static final String ACTION_COLLECTION_LIST = "actionCollectionList";
     public static final String DECRYPTED_FIELDS = "decryptedFields";
     public static final String THEME = "theme";
-    public static final String SCHEMA = "schema";
-    public static final String ROOT_SCHEMA = "__root_schema__";
 
 }
