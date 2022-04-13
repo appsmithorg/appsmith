@@ -3,7 +3,7 @@ import React, { ReactNode } from "react";
 import { connect } from "react-redux";
 
 import { UIElementSize } from "components/editorComponents/ResizableUtils";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";

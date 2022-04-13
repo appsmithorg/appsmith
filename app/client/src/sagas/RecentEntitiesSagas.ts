@@ -1,4 +1,7 @@
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
 import { all, put, takeLatest } from "redux-saga/effects";
 import { updateRecentEntity } from "actions/globalSearchActions";
 import { matchPath } from "react-router";

@@ -16,7 +16,7 @@ import { bindDataOnCanvas } from "actions/pluginActionActions";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
-import AnalyticsUtil from "../../../utils/AnalyticsUtil";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { AppState } from "reducers";
 import { getDependenciesFromInverseDependencies } from "../Debugger/helpers";
 import {

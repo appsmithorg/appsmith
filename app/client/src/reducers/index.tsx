@@ -56,7 +56,9 @@ import { AppCollabReducerState } from "./uiReducers/appCollabReducer";
 import { CrudInfoModalReduxState } from "./uiReducers/crudInfoModalReducer";
 import { FormEvaluationState } from "./evaluationReducers/formEvaluationReducer";
 import { widgetReflowState } from "./uiReducers/reflowReducer";
-import SettingsReducer, { SettingsReduxState } from "./settingsReducer";
+import SettingsReducer, {
+  SettingsReduxState,
+} from "@appsmith/reducers/settingsReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
