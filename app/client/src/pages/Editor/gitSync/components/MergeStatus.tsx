@@ -3,9 +3,14 @@ import styled from "constants/DefaultTheme";
 import StatusLoader from "./StatusLoader";
 import Text, { TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
+import { Classes } from "components/ads";
 
 const Flex = styled.div`
   display: flex;
+
+  & ${Classes.TEXT} {
+    align-self: center;
+  }
 `;
 
 export const MERGE_STATUS_STATE = {
@@ -40,12 +45,7 @@ function MergeStatus({
       return (
         <Flex>
           <Wrapper>
-            <Text
-              color={Colors.GREEN}
-              style={{ alignSelf: "center" }}
-              type={TextType.P3}
-              weight="600"
-            >
+            <Text color={Colors.GREEN} type={TextType.P3} weight="600">
               {message}
             </Text>
           </Wrapper>
@@ -56,12 +56,7 @@ function MergeStatus({
       return (
         <Flex>
           <Wrapper>
-            <Text
-              color={Colors.CRIMSON}
-              style={{ alignSelf: "center" }}
-              type={TextType.P3}
-              weight="600"
-            >
+            <Text color={Colors.CRIMSON} type={TextType.P3} weight="600">
               {message}
             </Text>
           </Wrapper>
