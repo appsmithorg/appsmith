@@ -451,7 +451,7 @@ const SelectedDropDownHolder = styled.div`
     text-overflow: ellipsis;
   }
 
-  & > * {
+  &.custom-render-option > * {
     // below if to override any custom margin and padding added in the render option
     // because the above container already comes with a padding
     // which will result broken UI
@@ -605,7 +605,9 @@ function DefaultDropDownValueNode({
   }
 
   return (
-    <SelectedDropDownHolder>
+    <SelectedDropDownHolder
+      className={renderNode ? "custom-render-option" : ""}
+    >
       {renderNode ? (
         renderNode({
           isSelectedNode: true,
