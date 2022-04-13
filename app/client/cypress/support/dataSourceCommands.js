@@ -101,7 +101,7 @@ Cypress.Commands.add("saveDatasource", () => {
 });
 
 Cypress.Commands.add("testSaveDatasource", (expectedRes = true) => {
-  // cy.testDatasource(expectedRes);
+  cy.testDatasource(expectedRes);
   cy.saveDatasource();
   // cy.get(datasourceEditor.datasourceCard)
   //   .last()
