@@ -17,9 +17,14 @@ import {
 } from "selectors/editorSelectors";
 import { validateResponse } from "./ErrorSagas";
 import {
-  commitToRepoSuccess,
   ConnectToGitReduxAction,
+  GenerateSSHKeyPairReduxAction,
+  GetSSHKeyPairReduxAction,
+  commitToRepoSuccess,
   connectToGitSuccess,
+  deleteBranchError,
+  deleteBranchSuccess,
+  deletingBranch,
   fetchBranchesInit,
   fetchBranchesSuccess,
   fetchGitStatusInit,
@@ -30,10 +35,8 @@ import {
   fetchLocalGitConfigSuccess,
   fetchMergeStatusFailure,
   fetchMergeStatusSuccess,
-  GenerateSSHKeyPairReduxAction,
   generateSSHKeyPairSuccess,
   getSSHKeyPairError,
-  GetSSHKeyPairReduxAction,
   getSSHKeyPairSuccess,
   gitPullSuccess,
   importAppViaGitSuccess,
@@ -59,6 +62,7 @@ import {
 } from "selectors/applicationSelectors";
 import {
   createMessage,
+  DELETE_BRANCH_SUCCESS,
   ERROR_GIT_AUTH_FAIL,
   ERROR_GIT_INVALID_REMOTE,
   GIT_USER_UPDATED_SUCCESSFULLY,
@@ -781,6 +785,32 @@ export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
   }
 }
 
+export function* deleteBranch({ payload }: ReduxAction<any>) {
+  yield put(deletingBranch(payload));
+  const { branchToDelete } = payload;
+  let response: ApiResponse | undefined;
+  try {
+    const applicationId: string = yield select(getCurrentApplicationId);
+
+    response = yield GitSyncAPI.deleteBranch(applicationId, branchToDelete);
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      false,
+      getLogToSentryFromResponse(response),
+    );
+    if (isValidResponse) {
+      Toaster.show({
+        text: createMessage(DELETE_BRANCH_SUCCESS, branchToDelete),
+        variant: Variant.success,
+      });
+      yield put(deleteBranchSuccess(response?.data));
+      yield put(fetchBranchesInit({ pruneBranches: true }));
+    }
+  } catch (error) {
+    yield put(deleteBranchError(error));
+  }
+}
+
 export default function* gitSyncSagas() {
   yield all([
     takeLatest(ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT, commitToGitRepoSaga),
@@ -819,5 +849,6 @@ export default function* gitSyncSagas() {
       generateSSHKeyPairSaga,
     ),
     takeLatest(ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT, getSSHKeyPairSaga),
+    takeLatest(ReduxActionTypes.DELETE_BRANCH_INIT, deleteBranch),
   ]);
 }
