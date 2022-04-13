@@ -743,6 +743,21 @@ export const CHANGES_USER_AND_MIGRATION = () =>
   "Appsmith update and user changes since last commit";
 // GIT DEPLOY end
 
+// GIT DELETE BRANCH begin
+export const DELETE = () => "Delete";
+export const LOCAL_BRANCHES = () => "Local branches";
+export const REMOTE_BRANCHES = () => "Remote branches";
+
+export const DELETE_BRANCH_SUCCESS = (branchName: string) =>
+  `Successfully deleted branch: ${branchName}`;
+
+// warnings
+export const DELETE_BRANCH_WARNING_CHECKED_OUT = (currentBranchName: string) =>
+  `Cannot delete checked out branch. Please check out other branch before deleting ${currentBranchName}.`;
+export const DELETE_BRANCH_WARNING_DEFAULT = (defaultBranchName: string) =>
+  `Cannot delete default branch: ${defaultBranchName}`;
+// GIT DELETE BRANCH end
+
 // GIT ERRORS begin
 export const ERROR_GIT_AUTH_FAIL = () =>
   "Please make sure that regenerated SSH key is added and has write access to the repo.";
@@ -915,9 +930,11 @@ export const WELCOME_FORM_EMAIL_ID = () => "Email Id";
 export const WELCOME_FORM_CREATE_PASSWORD = () => "Create Password";
 export const WELCOME_FORM_VERIFY_PASSWORD = () => "Verify Password";
 export const WELCOME_FORM_ROLE_DROPDOWN = () => "What Role Do You Play?";
+export const WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER = () => "- Select a role -";
 export const WELCOME_FORM_ROLE = () => "Role";
 export const WELCOME_FORM_CUSTOM_USE_CASE = () => "Use case";
 export const WELCOME_FORM_USE_CASE = () => "Tell Us About Your Use Case";
+export const WELCOME_FORM_USE_CASE_PLACEHOLDER = () => "- Select a use case -";
 export const WELCOME_FORM_DATA_COLLECTION_HEADER = () =>
   "Usage data preference";
 export const WELCOME_FORM_DATA_COLLECTION_BODY = () =>
