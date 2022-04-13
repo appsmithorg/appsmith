@@ -350,7 +350,7 @@ export const borderRadiusUtility = (borderRadius: string | undefined) => {
 };
 
 /**
- * Function used inside boxShadowDynamicChecker to map dynamicBinding based boxShadowColor in theming migration.
+ * Function used inside boxShadowDynamicChecker to replace the default rgba(0, 0, 0, 0.25) value with the computed boxShadowColor theming migration.
  * @param boxShadow
  * @param boxShadowColor
  * @returns
@@ -366,7 +366,7 @@ export const boxShadowColorUtility = (
 };
 
 /**
- * Function used inside boxShadowDynamicChecker to map dynamicBinding based boxShadow in theming migration.
+ * Function used inside boxShadowDynamicChecker to map dynamicBinding based boxShadow to its respective mappings in theming migration.
  * @param boxShadow
  * @param boxShadowColor
  * @returns
@@ -388,15 +388,17 @@ export const boxShadowUtility = (boxShadow: string, boxShadowColor: string) => {
 };
 
 /**
- * Function usd inside table widget cell properties for Icon and menu button types.
- * This function is used to run theming migration boxShadow and boxShadowColor has dynamic bindings
+ * Function used inside table widget cell properties for Icon and menu button types.
+ * This function is used to run post theming migration for boxShadow and boxShadowColor;
  * Function runs for the following scenarios, when:
  * 1. boxShadow: Static; boxShadowColor: Dynamic
  * 2. boxShadow: Dynamic; boxShadowColor: Static
  * 3. boxShadow: Dynamic; boxShadowColor: empty
  * 4. boxShadow: Dynamic; boxShadowColor: dynamic
  *
- * @param child Child containing widget props
+ * based on the above condition we apply the boxShadowUtility and boxShadowColorUtility functions.
+ *
+ * @param child Widget props
  * @param columnName Current column name
  * @param boxShadow current box shadow
  * @param boxShadowColor current box shadow color

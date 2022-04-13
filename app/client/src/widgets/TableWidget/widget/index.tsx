@@ -162,6 +162,31 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             columnProperties,
             originalIndex,
           );
+
+          /**
+           * Conditionally render the below migration function: boxShadowDynamicChecker (Checks if boxShadow)
+           *
+           * This condition is applied to run the boxShadowDynamicChecker on the following conditions, when:
+           * 1. BoxShadow is Static and boxShadowColor is dynamic.
+           * 2. boxShadow is Dynamic and boxShadowColor is static/empty/dynamic
+           *
+           *
+           * Once the migration is complete we are also deleting the boxShadowColor with the updateHook.
+           */
+          const conditionalBoxShadow =
+            (columnProperties.hasOwnProperty("boxShadowColor") ||
+            (columnProperties.hasOwnProperty("boxShadow") &&
+              cellProperties.boxShadow.includes("VARIANT"))
+              ? boxShadowDynamicChecker(
+                  this.props,
+                  columnProperties.id,
+                  cellProperties.boxShadow,
+                  isBoxShadowColorInDynamicList
+                    ? columnProperties.boxShadowColor[originalIndex]
+                    : columnProperties.boxShadowColor,
+                )
+              : cellProperties.boxShadow) || "NONE";
+
           let isSelected = false;
           if (this.props.multiRowSelection) {
             isSelected =
@@ -240,28 +265,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               borderRadius:
                 borderRadiusUtility(cellProperties.borderRadius) ||
                 this.props.borderRadius,
-              boxShadow:
-                /**
-                 * Conditionally render the below migration function: boxShadowDynamicChecker
-                 * This condition is applied to run the boxShadowDynamicChecker only on the following conditions, when:
-                 * 1. BoxShadow is Static and boxShadowColor is dynamic.
-                 * 2. boxShadow is Dynamic and boxShadowColor is static/empty/dynamic
-                 *
-                 * The function only runs post migration.
-                 * Once the migration is complete we are also deleting the boxShadowColor with the updateHook.
-                 */
-                columnProperties.hasOwnProperty("boxShadowColor") ||
-                (columnProperties.hasOwnProperty("boxShadow") &&
-                  cellProperties.boxShadow.includes("VARIANT"))
-                  ? boxShadowDynamicChecker(
-                      this.props,
-                      columnProperties.id,
-                      cellProperties.boxShadow,
-                      isBoxShadowColorInDynamicList
-                        ? columnProperties.boxShadowColor[originalIndex]
-                        : columnProperties.boxShadowColor,
-                    )
-                  : cellProperties.boxShadow,
+              boxShadow: conditionalBoxShadow,
               iconName: cellProperties.iconName || undefined,
               iconAlign: cellProperties.iconAlign,
               isCellVisible: cellProperties.isCellVisible ?? true,
@@ -288,28 +292,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               borderRadius:
                 borderRadiusUtility(cellProperties.borderRadius) ||
                 this.props.borderRadius,
-              boxShadow:
-                /**
-                 * Conditionally render the below migration function: boxShadowDynamicChecker
-                 * This condition is applied to run the boxShadowDynamicChecker only on the following conditions, when:
-                 * 1. BoxShadow is Static and boxShadowColor is dynamic.
-                 * 2. boxShadow is Dynamic and boxShadowColor is static/empty/dynamic
-                 *
-                 * The function only runs post migration.
-                 * Once the migration is complete we are also deleting the boxShadowColor with the updateHook.
-                 */
-                (columnProperties.hasOwnProperty("boxShadowColor") ||
-                (columnProperties.hasOwnProperty("boxShadow") &&
-                  cellProperties.boxShadow.includes("VARIANT"))
-                  ? boxShadowDynamicChecker(
-                      this.props,
-                      columnProperties.id,
-                      cellProperties.boxShadow,
-                      isBoxShadowColorInDynamicList
-                        ? columnProperties.boxShadowColor[originalIndex]
-                        : columnProperties.boxShadowColor,
-                    )
-                  : cellProperties.boxShadow) || "NONE",
+              boxShadow: conditionalBoxShadow,
               isCellVisible: cellProperties.isCellVisible ?? true,
               disabled: !!cellProperties.isDisabled,
             };
