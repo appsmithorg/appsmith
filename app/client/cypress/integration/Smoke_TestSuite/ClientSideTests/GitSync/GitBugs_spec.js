@@ -3,6 +3,7 @@ const dsl = require("../../../../fixtures/JsObjecWithGitdsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const pages = require("../../../../locators/Pages.json");
+import homePage from "../../../../locators/HomePage";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer;
 const pagename = "ChildPage";
@@ -42,10 +43,13 @@ describe("Git sync Bug #10773", function() {
     cy.get(`.t--entity-name:contains("${pagename}")`).click();
     // delete page from tempBranch and merge to master
     cy.Deletepage(pagename);
-    cy.commitAndPush();
+    cy.get(homePage.publishButton).click();
+    cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
+    cy.get(gitSyncLocators.commitButton).click();
+    cy.wait(8000);
+    cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.merge(mainBranch);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
-    cy.wait(8000);
     // verify ChildPage is not on master
     cy.switchGitBranch(mainBranch);
     cy.CheckAndUnfoldEntityItem("PAGES");
@@ -55,16 +59,17 @@ describe("Git sync Bug #10773", function() {
     cy.CheckAndUnfoldEntityItem("PAGES");
     cy.get(`.t--entity-name:contains("${pagename}")`).should("not.exist");
   });
-  after(() => {
-    cy.deleteTestGithubRepo(repoName);
-  });
 });
 
 describe("Git Bug: Fix clone page issue where JSObject are not showing up in destination page when application is connected to git", function() {
-  before(() => {
-    cy.addDsl(dsl);
-  });
-  it("Connect app to git and clone the Page ,verify JSobject duplication should not happen and validate data binding in deploy mode and edit mode", () => {
+  it("Connect app to git, clone the Page ,verify JSobject duplication should not happen and validate data binding in deploy mode and edit mode", () => {
+    cy.NavigateToHome();
+    cy.createOrg();
+    cy.wait("@createOrg").then((interception) => {
+      const newOrganizationName = interception.response.body.data.name;
+      cy.CreateAppForOrg(newOrganizationName, newOrganizationName);
+      cy.addDsl(dsl);
+    });
     // connect app to git
     cy.generateUUID().then((uid) => {
       repoName = uid;
@@ -103,7 +108,11 @@ describe("Git Bug: Fix clone page issue where JSObject are not showing up in des
       "be.visible",
     );
     // deploy the app and validate data binding
-    cy.commitAndPush();
+    cy.get(homePage.publishButton).click();
+    cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
+    cy.get(gitSyncLocators.commitButton).click();
+    cy.wait(8000);
+    cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.latestDeployPreview();
     cy.wait(2000);
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
@@ -119,6 +128,7 @@ describe("Git Bug: Fix clone page issue where JSObject are not showing up in des
     cy.get(commonlocators.backToEditor).click();
     cy.wait(1000);
   });
+
   it("Bug:12724 Js objects are merged to single page when user creates a new branch", () => {
     // create a new branch, clone page and validate jsObject data binding
     cy.createGitBranch(tempBranch);
@@ -156,10 +166,14 @@ describe("Git Bug: Fix clone page issue where JSObject are not showing up in des
   });
 });
 describe("Git synced app with JSObject", function() {
-  before(() => {
-    cy.addDsl(dsl);
-  });
   it("Create an app with JSObject, connect it to git and verify its data in edit and deploy mode", function() {
+    cy.NavigateToHome();
+    cy.createOrg();
+    cy.wait("@createOrg").then((interception) => {
+      const newOrganizationName = interception.response.body.data.name;
+      cy.CreateAppForOrg(newOrganizationName, newOrganizationName);
+      cy.addDsl(dsl);
+    });
     ee.expandCollapseEntity("QUERIES/JS", true);
     // create JS object and validate its data on Page1
     cy.createJSObject('return "Success";');

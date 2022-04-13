@@ -200,21 +200,21 @@ describe("Git import flow", function() {
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
   });
-  /*it("Add widget to master, merge then checkout to child branch and verify data", () => {
+  it("Add widget to master, merge then checkout to child branch and verify data", () => {
     cy.get(explorer.widgetSwitchId).click();
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 600 });
-    cy.wait(3000)
+    cy.wait(3000);
     cy.commitAndPush();
     cy.merge(newBranch);
-    cy.wait(10000)
+    cy.wait(10000);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
-    cy.wait(2000)
+    cy.wait(2000);
     cy.switchGitBranch(newBranch);
-    cy.wait(4000)
+    cy.wait(4000);
     // verify button widget is visible on child branch
-    cy.get(".t--widget-buttonwidget").should('be.visible')
-  }); */
+    cy.get(".t--widget-buttonwidget").should("be.visible");
+  });
 
   after(() => {
     cy.deleteTestGithubRepo(repoName);

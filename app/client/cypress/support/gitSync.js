@@ -284,6 +284,12 @@ Cypress.Commands.add("merge", (destinationBranch) => {
     .click();
   cy.contains(Cypress.env("MESSAGES").NO_MERGE_CONFLICT());
   cy.get(gitSyncLocators.mergeCTA).click();
+  cy.wait("@mergeBranch").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.contains(Cypress.env("MESSAGES").MERGED_SUCCESSFULLY());
 });
 
 Cypress.Commands.add(
