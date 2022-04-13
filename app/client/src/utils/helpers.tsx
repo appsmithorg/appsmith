@@ -11,7 +11,7 @@ import {
   WINDOW_OBJECT_PROPERTIES,
 } from "constants/WidgetValidation";
 import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
-import { get, set } from "lodash";
+import { get, set, isNil } from "lodash";
 import { Org } from "constants/orgConstants";
 import {
   isPermitted,
@@ -22,6 +22,14 @@ import { extraLibrariesNames, isDynamicValue } from "./DynamicBindingUtils";
 import { ApiResponse } from "api/ApiResponses";
 import { DSLWidget } from "widgets/constants";
 import * as Sentry from "@sentry/react";
+import { matchPath } from "react-router";
+import {
+  BUILDER_PATH,
+  BUILDER_PATH_DEPRECATED,
+  VIEWER_PATH,
+  VIEWER_PATH_DEPRECATED,
+} from "constants/routes";
+import history from "./history";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -259,13 +267,12 @@ export const trimTrailingSlash = (path: string) => {
  * @param element
  */
 export const isEllipsisActive = (element: HTMLElement | null) => {
-  return (
-    element &&
-    (element.clientWidth < element.scrollWidth ||
-      element.offsetHeight < element.scrollHeight)
-  );
+  return element && element.clientWidth < element.scrollWidth;
 };
 
+export const isVerticalEllipsisActive = (element: HTMLElement | null) => {
+  return element && element.clientHeight < element.scrollHeight;
+};
 /**
  * converts array to sentences
  * for e.g - ['Pawan', 'Abhinav', 'Hetu'] --> 'Pawan, Abhinav and Hetu'
@@ -656,4 +663,55 @@ export const captureInvalidDynamicBindingPath = (
     currentDSL.children.map(captureInvalidDynamicBindingPath);
   }
   return currentDSL;
+};
+
+/*
+ * Check if a value is null / undefined / empty string
+ *
+ * @param value: any
+ */
+export const isEmptyOrNill = (value: any) => {
+  return isNil(value) || (isString(value) && value === "");
+};
+
+export const isURLDeprecated = (url: string) => {
+  return !!matchPath(url, {
+    path: [
+      trimQueryString(BUILDER_PATH_DEPRECATED),
+      trimQueryString(VIEWER_PATH_DEPRECATED),
+    ],
+    strict: false,
+    exact: false,
+  });
+};
+
+export const getUpdatedRoute = (
+  path: string,
+  params: Record<string, string>,
+) => {
+  let updatedPath = path;
+  const match = matchPath<{ applicationSlug: string; pageSlug: string }>(path, {
+    path: [trimQueryString(BUILDER_PATH), trimQueryString(VIEWER_PATH)],
+    strict: false,
+    exact: false,
+  });
+  if (match?.params) {
+    const { applicationSlug, pageSlug } = match?.params;
+    if (params.applicationSlug)
+      updatedPath = updatedPath.replace(
+        applicationSlug,
+        params.applicationSlug,
+      );
+    if (params.pageSlug)
+      updatedPath = updatedPath.replace(pageSlug, `${params.pageSlug}-`);
+  }
+  return updatedPath;
+};
+
+export const updateSlugNamesInURL = (params: Record<string, string>) => {
+  const { pathname, search } = window.location;
+  // Do not update old URLs
+  if (isURLDeprecated(pathname)) return;
+  const newURL = getUpdatedRoute(pathname, params);
+  history.replace(newURL + search);
 };

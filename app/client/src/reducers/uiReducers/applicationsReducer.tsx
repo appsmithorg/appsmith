@@ -4,7 +4,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ApplicationPayload,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { Organization, OrgUser } from "constants/orgConstants";
 import {
   createMessage,
@@ -128,12 +128,13 @@ const applicationsReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE]: (
     state: ApplicationsReduxState,
-    action: ReduxAction<{ name: string }>,
+    action: ReduxAction<{ name: string; slug: string }>,
   ) => ({
     ...state,
     currentApplication: {
       ...state.currentApplication,
-      name: action.payload,
+      name: action.payload.name,
+      slug: action.payload.slug,
     },
   }),
   [ReduxActionTypes.CURRENT_APPLICATION_LAYOUT_UPDATE]: (

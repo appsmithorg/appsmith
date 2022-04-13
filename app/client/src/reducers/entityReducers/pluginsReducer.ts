@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
   ReduxAction,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { DefaultPlugin, Plugin } from "api/PluginApi";
 import {
   PluginFormPayloadWithId,
@@ -14,6 +14,7 @@ import {
   FormEditorConfigs,
   FormSettingsConfigs,
   FormDependencyConfigs,
+  FormDatasourceButtonConfigs,
 } from "utils/DynamicBindingUtils";
 
 export interface PluginDataState {
@@ -24,6 +25,7 @@ export interface PluginDataState {
   editorConfigs: FormEditorConfigs;
   settingConfigs: FormSettingsConfigs;
   dependencies: FormDependencyConfigs;
+  datasourceFormButtonConfigs: FormDatasourceButtonConfigs;
   fetchingSinglePluginForm: Record<string, boolean>;
   fetchingDefaultPlugins: boolean;
 }
@@ -35,6 +37,7 @@ const initialState: PluginDataState = {
   formConfigs: {},
   editorConfigs: {},
   settingConfigs: {},
+  datasourceFormButtonConfigs: {},
   dependencies: {},
   fetchingSinglePluginForm: {},
   fetchingDefaultPlugins: false,
@@ -102,6 +105,10 @@ const pluginsReducer = createReducer(initialState, {
       settingConfigs: {
         ...state.settingConfigs,
         [action.payload.id]: action.payload.setting,
+      },
+      datasourceFormButtonConfigs: {
+        ...state.datasourceFormButtonConfigs,
+        [action.payload.id]: action.payload.formButton,
       },
     };
   },

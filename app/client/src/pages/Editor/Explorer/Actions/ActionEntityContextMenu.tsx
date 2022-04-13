@@ -4,19 +4,16 @@ import {
   moveActionRequest,
 } from "actions/pluginActionActions";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
-import { BUILDER_PAGE_URL } from "constants/routes";
 import { noop } from "lodash";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router";
 import { getPageListAsOptions } from "selectors/entitiesSelector";
 import history from "utils/history";
 import ContextMenuTrigger from "../ContextMenuTrigger";
-import { ContextMenuPopoverModifiers, ExplorerURLParams } from "../helpers";
+import { ContextMenuPopoverModifiers } from "../helpers";
 import { useNewActionName } from "./helpers";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
@@ -30,6 +27,7 @@ import {
   CONTEXT_SHOW_BINDING,
   createMessage,
 } from "@appsmith/constants/messages";
+import { builderURL } from "RouteBuilder";
 
 type EntityContextMenuProps = {
   id: string;
@@ -39,8 +37,6 @@ type EntityContextMenuProps = {
 };
 export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   const nextEntityName = useNewActionName();
-  const params = useParams<ExplorerURLParams>();
-  const applicationId = useSelector(getCurrentApplicationId);
   const guidedTourEnabled = useSelector(inGuidedTour);
   const dispatch = useDispatch();
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -165,12 +161,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
           onSelect: () => {
             confirmDelete
               ? deleteActionFromPage(props.id, props.name, () => {
-                  history.push(
-                    BUILDER_PAGE_URL({
-                      applicationId,
-                      pageId: params.pageId,
-                    }),
-                  );
+                  history.push(builderURL());
                   setConfirmDelete(false);
                 })
               : setConfirmDelete(true);

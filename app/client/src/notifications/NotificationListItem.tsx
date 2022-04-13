@@ -1,7 +1,7 @@
 import React from "react";
 import ProfileImage, { Profile } from "pages/common/ProfileImage";
 
-import UserApi from "api/UserApi";
+import UserApi from "@appsmith/api/UserApi";
 
 import { AppsmithNotification, NotificationTypes } from "entities/Notification";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -114,7 +114,6 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
     isRead,
   } = props.notification;
   const {
-    applicationId,
     applicationName,
     authorName,
     authorUsername,
@@ -140,7 +139,6 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
     const mode = getModeFromRoleAndDomain(modeFromRole, modeFromComment);
 
     const commentThreadUrl = getCommentThreadURL({
-      applicationId,
       branch: branchName,
       commentThreadId: threadId,
       // isResolved: resolvedState?.active,
@@ -192,7 +190,6 @@ function CommentThreadNotification(props: {
 
   const {
     _id,
-    applicationId,
     applicationName,
     authorName,
     authorUsername,
@@ -211,7 +208,6 @@ function CommentThreadNotification(props: {
     const mode = getModeFromRoleAndDomain(modeFromRole, modeFromThread);
 
     const commentThreadUrl = getCommentThreadURL({
-      applicationId,
       branch: branchName,
       commentThreadId,
       isResolved: resolvedState?.active,

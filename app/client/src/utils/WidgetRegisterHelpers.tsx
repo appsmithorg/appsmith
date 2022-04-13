@@ -8,7 +8,7 @@ import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import WidgetFactory, { DerivedPropertiesMap } from "./WidgetFactory";
 
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import withMeta from "widgets/MetaHOC";
 import { generateReactKey } from "./generators";
 import { memoize } from "lodash";

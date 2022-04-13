@@ -3,12 +3,14 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { Template } from "api/TemplatesApi";
 
 const initialState: TemplatesReduxState = {
   isImportingTemplate: false,
   gettingAllTemplates: false,
+  gettingTemplate: false,
+  activeTemplate: null,
   templates: [],
   similarTemplates: [],
   filters: {},
@@ -21,6 +23,22 @@ const templateReducer = createReducer(initialState, {
     return {
       ...state,
       gettingAllTemplates: true,
+    };
+  },
+  [ReduxActionTypes.GET_TEMPLATE_INIT]: (state: TemplatesReduxState) => {
+    return {
+      ...state,
+      gettingTemplate: true,
+    };
+  },
+  [ReduxActionTypes.GET_TEMPLATE_SUCCESS]: (
+    state: TemplatesReduxState,
+    action: ReduxAction<Template>,
+  ) => {
+    return {
+      ...state,
+      gettingTemplate: false,
+      activeTemplate: action.payload,
     };
   },
   [ReduxActionTypes.GET_ALL_TEMPLATES_SUCCESS]: (
@@ -78,6 +96,12 @@ const templateReducer = createReducer(initialState, {
       isImportingTemplate: false,
     };
   },
+  [ReduxActionErrorTypes.GET_TEMPLATE_ERROR]: (state: TemplatesReduxState) => {
+    return {
+      ...state,
+      gettingTemplate: false,
+    };
+  },
   [ReduxActionTypes.GET_SIMILAR_TEMPLATES_SUCCESS]: (
     state: TemplatesReduxState,
     action: ReduxAction<Template[]>,
@@ -100,7 +124,9 @@ const templateReducer = createReducer(initialState, {
 
 export interface TemplatesReduxState {
   gettingAllTemplates: boolean;
+  gettingTemplate: boolean;
   templates: Template[];
+  activeTemplate: Template | null;
   similarTemplates: Template[];
   filters: Record<string, string[]>;
   templateSearchQuery: string;

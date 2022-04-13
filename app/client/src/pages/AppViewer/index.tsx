@@ -1,20 +1,17 @@
 import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { connect } from "react-redux";
-import { withRouter, RouteComponentProps, Route } from "react-router";
-import { Switch } from "react-router-dom";
+import { withRouter, RouteComponentProps } from "react-router";
 import { AppState } from "reducers";
 import {
   AppViewerRouteParams,
   BuilderRouteParams,
   GIT_BRANCH_QUERY_KEY,
-  VIEWER_FORK_PATH,
-  VIEWER_URL,
 } from "constants/routes";
 import {
   PageListPayload,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { getIsInitialized } from "selectors/appViewSelectors";
 import { executeTrigger } from "actions/widgetActions";
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
@@ -41,8 +38,6 @@ import GlobalHotKeys from "./GlobalHotKeys";
 import { getSearchQuery } from "utils/helpers";
 import AppViewerCommentsSidebar from "./AppViewerComemntsSidebar";
 import { showPostCompletionMessage } from "selectors/onboardingSelectors";
-
-const SentryRoute = Sentry.withSentryRouting(Route);
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -88,7 +83,7 @@ const AppViewerBodyContainer = styled.div<{ width?: string }>`
 
 export type AppViewerProps = {
   initializeAppViewer: (params: {
-    applicationId: string;
+    applicationId?: string;
     pageId?: string;
     branch?: string;
   }) => void;
@@ -133,13 +128,11 @@ class AppViewer extends Component<Props> {
     } = this.props;
     const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
 
-    if (applicationId) {
-      this.props.initializeAppViewer({
-        branch: branch,
-        applicationId,
-        pageId,
-      });
-    }
+    this.props.initializeAppViewer({
+      branch: branch,
+      applicationId,
+      pageId,
+    });
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -154,7 +147,7 @@ class AppViewer extends Component<Props> {
     const prevBranch = getSearchQuery(prevSearch, GIT_BRANCH_QUERY_KEY);
     const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
 
-    if (branch && branch !== prevBranch && applicationId && pageId) {
+    if (branch && branch !== prevBranch && (applicationId || pageId)) {
       this.props.initializeAppViewer({
         applicationId,
         pageId,
@@ -190,18 +183,7 @@ class AppViewer extends Component<Props> {
                   showGuidedTourMessage={this.props.showGuidedTourMessage}
                 >
                   {isInitialized && this.state.registered && (
-                    <Switch>
-                      <SentryRoute
-                        component={AppViewerPageContainer}
-                        exact
-                        path={VIEWER_URL}
-                      />
-                      <SentryRoute
-                        component={AppViewerPageContainer}
-                        exact
-                        path={VIEWER_FORK_PATH}
-                      />
-                    </Switch>
+                    <AppViewerPageContainer />
                   )}
                 </AppViewerBody>
               </AppViewerBodyContainer>
@@ -242,7 +224,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   resetChildrenMetaProperty: (widgetId: string) =>
     dispatch(resetChildrenMetaProperty(widgetId)),
   initializeAppViewer: (params: {
-    applicationId: string;
+    applicationId?: string;
     pageId?: string;
     branch?: string;
   }) => {

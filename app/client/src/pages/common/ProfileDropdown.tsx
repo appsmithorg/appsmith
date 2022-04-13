@@ -10,10 +10,13 @@ import {
   getOnSelectAction,
   DropdownOnSelectActions,
 } from "./CustomizedDropdown/dropdownHelpers";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import ProfileImage from "./ProfileImage";
 import { PopperModifiers } from "@blueprintjs/core";
-import { PROFILE, ADMIN_SETTINGS_CATEGORY_DEFAULT_URL } from "constants/routes";
+import {
+  PROFILE,
+  ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
+} from "constants/routes";
 import { Colors } from "constants/Colors";
 import TooltipComponent from "components/ads/Tooltip";
 import {
@@ -145,7 +148,7 @@ export default function ProfileDropdown(props: TagProps) {
           icon="setting"
           onSelect={() => {
             getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-              path: ADMIN_SETTINGS_CATEGORY_DEFAULT_URL,
+              path: ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
             });
           }}
           text={createMessage(ADMIN_SETTINGS)}

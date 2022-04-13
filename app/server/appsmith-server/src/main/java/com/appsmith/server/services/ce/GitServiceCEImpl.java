@@ -52,6 +52,7 @@ import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jgit.api.errors.CannotDeleteCurrentBranchException;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -552,8 +553,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                     // Update json schema versions so that we can detect if the next update was made by DB migration or
                     // by the user
                     Application update = new Application();
+                    // Reset migration related fields before commit to detect the updates correctly between the commits
                     update.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
                     update.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+                    update.setIsManualUpdate(false);
                     return applicationService.update(childApplication.getId(), update)
                             .then(addAnalyticsForGitOperation(
                                     AnalyticsEvents.GIT_COMMIT.getEventName(),
@@ -1950,6 +1953,11 @@ public class GitServiceCEImpl implements GitServiceCE {
                                             );
                                 }
 
+                                if(Optional.ofNullable(applicationJson.getExportedApplication()).isEmpty()
+                                        || applicationJson.getPageList().isEmpty()) {
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "import", "Cannot import app from an empty repo"));
+                                }
+
                                 applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
                                 return importExportApplicationService
                                         .importApplicationInOrganization(organizationId, applicationJson, application.getId(), defaultBranch)
@@ -2068,6 +2076,13 @@ public class GitServiceCEImpl implements GitServiceCE {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " delete branch", "Cannot delete default branch"));
                     }
                     return gitExecutor.deleteBranch(repoPath, branchName)
+                            .onErrorResume(throwable -> {
+                                log.error("Delete branch failed ", throwable.getMessage());
+                                if(throwable instanceof CannotDeleteCurrentBranchException) {
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "delete branch", "Cannot delete current checked out branch"));
+                                }
+                                return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "delete branch", throwable.getMessage()));
+                            })
                             .flatMap(isBranchDeleted -> {
                                 if(Boolean.FALSE.equals(isBranchDeleted)) {
                                     return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " delete branch. Branch does not exists in the repo"));

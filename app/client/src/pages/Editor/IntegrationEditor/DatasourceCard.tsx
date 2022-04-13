@@ -5,7 +5,6 @@ import React, { useCallback, useState } from "react";
 import { isNil } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
-import { useParams } from "react-router";
 import CollapseComponent from "components/utils/CollapseComponent";
 import {
   getPluginImages,
@@ -17,27 +16,24 @@ import history from "utils/history";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 
 import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
-import {
-  DATA_SOURCES_EDITOR_ID_URL,
-  getGenerateTemplateFormURL,
-} from "constants/routes";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
-import { getQueryParams } from "../../../utils/AppsmithUtils";
-import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
+import { getQueryParams } from "utils/AppsmithUtils";
 import Menu from "components/ads/Menu";
-import { IconSize } from "../../../components/ads/Icon";
-import Icon from "components/ads/Icon";
+import Icon, { IconSize } from "components/ads/Icon";
 import MenuItem from "components/ads/MenuItem";
-import { deleteDatasource } from "../../../actions/datasourceActions";
+import { deleteDatasource } from "actions/datasourceActions";
 import {
   getGenerateCRUDEnabledPluginMap,
   getIsDeletingDatasource,
-} from "../../../selectors/entitiesSelector";
-import TooltipComponent from "components/ads/Tooltip";
-import { GenerateCRUDEnabledPluginMap, Plugin } from "../../../api/PluginApi";
+} from "selectors/entitiesSelector";
+import { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  datasourcesEditorIdURL,
+  generateTemplateFormURL,
+  saasEditorDatasourceIdURL,
+} from "RouteBuilder";
 import {
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
@@ -167,11 +163,6 @@ function DatasourceCard(props: DatasourceCardProps) {
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
     getGenerateCRUDEnabledPluginMap,
   );
-
-  const params = useParams<{ pageId: string }>();
-
-  const applicationId = useSelector(getCurrentApplicationId);
-
   const { datasource, plugin } = props;
   const supportTemplateGeneration = !!generateCRUDSupportedPlugin[
     datasource.pluginId
@@ -199,32 +190,28 @@ function DatasourceCard(props: DatasourceCardProps) {
     AnalyticsUtil.logEvent("DATASOURCE_CARD_EDIT_ACTION");
     if (plugin && plugin.type === PluginType.SAAS) {
       history.push(
-        SAAS_EDITOR_DATASOURCE_ID_URL(
-          applicationId,
-          params.pageId,
-          plugin.packageName,
-          datasource.id,
-          {
+        saasEditorDatasourceIdURL({
+          pluginPackageName: plugin.packageName,
+          datasourceId: datasource.id,
+          params: {
             from: "datasources",
             ...getQueryParams(),
           },
-        ),
+        }),
       );
     } else {
       dispatch(setDatsourceEditorMode({ id: datasource.id, viewMode: false }));
       history.push(
-        DATA_SOURCES_EDITOR_ID_URL(
-          applicationId,
-          params.pageId,
-          datasource.id,
-          {
+        datasourcesEditorIdURL({
+          datasourceId: datasource.id,
+          params: {
             from: "datasources",
             ...getQueryParams(),
           },
-        ),
+        }),
       );
     }
-  }, [datasource.id, params, plugin]);
+  }, [datasource.id, plugin]);
 
   const routeToGeneratePage = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -234,9 +221,11 @@ function DatasourceCard(props: DatasourceCardProps) {
     }
     AnalyticsUtil.logEvent("DATASOURCE_CARD_GEN_CRUD_PAGE_ACTION");
     history.push(
-      getGenerateTemplateFormURL(applicationId, params.pageId, {
-        datasourceId: datasource.id,
-        new_page: true,
+      generateTemplateFormURL({
+        params: {
+          datasourceId: datasource.id,
+          new_page: true,
+        },
       }),
     );
   };
@@ -277,13 +266,7 @@ function DatasourceCard(props: DatasourceCardProps) {
           </div>
           {datasource.isConfigured && (
             <ButtonsWrapper className="action-wrapper">
-              <TooltipComponent
-                boundary={"viewport"}
-                content="Currently not supported for page generation"
-                disabled={!!supportTemplateGeneration}
-                hoverOpenDelay={200}
-                position={Position.BOTTOM}
-              >
+              {supportTemplateGeneration && (
                 <GenerateTemplateButton
                   category={Category.tertiary}
                   className="t--generate-template"
@@ -291,8 +274,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                   onClick={routeToGeneratePage}
                   text="GENERATE NEW PAGE"
                 />
-              </TooltipComponent>
-
+              )}
               <NewActionButton
                 datasource={datasource}
                 eventFrom="active-datasources"
@@ -347,7 +329,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                 category={Category.tertiary}
                 className="t--reconnect-btn"
                 onClick={editDatasource}
-                text="RECONNECT APPLICATION"
+                text="RECONNECT"
               />
 
               <MenuWrapper

@@ -20,3 +20,16 @@ export const mapTree = (tree: Tree, callback: (tree: Tree) => Tree) => {
   }
   return { ...mapped };
 };
+
+/**
+ * This function sorts the object's value which is array of string.
+ *
+ * @param {Record<string, Array<string>>} data
+ * @return {*}
+ */
+export const sortObjectWithArray = (data: Record<string, Array<string>>) => {
+  Object.entries(data).map(([key, value]) => {
+    data[key] = value.sort();
+  });
+  return data;
+};

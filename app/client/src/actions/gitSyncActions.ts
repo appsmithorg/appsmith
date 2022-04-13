@@ -1,13 +1,13 @@
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
 import {
+  ReduxActionTypes,
   ReduxActionWithCallbacks,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { GitSyncModalTab, GitConfig, MergeStatus } from "entities/GitSync";
 import { GitApplicationMetadata } from "api/ApplicationApi";
 import { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
-import { ResponseMeta } from "../api/ApiResponses";
+import { ResponseMeta } from "api/ApiResponses";
 
 export const setIsGitSyncModalOpen = (payload: {
   isOpen: boolean;

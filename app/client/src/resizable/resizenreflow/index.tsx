@@ -13,7 +13,12 @@ import {
 } from "selectors/widgetReflowSelectors";
 import { useSelector } from "react-redux";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { GridProps, ReflowDirection, ReflowedSpace } from "reflow/reflowTypes";
+import {
+  GridProps,
+  MovementLimitMap,
+  ReflowDirection,
+  ReflowedSpace,
+} from "reflow/reflowTypes";
 import { getNearestParentCanvas } from "utils/generators";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
@@ -206,7 +211,7 @@ export function ReflowResizable(props: ResizableProps) {
   const reflowedPosition = useSelector(reflowSelector, equal);
 
   const reflow = useReflow(
-    props.widgetId,
+    [props.originalPositions],
     props.parentId || "",
     props.gridProps,
   );
@@ -229,6 +234,8 @@ export function ReflowResizable(props: ResizableProps) {
 
   const setNewDimensions = (rect: DimensionProps) => {
     const { direction, height, width, x, y } = rect;
+
+    //if it is reached the end of canvas
     const {
       canResizeHorizontally,
       canResizeVertically,
@@ -242,7 +249,9 @@ export function ReflowResizable(props: ResizableProps) {
 
         let canVerticalMove = true,
           canHorizontalMove = true,
-          bottomMostRow = 0;
+          bottomMostRow = 0,
+          movementLimitMap: MovementLimitMap | undefined = {};
+
         if (!reflowEnabled && resizedPositions) {
           const isColliding = checkForCollision(resizedPositions);
           if (isColliding) {
@@ -250,14 +259,25 @@ export function ReflowResizable(props: ResizableProps) {
           }
         }
         if (resizedPositions) {
-          ({ bottomMostRow, canHorizontalMove, canVerticalMove } = reflow(
-            resizedPositions,
-            props.originalPositions,
+          //calling reflow to update movements of reflowing widgets and get movementLimit of current resizing widget
+          ({ bottomMostRow, movementLimitMap } = reflow(
+            [resizedPositions],
             direction,
             true,
           ));
         }
 
+        if (
+          resizedPositions &&
+          movementLimitMap &&
+          movementLimitMap[resizedPositions.id]
+        ) {
+          ({ canHorizontalMove, canVerticalMove } = movementLimitMap[
+            resizedPositions.id
+          ]);
+        }
+
+        //if it should not resize horizontally, we keep keep the previous horizontal dimensions
         if (!canHorizontalMove || !canResizeHorizontally) {
           newRect = {
             ...newRect,
@@ -267,6 +287,7 @@ export function ReflowResizable(props: ResizableProps) {
           };
         }
 
+        //if it should not resize vertically, we keep keep the previous vertical dimensions
         if (!canVerticalMove || !canResizeVertically) {
           newRect = {
             ...newRect,

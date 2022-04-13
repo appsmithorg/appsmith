@@ -1,5 +1,5 @@
 import { EmbeddedRestDatasource } from "entities/Datasource";
-import { DynamicPath } from "../../utils/DynamicBindingUtils";
+import { DynamicPath } from "utils/DynamicBindingUtils";
 import _ from "lodash";
 
 export enum PluginType {

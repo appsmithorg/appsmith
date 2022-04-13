@@ -18,6 +18,8 @@ export interface Template {
   datasources: string[];
 }
 
+export type FilterKeys = "widgets" | "datasources";
+
 export interface FetchTemplatesResponse extends ApiResponse {
   data: Template[];
 }

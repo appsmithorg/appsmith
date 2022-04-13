@@ -1,4 +1,7 @@
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { SelectedArenaDimensions } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
 
