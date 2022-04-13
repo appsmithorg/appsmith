@@ -643,9 +643,11 @@ public class GitServiceCEImpl implements GitServiceCE {
 
         final String browserSupportedUrl = GitUtils.convertSshUrlToBrowserSupportedUrl(gitConnectDTO.getRemoteUrl());
 
+        Mono<Boolean> isPrivateRepoMono = GitUtils.isRepoPrivate(browserSupportedUrl).cache();
+
 
         Mono<Application> connectApplicationMono =  profileMono
-                .then(getApplicationById(defaultApplicationId).zipWith(GitUtils.isRepoPrivate(browserSupportedUrl)))
+                .then(getApplicationById(defaultApplicationId).zipWith(isPrivateRepoMono))
                 .flatMap(tuple -> {
                     Application application = tuple.getT1();
                     boolean isRepoPrivate = tuple.getT2();
@@ -728,7 +730,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     final String applicationId = application.getId();
                     final String orgId = application.getOrganizationId();
                     try {
-                        return fileUtils.checkIfDirectoryIsEmpty(repoPath).zipWith(GitUtils.isRepoPrivate(browserSupportedUrl))
+                        return fileUtils.checkIfDirectoryIsEmpty(repoPath).zipWith(isPrivateRepoMono)
                                 .flatMap(objects -> {
                                     boolean isEmpty = objects.getT1();
                                     boolean isRepoPrivate = objects.getT2();
@@ -1823,8 +1825,9 @@ public class GitServiceCEImpl implements GitServiceCE {
         }
 
         final String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
+        Mono<Boolean> isPrivateRepoMono = GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl(gitConnectDTO.getRemoteUrl())).cache();
         Mono<ApplicationImportDTO> importedApplicationMono = getSSHKeyForCurrentUser()
-                .zipWith(GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl(gitConnectDTO.getRemoteUrl())))
+                .zipWith(isPrivateRepoMono)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION,
                         "Unable to find git configuration for logged-in user. Please contact Appsmith team for support")))
                 //Check the limit for number of private repo
@@ -1897,7 +1900,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     });
 
                     return defaultBranchMono
-                            .zipWith(GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl(gitConnectDTO.getRemoteUrl())))
+                            .zipWith(isPrivateRepoMono)
                             .flatMap(tuple2 -> {
                                 String defaultBranch = tuple2.getT1();
                                 boolean isRepoPrivate = tuple2.getT2();
