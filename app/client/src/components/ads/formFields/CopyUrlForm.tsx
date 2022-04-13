@@ -9,11 +9,6 @@ import { Variant } from "components/ads/common";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import TooltipComponent from "../Tooltip";
 import { Position } from "@blueprintjs/core";
-import {
-  createMessage,
-  REDIRECT_URL_TOOLTIP,
-} from "@appsmith/constants/messages";
-import { REDIRECT_URL_FORM } from "constants/forms";
 import { Colors } from "constants/Colors";
 
 const HelpIcon = HelpIcons.HELP_ICON;
@@ -32,7 +27,7 @@ const HeaderWrapper = styled.div`
   align-items: center;
   margin-bottom: 8px;
   .help-icon {
-    margin-left: 4px;
+    margin-left: 8px;
     cursor: pointer;
     svg {
       border-radius: 50%;
@@ -51,43 +46,52 @@ export const HeaderSecondary = styled.h3`
   text-align: left;
 `;
 
-function RedirectUrlForm(
-  props: InjectedFormProps & { value: string; helpText?: string },
+function CopyUrlForm(
+  props: InjectedFormProps & {
+    value: string;
+    form: string;
+    fieldName: string;
+    title: string;
+    helpText?: string;
+    tooltip?: string;
+  },
 ) {
   useEffect(() => {
     props.initialize({
-      "redirect-url-form": `${window.location.origin}${props.value}`,
+      [props.fieldName]: `${window.location.origin}${props.value}`,
     });
   }, []);
 
   const handleCopy = (value: string) => {
     copy(value);
     Toaster.show({
-      text: "Redirect URL copied to clipboard",
+      text: `${props.title} copied to clipboard`,
       variant: Variant.success,
     });
-    AnalyticsUtil.logEvent("REDIRECT_URL_COPIED", { snippet: value });
+    AnalyticsUtil.logEvent("URL_COPIED", { snippet: value });
   };
 
   return (
     <Wrapper>
       <HeaderWrapper>
-        <HeaderSecondary>Redirect URL</HeaderSecondary>
-        <TooltipComponent
-          autoFocus={false}
-          content={createMessage(REDIRECT_URL_TOOLTIP)}
-          hoverOpenDelay={0}
-          minWidth={"180px"}
-          openOnTargetFocus={false}
-          position={Position.RIGHT}
-        >
-          <HelpIcon
-            className={"help-icon"}
-            color={Colors.GREY_7}
-            height={13}
-            width={13}
-          />
-        </TooltipComponent>
+        <HeaderSecondary>{props.title}</HeaderSecondary>
+        {props.tooltip && (
+          <TooltipComponent
+            autoFocus={false}
+            content={props.tooltip}
+            hoverOpenDelay={0}
+            minWidth={"180px"}
+            openOnTargetFocus={false}
+            position={Position.RIGHT}
+          >
+            <HelpIcon
+              className={"help-icon"}
+              color={Colors.GREY_7}
+              height={13}
+              width={13}
+            />
+          </TooltipComponent>
+        )}
       </HeaderWrapper>
       <BodyContainer>
         <UneditableField
@@ -96,14 +100,13 @@ function RedirectUrlForm(
           helperText={props.helpText}
           iscopy={"true"}
           label={"URL"}
-          name={"redirect-url-form"}
+          name={props.fieldName}
         />
       </BodyContainer>
     </Wrapper>
   );
 }
 
-export const RedirectUrlReduxForm = reduxForm<any, any>({
-  form: REDIRECT_URL_FORM,
+export const CopyUrlReduxForm = reduxForm<any, any>({
   touchOnBlur: true,
-})(RedirectUrlForm);
+})(CopyUrlForm);

@@ -45,50 +45,54 @@ import SortingControl, {
 import EntitySelectorControl, {
   EntitySelectorControlProps,
 } from "components/formControls/EntitySelectorControl";
+import formControlTypes from "./formControlTypes";
 
 /**
  * NOTE: If you are adding a component that uses FormControl
- * then add logic for creating bindingPaths in recursiveFindBindingPaths() at entities/Action/actionProperties.ts
+ * then add logic for creating reactivePaths in recursiveFindReactivePaths() at entities/Action/actionProperties.ts
  */
 class FormControlRegistry {
   static registerFormControlBuilders() {
-    FormControlFactory.registerControlBuilder("INPUT_TEXT", {
+    FormControlFactory.registerControlBuilder(formControlTypes.INPUT_TEXT, {
       buildPropertyControl(controlProps: InputControlProps): JSX.Element {
         return <InputTextControl {...controlProps} />;
       },
     });
-    FormControlFactory.registerControlBuilder("FIXED_KEY_INPUT", {
-      buildPropertyControl(
-        controlProps: FixedKeyInputControlProps,
-      ): JSX.Element {
-        //TODO: may not be in use
-        return <FixedKeyInputControl {...controlProps} />;
+    FormControlFactory.registerControlBuilder(
+      formControlTypes.FIXED_KEY_INPUT,
+      {
+        buildPropertyControl(
+          controlProps: FixedKeyInputControlProps,
+        ): JSX.Element {
+          //TODO: may not be in use
+          return <FixedKeyInputControl {...controlProps} />;
+        },
       },
-    });
-    FormControlFactory.registerControlBuilder("DROP_DOWN", {
+    );
+    FormControlFactory.registerControlBuilder(formControlTypes.DROP_DOWN, {
       buildPropertyControl(controlProps: DropDownControlProps): JSX.Element {
         return <DropDownControl {...controlProps} />;
       },
     });
-    FormControlFactory.registerControlBuilder("SWITCH", {
+    FormControlFactory.registerControlBuilder(formControlTypes.SWITCH, {
       buildPropertyControl(controlProps: SwitchControlProps): JSX.Element {
         return <SwitchControl {...controlProps} />;
       },
     });
-    FormControlFactory.registerControlBuilder("KEYVALUE_ARRAY", {
+    FormControlFactory.registerControlBuilder(formControlTypes.KEYVALUE_ARRAY, {
       buildPropertyControl(
         controlProps: KeyValueArrayControlProps,
       ): JSX.Element {
         return <KeyValueArrayControl {...controlProps} />;
       },
     });
-    FormControlFactory.registerControlBuilder("FILE_PICKER", {
+    FormControlFactory.registerControlBuilder(formControlTypes.FILE_PICKER, {
       buildPropertyControl(controlProps: FilePickerControlProps): JSX.Element {
         //used by redshift datasource
         return <FilePickerControl {...controlProps} />;
       },
     });
-    FormControlFactory.registerControlBuilder("KEY_VAL_INPUT", {
+    FormControlFactory.registerControlBuilder(formControlTypes.KEY_VAL_INPUT, {
       //TODO: may not be in use, replace it with KeyValueArrayControl
       buildPropertyControl(
         controlProps: KeyValueInputControlProps,
@@ -96,58 +100,67 @@ class FormControlRegistry {
         return <KeyValueInputControl {...controlProps} />;
       },
     });
-    FormControlFactory.registerControlBuilder("QUERY_DYNAMIC_TEXT", {
-      buildPropertyControl(controlProps: DynamicTextFieldProps): JSX.Element {
-        return <DynamicTextControl {...controlProps} />;
+    FormControlFactory.registerControlBuilder(
+      formControlTypes.QUERY_DYNAMIC_TEXT,
+      {
+        buildPropertyControl(controlProps: DynamicTextFieldProps): JSX.Element {
+          return <DynamicTextControl {...controlProps} />;
+        },
       },
-    });
-    FormControlFactory.registerControlBuilder("QUERY_DYNAMIC_INPUT_TEXT", {
-      buildPropertyControl(
-        controlProps: DynamicInputControlProps,
-      ): JSX.Element {
-        return <DynamicInputTextControl {...controlProps} />;
+    );
+    FormControlFactory.registerControlBuilder(
+      formControlTypes.QUERY_DYNAMIC_INPUT_TEXT,
+      {
+        buildPropertyControl(
+          controlProps: DynamicInputControlProps,
+        ): JSX.Element {
+          return <DynamicInputTextControl {...controlProps} />;
+        },
       },
-    });
-    FormControlFactory.registerControlBuilder("CHECKBOX", {
+    );
+    FormControlFactory.registerControlBuilder(formControlTypes.CHECKBOX, {
       buildPropertyControl(controlProps: CheckboxControlProps): JSX.Element {
         //used in API datasource form only
         return <CheckboxControl {...controlProps} />;
       },
     });
-    FormControlFactory.registerControlBuilder("NUMBER_INPUT", {
+    FormControlFactory.registerControlBuilder(formControlTypes.NUMBER_INPUT, {
       buildPropertyControl(controlProps: InputControlProps): JSX.Element {
         return <InputTextControl {...controlProps} />;
       },
     });
-    FormControlFactory.registerControlBuilder("ARRAY_FIELD", {
+    FormControlFactory.registerControlBuilder(formControlTypes.ARRAY_FIELD, {
       buildPropertyControl(controlProps: FieldArrayControlProps): JSX.Element {
         return <FieldArrayControl {...controlProps} />;
       },
     });
-    FormControlFactory.registerControlBuilder("WHERE_CLAUSE", {
+    FormControlFactory.registerControlBuilder(formControlTypes.WHERE_CLAUSE, {
       buildPropertyControl(controlProps: WhereClauseControlProps): JSX.Element {
         return <WhereClauseControl {...controlProps} />;
       },
     });
-    FormControlFactory.registerControlBuilder("ENTITY_SELECTOR", {
-      buildPropertyControl(
-        controlProps: EntitySelectorControlProps,
-      ): JSX.Element {
-        return <EntitySelectorControl {...controlProps} />;
+    FormControlFactory.registerControlBuilder(
+      formControlTypes.ENTITY_SELECTOR,
+      {
+        buildPropertyControl(
+          controlProps: EntitySelectorControlProps,
+        ): JSX.Element {
+          return <EntitySelectorControl {...controlProps} />;
+        },
       },
-    });
+    );
 
-    FormControlFactory.registerControlBuilder("PAGINATION", {
+    FormControlFactory.registerControlBuilder(formControlTypes.PAGINATION, {
       buildPropertyControl(controlProps: PaginationControlProps): JSX.Element {
         return <PaginationControl {...controlProps} />;
       },
     });
-    FormControlFactory.registerControlBuilder("SORTING", {
+    FormControlFactory.registerControlBuilder(formControlTypes.SORTING, {
       buildPropertyControl(controlProps: SortingControlProps): JSX.Element {
         return <SortingControl {...controlProps} />;
       },
     });
-    FormControlFactory.registerControlBuilder("PROJECTION", {
+    FormControlFactory.registerControlBuilder(formControlTypes.PROJECTION, {
       buildPropertyControl(controlProps: DropDownControlProps): JSX.Element {
         return (
           <DropDownControl

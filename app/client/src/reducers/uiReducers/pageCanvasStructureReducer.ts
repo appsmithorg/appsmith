@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ReduxAction,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { compareAndGenerateImmutableCanvasStructure } from "utils/canvasStructureHelpers";
 import { WidgetType } from "constants/WidgetConstants";
