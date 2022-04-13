@@ -19,6 +19,7 @@ import React from "react";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import Oidc from "@appsmith/pages/AdminSettings/oidc";
 import { OIDC_SIGNUP_SETUP_DOC } from "constants/ThirdPartyConstants";
+import { REDIRECT_URL_FORM } from "constants/forms";
 
 const { enableOidcOAuth } = getAppsmithConfigs();
 
@@ -45,6 +46,9 @@ const OIDC_Auth: AdminConfigType = {
       category: SettingCategories.OIDC_AUTH,
       subCategory: SettingSubCategories.OIDC,
       controlType: SettingTypes.UNEDITABLEFIELD,
+      label: "Redirect URL",
+      formName: REDIRECT_URL_FORM,
+      fieldName: "redirect-url-form",
       value: "/login/oauth2/code/oidc",
       helpText: "Paste this URL in your IdP service providers console.",
     },
