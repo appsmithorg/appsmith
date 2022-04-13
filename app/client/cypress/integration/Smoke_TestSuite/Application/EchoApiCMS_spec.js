@@ -2,7 +2,7 @@ const dsl = require("../../../fixtures/CMSdsl.json");
 const apiwidget = require("../../../locators/apiWidgetslocator.json");
 import apiEditor from "../../../locators/ApiEditor";
 import appPage from "../../../locators/CMSApplocators";
-const commonlocators = require("../../../locators/commonlocators.json")
+const commonlocators = require("../../../locators/commonlocators.json");
 describe("Content Management System App", function() {
   let repoName;
 
@@ -124,7 +124,7 @@ describe("Content Management System App", function() {
     cy.ResponseCheck("Dan.Wyman@hotmail.com");
     cy.ResponseCheck("Recusan");
   });
-  it("6. Connect app to git, verify data binding in edit and deploy mode", ()=>{
+  /*it("6. Connect app to git, verify data binding in edit and deploy mode", ()=>{
     cy.get(`.t--entity-name:contains("Page1")`)
     .should("be.visible")
     .click({ force: true });
@@ -149,6 +149,5 @@ describe("Content Management System App", function() {
       .click({ force: true }); 
       cy.get(commonlocators.backToEditor).click();
       cy.wait(1000);
-  })
+  }) */
 });
-

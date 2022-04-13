@@ -1,6 +1,6 @@
 const homePage = require("../../../locators/HomePage");
 const reconnectDatasourceModal = require("../../../locators/ReconnectLocators");
-const commonlocators = require("../../../locators/commonlocators.json")
+const commonlocators = require("../../../locators/commonlocators.json");
 
 describe("Import, Export and Fork application and validate data binding", function() {
   let orgid;
@@ -165,7 +165,7 @@ describe("Import, Export and Fork application and validate data binding", functi
       });
     });
   });
-  it("Connect the appplication to git and validate data in deploy mode and edit mode", function() {
+  /*it("Connect the appplication to git and validate data in deploy mode and edit mode", function() {
     cy.generateUUID().then((uid) => {
       repoName = uid;
       cy.createTestGithubRepo(repoName);
@@ -188,7 +188,5 @@ describe("Import, Export and Fork application and validate data binding", functi
     cy.xpath("//div[text()='title']").should("be.visible");
     cy.xpath("//div[text()='due']").should("be.visible");
     // cy.deleteTestGithubRepo(repoName);
-  });
-
+  }); */
 });
-

@@ -101,7 +101,7 @@ Cypress.Commands.add("saveDatasource", () => {
 });
 
 Cypress.Commands.add("testSaveDatasource", (expectedRes = true) => {
-  cy.testDatasource(expectedRes);
+  // cy.testDatasource(expectedRes);
   cy.saveDatasource();
   // cy.get(datasourceEditor.datasourceCard)
   //   .last()
@@ -127,6 +127,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor["databaseName"])
       .clear()
       .type(datasourceFormData["mongo-databaseName"]);
+    cy.get(datasourceEditor.sectionAuthentication).click();
     // cy.get(datasourceEditor["username"]).type(
     //   datasourceFormData["mongo-username"],
     // );
@@ -162,6 +163,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.password).type(
       datasourceFormData["postgres-password"],
     );
+    cy.get(datasourceEditor.sectionAuthentication).click();
   },
 );
 
@@ -188,6 +190,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.password).type(
       datasourceFormData["mysql-password"],
     );
+    cy.get(datasourceEditor.sectionAuthentication).click();
   },
 );
 

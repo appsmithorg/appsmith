@@ -1,6 +1,6 @@
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
 const dsl = require("../../../../fixtures/JsObjecWithGitdsl.json");
-const commonlocators = require("../../../../locators/commonlocators.json")
+const commonlocators = require("../../../../locators/commonlocators.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const pages = require("../../../../locators/Pages.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
@@ -9,7 +9,7 @@ const pagename = "ChildPage";
 const tempBranch = "feat/tempBranch";
 const tempBranch0 = "tempBranch0";
 const mainBranch = "master";
-const jsObject = "JSObject1"
+const jsObject = "JSObject1";
 let repoName;
 
 describe("Git sync Bug #10773", function() {
@@ -55,8 +55,11 @@ describe("Git sync Bug #10773", function() {
     cy.CheckAndUnfoldEntityItem("PAGES");
     cy.get(`.t--entity-name:contains("${pagename}")`).should("not.exist");
   });
-  
-}); 
+  after(() => {
+    cy.deleteTestGithubRepo(repoName);
+  });
+});
+
 describe("Git Bug: Fix clone page issue where JSObject are not showing up in destination page when application is connected to git", function() {
   before(() => {
     cy.addDsl(dsl);
@@ -121,7 +124,8 @@ describe("Git Bug: Fix clone page issue where JSObject are not showing up in des
     cy.createGitBranch(tempBranch);
     cy.wait(2000);
     cy.CheckAndUnfoldEntityItem("PAGES");
-    cy.get(".t--entity-name:contains(Page1)").last()
+    cy.get(".t--entity-name:contains(Page1)")
+      .last()
       .trigger("mouseover")
       .click({ force: true });
     cy.CheckAndUnfoldEntityItem("QUERIES/JS");
@@ -130,7 +134,8 @@ describe("Git Bug: Fix clone page issue where JSObject are not showing up in des
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
-     cy.get(".t--entity-name:contains(Page1)").first()
+    cy.get(".t--entity-name:contains(Page1)")
+      .first()
       .trigger("mouseover")
       .click({ force: true });
     cy.xpath(apiwidget.popover)
@@ -143,11 +148,83 @@ describe("Git Bug: Fix clone page issue where JSObject are not showing up in des
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
-    ); 
+    );
   });
- 
-  afterEach(() => {
+
+  after(() => {
     cy.deleteTestGithubRepo(repoName);
   });
 });
-
+describe("Git synced app with JSObject", function() {
+  before(() => {
+    cy.addDsl(dsl);
+  });
+  it("Create an app with JSObject, connect it to git and verify its data in edit and deploy mode", function() {
+    ee.expandCollapseEntity("QUERIES/JS", true);
+    // create JS object and validate its data on Page1
+    cy.createJSObject('return "Success";');
+    cy.get(`.t--entity-name:contains("Page1")`)
+      .should("be.visible")
+      .click({ force: true });
+    cy.wait(1000);
+    cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+      "be.visible",
+    );
+    // clone the page1 and validate data binding
+    cy.get(".t--entity-name:contains(Page1)")
+      .trigger("mouseover")
+      .click({ force: true });
+    cy.xpath(apiwidget.popover)
+      .first()
+      .should("be.hidden")
+      .invoke("show")
+      .click({ force: true });
+    cy.get(pages.clonePage).click({ force: true });
+    cy.wait("@clonePage").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+    // connect app to git and deploy
+    cy.generateUUID().then((uid) => {
+      repoName = uid;
+      cy.createTestGithubRepo(repoName);
+      cy.connectToGitRepo(repoName);
+      cy.wait(3000);
+    });
+    cy.latestDeployPreview();
+    cy.wait(2000);
+    cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+      "be.visible",
+    );
+    // switch to Page1 and validate data binding
+    cy.get(".t--page-switch-tab")
+      .contains("Page1")
+      .click({ force: true });
+    cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+      "be.visible",
+    );
+    cy.get(commonlocators.backToEditor).click();
+    // verify jsObject data binding on Page 1
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
+    cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+      "be.visible",
+    );
+    // switch to Page1 copy and verify jsObject data binding
+    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.get(".t--entity-name:contains(Page1)")
+      .last()
+      .trigger("mouseover")
+      .click({ force: true });
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    // verify jsObject is not duplicated
+    cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
+    cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+      "be.visible",
+    );
+  });
+  after(() => {
+    cy.deleteTestGithubRepo(repoName);
+  });
+});
