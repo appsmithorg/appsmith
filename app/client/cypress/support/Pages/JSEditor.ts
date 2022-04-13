@@ -16,7 +16,7 @@ export class JSEditor {
   private _functionSetting = (settingTxt: string) => "//span[text()='" + settingTxt + "']/parent::div/following-sibling::input[@type='checkbox']"
   _dialog = (dialogHeader: string) => "//div[contains(@class, 'bp3-dialog')]//h4[contains(text(), '" + dialogHeader + "')]"
   private _closeSettings = "span[icon='small-cross']"
-
+  _dialogBody = (jsFuncName: string) => "//div[@class='bp3-dialog-body']//*[contains(text(), '" + Cypress.env('MESSAGES').QUERY_CONFIRMATION_MODAL_MESSAGE() + "')]//*[contains(text(),'" + jsFuncName + "')]"
 
   public NavigateToJSEditor() {
     cy.get(this.locator._createNew)
@@ -240,16 +240,22 @@ export class JSEditor {
   }
 
 
-  public EnableOnPageLoad(funName: string, onLoad = true, bfrCalling = true) {
-
+  public EnableDisableOnPageLoad(funName: string, onLoad: 'enable' | 'disable' | '', bfrCalling: 'enable' | 'disable' | '') {
     this.agHelper.GetNClick(this._responseTabAction(funName))
     this.agHelper.AssertElementPresence(this._dialog('Function settings'))
     if (onLoad)
-      this.agHelper.CheckUncheck(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_ONPAGELOAD()), true)
+      this.agHelper.CheckUncheck(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_ONPAGELOAD()), onLoad == 'enable' ? true : false)
     if (bfrCalling)
-      this.agHelper.CheckUncheck(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_CONFIRM_EXECUTION()), true)
+      this.agHelper.CheckUncheck(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_CONFIRM_EXECUTION()), bfrCalling == 'enable' ? true : false)
 
     this.agHelper.GetNClick(this._closeSettings)
   }
 
+  public VerifyOnPageLoadSetting(funName: string, onLoad: 'checked' | 'unchecked', bfrCalling: 'checked' | 'unchecked') {
+    this.agHelper.GetNClick(this._responseTabAction(funName))
+    this.agHelper.AssertElementPresence(this._dialog('Function settings'))
+    this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_ONPAGELOAD()), onLoad)
+    this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_CONFIRM_EXECUTION()), bfrCalling)
+    this.agHelper.GetNClick(this._closeSettings)
+  }
 }

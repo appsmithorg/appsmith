@@ -94,7 +94,7 @@ export class AggregateHelper {
     public DeployApp(eleToCheckInDeployPage: string = this.locator._backToEditor) {
         cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
         // Wait before publish
-        this.Sleep(2000)
+        this.Sleep(2000)//wait for elements load!
         this.AssertAutoSave()
         // Stubbing window.open to open in the same tab
         cy.window().then((window) => {
@@ -348,10 +348,16 @@ export class AggregateHelper {
     }
 
     public AssertExistingToggleState(propertyName: string, toggle: 'checked' | 'unchecked') {
-        cy.xpath(this.locator._propertyToggleValue(propertyName)).invoke("attr", "class")
-            .then((classes) => {
-                expect(classes).includes(toggle);
-            });
+        let locator = propertyName.startsWith("//") ? cy.xpath(propertyName) : cy.xpath(this.locator._propertyToggleValue(propertyName))
+        if (propertyName.startsWith("//")) {
+            locator.should("have.attr", toggle)
+        }
+        else {
+            locator.invoke("attr", "class")
+                .then((classes) => {
+                    expect(classes).includes(toggle);
+                });
+        }
     }
 
     public NavigateBacktoEditor() {
