@@ -387,7 +387,7 @@ Cypress.Commands.add(
     element: true,
   },
   ($element, text) => {
-    const subString = text.substr(0, text.length - 1);
+    const subString = text.slice(0, -1);
     const lastChar = text.slice(-1);
 
     cy.get(commonlocators.entityExplorersearch)
