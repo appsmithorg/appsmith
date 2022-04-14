@@ -49,24 +49,10 @@ describe("Theme validation", function() {
     //Color
     cy.contains("Color").click({ force: true });
     cy.wait(5000);
-    cy.get(".t--property-pane-sidebar .bp3-popover-target .cursor-pointer")
-      .first()
-      .trigger("mouseover");
-    cy.get(".bp3-popover-content").should("have.text", "Primary Color");
-    cy.get(".t--property-pane-sidebar .bp3-popover-target .cursor-pointer")
-      .first()
-      .click({ force: true });
-    cy.get(".t--colorpicker-v2-popover input").should("have.value", "#50AF6C");
-
-    cy.get(".t--property-pane-sidebar .bp3-popover-target .cursor-pointer")
-      .eq(1)
-      .trigger("mouseover");
-    cy.get(".bp3-popover-content").should("have.text", "Background Color");
-    cy.get(".t--property-pane-sidebar .bp3-popover-target .cursor-pointer")
-      .eq(1)
-      .click({ force: true });
-    cy.get(".t--colorpicker-v2-popover input").should("have.value", "#F6F6F6");
-    cy.wait(2000);
+    cy.colorMouseover(0, "Primary Color");
+    cy.validateColor(0, "#50AF6C");
+    cy.colorMouseover(0, "Background Color");
+    cy.validateColor(0, "#F6F6F6");
 
     //Font
     cy.contains("Font").click({ force: true });
@@ -74,7 +60,7 @@ describe("Theme validation", function() {
       cy.get($elem).click({ force: true });
       cy.wait(250);
 
-      cy.get(".leading-normal")
+      cy.get(themelocator.fontsSelected)
         .eq(0)
         .should("have.text", "System Default");
     });

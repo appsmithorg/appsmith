@@ -70,20 +70,20 @@ describe("Theme validation", function() {
     cy.colorMouseover(0, "Background Color");
     cy.validateColor(0, "#F6F6F6");
 
-    cy.get(".t--colorpicker-v2-popover input").click({ force: true });
+    cy.get(themelocator.inputColor).click({ force: true });
     cy.chooseColor(0, themelocator.greenColor);
 
-    cy.get(".t--colorpicker-v2-popover input").should("have.value", "#15803d");
-    cy.get(".t--colorpicker-v2-popover input").clear({ force: true });
+    cy.get(themelocator.inputColor).should("have.value", "#15803d");
+    cy.get(themelocator.inputColor).clear({ force: true });
     cy.wait(2000);
-    cy.get(".t--colorpicker-v2-popover input").type("red");
-    cy.get(".t--colorpicker-v2-popover input").should("have.value", "red");
+    cy.get(themelocator.inputColor).type("red");
+    cy.get(themelocator.inputColor).should("have.value", "red");
     cy.wait(2000);
 
-    cy.get(".t--property-pane-sidebar .bp3-popover-target .cursor-pointer")
+    cy.get(theme)
       .eq(0)
       .click({ force: true });
-    cy.get(".t--colorpicker-v2-popover input").click({ force: true });
+    cy.get(themelocator.inputColor).click({ force: true });
     cy.get('[data-testid="color-picker"]')
       .first()
       .click({ force: true });
@@ -91,11 +91,11 @@ describe("Theme validation", function() {
       .last()
       .click();
     cy.wait(2000);
-    cy.get(".t--colorpicker-v2-popover input").should("have.value", "#15803d");
-    cy.get(".t--colorpicker-v2-popover input").clear({ force: true });
+    cy.get(themelocator.inputColor).should("have.value", "#15803d");
+    cy.get(themelocator.inputColor).clear({ force: true });
     cy.wait(2000);
-    cy.get(".t--colorpicker-v2-popover input").type("Black");
-    cy.get(".t--colorpicker-v2-popover input").should("have.value", "Black");
+    cy.get(themelocator.inputColor).type("Black");
+    cy.get(themelocator.inputColor).should("have.value", "Black");
     cy.wait(2000);
     cy.contains("Color").click({ force: true });
 
@@ -108,11 +108,11 @@ describe("Theme validation", function() {
         this.testdata = testdata;
       });
 
-      cy.get(".leading-normal")
+      cy.get(themelocator.fontsSelected)
         .eq(0)
         .should("have.text", "System Default");
 
-      cy.get(".leading-normal").each(($ele, i) => {
+      cy.get(themelocator.fontsSelected).each(($ele, i) => {
         //cy.log($ele);
         expect($ele).to.have.text(this.testdata.dropdownValues[i]);
       });
@@ -186,7 +186,7 @@ describe("Theme validation", function() {
     cy.get(commonlocators.changeThemeBtn)
       .should("be.visible")
       .click({ force: true });
-    cy.get(".cursor-pointer:contains('Current Theme')").click({ force: true });
+    cy.get(themelocator.currentTheme).click({ force: true });
     cy.get(".t--theme-card main > main")
       .first()
       .invoke("css", "background-color")
@@ -270,7 +270,7 @@ describe("Theme validation", function() {
           backgroudColor,
         );
       });
-    cy.get(".cursor-pointer:contains('Current Theme')").click({ force: true });
+    cy.get(themelocator.currentTheme).click({ force: true });
     cy.get(".t--theme-card > main")
       .first()
       .invoke("css", "background-color")

@@ -6,5 +6,7 @@
     "color": ".t--property-pane-sidebar .bp3-popover-target .cursor-pointer",
     "inputColor": ".t--colorpicker-v2-popover input",
     "colorPicker": "[data-testid='color-picker']",
-    "greenColor": "[style='background-color: rgb(21, 128, 61);']"
+    "greenColor": "[style='background-color: rgb(21, 128, 61);']",
+    "fontsSelected": ".leading-normal",
+    "currentTheme": ".cursor-pointer:contains('Current Theme')"
 }
