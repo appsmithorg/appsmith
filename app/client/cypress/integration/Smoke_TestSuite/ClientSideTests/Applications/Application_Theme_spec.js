@@ -67,8 +67,8 @@ describe("Theme validation", function() {
     cy.contains("Color").click({ force: true });
     cy.colorMouseover(0, "Primary Color");
     cy.validateColor(0, "#50AF6C");
-    cy.colorMouseover(0, "Background Color");
-    cy.validateColor(0, "#F6F6F6");
+    cy.colorMouseover(1, "Background Color");
+    cy.validateColor(1, "#F6F6F6");
 
     cy.get(themelocator.inputColor).click({ force: true });
     cy.chooseColor(0, themelocator.greenColor);
@@ -80,7 +80,7 @@ describe("Theme validation", function() {
     cy.get(themelocator.inputColor).should("have.value", "red");
     cy.wait(2000);
 
-    cy.get(theme)
+    cy.get(themelocator.inputColor)
       .eq(0)
       .click({ force: true });
     cy.get(themelocator.inputColor).click({ force: true });

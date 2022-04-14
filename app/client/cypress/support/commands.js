@@ -33,7 +33,7 @@ import commentsLocators from "../locators/CommentsLocators";
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
-const themelocator = require("../../../../locators/ThemeLocators.json");
+const themelocator = require("../locators/ThemeLocators.json");
 import gitSyncLocators from "../locators/gitSyncLocators";
 
 let pageidcopy = " ";
@@ -2120,32 +2120,33 @@ Cypress.Commands.add("borderMouseover", (index, text) => {
   cy.get(themelocator.border)
     .eq(index)
     .trigger("mouseover");
-  cy.get(themelocator.popover).should("have.text", text);
   cy.wait(2000);
+  cy.get(themelocator.popover).contains(text);
 });
 
 Cypress.Commands.add("shadowMouseover", (index, text) => {
   cy.xpath(themelocator.shadow)
     .eq(index)
     .trigger("mouseover");
-  cy.get(themelocator.popover).should("have.text", text);
   cy.wait(2000);
+  cy.get(themelocator.popover).contains(text);
 });
 
 Cypress.Commands.add("colorMouseover", (index, text) => {
   cy.get(themelocator.color)
     .eq(index)
     .trigger("mouseover");
-  cy.get(themelocator.popover).should("have.text", text);
   cy.wait(2000);
+  cy.get(themelocator.popover).contains(text);
 });
 
 Cypress.Commands.add("validateColor", (index, text) => {
   cy.get(themelocator.color)
     .eq(index)
-    .trigger("mouseover");
-  cy.get(themelocator.inputColor).should("have.text", text);
-  cy.wait(2000);
+    .click({ force: true });
+  cy.wait(1000);
+  cy.get(themelocator.inputColor).should("have.value", text);
+  cy.wait(1000);
 });
 
 Cypress.Commands.add("chooseColor", (index, color) => {
