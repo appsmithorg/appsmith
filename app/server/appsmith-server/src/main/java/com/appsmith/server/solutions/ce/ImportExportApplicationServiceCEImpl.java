@@ -193,7 +193,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 })
                 .then(applicationMono)
                 .flatMap(application -> themeService.getThemeById(application.getEditModeThemeId(), READ_THEMES)
-                        .zipWith(themeService.getThemeById(application.getPublishedModeThemeId(), READ_THEMES))
+                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.THEME, application.getEditModeThemeId())))
+                        .zipWith(themeService
+                                .getThemeById(application.getPublishedModeThemeId(), READ_THEMES)
+                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.THEME, application.getPublishedModeThemeId())))
+                        )
                         .map(themesTuple -> {
                             Theme editModeTheme = exportTheme(themesTuple.getT1());
                             Theme publishedModeTheme = exportTheme(themesTuple.getT2());

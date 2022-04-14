@@ -156,6 +156,9 @@ public class FileUtilsImpl implements FileInterface {
                     metadata.addProperty(CommonConstants.FILE_FORMAT_VERSION, CommonConstants.fileFormatVersion);
                     saveFile(metadata, baseRepo.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION), gson);
 
+                    // Save application theme
+                    saveFile(applicationGitReference.getTheme(), baseRepo.resolve(CommonConstants.THEME + CommonConstants.JSON_EXTENSION), gson);
+
                     Path pageDirectory = baseRepo.resolve(PAGE_DIRECTORY);
                     try {
                         // Remove relevant directories to avoid any stale files
@@ -417,7 +420,7 @@ public class FileUtilsImpl implements FileInterface {
         }
         // Extract application data from the json
         applicationGitReference.setApplication(readFile(baseRepoPath.resolve(CommonConstants.APPLICATION + CommonConstants.JSON_EXTENSION), gson));
-
+        applicationGitReference.setTheme(readFile(baseRepoPath.resolve(CommonConstants.THEME + CommonConstants.JSON_EXTENSION), gson));
         Path pageDirectory = baseRepoPath.resolve(PAGE_DIRECTORY);
         // Reconstruct application from given file format
         switch (fileFormatVersion) {
