@@ -1,5 +1,7 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.exceptions.AppsmithError;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -50,14 +52,16 @@ public class GitUtilsTest {
 
     @Test
     public void getRepoName() {
-        assertThat(GitUtils.getRepoName("git@example.test.net:user/test/tests/testRepo.git"))
-                .isEqualTo("testRepo");
-        assertThat(GitUtils.getRepoName("git@example.com:test/testRepo.git"))
-                .isEqualTo("testRepo");
-        assertThat(GitUtils.getRepoName("git@example.org:test/testRepo.git"))
-                .isEqualTo("testRepo");
-        assertThat(GitUtils.getRepoName("git@example.in:test/testRepo.git"))
-                .isEqualTo("testRepo");
+        assertThat(GitUtils.getRepoName("git@example.test.net:user/test/tests/lakechope.git"))
+                .isEqualTo("lakechope");
+        assertThat(GitUtils.getRepoName("git@example.com:test/ParkMyrtlows.git"))
+                .isEqualTo("ParkMyrtlows");
+        assertThat(GitUtils.getRepoName("git@example.org:test/Lergaf_Wells.git"))
+                .isEqualTo("Lergaf_Wells");
+        assertThat(GitUtils.getRepoName("git@example.in:test/fort-cheporder.git"))
+                .isEqualTo("fort-cheporder");
+        assertThat(GitUtils.getRepoName("git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk"))
+                .isEqualTo("SpaceJunk");
     }
 
     @Test
