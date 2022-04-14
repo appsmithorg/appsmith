@@ -28,6 +28,7 @@ import {
   getDecimalSeparator,
   getLocale,
 } from "../component/utilities";
+import { LabelPosition } from "components/constants";
 
 export function defaultValueValidation(
   value: any,
@@ -294,16 +295,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            helpText: "Sets the label text of the widget",
-            propertyName: "label",
-            label: "Label",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Name:",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
             helpText: "Show help text or details about current input",
             propertyName: "tooltip",
             label: "Tooltip",
@@ -388,6 +379,77 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
               return props.inputType !== InputTypes.TEXT;
             },
             dependencies: ["inputType"],
+          },
+        ],
+      },
+      {
+        sectionName: "Label",
+        children: [
+          {
+            helpText: "Sets the label text of the widget",
+            propertyName: "label",
+            label: "Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Name:",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label position of the widget",
+            propertyName: "labelPosition",
+            label: "Position",
+            controlType: "DROP_DOWN",
+            options: [
+              { label: "Left", value: LabelPosition.Left },
+              { label: "Top", value: LabelPosition.Top },
+              { label: "Auto", value: LabelPosition.Auto },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label alignment of the widget",
+            propertyName: "labelAlignment",
+            label: "Alignment",
+            controlType: "LABEL_ALIGNMENT_OPTIONS",
+            options: [
+              {
+                icon: "LEFT_ALIGN",
+                value: Alignment.LEFT,
+              },
+              {
+                icon: "RIGHT_ALIGN",
+                value: Alignment.RIGHT,
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+            hidden: (props: InputWidgetProps) =>
+              props.labelPosition !== LabelPosition.Left,
+            dependencies: ["labelPosition"],
+          },
+          {
+            helpText:
+              "Sets the label width of the widget as the number of columns",
+            propertyName: "labelWidth",
+            label: "Width (in columns)",
+            controlType: "NUMERIC_INPUT",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            min: 0,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: {
+                natural: true,
+              },
+            },
+            hidden: (props: InputWidgetProps) =>
+              props.labelPosition !== LabelPosition.Left,
+            dependencies: ["labelPosition"],
           },
         ],
       },
@@ -775,7 +837,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           !(
             (this.props.bottomRow - this.props.topRow) /
               GRID_DENSITY_MIGRATION_V1 >
-              1 && this.props.inputType === "TEXT"
+            1
           )
         }
         currencyCountryCode={currencyCountryCode}
@@ -789,9 +851,12 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
+        labelAlignment={this.props.labelAlignment}
+        labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelWidth={(this.props.labelWidth || 0) * this.props.parentColumnSpace}
         multiline={
           (this.props.bottomRow - this.props.topRow) /
             minInputSingleLineHeight >
@@ -844,9 +909,12 @@ export interface InputWidgetProps extends WidgetProps {
   maxNum?: number;
   onTextChanged?: string;
   label: string;
+  labelPosition?: LabelPosition;
+  labelAlignment?: Alignment;
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
+  labelWidth?: number;
   inputValidators: InputValidator[];
   isValid: boolean;
   focusIndex?: number;
