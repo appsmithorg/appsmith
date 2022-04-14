@@ -26,24 +26,16 @@ public class GitStatusDTO {
         Boolean isClean;
 
         // # of modified pages
-        Long modifiedPages = 0L;
-        Long addedPages = 0L;
-        Long removedPages = 0L;
+        Long modifiedPages;
 
         // # of modified actions
-        Long modifiedQueries = 0L;
-        Long addedQueries = 0L;
-        Long removedQueries = 0L;
+        Long modifiedQueries;
 
         // # of modified JSObjects
-        Long modifiedJSObjects = 0L;
-        Long addedJSObjects = 0L;
-        Long removedJSObjects = 0L;
+        Long modifiedJSObjects;
 
-        // # of modified datasources
-        Long modifiedDatasources = 0L;
-        Long addedDatasources = 0L;
-        Long removedDatasources = 0L;
+        // # of modified JSObjects
+        Long modifiedDatasources;
 
         // # of local commits which are not present in remote repo
         Integer aheadCount;
