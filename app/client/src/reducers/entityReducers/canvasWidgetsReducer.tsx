@@ -5,9 +5,6 @@ import {
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { WidgetProps } from "widgets/BaseWidget";
-import { UpdateCanvasLayoutPayload } from "actions/controlActions";
-import { set } from "lodash";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 const initialState: CanvasWidgetsReduxState = {};
 
@@ -29,13 +26,6 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
     return action.payload.widgets;
-  },
-  [ReduxActionTypes.UPDATE_CANVAS_LAYOUT]: (
-    state: CanvasWidgetsReduxState,
-    action: ReduxAction<UpdateCanvasLayoutPayload>,
-  ) => {
-    set(state[MAIN_CONTAINER_WIDGET_ID], "rightColumn", action.payload.width);
-    set(state[MAIN_CONTAINER_WIDGET_ID], "minHeight", action.payload.height);
   },
 });
 
