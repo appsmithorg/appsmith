@@ -128,7 +128,7 @@ const baseOptions: { label: string; value: string }[] = [
   },
   {
     label: createMessage(POST_MESSAGE),
-    value: ActionType.postMessage,
+    value: ActionType.postMessageToTargetWindow,
   },
 ];
 
@@ -379,7 +379,7 @@ function getFieldFromValue(
     });
   }
 
-  if (value.indexOf("postMessage") !== -1) {
+  if (value.indexOf("postMessageToTargetWindow") !== -1) {
     fields.push(
       {
         field: FieldType.MESSAGE_FIELD,

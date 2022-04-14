@@ -670,7 +670,7 @@ export const GLOBAL_FUNCTIONS = {
     "!doc": "Stop executing a setInterval with id",
     "!type": "fn(id: string) -> void",
   },
-  postMessage: {
+  postMessageToTargetWindow: {
     "!doc":
       "Establish cross-origin communication between Window objects/page and iframes",
     "!type": "fn(message: any, targetOrigin: any, transfer: [any])",
