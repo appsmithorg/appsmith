@@ -605,7 +605,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                              ApplicationJson applicationJson,
                                                              String applicationId,
                                                              String branchName) {
-        return importApplicationInOrganization(organizationId, applicationJson, applicationId, branchName, false, null);
+        return importApplicationInOrganization(organizationId, applicationJson, applicationId, branchName, false);
     }
 
     /**
@@ -636,16 +636,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * @param applicationId     application which needs to be saved with the updated resources
      * @param branchName name of the branch of application with applicationId
      * @param appendToApp whether applicationJson will be appended to the existing app or not
-     * @param unpublishedPagesToImport List of unpublished page names that will be imported.
-     *                                 If null or empty, all pages from the JSON will be imported.
      * @return Updated application
      */
     private Mono<Application> importApplicationInOrganization(String organizationId,
                                                               ApplicationJson applicationJson,
                                                               String applicationId,
                                                               String branchName,
-                                                              boolean appendToApp,
-                                                              List<String> unpublishedPagesToImport) {
+                                                              boolean appendToApp) {
         /*
             1. Migrate resource to latest schema
             2. Fetch organization by id
@@ -2061,7 +2058,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             applicationJson.setActionCollectionList(importedActionCollectionList);
         }
 
-        return importApplicationInOrganization(organizationId, applicationJson, applicationId, branchName, true, pagesToImport);
+        return importApplicationInOrganization(organizationId, applicationJson, applicationId, branchName, true);
     }
 
     private Mono<Map<String, String>> updateNewPagesBeforeMerge(Mono<List<NewPage>> existingPagesMono, List<NewPage> newPagesList) {
