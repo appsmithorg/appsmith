@@ -28,7 +28,7 @@ import {
   redirectAuthorizationCode,
   updateDatasource,
 } from "actions/datasourceActions";
-import { ReduxAction } from "constants/ReduxActionConstants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   datasourceToFormValues,
   formValuesToDatasource,
@@ -56,7 +56,7 @@ import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import Callout from "components/ads/Callout";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { ButtonVariantTypes } from "components/constants";
-import { updateReplayEntity } from "../../../actions/pageActions";
+import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 interface DatasourceRestApiEditorProps {

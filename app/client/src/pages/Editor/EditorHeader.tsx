@@ -5,7 +5,7 @@ import { Classes as Popover2Classes } from "@blueprintjs/popover2";
 import {
   ApplicationPayload,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -33,7 +33,7 @@ import {
 } from "selectors/applicationSelectors";
 import EditorAppName from "./EditorAppName";
 import ProfileDropdown from "pages/common/ProfileDropdown";
-import { getCurrentUser } from "selectors/usersSelectors";
+import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import Button, { Size } from "components/ads/Button";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -52,13 +52,12 @@ import { useLocation } from "react-router";
 import { showConnectGitModal } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
-import getFeatureFlags from "utils/featureFlags";
 
 import { retryPromise } from "utils/AppsmithUtils";
 import { fetchUsersForOrg } from "actions/orgActions";
 import { OrgUser } from "constants/orgConstants";
 
-import { getIsGitConnected } from "../../selectors/gitSyncSelectors";
+import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core/lib/esnext/common";
 import {
@@ -298,9 +297,11 @@ export function EditorHeader(props: EditorHeaderProps) {
     showAppInviteUsersDialogSelector,
   );
 
+  const featureFlags = useSelector(selectFeatureFlags);
+
   const handleClickDeploy = useCallback(
     (fromDeploy?: boolean) => {
-      if (getFeatureFlags().GIT && isGitConnected) {
+      if (featureFlags.GIT && isGitConnected) {
         dispatch(showConnectGitModal());
         AnalyticsUtil.logEvent("GS_DEPLOY_GIT_CLICK", {
           source: fromDeploy
@@ -311,7 +312,7 @@ export function EditorHeader(props: EditorHeaderProps) {
         handlePublish();
       }
     },
-    [getFeatureFlags().GIT, dispatch, handlePublish],
+    [featureFlags.GIT, dispatch, handlePublish],
   );
 
   /**
@@ -341,7 +342,7 @@ export function EditorHeader(props: EditorHeaderProps) {
 
   return (
     <ThemeProvider theme={theme}>
-      <HeaderWrapper className="pr-3">
+      <HeaderWrapper className="pr-3" data-testid="t--appsmith-editor-header">
         <HeaderSection className="space-x-3">
           <HamburgerContainer className="text-gray-800 transform transition-all duration-400 relative p-0 flex items-center justify-center">
             <TooltipComponent

@@ -1346,6 +1346,52 @@ public class ImportExportApplicationServiceTests {
 
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importUpdatedApplicationIntoOrganizationFromFile_publicApplication_visibilityFlagNotReset() {
+        // Create a application and make it public
+        // Now add a page and export the same import it to the app
+        // Check if the policies and visibility flag are not reset
+
+        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
+                .build();
+
+        Application testApplication = new Application();
+        testApplication.setName("importUpdatedApplicationIntoOrganizationFromFile_publicApplication_visibilityFlagNotReset");
+        testApplication.setOrganizationId(orgId);
+        testApplication.setUpdatedAt(Instant.now());
+        testApplication.setLastDeployedAt(Instant.now());
+        testApplication.setModifiedBy("some-user");
+        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        gitData.setBranchName("master");
+        testApplication.setGitApplicationMetadata(gitData);
+
+        Application application = applicationPageService.createApplication(testApplication, orgId)
+                .flatMap(application1 -> {
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    return applicationService.save(application1);
+                }).block();
+        ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+        applicationAccessDTO.setPublicAccess(true);
+        applicationService.changeViewAccess(application.getId(), "master", applicationAccessDTO).block();
+
+        Mono<Application> applicationMono = importExportApplicationService.exportApplicationById(application.getId(), "master")
+                .flatMap(applicationJson -> importExportApplicationService.importApplicationInOrganization(orgId, applicationJson, application.getId(), "master"));
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application1 -> {
+                    assertThat(application1.getIsPublic()).isEqualTo(Boolean.TRUE);
+                    assertThat(application1.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+                })
+                .verifyComplete();
+    }
+
     /**
      * Testcase for checking the discard changes flow for following events:
      * 1. Import application in org
@@ -1948,7 +1994,7 @@ public class ImportExportApplicationServiceTests {
      */
     @Test
     @WithUserDetails(value = "api_user")
-    public void test1_exportApplication_withDatasourceConfig_exportedWithDecryptedFields() {
+    public void exportApplication_withDatasourceConfig_exportedWithDecryptedFields() {
         Organization newOrganization = new Organization();
         newOrganization.setName("template-org-with-ds");
 
@@ -2170,7 +2216,7 @@ public class ImportExportApplicationServiceTests {
      */
     @Test
     @WithUserDetails(value = "usertest@usertest.com")
-    public void test2_exportApplication_withReadOnlyAccess_exportedWithDecryptedFields() {
+    public void exportApplication_withReadOnlyAccess_exportedWithDecryptedFields() {
         Mono<ApplicationJson> exportApplicationMono = importExportApplicationService
                 .exportApplicationById(exportWithConfigurationAppId, SerialiseApplicationObjective.SHARE);
 
@@ -2287,6 +2333,70 @@ public class ImportExportApplicationServiceTests {
                     });
                 })
                 .verifyComplete();
+    }
+    
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void exportAndImportApplication_withMultiplePages_PagesOrderIsMaintained() {
+        Organization newOrganization = new Organization();
+        newOrganization.setName("template-org-with-ds");
+
+        Application testApplication = new Application();
+        testApplication.setName("exportApplication_withMultiplePages_PagesOrderIsMaintainedINExportedAppJson");
+        testApplication.setExportWithConfiguration(true);
+        testApplication = applicationPageService.createApplication(testApplication, orgId).block();
+        assert testApplication != null;
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("123");
+        testPage.setApplicationId(testApplication.getId());
+        PageDTO page1 = applicationPageService.createPage(testPage).block();
+
+        testPage = new PageDTO();
+        testPage.setName("abc");
+        testPage.setApplicationId(testApplication.getId());
+        PageDTO page2 = applicationPageService.createPage(testPage).block();
+
+        // Set order for the newly created pages
+        applicationPageService.reorderPage(testApplication.getId(), page1.getId(), 0, null).block();
+        applicationPageService.reorderPage(testApplication.getId(), page2.getId(), 1, null).block();
+
+        Mono<ApplicationJson> applicationJsonMono = importExportApplicationService.exportApplicationById(testApplication.getId(), "");
+
+        StepVerifier
+                .create(applicationJsonMono)
+                .assertNext(applicationJson -> {
+                    List<NewPage> pageList = applicationJson.getPageList();
+                    assertThat(pageList.get(0).getUnpublishedPage().getName()).isEqualTo("123");
+                    assertThat(pageList.get(1).getUnpublishedPage().getName()).isEqualTo("abc");
+                    assertThat(pageList.get(2).getUnpublishedPage().getName()).isEqualTo("Page1");
+                })
+                .verifyComplete();
+
+        ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(testApplication.getId(), "").block();
+        Application application = importExportApplicationService.importApplicationInOrganization(orgId, applicationJson).block();
+
+        List<ApplicationPage> pageDTOS = application.getPages();
+        Mono<NewPage> newPageMono1 = newPageService.findById(pageDTOS.get(0).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPageMono2 = newPageService.findById(pageDTOS.get(1).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPageMono3 = newPageService.findById(pageDTOS.get(2).getId(), MANAGE_PAGES);
+
+        StepVerifier
+                .create(Mono.zip(newPageMono1, newPageMono2, newPageMono3))
+                .assertNext(objects -> {
+                    NewPage newPage1 = objects.getT1();
+                    NewPage newPage2 = objects.getT2();
+                    NewPage newPage3 = objects.getT3();
+                    assertThat(newPage1.getUnpublishedPage().getName()).isEqualTo("123");
+                    assertThat(newPage2.getUnpublishedPage().getName()).isEqualTo("abc");
+                    assertThat(newPage3.getUnpublishedPage().getName()).isEqualTo("Page1");
+
+                    assertThat(newPage1.getId()).isEqualTo(pageDTOS.get(0).getId());
+                    assertThat(newPage2.getId()).isEqualTo(pageDTOS.get(1).getId());
+                    assertThat(newPage3.getId()).isEqualTo(pageDTOS.get(2).getId());
+                })
+                .verifyComplete();
+
     }
     
 }

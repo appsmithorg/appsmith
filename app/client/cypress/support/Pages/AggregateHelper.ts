@@ -1,15 +1,43 @@
 import 'cypress-wait-until';
 const uuid = require("uuid");
 import { ObjectsRegistry } from '../Objects/Registry';
+
+let LOCAL_STORAGE_MEMORY: any = {};
 export class AggregateHelper {
     private locator = ObjectsRegistry.CommonLocators;
+
+    public saveLocalStorageCache() {
+        Object.keys(localStorage).forEach(key => {
+            LOCAL_STORAGE_MEMORY[key] = localStorage[key];
+        });
+    }
+
+    public restoreLocalStorageCache() {
+        Object.keys(LOCAL_STORAGE_MEMORY).forEach(key => {
+            localStorage.setItem(key, LOCAL_STORAGE_MEMORY[key]);
+        });
+    }
+
+    public clearLocalStorageCache() {
+        localStorage.clear();
+        LOCAL_STORAGE_MEMORY = {};
+    }
+
+    public TypeTab(shiftKey: boolean = false, ctrlKey: boolean = false) {
+        cy.focused().trigger('keydown', {
+            keyCode: 9,
+            which: 9,
+            shiftKey: shiftKey,
+            ctrlKey: ctrlKey
+        });
+    }
 
     public AddDsl(dsl: string, elementToCheckPresenceaftDslLoad: string | "" = "") {
         let currentURL;
         let pageid: string;
         let layoutId;
         cy.url().then((url) => {
-            pageid = url.split("/")[4]?.split("-").pop() as string;
+            pageid = url.split("/")[5]?.split("-").pop() as string;
             cy.log(pageid + "page id");
             //Fetch the layout id
             cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
@@ -104,6 +132,7 @@ export class AggregateHelper {
         cy.xpath(this.locator._spanButton(btnVisibleText))
             .scrollIntoView()
             .click({ force: true });
+        this.Sleep()
     }
 
     public Paste(selector: any, pastePayload: string) {
@@ -184,7 +213,7 @@ export class AggregateHelper {
     }
 
     public SelectDropDown(ddOption: string, endp: string = "selectwidget") {
-        let mode = localStorage.getItem("inDeployedMode");
+        let mode = window.localStorage.getItem("inDeployedMode");
         if (mode == "false") {
             cy.xpath(this.locator._selectWidgetDropdown(endp))
                 .first()
@@ -197,8 +226,56 @@ export class AggregateHelper {
                 .scrollIntoView()
                 .click()
         }
-        cy.get(this.locator._selectOptionValue(ddOption)).click({ force: true })
+        if (endp == 'selectwidget')
+            cy.get(this.locator._selectOptionValue(ddOption)).click({ force: true })
+        else
+            cy.get(this.locator._dropDownValue(ddOption)).click({ force: true })
+
         this.Sleep()//for selected value to reflect!
+    }
+
+
+    public SelectFromDropDown(ddOption: string, insideParent: string = "", index = 0, endp: string = "dropdownwidget") {
+        let mode = window.localStorage.getItem("inDeployedMode");
+        //cy.log("mode frm deployed is:" + mode)
+        let modeSelector = mode == 'true' ? this.locator._selectWidgetDropdownInDeployed(endp) : this.locator._selectWidgetDropdown(endp);
+        let finalSelector = insideParent ? this.locator._divWithClass(insideParent) + modeSelector : modeSelector
+        cy.log(finalSelector)
+        cy.xpath(finalSelector)
+            .eq(index)
+            .scrollIntoView()
+            .click()
+        cy.get(this.locator._dropDownValue(ddOption)).click({ force: true })
+        this.Sleep()//for selected value to reflect!
+    }
+
+    public SelectFromMultiSelect(options: string[], index = 0, check = true, endp: string = 'multiselectwidgetv2') {
+        cy.get(this.locator._widgetInDeployed(endp) + " div.rc-select-selector")
+            .eq(index)
+            .scrollIntoView()
+            .click()
+
+        if (check) {
+            options.forEach($each => {
+                cy.get(this.locator._multiSelectOptions($each)).check({ force: true }).wait(800).should("be.checked")
+            })
+        }
+        else {
+            options.forEach($each => {
+                cy.get(this.locator._multiSelectOptions($each)).uncheck({ force: true }).wait(800).should("not.be.checked")
+            })
+        }
+
+        // //closing multiselect dropdown
+        cy.get('body').type("{esc}");
+        // cy.get(this.locator._widgetInDeployed(endp))
+        //     .eq(index)
+        //     .click()
+    }
+    public RemoveMultiSelectItems(items: string[]) {
+        items.forEach($each => {
+            cy.xpath(this.locator._multiSelectItem($each)).eq(0).click().wait(1000)
+        })
     }
 
     public ReadSelectedDropDownValue() {
@@ -240,15 +317,9 @@ export class AggregateHelper {
         })
     }
 
-    public XpathNClick(selector: string) {
-        cy.xpath(selector)
-            .first()
-            .click({ force: true });
-        this.Sleep()
-    }
-
-    public GetNClick(selector: string) {
-        cy.get(selector).click({ force: true });
+    public GetNClick(selector: string, index = 0) {
+        let locator = selector.startsWith("//") ? cy.xpath(selector) : cy.get(selector)
+        return locator.eq(index).click().wait(500);
     }
 
     public ToggleOnOrOff(propertyName: string, toggle: 'On' | 'Off') {
@@ -260,9 +331,20 @@ export class AggregateHelper {
         else {
             cy.get(this.locator._propertyToggle(propertyName))
                 .uncheck({ force: true })
-                .should("not.checked");
+                .should("not.be.checked");
         }
         this.AssertAutoSave()
+    }
+
+    public CheckUncheck(selector: string, check = true) {
+        let locator = selector.startsWith("//") ? cy.xpath(selector) : cy.get(selector)
+        if (check) {
+            locator.check({ force: true }).should("be.checked");
+        }
+        else {
+            locator.uncheck({ force: true }).should("not.be.checked");
+        }
+        this.Sleep()
     }
 
     public AssertExistingToggleState(propertyName: string, toggle: 'checked' | 'unchecked') {
@@ -311,20 +393,26 @@ export class AggregateHelper {
         this.VerifyEvaluatedValue(valueToType);
     }
 
-    public EnterValue(valueToEnter: string, fieldName = "") {
-        if (fieldName) {
-            cy.xpath(this.locator._inputFieldByName(fieldName)).then(($field: any) => {
+    public EnterValue(valueToEnter: string, fieldName = "", notField = false) {
+        if (fieldName && !notField) {
+            cy.xpath(this.locator._existingFieldTextByName(fieldName)).then(($field: any) => {
                 this.UpdateCodeInput($field, valueToEnter);
             });
-        } else {
+        } else if (fieldName && notField) {
+            cy.get(fieldName).then(($field: any) => {
+                this.UpdateCodeInput($field, valueToEnter);
+            });
+        }
+        else {
             cy.get(this.locator._codeEditorTarget).then(($field: any) => {
                 this.UpdateCodeInput($field, valueToEnter);
             });
         }
+        this.AssertAutoSave()
     }
 
-    public UpdateCodeInput($selector: string, value: string) {
-        cy.get($selector)
+    public UpdateCodeInput(selector: string, value: string) {
+        cy.wrap(selector)
             .find(".CodeMirror")
             .first()
             .then((ins: any) => {
@@ -395,25 +483,23 @@ export class AggregateHelper {
     }
 
     public AssertElementAbsence(selector: string) {
-        if (selector.startsWith("//"))
-            cy.xpath(selector).should('not.exist')
-        else
-            cy.get(selector).should('not.exist')
+        let locator = selector.startsWith("//") ? cy.xpath(selector) : cy.get(selector)
+        locator.should('not.exist')
     }
 
-    public AssertElementPresence(selector: string) {
-        if (selector.startsWith("//"))
-            cy.xpath(selector).should('be.visible')
-        else
-            cy.get(selector).should('be.visible')
+    public AssertElementPresence(selector: string, index = 0) {
+        let locator = selector.startsWith("//") ? cy.xpath(selector) : cy.get(selector)
+        locator.eq(index).should('be.visible')
     }
 
-    public AssertElementLength(selector: string, length: number) {
-        if (selector.startsWith("//"))
-            cy.xpath(selector).should("have.length", length)
+    public AssertElementLength(selector: string, length: number, index: number | null = null) {
+        let locator = selector.startsWith("//") ? cy.xpath(selector) : cy.get(selector)
+        if (index)
+            locator.eq(index).should("have.length", length)
         else
-            cy.get(selector).should("have.length", length);
+            locator.should("have.length", length)
     }
+
 
     //Not used:
     // private xPathToCss(xpath: string) {

@@ -14,6 +14,10 @@ import { APP_MODE } from "entities/App";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 import { matchPath } from "react-router";
 import { ApplicationVersion } from "actions/applicationActions";
+import {
+  ApplicationPayload,
+  Page,
+} from "@appsmith/constants/ReduxActionConstants";
 
 export function convertToQueryParams(
   params: Record<string, string> = {},
@@ -41,6 +45,16 @@ const fetchParamsToPersist = () => {
     params = { a: "b", ...params };
   }
   return params;
+};
+
+export const fillPathname = (
+  pathname: string,
+  application: ApplicationPayload,
+  page: Page,
+) => {
+  return pathname
+    .replace(`/applications/${application.id}`, `/app/${application.slug}`)
+    .replace(`/pages/${page.pageId}`, `/${page.slug}-${page.pageId}`);
 };
 
 type Optional<T extends { [k in keyof T]: T[k] }> = {
@@ -133,7 +147,7 @@ function baseURLBuilder(
       PLACEHOLDER_APP_SLUG;
     pageSlug =
       pageSlug || BASE_URL_BUILDER_PARAMS.pageSlug || PLACEHOLDER_PAGE_SLUG;
-    basePath = `/${applicationSlug}/${pageSlug}-${pageId}`;
+    basePath = `/app/${applicationSlug}/${pageSlug}-${pageId}`;
   }
   basePath += mode === APP_MODE.EDIT ? "/edit" : "";
 
