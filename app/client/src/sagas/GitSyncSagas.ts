@@ -4,47 +4,53 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   ReduxActionWithCallbacks,
-} from "constants/ReduxActionConstants";
-import { all, put, select, takeLatest, call } from "redux-saga/effects";
+} from "@appsmith/constants/ReduxActionConstants";
+import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
-import GitSyncAPI from "api/GitSyncAPI";
+import GitSyncAPI, {
+  MergeBranchPayload,
+  MergeStatusPayload,
+} from "api/GitSyncAPI";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { validateResponse } from "./ErrorSagas";
 import {
-  commitToRepoSuccess,
-  fetchBranchesInit,
-  fetchBranchesSuccess,
-  fetchGlobalGitConfigSuccess,
-  fetchLocalGitConfigSuccess,
-  updateLocalGitConfigSuccess,
-  fetchLocalGitConfigInit,
-  switchGitBranchInit,
-  gitPullSuccess,
-  fetchMergeStatusSuccess,
-  fetchMergeStatusFailure,
-  fetchGitStatusInit,
-  setIsGitSyncModalOpen,
-  setIsGitErrorPopupVisible,
-  setIsDisconnectGitModalOpen,
-  setShowRepoLimitErrorModal,
-  fetchGlobalGitConfigInit,
-  generateSSHKeyPairSuccess,
-  getSSHKeyPairSuccess,
-  getSSHKeyPairError,
+  ConnectToGitReduxAction,
   GenerateSSHKeyPairReduxAction,
   GetSSHKeyPairReduxAction,
+  commitToRepoSuccess,
+  connectToGitSuccess,
+  deleteBranchError,
+  deleteBranchSuccess,
+  deletingBranch,
+  fetchBranchesInit,
+  fetchBranchesSuccess,
+  fetchGitStatusInit,
+  fetchGitStatusSuccess,
+  fetchGlobalGitConfigInit,
+  fetchGlobalGitConfigSuccess,
+  fetchLocalGitConfigInit,
+  fetchLocalGitConfigSuccess,
+  fetchMergeStatusFailure,
+  fetchMergeStatusSuccess,
+  generateSSHKeyPairSuccess,
+  getSSHKeyPairError,
+  getSSHKeyPairSuccess,
+  gitPullSuccess,
   importAppViaGitSuccess,
+  mergeBranchSuccess,
+  setIsDisconnectGitModalOpen,
+  setIsGitErrorPopupVisible,
+  setIsGitSyncModalOpen,
+  setShowRepoLimitErrorModal,
+  switchGitBranchInit,
+  updateLocalGitConfigSuccess,
 } from "actions/gitSyncActions";
 
 import { showReconnectDatasourceModal } from "actions/applicationActions";
 
-import {
-  connectToGitSuccess,
-  ConnectToGitReduxAction,
-} from "../actions/gitSyncActions";
 import { ApiResponse } from "api/ApiResponses";
 import { GitConfig, GitSyncModalTab } from "entities/GitSync";
 import { Toaster } from "components/ads/Toast";
@@ -52,38 +58,31 @@ import { Variant } from "components/ads/common";
 import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
+  getOrganizationIdForImport,
 } from "selectors/applicationSelectors";
-import { fetchGitStatusSuccess } from "actions/gitSyncActions";
 import {
   createMessage,
+  DELETE_BRANCH_SUCCESS,
+  ERROR_GIT_AUTH_FAIL,
+  ERROR_GIT_INVALID_REMOTE,
   GIT_USER_UPDATED_SUCCESSFULLY,
 } from "@appsmith/constants/messages";
-import { GitApplicationMetadata } from "../api/ApplicationApi";
+import { GitApplicationMetadata } from "api/ApplicationApi";
 
 import history from "utils/history";
-import {
-  addBranchParam,
-  BUILDER_PAGE_URL,
-  GIT_BRANCH_QUERY_KEY,
-} from "constants/routes";
-import { MergeBranchPayload, MergeStatusPayload } from "api/GitSyncAPI";
-
-import {
-  mergeBranchSuccess,
-  // mergeBranchFailure,
-} from "../actions/gitSyncActions";
+import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import {
   getCurrentGitBranch,
   getDisconnectingGitApplication,
 } from "selectors/gitSyncSelectors";
 import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
-import { getOrganizationIdForImport } from "selectors/applicationSelectors";
 import { getLogToSentryFromResponse } from "utils/helpers";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
 import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
+import { builderURL } from "RouteBuilder";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
@@ -419,7 +418,9 @@ function* fetchGitStatusSaga() {
   let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
-    const gitMetaData = yield select(getCurrentAppGitMetaData);
+    const gitMetaData: GitApplicationMetadata = yield select(
+      getCurrentAppGitMetaData,
+    );
     response = yield GitSyncAPI.getGitStatus({
       applicationId,
       branch: gitMetaData?.branchName || "",
@@ -433,10 +434,18 @@ function* fetchGitStatusSaga() {
       yield put(fetchGitStatusSuccess(response?.data));
     }
   } catch (error) {
+    const payload = { error, show: true };
+    if (error?.message?.includes("Auth fail")) {
+      payload.error = new Error(createMessage(ERROR_GIT_AUTH_FAIL));
+    } else if (error?.message?.includes("Invalid remote: origin")) {
+      payload.error = new Error(createMessage(ERROR_GIT_INVALID_REMOTE));
+    }
+
     yield put({
       type: ReduxActionErrorTypes.FETCH_GIT_STATUS_ERROR,
-      payload: { error, show: false },
+      payload,
     });
+
     // non api error
     if (!response || response?.responseMeta?.success) {
       throw error;
@@ -533,7 +542,12 @@ function* gitPullSaga(
     if (isValidResponse) {
       const { mergeStatus } = response?.data;
       yield put(gitPullSuccess(mergeStatus));
-      yield put(initEditor(applicationId, currentPageId, currentBranch));
+      yield put(
+        initEditor({
+          pageId: currentPageId,
+          branch: currentBranch,
+        }),
+      );
     }
   } catch (e) {
     // todo check based on error type
@@ -649,6 +663,8 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
         }: {
           application: {
             id: string;
+            applicationVersion: number;
+            slug: string;
             pages: { default?: boolean; id: string; isDefault?: boolean }[];
           };
           isPartialImport: boolean;
@@ -674,8 +690,10 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
             pageId = defaultPage ? defaultPage.id : "";
           }
 
-          const pageURL = BUILDER_PAGE_URL({
+          const pageURL = builderURL({
             applicationId: app.id,
+            applicationSlug: app.slug,
+            applicationVersion: app.applicationVersion,
             pageId,
           });
           history.push(pageURL);
@@ -767,6 +785,32 @@ export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
   }
 }
 
+export function* deleteBranch({ payload }: ReduxAction<any>) {
+  yield put(deletingBranch(payload));
+  const { branchToDelete } = payload;
+  let response: ApiResponse | undefined;
+  try {
+    const applicationId: string = yield select(getCurrentApplicationId);
+
+    response = yield GitSyncAPI.deleteBranch(applicationId, branchToDelete);
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      false,
+      getLogToSentryFromResponse(response),
+    );
+    if (isValidResponse) {
+      Toaster.show({
+        text: createMessage(DELETE_BRANCH_SUCCESS, branchToDelete),
+        variant: Variant.success,
+      });
+      yield put(deleteBranchSuccess(response?.data));
+      yield put(fetchBranchesInit({ pruneBranches: true }));
+    }
+  } catch (error) {
+    yield put(deleteBranchError(error));
+  }
+}
+
 export default function* gitSyncSagas() {
   yield all([
     takeLatest(ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT, commitToGitRepoSaga),
@@ -805,5 +849,6 @@ export default function* gitSyncSagas() {
       generateSSHKeyPairSaga,
     ),
     takeLatest(ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT, getSSHKeyPairSaga),
+    takeLatest(ReduxActionTypes.DELETE_BRANCH_INIT, deleteBranch),
   ]);
 }

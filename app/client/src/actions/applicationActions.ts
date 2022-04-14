@@ -1,15 +1,16 @@
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { APP_MODE } from "entities/App";
-import { ReduxActionWithCallbacks } from "../constants/ReduxActionConstants";
-import {
-  ApplicationResponsePayload,
-  FetchApplicationResponse,
-} from "../api/ApplicationApi";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ApplicationResponsePayload } from "api/ApplicationApi";
 import {
   UpdateApplicationPayload,
   ImportApplicationRequest,
+  FetchApplicationPayload,
 } from "api/ApplicationApi";
 import { Datasource } from "entities/Datasource";
+
+export enum ApplicationVersion {
+  DEFAULT = 1,
+  SLUG_URL = 2,
+}
 
 export const setDefaultApplicationPageSuccess = (
   pageId: string,
@@ -24,31 +25,10 @@ export const setDefaultApplicationPageSuccess = (
   };
 };
 
-export interface FetchApplicationPayload {
-  applicationId: string;
-  mode: APP_MODE;
-}
-
-export type FetchApplicationReduxAction = ReduxActionWithCallbacks<
-  FetchApplicationPayload,
-  FetchApplicationResponse,
-  string
->;
-
-export const fetchApplication = ({
-  onErrorCallback,
-  onSuccessCallback,
-  payload,
-}: {
-  payload: FetchApplicationPayload;
-  onSuccessCallback?: (payload: FetchApplicationResponse) => void;
-  onErrorCallback?: (error: string) => void;
-}): FetchApplicationReduxAction => {
+export const fetchApplication = (payload: FetchApplicationPayload) => {
   return {
     type: ReduxActionTypes.FETCH_APPLICATION_INIT,
     payload,
-    onSuccessCallback,
-    onErrorCallback,
   };
 };
 
@@ -68,12 +48,14 @@ export const updateApplicationLayout = (
 export const updateApplication = (
   id: string,
   data: UpdateApplicationPayload,
+  callback?: () => void,
 ) => {
   return {
     type: ReduxActionTypes.UPDATE_APPLICATION,
     payload: {
       id,
       ...data,
+      callback,
     },
   };
 };

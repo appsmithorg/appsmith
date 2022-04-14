@@ -21,6 +21,13 @@ import { buttonHoverActiveStyles } from "./utils";
   in all the Browsers.
 */
 
+/*
+  For the Button Widget we don't remove the DragContainer
+  because of the Tooltip issue - 
+  https://github.com/appsmithorg/appsmith/pull/12372
+  For this reason we pass the showInAllModes prop.
+*/
+
 export type ButtonContainerProps = {
   buttonColor?: string;
   buttonVariant?: ButtonVariant;
@@ -58,17 +65,23 @@ type DragContainerProps = ButtonContainerProps & {
   children?: React.ReactNode;
   onClick?: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   renderMode?: RenderMode;
+  showInAllModes?: boolean;
 };
 
 export function DragContainer(props: DragContainerProps) {
-  if (props.renderMode === RenderModes.CANVAS) {
+  if (props.renderMode === RenderModes.CANVAS || props.showInAllModes) {
     return (
       <ButtonContainer
         buttonColor={props.buttonColor}
         buttonVariant={props.buttonVariant}
         disabled={props.disabled}
         loading={props.loading}
-        onClick={props.onClick}
+        onClick={(event) => {
+          if (props.disabled) return;
+          if (props.onClick) {
+            props.onClick(event);
+          }
+        }}
         style={props.style}
       >
         {props.children}

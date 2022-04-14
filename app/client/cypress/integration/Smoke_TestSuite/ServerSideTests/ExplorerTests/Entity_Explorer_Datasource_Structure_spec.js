@@ -62,24 +62,12 @@ describe("Entity explorer datasource structure", function() {
       201,
     );
 
-    cy.get(queryEditor.queryMoreAction).click();
-    cy.get(queryEditor.deleteUsingContext).click();
-    cy.wait("@deleteAction").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.deleteQueryUsingContext();
 
     cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.GlobalSearchEntity("MyQuery");
     cy.get(`.t--entity-name:contains(MyQuery)`).click();
-    cy.get(queryEditor.queryMoreAction).click();
-    cy.get(queryEditor.deleteUsingContext).click();
-    cy.wait("@deleteAction").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.deleteQueryUsingContext();
 
     cy.get(commonlocators.entityExplorersearch).clear({ force: true });
 
@@ -106,7 +94,7 @@ describe("Entity explorer datasource structure", function() {
       .replace(/[^a-z]+/g, "");
     cy.typeValueNValidate(`CREATE TABLE public.${tableName} ( ID int );`);
     cy.onlyQueryRun();
-    cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
+    cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.request.requestParams.Query.value).to.contain(
         tableName,
       );

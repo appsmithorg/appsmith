@@ -31,8 +31,14 @@ import { find, pick, sortBy } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import { APP_MODE } from "entities/App";
 import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
+import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
+import { builderURL } from "RouteBuilder";
+import { ApplicationVersion } from "actions/applicationActions";
+import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 
-const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
+export const getWidgetConfigs = (state: AppState) =>
+  state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
 
 export const getProviderCategories = (state: AppState) =>
@@ -97,8 +103,28 @@ export const getCurrentLayoutId = (state: AppState) =>
 
 export const getPageList = (state: AppState) => state.entities.pageList.pages;
 
+export const getPageById = (pageId: string) =>
+  createSelector(getPageList, (pages: Page[]) =>
+    pages.find((page) => page.pageId === pageId),
+  );
+
 export const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
+
+export const selectCurrentPageSlug = createSelector(
+  getCurrentPageId,
+  getPageList,
+  (pageId, pages) =>
+    pages.find((page) => page.pageId === pageId)?.slug || PLACEHOLDER_PAGE_SLUG,
+);
+
+export const selectPageSlugToIdMap = createSelector(getPageList, (pages) =>
+  pages.reduce((acc, page: Page) => {
+    // Comeback
+    acc[page.pageId] = page.slug || "";
+    return acc;
+  }, {} as Record<string, string>),
+);
 
 export const getCurrentApplication = (state: AppState) =>
   state.ui.applications.currentApplication;
@@ -106,6 +132,31 @@ export const getCurrentApplication = (state: AppState) =>
 export const getCurrentApplicationId = (state: AppState) =>
   state.entities.pageList.applicationId ||
   ""; /** this is set during init can assume it to be defined */
+
+export const selectCurrentApplicationSlug = (state: AppState) =>
+  state.ui.applications.currentApplication?.slug || PLACEHOLDER_APP_SLUG;
+
+export const selectApplicationVersion = (state: AppState) =>
+  state.ui.applications.currentApplication?.applicationVersion ||
+  ApplicationVersion.DEFAULT;
+
+export const selectPageSlugById = (pageId: string) =>
+  createSelector(getPageList, (pages) => {
+    const page = pages.find((page) => page.pageId === pageId);
+    return page?.slug || PLACEHOLDER_PAGE_SLUG;
+  });
+
+export const selectURLSlugs = createSelector(
+  getCurrentApplication,
+  getPageList,
+  getCurrentPageId,
+  (application, pages, pageId) => {
+    const applicationSlug = application?.slug || PLACEHOLDER_APP_SLUG;
+    const currentPage = pages.find((page) => page.pageId === pageId);
+    const pageSlug = currentPage?.slug || PLACEHOLDER_PAGE_SLUG;
+    return { applicationSlug, pageSlug };
+  },
+);
 
 export const getRenderMode = (state: AppState) =>
   state.entities.app.mode === APP_MODE.EDIT
@@ -135,8 +186,9 @@ export const getViewModePageList = createSelector(
 export const getCurrentApplicationLayout = (state: AppState) =>
   state.ui.applications.currentApplication?.appLayout;
 
-export const getCanvasWidth = (state: AppState) =>
-  state.entities.canvasWidgets[MAIN_CONTAINER_WIDGET_ID].rightColumn;
+export const getCanvasWidth = (state: AppState) => state.ui.mainCanvas.width;
+
+export const getMainCanvasProps = (state: AppState) => state.ui.mainCanvas;
 
 export const getCurrentPageName = createSelector(
   getPageListState,
@@ -180,8 +232,14 @@ export const getWidgetCards = createSelector(
 const getMainContainer = (
   canvasWidgets: CanvasWidgetsReduxState,
   evaluatedDataTree: DataTree,
+  mainCanvasProps: MainCanvasReduxState,
 ) => {
-  const canvasWidget = canvasWidgets[MAIN_CONTAINER_WIDGET_ID];
+  const canvasWidget = {
+    ...canvasWidgets[MAIN_CONTAINER_WIDGET_ID],
+    rightColumn: mainCanvasProps.width,
+    minHeight: mainCanvasProps.height,
+  };
+  //TODO: Need to verify why `evaluatedDataTree` is required here.
   const evaluatedWidget = find(evaluatedDataTree, {
     widgetId: MAIN_CONTAINER_WIDGET_ID,
   }) as DataTreeWidget;
@@ -192,15 +250,18 @@ export const getCanvasWidgetDsl = createSelector(
   getCanvasWidgets,
   getDataTree,
   getLoadingEntities,
+  getMainCanvasProps,
   (
     canvasWidgets: CanvasWidgetsReduxState,
     evaluatedDataTree,
     loadingEntities,
+    mainCanvasProps,
   ): ContainerWidgetProps<WidgetProps> => {
     const widgets: Record<string, DataTreeWidget> = {
       [MAIN_CONTAINER_WIDGET_ID]: getMainContainer(
         canvasWidgets,
         evaluatedDataTree,
+        mainCanvasProps,
       ),
     };
     Object.keys(canvasWidgets)
@@ -330,7 +391,7 @@ export function getOccupiedSpacesSelectorForContainer(
   });
 }
 
-// same as getOccupiedSpaces but gets only the container specific ocupied Spaces
+// same as getOccupiedSpaces but gets only the container specific occupied Spaces
 export function getWidgetSpacesSelectorForContainer(
   containerId: string | undefined,
 ) {
@@ -398,6 +459,7 @@ const createLoadingWidget = (
     type: WidgetTypes.SKELETON_WIDGET,
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     bindingPaths: {},
+    reactivePaths: {},
     triggerPaths: {},
     validationPaths: {},
     logBlackList: {},
@@ -454,3 +516,14 @@ export const getZoomLevel = (state: AppState) => {
  */
 export const getIsSavingEntity = (state: AppState) =>
   state.ui.editor.loadingStates.savingEntity;
+
+export const getEditorURL = createSelector(
+  getCurrentPageId,
+  selectURLSlugs,
+  (pageId: string, { applicationSlug, pageSlug }) =>
+    builderURL({
+      applicationSlug,
+      pageSlug,
+      pageId,
+    }),
+);

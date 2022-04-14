@@ -332,7 +332,7 @@ async function watchMongoDB(io) {
         }
 
         // set the type from _class attribute
-        notification.type = notification._class.substr(notification._class.lastIndexOf(".") + 1);
+        notification.type = notification._class.slice(notification._class.lastIndexOf(".") + 1);
         delete notification._class;
 
         const eventName = event.operationType + ":" + event.ns.coll;

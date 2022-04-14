@@ -8,8 +8,8 @@ import { getColorWithOpacity } from "constants/DefaultTheme";
 // import AnalyticsUtil from "utils/AnalyticsUtil";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { Layers } from "../../constants/Layers";
-import { bindDataToWidget } from "../../actions/propertyPaneActions";
+import { Layers } from "constants/Layers";
+import { bindDataToWidget } from "actions/propertyPaneActions";
 
 const SnipeableWrapper = styled.div<{ isFocused: boolean }>`
   position: absolute;

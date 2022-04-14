@@ -18,7 +18,7 @@ import { Classes, Position } from "@blueprintjs/core";
 import { noop } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import useClick from "utils/hooks/useClick";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import TooltipComponent from "components/ads/Tooltip";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { inGuidedTour } from "selectors/onboardingSelectors";
@@ -288,6 +288,7 @@ export const Entity = forwardRef(
               props.active ? "active" : ""
             } t--entity-item`}
             data-guided-tour-id={`explorer-entity-${props.name}`}
+            data-guided-tour-iid={props.name}
             highlight={!!props.highlight}
             id={"entity-" + props.entityId}
             isSticky={props.isSticky === true}

@@ -37,6 +37,7 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -272,6 +273,7 @@ public class ApplicationServiceTest {
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEvaluationVersion()).isEqualTo(EVALUATION_VERSION);
+                    assertThat(application.getApplicationVersion()).isEqualTo(ApplicationVersion.LATEST_VERSION);
                     assertThat(application.getColor()).isNotEmpty();
                     assertThat(application.getEditModeThemeId()).isEqualTo(defaultThemeId);
                     assertThat(application.getPublishedModeThemeId()).isEqualTo(defaultThemeId);
@@ -793,6 +795,16 @@ public class ApplicationServiceTest {
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(true);
 
+        // Create a branch
+        Application testApplication = new Application();
+        testApplication.setName("branch1");
+        testApplication.setOrganizationId(orgId);
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        gitApplicationMetadata.setDefaultApplicationId(gitConnectedApp.getId());
+        gitApplicationMetadata.setBranchName("test");
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        Application application = applicationPageService.createApplication(testApplication).block();
+
         Mono<Application> publicAppMono = applicationService
                 .changeViewAccess(gitConnectedApp.getId(), "testBranch", applicationAccessDTO)
                 .cache();
@@ -816,6 +828,15 @@ public class ApplicationServiceTest {
                     assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
                 })
                 .verifyComplete();
+
+        // Get branch application
+        Mono<Application> branchApplicationMono = applicationService.findById(application.getId());
+        StepVerifier
+                .create(branchApplicationMono)
+                .assertNext(branchApplication -> {
+                    assertThat(branchApplication.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -835,13 +856,23 @@ public class ApplicationServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
+        // Create a branch
+        Application testApplication = new Application();
+        testApplication.setName("branch2");
+        testApplication.setOrganizationId(orgId);
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        gitApplicationMetadata.setDefaultApplicationId(gitConnectedApp.getId());
+        gitApplicationMetadata.setBranchName("test2");
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        Application application = applicationPageService.createApplication(testApplication).block();
+
 
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(true);
         Mono<Application> privateAppMono = applicationService.changeViewAccess(gitConnectedApp.getId(), "testBranch", applicationAccessDTO)
                 .flatMap(application1 -> {
                     applicationAccessDTO.setPublicAccess(false);
-                    return applicationService.changeViewAccess(application1.getId(), applicationAccessDTO);
+                    return applicationService.changeViewAccess(application1.getId(), "testBranch", applicationAccessDTO);
                 })
                 .cache();
 
@@ -862,6 +893,16 @@ public class ApplicationServiceTest {
 
                     // Check the child page's policies
                     assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
+                })
+                .verifyComplete();
+
+        // Get branch application
+        Mono<Application> branchApplicationMono = applicationService.findById(application.getId());
+        StepVerifier
+                .create(branchApplicationMono)
+                .assertNext(branchApplication -> {
+                    assertThat(branchApplication.getIsPublic()).isFalse();
+                    assertThat(branchApplication.getPolicies()).containsAll(Set.of(readAppPolicy, manageAppPolicy));
                 })
                 .verifyComplete();
     }
@@ -1015,6 +1056,8 @@ public class ApplicationServiceTest {
                     assertThat(clonedApplication.getUpdatedAt()).isNotNull();
                     assertThat(clonedApplication.getEvaluationVersion()).isNotNull();
                     assertThat(clonedApplication.getEvaluationVersion()).isEqualTo(gitConnectedApp.getEvaluationVersion());
+                    assertThat(clonedApplication.getApplicationVersion()).isNotNull();
+                    assertThat(clonedApplication.getApplicationVersion()).isEqualTo(gitConnectedApp.getApplicationVersion());
 
                     List<ApplicationPage> pages = clonedApplication.getPages();
                     Set<String> clonedPageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
@@ -1028,7 +1071,7 @@ public class ApplicationServiceTest {
 
                     assertThat(clonedPageList).isNotEmpty();
                     for (PageDTO page : clonedPageList) {
-                        assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
+                        assertThat(page.getPolicies()).containsAll(Set.of(readPagePolicy, managePagePolicy));
                         assertThat(page.getApplicationId()).isEqualTo(clonedApplication.getId());
                     }
                 })
@@ -1177,7 +1220,7 @@ public class ApplicationServiceTest {
                     assertThat(clonedActionList).isNotEmpty();
                     assertThat(defaultClonedActionIdsFromDb).isNotEmpty();
                     for (NewAction newAction : clonedActionList) {
-                        assertThat(newAction.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy, executeActionPolicy));
+                        assertThat(newAction.getPolicies()).containsAll(Set.of(readActionPolicy, executeActionPolicy, manageActionPolicy));
                         assertThat(newAction.getApplicationId()).isEqualTo(clonedApplication.getId());
                         assertThat(newAction.getUnpublishedAction().getPageId()).isEqualTo(newAction.getUnpublishedAction().getDefaultResources().getPageId());
                     }
@@ -2233,6 +2276,7 @@ public class ApplicationServiceTest {
             assertThat(application.getPolicies()).isNotNull().isNotEmpty();
             assertThat(application.getModifiedBy()).isEqualTo("api_user");
             assertThat(application.getIsPublic()).isTrue();
+            assertThat(application.getIsManualUpdate()).isTrue();
         }).verifyComplete();
     }
 

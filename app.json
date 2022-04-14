@@ -17,9 +17,6 @@
     "logo": "https://raw.githubusercontent.com/appsmithorg/appsmith/master/static/logo.png",
     "success_url": "/",
     "stack": "container",
-    "scripts": {
-        "postdeploy" : "/analytics.sh"
-    },
     "env": {
       "APPSMITH_MONGODB_URI": {
         "description": "Your Mongo Database URI. Since Heroku doesn't support a managed MongoDB instance, you'll have to create a Mongo DB instance on another service such as https://cloud.mongodb.com",
@@ -36,6 +33,10 @@
       "APPSMITH_DISABLE_TELEMETRY": {
         "description" : "We want to be transparent and request that you share anonymous usage data with us. This data is purely statistical in nature and helps us understand your needs & provide better support to your self-hosted instance. You can read more about what information is collected in our documentation https://docs.appsmith.com/v/v1.2.1/setup/telemetry",
         "value": "false"
-      }
+      },
+      "APPSMITH_SUPERVISOR_PASSWORD": {
+        "description": "Basic authentication password to access Supervisor UI - An web interface, which allow you to manage various process",
+        "value": ""
+			}
    }
 }

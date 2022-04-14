@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export const getAllTemplates = () => ({
   type: ReduxActionTypes.GET_ALL_TEMPLATES_INIT,
@@ -40,4 +40,9 @@ export const setTemplateNotificationSeenAction = (payload: boolean) => ({
 
 export const getTemplateNotificationSeenAction = () => ({
   type: ReduxActionTypes.GET_TEMPLATE_NOTIFICATION_SEEN,
+});
+
+export const getTemplateInformation = (payload: string) => ({
+  type: ReduxActionTypes.GET_TEMPLATE_INIT,
+  payload,
 });

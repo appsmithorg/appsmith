@@ -6,7 +6,7 @@ import {
   ReduxActionTypes,
   ReduxAction,
   WidgetReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { Diff } from "deep-diff";
 import produce from "immer";
 import { DataTree } from "entities/DataTree/dataTreeFactory";

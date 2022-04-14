@@ -3,10 +3,10 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { all, put, takeEvery, call } from "redux-saga/effects";
 import TemplatesAPI, { ImportTemplateResponse } from "api/TemplatesApi";
-import { BUILDER_PAGE_URL } from "constants/routes";
+import { PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import history from "utils/history";
 import { getDefaultPageId } from "./ApplicationSagas";
 import { setTemplateNotificationSeenAction } from "actions/templateActions";
@@ -15,6 +15,7 @@ import {
   setTemplateNotificationSeen,
 } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
+import { builderURL } from "RouteBuilder";
 
 function* getAllTemplatesSaga() {
   try {
@@ -45,14 +46,19 @@ function* importTemplateToOrganisationSaga(
       action.payload.templateId,
       action.payload.organizationId,
     );
-    const isValid = yield validateResponse(response);
+    const isValid: boolean = yield validateResponse(response);
     if (isValid) {
       const application: ApplicationPayload = {
         ...response.data,
-        defaultPageId: getDefaultPageId(response.data.pages),
+        defaultPageId: getDefaultPageId(response.data.pages) as string,
       };
-      const pageURL = BUILDER_PAGE_URL({
+      const defaultPage = response.data.pages.find((page) => page.isDefault);
+      const defaultPageSlug = defaultPage?.slug || PLACEHOLDER_PAGE_SLUG;
+      const pageURL = builderURL({
         applicationId: application.id,
+        applicationSlug: application.slug,
+        applicationVersion: application.applicationVersion,
+        pageSlug: defaultPageSlug,
         pageId: application.defaultPageId,
       });
       yield put({
@@ -108,9 +114,33 @@ function* getTemplateNotificationSeenSaga() {
   }
 }
 
+function* getTemplateSaga(action: ReduxAction<string>) {
+  try {
+    const response = yield call(
+      TemplatesAPI.getTemplateInformation,
+      action.payload,
+    );
+    const isValid = yield validateResponse(response);
+    if (isValid) {
+      yield put({
+        type: ReduxActionTypes.GET_TEMPLATE_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.GET_TEMPLATE_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export default function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.GET_ALL_TEMPLATES_INIT, getAllTemplatesSaga),
+    takeEvery(ReduxActionTypes.GET_TEMPLATE_INIT, getTemplateSaga),
     takeEvery(
       ReduxActionTypes.GET_SIMILAR_TEMPLATES_INIT,
       getSimilarTemplatesSaga,

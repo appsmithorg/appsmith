@@ -40,29 +40,33 @@ const SettingsButtonWrapper = styled.div`
   background-color: ${(props) => props.theme.colors.homepageBackground};
 `;
 
-const saveAdminSettings = (props: {
+type SaveAdminSettingsProps = {
   isSaving?: boolean;
   onSave?: () => void;
   onClear?: () => void;
   settings: Record<string, string>;
   valid: boolean;
-}) => {
+};
+
+const saveAdminSettings = (props: SaveAdminSettingsProps) => {
+  const { isSaving, onClear, onSave, settings, valid } = props;
+
   return (
     <SettingsButtonWrapper>
       <StyledSaveButton
         category={Category.primary}
         className="t--admin-settings-save-button"
-        disabled={Object.keys(props.settings).length == 0 || !props.valid}
-        isLoading={props.isSaving}
-        onClick={props.onSave}
+        disabled={Object.keys(settings).length == 0 || !valid}
+        isLoading={isSaving}
+        onClick={onSave}
         tag="button"
         text={createMessage(() => "Save & Restart")}
       />
       <StyledClearButton
         category={Category.tertiary}
         className="t--admin-settings-reset-button"
-        disabled={Object.keys(props.settings).length == 0}
-        onClick={props.onClear}
+        disabled={Object.keys(settings).length == 0}
+        onClick={onClear}
         tag="button"
         text={createMessage(() => "Reset")}
       />

@@ -26,7 +26,8 @@ import {
   JSONtoFormProps,
   PluginImage,
 } from "./JSONtoForm";
-import DatasourceAuth from "../../common/datasourceAuth";
+import DatasourceAuth from "pages/common/datasourceAuth";
+import { getDatasourceFormButtonConfig } from "selectors/entitiesSelector";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -42,6 +43,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   pluginType: string;
   messages?: Array<string>;
   datasource: Datasource;
+  datasourceButtonConfiguration: string[] | undefined;
   hiddenHeader?: boolean;
 }
 
@@ -89,11 +91,12 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   };
 
   render() {
-    const { formConfig } = this.props;
+    const { formConfig, viewMode } = this.props;
 
     // make sure this redux form has been initialized before rendering anything.
     // the initialized prop below comes from redux-form.
-    if (!this.props.initialized) {
+    // The viewMode condition is added to allow the conditons only run on the editMode
+    if (!this.props.initialized && !viewMode) {
       return null;
     }
 
@@ -102,7 +105,14 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   }
 
   renderDataSourceConfigForm = (sections: any) => {
-    const { datasource, formData, messages, pluginType, viewMode } = this.props;
+    const {
+      datasource,
+      datasourceButtonConfiguration,
+      formData,
+      messages,
+      pluginType,
+      viewMode,
+    } = this.props;
 
     return (
       <form
@@ -168,6 +178,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
         {datasource && (
           <DatasourceAuth
             datasource={datasource}
+            datasourceButtonConfiguration={datasourceButtonConfiguration}
             formData={formData}
             getSanitizedFormData={_.memoize(this.getSanitizedData)}
             isInvalid={this.validate()}
@@ -186,9 +197,15 @@ const mapStateToProps = (state: AppState, props: any) => {
 
   const hintMessages = datasource && datasource.messages;
 
+  const datasourceButtonConfiguration = getDatasourceFormButtonConfig(
+    state,
+    props?.formData?.pluginId,
+  );
+
   return {
     messages: hintMessages,
     datasource,
+    datasourceButtonConfiguration,
     isReconnectingModalOpen: state.entities.datasources.isReconnectingModalOpen,
   };
 };

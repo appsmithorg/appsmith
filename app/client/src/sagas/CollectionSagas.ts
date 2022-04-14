@@ -2,7 +2,7 @@ import { call, takeLatest, put, all } from "redux-saga/effects";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { validateResponse } from "sagas/ErrorSagas";
 import ImportedCollectionsApi from "api/CollectionApi";
 import { ImportedCollections } from "constants/collectionsConstants";
