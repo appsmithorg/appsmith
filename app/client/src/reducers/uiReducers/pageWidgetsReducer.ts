@@ -41,9 +41,6 @@ const pageWidgetsReducer = createImmerReducer(initialState, {
       ).entities.canvasWidgets;
     }
   },
-  [ReduxActionTypes.RESET_PAGE_DSLS]: (state: PageWidgetsReduxState) => {
-    Object.keys(state).forEach((key) => delete state[key]);
-  },
 });
 
 export default pageWidgetsReducer;
