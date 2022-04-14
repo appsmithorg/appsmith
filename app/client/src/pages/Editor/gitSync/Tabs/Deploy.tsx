@@ -291,10 +291,14 @@ function Deploy() {
             width="max-content"
           />
         )}
-        <ConflictInfo
-          isConflicting={isConflicting}
-          learnMoreLink={gitConflictDocumentUrl}
-        />
+        {isConflicting && (
+          <ConflictInfo
+            browserSupportedRemoteUrl={
+              gitMetaData?.browserSupportedRemoteUrl || ""
+            }
+            learnMoreLink={gitConflictDocumentUrl}
+          />
+        )}
         {showCommitButton && (
           <Tooltip
             autoFocus={false}
