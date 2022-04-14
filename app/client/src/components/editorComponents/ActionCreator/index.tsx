@@ -387,9 +387,6 @@ function getFieldFromValue(
       {
         field: FieldType.TARGET_ORIGIN_FIELD,
       },
-      {
-        field: FieldType.TRANSFER_ARRAY_FIELD,
-      },
     );
   }
 

@@ -261,17 +261,12 @@ const DATA_TREE_FUNCTIONS: Record<
         };
       },
   },
-  postMessageToTargetWindow: function(
-    message: any,
-    targetOrigin: string,
-    transfer?: any[],
-  ) {
+  postMessageToTargetWindow: function(message: any, targetOrigin: string) {
     return {
       type: ActionTriggerType.POST_MESSAGE,
       payload: {
         message,
         targetOrigin,
-        transfer,
       },
       executionType: ExecutionType.TRIGGER,
     };

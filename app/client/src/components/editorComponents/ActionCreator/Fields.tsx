@@ -358,7 +358,6 @@ export enum FieldType {
   CLEAR_INTERVAL_ID_FIELD = "CLEAR_INTERVAL_ID_FIELD",
   MESSAGE_FIELD = "MESSAGE_FIELD",
   TARGET_ORIGIN_FIELD = "TARGET_ORIGIN_FIELD",
-  TRANSFER_ARRAY_FIELD = "TRANSFER_ARRAY_FIELD",
 }
 
 type FieldConfig = {
@@ -649,15 +648,6 @@ const fieldConfigs: FieldConfigs = {
     },
     view: ViewTypes.TEXT_VIEW,
   },
-  [FieldType.TRANSFER_ARRAY_FIELD]: {
-    getter: (value: string) => {
-      return textGetter(value, 2);
-    },
-    setter: (value: string, currentValue: string) => {
-      return textSetter(value, currentValue, 2);
-    },
-    view: ViewTypes.TEXT_VIEW,
-  },
 };
 
 function renderField(props: {
@@ -831,7 +821,6 @@ function renderField(props: {
     case FieldType.CLEAR_INTERVAL_ID_FIELD:
     case FieldType.MESSAGE_FIELD:
     case FieldType.TARGET_ORIGIN_FIELD:
-    case FieldType.TRANSFER_ARRAY_FIELD:
       let fieldLabel = "";
       if (fieldType === FieldType.ALERT_TEXT_FIELD) {
         fieldLabel = "Message";
@@ -861,8 +850,6 @@ function renderField(props: {
         fieldLabel = "Message";
       } else if (fieldType === FieldType.TARGET_ORIGIN_FIELD) {
         fieldLabel = "Target origin";
-      } else if (fieldType === FieldType.TRANSFER_ARRAY_FIELD) {
-        fieldLabel = "Transfer array (optional)";
       }
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
         label: fieldLabel,

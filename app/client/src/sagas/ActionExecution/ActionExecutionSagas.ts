@@ -144,7 +144,7 @@ export function* executeActionTriggers(
       }
       break;
     case ActionTriggerType.POST_MESSAGE:
-      yield call(postMessageSaga, trigger.payload);
+      yield call(postMessageSaga, trigger.payload, triggerMeta);
       break;
     default:
       log.error("Trigger type unknown", trigger);
