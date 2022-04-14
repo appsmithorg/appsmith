@@ -9,11 +9,7 @@ export function* postMessageSaga(payload: PostMessageDescription["payload"]) {
 function* executePostMessage(payload: PostMessageDescription["payload"]) {
   const { message, targetOrigin, transfer } = payload;
   try {
-    window.parent.postMessage(
-      message,
-      targetOrigin || "*",
-      transfer || undefined,
-    );
+    window.parent.postMessage(message, targetOrigin, transfer || undefined);
   } catch (error) {
     throw new TriggerFailureError(error.message);
   }

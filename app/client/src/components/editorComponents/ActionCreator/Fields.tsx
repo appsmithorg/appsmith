@@ -412,8 +412,10 @@ const fieldConfigs: FieldConfigs = {
         case ActionType.resetWidget:
           defaultParams = `"",true`;
           break;
+        // add example website so that users don't leave it empty or use '*' raising security issues
+        // https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage#security_concerns
         case ActionType.postMessageToTargetWindow:
-          defaultParams = `,'*'`;
+          defaultParams = `,'https://www.example.com'`;
           break;
         default:
           break;
