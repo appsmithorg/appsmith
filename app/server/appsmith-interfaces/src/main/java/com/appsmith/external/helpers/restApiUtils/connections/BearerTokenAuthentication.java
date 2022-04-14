@@ -1,4 +1,4 @@
-package com.external.connections;
+package com.appsmith.external.helpers.restApiUtils.connections;
 
 import com.appsmith.external.models.BearerTokenAuth;
 import lombok.AccessLevel;

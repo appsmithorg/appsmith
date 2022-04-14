@@ -1,4 +1,4 @@
-package com.external.helpers;
+package com.appsmith.external.helpers.restApiUtils.helpers;
 
 import com.appsmith.external.dtos.MultipartFormDataDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -194,6 +194,12 @@ public class DataUtils {
                                         }
                                     } catch (JsonProcessingException e) {
                                         bodyBuilder.part(key, value);
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                        throw new AppsmithPluginException(
+                                                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                                "Unable to parse content. Expected to receive an array or object of multipart data"
+                                        );
                                     }
                                 } else {
                                     bodyBuilder.part(key, property.getValue());

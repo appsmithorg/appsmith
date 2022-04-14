@@ -1,5 +1,6 @@
 package com.external.connections;
 
+import com.appsmith.external.helpers.restApiUtils.connections.BasicAuthentication;
 import com.appsmith.external.models.BasicAuth;
 import org.junit.Assert;
 import org.junit.Test;

@@ -1,4 +1,4 @@
-package com.external.helpers;
+package com.appsmith.external.helpers.restApiUtils.helpers;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ApiKeyAuth;
@@ -26,9 +26,9 @@ import static com.appsmith.external.constants.Authentication.OAUTH2;
 import static com.appsmith.external.helpers.PluginUtils.getHintMessageForLocalhostUrl;
 import static com.appsmith.external.models.ApiKeyAuth.Type.HEADER;
 import static com.appsmith.external.models.ApiKeyAuth.Type.QUERY_PARAMS;
-import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.ACTION_CONFIG_ONLY;
-import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_AND_ACTION_CONFIG;
-import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_CONFIG_ONLY;
+import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.ACTION_CONFIG_ONLY;
+import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_AND_ACTION_CONFIG;
+import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_CONFIG_ONLY;
 
 public class HintMessageUtils {
 

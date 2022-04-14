@@ -22,13 +22,13 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.appsmith.external.services.SharedConfig;
-import com.external.connections.APIConnection;
-import com.external.connections.APIConnectionFactory;
-import com.external.constants.ResponseDataType;
-import com.external.helpers.BufferingFilter;
-import com.external.helpers.DataUtils;
-import com.external.helpers.DatasourceValidator;
-import com.external.helpers.RequestCaptureFilter;
+import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
+import com.appsmith.external.helpers.restApiUtils.connections.APIConnectionFactory;
+import com.appsmith.external.helpers.restApiUtils.constants.ResponseDataType;
+import com.appsmith.external.helpers.restApiUtils.helpers.BufferingFilter;
+import com.appsmith.external.helpers.restApiUtils.helpers.DataUtils;
+import com.appsmith.external.helpers.restApiUtils.helpers.DatasourceValidator;
+import com.appsmith.external.helpers.restApiUtils.helpers.RequestCaptureFilter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -81,8 +81,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.external.helpers.HintMessageUtils.getActionHintMessages;
-import static com.external.helpers.HintMessageUtils.getDatasourceHintMessages;
+import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.getActionHintMessages;
+import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.getDatasourceHintMessages;
 import static java.lang.Boolean.TRUE;
 
 public class RestApiPlugin extends BasePlugin {

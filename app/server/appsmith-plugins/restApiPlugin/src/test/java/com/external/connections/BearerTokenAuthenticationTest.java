@@ -1,5 +1,6 @@
 package com.external.connections;
 
+import com.appsmith.external.helpers.restApiUtils.connections.BearerTokenAuthentication;
 import com.appsmith.external.models.BearerTokenAuth;
 import org.junit.Test;
 import reactor.core.publisher.Mono;
