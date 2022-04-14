@@ -30,6 +30,7 @@ import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { builderURL } from "RouteBuilder";
 import { ApplicationVersion } from "actions/applicationActions";
+import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 
 export const getWidgetConfigs = (state: AppState) =>
   state.entities.widgetConfig;
@@ -180,8 +181,9 @@ export const getViewModePageList = createSelector(
 export const getCurrentApplicationLayout = (state: AppState) =>
   state.ui.applications.currentApplication?.appLayout;
 
-export const getCanvasWidth = (state: AppState) =>
-  state.entities.canvasWidgets[MAIN_CONTAINER_WIDGET_ID].rightColumn;
+export const getCanvasWidth = (state: AppState) => state.ui.mainCanvas.width;
+
+export const getMainCanvasProps = (state: AppState) => state.ui.mainCanvas;
 
 export const getCurrentPageName = createSelector(
   getPageListState,
@@ -221,11 +223,6 @@ export const getWidgetCards = createSelector(
     return sortedCards;
   },
 );
-
-// const getMainContainer = (canvasWidgets: CanvasWidgetsReduxState) => {
-//   const canvasWidget = canvasWidgets[MAIN_CONTAINER_WIDGET_ID];
-//   return createLoadingWidget(canvasWidget);
-// };
 
 export const getCanvasWidgetDsl = createSelector(
   getCanvasWidgetsStructure,
