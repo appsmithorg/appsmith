@@ -978,12 +978,20 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> {
+                    int publishedPageCount = 0;
+                    if(application.getPublishedPages() != null) {
+                        publishedPageCount = application.getPublishedPages().size();
+                    }
+
                     analyticsService.sendEvent(
                             AnalyticsEvents.PUBLISH_APPLICATION.getEventName(),
                             user.getUsername(),
                             Map.of(
                                     "appId", defaultIfNull(application.getId(), ""),
-                                    "appName", defaultIfNull(application.getName(), "")
+                                    "appName", defaultIfNull(application.getName(), ""),
+                                    "orgId", defaultIfNull(application.getOrganizationId(), ""),
+                                    "pageCount", publishedPageCount + "",
+                                    "publishedAt", defaultIfNull(application.getLastDeployedAt(), "")
                             )
                     );
                     return Mono.empty();

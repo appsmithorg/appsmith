@@ -278,6 +278,7 @@
     "eslint-plugin-sort-destructure-keys": "^1.3.5",
     "factory.ts": "^0.5.1",
     "jest-canvas-mock": "^2.3.1",
+    "jest-styled-components": "^7.0.8",
     "mocha": "^7.1.0",
     "mocha-junit-reporter": "^1.23.3",
     "mochawesome": "^7.1.2",

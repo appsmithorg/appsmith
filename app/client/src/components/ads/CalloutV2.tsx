@@ -1,9 +1,9 @@
 import styled from "styled-components";
 import React from "react";
-import { ReduxAction } from "constants/ReduxActionConstants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { Dispatch } from "react";
 import { useDispatch } from "react-redux";
-import Icon, { IconSize } from "../../components/ads/Icon";
+import Icon, { IconSize } from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 
 export type CalloutType = "Warning" | "Info";

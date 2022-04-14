@@ -11,7 +11,7 @@ import {
 import {
   PageListPayload,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { getIsInitialized } from "selectors/appViewSelectors";
 import { executeTrigger } from "actions/widgetActions";
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";

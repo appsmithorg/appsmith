@@ -731,7 +731,6 @@ public class GitServiceTest {
 
         Application application1 = this.createApplicationConnectedToGit("private_repo_1", "master", limitPrivateRepoTestOrgId);
         this.createApplicationConnectedToGit("private_repo_2", "master", limitPrivateRepoTestOrgId);
-        this.createApplicationConnectedToGit("private_repo_3", "master", limitPrivateRepoTestOrgId);
 
         Application testApplication = new Application();
         GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();

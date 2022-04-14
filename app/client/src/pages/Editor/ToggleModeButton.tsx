@@ -42,10 +42,12 @@ import {
   commentsTourStepsPublishedModeTypes,
 } from "comments/tour/commentsTourSteps";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getCurrentApplicationId } from "../../selectors/editorSelectors";
 import { getAppMode } from "../../selectors/applicationSelectors";
 import { setPreviewModeAction } from "actions/editorActions";
-import { previewModeSelector } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  previewModeSelector,
+} from "selectors/editorSelectors";
 
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { isExploringSelector } from "selectors/onboardingSelectors";

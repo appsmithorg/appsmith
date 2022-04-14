@@ -12,7 +12,7 @@ import {
   ReduxAction,
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -30,17 +30,18 @@ import {
   JSUpdate,
   pushLogsForObjectUpdate,
   createDummyJSCollectionActions,
-} from "../utils/JSPaneUtils";
+} from "utils/JSPaneUtils";
 import JSActionAPI, {
   RefactorAction,
   SetFunctionPropertyPayload,
-} from "../api/JSActionAPI";
+} from "api/JSActionAPI";
 import ActionAPI from "api/ActionAPI";
 import {
   updateJSCollectionSuccess,
   refactorJSCollectionAction,
   updateJSCollectionBodySuccess,
   updateJSFunction,
+  executeJSFunctionInit,
 } from "actions/jsPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
@@ -303,6 +304,13 @@ export function* handleExecuteJSFunctionSaga(data: {
 }): any {
   const { action, collectionId, collectionName } = data;
   const actionId = action.id;
+  yield put(
+    executeJSFunctionInit({
+      collectionName,
+      action,
+      collectionId,
+    }),
+  );
   try {
     const result = yield call(executeFunction, collectionName, action);
     yield put({

@@ -1,17 +1,17 @@
 import React from "react";
-import UserApi, { SendTestEmailPayload } from "api/UserApi";
+import UserApi, { SendTestEmailPayload } from "@appsmith/api/UserApi";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 import { User } from "constants/userConstants";
 import { takeLatest, all, call, put, delay, select } from "redux-saga/effects";
 import history from "utils/history";
-import { validateResponse } from "./ErrorSagas";
+import { validateResponse } from "sagas/ErrorSagas";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
 import { ApiResponse } from "api/ApiResponses";
@@ -24,7 +24,7 @@ import {
 import { getCurrentUser } from "selectors/usersSelectors";
 import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
 
-function* FetchAdminSettingsSaga() {
+export function* FetchAdminSettingsSaga() {
   const response = yield call(UserApi.fetchAdminSettings);
   const isValidResponse = yield validateResponse(response);
 
@@ -47,11 +47,13 @@ function* FetchAdminSettingsSaga() {
   }
 }
 
-function* FetchAdminSettingsErrorSaga() {
+export function* FetchAdminSettingsErrorSaga() {
   history.push(APPLICATIONS_URL);
 }
 
-function* SaveAdminSettingsSaga(action: ReduxAction<Record<string, string>>) {
+export function* SaveAdminSettingsSaga(
+  action: ReduxAction<Record<string, string>>,
+) {
   const settings = action.payload;
   try {
     const response = yield call(UserApi.saveAdminSettings, settings);
@@ -87,7 +89,7 @@ function* SaveAdminSettingsSaga(action: ReduxAction<Record<string, string>>) {
 const RESTART_POLL_TIMEOUT = 2 * 60 * 1000;
 const RESTART_POLL_INTERVAL = 2000;
 
-function* RestartServerPoll() {
+export function* RestartServerPoll() {
   yield call(UserApi.restartServer);
   yield call(RestryRestartServerPoll);
 }
@@ -110,7 +112,7 @@ function* RestryRestartServerPoll() {
   });
 }
 
-function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
+export function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
   try {
     const response = yield call(UserApi.sendTestEmail, action.payload);
     const currentUser = yield select(getCurrentUser);
@@ -142,7 +144,7 @@ function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
   } catch (e) {}
 }
 
-function* InitSuperUserSaga(action: ReduxAction<User>) {
+export function* InitSuperUserSaga(action: ReduxAction<User>) {
   const user = action.payload;
   if (user.isSuperUser) {
     yield all([

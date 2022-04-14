@@ -38,7 +38,7 @@ import {
 import {
   ApplicationPayload,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import InfoWrapper from "./components/InfoWrapper";
 

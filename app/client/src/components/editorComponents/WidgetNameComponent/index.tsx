@@ -19,9 +19,9 @@ import {
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
-import { bindDataToWidget } from "../../../actions/propertyPaneActions";
+import { bindDataToWidget } from "actions/propertyPaneActions";
 import { hideErrors } from "selectors/debuggerSelectors";
-import { commentModeSelector } from "../../../selectors/commentsSelectors";
+import { commentModeSelector } from "selectors/commentsSelectors";
 
 const PositionStyle = styled.div<{ topRow: number; isSnipingMode: boolean }>`
   position: absolute;

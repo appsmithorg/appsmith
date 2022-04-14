@@ -1,5 +1,5 @@
 import { FetchApplicationResponse } from "api/ApplicationApi";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import store from "store";
 
 export const fetchPagesMockResponse = {
