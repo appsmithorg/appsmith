@@ -6,7 +6,7 @@ import { useContext, useEffect } from "react";
 import FormContext from "../FormContext";
 import { FieldType } from "../constants";
 
-import { klona as clone } from "klona/full";
+import { klona } from "klona/full";
 
 export type UseRegisterFieldValidityProps = {
   isValid: boolean;
@@ -38,7 +38,7 @@ function useRegisterFieldValidity({
     }
 
     setMetaInternalFieldState((prevState) => {
-      const metaInternalFieldState = clone(prevState.metaInternalFieldState);
+      const metaInternalFieldState = klona(prevState.metaInternalFieldState);
       set(metaInternalFieldState, `${fieldName}.isValid`, isValid);
 
       return {

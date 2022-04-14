@@ -19,7 +19,7 @@ import { StyledPropertyPaneButton } from "./StyledControls";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { InputText } from "./InputTextControl";
 
-import { klona as clone } from "klona/full";
+import { klona } from "klona/full";
 
 type DroppableItem = BaseItemProps & {
   index: number;
@@ -162,7 +162,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
   updateItems = (items: DroppableItem[]) => {
     const { propertyName, propertyValue } = this.props;
-    const clonedSchema: Schema = clone(propertyValue);
+    const clonedSchema: Schema = klona(propertyValue);
 
     items.forEach((item, index) => {
       clonedSchema[item.id].position = index;

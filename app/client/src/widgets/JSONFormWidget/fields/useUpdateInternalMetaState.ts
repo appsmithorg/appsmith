@@ -4,7 +4,7 @@ import { useMemo, useContext, useCallback } from "react";
 import { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
 import FormContext from "../FormContext";
 
-import { klona as clone } from "klona/full";
+import { klona } from "klona/full";
 
 export type UseUpdateInternalMetaStateProps = {
   propertyName?: string;
@@ -24,7 +24,7 @@ function useUpdateInternalMetaState({
     ) => {
       if (propertyName) {
         setMetaInternalFieldState((prevState) => {
-          const metaInternalFieldState = clone(
+          const metaInternalFieldState = klona(
             prevState.metaInternalFieldState,
           );
           set(metaInternalFieldState, propertyName, propertyValue);
