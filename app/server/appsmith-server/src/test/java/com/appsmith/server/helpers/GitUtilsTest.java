@@ -1,7 +1,5 @@
 package com.appsmith.server.helpers;
 
-import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.exceptions.AppsmithError;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
