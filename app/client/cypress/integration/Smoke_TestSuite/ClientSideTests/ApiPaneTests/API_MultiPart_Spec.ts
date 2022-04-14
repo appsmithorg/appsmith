@@ -101,10 +101,10 @@ describe("Validate API request body panel", () => {
         }`, true, true, false);
 
         ee.SelectEntityByName("FilePicker1", 'WIDGETS');
-        jsEditor.EnterJSContext('onfilesselected', `{{JSObject1.upload()}}`, true, true);
+        jsEditor.EnterJSContext('onFilesSelected', `{{JSObject1.upload()}}`, true, true);
 
         ee.SelectEntityByName("Image1");
-        jsEditor.EnterJSContext('image', '{{CloudinaryUploadApi.data.url}}')
+        jsEditor.EnterJSContext('Image', '{{CloudinaryUploadApi.data.url}}')
 
         ee.SelectEntityByName("CloudinaryUploadApi", 'QUERIES/JS');
 

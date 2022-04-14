@@ -9,6 +9,8 @@ export type ParsedJSSubAction = {
   body: string;
   arguments: Array<Variable>;
   isAsync: boolean;
+  // parsedFunction - used only to determine if function is async
+  parsedFunction?: () => unknown;
 };
 
 export type ParsedBody = {

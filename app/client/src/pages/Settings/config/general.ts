@@ -1,6 +1,6 @@
-import { isEmail } from "../../../utils/formhelpers";
-import { apiRequestConfig } from "../../../api/Api";
-import UserApi from "../../../api/UserApi";
+import { isEmail } from "utils/formhelpers";
+import { apiRequestConfig } from "api/Api";
+import UserApi from "@appsmith/api/UserApi";
 import {
   AdminConfigType,
   SettingCategories,

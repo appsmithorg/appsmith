@@ -4,7 +4,7 @@ import {
   ValidationTypes,
   ValidationResponse,
   Validator,
-} from "../constants/WidgetValidation";
+} from "constants/WidgetValidation";
 import _, {
   compact,
   get,

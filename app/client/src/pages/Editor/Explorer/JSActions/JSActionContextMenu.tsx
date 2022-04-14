@@ -12,7 +12,7 @@ import { ContextMenuPopoverModifiers } from "../helpers";
 import { noop } from "lodash";
 import { useNewJSCollectionName } from "./helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import {
   CONTEXT_COPY,

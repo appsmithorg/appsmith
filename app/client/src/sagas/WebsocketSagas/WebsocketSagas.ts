@@ -4,7 +4,7 @@ import { fork, take, call, cancel, put, delay } from "redux-saga/effects";
 import {
   ReduxActionTypes,
   ReduxSagaChannels,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   WEBSOCKET_EVENTS,
   RTS_BASE_PATH,

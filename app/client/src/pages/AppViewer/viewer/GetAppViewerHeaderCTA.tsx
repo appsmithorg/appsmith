@@ -15,10 +15,18 @@ import { TriggerButton } from "pages/Applications/ForkModalStyles";
 import { Size } from "components/ads/Button";
 import { getAllApplications } from "actions/applicationActions";
 import history from "utils/history";
+import { Colors } from "constants/Colors";
 
 const Cta = styled(Button)`
   ${(props) => getTypographyByKey(props, "btnLarge")}
+  line-height: unset;
   height: 21px;
+
+  svg {
+    path {
+      stroke: ${Colors.WHITE};
+    }
+  }
 `;
 
 const ForkButton = styled(Cta)`
