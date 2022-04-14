@@ -2393,6 +2393,10 @@ public class ImportExportApplicationServiceTests {
 
         // set the application data
         Application application = new Application();
+        application.setName("Template Application");
+        application.setSlug("template-application");
+        application.setForkingEnabled(true);
+        application.setIsPublic(true);
         application.setApplicationVersion(ApplicationVersion.LATEST_VERSION);
         applicationJson.setExportedApplication(application);
 
@@ -2450,6 +2454,9 @@ public class ImportExportApplicationServiceTests {
 
         Application destApplication = new Application();
         destApplication.setName("App_" + uniqueString);
+        destApplication.setSlug("my-slug");
+        destApplication.setIsPublic(false);
+        destApplication.setForkingEnabled(false);
         Mono<Application> createAppAndPageMono = applicationPageService.createApplication(destApplication, orgId)
                 .flatMap(application -> {
                     PageDTO pageDTO = new PageDTO();
@@ -2479,6 +2486,10 @@ public class ImportExportApplicationServiceTests {
             List<NewAction> newActionList = objects.getT2();
             List<ActionCollection> actionCollectionList = objects.getT3();
 
+            assertThat(applicationPagesDTO.getApplication().getName()).isEqualTo(destApplication.getName());
+            assertThat(applicationPagesDTO.getApplication().getSlug()).isEqualTo(destApplication.getSlug());
+            assertThat(applicationPagesDTO.getApplication().getIsPublic()).isFalse();
+            assertThat(applicationPagesDTO.getApplication().getForkingEnabled()).isFalse();
             assertThat(applicationPagesDTO.getPages().size()).isEqualTo(4);
             List<String> pageNames = applicationPagesDTO.getPages().stream()
                     .map(PageNameIdDTO::getName)
