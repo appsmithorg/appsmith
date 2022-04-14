@@ -56,6 +56,7 @@ import { AppCollabReducerState } from "./uiReducers/appCollabReducer";
 import { CrudInfoModalReduxState } from "./uiReducers/crudInfoModalReducer";
 import { FormEvaluationState } from "./evaluationReducers/formEvaluationReducer";
 import { widgetReflowState } from "./uiReducers/reflowReducer";
+import { MainCanvasReduxState } from "./uiReducers/mainCanvasReducer";
 import SettingsReducer, {
   SettingsReduxState,
 } from "@appsmith/reducers/settingsReducer";
@@ -112,6 +113,7 @@ export interface AppState {
     appCollab: AppCollabReducerState;
     crudInfoModal: CrudInfoModalReduxState;
     widgetReflow: widgetReflowState;
+    mainCanvas: MainCanvasReduxState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;
