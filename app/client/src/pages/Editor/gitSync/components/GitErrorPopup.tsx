@@ -28,6 +28,7 @@ const StyledGitErrorPopup = styled.div`
       right: 0;
       display: flex;
       justify-content: center;
+
       .${Classes.OVERLAY_CONTENT} {
         overflow: hidden;
         bottom: ${(props) =>
@@ -36,6 +37,7 @@ const StyledGitErrorPopup = styled.div`
         background-color: ${Colors.WHITE};
       }
     }
+
     .git-error-popup {
       width: 364px;
       padding: ${(props) => props.theme.spaces[7]}px;
@@ -80,6 +82,8 @@ function GitErrorPopup() {
 
   const gitConflictDocumentUrl = useSelector(getConflictFoundDocUrlDeploy);
 
+  const isConflicting = true; // refactored
+
   return (
     <StyledGitErrorPopup>
       <Overlay
@@ -93,10 +97,12 @@ function GitErrorPopup() {
           <div className="git-error-popup">
             <Header closePopup={hidePopup} />
             <Space size={2} />
-            <ConflictInfo
-              isConflicting
-              learnMoreLink={gitConflictDocumentUrl}
-            />
+            {isConflicting && (
+              <ConflictInfo
+                browserSupportedRemoteUrl={""}
+                learnMoreLink={gitConflictDocumentUrl}
+              />
+            )}
           </div>
         </div>
       </Overlay>

@@ -65,9 +65,12 @@ class PhoneInputComponent extends React.Component<PhoneInputComponentProps> {
         isInvalid={this.props.isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
+        labelAlignment={this.props.labelAlignment}
+        labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelWidth={this.props.labelWidth}
         leftIcon={this.getLeftIcon()}
         multiline={false}
         onFocusChange={this.props.onFocusChange}
