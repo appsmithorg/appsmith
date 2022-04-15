@@ -536,6 +536,7 @@ export const migrateStylingPropertiesForTheming = (
     // specific fixes
     if (child.type === "AUDIO_RECORDER_WIDGET") {
       child.borderRadius = THEMING_BORDER_RADIUS.circle;
+      child.accentColor = child.backgroundColor;
     }
 
     if (child.type === "FILE_PICKER_WIDGET_V2") {
