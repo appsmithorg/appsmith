@@ -48,7 +48,6 @@ const PopoverStyles = createGlobalStyle<{
     margin-top: 8px !important;
     border-radius: ${({ borderRadius }) =>
       borderRadius >= `1.5rem` ? `0.375rem` : borderRadius};
-    box-shadow: none;
     overflow: hidden;
   }
 

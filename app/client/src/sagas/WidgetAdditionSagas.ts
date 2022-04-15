@@ -72,7 +72,7 @@ function* getThemeDefaultConfig(type: string) {
     stylesheet[type] || {
       boxShadow: "none",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-      primaryColor: "{{appsmith.theme.colors.primaryColor}}",
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
     }
   );
 }

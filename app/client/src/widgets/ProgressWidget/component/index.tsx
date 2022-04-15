@@ -46,6 +46,7 @@ const renderProgress = (props: ProgressComponentProps) => {
     // Pure linear progress
     return (
       <DeterminateLinearProgress
+        borderRadius={props.borderRadius}
         data-cy={value}
         fillColor={fillColor}
         value={value}
@@ -53,7 +54,12 @@ const renderProgress = (props: ProgressComponentProps) => {
     );
   }
   // Indeterminate linear progress component
-  return <IndeterminateLinearProgress fillColor={fillColor} />;
+  return (
+    <IndeterminateLinearProgress
+      borderRadius={props.borderRadius}
+      fillColor={fillColor}
+    />
+  );
 };
 
 // Calculate current step's progress ratio
@@ -129,12 +135,15 @@ const DeterminateLinearProgress = styled.div<{
   value?: number;
   fillColor: string;
   withSteps?: boolean;
+  borderRadius?: string;
 }>`
   flex: 1;
   height: ${({ withSteps }) =>
     withSteps ? 100 : LINEAR_PROGRESS_HEIGHT_RATIO}%;
   background: #e8e8e8;
   position: relative;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  overflow: hidden;
 
   &:after {
     background: ${({ fillColor }) => fillColor};
@@ -148,14 +157,19 @@ const DeterminateLinearProgress = styled.div<{
   }
 `;
 
-const IndeterminateLinearProgressContainer = styled.div`
+const IndeterminateLinearProgressContainer = styled.div<{
+  borderRadius: string;
+}>`
   height: ${LINEAR_PROGRESS_HEIGHT_RATIO}%;
   width: 100%;
   background: #e8e8e8;
+  border-radius: ${({ borderRadius }) => borderRadius};
   overflow: hidden;
 `;
 
-const IndeterminateLinearProgressValue = styled.div<{ fillColor: string }>`
+const IndeterminateLinearProgressValue = styled.div<{
+  fillColor: string;
+}>`
   width: 100%;
   height: 100%;
   ${({ fillColor }) => fillColor && `background: ${fillColor}`};
@@ -164,9 +178,15 @@ const IndeterminateLinearProgressValue = styled.div<{ fillColor: string }>`
 `;
 
 // Indeterminate Linear Progress
-function IndeterminateLinearProgress({ fillColor }: { fillColor: string }) {
+function IndeterminateLinearProgress({
+  borderRadius,
+  fillColor,
+}: {
+  fillColor: string;
+  borderRadius: string;
+}) {
   return (
-    <IndeterminateLinearProgressContainer>
+    <IndeterminateLinearProgressContainer borderRadius={borderRadius}>
       <IndeterminateLinearProgressValue
         data-cy="indeterminate-linear-progress"
         fillColor={fillColor}
@@ -209,6 +229,7 @@ function LinearProgressWithSteps(props: ProgressComponentProps) {
         return (
           <StepContainer data-cy="step" key={index}>
             <DeterminateLinearProgress
+              borderRadius={props.borderRadius}
               data-cy={width}
               fillColor={props.fillColor}
               value={width}
@@ -469,6 +490,7 @@ export interface ProgressComponentProps {
   counterClockwise: boolean;
   fillColor: string;
   isScaleY: boolean;
+  borderRadius: string;
 }
 
 export default ProgressComponent;

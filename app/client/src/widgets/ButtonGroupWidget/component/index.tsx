@@ -123,23 +123,20 @@ const PopoverStyles = createGlobalStyle<{
   id: string;
   borderRadius?: string;
 }>`
-  .button-group-menu-popover, .button-group-menu-popover.${Classes.POPOVER2} {
+  ${({ borderRadius, id, minPopoverWidth, popoverTargetWidth }) => `
+    .${id}.${Classes.POPOVER2} {
       background: none;
       box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
       margin-top: 8px !important;
-      border-radius: ${({ borderRadius }) =>
-        borderRadius === "1.5rem" ? `0.375rem` : borderRadius};
+      border-radius: ${borderRadius === "1.5rem" ? `0.375rem` : borderRadius};
       box-shadow: none;
       overflow: hidden;
-    }
-
-.button-group-menu-popover > .${Classes.POPOVER2_CONTENT} {
-    background: none;
-  }
-  ${({ id, minPopoverWidth, popoverTargetWidth }) => `
-    .menu-button-width-${id} {
       ${popoverTargetWidth && `width: ${popoverTargetWidth}px`};
       min-width: ${minPopoverWidth}px;
+    }
+
+    .button-group-menu-popover > .${Classes.POPOVER2_CONTENT} {
+      background: none;
     }
   `}
 `;
@@ -534,6 +531,7 @@ class ButtonGroupComponent extends React.Component<
                 renderMode={this.props.renderMode}
               >
                 <PopoverStyles
+                  borderRadius={this.props.borderRadius}
                   id={popoverId}
                   minPopoverWidth={minPopoverWidth}
                   popoverTargetWidth={this.state.itemWidths[button.id]}
@@ -549,7 +547,7 @@ class ButtonGroupComponent extends React.Component<
                   fill
                   minimal
                   placement="bottom-end"
-                  popoverClassName={`menu-button-popover menu-button-width-${popoverId}`}
+                  popoverClassName={popoverId}
                 >
                   <DragContainer
                     buttonColor={button.buttonColor}

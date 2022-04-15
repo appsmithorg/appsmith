@@ -15,6 +15,7 @@ const Input = styled.input`
 
 export const CommonSelectFilterStyle = css<{
   accentColor?: string;
+  borderRadius?: string;
 }>`
   &&&& .${Classes.ALIGN_LEFT} {
     font-size: 14px;
@@ -42,13 +43,32 @@ export const CommonSelectFilterStyle = css<{
     }
   }
 
+  & .${Classes.INPUT} {
+    height: 32px !important;
+    padding-left: 29px !important;
+    font-size: 14px;
+    color: ${Colors.GREY_10};
+    box-shadow: 0px 0px 0px 0px;
+    border: none;
+  }
+
   & .${Classes.INPUT_GROUP} {
-    padding: 12px 12px 8px 12px;
+    margin: 12px 12px 8px 12px;
+    position: relative;
+    border: 1px solid ${Colors.GREY_3};
+    border-radius: ${({ borderRadius }) =>
+      borderRadius === "1.5rem" ? `0.375rem` : borderRadius};
+    overflow: hidden;
+    &:focus-within {
+      border: 1px solid ${(props) => props.accentColor};
+      box-shadow: 0px 0px 0px 3px ${(props) => lightenColor(props.accentColor)};
+    }
 
     & > .${Classes.ICON} {
       &:first-child {
-        left: 12px;
-        top: 12px;
+        left: 0px;
+        top: 0px;
+        bottom: 0px;
         margin: 9px;
         color: ${Colors.GREY_7};
 
@@ -60,11 +80,12 @@ export const CommonSelectFilterStyle = css<{
     }
     & > .${Classes.INPUT_ACTION} {
       &:last-child {
-        right: 13px;
-        top: 13px;
+        right: 0px;
+        top: 0px;
+        bottom: 0px;
 
         .${Classes.BUTTON} {
-          min-height: 34px;
+          min-height: 100%;
           min-width: 35px;
           margin: 0px;
           color: ${Colors.GREY_6} !important;
@@ -318,59 +339,7 @@ ${({ dropDownWidth, id }) => `
     box-shadow: none;
     outline: none !important;
   }
-  & .${Classes.INPUT_GROUP} {
-    padding: 12px 12px 8px 12px;
-    min-width: 180px;
-
-    & > .${Classes.ICON} {
-      &:first-child {
-        left: 12px;
-        top: 12px;
-        margin: 9px;
-        color: ${Colors.GREY_7};
-
-        & > svg {
-          width: 14px;
-          height: 14px;
-        }
-      }
-    }
-    & > .${Classes.INPUT_ACTION} {
-      &:last-child {
-        right: 13px;
-        top: 13px;
-
-        .${Classes.BUTTON} {
-          min-height: 34px;
-          min-width: 35px;
-          margin: 0px;
-          color: ${Colors.GREY_6} !important;
-
-          &:hover {
-            color: ${Colors.GREY_10} !important;
-            background: transparent;
-            border-radius: 0;
-          }
-        }
-      }
-    }
-    .${Classes.INPUT} {
-      height: 32px;
-      padding-left: 29px !important;
-      font-size: 14px;
-      border: 1px solid ${Colors.GREY_3};
-      color: ${Colors.GREY_10};
-      box-shadow: 0px 0px 0px 0px;
-      border-radius: ${({ borderRadius }) =>
-        borderRadius === "1.5rem" ? `0.375rem` : borderRadius};
-      &:focus {
-        border: 1px solid  ${(props) => props.accentColor};
-          box-shadow: 0px 0px 0px 3px ${(props) =>
-            lightenColor(props.accentColor)};
-      }
-    }
-  }
-    ${CommonSelectFilterStyle}
+  ${CommonSelectFilterStyle}
   .rc-select-item {
     font-size: 14px;
     padding: 5px 16px;

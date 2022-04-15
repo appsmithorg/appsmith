@@ -2,7 +2,11 @@ import styled, { css } from "styled-components";
 import { TableSizes, CellLayoutProperties, CellAlignment } from "./Constants";
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar } from "constants/DefaultTheme";
-import { fontSizeUtility, lightenColor } from "widgets/WidgetUtils";
+import {
+  fontSizeUtility,
+  lightenColor,
+  darkenColor,
+} from "widgets/WidgetUtils";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
 
@@ -445,17 +449,25 @@ export const CellWrapper = styled.div<{
   }
 `;
 
-export const CellCheckboxWrapper = styled(CellWrapper)<{ isChecked?: boolean }>`
+export const CellCheckboxWrapper = styled(CellWrapper)<{
+  isChecked?: boolean;
+  accentColor: string;
+  borderRadius: string;
+}>`
   justify-content: center;
   width: 40px;
+  display: flex;
+  align-items: center;
+
   & > div {
+    border-radius: ${({ borderRadius }) => borderRadius};
+
     ${(props) =>
       props.isChecked
         ? `
-          background: ${Colors.FERN_GREEN};
+          background: ${props.accentColor};
           &:hover {
-            background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
-            ${Colors.FERN_GREEN};
+            background: ${darkenColor(props.accentColor)};
           }
             `
         : `

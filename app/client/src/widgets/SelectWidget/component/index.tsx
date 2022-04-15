@@ -247,7 +247,6 @@ class SelectComponent extends React.Component<
       labelText,
       labelTextColor,
       labelTextSize,
-      widgetId,
     } = this.props;
     // active focused item
     const activeItem = () => {
@@ -282,13 +281,15 @@ class SelectComponent extends React.Component<
         ? value
         : "";
 
+    const popoverId = `select-popover-${this.props.widgetId}`;
+
     return (
       <DropdownContainer compactMode={compactMode}>
         <DropdownStyles
           accentColor={accentColor}
           borderRadius={borderRadius}
           dropDownWidth={this.getDropdownWidth()}
-          id={widgetId}
+          id={popoverId}
         />
         {labelText && (
           <TextLabelWrapper compactMode={compactMode} ref={this.labelRef}>
@@ -350,7 +351,7 @@ class SelectComponent extends React.Component<
                   enabled: false,
                 },
               },
-              popoverClassName: `select-popover-wrapper select-popover-width-${this.props.widgetId}`,
+              popoverClassName: `${popoverId} select-popover-wrapper`,
             }}
             query={this.state.query}
             scrollToActiveItem

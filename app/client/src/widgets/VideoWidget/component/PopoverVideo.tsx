@@ -10,7 +10,6 @@ import styled, { AnyStyledComponent } from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
 const PlayIcon = styled(ControlIcons.PLAY_VIDEO as AnyStyledComponent)`
   position: relative;
-  top: 10px;
   cursor: pointer;
   &:hover {
     svg {

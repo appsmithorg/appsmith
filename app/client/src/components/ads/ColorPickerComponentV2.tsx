@@ -473,7 +473,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
           onChange={handleChangeColor}
           onClick={handleInputClick}
           placeholder="enter color name or hex"
-          value={color ? evaluatedValue : undefined}
+          value={color ? evaluatedValue : ""}
         />
 
         <ColorPickerPopup

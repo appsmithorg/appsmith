@@ -78,7 +78,6 @@ const IconButtonContainer = styled.div<IconButtonContainerProps>`
 export interface ButtonStyleProps {
   borderRadius?: ButtonBorderRadius;
   boxShadow?: string;
-
   buttonColor: string;
   buttonVariant?: ButtonVariant;
   dimension?: number;
@@ -102,6 +101,7 @@ export const StyledButton = styled((props) => (
   width: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
   min-height: 32px !important;
   min-width: 32px !important;
+
   ${({ buttonColor, buttonVariant, hasOnClickAction, theme }) => `
     &:enabled {
       background: ${
@@ -177,7 +177,8 @@ export const StyledButton = styled((props) => (
   `}
 
   border-radius: ${({ borderRadius }) => borderRadius};
-  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+  box-shadow: ${({ boxShadow }) => boxShadow} !important;
+
 `;
 
 export interface IconButtonComponentProps extends ComponentProps {

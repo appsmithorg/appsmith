@@ -46,6 +46,7 @@ const StyleTabText = styled.div`
   height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
   & span {
     height: 100%;
+    font-size: 14px;
     max-width: 138px;
     overflow: hidden;
     text-overflow: ellipsis;
