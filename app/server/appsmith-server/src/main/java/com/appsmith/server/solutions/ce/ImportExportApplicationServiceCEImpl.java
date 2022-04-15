@@ -193,7 +193,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 })
                 .then(applicationMono)
                 .flatMap(application -> themeService.getThemeById(application.getEditModeThemeId(), READ_THEMES)
-                        .zipWith(themeService.getThemeById(application.getPublishedModeThemeId(), READ_THEMES))
+                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.THEME, application.getEditModeThemeId())))
+                        .zipWith(themeService
+                                .getThemeById(application.getPublishedModeThemeId(), READ_THEMES)
+                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.THEME, application.getPublishedModeThemeId())))
+                        )
                         .map(themesTuple -> {
                             Theme editModeTheme = exportTheme(themesTuple.getT1());
                             Theme publishedModeTheme = exportTheme(themesTuple.getT2());
@@ -711,6 +715,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     datasource.setPluginId(null);
                                     AppsmithBeanUtils.copyNestedNonNullProperties(datasource, existingDatasource);
                                     existingDatasource.setStructure(null);
+                                    // Don't update the datasource configuration for already available datasources
+                                    existingDatasource.setDatasourceConfiguration(null);
                                     return datasourceService.update(existingDatasource.getId(), existingDatasource)
                                             .map(datasource1 -> {
                                                 datasourceMap.put(importedDatasourceName, datasource1.getId());
