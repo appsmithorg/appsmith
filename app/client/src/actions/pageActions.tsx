@@ -468,3 +468,10 @@ export const populatePageDSL = () => {
     type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
   };
 };
+export const resetPageList = () => ({
+  type: ReduxActionTypes.RESET_PAGE_LIST,
+});
+
+export const resetApplicationWidgets = () => ({
+  type: ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST,
+});

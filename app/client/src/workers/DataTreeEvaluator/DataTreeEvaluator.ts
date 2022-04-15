@@ -73,7 +73,7 @@ import { Severity } from "entities/AppsmithConsole";
 import { getLintingErrors } from "workers/lint";
 import { error as logError } from "loglevel";
 import { extractIdentifiersFromCode } from "workers/ast";
-import { JSUpdate } from "utils/JSPaneUtils";
+import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import {
   addWidgetPropertyDependencies,
   overrideWidgetProperties,
@@ -82,7 +82,7 @@ import {
   ActionValidationConfigMap,
   ValidationConfig,
 } from "constants/PropertyControlConstants";
-const clone = require("rfdc/default");
+import { klona } from "klona/full";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -123,7 +123,7 @@ export default class DataTreeEvaluator {
   createFirstTree(unEvalTree: DataTree) {
     const totalStart = performance.now();
     // cloneDeep will make sure not to omit key which has value as undefined.
-    let localUnEvalTree = clone(unEvalTree);
+    let localUnEvalTree = klona(unEvalTree);
     let jsUpdates: Record<string, JSUpdate> = {};
     //parse js collection to get functions
     //save current state of js collection action and variables to be added to uneval tree
@@ -158,7 +158,7 @@ export default class DataTreeEvaluator {
     this.evalTree = getValidatedTree(evaluatedTree);
     const validateEnd = performance.now();
 
-    this.oldUnEvalTree = clone(localUnEvalTree);
+    this.oldUnEvalTree = klona(localUnEvalTree);
     const totalEnd = performance.now();
     const timeTakenForFirstTree = {
       total: (totalEnd - totalStart).toFixed(2),
@@ -366,8 +366,9 @@ export default class DataTreeEvaluator {
     const totalEnd = performance.now();
     // TODO: For some reason we are passing some reference which are getting mutated.
     // Need to check why big api responses are getting split between two eval runs
-    this.oldUnEvalTree = clone(localUnEvalTree);
+    this.oldUnEvalTree = klona(localUnEvalTree);
     this.evalTree = newEvalTree;
+
     const timeTakenForSubTreeEval = {
       total: (totalEnd - totalStart).toFixed(2),
       findDifferences: (diffCheckTimeStop - diffCheckTimeStart).toFixed(2),
@@ -601,7 +602,7 @@ export default class DataTreeEvaluator {
     resolvedFunctions: Record<string, any>,
     sortedDependencies: Array<string>,
   ): DataTree {
-    const tree = clone(oldUnevalTree);
+    const tree = klona(oldUnevalTree);
     try {
       return sortedDependencies.reduce(
         (currentTree: DataTree, fullPropertyPath: string) => {
@@ -1021,7 +1022,7 @@ export default class DataTreeEvaluator {
 
   saveResolvedFunctionsAndJSUpdates(
     entity: DataTreeJSAction,
-    jsUpdates: Record<string, any>,
+    jsUpdates: Record<string, JSUpdate>,
     unEvalDataTree: DataTree,
     entityName: string,
   ) {
@@ -1034,7 +1035,7 @@ export default class DataTreeEvaluator {
         delete this.resolvedFunctions[`${entityName}`];
         delete this.currentJSCollectionState[`${entityName}`];
         if (result) {
-          const actions: any = [];
+          const actions: ParsedJSSubAction[] = [];
           const variables: any = [];
           Object.keys(result).forEach((unEvalFunc) => {
             const unEvalValue = result[unEvalFunc];
@@ -1055,7 +1056,8 @@ export default class DataTreeEvaluator {
                 name: unEvalFunc,
                 body: functionString,
                 arguments: params,
-                value: unEvalValue,
+                parsedFunction: unEvalValue,
+                isAsync: false,
               });
             } else {
               variables.push({
@@ -1070,23 +1072,9 @@ export default class DataTreeEvaluator {
             }
           });
 
-          const modifiedActions = actions.map((action: any) => {
-            return {
-              name: action.name,
-              body: action.body,
-              arguments: action.arguments,
-              isAsync: isFunctionAsync(
-                action.value,
-                unEvalDataTree,
-                this.resolvedFunctions,
-                this.logs,
-              ),
-            };
-          });
-
           const parsedBody = {
             body: entity.body,
-            actions: modifiedActions,
+            actions: actions,
             variables,
           };
           _.set(jsUpdates, `${entityName}`, {
@@ -1129,7 +1117,7 @@ export default class DataTreeEvaluator {
     differences?: DataTreeDiff[],
     oldUnEvalTree?: DataTree,
   ) {
-    let jsUpdates = {};
+    let jsUpdates: Record<string, JSUpdate> = {};
     if (!!differences && !!oldUnEvalTree) {
       differences.forEach((diff) => {
         const { entityName, propertyPath } = getEntityNameAndPropertyPath(
@@ -1183,6 +1171,23 @@ export default class DataTreeEvaluator {
         );
       });
     }
+    Object.keys(jsUpdates).forEach((entityName) => {
+      const parsedBody = jsUpdates[entityName].parsedBody;
+      if (!parsedBody) return;
+      parsedBody.actions = parsedBody.actions.map((action) => {
+        return {
+          ...action,
+          isAsync: isFunctionAsync(
+            action.parsedFunction,
+            unEvalDataTree,
+            this.resolvedFunctions,
+            this.logs,
+          ),
+          // parsedFunction - used only to determine if function is async
+          parsedFunction: undefined,
+        } as ParsedJSSubAction;
+      });
+    });
     return { jsUpdates };
   }
 
