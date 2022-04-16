@@ -15,14 +15,9 @@ import {
   getCanvasWidgetsStructure,
   getJSCollections,
 } from "selectors/entitiesSelector";
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  RenderModes,
-  WIDGET_STATIC_PROPS,
-} from "constants/WidgetConstants";
+import { RenderModes, WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { DataTreeWidget, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-// import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { pick, sortBy } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import { APP_MODE } from "entities/App";
@@ -30,7 +25,6 @@ import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { builderURL } from "RouteBuilder";
 import { ApplicationVersion } from "actions/applicationActions";
-import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 
 export const getWidgetConfigs = (state: AppState) =>
   state.entities.widgetConfig;
