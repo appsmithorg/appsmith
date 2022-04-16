@@ -1068,7 +1068,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .flatMap(ignore -> {
                                 // Updating the existing application for git-sync
                                 if (!StringUtils.isEmpty(applicationId) && !appendToApp) {
-                                    // Remove unwanted actions
+                                    // Remove unwanted action collections
                                     Set<String> invalidCollectionIds = new HashSet<>();
                                     for (ActionCollection collection : existingActionCollections) {
                                         if (!savedCollectionIds.contains(collection.getId())) {
@@ -1092,13 +1092,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .thenReturn(true);
                 })
                 .flatMap(ignored -> {
-                    if(appendToApp) {
-                        // these fields of existing application should not change
-                        importedApplication.setName(null);
-                        importedApplication.setSlug(null);
-                        importedApplication.setApplicationVersion(null);
-                        importedApplication.setForkingEnabled(null);
-                    }
                     // Don't update gitAuth as we are using @Encrypted for private key
                     importedApplication.setGitApplicationMetadata(null);
                     // Map layoutOnLoadActions ids with relevant actions
