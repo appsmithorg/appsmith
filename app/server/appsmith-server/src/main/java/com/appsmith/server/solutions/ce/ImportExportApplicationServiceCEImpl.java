@@ -688,7 +688,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 .cache();
 
         assert importedApplication != null;
-        if(importedApplication.getApplicationVersion() == null) {
+        if(importedApplication.getApplicationVersion() == null && !appendToApp) {
             importedApplication.setApplicationVersion(ApplicationVersion.EARLIEST_VERSION);
         }
 
