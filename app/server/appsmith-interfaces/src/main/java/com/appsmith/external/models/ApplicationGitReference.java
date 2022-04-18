@@ -15,6 +15,7 @@ public class ApplicationGitReference {
 
     Object application;
     Object metadata;
+    Object theme;
     Map<String, Object> actions;
     Map<String, Object> actionsCollections;
     Map<String, Object> pages;

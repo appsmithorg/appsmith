@@ -21,6 +21,8 @@ import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import {
   fetchPage,
   fetchPublishedPage,
+  resetApplicationWidgets,
+  resetPageList,
   setAppMode,
   updateAppPersistentStore,
 } from "actions/pageActions";
@@ -38,6 +40,7 @@ import {
 import {
   ApplicationVersion,
   fetchApplication,
+  resetCurrentApplication,
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
@@ -441,6 +444,9 @@ export function* initializeAppViewerSaga(
 }
 
 function* resetEditorSaga() {
+  yield put(resetCurrentApplication());
+  yield put(resetPageList());
+  yield put(resetApplicationWidgets());
   yield put(resetRecentEntities());
   // End guided tour once user exits editor
   yield put(enableGuidedTour(false));
