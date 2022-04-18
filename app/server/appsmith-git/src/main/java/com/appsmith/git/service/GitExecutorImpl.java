@@ -10,6 +10,7 @@ import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.AppsmithBotAsset;
 import com.appsmith.git.constants.Constraint;
+import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.git.constants.GitDirectories;
 import com.appsmith.git.helpers.RepositoryHelper;
 import com.appsmith.git.helpers.SshTransportConfigCallback;
@@ -469,7 +470,7 @@ public class GitExecutorImpl implements GitExecutor {
                 long modifiedJSObjects = 0L;
                 long modifiedDatasources = 0L;
                 for (String x : modifiedAssets) {
-                    if (x.contains(GitDirectories.PAGE_DIRECTORY + "/")) {
+                    if (x.contains(CommonConstants.CANVAS)) {
                         modifiedPages++;
                     } else if (x.contains(GitDirectories.ACTION_DIRECTORY + "/")) {
                         modifiedQueries++;

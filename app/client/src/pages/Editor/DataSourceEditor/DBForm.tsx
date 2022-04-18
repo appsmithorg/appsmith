@@ -26,7 +26,7 @@ import {
   JSONtoFormProps,
   PluginImage,
 } from "./JSONtoForm";
-import DatasourceAuth from "../../common/datasourceAuth";
+import DatasourceAuth from "pages/common/datasourceAuth";
 import { getDatasourceFormButtonConfig } from "selectors/entitiesSelector";
 
 const { cloudHosting } = getAppsmithConfigs();

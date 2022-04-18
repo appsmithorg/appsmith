@@ -2,12 +2,15 @@ import React from "react";
 import styled from "constants/DefaultTheme";
 import StatusLoader from "./StatusLoader";
 import Text, { TextType } from "components/ads/Text";
-import ErrorWarning from "remixicon-react/ErrorWarningLineIcon";
-import CheckLine from "remixicon-react/CheckLineIcon";
 import { Colors } from "constants/Colors";
+import { Classes } from "components/ads";
 
 const Flex = styled.div`
   display: flex;
+
+  & ${Classes.TEXT} {
+    align-self: center;
+  }
 `;
 
 export const MERGE_STATUS_STATE = {
@@ -42,13 +45,7 @@ function MergeStatus({
       return (
         <Flex>
           <Wrapper>
-            <CheckLine color={Colors.GREEN} size={18} />
-            <Text
-              color={Colors.GREEN}
-              style={{ marginLeft: 8, alignSelf: "center" }}
-              type={TextType.P3}
-              weight="600"
-            >
+            <Text color={Colors.GREEN} type={TextType.P3} weight="600">
               {message}
             </Text>
           </Wrapper>
@@ -59,37 +56,14 @@ function MergeStatus({
       return (
         <Flex>
           <Wrapper>
-            <ErrorWarning color={Colors.CRIMSON} size={18} />
-            <Text
-              color={Colors.CRIMSON}
-              style={{ marginLeft: 8, alignSelf: "center" }}
-              type={TextType.P3}
-              weight="600"
-            >
+            <Text color={Colors.CRIMSON} type={TextType.P3} weight="600">
               {message}
             </Text>
           </Wrapper>
         </Flex>
       );
-
-    // case MERGE_STATUS_STATE.NONE:
-    //   return (
-    //     <Flex>
-    //       <Space horizontal size={10} />
-    //       <Wrapper>
-    //         <ErrorWarning size={18} />
-    //         <Text
-    //           style={{ marginLeft: 8, alignSelf: "center" }}
-    //           type={TextType.P3}
-    //         >
-    //           {createMessage(FETCH_MERGE_STATUS_FAILURE)}
-    //         </Text>
-    //       </Wrapper>
-    //     </Flex>
-    //   );
     default:
       return null;
-    // status === MERGE_STATUS_STATE.NONE will execute default case.
   }
 }
 

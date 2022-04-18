@@ -12,7 +12,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import ActionAPI, {
   ActionExecutionResponse,
   ActionResponse,

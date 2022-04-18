@@ -7,7 +7,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   ReflowReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { User } from "constants/userConstants";
 import { isBoolean } from "lodash";
 import { all, put, select, takeLatest, take } from "redux-saga/effects";

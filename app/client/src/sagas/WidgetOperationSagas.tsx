@@ -3,7 +3,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { updateAndSaveLayout, WidgetResize } from "actions/pageActions";
 import {
   CanvasWidgetsReduxState,
