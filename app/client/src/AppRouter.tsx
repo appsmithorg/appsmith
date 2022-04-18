@@ -87,7 +87,7 @@ function AppRouter(props: {
   featureFlags: FeatureFlags;
   setTheme: (theme: ThemeMode) => void;
 }) {
-  const { featureFlags, getCurrentUser, getFeatureFlags } = props;
+  const { getCurrentUser, getFeatureFlags } = props;
   useEffect(() => {
     AnalyticsUtil.logEvent("ROUTE_CHANGE", { path: window.location.pathname });
     const stopListener = history.listen((location: any) => {
@@ -137,12 +137,11 @@ function AppRouter(props: {
                 path={UNSUBSCRIBE_EMAIL_URL}
               />
               <SentryRoute component={Setup} exact path={SETUP} />
-              {featureFlags.APP_TEMPLATE && (
-                <SentryRoute
-                  component={TemplatesListLoader}
-                  path={TEMPLATES_PATH}
-                />
-              )}
+
+              <SentryRoute
+                component={TemplatesListLoader}
+                path={TEMPLATES_PATH}
+              />
               <Redirect
                 exact
                 from={ADMIN_SETTINGS_PATH}
