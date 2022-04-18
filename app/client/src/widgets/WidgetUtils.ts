@@ -350,7 +350,7 @@ export const borderRadiusUtility = (borderRadius: string | undefined) => {
 };
 
 /**
- * Function used inside boxShadowDynamicChecker to replace the default rgba(0, 0, 0, 0.25) value with the computed boxShadowColor theming migration.
+ * Function used inside boxShadowDynamicChecker to replace the default rgba(0, 0, 0, 0.25) value with the computed boxShadowColor theming migration for table widget.
  * @param boxShadow
  * @param boxShadowColor
  * @returns
@@ -366,7 +366,7 @@ export const boxShadowColorUtility = (
 };
 
 /**
- * Function used inside boxShadowDynamicChecker to map dynamicBinding based boxShadow to its respective mappings in theming migration.
+ * Function used inside boxShadowDynamicChecker to map dynamicBinding based boxShadow to its respective mappings in theming migration for table widget.
  * @param boxShadow
  * @param boxShadowColor
  * @returns
@@ -388,7 +388,7 @@ export const boxShadowUtility = (boxShadow: string, boxShadowColor: string) => {
 };
 
 /**
- * Function used inside table widget cell properties for Icon and menu button types.
+ * Function used inside table widget cell properties for Icon and menu button types that helps to migrate boxShadow and boxShadowColor for the table widget.
  * This function is used to run post theming migration for boxShadow and boxShadowColor;
  * Function runs for the following scenarios, when:
  * 1. boxShadow: Static; boxShadowColor: Dynamic
