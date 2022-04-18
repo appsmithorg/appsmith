@@ -10,6 +10,7 @@ import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
@@ -45,6 +46,7 @@ import static com.appsmith.server.constants.FieldName.ACTION_COLLECTION_LIST;
 import static com.appsmith.server.constants.FieldName.ACTION_LIST;
 import static com.appsmith.server.constants.FieldName.DATASOURCE_LIST;
 import static com.appsmith.server.constants.FieldName.DECRYPTED_FIELDS;
+import static com.appsmith.server.constants.FieldName.EDIT_MODE_THEME;
 import static com.appsmith.server.constants.FieldName.EXPORTED_APPLICATION;
 import static com.appsmith.server.constants.FieldName.PAGE_LIST;
 
@@ -58,7 +60,7 @@ public class GitFileUtils {
 
     // Only include the application helper fields in metadata object
     private static final Set<String> blockedMetadataFields
-        = Set.of(EXPORTED_APPLICATION, DATASOURCE_LIST, PAGE_LIST, ACTION_LIST, ACTION_COLLECTION_LIST, DECRYPTED_FIELDS);
+        = Set.of(EXPORTED_APPLICATION, DATASOURCE_LIST, PAGE_LIST, ACTION_LIST, ACTION_COLLECTION_LIST, DECRYPTED_FIELDS, EDIT_MODE_THEME);
 
     /**
      * This method will save the complete application in the local repo directory.
@@ -97,7 +99,10 @@ public class GitFileUtils {
 
         // Remove policies from the themes
         applicationJson.getEditModeTheme().setPolicies(null);
-        applicationJson.getPublishedTheme().setPolicies(null);
+        // No need to commit publish mode theme as it leads to conflict resolution at both the places if any
+        applicationJson.setPublishedTheme(null);
+
+        applicationReference.setTheme(applicationJson.getEditModeTheme());
 
         // Pass pages within the application
         Map<String, Object> resourceMap = new HashMap<>();
@@ -113,18 +118,22 @@ public class GitFileUtils {
         applicationReference.setPages(new HashMap<>(resourceMap));
         resourceMap.clear();
 
-        // Send actions
+        // Insert actions and also assign the keys which later will be used for saving the resource in actual filepath
+        // For actions, we are referring to validNames to maintain unique file names as just name
+        // field don't guarantee unique constraint for actions within JSObject
+        // queryValidName_pageName => nomenclature for the keys
         applicationJson.getActionList().forEach(newAction -> {
             String prefix = newAction.getUnpublishedAction() != null ?
-                    newAction.getUnpublishedAction().getName() + "_" + newAction.getUnpublishedAction().getPageId()
-                    : newAction.getPublishedAction().getName() + "_" + newAction.getPublishedAction().getPageId();
+                    newAction.getUnpublishedAction().getValidName() + "_" + newAction.getUnpublishedAction().getPageId()
+                    : newAction.getPublishedAction().getValidName() + "_" + newAction.getPublishedAction().getPageId();
             removeUnwantedFieldFromAction(newAction);
             resourceMap.put(prefix, newAction);
         });
         applicationReference.setActions(new HashMap<>(resourceMap));
         resourceMap.clear();
 
-        // Send jsActionCollections
+        // Insert JSOObjects and also assign the keys which later will be used for saving the resource in actual filepath
+        // JSObjectName_pageName => nomenclature for the keys
         applicationJson.getActionCollectionList().forEach(actionCollection -> {
             String prefix = actionCollection.getUnpublishedCollection() != null ?
                     actionCollection.getUnpublishedCollection().getName() + "_" + actionCollection.getUnpublishedCollection().getPageId()
@@ -175,10 +184,6 @@ public class GitFileUtils {
 
                     // Extract application metadata from the json
                     ApplicationJson metadata = getApplicationResource(applicationReference.getMetadata(), ApplicationJson.class);
-
-                    if (!isVersionCompatible(metadata)) {
-                        migrateToLatestVersion(applicationReference);
-                    }
                     ApplicationJson applicationJson = getApplicationJsonFromGitReference(applicationReference);
                     copyNestedNonNullProperties(metadata, applicationJson);
 
@@ -334,7 +339,10 @@ public class GitFileUtils {
         ApplicationJson applicationJson = new ApplicationJson();
         // Extract application data from the json
         applicationJson.setExportedApplication(getApplicationResource(applicationReference.getApplication(), Application.class));
-
+        applicationJson.setEditModeTheme(getApplicationResource(applicationReference.getTheme(), Theme.class));
+        // Clone the edit mode theme to published theme as both should be same for git connected application because we
+        // do deploy and push as a single operation
+        applicationJson.setPublishedTheme(applicationJson.getEditModeTheme());
         Gson gson = new Gson();
         // Extract pages
         List<NewPage> pages = getApplicationResource(applicationReference.getPages(), NewPage.class);
@@ -377,17 +385,5 @@ public class GitFileUtils {
         applicationJson.setDatasourceList(getApplicationResource(applicationReference.getDatasources(), Datasource.class));
 
         return applicationJson;
-    }
-
-    private ApplicationGitReference migrateToLatestVersion(ApplicationGitReference applicationReference) {
-        // Implement the incremental version upgrade for JSON files here
-        return applicationReference;
-    }
-
-    private boolean isVersionCompatible(ApplicationJson metadata) {
-        Integer importedFileFormatVersion = metadata == null ? null : metadata.getFileFormatVersion();
-        Integer currentFileFormatVersion = new ApplicationJson().getFileFormatVersion();
-
-        return (importedFileFormatVersion == null || importedFileFormatVersion.equals(currentFileFormatVersion));
     }
 }
