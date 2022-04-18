@@ -106,15 +106,20 @@ public class GitFileUtils {
 
         // Pass pages within the application
         Map<String, Object> resourceMap = new HashMap<>();
-        applicationJson.getPageList().forEach(newPage -> {
-            String pageName = newPage.getUnpublishedPage() != null
-                    ? newPage.getUnpublishedPage().getName()
-                    : newPage.getPublishedPage().getName();
+        applicationJson
+                .getPageList()
+                .stream()
+                .filter(newPage -> newPage.getUnpublishedPage() != null
+                        && newPage.getUnpublishedPage().getDeletedAt() == null)
+                .forEach(newPage -> {
+                    String pageName = newPage.getUnpublishedPage() != null
+                            ? newPage.getUnpublishedPage().getName()
+                            : newPage.getPublishedPage().getName();
+                    removeUnwantedFieldsFromPage(newPage);
+                    // pageName will be used for naming the json file
+                    resourceMap.put(pageName, newPage);
+                });
 
-            removeUnwantedFieldsFromPage(newPage);
-            // pageName will be used for naming the json file
-            resourceMap.put(pageName, newPage);
-        });
         applicationReference.setPages(new HashMap<>(resourceMap));
         resourceMap.clear();
 
@@ -122,36 +127,47 @@ public class GitFileUtils {
         // For actions, we are referring to validNames to maintain unique file names as just name
         // field don't guarantee unique constraint for actions within JSObject
         // queryValidName_pageName => nomenclature for the keys
-        applicationJson.getActionList().forEach(newAction -> {
-            String prefix = newAction.getUnpublishedAction() != null ?
-                    newAction.getUnpublishedAction().getValidName() + "_" + newAction.getUnpublishedAction().getPageId()
-                    : newAction.getPublishedAction().getValidName() + "_" + newAction.getPublishedAction().getPageId();
-            removeUnwantedFieldFromAction(newAction);
-            resourceMap.put(prefix, newAction);
-        });
+        applicationJson
+                .getActionList()
+                .stream()
+                .filter(newAction -> newAction.getUnpublishedAction() != null
+                        && newAction.getUnpublishedAction().getDeletedAt() == null)
+                .forEach(newAction -> {
+                    String prefix = newAction.getUnpublishedAction() != null ?
+                            newAction.getUnpublishedAction().getValidName() + "_" + newAction.getUnpublishedAction().getPageId()
+                            : newAction.getPublishedAction().getValidName() + "_" + newAction.getPublishedAction().getPageId();
+                    removeUnwantedFieldFromAction(newAction);
+                    resourceMap.put(prefix, newAction);
+                });
         applicationReference.setActions(new HashMap<>(resourceMap));
         resourceMap.clear();
 
         // Insert JSOObjects and also assign the keys which later will be used for saving the resource in actual filepath
         // JSObjectName_pageName => nomenclature for the keys
-        applicationJson.getActionCollectionList().forEach(actionCollection -> {
-            String prefix = actionCollection.getUnpublishedCollection() != null ?
-                    actionCollection.getUnpublishedCollection().getName() + "_" + actionCollection.getUnpublishedCollection().getPageId()
-                    : actionCollection.getPublishedCollection().getName() + "_" + actionCollection.getPublishedCollection().getPageId();
+        applicationJson
+                .getActionCollectionList()
+                .stream()
+                .filter(collection -> collection.getUnpublishedCollection() != null
+                        && collection.getUnpublishedCollection().getDeletedAt() == null)
+                .forEach(actionCollection -> {
+                    String prefix = actionCollection.getUnpublishedCollection() != null ?
+                            actionCollection.getUnpublishedCollection().getName() + "_" + actionCollection.getUnpublishedCollection().getPageId()
+                            : actionCollection.getPublishedCollection().getName() + "_" + actionCollection.getPublishedCollection().getPageId();
 
-            removeUnwantedFieldFromActionCollection(actionCollection);
+                    removeUnwantedFieldFromActionCollection(actionCollection);
 
-            resourceMap.put(prefix, actionCollection);
-        });
+                    resourceMap.put(prefix, actionCollection);
+                });
         applicationReference.setActionsCollections(new HashMap<>(resourceMap));
         resourceMap.clear();
 
         // Send datasources
-        applicationJson.getDatasourceList().forEach(datasource -> {
+        applicationJson
+                .getDatasourceList()
+                .forEach(datasource -> {
                     removeUnwantedFieldsFromDatasource(datasource);
                     resourceMap.put(datasource.getName(), datasource);
-                }
-        );
+                });
         applicationReference.setDatasources(new HashMap<>(resourceMap));
         resourceMap.clear();
 
