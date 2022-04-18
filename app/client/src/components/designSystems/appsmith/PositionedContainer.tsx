@@ -74,7 +74,8 @@ export function PositionedContainer(props: PositionedContainerProps) {
     const reflowWidth = reflowedPosition?.width;
     const reflowHeight = reflowedPosition?.height;
     const reflowEffected = isCurrentCanvasReflowing && reflowedPosition;
-    const hasReflowedPosition = reflowEffected && reflowX + reflowY !== 0;
+    const hasReflowedPosition =
+      reflowEffected && (reflowX !== 0 || reflowY !== 0);
     const hasReflowedDimensions =
       reflowEffected &&
       ((reflowHeight && reflowHeight !== props.style.componentHeight) ||
