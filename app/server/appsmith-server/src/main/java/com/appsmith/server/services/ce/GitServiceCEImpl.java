@@ -1418,11 +1418,16 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     .onErrorResume(throwable -> checkoutRemoteBranch(defaultApplicationId, defaultBranchRemote))
                                     // Copy the gitApplicationMetadata to the app
                                     .flatMap(application1 -> {
-                                        application1.setGitApplicationMetadata(gitApplicationMetadata);
                                         application1.getGitApplicationMetadata().setBranchName(defaultBranchRemote);
                                         application1.getGitApplicationMetadata().setDefaultBranchName(defaultBranchRemote);
                                         return applicationService.save(application1);
                                     })
+                                    // Update the default Branch name in all the child applications
+                                    .map(application1 -> applicationService.findAllApplicationsByDefaultApplicationId(defaultApplicationId, MANAGE_APPLICATIONS)
+                                            .flatMap(application2 -> {
+                                                application2.getGitApplicationMetadata().setDefaultBranchName(defaultBranchRemote);
+                                                return applicationService.save(application2);
+                                            }))
                                     // Return the deleted branches
                                     .then(Mono.just(gitBranchListDTOS).zipWith(Mono.just(application)));
                         }
