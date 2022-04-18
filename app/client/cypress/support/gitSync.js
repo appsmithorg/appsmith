@@ -99,9 +99,10 @@ Cypress.Commands.add(
           "response.body.responseMeta.status",
           200,
         );
+      }
 
-        // click commit button
-        if (shouldCommit) {
+      // click commit button
+      /* if (shouldCommit) {
           cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
           cy.get(gitSyncLocators.commitButton).click();
           // check for commit success
@@ -118,7 +119,8 @@ Cypress.Commands.add(
           const status = interception.response.body.responseMeta.status;
           expect(status).to.be.gte(400);
         });
-      }
+      } */
+      cy.get(gitSyncLocators.closeGitSyncModal).click();
     });
   },
 );
