@@ -12,7 +12,6 @@ import {
 import { Datasource } from "entities/Datasource";
 import { Colors } from "constants/Colors";
 import FormControl from "../FormControl";
-import Table from "./Table";
 import { Action, QueryAction, SaaSAction } from "entities/Action";
 import { useDispatch, useSelector } from "react-redux";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
@@ -77,6 +76,7 @@ import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
+import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import Guide from "pages/Editor/GuidedTour/Guide";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
@@ -85,7 +85,7 @@ import {
   FormEvalOutput,
   isValidFormConfig,
 } from "reducers/evaluationReducers/formEvaluationReducer";
-import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
+import { responseTabComponent } from "components/editorComponents/ApiResponseView";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -132,7 +132,7 @@ export const TabbedViewContainer = styled.div`
   }
   &&& {
     ul.react-tabs__tab-list {
-      padding: 0px ${(props) => props.theme.spaces[12]}px;
+      margin: 0px ${(props) => props.theme.spaces[11]}px;
       background-color: ${(props) =>
         props.theme.colors.apiPane.responseBody.bg};
     }
@@ -189,7 +189,7 @@ const SecondaryWrapper = styled.div`
 const HelpSection = styled.div``;
 
 const ResponseContentWrapper = styled.div`
-  padding: 10px 15px;
+  padding: 10px 0px;
   overflow-y: auto;
   height: 100%;
 
@@ -329,15 +329,6 @@ const StyledSpinner = styled.div`
   width: 5vw;
 `;
 
-// const ActionButton = styled(BaseButton)`
-//   &&&& {
-//     min-width: 72px;
-//     width: auto;
-//     margin: 0 5px;
-//     min-height: 30px;
-//   }
-// `;
-
 const NoDataSourceContainer = styled.div`
   align-items: center;
   display: flex;
@@ -371,7 +362,7 @@ const TabContainerView = styled.div`
   }
   &&& {
     ul.react-tabs__tab-list {
-      padding-left: 23px;
+      margin-left: 24px;
     }
   }
   position: relative;
@@ -419,11 +410,17 @@ type QueryFormProps = {
   formName: string;
   settingConfig: any;
   formData: SaaSAction | QueryAction;
+  responseDisplayFormat: { title: string; value: string };
+  responseDataTypes: { key: string; title: string }[];
+  updateActionResponseDisplayFormat: ({
+    field,
+    id,
+    value,
+  }: UpdateActionPropertyActionPayload) => void;
 };
 
 type ReduxProps = {
   actionName: string;
-  responseType: string | undefined;
   plugin?: Plugin;
   pluginId: string;
   documentationLink: string | undefined;
@@ -449,10 +446,12 @@ export function EditorJSONtoForm(props: Props) {
     onCreateDatasourceClick,
     onRunClick,
     plugin,
-    responseType,
+    responseDataTypes,
+    responseDisplayFormat,
     runErrorMessage,
     settingConfig,
     uiComponent,
+    updateActionResponseDisplayFormat,
   } = props;
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
@@ -499,8 +498,6 @@ export function EditorJSONtoForm(props: Props) {
       hintMessages = executedQueryData.messages;
     }
   }
-
-  const isTableResponse = responseType === "TABLE";
 
   const dispatch = useDispatch();
 
@@ -707,6 +704,35 @@ export function EditorJSONtoForm(props: Props) {
     });
   };
 
+  const responseBodyTabs =
+    responseDataTypes &&
+    responseDataTypes.map((dataType, index) => {
+      return {
+        index: index,
+        key: dataType.key,
+        title: dataType.title,
+        panelComponent: responseTabComponent(
+          dataType.key,
+          output,
+          tableBodyHeight,
+        ),
+      };
+    });
+
+  const onResponseTabSelect = (tab: any) => {
+    updateActionResponseDisplayFormat({
+      id: currentActionConfig?.id || "",
+      field: "responseDisplayFormat",
+      value: tab.title,
+    });
+  };
+
+  const selectedTabIndex =
+    responseDataTypes &&
+    responseDataTypes.findIndex(
+      (dataType) => dataType.title === responseDisplayFormat?.title,
+    );
+
   const responseTabs = [
     {
       key: "Response",
@@ -751,19 +777,19 @@ export function EditorJSONtoForm(props: Props) {
               ))}
             </HelpSection>
           )}
-          {output &&
-            (isTableResponse ? (
-              <Table data={output} tableBodyHeight={tableBodyHeight} />
-            ) : (
-              <ReadOnlyEditor
-                folding
-                height={"100%"}
-                input={{
-                  value: JSON.stringify(output, null, 2),
-                }}
-                isReadOnly
+          {currentActionConfig &&
+            output &&
+            responseBodyTabs &&
+            responseBodyTabs.length > 0 &&
+            selectedTabIndex !== -1 && (
+              <EntityBottomTabs
+                defaultIndex={selectedTabIndex}
+                onSelect={onResponseTabSelect}
+                responseViewer
+                selectedTabIndex={selectedTabIndex}
+                tabs={responseBodyTabs}
               />
-            ))}
+            )}
           {!output && !error && (
             <NoResponseContainer>
               <AdsIcon name="no-response" />

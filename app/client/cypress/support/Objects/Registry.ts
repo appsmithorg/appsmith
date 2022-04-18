@@ -81,3 +81,11 @@ export const initLocalstorageRegistry = () => {
     });
     localStorage.setItem("inDeployedMode", "false");
 };
+
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      typeTab: (shiftKey: Boolean, ctrlKey: boolean) => void;
+    }
+  }
+}

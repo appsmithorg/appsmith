@@ -1,10 +1,10 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { JSCollection } from "entities/JSCollection";
+import { JSAction, JSCollection } from "entities/JSCollection";
 import {
   ReduxActionTypes,
   ReduxAction,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { set, keyBy } from "lodash";
 import produce from "immer";
 
@@ -247,9 +247,9 @@ const jsActionsReducer = createReducer(initialState, {
   [ReduxActionTypes.EXECUTE_JS_FUNCTION_INIT]: (
     state: JSCollectionDataState,
     action: ReduxAction<{
-      results: any;
+      collectionName: string;
       collectionId: string;
-      actionId: string;
+      action: JSAction;
     }>,
   ): JSCollectionDataState =>
     state.map((a) => {
@@ -258,7 +258,7 @@ const jsActionsReducer = createReducer(initialState, {
           ...a,
           isExecuting: {
             ...a.isExecuting,
-            [action.payload.actionId]: true,
+            [action.payload.action.id]: true,
           },
         };
       }

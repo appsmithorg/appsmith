@@ -1,5 +1,8 @@
 import { Dispatch } from "react";
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   AdminConfigType,
   SettingCategories,

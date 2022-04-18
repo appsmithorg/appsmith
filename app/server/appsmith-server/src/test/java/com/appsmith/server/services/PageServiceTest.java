@@ -510,6 +510,25 @@ public class PageServiceTest {
 
         layoutActionService.createSingleAction(action).block();
 
+        // Save actionCollection
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("testCollection1");
+        actionCollectionDTO.setPageId(page.getId());
+        actionCollectionDTO.setApplicationId(gitConnectedApplication.getId());
+        actionCollectionDTO.setOrganizationId(orgId);
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+        actionCollectionDTO.setBody("collectionBody");
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("cloneTestAction1");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("mockBody");
+        actionCollectionDTO.setActions(List.of(action1));
+        actionCollectionDTO.setPluginType(PluginType.JS);
+
+        layoutCollectionService.createCollection(actionCollectionDTO).block();
+
+
         final Mono<NewPage> pageMono = applicationPageService.clonePageByDefaultPageIdAndBranch(page.getId(), branchName)
                 .flatMap(pageDTO -> newPageService.findByBranchNameAndDefaultPageId(branchName, pageDTO.getId(), MANAGE_PAGES))
                 .cache();
@@ -521,8 +540,19 @@ public class PageServiceTest {
                                         .findByPageId(page1.getId(), READ_ACTIONS))
                         .collectList();
 
+        Mono<List<ActionCollection>> actionCollectionMono =
+                pageMono
+                        .flatMapMany(
+                                page1 -> actionCollectionService
+                                        .findByPageId(page1.getId()))
+                        .collectList();
+
+        Mono<List<ActionCollection>> actionCollectionInParentPageMono = actionCollectionService
+                .findByPageId(page.getId())
+                .collectList();
+
         StepVerifier
-                .create(Mono.zip(pageMono, actionsMono))
+                .create(Mono.zip(pageMono, actionsMono, actionCollectionMono, actionCollectionInParentPageMono))
                 .assertNext(tuple -> {
                     NewPage clonedPage = tuple.getT1();
                     PageDTO unpublishedPage = clonedPage.getUnpublishedPage();
@@ -546,19 +576,47 @@ public class PageServiceTest {
 
                     // Confirm that the page action got copied as well
                     List<NewAction> actions = tuple.getT2();
-                    assertThat(actions.size()).isEqualTo(1);
-                    NewAction clonedAction = actions.get(0);
-                    DefaultResources clonedActionDefaultRes = clonedAction.getDefaultResources();
-                    assertThat(clonedAction.getUnpublishedAction().getName()).isEqualTo("PageAction");
+                    assertThat(actions.size()).isEqualTo(2);
+                    NewAction actionWithoutCollection = actions
+                            .stream()
+                            .filter(newAction -> !StringUtils.hasLength(newAction.getUnpublishedAction().getCollectionId()))
+                            .findFirst()
+                            .orElse(null);
+
+                    DefaultResources clonedActionDefaultRes = actionWithoutCollection.getDefaultResources();
+                    assertThat(actionWithoutCollection.getUnpublishedAction().getName()).isEqualTo("PageAction");
                     assertThat(clonedActionDefaultRes).isNotNull();
-                    assertThat(clonedActionDefaultRes.getActionId()).isEqualTo(clonedAction.getId());
-                    assertThat(clonedActionDefaultRes.getApplicationId()).isEqualTo(clonedAction.getApplicationId());
+                    assertThat(clonedActionDefaultRes.getActionId()).isEqualTo(actionWithoutCollection.getId());
+                    assertThat(clonedActionDefaultRes.getApplicationId()).isEqualTo(actionWithoutCollection.getApplicationId());
                     assertThat(clonedActionDefaultRes.getPageId()).isNull();
                     assertThat(clonedActionDefaultRes.getBranchName()).isEqualTo(branchName);
-                    assertThat(clonedAction.getUnpublishedAction().getDefaultResources().getPageId()).isEqualTo(clonedPage.getDefaultResources().getPageId());
+                    assertThat(actionWithoutCollection.getUnpublishedAction().getDefaultResources().getPageId()).isEqualTo(clonedPage.getDefaultResources().getPageId());
 
                     // Confirm that executeOnLoad is cloned as well.
                     assertThat(Boolean.TRUE.equals(actions.get(0).getUnpublishedAction().getExecuteOnLoad()));
+
+                    // Check if collections got copied too
+                    List<ActionCollection> collections = tuple.getT3();
+                    assertThat(collections.size()).isEqualTo(1);
+                    ActionCollection collection = collections.get(0);
+                    assertThat(collection.getPublishedCollection()).isNull();
+                    assertThat(collection.getUnpublishedCollection()).isNotNull();
+                    assertThat(collection.getUnpublishedCollection().getPageId()).isEqualTo(clonedPage.getId());
+                    DefaultResources collectionDefaultResource = collection.getDefaultResources();
+                    assertThat(collectionDefaultResource.getPageId()).isNull();
+                    assertThat(collectionDefaultResource.getApplicationId()).isEqualTo(collection.getApplicationId());
+                    assertThat(collectionDefaultResource.getBranchName()).isEqualTo(branchName);
+                    assertThat(collection.getUnpublishedCollection().getDefaultResources().getPageId()).isEqualTo(clonedPage.getDefaultResources().getPageId());
+
+                    // Check if the parent page collections are not altered
+                    List<ActionCollection> parentPageCollections = tuple.getT4();
+                    assertThat(parentPageCollections.size()).isEqualTo(1);
+                    assertThat(parentPageCollections.get(0).getUnpublishedCollection()).isNotNull();
+                    assertThat(parentPageCollections.get(0).getUnpublishedCollection().getPageId()).isEqualTo(page.getId());
+
+                    assertThat(parentPageCollections.get(0).getGitSyncId()).isNotEmpty();
+                    assertThat(collection.getGitSyncId()).isNotEmpty();
+                    assertThat(collection.getGitSyncId()).isNotEqualTo(parentPageCollections.get(0).getGitSyncId());
                 })
                 .verifyComplete();
     }

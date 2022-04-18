@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ReduxAction,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import log from "loglevel";
 import history from "utils/history";
 import { ApiResponse } from "api/ApiResponses";
@@ -28,7 +28,7 @@ import {
 } from "@appsmith/constants/messages";
 
 import * as Sentry from "@sentry/react";
-import { axiosConnectionAbortedCode } from "../api/ApiUtils";
+import { axiosConnectionAbortedCode } from "api/ApiUtils";
 
 /**
  * making with error message with action name

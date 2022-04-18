@@ -7,7 +7,7 @@ import {
 } from "components/formControls/utils";
 import { useSelector, shallowEqual } from "react-redux";
 import { getFormValues } from "redux-form";
-import FormControlFactory from "utils/FormControlFactory";
+import FormControlFactory from "utils/formControl/FormControlFactory";
 
 import { AppState } from "reducers";
 import { Action } from "entities/Action";
