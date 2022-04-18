@@ -10,6 +10,7 @@ import {
 } from "constants/DefaultTheme";
 import { isEmptyOrNill } from "../../../utils/helpers";
 import { lightenColor } from "widgets/WidgetUtils";
+import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
 
 export const TextLabelWrapper = styled.div<{
   compactMode: boolean;
@@ -177,64 +178,17 @@ export const DropdownStyles = createGlobalStyle<{
   accentColor?: string;
 }>`
 ${({ dropDownWidth, id }) => `
-  .select-popover-width-${id} {
+  .${id} {
     width: ${dropDownWidth}px !important;
-
-    & .${Classes.INPUT_GROUP} {
-      width: ${dropDownWidth}px;
-    }
   }
 `}
   .select-popover-wrapper {
     box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
     border-radius: ${({ borderRadius }) =>
-      borderRadius === "1.5rem" ? `0.375rem` : borderRadius};
+      borderRadius === "1.5rem" ? `0.375rem` : borderRadius} !important;
     overflow: hidden;
     background: white;
-    & .${Classes.INPUT_GROUP} {
-      padding: 12px 12px 8px 12px;
-      & > .${Classes.ICON} {
-        &:first-child {
-          left: 12px;
-          top: 12px;
-          margin: 9px;
-          color: ${Colors.GREY_7};
-          & > svg {
-            width: 14px;
-            height: 14px;
-          }
-        }
-      }
-      & > .${Classes.INPUT_ACTION} {
-        &:last-child {
-          right: 13px;
-          top: 13px;
-          .${Classes.BUTTON} {
-            min-height: 34px;
-            min-width: 35px;
-            margin: 0px;
-            color: ${Colors.GREY_6} !important;
-            &:hover {
-              color: ${Colors.GREY_10} !important;
-              background: ${Colors.GREY_2};
-              border-radius: 0;
-            }
-          }
-        }
-      }
-      .${Classes.INPUT} {
-        height: 32px;
-        padding-left: 32px;
-        border: 1px solid ${Colors.GREY_3};
-        color: ${Colors.GREY_10};
-        border-radius: ${({ borderRadius }) => borderRadius} !important;
-        &:focus {
-          border: ${({ accentColor }) => `1px solid ${accentColor}`};
-          box-shadow: ${({ accentColor }) =>
-            `0px 0px 0px 3px ${lightenColor(accentColor)} !important;`}
-        }
-      }
-    }
+    ${CommonSelectFilterStyle}
     && .${Classes.MENU} {
       margin-top: -3px;
       max-width: 100%;

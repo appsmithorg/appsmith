@@ -33,11 +33,13 @@ const VideoWrapper = styled.div<{
   boxShadow?: string;
   backgroundColor?: string;
 }>`
+  height: 100%;
+
   & video,
   & > div {
     background-color: ${({ backgroundColor }) => backgroundColor};
     border-radius: ${({ borderRadius }) => borderRadius};
-    box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+    box-shadow: ${({ boxShadow }) => boxShadow} !important;
     overflow: hidden;
   }
 `;

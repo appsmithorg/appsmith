@@ -152,6 +152,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
 
   getPageView() {
     const {
+      borderRadius,
       counterClockwise,
       fillColor,
       isIndeterminate,
@@ -165,6 +166,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
 
     return (
       <ProgressComponent
+        borderRadius={borderRadius}
         counterClockwise={counterClockwise}
         fillColor={fillColor}
         isScaleY={isScaleY}

@@ -464,8 +464,14 @@ function TableAction(props: {
   );
 }
 
-export const renderCheckBoxCell = (isChecked: boolean) => (
+export const renderCheckBoxCell = (
+  isChecked: boolean,
+  accentColor: string,
+  borderRadius: string,
+) => (
   <CellCheckboxWrapper
+    accentColor={accentColor}
+    borderRadius={borderRadius}
     className="td t--table-multiselect"
     isCellVisible
     isChecked={isChecked}
@@ -479,8 +485,12 @@ export const renderCheckBoxCell = (isChecked: boolean) => (
 export const renderCheckBoxHeaderCell = (
   onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void,
   checkState: number | null,
+  accentColor: string,
+  borderRadius: string,
 ) => (
   <CellCheckboxWrapper
+    accentColor={accentColor}
+    borderRadius={borderRadius}
     className="th header-reorder t--table-multiselect-header"
     isChecked={!!checkState}
     onClick={onClick}
@@ -503,6 +513,8 @@ export const renderEmptyRows = (
   page: any,
   prepareRow: any,
   multiRowSelection = false,
+  accentColor: string,
+  borderRadius: string,
 ) => {
   const rows: string[] = new Array(rowCount).fill("");
   if (page.length) {
@@ -515,7 +527,8 @@ export const renderEmptyRows = (
       };
       return (
         <div {...rowProps} className="tr" key={index}>
-          {multiRowSelection && renderCheckBoxCell(false)}
+          {multiRowSelection &&
+            renderCheckBoxCell(false, accentColor, borderRadius)}
           {row.cells.map((cell: any, cellIndex: number) => {
             const cellProps = cell.getCellProps();
             if (columns[0]?.columnProperties?.cellBackground) {
@@ -543,7 +556,8 @@ export const renderEmptyRows = (
                 flex: "1 0 auto",
               }}
             >
-              {multiRowSelection && renderCheckBoxCell(false)}
+              {multiRowSelection &&
+                renderCheckBoxCell(false, accentColor, borderRadius)}
               {tableColumns.map((column: any, colIndex: number) => {
                 return (
                   <div

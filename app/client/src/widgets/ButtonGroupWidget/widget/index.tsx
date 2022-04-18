@@ -13,6 +13,7 @@ import {
 } from "components/constants";
 import ButtonGroupComponent from "../component";
 import { MinimumPopupRows } from "widgets/constants";
+import { getStylesheetValue } from "./helpers";
 
 class ButtonGroupWidget extends BaseWidget<
   ButtonGroupWidgetProps,
@@ -423,6 +424,7 @@ class ButtonGroupWidget extends BaseWidget<
                   sectionName: "Styles",
                   children: [
                     {
+                      getStylesheetValue,
                       propertyName: "buttonColor",
                       helpText: "Changes the color of the button",
                       label: "Button Color",

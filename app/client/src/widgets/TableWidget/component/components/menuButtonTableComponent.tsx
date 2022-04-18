@@ -7,6 +7,7 @@ import {
   Icon,
   Menu,
   MenuItem,
+  Classes as BClasses,
 } from "@blueprintjs/core";
 import { Classes, Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
@@ -15,6 +16,7 @@ import {
   getCustomBorderColor,
   getCustomHoverColor,
   getCustomTextColor,
+  lightenColor,
 } from "widgets/WidgetUtils";
 import { darkenActive, darkenHover } from "constants/DefaultTheme";
 import { ThemeProp } from "components/ads/common";
@@ -34,11 +36,33 @@ const MenuButtonContainer = styled.div`
   }
 `;
 
-const PopoverStyles = createGlobalStyle`
-  .menu-button-popover > .${Classes.POPOVER2_CONTENT} {
-    background: none;
-  }
-  .menu-button-popover-backdrop {
+const PopoverStyles = createGlobalStyle<{
+  borderRadius: string;
+  accentColor: string;
+}>`
+   .table-menu-button-popover {
+     box-shadow: none;
+
+     & > .${Classes.POPOVER2_CONTENT} {
+      background: none;
+      box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
+      margin-top: 8px !important;
+      border-radius: ${({ borderRadius }) =>
+        borderRadius >= `1.5rem` ? `0.375rem` : borderRadius};
+      overflow: hidden;
+    }
+
+    & .${BClasses.MENU_ITEM} {
+      padding: 9px 12px;
+      border-radius: 0;
+
+      &:hover {
+        background-color:  ${({ accentColor }) => lightenColor(accentColor)};
+      }
+    }
+   }
+
+  .table-menu-button-popover-backdrop {
     background-color: transparent !important;
   }
 `;
@@ -291,14 +315,14 @@ export interface MenuButtonComponentProps {
 
 function MenuButtonTableComponent(props: MenuButtonComponentProps) {
   const {
-    borderRadius,
+    borderRadius = "0px",
     boxShadow,
     iconAlign,
     iconName,
     isCompact,
     isDisabled,
     label,
-    menuColor,
+    menuColor = "#e1e1e1",
     menuItems,
     menuVariant,
     onItemClicked,
@@ -306,10 +330,10 @@ function MenuButtonTableComponent(props: MenuButtonComponentProps) {
 
   return (
     <MenuButtonContainer>
-      <PopoverStyles />
+      <PopoverStyles accentColor={menuColor} borderRadius={borderRadius} />
       <Popover2
         backdropProps={{
-          className: "menu-button-popover-backdrop",
+          className: "table-menu-button-popover-backdrop",
         }}
         content={
           <PopoverContent
@@ -323,7 +347,7 @@ function MenuButtonTableComponent(props: MenuButtonComponentProps) {
         hasBackdrop
         minimal
         placement="bottom-end"
-        popoverClassName="menu-button-popover"
+        popoverClassName="table-menu-button-popover"
       >
         <PopoverTargetButton
           borderRadius={borderRadius}

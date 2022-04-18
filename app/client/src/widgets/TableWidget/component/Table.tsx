@@ -311,6 +311,8 @@ export function Table(props: TableProps) {
                       renderCheckBoxHeaderCell(
                         handleAllRowSelectClick,
                         rowSelectionState,
+                        props.accentColor,
+                        props.borderRadius,
                       )}
                     {headerGroup.headers.map(
                       (column: any, columnIndex: number) => {
@@ -342,6 +344,8 @@ export function Table(props: TableProps) {
                   subPage,
                   prepareRow,
                   props.multiRowSelection,
+                  props.accentColor,
+                  props.borderRadius,
                 )}
             </div>
             <div
@@ -372,7 +376,11 @@ export function Table(props: TableProps) {
                     }}
                   >
                     {props.multiRowSelection &&
-                      renderCheckBoxCell(isRowSelected)}
+                      renderCheckBoxCell(
+                        isRowSelected,
+                        props.accentColor,
+                        props.borderRadius,
+                      )}
                     {row.cells.map((cell, cellIndex) => {
                       return (
                         <div
@@ -397,6 +405,8 @@ export function Table(props: TableProps) {
                   subPage,
                   prepareRow,
                   props.multiRowSelection,
+                  props.accentColor,
+                  props.borderRadius,
                 )}
             </div>
           </div>

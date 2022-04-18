@@ -265,22 +265,6 @@ ${({ dropDownWidth, id }) => `
     box-shadow: none;
     outline: none !important;
   }
-  .${Classes.INPUT} {
-    height: 32px !important;
-    padding-left: 29px !important;
-    font-size: 14px;
-    border: 1px solid ${Colors.GREY_3};
-    color: ${Colors.GREY_10};
-    box-shadow: 0px 0px 0px 0px;
-    border-radius: ${({ borderRadius }) =>
-      borderRadius === "1.5rem" ? `0.375rem` : borderRadius};
-    &:focus {
-      border: 1px solid  ${(props) => props.accentColor};
-        box-shadow: 0px 0px 0px 3px ${(props) =>
-          lightenColor(props.accentColor)};
-    }
-  }
-
   ${CommonSelectFilterStyle}
   .rc-tree-select-item {
     font-size: 16px;
