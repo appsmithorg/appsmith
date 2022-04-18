@@ -1,6 +1,6 @@
 FROM ubuntu:20.04
 
-LABEL maintainer="tech@appsmith.com"
+LABEL maintainer="boutora.mohamed@yahoo.fr"
 
 # Set workdir to /opt/appsmith
 WORKDIR /opt/appsmith

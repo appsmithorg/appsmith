@@ -23,7 +23,7 @@ module.exports = function (plop) {
                 type: 'input',
                 name: 'email',
                 message: 'Please enter your email here: ',
-                default: 'tech@appsmith.com'
+                default: 'boutora.mohamed@yahoo.fr'
             }
         ],
         actions: function(data) {

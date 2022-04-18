@@ -2,7 +2,7 @@
 
 FROM adoptopenjdk/openjdk11:jre-11.0.10_9-alpine
 
-LABEL maintainer="tech@appsmith.com"
+LABEL maintainer="boutora.mohamed@yahoo.fr"
 
 VOLUME /tmp
 

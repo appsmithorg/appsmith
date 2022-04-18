@@ -30,7 +30,7 @@ This command will generate a folder called `helloWorldPlugin` with default sourc
         <plugin.id>hello-world-plugin</plugin.id>
         <plugin.class>com.external.plugins.HelloWorldPlugin</plugin.class>
         <plugin.version>1.0-SNAPSHOT</plugin.version>
-        <plugin.provider>tech@appsmith.com</plugin.provider>
+        <plugin.provider>boutora.mohamed@yahoo.fr</plugin.provider>
         <plugin.dependencies/>
     </properties>
 ```
@@ -141,7 +141,7 @@ Replace the properties `plugin.id` and `plugin.class` with your plugin name.
 plugin.id=hello-world-plugin
 plugin.class=com.external.plugins.HelloWorldPlugin
 plugin.version=1.0-SNAPSHOT
-plugin.provider=tech@appsmith.com
+plugin.provider=boutora.mohamed@yahoo.fr
 plugin.dependencies=
 ```
 Please remember that the `plugin.class` and `plugin.id` MUST be the same as the ones defined in your `pom.xml`.

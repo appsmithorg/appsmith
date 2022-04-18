@@ -6,7 +6,7 @@ name: appsmith
 type: application
 description: Appsmith is an open source framework to build admin panels, CRUD apps and workflows. Build everything you need, 10x faster.
 maintainers:
-  - email: tech@appsmith.com
+  - email: boutora.mohamed@yahoo.fr
     name: Appsmith
 sources:
   - https://github.com/appsmithorg/appsmith

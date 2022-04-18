@@ -1,6 +1,6 @@
 FROM node:14
 
-LABEL maintainer="tech@appsmith.com"
+LABEL maintainer="boutora.mohamed@yahoo.fr"
 
 WORKDIR /app
 
