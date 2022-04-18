@@ -643,61 +643,60 @@ public class DatabaseChangelog2 {
         }
     }
 
-//    @ChangeSet(order = "005", id = "migrate-google-sheets-to-uqi", author = "")
-//    public void migrateGoogleSheetsToUqi(MongockTemplate mongockTemplate) {
-//
-//        // Get plugin references to Google Sheets actions
-//        List<Plugin> uqiPlugins = mongockTemplate.find(
-//                query(where("packageName").in("google-sheets-plugin")),
-//                Plugin.class
-//        );
-//
-//        if (uqiPlugins.size() < 1) {
-//            return;
-//        }
-//
-//        final String pluginId = uqiPlugins.get(0).getId();
-//
-//        // Find all relevant actions
-//        final Query actionQuery = query(
-//                where(fieldName(QNewAction.newAction.pluginId)).is(pluginId)
-//                        .and(fieldName(QNewAction.newAction.deleted)).ne(true)); // setting `deleted` != `true`
-//        actionQuery.fields()
-//                .include(fieldName(QNewAction.newAction.id));
-//
-//        List<NewAction> uqiActions = mongockTemplate.find(
-//                actionQuery,
-//                NewAction.class
-//        );
-//
-//        // Retrieve the formData path for all actions
-//        for (NewAction uqiActionWithId : uqiActions) {
-//
-//            // Fetch one action at a time to avoid OOM.
-//            final NewAction uqiAction = mongockTemplate.findOne(
-//                    query(where(fieldName(QNewAction.newAction.id)).is(uqiActionWithId.getId())),
-//                    NewAction.class
-//            );
-//
-//            assert uqiAction != null;
-//            ActionDTO unpublishedAction = uqiAction.getUnpublishedAction();
-//
-//            /* No migrations required if action configuration does not exist. */
-//            if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
-//                continue;
-//            }
-//
-//            try {
-//                migrateGoogleSheetsToUqi(uqiAction);
-//            } catch (AppsmithException e) {
-//                // This action is already migrated, move on
-//                log.error("Failed with error: {}", e.getMessage());
-//                log.error("Failing action: {}", uqiAction.getId());
-//                continue;
-//            }
-//            mongockTemplate.save(uqiAction);
-//        }
-//    }
+    @ChangeSet(order = "005", id = "migrate-google-sheets-to-uqi", author = "")
+    public void migrateGoogleSheetsToUqi(MongockTemplate mongockTemplate) {
+
+        // Get plugin references to Google Sheets actions
+        Plugin uqiPlugin = mongockTemplate.findOne(
+                query(where("packageName").in("google-sheets-plugin")),
+                Plugin.class
+        );
+        assert uqiPlugin != null;
+        uqiPlugin.setUiComponent("UQIDbEditorForm");
+
+        final String pluginId = uqiPlugin.getId();
+
+        // Find all relevant actions
+        final Query actionQuery = query(
+                where(fieldName(QNewAction.newAction.pluginId)).is(pluginId)
+                        .and(fieldName(QNewAction.newAction.deleted)).ne(true)); // setting `deleted` != `true`
+        actionQuery.fields()
+                .include(fieldName(QNewAction.newAction.id));
+
+        List<NewAction> uqiActions = mongockTemplate.find(
+                actionQuery,
+                NewAction.class
+        );
+
+        // Retrieve the formData path for all actions
+        for (NewAction uqiActionWithId : uqiActions) {
+
+            // Fetch one action at a time to avoid OOM.
+            final NewAction uqiAction = mongockTemplate.findOne(
+                    query(where(fieldName(QNewAction.newAction.id)).is(uqiActionWithId.getId())),
+                    NewAction.class
+            );
+
+            assert uqiAction != null;
+            ActionDTO unpublishedAction = uqiAction.getUnpublishedAction();
+
+            /* No migrations required if action configuration does not exist. */
+            if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
+                continue;
+            }
+
+            try {
+                migrateGoogleSheetsToUqi(uqiAction);
+            } catch (AppsmithException e) {
+                // This action is already migrated, move on
+                log.error("Failed with error: {}", e.getMessage());
+                log.error("Failing action: {}", uqiAction.getId());
+                continue;
+            }
+            mongockTemplate.save(uqiAction);
+            mongockTemplate.save(uqiPlugin);
+        }
+    }
 
     public static void migrateGoogleSheetsToUqi(NewAction uqiAction) {
 
@@ -808,49 +807,53 @@ public class DatabaseChangelog2 {
 
         switch (pluginSpecifiedTemplatesSize) {
             case 15:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(14).getValue())) {
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(14)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(14).getValue())) {
                     convertToFormDataObject(f, "where", updateWhereClauseFormat(pluginSpecifiedTemplates.get(14).getValue()));
                 }
             case 14:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(13).getValue())) {
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(13)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(13).getValue())) {
                     convertToFormDataObject(f, "smartSubstitution", pluginSpecifiedTemplates.get(13).getValue());
                 }
             case 13:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(12).getValue()) && "DELETE".equals(oldCommand)) {
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(12)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(12).getValue()) && "DELETE".equals(oldCommand)) {
                     convertToFormDataObject(f, "entityType", pluginSpecifiedTemplates.get(12).getValue());
                 }
             case 12:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(11).getValue())) {
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(11)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(11).getValue())) {
                     convertToFormDataObject(f, "rowIndex", pluginSpecifiedTemplates.get(11).getValue());
                 }
             case 11:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(10).getValue())) {
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(10)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(10).getValue())) {
                     convertToFormDataObject(f, "rowObjects", pluginSpecifiedTemplates.get(10).getValue());
                 }
             case 10:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(9).getValue())) {
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(9)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(9).getValue())) {
                     convertToFormDataObject(f, "rowObjects", pluginSpecifiedTemplates.get(9).getValue());
                 }
             case 9:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(8).getValue())) {
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(8)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(8).getValue())) {
                     if (!f.containsKey("pagination")) {
-                        convertToFormDataObject(f, "pagination", Map.of("offset", pluginSpecifiedTemplates.get(6).getValue()));
+                        final HashMap<String, Object> map = new HashMap<>();
+                        map.put("offset", pluginSpecifiedTemplates.get(8).getValue());
+                        convertToFormDataObject(f, "pagination", map);
                     } else {
                         final Map<String, Object> pagination = (Map<String, Object>) f.get("pagination");
                         final Map<String, Object> data = (Map<String, Object>) pagination.get("data");
                         final Map<String, Object> componentData = (Map<String, Object>) pagination.get("componentData");
-                        data.put("offset", pluginSpecifiedTemplates.get(6).getValue());
-                        componentData.put("offset", pluginSpecifiedTemplates.get(6).getValue());
+                        data.put("offset", pluginSpecifiedTemplates.get(8).getValue());
+                        componentData.put("offset", pluginSpecifiedTemplates.get(8).getValue());
                     }
                 }
             case 8:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(7).getValue())) {
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(7)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(7).getValue())) {
                     convertToFormDataObject(f, "sheetName", pluginSpecifiedTemplates.get(7).getValue());
                 }
             case 7:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(6).getValue())) {
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(6)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(6).getValue())) {
                     if (!f.containsKey("pagination")) {
-                        convertToFormDataObject(f, "pagination", Map.of("limit", pluginSpecifiedTemplates.get(6).getValue()));
+                        final HashMap<String, Object> map = new HashMap<>();
+                        map.put("limit", pluginSpecifiedTemplates.get(6).getValue());
+                        convertToFormDataObject(f, "pagination", map);
                     } else {
                         final Map<String, Object> pagination = (Map<String, Object>) f.get("pagination");
                         final Map<String, Object> data = (Map<String, Object>) pagination.get("data");
@@ -860,23 +863,23 @@ public class DatabaseChangelog2 {
                     }
                 }
             case 6:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(5).getValue())) {
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(5)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(5).getValue())) {
                     convertToFormDataObject(f, "queryFormat", pluginSpecifiedTemplates.get(5).getValue());
                 }
             case 5:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(4).getValue())) {
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(4)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(4).getValue())) {
                     convertToFormDataObject(f, "tableHeaderIndex", pluginSpecifiedTemplates.get(4).getValue());
                 }
             case 4:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(3).getValue())) {
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(3)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(3).getValue())) {
                     convertToFormDataObject(f, "spreadsheetName", pluginSpecifiedTemplates.get(3).getValue());
                 }
             case 3:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(2).getValue())) {
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(2)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(2).getValue())) {
                     convertToFormDataObject(f, "range", pluginSpecifiedTemplates.get(2).getValue());
                 }
             case 2:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(1).getValue())) {
+                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(1)) && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(1).getValue())) {
                     convertToFormDataObject(f, "sheetUrl", pluginSpecifiedTemplates.get(1).getValue());
                 }
         }
@@ -889,16 +892,20 @@ public class DatabaseChangelog2 {
         final List<Object> convertedConditionArray = new ArrayList<>();
         newWhereClause.put("children", convertedConditionArray);
 
-        ((ArrayList) oldWhereClauseArray)
-                .stream()
-                .forEach(oldWhereClauseCondition -> {
-                    Map<String, Object> newWhereClauseCondition = new HashMap<>();
-                    final Map clauseCondition = (Map) oldWhereClauseCondition;
-                    newWhereClauseCondition.put("key", clauseCondition.get("path"));
-                    newWhereClauseCondition.put("condition", clauseCondition.get("operator"));
-                    newWhereClauseCondition.put("value", clauseCondition.get("value"));
-                    convertedConditionArray.add(newWhereClauseCondition);
-                });
+        if (oldWhereClauseArray instanceof List) {
+            ((ArrayList) oldWhereClauseArray)
+                    .stream()
+                    .forEach(oldWhereClauseCondition -> {
+                        if(oldWhereClauseCondition != null) {
+                            Map<String, Object> newWhereClauseCondition = new HashMap<>();
+                            final Map clauseCondition = (Map) oldWhereClauseCondition;
+                            newWhereClauseCondition.put("key", clauseCondition.get("path"));
+                            newWhereClauseCondition.put("condition", clauseCondition.get("operator"));
+                            newWhereClauseCondition.put("value", clauseCondition.get("value"));
+                            convertedConditionArray.add(newWhereClauseCondition);
+                        }
+                    });
+        }
 
         return newWhereClause;
     }
