@@ -113,6 +113,7 @@ class IconSelectControl extends BaseControl<
   private initialItemIndex: number;
   private filteredItems: Array<IconType>;
   private searchInput: React.RefObject<HTMLInputElement>;
+  public static icons = new Set(ICON_NAMES);
 
   constructor(props: IconSelectControlProps) {
     super(props);

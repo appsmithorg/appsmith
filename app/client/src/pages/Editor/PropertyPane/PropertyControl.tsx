@@ -18,7 +18,7 @@ import {
   UpdateWidgetPropertyPayload,
 } from "actions/controlActions";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
-import { IPanelProps, Position } from "@blueprintjs/core";
+import { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import {
   getEvalValuePath,
@@ -45,6 +45,7 @@ import IconTabControl from "components/propertyControls/IconTabControl";
 import ButtonTabControl from "components/propertyControls/ButtonTabControl";
 import WidgetFactory from "utils/WidgetFactory";
 import OptionControl from "components/propertyControls/OptionControl";
+import IconSelectControl from "components/propertyControls/IconSelectControl";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -410,7 +411,7 @@ const PropertyControl = memo((props: Props) => {
 
     const uniqId = btoa(`${widgetProperties.widgetId}.${propertyName}`);
 
-    const allowedValues = new Set<string>([]);
+    let allowedValues = new Set<string>([]);
     if (isDynamic) {
       const widgetDefaultConfig = WidgetFactory.widgetConfigMap.get(
         widgetProperties.type,
@@ -432,6 +433,12 @@ const PropertyControl = memo((props: Props) => {
             JSON.stringify((widgetDefaultConfig as any)[propertyName], null, 2),
           );
           break;
+        case IconSelectControl.getControlType():
+          allowedValues = IconSelectControl.icons;
+          break;
+        // case ActionSelectorControl.getControlType():
+        //   // allowedValues.add(propertyValue);
+        //   break;
       }
       if ((props as any).defaultValue) {
         allowedValues.add((props as any).defaultValue);
@@ -467,7 +474,7 @@ const PropertyControl = memo((props: Props) => {
                 disabled={!isToggleDisabled}
                 hoverOpenDelay={200}
                 openOnTargetFocus={false}
-                position={Position.TOP}
+                position="auto"
               >
                 <JSToggleButton
                   active={isDynamic}
