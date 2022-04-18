@@ -2086,7 +2086,12 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " delete branch. Branch does not exists in the repo"));
                                 }
                                 return applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
-                                        .flatMap(applicationPageService::deleteApplicationByResource)
+                                        .flatMap(application1 -> {
+                                            if(application1.getId().equals(application1.getGitApplicationMetadata().getDefaultApplicationId())) {
+                                                return Mono.just(application1);
+                                            }
+                                            return applicationPageService.deleteApplicationByResource(application1);
+                                        })
                                         .onErrorResume(throwable -> {
                                             log.warn("Unable to find branch with name ", throwable);
                                             return addAnalyticsForGitOperation(
