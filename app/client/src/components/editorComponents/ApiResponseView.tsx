@@ -163,6 +163,10 @@ const HelpSection = styled.div`
   padding-top: 10px;
 `;
 
+const ResponseBodyContainer = styled.div`
+  padding-bottom: 5px;
+`;
+
 interface ReduxStateProps {
   responses: Record<string, ActionResponse | undefined>;
   isRunning: Record<string, boolean>;
@@ -236,7 +240,7 @@ export const responseTabComponent = (
         folding
         height={"100%"}
         input={{
-          value: output ? JSON.stringify(output, null, 2) : "",
+          value: isString(output) ? output : JSON.stringify(output, null, 2),
         }}
         isReadOnly
       />
@@ -249,7 +253,7 @@ export const responseTabComponent = (
         folding
         height={"100%"}
         input={{
-          value: output ? JSON.stringify(output, null, 2) : "",
+          value: isString(output) ? output : JSON.stringify(output, null, 2),
         }}
         isRawView
         isReadOnly
@@ -385,8 +389,8 @@ function ApiResponseView(props: Props) {
                 </Text>
               </NoResponseContainer>
             ) : (
-              <>
-                {isString(response.body) && isHtml(response.body) && (
+              <ResponseBodyContainer>
+                {isString(response.body) && isHtml(response.body) ? (
                   <ReadOnlyEditor
                     folding
                     height={"100%"}
@@ -395,11 +399,9 @@ function ApiResponseView(props: Props) {
                     }}
                     isReadOnly
                   />
-                )}
-                {!isString(response.body) &&
-                responseTabs &&
-                responseTabs.length > 0 &&
-                selectedTabIndex !== -1 ? (
+                ) : responseTabs &&
+                  responseTabs.length > 0 &&
+                  selectedTabIndex !== -1 ? (
                   <EntityBottomTabs
                     defaultIndex={selectedTabIndex}
                     onSelect={onResponseTabSelect}
@@ -408,7 +410,7 @@ function ApiResponseView(props: Props) {
                     tabs={responseTabs}
                   />
                 ) : null}
-              </>
+              </ResponseBodyContainer>
             )}
           </ResponseDataContainer>
         </ResponseTabWrapper>

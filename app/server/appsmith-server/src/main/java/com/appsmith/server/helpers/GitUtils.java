@@ -1,13 +1,19 @@
 package com.appsmith.server.helpers;
 
 
+import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import org.eclipse.jgit.util.StringUtils;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClientRequest;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,12 +63,23 @@ public class GitUtils {
      * @return if the repo is public
      * @throws IOException exception thrown during openConnection
      */
-    public static boolean isRepoPrivate(String remoteHttpsUrl) throws IOException {
-        URL url = new URL(remoteHttpsUrl);
-        HttpURLConnection huc = (HttpURLConnection) url.openConnection();
-        int responseCode = huc.getResponseCode();
-
-        return !(HttpURLConnection.HTTP_OK == responseCode || HttpURLConnection.HTTP_ACCEPTED == responseCode);
+    public static Mono<Boolean> isRepoPrivate(String remoteHttpsUrl) {
+        return WebClient
+                .create(remoteHttpsUrl)
+                .get()
+                .httpRequest(httpRequest -> {
+                    HttpClientRequest reactorRequest = httpRequest.getNativeRequest();
+                    reactorRequest.responseTimeout(Duration.ofSeconds(2));
+                })
+                .exchange()
+                .flatMap(response -> {
+                    if (response.statusCode().is2xxSuccessful()) {
+                        return Mono.just(Boolean.FALSE);
+                    } else {
+                        return Mono.just(Boolean.TRUE);
+                    }
+                })
+                .onErrorResume(throwable -> Mono.just(Boolean.TRUE));
     }
 
     /**

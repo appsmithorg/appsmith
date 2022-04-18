@@ -47,6 +47,9 @@ public class JsonSchemaMigration {
                 // Migration for converting formData elements to one that supports viewType
                 HelperMethods.migrateActionFormDataToObject(applicationJson);
                 applicationJson.setServerSchemaVersion(3);
+            case 3:
+                // File structure migration to update git directory structure
+                applicationJson.setServerSchemaVersion(4);
             default:
                 // Unable to detect the serverSchema
         }

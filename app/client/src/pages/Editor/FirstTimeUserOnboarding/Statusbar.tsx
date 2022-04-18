@@ -1,5 +1,5 @@
 import { Icon } from "@blueprintjs/core";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useIsWidgetActionConnectionPresent } from "pages/Editor/utils";
 import React, { SyntheticEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";

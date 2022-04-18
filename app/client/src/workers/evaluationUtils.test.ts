@@ -41,6 +41,7 @@ const BASE_WIDGET: DataTreeWidget = {
   parentId: "0",
   version: 1,
   bindingPaths: {},
+  reactivePaths: {},
   triggerPaths: {},
   validationPaths: {},
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
@@ -55,7 +56,7 @@ const testDataTree: Record<string, DataTreeWidget> = {
     widgetName: "Text1",
     text: "Label",
     type: "TEXT_WIDGET",
-    bindingPaths: {
+    reactivePaths: {
       text: EvaluationSubstitutionType.TEMPLATE,
     },
     validationPaths: {
@@ -68,7 +69,7 @@ const testDataTree: Record<string, DataTreeWidget> = {
     text: "{{Text1.text}}",
     dynamicBindingPathList: [{ key: "text" }],
     type: "TEXT_WIDGET",
-    bindingPaths: {
+    reactivePaths: {
       text: EvaluationSubstitutionType.TEMPLATE,
     },
     validationPaths: {
@@ -81,7 +82,7 @@ const testDataTree: Record<string, DataTreeWidget> = {
     text: "{{Text1.text}}",
     dynamicBindingPathList: [{ key: "text" }],
     type: "TEXT_WIDGET",
-    bindingPaths: {
+    reactivePaths: {
       text: EvaluationSubstitutionType.TEMPLATE,
     },
     validationPaths: {
@@ -94,7 +95,7 @@ const testDataTree: Record<string, DataTreeWidget> = {
     text: "{{Text1.text}}",
     dynamicBindingPathList: [{ key: "text" }],
     type: "TEXT_WIDGET",
-    bindingPaths: {
+    reactivePaths: {
       text: EvaluationSubstitutionType.TEMPLATE,
     },
     validationPaths: {
@@ -198,7 +199,7 @@ describe("privateWidgets", () => {
         widgetName: "Text1",
         text: "Label",
         type: "TEXT_WIDGET",
-        bindingPaths: {
+        reactivePaths: {
           text: EvaluationSubstitutionType.TEMPLATE,
         },
         validationPaths: {
@@ -212,7 +213,7 @@ describe("privateWidgets", () => {
         text: "{{Text1.text}}",
         dynamicBindingPathList: [{ key: "text" }],
         type: "TEXT_WIDGET",
-        bindingPaths: {
+        reactivePaths: {
           text: EvaluationSubstitutionType.TEMPLATE,
         },
         validationPaths: {

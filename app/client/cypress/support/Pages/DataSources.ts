@@ -106,7 +106,7 @@ export class DataSources {
     }
 
     public ReconnectDataSourcePostgres(dbName: string) {
-        cy.get(this._reconnectModal).should('exist')
+        this.agHelper.AssertElementPresence(this._reconnectModal)
         cy.xpath(this._activeDSListReconnectModal("PostgreSQL")).should('be.visible')
         cy.xpath(this._activeDSListReconnectModal(dbName)).should('be.visible')//.click()
         this.ValidateNSelectDropdown("Connection Mode", "", "Read / Write")

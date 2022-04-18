@@ -3,7 +3,7 @@ import {
   ReduxAction,
   EvaluationReduxAction,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { JSCollection } from "entities/JSCollection";
 import { CreateJSCollectionRequest } from "api/JSActionAPI";
 

@@ -27,6 +27,7 @@ import {
   getPluginImages,
   getAction,
   getActionResponses,
+  getDatasourceByPluginId,
   getDBAndRemoteDatasources,
 } from "selectors/entitiesSelector";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
@@ -346,7 +347,9 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     plugins: allPlugins,
     runErrorMessage,
     pluginIds: getPluginIdsOfPackageNames(state, PLUGIN_PACKAGE_DBS),
-    dataSources: getDBAndRemoteDatasources(state),
+    dataSources: !!apiId
+      ? getDatasourceByPluginId(state, action?.pluginId)
+      : getDBAndRemoteDatasources(state),
     responses: getActionResponses(state),
     isRunning: state.ui.queryPane.isRunning[actionId],
     isDeleting: state.ui.queryPane.isDeleting[actionId],
