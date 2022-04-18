@@ -97,6 +97,7 @@ import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 import DatasourcesApi from "api/DatasourcesApi";
 import { AppState } from "reducers";
+import { resetApplicationWidgets } from "actions/pageActions";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -530,9 +531,7 @@ export function* createApplicationSaga(
         // This sets ui.pageWidgets = {} to ensure that
         // widgets are cleaned up from state before
         // finishing creating a new application
-        yield put({
-          type: ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST,
-        });
+        yield put(resetApplicationWidgets());
         yield put({
           type: ReduxActionTypes.CREATE_APPLICATION_SUCCESS,
           payload: {
