@@ -2062,12 +2062,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 }
                                 return applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
                                         .flatMap(application1 -> {
-                                            // If the user is trying to delete Appsmith default branch do not delete the resources from the db
                                             if(application1.getId().equals(application1.getGitApplicationMetadata().getDefaultApplicationId())) {
                                                 return Mono.just(application1);
-                                            } else {
-                                                return applicationPageService.deleteApplicationByResource(application1);
                                             }
+                                            return applicationPageService.deleteApplicationByResource(application1);
                                         })
                                         .onErrorResume(throwable -> {
                                             log.warn("Unable to find branch with name ", throwable);
