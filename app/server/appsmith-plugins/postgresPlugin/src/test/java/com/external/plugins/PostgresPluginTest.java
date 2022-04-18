@@ -1315,7 +1315,7 @@ public class PostgresPluginTest {
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         List<Param> params = new ArrayList<>();
-        params.add(new Param("createdTS", "2022-04-11 05:30:00"));
+        params.add(new Param("createdTS", "2022-04-11T05:30:00Z"));
 
         executeActionDTO.setParams(params);
 
@@ -1339,7 +1339,7 @@ public class PostgresPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
 
                     final JsonNode node = ((ArrayNode) result.getBody()).get(0);
-                    assertEquals(node.get("created_on_tz").asText(), "2022-04-11T00:00:00Z"); //UTC time
+                    assertEquals(node.get("created_on_tz").asText(), "2022-04-11T05:30:00Z"); //UTC time
                 })
                 .verifyComplete();
     }
