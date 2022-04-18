@@ -12,7 +12,7 @@ import {
 import {
   ReduxActionTypes,
   ReduxSagaChannels,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   WEBSOCKET_EVENTS,
   RTS_BASE_PATH,

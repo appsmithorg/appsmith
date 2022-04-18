@@ -18,14 +18,14 @@ import {
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { find, get, some } from "lodash";
-import LOG_TYPE from "../entities/AppsmithConsole/logtype";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { put, select } from "redux-saga/effects";
-import { AnyReduxAction } from "constants/ReduxActionConstants";
+import { AnyReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import AppsmithConsole from "../utils/AppsmithConsole";
+import AppsmithConsole from "utils/AppsmithConsole";
 import * as Sentry from "@sentry/react";
-import AnalyticsUtil from "../utils/AnalyticsUtil";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
   ERROR_EVAL_ERROR_GENERIC,

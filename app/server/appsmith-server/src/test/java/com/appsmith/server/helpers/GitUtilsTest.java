@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import reactor.test.StepVerifier;
 
 import java.io.IOException;
 
@@ -28,15 +29,23 @@ public class GitUtilsTest {
                 .isEqualTo("https://example.test.net/user/test/tests/testRepo");
     }
     @Test
-    public void isRepoPrivate() throws IOException {
-        assertThat(GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl("git@example.com:test/testRepo.git")))
-                .isEqualTo(Boolean.TRUE);
-        assertThat(GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl("git@example.com:test/testRepo.git")))
-                .isEqualTo(Boolean.TRUE);
-        assertThat(GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl("git@example.org:test/testRepo.git")))
-                .isEqualTo(Boolean.TRUE);
-        assertThat(GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://git@appsmith.com.git")))
-                .isEqualTo(Boolean.FALSE);
+    public void isRepoPrivate() {
+
+        StepVerifier
+                .create(GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl("git@github.com:test/testRepo.git")))
+                .assertNext(isRepoPrivate -> assertThat(isRepoPrivate).isEqualTo(Boolean.TRUE))
+                .verifyComplete();
+
+        StepVerifier
+                .create(GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://git@example.test.net:user/test/tests/testRepo.git")))
+                .assertNext(isRepoPrivate -> assertThat(isRepoPrivate).isEqualTo(Boolean.TRUE))
+                .verifyComplete();
+
+        StepVerifier
+                .create(GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl("git@github.com:appsmithorg/appsmith.git")))
+                .assertNext(isRepoPrivate -> assertThat(isRepoPrivate).isEqualTo(Boolean.FALSE))
+                .verifyComplete();
+
     }
 
     @Test

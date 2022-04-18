@@ -5,13 +5,14 @@ import {
   executePluginActionSuccess,
   runAction,
   updateAction,
+  setActionResponseDisplayFormat,
 } from "actions/pluginActionActions";
 import {
   ApplicationPayload,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import ActionAPI, {
   ActionExecutionResponse,
   ActionResponse,
@@ -21,6 +22,7 @@ import ActionAPI, {
 import {
   getAction,
   getCurrentPageNameByActionId,
+  getPlugin,
   isActionDirty,
   isActionSaving,
   getJSCollection,
@@ -104,6 +106,7 @@ import { curlImportFormValues } from "pages/Editor/APIEditor/helpers";
 import { getBasePath } from "pages/Editor/Explorer/helpers";
 import { isTrueObject } from "workers/evaluationUtils";
 import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
+import { Plugin } from "api/PluginApi";
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
 }
@@ -781,7 +784,10 @@ function* executePluginActionSaga(
     pluginAction = yield select(getAction, actionOrActionId);
     actionId = actionOrActionId;
   } else {
-    pluginAction = actionOrActionId;
+    pluginAction = shouldBeDefined<Action>(
+      yield select(getAction, actionOrActionId.id),
+      `Action not found for id -> ${actionOrActionId.id}`,
+    );
     actionId = actionOrActionId.id;
   }
 
@@ -840,10 +846,25 @@ function* executePluginActionSaga(
   try {
     yield validateResponse(response);
     const payload = createActionExecutionResponse(response);
+
     yield put(
       executePluginActionSuccess({
         id: actionId,
         response: payload,
+      }),
+    );
+    let plugin;
+    if (!!pluginAction.pluginId) {
+      plugin = shouldBeDefined<Plugin>(
+        yield select(getPlugin, pluginAction.pluginId),
+        `Plugin not found for id - ${pluginAction.pluginId}`,
+      );
+    }
+    yield put(
+      setActionResponseDisplayFormat({
+        id: actionId,
+        field: "responseDisplayFormat",
+        value: plugin && plugin.responseType ? plugin.responseType : "JSON",
       }),
     );
     return {

@@ -31,11 +31,12 @@ import { find, pick, sortBy } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import { APP_MODE } from "entities/App";
 import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { shouldBeDefined } from "utils/helpers";
-import { Page } from "constants/ReduxActionConstants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { builderURL } from "RouteBuilder";
 import { ApplicationVersion } from "actions/applicationActions";
+import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 
 export const getWidgetConfigs = (state: AppState) =>
   state.entities.widgetConfig;
@@ -186,8 +187,9 @@ export const getViewModePageList = createSelector(
 export const getCurrentApplicationLayout = (state: AppState) =>
   state.ui.applications.currentApplication?.appLayout;
 
-export const getCanvasWidth = (state: AppState) =>
-  state.entities.canvasWidgets[MAIN_CONTAINER_WIDGET_ID].rightColumn;
+export const getCanvasWidth = (state: AppState) => state.ui.mainCanvas.width;
+
+export const getMainCanvasProps = (state: AppState) => state.ui.mainCanvas;
 
 export const getCurrentPageName = createSelector(
   getPageListState,
@@ -233,8 +235,14 @@ export const getWidgetCards = createSelector(
 const getMainContainer = (
   canvasWidgets: CanvasWidgetsReduxState,
   evaluatedDataTree: DataTree,
+  mainCanvasProps: MainCanvasReduxState,
 ) => {
-  const canvasWidget = canvasWidgets[MAIN_CONTAINER_WIDGET_ID];
+  const canvasWidget = {
+    ...canvasWidgets[MAIN_CONTAINER_WIDGET_ID],
+    rightColumn: mainCanvasProps.width,
+    minHeight: mainCanvasProps.height,
+  };
+  //TODO: Need to verify why `evaluatedDataTree` is required here.
   const evaluatedWidget = find(evaluatedDataTree, {
     widgetId: MAIN_CONTAINER_WIDGET_ID,
   }) as DataTreeWidget;
@@ -245,15 +253,18 @@ export const getCanvasWidgetDsl = createSelector(
   getCanvasWidgets,
   getDataTree,
   getLoadingEntities,
+  getMainCanvasProps,
   (
     canvasWidgets: CanvasWidgetsReduxState,
     evaluatedDataTree,
     loadingEntities,
+    mainCanvasProps,
   ): ContainerWidgetProps<WidgetProps> => {
     const widgets: Record<string, DataTreeWidget> = {
       [MAIN_CONTAINER_WIDGET_ID]: getMainContainer(
         canvasWidgets,
         evaluatedDataTree,
+        mainCanvasProps,
       ),
     };
     Object.keys(canvasWidgets)
@@ -451,6 +462,7 @@ const createLoadingWidget = (
     type: WidgetTypes.SKELETON_WIDGET,
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     bindingPaths: {},
+    reactivePaths: {},
     triggerPaths: {},
     validationPaths: {},
     logBlackList: {},

@@ -7,23 +7,11 @@ import {
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import { PluginType } from "entities/Action";
-import DataTreeEvaluator from "workers/DataTreeEvaluator";
+import DataTreeEvaluator from "workers/DataTreeEvaluator/DataTreeEvaluator";
 import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetFactory from "utils/WidgetFactory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
-
-/**
- * This function sorts the object's value which is array of string.
- *
- * @param {Record<string, Array<string>>} data
- * @return {*}
- */
-const sortObject = (data: Record<string, Array<string>>) => {
-  Object.entries(data).map(([key, value]) => {
-    data[key] = value.sort();
-  });
-  return data;
-};
+import { sortObjectWithArray } from "../utils/treeUtils";
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {
@@ -230,6 +218,7 @@ const BASE_WIDGET: DataTreeWidget = {
   parentId: "0",
   version: 1,
   bindingPaths: {},
+  reactivePaths: {},
   triggerPaths: {},
   validationPaths: {},
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
@@ -255,7 +244,8 @@ const BASE_ACTION: DataTreeAction = {
   data: {},
   responseMeta: { isExecutionSuccess: false },
   ENTITY_TYPE: ENTITY_TYPE.ACTION,
-  bindingPaths: {
+  bindingPaths: {},
+  reactivePaths: {
     isLoading: EvaluationSubstitutionType.TEMPLATE,
     data: EvaluationSubstitutionType.TEMPLATE,
   },
@@ -335,7 +325,7 @@ describe("DataTreeEvaluator", () => {
       defaultText: "Default value",
       widgetName: "Input1",
       type: "INPUT_WIDGET_V2",
-      bindingPaths: {
+      reactivePaths: {
         defaultText: EvaluationSubstitutionType.TEMPLATE,
         isValid: EvaluationSubstitutionType.TEMPLATE,
         value: EvaluationSubstitutionType.TEMPLATE,
@@ -407,7 +397,7 @@ describe("DataTreeEvaluator", () => {
         text: "{{Table1.selectedRow.test}}",
         dynamicBindingPathList: [{ key: "text" }],
         type: "TEXT_WIDGET",
-        bindingPaths: {
+        reactivePaths: {
           text: EvaluationSubstitutionType.TEMPLATE,
         },
         validationPaths: {
@@ -425,7 +415,7 @@ describe("DataTreeEvaluator", () => {
 
     expect(evaluation).toHaveProperty("Text2.text", "Label");
     expect(evaluation).toHaveProperty("Text3.text", "Label");
-    expect(sortObject(dependencyMap)).toStrictEqual(dependencyMap);
+    expect(sortObjectWithArray(dependencyMap)).toStrictEqual(dependencyMap);
   });
 
   it("Evaluates a value change in update run", () => {
@@ -456,7 +446,9 @@ describe("DataTreeEvaluator", () => {
     expect(dataTree).toHaveProperty("Text2.text", "Label");
     expect(dataTree).toHaveProperty("Text3.text", "Label 3");
 
-    expect(sortObject(updatedDependencyMap)).toStrictEqual(dependencyMap);
+    expect(sortObjectWithArray(updatedDependencyMap)).toStrictEqual(
+      dependencyMap,
+    );
   });
 
   it("Overrides with default value", () => {
@@ -471,6 +463,13 @@ describe("DataTreeEvaluator", () => {
   });
 
   it("Evaluates for value changes in nested diff paths", () => {
+    const bindingPaths = {
+      options: EvaluationSubstitutionType.TEMPLATE,
+      defaultOptionValue: EvaluationSubstitutionType.TEMPLATE,
+      isRequired: EvaluationSubstitutionType.TEMPLATE,
+      isVisible: EvaluationSubstitutionType.TEMPLATE,
+      isDisabled: EvaluationSubstitutionType.TEMPLATE,
+    };
     const updatedUnEvalTree = {
       ...unEvalTree,
       Dropdown2: {
@@ -486,12 +485,9 @@ describe("DataTreeEvaluator", () => {
           },
         ],
         type: "SELECT_WIDGET",
-        bindingPaths: {
-          options: EvaluationSubstitutionType.TEMPLATE,
-          defaultOptionValue: EvaluationSubstitutionType.TEMPLATE,
-          isRequired: EvaluationSubstitutionType.TEMPLATE,
-          isVisible: EvaluationSubstitutionType.TEMPLATE,
-          isDisabled: EvaluationSubstitutionType.TEMPLATE,
+        bindingPaths,
+        reactivePaths: {
+          ...bindingPaths,
           isValid: EvaluationSubstitutionType.TEMPLATE,
           selectedOption: EvaluationSubstitutionType.TEMPLATE,
           selectedOptionValue: EvaluationSubstitutionType.TEMPLATE,
@@ -534,7 +530,7 @@ describe("DataTreeEvaluator", () => {
       },
     ]);
 
-    expect(sortObject(updatedDependencyMap)).toStrictEqual({
+    expect(sortObjectWithArray(updatedDependencyMap)).toStrictEqual({
       Api1: ["Api1.data"],
       ...dependencyMap,
       "Table1.tableData": ["Api1.data", "Text1.text"],
@@ -580,7 +576,7 @@ describe("DataTreeEvaluator", () => {
       },
     ]);
     expect(dataTree).toHaveProperty("Text4.text", "Hey");
-    expect(sortObject(updatedDependencyMap)).toStrictEqual({
+    expect(sortObjectWithArray(updatedDependencyMap)).toStrictEqual({
       Api1: ["Api1.data"],
       ...dependencyMap,
       "Table1.tableData": ["Api1.data", "Text1.text"],
@@ -600,8 +596,8 @@ describe("DataTreeEvaluator", () => {
         dependencyMap: {
           "config.body": ["config.pluginSpecifiedTemplates[0].value"],
         },
-        bindingPaths: {
-          ...BASE_ACTION.bindingPaths,
+        reactivePaths: {
+          ...BASE_ACTION.reactivePaths,
           "config.body": EvaluationSubstitutionType.TEMPLATE,
         },
         config: {
@@ -647,8 +643,8 @@ describe("DataTreeEvaluator", () => {
       ...updatedTree2,
       Api2: {
         ...updatedTree2.Api2,
-        bindingPaths: {
-          ...updatedTree2.Api2.bindingPaths,
+        reactivePaths: {
+          ...updatedTree2.Api2.reactivePaths,
           "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
         },
         config: {

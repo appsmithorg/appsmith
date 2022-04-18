@@ -1,5 +1,8 @@
 import { all, select, takeEvery } from "redux-saga/effects";
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import history from "utils/history";
 import { getPlugin } from "selectors/entitiesSelector";
 import { Datasource } from "entities/Datasource";

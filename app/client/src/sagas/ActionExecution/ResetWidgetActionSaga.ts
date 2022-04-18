@@ -15,7 +15,7 @@ import {
 } from "sagas/ActionExecution/errorUtils";
 import { getType, Types } from "utils/TypeHelpers";
 import { FlattenedWidgetProps } from "widgets/constants";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export default function* resetWidgetActionSaga(
   payload: ResetWidgetDescription["payload"],

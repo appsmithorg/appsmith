@@ -12,7 +12,7 @@ import {
   ReduxActionWithPromise,
   ReduxAction,
   Page,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { validateResponse } from "sagas/ErrorSagas";
 import ProvidersApi, {
   FetchProviderTemplateResponse,

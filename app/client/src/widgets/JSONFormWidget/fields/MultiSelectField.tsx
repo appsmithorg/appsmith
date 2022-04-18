@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo } from "react";
+import React, { useCallback, useContext, useMemo, useRef } from "react";
 import styled from "styled-components";
 import {
   DefaultValueType,
@@ -93,6 +93,7 @@ function MultiSelectField({
     onBlur: onBlurDynamicString,
     onFocus: onFocusDynamicString,
   } = schemaItem;
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const { executeAction } = useContext(FormContext);
 
   const {
@@ -185,17 +186,19 @@ function MultiSelectField({
     [executeAction, schemaItem.onOptionChange],
   );
 
+  const dropdownWidth = wrapperRef.current?.clientWidth;
   const fieldComponent = useMemo(() => {
     return (
-      <StyledMultiSelectWrapper>
+      <StyledMultiSelectWrapper ref={wrapperRef}>
         <MultiSelect
           allowSelectAll={schemaItem.allowSelectAll}
           compactMode={false}
           disabled={schemaItem.isDisabled}
-          dropDownWidth={90}
+          dropDownWidth={dropdownWidth || 100}
           dropdownStyle={DEFAULT_DROPDOWN_STYLES}
           isFilterable={schemaItem.isFilterable}
           isValid={isDirty ? isValueValid : true}
+          labelText=""
           loading={false}
           onBlur={onBlurHandler}
           onChange={onOptionChange}
@@ -205,8 +208,8 @@ function MultiSelectField({
           placeholder={schemaItem.placeholderText || ""}
           serverSideFiltering={schemaItem.serverSideFiltering}
           value={componentValues}
-          widgetId={name}
-          width={100}
+          widgetId={fieldClassName}
+          width={10}
         />
       </StyledMultiSelectWrapper>
     );
@@ -214,7 +217,6 @@ function MultiSelectField({
     componentValues,
     isDirty,
     isValueValid,
-    name,
     onBlurHandler,
     onFilterChange,
     onFocusHandler,
@@ -225,6 +227,8 @@ function MultiSelectField({
     schemaItem.options,
     schemaItem.placeholderText,
     schemaItem.serverSideFiltering,
+    dropdownWidth,
+    fieldClassName,
   ]);
 
   return (

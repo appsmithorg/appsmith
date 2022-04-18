@@ -1,7 +1,10 @@
 import { getCanvasWidgetsPayload } from "sagas/PageSagas";
 import { updateCurrentPage } from "actions/pageActions";
 import { editorInitializer } from "utils/EditorUtils";
-import { Page, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  Page,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { initEditor } from "actions/initActions";
 import { useDispatch } from "react-redux";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";

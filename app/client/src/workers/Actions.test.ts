@@ -17,6 +17,7 @@ describe("Add functions", () => {
       dynamicBindingPathList: [],
       name: "action1",
       bindingPaths: {},
+      reactivePaths: {},
       isLoading: false,
       run: {},
       clear: {},

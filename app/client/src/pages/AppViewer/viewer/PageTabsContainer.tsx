@@ -1,7 +1,9 @@
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import styled from "styled-components";
-import { Page } from "constants/ReduxActionConstants";
-import { ApplicationPayload } from "constants/ReduxActionConstants";
+import {
+  ApplicationPayload,
+  Page,
+} from "@appsmith/constants/ReduxActionConstants";
 import Icon, { IconSize } from "components/ads/Icon";
 import PageTabs from "./PageTabs";
 import useThrottledRAF from "utils/hooks/useThrottledRAF";

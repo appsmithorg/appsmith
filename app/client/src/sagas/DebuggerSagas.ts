@@ -5,7 +5,10 @@ import {
   deleteErrorLog,
   LogDebuggerErrorAnalyticsPayload,
 } from "actions/debuggerActions";
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { ENTITY_TYPE, Log, LogActionPayload } from "entities/AppsmithConsole";
 import {
   all,

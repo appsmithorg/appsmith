@@ -16,14 +16,13 @@ import {
   ReduxAction,
   ReduxActionType,
   ReduxActionTypes,
-  ReduxActionWithoutPayload,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   getDataTree,
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
 import { getWidgets } from "sagas/selectors";
-import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
+import WidgetFactory, { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
 import {
@@ -35,7 +34,7 @@ import log from "loglevel";
 import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {
   PerformanceTransactionName,
-} from "../utils/PerformanceTracker";
+} from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import { Action } from "redux";
 import {
@@ -446,7 +445,7 @@ function* evaluationChangeListenerSaga() {
   yield call(worker.request, EVAL_WORKER_ACTIONS.SETUP);
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   const initAction: {
-    postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>;
+    postEvalActions: Array<ReduxAction<unknown>>;
   } = yield take(FIRST_EVAL_REDUX_ACTIONS);
   yield fork(evaluateTreeSaga, initAction.postEvalActions);
   const evtActionChannel: ActionSubPattern<Action<any>> = yield actionChannel(

@@ -31,6 +31,9 @@ describe("dataTreeTypeDefCreator", () => {
       bindingPaths: {
         defaultText: EvaluationSubstitutionType.TEMPLATE,
       },
+      reactivePaths: {
+        defaultText: EvaluationSubstitutionType.TEMPLATE,
+      },
       triggerPaths: {
         onTextChange: true,
       },

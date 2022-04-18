@@ -1,5 +1,6 @@
 import { Action, PluginType } from "entities/Action";
 import _ from "lodash";
+import { getPropertyPath } from "./DynamicBindingUtils";
 import {
   EVAL_VALUE_PATH,
   getDynamicBindingsChangesSaga,
@@ -153,6 +154,23 @@ describe("DynamicBindingPathlist", () => {
     const actualResult = getDynamicBindingsChangesSaga(action, value, field);
 
     expect(_.isEqual(expectedResult, actualResult)).toBeTruthy();
+  });
+});
+
+describe("getPropertyPath function", () => {
+  it("test getPropertyPath", () => {
+    const testCases = [
+      ["Table1.searchText", "searchText"],
+      ["Table1.selectedRow", "selectedRow"],
+      ["Table1.meta.searchText", "meta.searchText"],
+      ["Table1", "Table1"],
+      ["Table1.", ""],
+    ];
+
+    testCases.forEach(([input, expectedResult]) => {
+      const actualResult = getPropertyPath(input);
+      expect(actualResult).toStrictEqual(expectedResult);
+    });
   });
 });
 

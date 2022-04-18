@@ -16,7 +16,7 @@ import {
   Droppable,
   DropResult,
 } from "react-beautiful-dnd";
-import { Page } from "constants/ReduxActionConstants";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import { theme } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
