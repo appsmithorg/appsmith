@@ -989,7 +989,12 @@ public class PostgresPlugin extends BasePlugin {
             urlBuilder.append(authentication.getDatabaseName());
         }
 
-        //JDBC override parameter for resolving Cast Errors on PostgreSQL
+        /** 
+         * JDBC connection parameter to auto resolve argument type when using prepared statements. 
+         * Quoting from doc: 
+         * If stringtype is set to unspecified, parameters will be sent to the server as untyped values, and the server will attempt to infer an appropriate type.
+         * Ref: https://jdbc.postgresql.org/documentation/83/connect.html 
+         */
         urlBuilder.append("?stringtype=unspecified");
 
         /*
