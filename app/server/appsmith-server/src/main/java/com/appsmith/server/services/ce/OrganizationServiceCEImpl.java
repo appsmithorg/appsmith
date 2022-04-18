@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.RoleGraph;
@@ -216,7 +217,22 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
 
     @Override
     public Mono<Organization> update(String id, Organization resource) {
-        return repository.updateById(id, resource, MANAGE_ORGANIZATIONS)
+        Mono<Organization> findOrganizationMono = repository.findById(id, MANAGE_ORGANIZATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, id)));
+
+        // In case the update is not used to update the policies, then set the policies to null to ensure that the
+        // existing policies are not overwritten.
+        if (resource.getPolicies().isEmpty()) {
+            resource.setPolicies(null);
+        }
+
+        return findOrganizationMono
+                .map(existingOrganization -> {
+                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, existingOrganization);
+                    return existingOrganization;
+                })
+                .flatMap(this::validateObject)
+                .flatMap(repository::save)
                 .flatMap(analyticsService::sendUpdateEvent);
     }
 

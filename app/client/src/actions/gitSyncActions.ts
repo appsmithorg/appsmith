@@ -1,13 +1,13 @@
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { ConnectToGitPayload } from "api/GitSyncAPI";
 import {
-  ReduxActionWithCallbacks,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
-import { GitSyncModalTab, GitConfig, MergeStatus } from "entities/GitSync";
+  ReduxActionTypes,
+  ReduxActionWithCallbacks,
+} from "@appsmith/constants/ReduxActionConstants";
+import { ConnectToGitPayload } from "api/GitSyncAPI";
+import { GitConfig, GitSyncModalTab, MergeStatus } from "entities/GitSync";
 import { GitApplicationMetadata } from "api/ApplicationApi";
 import { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
-import { ResponseMeta } from "../api/ApiResponses";
+import { ResponseMeta } from "api/ApiResponses";
 
 export const setIsGitSyncModalOpen = (payload: {
   isOpen: boolean;
@@ -374,4 +374,29 @@ export const importAppViaGitError = (error: any) => ({
 
 export const resetSSHKeys = () => ({
   type: ReduxActionTypes.RESET_SSH_KEY_PAIR,
+});
+
+export const deleteBranchInit = (payload: any) => ({
+  type: ReduxActionTypes.DELETE_BRANCH_INIT,
+  payload,
+});
+
+export const deleteBranchSuccess = (payload: any) => ({
+  type: ReduxActionTypes.DELETE_BRANCH_SUCCESS,
+  payload,
+});
+
+export const deleteBranchError = (payload: any) => ({
+  type: ReduxActionErrorTypes.DELETE_BRANCH_ERROR,
+  payload,
+});
+
+export const deleteBranchWarning = (payload: any) => ({
+  type: ReduxActionErrorTypes.DELETE_BRANCH_WARNING,
+  payload,
+});
+
+export const deletingBranch = (payload: any) => ({
+  type: ReduxActionTypes.DELETING_BRANCH,
+  payload,
 });

@@ -86,7 +86,14 @@ export const getIsGitConnected = createSelector(
   getCurrentAppGitMetaData,
   (gitMetaData) => !!(gitMetaData && gitMetaData.remoteUrl),
 );
-export const getGitBranches = (state: AppState) => state.ui.gitSync.branches;
+
+/**
+ * getGitBranches: returns list of git branches in redux store
+ * @param state {AppState}
+ * @return Branch[]
+ */
+export const getGitBranches = (state: AppState): Branch[] =>
+  state.ui.gitSync.branches;
 
 export const getGitBranchNames = createSelector(getGitBranches, (branches) =>
   branches.map((branchObj) => branchObj.branchName),
@@ -101,7 +108,7 @@ export const getDefaultGitBranchName = createSelector(
 export const getFetchingBranches = (state: AppState) =>
   state.ui.gitSync.fetchingBranches;
 
-export const getCurrentGitBranch = (state: AppState) => {
+export const getCurrentGitBranch = (state: AppState): string | undefined => {
   const { gitApplicationMetadata } = getCurrentApplication(state) || {};
   return gitApplicationMetadata?.branchName;
 };
@@ -170,3 +177,6 @@ export const getSshKeyPair = (state: AppState) => state.ui.gitSync.SSHKeyPair;
 
 export const getIsImportingApplicationViaGit = (state: AppState) =>
   state.ui.gitSync.isImportingApplicationViaGit;
+
+export const getDeleteBranchWarning = (state: AppState) =>
+  state.ui.gitSync.deleteBranchWarning;

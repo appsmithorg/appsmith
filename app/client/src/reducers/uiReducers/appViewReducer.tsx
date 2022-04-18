@@ -2,7 +2,7 @@ import { createReducer } from "utils/AppsmithUtils";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 
 const initialState: AppViewReduxState = {
   isFetchingPage: false,
