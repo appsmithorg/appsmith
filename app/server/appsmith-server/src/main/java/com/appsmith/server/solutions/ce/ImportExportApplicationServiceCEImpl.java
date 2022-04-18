@@ -21,7 +21,6 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
@@ -194,7 +193,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 })
                 .then(applicationMono)
                 .flatMap(application -> themeService.getThemeById(application.getEditModeThemeId(), READ_THEMES)
-                        .zipWith(themeService.getThemeById(application.getPublishedModeThemeId(), READ_THEMES))
+                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.THEME, application.getEditModeThemeId())))
+                        .zipWith(themeService
+                                .getThemeById(application.getPublishedModeThemeId(), READ_THEMES)
+                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.THEME, application.getPublishedModeThemeId())))
+                        )
                         .map(themesTuple -> {
                             Theme editModeTheme = exportTheme(themesTuple.getT1());
                             Theme publishedModeTheme = exportTheme(themesTuple.getT2());
@@ -712,6 +715,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     datasource.setPluginId(null);
                                     AppsmithBeanUtils.copyNestedNonNullProperties(datasource, existingDatasource);
                                     existingDatasource.setStructure(null);
+                                    // Don't update the datasource configuration for already available datasources
+                                    existingDatasource.setDatasourceConfiguration(null);
                                     return datasourceService.update(existingDatasource.getId(), existingDatasource)
                                             .map(datasource1 -> {
                                                 datasourceMap.put(importedDatasourceName, datasource1.getId());
@@ -1391,7 +1396,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
                     final ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
 
-                    // If pageId is missing in the actionDTO create a fallback pageId
+                    // If pageId is missing in the actionCollectionDTO create a fallback pageId
                     final String fallbackParentPageId = unpublishedCollection.getPageId();
 
                     if (unpublishedCollection.getName() != null) {

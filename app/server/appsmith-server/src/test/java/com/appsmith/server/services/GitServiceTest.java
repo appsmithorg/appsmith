@@ -731,7 +731,6 @@ public class GitServiceTest {
 
         Application application1 = this.createApplicationConnectedToGit("private_repo_1", "master", limitPrivateRepoTestOrgId);
         this.createApplicationConnectedToGit("private_repo_2", "master", limitPrivateRepoTestOrgId);
-        this.createApplicationConnectedToGit("private_repo_3", "master", limitPrivateRepoTestOrgId);
 
         Application testApplication = new Application();
         GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
@@ -2363,6 +2362,29 @@ public class GitServiceTest {
                 .create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable.getMessage().contains(AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage(AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage())))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationFromGit_emptyRepo_ThrowError() {
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
+
+        ApplicationJson applicationJson = createAppJson(filePath).block();
+        applicationJson.setExportedApplication(null);
+        applicationJson.setDatasourceList(new ArrayList<>());
+
+        Mockito.when(gitExecutor.cloneApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just("defaultBranch"));
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(applicationJson));
+
+        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
+
+        StepVerifier
+                .create(applicationMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().contains("Cannot import app from an empty repo"))
                 .verify();
     }
 

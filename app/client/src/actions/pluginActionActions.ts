@@ -6,7 +6,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   ReduxActionWithoutPayload,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { Action } from "entities/Action";
 import { batchAction } from "actions/batchActions";
 import { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";

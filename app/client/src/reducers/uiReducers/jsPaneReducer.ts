@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
   ReduxAction,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { JSCollection } from "entities/JSCollection";
 export interface JsPaneReduxState {
   isCreating: boolean;

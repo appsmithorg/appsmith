@@ -255,7 +255,7 @@ export const actionPathFromName = (
   const ActionConfigStarts = "actionConfiguration.";
   let path = name;
   if (path.startsWith(ActionConfigStarts)) {
-    path = "config." + path.substr(ActionConfigStarts.length);
+    path = "config." + path.slice(ActionConfigStarts.length);
   }
   return `${actionName}.${path}`;
 };

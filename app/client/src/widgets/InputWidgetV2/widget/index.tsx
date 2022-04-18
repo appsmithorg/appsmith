@@ -471,7 +471,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
           !(
             (this.props.bottomRow - this.props.topRow) /
               GRID_DENSITY_MIGRATION_V1 >
-              1 && this.props.inputType === "TEXT"
+            1
           )
         }
         defaultValue={this.props.defaultText}
@@ -483,9 +483,12 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
+        labelAlignment={this.props.labelAlignment}
+        labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelWidth={this.getLabelWidth()}
         multiline={
           (this.props.bottomRow - this.props.topRow) /
             minInputSingleLineHeight >
