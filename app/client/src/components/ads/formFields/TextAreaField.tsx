@@ -1,6 +1,7 @@
 import React from "react";
 import { Field, WrappedFieldMetaProps } from "redux-form";
 import { Intent } from "constants/DefaultTheme";
+import FormFieldError from "components/ads/formFields/FieldError";
 import {
   EditorModes,
   EditorSize,
@@ -10,7 +11,6 @@ import {
 import CodeEditor, {
   EditorProps,
 } from "components/editorComponents/CodeEditor";
-import FormFieldError from "components/ads/formFields/FieldError";
 
 const renderComponent = (
   componentProps: FormTextAreaFieldProps &
