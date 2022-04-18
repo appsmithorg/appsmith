@@ -332,18 +332,59 @@ export const getCellProperties = (
         columnProperties.allowCellWrapping,
         rowIndex,
       ),
+      // EditActions related properties
+      saveButtonVariant: getPropertyValue(
+        columnProperties.saveButtonVariant,
+        rowIndex,
+        true,
+      ),
+      saveButtonColor: getPropertyValue(
+        columnProperties.saveButtonColor,
+        rowIndex,
+        true,
+      ),
+      saveIconAlign: getPropertyValue(
+        columnProperties.saveIconAlign,
+        rowIndex,
+        true,
+      ),
+      saveBorderRadius: getPropertyValue(
+        columnProperties.saveBorderRadius,
+        rowIndex,
+        true,
+      ),
       saveActionLabel: getPropertyValue(
         columnProperties.saveActionLabel,
         rowIndex,
         true,
       ),
-      discardActionLabel: getPropertyValue(
-        columnProperties.discardActionLabel,
+      saveActionIconName: getPropertyValue(
+        columnProperties.saveActionIconName,
         rowIndex,
         true,
       ),
-      saveActionIconName: getPropertyValue(
-        columnProperties.saveActionIconName,
+      discardButtonVariant: getPropertyValue(
+        columnProperties.discardButtonVariant,
+        rowIndex,
+        true,
+      ),
+      discardButtonColor: getPropertyValue(
+        columnProperties.discardButtonColor,
+        rowIndex,
+        true,
+      ),
+      discardIconAlign: getPropertyValue(
+        columnProperties.discardIconAlign,
+        rowIndex,
+        true,
+      ),
+      discardBorderRadius: getPropertyValue(
+        columnProperties.discardBorderRadius,
+        rowIndex,
+        true,
+      ),
+      discardActionLabel: getPropertyValue(
+        columnProperties.discardActionLabel,
         rowIndex,
         true,
       ),

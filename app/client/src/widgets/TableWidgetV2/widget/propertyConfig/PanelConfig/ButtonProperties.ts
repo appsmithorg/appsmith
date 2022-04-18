@@ -17,12 +17,7 @@ export default {
     return hideByColumnType(
       props,
       propertyPath,
-      [
-        ColumnTypes.BUTTON,
-        ColumnTypes.MENU_BUTTON,
-        ColumnTypes.ICON_BUTTON,
-        ColumnTypes.EDIT_ACTIONS,
-      ],
+      [ColumnTypes.BUTTON, ColumnTypes.MENU_BUTTON, ColumnTypes.ICON_BUTTON],
       true,
     );
   },
@@ -64,10 +59,7 @@ export default {
       isBindProperty: false,
       isTriggerProperty: false,
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.MENU_BUTTON,
-          ColumnTypes.EDIT_ACTIONS,
-        ]);
+        return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
       },
       dependencies: ["primaryColumns", "columnOrder"],
       validation: {
@@ -394,88 +386,6 @@ export default {
         type: ValidationTypes.TEXT,
         params: {
           regex: /^(?![<|{{]).+/,
-        },
-      },
-    },
-    {
-      propertyName: "saveActionLabel",
-      label: "Save action label",
-      controlType: "COMPUTE_VALUE_V2",
-      defaultValue: "Save",
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.EDIT_ACTIONS,
-        ]);
-      },
-      dependencies: ["primaryColumns", "columnOrder"],
-      isBindProperty: true,
-      isTriggerProperty: false,
-    },
-    {
-      propertyName: "discardActionLabel",
-      label: "Discard action label",
-      controlType: "COMPUTE_VALUE_V2",
-      defaultValue: "Discard",
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.EDIT_ACTIONS,
-        ]);
-      },
-      dependencies: ["primaryColumns", "columnOrder"],
-      isBindProperty: true,
-      isTriggerProperty: false,
-    },
-    {
-      propertyName: "saveActionIconName",
-      label: "Save action Icon",
-      helpText: "Sets the icon to be used for the save action button",
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.EDIT_ACTIONS,
-        ]);
-      },
-      dependencies: ["primaryColumns", "columnOrder"],
-      controlType: "ICON_SELECT",
-      customJSControl: "COMPUTE_VALUE_V2",
-      defaultIconName: "tick",
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
-        params: {
-          type: ValidationTypes.TEXT,
-          params: {
-            allowedValues: ICON_NAMES,
-            default: IconNames.TICK,
-          },
-        },
-      },
-    },
-    {
-      propertyName: "discardActionIconName",
-      label: "Discard action Icon",
-      helpText: "Sets the icon to be used for the discard action button",
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.EDIT_ACTIONS,
-        ]);
-      },
-      dependencies: ["primaryColumns", "columnOrder"],
-      controlType: "ICON_SELECT",
-      customJSControl: "COMPUTE_VALUE_V2",
-      defaultIconName: "cross",
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
-        params: {
-          type: ValidationTypes.TEXT,
-          params: {
-            allowedValues: ICON_NAMES,
-            default: IconNames.CROSS,
-          },
         },
       },
     },
