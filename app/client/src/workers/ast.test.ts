@@ -266,4 +266,47 @@ describe("parseJSObjectWithAST", () => {
     const resultParsedObject = parseJSObjectWithAST(body);
     expect(resultParsedObject).toStrictEqual(parsedObject);
   });
+  it("parse js object with literal", () => {
+    const body = `{
+	myVar1: [],
+	myVar2: {
+		"a": "app",
+	},
+	myFun1: () => {
+		//write code here
+	},
+	myFun2: async () => {
+		//use async-await or promises
+	}
+}`;
+    const parsedObject = [
+      {
+        key: "myVar1",
+        value: "[]",
+        type: "ArrayExpression",
+      },
+      {
+        key: '"a"',
+        value: '"app"',
+        type: "Literal",
+      },
+      {
+        key: "myVar2",
+        value: '{\n  "a": "app"\n}',
+        type: "ObjectExpression",
+      },
+      {
+        key: "myFun1",
+        value: "() => {}",
+        type: "ArrowFunctionExpression",
+      },
+      {
+        key: "myFun2",
+        value: "async () => {}",
+        type: "ArrowFunctionExpression",
+      },
+    ];
+    const resultParsedObject = parseJSObjectWithAST(body);
+    expect(resultParsedObject).toStrictEqual(parsedObject);
+  });
 });
