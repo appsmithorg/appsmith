@@ -62,6 +62,8 @@ export interface ApiActionConfig extends Omit<ActionConfig, "formData"> {
   queryParameters?: Property[];
   bodyFormData?: BodyFormData[];
   formData: Record<string, unknown>;
+  query?: string | null;
+  variable?: string | null;
 }
 
 export interface QueryActionConfig extends ActionConfig {
@@ -172,4 +174,8 @@ export function isSaaSAction(action: Action): action is SaaSAction {
 
 export function getGraphQLPlugin(plugins: Plugin[]): Plugin | undefined {
   return plugins.find((p) => p.packageName === "graphql-plugin");
+}
+
+export function isGraphqlPlugin(plugin: Plugin | undefined) {
+  return plugin?.packageName === "graphql-plugin";
 }

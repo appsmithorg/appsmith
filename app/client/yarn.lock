@@ -1738,6 +1738,71 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
+"@codemirror/highlight@^0.19.0":
+  version "0.19.8"
+  resolved "https://registry.yarnpkg.com/@codemirror/highlight/-/highlight-0.19.8.tgz#a95aee8ae4389b01f820aa79c48f7b4388087d92"
+  integrity sha512-v/lzuHjrYR8MN2mEJcUD6fHSTXXli9C1XGYpr+ElV6fLBIUhMTNKR3qThp611xuWfXfwDxeL7ppcbkM/MzPV3A==
+  dependencies:
+    "@codemirror/language" "^0.19.0"
+    "@codemirror/rangeset" "^0.19.0"
+    "@codemirror/state" "^0.19.3"
+    "@codemirror/view" "^0.19.39"
+    "@lezer/common" "^0.15.0"
+    style-mod "^4.0.0"
+
+"@codemirror/language@^0.19.0":
+  version "0.19.10"
+  resolved "https://registry.yarnpkg.com/@codemirror/language/-/language-0.19.10.tgz#c3d1330fa5de778c6b6b5177af5572a3d9d596b5"
+  integrity sha512-yA0DZ3RYn2CqAAGW62VrU8c4YxscMQn45y/I9sjBlqB1e2OTQLg4CCkMBuMSLXk4xaqjlsgazeOQWaJQOKfV8Q==
+  dependencies:
+    "@codemirror/state" "^0.19.0"
+    "@codemirror/text" "^0.19.0"
+    "@codemirror/view" "^0.19.0"
+    "@lezer/common" "^0.15.5"
+    "@lezer/lr" "^0.15.0"
+
+"@codemirror/rangeset@^0.19.0", "@codemirror/rangeset@^0.19.5":
+  version "0.19.9"
+  resolved "https://registry.yarnpkg.com/@codemirror/rangeset/-/rangeset-0.19.9.tgz#e80895de93c39dc7899f5be31d368c9d88aa4efc"
+  integrity sha512-V8YUuOvK+ew87Xem+71nKcqu1SXd5QROMRLMS/ljT5/3MCxtgrRie1Cvild0G/Z2f1fpWxzX78V0U4jjXBorBQ==
+  dependencies:
+    "@codemirror/state" "^0.19.0"
+
+"@codemirror/state@^0.19.0", "@codemirror/state@^0.19.3":
+  version "0.19.9"
+  resolved "https://registry.yarnpkg.com/@codemirror/state/-/state-0.19.9.tgz#b797f9fbc204d6dc7975485e231693c09001b0dd"
+  integrity sha512-psOzDolKTZkx4CgUqhBQ8T8gBc0xN5z4gzed109aF6x7D7umpDRoimacI/O6d9UGuyl4eYuDCZmDFr2Rq7aGOw==
+  dependencies:
+    "@codemirror/text" "^0.19.0"
+
+"@codemirror/stream-parser@^0.19.2":
+  version "0.19.9"
+  resolved "https://registry.yarnpkg.com/@codemirror/stream-parser/-/stream-parser-0.19.9.tgz#34955ea91a8047cf72abebd5ce28f0d332aeca48"
+  integrity sha512-WTmkEFSRCetpk8xIOvV2yyXdZs3DgYckM0IP7eFi4ewlxWnJO/H4BeJZLs4wQaydWsAqTQoDyIwNH1BCzK5LUQ==
+  dependencies:
+    "@codemirror/highlight" "^0.19.0"
+    "@codemirror/language" "^0.19.0"
+    "@codemirror/state" "^0.19.0"
+    "@codemirror/text" "^0.19.0"
+    "@lezer/common" "^0.15.0"
+    "@lezer/lr" "^0.15.0"
+
+"@codemirror/text@^0.19.0":
+  version "0.19.6"
+  resolved "https://registry.yarnpkg.com/@codemirror/text/-/text-0.19.6.tgz#9adcbd8137f69b75518eacd30ddb16fd67bbac45"
+  integrity sha512-T9jnREMIygx+TPC1bOuepz18maGq/92q2a+n4qTqObKwvNMg+8cMTslb8yxeEDEq7S3kpgGWxgO1UWbQRij0dA==
+
+"@codemirror/view@^0.19.0", "@codemirror/view@^0.19.39":
+  version "0.19.48"
+  resolved "https://registry.yarnpkg.com/@codemirror/view/-/view-0.19.48.tgz#1c657e2b0f8ed896ac6448d6e2215ab115e2a0fc"
+  integrity sha512-0eg7D2Nz4S8/caetCTz61rK0tkHI17V/d15Jy0kLOT8dTLGGNJUponDnW28h2B6bERmPlVHKh8MJIr5OCp1nGw==
+  dependencies:
+    "@codemirror/rangeset" "^0.19.5"
+    "@codemirror/state" "^0.19.3"
+    "@codemirror/text" "^0.19.0"
+    style-mod "^4.0.0"
+    w3c-keyname "^2.2.4"
+
 "@craco/craco@^5.0.0", "@craco/craco@^5.7.0":
   version "5.7.0"
   resolved "https://registry.npmjs.org/@craco/craco/-/craco-5.7.0.tgz"
@@ -2273,6 +2338,18 @@
     "@types/node" "*"
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
+
+"@lezer/common@^0.15.0", "@lezer/common@^0.15.5":
+  version "0.15.12"
+  resolved "https://registry.yarnpkg.com/@lezer/common/-/common-0.15.12.tgz#2f21aec551dd5fd7d24eb069f90f54d5bc6ee5e9"
+  integrity sha512-edfwCxNLnzq5pBA/yaIhwJ3U3Kz8VAUOTRg0hhxaizaI1N+qxV7EXDv/kLCkLeq2RzSFvxexlaj5Mzfn2kY0Ig==
+
+"@lezer/lr@^0.15.0":
+  version "0.15.8"
+  resolved "https://registry.yarnpkg.com/@lezer/lr/-/lr-0.15.8.tgz#1564a911e62b0a0f75ca63794a6aa8c5dc63db21"
+  integrity sha512-bM6oE6VQZ6hIFxDNKk8bKPa14hqFrV07J/vHGOeiAbJReIaQXmkVb6xQu4MR+JBTLa5arGRyAAjJe1qaQt3Uvg==
+  dependencies:
+    "@lezer/common" "^0.15.0"
 
 "@manaflair/redux-batch@^1.0.0":
   version "1.0.0"
@@ -5640,6 +5717,14 @@ code-point-at@^1.0.0:
   version "1.1.0"
   resolved "https://registry.npmjs.org/code-point-at/-/code-point-at-1.1.0.tgz"
 
+codemirror-graphql@^1.2.14:
+  version "1.2.17"
+  resolved "https://registry.yarnpkg.com/codemirror-graphql/-/codemirror-graphql-1.2.17.tgz#09f2812c65067c6b818b2db560dc6b14599b0cf2"
+  integrity sha512-8zV7yxylAnKeinZPANhhAp4XiqDnFwWe74/At+SvAPgsRXpB2MfeE4J9BSJOIzImpGRlnU9W9X22jGous8qx6g==
+  dependencies:
+    "@codemirror/stream-parser" "^0.19.2"
+    graphql-language-service "^5.0.3"
+
 codemirror@^5.59.2:
   version "5.59.2"
   resolved "https://registry.npmjs.org/codemirror/-/codemirror-5.59.2.tgz"
@@ -8728,9 +8813,22 @@ graceful-fs@^4.2.6:
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.8.tgz#e412b8d33f5e006593cbd3cee6df9f2cebbe802a"
   integrity sha512-qkIilPUYcNhJpd33n0GBXTB1MMPp14TxEsEs0pTrsSVucApsYzW5V+Q8Qxhik6KU3evy+qkAAowTByymK0avdg==
 
+graphql-language-service@^5.0.3:
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/graphql-language-service/-/graphql-language-service-5.0.3.tgz#6986fef10f622b00417be0b5d914032b06aec654"
+  integrity sha512-mO/xyZGXEri/Ythq+60eSPJqU7emUyAXd0LkrSC9rMk/UiUPV4M1xgZdZ6GnacazGR1wcCDaZs1VtsYpgVQbMQ==
+  dependencies:
+    nullthrows "^1.0.0"
+    vscode-languageserver-types "^3.15.1"
+
 graphql@^15.4.0:
   version "15.5.0"
   resolved "https://registry.npmjs.org/graphql/-/graphql-15.5.0.tgz"
+
+graphql@^16.3.0:
+  version "16.3.0"
+  resolved "https://registry.yarnpkg.com/graphql/-/graphql-16.3.0.tgz#a91e24d10babf9e60c706919bb182b53ccdffc05"
+  integrity sha512-xm+ANmA16BzCT5pLjuXySbQVFwH3oJctUVdy81w1sV0vBU0KgDdBGtxQOUd5zqOBk/JayAFeG8Dlmeq74rjm/A==
 
 growl@1.10.5:
   version "1.10.5"
@@ -12200,6 +12298,11 @@ nth-check@^1.0.2, nth-check@~1.0.1:
   resolved "https://registry.npmjs.org/nth-check/-/nth-check-1.0.2.tgz"
   dependencies:
     boolbase "~1.0.0"
+
+nullthrows@^1.0.0:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/nullthrows/-/nullthrows-1.1.1.tgz#7818258843856ae971eae4208ad7d7eb19a431b1"
+  integrity sha512-2vPPEi+Z7WqML2jZYddDIfy5Dqb0r2fze2zTxNNknZaFpVHU3mFB3R+DWeJWGVx0ecvttSGlJTI+WG+8Z4cDWw==
 
 num2fraction@^1.2.2:
   version "1.2.2"
@@ -16315,6 +16418,11 @@ style-loader@1.3.0:
     loader-utils "^2.0.0"
     schema-utils "^2.7.0"
 
+style-mod@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/style-mod/-/style-mod-4.0.0.tgz#97e7c2d68b592975f2ca7a63d0dd6fcacfe35a01"
+  integrity sha512-OPhtyEjyyN9x3nhPsu76f52yUGXiZcgvsrFVtvTkyGRQJ0XK+GPc6ov1z+lRpbeabka+MYEQxOYRnt5nF30aMw==
+
 styled-components@^5.2.0:
   version "5.2.0"
   resolved "https://registry.npmjs.org/styled-components/-/styled-components-5.2.0.tgz"
@@ -17293,11 +17401,21 @@ vm-browserify@^1.0.1:
   version "1.1.2"
   resolved "https://registry.npmjs.org/vm-browserify/-/vm-browserify-1.1.2.tgz"
 
+vscode-languageserver-types@^3.15.1:
+  version "3.16.0"
+  resolved "https://registry.yarnpkg.com/vscode-languageserver-types/-/vscode-languageserver-types-3.16.0.tgz#ecf393fc121ec6974b2da3efb3155644c514e247"
+  integrity sha512-k8luDIWJWyenLc5ToFQQMaSrqCHiLwyKPHKPQZ5zz21vM+vIVUSvsRpcbiECH4WR88K2XZqc4ScRcZ7nk/jbeA==
+
 w3c-hr-time@^1.0.2:
   version "1.0.2"
   resolved "https://registry.npmjs.org/w3c-hr-time/-/w3c-hr-time-1.0.2.tgz"
   dependencies:
     browser-process-hrtime "^1.0.0"
+
+w3c-keyname@^2.2.4:
+  version "2.2.4"
+  resolved "https://registry.yarnpkg.com/w3c-keyname/-/w3c-keyname-2.2.4.tgz#4ade6916f6290224cdbd1db8ac49eab03d0eef6b"
+  integrity sha512-tOhfEwEzFLJzf6d1ZPkYfGj+FWhIpBux9ppoP3rlclw3Z0BZv3N7b7030Z1kYth+6rDuAsXUFr+d0VE6Ed1ikw==
 
 w3c-xmlserializer@^2.0.0:
   version "2.0.0"

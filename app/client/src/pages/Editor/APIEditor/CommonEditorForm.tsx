@@ -3,12 +3,13 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   HTTP_METHOD_OPTIONS,
   API_EDITOR_TABS,
+  GRAPHQL_HTTP_METHOD_OPTIONS,
 } from "constants/ApiEditorConstants";
 import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationField, SuggestedWidget } from "api/ActionAPI";
-import { Action, PaginationType } from "entities/Action";
+import { Action, isGraphqlPlugin, PaginationType } from "entities/Action";
 import {
   setGlobalSearchQuery,
   toggleShowGlobalSearchModal,
@@ -50,6 +51,7 @@ import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core/lib/esnext/common";
 import { Classes as BluePrintClasses } from "@blueprintjs/core";
 import { replayHighlightClass } from "globalStyles/portals";
+import { getPlugin } from "selectors/entitiesSelector";
 
 const Form = styled.form`
   position: relative;
@@ -543,6 +545,12 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   );
   const { pageId } = useParams<ExplorerURLParams>();
 
+  const plugin = useSelector((state: AppState) =>
+    getPlugin(state, pluginId ?? ""),
+  );
+
+  const isGraphql = isGraphqlPlugin(plugin);
+
   const theme = EditorTheme.LIGHT;
   const handleClickLearnHow = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -593,7 +601,9 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                 height={"35px"}
                 name="actionConfiguration.httpMethod"
                 optionWidth={"110px"}
-                options={HTTP_METHOD_OPTIONS}
+                options={
+                  isGraphql ? GRAPHQL_HTTP_METHOD_OPTIONS : HTTP_METHOD_OPTIONS
+                }
                 placeholder="Method"
                 width={"110px"}
               />

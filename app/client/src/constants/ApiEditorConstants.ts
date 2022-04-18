@@ -11,11 +11,6 @@ export enum HTTP_METHOD {
   PATCH = "PATCH",
 }
 
-export enum GRAPHQL_HTTP_METHOD {
-  GET = "GET",
-  POST = "POST",
-}
-
 export const HTTP_METHODS_COLOR: Record<HTTP_METHOD, string> = {
   GET: "#457AE6",
   POST: "#FEB811",
@@ -36,6 +31,15 @@ export enum API_EDITOR_TABS {
 export const HTTP_METHOD_OPTIONS = Object.values(HTTP_METHOD).map((method) => ({
   value: method,
 }));
+
+export const GRAPHQL_HTTP_METHOD_OPTIONS = [
+  {
+    value: HTTP_METHOD.GET,
+  },
+  {
+    value: HTTP_METHOD.POST,
+  },
+];
 
 export const REST_PLUGIN_PACKAGE_NAME = "restapi-plugin";
 
@@ -86,6 +90,29 @@ export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
 
 export const DEFAULT_PROVIDER_OPTION = "Business Software";
 export const CONTENT_TYPE_HEADER_KEY = "content-type";
+
+// Graphql Default Config
+export const DEFAULT_GRAPHQL_ACTION_CONFIG: ApiActionConfig = {
+  timeoutInMillisecond: DEFAULT_ACTION_TIMEOUT,
+  encodeParamsToggle: true,
+  httpMethod: HTTP_METHOD.POST,
+  headers: [
+    { key: CONTENT_TYPE_HEADER_KEY, value: POST_BODY_FORMAT_OPTIONS.JSON },
+    { key: "", value: "" },
+  ],
+  queryParameters: EMPTY_KEY_VALUE_PAIRS.slice(),
+  query: "",
+  variable: "",
+  formData: {
+    apiContentType: POST_BODY_FORMAT_OPTIONS.JSON,
+  },
+  pluginSpecifiedTemplates: [
+    {
+      // JSON smart substitution
+      value: true,
+    },
+  ],
+};
 
 export enum ApiResponseTypes {
   JSON = "JSON",
