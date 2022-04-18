@@ -438,6 +438,9 @@ class DatasourceRestAPIEditor extends React.Component<
       false,
     );
     if (!formData) return;
+
+    const { authentication } = formData;
+
     return (
       <>
         {messages &&
@@ -537,29 +540,31 @@ class DatasourceRestAPIEditor extends React.Component<
           {this.renderOauth2AdvancedSettings()}
         </Collapsible>
         {this.renderSelfSignedCertificateFields()}
-        {formData.authType && formData.authType === AuthType.OAuth2 && (
-          <FormInputContainer>
-            <AuthorizeButton
-              disabled={this.disableSave()}
-              filled
-              intent="primary"
-              loading={isSaving}
-              onClick={() =>
-                this.save(
-                  redirectAuthorizationCode(
-                    pageId,
-                    datasourceId,
-                    PluginType.API,
-                  ),
-                )
-              }
-              size="small"
-              text={
-                isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"
-              }
-            />
-          </FormInputContainer>
-        )}
+        {formData.authType &&
+          formData.authType === AuthType.OAuth2 &&
+          _.get(authentication, "grantType") == GrantType.AuthorizationCode && (
+            <FormInputContainer>
+              <AuthorizeButton
+                disabled={this.disableSave()}
+                filled
+                intent="primary"
+                loading={isSaving}
+                onClick={() =>
+                  this.save(
+                    redirectAuthorizationCode(
+                      pageId,
+                      datasourceId,
+                      PluginType.API,
+                    ),
+                  )
+                }
+                size="small"
+                text={
+                  isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"
+                }
+              />
+            </FormInputContainer>
+          )}
       </>
     );
   };
