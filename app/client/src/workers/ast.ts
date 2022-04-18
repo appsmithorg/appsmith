@@ -1,8 +1,9 @@
 import { parse, Node } from "acorn";
-import { ancestor } from "acorn-walk";
+import { ancestor, simple } from "acorn-walk";
 import _ from "lodash";
 import { ECMA_VERSION } from "workers/constants";
 import { sanitizeScript } from "./evaluate";
+import { generate } from "astring";
 
 /*
  * Valuable links:
@@ -298,4 +299,27 @@ const getPropertyAccessor = (propertyNode: IdentifierNode | LiteralNode) => {
     // is array index search - a[9]
     return `[${propertyNode.value}]`;
   }
+};
+
+export const parseJSObjectWithAST = (jsObjectBody: string) => {
+  const createString = `var jsObj = ${jsObjectBody}`;
+  const ast = parse(createString, { ecmaVersion: 11 });
+  const rawKeyValues: any = [];
+  const parsedObject: any = [];
+  simple(ast, {
+    Property(node: any) {
+      rawKeyValues.push({
+        key: node.key,
+        value: node.value,
+      });
+    },
+  });
+  rawKeyValues.forEach((rawKeyValue: any) => {
+    parsedObject.push({
+      key: generate(rawKeyValue.key),
+      value: generate(rawKeyValue.value),
+      type: rawKeyValue.value.type,
+    });
+  });
+  return parsedObject;
 };

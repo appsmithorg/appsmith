@@ -83,7 +83,7 @@ import {
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 const clone = require("rfdc/default");
-
+import { parseJSObjectWithAST } from "workers/ast";
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
   sortedDependencies: Array<string> = [];
@@ -722,6 +722,30 @@ export default class DataTreeEvaluator {
             _.set(currentTree, fullPropertyPath, evalPropertyValue);
             return currentTree;
           } else if (isJSAction(entity)) {
+            const variableList: Array<string> =
+              _.get(entity, "variables") || [];
+            if (variableList.indexOf(propertyPath) > -1) {
+              const getVarEvalValue = _.get(
+                currentTree,
+                getEvalValuePath(fullPropertyPath, {
+                  isPopulated: true,
+                  fullPath: true,
+                }),
+              );
+              if (!getVarEvalValue) {
+                _.set(
+                  currentTree,
+                  getEvalValuePath(fullPropertyPath, {
+                    isPopulated: true,
+                    fullPath: true,
+                  }),
+                  evalPropertyValue,
+                );
+                _.set(currentTree, fullPropertyPath, evalPropertyValue);
+              } else {
+                _.set(currentTree, fullPropertyPath, getVarEvalValue);
+              }
+            }
             return currentTree;
           } else {
             return _.set(currentTree, fullPropertyPath, evalPropertyValue);
@@ -1030,72 +1054,78 @@ export default class DataTreeEvaluator {
     if (correctFormat) {
       const body = entity.body.replace(/export default/g, "");
       try {
+        const parsedObject = parseJSObjectWithAST(body);
+        const actions: any = [];
+        const variables: any = [];
         const { result } = evaluateSync(body, unEvalDataTree, {}, true);
-        delete this.resolvedFunctions[`${entityName}`];
-        delete this.currentJSCollectionState[`${entityName}`];
-        if (result) {
-          const actions: ParsedJSSubAction[] = [];
-          const variables: any = [];
-          Object.keys(result).forEach((unEvalFunc) => {
-            const unEvalValue = result[unEvalFunc];
-            if (typeof unEvalValue === "function") {
-              const params = getParams(unEvalValue);
-              const functionString = unEvalValue.toString();
-              _.set(
-                this.resolvedFunctions,
-                `${entityName}.${unEvalFunc}`,
-                unEvalValue,
-              );
-              _.set(
-                this.currentJSCollectionState,
-                `${entityName}.${unEvalFunc}`,
-                functionString,
-              );
-              actions.push({
-                name: unEvalFunc,
-                body: functionString,
-                arguments: params,
-                parsedFunction: unEvalValue,
-                isAsync: false,
-              });
-            } else {
-              variables.push({
-                name: unEvalFunc,
-                value: result[unEvalFunc],
-              });
-              _.set(
-                this.currentJSCollectionState,
-                `${entityName}.${unEvalFunc}`,
-                unEvalValue,
-              );
-            }
-          });
-
-          const parsedBody = {
-            body: entity.body,
-            actions: actions,
-            variables,
-          };
-          _.set(jsUpdates, `${entityName}`, {
-            parsedBody,
-            id: entity.actionId,
-          });
-        } else {
-          _.set(jsUpdates, `${entityName}`, {
-            parsedBody: undefined,
-            id: entity.actionId,
-          });
+        if (!!result) {
+          if (!!parsedObject) {
+            parsedObject.forEach((parsedElement: any) => {
+              if (
+                parsedElement.type === "ArrowFunctionExpression" ||
+                parsedElement.type === "FunctionExpression"
+              ) {
+                try {
+                  const { result } = evaluateSync(
+                    parsedElement.value,
+                    unEvalDataTree,
+                    {},
+                    true,
+                  );
+                  if (!!result) {
+                    const params = getParams(result);
+                    const functionString = parsedElement.value;
+                    _.set(
+                      this.resolvedFunctions,
+                      `${entityName}.${parsedElement.key}`,
+                      result,
+                    );
+                    _.set(
+                      this.currentJSCollectionState,
+                      `${entityName}.${parsedElement.key}`,
+                      functionString,
+                    );
+                    actions.push({
+                      name: parsedElement.key,
+                      body: functionString,
+                      arguments: params,
+                      parsedFunction: result,
+                      isAsync: false,
+                    });
+                  }
+                } catch {
+                  // in case we need to handle error state
+                }
+              } else if (parsedElement.type !== "literal") {
+                variables.push({
+                  name: parsedElement.key,
+                  value: parsedElement.value,
+                });
+                _.set(
+                  this.currentJSCollectionState,
+                  `${entityName}.${parsedElement.key}`,
+                  parsedElement.value,
+                );
+              }
+            });
+            const parsedBody = {
+              body: entity.body,
+              actions: actions,
+              variables,
+            };
+            _.set(jsUpdates, `${entityName}`, {
+              parsedBody,
+              id: entity.actionId,
+            });
+          } else {
+            _.set(jsUpdates, `${entityName}`, {
+              parsedBody: undefined,
+              id: entity.actionId,
+            });
+          }
         }
       } catch (e) {
-        const errors = {
-          type: EvalErrorTypes.PARSE_JS_ERROR,
-          context: {
-            entity: entity,
-            propertyPath: entity.name + ".body",
-          },
-          message: e.message,
-        };
-        this.errors.push(errors);
+        //if we need to push error as popup in case
       }
     } else {
       const errors = {
@@ -1492,7 +1522,7 @@ export default class DataTreeEvaluator {
         if (!entity) {
           continue;
         }
-        if (!isAction(entity) && !isWidget(entity)) {
+        if (!isAction(entity) && !isWidget(entity) && !isJSAction(entity)) {
           continue;
         }
         let entityDynamicBindingPaths: string[] = [];
