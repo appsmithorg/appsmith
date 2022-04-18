@@ -1,5 +1,8 @@
-import { ColumnTypes } from "../widget/propertyUtils";
-import { renderCell } from "./TableUtilities";
+import { noop } from "lodash";
+import { ColumnTypes } from "../constants";
+import { CellLayoutProperties } from "./Constants";
+import { renderDefault } from "./renderHelpers/DefaultRenderer";
+import { renderImage } from "./renderHelpers/ImageRenderer";
 
 describe("Test table columnType Image render", () => {
   it("columnType Image accepts single image url and renders image correctly", () => {
@@ -9,14 +12,15 @@ describe("Test table columnType Image render", () => {
     const expected = [
       "http://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/back02.jpg",
     ];
-    const ImageCellComponent = renderCell(
-      value,
-      ColumnTypes.IMAGE,
-      false,
-      { isCellVisible: true },
-      930,
-      true,
-    );
+    const ImageCellComponent = renderImage({
+      compactMode: "",
+      value: value,
+      isHidden: false,
+      cellProperties: ({
+        isCellVisible: true,
+      } as unknown) as CellLayoutProperties,
+      isCellVisible: true,
+    });
     const result = ImageCellComponent.props.children.map((imageDiv: any) => {
       return imageDiv.props.children.props.style.backgroundImage
         .slice(4, -1)
@@ -33,14 +37,15 @@ describe("Test table columnType Image render", () => {
     const expected = [
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==",
     ];
-    const ImageCellComponent = renderCell(
-      value,
-      ColumnTypes.IMAGE,
-      false,
-      { isCellVisible: true },
-      930,
-      true,
-    );
+    const ImageCellComponent = renderImage({
+      compactMode: "",
+      value: value,
+      isHidden: false,
+      cellProperties: ({
+        isCellVisible: true,
+      } as unknown) as CellLayoutProperties,
+      isCellVisible: true,
+    });
     const result = ImageCellComponent.props.children.map((imageDiv: any) => {
       return imageDiv.props.children.props.style.backgroundImage
         .slice(4, -1)
@@ -59,14 +64,15 @@ describe("Test table columnType Image render", () => {
       "http://commondatastorage.googleapis.com/codeskulptor-assets/gutenberg.jpg",
       "http://commondatastorage.googleapis.com/codeskulptor-assets/gutenberg.jpg",
     ];
-    const ImageCellComponent = renderCell(
-      value,
-      ColumnTypes.IMAGE,
-      false,
-      { isCellVisible: true },
-      930,
-      true,
-    );
+    const ImageCellComponent = renderImage({
+      compactMode: "",
+      value: value,
+      isHidden: false,
+      cellProperties: ({
+        isCellVisible: true,
+      } as unknown) as CellLayoutProperties,
+      isCellVisible: true,
+    });
     const result = ImageCellComponent.props.children.map((imageDiv: any) => {
       return imageDiv.props.children.props.style.backgroundImage
         .slice(4, -1)
@@ -84,14 +90,15 @@ describe("Test table columnType Image render", () => {
       "http://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/back02.jpg",
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==",
     ];
-    const ImageCellComponent = renderCell(
-      value,
-      ColumnTypes.IMAGE,
-      false,
-      { isCellVisible: true },
-      930,
-      true,
-    );
+    const ImageCellComponent = renderImage({
+      compactMode: "",
+      value: value,
+      isHidden: false,
+      cellProperties: ({
+        isCellVisible: true,
+      } as unknown) as CellLayoutProperties,
+      isCellVisible: true,
+    });
     const result = ImageCellComponent.props.children.map((imageDiv: any) => {
       return imageDiv.props.children.props.style.backgroundImage
         .slice(4, -1)
@@ -109,14 +116,15 @@ describe("Test table columnType Image render", () => {
       "http://codeskulptor-demos.commondatastorage.googleapis.com/GalaxyInvaders/back02.jpg",
       undefined,
     ];
-    const ImageCellComponent = renderCell(
-      value,
-      ColumnTypes.IMAGE,
-      false,
-      { isCellVisible: true },
-      930,
-      true,
-    );
+    const ImageCellComponent = renderImage({
+      compactMode: "",
+      value: value,
+      isHidden: false,
+      cellProperties: ({
+        isCellVisible: true,
+      } as unknown) as CellLayoutProperties,
+      isCellVisible: true,
+    });
     const result = ImageCellComponent.props.children.map((imageDiv: any) => {
       // check and get img url if exist
       const imageDivProps = imageDiv.props.children.props;
@@ -130,65 +138,5 @@ describe("Test table columnType Image render", () => {
     });
 
     expect(expected).toEqual(result);
-  });
-
-  it("columnType Text accepts undefined value and render empty string ", () => {
-    const value = undefined;
-    const expected = "";
-    const renderedCell = renderCell(
-      value,
-      ColumnTypes.TEXT,
-      false,
-      { isCellVisible: true },
-      930,
-      true,
-    );
-
-    expect(expected).toEqual(renderedCell.props.children);
-  });
-
-  it("columnType Text accepts null value and render empty string ", () => {
-    const value = null;
-    const expected = "";
-    const renderedCell = renderCell(
-      value,
-      ColumnTypes.TEXT,
-      false,
-      { isCellVisible: true },
-      930,
-      true,
-    );
-
-    expect(expected).toEqual(renderedCell.props.children);
-  });
-
-  it("columnType Number accepts 0 as value and renders 0 ", () => {
-    const value = 0;
-    const expected = "0";
-    const renderedCell = renderCell(
-      value,
-      ColumnTypes.NUMBER,
-      false,
-      { isCellVisible: true },
-      930,
-      true,
-    );
-
-    expect(expected).toEqual(renderedCell.props.children);
-  });
-
-  it("columnType Number accepts NaN as value and renders empty string ", () => {
-    const value = NaN;
-    const expected = "";
-    const renderedCell = renderCell(
-      value,
-      ColumnTypes.NUMBER,
-      false,
-      { isCellVisible: true },
-      930,
-      true,
-    );
-
-    expect(expected).toEqual(renderedCell.props.children);
   });
 });

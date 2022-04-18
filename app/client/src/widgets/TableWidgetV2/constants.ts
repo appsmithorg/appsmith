@@ -8,6 +8,7 @@ import {
 import { WidgetProps } from "widgets/BaseWidget";
 import { WithMeta } from "widgets/MetaHOC";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { IconNames } from "@blueprintjs/icons";
 
 export type EditableCell = {
   column: string;
@@ -128,3 +129,7 @@ export type OnColumnEventArgs = {
   eventType: EventType;
   row?: Record<string, unknown>;
 };
+
+export const ICON_NAMES = Object.keys(IconNames).map(
+  (name: string) => IconNames[name as keyof typeof IconNames],
+);
