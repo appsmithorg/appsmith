@@ -12,7 +12,6 @@ import { FormEvalActionPayload } from "sagas/FormEvaluationSaga";
 import { FormConfigType } from "components/formControls/BaseControl";
 import { isEmpty, merge } from "lodash";
 import { extractEvalConfigFromFormConfig } from "components/formControls/utils";
-import _ from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 export enum ConditionType {
