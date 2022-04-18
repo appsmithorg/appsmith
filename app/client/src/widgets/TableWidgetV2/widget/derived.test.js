@@ -1237,780 +1237,168 @@ describe("Validate getSelectedRows function", () => {
 });
 
 describe("Validate getOrderedTableColumns function", () => {
-  it("validates columns generation function for empty values", () => {
+  it.only("should test tht it returns the columns array from the primaryColumn", () => {
     const { getOrderedTableColumns } = derivedProperty;
+
     const input = {
-      sanitizedTableData: [],
+      columnOrder: ["id", "name"],
+      primaryColumns: {
+        id: {
+          index: 0,
+          id: "id",
+        },
+        name: {
+          index: 1,
+          id: "name",
+        },
+      },
+    };
+
+    const expected = [
+      {
+        index: 0,
+        id: "id",
+        isAscOrder: undefined,
+      },
+      {
+        index: 1,
+        id: "name",
+        isAscOrder: undefined,
+      },
+    ];
+
+    expect(getOrderedTableColumns(input, moment, _)).toStrictEqual(expected);
+  });
+
+  it.only("should test that it returns the columns array from the primaryColumn based on column order", () => {
+    const { getOrderedTableColumns } = derivedProperty;
+
+    const input = {
+      columnOrder: ["name", "id"],
+      primaryColumns: {
+        id: {
+          index: 0,
+          id: "id",
+        },
+        name: {
+          index: 1,
+          id: "name",
+        },
+      },
+    };
+
+    const expected = [
+      {
+        index: 0,
+        id: "name",
+        isAscOrder: undefined,
+      },
+      {
+        index: 1,
+        id: "id",
+        isAscOrder: undefined,
+      },
+    ];
+
+    expect(getOrderedTableColumns(input, moment, _)).toStrictEqual(expected);
+  });
+
+  it.only("should test that it returns the columns array from the primaryColumn based on column order and sets sort order details", () => {
+    const { getOrderedTableColumns } = derivedProperty;
+
+    const input = {
+      columnOrder: ["name", "id"],
+      primaryColumns: {
+        id: {
+          index: 0,
+          id: "id",
+        },
+        name: {
+          index: 1,
+          id: "name",
+        },
+      },
       sortOrder: {
-        column: "",
-        order: null,
+        column: "name",
+        order: "asc",
       },
-      columnOrder: ["id", "another"],
     };
-    const expected = [];
 
-    let result = getOrderedTableColumns(input, moment, _);
-    expect(result).toStrictEqual(expected);
-
-    result = getOrderedTableColumns(
-      {
-        sortOrder: {
-          column: "",
-          order: null,
-        },
-      },
-      moment,
-      _,
-    );
-    expect(result).toStrictEqual(expected);
-  });
-
-  it("validates columns generation function for valid values", () => {
-    const { getOrderedTableColumns } = derivedProperty;
-    const input = {
-      sanitizedTableData: [
-        { id: 123, name: "John Doe" },
-        { id: 234, name: "Jane Doe" },
-      ],
-      sortOrder: { column: "id", order: "desc" },
-      columnOrder: ["name", "id"],
-    };
     const expected = [
       {
         index: 0,
-        width: 150,
         id: "name",
-        horizontalAlignment: "LEFT",
-        verticalAlignment: "CENTER",
-        accessor: "name",
-        columnType: "text",
-        textColor: "#231F20",
-        textSize: "PARAGRAPH",
-        fontStyle: "REGULAR",
-        enableFilter: true,
-        enableSort: true,
-        isVisible: true,
-        isDerived: false,
-        label: "name",
-        isAscOrder: undefined,
-        computedValue: ["John Doe", "Jane Doe"],
+        isAscOrder: true,
       },
       {
         index: 1,
-        width: 150,
         id: "id",
-        horizontalAlignment: "LEFT",
-        verticalAlignment: "CENTER",
-        accessor: "id",
-        columnType: "text",
-        textColor: "#231F20",
-        textSize: "PARAGRAPH",
-        fontStyle: "REGULAR",
-        enableFilter: true,
-        enableSort: true,
-        isVisible: true,
-        isDerived: false,
-        label: "id",
-        isAscOrder: false,
-        computedValue: [123, 234],
+        isAscOrder: undefined,
       },
     ];
 
-    let result = getOrderedTableColumns(input, moment, _);
-    expect(result).toStrictEqual(expected);
-  });
+    expect(getOrderedTableColumns(input, moment, _)).toStrictEqual(expected);
 
-  it("generated columns does not modify primary columns", () => {
-    const { getOrderedTableColumns } = derivedProperty;
-    const input = {
-      sanitizedTableData: [
-        { id: 123, name: "John Doe" },
-        { id: 234, name: "Jane Doe" },
-      ],
-      sortOrder: { column: "id", order: "desc" },
+    input = {
       columnOrder: ["name", "id"],
       primaryColumns: {
         id: {
-          index: 1,
-          width: 150,
+          index: 0,
           id: "id",
-          horizontalAlignment: "LEFT",
-          verticalAlignment: "CENTER",
-          columnType: "text",
-          textColor: "#231F20",
-          textSize: "PARAGRAPH",
-          fontStyle: "REGULAR",
-          enableFilter: true,
-          enableSort: true,
-          isVisible: true,
-          isDerived: false,
-          label: "id",
-          isAscOrder: false,
-          computedValue: [123, 234],
         },
         name: {
-          index: 0,
-          width: 150,
+          index: 1,
           id: "name",
-          horizontalAlignment: "LEFT",
-          verticalAlignment: "CENTER",
-          columnType: "text",
-          textColor: "#231F20",
-          textSize: "PARAGRAPH",
-          fontStyle: "REGULAR",
-          enableFilter: true,
-          enableSort: true,
-          isVisible: true,
-          isDerived: false,
-          label: "awesome",
-          isAscOrder: undefined,
-          computedValue: ["John Doe", "Jane Doe"],
         },
       },
+      sortOrder: {
+        column: "name",
+        order: "desc",
+      },
     };
-    const expected = [
+
+    expected = [
       {
         index: 0,
-        width: 150,
         id: "name",
-        horizontalAlignment: "LEFT",
-        verticalAlignment: "CENTER",
-        columnType: "text",
-        textColor: "#231F20",
-        textSize: "PARAGRAPH",
-        fontStyle: "REGULAR",
-        enableFilter: true,
-        enableSort: true,
-        isVisible: true,
-        isDerived: false,
-        label: "awesome",
-        isAscOrder: undefined,
-        computedValue: ["John Doe", "Jane Doe"],
+        isAscOrder: false,
       },
       {
         index: 1,
-        width: 150,
         id: "id",
-        horizontalAlignment: "LEFT",
-        verticalAlignment: "CENTER",
-        columnType: "text",
-        textColor: "#231F20",
-        textSize: "PARAGRAPH",
-        fontStyle: "REGULAR",
-        enableFilter: true,
-        enableSort: true,
-        isVisible: true,
-        isDerived: false,
-        label: "id",
-        isAscOrder: false,
-        computedValue: [123, 234],
+        isAscOrder: undefined,
       },
     ];
 
-    let result = getOrderedTableColumns(input, moment, _);
-    expect(result).toStrictEqual(expected);
+    expect(getOrderedTableColumns(input, moment, _)).toStrictEqual(expected);
   });
 
-  it("generated columns removes unexpected columns in primary columns", () => {
+  it.only("should test that it removes the column with empty name", () => {
     const { getOrderedTableColumns } = derivedProperty;
+
     const input = {
-      sanitizedTableData: [
-        { id: 123, name: "John Doe" },
-        { id: 234, name: "Jane Doe" },
-      ],
-      sortOrder: { column: "id", order: "desc" },
-      columnOrder: ["name", "id"],
+      columnOrder: ["name", ""],
       primaryColumns: {
-        id: {
-          index: 1,
-          width: 150,
-          id: "id",
-          horizontalAlignment: "LEFT",
-          verticalAlignment: "CENTER",
-          columnType: "text",
-          textColor: "#231F20",
-          textSize: "PARAGRAPH",
-          fontStyle: "REGULAR",
-          enableFilter: true,
-          enableSort: true,
-          isVisible: true,
-          isDerived: false,
-          label: "id",
-          isAscOrder: false,
-          computedValue: [123, 234],
+        "": {
+          index: 0,
+          id: "",
         },
         name: {
-          index: 0,
-          width: 150,
+          index: 1,
           id: "name",
-          horizontalAlignment: "LEFT",
-          verticalAlignment: "CENTER",
-          columnType: "text",
-          textColor: "#231F20",
-          textSize: "PARAGRAPH",
-          fontStyle: "REGULAR",
-          enableFilter: true,
-          enableSort: true,
-          isVisible: true,
-          isDerived: false,
-          label: "awesome",
-          isAscOrder: undefined,
-          computedValue: ["John Doe", "Jane Doe"],
-        },
-        extra: {
-          index: 2,
-          width: 150,
-          id: "extra",
-          horizontalAlignment: "LEFT",
-          verticalAlignment: "CENTER",
-          columnType: "text",
-          textColor: "#231F20",
-          textSize: "PARAGRAPH",
-          fontStyle: "REGULAR",
-          enableFilter: true,
-          enableSort: true,
-          isVisible: true,
-          isDerived: false,
-          label: "extra",
-          isAscOrder: undefined,
-          computedValue: ["Extra1", "Extra2"],
         },
       },
     };
+
     const expected = [
       {
         index: 0,
-        width: 150,
         id: "name",
-        horizontalAlignment: "LEFT",
-        verticalAlignment: "CENTER",
-        columnType: "text",
-        textColor: "#231F20",
-        textSize: "PARAGRAPH",
-        fontStyle: "REGULAR",
-        enableFilter: true,
-        enableSort: true,
-        isVisible: true,
-        isDerived: false,
-        label: "awesome",
         isAscOrder: undefined,
-        computedValue: ["John Doe", "Jane Doe"],
-      },
-      {
-        index: 1,
-        width: 150,
-        id: "id",
-        horizontalAlignment: "LEFT",
-        verticalAlignment: "CENTER",
-        columnType: "text",
-        textColor: "#231F20",
-        textSize: "PARAGRAPH",
-        fontStyle: "REGULAR",
-        enableFilter: true,
-        enableSort: true,
-        isVisible: true,
-        isDerived: false,
-        label: "id",
-        isAscOrder: false,
-        computedValue: [123, 234],
       },
     ];
 
-    let result = getOrderedTableColumns(input, moment, _);
-    expect(result).toStrictEqual(expected);
-  });
-
-  it("generated columns does not remove derived columns in primary columns", () => {
-    const { getOrderedTableColumns } = derivedProperty;
-    const input = {
-      sanitizedTableData: [
-        { id: 123, name: "John Doe" },
-        { id: 234, name: "Jane Doe" },
-      ],
-      sortOrder: { column: "id", order: "desc" },
-      columnOrder: ["name", "id"],
-      primaryColumns: {
-        id: {
-          index: 1,
-          width: 150,
-          id: "id",
-          horizontalAlignment: "LEFT",
-          verticalAlignment: "CENTER",
-          columnType: "text",
-          textColor: "#231F20",
-          textSize: "PARAGRAPH",
-          fontStyle: "REGULAR",
-          enableFilter: true,
-          enableSort: true,
-          isVisible: true,
-          isDerived: false,
-          label: "id",
-          isAscOrder: false,
-          computedValue: [123, 234],
-        },
-        name: {
-          index: 0,
-          width: 150,
-          id: "name",
-          horizontalAlignment: "LEFT",
-          verticalAlignment: "CENTER",
-          columnType: "text",
-          textColor: "#231F20",
-          textSize: "PARAGRAPH",
-          fontStyle: "REGULAR",
-          enableFilter: true,
-          enableSort: true,
-          isVisible: true,
-          isDerived: false,
-          label: "awesome",
-          isAscOrder: undefined,
-          computedValue: ["John Doe", "Jane Doe"],
-        },
-        extra: {
-          index: 2,
-          width: 150,
-          id: "extra",
-          horizontalAlignment: "LEFT",
-          verticalAlignment: "CENTER",
-          columnType: "text",
-          textColor: "#231F20",
-          textSize: "PARAGRAPH",
-          fontStyle: "REGULAR",
-          enableFilter: true,
-          enableSort: true,
-          isVisible: true,
-          label: "extra",
-          isAscOrder: undefined,
-          computedValue: ["Extra1", "Extra2"],
-          isDerived: true,
-        },
-      },
-    };
-    const expected = [
-      {
-        index: 0,
-        width: 150,
-        id: "name",
-        horizontalAlignment: "LEFT",
-        verticalAlignment: "CENTER",
-        columnType: "text",
-        textColor: "#231F20",
-        textSize: "PARAGRAPH",
-        fontStyle: "REGULAR",
-        enableFilter: true,
-        enableSort: true,
-        isVisible: true,
-        isDerived: false,
-        label: "awesome",
-        isAscOrder: undefined,
-        computedValue: ["John Doe", "Jane Doe"],
-      },
-      {
-        index: 1,
-        width: 150,
-        id: "id",
-        horizontalAlignment: "LEFT",
-        verticalAlignment: "CENTER",
-        columnType: "text",
-        textColor: "#231F20",
-        textSize: "PARAGRAPH",
-        fontStyle: "REGULAR",
-        enableFilter: true,
-        enableSort: true,
-        isVisible: true,
-        isDerived: false,
-        label: "id",
-        isAscOrder: false,
-        computedValue: [123, 234],
-      },
-      {
-        index: 2,
-        width: 150,
-        id: "extra",
-        horizontalAlignment: "LEFT",
-        verticalAlignment: "CENTER",
-        columnType: "text",
-        textColor: "#231F20",
-        textSize: "PARAGRAPH",
-        fontStyle: "REGULAR",
-        enableFilter: true,
-        enableSort: true,
-        isVisible: true,
-        label: "extra",
-        isAscOrder: undefined,
-        computedValue: ["Extra1", "Extra2"],
-        isDerived: true,
-      },
-    ];
-
-    let result = getOrderedTableColumns(input, moment, _);
-    expect(result).toStrictEqual(expected);
-  });
-
-  it("generated columns removes a column and adds a column", () => {
-    const { getOrderedTableColumns } = derivedProperty;
-    const input = {
-      sanitizedTableData: [
-        { id: 123, address: "earth" },
-        { id: 234, address: "earth" },
-      ],
-      sortOrder: { column: "id", order: "desc" },
-      columnOrder: ["name", "id"],
-      primaryColumns: {
-        id: {
-          index: 1,
-          width: 150,
-          id: "id",
-          horizontalAlignment: "LEFT",
-          verticalAlignment: "CENTER",
-          columnType: "text",
-          textColor: "#231F20",
-          textSize: "PARAGRAPH",
-          fontStyle: "REGULAR",
-          enableFilter: true,
-          enableSort: true,
-          isVisible: true,
-          isDerived: false,
-          label: "id",
-          isAscOrder: false,
-          computedValue: [123, 234],
-        },
-        name: {
-          index: 0,
-          width: 150,
-          id: "name",
-          horizontalAlignment: "LEFT",
-          verticalAlignment: "CENTER",
-          columnType: "text",
-          textColor: "#231F20",
-          textSize: "PARAGRAPH",
-          fontStyle: "REGULAR",
-          enableFilter: true,
-          enableSort: true,
-          isVisible: true,
-          isDerived: false,
-          label: "awesome",
-          isAscOrder: undefined,
-          computedValue: ["John Doe", "Jane Doe"],
-        },
-        extra: {
-          index: 2,
-          width: 150,
-          id: "extra",
-          horizontalAlignment: "LEFT",
-          verticalAlignment: "CENTER",
-          columnType: "text",
-          textColor: "#231F20",
-          textSize: "PARAGRAPH",
-          fontStyle: "REGULAR",
-          enableFilter: true,
-          enableSort: true,
-          isVisible: true,
-          label: "extra",
-          isAscOrder: undefined,
-          computedValue: ["Extra1", "Extra2"],
-          isDerived: true,
-        },
-      },
-    };
-    const expected = [
-      {
-        index: 0,
-        width: 150,
-        id: "id",
-        horizontalAlignment: "LEFT",
-        verticalAlignment: "CENTER",
-        columnType: "text",
-        textColor: "#231F20",
-        textSize: "PARAGRAPH",
-        fontStyle: "REGULAR",
-        enableFilter: true,
-        enableSort: true,
-        isVisible: true,
-        isDerived: false,
-        label: "id",
-        isAscOrder: false,
-        computedValue: [123, 234],
-      },
-      {
-        index: 1,
-        width: 150,
-        id: "extra",
-        horizontalAlignment: "LEFT",
-        verticalAlignment: "CENTER",
-        columnType: "text",
-        textColor: "#231F20",
-        textSize: "PARAGRAPH",
-        fontStyle: "REGULAR",
-        enableFilter: true,
-        enableSort: true,
-        isVisible: true,
-        label: "extra",
-        isAscOrder: undefined,
-        computedValue: ["Extra1", "Extra2"],
-        isDerived: true,
-      },
-      {
-        index: 2,
-        width: 150,
-        id: "address",
-        accessor: "address",
-        horizontalAlignment: "LEFT",
-        verticalAlignment: "CENTER",
-        columnType: "text",
-        textColor: "#231F20",
-        textSize: "PARAGRAPH",
-        fontStyle: "REGULAR",
-        enableFilter: true,
-        enableSort: true,
-        isVisible: true,
-        isDerived: false,
-        label: "address",
-        isAscOrder: undefined,
-        computedValue: ["earth", "earth"],
-      },
-    ];
-
-    let result = getOrderedTableColumns(input, moment, _);
-    expect(result).toStrictEqual(expected);
-  });
-
-  it("generated columns removes a column and adds a column with correct sort values", () => {
-    const { getOrderedTableColumns } = derivedProperty;
-    const input = {
-      sanitizedTableData: [
-        { id: 123, address: "earth" },
-        { id: 234, address: "earth" },
-      ],
-      sortOrder: { column: "address", order: "desc" },
-      columnOrder: ["name", "id"],
-      primaryColumns: {
-        id: {
-          index: 1,
-          width: 150,
-          id: "id",
-          horizontalAlignment: "LEFT",
-          verticalAlignment: "CENTER",
-          columnType: "text",
-          textColor: "#231F20",
-          textSize: "PARAGRAPH",
-          fontStyle: "REGULAR",
-          enableFilter: true,
-          enableSort: true,
-          isVisible: true,
-          isDerived: false,
-          label: "id",
-          isAscOrder: false,
-          computedValue: [123, 234],
-        },
-        name: {
-          index: 0,
-          width: 150,
-          id: "name",
-          horizontalAlignment: "LEFT",
-          verticalAlignment: "CENTER",
-          columnType: "text",
-          textColor: "#231F20",
-          textSize: "PARAGRAPH",
-          fontStyle: "REGULAR",
-          enableFilter: true,
-          enableSort: true,
-          isVisible: true,
-          isDerived: false,
-          label: "awesome",
-          isAscOrder: undefined,
-          computedValue: ["John Doe", "Jane Doe"],
-        },
-        extra: {
-          index: 2,
-          width: 150,
-          id: "extra",
-          horizontalAlignment: "LEFT",
-          verticalAlignment: "CENTER",
-          columnType: "text",
-          textColor: "#231F20",
-          textSize: "PARAGRAPH",
-          fontStyle: "REGULAR",
-          enableFilter: true,
-          enableSort: true,
-          isVisible: true,
-          label: "extra",
-          isAscOrder: undefined,
-          computedValue: ["Extra1", "Extra2"],
-          isDerived: true,
-        },
-      },
-    };
-    const expected = [
-      {
-        index: 0,
-        width: 150,
-        id: "id",
-        horizontalAlignment: "LEFT",
-        verticalAlignment: "CENTER",
-        columnType: "text",
-        textColor: "#231F20",
-        textSize: "PARAGRAPH",
-        fontStyle: "REGULAR",
-        enableFilter: true,
-        enableSort: true,
-        isVisible: true,
-        isDerived: false,
-        label: "id",
-        isAscOrder: undefined,
-        computedValue: [123, 234],
-      },
-      {
-        index: 1,
-        width: 150,
-        id: "extra",
-        horizontalAlignment: "LEFT",
-        verticalAlignment: "CENTER",
-        columnType: "text",
-        textColor: "#231F20",
-        textSize: "PARAGRAPH",
-        fontStyle: "REGULAR",
-        enableFilter: true,
-        enableSort: true,
-        isVisible: true,
-        label: "extra",
-        isAscOrder: undefined,
-        computedValue: ["Extra1", "Extra2"],
-        isDerived: true,
-      },
-      {
-        index: 2,
-        width: 150,
-        id: "address",
-        accessor: "address",
-        horizontalAlignment: "LEFT",
-        verticalAlignment: "CENTER",
-        columnType: "text",
-        textColor: "#231F20",
-        textSize: "PARAGRAPH",
-        fontStyle: "REGULAR",
-        enableFilter: true,
-        enableSort: true,
-        isVisible: true,
-        isDerived: false,
-        label: "address",
-        isAscOrder: false,
-        computedValue: ["earth", "earth"],
-      },
-    ];
-
-    let result = getOrderedTableColumns(input, moment, _);
-    expect(result).toStrictEqual(expected);
-  });
-
-  it("generated columns removes a column with empty column name", () => {
-    const { getOrderedTableColumns } = derivedProperty;
-    const input = {
-      sanitizedTableData: [
-        { "": 123, address: "earth" },
-        { "": 234, address: "earth" },
-      ],
-      sortOrder: { column: "address", order: "desc" },
-      columnOrder: ["name", "id"],
-      primaryColumns: {
-        id: {
-          index: 1,
-          width: 150,
-          id: "id",
-          horizontalAlignment: "LEFT",
-          verticalAlignment: "CENTER",
-          columnType: "text",
-          textColor: "#231F20",
-          textSize: "PARAGRAPH",
-          fontStyle: "REGULAR",
-          enableFilter: true,
-          enableSort: true,
-          isVisible: true,
-          isDerived: false,
-          label: "id",
-          isAscOrder: false,
-          computedValue: [123, 234],
-        },
-        name: {
-          index: 0,
-          width: 150,
-          id: "name",
-          horizontalAlignment: "LEFT",
-          verticalAlignment: "CENTER",
-          columnType: "text",
-          textColor: "#231F20",
-          textSize: "PARAGRAPH",
-          fontStyle: "REGULAR",
-          enableFilter: true,
-          enableSort: true,
-          isVisible: true,
-          isDerived: false,
-          label: "awesome",
-          isAscOrder: undefined,
-          computedValue: ["John Doe", "Jane Doe"],
-        },
-        extra: {
-          index: 2,
-          width: 150,
-          id: "extra",
-          horizontalAlignment: "LEFT",
-          verticalAlignment: "CENTER",
-          columnType: "text",
-          textColor: "#231F20",
-          textSize: "PARAGRAPH",
-          fontStyle: "REGULAR",
-          enableFilter: true,
-          enableSort: true,
-          isVisible: true,
-          label: "extra",
-          isAscOrder: undefined,
-          computedValue: ["Extra1", "Extra2"],
-          isDerived: true,
-        },
-      },
-    };
-    const expected = [
-      {
-        index: 0,
-        width: 150,
-        id: "extra",
-        horizontalAlignment: "LEFT",
-        verticalAlignment: "CENTER",
-        columnType: "text",
-        textColor: "#231F20",
-        textSize: "PARAGRAPH",
-        fontStyle: "REGULAR",
-        enableFilter: true,
-        enableSort: true,
-        isVisible: true,
-        label: "extra",
-        isAscOrder: undefined,
-        computedValue: ["Extra1", "Extra2"],
-        isDerived: true,
-      },
-      {
-        index: 2,
-        width: 150,
-        id: "address",
-        accessor: "address",
-        horizontalAlignment: "LEFT",
-        verticalAlignment: "CENTER",
-        columnType: "text",
-        textColor: "#231F20",
-        textSize: "PARAGRAPH",
-        fontStyle: "REGULAR",
-        enableFilter: true,
-        enableSort: true,
-        isVisible: true,
-        isDerived: false,
-        label: "address",
-        isAscOrder: false,
-        computedValue: ["earth", "earth"],
-      },
-    ];
-
-    let result = getOrderedTableColumns(input, moment, _);
-    expect(result).toStrictEqual(expected);
+    expect(getOrderedTableColumns(input, moment, _)).toStrictEqual(expected);
   });
 });
 
@@ -2110,7 +1498,7 @@ describe("getUpdatedRows -", () => {
         updatedFields: {
           column1: "newValue",
         },
-        all_fields: {
+        allFields: {
           column1: "newValue",
           column2: "oldValue",
         },
@@ -2149,7 +1537,7 @@ describe("getUpdatedRows -", () => {
         updatedFields: {
           column1: "newValue",
         },
-        all_fields: {
+        allFields: {
           column1: "newValue",
           column2: "oldValue2",
         },
@@ -2202,7 +1590,7 @@ describe("getUpdatedRows -", () => {
           column1: "newValue",
           column2: "newValue1",
         },
-        all_fields: {
+        allFields: {
           column1: "newValue",
           column2: "newValue1",
           column3: "oldValue2",

@@ -3,7 +3,7 @@ import { generateTypeDef } from "./dataTreeTypeDefCreator";
 let extraDefs: any = {};
 
 export const customTreeTypeDefCreator = (
-  dataTree: Record<string, Record<string, unknown>>,
+  dataTree: Record<string, Record<string, unknown> | unknown>,
 ) => {
   const def: any = {
     "!name": "customDataTree",
