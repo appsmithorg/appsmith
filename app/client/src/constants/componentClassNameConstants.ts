@@ -6,7 +6,7 @@ export function getSlidingCanvasName(widgetId: string) {
   return `canvas-selection-${widgetId}`;
 }
 
-export function getBaseWidgetClassName(id: string) {
+export function getBaseWidgetClassName(id?: string) {
   return `appsmith_widget_${id}`;
 }
 

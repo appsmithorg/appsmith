@@ -17,7 +17,7 @@ export const generateReactKey = ({
 // 2. Property pane reference for positioning
 // 3. Table widget filter pan reference for positioning
 export const generateClassName = (seed?: string) => {
-  return getBaseWidgetClassName(seed || "");
+  return getBaseWidgetClassName(seed);
 };
 
 export const getCanvasClassName = () => "canvas";
