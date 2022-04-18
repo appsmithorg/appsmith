@@ -990,7 +990,8 @@ public class PostgresPlugin extends BasePlugin {
         }
 
         /** 
-         * JDBC connection parameter to auto resolve argument type when using prepared statements. 
+         * JDBC connection parameter to auto resolve argument type when using prepared statements. Please note that this auto deduction of type happens only when 
+         * the argument is bound using `setString()` method. In our case, it means that we have identified the argument data type as String.
          * Quoting from doc: 
          * If stringtype is set to unspecified, parameters will be sent to the server as untyped values, and the server will attempt to infer an appropriate type.
          * Ref: https://jdbc.postgresql.org/documentation/83/connect.html 
