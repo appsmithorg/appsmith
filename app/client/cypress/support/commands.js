@@ -1554,6 +1554,92 @@ Cypress.Commands.add("DeleteEntityStateLocalStorage", () => {
   });
 });
 
+Cypress.Commands.add("checkLabelForWidget", (options) => {
+  // Variables
+  const widgetName = options.widgetName;
+  const labelText = options.labelText;
+  const parentColumnSpace = options.parentColumnSpace;
+  const isCompact = options.isCompact;
+  const widgetSelector = `.t--widget-${widgetName}`;
+  const labelSelector = `${widgetSelector} label`;
+  const containerSelector = `${widgetSelector} ${options.containerSelector}`;
+  const labelPositionSelector = ".t--property-control-position";
+  const labelAlignmentRightSelector =
+    ".t--property-control-alignment .t--button-tab-right";
+  const labelWidth = options.labelWidth;
+
+  // Drag a widget
+  cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
+  cy.get(`.t--widget-${widgetName}`).should("exist");
+
+  cy.openPropertyPane(widgetName);
+
+  // Set the label text
+  cy.updateCodeInput(".t--property-control-text", labelText);
+  // Assert label presence
+  cy.get(labelSelector)
+    .first()
+    .contains(labelText);
+
+  // Set the label position: Auto
+  cy.selectDropdownValue(labelPositionSelector, "Auto");
+  // Assert label position: Auto
+  cy.get(containerSelector).should(
+    "have.css",
+    "flex-direction",
+    `${isCompact ? "row" : "column"}`,
+  );
+
+  // Change the label position to Top
+  cy.selectDropdownValue(labelPositionSelector, "Top");
+  // Assert label position: Top
+  cy.get(containerSelector).should("have.css", "flex-direction", "column");
+
+  // Change the label position to Left
+  cy.selectDropdownValue(labelPositionSelector, "Left");
+  // Assert label position: Left
+  cy.get(containerSelector).should("have.css", "flex-direction", "row");
+
+  // Set the label alignment to RIGHT
+  cy.get(labelAlignmentRightSelector).click();
+  // Assert label alignment
+  cy.get(labelSelector)
+    .first()
+    .should("have.css", "text-align", "right");
+
+  // Set the label width to labelWidth cols
+  cy.get(`[class*='t--property-control-width'] .bp3-input`)
+    .first()
+    .focus()
+    .clear()
+    .type(`${labelWidth}`);
+  cy.wait(300);
+  // Assert the label width
+  cy.get(labelSelector)
+    .first()
+    .should("have.css", "width", `${parentColumnSpace * labelWidth}px`);
+  // Increase the label width
+  cy.get(`[class*='t--property-control-width'] .bp3-button-group > .bp3-button`)
+    .first()
+    .click();
+  // Assert the increased label width
+  cy.wait(300);
+  cy.get(labelSelector)
+    .first()
+    .should("have.css", "width", `${parentColumnSpace * (labelWidth + 1)}px`);
+  // Decrease the label width
+  cy.get(`[class*='t--property-control-width'] .bp3-button-group > .bp3-button`)
+    .last()
+    .click();
+  cy.wait(300);
+  // Assert the decreased label width
+  cy.get(labelSelector)
+    .first()
+    .should("have.css", "width", `${parentColumnSpace * labelWidth}px`);
+
+  // Clean up the widget
+  cy.deleteWidget(widgetSelector);
+});
 let LOCAL_STORAGE_MEMORY = {};
 
 Cypress.Commands.add("saveLocalStorageCache", () => {

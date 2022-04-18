@@ -8,6 +8,7 @@ import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import { RadioOption } from "widgets/RadioGroupWidget/constants";
 import { BaseFieldComponentProps, FieldComponentBaseProps } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Alignment } from "@blueprintjs/core";
 
 type RadioGroupComponentProps = FieldComponentBaseProps & {
   options: RadioOption[];
@@ -86,9 +87,12 @@ function RadioGroupField({
       tooltip={schemaItem.tooltip}
     >
       <RadioGroupComponent
-        isDisabled={schemaItem.isDisabled}
-        isLoading={false}
-        label=""
+        alignment={Alignment.LEFT}
+        compactMode={false}
+        disabled={schemaItem.isDisabled}
+        inline={false}
+        labelText=""
+        loading={false}
         onRadioSelectionChange={onSelectionChange}
         options={schemaItem.options || []}
         selectedOptionValue={value}
