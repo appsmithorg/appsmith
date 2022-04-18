@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
   ReduxAction,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { DefaultPlugin, Plugin } from "api/PluginApi";
 import {
   PluginFormPayloadWithId,

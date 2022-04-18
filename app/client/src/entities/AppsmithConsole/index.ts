@@ -1,4 +1,4 @@
-import { ReduxAction } from "constants/ReduxActionConstants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import LOG_TYPE from "./logtype";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 

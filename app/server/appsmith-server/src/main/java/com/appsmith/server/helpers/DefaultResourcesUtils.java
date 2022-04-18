@@ -105,6 +105,7 @@ public class DefaultResourcesUtils {
                     : actionCollectionDefaultResources.getCollectionId();
             actionCollectionDefaultResources.setApplicationId(defaultApplicationId);
             actionCollectionDefaultResources.setCollectionId(defaultActionCollectionId);
+            actionCollectionDefaultResources.setPageId(null);
             actionCollectionDefaultResources.setBranchName(branchName);
 
             if (Optional.ofNullable(actionCollection.getUnpublishedCollection()).isPresent()) {
@@ -127,6 +128,9 @@ public class DefaultResourcesUtils {
                     : collectionDTODefaultResources.getPageId();
 
             collectionDTODefaultResources.setPageId(defaultPageId);
+            collectionDTODefaultResources.setApplicationId(null);
+            collectionDTODefaultResources.setBranchName(null);
+            collectionDTODefaultResources.setCollectionId(null);
 
             if (updateActionIds) {
                 Map<String, String> updatedActionIds = new HashMap<>();

@@ -26,7 +26,7 @@ export function parseUrlForQueryParams(url: string) {
   const matchGroup = url.match(queryParamsRegEx) || [];
   const parsedUrlWithQueryParams = matchGroup[2] || "";
   if (parsedUrlWithQueryParams.indexOf("?") > -1) {
-    const paramsString = parsedUrlWithQueryParams.substr(
+    const paramsString = parsedUrlWithQueryParams.slice(
       parsedUrlWithQueryParams.indexOf("?") + 1,
     );
     params = paramsString.split("&").map((p) => {

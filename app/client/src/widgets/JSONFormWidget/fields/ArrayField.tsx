@@ -30,7 +30,7 @@ import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import { generateReactKey } from "utils/generators";
 import { schemaItemDefaultValue } from "../helper";
 
-const clone = require("rfdc/default");
+import { klona } from "klona/full";
 
 type ArrayComponentProps = FieldComponentBaseProps & {
   backgroundColor?: string;
@@ -138,7 +138,7 @@ function ArrayField({
   const basePropertyPath = `${propertyPath}.children.${ARRAY_ITEM_KEY}`;
 
   const add = () => {
-    let values = clone(getValues(name));
+    let values = klona(getValues(name));
     if (values && values.length) {
       values.push({});
     } else {
@@ -149,7 +149,7 @@ function ArrayField({
 
   const remove = useCallback(
     (removedKey: string) => {
-      const values = clone(getValues(name));
+      const values = klona(getValues(name));
       if (values === undefined) {
         return;
       }
@@ -165,7 +165,7 @@ function ArrayField({
       // cachedDefaultValue[index] in the FieldRenderer
       if (removedIndex < cachedDefaultValue.length) {
         setCachedDefaultValue((prevDefaultValue) => {
-          const clonedValue = clone(prevDefaultValue);
+          const clonedValue = klona(prevDefaultValue);
 
           clonedValue.splice(removedIndex, 1);
 
@@ -175,7 +175,7 @@ function ArrayField({
 
       // Manually remove from the values and re-insert to maintain the position of the
       // values
-      const newValues = clone(
+      const newValues = klona(
         values.filter((_val: any, index: number) => index !== removedIndex),
       );
 
@@ -216,8 +216,8 @@ function ArrayField({
   }, [valueLength]);
 
   useDeepEffect(() => {
-    setValue(name, clone(defaultValue));
-    setCachedDefaultValue(clone(defaultValue));
+    setValue(name, klona(defaultValue));
+    setCachedDefaultValue(klona(defaultValue));
   }, [defaultValue]);
 
   /**
@@ -228,7 +228,7 @@ function ArrayField({
    */
   useDeepEffect(() => {
     setMetaInternalFieldState((prevState) => {
-      const metaInternalFieldState = clone(prevState.metaInternalFieldState);
+      const metaInternalFieldState = klona(prevState.metaInternalFieldState);
       const currMetaInternalFieldState: FieldState<{ isValid: true }> = get(
         metaInternalFieldState,
         name,

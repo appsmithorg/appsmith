@@ -1,21 +1,17 @@
 import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { connect } from "react-redux";
-import { withRouter, RouteComponentProps, Route } from "react-router";
-import { Switch } from "react-router-dom";
+import { withRouter, RouteComponentProps } from "react-router";
 import { AppState } from "reducers";
 import {
   AppViewerRouteParams,
   BuilderRouteParams,
   GIT_BRANCH_QUERY_KEY,
-  VIEWER_FORK_PATH,
-  VIEWER_PATH,
-  VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import {
   PageListPayload,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { getIsInitialized } from "selectors/appViewSelectors";
 import { executeTrigger } from "actions/widgetActions";
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
@@ -42,8 +38,6 @@ import GlobalHotKeys from "./GlobalHotKeys";
 import { getSearchQuery } from "utils/helpers";
 import AppViewerCommentsSidebar from "./AppViewerComemntsSidebar";
 import { showPostCompletionMessage } from "selectors/onboardingSelectors";
-
-const SentryRoute = Sentry.withSentryRouting(Route);
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -189,23 +183,7 @@ class AppViewer extends Component<Props> {
                   showGuidedTourMessage={this.props.showGuidedTourMessage}
                 >
                   {isInitialized && this.state.registered && (
-                    <Switch>
-                      <SentryRoute
-                        component={AppViewerPageContainer}
-                        exact
-                        path={VIEWER_PATH}
-                      />
-                      <SentryRoute
-                        component={AppViewerPageContainer}
-                        exact
-                        path={VIEWER_PATH_DEPRECATED}
-                      />
-                      <SentryRoute
-                        component={AppViewerPageContainer}
-                        exact
-                        path={VIEWER_FORK_PATH}
-                      />
-                    </Switch>
+                    <AppViewerPageContainer />
                   )}
                 </AppViewerBody>
               </AppViewerBodyContainer>
