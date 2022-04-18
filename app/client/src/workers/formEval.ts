@@ -12,7 +12,8 @@ import { FormEvalActionPayload } from "sagas/FormEvaluationSaga";
 import { FormConfigType } from "components/formControls/BaseControl";
 import { isEmpty, merge } from "lodash";
 import { extractEvalConfigFromFormConfig } from "components/formControls/utils";
-import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
+import _ from "lodash";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 export enum ConditionType {
   HIDE = "hide", // When set, the component will be shown until condition is true
@@ -124,8 +125,7 @@ function evaluateDynamicValuesConfig(
           value,
         );
       } else if (typeof value === "string" && value.length > 0) {
-        const regexMatches = value.match(DATA_BIND_REGEX_GLOBAL);
-        if (!!regexMatches && regexMatches?.length > 0) {
+        if (isDynamicValue(value)) {
           let evaluatedValue = "";
           try {
             evaluatedValue = eval(value);
