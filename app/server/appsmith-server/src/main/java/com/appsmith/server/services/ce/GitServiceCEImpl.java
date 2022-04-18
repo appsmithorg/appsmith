@@ -61,6 +61,7 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
+import org.springframework.dao.DuplicateKeyException;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -1266,7 +1267,15 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .flatMap(application1 ->
                                     fileUtils.reconstructApplicationJsonFromGitRepo(srcApplication.getOrganizationId(), defaultApplicationId, srcApplication.getGitApplicationMetadata().getRepoName(), branchName)
                                             .zipWith(Mono.just(application1))
-                            );
+                            )
+                            .onErrorResume(throwable -> {
+                                if (throwable instanceof DuplicateKeyException) {
+                                    return fileUtils.reconstructApplicationJsonFromGitRepo(srcApplication.getOrganizationId(), defaultApplicationId, srcApplication.getGitApplicationMetadata().getRepoName(), branchName)
+                                            .zipWith(Mono.just(tuple.getT2()));
+                                }
+                                log.error(" Git checkout remote branch failed", throwable.getMessage());
+                                return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                            });
                 })
                 .flatMap(tuple -> {
                     // Get the latest application mono with all the changes
