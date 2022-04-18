@@ -52,7 +52,7 @@ export type FieldEntityInformation = {
 export type HintHelper = (
   editor: CodeMirror.Editor,
   data: DataTree,
-  customDataTree?: Record<string, Record<string, unknown>>,
+  customDataTree?: Record<string, Record<string, unknown> | unknown>,
 ) => Hinter;
 export type Hinter = {
   showHint: (
