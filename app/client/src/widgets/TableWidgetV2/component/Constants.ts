@@ -125,9 +125,17 @@ export interface CellLayoutProperties {
   isCellEditable: boolean;
   allowCellWrapping: boolean;
   hasUnsavedChanged?: boolean;
-  saveActionLabel?: string;
-  discardActionLabel?: string;
+  saveButtonVariant: ButtonVariant;
+  saveButtonColor: string;
+  saveIconAlign: Alignment;
+  saveBorderRadius: ButtonBorderRadius;
   saveActionIconName?: string;
+  saveActionLabel?: string;
+  discardButtonVariant: ButtonVariant;
+  discardButtonColor: string;
+  discardIconAlign: Alignment;
+  discardBorderRadius: ButtonBorderRadius;
+  discardActionLabel?: string;
   discardActionIconName?: string;
 }
 
@@ -221,9 +229,17 @@ export interface ColumnProperties {
   isCellEditable: boolean; // Cell level editability
   isEditable: boolean; // column level edtitability
   allowCellWrapping: boolean;
-  saveActionLabel?: string;
-  discardActionLabel?: string;
+  saveButtonVariant?: ButtonVariant;
+  saveButtonColor?: string;
+  saveIconAlign?: Alignment;
+  saveBorderRadius?: ButtonBorderRadius;
   saveActionIconName?: string;
+  saveActionLabel?: string;
+  discardButtonVariant?: ButtonVariant;
+  discardButtonColor?: string;
+  discardIconAlign?: Alignment;
+  discardBorderRadius?: ButtonBorderRadius;
+  discardActionLabel?: string;
   discardActionIconName?: string;
 }
 

@@ -1,5 +1,6 @@
 import { getCellText } from "./DefaultRenderer";
-import { ColumnTypes, CellLayoutProperties } from "../Constants";
+import { CellLayoutProperties } from "../Constants";
+import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 
 describe("DefaultRendere - ", () => {
   describe("getCellText", () => {
