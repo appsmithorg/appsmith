@@ -844,6 +844,14 @@ const getNewPositions = function*(
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const selectedWidgets = selectedWidgetIDs.map((each) => canvasWidgets[each]);
 
+  //if the copied widget is a modal widget, then it has to paste on the main container
+  if (
+    copiedWidgetGroups.length === 1 &&
+    copiedWidgetGroups[0].list[0] &&
+    copiedWidgetGroups[0].list[0].type === "MODAL_WIDGET"
+  )
+    return {};
+
   //if multiple widgets are selected or if a single non-layout widget is selected,
   // then call the method to calculate and return positions based on selected widgets.
   if (
@@ -1041,13 +1049,7 @@ function* getNewPositionsBasedOnMousePositions(
     ({ canvasDOM, canvasId } = getCanvasIdForContainer(containerWidget));
   }
 
-  if (
-    !canvasDOM ||
-    !containerWidget ||
-    !canvasId ||
-    containerWidget.type === "MODAL_WIDGET"
-  )
-    return {};
+  if (!canvasDOM || !containerWidget || !canvasId) return {};
 
   const canvasRect = canvasDOM.getBoundingClientRect();
 

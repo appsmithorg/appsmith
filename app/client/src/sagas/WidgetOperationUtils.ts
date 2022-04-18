@@ -784,6 +784,7 @@ export function getPastePositionMapFromMousePointer(
       left: copiedWidget.leftColumn - leftOffSet,
       bottom: copiedWidget.bottomRow - topOffSet,
       right: copiedWidget.rightColumn - leftOffSet,
+      type: copiedWidget.type,
     } as OccupiedSpace;
   }
 
