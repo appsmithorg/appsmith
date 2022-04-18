@@ -542,7 +542,8 @@ class DatasourceRestAPIEditor extends React.Component<
         {this.renderSelfSignedCertificateFields()}
         {formData.authType &&
           formData.authType === AuthType.OAuth2 &&
-          _.get(authentication, "grantType") == GrantType.AuthorizationCode && (
+          _.get(authentication, "grantType") ===
+            GrantType.AuthorizationCode && (
             <FormInputContainer>
               <AuthorizeButton
                 disabled={this.disableSave()}
@@ -840,8 +841,8 @@ class DatasourceRestAPIEditor extends React.Component<
   renderOauth2AdvancedSettings = () => {
     const { authentication, authType } = this.props.formData;
     const isGrantTypeAuthorizationCode =
-      _.get(authentication, "grantType") == GrantType.AuthorizationCode;
-    const isAuthenticationTypeOAuth2 = authType == AuthType.OAuth2;
+      _.get(authentication, "grantType") === GrantType.AuthorizationCode;
+    const isAuthenticationTypeOAuth2 = authType === AuthType.OAuth2;
     return (
       <>
         {isAuthenticationTypeOAuth2 && isGrantTypeAuthorizationCode && (
