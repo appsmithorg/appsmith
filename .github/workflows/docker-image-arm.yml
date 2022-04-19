@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Docker ARM Image CI
 
 on:
   push:
