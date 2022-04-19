@@ -9,7 +9,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { RenderModes } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import {
@@ -38,7 +38,7 @@ import produce from "immer";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { getSelectedAppThemeStylesheet } from "selectors/appThemingSelectors";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
-const clone = require("rfdc/default");
+import { klona as clone } from "klona/full";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 

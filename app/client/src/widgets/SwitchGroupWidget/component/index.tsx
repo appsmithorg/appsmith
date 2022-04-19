@@ -3,125 +3,146 @@ import styled from "styled-components";
 import { Alignment } from "@blueprintjs/core";
 
 import { ThemeProp } from "components/ads/common";
-import { BlueprintControlTransform } from "constants/DefaultTheme";
+import { BlueprintRadioSwitchGroupTransform } from "constants/DefaultTheme";
+import { LabelPosition } from "components/constants";
+import { TextSize } from "constants/WidgetConstants";
+import LabelWithTooltip, {
+  labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
+} from "components/ads/LabelWithTooltip";
 import { StyledSwitch } from "widgets/SwitchWidget/component";
 
-export interface OptionProps {
-  label?: string;
-  value: string;
+export interface SwitchGroupContainerProps {
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
 }
 
-export interface SwitchGroupContainerProps {
+export const SwitchGroupContainer = styled.div<SwitchGroupContainerProps>`
+  ${labelLayoutStyles}
+  & .${LABEL_CONTAINER_CLASS} {
+    ${({ labelPosition }) =>
+      labelPosition === LabelPosition.Left && "min-height: 30px"};
+  }
+`;
+
+export interface InputContainerProps {
   alignment: Alignment;
-  inline?: boolean;
+  compactMode: boolean;
+  height?: number;
+  inline: boolean;
+  labelPosition?: LabelPosition;
   optionCount: number;
   valid?: boolean;
 }
 
-export const SwitchGroupContainer = styled.div<
-  ThemeProp & SwitchGroupContainerProps
->`
-  display: ${({ inline }) => (inline ? "inline-flex" : "flex")};
-  ${({ alignment, inline }) => `
-    flex-direction: ${inline ? "row" : "column"};
-    align-items: ${
-      inline
-        ? "center"
-        : alignment === Alignment.LEFT
-        ? "flex-start"
-        : "flex-end"
-    };
-    ${inline && "flex-wrap: wrap"};
-  `}
-  justify-content: ${({ alignment, inline, optionCount }) =>
-    optionCount > 1
-      ? `space-between`
-      : inline
-      ? alignment === Alignment.LEFT
-        ? `flex-start`
-        : `flex-end`
-      : `center`};
-  width: 100%;
-  height: 100%;
-  overflow: auto;
+export const InputContainer = styled.div<ThemeProp & InputContainerProps>`
+  ${BlueprintRadioSwitchGroupTransform}
+  height: ${({ inline }) => (inline ? "32px" : "100%")};
   border: 1px solid transparent;
   ${({ theme, valid }) =>
     !valid &&
     `
     border: 1px solid ${theme.colors.error};
   `}
-
-  ${BlueprintControlTransform}
 `;
 
-export interface StyledSwitchProps {
-  disabled?: boolean;
-  inline?: boolean;
-  optionCount: number;
-  rowSpace: number;
-  accentColor: string;
+export interface OptionProps {
+  label?: string;
+  value: string;
 }
 
 function SwitchGroupComponent(props: SwitchGroupComponentProps) {
   const {
     accentColor,
     alignment,
+    compactMode,
     disabled,
+    height,
     inline,
+    labelAlignment,
+    labelPosition,
+    labelStyle,
+    labelText,
+    labelTextColor,
+    labelTextSize,
+    labelWidth,
     onChange,
     options,
     selected,
     valid,
   } = props;
 
+  const optionCount = (options || []).length;
+
   return (
     <SwitchGroupContainer
-      alignment={alignment}
-      inline={inline}
-      optionCount={(options || []).length}
-      valid={valid}
+      compactMode={compactMode}
+      data-testid="switchgroup-container"
+      labelPosition={labelPosition}
     >
-      {Array.isArray(options) &&
-        options.length > 0 &&
-        options.map((option: OptionProps) => (
-          <StyledSwitch
-            accentColor={accentColor}
-            alignIndicator={alignment}
-            checked={(selected || []).includes(option.value)}
-            disabled={disabled}
-            inline={inline}
-            key={option.value}
-            label={option.label}
-            onChange={onChange(option.value)}
-          />
-        ))}
+      {labelText && (
+        <LabelWithTooltip
+          alignment={labelAlignment}
+          className={`switchgroup-label`}
+          color={labelTextColor}
+          compact={compactMode}
+          disabled={disabled}
+          fontSize={labelTextSize}
+          fontStyle={labelStyle}
+          inline={inline}
+          optionCount={optionCount}
+          position={labelPosition}
+          text={labelText}
+          width={labelWidth}
+        />
+      )}
+      <InputContainer
+        alignment={alignment}
+        compactMode={compactMode}
+        height={height}
+        inline={inline}
+        labelPosition={labelPosition}
+        optionCount={optionCount}
+        valid={valid}
+      >
+        {Array.isArray(options) &&
+          options.length > 0 &&
+          options.map((option: OptionProps) => (
+            <StyledSwitch
+              accentColor={accentColor}
+              alignIndicator={alignment}
+              checked={(selected || []).includes(option.value)}
+              disabled={disabled}
+              inline={inline}
+              key={option.value}
+              label={option.label}
+              onChange={onChange(option.value)}
+            />
+          ))}
+      </InputContainer>
     </SwitchGroupContainer>
   );
 }
 
-export interface Item {
-  widgetId: string;
-  id: string;
-  index: number;
-  isVisible?: boolean;
-  isDisabled?: boolean;
-  label?: string;
-  value: string;
-  alignIndicator?: Alignment;
-  defaultChecked?: boolean;
-  checked?: boolean;
-}
-
 export interface SwitchGroupComponentProps {
   alignment: Alignment;
-  disabled?: boolean;
-  inline?: boolean;
+  disabled: boolean;
+  inline: boolean;
   options: OptionProps[];
   onChange: (value: string) => React.FormEventHandler<HTMLInputElement>;
-  required?: boolean;
-  rowSpace: number;
+  required: boolean;
   selected: string[];
   valid?: boolean;
+  compactMode: boolean;
+  labelText?: string;
+  labelPosition?: LabelPosition;
+  labelAlignment?: Alignment;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+  labelStyle?: string;
+  labelWidth?: number;
+  widgetId: string;
+  height: number;
   accentColor: string;
 }
 

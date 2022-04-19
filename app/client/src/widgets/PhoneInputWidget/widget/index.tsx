@@ -312,9 +312,12 @@ class PhoneInputWidget extends BaseInputWidget<
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
+        labelAlignment={this.props.labelAlignment}
+        labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelWidth={this.getLabelWidth()}
         onFocusChange={this.handleFocusChange}
         onISDCodeChange={this.onISDCodeChange}
         onKeyDown={this.handleKeyDown}

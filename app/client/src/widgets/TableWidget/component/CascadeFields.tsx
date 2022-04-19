@@ -568,11 +568,12 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
             backgroundColor="#fff"
             borderRadius="SHARP"
             closeOnSelection
+            compactMode
             dateFormat="YYYY-MM-DD HH:mm"
             datePickerType="DATE_PICKER"
             isDisabled={false}
             isLoading={false}
-            label=""
+            labelText=""
             onDateSelected={onDateSelected}
             selectedDate={value}
             shortcuts={false}

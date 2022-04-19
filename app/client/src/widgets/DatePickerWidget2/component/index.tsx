@@ -1,13 +1,13 @@
 import React from "react";
 import styled from "styled-components";
-import { labelStyle } from "constants/DefaultTheme";
-import { ControlGroup, Classes, Label, IRef } from "@blueprintjs/core";
+import { IntentColors } from "constants/DefaultTheme";
+import { ControlGroup, Classes, IRef, Alignment } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
 import moment from "moment-timezone";
 import "../../../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 import { DatePickerType, TimePrecision } from "../constants";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
+import { TextSize } from "constants/WidgetConstants";
 import { Colors } from "constants/Colors";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
@@ -15,75 +15,91 @@ import {
   createMessage,
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
+import { LabelPosition } from "components/constants";
+import { parseDate } from "./utils";
+import LabelWithTooltip, {
+  labelLayoutStyles,
+} from "components/ads/LabelWithTooltip";
 import { lightenColor, PopoverStyles } from "widgets/WidgetUtils";
 
 const DATEPICKER_POPUP_CLASSNAME = "datepickerwidget-popup";
-import { parseDate } from "./utils";
 
-/**
- * ----------------------------------------------------------------------------
- * STYLED
- *-----------------------------------------------------------------------------
- */
 const StyledControlGroup = styled(ControlGroup)<{
   isValid: boolean;
-  backgroundColor: string;
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
   borderRadius: string;
   boxShadow?: string;
   accentColor: string;
 }>`
-  & {
+  ${labelLayoutStyles}
+
+  &&& {
     .${Classes.INPUT} {
       color: ${Colors.GREY_10};
-      background: ${({ backgroundColor }) =>
-        `${backgroundColor || Colors.WHITE}`};
+      background: ${Colors.WHITE};
       border-radius: ${({ borderRadius }) => borderRadius} !important;
       box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       border: 1px solid;
       border-color: ${({ isValid }) =>
         !isValid ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
       width: 100%;
+      height: 100%;
+      min-height: 32px;
       align-items: center;
+      transition: none;
+
       &:active {
         border-color: ${({ accentColor, isValid }) =>
           !isValid ? Colors.DANGER_SOLID : accentColor};
       }
+
       &:focus {
         outline: 0;
         border: 1px solid;
         border-color: ${({ accentColor, isValid }) =>
           !isValid ? Colors.DANGER_SOLID : accentColor};
         box-shadow: ${({ accentColor }) =>
-          `0px 0px 0px 2px ${lightenColor(accentColor)} !important;`}
+          `0px 0px 0px 3px ${lightenColor(accentColor)} !important;`}
       }
     }
+
     .${Classes.INPUT}:disabled {
       background: ${Colors.GREY_1};
       color: ${Colors.GREY_7};
     }
+
     .${Classes.INPUT_GROUP} {
       display: block;
       margin: 0;
     }
+
     .${Classes.CONTROL_GROUP} {
       justify-content: flex-start;
     }
-    label {
-      ${labelStyle}
-      flex: 0 1 30%;
-      margin: 7px ${WIDGET_PADDING * 2}px 0 0;
-      text-align: right;
-      align-self: flex-start;
-      max-width: calc(30% - ${WIDGET_PADDING}px);
+  }
+  &&& {
+    input {
+      border: 1px solid;
+      border-color: ${(props) =>
+        !props.isValid ? IntentColors.danger : Colors.HIT_GRAY};
+      box-shadow: none;
+      font-size: ${(props) => props.theme.fontSizes[3]}px;
     }
   }
 `;
 
-/**
- * ----------------------------------------------------------------------------
- * COMPONENT
- *-----------------------------------------------------------------------------
- */
+export const DateInputWrapper = styled.div<{
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
+}>`
+  display: flex;
+  &&& {
+    flex-grow: 0;
+  }
+  width: 100%;
+`;
+
 class DatePickerComponent extends React.Component<
   DatePickerComponentProps,
   DatePickerComponentState
@@ -115,6 +131,18 @@ class DatePickerComponent extends React.Component<
   };
 
   render() {
+    const {
+      compactMode,
+      isDisabled,
+      isLoading,
+      labelAlignment,
+      labelPosition,
+      labelStyle,
+      labelText,
+      labelTextColor,
+      labelTextSize,
+      labelWidth,
+    } = this.props;
     const now = moment();
     const year = now.get("year");
     const minDate = this.props.minDate
@@ -136,31 +164,39 @@ class DatePickerComponent extends React.Component<
       isValid && this.state.selectedDate
         ? new Date(this.state.selectedDate)
         : null;
-
     return (
       <StyledControlGroup
         accentColor={this.props.accentColor}
-        backgroundColor={this.props.backgroundColor}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
+        compactMode={this.props.compactMode}
+        data-testid="datepicker-container"
         fill
         isValid={isValid}
+        labelPosition={this.props.labelPosition}
         onClick={(e: any) => {
           e.stopPropagation();
         }}
       >
-        {this.props.label && (
-          <Label
-            className={
-              this.props.isLoading
-                ? Classes.SKELETON
-                : Classes.TEXT_OVERFLOW_ELLIPSIS
-            }
-          >
-            {this.props.label}
-          </Label>
+        {labelText && (
+          <LabelWithTooltip
+            alignment={labelAlignment}
+            className={`datepicker-label`}
+            color={labelTextColor}
+            compact={compactMode}
+            disabled={isDisabled}
+            fontSize={labelTextSize}
+            fontStyle={labelStyle}
+            loading={isLoading}
+            position={labelPosition}
+            text={labelText}
+            width={labelWidth}
+          />
         )}
-        {
+        <DateInputWrapper
+          compactMode={compactMode}
+          labelPosition={labelPosition}
+        >
           <ErrorTooltip
             isOpen={!isValid}
             message={createMessage(DATE_WIDGET_DEFAULT_VALIDATION_ERROR)}
@@ -196,7 +232,7 @@ class DatePickerComponent extends React.Component<
               value={value}
             />
           </ErrorTooltip>
-        }
+        </DateInputWrapper>
         <PopoverStyles
           accentColor={this.props.accentColor}
           borderRadius={this.props.borderRadius}
@@ -271,8 +307,15 @@ class DatePickerComponent extends React.Component<
   };
 }
 
-export interface DatePickerComponentProps extends ComponentProps {
-  label: string;
+interface DatePickerComponentProps extends ComponentProps {
+  compactMode: boolean;
+  labelText: string;
+  labelPosition?: LabelPosition;
+  labelAlignment?: Alignment;
+  labelWidth?: number;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+  labelStyle?: string;
   dateFormat: string;
   selectedDate?: string;
   minDate?: string;
@@ -285,13 +328,12 @@ export interface DatePickerComponentProps extends ComponentProps {
   withoutPortal?: boolean;
   closeOnSelection: boolean;
   shortcuts: boolean;
-  backgroundColor: string;
-  borderRadius: string;
-  boxShadow?: string;
-  accentColor: string;
   firstDayOfWeek?: number;
   timePrecision: TimePrecision;
   inputRef?: IRef<HTMLInputElement>;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
 }
 
 interface DatePickerComponentState {

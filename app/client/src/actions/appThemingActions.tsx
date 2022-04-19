@@ -1,6 +1,6 @@
 import { AppTheme } from "entities/AppTheming";
 import { AppThemingMode } from "selectors/appThemingSelectors";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 /**
  * ----------------------------------------------------------------------------

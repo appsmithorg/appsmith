@@ -3,7 +3,7 @@ import styled from "styled-components";
 import {
   ApplicationPayload,
   PageListPayload,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import Icon, { IconSize } from "components/ads/Icon";
 import PageTabs from "./PageTabs";
 import useThrottledRAF from "utils/hooks/useThrottledRAF";

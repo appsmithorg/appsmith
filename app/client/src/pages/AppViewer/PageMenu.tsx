@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   ApplicationPayload,
   PageListPayload,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { NavLink } from "react-router-dom";
 import { getPageURL } from "utils/AppsmithUtils";
 import {

@@ -40,8 +40,8 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { renameKeyInObject } from "./helpers";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButtonWidget";
-import { ButtonStyleTypes, ButtonVariantTypes } from "../components/constants";
-import { Colors } from "../constants/Colors";
+import { ButtonStyleTypes, ButtonVariantTypes } from "components/constants";
+import { Colors } from "constants/Colors";
 import {
   migrateModalIconButtonWidget,
   migrateResizableModalWidgetProperties,
@@ -58,6 +58,7 @@ import {
   migratePhoneInputWidgetDefaultDialCode,
 } from "./migrations/PhoneInputWidgetMigrations";
 import { migrateCurrencyInputWidgetDefaultCurrencyCode } from "./migrations/CurrencyInputWidgetMigrations";
+import { migrateRadioGroupAlignmentProperty } from "./migrations/RadioGroupWidget";
 
 /**
  * adds logBlackList key for all list widget children
@@ -103,7 +104,7 @@ const addLogBlackListToAllListWidgetChildren = (
  * @param currentDSL
  * @returns
  */
-const addPrivateWidgetsToAllListWidgets = (
+export const addPrivateWidgetsToAllListWidgets = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
@@ -1055,6 +1056,7 @@ export const transformDSL = (
      * We're skipping this to fix a bad table migration - migrateTableWidgetNumericColumnName
      * it overwrites the computedValue of the table columns
      */
+
     currentDSL.version = 51;
   }
 
@@ -1084,6 +1086,11 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 56) {
+    currentDSL = migrateRadioGroupAlignmentProperty(currentDSL);
+    currentDSL.version = 57;
+  }
+
+  if (currentDSL.version === 57) {
     currentDSL = migrateStylingPropertiesForTheming(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }

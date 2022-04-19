@@ -1,7 +1,7 @@
-import { Classes, ControlGroup, Label } from "@blueprintjs/core";
+import { Classes, ControlGroup } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { FontStyleTypes, TextSize } from "constants/WidgetConstants";
+
 import { DropdownOption } from "../constants";
 import { Select } from "@blueprintjs/select";
 import {
@@ -9,53 +9,27 @@ import {
   createGlobalStyle,
 } from "constants/DefaultTheme";
 import { isEmptyOrNill } from "../../../utils/helpers";
+import { LabelPosition, LABEL_MARGIN_OLD_SELECT } from "components/constants";
+import {
+  labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
+} from "components/ads/LabelWithTooltip";
 import { lightenColor } from "widgets/WidgetUtils";
 import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
-
-export const TextLabelWrapper = styled.div<{
-  compactMode: boolean;
-}>`
-  ${(props) =>
-    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
-  display: flex;
-`;
 
 export const StyledDiv = styled.div`
   display: flex;
 `;
-export const StyledLabel = styled(Label)<{
-  $compactMode: boolean;
-  $disabled: boolean;
-  $labelText?: string;
-  $labelTextColor?: string;
-  $labelTextSize?: TextSize;
-  $labelStyle?: string;
+
+export const StyledControlGroup = styled(ControlGroup)<{
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
 }>`
-  overflow-y: hidden;
-  text-overflow: ellipsis;
-  width: ${(props) => (props.$compactMode ? "auto" : "100%")};
-  text-align: left;
-  color: ${(props) =>
-    props.$labelTextColor
-      ? props.$labelTextColor
-      : props.$disabled
-      ? Colors.GREY_8
-      : "inherit"};
-  font-size: ${(props) =>
-    props.$labelTextSize ? props.$labelTextSize : "0.875rem"};
-  font-weight: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
-  font-style: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
-`;
-
-export const StyledControlGroup = styled(ControlGroup)`
-  flex-grow: 1;
-
   &&& > {
     span {
       height: 100%;
       max-width: 100%;
+
       & > span {
         height: 100%;
       }
@@ -67,6 +41,7 @@ export const StyledControlGroup = styled(ControlGroup)`
       }
       .dropdown-icon {
         width: 20px;
+
         svg {
           width: 20px;
           height: 20px;
@@ -101,7 +76,6 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
     height: 100%;
     align-items: center;
     justify-content: space-between;
-    box-shadow: ${(props) => props.boxShadow} !important;
     background: white;
     min-height: 32px;
     padding-left: 12px;
@@ -109,8 +83,6 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
     border-radius: ${(props) => props.borderRadius} !important;
     box-shadow: ${(props) => props.boxShadow} !important;
     border: 1px solid;
-    transition: border-color 0.15s ease-in-out 0s,
-      box-shadow 0.15s ease-in-out 0s;
     border-color: ${(props) =>
       props.hasError ? Colors.DANGER_SOLID : Colors.GREY_3};
     ${(props) =>
@@ -131,6 +103,7 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
       `
         : ""};
   }
+
   &&&&& .${Classes.POPOVER_OPEN} .${Classes.BUTTON} {
     outline: 0;
     ${(props) =>
@@ -178,60 +151,65 @@ export const DropdownStyles = createGlobalStyle<{
   accentColor?: string;
 }>`
 ${({ dropDownWidth, id }) => `
-  .${id} {
+  .select-popover-width-${id} {
     width: ${dropDownWidth}px !important;
+
+    & .${Classes.INPUT_GROUP} {
+      width: ${dropDownWidth}px;
+    }
   }
 `}
-  .select-popover-wrapper {
-    box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
-    border-radius: ${({ borderRadius }) =>
-      borderRadius === "1.5rem" ? `0.375rem` : borderRadius} !important;
-    overflow: hidden;
-    background: white;
-    ${CommonSelectFilterStyle}
-    && .${Classes.MENU} {
-      margin-top: -3px;
-      max-width: 100%;
-      max-height: auto;
-      min-width: 0px !important;
+.select-popover-wrapper {
+  box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
+  border-radius: ${({ borderRadius }) =>
+    borderRadius === "1.5rem" ? `0.375rem` : borderRadius} !important;
+  overflow: hidden;
+  background: white;
+  ${CommonSelectFilterStyle}
+  && .${Classes.MENU} {
+    margin-top: -3px;
+    max-width: 100%;
+    max-height: auto;
+    min-width: 0px !important;
+  }
+  &&&& .${Classes.MENU_ITEM} {
+    min-height: 38px;
+    padding: 9px 12px;
+    border-radius: 0;
+    color: ${Colors.GREY_8};
+    &:hover{
+      background: ${({ accentColor }) => `${lightenColor(accentColor)}`};
     }
-    &&&& .${Classes.MENU_ITEM} {
-      min-height: 38px;
-      padding: 9px 12px;
-      border-radius: 0;
-      color: ${Colors.GREY_8};
-      &:hover{
-        background: ${({ accentColor }) => `${lightenColor(accentColor)}`};
-      }
-      &.is-focused{
-        background: ${({ accentColor }) => `${lightenColor(accentColor)}`};
-      }
-      &.${Classes.ACTIVE} {
-        background: ${({ accentColor }) => `${lightenColor(accentColor)}`};
-        color: ${Colors.GREY_10};
-        position:relative;
-      }
+    &.is-focused{
+      background: ${({ accentColor }) => `${lightenColor(accentColor)}`};
+    }
+    &.${Classes.ACTIVE} {
+      background: ${({ accentColor }) => `${lightenColor(accentColor)}`};
+      color: ${Colors.GREY_10};
+      position:relative;
     }
   }
+}
 `;
 
-export const DropdownContainer = styled.div<{ compactMode: boolean }>`
-  ${BlueprintCSSTransform}
-  display: flex;
-  flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
-  height: 100%;
-  align-items: center;
-  justify-content: flex-end;
-  gap: ${(props) => (props.compactMode ? "10px" : "5px")};
-
-  label.bp3-label {
-    margin: 0;
-  }
-`;
-
-export const MenuItem = styled.div<{
-  accentColor?: string;
+export const DropdownContainer = styled.div<{
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
 }>`
+  ${BlueprintCSSTransform}
+  ${labelLayoutStyles}
+  & .${LABEL_CONTAINER_CLASS} {
+    label {
+      ${({ labelPosition }) => {
+        if (!labelPosition) {
+          return `margin-bottom: ${LABEL_MARGIN_OLD_SELECT}`;
+        }
+      }};
+    }
+  }
+`;
+
+export const MenuItem = styled.div`
   & .menu-item-link {
     display: flex;
     flex-direction: row;
@@ -244,7 +222,6 @@ export const MenuItem = styled.div<{
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    border-radius: 0;
 
     min-height: 38px;
     padding: 9px 12px;
@@ -253,7 +230,7 @@ export const MenuItem = styled.div<{
     background-color: transparent;
 
     &:hover {
-      background-color: ${({ accentColor }) => lightenColor(accentColor)};
+      background-color: ${Colors.GREEN_SOLID_LIGHT_HOVER};
       color: ${Colors.GREY_10};
       position: relative;
     }
@@ -264,8 +241,7 @@ export const MenuItem = styled.div<{
   }
 
   && .has-focus {
-    background-color: ${({ accentColor }) =>
-      lightenColor(accentColor)} !important;
+    background-color: ${Colors.GREEN_SOLID_LIGHT_HOVER} !important;
   }
 
   & .menu-item-text {

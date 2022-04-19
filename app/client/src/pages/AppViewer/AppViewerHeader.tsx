@@ -6,7 +6,7 @@ import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import {
   ApplicationPayload,
   PageListPayload,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getEditorURL } from "selectors/appViewSelectors";

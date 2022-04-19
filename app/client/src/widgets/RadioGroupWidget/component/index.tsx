@@ -2,98 +2,127 @@ import React, { useCallback } from "react";
 import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import { RadioOption } from "../constants";
-import {
-  RadioGroup,
-  Radio,
-  ControlGroup,
-  Label,
-  Classes,
-} from "@blueprintjs/core";
-import { Colors } from "constants/Colors";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { BlueprintControlTransform, labelStyle } from "constants/DefaultTheme";
+import { RadioGroup, Radio, Alignment, Classes } from "@blueprintjs/core";
+import { TextSize } from "constants/WidgetConstants";
+import { BlueprintRadioSwitchGroupTransform } from "constants/DefaultTheme";
+import { LabelPosition } from "components/constants";
+import LabelWithTooltip, {
+  labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
+} from "components/ads/LabelWithTooltip";
 
-const StyledControlGroup = styled(ControlGroup)`
-  &&& {
-    & > label {
-      ${labelStyle}
-      flex: 0 1 30%;
-      margin: 7px ${WIDGET_PADDING * 2}px 0 0;
-      text-align: right;
-      align-self: flex-start;
-      max-width: calc(30% - ${WIDGET_PADDING}px);
-    }
+export interface RadioGroupContainerProps {
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
+}
+
+export const RadioGroupContainer = styled.div<RadioGroupContainerProps>`
+  ${labelLayoutStyles}
+  & .${LABEL_CONTAINER_CLASS} {
+    ${({ labelPosition }) =>
+      labelPosition === LabelPosition.Left && "min-height: 30px"};
   }
 `;
 
-const StyledRadioGroup = styled(RadioGroup)<{
-  backgroundColor: string;
-}>`
-  ${BlueprintControlTransform};
-  .${Classes.CONTROL} {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0;
-    min-height: 36px;
-    margin: 0px 12px;
-    color: ${Colors.GREY_10};
+export interface StyledRadioGroupProps {
+  alignment: Alignment;
+  compactMode: boolean;
+  height?: number;
+  inline: boolean;
+  labelPosition?: LabelPosition;
+  optionCount: number;
+  accentColor: string;
+}
 
-    &:hover {
-      & input:not(:checked) ~ .bp3-control-indicator {
-        border: 1px solid ${Colors.GREY_5} !important;
-      }
-    }
-    & .bp3-control-indicator {
-      border: 1px solid ${Colors.GREY_3};
-    }
-  }
+const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
+  ${BlueprintRadioSwitchGroupTransform}
+  height: ${({ inline }) => (inline ? "32px" : "100%")};
 
   .${Classes.CONTROL} {
     & input:checked ~ .${Classes.CONTROL_INDICATOR} {
-      background: ${({ backgroundColor }) => `${backgroundColor}`} !important;
-      border: 1px solid ${({ backgroundColor }) => `${backgroundColor}`} !important;
+      background: ${({ accentColor }) => `${accentColor}`} !important;
+      border: 1px solid ${({ accentColor }) => `${accentColor}`} !important;
     }
   }
 
   .${Classes.SWITCH} {
     & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
-      background: ${({ backgroundColor }) => `${backgroundColor}`};
+      background: ${({ accentColor }) => `${accentColor}`};
     }
   }
 `;
 
 function RadioGroupComponent(props: RadioGroupComponentProps) {
-  /**
-   * on radio selection change
-   */
-  const onRadioSelectionChange = useCallback(
+  const {
+    accentColor,
+    alignment,
+    compactMode,
+    disabled,
+    height,
+    inline,
+    labelAlignment,
+    labelPosition,
+    labelStyle,
+    labelText,
+    labelTextColor,
+    labelTextSize,
+    labelWidth,
+    loading,
+    onRadioSelectionChange,
+    options,
+    selectedOptionValue,
+  } = props;
+
+  const optionCount = (options || []).length;
+
+  const handleChange = useCallback(
     (event: React.FormEvent<HTMLInputElement>) => {
-      props.onRadioSelectionChange(event.currentTarget.value);
+      onRadioSelectionChange(event.currentTarget.value);
     },
-    [props.onRadioSelectionChange],
+    [],
   );
 
   return (
-    <StyledControlGroup fill>
-      {props.label && (
-        <Label
-          className={
-            props.isLoading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
-          }
-        >
-          {props.label}
-        </Label>
+    <RadioGroupContainer
+      compactMode={compactMode}
+      data-testid="radiogroup-container"
+      labelPosition={labelPosition}
+    >
+      {labelText && (
+        <LabelWithTooltip
+          alignment={labelAlignment}
+          className={`radiogroup-label`}
+          color={labelTextColor}
+          compact={compactMode}
+          disabled={disabled}
+          fontSize={labelTextSize}
+          fontStyle={labelStyle}
+          inline={inline}
+          loading={loading}
+          optionCount={optionCount}
+          position={labelPosition}
+          text={labelText}
+          width={labelWidth}
+        />
       )}
       <StyledRadioGroup
-        backgroundColor={props.backgroundColor}
-        disabled={props.isDisabled}
-        onChange={onRadioSelectionChange}
-        selectedValue={props.selectedOptionValue}
+        accentColor={accentColor}
+        alignment={alignment}
+        compactMode={compactMode}
+        disabled={disabled}
+        height={height}
+        inline={inline}
+        labelPosition={labelPosition}
+        onChange={handleChange}
+        optionCount={options.length}
+        selectedValue={selectedOptionValue}
       >
-        {props.options.map((option, optInd) => {
+        {options.map((option, optInd) => {
           return (
             <Radio
-              className={props.isLoading ? "bp3-skeleton" : ""}
+              alignIndicator={alignment}
+              className={loading ? "bp3-skeleton" : ""}
+              inline={inline}
               key={optInd}
               label={option.label}
               value={option.value}
@@ -101,18 +130,29 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
           );
         })}
       </StyledRadioGroup>
-    </StyledControlGroup>
+    </RadioGroupContainer>
   );
 }
 
 export interface RadioGroupComponentProps extends ComponentProps {
-  isDisabled?: boolean;
-  label: string;
-  onRadioSelectionChange: (updatedOptionValue: string) => void;
   options: RadioOption[];
+  onRadioSelectionChange: (updatedOptionValue: string) => void;
   selectedOptionValue: string;
-  isLoading: boolean;
-  backgroundColor: string;
+  disabled: boolean;
+  loading: boolean;
+  inline: boolean;
+  alignment: Alignment;
+  compactMode: boolean;
+  labelText: string;
+  labelPosition?: LabelPosition;
+  labelAlignment?: Alignment;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+  labelStyle?: string;
+  labelWidth?: number;
+  widgetId: string;
+  height?: number;
+  accentColor: string;
 }
 
 export default RadioGroupComponent;

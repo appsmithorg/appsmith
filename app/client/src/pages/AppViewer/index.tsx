@@ -8,7 +8,7 @@ import {
   BuilderRouteParams,
   GIT_BRANCH_QUERY_KEY,
 } from "constants/routes";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   getIsInitialized,
   getAppViewHeaderHeight,

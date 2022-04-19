@@ -1,25 +1,19 @@
 import React, { MutableRefObject } from "react";
 import styled from "styled-components";
-import { labelStyle } from "constants/DefaultTheme";
 import { ComponentProps } from "widgets/BaseComponent";
-import { FontStyleTypes, TextSize } from "constants/WidgetConstants";
+import { TextSize, TEXT_SIZES } from "constants/WidgetConstants";
 import {
   Alignment,
   Intent,
   NumericInput,
   IconName,
   InputGroup,
-  Label,
   Classes,
   ControlGroup,
   TextArea,
   Tag,
-  Position,
   IRef,
 } from "@blueprintjs/core";
-import Tooltip from "components/ads/Tooltip";
-import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
-import { IconWrapper } from "constants/IconConstants";
 
 import { Colors } from "constants/Colors";
 import _ from "lodash";
@@ -41,8 +35,12 @@ import ISDCodeDropdown, {
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import Icon from "components/ads/Icon";
-import { lightenColor } from "widgets/WidgetUtils";
 import { limitDecimalValue, getSeparators } from "./utilities";
+import { LabelPosition } from "components/constants";
+import LabelWithTooltip, {
+  labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
+} from "components/ads/LabelWithTooltip";
 
 /**
  * All design system component specific logic goes here.
@@ -73,93 +71,115 @@ const InputComponentWrapper = styled((props) => (
   allowCurrencyChange?: boolean;
   disabled?: boolean;
   inputType: InputType;
-  backgroundColor: string;
-  borderRadius: string;
-  boxShadow?: string;
-  primaryColor: string;
 }>`
-  flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
-  height: 100%;
-  align-items: center;
-  justify-content: flex-end;
-  gap: ${(props) => (props.compactMode ? "10px" : "5px")};
+  ${labelLayoutStyles}
 
-  .currency-type-filter,
-  .country-type-filter {
-    width: fit-content;
-    height: 100%;
-    position: absolute;
-    display: inline-block;
-    left: 0;
-    z-index: 16;
-    svg {
-      path {
-        fill: ${(props) => props.theme.colors.icon?.hover};
-      }
+  &&&& {
+    & .${LABEL_CONTAINER_CLASS} {
+      flex-grow: 0;
     }
-  }
-
-  .currency-type-filter .bp3-popover-open > div,
-  .country-type-filter .bp3-popover-open > div {
-    border: 0px solid !important;
-    box-shadow: none !important;
-    background-color: #fafafa;
-  }
-
-  .${Classes.INPUT} {
-    ${(props) =>
-      props.inputType === InputTypes.CURRENCY &&
-      props.allowCurrencyChange &&
-      `
-    padding-left: 45px;`};
-    ${(props) =>
-      props.inputType === InputTypes.CURRENCY &&
-      !props.allowCurrencyChange &&
-      `
-    padding-left: 35px;`};
-    ${(props) =>
-      props.inputType === InputTypes.PHONE_NUMBER &&
-      `padding-left: 85px;
-      `};
-    background: ${({ disabled }) => (disabled ? Colors.GREY_1 : Colors.WHITE)};
-    border-radius: 0px;
-    box-shadow: none !important;
-    height: 100%;
-    width: 100%;
-
-    ${(props) =>
-      props.numeric &&
-      `
-      border-top-right-radius: 0px;
-      border-bottom-right-radius: 0px;
-      ${props.hasError ? "" : "border-right-width: 0px;"}
-    `}
-    ${(props) =>
-      props.inputType === "PASSWORD" &&
-      `
-      & + .bp3-input-action {
-        height: 100%;
-        width: 36px;
-        cursor: pointer;
-        padding: 1px;
-        .password-input {
-          color: ${Colors.GREY_6};
-          justify-content: center;
-          height: 100%;
-          svg {
-            width: 20px;
-            height: 20px;
-          }
-          &:hover {
-            background-color: ${Colors.GREY_2};
-            color: ${Colors.GREY_10};
-          }
+    .currency-type-filter,
+    .country-type-filter {
+      width: fit-content;
+      height: 36px;
+      position: absolute;
+      display: inline-block;
+      left: 0;
+      z-index: 16;
+      svg {
+        path {
+          fill: ${(props) => props.theme.colors.icon?.hover};
         }
       }
-    `}
-  }
+      &:hover {
+        border: 1px solid ${Colors.GREY_5} !important;
+      }
+    }
+    .${Classes.INPUT} {
+      min-height: 36px;
+      ${(props) =>
+        props.inputType === InputTypes.CURRENCY &&
+        props.allowCurrencyChange &&
+        `
+      padding-left: 45px;`};
+      ${(props) =>
+        props.inputType === InputTypes.CURRENCY &&
+        !props.allowCurrencyChange &&
+        `
+      padding-left: 35px;`};
+      ${(props) =>
+        props.inputType === InputTypes.PHONE_NUMBER &&
+        `padding-left: 85px;
+        `};
+      box-shadow: none;
+      border: 1px solid;
+      border-color: ${({ hasError }) =>
+        hasError ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
+      border-radius: 0;
+      height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
+      width: 100%;
+      ${(props) =>
+        props.numeric &&
+        `
+        border-top-right-radius: 0px;
+        border-bottom-right-radius: 0px;
+        ${props.hasError ? "" : "border-right-width: 0px;"}
+      `}
+      ${(props) =>
+        props.inputType === "PASSWORD" &&
+        `
+        & + .bp3-input-action {
+          height: 36px;
+          width: 36px;
+          cursor: pointer;
+          padding: 1px;
+          .password-input {
+            color: ${Colors.GREY_6};
+            justify-content: center;
+            height: 100%;
+            svg {
+              width: 20px;
+              height: 20px;
+            }
+            &:hover {
+              background-color: ${Colors.GREY_2};
+              color: ${Colors.GREY_10};
+            }
+          }
+        }
+      `}
+      transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+      &:active {
+        border-color: ${({ hasError }) =>
+          hasError ? Colors.DANGER_SOLID : Colors.HIT_GRAY};
+      }
+      &:hover {
+        border-left: 1px solid ${Colors.GREY_5};
+        border-right: 1px solid ${Colors.GREY_5};
+        border-color: ${Colors.GREY_5};
+      }
+      &:focus {
+        border-color: ${({ hasError }) =>
+          hasError ? Colors.DANGER_SOLID : Colors.MYSTIC};
 
-  & {
+        &:focus {
+          outline: 0;
+          border: 1px solid ${Colors.GREEN_1};
+          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2} !important;
+        }
+      }
+      &:disabled {
+        background-color: ${Colors.GREY_1};
+        border: 1.2px solid ${Colors.GREY_3};
+        & + .bp3-input-action {
+          pointer-events: none;
+        }
+      }
+    }
+    .${Classes.INPUT}:disabled {
+      background: ${Colors.GREY_1};
+      color: ${Colors.GREY_7};
+    }
     .${Classes.INPUT_GROUP} {
       display: block;
       margin: 0;
@@ -167,61 +187,27 @@ const InputComponentWrapper = styled((props) => (
         background-color: transparent;
         color: #5c7080;
       }
-
-      .${Classes.INPUT_ACTION} {
-        height: 100%;
-
-        .${Classes.TAG} {
-          height: 100%;
-          padding: 0;
-          margin: 0;
-          display: flex;
-          align-items: center;
-        }
-      }
-
-      .${Classes.ICON} {
-        height: 100%;
-        margin: 0;
-        display: flex;
-        align-items: center;
-        margin: 0 10px;
-
-        svg {
-          width: 14px;
-          height: 14px;
-        }
-      }
-
       &.${Classes.DISABLED} + .bp3-button-group.bp3-vertical {
         button {
           background: ${Colors.GREY_1};
         }
       }
     }
-
     .${Classes.CONTROL_GROUP} {
       justify-content: flex-start;
     }
+    height: 100%;
 
-    label {
-      ${labelStyle}
-      margin-right: 0;
-      margin-bottom: 0;
-      text-align: right;
-      align-self: flex-start;
-      color: ${(props) =>
-        props.disabled ? Colors.GREY_8 : props.labelTextColor || "inherit"};
-      font-size: ${(props) => props.labelTextSize};
-      font-weight: ${(props) =>
-        props?.labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
-      font-style: ${(props) =>
-        props?.labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
-      text-decoration: ${(props) =>
-        props?.labelStyle?.includes(FontStyleTypes.UNDERLINE)
-          ? "underline"
-          : ""};
-    }
+    align-items: ${({ compactMode, inputType, labelPosition }) =>
+      labelPosition === LabelPosition.Top
+        ? `flex-start`
+        : compactMode
+        ? `center`
+        : labelPosition === LabelPosition.Left
+        ? inputType === InputTypes.TEXT
+          ? `stretch`
+          : `center`
+        : `flex-start`};
   }
 `;
 
@@ -233,17 +219,25 @@ const StyledNumericInput = styled(NumericInput)`
         position: static;
         background: ${(props) =>
           props.disabled ? Colors.GREY_1 : Colors.WHITE};
+        border: 1.2px solid ${Colors.GREY_3};
         color: ${(props) => (props.disabled ? Colors.GREY_7 : Colors.GREY_10)};
         border-right: 0;
       }
       input:not(:first-child) {
-        padding-left: 0px;
+        padding-left: 5px;
+        border-left: 1px solid transparent;
         z-index: 16;
         line-height: 16px;
+
+        &:hover:not(:focus):not(:disabled) {
+          border-left: 1px solid ${Colors.GREY_5};
+        }
       }
     }
   }
   &&&& .bp3-button-group.bp3-vertical {
+    border: 1.2px solid ${Colors.GREY_3};
+    border-left: none;
     button {
       background: ${Colors.WHITE};
       box-shadow: none;
@@ -256,6 +250,10 @@ const StyledNumericInput = styled(NumericInput)`
           color: ${Colors.GREY_10};
         }
       }
+      &:focus {
+        border: 1px solid ${Colors.GREEN_1};
+        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
+      }
       span {
         color: ${Colors.GREY_6};
         svg {
@@ -266,61 +264,13 @@ const StyledNumericInput = styled(NumericInput)`
   }
 `;
 
-const ToolTipIcon = styled(IconWrapper)`
-  cursor: help;
-  margin-top: 1.5px;
-  &&&:hover {
-    svg {
-      path {
-        fill: #716e6e;
-      }
-    }
-  }
-`;
-
-const TextLableWrapper = styled.div<{
-  compactMode: boolean;
-}>`
-  ${(props) => (props.compactMode ? "&&& {}" : "width: 100%;")}
-  display: flex;
-`;
-
-const TextInputWrapper = styled.div<{
-  borderRadius: string;
-  boxShadow?: string;
-  primaryColor: string;
-  hasError?: boolean;
-  disabled?: boolean;
-}>`
+const TextInputWrapper = styled.div<{ numeric?: boolean }>`
   width: 100%;
   display: flex;
   flex: 1;
-  height: 100%;
-  border: 1px solid;
-  overflow: hidden;
-  border-color: ${({ hasError }) =>
-    hasError ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
-  border-radius: ${({ borderRadius }) => borderRadius} !important;
-  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
-  min-height: 32px;
-
-  &:focus-within {
-    outline: 0;
-    border-color: ${({ hasError, primaryColor }) =>
-      hasError ? Colors.DANGER_SOLID : primaryColor};
-    box-shadow: ${({ hasError, primaryColor }) =>
-      `0px 0px 0px 3px ${lightenColor(
-        hasError ? Colors.DANGER_SOLID : primaryColor,
-      )} !important;`};
-  }
-
-  ${({ disabled }) =>
-    disabled &&
-    ` background-color: ${Colors.GREY_1};
-      border: 1px solid ${Colors.GREY_3};
-      & + .bp3-input-action {
-      pointer-events: none;
-    }`}
+  overflow-x: hidden;
+  ${({ numeric }) => numeric && `&&& {flex-grow: 0;}`}
+  min-height: 36px;
 `;
 
 export const isNumberInputType = (inputType: InputType) => {
@@ -339,7 +289,7 @@ class InputComponent extends React.Component<
   decimalSeparator: string;
   constructor(props: InputComponentProps) {
     super(props);
-    this.state = { showPassword: false, dropdownActive: false };
+    this.state = { showPassword: false };
     const separators = getSeparators();
     this.groupSeparator = separators.groupSeparator;
     this.decimalSeparator = separators.decimalSeparator;
@@ -456,11 +406,11 @@ class InputComponent extends React.Component<
       );
       return (
         <ISDCodeDropdown
+          accentColor={this.props.accentColor}
           borderRadius={this.props.borderRadius}
           disabled={disabled}
           onISDCodeChange={this.props.onISDCodeChange}
           options={ISDCodeDropdownOptions}
-          primaryColor={this.props.primaryColor}
           selected={selectedISDCode}
           widgetId={this.props.widgetId}
         />
@@ -471,11 +421,11 @@ class InputComponent extends React.Component<
       );
       return (
         <CurrencyTypeDropdown
+          accentColor={this.props.accentColor}
           allowCurrencyChange={this.props.allowCurrencyChange && !disabled}
           borderRadius={this.props.borderRadius}
           onCurrencyTypeChange={this.props.onCurrencyTypeChange}
           options={CurrencyDropdownOptions}
-          primaryColor={this.props.primaryColor}
           selected={selectedCurrencyCountryCode}
           widgetId={this.props.widgetId}
         />
@@ -637,85 +587,68 @@ class InputComponent extends React.Component<
 
   render() {
     const {
+      allowCurrencyChange,
+      compactMode,
+      disabled,
+      errorMessage,
+      inputType,
+      isInvalid,
+      isLoading,
       label,
+      labelAlignment,
+      labelPosition,
       labelStyle,
       labelTextColor,
       labelTextSize,
+      labelWidth,
+      multiline,
+      showError,
       tooltip,
     } = this.props;
     const showLabelHeader = label || tooltip;
 
     return (
       <InputComponentWrapper
-        allowCurrencyChange={this.props.allowCurrencyChange}
-        backgroundColor={this.props.backgroundColor}
-        borderRadius={this.props.borderRadius}
-        boxShadow={this.props.boxShadow}
-        compactMode={this.props.compactMode}
-        disabled={this.props.disabled}
+        allowCurrencyChange={allowCurrencyChange}
+        compactMode={compactMode}
+        disabled={disabled}
         fill
-        hasError={this.props.isInvalid}
-        inputType={this.props.inputType}
+        hasError={isInvalid}
+        inputType={inputType}
+        labelAlignment={labelAlignment}
+        labelPosition={labelPosition}
         labelStyle={labelStyle}
         labelTextColor={labelTextColor}
-        labelTextSize={labelTextSize ?? "inherit"}
-        multiline={this.props.multiline.toString()}
-        numeric={isNumberInputType(this.props.inputType)}
-        primaryColor={this.props.primaryColor}
+        labelTextSize={labelTextSize ? TEXT_SIZES[labelTextSize] : "inherit"}
+        multiline={multiline.toString()}
+        numeric={isNumberInputType(inputType)}
       >
         {showLabelHeader && (
-          <TextLableWrapper
-            className="t--input-label-wrapper"
-            compactMode={this.props.compactMode}
-          >
-            {this.props.label && (
-              <Label
-                className={`
-                  t--input-widget-label ${
-                    this.props.isLoading
-                      ? Classes.SKELETON
-                      : Classes.TEXT_OVERFLOW_ELLIPSIS
-                  }
-                `}
-              >
-                {this.props.label}
-              </Label>
-            )}
-            {this.props.tooltip && (
-              <Tooltip
-                content={this.props.tooltip}
-                hoverOpenDelay={200}
-                position={Position.TOP}
-              >
-                <ToolTipIcon
-                  color={Colors.SILVER_CHALICE}
-                  height={14}
-                  width={14}
-                >
-                  <HelpIcon className="t--input-widget-tooltip" />
-                </ToolTipIcon>
-              </Tooltip>
-            )}
-          </TextLableWrapper>
+          <LabelWithTooltip
+            alignment={labelAlignment}
+            className="t--input-widget-label"
+            color={labelTextColor}
+            compact={compactMode}
+            cyHelpTextClassName="t--input-widget-tooltip"
+            disabled={disabled}
+            fontSize={labelTextSize}
+            fontStyle={labelStyle}
+            helpText={tooltip}
+            loading={isLoading}
+            position={labelPosition}
+            text={label}
+            width={labelWidth}
+          />
         )}
-        <TextInputWrapper
-          borderRadius={this.props.borderRadius}
-          boxShadow={this.props.boxShadow}
-          disabled={this.props.disabled}
-          hasError={this.props.isInvalid}
-          primaryColor={this.props.primaryColor}
-        >
+        <TextInputWrapper numeric={isNumberInputType(inputType)}>
           <ErrorTooltip
-            isOpen={this.props.isInvalid && this.props.showError}
+            isOpen={isInvalid && showError}
             message={
-              this.props.errorMessage ||
+              errorMessage ||
               createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)
             }
           >
-            {this.renderInputComponent(
-              this.props.inputType,
-              this.props.multiline,
-            )}
+            {this.renderInputComponent(inputType, multiline)}
           </ErrorTooltip>
         </TextInputWrapper>
       </InputComponentWrapper>
@@ -725,14 +658,9 @@ class InputComponent extends React.Component<
 
 export interface InputComponentState {
   showPassword?: boolean;
-  dropdownActive: boolean;
 }
 
 export interface InputComponentProps extends ComponentProps {
-  backgroundColor: string;
-  borderRadius: string;
-  boxShadow?: string;
-
   value: string;
   inputType: InputType;
   disabled?: boolean;
@@ -745,9 +673,12 @@ export interface InputComponentProps extends ComponentProps {
   allowCurrencyChange?: boolean;
   decimalsInCurrency?: number;
   label: string;
+  labelAlignment?: Alignment;
+  labelPosition?: LabelPosition;
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
+  labelWidth?: number;
   tooltip?: string;
   leftIcon?: IconName;
   allowNumericCharactersOnly?: boolean;
@@ -780,7 +711,9 @@ export interface InputComponentProps extends ComponentProps {
       | React.KeyboardEvent<HTMLTextAreaElement>
       | React.KeyboardEvent<HTMLInputElement>,
   ) => void;
-  primaryColor: string;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
 }
 
 export default InputComponent;

@@ -1,12 +1,21 @@
 import React from "react";
-import { Checkbox, Classes, Label } from "@blueprintjs/core";
+import { Checkbox, Classes } from "@blueprintjs/core";
 import styled, { keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
-import { FontStyleTypes, TextSize } from "constants/WidgetConstants";
 import Icon from "components/ads/Icon";
-import { lightenColor } from "widgets/WidgetUtils";
+import {
+  LabelPosition,
+  LABEL_MARGIN_OLD_SELECT,
+  SELECT_DEFAULT_HEIGHT,
+} from "components/constants";
 import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
+import {
+  labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
+  multiSelectInputContainerStyles,
+} from "components/ads/LabelWithTooltip";
+import { lightenColor } from "widgets/WidgetUtils";
 
 export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
   transform: rotate(${({ expanded }) => (expanded ? 0 : 270)}deg);
@@ -20,36 +29,6 @@ export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
 export const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;
 };
-
-export const TextLabelWrapper = styled.div<{
-  compactMode: boolean;
-}>`
-  ${(props) => (props.compactMode ? "&&& {}" : "width: 100%;")}
-  display: flex;
-`;
-
-export const StyledLabel = styled(Label)<{
-  $compactMode: boolean;
-  $disabled: boolean;
-  $labelText?: string;
-  $labelTextColor?: string;
-  $labelTextSize?: TextSize;
-  $labelStyle?: string;
-  disabled?: boolean;
-}>`
-  overflow-y: hidden;
-  text-overflow: ellipsis;
-  width: ${(props) => (props.$compactMode ? "auto" : "100%")};
-  text-align: left;
-  color: ${(props) =>
-    props.disabled ? Colors.GREY_8 : props.$labelTextColor || "inherit"};
-  font-size: ${(props) =>
-    props.$labelTextSize ? props.$labelTextSize : "0.875rem"};
-  font-weight: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
-  font-style: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
-`;
 
 const rcSelectDropdownSlideUpIn = keyframes`
 	0% {
@@ -217,7 +196,7 @@ cursor: not-allowed;
       height: 16px;
       direction: ltr;
       background-color: #fff;
-      border: 1px solid #E8E8E8;
+border: 1px solid #E8E8E8;
       border-radius: 100%;
       border-collapse: separate;
       transition: all .3s;
@@ -249,7 +228,7 @@ cursor: not-allowed;
         width: 10px;
         height: 10px;
       transform: translate(-50%,-50%) scale(1);
-       background: ${({ accentColor }) => accentColor} !important;
+       background: rgb(3, 179, 101) !important;
        opacity: 1;
     content: " ";
         border-radius: 100%;
@@ -268,10 +247,6 @@ cursor: not-allowed;
   overflow: hidden;
   margin-top: 5px;
   background: white;
-
-  > div {
-    min-width: ${({ dropDownWidth }) => dropDownWidth}px;
-  }
 
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
     &&&& .${Classes.ALIGN_LEFT} {
@@ -445,8 +420,8 @@ cursor: not-allowed;
     transition: all .1s;
 }
   .rc-tree-select-tree
-	.rc-tree-select-tree-treenode
-	span.rc-tree.select-tree-checkbox-checked {
+  .rc-tree-select-tree-treenode
+  span.rc-tree.select-tree-checkbox-checked {
     .rc-tree-select-tree-checkbox-inner {
       border-color:${({ accentColor }) => accentColor} !important;
       background: ${({ accentColor }) => accentColor} !important;
@@ -458,6 +433,7 @@ cursor: not-allowed;
 	span.rc-tree-select-tree-iconEle {
     	width: 20px;
   }
+
 .rc-tree-select-tree
 	.rc-tree-select-tree-treenode
 	span.rc-tree-select-tree-iconEle {
@@ -609,19 +585,20 @@ export const TreeSelectContainer = styled.div<{
   compactMode: boolean;
   allowClear: boolean;
   isValid: boolean;
+  labelPosition?: LabelPosition;
   borderRadius: string;
   boxShadow?: string;
   accentColor: string;
 }>`
-  display: flex;
-  flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
-  align-items: ${(props) => (props.compactMode ? "center" : "left")};
-  justify-content: flex-end;
-  gap: ${(props) => (props.compactMode ? "10px" : "5px")};
-
-  label.tree-select-label {
-    margin-bottom: 0px;
-    margin-right: 0px;
+  ${labelLayoutStyles}
+  & .${LABEL_CONTAINER_CLASS} {
+    label {
+      ${({ labelPosition }) => {
+        if (!labelPosition) {
+          return `margin-bottom: ${LABEL_MARGIN_OLD_SELECT}`;
+        }
+      }};
+    }
   }
   .rc-tree-select {
     display: inline-block;
@@ -630,13 +607,18 @@ export const TreeSelectContainer = styled.div<{
     height: 100%;
     position: relative;
     cursor: pointer;
-    flex: 1 1;
+
+    ${({ compactMode, labelPosition }) =>
+      labelPosition !== LabelPosition.Top &&
+      compactMode &&
+      `height: 100%; overflow: hidden`};
+
     .rc-tree-select-selection-placeholder {
       pointer-events: none;
       position: absolute;
       top: 50%;
       right: 12px;
-      left: 10px;
+      left: 19px;
       transform: translateY(-50%);
       transition: all 0.3s;
       flex: 1;
@@ -666,7 +648,7 @@ export const TreeSelectContainer = styled.div<{
       background-color: ${Colors.GREY_1} !important;
     }
     .rc-tree-select-selector {
-      border: 1px solid ${Colors.GREY_3} !important;
+      border: 1.2px solid ${Colors.GREY_3} !important;
       background-color: ${Colors.GREY_1} !important;
       .rc-tree-select-selection-item-content {
         color: ${Colors.GREY_7};
@@ -692,7 +674,7 @@ export const TreeSelectContainer = styled.div<{
   .rc-tree-select-single {
     &:hover {
       .rc-tree-select-selector {
-        border: 1px solid ${Colors.GREY_5};
+        border: 1.2px solid ${Colors.GREY_5};
       }
     }
   }
@@ -943,17 +925,6 @@ export const TreeSelectContainer = styled.div<{
     }
   }
 
-  .rc-tree-select-show-arrow.rc-tree-select-focused {
-    .rc-tree-select-selector {
-      outline: 0px;
-      ${(props) =>
-        props.isValid
-          ? `
-          border: 1px solid ${Colors.GREEN_SOLID} !important;
-          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};`
-          : `border: 1px solid ${Colors.DANGER_SOLID};`}
-    }
-  }
 `;
 
 export const StyledCheckbox = styled(Checkbox)`
@@ -977,8 +948,16 @@ export const inputIcon = (): JSX.Element => (
   <svg data-icon="chevron-down" height="16" viewBox="0 0 16 16" width="16">
     <desc>chevron-down</desc>
     <path
-      d="M12 5c-.28 0-.53.11-.719L8 8.59l-3.29-3.3a1.003 1.003 0 00-1.42 1.42l4 4c.18.18.43.29.719s.53-.11.71-.29l4-4A1.003 1.003 0 0012 5z"
+      d="M12 5c-.28 0-.53.11-.71.29L8 8.59l-3.29-3.3a1.003 1.003 0 00-1.42 1.42l4 4c.18.18.43.29.71.29s.53-.11.71-.29l4-4A1.003 1.003 0 0012 5z"
       fillRule="evenodd"
     />
   </svg>
 );
+
+export const InputContainer = styled.div<{
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
+}>`
+  ${multiSelectInputContainerStyles}
+  ${({ labelPosition }) => labelPosition && `height: ${SELECT_DEFAULT_HEIGHT}`};
+`;

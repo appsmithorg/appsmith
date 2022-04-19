@@ -12,7 +12,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import ThemingApi from "api/AppThemingApi";
 import { all, takeLatest, put, select } from "redux-saga/effects";
 import { Variant } from "components/ads/common";

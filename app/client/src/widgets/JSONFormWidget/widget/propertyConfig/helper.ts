@@ -16,7 +16,7 @@ import { AppTheme } from "entities/AppTheming";
 
 export type HiddenFnParams = [JSONFormWidgetProps, string];
 
-const clone = require("rfdc/default");
+import { klona as clone } from "klona/full";
 
 export const fieldTypeUpdateHook = (
   props: JSONFormWidgetProps,

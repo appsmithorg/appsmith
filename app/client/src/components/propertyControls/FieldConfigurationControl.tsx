@@ -20,7 +20,7 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import { InputText } from "./InputTextControl";
 import { JSONFormWidgetProps } from "widgets/JSONFormWidget/widget";
 
-const clone = require("rfdc/default");
+import { klona as clone } from "klona/full";
 
 type DroppableItem = BaseItemProps & {
   index: number;

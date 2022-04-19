@@ -933,11 +933,11 @@ export default function Dropdown(props: DropdownProps) {
           e.preventDefault();
           if (isOpen) {
             setSelected((prevSelected) => {
-              if (!("length" in prevSelected)) {
+              if (!(!!prevSelected && "length" in prevSelected)) {
                 let index = findIndex(props.options, prevSelected);
                 if (index === props.options.length - 1) index = 0;
                 else index++;
-                return props.options[index];
+                return prevSelected ? props.options[index] : props.options[0];
               }
               return prevSelected;
             });
@@ -1025,7 +1025,9 @@ export default function Dropdown(props: DropdownProps) {
           )
         )}
       </Selected>
-      {errorMsg && <ErrorMsg>{errorMsg}</ErrorMsg>}
+      {errorMsg && (
+        <ErrorMsg className="ads-dropdown-errorMsg">{errorMsg}</ErrorMsg>
+      )}
       {helperText && !isOpen && !errorMsg && (
         <HelperMsg>{helperText}</HelperMsg>
       )}

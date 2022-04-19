@@ -1,6 +1,12 @@
 import React from "react";
 import { ComponentProps } from "widgets/BaseComponent";
-import { MenuItem, Button, ControlGroup, Classes } from "@blueprintjs/core";
+import {
+  MenuItem,
+  Button,
+  ControlGroup,
+  Classes,
+  Alignment,
+} from "@blueprintjs/core";
 import { DropdownOption } from "../constants";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
 import _ from "lodash";
@@ -11,11 +17,13 @@ import styled, {
 } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { TextSize } from "constants/WidgetConstants";
-import { StyledLabel, TextLabelWrapper } from "./index.styled";
 import Fuse from "fuse.js";
-import { lightenColor, WidgetContainerDiff } from "widgets/WidgetUtils";
+import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
-import { DEFAULT_FONT_NAME } from "utils/hooks/useGoogleFont";
+import { LabelPosition } from "components/constants";
+import LabelWithTooltip, {
+  labelLayoutStyles,
+} from "components/ads/LabelWithTooltip";
 
 const FUSE_OPTIONS = {
   shouldSort: true,
@@ -30,10 +38,6 @@ const SingleDropDown = Select.ofType<DropdownOption>();
 const StyledSingleDropDown = styled(SingleDropDown)<{
   isSelected: boolean;
   isValid: boolean;
-  backgroundColor: string;
-  borderRadius: string;
-  boxShadow?: string;
-  accentColor: string;
   hasError?: boolean;
 }>`
   div {
@@ -47,48 +51,45 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
       height: 100%;
     }
   }
-
-  & .${Classes.BUTTON} {
+  &&&& .${Classes.BUTTON} {
     display: flex;
     width: 100%;
     height: 100%;
     align-items: center;
     justify-content: space-between;
-    background: ${({ backgroundColor }) =>
-      `${backgroundColor || Colors.WHITE}`} !important;
-    border-radius: ${({ borderRadius }) => borderRadius} !important;
-    box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
-    padding: 0px 10px;
-    border: 1px solid;
-    line-height: 30px;
-    min-height: 32px;
-    border-color: ${(props) =>
-      props.hasError ? Colors.DANGER_SOLID : Colors.GREY_3};
+    box-shadow: none;
+    background: white;
+    min-height: 36px;
+    padding-left: 12px;
+    border: 1.2px solid
+      ${(props) => (props.hasError ? Colors.DANGER_SOLID : Colors.GREY_3)};
     ${(props) =>
       props.isValid
         ? `
-        &:hover { border: 1px solid ${Colors.GREY_5}; }
-        &:focus { outline: 0; }
+        &:hover {
+          border: 1.2px solid ${Colors.GREY_5};
+        }
+        &:focus {
+          border: 1.2px solid ${Colors.GREEN_SOLID};
+          outline: 0;
+        }
       `
         : ""};
   }
 
-  & .${Classes.POPOVER_OPEN} .${Classes.BUTTON} {
+  &&&&& .${Classes.POPOVER_OPEN} .${Classes.BUTTON} {
     outline: 0;
     ${(props) =>
       !props.hasError
         ? `
-        border: 1px solid ${props.accentColor};
-        box-shadow: 0px 0px 0px 3px ${lightenColor(
-          props.accentColor,
-        )} !important;
+        border: 1.2px solid ${Colors.GREEN_SOLID};
+        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
       `
-        : `border: 1px solid ${Colors.DANGER_SOLID};`}
+        : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
   }
-
-  & .${Classes.DISABLED} {
+  &&&&& .${Classes.DISABLED} {
     background-color: ${Colors.GREY_1};
-    border: 1px solid ${Colors.GREY_3};
+    border: 1.2px solid ${Colors.GREY_3};
     .${Classes.BUTTON_TEXT} {
       color: ${Colors.GREY_7};
     }
@@ -101,9 +102,8 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     color: ${(props) => (props.isSelected ? Colors.GREY_10 : Colors.GREY_6)};
-    line-height: normal;
   }
-  & {
+  && {
     .${Classes.ICON} {
       width: fit-content;
       color: ${Colors.SLATE_GRAY};
@@ -111,10 +111,13 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
   }
 `;
 
-const StyledControlGroup = styled(ControlGroup)`
-  height: 100%;
-
-  & > {
+const StyledControlGroup = styled(ControlGroup)<{
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
+}>`
+  ${({ compactMode, labelPosition }) =>
+    labelPosition !== LabelPosition.Top && compactMode && `overflow-x: hidden`};
+  &&& > {
     span {
       height: 100%;
       max-width: 100%;
@@ -138,39 +141,32 @@ const StyledControlGroup = styled(ControlGroup)`
 const DropdownStyles = createGlobalStyle<{
   parentWidth: number;
   dropDownWidth: number;
-  borderRadius: string;
   id: string;
-  accentColor: string;
-  fontFamily?: string;
 }>`
 ${({ dropDownWidth, id, parentWidth }) => `
   .select-popover-width-${id} {
     min-width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
+
+    & .${Classes.INPUT_GROUP} {
+       width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
+    }
   }
 `}
   .select-popover-wrapper {
     width: auto;
     box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
+    border-radius: 0;
     background: white;
-    border-radius: ${({ borderRadius }) => borderRadius} !important;
-    font-family: ${({ fontFamily }) =>
-      fontFamily === DEFAULT_FONT_NAME ? "inherit" : fontFamily} !important;
-    overflow: hidden;
-
-    & .${Classes.POPOVER_CONTENT} {
-      background: transparent;
-    }
 
     & .${Classes.INPUT_GROUP} {
-      padding: 0;
-      margin: 10px !important;
+      padding: 12px 12px 8px 12px;
+      min-width: 180px;
 
       & > .${Classes.ICON} {
         &:first-child {
-          margin: 0 10px;
-          height: 100%;
-          display: flex;
-          align-items: center;
+          left: 12px;
+          top: 14px;
+          margin: 9px;
           color: ${Colors.GREY_7};
 
           & > svg {
@@ -179,17 +175,14 @@ ${({ dropDownWidth, id, parentWidth }) => `
           }
         }
       }
-
       & > .${Classes.INPUT_ACTION} {
         &:last-child {
-          margin: 0 10px;
-          height: 100%;
-          display: flex;
-          align-items: center;
-          color: ${Colors.GREY_7};
+          right: 13px;
+          top: 13px;
 
           .${Classes.BUTTON} {
-            min-width: auto;
+            min-height: 34px;
+            min-width: 35px;
             margin: 0px;
             color: ${Colors.GREY_6} !important;
 
@@ -201,42 +194,34 @@ ${({ dropDownWidth, id, parentWidth }) => `
           }
         }
       }
-
       .${Classes.INPUT} {
-        height: 32px;
-        padding-left: 32px;
-        border: 1px solid ${Colors.GREY_3};
+        height: 36px;
+        border: 1.2px solid ${Colors.GREY_3};
         color: ${Colors.GREY_10};
-        border-radius: ${({ borderRadius }) => borderRadius} !important;
-
         &:focus {
-          border: ${({ accentColor }) => `1px solid ${accentColor}`};
-          box-shadow: none;
+          border: 1.2px solid ${Colors.GREEN_SOLID};
+          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
         }
       }
     }
-
-    & .${Classes.MENU} {
-      max-width: 100% !important;
+    && .${Classes.MENU} {
+      margin-top: -3px;
+      max-width: 100%;
       max-height: auto;
       min-width: 0px !important;
-      padding-top: 0px !important;
-      border-radius: 0px;
     }
-
-    & .${Classes.MENU_ITEM} {
+    &&&& .${Classes.MENU_ITEM} {
       min-height: 38px;
       padding: 9px 12px;
-      border-radius: 0px;
       color: ${Colors.GREY_8};
       &:hover{
-        background: ${({ accentColor }) => `${lightenColor(accentColor)}`};
+        background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
       }
       &.is-focused{
-        background: ${({ accentColor }) => `${lightenColor(accentColor)}`};
+        background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
       }
       &.${Classes.ACTIVE} {
-        background: ${({ accentColor }) => `${lightenColor(accentColor)}`};
+        background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
         color: ${Colors.GREY_10};
         position:relative;
       }
@@ -244,18 +229,12 @@ ${({ dropDownWidth, id, parentWidth }) => `
   }
 `;
 
-const DropdownContainer = styled.div<{ compactMode: boolean }>`
+const DropdownContainer = styled.div<{
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
+}>`
   ${BlueprintCSSTransform}
-  display: flex;
-  flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
-  align-items: ${(props) => (props.compactMode ? "center" : "left")};
-  justify-content: end;
-  gap: ${(props) => (props.compactMode ? "10px" : "5px")};
-
-  label.select-label {
-    margin-bottom: 0px;
-    margin-right: 0px;
-  }
+  ${labelLayoutStyles}
 `;
 const DEBOUNCE_TIMEOUT = 800;
 
@@ -266,10 +245,11 @@ class DropDownComponent extends React.Component<
   DropDownComponentProps,
   DropDownComponentState
 > {
-  state = {
+  state: DropDownComponentState = {
     // used to show focused item for keyboard up down key interection
     activeItemIndex: -1,
   };
+
   componentDidMount = () => {
     // set default selectedIndex as focused index
     this.setState({ activeItemIndex: this.props.selectedIndex });
@@ -290,19 +270,24 @@ class DropDownComponent extends React.Component<
     ]);
     this.setState({ activeItemIndex });
   };
+
   render() {
+    const id = _.uniqueId();
     const {
       compactMode,
       disabled,
       isLoading,
+      labelAlignment,
+      labelPosition,
       labelStyle,
       labelText,
       labelTextColor,
       labelTextSize,
+      labelWidth,
     } = this.props;
     // active focused item
     const activeItem = !_.isEmpty(this.props.options)
-      ? this.props.options[this.state.activeItemIndex]
+      ? this.props.options[this.state.activeItemIndex || -1]
       : undefined;
     // get selected option label from selectedIndex
     const selectedOption =
@@ -316,39 +301,38 @@ class DropDownComponent extends React.Component<
       ? selectedOption
       : this.props.placeholder || "-- Select --";
     return (
-      <DropdownContainer compactMode={compactMode}>
+      <DropdownContainer
+        compactMode={compactMode}
+        data-testid="select-container"
+        labelPosition={labelPosition}
+      >
         <DropdownStyles
-          accentColor={this.props.accentColor}
-          borderRadius={this.props.borderRadius}
           dropDownWidth={this.props.dropDownWidth}
-          fontFamily={this.props.fontFamily}
-          id={this.props.widgetId}
+          id={id}
           parentWidth={this.props.width - WidgetContainerDiff}
         />
         {labelText && (
-          <TextLabelWrapper compactMode={compactMode}>
-            <StyledLabel
-              $compactMode={compactMode}
-              $disabled={!!disabled}
-              $labelStyle={labelStyle}
-              $labelText={labelText}
-              $labelTextColor={labelTextColor}
-              $labelTextSize={labelTextSize}
-              className={`select-label ${
-                isLoading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
-              }`}
-            >
-              {labelText}
-            </StyledLabel>
-          </TextLabelWrapper>
+          <LabelWithTooltip
+            alignment={labelAlignment}
+            className={`select-label`}
+            color={labelTextColor}
+            compact={compactMode}
+            disabled={disabled}
+            fontSize={labelTextSize}
+            fontStyle={labelStyle}
+            loading={isLoading}
+            position={labelPosition}
+            text={labelText}
+            width={labelWidth}
+          />
         )}
-        <StyledControlGroup fill>
+        <StyledControlGroup
+          compactMode={compactMode}
+          fill
+          labelPosition={labelPosition}
+        >
           <StyledSingleDropDown
-            accentColor={this.props.accentColor}
             activeItem={activeItem}
-            backgroundColor={this.props.backgroundColor}
-            borderRadius={this.props.borderRadius}
-            boxShadow={this.props.boxShadow}
             className={isLoading ? Classes.SKELETON : ""}
             disabled={disabled}
             filterable={this.props.isFilterable}
@@ -381,7 +365,7 @@ class DropDownComponent extends React.Component<
                   enabled: false,
                 },
               },
-              popoverClassName: `select-popover-wrapper select-popover-width-${this.props.widgetId}`,
+              popoverClassName: `select-popover-wrapper select-popover-width-${id}`,
             }}
           >
             <Button
@@ -449,10 +433,13 @@ export interface DropDownComponentProps extends ComponentProps {
   disabled?: boolean;
   onOptionSelected: (optionSelected: DropdownOption) => void;
   placeholder?: string;
-  labelText?: string;
+  labelAlignment?: Alignment;
+  labelPosition?: LabelPosition;
+  labelText: string;
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
+  labelWidth?: number;
   compactMode: boolean;
   selectedIndex?: number;
   options: DropdownOption[];
@@ -465,11 +452,9 @@ export interface DropDownComponentProps extends ComponentProps {
   serverSideFiltering: boolean;
   hasError?: boolean;
   onFilterChange: (text: string) => void;
-  backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
   accentColor: string;
-  fontFamily?: string;
 }
 
 export default DropDownComponent;

@@ -5,7 +5,7 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   jsEditor = ObjectsRegistry.JSEditor,
   locator = ObjectsRegistry.CommonLocators;
 
-describe("Validate Create Api and Bind to Table widget via JSObject", () => {
+describe("Validate JSObjects binding to Input widget", () => {
   before(() => {
     cy.fixture('formInputTableDsl').then((val: any) => {
       agHelper.AddDsl(val)

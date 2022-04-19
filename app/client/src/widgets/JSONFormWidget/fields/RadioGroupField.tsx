@@ -9,6 +9,7 @@ import { RadioOption } from "widgets/RadioGroupWidget/constants";
 import { BaseFieldComponentProps, FieldComponentBaseProps } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
+import { Alignment } from "@blueprintjs/core";
 
 type RadioGroupComponentProps = FieldComponentBaseProps & {
   options: RadioOption[];
@@ -90,10 +91,14 @@ function RadioGroupField({
       tooltip={schemaItem.tooltip}
     >
       <RadioGroupComponent
-        backgroundColor={schemaItem.accentColor || DEFAULT_BG_COLOR}
+        accentColor={schemaItem.accentColor || DEFAULT_BG_COLOR}
+        alignment={Alignment.LEFT}
+        compactMode={false}
+        disabled={schemaItem.isDisabled}
+        inline={false}
         isDisabled={schemaItem.isDisabled}
-        isLoading={false}
-        label=""
+        labelText=""
+        loading={false}
         onRadioSelectionChange={onSelectionChange}
         options={schemaItem.options || []}
         selectedOptionValue={value}

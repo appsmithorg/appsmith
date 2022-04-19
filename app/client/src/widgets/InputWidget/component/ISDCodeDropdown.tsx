@@ -40,7 +40,7 @@ const FlagWrapper = styled.span`
 export const PopoverStyles = createGlobalStyle<{
   borderRadius: string;
   portalClassName: string;
-  primaryColor: string;
+  accentColor: string;
 }>`
   ${(props) => `
     .${props.portalClassName} .${Classes.POPOVER} {
@@ -62,15 +62,15 @@ export const PopoverStyles = createGlobalStyle<{
     .${props.portalClassName}  .${Classes.INPUT}:focus, .${
     props.portalClassName
   }  .${Classes.INPUT}:active {
-      border: 1px solid ${props.primaryColor} !important;
+      border: 1px solid ${props.accentColor} !important;
       box-shadow:  0px 0px 0px 3px ${lightenColor(
-        props.primaryColor,
+        props.accentColor,
       )} !important;
     }
 
     .${props.portalClassName} .t--dropdown-option:hover,
     .${props.portalClassName} .t--dropdown-option.selected {
-      background-color: ${lightenColor(props.primaryColor)} !important;
+      background-color: ${lightenColor(props.accentColor)} !important;
     }
 
     .${props.portalClassName} .ads-dropdown-options-wrapper {
@@ -121,7 +121,7 @@ interface ISDCodeDropdownProps {
   allowCountryCodeChange?: boolean;
   disabled: boolean;
   borderRadius: string;
-  primaryColor: string;
+  accentColor: string;
   widgetId: string;
 }
 
@@ -160,9 +160,9 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
         showLabelOnly
       />
       <PopoverStyles
+        accentColor={props.accentColor}
         borderRadius={props.borderRadius}
         portalClassName={`country-type-filter-dropdown-${props.widgetId}`}
-        primaryColor={props.primaryColor}
       />
     </>
   );

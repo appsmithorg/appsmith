@@ -192,12 +192,13 @@ function DateField({
         borderRadius={schemaItem.borderRadius ?? DEFAULT_BORDER_RADIUS}
         boxShadow={schemaItem.boxShadow ?? "none"}
         closeOnSelection={schemaItem.closeOnSelection}
+        compactMode
         dateFormat={schemaItem.dateFormat}
         datePickerType="DATE_PICKER"
         inputRef={inputRef}
         isDisabled={schemaItem.isDisabled}
         isLoading={false}
-        label=""
+        labelText=""
         maxDate={schemaItem.maxDate}
         minDate={schemaItem.minDate}
         onDateSelected={onDateSelected}

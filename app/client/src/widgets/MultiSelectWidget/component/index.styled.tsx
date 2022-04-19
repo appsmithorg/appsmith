@@ -1,10 +1,10 @@
 import React from "react";
-import { Checkbox, Classes, Label } from "@blueprintjs/core";
+import { Checkbox, Classes } from "@blueprintjs/core";
 import styled, { keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
-import { FontStyleTypes, TextSize } from "constants/WidgetConstants";
-import { lightenColor } from "widgets/WidgetUtils";
+import { LabelPosition } from "components/constants";
+import { labelLayoutStyles } from "components/ads/LabelWithTooltip";
 
 const rcSelectDropdownSlideUpIn = keyframes`
 	0% {
@@ -34,8 +34,6 @@ export const DropdownStyles = createGlobalStyle<{
   parentWidth: number;
   dropDownWidth: number;
   id: string;
-  accentColor: string;
-  borderRadius: string;
 }>`
 ${({ dropDownWidth, id, parentWidth }) => `
   .multiselect-popover-width-${id} {
@@ -75,13 +73,13 @@ ${({ dropDownWidth, id, parentWidth }) => `
   font-weight: 400;
 }
 .rc-select-item-option-active {
-	background: ${({ accentColor }) => lightenColor(accentColor)};
+	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
   & .rc-select-item-option-content {
     color: ${Colors.GREY_9};
   }
 }
 .rc-select-item-option-selected {
-	background: ${({ accentColor }) => lightenColor(accentColor)};
+	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
 
   & .rc-select-item-option-content {
     color: ${Colors.GREY_10};
@@ -176,10 +174,8 @@ ${({ dropDownWidth, id, parentWidth }) => `
   border-radius: 0px;
   margin-top: 5px;
   background: white;
-  border-radius: ${({ borderRadius }) => borderRadius};
-  overflow: hidden;
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
-   overflow-x: auto;
+   overflow-x: scroll;
   > div {
       min-width: ${({ dropDownWidth }) => dropDownWidth}px;
     }
@@ -191,7 +187,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
       margin-right: 20px;
     }
     &.all-options.selected {
-      background: ${({ accentColor }) => lightenColor(accentColor)};
+      background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
       color: ${Colors.GREY_10} !important;
     }
   }
@@ -208,9 +204,9 @@ ${({ dropDownWidth, id, parentWidth }) => `
     }
   }
   .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
-    background: ${({ accentColor }) => accentColor} !important;
+    background: ${Colors.GREEN_SOLID} !important;
     color: rgb(255, 255, 255);
-    border-color: ${({ accentColor }) => accentColor} !important;
+    border-color: ${Colors.GREEN_SOLID} !important;
     box-shadow: none;
     outline: none !important;
   }
@@ -233,29 +229,16 @@ ${({ dropDownWidth, id, parentWidth }) => `
 export const MultiSelectContainer = styled.div<{
   compactMode: boolean;
   isValid: boolean;
-  backgroundColor: string;
-  borderRadius: string;
-  boxShadow?: string;
-  accentColor: string;
+  labelPosition?: LabelPosition;
 }>`
-  display: flex;
-  flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
-  align-items: ${(props) => (props.compactMode ? "center" : "left")};
-  gap: ${(props) => (props.compactMode ? "10px" : "5px")};
-  justify-content: flex-end;
+  ${labelLayoutStyles}
 
-  label.tree-multiselect-label {
-    margin-bottom: 0px;
-    margin-right: 0px;
-  }
   .rc-select {
     display: inline-block;
     font-size: 12px;
     width: 100%;
-    height: 100%;
     position: relative;
     cursor: pointer;
-
     .rc-select-selection-placeholder {
       pointer-events: none;
       position: absolute;
@@ -287,7 +270,7 @@ export const MultiSelectContainer = styled.div<{
     }
     & .rc-select-selector {
       background-color: ${Colors.GREY_1} !important;
-      border: 1px solid ${Colors.GREY_3};
+      border: 1.2px solid ${Colors.GREY_3};
       .rc-select-selection-item-content {
         color: ${Colors.GREY_7};
       }
@@ -317,10 +300,8 @@ export const MultiSelectContainer = styled.div<{
       display: flex;
       flex-wrap: wrap;
       padding: 1px;
-      background: ${({ backgroundColor }) =>
-        `${backgroundColor || Colors.WHITE}`};
-      border-radius: ${({ borderRadius }) => borderRadius};
-      box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+      box-shadow: none;
+      border-radius: 0px;
       width: 100%;
       transition: border-color 0.15s ease-in-out 0s,
         box-shadow 0.15s ease-in-out 0s;
@@ -351,7 +332,6 @@ export const MultiSelectContainer = styled.div<{
       }
       .rc-select-selection-overflow {
         display: flex;
-        flex-wrap: wrap;
         width: 100%;
         align-items: center;
       }
@@ -430,19 +410,17 @@ export const MultiSelectContainer = styled.div<{
   .rc-select-show-arrow.rc-select-multiple {
     .rc-select-selector {
       padding-right: 36px;
-      padding-left: 10px;
-      background: ${({ backgroundColor }) =>
-        `${backgroundColor || Colors.WHITE}`};
-      border-radius: ${({ borderRadius }) => borderRadius};
-      box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+      padding-left: 12px;
+      box-shadow: none;
+      border-radius: 0px;
       height: inherit;
       width: 100%;
       transition: border-color 0.15s ease-in-out 0s,
         box-shadow 0.15s ease-in-out 0s;
-      border: 1px solid
+      border: 1.2px solid
         ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
       &:hover {
-        border: 1px solid
+        border: 1.2px solid
           ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
       }
     }
@@ -472,24 +450,13 @@ export const MultiSelectContainer = styled.div<{
       ${(props) =>
         props.isValid
           ? `
-          border: 1px solid  ${props.accentColor};
-          box-shadow: 0px 0px 0px 2px ${lightenColor(props.accentColor)};`
-          : `border: 1px solid ${Colors.DANGER_SOLID};`}
+          border: 1.2px solid ${Colors.GREEN_SOLID};
+          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};`
+          : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
     }
   }
 `;
-
-export const SelectAllMenuItem = styled.div<{
-  accentColor: string;
-}>`
-  &:hover {
-    background: ${({ accentColor }) => lightenColor(accentColor)};
-  }
-`;
-
-export const StyledCheckbox = styled(Checkbox)<{
-  accentColor: string;
-}>`
+export const StyledCheckbox = styled(Checkbox)`
   &&.${Classes.CHECKBOX}.${Classes.CONTROL} {
     white-space: nowrap;
     overflow: hidden;
@@ -499,8 +466,8 @@ export const StyledCheckbox = styled(Checkbox)<{
     color: ${Colors.GREY_8} !important;
     display: flex;
     align-items: center;
-    background: transparent;
     &:hover {
+      background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
       color: ${Colors.GREY_9} !important;
     }
   }
@@ -515,37 +482,3 @@ export const inputIcon = (): JSX.Element => (
     />
   </svg>
 );
-
-export const TextLabelWrapper = styled.div<{
-  compactMode: boolean;
-}>`
-  ${(props) =>
-    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
-  display: flex;
-`;
-
-export const StyledLabel = styled(Label)<{
-  $compactMode: boolean;
-  $disabled: boolean;
-  $labelText?: string;
-  $labelTextColor?: string;
-  $labelTextSize?: TextSize;
-  $labelStyle?: string;
-}>`
-  overflow-y: hidden;
-  text-overflow: ellipsis;
-  width: ${(props) => (props.$compactMode ? "auto" : "100%")};
-  text-align: left;
-  color: ${(props) =>
-    props.$labelTextColor
-      ? props.$labelTextColor
-      : props.$disabled
-      ? Colors.GREY_8
-      : "inherit"};
-  font-size: ${(props) =>
-    props.$labelTextSize ? props.$labelTextSize : "0.875rem"};
-  font-weight: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
-  font-style: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
-`;
