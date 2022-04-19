@@ -435,24 +435,161 @@ describe("Add functions", () => {
     );
   });
 
-  it("post message to target window works", () => {
-    const message = "Hello world!";
+  describe("Post message to target window works", () => {
     const targetOrigin = "https://dev.appsmith.com/";
 
-    expect(
-      dataTreeWithFunctions.postMessageToTargetWindow(message, targetOrigin),
-    ).toBe(undefined);
+    it("Post message with first argument (message) as a string", () => {
+      const message = "Hello world!";
 
-    expect(self.TRIGGER_COLLECTOR).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          payload: {
-            message: "Hello world!",
-            targetOrigin: "https://dev.appsmith.com/",
-          },
-          type: "POST_MESSAGE",
-        }),
-      ]),
-    );
+      expect(
+        dataTreeWithFunctions.postMessageToTargetWindow(message, targetOrigin),
+      ).toBe(undefined);
+
+      expect(self.TRIGGER_COLLECTOR).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            payload: {
+              message: "Hello world!",
+              targetOrigin: "https://dev.appsmith.com/",
+            },
+            type: "POST_MESSAGE",
+          }),
+        ]),
+      );
+    });
+
+    it("Post message with first argument (message) as undefined", () => {
+      const message = undefined;
+
+      expect(
+        dataTreeWithFunctions.postMessageToTargetWindow(message, targetOrigin),
+      ).toBe(undefined);
+
+      expect(self.TRIGGER_COLLECTOR).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            payload: {
+              message: undefined,
+              targetOrigin: "https://dev.appsmith.com/",
+            },
+            type: "POST_MESSAGE",
+          }),
+        ]),
+      );
+    });
+
+    it("Post message with first argument (message) as null", () => {
+      const message = null;
+
+      expect(
+        dataTreeWithFunctions.postMessageToTargetWindow(message, targetOrigin),
+      ).toBe(undefined);
+
+      expect(self.TRIGGER_COLLECTOR).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            payload: {
+              message: null,
+              targetOrigin: "https://dev.appsmith.com/",
+            },
+            type: "POST_MESSAGE",
+          }),
+        ]),
+      );
+    });
+
+    it("Post message with first argument (message) as a number", () => {
+      const message = 1826;
+
+      expect(
+        dataTreeWithFunctions.postMessageToTargetWindow(message, targetOrigin),
+      ).toBe(undefined);
+
+      expect(self.TRIGGER_COLLECTOR).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            payload: {
+              message: 1826,
+              targetOrigin: "https://dev.appsmith.com/",
+            },
+            type: "POST_MESSAGE",
+          }),
+        ]),
+      );
+    });
+
+    it("Post message with first argument (message) as a boolean", () => {
+      const message = true;
+
+      expect(
+        dataTreeWithFunctions.postMessageToTargetWindow(message, targetOrigin),
+      ).toBe(undefined);
+
+      expect(self.TRIGGER_COLLECTOR).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            payload: {
+              message: true,
+              targetOrigin: "https://dev.appsmith.com/",
+            },
+            type: "POST_MESSAGE",
+          }),
+        ]),
+      );
+    });
+
+    it("Post message with first argument (message) as an array", () => {
+      const message = [1, 2, 3, [1, 2, 3, [1, 2, 3]]];
+
+      expect(
+        dataTreeWithFunctions.postMessageToTargetWindow(message, targetOrigin),
+      ).toBe(undefined);
+
+      expect(self.TRIGGER_COLLECTOR).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            payload: {
+              message: [1, 2, 3, [1, 2, 3, [1, 2, 3]]],
+              targetOrigin: "https://dev.appsmith.com/",
+            },
+            type: "POST_MESSAGE",
+          }),
+        ]),
+      );
+    });
+
+    it("Post message with first argument (message) as an object", () => {
+      const message = {
+        key: 1,
+        status: "active",
+        person: {
+          name: "timothee chalamet",
+        },
+        randomArr: [1, 2, 3],
+      };
+
+      expect(
+        dataTreeWithFunctions.postMessageToTargetWindow(message, targetOrigin),
+      ).toBe(undefined);
+
+      expect(self.TRIGGER_COLLECTOR).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            payload: {
+              message: {
+                key: 1,
+                status: "active",
+                person: {
+                  name: "timothee chalamet",
+                },
+                randomArr: [1, 2, 3],
+              },
+              targetOrigin: "https://dev.appsmith.com/",
+            },
+            type: "POST_MESSAGE",
+          }),
+        ]),
+      );
+    });
   });
 });
