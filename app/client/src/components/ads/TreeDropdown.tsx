@@ -59,12 +59,12 @@ export const StyledMenu = styled(Menu)`
   max-height: ${(props) =>
     `calc(100vh - ${props.theme.smallHeaderHeight} - ${props.theme.bottomBarHeight})`};
   overflow: auto;
-  min-width: 220px;
+  min-width: 260px;
   padding: 0px;
   border-radius: 0px;
   background-color: ${(props) => props.theme.colors.treeDropdown.menuBg.normal};
   .${Classes.MENU} {
-    min-width: 220px;
+    min-width: 260px;
     padding: 0px;
     border-radius: 0px;
     background-color: ${(props) =>
