@@ -61,6 +61,7 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
+import org.springframework.dao.DuplicateKeyException;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -1266,7 +1267,20 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .flatMap(application1 ->
                                     fileUtils.reconstructApplicationJsonFromGitRepo(srcApplication.getOrganizationId(), defaultApplicationId, srcApplication.getGitApplicationMetadata().getRepoName(), branchName)
                                             .zipWith(Mono.just(application1))
-                            );
+                            )
+                            // We need to handle the case specifically for default branch of Appsmith
+                            // if user switches default branch and tries to delete the default branch we do not delete resource from db
+                            // This is an exception only for the above case and in such case if the user tries to checkout the branch again
+                            // It results in an error as the resources are already present in db
+                            // So we just rehydrate from the file system to the existing resource on the db
+                            .onErrorResume(throwable -> {
+                                if (throwable instanceof DuplicateKeyException) {
+                                    return fileUtils.reconstructApplicationJsonFromGitRepo(srcApplication.getOrganizationId(), defaultApplicationId, srcApplication.getGitApplicationMetadata().getRepoName(), branchName)
+                                            .zipWith(Mono.just(tuple.getT2()));
+                                }
+                                log.error(" Git checkout remote branch failed", throwable.getMessage());
+                                return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " --checkout", throwable.getMessage()));
+                            });
                 })
                 .flatMap(tuple -> {
                     // Get the latest application mono with all the changes
@@ -1409,46 +1423,21 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .findFirst()
                                 .orElse(dbDefaultBranch);
 
-                        // delete local branches which are not present in remote repo
-                        List<String> remoteBranches = gitBranchListDTOS.stream()
-                                .filter(gitBranchListDTO -> gitBranchListDTO.getBranchName().startsWith("origin"))
-                                .map(gitBranchDTO -> gitBranchDTO.getBranchName().replaceFirst("origin/", ""))
-                                .collect(Collectors.toList());
-
-                        List<String> localBranch = gitBranchListDTOS.stream()
-                                .filter(gitBranchListDTO -> !gitBranchListDTO.getBranchName().contains("origin"))
-                                .map(gitBranchDTO -> gitBranchDTO.getBranchName())
-                                .collect(Collectors.toList());
-
-                        localBranch.removeAll(remoteBranches);
-
-                        // Exclude the current checked out branch and the appsmith default application
-                        localBranch.remove(gitApplicationMetadata.getBranchName());
-                        localBranch.remove(currentBranch);
-
-                        // Remove the branches which are not in remote from the list before sending
-                        gitBranchListDTOS = gitBranchListDTOS.stream()
-                                .filter(gitBranchDTO -> !localBranch.contains(gitBranchDTO.getBranchName()))
-                                .collect(Collectors.toList());
-
-                        Mono<List<GitBranchDTO>> monoBranchList = Flux.fromIterable(localBranch)
-                                .flatMap(gitBranch -> applicationService.findByBranchNameAndDefaultApplicationId(gitBranch, defaultApplicationId, MANAGE_APPLICATIONS)
-                                        .flatMap(application1 -> applicationPageService.deleteApplicationByResource(application1))
-                                        // Delete the branch that exists in local file system but not in DB
-                                        .onErrorResume(throwable -> {
-                                            log.warn(" No application exists in DB for the local branch of file system", throwable);
-                                            return Mono.empty();
-                                        })
-                                        .then(gitExecutor.deleteBranch(repoPath, gitBranch)))
-                                .then(Mono.just(gitBranchListDTOS));
-
                         if(defaultBranchRemote.equals(dbDefaultBranch)) {
-                            return monoBranchList.zipWith(Mono.just(application));
+                            return Mono.just(gitBranchListDTOS).zipWith(Mono.just(application));
                         } else {
-                            // update the default branch from remote to db
-                            gitApplicationMetadata.setDefaultBranchName(defaultBranchRemote);
-                            application.setGitApplicationMetadata(gitApplicationMetadata);
-                            return monoBranchList.zipWith(applicationService.save(application));
+                            // Get the application from DB by new defaultBranch name
+                            return applicationService.findByBranchNameAndDefaultApplicationId(defaultBranchRemote, defaultApplicationId, MANAGE_APPLICATIONS)
+                                    // Check if the branch is already present, If not follow checkout remote flow
+                                    .onErrorResume(throwable -> checkoutRemoteBranch(defaultApplicationId, defaultBranchRemote))
+                                    // Update the default Branch name in all the child applications
+                                    .flatMapMany(application1 -> applicationService.findAllApplicationsByDefaultApplicationId(defaultApplicationId, MANAGE_APPLICATIONS)
+                                            .flatMap(application2 -> {
+                                                application2.getGitApplicationMetadata().setDefaultBranchName(defaultBranchRemote);
+                                                return applicationService.save(application2);
+                                            }))
+                                    // Return the deleted branches
+                                    .then(Mono.just(gitBranchListDTOS).zipWith(Mono.just(application)));
                         }
                     } else {
                         gitBranchListDTOS
@@ -2071,7 +2060,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     Path repoPath = Paths.get(application.getOrganizationId(), defaultApplicationId, gitApplicationMetadata.getRepoName());
                     if(branchName.equals(gitApplicationMetadata.getDefaultBranchName())) {
-                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " delete branch", "Cannot delete default branch"));
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "delete branch", " Cannot delete default branch"));
                     }
                     return gitExecutor.deleteBranch(repoPath, branchName)
                             .onErrorResume(throwable -> {
