@@ -58,7 +58,7 @@ abstract class BaseWidget<
   K extends WidgetState
 > extends Component<T, K> {
   static contextType = EditorContext;
-  contentRef = React.createRef();
+  contentRef = React.createRef<HTMLDivElement>();
 
   static getPropertyPaneConfig(): PropertyPaneConfig[] {
     return [];
