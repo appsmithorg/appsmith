@@ -45,7 +45,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
 
     initialMetaState: Record<string, unknown>;
 
-    constructor(props: WidgetProps) {
+    constructor(props: metaHOCProps) {
       super(props);
       const metaProperties = WrappedWidget.getMetaPropertiesMap();
       this.initialMetaState = fromPairs(
@@ -101,19 +101,19 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
           );
         }
       }
-      const debouncedPayload = this.propertyTriggers.get(propertyName);
-      if (debouncedPayload && debouncedPayload.dynamicString && executeAction) {
+      const payload = this.propertyTriggers.get(propertyName);
+      if (payload && payload.dynamicString && executeAction) {
         executeAction({
-          ...debouncedPayload,
+          ...payload,
           source: {
             id: this.props.widgetId,
             name: this.props.widgetName,
           },
         });
         this.propertyTriggers.delete(propertyName);
-        debouncedPayload.triggerPropertyName &&
+        payload.triggerPropertyName &&
           AppsmithConsole.info({
-            text: `${debouncedPayload.triggerPropertyName} triggered`,
+            text: `${payload.triggerPropertyName} triggered`,
             source: {
               type: ENTITY_TYPE.WIDGET,
               id: this.props.widgetId,

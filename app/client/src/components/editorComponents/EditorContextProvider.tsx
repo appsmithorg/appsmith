@@ -46,6 +46,7 @@ export type EditorContextType = {
     widgetId: string,
     updates: BatchPropertyUpdatePayload,
   ) => void;
+  triggerEvalOnMetaUpdate?: () => void;
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
