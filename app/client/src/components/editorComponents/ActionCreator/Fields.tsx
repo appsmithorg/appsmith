@@ -232,7 +232,7 @@ export const ActionType = {
   getGeolocation: "appsmith.geolocation.getCurrentPosition",
   watchGeolocation: "appsmith.geolocation.watchPosition",
   stopWatchGeolocation: "appsmith.geolocation.clearWatch",
-  postMessageToTargetWindow: "postMessageToTargetWindow",
+  postMessage: "postMessageToTargetWindow",
 };
 type ActionType = typeof ActionType[keyof typeof ActionType];
 
@@ -413,7 +413,7 @@ const fieldConfigs: FieldConfigs = {
           break;
         // add example website so that users don't leave it empty or use '*' raising security issues
         // https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage#security_concerns
-        case ActionType.postMessageToTargetWindow:
+        case ActionType.postMessage:
           defaultParams = `,'https://www.example.com'`;
           break;
         default:

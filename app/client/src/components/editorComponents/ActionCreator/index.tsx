@@ -128,7 +128,7 @@ const baseOptions: { label: string; value: string }[] = [
   },
   {
     label: createMessage(POST_MESSAGE),
-    value: ActionType.postMessageToTargetWindow,
+    value: ActionType.postMessage,
   },
 ];
 
