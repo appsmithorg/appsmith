@@ -134,8 +134,7 @@ const DropdownTriggerWrapper = styled.div<{
     props.isOpen && !props.disabled
       ? `
       box-sizing: border-box;
-      border: 1px solid ${Colors.GREEN_1};
-      box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
+      border: 1px solid var(--appsmith-color-black-900);
     `
       : null};
   .${Classes.TEXT} {
@@ -249,7 +248,8 @@ const Selected = styled.div<{
         ? props.hasError
           ? Colors.FAIR_PINK
           : props.theme.colors.dropdown.hovered.bg
-        : Colors.WHITE}
+        : Colors.WHITE};
+  }
 `;
 
 export const DropdownContainer = styled.div<{ width: string; height?: string }>`
@@ -295,8 +295,7 @@ export const DropdownWrapper = styled.div<{
       padding-left: 36px !important;
 
       &:focus {
-        border: 1.2px solid ${Colors.GREEN_1};
-        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
+        border: 1.2px solid var(--appsmith-color-black-900);
       }
     }
 
@@ -340,7 +339,8 @@ const OptionWrapper = styled.div<{
   display: flex;
   align-items: center;
   min-height: 36px;
-  background-color: ${(props) => (props.selected ? Colors.GREEN_3 : null)};
+  background-color: ${(props) =>
+    props.selected ? `var(--appsmith-color-black-200)` : null};
   &&& svg {
     rect {
       fill: ${(props) => props.theme.colors.dropdownIconBg};
@@ -371,7 +371,7 @@ const OptionWrapper = styled.div<{
   }
 
   &:hover {
-    background-color: ${Colors.GREEN_3};
+    background-color: ${(props) => props.theme.colors.dropdown.menu.hover};
 
     &&& svg {
       rect {
