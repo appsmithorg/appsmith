@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class WhereConditionUtils {
@@ -49,6 +50,8 @@ public class WhereConditionUtils {
         switch (dataType) {
             case INTEGER:
             case LONG:
+                value = Long.parseLong(strValue);
+                break;
             case FLOAT:
             case DOUBLE:
                 value = Double.parseDouble(strValue);
@@ -100,8 +103,8 @@ public class WhereConditionUtils {
                 return query.whereArrayContains(fieldPath, value);
             case ARRAY_CONTAINS_ANY:
                 try {
-                    return query.whereArrayContainsAny(fieldPath, parseList((String) value));
-                } catch (IOException e) {
+                    return query.whereArrayContainsAny(fieldPath, Arrays.asList(value.toString().split(",")) );
+                } catch (Exception e) {
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                             "Unable to parse condition value as a JSON list."

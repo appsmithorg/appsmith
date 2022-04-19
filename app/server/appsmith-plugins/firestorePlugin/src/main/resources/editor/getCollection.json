@@ -88,6 +88,14 @@
         {
           "label": "not in",
           "value": "NOT_IN"
+        },
+        {
+          "label": "Array Contains",
+          "value": "ARRAY_CONTAINS"
+        },
+        {
+          "label": "Array Contains Any",
+          "value": "ARRAY_CONTAINS_ANY"
         }
       ]
     }
