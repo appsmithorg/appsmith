@@ -64,7 +64,7 @@ const LoadingContainer = styled(CenteredWrapper)`
 type ReduxDispatchProps = {
   runAction: (actionId: string) => void;
   deleteAction: (id: string, name: string) => void;
-  changeQueryPage: (queryId: string, isSaas: boolean) => void;
+  changeQueryPage: (queryId: string) => void;
   runFormEvaluation: (
     formId: string,
     formData: QueryActionConfig,
@@ -132,7 +132,7 @@ class QueryEditor extends React.Component<Props> {
     // if the current action is non existent, do not dispatch change query page action
     // this action should only be dispatched when switching from an existent action.
     if (!this.props.pluginId) return;
-    this.props.changeQueryPage(this.props.actionId, this.props.isSaas);
+    this.props.changeQueryPage(this.props.actionId);
 
     // fixes missing where key issue by populating the action with a where object when the component is mounted.
     if (this.props.isSaas) {
@@ -180,7 +180,7 @@ class QueryEditor extends React.Component<Props> {
       prevProps.actionId !== this.props.actionId ||
       prevProps.pluginId !== this.props.pluginId
     ) {
-      this.props.changeQueryPage(this.props.actionId, this.props.isSaas);
+      this.props.changeQueryPage(this.props.actionId);
     }
     // If statement to debounce and track changes in the formData to update evaluations
     if (
@@ -369,8 +369,8 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   deleteAction: (id: string, name: string) =>
     dispatch(deleteAction({ id, name })),
   runAction: (actionId: string) => dispatch(runAction(actionId)),
-  changeQueryPage: (queryId: string, isSaas: boolean) => {
-    dispatch(changeQuery(queryId, isSaas));
+  changeQueryPage: (queryId: string) => {
+    dispatch(changeQuery(queryId));
   },
   runFormEvaluation: (
     formId: string,

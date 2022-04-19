@@ -43,6 +43,12 @@ export const generateDataTreeAction = (
     action.config,
     editorConfig,
   );
+
+  // if (action.config.name === "Api2") {
+  //   console.log("hereeeee", bindingPaths, reactivePaths);
+  //   // console.log("hereeeee", action.config, editorConfig);
+  // }
+
   return {
     run: {},
     clear: {},
