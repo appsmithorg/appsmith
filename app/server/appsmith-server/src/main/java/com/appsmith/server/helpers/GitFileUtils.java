@@ -20,6 +20,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.PredicateUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
@@ -40,6 +41,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyProperties;
 import static com.appsmith.server.constants.FieldName.ACTION_COLLECTION_LIST;
@@ -61,7 +63,6 @@ public class GitFileUtils {
     // Only include the application helper fields in metadata object
     private static final Set<String> blockedMetadataFields
         = Set.of(EXPORTED_APPLICATION, DATASOURCE_LIST, PAGE_LIST, ACTION_LIST, ACTION_COLLECTION_LIST, DECRYPTED_FIELDS, EDIT_MODE_THEME);
-
     /**
      * This method will save the complete application in the local repo directory.
      * Path to repo will be : ./container-volumes/git-repo/organizationId/defaultApplicationId/repoName/{application_data}
@@ -134,8 +135,8 @@ public class GitFileUtils {
                         && newAction.getUnpublishedAction().getDeletedAt() == null)
                 .forEach(newAction -> {
                     String prefix = newAction.getUnpublishedAction() != null ?
-                            newAction.getUnpublishedAction().getValidName() + "_" + newAction.getUnpublishedAction().getPageId()
-                            : newAction.getPublishedAction().getValidName() + "_" + newAction.getPublishedAction().getPageId();
+                            newAction.getUnpublishedAction().getValidName() + NAME_SEPARATOR + newAction.getUnpublishedAction().getPageId()
+                            : newAction.getPublishedAction().getValidName() + NAME_SEPARATOR + newAction.getPublishedAction().getPageId();
                     removeUnwantedFieldFromAction(newAction);
                     resourceMap.put(prefix, newAction);
                 });
@@ -151,8 +152,8 @@ public class GitFileUtils {
                         && collection.getUnpublishedCollection().getDeletedAt() == null)
                 .forEach(actionCollection -> {
                     String prefix = actionCollection.getUnpublishedCollection() != null ?
-                            actionCollection.getUnpublishedCollection().getName() + "_" + actionCollection.getUnpublishedCollection().getPageId()
-                            : actionCollection.getPublishedCollection().getName() + "_" + actionCollection.getPublishedCollection().getPageId();
+                            actionCollection.getUnpublishedCollection().getName() + NAME_SEPARATOR + actionCollection.getUnpublishedCollection().getPageId()
+                            : actionCollection.getPublishedCollection().getName() + NAME_SEPARATOR + actionCollection.getPublishedCollection().getPageId();
 
                     removeUnwantedFieldFromActionCollection(actionCollection);
 
@@ -362,6 +363,7 @@ public class GitFileUtils {
         Gson gson = new Gson();
         // Extract pages
         List<NewPage> pages = getApplicationResource(applicationReference.getPages(), NewPage.class);
+        org.apache.commons.collections.CollectionUtils.filter(pages, PredicateUtils.notNullPredicate());
         pages.forEach(newPage -> {
             // As we are publishing the app and then committing to git we expect the published and unpublished PageDTO
             // will be same, so we create a deep copy for the published version for page from the unpublishedPageDTO
@@ -374,6 +376,7 @@ public class GitFileUtils {
             applicationJson.setActionList(new ArrayList<>());
         } else {
             List<NewAction> actions = getApplicationResource(applicationReference.getActions(), NewAction.class);
+            org.apache.commons.collections.CollectionUtils.filter(actions, PredicateUtils.notNullPredicate());
             actions.forEach(newAction -> {
                 // As we are publishing the app and then committing to git we expect the published and unpublished
                 // actionDTO will be same, so we create a deep copy for the published version for action from
@@ -388,6 +391,7 @@ public class GitFileUtils {
             applicationJson.setActionCollectionList(new ArrayList<>());
         } else {
             List<ActionCollection> actionCollections = getApplicationResource(applicationReference.getActionsCollections(), ActionCollection.class);
+            org.apache.commons.collections.CollectionUtils.filter(actionCollections, PredicateUtils.notNullPredicate());
             actionCollections.forEach(actionCollection -> {
                 // As we are publishing the app and then committing to git we expect the published and unpublished
                 // actionCollectionDTO will be same, so we create a deep copy for the published version for
