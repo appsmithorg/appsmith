@@ -4,7 +4,7 @@ import {
   ReduxActionTypes,
   ReduxAction,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+} from "ce/constants/ReduxActionConstants";
 import { set, keyBy, findIndex, unset } from "lodash";
 import produce from "immer";
 
