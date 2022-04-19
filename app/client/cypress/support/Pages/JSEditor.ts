@@ -95,7 +95,7 @@ export class JSEditor {
     if (toRun) {
       //clicking 1 times & waits for 3 second for result to be populated!
       Cypress._.times(1, () => {
-        cy.xpath(this._runButton)
+        cy.get(this._runButton)
           .first()
           .click()
           .wait(3000);
