@@ -89,7 +89,7 @@ class PhoneInputWidget extends BaseInputWidget<
               propertyName: "defaultDialCode",
               label: "Default Country Code",
               enableSearch: true,
-              dropdownHeight: "195px",
+              dropdownHeight: "156px",
               controlType: "DROP_DOWN",
               placeholderText: "Search by code or country name",
               options: ISDCodeDropdownOptions,

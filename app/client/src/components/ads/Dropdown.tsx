@@ -277,32 +277,38 @@ export const DropdownWrapper = styled.div<{
   isOpen: boolean;
 }>`
   width: ${(props) => props.width};
-  height: fit-content;
+  max-height: 200px;
   z-index: 1;
-  background-color: ${(props) => props.theme.colors.dropdown.menu.bg};
-  border: 1px solid ${(props) => props.theme.colors.dropdown.menu.border};
-  padding: ${(props) => props.theme.spaces[3]}px 0;
+  background-color: ${Colors.WHITE};
   overflow: hidden;
+  overflow-y: auto;
+  box-shadow: 0px 12px 16px -4px rgba(0, 0, 0, 0.1),
+    0px 4px 6px -2px rgba(0, 0, 0, 0.05);
   display: ${(props) => (props.isOpen ? "inline-block" : "none")};
   .dropdown-search {
     margin: 4px 12px 8px;
     width: calc(100% - 24px);
 
     input {
-      height: 36px;
+      height: 32px;
       font-size: 14px !important;
-      color: ${Colors.GREY_10} !important;
+      color: ${Colors.GRAY_700} !important;
       padding-left: 36px !important;
+      border: 1.2px solid ${Colors.GRAY_200};
+
+      &:hover {
+        background: ${Colors.GRAY_50};
+      }
 
       &:focus {
-        border: 1.2px solid ${Colors.GREEN_1};
-        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
+        border-color: ${Colors.GRAY_900}!important;
+        color: ${Colors.GRAY_900};
       }
     }
 
     .bp3-icon-search {
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       margin: 0px;
       display: flex;
       align-items: center;
@@ -310,6 +316,9 @@ export const DropdownWrapper = styled.div<{
 
       svg {
         width: 14px;
+        path {
+          fill: ${Colors.GRAY_700};
+        }
       }
     }
   }
@@ -339,8 +348,8 @@ const OptionWrapper = styled.div<{
   cursor: pointer;
   display: flex;
   align-items: center;
-  min-height: 36px;
-  background-color: ${(props) => (props.selected ? Colors.GREEN_3 : null)};
+  min-height: 40px;
+  background-color: ${(props) => (props.selected ? Colors.GRAY_200 : null)};
   &&& svg {
     rect {
       fill: ${(props) => props.theme.colors.dropdownIconBg};
@@ -371,7 +380,7 @@ const OptionWrapper = styled.div<{
   }
 
   &:hover {
-    background-color: ${Colors.GREEN_3};
+    background-color: ${Colors.GRAY_200};
 
     &&& svg {
       rect {
@@ -619,6 +628,9 @@ function DefaultDropDownValueNode({
                 size={selected.iconSize || IconSize.XL}
               />
             ) : null}
+            {selected.leftElement && (
+              <LeftIconWrapper>{selected.leftElement}</LeftIconWrapper>
+            )}
             <Label />
             {selected?.subText && !hideSubText ? (
               <StyledSubText
@@ -675,7 +687,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
       width={optionWidth}
     >
       {props.enableSearch && (
-        <SearchComponentWrapper>
+        <SearchComponentWrapper className="dropdown-search">
           <SearchComponent
             onSearch={onOptionSearch}
             placeholder={props.searchPlaceholder || ""}
@@ -937,24 +949,18 @@ export default function Dropdown(props: DropdownProps) {
     [isOpen, props.options, props.selected, selected],
   );
 
-  const [dropdownWrapperWidth, setDropdownWrapperWidth] = useState<string>(
-    "100%",
-  );
+  const dropdownWrapperRef = useRef<HTMLDivElement>(null);
+  let dropdownWrapperWidth = "100%";
+
+  if (dropdownWrapperRef.current) {
+    const { width } = dropdownWrapperRef.current.getBoundingClientRect();
+    dropdownWrapperWidth = `${width}px`;
+  }
 
   let dropdownHeight = props.isMultiSelect ? "auto" : "38px";
   if (props.height) {
     dropdownHeight = props.height;
   }
-
-  const dropdownWrapperRef = useCallback(
-    (ref: HTMLDivElement) => {
-      if (ref) {
-        const { width } = ref.getBoundingClientRect();
-        setDropdownWrapperWidth(`${width}px`);
-      }
-    },
-    [setDropdownWrapperWidth],
-  );
 
   const dropdownOptionWidth = props.fillOptions
     ? dropdownWrapperWidth

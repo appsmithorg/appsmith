@@ -117,7 +117,7 @@ class CurrencyInputWidget extends BaseInputWidget<
               propertyName: "defaultCurrencyCode",
               label: "Currency",
               enableSearch: true,
-              dropdownHeight: "195px",
+              dropdownHeight: "156px",
               controlType: "DROP_DOWN",
               placeholderText: "Search by code or name",
               options: CurrencyDropdownOptions,
