@@ -10,7 +10,7 @@ export function* postMessageSaga(
   yield spawn(executePostMessage, payload, triggerMeta);
 }
 
-function* executePostMessage(
+export function* executePostMessage(
   payload: PostMessageDescription["payload"],
   triggerMeta: TriggerMeta,
 ) {
