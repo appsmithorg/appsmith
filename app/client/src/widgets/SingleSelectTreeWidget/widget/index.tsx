@@ -2,7 +2,7 @@ import React, { ReactNode } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { TextSize, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isArray, findIndex } from "lodash";
+import { isArray, find, xorWith, isEqual } from "lodash";
 import {
   ValidationResponse,
   ValidationTypes,
@@ -10,7 +10,6 @@ import {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { DefaultValueType } from "rc-select/lib/interface/generator";
 import { Layers } from "constants/Layers";
-import { isString } from "../../../utils/helpers";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import SingleSelectTreeComponent from "../component";
@@ -363,9 +362,8 @@ class SingleSelectTreeWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      selectedOptionLabel: `{{  this.selectedLabel[0] }}`,
-      selectedOptionValue:
-        '{{  JSON.stringify(this.options).match(new RegExp(`"value":${Number.isFinite(this.selectedOption) ? this.selectedOption : `"${this.selectedOption}"` }`), "g") ? this.selectedOption : undefined  }}',
+      selectedOptionLabel: `{{this.selectedOption.label}}`,
+      selectedOptionValue: `{{this.selectedOption.value}}`,
       isValid: `{{this.isRequired  ? !!this.selectedOptionValue || this.selectedOptionValue === 0 : true}}`,
       value: `{{this.selectedOptionValue}}`,
     };
@@ -374,20 +372,39 @@ class SingleSelectTreeWidget extends BaseWidget<
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       selectedOption: "defaultOptionValue",
-      selectedLabel: "defaultOptionValue",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedOption: undefined,
-      selectedOptionValueArr: undefined,
-      selectedLabel: [],
       isDirty: false,
     };
   }
 
+  componentDidMount(): void {
+    this.sanitizeSelectedOption();
+  }
+
   componentDidUpdate(prevProps: SingleSelectTreeWidgetProps): void {
+    if (
+      xorWith(
+        this.flatOptions(this.props.options),
+        this.flatOptions(prevProps.options),
+        isEqual,
+      ).length > 0
+    ) {
+      const found = find(this.props.options, {
+        value: this.props.selectedOption.value,
+      });
+      if (!found) {
+        this.props.updateWidgetMetaProperty("selectedOption", {});
+      }
+    }
+    // Sanitizes selectedOption
+    if (!isEqual(this.props.selectedOption, prevProps.selectedOption)) {
+      this.sanitizeSelectedOption();
+    }
     if (
       this.props.defaultOptionValue !== prevProps.defaultOptionValue &&
       this.props.isDirty
@@ -399,17 +416,13 @@ class SingleSelectTreeWidget extends BaseWidget<
   getPageView() {
     const options =
       isArray(this.props.options) &&
-      !this.props.__evaluation__?.errors.options.length
+      !this.props.__evaluation__?.errors.options?.length
         ? this.props.options
         : [];
-    const value: string | number | undefined =
-      isString(this.props.selectedOption) ||
-      Number.isFinite(this.props.selectedOption)
-        ? this.props.selectedOption
-        : undefined;
+    const value = this.props.selectedOption?.value;
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
-    const filteredValue = this.filterValue(value);
+
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
     const { componentWidth } = this.getComponentDimensions();
     return (
@@ -441,7 +454,7 @@ class SingleSelectTreeWidget extends BaseWidget<
         onChange={this.onOptionChange}
         options={options}
         placeholder={this.props.placeholderText as string}
-        value={filteredValue}
+        value={value}
         widgetId={this.props.widgetId}
         width={componentWidth}
       />
@@ -449,18 +462,17 @@ class SingleSelectTreeWidget extends BaseWidget<
   }
 
   onOptionChange = (value?: DefaultValueType, labelList?: ReactNode[]) => {
-    if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
-    }
-
-    this.props.updateWidgetMetaProperty("selectedOption", value);
-    this.props.updateWidgetMetaProperty("selectedLabel", labelList, {
-      triggerPropertyName: "onOptionChange",
-      dynamicString: this.props.onOptionChange,
-      event: {
-        type: EventType.ON_OPTION_CHANGE,
+    this.props.updateWidgetMetaProperty(
+      "selectedOption",
+      { label: labelList && labelList[0], value },
+      {
+        triggerPropertyName: "onOptionChange",
+        dynamicString: this.props.onOptionChange,
+        event: {
+          type: EventType.ON_OPTION_CHANGE,
+        },
       },
-    });
+    );
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
@@ -477,14 +489,38 @@ class SingleSelectTreeWidget extends BaseWidget<
     return result;
   }
 
-  filterValue(value: string | number | undefined) {
-    const options = this.props.options ? this.flat(this.props.options) : [];
-
-    if (isString(value) || Number.isFinite(value)) {
-      const index = findIndex(options, { value: value as string });
-      return index > -1 ? value : undefined;
-    }
+  flatOptions(options: DropdownOption[]) {
+    let result: { label: string; value: string | number }[] = [];
+    options.forEach((option) => {
+      result.push({ label: option.label, value: option.value });
+      if (Array.isArray(option.children)) {
+        result = result.concat(this.flatOptions(option.children));
+      }
+    });
+    return result;
   }
+
+  setSelectedOptionLabel(
+    options: DropdownOption[],
+    selectedValue: string | number,
+  ) {
+    const flattenOptions = this.flatOptions(options);
+    const selectedLabel = find(flattenOptions, {
+      value: selectedValue,
+    })?.label;
+
+    this.props.updateWidgetMetaProperty(
+      "selectedLabel",
+      selectedLabel ? [selectedLabel] : [],
+    );
+  }
+
+  sanitizeSelectedOption = () => {
+    const matchingOption = find(this.flatOptions(this.props.options), {
+      value: this.props.selectedOption?.value || this.props.selectedOption,
+    });
+    this.props.updateWidgetMetaProperty("selectedOption", matchingOption || {});
+  };
 
   static getWidgetType(): WidgetType {
     return "SINGLE_SELECT_TREE_WIDGET";
@@ -501,14 +537,13 @@ export interface DropdownOption {
 export interface SingleSelectTreeWidgetProps extends WidgetProps {
   placeholderText?: string;
   selectedIndex?: number;
-  options?: DropdownOption[];
+  options: DropdownOption[];
   onOptionChange: string;
   defaultOptionValue: string;
   isRequired: boolean;
   isLoading: boolean;
   allowClear: boolean;
   selectedLabel: string[];
-  selectedOption: string | number;
   selectedOptionValue: string;
   selectedOptionLabel: string;
   expandAll: boolean;

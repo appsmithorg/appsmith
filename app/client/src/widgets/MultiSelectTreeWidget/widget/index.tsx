@@ -2,7 +2,7 @@ import React, { ReactNode } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { TextSize, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isArray, findIndex, xor } from "lodash";
+import { isArray, find, findIndex, xor, xorWith, isEqual, uniq } from "lodash";
 import {
   ValidationResponse,
   ValidationTypes,
@@ -410,7 +410,6 @@ class MultiSelectTreeWidget extends BaseWidget<
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       selectedOptionValueArr: "defaultOptionValue",
-      selectedLabel: "defaultOptionValue",
     };
   }
 
@@ -422,13 +421,51 @@ class MultiSelectTreeWidget extends BaseWidget<
     };
   }
 
+  componentDidMount(): void {
+    // Sets selectedLabel
+    this.setSelectedOptions(
+      this.props.options,
+      this.props.selectedOptionValueArr,
+    );
+  }
+
   componentDidUpdate(prevProps: MultiSelectTreeWidgetProps): void {
     if (
       xor(this.props.defaultOptionValue, prevProps.defaultOptionValue).length >
-        0 &&
-      this.props.isDirty
+      0
     ) {
-      this.props.updateWidgetMetaProperty("isDirty", false);
+      // Sets selectedLabel
+      this.setSelectedOptions(
+        this.props.options,
+        this.props.defaultOptionValue,
+      );
+      if (this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", false);
+      }
+    }
+    if (
+      xorWith(
+        this.flatOptions(this.props.options),
+        this.flatOptions(prevProps.options),
+        isEqual,
+      ).length > 0
+    ) {
+      // Sets selectedLabel
+      this.setSelectedOptions(
+        this.props.options,
+        this.props.selectedOptionValueArr,
+      );
+    }
+    if (
+      xor(this.props.selectedOptionValueArr, prevProps.selectedOptionValueArr)
+        .length > 0 &&
+      this.props.isDirty === false
+    ) {
+      // Sets selectedLabel
+      this.setSelectedOptions(
+        this.props.options,
+        this.props.selectedOptionValueArr,
+      );
     }
   }
 
@@ -513,6 +550,72 @@ class MultiSelectTreeWidget extends BaseWidget<
     return result;
   }
 
+  flatOptions(options: DropdownOption[]) {
+    let result: { label: string; value: string | number }[] = [];
+    options.forEach((option) => {
+      result.push({ label: option.label, value: option.value });
+      if (Array.isArray(option.children)) {
+        result = result.concat(this.flatOptions(option.children));
+      }
+    });
+    return result;
+  }
+
+  setSelectedOptions(
+    options: DropdownOption[],
+    selectedValues: (string | number)[],
+  ) {
+    let selectedOptions: { label: string; value: string | number }[] = [];
+    selectedValues.forEach((selectedValue) => {
+      selectedOptions = selectedOptions.concat(
+        this.getOptionSubTree(options, selectedValue),
+      );
+    });
+
+    const selectedOptionLabels = uniq(
+      selectedOptions.map((option) => option.label),
+    );
+    const selectedOptionValues = uniq(
+      selectedOptions.map((option) => option.value),
+    );
+    this.props.updateWidgetMetaProperty("selectedLabel", selectedOptionLabels);
+    this.props.updateWidgetMetaProperty(
+      "selectedOptionValueArr",
+      selectedOptionValues,
+    );
+  }
+
+  getOptionSubTree(options: DropdownOption[], value: string | number) {
+    let result: { label: string; value: string | number }[] = [];
+    // Finds the target on the 1st level of the options tree
+    const targetOption = find(options, { value }) as DropdownOption;
+    if (targetOption) {
+      result = result.concat({
+        label: targetOption.label,
+        value: targetOption.value,
+      });
+      if (Array.isArray(targetOption.children)) {
+        // If found, Finds all decendants for the found target
+        result = result.concat(this.flatOptions(targetOption.children));
+      }
+      return result;
+    }
+    // Cannot find the target on the 1st level of the options tree
+    // Until finding the target or reaching out the leaves, loops
+    options.every((option) => {
+      if (Array.isArray(option.children)) {
+        // Finds the target from the children
+        const optionSubTree = this.getOptionSubTree(option.children, value);
+        if (optionSubTree.length > 0) {
+          result = result.concat(optionSubTree);
+          return false;
+        }
+      }
+      return true;
+    });
+    return result;
+  }
+
   filterValues(values: string[] | undefined) {
     const options = this.props.options ? this.flat(this.props.options) : [];
     if (isArray(values)) {
@@ -538,7 +641,7 @@ export interface DropdownOption {
 export interface MultiSelectTreeWidgetProps extends WidgetProps {
   placeholderText?: string;
   selectedIndexArr?: number[];
-  options?: DropdownOption[];
+  options: DropdownOption[];
   onOptionChange: string;
   defaultOptionValue: string[];
   isRequired: boolean;

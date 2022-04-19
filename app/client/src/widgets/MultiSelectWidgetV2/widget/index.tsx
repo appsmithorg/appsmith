@@ -3,6 +3,7 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
+  find,
   isArray,
   isEqual,
   isFinite,
@@ -485,8 +486,15 @@ class MultiSelectWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      selectedOptionLabels: `{{ this.selectedOptions ? this.selectedOptions.map((o) => _.isNil(o.label) ? o : o.label ) : [] }}`,
-      selectedOptionValues: `{{ this.selectedOptions ? this.selectedOptions.map((o) =>  _.isNil(o.value) ? o : o.value  ) : [] }}`,
+      selectedOptions: `{{
+        this.options.filter(option =>
+          this.selectedOptionsArray.map(
+            selectedOption => selectedOption.value || selectedOption
+          ).includes(option.value)
+        )
+      }}`,
+      selectedOptionLabels: `{{this.selectedOptions.map(selectedOption => selectedOption.label)}}`,
+      selectedOptionValues: `{{this.selectedOptions.map(selectedOption => selectedOption.value)}}`,
       isValid: `{{this.isRequired ? !!this.selectedOptionValues && this.selectedOptionValues.length > 0 : true}}`,
       value: `{{this.selectedOptionValues}}`,
     };
@@ -494,20 +502,32 @@ class MultiSelectWidget extends BaseWidget<
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      selectedOptions: "defaultOptionValue",
+      selectedOptionsArray: "defaultOptionValue",
       filterText: "",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      selectedOptions: undefined,
+      selectedOptionsArray: undefined,
       filterText: "",
       isDirty: false,
     };
   }
 
   componentDidUpdate(prevProps: MultiSelectWidgetProps): void {
+    if (xorWith(this.props.options, prevProps.options).length > 0) {
+      const updatedSelectedOptionsArray = this.props.selectedOptionsArray.filter(
+        (selectedOption) =>
+          !!find(this.props.options, {
+            value: selectedOption.value || selectedOption,
+          }),
+      );
+      this.props.updateWidgetMetaProperty(
+        "selectedOptionsArray",
+        updatedSelectedOptionsArray,
+      );
+    }
     // Check if defaultOptionValue is string
     let isStringArray = false;
     if (
@@ -585,7 +605,7 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   onOptionChange = (value: DefaultValueType) => {
-    this.props.updateWidgetMetaProperty("selectedOptions", value, {
+    this.props.updateWidgetMetaProperty("selectedOptionsArray", value, {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,
       event: {
@@ -635,6 +655,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   isRequired: boolean;
   isLoading: boolean;
   selectedOptions: LabelValueType[];
+  selectedOptionsArray: LabelValueType[];
   filterText: string;
   selectedOptionValues: string[];
   selectedOptionLabels: string[];

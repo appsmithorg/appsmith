@@ -14,12 +14,12 @@ import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import {
+  find,
   findIndex,
   isArray,
   isEqual,
-  isNumber,
-  isString,
   LoDashStatic,
+  xorWith,
 } from "lodash";
 
 export function defaultOptionValueValidation(
@@ -393,17 +393,14 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      defaultValue: "defaultOptionValue",
-      value: "defaultOptionValue",
-      label: "defaultOptionValue",
+      selectedOption: "defaultOptionValue",
       filterText: "",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      value: undefined,
-      label: undefined,
+      selectedOption: undefined,
       filterText: "",
       isDirty: false,
     };
@@ -412,17 +409,29 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   static getDerivedPropertiesMap() {
     return {
       isValid: `{{this.isRequired  ? !!this.selectedOptionValue || this.selectedOptionValue === 0 : true}}`,
-      selectedOptionLabel: `{{(()=>{const label = _.isPlainObject(this.label) ? this.label?.label : this.label; return label; })()}}`,
-      selectedOptionValue: `{{(()=>{const value = _.isPlainObject(this.value) ? this.value?.value : this.value; return value; })()}}`,
+      selectedOptionLabel: `{{this.selectedOption.label}}`,
+      selectedOptionValue: `{{this.selectedOption.value}}`,
     };
   }
 
-  componentDidMount() {
-    super.componentDidMount();
-    this.changeSelectedOption();
+  componentDidMount(): void {
+    this.sanitizeSelectedOption();
   }
 
   componentDidUpdate(prevProps: SelectWidgetProps): void {
+    // Sanitizes selectedOption if options changes
+    if (xorWith(this.props.options, prevProps.options, isEqual).length > 0) {
+      const found = find(this.props.options, {
+        value: this.props.selectedOption.value,
+      });
+      if (!found) {
+        this.props.updateWidgetMetaProperty("selectedOption", {});
+      }
+    }
+    // Sanitizes selectedOption
+    if (!isEqual(this.props.selectedOption, prevProps.selectedOption)) {
+      this.sanitizeSelectedOption();
+    }
     // Reset isDirty to false if defaultOptionValue changes
     if (
       !isEqual(this.props.defaultOptionValue, prevProps.defaultOptionValue) &&
@@ -432,17 +441,15 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     }
   }
 
-  isStringOrNumber = (value: any): value is string | number =>
-    isString(value) || isNumber(value);
-
   getPageView() {
     const options = isArray(this.props.options) ? this.props.options : [];
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
 
+    const value = this.props.selectedOption?.value || this.props.selectedOption;
     const selectedIndex = findIndex(this.props.options, {
-      value: this.props.selectedOptionValue,
+      value,
     });
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
@@ -476,50 +483,31 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         placeholder={this.props.placeholderText}
         selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
         serverSideFiltering={this.props.serverSideFiltering}
-        value={this.props.selectedOptionValue}
+        value={value}
         widgetId={this.props.widgetId}
         width={componentWidth}
       />
     );
   }
 
-  onOptionSelected = (selectedOption: DropdownOption) => {
-    let isChanged = true;
-
-    // Check if the value has changed. If no option
-    // selected till now, there is a change
-    if (this.props.selectedOptionValue) {
-      isChanged = !(this.props.selectedOptionValue === selectedOption.value);
-    }
-    if (isChanged) {
-      if (!this.props.isDirty) {
-        this.props.updateWidgetMetaProperty("isDirty", true);
-      }
-
-      this.props.updateWidgetMetaProperty("label", selectedOption.label ?? "");
-
-      this.props.updateWidgetMetaProperty("value", selectedOption.value ?? "", {
-        triggerPropertyName: "onOptionChange",
-        dynamicString: this.props.onOptionChange,
-        event: {
-          type: EventType.ON_OPTION_CHANGE,
-        },
-      });
-      if (!this.props.isDirty) {
-        this.props.updateWidgetMetaProperty("isDirty", true);
-      }
-    }
+  sanitizeSelectedOption = () => {
+    const matchingOption = find(this.props.options, {
+      value: this.props.selectedOption?.value || this.props.selectedOption,
+    });
+    this.props.updateWidgetMetaProperty("selectedOption", matchingOption || {});
   };
 
-  changeSelectedOption = () => {
-    const label = this.isStringOrNumber(this.props.label)
-      ? this.props.label
-      : this.props.label?.label;
-    const value = this.isStringOrNumber(this.props.value)
-      ? this.props.value
-      : this.props.value?.value;
-    this.props.updateWidgetMetaProperty("value", value);
-    this.props.updateWidgetMetaProperty("label", label);
+  onOptionSelected = (selectedOption: DropdownOption) => {
+    this.props.updateWidgetMetaProperty("selectedOption", selectedOption, {
+      triggerPropertyName: "onOptionChange",
+      dynamicString: this.props.onOptionChange,
+      event: {
+        type: EventType.ON_OPTION_CHANGE,
+      },
+    });
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
   };
 
   onFilterChange = (value: string) => {
