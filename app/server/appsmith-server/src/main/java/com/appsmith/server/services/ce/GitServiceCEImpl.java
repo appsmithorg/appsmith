@@ -1268,13 +1268,18 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     fileUtils.reconstructApplicationJsonFromGitRepo(srcApplication.getOrganizationId(), defaultApplicationId, srcApplication.getGitApplicationMetadata().getRepoName(), branchName)
                                             .zipWith(Mono.just(application1))
                             )
+                            // We need to handle the case specifically for master branch
+                            // if user switches default branch and tries to delete the master branch we do not delete resource from db
+                            // This is an exception only for the above case and in such case if the user tries to checkout the branch again
+                            // It results in an error as the resources are already present in db
+                            // So we just rehydrate from the file system to the existing resource on the db
                             .onErrorResume(throwable -> {
                                 if (throwable instanceof DuplicateKeyException) {
                                     return fileUtils.reconstructApplicationJsonFromGitRepo(srcApplication.getOrganizationId(), defaultApplicationId, srcApplication.getGitApplicationMetadata().getRepoName(), branchName)
                                             .zipWith(Mono.just(tuple.getT2()));
                                 }
                                 log.error(" Git checkout remote branch failed", throwable.getMessage());
-                                return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                                return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, throwable.getMessage()));
                             });
                 })
                 .flatMap(tuple -> {
