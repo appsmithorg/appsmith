@@ -268,10 +268,7 @@ function SuccessMessages() {
 function ReconnectDatasourceModal() {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const modalRefreshed =
-    localStorage.getItem("reconnectModalRefreshFlag") === "true";
-  const isModalOpen =
-    useSelector(getIsReconnectingDatasourcesModalOpen) || modalRefreshed;
+  const isModalOpen = useSelector(getIsReconnectingDatasourcesModalOpen);
   const organizationId = useSelector(getOrganizationIdForImport);
   const datasources = useSelector(getUnconfiguredDatasources);
   const pluginImages = useSelector(getPluginImages);
@@ -280,13 +277,22 @@ function ReconnectDatasourceModal() {
   const isDatasourceTesting = useSelector(getIsDatasourceTesting);
   const isDatasourceUpdating = useSelector(getDatasourceLoading);
 
+  // checking refresh modal
+  const pendingApp = JSON.parse(
+    localStorage.getItem("importedAppPendingInfo") || "null",
+  );
   // getting query from redirection url
   const userOrgs = useSelector(getUserApplicationsOrgsList);
   const queryParams = useQuery();
-  const queryAppId = queryParams.get("appId");
-  const queryPageId = queryParams.get("pageId");
-  const queryDatasourceId = queryParams.get("datasourceId");
-  const queryIsImport = JSON.parse(queryParams.get("importForGit") ?? "false");
+  const queryAppId =
+    queryParams.get("appId") || (pendingApp ? pendingApp.appId : null);
+  const queryPageId =
+    queryParams.get("pageId") || (pendingApp ? pendingApp.pageId : null);
+  const queryDatasourceId =
+    queryParams.get("datasourceId") ||
+    (pendingApp ? pendingApp.datasourceId : null);
+  const queryIsImport =
+    queryParams.get("importForGit") === "true" || !!pendingApp;
 
   const [selectedDatasourceId, setSelectedDatasourceId] = useState<
     string | null
@@ -476,11 +482,16 @@ function ReconnectDatasourceModal() {
         setSelectedDatasourceId(next.id);
         setDatasource(next);
         // when refresh, it should be opened.
-        localStorage.setItem("reconnectModalRefreshFlag", "true");
+        const appInfo = {
+          appId: appId,
+          pageId: pageId,
+          datasourceId: next.id,
+        };
+        localStorage.setItem("importedAppPendingInfo", JSON.stringify(appInfo));
       } else if (appURL) {
         // open application import successfule
         localStorage.setItem("importApplicationSuccess", "true");
-        localStorage.setItem("reconnectModalRefreshFlag", "false");
+        localStorage.setItem("importedAppPendingInfo", "null");
         window.open(appURL, "_self");
       }
     }
@@ -566,7 +577,7 @@ function ReconnectDatasourceModal() {
                   AnalyticsUtil.logEvent(
                     "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK",
                   );
-                  localStorage.setItem("reconnectModalRefreshFlag", "false");
+                  localStorage.setItem("importedAppPendingInfo", "null");
                 }}
                 size={Size.medium}
                 text={createMessage(SKIP_TO_APPLICATION)}
