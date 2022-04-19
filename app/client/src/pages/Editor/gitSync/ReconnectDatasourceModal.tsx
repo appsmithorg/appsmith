@@ -268,7 +268,10 @@ function SuccessMessages() {
 function ReconnectDatasourceModal() {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const isModalOpen = useSelector(getIsReconnectingDatasourcesModalOpen);
+  const modalRefreshed =
+    localStorage.getItem("reconnectModalRefreshFlag") === "true";
+  const isModalOpen =
+    useSelector(getIsReconnectingDatasourcesModalOpen) || modalRefreshed;
   const organizationId = useSelector(getOrganizationIdForImport);
   const datasources = useSelector(getUnconfiguredDatasources);
   const pluginImages = useSelector(getPluginImages);
@@ -472,9 +475,12 @@ function ReconnectDatasourceModal() {
         next = next || pending[0];
         setSelectedDatasourceId(next.id);
         setDatasource(next);
+        // when refresh, it should be opened.
+        localStorage.setItem("reconnectModalRefreshFlag", "true");
       } else if (appURL) {
         // open application import successfule
         localStorage.setItem("importApplicationSuccess", "true");
+        localStorage.setItem("reconnectModalRefreshFlag", "false");
         window.open(appURL, "_self");
       }
     }
@@ -560,6 +566,7 @@ function ReconnectDatasourceModal() {
                   AnalyticsUtil.logEvent(
                     "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK",
                   );
+                  localStorage.setItem("reconnectModalRefreshFlag", "false");
                 }}
                 size={Size.medium}
                 text={createMessage(SKIP_TO_APPLICATION)}
