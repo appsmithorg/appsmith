@@ -22,7 +22,6 @@ import {
 } from "@appsmith/constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import { builderURL } from "RouteBuilder";
 import history from "utils/history";
 import { APPLICATIONS_URL } from "constants/routes";
 
@@ -158,7 +157,6 @@ function CongratulationsView() {
           <Button
             className="t--start-building"
             height="38"
-            href={builderURL()}
             onClick={hideMessage}
             size={Size.large}
             tag="button"
