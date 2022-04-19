@@ -150,6 +150,15 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
               : [{ value: "No Pages", onSelect: noop, label: "No Pages" }],
         },
         {
+          value: "prettify",
+          icon: "code",
+          subText: "SHIFT + ALT + S",
+          onSelect: () => {
+            console.log("here");
+          },
+          label: "Prettify Code",
+        },
+        {
           confirmDelete: confirmDelete,
           icon: "trash",
           value: "delete",

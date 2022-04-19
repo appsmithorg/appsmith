@@ -153,6 +153,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         icon={option.icon}
         intent={option.intent}
         key={option.value}
+        label={option.subText}
         onClick={
           option.children
             ? noop
