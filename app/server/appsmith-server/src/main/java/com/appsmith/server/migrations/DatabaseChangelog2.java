@@ -671,16 +671,6 @@ public class DatabaseChangelog2 {
         deletionUpdates.set(fieldName(QNewPage.newPage.deleted), true);
         deletionUpdates.set(fieldName(QNewPage.newPage.deletedAt), Instant.now());
 
-        // Archive the pages without applicationId
-        final Query orphanPageQuery = query(where(fieldName(QNewAction.newAction.deleted)).ne(true));
-        orphanPageQuery.addCriteria(where(fieldName(QNewPage.newPage.applicationId)).exists(false));
-        orphanPageQuery.fields().include(fieldName(QNewAction.newAction.applicationId));
-        mongockTemplate.updateMulti(
-                orphanPageQuery,
-                deletionUpdates,
-                NewPage.class
-        );
-
         // Archive the pages which have the applicationId but the connection is missing from the application object.
         for (Application application : applications) {
             Set<String> validPageIds = new HashSet<>();
@@ -701,7 +691,6 @@ public class DatabaseChangelog2 {
             final List<NewPage> pages = mongockTemplate.find(pageQuery, NewPage.class);
             for (NewPage newPage : pages) {
                 if (!validPageIds.contains(newPage.getId())) {
-                    log.debug("Orphan page: {}", newPage.getId());
                     mongockTemplate.updateFirst(
                             query(where(fieldName(QNewPage.newPage.id)).is(newPage.getId())),
                             deletionUpdates,

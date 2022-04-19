@@ -105,11 +105,13 @@ public class GitFileUtils {
 
         applicationReference.setTheme(applicationJson.getEditModeTheme());
 
-        // Pass pages within the application
+        // Insert only active pages which will then be converted into individual file
         Map<String, Object> resourceMap = new HashMap<>();
         applicationJson
                 .getPageList()
                 .stream()
+                // As we are expecting the commit will happen only after the application is published, so we can safely
+                // assume if the unpublished version is deleted entity should not be committed to git
                 .filter(newPage -> newPage.getUnpublishedPage() != null
                         && newPage.getUnpublishedPage().getDeletedAt() == null)
                 .forEach(newPage -> {
@@ -124,13 +126,15 @@ public class GitFileUtils {
         applicationReference.setPages(new HashMap<>(resourceMap));
         resourceMap.clear();
 
-        // Insert actions and also assign the keys which later will be used for saving the resource in actual filepath
+        // Insert active actions and also assign the keys which later will be used for saving the resource in actual filepath
         // For actions, we are referring to validNames to maintain unique file names as just name
         // field don't guarantee unique constraint for actions within JSObject
         // queryValidName_pageName => nomenclature for the keys
         applicationJson
                 .getActionList()
                 .stream()
+                // As we are expecting the commit will happen only after the application is published, so we can safely
+                // assume if the unpublished version is deleted entity should not be committed to git
                 .filter(newAction -> newAction.getUnpublishedAction() != null
                         && newAction.getUnpublishedAction().getDeletedAt() == null)
                 .forEach(newAction -> {
@@ -148,6 +152,8 @@ public class GitFileUtils {
         applicationJson
                 .getActionCollectionList()
                 .stream()
+                // As we are expecting the commit will happen only after the application is published, so we can safely
+                // assume if the unpublished version is deleted entity should not be committed to git
                 .filter(collection -> collection.getUnpublishedCollection() != null
                         && collection.getUnpublishedCollection().getDeletedAt() == null)
                 .forEach(actionCollection -> {
@@ -363,6 +369,7 @@ public class GitFileUtils {
         Gson gson = new Gson();
         // Extract pages
         List<NewPage> pages = getApplicationResource(applicationReference.getPages(), NewPage.class);
+        // Remove null values
         org.apache.commons.collections.CollectionUtils.filter(pages, PredicateUtils.notNullPredicate());
         pages.forEach(newPage -> {
             // As we are publishing the app and then committing to git we expect the published and unpublished PageDTO
@@ -376,6 +383,7 @@ public class GitFileUtils {
             applicationJson.setActionList(new ArrayList<>());
         } else {
             List<NewAction> actions = getApplicationResource(applicationReference.getActions(), NewAction.class);
+            // Remove null values if present
             org.apache.commons.collections.CollectionUtils.filter(actions, PredicateUtils.notNullPredicate());
             actions.forEach(newAction -> {
                 // As we are publishing the app and then committing to git we expect the published and unpublished
@@ -391,6 +399,7 @@ public class GitFileUtils {
             applicationJson.setActionCollectionList(new ArrayList<>());
         } else {
             List<ActionCollection> actionCollections = getApplicationResource(applicationReference.getActionsCollections(), ActionCollection.class);
+            // Remove null values if present
             org.apache.commons.collections.CollectionUtils.filter(actionCollections, PredicateUtils.notNullPredicate());
             actionCollections.forEach(actionCollection -> {
                 // As we are publishing the app and then committing to git we expect the published and unpublished
