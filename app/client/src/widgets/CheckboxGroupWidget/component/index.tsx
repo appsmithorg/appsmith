@@ -134,7 +134,10 @@ export interface CheckboxGroupComponentProps extends ComponentProps {
   labelStyle?: string;
   labelWidth?: number;
 }
-function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
+const CheckboxGroupComponent = React.forwardRef<
+  HTMLDivElement,
+  CheckboxGroupComponentProps
+>((props, ref) => {
   const {
     compactMode,
     isDisabled,
@@ -175,6 +178,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
       compactMode={compactMode}
       data-testid="checkboxgroup-container"
       labelPosition={labelPosition}
+      ref={ref}
     >
       {labelText && (
         <LabelWithTooltip
@@ -226,6 +230,8 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
       </InputContainer>
     </CheckboxGroupContainer>
   );
-}
+});
+
+CheckboxGroupComponent.displayName = "CheckboxGroupComponent";
 
 export default CheckboxGroupComponent;
