@@ -25,6 +25,7 @@ export type FormProps<TValues = any> = PropsWithChildren<{
   getFormData: () => TValues;
   hideFooter: boolean;
   isSubmitting: boolean;
+  onFormValidityUpdate: (isValid: boolean) => void;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   registerResetObserver: (callback: () => void) => void;
   resetButtonLabel: string;
@@ -125,6 +126,7 @@ function Form<TValues = any>({
   getFormData,
   hideFooter,
   isSubmitting,
+  onFormValidityUpdate,
   onSubmit,
   registerResetObserver,
   resetButtonLabel,
@@ -231,6 +233,10 @@ function Form<TValues = any>({
       bodyRef.current.scrollTo({ top: 0 });
     }
   }, [scrollContents]);
+
+  useEffect(() => {
+    onFormValidityUpdate(!isFormInValid);
+  }, [onFormValidityUpdate, isFormInValid]);
 
   return (
     <FormProvider {...methods}>
