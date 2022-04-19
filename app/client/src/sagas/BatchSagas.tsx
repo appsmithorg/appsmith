@@ -9,7 +9,7 @@ import { batchActionSuccess } from "actions/batchActions";
 import * as log from "loglevel";
 
 const BATCH_PRIORITY = {
-  [ReduxActionTypes.SET_META_PROP]: {
+  [ReduxActionTypes.TRIGGER_EVAL_META_UPDATE]: {
     priority: 0,
     needsSaga: false,
   },

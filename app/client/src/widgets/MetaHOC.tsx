@@ -28,25 +28,17 @@ export interface WithMeta {
 type WidgetMetaProps = { metaState: Record<string, unknown> };
 type metaHOCProps = WidgetProps & WidgetMetaProps;
 
-const withMeta = (WrappedWidget: typeof BaseWidget) => {
+function withMeta(WrappedWidget: typeof BaseWidget) {
   class MetaHOC extends React.PureComponent<metaHOCProps> {
     static contextType = EditorContext;
 
     propertyTriggers = new Map<string, DebouncedExecuteActionPayload>();
 
-    debouncedTriggerEvalOnMetaUpdate = debounce(
-      this.props.triggerEvalOnMetaUpdate.bind(this),
-      200,
-      {
-        leading: true,
-        trailing: true,
-      },
-    );
-
     initialMetaState: Record<string, unknown>;
 
     constructor(props: metaHOCProps) {
       super(props);
+
       const metaProperties = WrappedWidget.getMetaPropertiesMap();
       this.initialMetaState = fromPairs(
         Object.keys(metaProperties).map((metaProperty) => {
@@ -55,44 +47,31 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       );
     }
 
-    updateWidgetMetaProperty = (
-      propertyName: string,
-      propertyValue: unknown,
-      actionExecution?: DebouncedExecuteActionPayload,
-    ): void => {
-      if (actionExecution) {
-        this.propertyTriggers.set(propertyName, actionExecution);
-      }
+    debouncedTriggerEvalOnMetaUpdate = () => {
+      const { triggerEvalOnMetaUpdate } = this.context;
 
-      AppsmithConsole.info({
-        logType: LOG_TYPE.WIDGET_UPDATE,
-        text: "Widget property was updated",
-        source: {
-          type: ENTITY_TYPE.WIDGET,
-          id: this.props.widgetId,
-          name: this.props.widgetName,
-          propertyPath: propertyName,
-        },
-        state: {
-          [propertyName]: propertyValue,
-        },
-      });
-      this.handleUpdateWidgetMetaProperty(propertyName, propertyValue);
+      if (triggerEvalOnMetaUpdate) {
+        return debounce(triggerEvalOnMetaUpdate, 200, {
+          leading: true,
+          trailing: true,
+        });
+      }
     };
 
-    handleUpdateWidgetMetaProperty(
+    handleUpdateWidgetMetaProperty = (
       propertyName: string,
       propertyValue: unknown,
-    ) {
+    ) => {
       const { executeAction, updateWidgetMetaProperty } = this.context;
       const { widgetId } = this.props;
-      const metaOptions = this.props.__metaOptions;
 
       if (updateWidgetMetaProperty) {
-        // step 6 - look at this.props.options, check for metaPropPath value
-        // if they exist, then update the propertyName
         updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
 
+        // look at this.props.__metaOptions, check for metaPropPath value
+        // if they exist, then update the propertyName
+        // Below code of updating metaOptions can be removed once we have ListWidget v2 where we better manage meta values of ListWidget.
+        const metaOptions = this.props.__metaOptions;
         if (metaOptions) {
           updateWidgetMetaProperty(
             metaOptions.widgetId,
@@ -121,7 +100,33 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
             },
           });
       }
-    }
+    };
+
+    updateWidgetMetaProperty = (
+      propertyName: string,
+      propertyValue: unknown,
+      actionExecution?: DebouncedExecuteActionPayload,
+    ): void => {
+      if (actionExecution) {
+        this.propertyTriggers.set(propertyName, actionExecution);
+      }
+
+      AppsmithConsole.info({
+        logType: LOG_TYPE.WIDGET_UPDATE,
+        text: "Widget property was updated",
+        source: {
+          type: ENTITY_TYPE.WIDGET,
+          id: this.props.widgetId,
+          name: this.props.widgetName,
+          propertyPath: propertyName,
+        },
+        state: {
+          [propertyName]: propertyValue,
+        },
+      });
+      this.handleUpdateWidgetMetaProperty(propertyName, propertyValue);
+      this.debouncedTriggerEvalOnMetaUpdate();
+    };
 
     updatedProps = () => {
       return {
@@ -141,14 +146,14 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
     }
   }
 
-  const mapStateToProps = (state: AppState, props: WidgetProps) => {
-    const metaState = getWidgetMetaProps(state, props.widgetId) || {};
+  function mapStateToProps(state: AppState, ownProps: WidgetProps) {
+    const metaState = getWidgetMetaProps(state, ownProps.widgetId) || {};
     return {
       metaState,
     };
-  };
+  }
 
-  return connect(mapStateToProps, null)(MetaHOC);
-};
+  return connect(mapStateToProps)(MetaHOC);
+}
 
 export default withMeta;
