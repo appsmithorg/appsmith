@@ -7,6 +7,9 @@ import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.helpers.SSLHelper;
+import com.appsmith.external.helpers.restApiUtils.helpers.HeaderUtils;
+import com.appsmith.external.helpers.restApiUtils.helpers.InitUtils;
+import com.appsmith.external.helpers.restApiUtils.helpers.SmartSubstitutionUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -81,14 +84,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.helpers.restApiUtils.helpers.HeaderUtils.isEncodeParamsToggleEnabled;
+import static com.appsmith.external.helpers.restApiUtils.helpers.HeaderUtils.removeEmptyHeaders;
 import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.getActionHintMessages;
 import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.getDatasourceHintMessages;
+import static com.appsmith.external.helpers.restApiUtils.helpers.InitUtils.initializeRequestUrl;
+import static com.appsmith.external.helpers.restApiUtils.helpers.InitUtils.initializeResponseWithError;
+import static com.appsmith.external.helpers.restApiUtils.helpers.URIUtils.createFinalUriWithQueryParams;
 import static java.lang.Boolean.TRUE;
 
 public class RestApiPlugin extends BasePlugin {
     private static final int MAX_REDIRECTS = 5;
-
-    private static final int SMART_JSON_SUBSTITUTION_INDEX = 0;
 
     public RestApiPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -148,29 +154,11 @@ public class RestApiPlugin extends BasePlugin {
                                                                 DatasourceConfiguration datasourceConfiguration,
                                                                 ActionConfiguration actionConfiguration) {
 
-            Boolean smartJsonSubstitution;
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
-            if (CollectionUtils.isEmpty(properties)) {
-                // In case the smart json substitution configuration is missing, default to true
-                smartJsonSubstitution = true;
-
-                // Since properties is not empty, we are guaranteed to find the first property.
-            } else if (properties.get(SMART_JSON_SUBSTITUTION_INDEX) != null) {
-                Object ssubValue = properties.get(SMART_JSON_SUBSTITUTION_INDEX).getValue();
-                if (ssubValue instanceof Boolean) {
-                    smartJsonSubstitution = (Boolean) ssubValue;
-                } else if (ssubValue instanceof String) {
-                    smartJsonSubstitution = Boolean.parseBoolean((String) ssubValue);
-                } else {
-                    smartJsonSubstitution = true;
-                }
-            } else {
-                smartJsonSubstitution = true;
-            }
-
             // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
+            Boolean smartJsonSubstitution = SmartSubstitutionUtils.isJsonSmartSubstitutionEnabled(properties);
             if (TRUE.equals(smartJsonSubstitution)) {
                 // Do smart replacements in JSON body
                 if (actionConfiguration.getBody() != null) {
@@ -206,13 +194,9 @@ public class RestApiPlugin extends BasePlugin {
                 updateDatasourceConfigurationForPagination(actionConfiguration, datasourceConfiguration, executeActionDTO.getPaginationField());
                 updateActionConfigurationForPagination(actionConfiguration, executeActionDTO.getPaginationField());
             }
+
             // Filter out any empty headers
-            if (actionConfiguration.getHeaders() != null && !actionConfiguration.getHeaders().isEmpty()) {
-                List<Property> headerList = actionConfiguration.getHeaders().stream()
-                        .filter(header -> !org.springframework.util.StringUtils.isEmpty(header.getKey()))
-                        .collect(Collectors.toList());
-                actionConfiguration.setHeaders(headerList);
-            }
+            removeEmptyHeaders(actionConfiguration);
 
             return this.executeCommon(connection, datasourceConfiguration, actionConfiguration, parameters);
         }
@@ -224,43 +208,22 @@ public class RestApiPlugin extends BasePlugin {
 
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
-            errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
-            errorResult.setIsExecutionSuccess(false);
-            errorResult.setTitle(AppsmithPluginError.PLUGIN_ERROR.getTitle());
+            initializeResponseWithError(errorResult);
 
             // Set of hint messages that can be returned to the user.
             Set<String> hintMessages = new HashSet();
 
             // Initializing request URL
-            String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
-            String url = datasourceConfiguration.getUrl() + path;
+            String url = initializeRequestUrl(actionConfiguration, datasourceConfiguration);
             String reqContentType = "";
 
-            /*
-             * - If encodeParamsToggle is null, then assume it to be true because params are supposed to be
-             *   encoded by default, unless explicitly prohibited by the user.
-             */
-            Boolean encodeParamsToggle = true;
-            if (actionConfiguration.getEncodeParamsToggle() != null
-                    && actionConfiguration.getEncodeParamsToggle() == false) {
-                encodeParamsToggle = false;
-            }
+            Boolean encodeParamsToggle = isEncodeParamsToggleEnabled(actionConfiguration);
 
             HttpMethod httpMethod = actionConfiguration.getHttpMethod();
             URI uri;
             try {
-                String httpUrl = addHttpToUrlWhenPrefixNotPresent(url);
-
-                ArrayList<Property> allQueryParams = new ArrayList<>();
-                if (!CollectionUtils.isEmpty(actionConfiguration.getQueryParameters())) {
-                    allQueryParams.addAll(actionConfiguration.getQueryParameters());
-                }
-
-                if (!CollectionUtils.isEmpty(datasourceConfiguration.getQueryParameters())) {
-                    allQueryParams.addAll(datasourceConfiguration.getQueryParameters());
-                }
-
-                uri = createFinalUriWithQueryParams(httpUrl, allQueryParams, encodeParamsToggle);
+                uri = createFinalUriWithQueryParams(actionConfiguration, datasourceConfiguration, url,
+                        encodeParamsToggle);
             } catch (URISyntaxException e) {
                 ActionExecutionRequest actionExecutionRequest =
                         RequestCaptureFilter.populateRequestFields(actionConfiguration, null, insertedParams, objectMapper);
@@ -688,40 +651,6 @@ public class RestApiPlugin extends BasePlugin {
                 }
             }
             return contentType;
-        }
-
-        private String addHttpToUrlWhenPrefixNotPresent(String url) {
-            if (url == null || url.toLowerCase().startsWith("http") || url.contains("://")) {
-                return url;
-            }
-            return "http://" + url;
-        }
-
-        private URI createFinalUriWithQueryParams(String url,
-                                                  List<Property> queryParams,
-                                                  Boolean encodeParamsToggle) throws URISyntaxException {
-            UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
-            uriBuilder.uri(new URI(url));
-
-            if (queryParams != null) {
-                for (Property queryParam : queryParams) {
-                    String key = queryParam.getKey();
-                    if (StringUtils.isNotEmpty(key)) {
-                        if (encodeParamsToggle == true) {
-                            uriBuilder.queryParam(
-                                    URLEncoder.encode(key, StandardCharsets.UTF_8),
-                                    URLEncoder.encode((String) queryParam.getValue(), StandardCharsets.UTF_8)
-                            );
-                        } else {
-                            uriBuilder.queryParam(
-                                    key,
-                                    queryParam.getValue()
-                            );
-                        }
-                    }
-                }
-            }
-            return uriBuilder.build(true).toUri();
         }
 
         private ActionConfiguration updateActionConfigurationForPagination(ActionConfiguration actionConfiguration,
