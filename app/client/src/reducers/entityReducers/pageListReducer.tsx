@@ -45,6 +45,7 @@ export const pageListReducer = createReducer(initialState, {
         action.payload.pages[0].pageId,
     };
   },
+  [ReduxActionTypes.RESET_PAGE_LIST]: () => initialState,
   [ReduxActionTypes.CREATE_PAGE_SUCCESS]: (
     state: PageListReduxState,
     action: ReduxAction<{
