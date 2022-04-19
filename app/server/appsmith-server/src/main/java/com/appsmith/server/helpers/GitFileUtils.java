@@ -80,6 +80,23 @@ public class GitFileUtils {
             2. Create application reference for appsmith-git module
             3. Save application to git repo
          */
+        ApplicationGitReference applicationReference = createApplicationReference(applicationJson);
+        // Save application to git repo
+        try {
+            return fileUtils.saveApplicationToGitRepo(baseRepoSuffix, applicationReference, branchName);
+        } catch (IOException | GitAPIException e) {
+            log.error("Error occurred while saving files to local git repo: ", e);
+            throw Exceptions.propagate(e);
+        }
+    }
+
+    /**
+     * Method to convert application resources to the structure which can be serialised by appsmith-git module for
+     * serialisation
+     * @param applicationJson application resource including actions, jsobjects, pages
+     * @return                resource which can be saved to file system
+     */
+    public ApplicationGitReference createApplicationReference(ApplicationJson applicationJson) {
         ApplicationGitReference applicationReference = new ApplicationGitReference();
 
         Application application = applicationJson.getExportedApplication();
@@ -105,7 +122,7 @@ public class GitFileUtils {
 
         applicationReference.setTheme(applicationJson.getEditModeTheme());
 
-        // Insert only active pages which will then be converted into individual file
+        // Insert only active pages which will then be committed to repo as individual file
         Map<String, Object> resourceMap = new HashMap<>();
         applicationJson
                 .getPageList()
@@ -178,14 +195,7 @@ public class GitFileUtils {
         applicationReference.setDatasources(new HashMap<>(resourceMap));
         resourceMap.clear();
 
-
-        // Save application to git repo
-        try {
-            return fileUtils.saveApplicationToGitRepo(baseRepoSuffix, applicationReference, branchName);
-        } catch (IOException | GitAPIException e) {
-            log.error("Error occurred while saving files to local git repo: ", e);
-            throw Exceptions.propagate(e);
-        }
+        return applicationReference;
     }
 
     /**
