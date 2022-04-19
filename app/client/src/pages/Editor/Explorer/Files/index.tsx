@@ -48,7 +48,6 @@ function Files() {
   useEffect(() => {
     if (!activeActionId) return;
     document.getElementById(`entity-${activeActionId}`)?.scrollIntoView({
-      behavior: "smooth",
       block: "nearest",
       inline: "nearest",
     });
