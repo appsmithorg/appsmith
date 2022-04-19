@@ -9,6 +9,7 @@ import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionC
 import { connect } from "react-redux";
 import { getWidgetMetaProps } from "sagas/selectors";
 import { AppState } from "reducers";
+import { triggerEvalOnMetaUpdate } from "actions/metaActions";
 
 export type DebouncedExecuteActionPayload = Omit<
   ExecuteTriggerPayload,
@@ -47,16 +48,14 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       );
     }
 
-    debouncedTriggerEvalOnMetaUpdate = () => {
-      const { triggerEvalOnMetaUpdate } = this.context;
-
-      if (triggerEvalOnMetaUpdate) {
-        return debounce(triggerEvalOnMetaUpdate, 200, {
-          leading: true,
-          trailing: true,
-        });
-      }
-    };
+    debouncedTriggerEvalOnMetaUpdate = debounce(
+      this.props.triggerEvalOnMetaUpdate,
+      200,
+      {
+        leading: true,
+        trailing: true,
+      },
+    );
 
     handleUpdateWidgetMetaProperty = (
       propertyName: string,
@@ -146,14 +145,20 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
     }
   }
 
-  function mapStateToProps(state: AppState, ownProps: WidgetProps) {
+  const mapStateToProps = (state: AppState, ownProps: WidgetProps) => {
     const metaState = getWidgetMetaProps(state, ownProps.widgetId) || {};
     return {
       metaState,
     };
-  }
+  };
 
-  return connect(mapStateToProps)(MetaHOC);
+  const mapDispatchToProps = (dispatch: any) => ({
+    triggerEvalOnMetaUpdate: () => {
+      dispatch(triggerEvalOnMetaUpdate());
+    },
+  });
+
+  return connect(mapStateToProps, mapDispatchToProps)(MetaHOC);
 }
 
 export default withMeta;

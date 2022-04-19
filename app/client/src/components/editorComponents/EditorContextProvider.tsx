@@ -18,7 +18,6 @@ import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   resetChildrenMetaProperty,
   updateWidgetMetaProperty,
-  triggerEvalOnMetaUpdate,
 } from "actions/metaActions";
 
 export type EditorContextType = {
@@ -46,7 +45,6 @@ export type EditorContextType = {
     widgetId: string,
     updates: BatchPropertyUpdatePayload,
   ) => void;
-  triggerEvalOnMetaUpdate?: () => void;
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
@@ -62,7 +60,6 @@ function EditorContextProvider(props: EditorContextProviderProps) {
     disableDrag,
     executeAction,
     resetChildrenMetaProperty,
-    triggerEvalOnMetaUpdate,
     updateWidget,
     updateWidgetMetaProperty,
     updateWidgetProperty,
@@ -80,7 +77,6 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       resetChildrenMetaProperty,
       deleteWidgetProperty,
       batchUpdateWidgetProperty,
-      triggerEvalOnMetaUpdate,
     }),
     [
       executeAction,
@@ -91,7 +87,6 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       resetChildrenMetaProperty,
       deleteWidgetProperty,
       batchUpdateWidgetProperty,
-      triggerEvalOnMetaUpdate,
     ],
   );
   return (
@@ -115,7 +110,6 @@ const mapDispatchToProps = {
   disableDrag: disableDragAction,
   deleteWidgetProperty: deletePropertyAction,
   batchUpdateWidgetProperty: batchUpdatePropertyAction,
-  triggerEvalOnMetaUpdate,
 };
 
 export default connect(null, mapDispatchToProps)(EditorContextProvider);
