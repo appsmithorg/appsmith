@@ -48,6 +48,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -584,5 +585,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     @Override
     public Mono<UpdateResult> setAppTheme(String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
         return repository.setAppTheme(applicationId, editModeThemeId, publishedModeThemeId, aclPermission);
+    }
+
+    @Override
+    public Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId) {
+        return repository.getApplicationByDefaultApplicationIdAndDefaultBranch(defaultApplicationId);
     }
 }
