@@ -1,6 +1,7 @@
 import React from "react";
-import { isEmpty, isString, maxBy, set, sortBy } from "lodash";
 import log from "loglevel";
+import { isEmpty, isString, maxBy, set, sortBy } from "lodash";
+import { klona } from "klona";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import EmptyDataState from "components/utils/EmptyDataState";
@@ -19,8 +20,6 @@ import { StyledPropertyPaneButton } from "./StyledControls";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { InputText } from "./InputTextControl";
 import { JSONFormWidgetProps } from "widgets/JSONFormWidget/widget";
-
-import { klona as clone } from "klona/full";
 
 type DroppableItem = BaseItemProps & {
   index: number;
@@ -159,7 +158,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
        * the updateProperty function is fixed.
        */
       const updatedSchema = {
-        schema: clone(widgetProperties.schema),
+        schema: klona(widgetProperties.schema),
       };
       set(updatedSchema, path, schemaItem);
 
@@ -180,7 +179,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
   updateItems = (items: DroppableItem[]) => {
     const { propertyName, propertyValue } = this.props;
-    const clonedSchema: Schema = clone(propertyValue);
+    const clonedSchema: Schema = klona(propertyValue);
 
     items.forEach((item, index) => {
       clonedSchema[item.id].position = index;

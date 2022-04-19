@@ -62,7 +62,7 @@ function generatePanelPropertyConfig(
                 );
               });
             },
-            dependencies: ["schema"],
+            dependencies: ["schema", "childStylesheet"],
           },
         ],
       },

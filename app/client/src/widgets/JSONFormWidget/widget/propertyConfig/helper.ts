@@ -1,3 +1,4 @@
+import { klona } from "klona";
 import { get, set } from "lodash";
 
 import SchemaParser from "widgets/JSONFormWidget/schemaParser";
@@ -15,8 +16,6 @@ import { getFieldStylesheet } from "widgets/JSONFormWidget/helper";
 import { AppTheme } from "entities/AppTheming";
 
 export type HiddenFnParams = [JSONFormWidgetProps, string];
-
-import { klona as clone } from "klona/full";
 
 export const fieldTypeUpdateHook = (
   props: JSONFormWidgetProps,
@@ -41,10 +40,10 @@ export const fieldTypeUpdateHook = (
    * the new added paths gets into the dynamicBindingPathList until
    * the updateProperty function is fixed.
    */
-  const updatedSchema = clone(schema);
-  set({ schema: updatedSchema }, schemaItemPath, newSchemaItem);
+  const updatedSchema = { schema: klona(schema) };
+  set(updatedSchema, schemaItemPath, newSchemaItem);
 
-  return [{ propertyPath: "schema", propertyValue: updatedSchema }];
+  return [{ propertyPath: "schema", propertyValue: updatedSchema.schema }];
 };
 
 export const hiddenIfArrayItemIsObject = (
