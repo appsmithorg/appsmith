@@ -455,7 +455,6 @@ export const JS_EXECUTION_FAILURE_TOASTER = () =>
 export const JS_SETTINGS_ONPAGELOAD = () => "Run function on page load (Beta)";
 export const JS_EXECUTION_SUCCESS_TOASTER = (actionName: string) =>
   `${actionName} ran successfully`;
-export const JS_SETTINGS_ONPAGELOAD = () => "Run Function on Page load";
 export const JS_SETTINGS_ONPAGELOAD_SUBTEXT = () =>
   "Will refresh data every time page is reloaded";
 export const JS_SETTINGS_CONFIRM_EXECUTION = () =>
@@ -469,6 +468,8 @@ export const NO_ASYNC_FUNCTIONS = () =>
   "There is no asynchronous function in this JSObject";
 export const NO_JS_FUNCTION_TO_RUN = (JSObjectName: string) =>
   `${JSObjectName} has no function`;
+export const NO_JS_FUNCTION_RETURN_VALUE = (JSFunctionName: string) =>
+  `${JSFunctionName} did not return any data. Did you add a return statement?`;
 
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import application";

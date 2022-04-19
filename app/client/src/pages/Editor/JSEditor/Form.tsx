@@ -1,10 +1,4 @@
-import React, {
-  ChangeEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { ChangeEvent, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { JSAction, JSCollection } from "entities/JSCollection";
 import CloseEditor from "components/editorComponents/CloseEditor";
@@ -21,8 +15,8 @@ import {
 import FormRow from "components/editorComponents/FormRow";
 import JSObjectNameEditor from "./JSObjectNameEditor";
 import {
-  executeJSFunction,
   setActiveJSAction,
+  startExecutingJSFunction,
   updateJSCollectionBody,
 } from "actions/jsPaneActions";
 import { useDispatch, useSelector } from "react-redux";
@@ -49,44 +43,13 @@ import {
   JSActionDropdownOption,
 } from "./utils";
 import {
+  CodeEditorWithGutterStyles,
   JS_OBJECT_HOTKEYS_CLASSNAME,
   RUN_GUTTER_CLASSNAME,
-  RUN_GUTTER_ID,
 } from "./constants";
 import { DropdownOnSelect } from "components/ads";
 import JSFunctionSettingsView from "./JSFunctionSettings";
 import JSObjectHotKeys from "./JSObjectHotKeys";
-
-export const CodeEditorStyles = `
-.${RUN_GUTTER_ID}{
-  width: 0.9em;
-  background: #f0f0f0;
-}
-.${RUN_GUTTER_CLASSNAME}{
-  cursor: pointer;
-  color: #f86a2b;
-}
-.CodeMirror-linenumbers{
-  width: max-content;
-}
-.CodeMirror-linenumber{
-  text-align: left;
-  padding-left:8px;
-}
-
-.CodeMirror-foldgutter{
- width: .5em;
-}
-.CodeMirror-foldgutter-open:after {
-padding-left: 2px;
-}
-.CodeMirror-foldgutter-folded:after {
-padding-left: 2px;
-}
-.cm-s-duotone-light.CodeMirror {
-  padding:0
-}
-`;
 
 const FormWrapper = styled.div`
   height: ${({ theme }) =>
@@ -150,7 +113,7 @@ const MainConfiguration = styled.div`
     ${(props) => props.theme.spaces[10]}px;
 `;
 
-export const TabbedViewContainer = styled.div`
+export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
   flex: 1;
   overflow: auto;
   position: relative;
@@ -173,7 +136,14 @@ export const TabbedViewContainer = styled.div`
       height: calc(100% - 36px);
       margin-top: 2px;
       background-color: ${(props) => props.theme.colors.apiPane.bg};
-      ${CodeEditorStyles}
+      ${CodeEditorWithGutterStyles}
+      ${(props) =>
+        props.isExecuting &&
+        `
+        .${RUN_GUTTER_CLASSNAME} {
+        cursor: progress;
+      }
+      `}
     }
   }
 `;
@@ -189,7 +159,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   const dispatch = useDispatch();
   const { pageId } = useParams<ExplorerURLParams>();
   const [disableRunFunctionality, setDisableRunFunctionality] = useState(false);
-  const [showResponse, setshowResponse] = useState(false);
+
   // Currently active response (only changes upon execution)
   const [activeResponse, setActiveResponse] = useState<JSAction | null>(null);
   const parseErrors = useSelector(
@@ -234,7 +204,6 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
 
   // Executes JS action
   const executeJSAction = (jsAction: JSAction) => {
-    setshowResponse(true);
     setActiveResponse(jsAction);
     setSelectedJSActionOption(convertJSActionToDropdownOption(jsAction));
     dispatch(
@@ -244,7 +213,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
       }),
     );
     dispatch(
-      executeJSFunction({
+      startExecutingJSFunction({
         collectionName: currentJSCollection.name || "",
         action: jsAction,
         collectionId: currentJSCollection.id || "",
@@ -252,27 +221,10 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     );
   };
 
-  const handleActiveActionChange = useCallback(
-    (jsAction: JSAction) => {
-      if (!jsAction || !selectedJSActionOption.data) return;
-
-      // only update when there is a new active action
-      if (jsAction.id !== selectedJSActionOption.data.id) {
-        setSelectedJSActionOption(convertJSActionToDropdownOption(jsAction));
-      }
-    },
-    [selectedJSActionOption],
-  );
-
   const JSGutters = useMemo(
     () =>
-      getJSFunctionLineGutter(
-        jsActions,
-        executeJSAction,
-        handleActiveActionChange,
-        !parseErrors.length,
-      ),
-    [jsActions, parseErrors, handleActiveActionChange],
+      getJSFunctionLineGutter(jsActions, executeJSAction, !parseErrors.length),
+    [jsActions, parseErrors],
   );
 
   const handleJSActionOptionSelection: DropdownOnSelect = (
@@ -312,6 +264,16 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                 <JSObjectNameEditor page="JS_PANE" />
               </NameWrapper>
               <ActionButtons className="t--formActionButtons">
+                <MoreJSCollectionsMenu
+                  className="t--more-action-menu"
+                  id={currentJSCollection.id}
+                  name={currentJSCollection.name}
+                  pageId={pageId}
+                />
+                <SearchSnippets
+                  entityId={currentJSCollection?.id}
+                  entityType={ENTITY_TYPE.JSACTION}
+                />
                 <JSFunctionRun
                   disabled={disableRunFunctionality}
                   isLoading={isExecutingCurrentJSAction}
@@ -322,21 +284,11 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                   selected={selectedJSActionOption}
                   showTooltip={!selectedJSActionOption.data}
                 />
-                <SearchSnippets
-                  entityId={currentJSCollection?.id}
-                  entityType={ENTITY_TYPE.JSACTION}
-                />
-                <MoreJSCollectionsMenu
-                  className="t--more-action-menu"
-                  id={currentJSCollection.id}
-                  name={currentJSCollection.name}
-                  pageId={pageId}
-                />
               </ActionButtons>
             </FormRow>
           </MainConfiguration>
           <SecondaryWrapper>
-            <TabbedViewContainer>
+            <TabbedViewContainer isExecuting={isExecutingCurrentJSAction}>
               <TabComponent
                 onSelect={setMainTabIndex}
                 selectedIndex={mainTabIndex}
@@ -383,7 +335,6 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
               isLoading={isExecutingCurrentJSAction}
               jsObject={currentJSCollection}
               onButtonClick={handleRunAction}
-              showResponse={showResponse}
               theme={theme}
             />
           </SecondaryWrapper>

@@ -72,6 +72,7 @@ export function JSFunctionRun({
         onSelect={onSelect}
         options={options}
         selected={selected}
+        selectedHighlightBg={RUN_BUTTON_DEFAULTS.DROPDOWN_HIGHLIGHT_BG}
         showLabelOnly
         truncateOption
       />

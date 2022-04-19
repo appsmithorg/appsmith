@@ -11,7 +11,7 @@ import {
   NO_FUNCTION_DROPDOWN_OPTION,
 } from "./constants";
 import { DropdownOption } from "components/ads/Dropdown";
-import { find, sortBy } from "lodash";
+import { find, memoize, sortBy } from "lodash";
 
 interface IdentifierNode extends Node {
   type: NodeTypes.Identifier;
@@ -30,12 +30,13 @@ const isPropertyNode = (node: Node): node is PropertyNode => {
   return node.type === NodeTypes.Property;
 };
 
-export const getAST = (code: string, sourceType: SourceType) =>
+export const getAST = memoize((code: string, sourceType: SourceType) =>
   parse(code, {
     ecmaVersion: ECMA_VERSION,
     sourceType: sourceType,
     locations: true, // Adds location data to each node
-  });
+  }),
+);
 
 export const isCursorWithinNode = (
   nodeLocation: acorn.SourceLocation,
@@ -99,7 +100,6 @@ export const createGutterMarker = (gutterOnclick: () => void) => {
 export const getJSFunctionLineGutter = (
   jsActions: JSAction[],
   runFuction: (jsAction: JSAction) => void,
-  onSuccessAction: (jsAction: JSAction) => void,
   showGutters: boolean,
 ): CodeEditorGutter => {
   const gutter: CodeEditorGutter = {
@@ -109,13 +109,12 @@ export const getJSFunctionLineGutter = (
   if (!showGutters || !jsActions.length) return gutter;
 
   return {
-    getGutterConfig: (code: string, cursorLineNumber: number) => {
+    getGutterConfig: (code: string, lineNumber: number) => {
       const config = getJSFunctionStartLineFromCode(
         code,
-        cursorLineNumber,
+        lineNumber,
         jsActions,
       );
-      config && onSuccessAction(config.action);
       return config
         ? {
             line: config.line,

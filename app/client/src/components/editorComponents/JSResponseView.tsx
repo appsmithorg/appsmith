@@ -18,6 +18,7 @@ import {
   PARSING_ERROR,
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_JS_RESPONSE_LAST_HALF,
+  NO_JS_FUNCTION_RETURN_VALUE,
 } from "@appsmith/constants/messages";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
@@ -26,7 +27,6 @@ import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import { startExecutingJSFunction } from "actions/jsPaneActions";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
@@ -39,13 +39,10 @@ import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import EntityBottomTabs from "./EntityBottomTabs";
 import Icon from "components/ads/Icon";
-import { ReactComponent as FunctionSettings } from "assets/icons/menu/settings.svg";
-import JSFunctionSettings from "pages/Editor/JSEditor/JSFunctionSettings";
-import FlagBadge from "components/utils/FlagBadge";
 import { TAB_MIN_HEIGHT } from "components/ads/Tabs";
 import { theme } from "constants/DefaultTheme";
 import { Button, Size } from "components/ads";
-import { TAB_MIN_HEIGHT } from "components/ads/Tabs";
+import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/constants";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -56,29 +53,9 @@ const ResponseContainer = styled.div`
   height: ${({ theme }) => theme.actionsBottomTabInitialHeight};
 
   .react-tabs__tab-panel {
+    ${CodeEditorWithGutterStyles}
     overflow-y: auto;
     height: calc(100% - ${TAB_MIN_HEIGHT});
-
-    .CodeMirror-linenumbers {
-      width: max-content;
-    }
-    .CodeMirror-linenumber {
-      text-align: left;
-      padding-left: 8px;
-    }
-
-    .CodeMirror-foldgutter {
-      width: 0.5em;
-    }
-    .CodeMirror-foldgutter-open:after {
-      padding-left: 2px;
-    }
-    .CodeMirror-foldgutter-folded:after {
-      padding-left: 2px;
-    }
-    .cm-s-duotone-light.CodeMirror {
-      padding: 0;
-    }
   }
 `;
 
@@ -92,47 +69,6 @@ const ResponseTabWrapper = styled.div`
   }
   .response-run {
     margin: 0 10px;
-  }
-`;
-
-const ResponseTabActionsList = styled.ul`
-  height: 100%;
-  width: 20%;
-  list-style: none;
-  padding-left: 0;
-  ${thinScrollbar};
-  scrollbar-width: thin;
-  overflow: auto;
-  padding-bottom: 40px;
-  margin-top: 0;
-`;
-
-const ResponseTabAction = styled.li`
-  padding: 10px 0px 10px 20px;
-  display: flex;
-  align-items: center;
-  &:hover {
-    cursor: pointer;
-    background-color: #f0f0f0;
-  }
-  .function-name {
-    margin-left: 5px;
-    display: inline-block;
-    flex: 1;
-  }
-  .function-actions {
-    margin-left: auto;
-    order: 2;
-    svg {
-      display: inline-block;
-    }
-  }
-  .run-button {
-    margin: 0 15px;
-    margin-left: 10px;
-  }
-  &.active {
-    background-color: #f0f0f0;
   }
 `;
 
@@ -190,6 +126,11 @@ const StyledCallout = styled(Callout)`
     line-height: normal;
   }
 `;
+
+const NoReturnValueWrapper = styled.div`
+  padding-left: ${(props) => props.theme.spaces[12]}px;
+  padding-top: ${(props) => props.theme.spaces[6]}px;
+`;
 const InlineButton = styled(Button)`
   display: inline-flex;
   margin: 0 4px;
@@ -200,6 +141,7 @@ enum JSResponseState {
   IsDirty = "IsDirty",
   NoResponse = "NoResponse",
   ShowResponse = "ShowResponse",
+  NoReturnValue = "NoReturnValue",
 }
 
 interface ReduxStateProps {
@@ -210,7 +152,6 @@ interface ReduxStateProps {
 type Props = ReduxStateProps &
   RouteComponentProps<JSEditorRouteParams> & {
     currentFunction: JSAction | null;
-    showResponse: boolean;
     theme?: EditorTheme;
     jsObject: JSCollection;
     errors: Array<EvaluationError>;
@@ -229,7 +170,6 @@ function JSResponseView(props: Props) {
     jsObject,
     onButtonClick,
     responses,
-    showResponse,
   } = props;
   const [responseStatus, setResponseStatus] = useState<JSResponseState>(
     JSResponseState.NoResponse,
@@ -247,20 +187,25 @@ function JSResponseView(props: Props) {
     });
     dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }, []);
-
   useEffect(() => {
-    if (currentFunction && isExecuting[currentFunction.id]) {
+    if (!currentFunction) {
+      setResponseStatus(JSResponseState.NoResponse);
+    } else if (isExecuting[currentFunction.id]) {
       setResponseStatus(JSResponseState.IsExecuting);
     } else if (
-      !currentFunction ||
-      !showResponse ||
-      !responses.hasOwnProperty(currentFunction.id)
+      !responses.hasOwnProperty(currentFunction.id) &&
+      !isExecuting.hasOwnProperty(currentFunction.id)
     ) {
       setResponseStatus(JSResponseState.NoResponse);
-    } else {
+    } else if (
+      responses.hasOwnProperty(currentFunction.id) &&
+      responses[currentFunction.id] === undefined
+    ) {
+      setResponseStatus(JSResponseState.NoReturnValue);
+    } else if (responses.hasOwnProperty(currentFunction.id)) {
       setResponseStatus(JSResponseState.ShowResponse);
     }
-  }, [currentFunction, showResponse, responses, isExecuting]);
+  }, [responses, isExecuting, currentFunction]);
 
   const tabs = [
     {
@@ -308,6 +253,16 @@ function JSResponseView(props: Props) {
                     {createMessage(EXECUTING_FUNCTION)}
                   </LoadingOverlayScreen>
                 )}
+                {responseStatus === JSResponseState.NoReturnValue && (
+                  <NoReturnValueWrapper>
+                    <Text type={TextType.P1}>
+                      {createMessage(
+                        NO_JS_FUNCTION_RETURN_VALUE,
+                        currentFunction?.name,
+                      )}
+                    </Text>
+                  </NoReturnValueWrapper>
+                )}
                 {responseStatus === JSResponseState.ShowResponse && (
                   <ReadOnlyEditor
                     folding
@@ -334,18 +289,6 @@ function JSResponseView(props: Props) {
       panelComponent: <DebuggerLogs searchQuery={jsObject?.name} />,
     },
   ];
-
-  const runAction = (action: JSAction) => {
-    setSelectActionId(action.id);
-    const collectionId = getJSCollectionIdFromURL();
-    dispatch(
-      startExecutingJSFunction({
-        collectionName: jsObject?.name || "",
-        action: action,
-        collectionId: collectionId || "",
-      }),
-    );
-  };
 
   return (
     <ResponseContainer ref={panelRef}>

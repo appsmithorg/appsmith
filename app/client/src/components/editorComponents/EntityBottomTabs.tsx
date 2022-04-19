@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, RefObject } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentTab } from "actions/debuggerActions";
 import {

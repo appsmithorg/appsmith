@@ -42,8 +42,6 @@ import {
   updateJSCollectionBodySuccess,
   updateJSFunction,
   executeJSFunctionInit,
-  updateActiveJsAction,
-  resetActiveJsAction,
 } from "actions/jsPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";

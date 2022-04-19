@@ -103,6 +103,7 @@ export type DropdownProps = CommonComponentProps &
     allowDeselection?: boolean; //prevents de-selection of the selected option
     truncateOption?: boolean; // enabled wrapping and adding tooltip on option item of dropdown menu
     customBadge?: JSX.Element;
+    selectedHighlightBg?: string;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption | DropdownOption[];
@@ -339,6 +340,7 @@ const DropdownOptionsWrapper = styled.div<{
 
 const OptionWrapper = styled.div<{
   selected: boolean;
+  selectedHighlightBg?: string;
 }>`
   padding: ${(props) => props.theme.spaces[2] + 1}px
     ${(props) => props.theme.spaces[5]}px;
@@ -346,7 +348,9 @@ const OptionWrapper = styled.div<{
   display: flex;
   align-items: center;
   min-height: 36px;
-  background-color: ${(props) => (props.selected ? Colors.GREEN_3 : null)};
+  background-color: ${(props) =>
+    props.selected ? props.selectedHighlightBg || Colors.GREEN_3 : null};
+
   &&& svg {
     rect {
       fill: ${(props) => props.theme.colors.dropdownIconBg};
@@ -377,7 +381,7 @@ const OptionWrapper = styled.div<{
   }
 
   &:hover {
-    background-color: ${Colors.GREEN_3};
+    background-color: ${(props) => props.selectedHighlightBg || Colors.GREEN_3};
 
     &&& svg {
       rect {
@@ -730,6 +734,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               }
               role="option"
               selected={isSelected}
+              selectedHighlightBg={props.selectedHighlightBg}
             >
               {option.leftElement && (
                 <LeftIconWrapper>{option.leftElement}</LeftIconWrapper>

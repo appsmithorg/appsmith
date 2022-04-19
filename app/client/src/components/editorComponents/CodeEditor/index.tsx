@@ -253,10 +253,13 @@ class CodeEditor extends Component<Props, State> {
       if (this.props.tabBehaviour === TabBehaviour.INPUT) {
         options.extraKeys["Tab"] = false;
       }
+      if (this.props.customGutter) {
+        gutters.add(this.props.customGutter.gutterId);
+      }
       if (this.props.folding) {
         options.foldGutter = true;
-        gutters.add("CodeMirror-foldgutter");
         gutters.add("CodeMirror-linenumbers");
+        gutters.add("CodeMirror-foldgutter");
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         options.foldOptions = {
@@ -264,10 +267,6 @@ class CodeEditor extends Component<Props, State> {
             return "\u002E\u002E\u002E";
           },
         };
-      }
-
-      if (this.props.customGutter) {
-        gutters.add(this.props.customGutter.gutterId);
       }
       options.gutters = Array.from(gutters);
 
@@ -464,6 +463,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleCursorMovement = (cm: CodeMirror.Editor) => {
+    this.handleCustomGutter(cm.getCursor().line);
     // ignore if disabled
     if (!this.props.input.onChange || this.props.disabled) {
       return;

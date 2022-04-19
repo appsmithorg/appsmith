@@ -148,6 +148,7 @@ function SettingsItem({ action }: SettingsItemProps) {
       </SettingColumn>
       <SettingColumn>
         <RadioComponent
+          backgroundColor="#191919"
           defaultValue={executeOnPageLoad}
           name={`execute-on-page-load-${action.id}`}
           onSelect={onChangeExecuteOnPageLoad}
@@ -156,6 +157,7 @@ function SettingsItem({ action }: SettingsItemProps) {
       </SettingColumn>
       <SettingColumn>
         <RadioComponent
+          backgroundColor="#191919"
           defaultValue={confirmBeforeExecute}
           name={`confirm-before-execute-${action.id}`}
           onSelect={onChangeConfirmBeforeExecute}

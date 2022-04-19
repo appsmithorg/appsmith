@@ -5,7 +5,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import { set, keyBy, findIndex } from "lodash";
+import { set, keyBy, findIndex, unset } from "lodash";
 import produce from "immer";
 
 const initialState: JSCollectionDataState = [];
@@ -267,11 +267,16 @@ const jsActionsReducer = createReducer(initialState, {
   ): JSCollectionDataState =>
     state.map((a) => {
       if (a.config.id === action.payload.collectionId) {
+        const newData = { ...a.data };
+        unset(newData, action.payload.action.id);
         return {
           ...a,
           isExecuting: {
             ...a.isExecuting,
             [action.payload.action.id]: true,
+          },
+          data: {
+            ...newData,
           },
         };
       }
