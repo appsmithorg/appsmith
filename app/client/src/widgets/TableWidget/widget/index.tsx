@@ -164,14 +164,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           );
 
           /**
-           * Conditionally render the below migration function: boxShadowDynamicChecker (Checks if boxShadow)
+           * This conditionalBoxShadow is applied to run the boxShadowDynamicChecker on the following cases, when:
+           * 1. boxShadowColor property is present inside the columnProperties. OR
+           * 2. When boxShadow property has value starting with VARIANT.
            *
-           * This condition is applied to run the boxShadowDynamicChecker on the following conditions, when:
-           * 1. BoxShadow is Static and boxShadowColor is dynamic.
-           * 2. boxShadow is Dynamic and boxShadowColor is static/empty/dynamic
+           * We are running this on the above specific conditions because we need to run it post app theming goes to prod.
+           * This will help us to migrate the dynamic values present in the boxShadow and boxShadowColor which themingMigrations script won't be able to handle.
+           * In this way it will run only for the older table widget which has boxShadowColor property inside it or boxShadow contains string value starting with VARIANT.
            *
-           *
-           * Once the migration is complete we are also deleting the boxShadowColor with the updateHook.
+           * NOTE: For the new table widget, these conditions needs to be removed so that table widget later on uses only cellProperties.boxShadow.
            */
           const conditionalBoxShadow =
             (columnProperties.hasOwnProperty("boxShadowColor") ||
