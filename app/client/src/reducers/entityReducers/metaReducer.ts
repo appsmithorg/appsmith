@@ -1,5 +1,5 @@
-import { set, cloneDeep, get } from "lodash";
-import { createReducer } from "utils/AppsmithUtils";
+import { set, get } from "lodash";
+import { createImmerReducer } from "utils/AppsmithUtils";
 import { UpdateWidgetMetaPropertyPayload } from "actions/metaActions";
 
 import {
@@ -8,15 +8,14 @@ import {
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { Diff } from "deep-diff";
-import produce from "immer";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { isWidget } from "../../workers/evaluationUtils";
+import { isWidget } from "workers/evaluationUtils";
 
 export type MetaState = Record<string, Record<string, unknown>>;
 
 const initialState: MetaState = {};
 
-export const metaReducer = createReducer(initialState, {
+export const metaReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.UPDATE_META_STATE]: (
     state: MetaState,
     action: ReduxAction<{
@@ -27,41 +26,31 @@ export const metaReducer = createReducer(initialState, {
     const { updatedDataTree, updates } = action.payload;
 
     // if metaObject is updated in dataTree we also update meta values, to keep meta state in sync.
-    const newMetaState = produce(state, (draftMetaState) => {
-      if (updates.length) {
-        updates.forEach((update) => {
-          // if meta field is updated in the dataTree then update metaReducer values.
-          if (
-            update.kind === "E" &&
-            update.path?.length &&
-            update.path?.length > 1 &&
-            update.path[1] === "meta"
-          ) {
-            // path eg: Input1.meta.defaultText
-            const entity = get(updatedDataTree, update.path[0]);
-            const metaPropertyPath = update.path.slice(2);
-            if (
-              isWidget(entity) &&
-              entity.widgetId &&
-              metaPropertyPath.length
-            ) {
-              set(
-                draftMetaState,
-                [entity.widgetId, ...metaPropertyPath],
-                update.rhs,
-              );
-            }
+    if (updates.length) {
+      updates.forEach((update) => {
+        // if meta field is updated in the dataTree then update metaReducer values.
+        if (
+          update.kind === "E" &&
+          update.path?.length &&
+          update.path?.length > 1 &&
+          update.path[1] === "meta"
+        ) {
+          // path eg: Input1.meta.defaultText
+          const entity = get(updatedDataTree, update.path[0]);
+          const metaPropertyPath = update.path.slice(2);
+          if (isWidget(entity) && entity.widgetId && metaPropertyPath.length) {
+            set(state, [entity.widgetId, ...metaPropertyPath], update.rhs);
           }
-        });
-      }
-    });
-    return newMetaState;
+        }
+      });
+    }
+    return state;
   },
   [ReduxActionTypes.SET_META_PROP]: (
     state: MetaState,
     action: ReduxAction<UpdateWidgetMetaPropertyPayload>,
   ) => {
-    const next = cloneDeep(state);
+    const next = state;
 
     set(
       next,
@@ -105,17 +94,10 @@ export const metaReducer = createReducer(initialState, {
     action: ReduxAction<{ widgetId: string }>,
   ) => {
     const widgetId = action.payload.widgetId;
+    const next = { ...state };
     if (widgetId in state) {
-      const resetData: Record<string, any> = {
-        ...state[widgetId],
-      };
-      Object.keys(resetData).forEach((key: string) => {
-        // NOTE:-
-        // metaHOC component assumes on reset of widget all metaValues will be deleted.
-        // if deletion logic needs to be changed, make sure to also update metaHOC reset condition.
-        delete resetData[key];
-      });
-      return { ...state, [widgetId]: { ...resetData } };
+      next[widgetId] = {};
+      return state;
     }
     return state;
   },

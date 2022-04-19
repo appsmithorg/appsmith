@@ -57,12 +57,12 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
   ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS,
   // Widget Meta
-  ReduxActionTypes.SET_META_PROP,
+  ReduxActionTypes.TRIGGER_EVAL_META_UPDATE,
   ReduxActionTypes.RESET_WIDGET_META,
   // Batches
   ReduxActionTypes.BATCH_UPDATES_SUCCESS,
 ];
-// Topics used for datsource and query form evaluations
+// Topics used for datasource and query form evaluations
 export const FORM_EVALUATION_REDUX_ACTIONS = [
   ReduxActionTypes.INIT_FORM_EVALUATION,
   ReduxActionTypes.RUN_FORM_EVALUATION,

@@ -11,11 +11,12 @@ export interface UpdateWidgetMetaPropertyPayload {
   propertyName: string;
   propertyValue: any;
 }
-export const updateWidgetMetaProperty = (
+
+export function updateWidgetMetaProperty(
   widgetId: string,
   propertyName: string,
   propertyValue: any,
-): BatchAction<UpdateWidgetMetaPropertyPayload> => {
+): BatchAction<UpdateWidgetMetaPropertyPayload> {
   return batchAction({
     type: ReduxActionTypes.SET_META_PROP,
     payload: {
@@ -24,11 +25,11 @@ export const updateWidgetMetaProperty = (
       propertyValue,
     },
   });
-};
+}
 
-export const resetWidgetMetaProperty = (
+export function resetWidgetMetaProperty(
   widgetId: string,
-): BatchAction<{ widgetId: string }> => {
+): BatchAction<{ widgetId: string }> {
   return batchAction({
     type: ReduxActionTypes.RESET_WIDGET_META,
     payload: {
@@ -36,23 +37,23 @@ export const resetWidgetMetaProperty = (
     },
     postEvalActions: [{ type: ReduxActionTypes.RESET_WIDGET_META_EVALUATED }],
   });
-};
+}
 
-export const resetChildrenMetaProperty = (
+export function resetChildrenMetaProperty(
   widgetId: string,
-): ReduxAction<{ widgetId: string }> => {
+): ReduxAction<{ widgetId: string }> {
   return {
     type: ReduxActionTypes.RESET_CHILDREN_WIDGET_META,
     payload: {
       widgetId,
     },
   };
-};
+}
 
-export const updateMetaState = (
+export function updateMetaState(
   updates: Diff<any, any>[],
   updatedDataTree: DataTree,
-) => {
+) {
   return {
     type: ReduxActionTypes.UPDATE_META_STATE,
     payload: {
@@ -60,4 +61,10 @@ export const updateMetaState = (
       updatedDataTree,
     },
   };
-};
+}
+
+export function triggerEvalOnMetaUpdate() {
+  return {
+    type: ReduxActionTypes.TRIGGER_EVAL_META_UPDATE,
+  };
+}
