@@ -7,6 +7,8 @@ import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Property;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
+import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -368,5 +370,11 @@ public class HintMessageUtils {
         }
 
         return params;
+    }
+
+    public static Mono<Tuple2<Set<String>, Set<String>>> getHintMessages(ActionConfiguration actionConfiguration,
+                                                                  DatasourceConfiguration datasourceConfiguration) {
+        return Mono.zip(Mono.just(getDatasourceHintMessages(datasourceConfiguration)),
+                Mono.just(getActionHintMessages(actionConfiguration, datasourceConfiguration)));
     }
 }

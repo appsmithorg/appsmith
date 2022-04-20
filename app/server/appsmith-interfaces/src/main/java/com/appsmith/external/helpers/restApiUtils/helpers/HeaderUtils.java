@@ -11,6 +11,7 @@ import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 
+import javax.xml.crypto.Data;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,6 +43,35 @@ public class HeaderUtils {
                     .collect(Collectors.toList());
             actionConfiguration.setHeaders(headerList);
         }
+    }
+
+    public static String getRequestContentType(ActionConfiguration actionConfiguration,
+                                               DatasourceConfiguration datasourceConfiguration) {
+        String reqContentType = "";
+
+        /* Get request content type from datasource config */
+        if (datasourceConfiguration.getHeaders() != null) {
+            reqContentType = getRequestContentTypeFromHeaders(datasourceConfiguration.getHeaders());
+        }
+
+        /* Get request content type from query config */
+        if (actionConfiguration.getHeaders() != null) {
+            reqContentType = getRequestContentTypeFromHeaders(actionConfiguration.getHeaders());
+        }
+
+        return reqContentType;
+    }
+
+    public static String getRequestContentTypeFromHeaders(List<Property> headers) {
+        String contentType = "";
+        for (Property header : headers) {
+            String key = header.getKey();
+            if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(key)) {
+                contentType = (String) header.getValue();
+            }
+        }
+
+        return contentType;
     }
 
     /**

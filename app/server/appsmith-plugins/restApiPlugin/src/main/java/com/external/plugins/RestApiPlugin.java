@@ -5,12 +5,12 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.MustacheHelper;
-import com.appsmith.external.helpers.PluginUtils;
+import com.appsmith.external.helpers.restApiUtils.helpers.DatasourceUtils;
+import com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils;
 import com.appsmith.external.helpers.restApiUtils.helpers.SmartSubstitutionUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.ApiContentType;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.PaginationField;
@@ -23,16 +23,11 @@ import com.appsmith.external.services.SharedConfig;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnectionFactory;
 import com.appsmith.external.helpers.restApiUtils.helpers.DataUtils;
-import com.appsmith.external.helpers.restApiUtils.helpers.DatasourceValidator;
 import com.appsmith.external.helpers.restApiUtils.helpers.RequestCaptureFilter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -49,12 +44,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.external.helpers.restApiUtils.helpers.HeaderUtils.getSignatureKey;
+import static com.appsmith.external.helpers.restApiUtils.helpers.DataUtils.getRequestBodyObject;
+import static com.appsmith.external.helpers.restApiUtils.helpers.HeaderUtils.getRequestContentType;
+import static com.appsmith.external.helpers.restApiUtils.helpers.HeaderUtils.getRequestContentTypeFromHeaders;
 import static com.appsmith.external.helpers.restApiUtils.helpers.HeaderUtils.isEncodeParamsToggleEnabled;
 import static com.appsmith.external.helpers.restApiUtils.helpers.HeaderUtils.removeEmptyHeaders;
 import static com.appsmith.external.helpers.restApiUtils.helpers.HeaderUtils.verifyContentType;
-import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.getActionHintMessages;
-import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.getDatasourceHintMessages;
 import static com.appsmith.external.helpers.restApiUtils.helpers.InitUtils.initializeRequestUrl;
 import static com.appsmith.external.helpers.restApiUtils.helpers.InitUtils.initializeResponseWithError;
 import static com.appsmith.external.helpers.restApiUtils.helpers.TriggerUtils.getWebClient;
@@ -73,8 +68,6 @@ public class RestApiPlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class RestApiPluginExecutor implements PluginExecutor<APIConnection>, SmartSubstitutionInterface {
-
-        private final String FIELD_API_CONTENT_TYPE = "apiContentType";
 
         private final SharedConfig sharedConfig;
         private final DataUtils dataUtils;
@@ -171,11 +164,9 @@ public class RestApiPlugin extends BasePlugin {
 
             // Initializing request URL
             String url = initializeRequestUrl(actionConfiguration, datasourceConfiguration);
-            String reqContentType = "";
 
             Boolean encodeParamsToggle = isEncodeParamsToggleEnabled(actionConfiguration);
 
-            HttpMethod httpMethod = actionConfiguration.getHttpMethod();
             URI uri;
             try {
                 uri = createFinalUriWithQueryParams(actionConfiguration, datasourceConfiguration, url,
@@ -204,26 +195,11 @@ public class RestApiPlugin extends BasePlugin {
                 return Mono.just(errorResult);
             }
 
-            if (httpMethod == null) {
-                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("HTTPMethod must be set."));
-                errorResult.setRequest(actionExecutionRequest);
-                return Mono.just(errorResult);
-            }
-
             WebClient.Builder webClientBuilder = getWebClientBuilder(actionConfiguration, datasourceConfiguration);
 
-            // Adding headers from datasource
-            if (datasourceConfiguration.getHeaders() != null) {
-                reqContentType = addHeadersToRequestAndGetContentType(
-                        webClientBuilder, datasourceConfiguration.getHeaders());
-            }
+            String reqContentType = getRequestContentType(actionConfiguration, datasourceConfiguration);
 
-            if (actionConfiguration.getHeaders() != null) {
-                reqContentType = addHeadersToRequestAndGetContentType(
-                        webClientBuilder, actionConfiguration.getHeaders());
-            }
-
-            // Check for content type
+            /* Check for content type */
             final String contentTypeError = verifyContentType(actionConfiguration.getHeaders());
             if (contentTypeError != null) {
                 errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Invalid value for Content-Type."));
@@ -231,41 +207,19 @@ public class RestApiPlugin extends BasePlugin {
                 return Mono.just(errorResult);
             }
 
-            // We initialize this object to an empty string because body can never be empty
-            // Based on the content-type, this Object may be of type MultiValueMap or String
-            Object requestBodyObj = "";
-
-            // We will read the request body for all HTTP calls where the apiContentType is NOT "none".
-            // This is irrespective of the content-type header or the HTTP method
-            String apiContentTypeStr = (String) PluginUtils.getValueSafelyFromFormData(
-                    actionConfiguration.getFormData(),
-                    FIELD_API_CONTENT_TYPE
-            );
-            ApiContentType apiContentType = ApiContentType.getValueFromString(apiContentTypeStr);
-
-            if (!httpMethod.equals(HttpMethod.GET)) {
-                // Read the body normally as this is a non-GET request
-                requestBodyObj = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
-            } else if (apiContentType != null && apiContentType != ApiContentType.NONE) {
-                // This is a GET request
-                // For all existing GET APIs, the apiContentType will be null. Hence we don't read the body
-                // Also, any new APIs which have apiContentType set to NONE shouldn't read the body.
-                // All other API content types should read the body
-                requestBodyObj = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
+            HttpMethod httpMethod = actionConfiguration.getHttpMethod();
+            if (httpMethod == null) {
+                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("HTTPMethod must be set."));
+                errorResult.setRequest(actionExecutionRequest);
+                return Mono.just(errorResult);
             }
 
-            // TBD: get reqContentType
-            if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
-                    || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
-                requestBodyObj = actionConfiguration.getBodyFormData();
-            }
-
-            requestBodyObj = dataUtils.buildBodyInserter(requestBodyObj, reqContentType, encodeParamsToggle);
-
+            Object requestBodyObj = getRequestBodyObject(actionConfiguration, reqContentType, encodeParamsToggle,
+                    httpMethod);
             WebClient client = getWebClient(webClientBuilder, apiConnection, reqContentType, objectMapper,
                     EXCHANGE_STRATEGIES);
 
-            // Triggering the actual REST API call
+            /* Triggering the actual REST API call */
             return triggerApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest, objectMapper,
                     hintMessages, errorResult);
         }
@@ -282,50 +236,8 @@ public class RestApiPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            // We don't verify whether the URL is in valid format because it can contain mustache template keys, and so
-            // look invalid at this point, but become valid after mustache rendering. So we just check if URL field has
-            // a non-empty value.
-
-            Set<String> invalids = new HashSet<>();
-
-            if (StringUtils.isEmpty(datasourceConfiguration.getUrl())) {
-                invalids.add("Missing URL.");
-            }
-
-            final String contentTypeError = verifyContentType(datasourceConfiguration.getHeaders());
-            if (contentTypeError != null) {
-                invalids.add("Invalid Content-Type: " + contentTypeError);
-            }
-
-            if (!CollectionUtils.isEmpty(datasourceConfiguration.getProperties())) {
-                boolean isSendSessionEnabled = false;
-                String secretKey = null;
-
-                for (Property property : datasourceConfiguration.getProperties()) {
-                    if ("isSendSessionEnabled".equals(property.getKey())) {
-                        isSendSessionEnabled = "Y".equals(property.getValue());
-                    } else if ("sessionSignatureKey".equals(property.getKey())) {
-                        secretKey = (String) property.getValue();
-                    }
-                }
-
-                if (isSendSessionEnabled && (StringUtils.isEmpty(secretKey) || secretKey.length() < 32)) {
-                    invalids.add("Secret key is required when sending session is switched on" +
-                            ", and should be at least 32 characters long.");
-                }
-            }
-
-            try {
-                getSignatureKey(datasourceConfiguration);
-            } catch (AppsmithPluginException e) {
-                invalids.add(e.getMessage());
-            }
-
-            if (datasourceConfiguration.getAuthentication() != null) {
-                invalids.addAll(DatasourceValidator.validateAuthentication(datasourceConfiguration.getAuthentication()));
-            }
-
-            return invalids;
+            /* Use the default validation routine for REST API based plugins */
+            return DatasourceUtils.validateDatasource(datasourceConfiguration);
         }
 
         @Override
@@ -334,24 +246,6 @@ public class RestApiPlugin extends BasePlugin {
             // and verifying the URL isn't feasible. Since validation happens just before testing, and since validation
             // checks if a URL is present, there's nothing left to do here, but return a successful response.
             return Mono.just(new DatasourceTestResult());
-        }
-
-        private String addHeadersToRequestAndGetContentType(WebClient.Builder webClientBuilder,
-                                                            List<Property> headers) {
-            String contentType = "";
-
-            for (Property header : headers) {
-                String key = header.getKey();
-                if (StringUtils.isNotEmpty(key)) {
-                    String value = (String) header.getValue();
-                    webClientBuilder.defaultHeader(key, value);
-
-                    if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(key)) {
-                        contentType = value;
-                    }
-                }
-            }
-            return contentType;
         }
 
         private ActionConfiguration updateActionConfigurationForPagination(ActionConfiguration actionConfiguration,
@@ -400,8 +294,8 @@ public class RestApiPlugin extends BasePlugin {
         @Override
         public Mono<Tuple2<Set<String>, Set<String>>> getHintMessages(ActionConfiguration actionConfiguration,
                                                                       DatasourceConfiguration datasourceConfiguration) {
-            return Mono.zip(Mono.just(getDatasourceHintMessages(datasourceConfiguration)),
-                    Mono.just(getActionHintMessages(actionConfiguration, datasourceConfiguration)));
+            /* Use the default hint message flow for REST API based plugins */
+            return HintMessageUtils.getHintMessages(actionConfiguration, datasourceConfiguration);
         }
     }
 }
