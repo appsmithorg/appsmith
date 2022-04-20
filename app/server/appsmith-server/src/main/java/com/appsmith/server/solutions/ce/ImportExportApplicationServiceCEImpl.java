@@ -77,6 +77,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -861,7 +862,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .map(newPageList -> {
                                 // Check if the pages order match with json file
                                 List<String> pageOrderList;
-                                if(applicationJson.getPageOrder().isEmpty()) {
+                                if(Optional.ofNullable(applicationJson.getPageOrder()).isEmpty()) {
                                     pageOrderList = importedNewPageList.stream().map(newPage -> newPage.getUnpublishedPage().getName()).collect(Collectors.toList());
                                 } else {
                                     pageOrderList = applicationJson.getPageOrder();
