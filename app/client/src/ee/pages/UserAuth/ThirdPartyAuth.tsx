@@ -8,13 +8,13 @@ import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry"
 const {
   enableGithubOAuth,
   enableGoogleOAuth,
-  enableKeycloakOAuth,
   enableOidcOAuth,
+  enableSamlOAuth,
 } = getAppsmithConfigs();
 
 export const SocialLoginTypes = {
   ...CE_SocialLoginTypes,
-  KEYCLOAK: "keycloak",
+  SAML: "saml",
   OIDC: "oidc",
 };
 
@@ -22,8 +22,7 @@ if (enableGoogleOAuth)
   ThirdPartyLoginRegistry.register(SocialLoginTypes.GOOGLE);
 if (enableGithubOAuth)
   ThirdPartyLoginRegistry.register(SocialLoginTypes.GITHUB);
-if (enableKeycloakOAuth)
-  ThirdPartyLoginRegistry.register(SocialLoginTypes.KEYCLOAK);
+if (enableSamlOAuth) ThirdPartyLoginRegistry.register(SocialLoginTypes.SAML);
 if (enableOidcOAuth) ThirdPartyLoginRegistry.register(SocialLoginTypes.OIDC);
 
 export default ThirdPartyAuth;

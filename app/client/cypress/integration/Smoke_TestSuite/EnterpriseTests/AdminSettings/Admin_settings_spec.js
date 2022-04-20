@@ -19,13 +19,12 @@ describe("Admin settings page", function() {
     cy.url().should("contain", "/settings/general");
   });
 
-  it("should test that authentication page shows upgrade button for SSO", () => {
+  it("should test that authentication page redirects to SSO auth page", () => {
     cy.visit("/settings/general");
     cy.get(adminsSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
-    cy.get(EnterpriseAdminSettingsLocators.upgradeButton).each(($el) => {
-      cy.wrap($el).should("be.visible");
-      cy.wrap($el).should("contain", "UPGRADE");
-    });
+    cy.get(EnterpriseAdminSettingsLocators.samlButton).should("be.visible");
+    cy.get(EnterpriseAdminSettingsLocators.samlButton).click();
+    cy.url().should("contain", "/settings/authentication/saml-auth");
   });
 });

@@ -10,9 +10,11 @@ import {
 } from "ce/pages/AdminSettings/config/types";
 
 const EE_SettingCategories = {
+  SAML_AUTH: "saml-auth",
   OIDC_AUTH: "oidc-auth",
 };
 const EE_SettingSubCategories = {
+  SAML: "saml signup",
   OIDC: "oidc signup",
 };
 

@@ -1,3 +1,4 @@
 {
-  "upgradeButton": ".t--settings-sub-category-upgrade"
+  "upgradeButton": ".t--settings-sub-category-upgrade",
+  "samlButton": ".t--settings-sub-category-saml-auth"
 }
