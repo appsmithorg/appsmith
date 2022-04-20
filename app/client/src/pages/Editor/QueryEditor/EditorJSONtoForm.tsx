@@ -10,6 +10,7 @@ import {
   SingleValueProps,
 } from "react-select";
 import { Datasource } from "entities/Datasource";
+import { getPluginImages } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import FormControl from "../FormControl";
 import { Action, QueryAction, SaaSAction } from "entities/Action";
@@ -386,7 +387,6 @@ type QueryFormProps = {
   isDeleting: boolean;
   isRunning: boolean;
   dataSources: Datasource[];
-  DATASOURCES_OPTIONS: any;
   uiComponent: UIComponentTypes;
   executedQueryData?: {
     body: any;
@@ -429,7 +429,6 @@ export function EditorJSONtoForm(props: Props) {
   const {
     actionName,
     dataSources,
-    DATASOURCES_OPTIONS,
     documentationLink,
     editorConfig,
     executedQueryData,
@@ -864,6 +863,14 @@ export function EditorJSONtoForm(props: Props) {
   const { entityDependencies, hasDependencies } = useEntityDependencies(
     props.actionName,
   );
+
+  const pluginImages = useSelector(getPluginImages);
+
+  const DATASOURCES_OPTIONS = dataSources.map((dataSource) => ({
+    label: dataSource.name,
+    value: dataSource.id,
+    image: pluginImages[dataSource.pluginId],
+  }));
 
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
