@@ -252,7 +252,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                 columnActions: [
                   {
                     id: EditableCellActions.SAVE,
-                    label: cellProperties.saveActionLabel || "Save",
+                    label: cellProperties.saveActionLabel,
                     dynamicTrigger: column.onSave || "",
                     eventType: EventType.ON_ROW_SAVE,
                     iconName: cellProperties.saveActionIconName,
@@ -265,7 +265,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                   },
                   {
                     id: EditableCellActions.DISCARD,
-                    label: cellProperties.discardActionLabel || "Discard",
+                    label: cellProperties.discardActionLabel,
                     dynamicTrigger: column.onDiscard || "",
                     eventType: EventType.ON_ROW_DISCARD,
                     iconName: cellProperties.discardActionIconName,
