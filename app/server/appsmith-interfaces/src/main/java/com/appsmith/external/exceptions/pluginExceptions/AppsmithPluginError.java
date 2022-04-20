@@ -41,6 +41,8 @@ public enum AppsmithPluginError {
     PLUGIN_FORM_TO_NATIVE_TRANSLATION_ERROR(500, 5013, "Plugin failed to convert formData into native query with " +
             "error: {0}", AppsmithErrorAction.LOG_EXTERNALLY, "Failed to convert form data to native",
             ErrorType.INTERNAL_ERROR),
+    INCOMPATIBLE_FILE_FORMAT(400, 4001, "Provided file format is incompatible, please upgrade your instance to resolve this conflict.",
+            AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
     ;
 
     private final Integer httpErrorCode;

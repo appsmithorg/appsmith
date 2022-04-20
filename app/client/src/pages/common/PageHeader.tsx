@@ -155,10 +155,7 @@ export function PageHeader(props: PageHeaderProps) {
   ];
 
   const showTabs = useMemo(() => {
-    return (
-      tabs.some((tab) => tab.matcher(location.pathname)) &&
-      !!featureFlags.APP_TEMPLATE
-    );
+    return tabs.some((tab) => tab.matcher(location.pathname));
   }, [featureFlags, location.pathname]);
 
   return (
