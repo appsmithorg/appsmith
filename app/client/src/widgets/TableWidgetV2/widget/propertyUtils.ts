@@ -375,15 +375,19 @@ export const updateEditActionsColumnEventsHook = (
     const baseProperty = getBasePropertyPath(propertyPath);
     const isDisabled = get(props, `${baseProperty}.isDisabled`, "");
     const widgetName = get(props, "widgetName", "");
+    const propertiesToUpdate = [];
 
     if (typeof isDisabled === "boolean" && widgetName) {
-      return [
-        {
-          propertyPath: `${baseProperty}.isDisabled`,
-          propertyValue: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowIndices.includes(currentIndex)))}}`,
-        },
-      ];
+      propertiesToUpdate.push({
+        propertyPath: `${baseProperty}.isDisabled`,
+        propertyValue: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowIndices.includes(currentIndex)))}}`,
+      });
     }
+
+    propertiesToUpdate.push({
+      propertyPath: `${baseProperty}.isSaveVisible`,
+      propertyValue: true,
+    });
   }
 
   return;

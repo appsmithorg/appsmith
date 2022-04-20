@@ -242,7 +242,6 @@ export default {
           ColumnTypes.ICON_BUTTON,
           ColumnTypes.MENU_BUTTON,
           ColumnTypes.BUTTON,
-          ColumnTypes.EDIT_ACTIONS,
         ]);
       },
     },
