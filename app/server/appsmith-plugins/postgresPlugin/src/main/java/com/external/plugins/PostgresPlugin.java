@@ -989,9 +989,6 @@ public class PostgresPlugin extends BasePlugin {
             urlBuilder.append(authentication.getDatabaseName());
         }
 
-        //JDBC override parameter for resolving Cast Errors on PostgreSQL
-        urlBuilder.append("?stringtype=unspecified");
-
         /*
          * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
          */
