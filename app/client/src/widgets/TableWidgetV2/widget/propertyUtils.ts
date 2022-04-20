@@ -373,21 +373,39 @@ export const updateEditActionsColumnEventsHook = (
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
   if (propertyValue === ColumnTypes.EDIT_ACTIONS) {
     const baseProperty = getBasePropertyPath(propertyPath);
-    const isDisabled = get(props, `${baseProperty}.isDisabled`, "");
-    const widgetName = get(props, "widgetName", "");
     const propertiesToUpdate = [];
-
-    if (typeof isDisabled === "boolean" && widgetName) {
-      propertiesToUpdate.push({
-        propertyPath: `${baseProperty}.isDisabled`,
-        propertyValue: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowIndices.includes(currentIndex)))}}`,
-      });
-    }
 
     propertiesToUpdate.push({
       propertyPath: `${baseProperty}.isSaveVisible`,
       propertyValue: true,
     });
+
+    propertiesToUpdate.push({
+      propertyPath: `${baseProperty}.isDiscardVisible`,
+      propertyValue: true,
+    });
+
+    propertiesToUpdate.push({
+      propertyPath: `${baseProperty}.saveIconAlign`,
+      propertyValue: "left",
+    });
+
+    propertiesToUpdate.push({
+      propertyPath: `${baseProperty}.discardIconAlign`,
+      propertyValue: "left",
+    });
+
+    propertiesToUpdate.push({
+      propertyPath: `${baseProperty}.saveActionLabel`,
+      propertyValue: "Save",
+    });
+
+    propertiesToUpdate.push({
+      propertyPath: `${baseProperty}.discardActionLabel`,
+      propertyValue: "Discard",
+    });
+
+    return propertiesToUpdate;
   }
 
   return;
