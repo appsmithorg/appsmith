@@ -18,14 +18,18 @@ import com.google.gson.reflect.TypeToken;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Type;
 import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
 
 @Service
 public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServiceCE {
@@ -67,11 +71,21 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     @Override
-    public Flux<ApplicationTemplate> getActiveTemplates() {
+    public Flux<ApplicationTemplate> getActiveTemplates(List<String> templateIds) {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
 
-        return WebClient
-                .create(baseUrl + "/api/v1/app-templates?version=" + releaseNotesService.getReleasedVersion())
+        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.newInstance()
+                .queryParam("version", releaseNotesService.getReleasedVersion());
+
+        if(!CollectionUtils.isEmpty(templateIds)) {
+            uriComponentsBuilder.queryParam("id", templateIds);
+        }
+
+        // uriComponents will build url in format: version=version&id=id1&id=id2&id=id3
+        UriComponents uriComponents = uriComponentsBuilder.build();
+
+        Flux<ApplicationTemplate> applicationTemplateFlux = WebClient
+                .create(baseUrl + "/api/v1/app-templates?" + uriComponents.getQuery())
                 .get()
                 .exchangeToFlux(clientResponse -> {
                     if (clientResponse.statusCode().equals(HttpStatus.OK)) {
@@ -82,6 +96,16 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                         return clientResponse.createException().flatMapMany(Flux::error);
                     }
                 });
+
+        if(!CollectionUtils.isEmpty(templateIds)) {
+            // the items should be sorted based on the order of the templateIds when it's not empty
+            applicationTemplateFlux = applicationTemplateFlux.sort(
+                    // sort based on index of id in templateIds list.
+                    // index of first item will be less than index of next item
+                    Comparator.comparingInt(o -> templateIds.indexOf(o.getId()))
+            );
+        }
+        return applicationTemplateFlux;
     }
 
     @Override
@@ -139,6 +163,16 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             return userDataService.addTemplateIdToLastUsedList(templateId).then(
                     analyticsService.sendObjectEvent(AnalyticsEvents.FORK, applicationTemplate, null)
             ).thenReturn(application);
+        });
+    }
+
+    @Override
+    public Flux<ApplicationTemplate> getRecentlyUsedTemplates() {
+        return userDataService.getForCurrentUser().flatMapMany(userData -> {
+            if(!CollectionUtils.isEmpty(userData.getRecentlyUsedTemplateIds())) {
+                return getActiveTemplates(userData.getRecentlyUsedTemplateIds());
+            }
+            return Flux.just();
         });
     }
 

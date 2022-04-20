@@ -19,6 +19,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
@@ -27,6 +29,7 @@ import javax.validation.Validator;
 import java.util.List;
 
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 public class OrganizationServiceUnitTest {
@@ -90,5 +93,15 @@ public class OrganizationServiceUnitTest {
                 .create(organizationMembers)
                 .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.ORGANIZATION, sampleOrgId))
                 .verify();
+    }
+
+    @Test
+    public void demo() {
+        UriComponents uriComponents = UriComponentsBuilder.newInstance()
+                .queryParam("id", List.of("123", "456", "789"))
+                .build();
+
+        System.out.println(uriComponents.getQuery());
+        assertThat(uriComponents.getQuery()).isEqualTo("id=123&id=456&id=789");
     }
 }
