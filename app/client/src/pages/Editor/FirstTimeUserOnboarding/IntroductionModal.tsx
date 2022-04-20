@@ -14,7 +14,7 @@ import {
   ONBOARDING_INTRO_FOOTER,
   START_TUTORIAL,
 } from "@appsmith/constants/messages";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import React from "react";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";

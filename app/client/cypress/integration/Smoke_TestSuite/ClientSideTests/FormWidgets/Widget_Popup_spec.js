@@ -86,7 +86,7 @@ describe("Dropdown Widget Functionality", function() {
   it("Verify dropdown width of Select widgets with Label", function() {
     // Select
     cy.openPropertyPane("selectwidget");
-    cy.testJsontext("labeltext", "Label");
+    cy.testJsontext("text", "Label");
     cy.get(formWidgetsPage.selectwidget)
       .find(widgetLocators.dropdownSingleSelect)
       .invoke("outerWidth")
@@ -103,7 +103,7 @@ describe("Dropdown Widget Functionality", function() {
 
     // MultiSelect
     cy.openPropertyPane("multiselectwidgetv2");
-    cy.testJsontext("labeltext", "Label");
+    cy.testJsontext("text", "Label");
     cy.get(formWidgetsPage.multiselectwidgetv2)
       .find(".rc-select-multiple")
       .invoke("width")
@@ -119,7 +119,7 @@ describe("Dropdown Widget Functionality", function() {
       });
     //Multi tree Select
     cy.openPropertyPane("multiselecttreewidget");
-    cy.testJsontext("labeltext", "Label");
+    cy.testJsontext("text", "Label");
     cy.get(formWidgetsPage.multiselecttreeWidget)
       .find(".rc-tree-select-multiple")
       .invoke("width")
@@ -135,7 +135,7 @@ describe("Dropdown Widget Functionality", function() {
       });
     // Tree Select
     cy.openPropertyPane("singleselecttreewidget");
-    cy.testJsontext("labeltext", "Label");
+    cy.testJsontext("text", "Label");
     cy.get(formWidgetsPage.singleselecttreeWidget)
       .find(".rc-tree-select-single")
       .invoke("outerWidth")

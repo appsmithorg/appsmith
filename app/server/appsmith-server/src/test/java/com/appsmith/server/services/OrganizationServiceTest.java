@@ -262,12 +262,11 @@ public class OrganizationServiceTest {
 
         Mono<Organization> createOrganization = organizationService.create(organization);
         Mono<Organization> updateOrganization = createOrganization
-                .map(t -> {
-                    t.setDomain("abc.com");
-                    return t;
-                })
-                .flatMap(t -> organizationService.update(t.getId(), t))
-                .flatMap(t -> organizationService.getById(t.getId()));
+                .flatMap(t -> {
+                    Organization newOrganization = new Organization();
+                    newOrganization.setDomain("abc.com");
+                    return organizationService.update(t.getId(), newOrganization);
+                });
 
         StepVerifier.create(updateOrganization)
                 .assertNext(t -> {
@@ -278,6 +277,40 @@ public class OrganizationServiceTest {
                     assertThat(t.getPolicies()).contains(manageOrgAppPolicy, manageOrgPolicy);
                 })
                 .verifyComplete();
+    }
+
+    /**
+     * This test tests for updating the organization with an empty name.
+     * The organization name should not be empty.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void inValidUpdateOrganizationEmptyName() {
+        Policy manageOrgAppPolicy = Policy.builder().permission(ORGANIZATION_MANAGE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        Policy manageOrgPolicy = Policy.builder().permission(MANAGE_ORGANIZATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        Organization organization = new Organization();
+        organization.setName("Test Update Name");
+        organization.setDomain("example.com");
+        organization.setWebsite("https://example.com");
+        organization.setSlug("test-update-name");
+        Mono<Organization> createOrganization = organizationService.create(organization);
+        Mono<Organization> updateOrganization = createOrganization
+                .flatMap(t -> {
+                    Organization newOrganization = new Organization();
+                    newOrganization.setName("");
+                    return organizationService.update(t.getId(), newOrganization);
+                });
+
+        StepVerifier.create(updateOrganization)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME)))
+                .verify();
     }
 
     @Test

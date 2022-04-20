@@ -1,5 +1,5 @@
 import { ApiActionConfig } from "entities/Action";
-import { DEFAULT_ACTION_TIMEOUT } from "ce/constants/ApiConstants";
+import { DEFAULT_ACTION_TIMEOUT } from "@appsmith/constants/ApiConstants";
 
 // This constant lists all the support HTTP methods & their color in
 // the entity explorer
@@ -61,15 +61,26 @@ export const POST_BODY_FORMAT_OPTIONS: Record<
   RAW: "text/plain",
 };
 
+export const HTTP_METHODS_DEFAULT_FORMAT_TYPES: Record<HTTP_METHOD, string> = {
+  GET: POST_BODY_FORMAT_OPTIONS.NONE,
+  POST: POST_BODY_FORMAT_OPTIONS.JSON,
+  PUT: POST_BODY_FORMAT_OPTIONS.JSON,
+  DELETE: POST_BODY_FORMAT_OPTIONS.RAW,
+  PATCH: POST_BODY_FORMAT_OPTIONS.JSON,
+};
+
+const DEFAULT_METHOD_TYPE = HTTP_METHOD.GET;
+
 export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
   timeoutInMillisecond: DEFAULT_ACTION_TIMEOUT,
   encodeParamsToggle: true,
-  httpMethod: HTTP_METHOD.GET,
+  httpMethod: DEFAULT_METHOD_TYPE,
   headers: EMPTY_KEY_VALUE_PAIRS.slice(),
   queryParameters: EMPTY_KEY_VALUE_PAIRS.slice(),
   body: "",
+  bodyFormData: [],
   formData: {
-    apiContentType: POST_BODY_FORMAT_OPTIONS.NONE,
+    apiContentType: HTTP_METHODS_DEFAULT_FORMAT_TYPES[DEFAULT_METHOD_TYPE],
   },
   pluginSpecifiedTemplates: [
     {
@@ -82,6 +93,20 @@ export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
 export const DEFAULT_PROVIDER_OPTION = "Business Software";
 export const CONTENT_TYPE_HEADER_KEY = "content-type";
 
+export enum ApiResponseTypes {
+  JSON = "JSON",
+  TABLE = "TABLE",
+  RAW = "RAW",
+}
+
+// export const ApiResponseTypesOptions:
+export const API_RESPONSE_TYPE_OPTIONS: {
+  [key in keyof typeof ApiResponseTypes]: string;
+} = {
+  JSON: "JSON",
+  TABLE: "TABLE",
+  RAW: "RAW",
+};
 export const POST_BODY_FORMATS = Object.values(POST_BODY_FORMAT_OPTIONS).map(
   (option) => {
     return option;

@@ -149,6 +149,15 @@ class GitSyncAPI extends Api {
       : ApplicationApi.baseURL + "/ssh-keypair/" + applicationId;
     return isImporting ? Api.get(url) : Api.post(url);
   }
+
+  static deleteBranch(
+    applicationId: string,
+    branchName: string,
+  ): AxiosPromise<ApiResponse> {
+    return Api.delete(GitSyncAPI.baseURL + "/branch/" + applicationId, {
+      branchName,
+    });
+  }
 }
 
 export default GitSyncAPI;
