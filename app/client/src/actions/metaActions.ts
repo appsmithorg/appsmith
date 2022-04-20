@@ -65,7 +65,7 @@ export function updateMetaState(
 
 export function triggerEvalOnMetaUpdate() {
   return batchAction({
-    type: ReduxActionTypes.TRIGGER_EVAL_META_UPDATE,
+    type: ReduxActionTypes.META_UPDATE_TRIGGER_EVAL,
     payload: {},
   });
 }
