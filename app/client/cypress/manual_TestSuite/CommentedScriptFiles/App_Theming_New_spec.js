@@ -3,15 +3,11 @@
 // const explorer = require("../../../../locators/explorerlocators.json");
 // const publish = require("../../../../locators/publishWidgetspage.json");
 // const dsl = require("../../../../fixtures/replay.json");
+// import { ObjectsRegistry } from "../../../../support/Objects/Registry"
+
+// let ee = ObjectsRegistry.EntityExplorer;
 
 // describe("App Theming funtionality", function () {
-//   /**
-//    * Test cases; Check:
-//    * 1. If theme can be changed*
-//    * 2. If the theme can edited*
-//    * 4. If the save theme can be used.
-//    * 5. If the theme can be deleled
-//    */
 //   before(() => {
 //     cy.addDsl(dsl);
 //   });
@@ -54,7 +50,7 @@
 //   it("2. Checks if theme can be edited", function () {
 //     cy.get(commonlocators.selectThemeBackBtn).click({ force: true });
 //     // drop a button widget and click on body
-//     cy.get(explorer.addWidget).click();
+//     cy.get(explorer.widgetSwitchId).click();
 //     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 200 });//iconbuttonwidget
 //     cy.assertPageSave();
 //     cy.get("canvas")
@@ -389,11 +385,11 @@
 //     cy.get(commonlocators.toastMsg).contains("Theme VioletYellowTheme Applied");
 //   });
 
-//   it("5. Verify Themes exists under respective section in ChangeTheme button in properties with Apply Theme & Trash as applicable", () => {
+//   it("5. Verify Themes exists under respective section when ChangeTheme button is cicked in properties with Apply Theme & Trash as applicable", () => {
 
 //     //Click on change theme:
 //     cy.get(commonlocators.changeThemeBtn).click({ force: true });
-//     cy.xpath(applyTheme("Your Themes", 'testtheme')).click({ force: true }).wait(500) //Changing to testtheme
+//     cy.xpath(applyTheme("Your Themes", 'testtheme')).click({ force: true }).wait(1000) //Changing to testtheme
 
 //     cy.contains("Current Theme").click()
 //       .parent()
@@ -431,7 +427,7 @@
 //     //   .contains('Apply Theme');
 //   });
 
-//   it("6. Checks if the theme can be deleted", () => {
+//   it("6. Verify the custom theme can be deleted", () => {
 
 //     //Check if the saved theme is present under 'Yours Themes' section
 //     // cy.contains("Your Themes")
@@ -465,9 +461,9 @@
 
 //   });
 
-//   it("7. Verify user able to change themes between saved theme & already existing themes", () => {
+//   it("7. Verify user able to change between saved theme & already existing Featured themes", () => {
 //     //#region Modern
-//     cy.xpath(applyTheme("Featured Themes", 'Modern')).click({ force: true }).wait(500) //Changing to one of featured themes
+//     cy.xpath(applyTheme("Featured Themes", 'Modern')).click({ force: true }).wait(1000) //Changing to one of featured themes
 //     cy.contains("Current Theme").click()
 //       .parent()
 //       .siblings()
@@ -491,7 +487,7 @@
 //     //#endregion
 
 //     //#region Classic
-//     cy.xpath(applyTheme("Featured Themes", 'Classic')).click({ force: true }).wait(500) //Changing to one of featured themes
+//     cy.xpath(applyTheme("Featured Themes", 'Classic')).click({ force: true }).wait(1000) //Changing to one of featured themes
 //     cy.contains("Current Theme").click()
 //       .parent()
 //       .siblings()
@@ -515,7 +511,7 @@
 //     //#endregion
 
 //     //#region Sharp
-//     cy.xpath(applyTheme("Featured Themes", 'Sharp')).click({ force: true }).wait(500) //Changing to one of featured themes
+//     cy.xpath(applyTheme("Featured Themes", 'Sharp')).click({ force: true }).wait(1000) //Changing to one of featured themes
 //     cy.contains("Current Theme").click()
 //       .parent()
 //       .siblings()
@@ -539,7 +535,7 @@
 //     //#endregion
 
 //     //#region Rounded
-//     cy.xpath(applyTheme("Featured Themes", 'Rounded')).click({ force: true }).wait(500) //Changing to one of featured themes
+//     cy.xpath(applyTheme("Featured Themes", 'Rounded')).click({ force: true }).wait(1000) //Changing to one of featured themes
 //     cy.contains("Current Theme").click()
 //       .parent()
 //       .siblings()
@@ -562,7 +558,7 @@
 //     //#endregion
 
 //     //#region VioletYellowTheme
-//     cy.xpath(applyTheme("Your Themes", 'VioletYellowTheme')).click({ force: true }).wait(500) //Changing to created test theme
+//     cy.xpath(applyTheme("Your Themes", 'VioletYellowTheme')).click({ force: true }).wait(1000) //Changing to created test theme
 
 //     cy.contains("Current Theme").click()
 //       .parent()
@@ -587,7 +583,7 @@
 //     //#endregion
 //   })
 
-//   it("8. Verify widgets confirm to the selected theme in Publish mode", () => {
+//   it("8. Verify widgets conform to the selected theme in Publish mode", () => {
 //     cy.PublishtheApp();
 
 //     cy.wait(2000)//for theme to settle
@@ -606,11 +602,300 @@
 
 //     //Verify Share button
 //     cy.contains('Share').should("have.css", "border-top-color", "rgb(126, 34, 206)")//Color
-//     cy.contains('Share').closest('div').should("have.css", "font-family" ,"Montserrat")//Font
+//     cy.contains('Share').closest('div').should("have.css", "font-family", "Montserrat")//Font
 
 //     //Verify Edit App button
 //     cy.contains('Edit App').should("have.css", "background-color", "rgb(126, 34, 206)")//Color
-//     cy.contains('Edit App').closest('div').should("have.css", "font-family" ,"Montserrat")//Font
+//     cy.contains('Edit App').closest('div').should("have.css", "font-family", "Montserrat")//Font
+
+//     cy.get(publish.backToEditor).click({ force: true }).wait(3000);
+
+//   })
+
+//   it("9. Verify Adding new Individual widgets & it can change Color, Border radius, Shadow & can revert [Color/Border Radius] to already selected theme", () => {
+
+//     cy.get(explorer.widgetSwitchId).click();
+//     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 400 });//another button widget
+//     cy.assertPageSave();
+
+//     //Change Color & verify
+//     cy.get(widgetsPage.colorPickerV2Popover)
+//       .click({ force: true })
+//       .click();
+//     cy.get(widgetsPage.colorPickerV2Color)
+//       .eq(35)
+//       .then(($elem) => {
+//         cy.get($elem).click({ force: true });
+//         cy.get(widgetsPage.widgetBtn).eq(1).should(
+//           "have.css",
+//           "background-color",
+//           $elem.css("background-color"), //rgb(134, 239, 172)
+//         ); //new widget with its own color
+
+//         cy.get(widgetsPage.widgetBtn).eq(0).should(
+//           "have.css",
+//           "background-color",
+//           "rgb(126, 34, 206)",
+//         ); //old widgets still conforming to theme color
+//         cy.get(widgetsPage.iconWidgetBtn).should(
+//           "have.css",
+//           "background-color",
+//           "rgb(126, 34, 206)",
+//         );
+//       });
+
+//     //Change Border & verify
+
+//     cy.get(".t--button-tab-0px").click()
+//     cy.get(".t--button-tab-0px").eq(0)
+//       .invoke("css", "border-top-left-radius")
+//       .then((borderRadius) => {
+//         cy.get(widgetsPage.widgetBtn).eq(1).should(
+//           "have.css",
+//           "border-radius",
+//           borderRadius, //0px
+//         );
+//         cy.get(widgetsPage.iconWidgetBtn).should(
+//           "have.css",
+//           "border-radius",
+//           "24px",
+//         );
+//         cy.get(widgetsPage.widgetBtn).eq(0).should(
+//           "have.css",
+//           "border-radius",
+//           "24px",
+//         );
+//       });
+
+//     //Change Shadow & verify
+//     cy.get(".t--button-tab-0.10px").click()
+//     cy.get(".t--button-tab-0.10px div").eq(0)
+//       .invoke("css", "box-shadow")
+//       .then((boxshadow) => {
+//         cy.get(widgetsPage.widgetBtn).eq(1).should(
+//           "have.css",
+//           "box-shadow",
+//           boxshadow,//rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px
+//         );
+//         cy.get(widgetsPage.iconWidgetBtn).should(
+//           "have.css",
+//           "box-shadow",
+//           "none",
+//         );
+//         cy.get(widgetsPage.widgetBtn).eq(0).should(
+//           "have.css",
+//           "box-shadow",
+//           "none",
+//         );
+//       })
+
+//     cy.assertPageSave();
+
+//     //the new widget with changed styles is not showin in deploy mode - hence commenting below
+//     // cy.PublishtheApp();
+
+//     // //Verify Background color
+//     // cy.get(widgetsPage.widgetBtn).eq(1).should(
+//     //   "have.css",
+//     //   "background-color",
+//     //   "rgb(134, 239, 172)", //rgb(134, 239, 172)
+//     // ); //new widget with its own color
+
+//     // cy.get(widgetsPage.widgetBtn).eq(0).should(
+//     //   "have.css",
+//     //   "background-color",
+//     //   "rgb(126, 34, 206)",
+//     // ); //old widgets still conforming to theme color
+//     // cy.get(widgetsPage.iconWidgetBtn).should(
+//     //   "have.css",
+//     //   "background-color",
+//     //   "rgb(126, 34, 206)",
+//     // );
+
+//     // //Verify Border radius
+//     // cy.get(widgetsPage.widgetBtn).eq(1).should(
+//     //   "have.css",
+//     //   "border-radius",
+//     //   "0px"
+//     // );
+//     // cy.get(widgetsPage.iconWidgetBtn).should(
+//     //   "have.css",
+//     //   "border-radius",
+//     //   "24px",
+//     // );
+//     // cy.get(widgetsPage.widgetBtn).eq(0).should(
+//     //   "have.css",
+//     //   "border-radius",
+//     //   "24px",
+//     // );
+
+//     // //Verify Box shadow
+//     // cy.get(widgetsPage.widgetBtn).eq(1).should(
+//     //   "have.css",
+//     //   "box-shadow",
+//     //   "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px"
+//     // );
+//     // cy.get(widgetsPage.iconWidgetBtn).should(
+//     //   "have.css",
+//     //   "box-shadow",
+//     //   "none",
+//     // );
+//     // cy.get(widgetsPage.widgetBtn).eq(0).should(
+//     //   "have.css",
+//     //   "box-shadow",
+//     //   "none",
+//     // );
+
+//     // cy.get(publish.backToEditor).click({ force: true }).wait(1000);
+
+//     //Resetting back to theme
+//     ee.NavigateToSwitcher('explorer')
+//     ee.expandCollapseEntity("WIDGETS")//to expand widgets
+//     ee.SelectEntityByName("Button2")
+//     cy.get(".t--property-control-buttoncolor .reset-button")
+//       .then($elem => {
+//         $elem[0].removeAttribute('display: none');
+//         $elem[0].click();
+//       })
+
+//     cy.get(widgetsPage.widgetBtn).eq(1).should(
+//       "have.css",
+//       "background-color",
+//       "rgb(126, 34, 206)",
+//     ); //verify widget reverted to theme color
+
+//     cy.get(".t--property-control-borderradius .reset-button")
+//       .then($elem => {
+//         $elem[0].removeAttribute('display: none');
+//         $elem[0].click();
+//       })
+//     cy.get(widgetsPage.widgetBtn).eq(1).should(
+//       "have.css",
+//       "border-radius",
+//       "24px",
+//     );
+
+//     //the new widget with reverted styles is not showin in deploy mode - hence commenting below
+//     // cy.PublishtheApp();
+
+//     // cy.wait(2000)//for theme to settle
+//     // cy.get('body').should('have.css', "font-family", "Montserrat")//Font
+
+//     // cy.xpath("//div[@id='root']//section/parent::div").should('have.css', "background-color", "rgb(253, 224, 71)")//Background Color
+//     // cy.get(widgetsPage.widgetBtn).eq(0).should("have.css", "background-color", "rgb(126, 34, 206)");//Widget Color
+//     // cy.get(widgetsPage.widgetBtn).eq(1).should("have.css", "background-color", "rgb(126, 34, 206)");//Widget Color
+//     // cy.get(publish.iconWidgetBtn).should("have.css", "background-color", "rgb(126, 34, 206)",);//Widget Color
+
+//     // cy.get(widgetsPage.widgetBtn).eq(0).should("have.css", "border-radius", "24px",);//Border Radius
+//     // cy.get(widgetsPage.widgetBtn).eq(1).should("have.css", "border-radius", "24px",);//Border Radius
+//     // cy.get(publish.iconWidgetBtn).should("have.css", "border-radius", "24px",);//Border Radius
+
+//     // cy.get(widgetsPage.widgetBtn).eq(0).should("have.css", "box-shadow", "none");//Shadow
+//     // cy.get(widgetsPage.widgetBtn).eq(1).should("have.css", "box-shadow", "none");//Shadow
+//     // cy.get(publish.iconWidgetBtn).should("have.css", "box-shadow", "none");//Shadow
+
+//     // //Verify Share button
+//     // cy.contains('Share').should("have.css", "border-top-color", "rgb(126, 34, 206)")//Color
+//     // cy.contains('Share').closest('div').should("have.css", "font-family", "Montserrat")//Font
+
+//     // //Verify Edit App button
+//     // cy.contains('Edit App').should("have.css", "background-color", "rgb(126, 34, 206)")//Color
+//     // cy.contains('Edit App').closest('div').should("have.css", "font-family", "Montserrat")//Font
+
+//     // cy.get(publish.backToEditor).click({ force: true }).wait(1000);
+
+//   });
+
+//   it("10. Verify Chainging theme should not affect Individual widgets with changed Color, Border radius, Shadow & can revert to newly selected theme", () => {
+
+//     cy.get("canvas")
+//       .first(0)
+//       .trigger("click", { force: true });
+
+//     cy.get(commonlocators.changeThemeBtn).click({ force: true });
+
+//     //Changing to one of featured themes & then changing individual widget properties
+//     cy.xpath(applyTheme("Featured Themes", 'Rounded')).click({ force: true }).wait(1000)
+
+//     //Change individual widget properties for Button1
+//     ee.SelectEntityByName("Button1")
+
+//     //Change Color & verify
+//     cy.get(widgetsPage.colorPickerV2Popover)
+//       .click({ force: true })
+//       .click();
+//     cy.get(widgetsPage.colorPickerV2Color)
+//       .eq(17)
+//       .then(($elem) => {
+//         cy.get($elem).click({ force: true });
+//         cy.get(widgetsPage.widgetBtn).eq(0).should(
+//           "have.css",
+//           "background-color",
+//           $elem.css("background-color"), //rgb(134, 239, 172)
+//         ); //new widget with its own color
+
+//         cy.get(widgetsPage.widgetBtn).eq(1).should(
+//           "have.css",
+//           "background-color",
+//           "rgb(222, 21, 147)",
+//         ); //old widgets still conforming to theme color
+//         cy.get(widgetsPage.iconWidgetBtn).should(
+//           "have.css",
+//           "background-color",
+//           "rgb(222, 21, 147)",
+//         );
+//       });
+
+//     //Change Border & verify
+
+//     cy.get(".t--button-tab-0\\.375rem").click().wait(500)
+//     cy.get(".t--button-tab-0\\.375rem div").eq(0)
+//       .invoke("css", "border-top-left-radius")
+//       .then((borderRadius) => {
+//         cy.get(widgetsPage.widgetBtn).eq(0).should(
+//           "have.css",
+//           "border-radius",
+//           borderRadius, //6px
+//         );
+//         cy.get(widgetsPage.iconWidgetBtn).should(
+//           "have.css",
+//           "border-radius",
+//           "24px",
+//         );
+//         cy.get(widgetsPage.widgetBtn).eq(1).should(
+//           "have.css",
+//           "border-radius",
+//           "24px",
+//         );
+//       });
+
+//     //Change Shadow & verify
+//     cy.get(".t--button-tab-0.1px").click().wait(500)
+//     cy.get(".t--button-tab-0.1px div")
+//       .invoke("css", "box-shadow")
+//       .then((boxshadow) => {
+//         cy.get(widgetsPage.widgetBtn).eq(0).should(
+//           "have.css",
+//           "box-shadow",
+//           boxshadow,//rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px
+//         );
+//         cy.get(widgetsPage.iconWidgetBtn).should(
+//           "have.css",
+//           "box-shadow",
+//           "none",
+//         );
+//         cy.get(widgetsPage.widgetBtn).eq(1).should(
+//           "have.css",
+//           "box-shadow",
+//           //same value as previous box shadow selection
+//           //since revertion is not possible for box shadow - hence this widget maintains the same value
+//           "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
+//         );
+//       })
+
+//     cy.assertPageSave();
+
+//     //Add deploy mode verification here also!
 
 //   })
 
