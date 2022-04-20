@@ -38,7 +38,10 @@ const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
   height: ${({ inline }) => (inline ? "32px" : "100%")};
 `;
 
-function RadioGroupComponent(props: RadioGroupComponentProps) {
+const RadioGroupComponent = React.forwardRef<
+  HTMLDivElement,
+  RadioGroupComponentProps
+>((props, ref) => {
   const {
     alignment,
     compactMode,
@@ -72,6 +75,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
       compactMode={compactMode}
       data-testid="radiogroup-container"
       labelPosition={labelPosition}
+      ref={ref}
     >
       {labelText && (
         <LabelWithTooltip
@@ -116,7 +120,9 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
       </StyledRadioGroup>
     </RadioGroupContainer>
   );
-}
+});
+
+RadioGroupComponent.displayName = "RadioGroupComponent";
 
 export interface RadioGroupComponentProps extends ComponentProps {
   options: RadioOption[];
