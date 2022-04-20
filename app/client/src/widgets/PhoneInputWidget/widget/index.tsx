@@ -91,7 +91,7 @@ class PhoneInputWidget extends BaseInputWidget<
               enableSearch: true,
               dropdownHeight: "156px",
               controlType: "DROP_DOWN",
-              placeholderText: "Search by code or country name",
+              searchPlaceholderText: "Search by code or country name",
               options: ISDCodeDropdownOptions,
               isJSConvertible: true,
               isBindProperty: true,

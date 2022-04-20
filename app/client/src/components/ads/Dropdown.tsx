@@ -148,14 +148,6 @@ const DropdownTriggerWrapper = styled.div<{
   }
 `;
 
-const StyledCheckmark = styled(Check)`
-  width: 14px;
-  height: 14px;
-  position: absolute;
-  top: -1px;
-  left: -1px;
-`;
-
 const StyledClose = styled(Close)`
   width: 24px;
   height: 24px;
@@ -166,21 +158,23 @@ const StyledClose = styled(Close)`
   }
 `;
 const SquareBox = styled.div<{
-  backgroundColor?: string;
-  borderColor?: string;
+  checked: boolean;
 }>`
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   box-sizing: border-box;
-  position: relative;
   margin-right: 10px;
   background-color: ${(props) =>
-    props.backgroundColor ? props.backgroundColor : "transparent"};
-  border: ${(props) =>
-    props.borderColor
-      ? `1.8px solid ${props.borderColor}`
-      : "1.8px solid #A9A7A7"};
-  border-width: 1.8px;
+    props.checked ? Colors.GRAY_900 : "transparent"};
+  border: 1.4px solid;
+  border-color: ${(props) =>
+    props.checked ? Colors.GRAY_900 : Colors.GRAY_400};
+
+  & svg {
+    display: ${(props) => (props.checked ? "block" : "none")};
+    width: 14px;
+    height: 14px;
+  }
 `;
 
 const Selected = styled.div<{
@@ -371,6 +365,8 @@ const OptionWrapper = styled.div<{
   flex-direction: ${(props) =>
     props.subTextPosition === "BOTTOM" ? "column" : "row"};
   min-height: 40px;
+  align-items: ${(props) =>
+    props.subTextPosition === "BOTTOM" ? "flex-start" : "center"};
   background-color: ${(props) => (props.selected ? Colors.GRAY_200 : null)};
   &&& svg {
     rect {
@@ -625,7 +621,7 @@ function DefaultDropDownValueNode({
           hasError,
           optionWidth,
         })
-      ) : isMultiSelect && Array.isArray(selected) && selected.length ? (
+      ) : isMultiSelect && Array.isArray(selected) ? (
         <Label />
       ) : (
         !Array.isArray(selected) && (
@@ -665,6 +661,7 @@ interface DropdownOptionsProps extends DropdownProps, DropdownSearchProps {
   selectedOptionClickHandler: (option: DropdownOption) => void;
   renderOption?: RenderOption;
   headerLabel?: string;
+  highlightIndex?: number;
   selected: DropdownOption | DropdownOption[];
   optionWidth: string;
   isMultiSelect?: boolean;
@@ -747,7 +744,11 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
                   : () => props.optionClickHandler(option)
               }
               role="option"
-              selected={isSelected}
+              selected={
+                props.isMultiSelect
+                  ? props.highlightIndex === index
+                  : isSelected
+              }
               subTextPosition={option.subTextPosition}
             >
               {option.leftElement && (
@@ -762,13 +763,9 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
                 />
               ) : null}
               {props.isMultiSelect ? (
-                isSelected ? (
-                  <SquareBox backgroundColor="#f86a2b" borderColor="#f86a2b">
-                    <StyledCheckmark />
-                  </SquareBox>
-                ) : (
-                  <SquareBox borderColor="#a9a7a7" />
-                )
+                <SquareBox checked={isSelected}>
+                  <Check />
+                </SquareBox>
               ) : null}
               {props.showLabelOnly ? (
                 props.truncateOption ? (
@@ -831,6 +828,7 @@ export default function Dropdown(props: DropdownProps) {
   const [selected, setSelected] = useState<DropdownOption | DropdownOption[]>(
     props.selected,
   );
+  const [highlight, setHighlight] = useState(-1);
 
   const closeIfOpen = () => {
     if (isOpen) {
@@ -840,7 +838,7 @@ export default function Dropdown(props: DropdownProps) {
 
   useEffect(() => {
     setSelected(props.selected);
-    closeIfOpen();
+    if (!props.isMultiSelect) closeIfOpen();
   }, [props.selected]);
 
   const optionClickHandler = useCallback(
@@ -859,8 +857,8 @@ export default function Dropdown(props: DropdownProps) {
       } else {
         // Single select -> typeof selected is object
         setSelected(option);
+        setIsOpen(false);
       }
-      setIsOpen(false);
       onSelect && onSelect(option.value, option);
       option.onSelect && option.onSelect(option.value, option);
     },
@@ -914,44 +912,68 @@ export default function Dropdown(props: DropdownProps) {
         case " ":
           if (closeOnSpace) {
             e.preventDefault();
-            if (isOpen && !("length" in selected)) optionClickHandler(selected);
-            else onClickHandler();
+            if (isOpen) {
+              if (props.isMultiSelect) {
+                optionClickHandler(props.options[highlight]);
+              } else {
+                optionClickHandler(selected as DropdownOption);
+              }
+            } else {
+              onClickHandler();
+            }
           }
           break;
         case "Enter":
           e.preventDefault();
-          if (isOpen && !("length" in selected)) optionClickHandler(selected);
-          else onClickHandler();
+          if (isOpen) {
+            if (props.isMultiSelect) {
+              optionClickHandler(props.options[highlight]);
+            } else {
+              optionClickHandler(selected as DropdownOption);
+            }
+          } else {
+            onClickHandler();
+          }
           break;
         case "ArrowUp":
           e.preventDefault();
           if (isOpen) {
-            setSelected((prevSelected) => {
-              if (!("length" in prevSelected)) {
-                let index = findIndex(props.options, prevSelected);
+            if (props.isMultiSelect) {
+              setHighlight((x) => (x === 0 ? props.options.length - 1 : x - 1));
+            } else {
+              setSelected((prevSelected) => {
+                let index = findIndex(
+                  props.options,
+                  prevSelected as DropdownOption,
+                );
                 if (index === 0) index = props.options.length - 1;
                 else index--;
                 return props.options[index];
-              }
-              return prevSelected;
-            });
+              });
+            }
           } else {
+            setHighlight(0);
             onClickHandler();
           }
           break;
         case "ArrowDown":
           e.preventDefault();
           if (isOpen) {
-            setSelected((prevSelected) => {
-              if (!(!!prevSelected && "length" in prevSelected)) {
-                let index = findIndex(props.options, prevSelected);
+            if (props.isMultiSelect) {
+              setHighlight((x) => (x + 1 === props.options.length ? 0 : x + 1));
+            } else {
+              setSelected((prevSelected) => {
+                let index = findIndex(
+                  props.options,
+                  prevSelected as DropdownOption,
+                );
                 if (index === props.options.length - 1) index = 0;
                 else index++;
-                return prevSelected ? props.options[index] : props.options[0];
-              }
-              return prevSelected;
-            });
+                return props.options[index];
+              });
+            }
           } else {
+            setHighlight(0);
             onClickHandler();
           }
           break;
@@ -962,7 +984,7 @@ export default function Dropdown(props: DropdownProps) {
           break;
       }
     },
-    [isOpen, props.options, props.selected, selected],
+    [isOpen, props.options, props.selected, selected, highlight],
   );
 
   const dropdownWrapperRef = useRef<HTMLDivElement>(null);
@@ -1064,6 +1086,7 @@ export default function Dropdown(props: DropdownProps) {
         <RenderDropdownOptions
           {...props}
           allowDeselection={props.allowDeselection}
+          highlightIndex={highlight}
           isMultiSelect={props.isMultiSelect}
           isOpen={isOpen}
           optionClickHandler={optionClickHandler}

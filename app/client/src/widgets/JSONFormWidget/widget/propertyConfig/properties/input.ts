@@ -217,7 +217,7 @@ const PROPERTIES = {
       enableSearch: true,
       dropdownHeight: "195px",
       controlType: "DROP_DOWN",
-      placeholderText: "Search by code or name",
+      searchPlaceholderText: "Search by code or name",
       options: CurrencyDropdownOptions,
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.CURRENCY_INPUT),
@@ -272,7 +272,7 @@ const PROPERTIES = {
       enableSearch: true,
       dropdownHeight: "195px",
       controlType: "DROP_DOWN",
-      placeholderText: "Search by code or country name",
+      searchPlaceholderText: "Search by code or country name",
       options: ISDCodeDropdownOptions,
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(

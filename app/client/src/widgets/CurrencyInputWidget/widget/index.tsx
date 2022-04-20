@@ -119,7 +119,7 @@ class CurrencyInputWidget extends BaseInputWidget<
               enableSearch: true,
               dropdownHeight: "156px",
               controlType: "DROP_DOWN",
-              placeholderText: "Search by code or name",
+              searchPlaceholderText: "Search by code or name",
               options: CurrencyDropdownOptions,
               isJSConvertible: true,
               isBindProperty: true,

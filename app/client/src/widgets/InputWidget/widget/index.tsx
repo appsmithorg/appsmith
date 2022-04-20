@@ -166,7 +166,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             enableSearch: true,
             dropdownHeight: "195px",
             controlType: "DROP_DOWN",
-            placeholderText: "Search by code or country name",
+            searchPlaceholderText: "Search by code or country name",
             options: ISDCodeDropdownOptions,
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.PHONE_NUMBER;
@@ -182,7 +182,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             enableSearch: true,
             dropdownHeight: "195px",
             controlType: "DROP_DOWN",
-            placeholderText: "Search by code or name",
+            searchPlaceholderText: "Search by code or name",
             options: CurrencyDropdownOptions,
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.CURRENCY;

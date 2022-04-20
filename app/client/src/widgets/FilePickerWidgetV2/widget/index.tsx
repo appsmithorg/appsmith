@@ -76,8 +76,10 @@ class FilePickerWidget extends BaseWidget<
             propertyName: "allowedFileTypes",
             helpText: "Restricts the type of files which can be uploaded",
             label: "Allowed File Types",
-            controlType: "MULTI_SELECT",
-            placeholderText: "Select file types",
+            // controlType: "MULTI_SELECT",
+            controlType: "DROP_DOWN",
+            isMultiSelect: true,
+            placeholderText: "Select File types",
             options: [
               {
                 label: "Any File",
