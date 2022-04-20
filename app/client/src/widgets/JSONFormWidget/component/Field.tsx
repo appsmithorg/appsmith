@@ -7,7 +7,7 @@ import FieldLabel, { FieldLabelProps } from "./FieldLabel";
 import useUpdateAccessor from "../fields/useObserveAccessor";
 import { FIELD_MARGIN_BOTTOM } from "./styleConstants";
 
-const clone = require("rfdc/default");
+import { klona } from "klona/full";
 
 type FieldProps<TValue> = React.PropsWithChildren<
   {
@@ -60,7 +60,7 @@ function Field<TValue>({
 
       // Follow the comment in Form component above reset(convertedFormData);
       setTimeout(() => {
-        setValue(name, clone(defaultValue));
+        setValue(name, klona(defaultValue));
       }, 0);
     }
   }, [defaultValue, setValue]);

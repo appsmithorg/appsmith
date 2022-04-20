@@ -1,6 +1,6 @@
 import React from "react";
 import { ComponentProps } from "widgets/BaseComponent";
-import { Classes } from "@blueprintjs/core";
+import { Alignment, Classes } from "@blueprintjs/core";
 import { DropdownOption } from "../constants";
 import {
   IItemListRendererProps,
@@ -11,8 +11,6 @@ import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.cs
 import { FixedSizeList } from "react-window";
 import { TextSize } from "constants/WidgetConstants";
 import {
-  StyledLabel,
-  TextLabelWrapper,
   StyledControlGroup,
   StyledSingleDropDown,
   DropdownStyles,
@@ -21,7 +19,9 @@ import {
 } from "./index.styled";
 import Fuse from "fuse.js";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
+import { LabelPosition } from "components/constants";
 import SelectButton from "./SelectButton";
+import LabelWithTooltip from "components/ads/LabelWithTooltip";
 import { labelMargin } from "../../WidgetUtils";
 
 const FUSE_OPTIONS = {
@@ -232,10 +232,13 @@ class SelectComponent extends React.Component<
       compactMode,
       disabled,
       isLoading,
+      labelAlignment,
+      labelPosition,
       labelStyle,
       labelText,
       labelTextColor,
       labelTextSize,
+      labelWidth,
       widgetId,
     } = this.props;
     // active focused item
@@ -272,26 +275,33 @@ class SelectComponent extends React.Component<
         : "";
 
     return (
-      <DropdownContainer compactMode={compactMode}>
+      <DropdownContainer
+        compactMode={compactMode}
+        data-testid="select-container"
+        labelPosition={labelPosition}
+      >
         <DropdownStyles dropDownWidth={this.getDropdownWidth()} id={widgetId} />
         {labelText && (
-          <TextLabelWrapper compactMode={compactMode} ref={this.labelRef}>
-            <StyledLabel
-              $compactMode={compactMode}
-              $disabled={!!disabled}
-              $labelStyle={labelStyle}
-              $labelText={labelText}
-              $labelTextColor={labelTextColor}
-              $labelTextSize={labelTextSize}
-              className={`select-label ${
-                isLoading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
-              }`}
-            >
-              {labelText}
-            </StyledLabel>
-          </TextLabelWrapper>
+          <LabelWithTooltip
+            alignment={labelAlignment}
+            className={`select-label`}
+            color={labelTextColor}
+            compact={compactMode}
+            disabled={disabled}
+            fontSize={labelTextSize}
+            fontStyle={labelStyle}
+            loading={isLoading}
+            position={labelPosition}
+            ref={this.labelRef}
+            text={labelText}
+            width={labelWidth}
+          />
         )}
-        <StyledControlGroup fill>
+        <StyledControlGroup
+          compactMode={compactMode}
+          fill
+          labelPosition={labelPosition}
+        >
           <StyledSingleDropDown
             activeItem={activeItem()}
             className={isLoading ? Classes.SKELETON : ""}
@@ -357,10 +367,13 @@ export interface SelectComponentProps extends ComponentProps {
   disabled?: boolean;
   onOptionSelected: (optionSelected: DropdownOption) => void;
   placeholder?: string;
-  labelText?: string;
+  labelAlignment?: Alignment;
+  labelPosition?: LabelPosition;
+  labelText: string;
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
+  labelWidth?: number;
   compactMode: boolean;
   selectedIndex?: number;
   options: DropdownOption[];

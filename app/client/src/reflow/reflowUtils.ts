@@ -1816,18 +1816,19 @@ export function getBottomMostRow(newPositions: OccupiedSpace[]): number {
  * @param globalProcessedNodes
  * @returns boolean, if true will process the colliding Space while generating a Tree.
  */
-export function shouldProcessNodeForTree(
+export function checkProcessNodeForTree(
   collidingSpace: CollidingSpace,
   globalProcessedNodes: CollisionTreeCache,
 ) {
-  if (!globalProcessedNodes[collidingSpace.id]) return true;
+  if (!globalProcessedNodes[collidingSpace.id])
+    return { shouldProcessNode: true };
 
   const direction = collidingSpace.direction;
   const oppositeDirection = getOppositeDirection(direction);
 
   // If the current node is already processed in the opposite direction the return false
   if (!isUndefined(globalProcessedNodes[collidingSpace.id][oppositeDirection]))
-    return false;
+    return { shouldProcessNode: false };
 
   const { directionIndicator } = getAccessor(direction);
 
@@ -1839,11 +1840,65 @@ export function shouldProcessNodeForTree(
     ) ||
     compareNumbers(
       collidingSpace.collidingValue,
-      globalProcessedNodes[collidingSpace.id][direction],
+      globalProcessedNodes[collidingSpace.id][direction].value,
       directionIndicator > 0,
     )
   )
-    return true;
+    return { shouldProcessNode: true };
 
-  return false;
+  //if collision values are equal, return the cached values to be used in calculation
+  const {
+    childNode,
+    currentEmptySpaces,
+    depth,
+    occupiedSpace,
+    value,
+  } = globalProcessedNodes[collidingSpace.id][direction];
+  if (collidingSpace.collidingValue === value)
+    return {
+      shouldProcessNode: false,
+      currentChildNode: childNode,
+      depth,
+      occupiedSpace,
+      currentEmptySpaces,
+    };
+
+  return {
+    shouldProcessNode: false,
+  };
+}
+
+/**
+ * This is to get the colliding value relative to the edge of the canvas.
+ * eg, If a widget is colliding with another, near the ege of the canvas.
+ * After the point where the widget resizes full and can'yt move or resize, then the colliding value also should not increase
+ *
+ * @param depth
+ * @param accessors
+ * @param collidingValue
+ * @param direction
+ * @param gridProps
+ * @returns number, colliding value to the edge of canvas
+ */
+export function getRelativeCollidingValue(
+  accessors: CollisionAccessors,
+  collidingValue: number,
+  direction: ReflowDirection,
+  { maxGridColumns }: GridProps,
+  depth?: number,
+): number {
+  if (direction === ReflowDirection.BOTTOM || !depth) return collidingValue;
+
+  let calculatedCollidingValue =
+    (accessors.isHorizontal ? HORIZONTAL_RESIZE_LIMIT : VERTICAL_RESIZE_LIMIT) *
+    depth;
+
+  if (direction === ReflowDirection.RIGHT)
+    calculatedCollidingValue = maxGridColumns - calculatedCollidingValue;
+
+  // return the maximum or minimum based on the direction
+  return Math[accessors.mathComparator](
+    calculatedCollidingValue,
+    collidingValue,
+  );
 }
