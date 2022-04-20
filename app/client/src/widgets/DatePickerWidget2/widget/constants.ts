@@ -81,4 +81,7 @@ export const DateFormatOptions = [
     subText: "MM/DD/YY",
     value: "MM/DD/YY",
   },
-];
+].map((x) => ({
+  ...x,
+  subTextPosition: "BOTTOM",
+}));

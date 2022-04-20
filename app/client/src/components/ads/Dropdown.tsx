@@ -24,6 +24,7 @@ import { useTheme } from "styled-components";
 import { findIndex, isArray } from "lodash";
 
 export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
+type SubTextPosition = "BOTTOM" | "LEFT";
 
 export type DropdownOption = {
   label?: string;
@@ -33,6 +34,7 @@ export type DropdownOption = {
   leftElement?: string;
   searchText?: string;
   subText?: string;
+  subTextPosition?: SubTextPosition;
   iconSize?: IconSize;
   iconColor?: string;
   onSelect?: DropdownOnSelect;
@@ -340,14 +342,34 @@ const DropdownOptionsWrapper = styled.div<{
   overflow-x: hidden;
 `;
 
+const StyledSubText = styled(Text)<{
+  showDropIcon?: boolean;
+  subTextPosition?: SubTextPosition;
+}>`
+  ${(props) =>
+    props.subTextPosition === "BOTTOM"
+      ? "margin-top: 3px"
+      : "margin-left: auto"};
+  &&& {
+    color: ${(props) => props.theme.colors.dropdown.menu.subText};
+  }
+  &.sub-text {
+    color: ${(props) => props.theme.colors.dropdown.selected.subtext};
+    text-align: end;
+    margin-right: ${(props) => `${props.theme.spaces[4]}px`};
+  }
+`;
+
 const OptionWrapper = styled.div<{
   selected: boolean;
+  subTextPosition?: SubTextPosition;
 }>`
-  padding: ${(props) => props.theme.spaces[2] + 1}px
+  padding: ${(props) => props.theme.spaces[3] + 1}px
     ${(props) => props.theme.spaces[5]}px;
   cursor: pointer;
   display: flex;
-  align-items: center;
+  flex-direction: ${(props) =>
+    props.subTextPosition === "BOTTOM" ? "column" : "row"};
   min-height: 40px;
   background-color: ${(props) => (props.selected ? Colors.GRAY_200 : null)};
   &&& svg {
@@ -392,6 +414,10 @@ const OptionWrapper = styled.div<{
       color: ${(props) => props.theme.colors.dropdown.menu.hoverText};
     }
 
+    ${StyledSubText} {
+      color: ${(props) => props.theme.colors.dropdown.menu.subText};
+    }
+
     .${Classes.ICON} {
       svg {
         path {
@@ -413,20 +439,6 @@ const LabelWrapper = styled.div<{ label?: string }>`
     .${Classes.TEXT} {
       color: ${(props) => props.theme.colors.dropdown.selected.text};
     }
-  }
-`;
-
-const StyledSubText = styled(Text)<{
-  showDropIcon?: boolean;
-}>`
-  margin-left: auto;
-  && {
-    color: ${(props) => props.theme.colors.dropdown.menu.subText};
-  }
-  &.sub-text {
-    color: ${(props) => props.theme.colors.dropdown.selected.subtext};
-    text-align: end;
-    margin-right: ${(props) => `${props.theme.spaces[4]}px`};
   }
 `;
 
@@ -628,7 +640,7 @@ function DefaultDropDownValueNode({
                 size={selected.iconSize || IconSize.XL}
               />
             ) : null}
-            {selected.leftElement && (
+            {selected?.leftElement && (
               <LeftIconWrapper>{selected.leftElement}</LeftIconWrapper>
             )}
             <Label />
@@ -736,6 +748,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               }
               role="option"
               selected={isSelected}
+              subTextPosition={option.subTextPosition}
             >
               {option.leftElement && (
                 <LeftIconWrapper>{option.leftElement}</LeftIconWrapper>
@@ -780,7 +793,10 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
                 <Text type={TextType.P1}>{option.value}</Text>
               )}
               {option.subText ? (
-                <StyledSubText type={TextType.P3}>
+                <StyledSubText
+                  subTextPosition={option.subTextPosition}
+                  type={TextType.P3}
+                >
                   {option.subText}
                 </StyledSubText>
               ) : null}
