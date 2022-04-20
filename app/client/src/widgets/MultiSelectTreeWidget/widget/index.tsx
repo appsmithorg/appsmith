@@ -421,7 +421,7 @@ class MultiSelectTreeWidget extends BaseWidget<
     };
   }
 
-  componentDidMount(): void {
+  componentDidMount() {
     // Sets selectedLabel
     this.setSelectedOptions(
       this.props.options,

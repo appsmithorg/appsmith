@@ -414,8 +414,8 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     };
   }
 
-  componentDidMount(): void {
-    this.sanitizeSelectedOption();
+  componentDidMount() {
+    this.setSelectedOption();
   }
 
   componentDidUpdate(prevProps: SelectWidgetProps): void {
@@ -430,7 +430,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     }
     // Sanitizes selectedOption
     if (!isEqual(this.props.selectedOption, prevProps.selectedOption)) {
-      this.sanitizeSelectedOption();
+      this.setSelectedOption();
     }
     // Reset isDirty to false if defaultOptionValue changes
     if (
@@ -490,7 +490,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     );
   }
 
-  sanitizeSelectedOption = () => {
+  setSelectedOption = () => {
     const matchingOption = find(this.props.options, {
       value: this.props.selectedOption?.value || this.props.selectedOption,
     });

@@ -382,7 +382,7 @@ class SingleSelectTreeWidget extends BaseWidget<
     };
   }
 
-  componentDidMount(): void {
+  componentDidMount() {
     this.sanitizeSelectedOption();
   }
 
