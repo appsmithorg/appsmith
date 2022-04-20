@@ -104,7 +104,6 @@ export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
       margin-right: 0px;
     }
   }
-
   &&& {
     ul.react-tabs__tab-list {
       padding: 0px ${(props) => props.theme.spaces[12]}px;
@@ -112,10 +111,15 @@ export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
         props.theme.colors.apiPane.responseBody.bg};
     }
     .react-tabs__tab-panel {
+      ${CodeEditorWithGutterStyles}
       height: calc(100% - 36px);
       margin-top: 2px;
       background-color: ${(props) => props.theme.colors.apiPane.bg};
-      ${CodeEditorWithGutterStyles}
+      .CodeEditorTarget {
+        border-bottom: 1px solid
+          ${(props) => props.theme.colors.apiPane.dividerBg};
+        outline: none;
+      }
       ${(props) =>
         props.isExecuting &&
         `

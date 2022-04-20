@@ -94,6 +94,11 @@ export const createGutterMarker = (gutterOnclick: () => void) => {
     e.preventDefault();
     gutterOnclick();
   };
+  // Allows executing functions (via run gutter) when devtool is open
+  marker.ontouchstart = function(e) {
+    e.preventDefault();
+    gutterOnclick();
+  };
   return marker;
 };
 
@@ -101,6 +106,7 @@ export const getJSFunctionLineGutter = (
   jsActions: JSAction[],
   runFuction: (jsAction: JSAction) => void,
   showGutters: boolean,
+  onSuccessAction: (jsAction: JSAction) => void,
 ): CodeEditorGutter => {
   const gutter: CodeEditorGutter = {
     getGutterConfig: null,
@@ -115,6 +121,7 @@ export const getJSFunctionLineGutter = (
         lineNumber,
         jsActions,
       );
+      config && onSuccessAction(config.action);
       return config
         ? {
             line: config.line,

@@ -6,6 +6,19 @@ export class JSEditor {
   public ee = ObjectsRegistry.EntityExplorer;
 
   private _runButton = "button.run-js-action";
+  private _settingsTab = ".tab-title:contains('Settings')";
+  private _codeTab = ".tab-title:contains('Code')";
+  private _onPageLoadRadioButton = (functionName: string, onLoad: boolean) =>
+    `.${functionName}-on-page-load-setting label:contains(${
+      onLoad ? "Yes" : "No"
+    }) span.checkbox`;
+  private _confirmBeforeExecuteRadioButton = (
+    functionName: string,
+    shouldConfirm: boolean,
+  ) =>
+    `.${functionName}-confirm-before-execute label:contains(${
+      shouldConfirm ? "Yes" : "No"
+    }) span.checkbox`;
   private _outputConsole = ".CodeEditorTarget";
   private _jsObjName = ".t--js-action-name-edit-field span";
   private _jsObjTxt = ".t--js-action-name-edit-field input";
@@ -262,22 +275,22 @@ export class JSEditor {
     cy.get(this._bindingsClose).click({ force: true });
   }
 
-  public EnableOnPageLoad(funName: string, onLoad = true, bfrCalling = true) {
-    this.agHelper.GetNClick(this._responseTabAction(funName));
-    this.agHelper.AssertElementPresence(this._dialog("Function settings"));
-    if (onLoad)
-      this.agHelper.CheckUncheck(
-        this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_ONPAGELOAD()),
-        true,
-      );
-    if (bfrCalling)
-      this.agHelper.CheckUncheck(
-        this._functionSetting(
-          Cypress.env("MESSAGES").JS_SETTINGS_CONFIRM_EXECUTION(),
-        ),
-        true,
-      );
-
-    this.agHelper.GetNClick(this._closeSettings);
+  public AddJSFunctionSettings(
+    funName: string,
+    onLoad = true,
+    bfrCalling = true,
+  ) {
+    // Navigate to Settings tab
+    this.agHelper.GetNClick(this._settingsTab);
+    // Set onPageLoad
+    cy.get(this._onPageLoadRadioButton(funName, onLoad))
+      .first()
+      .click();
+    // Set confirmBeforeExecute
+    cy.get(this._confirmBeforeExecuteRadioButton(funName, bfrCalling))
+      .first()
+      .click();
+    // Return to code tab
+    this.agHelper.GetNClick(this._codeTab);
   }
 }
