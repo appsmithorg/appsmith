@@ -120,6 +120,9 @@ describe("getAllPathsFromPropertyConfig", () => {
     const bindingPaths = {
       tableData: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
+      borderRadius: EvaluationSubstitutionType.TEMPLATE,
+      boxShadow: EvaluationSubstitutionType.TEMPLATE,
+      cellBackground: EvaluationSubstitutionType.TEMPLATE,
       defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
       isVisible: EvaluationSubstitutionType.TEMPLATE,
       isSortable: EvaluationSubstitutionType.TEMPLATE,
@@ -131,6 +134,8 @@ describe("getAllPathsFromPropertyConfig", () => {
       isVisiblePagination: EvaluationSubstitutionType.TEMPLATE,
       isVisibleSearch: EvaluationSubstitutionType.TEMPLATE,
       delimiter: EvaluationSubstitutionType.TEMPLATE,
+      textColor: EvaluationSubstitutionType.TEMPLATE,
+      textSize: EvaluationSubstitutionType.TEMPLATE,
       "primaryColumns.name.computedValue": EvaluationSubstitutionType.TEMPLATE,
       "primaryColumns.name.horizontalAlignment":
         EvaluationSubstitutionType.TEMPLATE,
@@ -167,6 +172,8 @@ describe("getAllPathsFromPropertyConfig", () => {
         EvaluationSubstitutionType.TEMPLATE,
       "primaryColumns.status.isCellVisible":
         EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.status.borderRadius": EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.status.boxShadow": EvaluationSubstitutionType.TEMPLATE,
     };
     const expected = {
       bindingPaths,
@@ -194,8 +201,6 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.status.borderRadius":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.boxShadow": EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.status.buttonLabelColor":
-          EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.computedValue":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.horizontalAlignment":
@@ -527,15 +532,6 @@ describe("getAllPathsFromPropertyConfig", () => {
             },
           },
         },
-        "primaryColumns.status.buttonLabelColor": {
-          type: "TABLE_PROPERTY",
-          params: {
-            type: "TEXT",
-            params: {
-              regex: /^(?![<|{{]).+/,
-            },
-          },
-        },
       },
     };
 
@@ -596,6 +592,8 @@ describe("getAllPathsFromPropertyConfig", () => {
       isVisible: EvaluationSubstitutionType.TEMPLATE,
       animateLoading: EvaluationSubstitutionType.TEMPLATE,
       setAdaptiveYMin: EvaluationSubstitutionType.TEMPLATE,
+      borderRadius: EvaluationSubstitutionType.TEMPLATE,
+      boxShadow: EvaluationSubstitutionType.TEMPLATE,
     };
 
     const expected = {
