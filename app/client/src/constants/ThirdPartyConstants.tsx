@@ -10,9 +10,11 @@ export const GET_RELEASE_NOTES_URL = (tagName: string) =>
 export const GOOGLE_MAPS_SETUP_DOC =
   "https://docs.appsmith.com/setup/instance-configuration/google-maps";
 export const GOOGLE_SIGNUP_SETUP_DOC =
-  "https://docs.appsmith.com/setup/instance-configuration/google-login";
+  "https://docs.appsmith.com/setup/instance-configuration/single-sign-on-sso/google-login";
 export const GITHUB_SIGNUP_SETUP_DOC =
-  "https://docs.appsmith.com/setup/instance-configuration/github-login";
+  "https://docs.appsmith.com/setup/instance-configuration/single-sign-on-sso/github-login";
+export const OIDC_SIGNUP_SETUP_DOC =
+  "https://docs.appsmith.com/setup/instance-configuration/single-sign-on-sso/openid-connect-oidc";
 export const EMAIL_SETUP_DOC =
   "https://docs.appsmith.com/setup/instance-configuration/email";
 export const SIGNUP_RESTRICTION_DOC =

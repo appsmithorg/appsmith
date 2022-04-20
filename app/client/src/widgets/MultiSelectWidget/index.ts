@@ -1,3 +1,5 @@
+import { Alignment } from "@blueprintjs/core";
+import { LabelPosition } from "components/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -12,6 +14,9 @@ export const CONFIG = {
     columns: 20,
     animateLoading: true,
     labelText: "Label",
+    labelPosition: LabelPosition.Left,
+    labelAlignment: Alignment.LEFT,
+    labelWidth: 5,
     options: [
       { label: "Blue", value: "BLUE" },
       { label: "Green", value: "GREEN" },

@@ -41,6 +41,7 @@ import { useParams } from "react-router";
 import DataSourceList from "./ApiRightPane";
 import { Datasource } from "entities/Datasource";
 import { isEqual } from "lodash";
+
 import { Colors } from "constants/Colors";
 import SearchSnippets from "components/ads/SnippetButton";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
@@ -136,7 +137,7 @@ export const TabbedViewContainer = styled.div`
 
   &&& {
     ul.react-tabs__tab-list {
-      padding: 0px ${(props) => props.theme.spaces[12]}px;
+      margin: 0px ${(props) => props.theme.spaces[11]}px;
       background-color: ${(props) =>
         props.theme.colors.apiPane.responseBody.bg};
       li.react-tabs__tab--selected {
@@ -227,6 +228,8 @@ export interface CommonFormProps {
   currentPageId?: string;
   applicationId?: string;
   hasResponse: boolean;
+  responseDataTypes: { key: string; title: string }[];
+  responseDisplayFormat: { title: string; value: string };
   suggestedWidgets?: SuggestedWidget[];
   updateDatasource: (datasource: Datasource) => void;
   currentActionDatasourceId: string;
@@ -521,6 +524,8 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     onRunClick,
     paramsCount,
     pluginId,
+    responseDataTypes,
+    responseDisplayFormat,
     settingsConfig,
     updateDatasource,
   } = props;
@@ -709,6 +714,8 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
             <ApiResponseView
               apiName={actionName}
               onRunClick={onRunClick}
+              responseDataTypes={responseDataTypes}
+              responseDisplayFormat={responseDisplayFormat}
               theme={theme}
             />
           </SecondaryWrapper>

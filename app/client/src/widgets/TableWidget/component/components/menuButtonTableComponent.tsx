@@ -29,6 +29,7 @@ import {
 import { MenuItems } from "../Constants";
 import tinycolor from "tinycolor2";
 import { Colors } from "constants/Colors";
+import orderBy from "lodash/orderBy";
 
 const MenuButtonContainer = styled.div`
   width: 100%;
@@ -43,6 +44,9 @@ const MenuButtonContainer = styled.div`
 const PopoverStyles = createGlobalStyle`
   .menu-button-popover > .${Classes.POPOVER2_CONTENT} {
     background: none;
+  }
+  .menu-button-popover-backdrop {
+    background-color: transparent !important;
   }
 `;
 
@@ -94,6 +98,9 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
     &:disabled {
       background-color: ${theme.colors.button.disabled.bgColor} !important;
       color: ${theme.colors.button.disabled.textColor} !important;
+      > span {
+        color: ${theme.colors.button.disabled.textColor} !important;
+      }
     }
 
     border: ${
@@ -204,9 +211,11 @@ function PopoverContent(props: PopoverContentProps) {
   const { isCompact, menuItems: itemsObj, onItemClicked } = props;
 
   if (!itemsObj) return <StyledMenu />;
-  const items = Object.keys(itemsObj)
+  const visibleItems = Object.keys(itemsObj)
     .map((itemKey) => itemsObj[itemKey])
     .filter((item) => item.isVisible === true);
+
+  const items = orderBy(visibleItems, ["index"], ["asc"]);
 
   const listItems = items.map((menuItem) => {
     const {
@@ -330,6 +339,9 @@ function MenuButtonTableComponent(props: MenuButtonComponentProps) {
     <MenuButtonContainer>
       <PopoverStyles />
       <Popover2
+        backdropProps={{
+          className: "menu-button-popover-backdrop",
+        }}
         content={
           <PopoverContent
             isCompact={isCompact}
@@ -339,6 +351,7 @@ function MenuButtonTableComponent(props: MenuButtonComponentProps) {
         }
         disabled={isDisabled}
         fill
+        hasBackdrop
         minimal
         placement="bottom-end"
         popoverClassName="menu-button-popover"

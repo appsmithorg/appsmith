@@ -9,7 +9,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { RenderModes } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import {
@@ -33,7 +33,7 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { generateReactKey } from "utils/generators";
 import { WidgetProps } from "widgets/BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
-import { omit } from "lodash";
+import omit from "lodash/omit";
 import produce from "immer";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -405,16 +405,15 @@ function* addNewTabChildSaga(
     "Tab ",
     tabsArray.map((tab: any) => tab.label),
   );
-  const newTabIndex = Object.keys(tabs)?.length - 1;
 
   tabs = {
     ...tabs,
     [newTabId]: {
       id: newTabId,
+      index: tabsArray.length,
       label: newTabLabel,
       widgetId: newTabWidgetId,
       isVisible: true,
-      index: newTabIndex,
     },
   };
   const newTabProps: any = getChildTabData(tabProps, {

@@ -3,7 +3,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import ApplicationApi, {
   ApplicationObject,
   ApplicationPagePayload,
@@ -87,7 +87,6 @@ import { failFastApiCalls } from "./InitSagas";
 import { Datasource } from "entities/Datasource";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
-import { updateSlugNamesInURL } from "utils/helpers";
 import { builderURL, generateTemplateURL, viewerURL } from "RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "./selectors";
 import PageApi from "api/PageApi";
@@ -98,6 +97,7 @@ import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 import DatasourcesApi from "api/DatasourcesApi";
 import { AppState } from "reducers";
+import { resetApplicationWidgets } from "actions/pageActions";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -357,9 +357,6 @@ export function* updateApplicationSaga(
           type: ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
           payload: response.data,
         });
-        updateSlugNamesInURL({
-          applicationSlug: response.data.slug,
-        });
       }
     }
   } catch (error) {
@@ -534,9 +531,7 @@ export function* createApplicationSaga(
         // This sets ui.pageWidgets = {} to ensure that
         // widgets are cleaned up from state before
         // finishing creating a new application
-        yield put({
-          type: ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST,
-        });
+        yield put(resetApplicationWidgets());
         yield put({
           type: ReduxActionTypes.CREATE_APPLICATION_SUCCESS,
           payload: {

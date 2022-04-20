@@ -14,7 +14,7 @@ import {
   ICardProps,
   Position,
 } from "@blueprintjs/core";
-import { ApplicationPayload } from "constants/ReduxActionConstants";
+import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -477,7 +477,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       moreActionItems.push({
         onSelect: forkApplicationInitiate,
         text: "Fork",
-        icon: "compasses-line",
+        icon: "fork-2",
         cypressSelector: "t--fork-app",
       });
     }

@@ -35,9 +35,8 @@ describe("Migration Validate", function() {
       const uuid = () => Cypress._.random(0, 1e4);
       const name = uuid();
       cy.wait(2000);
-      cy.get(homePage.applicationName)
-        .clear()
-        .type(`app${name}`);
+      cy.AppSetupForRename();
+      cy.get(homePage.applicationName).type(`app${name}`);
       cy.wrap(`app${name}`).as("appname");
       cy.wait(2000);
 
@@ -164,9 +163,7 @@ describe("Migration Validate", function() {
         cy.waitUntil(
           () =>
             cy
-              .xpath("//div[contains(@class, ' t--widget-textwidget')][2]", {
-                timeout: 50000,
-              })
+              .xpath("//div[contains(@class, ' t--widget-textwidget')][2]")
               .eq(0)
               .contains("State:", { timeout: 30000 })
               .should("exist"),
@@ -205,8 +202,8 @@ describe("Migration Validate", function() {
         cy.get(selector + " span.bp3-popover-target span")
           .invoke("text")
           .then((url) => {
-            cy.get(selector + " span.bp3-popover-target")
-              .click()
+            cy.get(selector + " span.bp3-popover-target span")
+              .click({ force: true })
               .wait(2000);
             cy.wait("@postExecute");
             cy.url().should("contain", url);
@@ -217,14 +214,11 @@ describe("Migration Validate", function() {
       // cy.wait(4000);
       // cy.get("div.tableWrap").should("be.visible"); //wait for page load!
 
-      cy.waitUntil(
-        () => cy.get("div.tableWrap", { timeout: 50000 }).should("be.visible"),
-        {
-          errorMsg: "Page is not loaded evn after 10 secs",
-          timeout: 30000,
-          interval: 2000,
-        },
-      ).then(() => cy.wait(1000)); //wait for page load!
+      cy.waitUntil(() => cy.get("div.tableWrap").should("be.visible"), {
+        errorMsg: "Page is not loaded evn after 10 secs",
+        timeout: 30000,
+        interval: 2000,
+      }).then(() => cy.wait(1000)); //wait for page load!
 
       cy.isSelectRow(2); //as aft refresh row selection is also gone
       cy.getTableDataSelector("2", "18").then((selector) => {
@@ -387,7 +381,7 @@ describe("Migration Validate", function() {
           .invoke("text")
           .then((url) => {
             cy.get(selector + " span.bp3-popover-target")
-              .click()
+              .click({ force: true })
               .wait(2000);
             cy.wait("@postExecute");
             cy.url().should("contain", url);
@@ -398,14 +392,11 @@ describe("Migration Validate", function() {
       //cy.wait(4000);
       //cy.get("div.tableWrap").should("be.visible");
 
-      cy.waitUntil(
-        () => cy.get("div.tableWrap", { timeout: 50000 }).should("be.visible"),
-        {
-          errorMsg: "Page is not loaded evn after 10 secs",
-          timeout: 30000,
-          interval: 2000,
-        },
-      ).then(() => cy.wait(1000)); //wait for page load!
+      cy.waitUntil(() => cy.get("div.tableWrap").should("be.visible"), {
+        errorMsg: "Page is not loaded evn after 10 secs",
+        timeout: 30000,
+        interval: 2000,
+      }).then(() => cy.wait(1000)); //wait for page load!
 
       //Manu Btn validation: - 1st menu item
       cy.isSelectRow(4); //as aft refresh row selection is also gone

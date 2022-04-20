@@ -61,6 +61,7 @@ export function DisconnectService(props: {
       <Info>{props.subHeader}</Info>
       <Callout title={props.warning} type="Warning" />
       <DisconnectButton
+        data-testid="disconnect-service-button"
         onClick={() =>
           warnDisconnectAuth ? props.disconnect() : setWarnDisconnectAuth(true)
         }

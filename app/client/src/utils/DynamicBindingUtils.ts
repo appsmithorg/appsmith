@@ -17,6 +17,7 @@ export type DependencyMap = Record<string, Array<string>>;
 export type FormEditorConfigs = Record<string, any[]>;
 export type FormSettingsConfigs = Record<string, any[]>;
 export type FormDependencyConfigs = Record<string, DependencyMap>;
+export type FormDatasourceButtonConfigs = Record<string, string[]>;
 
 // referencing DATA_BIND_REGEX fails for the value "{{Table1.tableData[Table1.selectedRowIndex]}}" if you run it multiple times and don't recreate
 export const isDynamicValue = (value: string): boolean =>
@@ -238,6 +239,15 @@ export const isPathADynamicBinding = (
   }
   return false;
 };
+/**
+ * Get property path from full property path
+ * Input: "Table1.meta.searchText" => Output: "meta.searchText"
+ * @param {string} fullPropertyPath
+ * @return {*}
+ */
+export const getPropertyPath = (fullPropertyPath: string) => {
+  return fullPropertyPath.substring(fullPropertyPath.indexOf(".") + 1);
+};
 
 export const getWidgetDynamicTriggerPathList = (
   widget: WidgetProps,
@@ -331,27 +341,78 @@ export const EVALUATION_PATH = "__evaluation__";
 export const EVAL_ERROR_PATH = `${EVALUATION_PATH}.errors`;
 export const EVAL_VALUE_PATH = `${EVALUATION_PATH}.evaluatedValues`;
 
+/**
+ * non-populated object 
+ {
+   __evaluation__:{
+     evaluatedValues:{
+       primaryColumns: [...],
+       primaryColumns.status: {...},
+       primaryColumns.action: {...}
+     }
+   }
+ }
+
+ * Populated Object
+ {
+   __evaluation__:{
+     evaluatedValues:{
+       primaryColumns: {
+         status: [...],
+         action:[...]
+        }
+     }
+   }
+ }
+
+ */
 const getNestedEvalPath = (
   fullPropertyPath: string,
   pathType: string,
   fullPath = true,
+  isPopulated = false,
 ) => {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(
     fullPropertyPath,
   );
-  const nestedPath = `${pathType}.['${propertyPath}']`;
+  const nestedPath = isPopulated
+    ? `${pathType}.${propertyPath}`
+    : `${pathType}.['${propertyPath}']`;
+
   if (fullPath) {
     return `${entityName}.${nestedPath}`;
   }
   return nestedPath;
 };
 
-export const getEvalErrorPath = (fullPropertyPath: string, fullPath = true) => {
-  return getNestedEvalPath(fullPropertyPath, EVAL_ERROR_PATH, fullPath);
+export const getEvalErrorPath = (
+  fullPropertyPath: string,
+  options = {
+    fullPath: true,
+    isPopulated: false,
+  },
+) => {
+  return getNestedEvalPath(
+    fullPropertyPath,
+    EVAL_ERROR_PATH,
+    options.fullPath,
+    options.isPopulated,
+  );
 };
 
-export const getEvalValuePath = (fullPropertyPath: string, fullPath = true) => {
-  return getNestedEvalPath(fullPropertyPath, EVAL_VALUE_PATH, fullPath);
+export const getEvalValuePath = (
+  fullPropertyPath: string,
+  options = {
+    fullPath: true,
+    isPopulated: false,
+  },
+) => {
+  return getNestedEvalPath(
+    fullPropertyPath,
+    EVAL_VALUE_PATH,
+    options.fullPath,
+    options.isPopulated,
+  );
 };
 
 export enum PropertyEvaluationErrorType {

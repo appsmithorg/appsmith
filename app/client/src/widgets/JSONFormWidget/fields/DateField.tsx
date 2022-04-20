@@ -181,12 +181,13 @@ function DateField({
     return (
       <DateComponent
         closeOnSelection={schemaItem.closeOnSelection}
+        compactMode
         dateFormat={schemaItem.dateFormat}
         datePickerType="DATE_PICKER"
         inputRef={inputRef}
         isDisabled={schemaItem.isDisabled}
         isLoading={false}
-        label=""
+        labelText=""
         maxDate={schemaItem.maxDate}
         minDate={schemaItem.minDate}
         onDateSelected={onDateSelected}
@@ -219,6 +220,7 @@ function DateField({
       labelTextColor={schemaItem.labelTextColor}
       labelTextSize={schemaItem.labelTextSize}
       name={name}
+      tooltip={schemaItem.tooltip}
     >
       {fieldComponent}
     </Field>
