@@ -107,7 +107,6 @@ class ComputeTablePropertyControlV2 extends BaseControl<
     Object.values(columns).forEach((column) => {
       currentRow[column.alias || column.originalId] = undefined;
     });
-    const currentIndex = -1;
     // Load default value in evaluated value
     if (value && !propertyValue) {
       this.onTextChange(value);
