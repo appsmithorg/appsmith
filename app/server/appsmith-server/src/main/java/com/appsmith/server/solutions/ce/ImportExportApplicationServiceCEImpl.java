@@ -860,8 +860,12 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     ).collectList()
                             .map(newPageList -> {
                                 // Check if the pages order match with json file
-                                List<String> pageOrderList = applicationJson.getPageOrder();
-                                // Add null check
+                                List<String> pageOrderList;
+                                if(applicationJson.getPageOrder().isEmpty()) {
+                                    pageOrderList = importedNewPageList.stream().map(newPage -> newPage.getUnpublishedPage().getName()).collect(Collectors.toList());
+                                } else {
+                                    pageOrderList = applicationJson.getPageOrder();
+                                }
                                 Collections.sort(newPageList,
                                         Comparator.comparing(newPage -> pageOrderList.indexOf(newPage.getUnpublishedPage().getName())));
                                 for (NewPage newPage : newPageList) {
