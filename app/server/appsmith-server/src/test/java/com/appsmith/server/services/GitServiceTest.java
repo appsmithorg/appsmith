@@ -2641,7 +2641,7 @@ public class GitServiceTest {
                 .create(applicationMono)
                 .assertNext(application1 -> {
                     assertThat(application1.getId()).isEqualTo(application.getId());
-                    assertThat(application1.getDeleted()).isTrue();
+                    assertThat(application1.getDeleted()).isFalse();
                 })
                 .verifyComplete();
     }
