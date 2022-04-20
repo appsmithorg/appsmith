@@ -184,6 +184,8 @@ export function getDefaultColumnProperties(
     isCellVisible: true,
     isDerived: !!isDerived,
     label: id,
+    isSaveVisible: true,
+    isDiscardVisible: true,
     computedValue: isDerived
       ? ""
       : `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( currentRow["${escapeString(
