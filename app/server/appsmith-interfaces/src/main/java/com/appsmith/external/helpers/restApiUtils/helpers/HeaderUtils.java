@@ -1,12 +1,23 @@
 package com.appsmith.external.helpers.restApiUtils.helpers;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.InvalidMediaTypeException;
+import org.springframework.http.MediaType;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class HeaderUtils {
+    public static final String IS_SEND_SESSION_ENABLED_KEY = "isSendSessionEnabled";
+    public static final String SESSION_SIGNATURE_KEY_KEY = "sessionSignatureKey";
+
     public static boolean isEncodeParamsToggleEnabled(ActionConfiguration actionConfiguration) {
         /**
          * If encodeParamsToggle is null, then assume it to be true because params are supposed to be
@@ -32,4 +43,59 @@ public class HeaderUtils {
             actionConfiguration.setHeaders(headerList);
         }
     }
+
+    /**
+     * If the headers list of properties contains a `Content-Type` header, verify if the value of that header is a
+     * valid media type.
+     *
+     * @param headers List of header Property objects to look for Content-Type headers in.
+     * @return An error message string if the Content-Type value is invalid, otherwise `null`.
+     */
+    public static String verifyContentType(List<Property> headers) {
+        if (headers == null) {
+            return null;
+        }
+
+        for (Property header : headers) {
+            if (StringUtils.isNotEmpty(header.getKey()) && header.getKey().equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)) {
+                try {
+                    MediaType.valueOf((String) header.getValue());
+                } catch (InvalidMediaTypeException e) {
+                    return e.getMessage();
+                }
+                // Don't break here since there can be multiple `Content-Type` headers.
+            }
+        }
+
+        return null;
+    }
+
+    public static String getSignatureKey(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
+        if (!CollectionUtils.isEmpty(datasourceConfiguration.getProperties())) {
+            boolean isSendSessionEnabled = false;
+            String secretKey = null;
+
+            for (Property property : datasourceConfiguration.getProperties()) {
+                if (IS_SEND_SESSION_ENABLED_KEY.equals(property.getKey())) {
+                    isSendSessionEnabled = "Y".equals(property.getValue());
+                } else if (SESSION_SIGNATURE_KEY_KEY.equals(property.getKey())) {
+                    secretKey = (String) property.getValue();
+                }
+            }
+
+            if (isSendSessionEnabled) {
+                if (StringUtils.isEmpty(secretKey) || secretKey.length() < 32) {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                            "Secret key is required when sending session details is switched on," +
+                                    " and should be at least 32 characters in length."
+                    );
+                }
+                return secretKey;
+            }
+        }
+
+        return null;
+    }
+
 }
