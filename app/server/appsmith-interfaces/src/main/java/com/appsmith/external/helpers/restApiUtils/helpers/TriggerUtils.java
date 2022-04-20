@@ -69,8 +69,8 @@ public class TriggerUtils {
                                                              Object requestBody,
                                                              ActionExecutionRequest actionExecutionRequest,
                                                              ObjectMapper objectMapper, Set<String> hintMessages,
-                                                             ActionExecutionResult errorResult) {
-        final RequestCaptureFilter requestCaptureFilter = new RequestCaptureFilter(objectMapper);
+                                                             ActionExecutionResult errorResult,
+                                                             RequestCaptureFilter requestCaptureFilter) {
         return httpCall(client, httpMethod, uri, requestBody, 0)
                 .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                 .map(stringResponseEntity -> {
@@ -217,7 +217,7 @@ public class TriggerUtils {
 
     public static WebClient getWebClient(WebClient.Builder webClientBuilder, APIConnection apiConnection,
                                          String reqContentType, ObjectMapper objectMapper,
-                                         ExchangeStrategies EXCHANGE_STRATEGIES) {
+                                         ExchangeStrategies EXCHANGE_STRATEGIES, RequestCaptureFilter requestCaptureFilter) {
         // Right before building the webclient object, we populate it with whatever mutation the APIConnection object demands
         if (apiConnection != null) {
             webClientBuilder.filter(apiConnection);
@@ -227,7 +227,6 @@ public class TriggerUtils {
             webClientBuilder.filter(new BufferingFilter());
         }
 
-        final RequestCaptureFilter requestCaptureFilter = new RequestCaptureFilter(objectMapper);
         webClientBuilder.filter(requestCaptureFilter);
 
         return webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();

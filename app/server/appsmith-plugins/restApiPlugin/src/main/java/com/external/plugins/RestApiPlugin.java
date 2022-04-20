@@ -17,6 +17,7 @@ import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
+import com.appsmith.external.plugins.BaseRestApiPluginExecutor;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.appsmith.external.services.SharedConfig;
@@ -67,22 +68,10 @@ public class RestApiPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class RestApiPluginExecutor implements PluginExecutor<APIConnection>, SmartSubstitutionInterface {
-
-        private final SharedConfig sharedConfig;
-        private final DataUtils dataUtils;
-
-        // Setting max content length. This would've been coming from `spring.codec.max-in-memory-size` property if the
-        // `WebClient` instance was loaded as an auto-wired bean.
-        public ExchangeStrategies EXCHANGE_STRATEGIES;
+    public static class RestApiPluginExecutor extends BaseRestApiPluginExecutor {
 
         public RestApiPluginExecutor(SharedConfig sharedConfig) {
-            this.sharedConfig = sharedConfig;
-            this.dataUtils = DataUtils.getInstance();
-            this.EXCHANGE_STRATEGIES = ExchangeStrategies
-                    .builder()
-                    .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(sharedConfig.getCodecSize()))
-                    .build();
+            super(sharedConfig);
         }
 
         /**
@@ -214,38 +203,15 @@ public class RestApiPlugin extends BasePlugin {
                 return Mono.just(errorResult);
             }
 
+            final RequestCaptureFilter requestCaptureFilter = new RequestCaptureFilter(objectMapper);
             Object requestBodyObj = getRequestBodyObject(actionConfiguration, reqContentType, encodeParamsToggle,
                     httpMethod);
             WebClient client = getWebClient(webClientBuilder, apiConnection, reqContentType, objectMapper,
-                    EXCHANGE_STRATEGIES);
+                    EXCHANGE_STRATEGIES, requestCaptureFilter);
 
             /* Triggering the actual REST API call */
             return triggerApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest, objectMapper,
-                    hintMessages, errorResult);
-        }
-
-        @Override
-        public Mono<APIConnection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            return APIConnectionFactory.createConnection(datasourceConfiguration.getAuthentication());
-        }
-
-        @Override
-        public void datasourceDestroy(APIConnection connection) {
-            // REST API plugin doesn't have a datasource.
-        }
-
-        @Override
-        public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            /* Use the default validation routine for REST API based plugins */
-            return DatasourceUtils.validateDatasource(datasourceConfiguration);
-        }
-
-        @Override
-        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            // At this point, the URL can be invalid because of mustache template keys inside it. Hence, connecting to
-            // and verifying the URL isn't feasible. Since validation happens just before testing, and since validation
-            // checks if a URL is present, there's nothing left to do here, but return a successful response.
-            return Mono.just(new DatasourceTestResult());
+                    hintMessages, errorResult, requestCaptureFilter);
         }
 
         private ActionConfiguration updateActionConfigurationForPagination(ActionConfiguration actionConfiguration,
@@ -281,21 +247,6 @@ public class RestApiPlugin extends BasePlugin {
                                              Object... args) {
             String jsonBody = (String) input;
             return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null);
-        }
-
-        @Override
-        public Mono<ActionExecutionResult> execute(APIConnection apiConnection,
-                                                   DatasourceConfiguration datasourceConfiguration,
-                                                   ActionConfiguration actionConfiguration) {
-            // Unused function
-            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
-        }
-
-        @Override
-        public Mono<Tuple2<Set<String>, Set<String>>> getHintMessages(ActionConfiguration actionConfiguration,
-                                                                      DatasourceConfiguration datasourceConfiguration) {
-            /* Use the default hint message flow for REST API based plugins */
-            return HintMessageUtils.getHintMessages(actionConfiguration, datasourceConfiguration);
         }
     }
 }
