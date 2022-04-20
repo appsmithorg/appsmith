@@ -20,13 +20,13 @@ async function testSelectOptionsRender() {
     await delay(5000, "for newly created page to settle down");
 
     await page.waitForSelector(SEL.select_button);
-    await perf.startTrace(actions.SELECT_OPTION_ITEM);
+    await perf.startTrace(actions.SELECT_WIDGET_MENU_OPEN);
     await page.click(SEL.select_button);
     await page.waitForSelector(SEL.options_list);
     await delay(2000, "wait after opening options list");
     await perf.stopTrace();
 
-    await perf.startTrace(actions.CLICK_SELECT_OPTION_ITEM);
+    await perf.startTrace(actions.SELECT_WIDGET_SELECT_OPTION);
     await page.click(SEL.first_option_item);
     await delay(2000, "wait after selecting option item");
     await perf.stopTrace();
