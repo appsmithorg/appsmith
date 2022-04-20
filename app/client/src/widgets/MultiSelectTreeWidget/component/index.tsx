@@ -18,12 +18,13 @@ import "rc-tree-select/assets/index.less";
 import { DefaultValueType } from "rc-tree-select/lib/interface";
 import { TreeNodeProps } from "rc-tree-select/lib/TreeNode";
 import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
-import {
-  SELECT_DROPDOWN_CONTAINER_SELECTOR,
-  TextSize,
-} from "constants/WidgetConstants";
+import { TextSize } from "constants/WidgetConstants";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
-import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
+import {
+  getDropdownPosition,
+  labelMargin,
+  WidgetContainerDiff,
+} from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
@@ -145,11 +146,9 @@ function MultiTreeSelectComponent({
     [filter],
   );
 
-  const getDropdownPosition = useCallback(() => {
+  const getPopupContainer = useCallback(() => {
     const node = _menu.current;
-    return node?.closest(
-      `${SELECT_DROPDOWN_CONTAINER_SELECTOR}`,
-    ) as HTMLElement;
+    return getDropdownPosition(node);
   }, []);
   const onQueryChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
@@ -247,7 +246,7 @@ function MultiTreeSelectComponent({
           dropdownRender={dropdownRender}
           dropdownStyle={dropdownStyle}
           filterTreeNode
-          getPopupContainer={getDropdownPosition}
+          getPopupContainer={getPopupContainer}
           inputIcon={
             <Icon
               className="dropdown-icon"

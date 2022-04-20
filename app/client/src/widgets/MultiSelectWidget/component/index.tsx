@@ -7,14 +7,11 @@ import {
   MultiSelectContainer,
   StyledCheckbox,
 } from "./index.styled";
-import {
-  SELECT_DROPDOWN_CONTAINER_SELECTOR,
-  TextSize,
-} from "constants/WidgetConstants";
+import { TextSize } from "constants/WidgetConstants";
 import debounce from "lodash/debounce";
 import Icon from "components/ads/Icon";
 import { Alignment, Classes } from "@blueprintjs/core";
-import { WidgetContainerDiff } from "widgets/WidgetUtils";
+import { getDropdownPosition, WidgetContainerDiff } from "widgets/WidgetUtils";
 import _ from "lodash";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
@@ -98,11 +95,9 @@ function MultiSelectComponent({
     }
   }, [options, value]);
 
-  const getDropdownPosition = useCallback(() => {
+  const getPopupContainer = useCallback(() => {
     const node = _menu.current;
-    return node?.closest(
-      `${SELECT_DROPDOWN_CONTAINER_SELECTOR}`,
-    ) as HTMLElement;
+    return getDropdownPosition(node);
   }, []);
 
   const handleSelectAll = () => {
@@ -198,7 +193,7 @@ function MultiSelectComponent({
         dropdownRender={dropdownRender}
         dropdownStyle={dropdownStyle}
         filterOption={serverSideFiltering ? false : filterOption}
-        getPopupContainer={getDropdownPosition}
+        getPopupContainer={getPopupContainer}
         inputIcon={
           <Icon
             className="dropdown-icon"
