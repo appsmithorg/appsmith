@@ -3,6 +3,8 @@ package com.appsmith.external.helpers.restApiUtils.helpers;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -18,13 +20,23 @@ import java.util.Set;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class URIUtils {
     public static final Set<String> DISALLOWED_HOSTS = Set.of(
             "169.254.169.254",
             "metadata.google.internal"
     );
 
-    public static URI createFinalUriWithQueryParams(ActionConfiguration actionConfiguration,
+    protected static URIUtils uriUtils;
+    public static URIUtils getInstance() {
+        if (uriUtils == null) {
+            uriUtils = new URIUtils();
+        }
+
+        return uriUtils;
+    }
+
+    public URI createFinalUriWithQueryParams(ActionConfiguration actionConfiguration,
                                                        DatasourceConfiguration datasourceConfiguration, String url,
                                                        boolean encodeParamsToggle) throws URISyntaxException {
         String httpUrl = addHttpToUrlWhenPrefixNotPresent(url);
@@ -63,14 +75,14 @@ public class URIUtils {
         return uriBuilder.build(true).toUri();
     }
 
-    public static String addHttpToUrlWhenPrefixNotPresent(String url) {
+    protected String addHttpToUrlWhenPrefixNotPresent(String url) {
         if (url == null || url.toLowerCase().startsWith("http") || url.contains("://")) {
             return url;
         }
         return "http://" + url;
     }
 
-    public static boolean isHostDisallowed(URI uri) throws UnknownHostException {
+    public boolean isHostDisallowed(URI uri) throws UnknownHostException {
         String host = uri.getHost();
         return StringUtils.isEmpty(host) || DISALLOWED_HOSTS.contains(host)
                 || DISALLOWED_HOSTS.contains(InetAddress.getByName(host).getHostAddress());

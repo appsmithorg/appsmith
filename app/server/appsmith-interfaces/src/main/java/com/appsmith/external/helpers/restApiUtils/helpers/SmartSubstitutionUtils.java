@@ -1,14 +1,27 @@
 package com.appsmith.external.helpers.restApiUtils.helpers;
 
 import com.appsmith.external.models.Property;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SmartSubstitutionUtils {
     public static final int SMART_JSON_SUBSTITUTION_INDEX = 0;
 
-    public static boolean isJsonSmartSubstitutionEnabled(List<Property> properties) {
+    private static SmartSubstitutionUtils smartSubstitutionUtils;
+
+    public static SmartSubstitutionUtils getInstance() {
+        if (smartSubstitutionUtils == null) {
+            smartSubstitutionUtils = new SmartSubstitutionUtils();
+        }
+
+        return smartSubstitutionUtils;
+    }
+
+    public boolean isJsonSmartSubstitutionEnabled(List<Property> properties) {
         boolean smartJsonSubstitution;
         if (CollectionUtils.isEmpty(properties)) {
             // In case the smart json substitution configuration is missing, default to true

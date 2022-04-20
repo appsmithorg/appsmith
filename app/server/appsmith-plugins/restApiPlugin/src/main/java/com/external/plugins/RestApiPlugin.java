@@ -5,7 +5,6 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.MustacheHelper;
-import com.appsmith.external.helpers.restApiUtils.helpers.SmartSubstitutionUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -36,18 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.external.helpers.restApiUtils.helpers.DataUtils.getRequestBodyObject;
-import static com.appsmith.external.helpers.restApiUtils.helpers.HeaderUtils.getRequestContentType;
-import static com.appsmith.external.helpers.restApiUtils.helpers.HeaderUtils.isEncodeParamsToggleEnabled;
-import static com.appsmith.external.helpers.restApiUtils.helpers.HeaderUtils.removeEmptyHeaders;
-import static com.appsmith.external.helpers.restApiUtils.helpers.HeaderUtils.verifyContentType;
-import static com.appsmith.external.helpers.restApiUtils.helpers.InitUtils.initializeRequestUrl;
-import static com.appsmith.external.helpers.restApiUtils.helpers.InitUtils.initializeResponseWithError;
-import static com.appsmith.external.helpers.restApiUtils.helpers.TriggerUtils.getWebClient;
-import static com.appsmith.external.helpers.restApiUtils.helpers.TriggerUtils.getWebClientBuilder;
-import static com.appsmith.external.helpers.restApiUtils.helpers.TriggerUtils.triggerApiCall;
-import static com.appsmith.external.helpers.restApiUtils.helpers.URIUtils.createFinalUriWithQueryParams;
-import static com.appsmith.external.helpers.restApiUtils.helpers.URIUtils.isHostDisallowed;
 import static java.lang.Boolean.TRUE;
 
 public class RestApiPlugin extends BasePlugin {
@@ -86,7 +73,7 @@ public class RestApiPlugin extends BasePlugin {
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
             // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
-            Boolean smartJsonSubstitution = SmartSubstitutionUtils.isJsonSmartSubstitutionEnabled(properties);
+            Boolean smartJsonSubstitution = this.smartSubstitutionUtils.isJsonSmartSubstitutionEnabled(properties);
             if (TRUE.equals(smartJsonSubstitution)) {
                 // Do smart replacements in JSON body
                 if (actionConfiguration.getBody() != null) {
@@ -124,7 +111,7 @@ public class RestApiPlugin extends BasePlugin {
             }
 
             // Filter out any empty headers
-            removeEmptyHeaders(actionConfiguration);
+            headerUtils.removeEmptyHeaders(actionConfiguration);
 
             return this.executeCommon(connection, datasourceConfiguration, actionConfiguration, parameters);
         }
@@ -136,19 +123,19 @@ public class RestApiPlugin extends BasePlugin {
 
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
-            initializeResponseWithError(errorResult);
+            initUtils.initializeResponseWithError(errorResult);
 
             // Set of hint messages that can be returned to the user.
             Set<String> hintMessages = new HashSet();
 
             // Initializing request URL
-            String url = initializeRequestUrl(actionConfiguration, datasourceConfiguration);
+            String url = initUtils.initializeRequestUrl(actionConfiguration, datasourceConfiguration);
 
-            Boolean encodeParamsToggle = isEncodeParamsToggleEnabled(actionConfiguration);
+            Boolean encodeParamsToggle = headerUtils.isEncodeParamsToggleEnabled(actionConfiguration);
 
             URI uri;
             try {
-                uri = createFinalUriWithQueryParams(actionConfiguration, datasourceConfiguration, url,
+                uri = uriUtils.createFinalUriWithQueryParams(actionConfiguration, datasourceConfiguration, url,
                         encodeParamsToggle);
             } catch (URISyntaxException e) {
                 ActionExecutionRequest actionExecutionRequest =
@@ -163,7 +150,7 @@ public class RestApiPlugin extends BasePlugin {
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
 
             try {
-                if (isHostDisallowed(uri)) {
+                if (uriUtils.isHostDisallowed(uri)) {
                     errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Host not allowed."));
                     errorResult.setRequest(actionExecutionRequest);
                     return Mono.just(errorResult);
@@ -174,12 +161,13 @@ public class RestApiPlugin extends BasePlugin {
                 return Mono.just(errorResult);
             }
 
-            WebClient.Builder webClientBuilder = getWebClientBuilder(actionConfiguration, datasourceConfiguration);
+            WebClient.Builder webClientBuilder = triggerUtils.getWebClientBuilder(actionConfiguration,
+                    datasourceConfiguration);
 
-            String reqContentType = getRequestContentType(actionConfiguration, datasourceConfiguration);
+            String reqContentType = headerUtils.getRequestContentType(actionConfiguration, datasourceConfiguration);
 
             /* Check for content type */
-            final String contentTypeError = verifyContentType(actionConfiguration.getHeaders());
+            final String contentTypeError = headerUtils.verifyContentType(actionConfiguration.getHeaders());
             if (contentTypeError != null) {
                 errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Invalid value for Content-Type."));
                 errorResult.setRequest(actionExecutionRequest);
@@ -194,13 +182,15 @@ public class RestApiPlugin extends BasePlugin {
             }
 
             final RequestCaptureFilter requestCaptureFilter = new RequestCaptureFilter(objectMapper);
-            Object requestBodyObj = getRequestBodyObject(actionConfiguration, reqContentType, encodeParamsToggle,
+            Object requestBodyObj = dataUtils.getRequestBodyObject(actionConfiguration, reqContentType,
+                    encodeParamsToggle,
                     httpMethod);
-            WebClient client = getWebClient(webClientBuilder, apiConnection, reqContentType, objectMapper,
+            WebClient client = triggerUtils.getWebClient(webClientBuilder, apiConnection, reqContentType, objectMapper,
                     EXCHANGE_STRATEGIES, requestCaptureFilter);
 
             /* Triggering the actual REST API call */
-            return triggerApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest, objectMapper,
+            return triggerUtils.triggerApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
+                    objectMapper,
                     hintMessages, errorResult, requestCaptureFilter);
         }
 

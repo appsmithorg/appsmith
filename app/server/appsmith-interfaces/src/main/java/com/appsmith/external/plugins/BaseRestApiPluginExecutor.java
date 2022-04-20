@@ -6,7 +6,12 @@ import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnectionFactory;
 import com.appsmith.external.helpers.restApiUtils.helpers.DataUtils;
 import com.appsmith.external.helpers.restApiUtils.helpers.DatasourceUtils;
+import com.appsmith.external.helpers.restApiUtils.helpers.HeaderUtils;
 import com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils;
+import com.appsmith.external.helpers.restApiUtils.helpers.InitUtils;
+import com.appsmith.external.helpers.restApiUtils.helpers.SmartSubstitutionUtils;
+import com.appsmith.external.helpers.restApiUtils.helpers.TriggerUtils;
+import com.appsmith.external.helpers.restApiUtils.helpers.URIUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -24,16 +29,31 @@ import java.util.Set;
 @Extension
 public class BaseRestApiPluginExecutor implements PluginExecutor<APIConnection>, SmartSubstitutionInterface {
 
-    final SharedConfig sharedConfig;
-    final DataUtils dataUtils;
+    protected final SharedConfig sharedConfig;
+    protected final DataUtils dataUtils;
+    protected final SmartSubstitutionUtils smartSubstitutionUtils;
+    protected final URIUtils uriUtils;
+    protected final DatasourceUtils datasourceUtils;
+    protected final TriggerUtils triggerUtils;
+    protected final InitUtils initUtils;
+    protected final HeaderUtils headerUtils;
+    protected final HintMessageUtils hintMessageUtils;
+
 
     // Setting max content length. This would've been coming from `spring.codec.max-in-memory-size` property if the
     // `WebClient` instance was loaded as an auto-wired bean.
-    public ExchangeStrategies EXCHANGE_STRATEGIES;
+    protected ExchangeStrategies EXCHANGE_STRATEGIES;
 
-    public BaseRestApiPluginExecutor(SharedConfig sharedConfig) {
+    protected BaseRestApiPluginExecutor(SharedConfig sharedConfig) {
         this.sharedConfig = sharedConfig;
         this.dataUtils = DataUtils.getInstance();
+        this.smartSubstitutionUtils = SmartSubstitutionUtils.getInstance();
+        this.uriUtils = URIUtils.getInstance();
+        this.triggerUtils = TriggerUtils.getInstance();
+        this.initUtils = InitUtils.getInstance();
+        this.headerUtils = HeaderUtils.getInstance();
+        this.datasourceUtils = DatasourceUtils.getInstance();
+        this.hintMessageUtils = HintMessageUtils.getInstance();
         this.EXCHANGE_STRATEGIES = ExchangeStrategies
                 .builder()
                 .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(sharedConfig.getCodecSize()))
@@ -53,7 +73,7 @@ public class BaseRestApiPluginExecutor implements PluginExecutor<APIConnection>,
     @Override
     public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
         /* Use the default validation routine for REST API based plugins */
-        return DatasourceUtils.validateDatasource(datasourceConfiguration);
+        return datasourceUtils.validateDatasource(datasourceConfiguration);
     }
 
     @Override
@@ -76,6 +96,6 @@ public class BaseRestApiPluginExecutor implements PluginExecutor<APIConnection>,
     public Mono<Tuple2<Set<String>, Set<String>>> getHintMessages(ActionConfiguration actionConfiguration,
                                                                   DatasourceConfiguration datasourceConfiguration) {
         /* Use the default hint message flow for REST API based plugins */
-        return HintMessageUtils.getHintMessages(actionConfiguration, datasourceConfiguration);
+        return hintMessageUtils.getHintMessages(actionConfiguration, datasourceConfiguration);
     }
 }

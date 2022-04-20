@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonSyntaxException;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -295,7 +297,7 @@ public class DataUtils {
 
     }
 
-    public static Object getRequestBodyObject(ActionConfiguration actionConfiguration, String reqContentType,
+    public Object getRequestBodyObject(ActionConfiguration actionConfiguration, String reqContentType,
                                               boolean encodeParamsToggle, HttpMethod httpMethod) {
         // We initialize this object to an empty string because body can never be empty
         // Based on the content-type, this Object may be of type MultiValueMap or String

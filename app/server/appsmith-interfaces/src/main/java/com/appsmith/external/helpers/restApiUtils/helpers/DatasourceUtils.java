@@ -3,18 +3,29 @@ package com.appsmith.external.helpers.restApiUtils.helpers;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.appsmith.external.helpers.restApiUtils.helpers.HeaderUtils.getSignatureKey;
-import static com.appsmith.external.helpers.restApiUtils.helpers.HeaderUtils.verifyContentType;
-
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DatasourceUtils {
 
-    public static Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
+    protected static HeaderUtils headerUtils = HeaderUtils.getInstance();
+
+    protected static DatasourceUtils datasourceUtils;
+    public static DatasourceUtils getInstance() {
+        if (datasourceUtils == null) {
+            datasourceUtils = new DatasourceUtils();
+        }
+
+        return datasourceUtils;
+    }
+
+    public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
         /**
          * We don't verify whether the URL is in valid format because it can contain mustache template keys, and so
          * look invalid at this point, but become valid after mustache rendering. So we just check if URL field has
@@ -27,7 +38,7 @@ public class DatasourceUtils {
             invalids.add("Missing URL.");
         }
 
-        final String contentTypeError = verifyContentType(datasourceConfiguration.getHeaders());
+        final String contentTypeError = headerUtils.verifyContentType(datasourceConfiguration.getHeaders());
         if (contentTypeError != null) {
             invalids.add("Invalid Content-Type: " + contentTypeError);
         }
@@ -51,7 +62,7 @@ public class DatasourceUtils {
         }
 
         try {
-            getSignatureKey(datasourceConfiguration);
+            headerUtils.getSignatureKey(datasourceConfiguration);
         } catch (AppsmithPluginException e) {
             invalids.add(e.getMessage());
         }

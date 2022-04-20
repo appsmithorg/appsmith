@@ -18,6 +18,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.bson.internal.Base64;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -49,9 +51,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import static com.appsmith.external.helpers.restApiUtils.helpers.HeaderUtils.getSignatureKey;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TriggerUtils {
 
     public static String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
@@ -63,7 +65,20 @@ public class TriggerUtils {
             "application/pkcs8",
             "application/x-binary");
 
-    public static Mono<ActionExecutionResult> triggerApiCall(WebClient client, HttpMethod httpMethod, URI uri,
+    public static HeaderUtils headerUtils = HeaderUtils.getInstance();
+
+    protected static TriggerUtils triggerUtils;
+    public static TriggerUtils getInstance() {
+        if (triggerUtils == null) {
+            triggerUtils = new TriggerUtils();
+        }
+
+        return triggerUtils;
+    }
+
+
+
+    public Mono<ActionExecutionResult> triggerApiCall(WebClient client, HttpMethod httpMethod, URI uri,
                                                              Object requestBody,
                                                              ActionExecutionRequest actionExecutionRequest,
                                                              ObjectMapper objectMapper, Set<String> hintMessages,
@@ -172,7 +187,7 @@ public class TriggerUtils {
 
     }
 
-    public static Mono<ClientResponse> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, Object requestBody,
+    protected Mono<ClientResponse> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, Object requestBody,
                                           int iteration) {
         if (iteration == MAX_REDIRECTS) {
             return Mono.error(new AppsmithPluginException(
@@ -213,7 +228,7 @@ public class TriggerUtils {
                 });
     }
 
-    public static WebClient getWebClient(WebClient.Builder webClientBuilder, APIConnection apiConnection,
+    public WebClient getWebClient(WebClient.Builder webClientBuilder, APIConnection apiConnection,
                                          String reqContentType, ObjectMapper objectMapper,
                                          ExchangeStrategies EXCHANGE_STRATEGIES, RequestCaptureFilter requestCaptureFilter) {
         // Right before building the webclient object, we populate it with whatever mutation the APIConnection object demands
@@ -230,7 +245,7 @@ public class TriggerUtils {
         return webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
     }
 
-    public static WebClient.Builder getWebClientBuilder(ActionConfiguration actionConfiguration,
+    public WebClient.Builder getWebClientBuilder(ActionConfiguration actionConfiguration,
                                                         DatasourceConfiguration datasourceConfiguration) {
         HttpClient httpClient = getHttpClient(datasourceConfiguration);
         WebClient.Builder webClientBuilder = WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient));
@@ -240,11 +255,11 @@ public class TriggerUtils {
         return webClientBuilder;
     }
 
-    private static void addSecretKey(WebClient.Builder webClientBuilder,
+    protected void addSecretKey(WebClient.Builder webClientBuilder,
                                      DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
         // If users have chosen to share the Appsmith signature in the header, calculate and add that
         String secretKey;
-        secretKey = getSignatureKey(datasourceConfiguration);
+        secretKey = headerUtils.getSignatureKey(datasourceConfiguration);
 
         if (secretKey != null) {
             final SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
@@ -260,7 +275,7 @@ public class TriggerUtils {
         }
     }
 
-    private static void addAllHeaders(WebClient.Builder webClientBuilder, ActionConfiguration actionConfiguration,
+    protected void addAllHeaders(WebClient.Builder webClientBuilder, ActionConfiguration actionConfiguration,
                                       DatasourceConfiguration datasourceConfiguration) {
         /**
          * First, check if headers are defined in API datasource and add them.
@@ -279,13 +294,13 @@ public class TriggerUtils {
         }
     }
 
-    private static void addHeaders(WebClient.Builder webClientBuilder, List<Property> headers) {
+    protected void addHeaders(WebClient.Builder webClientBuilder, List<Property> headers) {
         headers.stream()
                 .filter(header -> isNotEmpty(header.getKey()))
                 .forEach(header -> webClientBuilder.defaultHeader(header.getKey(), (String) header.getValue()));
     }
 
-    private static HttpClient getHttpClient(DatasourceConfiguration datasourceConfiguration) {
+    protected HttpClient getHttpClient(DatasourceConfiguration datasourceConfiguration) {
         final ConnectionProvider provider = ConnectionProvider
                 .builder("rest-api-provider")
                 .maxIdleTime(Duration.ofSeconds(600))

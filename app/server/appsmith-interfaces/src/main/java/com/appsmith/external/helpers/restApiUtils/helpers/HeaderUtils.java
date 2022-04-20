@@ -5,6 +5,8 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.InvalidMediaTypeException;
@@ -14,11 +16,21 @@ import org.springframework.util.CollectionUtils;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class HeaderUtils {
     public static final String IS_SEND_SESSION_ENABLED_KEY = "isSendSessionEnabled";
     public static final String SESSION_SIGNATURE_KEY_KEY = "sessionSignatureKey";
 
-    public static boolean isEncodeParamsToggleEnabled(ActionConfiguration actionConfiguration) {
+    protected static HeaderUtils headerUtils;
+    public static HeaderUtils getInstance() {
+        if (headerUtils == null) {
+            headerUtils = new HeaderUtils();
+        }
+
+        return headerUtils;
+    }
+
+    public boolean isEncodeParamsToggleEnabled(ActionConfiguration actionConfiguration) {
         /**
          * If encodeParamsToggle is null, then assume it to be true because params are supposed to be
          * encoded by default, unless explicitly prohibited by the user.
@@ -31,7 +43,7 @@ public class HeaderUtils {
         return true;
     }
 
-    public static void removeEmptyHeaders(ActionConfiguration actionConfiguration) {
+    public void removeEmptyHeaders(ActionConfiguration actionConfiguration) {
         /**
          * We only check for key being empty since an empty value is still a valid header.
          * Ref: https://stackoverflow.com/questions/12130910/how-to-interpret-empty-http-accept-header
@@ -44,7 +56,7 @@ public class HeaderUtils {
         }
     }
 
-    public static String getRequestContentType(ActionConfiguration actionConfiguration,
+    public String getRequestContentType(ActionConfiguration actionConfiguration,
                                                DatasourceConfiguration datasourceConfiguration) {
         String reqContentType = "";
 
@@ -61,7 +73,7 @@ public class HeaderUtils {
         return reqContentType;
     }
 
-    public static String getRequestContentTypeFromHeaders(List<Property> headers) {
+    protected String getRequestContentTypeFromHeaders(List<Property> headers) {
         String contentType = "";
         for (Property header : headers) {
             String key = header.getKey();
@@ -80,7 +92,7 @@ public class HeaderUtils {
      * @param headers List of header Property objects to look for Content-Type headers in.
      * @return An error message string if the Content-Type value is invalid, otherwise `null`.
      */
-    public static String verifyContentType(List<Property> headers) {
+    public String verifyContentType(List<Property> headers) {
         if (headers == null) {
             return null;
         }
@@ -99,7 +111,7 @@ public class HeaderUtils {
         return null;
     }
 
-    public static String getSignatureKey(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
+    public String getSignatureKey(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
         if (!CollectionUtils.isEmpty(datasourceConfiguration.getProperties())) {
             boolean isSendSessionEnabled = false;
             String secretKey = null;
