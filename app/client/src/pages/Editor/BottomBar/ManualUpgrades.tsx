@@ -30,15 +30,6 @@ import { useLocation } from "react-router";
 import DisclaimerIcon from "remixicon-react/ErrorWarningLineIcon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
-function RedDot() {
-  return (
-    <div
-      className="h-2 w-2 bg-red-600 rounded-full absolute top-0 left-3"
-      data-testid="update-indicator"
-    />
-  );
-}
-
 const StyledList = styled.ul`
   list-style: disc;
   margin-left: 16px;
@@ -246,23 +237,21 @@ function ManualUpgrades() {
         }
       : {};
 
-  const tooltipContent =
-    applicationVersion < latestVersion ? (
-      <div className="text-sm">
-        {`${latestVersion - applicationVersion} pending update(s)`}
-        <ul className="mt-1">
-          {updates.slice(applicationVersion - 1).map((u) => (
-            <li key={u.name}>{u.shortDesc}</li>
-          ))}
-        </ul>
-      </div>
-    ) : (
-      "No new updates"
-    );
+  const tooltipContent = (
+    <div className="text-sm">
+      {`${latestVersion - applicationVersion} pending update(s)`}
+      <ul className="mt-1">
+        {updates.slice(applicationVersion - 1).map((u) => (
+          <li key={u.name}>{u.shortDesc}</li>
+        ))}
+      </ul>
+    </div>
+  );
+
+  if (applicationVersion === latestVersion) return null;
 
   return (
     <div className="relative">
-      {applicationVersion < latestVersion && <RedDot />}
       <TooltipComponent
         autoFocus={!updateDismissed && applicationVersion < latestVersion}
         content={tooltipContent}
