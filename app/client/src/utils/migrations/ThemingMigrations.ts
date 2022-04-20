@@ -209,10 +209,13 @@ export const migrateStylingPropertiesForTheming = (
           const newBoxShadowColor =
             column.boxShadowColor || rgbaMigrationConstantV56;
 
-          addPropertyToDynamicPropertyPathList(
-            `primaryColumns.${key}.boxShadow`,
-            child,
-          );
+          if (column.boxShadow) {
+            addPropertyToDynamicPropertyPathList(
+              `primaryColumns.${key}.boxShadow`,
+              child,
+            );
+          }
+
           switch (column.boxShadow) {
             case BoxShadowTypes.VARIANT1:
               if (!isBoxShadowColorDynamic) {
