@@ -19,8 +19,7 @@ import { DefaultValueType } from "rc-tree-select/lib/interface";
 import { TreeNodeProps } from "rc-tree-select/lib/TreeNode";
 import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
 import {
-  CANVAS_CLASSNAME,
-  MODAL_PORTAL_CLASSNAME,
+  SELECT_DROPDOWN_CONTAINER_SELECTOR,
   TextSize,
 } from "constants/WidgetConstants";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
@@ -148,12 +147,9 @@ function MultiTreeSelectComponent({
 
   const getDropdownPosition = useCallback(() => {
     const node = _menu.current;
-    if (Boolean(node?.closest(`.${MODAL_PORTAL_CLASSNAME}`))) {
-      return document.querySelector(
-        `.${MODAL_PORTAL_CLASSNAME}`,
-      ) as HTMLElement;
-    }
-    return document.querySelector(`.${CANVAS_CLASSNAME}`) as HTMLElement;
+    return node?.closest(
+      `${SELECT_DROPDOWN_CONTAINER_SELECTOR}`,
+    ) as HTMLElement;
   }, []);
   const onQueryChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();

@@ -19,8 +19,7 @@ import MenuItemCheckBox, {
   InputContainer,
 } from "./index.styled";
 import {
-  CANVAS_CLASSNAME,
-  MODAL_PORTAL_CLASSNAME,
+  SELECT_DROPDOWN_CONTAINER_SELECTOR,
   TextSize,
 } from "constants/WidgetConstants";
 import Icon from "components/ads/Icon";
@@ -159,12 +158,9 @@ function MultiSelectComponent({
   );
   const getDropdownPosition = useCallback(() => {
     const node = _menu.current;
-    if (Boolean(node?.closest(`.${MODAL_PORTAL_CLASSNAME}`))) {
-      return document.querySelector(
-        `.${MODAL_PORTAL_CLASSNAME}`,
-      ) as HTMLElement;
-    }
-    return document.querySelector(`.${CANVAS_CLASSNAME}`) as HTMLElement;
+    return node?.closest(
+      `${SELECT_DROPDOWN_CONTAINER_SELECTOR}`,
+    ) as HTMLElement;
   }, []);
 
   const handleSelectAll = () => {
