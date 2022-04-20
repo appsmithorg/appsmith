@@ -191,6 +191,7 @@ public class ApplicationServiceTest {
             gitConnectedApp.setOrganizationId(orgId);
             GitApplicationMetadata gitData = new GitApplicationMetadata();
             gitData.setBranchName("testBranch");
+            gitData.setDefaultBranchName("testBranch");
             gitData.setRepoName("testRepo");
             gitData.setRemoteUrl("git@test.com:user/testRepo.git");
             gitData.setRepoName("testRepo");
@@ -2545,5 +2546,38 @@ public class ApplicationServiceTest {
                     assertThat(clonedTheme.getOrganizationId()).isNull();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getApplicationConnectedToGit_defaultBranchUpdated_returnBranchSpecificApplication() {
+        // Update the default Branch for the gitConected App
+        gitConnectedApp.getGitApplicationMetadata().setDefaultBranchName("release");
+        applicationService.save(gitConnectedApp).block();
+
+        Application testApplication = new Application();
+        testApplication.setName("getApplicationConnectedToGit_defaultBranchUpdated_returnBranchSpecificApplication");
+        testApplication.setOrganizationId(orgId);
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        gitData.setBranchName("release");
+        gitData.setDefaultApplicationId(gitConnectedApp.getId());
+        testApplication.setGitApplicationMetadata(gitData);
+        Application application = applicationPageService.createApplication(testApplication)
+                .flatMap(application1 -> importExportApplicationService.exportApplicationById(gitConnectedApp.getId(), gitData.getBranchName())
+                        .flatMap(applicationJson -> importExportApplicationService.importApplicationInOrganization(orgId, applicationJson, application1.getId(), gitData.getBranchName())))
+                .block();
+
+
+        Mono<Application> getApplication = applicationService.findByIdAndBranchName(gitConnectedApp.getId(), "release");
+        StepVerifier.create(getApplication)
+                .assertNext(application1 -> {
+                    assertThat(application1).isNotNull();
+                    assertThat(application1.getGitApplicationMetadata().getBranchName()).isNotEqualTo(gitConnectedApp.getGitApplicationMetadata().getBranchName());
+                    assertThat(application1.getGitApplicationMetadata().getBranchName()).isEqualTo(application.getGitApplicationMetadata().getBranchName());
+                    assertThat(application1.getId()).isEqualTo(gitConnectedApp.getId());
+                    assertThat(application1.getName()).isEqualTo(application.getName());
+                })
+                .verifyComplete();
+
     }
 }
