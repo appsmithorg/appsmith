@@ -271,8 +271,8 @@ export const MenuColumnWrapper = styled.div<{ selected: boolean }>`
 `;
 
 export const ActionWrapper = styled.div<{
-  background: string;
-  buttonLabelColor: string;
+  background?: string;
+  buttonLabelColor?: string;
 }>`
   margin: 0 5px 0 0;
   &&&&&& {

@@ -1,23 +1,30 @@
+import React from "react";
+import { IconName } from "@blueprintjs/icons";
+
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import React from "react";
 import { EditableCellActions } from "widgets/TableWidgetV2/constants";
+import { EditActionButton } from "../cellComponents/EditActionButton";
 import { CellLayoutProperties } from "../Constants";
-
+import { ButtonVariant } from "components/constants";
+import { Alignment } from "@blueprintjs/core";
+import { ButtonBorderRadius } from "components/constants";
 import { CellWrapper } from "../TableStyledWrappers";
-import { TableButton } from "./ButtonRenderer";
 
-type EditColumnActions = ColumnAction & {
+export type EditColumnActions = ColumnAction & {
   eventType: EventType;
-  iconName?: string;
+  iconName?: IconName;
+  variant: ButtonVariant;
+  backgroundColor: string;
+  iconAlign?: Alignment;
+  borderRadius?: ButtonBorderRadius;
+  isVisible?: boolean;
+  isDisabled?: boolean;
 };
 
 type RenderEditActionsProps = {
   compactMode: string;
   isSelected: boolean;
-  backgroundColor: string;
-  buttonLabelColor: string;
-  isDisabled: boolean;
   isCellVisible: boolean;
   cellProperties: CellLayoutProperties;
   isHidden: boolean;
@@ -51,13 +58,9 @@ export function renderEditActions(props: RenderEditActionsProps) {
     >
       {props.columnActions.map((action: EditColumnActions, index: number) => {
         return (
-          <TableButton
+          <EditActionButton
             action={action}
-            backgroundColor={props.backgroundColor}
-            buttonLabelColor={props.buttonLabelColor}
-            icon={action.iconName}
             isCellVisible={props.isCellVisible}
-            isDisabled={props.isDisabled}
             isSelected={props.isSelected}
             key={index}
             onCommandClick={(
