@@ -211,7 +211,6 @@ public class UserDataServiceTest {
             return userDataRepository.save(userData);
         }).then(userDataService.updateLastUsedAppAndOrgList(application));
 
-        userDataService.updateLastUsedAppAndOrgList(application);
         StepVerifier.create(saveMono).assertNext(userData -> {
             Assert.assertEquals(1, userData.getRecentlyUsedOrgIds().size());
             Assert.assertEquals(sampleOrgId, userData.getRecentlyUsedOrgIds().get(0));
@@ -275,6 +274,66 @@ public class UserDataServiceTest {
             assertThat(userData.getRecentlyUsedAppIds().size()).isEqualTo(20);
             assertThat(userData.getRecentlyUsedAppIds().get(0)).isEqualTo(sampleAppId);
             assertThat(userData.getRecentlyUsedAppIds().get(19)).isEqualTo("app-19");
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void addTemplateIdToLastUsedList_WhenListIsEmpty_templateIdPrepended() {
+        final Mono<UserData> saveMono = userDataService.getForCurrentUser().flatMap(userData -> {
+            // set recently used template ids to null
+            userData.setRecentlyUsedTemplateIds(null);
+            return userDataRepository.save(userData);
+        }).then(userDataService.addTemplateIdToLastUsedList("123456"));
+
+        StepVerifier.create(saveMono).assertNext(userData -> {
+            Assert.assertEquals(1, userData.getRecentlyUsedTemplateIds().size());
+            Assert.assertEquals("123456", userData.getRecentlyUsedTemplateIds().get(0));
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void addTemplateIdToLastUsedList_WhenListIsNotEmpty_templateIdPrepended() {
+        final Mono<UserData> resultMono = userDataService.getForCurrentUser().flatMap(userData -> {
+            // Set an initial list of template ids to the current user.
+            userData.setRecentlyUsedTemplateIds(Arrays.asList("123", "456"));
+            return userDataRepository.save(userData);
+        }).flatMap(userData -> {
+            // Now check whether a new template id is put at first.
+            String newTemplateId = "456";
+            return userDataService.addTemplateIdToLastUsedList(newTemplateId);
+        });
+
+        StepVerifier.create(resultMono).assertNext(userData -> {
+            Assert.assertEquals(2, userData.getRecentlyUsedTemplateIds().size());
+            Assert.assertEquals("456", userData.getRecentlyUsedTemplateIds().get(0));
+            Assert.assertEquals("123", userData.getRecentlyUsedTemplateIds().get(1));
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void addTemplateIdToLastUsedList_TooManyRecentIds_ListsAreTruncated() {
+        String newTemplateId = "new-template-id";
+
+        final Mono<UserData> resultMono = userDataService.getForCurrentUser().flatMap(userData -> {
+            // Set an initial list of 12 template ids to the current user
+            userData.setRecentlyUsedTemplateIds(new ArrayList<>());
+            for(int i = 1; i <= 12; i++) {
+                userData.getRecentlyUsedTemplateIds().add("template-" + i);
+            }
+            return userDataRepository.save(userData);
+        }).flatMap(userData -> {
+            // Now check whether a new template id is put at first.
+            return userDataService.addTemplateIdToLastUsedList(newTemplateId);
+        });
+
+        StepVerifier.create(resultMono).assertNext(userData -> {
+            // org id list should be truncated to 10
+            assertThat(userData.getRecentlyUsedTemplateIds().size()).isEqualTo(5);
+            assertThat(userData.getRecentlyUsedTemplateIds().get(0)).isEqualTo(newTemplateId);
+            assertThat(userData.getRecentlyUsedTemplateIds().get(4)).isEqualTo("template-4");
         }).verifyComplete();
     }
 

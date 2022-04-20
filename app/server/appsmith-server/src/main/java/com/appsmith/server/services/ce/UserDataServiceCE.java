@@ -43,6 +43,8 @@ public interface UserDataServiceCE {
 
     Mono<UserData> updateLastUsedAppAndOrgList(Application application);
 
+    Mono<UserData> addTemplateIdToLastUsedList(String templateId);
+
     Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser();
 
     Mono<UserData> setCommentState(CommentOnboardingState commentOnboardingState);

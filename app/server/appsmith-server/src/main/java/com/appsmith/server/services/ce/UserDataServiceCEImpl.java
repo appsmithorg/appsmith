@@ -264,6 +264,17 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         });
     }
 
+    @Override
+    public Mono<UserData> addTemplateIdToLastUsedList(String templateId) {
+        return this.getForCurrentUser().flatMap(userData -> {
+            // set recently used template ids
+            userData.setRecentlyUsedTemplateIds(
+                    addIdToRecentList(userData.getRecentlyUsedTemplateIds(), templateId, 5)
+            );
+            return repository.save(userData);
+        });
+    }
+
     private List<String> addIdToRecentList(List<String> srcIdList, String newId, int maxSize) {
         if(srcIdList == null) {
             srcIdList = new ArrayList<>();
@@ -274,7 +285,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         if(srcIdList.size() > 1) {
             CollectionUtils.removeDuplicates(srcIdList);
         }
-        // keeping the last 10 org ids, there may be a lot of deleted organization ids which are not used anymore
+        // keeping the last maxSize ids, there may be a lot of ids which are not used anymore
         if(srcIdList.size() > maxSize) {
             srcIdList = srcIdList.subList(0, maxSize);
         }
