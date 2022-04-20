@@ -8,19 +8,36 @@ import React from "react";
 import {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
-  ValidationConfig,
 } from "constants/PropertyControlConstants";
 import { generateReactKey } from "./generators";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
-import { ValidationTypes } from "constants/WidgetValidation";
 import { RenderMode } from "constants/WidgetConstants";
 import * as log from "loglevel";
+import { PropertyPaneConfigTemplates } from "./WidgetFeatures";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
 
-// TODO (abhinav): To enforce the property pane config structure in this function
-// Throw an error if the config is not of the desired format.
+export interface WidgetFeatures {
+  dynamicHeight: boolean;
+}
+export interface WidgetConfiguration {
+  type: string;
+  name: string;
+  iconSVG?: string;
+  defaults: Partial<WidgetProps> & WidgetConfigProps;
+  hideCard?: boolean;
+  isCanvas?: boolean;
+  needsMeta?: boolean;
+  features?: WidgetFeatures;
+  properties: {
+    config: PropertyPaneConfig[];
+    default: Record<string, string>;
+    meta: Record<string, any>;
+    derived: DerivedPropertiesMap;
+  };
+}
+
 const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
   return config.map((sectionOrControlConfig: PropertyPaneConfig) => {
     sectionOrControlConfig.id = generateReactKey();
@@ -47,57 +64,16 @@ const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
 
 export type WidgetType = typeof WidgetFactory.widgetTypes[number];
 
-function validatePropertyPaneConfig(config: PropertyPaneConfig[]) {
-  return config.map((sectionOrControlConfig: PropertyPaneConfig) => {
-    if (sectionOrControlConfig.children) {
-      sectionOrControlConfig.children = sectionOrControlConfig.children.map(
-        validatePropertyControl,
-      );
-    }
-    return sectionOrControlConfig;
-  });
-}
-
-function validatePropertyControl(
-  config: PropertyPaneConfig,
-): PropertyPaneConfig {
-  const _config = config as PropertyPaneControlConfig;
-  if (_config.validation !== undefined) {
-    _config.validation = validateValidationStructure(_config.validation);
-  }
-
-  if (_config.children) {
-    _config.children = _config.children.map(validatePropertyControl);
-  }
-
-  if (_config.panelConfig) {
-    _config.panelConfig.children = _config.panelConfig.children.map(
-      validatePropertyControl,
-    );
-  }
-  return _config;
-}
-
-function validateValidationStructure(
-  config: ValidationConfig,
-): ValidationConfig {
-  // Todo(abhinav): This only checks for top level params. Throwing nothing here.
-  if (
-    config.type === ValidationTypes.FUNCTION &&
-    config.params &&
-    config.params.fn
-  ) {
-    config.params.fnString = config.params.fn.toString();
-    if (!config.params.expected)
-      log.error(
-        `Error in configuration ${JSON.stringify(config)}: For a ${
-          ValidationTypes.FUNCTION
-        } type validation, expected type and example are mandatory`,
-      );
-    delete config.params.fn;
+function enhancePropertyPaneConfig(
+  config: PropertyPaneConfig[],
+  features?: WidgetFeatures,
+) {
+  if (features && features.dynamicHeight) {
+    config.splice(1, 0, PropertyPaneConfigTemplates.DYNAMIC_HEIGHT);
   }
   return config;
 }
+
 class WidgetFactory {
   static widgetTypes: Record<string, string> = {};
   static widgetMap: Map<
@@ -134,6 +110,7 @@ class WidgetFactory {
     defaultPropertiesMap: Record<string, string>,
     metaPropertiesMap: Record<string, any>,
     propertyPaneConfig?: PropertyPaneConfig[],
+    features?: WidgetFeatures,
   ) {
     if (!this.widgetTypes[widgetType]) {
       this.widgetTypes[widgetType] = widgetType;
@@ -143,13 +120,18 @@ class WidgetFactory {
       this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
 
       if (propertyPaneConfig) {
-        const validatedPropertyPaneConfig = validatePropertyPaneConfig(
+        const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
           propertyPaneConfig,
+          features,
+        );
+
+        const finalPropertyPaneConfig = addPropertyConfigIds(
+          enhancedPropertyPaneConfig,
         );
 
         this.propertyPaneConfigsMap.set(
           widgetType,
-          Object.freeze(addPropertyConfigIds(validatedPropertyPaneConfig)),
+          Object.freeze(finalPropertyPaneConfig),
         );
       }
     }

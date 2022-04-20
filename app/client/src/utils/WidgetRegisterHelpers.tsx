@@ -3,31 +3,14 @@ import React from "react";
 import * as Sentry from "@sentry/react";
 import store from "store";
 
-import BaseWidget, { WidgetProps } from "widgets/BaseWidget";
-import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import WidgetFactory, { DerivedPropertiesMap } from "./WidgetFactory";
+import BaseWidget from "widgets/BaseWidget";
+import WidgetFactory, { WidgetConfiguration } from "./WidgetFactory";
 
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import withMeta from "widgets/MetaHOC";
 import { generateReactKey } from "./generators";
 import { memoize } from "lodash";
-
-export interface WidgetConfiguration {
-  type: string;
-  name: string;
-  iconSVG?: string;
-  defaults: Partial<WidgetProps> & WidgetConfigProps;
-  hideCard?: boolean;
-  isCanvas?: boolean;
-  needsMeta?: boolean;
-  properties: {
-    config: PropertyPaneConfig[];
-    default: Record<string, string>;
-    meta: Record<string, any>;
-    derived: DerivedPropertiesMap;
-  };
-}
+import { WidgetFeatureProps } from "./WidgetFeatures";
 
 const generateWidget = memoize(function getWidgetComponent(
   Widget: typeof BaseWidget,
@@ -55,11 +38,16 @@ export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
     config.properties.default,
     config.properties.meta,
     config.properties.config,
+    config.features,
   );
   configureWidget(config);
 };
 
 export const configureWidget = (config: WidgetConfiguration) => {
+  let features = {};
+  if (config.features && config.features.dynamicHeight) {
+    features = Object.assign({}, WidgetFeatureProps.DYNAMIC_HEIGHT);
+  }
   const _config = {
     ...config.defaults,
     type: config.type,
@@ -68,6 +56,7 @@ export const configureWidget = (config: WidgetConfiguration) => {
     key: generateReactKey(),
     iconSVG: config.iconSVG,
     isCanvas: config.isCanvas,
+    ...features,
   };
 
   store.dispatch({
