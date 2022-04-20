@@ -709,7 +709,7 @@ export const TreeSelectContainer = styled.div<{
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
     overflow: hidden;
     width: 100%;
-    transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+    transition: none;
     height: 100%;
 
     .rc-tree-select-selection-search {
@@ -758,8 +758,7 @@ export const TreeSelectContainer = styled.div<{
       border-radius: ${({ borderRadius }) => borderRadius};
       box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       width: 100%;
-      transition: border-color 0.15s ease-in-out 0s,
-        box-shadow 0.15s ease-in-out 0s;
+      transition: none;
       background-color: white;
       .rc-tree-select-selection-item {
         background: none;
@@ -872,8 +871,7 @@ export const TreeSelectContainer = styled.div<{
       border-radius: 0px;
       height: inherit;
       width: 100%;
-      transition: border-color 0.15s ease-in-out 0s,
-        box-shadow 0.15s ease-in-out 0s;
+      transition: none;
     }
   }
   && .rc-tree-select-show-arrow.rc-tree-select-focused {
@@ -885,7 +883,7 @@ export const TreeSelectContainer = styled.div<{
           border: 1px solid ${props.accentColor};
           box-shadow: 0px 0px 0px 3px ${lightenColor(
             props.isValid ? props.accentColor : Colors.DANGER_SOLID,
-          )};`
+          )} !important;`
           : `border: 1px solid ${Colors.DANGER_SOLID};`}
     }
   }
@@ -966,9 +964,6 @@ export const InputContainer = styled.div<{
 }>`
   width: 100%;
   height: 100%;
-
-  ${({ compactMode, labelPosition }) =>
-    labelPosition !== LabelPosition.Top && compactMode && `overflow-x: hidden`};
 
   &,
   & .rc-tree-select {

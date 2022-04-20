@@ -609,9 +609,7 @@ export const TreeSelectContainer = styled.div<{
     cursor: pointer;
 
     ${({ compactMode, labelPosition }) =>
-      labelPosition !== LabelPosition.Top &&
-      compactMode &&
-      `height: 100%; overflow: hidden`};
+      labelPosition !== LabelPosition.Top && compactMode && `height: 100%;`};
 
     .rc-tree-select-selection-placeholder {
       pointer-events: none;
@@ -689,8 +687,7 @@ export const TreeSelectContainer = styled.div<{
     border: 1px solid ${Colors.GREY_3};
     box-sizing: border-box;
     width: 100%;
-    transition: border-color 0.15s ease-in-out 0s,
-      box-shadow 0.15s ease-in-out 0s;
+    transition: none;
     background-color: white;
     height: 100%;
     .rc-tree-select-selection-search {
@@ -734,8 +731,7 @@ export const TreeSelectContainer = styled.div<{
     border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       width: 100%;
-      transition: border-color 0.15s ease-in-out 0s,
-        box-shadow 0.15s ease-in-out 0s;
+      transition: none;
       .rc-tree-select-selection-item {
         background: none;
         border: 1px solid ${Colors.GREY_3};
@@ -859,8 +855,7 @@ export const TreeSelectContainer = styled.div<{
       height: inherit;
       width: 100%;
       line-height: 30px;
-      transition: border-color 0.15s ease-in-out 0s,
-        box-shadow 0.15s ease-in-out 0s;
+      transition: none;
       border: 1px solid
         ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
       &:hover {

@@ -327,6 +327,18 @@ class MultiSelectTreeWidget extends BaseWidget<
         sectionName: "Styles",
         children: [
           {
+            propertyName: "accentColor",
+            label: "Accent Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+            hidden: () => {
+              return true;
+            },
+          },
+          {
             propertyName: "borderRadius",
             label: "Border Radius",
             helpText:

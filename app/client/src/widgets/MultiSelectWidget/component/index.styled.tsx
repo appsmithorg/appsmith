@@ -303,8 +303,7 @@ export const MultiSelectContainer = styled.div<{
       box-shadow: none;
       border-radius: 0px;
       width: 100%;
-      transition: border-color 0.15s ease-in-out 0s,
-        box-shadow 0.15s ease-in-out 0s;
+      transition: none;
       background-color: white;
       .rc-select-selection-item {
         background: none;
@@ -415,8 +414,7 @@ export const MultiSelectContainer = styled.div<{
       border-radius: 0px;
       height: inherit;
       width: 100%;
-      transition: border-color 0.15s ease-in-out 0s,
-        box-shadow 0.15s ease-in-out 0s;
+      transition: none;
       border: 1.2px solid
         ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
       &:hover {

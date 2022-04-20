@@ -510,6 +510,7 @@ class ButtonGroupComponent extends React.Component<
       .filter((item) => item.isVisible === true);
     // sort btns by index
     items = sortBy(items, ["index"]);
+    const popoverId = `button-group-${widgetId}`;
 
     return (
       <ButtonGroupWrapper
@@ -524,7 +525,7 @@ class ButtonGroupComponent extends React.Component<
 
           if (button.buttonType === "MENU" && !isButtonDisabled) {
             const { menuItems } = button;
-            const popoverId = `${widgetId}-${button.id}`;
+
             return (
               <MenuButtonWrapper
                 key={button.id}

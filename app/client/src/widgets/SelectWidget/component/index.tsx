@@ -130,7 +130,11 @@ class SelectComponent extends React.Component<
     const focusClassName = `${isFocused && "has-focus"}`;
     const selectedClassName = `${isSelected && "menu-item-active"}`;
     return (
-      <MenuItem key={option.value} onClick={itemProps.handleClick}>
+      <MenuItem
+        accentColor={this.props.accentColor}
+        key={option.value}
+        onClick={itemProps.handleClick}
+      >
         <a
           className={`menu-item-link ${selectedClassName} ${focusClassName}`}
           tabIndex={0}
@@ -154,7 +158,7 @@ class SelectComponent extends React.Component<
     }
   };
   noResultsUI = (
-    <MenuItem>
+    <MenuItem accentColor={this.props.accentColor}>
       <a className="menu-item-link">
         <div className="menu-item-text">No Results Found</div>
       </a>

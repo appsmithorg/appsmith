@@ -262,6 +262,18 @@ class MultiSelectWidget extends BaseWidget<
         sectionName: "Styles",
         children: [
           {
+            propertyName: "accentColor",
+            label: "Accent Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+            hidden: () => {
+              return true;
+            },
+          },
+          {
             propertyName: "labelTextColor",
             label: "Label Text Color",
             controlType: "COLOR_PICKER",
