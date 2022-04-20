@@ -27,6 +27,14 @@ public class GitUtilsTest {
                 .isEqualTo("https://example.in/test/testRepo");
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://git@example.test.net:user/test/tests/testRepo.git"))
                 .isEqualTo("https://example.test.net/user/test/tests/testRepo");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk.git"))
+                .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk"))
+                .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk.git"))
+                .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk"))
+                .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
     }
     @Test
     public void isRepoPrivate() {
