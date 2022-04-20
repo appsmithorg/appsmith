@@ -15,7 +15,7 @@ import TextComponent, { TextAlign } from "../component";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { OverflowTypes } from "../constants";
 
-const MAX_HTML_PARSING_LENGTH = 5000;
+const MAX_HTML_PARSING_LENGTH = 1000;
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [
