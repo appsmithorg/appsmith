@@ -198,32 +198,19 @@ export const getBindingAndReactivePathsOfAction = (
         }
       } else if (formConfig.controlType === formControlTypes.ENTITY_SELECTOR) {
         if (Array.isArray(formConfig.schema)) {
-          formConfig.schema.forEach((schemaField: any, index: number) => {
+          formConfig.schema.forEach((schemaField: any) => {
             let columnPath = "";
             if (
               allowedControlTypes.includes(schemaField.controlType) &&
               !!schemaField.configProperty
             ) {
-              columnPath = schemaField.configProperty;
-              // if (action.name === "Api2") {
-              //   console.log("hereee-cgfcv", columnPath);
-              // }
-            } else {
               columnPath = getBindingOrConfigPathsForEntitySelectorControl(
-                configPath,
-                index,
+                schemaField.configProperty,
               );
             }
-            // columnPath = getBindingOrConfigPathsForEntitySelectorControl(
-            //   configPath,
-            //   index,
-            // );
             bindingPaths[columnPath] = getCorrectEvaluationSubstitutionType(
               formConfig.evaluationSubstitutionType,
             );
-            if (action.name === "Api2") {
-              console.log("hereee", columnPath, configPath);
-            }
           });
         }
       }
@@ -275,9 +262,9 @@ export const getBindingOrConfigPathsForWhereClauseControl = (
 
 export const getBindingOrConfigPathsForEntitySelectorControl = (
   baseConfigProperty: string,
-  index: number,
 ): string => {
-  return `${baseConfigProperty}.column_${index + 1}`;
+  // Entity selector schemas/components have their own distinct configProperties and have little to do with their parents(They are independent entities).
+  return getDataTreeActionConfigPath(baseConfigProperty);
 };
 
 export const getDataTreeActionConfigPath = (propertyPath: string) =>
