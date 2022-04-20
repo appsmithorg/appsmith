@@ -35,6 +35,8 @@ public class ApplicationJson {
 
     List<NewPage> pageList;
 
+    List<String> pageOrder;
+
     String publishedDefaultPageName;
     
     String unpublishedDefaultPageName;

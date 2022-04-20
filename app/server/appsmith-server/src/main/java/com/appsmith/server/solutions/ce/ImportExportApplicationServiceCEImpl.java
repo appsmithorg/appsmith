@@ -244,9 +244,14 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     return pageFlux
                             .collectList()
-                            // Maintain the page order while exporting the application
+                            // Save the page order to json while exporting the application
                             .flatMap(newPages ->  {
                                 Collections.sort(newPages, Comparator.comparing(newPage -> pageOrderList.indexOf(newPage.getId())));
+                                List<String> pageOrder = new ArrayList<>();
+                                for (NewPage page: newPages) {
+                                    pageOrder.add(page.getUnpublishedPage().getName());
+                                }
+                                applicationJson.setPageOrder(pageOrder);
                                 return Mono.just(newPages);
                             })
                             .flatMap(newPageList -> {
@@ -306,7 +311,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                                 Flux<Datasource> datasourceFlux = Boolean.TRUE.equals(application.getExportWithConfiguration())
                                         ? datasourceRepository.findAllByOrganizationId(organizationId, AclPermission.READ_DATASOURCES)
-                                        : datasourceRepository.findAllByOrganizationId(organizationId, AclPermission.MANAGE_DATASOURCES);
+                                        : datasourceRepository.findAllByOrganizationId(organizationId, MANAGE_DATASOURCES);
 
                                 return datasourceFlux.collectList();
                             })
@@ -855,7 +860,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     ).collectList()
                             .map(newPageList -> {
                                 // Check if the pages order match with json file
-                                List<String> pageOrderList = importedNewPageList.stream().map(newPage -> newPage.getUnpublishedPage().getName()).collect(Collectors.toList());
+                                List<String> pageOrderList = applicationJson.getPageOrder();
+                                // Add null check
                                 Collections.sort(newPageList,
                                         Comparator.comparing(newPage -> pageOrderList.indexOf(newPage.getUnpublishedPage().getName())));
                                 for (NewPage newPage : newPageList) {
