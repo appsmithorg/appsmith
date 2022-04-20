@@ -1,7 +1,4 @@
-import { noop } from "lodash";
-import { ColumnTypes } from "../constants";
 import { CellLayoutProperties } from "./Constants";
-import { renderDefault } from "./renderHelpers/DefaultRenderer";
 import { renderImage } from "./renderHelpers/ImageRenderer";
 
 describe("Test table columnType Image render", () => {

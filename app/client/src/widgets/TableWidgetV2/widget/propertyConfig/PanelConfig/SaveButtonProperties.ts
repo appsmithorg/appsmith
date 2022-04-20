@@ -9,7 +9,6 @@ import {
   ButtonVariantTypes,
 } from "components/constants";
 import { hideByColumnType } from "../../propertyUtils";
-import { IconNames } from "@blueprintjs/icons";
 
 export default {
   sectionName: "Save Button Properties",
@@ -83,32 +82,13 @@ export default {
       isTriggerProperty: false,
     },
     {
-      propertyName: "saveIconAlign",
-      label: "Icon Alignment",
-      helpText: "Sets the icon alignment of the save button",
-      controlType: "ICON_ALIGN",
-      isBindProperty: false,
-      isTriggerProperty: false,
-      dependencies: ["primaryColumns"],
-      validation: {
-        type: ValidationTypes.TEXT,
-        params: {
-          allowedValues: ["center", "left", "right"],
-        },
-      },
-    },
-    {
       propertyName: "saveBorderRadius",
       label: "Border Radius",
       customJSControl: "COMPUTE_VALUE_V2",
       isJSConvertible: true,
       helpText: "Rounds the corners of the save button's outer border edge",
       controlType: "BORDER_RADIUS_OPTIONS",
-      options: [
-        ButtonBorderRadiusTypes.SHARP,
-        ButtonBorderRadiusTypes.ROUNDED,
-        ButtonBorderRadiusTypes.CIRCLE,
-      ],
+      options: [ButtonBorderRadiusTypes.SHARP, ButtonBorderRadiusTypes.ROUNDED],
       dependencies: ["primaryColumns"],
       isBindProperty: true,
       isTriggerProperty: false,
@@ -126,7 +106,6 @@ export default {
       propertyName: "saveActionLabel",
       label: "Action label",
       controlType: "COMPUTE_VALUE_V2",
-      defaultValue: "Save",
       dependencies: ["primaryColumns"],
       isBindProperty: true,
       isTriggerProperty: false,
@@ -148,6 +127,32 @@ export default {
           params: {
             allowedValues: ICON_NAMES,
           },
+        },
+      },
+    },
+    {
+      propertyName: "saveIconAlign",
+      label: "Icon Alignment",
+      helpText: "Sets the icon alignment of the save button",
+      controlType: "ICON_TABS",
+      defaultValue: "left",
+      options: [
+        {
+          icon: "VERTICAL_LEFT",
+          value: "left",
+        },
+        {
+          icon: "VERTICAL_RIGHT",
+          value: "right",
+        },
+      ],
+      isBindProperty: false,
+      isTriggerProperty: false,
+      dependencies: ["primaryColumns"],
+      validation: {
+        type: ValidationTypes.TEXT,
+        params: {
+          allowedValues: ["center", "left", "right"],
         },
       },
     },
