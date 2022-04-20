@@ -109,8 +109,14 @@ export type DirectionalMovement = {
 };
 
 export type CollisionTreeCache = {
-  [direction: string]: {
-    [spaceId: string]: number;
+  [spaceId: string]: {
+    [direction: string]: {
+      value: number;
+      depth?: number;
+      occupiedSpace?: number;
+      currentEmptySpaces?: number;
+      childNode?: CollisionTree;
+    };
   };
 };
 
