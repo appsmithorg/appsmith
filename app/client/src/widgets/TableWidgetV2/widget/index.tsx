@@ -248,11 +248,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                     triggerPropertyName: "onClick",
                     eventType: eventType,
                   }),
-                backgroundColor:
-                  cellProperties.buttonColor || DEFAULT_BUTTON_COLOR,
-                buttonLabelColor:
-                  cellProperties.buttonLabelColor || DEFAULT_BUTTON_LABEL_COLOR,
-                isDisabled: !!cellProperties.isDisabled,
                 isCellVisible: cellProperties.isCellVisible ?? true,
                 columnActions: [
                   {
@@ -261,6 +256,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                     dynamicTrigger: column.onSave || "",
                     eventType: EventType.ON_ROW_SAVE,
                     iconName: cellProperties.saveActionIconName,
+                    variant: cellProperties.saveButtonVariant,
+                    backgroundColor: cellProperties.saveButtonColor,
+                    iconAlign: cellProperties.saveIconAlign,
+                    borderRadius: cellProperties.saveBorderRadius,
+                    isVisible: cellProperties.isSaveVisible,
+                    isDisabled: cellProperties.isSaveDisabled,
                   },
                   {
                     id: EditableCellActions.DISCARD,
@@ -268,6 +269,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                     dynamicTrigger: column.onDiscard || "",
                     eventType: EventType.ON_ROW_DISCARD,
                     iconName: cellProperties.discardActionIconName,
+                    variant: cellProperties.discardButtonVariant,
+                    backgroundColor: cellProperties.discardButtonColor,
+                    iconAlign: cellProperties.discardIconAlign,
+                    borderRadius: cellProperties.discardBorderRadius,
+                    isVisible: cellProperties.isDiscardVisible,
+                    isDisabled: cellProperties.isDiscardDisabled,
                   },
                 ],
                 cellProperties,

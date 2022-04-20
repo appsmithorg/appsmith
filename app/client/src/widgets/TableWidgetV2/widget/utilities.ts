@@ -313,11 +313,9 @@ export const getCellProperties = (
         rowIndex,
         true,
       ),
-
       iconAlign: getPropertyValue(columnProperties.iconAlign, rowIndex, true),
       isCompact: getPropertyValue(columnProperties.isCompact, rowIndex),
       menuColor: getPropertyValue(columnProperties.menuColor, rowIndex, true),
-
       menuItems: getPropertyValue(columnProperties.menuItems, rowIndex),
       menuVariant: getPropertyValue(
         columnProperties.menuVariant,
@@ -363,6 +361,14 @@ export const getCellProperties = (
         rowIndex,
         true,
       ),
+      isSaveVisible: getBooleanPropertyValue(
+        columnProperties.isSaveVisible,
+        rowIndex,
+      ),
+      isSaveDisabled: getBooleanPropertyValue(
+        columnProperties.isSaveDisabled,
+        rowIndex,
+      ),
       discardButtonVariant: getPropertyValue(
         columnProperties.discardButtonVariant,
         rowIndex,
@@ -392,6 +398,14 @@ export const getCellProperties = (
         columnProperties.discardActionIconName,
         rowIndex,
         true,
+      ),
+      isDiscardVisible: getBooleanPropertyValue(
+        columnProperties.isDiscardVisible,
+        rowIndex,
+      ),
+      isDiscardDisabled: getBooleanPropertyValue(
+        columnProperties.isDiscardDisabled,
+        rowIndex,
       ),
     } as CellLayoutProperties;
   }

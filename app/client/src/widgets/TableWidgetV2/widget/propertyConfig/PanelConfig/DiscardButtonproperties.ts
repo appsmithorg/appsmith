@@ -138,7 +138,6 @@ export default {
       dependencies: ["primaryColumns", "columnOrder"],
       controlType: "ICON_SELECT",
       customJSControl: "COMPUTE_VALUE_V2",
-      defaultIconName: "cross",
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
@@ -148,10 +147,44 @@ export default {
           type: ValidationTypes.TEXT,
           params: {
             allowedValues: ICON_NAMES,
-            default: IconNames.CROSS,
           },
         },
       },
+    },
+    {
+      propertyName: "isDiscardVisible",
+      dependencies: ["primaryColumns"],
+      label: "Visible",
+      helpText: "Controls the visibility of the discard button",
+      defaultValue: true,
+      controlType: "SWITCH",
+      customJSControl: "COMPUTE_VALUE_V2",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.TABLE_PROPERTY,
+        params: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+    },
+    {
+      propertyName: "isDiscardDisabled",
+      label: "Disabled",
+      defaultValue: false,
+      controlType: "SWITCH",
+      customJSControl: "COMPUTE_VALUE_V2",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.TABLE_PROPERTY,
+        params: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+      dependencies: ["primaryColumns"],
     },
   ],
 };

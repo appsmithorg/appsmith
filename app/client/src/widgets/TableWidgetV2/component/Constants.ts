@@ -129,14 +129,18 @@ export interface CellLayoutProperties {
   saveButtonColor: string;
   saveIconAlign: Alignment;
   saveBorderRadius: ButtonBorderRadius;
-  saveActionIconName?: string;
+  saveActionIconName?: IconName;
   saveActionLabel?: string;
+  isSaveVisible?: boolean;
+  isSaveDisabled?: boolean;
   discardButtonVariant: ButtonVariant;
   discardButtonColor: string;
   discardIconAlign: Alignment;
   discardBorderRadius: ButtonBorderRadius;
   discardActionLabel?: string;
-  discardActionIconName?: string;
+  discardActionIconName?: IconName;
+  isDiscardVisible?: boolean;
+  isDiscardDisabled?: boolean;
 }
 
 export type MenuItems = Record<
@@ -235,12 +239,16 @@ export interface ColumnProperties {
   saveBorderRadius?: ButtonBorderRadius;
   saveActionIconName?: string;
   saveActionLabel?: string;
+  isSaveVisible?: boolean;
+  isSaveDisabled?: boolean;
   discardButtonVariant?: ButtonVariant;
   discardButtonColor?: string;
   discardIconAlign?: Alignment;
   discardBorderRadius?: ButtonBorderRadius;
   discardActionLabel?: string;
   discardActionIconName?: string;
+  isDiscardVisible?: boolean;
+  isDiscardDisabled?: boolean;
 }
 
 export const ConditionFunctions: {
