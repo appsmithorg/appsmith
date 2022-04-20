@@ -48,6 +48,8 @@ import { Toaster } from "components/ads/Toast";
 import { deselectAllInitAction } from "actions/widgetSelectionActions";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import { APP_MODE } from "entities/App";
+import { getAppMode } from "selectors/applicationSelectors";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
@@ -132,7 +134,10 @@ export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
   });
 
   const pageId: string = yield select(getCurrentPageId);
-  navigateToCanvas({ pageId, widgetId: action.payload.modalId });
+  const appMode: APP_MODE = yield select(getAppMode);
+
+  if (appMode === APP_MODE.EDIT)
+    navigateToCanvas({ pageId, widgetId: action.payload.modalId });
 
   yield put({
     type: ReduxActionTypes.SELECT_WIDGET_INIT,
