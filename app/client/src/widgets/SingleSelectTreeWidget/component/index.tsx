@@ -20,7 +20,7 @@ import { TreeNodeProps } from "rc-tree-select/lib/TreeNode";
 import { TextSize } from "constants/WidgetConstants";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import {
-  getDropdownPosition,
+  getClosestCanvas,
   labelMargin,
   WidgetContainerDiff,
 } from "widgets/WidgetUtils";
@@ -137,7 +137,7 @@ function SingleSelectTreeComponent({
 
   const getPopupContainer = useCallback(() => {
     const node = _menu.current;
-    return getDropdownPosition(node);
+    return getClosestCanvas(node);
   }, []);
   const onClear = useCallback(() => onChange([], []), []);
   const onOpen = useCallback((open: boolean) => {

@@ -21,7 +21,7 @@ import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
 import { TextSize } from "constants/WidgetConstants";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import {
-  getDropdownPosition,
+  getClosestCanvas,
   labelMargin,
   WidgetContainerDiff,
 } from "widgets/WidgetUtils";
@@ -148,7 +148,7 @@ function MultiTreeSelectComponent({
 
   const getPopupContainer = useCallback(() => {
     const node = _menu.current;
-    return getDropdownPosition(node);
+    return getClosestCanvas(node);
   }, []);
   const onQueryChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();

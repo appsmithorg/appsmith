@@ -22,7 +22,7 @@ import { TextSize } from "constants/WidgetConstants";
 import Icon from "components/ads/Icon";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import {
-  getDropdownPosition,
+  getClosestCanvas,
   labelMargin,
   WidgetContainerDiff,
 } from "widgets/WidgetUtils";
@@ -159,7 +159,7 @@ function MultiSelectComponent({
   );
   const getPopupContainer = useCallback(() => {
     const node = _menu.current;
-    return getDropdownPosition(node);
+    return getClosestCanvas(node);
   }, []);
 
   const handleSelectAll = () => {

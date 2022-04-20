@@ -4,9 +4,9 @@
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 import {
+  CANVAS_SELECTOR,
   CONTAINER_GRID_PADDING,
   GridDefaults,
-  SELECT_DROPDOWN_CONTAINER_SELECTOR,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import generate from "nanoid/generate";
@@ -256,6 +256,6 @@ export const sanitizeKey = (key: string, options?: SanitizeOptions) => {
   return sanitizedKey;
 };
 
-export const getDropdownPosition = (node: HTMLElement | null) => {
-  return node?.closest(`${SELECT_DROPDOWN_CONTAINER_SELECTOR}`) as HTMLElement;
+export const getClosestCanvas = (node: HTMLElement | null) => {
+  return node?.closest(`${CANVAS_SELECTOR}`) as HTMLElement;
 };
