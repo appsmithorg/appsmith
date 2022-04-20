@@ -62,6 +62,10 @@ export function DraggableListCard(props: RenderComponentProps) {
   const debouncedUpdate = _.debounce(updateOption, 1000);
 
   useEffect(() => {
+    setVisibility(item.isVisible);
+  }, [item.isVisible]);
+
+  useEffect(() => {
     if (!isEditing && item && item.label) setValue(item.label);
   }, [item?.label, isEditing]);
 
