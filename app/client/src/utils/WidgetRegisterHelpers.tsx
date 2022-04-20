@@ -49,6 +49,7 @@ export const configureWidget = (config: WidgetConfiguration) => {
     features = Object.assign({}, WidgetFeatureProps.DYNAMIC_HEIGHT);
   }
   const _config = {
+    ...features,
     ...config.defaults,
     type: config.type,
     hideCard: !!config.hideCard || !config.iconSVG,
@@ -56,7 +57,6 @@ export const configureWidget = (config: WidgetConfiguration) => {
     key: generateReactKey(),
     iconSVG: config.iconSVG,
     isCanvas: config.isCanvas,
-    ...features,
   };
 
   store.dispatch({
