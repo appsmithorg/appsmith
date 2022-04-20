@@ -251,7 +251,7 @@ function ManualUpgrades() {
   if (applicationVersion === latestVersion) return null;
 
   return (
-    <div className="relative">
+    <div className="relative" data-testid="update-indicator">
       <TooltipComponent
         autoFocus={!updateDismissed && applicationVersion < latestVersion}
         content={tooltipContent}
