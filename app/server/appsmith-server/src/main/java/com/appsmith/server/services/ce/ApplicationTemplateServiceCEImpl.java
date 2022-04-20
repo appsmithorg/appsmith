@@ -9,6 +9,7 @@ import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.google.gson.Gson;
@@ -32,15 +33,18 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     private final ReleaseNotesService releaseNotesService;
     private final ImportExportApplicationService importExportApplicationService;
     private final AnalyticsService analyticsService;
+    private final UserDataService userDataService;
 
     public ApplicationTemplateServiceCEImpl(CloudServicesConfig cloudServicesConfig,
                                             ReleaseNotesService releaseNotesService,
                                             ImportExportApplicationService importExportApplicationService,
-                                            AnalyticsService analyticsService) {
+                                            AnalyticsService analyticsService,
+                                            UserDataService userDataService) {
         this.cloudServicesConfig = cloudServicesConfig;
         this.releaseNotesService = releaseNotesService;
         this.importExportApplicationService = importExportApplicationService;
         this.analyticsService = analyticsService;
+        this.userDataService = userDataService;
     }
 
     @Override
@@ -132,8 +136,9 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         ).flatMap(application -> {
             ApplicationTemplate applicationTemplate = new ApplicationTemplate();
             applicationTemplate.setId(templateId);
-            return analyticsService.sendObjectEvent(AnalyticsEvents.FORK, applicationTemplate, null)
-                    .thenReturn(application);
+            return userDataService.addTemplateIdToLastUsedList(templateId).then(
+                    analyticsService.sendObjectEvent(AnalyticsEvents.FORK, applicationTemplate, null)
+            ).thenReturn(application);
         });
     }
 
