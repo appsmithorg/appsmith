@@ -33,8 +33,6 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
   class MetaHOC extends React.PureComponent<metaHOCProps> {
     static contextType = EditorContext;
 
-    propertyTriggers = new Map<string, DebouncedExecuteActionPayload>();
-
     initialMetaState: Record<string, unknown>;
 
     constructor(props: metaHOCProps) {
@@ -57,9 +55,36 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       },
     );
 
+    updateWidgetMetaProperty = (
+      propertyName: string,
+      propertyValue: unknown,
+      actionExecution?: DebouncedExecuteActionPayload,
+    ): void => {
+      AppsmithConsole.info({
+        logType: LOG_TYPE.WIDGET_UPDATE,
+        text: "Widget property was updated",
+        source: {
+          type: ENTITY_TYPE.WIDGET,
+          id: this.props.widgetId,
+          name: this.props.widgetName,
+          propertyPath: propertyName,
+        },
+        state: {
+          [propertyName]: propertyValue,
+        },
+      });
+      this.handleUpdateWidgetMetaProperty(
+        propertyName,
+        propertyValue,
+        actionExecution,
+      );
+      this.debouncedTriggerEvalOnMetaUpdate();
+    };
+
     handleUpdateWidgetMetaProperty = (
       propertyName: string,
       propertyValue: unknown,
+      actionExecution?: DebouncedExecuteActionPayload,
     ) => {
       const { executeAction, updateWidgetMetaProperty } = this.context;
       const { widgetId } = this.props;
@@ -79,19 +104,18 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
           );
         }
       }
-      const payload = this.propertyTriggers.get(propertyName);
-      if (payload && payload.dynamicString && executeAction) {
+
+      if (actionExecution && actionExecution.dynamicString && executeAction) {
         executeAction({
-          ...payload,
+          ...actionExecution,
           source: {
             id: this.props.widgetId,
             name: this.props.widgetName,
           },
         });
-        this.propertyTriggers.delete(propertyName);
-        payload.triggerPropertyName &&
+        actionExecution.triggerPropertyName &&
           AppsmithConsole.info({
-            text: `${payload.triggerPropertyName} triggered`,
+            text: `${actionExecution.triggerPropertyName} triggered`,
             source: {
               type: ENTITY_TYPE.WIDGET,
               id: this.props.widgetId,
@@ -99,32 +123,6 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
             },
           });
       }
-    };
-
-    updateWidgetMetaProperty = (
-      propertyName: string,
-      propertyValue: unknown,
-      actionExecution?: DebouncedExecuteActionPayload,
-    ): void => {
-      if (actionExecution) {
-        this.propertyTriggers.set(propertyName, actionExecution);
-      }
-
-      AppsmithConsole.info({
-        logType: LOG_TYPE.WIDGET_UPDATE,
-        text: "Widget property was updated",
-        source: {
-          type: ENTITY_TYPE.WIDGET,
-          id: this.props.widgetId,
-          name: this.props.widgetName,
-          propertyPath: propertyName,
-        },
-        state: {
-          [propertyName]: propertyValue,
-        },
-      });
-      this.handleUpdateWidgetMetaProperty(propertyName, propertyValue);
-      this.debouncedTriggerEvalOnMetaUpdate();
     };
 
     updatedProps = () => {
