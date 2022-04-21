@@ -30,7 +30,6 @@ describe("Admin settings page", function() {
       cy.get(EnterpriseAdminSettingsLocators.upgradeSamlButton)
         .should("be.visible")
         .should("contain", "UPGRADE");
-    } else {
     }
   });
 });
