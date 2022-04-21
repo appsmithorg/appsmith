@@ -601,6 +601,7 @@ export const GLOBAL_DEFS = {
   latLong: {
     lat: "number",
     long: "number",
+    title: "string",
   },
   mapMarker: {
     lat: "number",
