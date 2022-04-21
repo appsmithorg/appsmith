@@ -917,7 +917,8 @@ export default function Dropdown(props: DropdownProps) {
             e.preventDefault();
             if (isOpen) {
               if (props.isMultiSelect) {
-                optionClickHandler(props.options[highlight]);
+                if (highlight >= 0)
+                  optionClickHandler(props.options[highlight]);
               } else {
                 optionClickHandler(selected as DropdownOption);
               }
@@ -930,7 +931,7 @@ export default function Dropdown(props: DropdownProps) {
           e.preventDefault();
           if (isOpen) {
             if (props.isMultiSelect) {
-              optionClickHandler(props.options[highlight]);
+              if (highlight >= 0) optionClickHandler(props.options[highlight]);
             } else {
               optionClickHandler(selected as DropdownOption);
             }
