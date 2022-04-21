@@ -137,6 +137,24 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         });
     }
 
+    @Override
+    public Mono<ApplicationTemplate> getFilters() {
+        final String baseUrl = cloudServicesConfig.getBaseUrl();
+
+        return WebClient
+                .create(baseUrl + "/api/v1/app-templates/filters")
+                .get()
+                .exchangeToMono(clientResponse -> {
+                    if (clientResponse.statusCode().equals(HttpStatus.OK)) {
+                        return clientResponse.bodyToMono(ApplicationTemplate.class);
+                    } else if (clientResponse.statusCode().isError()) {
+                        return Mono.error(new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, clientResponse.statusCode()));
+                    } else {
+                        return clientResponse.createException().flatMap(Mono::error);
+                    }
+                });
+    }
+
     public static class NoEncodingUriBuilderFactory extends DefaultUriBuilderFactory {
         public NoEncodingUriBuilderFactory(String baseUriTemplate) {
             super(UriComponentsBuilder.fromHttpUrl(baseUriTemplate));
