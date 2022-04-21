@@ -79,9 +79,6 @@ export { default as MenuDivider } from "./MenuDivider";
 export { default as MenuItem } from "./MenuItem";
 export * from "./MenuItem";
 
-export { default as MultiSelectDropdown } from "./MultiselectDropdown";
-// export * from "./MultiselectDropdown"; conflict on names
-
 export { default as MultiSwitch } from "./MultiSwitch";
 export * from "./MultiSwitch";
 
