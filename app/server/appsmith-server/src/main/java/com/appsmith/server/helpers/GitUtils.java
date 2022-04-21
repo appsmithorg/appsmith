@@ -46,10 +46,13 @@ public class GitUtils {
      * @return repo name extracted from repo url
      */
     public static String getRepoName(String remoteUrl) {
-        // Pattern to match all words in the text
-        final Matcher matcher = Pattern.compile("([^/]*).git$").matcher(remoteUrl);
+        // Pattern to match git SSH URL
+        final Matcher matcher = Pattern.compile("((git|ssh|http(s)?)|(git@[\\w.]+))(:(\\/\\/)?)([\\w.@:/\\-~]+)(\\.git|)(\\/)?").matcher(remoteUrl);
         if (matcher.find()) {
-            return matcher.group(1);
+            // To trim the postfix and prefix
+            return matcher.group(7)
+                    .replaceFirst("\\.git$", "")
+                    .replaceFirst("^(.*[\\\\\\/])", "");
         }
         throw new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Remote URL is incorrect, " +
                 "please add a URL in standard format. Example: git@example.com:username/reponame.git");

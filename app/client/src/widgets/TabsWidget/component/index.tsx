@@ -139,7 +139,7 @@ export interface TabsContainerProps {
 
 const Container = styled.div`
   width: 100%;
-  align-items: center;
+  align-items: flex-end;
   height: 44px;
 
   & {
@@ -157,7 +157,7 @@ const ScrollBtnContainer = styled.div<{ visible: boolean }>`
   cursor: pointer;
   display: flex;
   position: absolute;
-  height: 100%;
+  height: 34px;
   padding: 0 10px;
 
   & > span {
@@ -179,33 +179,6 @@ const ScrollBtnContainer = styled.div<{ visible: boolean }>`
     opacity: 0;
     transition: visibility 0s linear 300ms, opacity 300ms;
     `}
-
-  &::after, &::before {
-    content: "";
-    display: block;
-    height: 100%;
-    width: 50px;
-    position: absolute;
-    right: 0;
-  }
-
-  &::before {
-    background: linear-gradient(
-      90deg,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(255, 255, 255, 0.5) 50%,
-      rgba(255, 255, 255, 1) 100%
-    );
-  }
-
-  &::after {
-    background: linear-gradient(
-      270deg,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(255, 255, 255, 0.5) 50%,
-      rgba(255, 255, 255, 1) 100%
-    );
-  }
 `;
 
 export interface ScrollNavControlProps {
