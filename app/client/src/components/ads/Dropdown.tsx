@@ -149,10 +149,9 @@ const DropdownTriggerWrapper = styled.div<{
 `;
 
 const StyledClose = styled(Close)`
-  width: 24px;
-  height: 24px;
-  padding: 3px;
-  padding-right: 10px;
+  width: 18px;
+  height: 18px;
+  margin-right: -2px;
   &:hover {
     background-color: #ebebeb;
   }
@@ -165,7 +164,7 @@ const SquareBox = styled.div<{
   box-sizing: border-box;
   margin-right: 10px;
   background-color: ${(props) =>
-    props.checked ? Colors.GRAY_900 : "transparent"};
+    props.checked ? Colors.GRAY_900 : Colors.WHITE};
   border: 1.4px solid;
   border-color: ${(props) =>
     props.checked ? Colors.GRAY_900 : Colors.GRAY_400};
@@ -451,13 +450,17 @@ const HeaderWrapper = styled.div`
   padding: 0px 7px 7px 7px;
 `;
 
-const SelectedDropDownHolder = styled.div`
+const SelectedDropDownHolder = styled.div<{ enableScroll?: boolean }>`
   display: flex;
   align-items: center;
   min-width: 0;
   max-width: 100%;
-  overflow: hidden;
+  overflow: ${(props) => (props.enableScroll ? "auto" : "hidden")};
   width: 100%;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   & ${Text} {
     max-width: 100%;
@@ -526,6 +529,19 @@ const StyledText = styled(Text)`
   white-space: nowrap;
 `;
 
+const ChipsWrapper = styled.div`
+  display: flex;
+`;
+
+const Chips = styled.div`
+  border: 1.2px solid ${Colors.GRAY_400};
+  display: flex;
+  height: 24px;
+  align-items: center;
+  padding: 4px 8px;
+  margin-right: 8px;
+`;
+
 function TooltipWrappedText(
   props: TextProps & {
     label: string;
@@ -571,22 +587,11 @@ function DefaultDropDownValueNode({
   function Label() {
     if (isMultiSelect && Array.isArray(selected) && selected.length) {
       return (
-        <div style={{ display: "flex", width: "100%", flexWrap: "wrap" }}>
+        <ChipsWrapper>
           {selected?.map((s: DropdownOption) => {
             return (
-              <div
-                key={s.value}
-                style={{
-                  border: "1.2px solid #E0DEDE",
-                  display: "flex",
-                  alignItems: "center",
-                  lineHeight: "19px",
-                  margin: "2px 2px",
-                }}
-              >
-                <span style={{ padding: "3px" }}>
-                  <Text type={TextType.P1}>{s.label}</Text>
-                </span>
+              <Chips key={s.value}>
+                <Text type={TextType.P1}>{s.label}</Text>
                 <StyledClose
                   onClick={(event: any) => {
                     event.stopPropagation();
@@ -595,10 +600,10 @@ function DefaultDropDownValueNode({
                     }
                   }}
                 />
-              </div>
+              </Chips>
             );
           })}
-        </div>
+        </ChipsWrapper>
       );
     } else
       return hasError ? (
@@ -611,7 +616,7 @@ function DefaultDropDownValueNode({
   }
 
   return (
-    <SelectedDropDownHolder>
+    <SelectedDropDownHolder enableScroll={isMultiSelect}>
       {renderNode ? (
         renderNode({
           isSelectedNode: true,

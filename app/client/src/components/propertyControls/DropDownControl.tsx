@@ -48,7 +48,6 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     return (
       <StyledDropDownContainer>
         <StyledDropDown
-          boundary="scrollParent"
           dropdownHeight={this.props.dropdownHeight}
           dropdownMaxHeight="200px"
           enableSearch={this.props.enableSearch}
