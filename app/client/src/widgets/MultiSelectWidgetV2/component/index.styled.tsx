@@ -1,13 +1,18 @@
 import React from "react";
-import { Checkbox, Classes, Label } from "@blueprintjs/core";
+import { Checkbox, Classes } from "@blueprintjs/core";
 import styled, { css, keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
 import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
+  LabelPosition,
+  LABEL_MARGIN_OLD_SELECT,
+  SELECT_DEFAULT_HEIGHT,
+} from "components/constants";
+import {
+  labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
+  multiSelectInputContainerStyles,
+} from "components/ads/LabelWithTooltip";
 
 const Input = styled.input`
   height: 0;
@@ -157,6 +162,7 @@ export const DropdownStyles = createGlobalStyle<{
 }>`
 ${({ dropDownWidth, id }) => `
   .multiselect-popover-width-${id} {
+    width: ${dropDownWidth}px !important;
     min-width: ${dropDownWidth}px !important;
   }
 `}
@@ -268,22 +274,21 @@ ${({ dropDownWidth, id }) => `
 	animation-play-state: running;
 }
 .rc-select-dropdown-slide-up-leave.rc-select-dropdown-slide-up-leave-active.rc-select-dropdown-placement-bottomLeft {
-	animation-name: ${rcSelectDropdownSlideUpOut}; 
+	animation-name: ${rcSelectDropdownSlideUpOut};
 	animation-play-state: running;
 }
 .rc-select-dropdown-slide-up-enter.rc-select-dropdown-slide-up-enter-active.rc-select-dropdown-placement-topLeft {
-	animation-name:  ${rcSelectDropdownSlideUpIn}; 
+	animation-name:  ${rcSelectDropdownSlideUpIn};
 	animation-play-state: running;
 }
 .rc-select-dropdown-slide-up-appear.rc-select-dropdown-slide-up-appear-active.rc-select-dropdown-placement-topLeft {
-	animation-name:  ${rcSelectDropdownSlideUpIn}; 
+	animation-name:  ${rcSelectDropdownSlideUpIn};
 	animation-play-state: running;
 }
 .rc-select-dropdown-slide-up-leave.rc-select-dropdown-slide-up-leave-active.rc-select-dropdown-placement-topLeft {
 	animation-name: ${rcSelectDropdownSlideUpOut};
 	animation-play-state: running;
 }
-
 .multi-select-dropdown {
   min-height: 100px;
   position: absolute;
@@ -294,9 +299,6 @@ ${({ dropDownWidth, id }) => `
   background: white;
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
    overflow-x: scroll;
-  > div {
-      min-width: ${({ dropDownWidth }) => dropDownWidth}px;
-    }
     ${CommonSelectFilterStyle}
   .rc-select-item {
     font-size: 14px;
@@ -317,15 +319,19 @@ ${({ dropDownWidth, id }) => `
 export const MultiSelectContainer = styled.div<{
   compactMode: boolean;
   isValid: boolean;
+  labelPosition?: LabelPosition;
 }>`
-  display: flex;
-  flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
-  align-items: ${(props) => (props.compactMode ? "center" : "left")};
-
-  label.tree-multiselect-label {
-    margin-bottom: ${(props) => (props.compactMode ? "0px" : "5px")};
-    margin-right: ${(props) => (props.compactMode ? "10px" : "0px")};
+  ${labelLayoutStyles}
+  & .${LABEL_CONTAINER_CLASS} {
+    label {
+      ${({ labelPosition }) => {
+        if (!labelPosition) {
+          return `margin-bottom: ${LABEL_MARGIN_OLD_SELECT}`;
+        }
+      }};
+    }
   }
+
   .rc-select {
     display: inline-block;
     font-size: 12px;
@@ -333,6 +339,12 @@ export const MultiSelectContainer = styled.div<{
     height: 100%;
     position: relative;
     cursor: pointer;
+
+    ${({ compactMode, labelPosition }) =>
+      labelPosition !== LabelPosition.Top &&
+      compactMode &&
+      `height: 100%; overflow: hidden`};
+
     .rc-select-selection-placeholder {
       pointer-events: none;
       position: absolute;
@@ -577,36 +589,10 @@ export const inputIcon = (): JSX.Element => (
   </svg>
 );
 
-export const TextLabelWrapper = styled.div<{
+export const InputContainer = styled.div<{
   compactMode: boolean;
+  labelPosition?: LabelPosition;
 }>`
-  ${(props) =>
-    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
-  display: flex;
-`;
-
-export const StyledLabel = styled(Label)<{
-  $compactMode: boolean;
-  $disabled: boolean;
-  $labelText?: string;
-  $labelTextColor?: string;
-  $labelTextSize?: TextSize;
-  $labelStyle?: string;
-}>`
-  overflow-y: hidden;
-  text-overflow: ellipsis;
-  width: ${(props) => (props.$compactMode ? "auto" : "100%")};
-  text-align: left;
-  color: ${(props) =>
-    props.$labelTextColor
-      ? props.$labelTextColor
-      : props.$disabled
-      ? Colors.GREY_8
-      : "inherit"};
-  font-size: ${(props) =>
-    props.$labelTextSize ? TEXT_SIZES[props.$labelTextSize] : "14px"};
-  font-weight: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
-  font-style: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
+  ${multiSelectInputContainerStyles}
+  ${({ labelPosition }) => labelPosition && `height: ${SELECT_DEFAULT_HEIGHT}`};
 `;

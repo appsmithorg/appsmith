@@ -3,7 +3,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import ApplicationApi, {
   ApplicationObject,
   ApplicationPagePayload,
@@ -87,7 +87,6 @@ import { failFastApiCalls } from "./InitSagas";
 import { Datasource } from "entities/Datasource";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
-import { updateSlugNamesInURL } from "utils/helpers";
 import { builderURL, generateTemplateURL, viewerURL } from "RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "./selectors";
 import PageApi from "api/PageApi";
@@ -98,6 +97,7 @@ import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 import DatasourcesApi from "api/DatasourcesApi";
 import { AppState } from "reducers";
+import { resetApplicationWidgets } from "actions/pageActions";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -340,6 +340,12 @@ export function* updateApplicationSaga(
     // as the redux store updates the app only on success.
     // we have to run this
     if (isValidResponse) {
+      if (request && request.applicationVersion) {
+        if (request.applicationVersion === ApplicationVersion.SLUG_URL) {
+          request.callback?.();
+          return;
+        }
+      }
       if (request) {
         yield put({
           type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
@@ -351,14 +357,6 @@ export function* updateApplicationSaga(
           type: ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
           payload: response.data,
         });
-        updateSlugNamesInURL({
-          applicationSlug: response.data.slug,
-        });
-      }
-      if (request.applicationVersion) {
-        if (request.applicationVersion === ApplicationVersion.SLUG_URL) {
-          request.callback?.();
-        }
       }
     }
   } catch (error) {
@@ -427,8 +425,9 @@ export function* duplicateApplicationSaga(
       const defaultPage = application.pages.find((page) => page.isDefault);
       const pageURL = builderURL({
         applicationVersion: application.applicationVersion,
-        applicationSlug: slug,
-        pageSlug: defaultPage?.slug,
+        applicationId: application.id,
+        applicationSlug: slug || PLACEHOLDER_APP_SLUG,
+        pageSlug: defaultPage?.slug || PLACEHOLDER_PAGE_SLUG,
         pageId: application.defaultPageId as string,
       });
       history.push(pageURL);
@@ -532,9 +531,7 @@ export function* createApplicationSaga(
         // This sets ui.pageWidgets = {} to ensure that
         // widgets are cleaned up from state before
         // finishing creating a new application
-        yield put({
-          type: ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST,
-        });
+        yield put(resetApplicationWidgets());
         yield put({
           type: ReduxActionTypes.CREATE_APPLICATION_SUCCESS,
           payload: {
@@ -623,8 +620,9 @@ export function* forkApplicationSaga(
       );
       const pageURL = builderURL({
         applicationVersion: application.applicationVersion,
-        applicationSlug: application.slug as string,
-        pageSlug: defaultPage.slug,
+        applicationId: application.id,
+        applicationSlug: application.slug || PLACEHOLDER_APP_SLUG,
+        pageSlug: defaultPage.slug || PLACEHOLDER_PAGE_SLUG,
         pageId: application.defaultPageId as string,
       });
       history.push(pageURL);
@@ -675,7 +673,7 @@ export function* importApplicationSaga(
       );
       if (currentOrg.length > 0) {
         const {
-          application: { applicationVersion, pages, slug: applicationSlug },
+          application: { applicationVersion, id, pages, slug: applicationSlug },
           isPartialImport,
         }: {
           application: {
@@ -707,6 +705,7 @@ export function* importApplicationSaga(
           const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
           const pageURL = builderURL({
             applicationSlug: applicationSlug ?? PLACEHOLDER_APP_SLUG,
+            applicationId: id,
             applicationVersion:
               applicationVersion ?? ApplicationVersion.SLUG_URL,
             pageSlug: defaultPage[0].slug || PLACEHOLDER_PAGE_SLUG,

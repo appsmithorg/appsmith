@@ -1,5 +1,5 @@
 import { Directions } from "utils/helpers";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getOnSelectAction, DropdownOnSelectActions } from "./dropdownHelpers";
 import { CustomizedDropdownProps } from "./index";
 import { User } from "constants/userConstants";

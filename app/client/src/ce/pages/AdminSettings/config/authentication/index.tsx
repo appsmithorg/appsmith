@@ -37,7 +37,7 @@ const Form_Auth: AdminConfigType = {
       category: SettingCategories.FORM_AUTH,
       subCategory: SettingSubCategories.FORMLOGIN,
       controlType: SettingTypes.TOGGLE,
-      label: "Form Login Option",
+      label: "Form Login",
       toggleText: (value: boolean) => (value ? "Enabled" : "Disabled"),
     },
     {
@@ -45,9 +45,11 @@ const Form_Auth: AdminConfigType = {
       category: SettingCategories.FORM_AUTH,
       subCategory: SettingSubCategories.FORMLOGIN,
       controlType: SettingTypes.TOGGLE,
-      label: "Signup",
+      label: "Form Signup",
       toggleText: (value: boolean) =>
-        value ? "Allow all users to signup" : "Restrict Signups",
+        value
+          ? "Allow all users to signup"
+          : "Allow only invited users to signup",
     },
     {
       id: "APPSMITH_FORM_CALLOUT_BANNER",
@@ -55,7 +57,7 @@ const Form_Auth: AdminConfigType = {
       subCategory: SettingSubCategories.FORMLOGIN,
       controlType: SettingTypes.LINK,
       label:
-        "User emails are not verified. This can lead to a breach in your application.",
+        "The form login method does not verify the emails of users that create accounts.",
       url: SIGNUP_RESTRICTION_DOC,
       calloutType: "Warning",
     },
@@ -179,6 +181,7 @@ export const Github_Auth_Callout: AuthMethodType = {
 
 export const Saml_Auth_Callout: AuthMethodType = {
   id: "APPSMITH_SAML_AUTH",
+  category: "saml",
   label: "SAML 2.0",
   subText: `Enable your organization to sign in with your preferred SAML2 compliant provider.`,
   image: SamlSso,
@@ -188,6 +191,7 @@ export const Saml_Auth_Callout: AuthMethodType = {
 
 export const Oidc_Auth_Callout: AuthMethodType = {
   id: "APPSMITH_OIDC_AUTH",
+  category: "oidc",
   label: "OIDC",
   subText: `Enable your organization to sign in with Open ID Connect.`,
   image: OIDC,

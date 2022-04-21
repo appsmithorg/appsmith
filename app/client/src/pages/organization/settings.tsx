@@ -106,7 +106,7 @@ export default function Settings() {
           let newUrl = "";
 
           if (hasSlash) {
-            newUrl = `${location.pathname.substr(0, settingsEndIndex)}/${
+            newUrl = `${location.pathname.slice(0, settingsEndIndex)}/${
               tabArr[index].key
             }`;
           } else {

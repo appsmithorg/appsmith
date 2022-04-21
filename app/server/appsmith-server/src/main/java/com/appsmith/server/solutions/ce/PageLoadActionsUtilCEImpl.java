@@ -178,14 +178,14 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                     // If any of the explicitly set on page load actions havent been added yet, add them to the 0th set
                     // of actions set since no relationships were found with any other appsmith entity
                     if (!pageLoadActionNames.isEmpty()) {
-                        onPageLoadActionSet.addAll(explicitUserSetOnLoadActions);
+                        onPageLoadActionSet.addAll(pageLoadActionNames);
 
                         // In case there are no page load actions, initialize the 0th set of page load actions list.
                         if (onPageLoadActionsSchedulingOrder.isEmpty()) {
                             onPageLoadActionsSchedulingOrder.add(new HashSet<>());
                         }
 
-                        onPageLoadActionsSchedulingOrder.get(0).addAll(explicitUserSetOnLoadActions);
+                        onPageLoadActionsSchedulingOrder.get(0).addAll(pageLoadActionNames);
                     }
 
                     return onPageLoadActionsSchedulingOrder;

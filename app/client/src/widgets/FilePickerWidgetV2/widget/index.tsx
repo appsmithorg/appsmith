@@ -223,6 +223,7 @@ class FilePickerWidget extends BaseWidget<
     return {
       selectedFiles: [],
       uploadedFileData: {},
+      isDirty: false,
     };
   }
 
@@ -365,6 +366,7 @@ class FilePickerWidget extends BaseWidget<
                 data: reader.result,
                 name: file.meta ? file.meta.name : `File-${index + fileCount}`,
                 size: file.size,
+                dataFormat: this.props.fileDataType,
               };
               resolve(newFile);
             };
@@ -376,6 +378,7 @@ class FilePickerWidget extends BaseWidget<
               data: data,
               name: file.meta ? file.meta.name : `File-${index + fileCount}`,
               size: file.size,
+              dataFormat: this.props.fileDataType,
             };
             resolve(newFile);
           }
@@ -383,6 +386,10 @@ class FilePickerWidget extends BaseWidget<
       });
 
       Promise.all(fileReaderPromises).then((files) => {
+        if (!this.props.isDirty) {
+          this.props.updateWidgetMetaProperty("isDirty", true);
+        }
+
         this.props.updateWidgetMetaProperty(
           "selectedFiles",
           dslFiles.concat(files),

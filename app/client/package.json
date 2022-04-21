@@ -69,6 +69,7 @@
     "js-sha256": "^0.9.0",
     "jshint": "^2.13.4",
     "json-fn": "^1.1.1",
+    "klona": "^2.0.5",
     "libphonenumber-js": "^1.9.44",
     "lint-staged": "^9.2.5",
     "localforage": "^1.7.3",
@@ -83,7 +84,7 @@
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.27",
     "nanoid": "^2.0.4",
-    "node-forge": "^1.0.0",
+    "node-forge": "^1.3.0",
     "node-sass": "^7.0.1",
     "normalizr": "^3.3.0",
     "path-to-regexp": "^6.2.0",
@@ -142,7 +143,6 @@
     "redux-saga": "^1.1.3",
     "remixicon-react": "^1.0.0",
     "reselect": "^4.0.0",
-    "rfdc": "^1.3.0",
     "scroll-into-view-if-needed": "^2.2.26",
     "shallowequal": "^1.1.0",
     "showdown": "^1.9.1",
@@ -278,6 +278,7 @@
     "eslint-plugin-sort-destructure-keys": "^1.3.5",
     "factory.ts": "^0.5.1",
     "jest-canvas-mock": "^2.3.1",
+    "jest-styled-components": "^7.0.8",
     "mocha": "^7.1.0",
     "mocha-junit-reporter": "^1.23.3",
     "mochawesome": "^7.1.2",
@@ -304,5 +305,8 @@
     "hooks": {
       "pre-commit": "lint-staged"
     }
+  },
+  "resolutions": {
+    "react-error-overlay": "6.0.9"
   }
 }

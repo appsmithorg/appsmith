@@ -3,97 +3,132 @@ import styled from "constants/DefaultTheme";
 import { Classes } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
-import Icon, { IconName, IconSize } from "components/ads/Icon";
+import Icon, { IconSize } from "components/ads/Icon";
 import { useSelector } from "react-redux";
 import {
   getGitStatus,
   getIsFetchingGitStatus,
 } from "selectors/gitSyncSelectors";
+import { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 
-const Skeleton = styled.div`
-  width: 135px;
+const DummyChange = styled.div`
+  width: 50%;
   height: ${(props) => props.theme.spaces[9]}px;
   background: linear-gradient(
     90deg,
     ${Colors.GREY_2} 0%,
     rgba(240, 240, 240, 0) 100%
   );
-  margin-right: ${(props) => props.theme.spaces[8] + 5}px;
+  margin-top: ${(props) => props.theme.spaces[7]}px;
+  margin-bottom: ${(props) => props.theme.spaces[7]}px;
 `;
 
 const Wrapper = styled.div`
-  width: 178px;
   height: ${(props) => props.theme.spaces[9]}px;
+  margin-bottom: ${(props) => props.theme.spaces[7]}px;
   display: flex;
+
   .${Classes.ICON} {
     margin-right: ${(props) => props.theme.spaces[3]}px;
   }
+
   .${Classes.TEXT} {
     padding-top: ${(props) => props.theme.spaces[1] - 2}px;
   }
 `;
 
-const GitChangedRow = styled.div`
-  display: flex;
-  align-items: center;
+const Statuses = styled.div`
+  margin-top: ${(props) => props.theme.spaces[7]}px;
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
 `;
 
 export enum Kind {
-  widget = "widget",
-  query = "query",
-  commit = "commit",
-  // pullRequest = "pullRequest",
+  WIDGET = "WIDGET",
+  QUERY = "QUERY",
+  COMMIT = "COMMIT",
+  JS_OBJECT = "JS_OBJECT",
 }
 
-type GitSyncProps = {
-  type: Kind;
+type StatusProps = {
+  iconName: string;
+  message: string;
+  hasValue: boolean;
 };
 
-function GitStatus(props: GitSyncProps) {
-  const { type } = props;
-  const status: any = useSelector(getGitStatus);
-  const loading = useSelector(getIsFetchingGitStatus);
-  // const loading = true;
-  let message = "",
-    iconName: IconName;
-  switch (type) {
-    case Kind.widget:
-      message = `${status?.modifiedPages || 0} page${
-        (status?.modifiedPages || 0) === 1 ? "" : "s"
-      } updated`;
-      iconName = "widget";
-      break;
-    case Kind.query:
-      message = `${status?.modifiedQueries || 0} ${
-        (status?.modifiedQueries || 0) === 1 ? "query" : "queries"
-      } modified`;
-      iconName = "query";
-      break;
-    case Kind.commit:
-      message = `${status?.aheadCount || 0} commit${
-        (status?.aheadCount || 0) === 1 ? "" : "s"
-      } to push`;
-      iconName = "git-commit";
-      break;
-  }
-  return loading ? (
-    <Skeleton />
-  ) : (
+type StatusMap = {
+  [key in Kind]: (status: GitStatusData) => StatusProps;
+};
+
+const STATUS_MAP: StatusMap = {
+  [Kind.WIDGET]: (status: GitStatusData) => ({
+    message: `${status?.modifiedPages || 0} ${
+      (status?.modifiedPages || 0) <= 1 ? "page" : "pages"
+    } updated`,
+    iconName: "widget",
+    hasValue: (status?.modifiedPages || 0) > 0,
+  }),
+  [Kind.QUERY]: (status: GitStatusData) => ({
+    message: `${status?.modifiedQueries || 0} ${
+      (status?.modifiedQueries || 0) <= 1 ? "query" : "queries"
+    } modified`,
+    iconName: "query",
+    hasValue: (status?.modifiedQueries || 0) > 0,
+  }),
+  [Kind.COMMIT]: (status: GitStatusData) => ({
+    message: commitMessage(status),
+    iconName: "git-commit",
+    hasValue: (status?.aheadCount || 0) > 0 || (status?.behindCount || 0) > 0,
+  }),
+  [Kind.JS_OBJECT]: (status: GitStatusData) => ({
+    message: `${status?.modifiedJSObjects || 0} JS ${
+      (status?.modifiedJSObjects || 0) <= 1 ? "Object" : "Objects"
+    } modified`,
+    iconName: "js",
+    hasValue: (status?.modifiedJSObjects || 0) > 0,
+  }),
+};
+
+function commitMessage(status: GitStatusData) {
+  const aheadCount = status?.aheadCount || 0;
+  const behindCount = status?.behindCount || 0;
+  const aheadMessage =
+    aheadCount > 0
+      ? (aheadCount || 0) === 1
+        ? `${aheadCount || 0} commit ahead`
+        : `${aheadCount || 0} commits ahead`
+      : null;
+  const behindMessage =
+    behindCount > 0
+      ? (behindCount || 0) === 1
+        ? `${behindCount || 0} commit behind`
+        : `${behindCount || 0} commits behind `
+      : null;
+  return [aheadMessage, behindMessage].filter((i) => i !== null).join(" and ");
+}
+
+function Status(props: Partial<StatusProps>) {
+  const { iconName, message } = props;
+
+  return (
     <Wrapper>
-      <Icon fillColor={Colors.GREY_10} name={iconName} size={IconSize.XXL} />
+      <Icon name={iconName} size={IconSize.XXL} />
       <Text type={TextType.P3}>{message}</Text>
     </Wrapper>
   );
 }
 
 export default function GitChanged() {
-  const gitStatus: any = useSelector(getGitStatus);
-  return (
-    <GitChangedRow>
-      <GitStatus type={Kind.widget} />
-      <GitStatus type={Kind.query} />
-      {gitStatus?.aheadCount > 0 && <GitStatus type={Kind.commit} />}
-    </GitChangedRow>
+  const status: GitStatusData = useSelector(getGitStatus) as GitStatusData;
+  const loading = useSelector(getIsFetchingGitStatus);
+  const statuses = [Kind.WIDGET, Kind.QUERY, Kind.COMMIT, Kind.JS_OBJECT]
+    .map((type: Kind) => STATUS_MAP[type](status))
+    .map((s) =>
+      s.hasValue ? <Status {...s} key={`change-status-${s.iconName}`} /> : null,
+    )
+    .filter((s) => !!s);
+  return loading ? (
+    <DummyChange data-testid={"t--git-change-loading-dummy"} />
+  ) : (
+    <Statuses data-testid={"t--git-change-statuses"}>{statuses}</Statuses>
   );
 }

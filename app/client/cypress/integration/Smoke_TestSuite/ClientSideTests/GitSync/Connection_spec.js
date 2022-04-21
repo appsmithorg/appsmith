@@ -202,28 +202,30 @@ describe("Git sync modal: connect tab", function() {
 
   it("validates submit errors", function() {
     cy.get(gitSyncLocators.useGlobalGitConfig).click();
-    cy.get(gitSyncLocators.gitConfigNameInput).type(`{selectAll}${owner}`);
+    cy.get(gitSyncLocators.gitConfigNameInput)
+      .scrollIntoView()
+      .type(`{selectAll}${owner}`);
     cy.get(gitSyncLocators.gitConfigEmailInput).type(
       `{selectAll}${Cypress.env("USERNAME")}`,
     );
-
+    cy.wait(200);
+    cy.get(gitSyncLocators.gitConnectionContainer)
+      .scrollTo("top")
+      .should("be.visible");
     cy.get(gitSyncLocators.gitRepoInput)
       .click({ force: true })
       .type(`{selectAll}${invalidURLDetectedOnTheBackend}`);
-    cy.get(gitSyncLocators.connectSubmitBtn).click();
-    cy.wait("@connectGitRepo").then((interception) => {
-      const status = interception.response.body.responseMeta.status;
-      expect(status).to.be.gte(400);
-      // todo check for error msg based on the context
-    });
+    cy.get(gitSyncLocators.connectSubmitBtn).scrollIntoView();
+    cy.get(gitSyncLocators.connectSubmitBtn).should("be.visible");
 
-    cy.get(gitSyncLocators.gitRepoInput).type(
-      `{selectAll}git@github.com:${owner}-test/${repoName}.git`,
-      {
+    cy.get(gitSyncLocators.gitRepoInput)
+      .scrollIntoView()
+      .type(`{selectAll}git@github.com:${owner}-test/${repoName}.git`, {
         force: true,
-      },
-    );
-    cy.get(gitSyncLocators.connectSubmitBtn).click();
+      });
+    cy.get(gitSyncLocators.connectSubmitBtn)
+      .scrollIntoView()
+      .click();
     cy.get(gitSyncLocators.connetStatusbar).should("exist");
     cy.wait("@connectGitRepo").then((interception) => {
       const status = interception.response.body.responseMeta.status;
@@ -231,12 +233,11 @@ describe("Git sync modal: connect tab", function() {
       // todo check for error msg based on the context
     });
 
-    cy.get(gitSyncLocators.gitRepoInput).type(
-      `{selectAll}git@github.com:${owner}/${repoName}.git`,
-      {
+    cy.get(gitSyncLocators.gitRepoInput)
+      .scrollIntoView()
+      .type(`{selectAll}git@github.com:${owner}/${repoName}.git`, {
         force: true,
-      },
-    );
+      });
 
     cy.request({
       method: "POST",
@@ -253,7 +254,9 @@ describe("Git sync modal: connect tab", function() {
       },
     });
 
-    cy.get(gitSyncLocators.connectSubmitBtn).click();
+    cy.get(gitSyncLocators.connectSubmitBtn)
+      .scrollIntoView()
+      .click();
     cy.get(gitSyncLocators.connetStatusbar).should("exist");
     cy.wait("@connectGitRepo").then((interception) => {
       const status = interception.response.body.responseMeta.status;

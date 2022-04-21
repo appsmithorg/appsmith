@@ -184,7 +184,11 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                         openOnTargetFocus={false}
                         position={Position.RIGHT}
                       >
-                        <Icon fillColor={Colors.GREEN} name="oval-check" />
+                        <Icon
+                          className={`${method.category}-green-check`}
+                          fillColor={Colors.GREEN}
+                          name="oval-check"
+                        />
                       </TooltipComponent>
                     )}
                   </MethodTitle>
@@ -202,7 +206,9 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                     method.isConnected ? Category.primary : Category.tertiary
                   }
                   className={`t--settings-sub-category-${
-                    method.needsUpgrade ? "upgrade" : method.category
+                    method.needsUpgrade
+                      ? `upgrade-${method.category}`
+                      : method.category
                   }`}
                   data-cy="btn-auth-account"
                   onClick={() =>

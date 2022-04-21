@@ -1,10 +1,8 @@
-import { AggregateHelper } from "./AggregateHelper";
-import { CommonLocators } from "../Objects/CommonLocators";
-
-const agHelper = new AggregateHelper();
-const locator = new CommonLocators();
-
+import { ObjectsRegistry } from "../Objects/Registry"
 export class HomePage {
+
+    private agHelper = ObjectsRegistry.AggregateHelper;
+    private locator = ObjectsRegistry.CommonLocators;
 
     private _username = "input[name='username']"
     private _password = "input[name='password']"
@@ -17,7 +15,7 @@ export class HomePage {
     private _orgShareUsersIcon = (orgName: string) => ".t--org-section:contains(" + orgName + ") .org-share-user-icons"
     private _shareOrg = (orgName: string) => ".t--org-section:contains(" + orgName + ") button:contains('Share')"
     private _email = "//input[@type='email']"
-    _visibleTextSpan = (spanText: string) => "span:contains('" + spanText + "')"
+    _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']"
     private _userRole = (role: string) => "//div[contains(@class, 'label-container')]//span[1][text()='" + role + "']"
     private _manageUsers = ".manageUsers"
     private _appHome = "//a[@href='/applications']"
@@ -39,20 +37,22 @@ export class HomePage {
     private _userRoleDropDown = (email: string, role: string) => "//td[text()='" + email + "']/following-sibling::td//span[text()='" + role + "']"
     //private _userRoleDropDown = (email: string) => "//td[text()='" + email + "']/following-sibling::td"
     private _leaveOrgConfirmModal = ".t--member-delete-confirmation-modal"
+    private _orgImportAppModal = ".t--import-application-modal"
     private _leaveOrgConfirmButton = "[data - cy= t--org-leave - button]"
     private _lastOrgInHomePage = "//div[contains(@class, 't--org-section')][last()]//span/span"
     _editPageLanding = "//h2[text()='Drag and drop a widget here']"
     _usersEmailList = "[data-colindex='1']"
-
+    private _orgImport = "[data-cy=t--org-import-app]"
+    private _uploadFile = "//div/form/input"
 
     public CreateNewOrg(orgNewName: string) {
         let oldName: string = ""
-        cy.get(this._visibleTextSpan('New Organization'))
+        cy.xpath(this._visibleTextSpan('New Organization'))
             .should("be.visible")
             .first()
             .click({ force: true });
         cy.wait("@createOrg")
-        agHelper.Sleep(2000)
+        this.agHelper.Sleep(2000)
         cy.xpath(this._lastOrgInHomePage).first().then($ele => {
             oldName = $ele.text();
             cy.log("oldName is : " + oldName);
@@ -69,7 +69,7 @@ export class HomePage {
         cy.get(this._renameOrgInput)
             .should("be.visible")
             .type(newOrgName.concat("{enter}"));
-        agHelper.Sleep(2000)
+        this.agHelper.Sleep(2000)
         cy.wait("@updateOrganization").should(
             "have.nested.property",
             "response.body.responseMeta.status",
@@ -101,9 +101,9 @@ export class HomePage {
             .click({ force: true })
             .type(email);
         cy.xpath(this._selectRole).first().click({ force: true });
-        agHelper.Sleep(500)
+        this.agHelper.Sleep(500)
         cy.xpath(this._userRole(role)).click({ force: true });
-        agHelper.ClickButton('Invite')
+        this.agHelper.ClickButton('Invite')
         cy.wait("@mockPostInvite")
             .its("request.headers")
             .should("have.property", "origin", "Cypress");
@@ -117,20 +117,16 @@ export class HomePage {
 
     public NavigateToHome() {
         cy.get(this._homeIcon).click({ force: true });
-        agHelper.Sleep(3000)
+        this.agHelper.Sleep(3000)
+        //cy.wait("@applications"); this randomly fails & introduces flakyness hence commenting!
         cy.get(this._homePageAppCreateBtn).should("be.visible").should("be.enabled");
     }
 
     public CreateNewApplication() {
         cy.get(this._homePageAppCreateBtn).first().click({ force: true })
-        cy.wait("@createNewApplication").should(
-            "have.nested.property",
-            "response.body.responseMeta.status",
-            201,
-        );
-        cy.get(locator._loading).should("not.exist");
+        this.agHelper.ValidateNetworkStatus("@createNewApplication", 201)
+        cy.get(this.locator._loading).should("not.exist");
     }
-
 
     //Maps to CreateAppForOrg in command.js
     public CreateAppInOrg(orgName: string, appname: string) {
@@ -143,8 +139,8 @@ export class HomePage {
             "response.body.responseMeta.status",
             201,
         );
-        cy.get(locator._loading).should("not.exist");
-        agHelper.Sleep(2000)
+        cy.get(this.locator._loading).should("not.exist");
+        this.agHelper.Sleep(2000)
         this.RenameApplication(appname)
         cy.get(this._buildFromScratchActionCard).click();
         cy.wait("@updateApplication").should(
@@ -160,7 +156,7 @@ export class HomePage {
             if (!$appName.hasClass(this._editAppName)) {
                 cy.get(this._applicationName).click();
                 cy.get(this._appMenu)
-                    .contains("Rename", { matchCase: false })
+                    .contains("Edit Name", { matchCase: false })
                     .click();
             }
         });
@@ -170,28 +166,28 @@ export class HomePage {
     //Maps to LogOut in command.js
     public LogOutviaAPI() {
         cy.request("POST", "/api/v1/logout");
-        agHelper.Sleep()//for logout to complete!
+        this.agHelper.Sleep()//for logout to complete!
     }
 
     public LogintoApp(uname: string, pswd: string, role: 'App Viewer' | 'Developer' | 'Administrator' = 'Administrator') {
-        agHelper.Sleep() //waiting for window to load
+        this.agHelper.Sleep() //waiting for window to load
         cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
         cy.wait("@postLogout");
         cy.visit("/user/login");
         cy.get(this._username).should("be.visible").type(uname)
-        cy.get(this._password).type(pswd);
+        cy.get(this._password).type(pswd, {log: false});
         cy.get(this._submitBtn).click();
-        cy.wait("@getUser");
-        agHelper.Sleep(3000)
+        cy.wait("@getMe");
+        this.agHelper.Sleep(3000)
         if (role != 'App Viewer')
             cy.get(this._homePageAppCreateBtn).should("be.visible").should("be.enabled");
     }
 
     public FilterApplication(appName: string, orgId: string) {
         cy.get(this._searchInput).type(appName);
-        agHelper.Sleep(2000)
+        this.agHelper.Sleep(2000)
         cy.get(this._appContainer).contains(orgId);
-        cy.xpath(locator._spanButton('Share'))
+        cy.xpath(this.locator._spanButton('Share'))
             .first()
             .should("be.visible")
     }
@@ -202,7 +198,7 @@ export class HomePage {
             .should("be.visible")
             .first()
             .click();
-        cy.get(locator._loading).should("not.exist");
+        cy.get(this.locator._loading).should("not.exist");
         cy.wait("@getPagesForViewApp").should(
             "have.nested.property",
             "response.body.responseMeta.status",
@@ -220,7 +216,7 @@ export class HomePage {
             .find(this._orgName)
             .find(this._optionsIcon)
             .click({ force: true });
-        cy.get(this._visibleTextSpan('Members')).click({ force: true });
+        cy.xpath(this._visibleTextSpan('Members')).click({ force: true });
         cy.wait("@getMembers").should(
             "have.nested.property",
             "response.body.responseMeta.status",
@@ -243,22 +239,40 @@ export class HomePage {
             .find(this._orgName)
             .find(this._optionsIcon)
             .click({ force: true });
-        cy.get(this._visibleTextSpan('Members')).last().click({ force: true });
+        cy.xpath(this._visibleTextSpan('Members')).last().click({ force: true });
         cy.wait("@getMembers").should(
             "have.nested.property",
             "response.body.responseMeta.status",
             200,
         );
-        agHelper.Sleep(2500)//wait for members page to load!
+        this.agHelper.Sleep(2500)//wait for members page to load!
     }
 
     public UpdateUserRoleInOrg(orgName: string, email: string, currentRole: string, newRole: string) {
         this.OpenMembersPageForOrg(orgName)
         cy.xpath(this._userRoleDropDown(email, currentRole)).first().trigger('click');
         //cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
-        cy.get(this._visibleTextSpan(newRole)).last().click({ force: true });
-        agHelper.Sleep()
+        cy.xpath(this._visibleTextSpan(newRole)).last().click({ force: true });
+        this.agHelper.Sleep()
         this.NavigateToHome()
+    }
+
+    public ImportApp(fixtureJson: string, reconnect = false) {
+        cy.get(this._homeIcon).click();
+        cy.get(this._optionsIcon).first().click();
+        cy.get(this._orgImport).click({ force: true });
+        cy.get(this._orgImportAppModal).should("be.visible");
+        cy.xpath(this._uploadFile).attachFile(fixtureJson).wait(500);
+        cy.get(this._orgImportAppModal).should("not.exist");
+        if (!reconnect) {
+            this.AssertImport()
+        }
+    }
+
+    public AssertImport() {
+        this.agHelper.ValidateToastMessage("Application imported successfully")
+        this.agHelper.Sleep(5000)//for imported app to settle!
+        cy.get(this.locator._loading).should("not.exist");
     }
 }
 

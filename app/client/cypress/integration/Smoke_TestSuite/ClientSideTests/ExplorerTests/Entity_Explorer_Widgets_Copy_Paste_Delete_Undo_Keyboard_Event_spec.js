@@ -2,9 +2,9 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/formWithInputdsl.json");
-import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-const AgHelper = new AggregateHelper();
+let ee = ObjectsRegistry.EntityExplorer;
 
 const pageid = "MyPage";
 before(() => {
@@ -42,13 +42,14 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
       200,
     );
     cy.get("body").type(`{${modifierKey}}z`);
-    AgHelper.expandCollapseEntity("WIDGETS");
-    AgHelper.expandCollapseEntity("FormTest");
-    AgHelper.ActionContextMenuByEntityName("FormTestCopy", "Show Bindings");
+    ee.expandCollapseEntity("WIDGETS");
+    ee.expandCollapseEntity("FormTest");
+    ee.ActionContextMenuByEntityName("FormTestCopy", "Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(2);
+      expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{FormTestCopy.isVisible}}");
       expect($lis.eq(1)).to.contain("{{FormTestCopy.data}}");
+      expect($lis.eq(2)).to.contain("{{FormTestCopy.hasChanges}}");
       cy.contains("FormTestCopy");
       cy.get($lis.eq(1))
         .contains("{{FormTestCopy.data}}")

@@ -17,7 +17,7 @@ import { Colors } from "constants/Colors";
 
 import GitErrorPopup from "./components/GitErrorPopup";
 import styled, { useTheme } from "styled-components";
-import _, { get } from "lodash";
+import { get } from "lodash";
 import { Title } from "./components/StyledComponents";
 import {
   createMessage,
@@ -32,7 +32,8 @@ import {
 } from "@appsmith/constants/messages";
 import Button, { Category, Size } from "components/ads/Button";
 import {
-  getDatasourceDrafts,
+  getDatasourceLoading,
+  getIsDatasourceTesting,
   getIsListing,
   getIsReconnectingDatasourcesModalOpen,
   getPluginImages,
@@ -46,19 +47,18 @@ import {
   setIsReconnectingDatasourcesModalOpen,
   setOrgIdForImport,
 } from "actions/applicationActions";
-import { Datasource } from "entities/Datasource";
-import { DATASOURCE_DB_FORM } from "constants/forms";
-import { initialize } from "redux-form";
+import { AuthType, Datasource } from "entities/Datasource";
 import TooltipComponent from "components/ads/Tooltip";
 import DatasourceForm from "../DataSourceEditor";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useQuery } from "../utils";
 import ListItemWrapper from "./components/DatasourceListItem";
 import { getDefaultPageId } from "sagas/ApplicationSagas";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Toaster, Variant } from "components/ads";
 import { getOAuthAccessToken } from "actions/datasourceActions";
 import { builderURL } from "RouteBuilder";
+import { PLACEHOLDER_APP_SLUG } from "constants/routes";
 
 const Container = styled.div`
   height: 765px;
@@ -221,9 +221,11 @@ const TooltipWrapper = styled.div`
 const DBFormWrapper = styled.div`
   padding: 10px;
   width: calc(100% - 206px);
+  overflow: auto;
 
   div[class^="RestAPIDatasourceForm__RestApiForm-"] {
     padding-top: 0px;
+    height: 100%;
   }
 
   .t--delete-datasource {
@@ -270,8 +272,9 @@ function ReconnectDatasourceModal() {
   const datasources = useSelector(getUnconfiguredDatasources);
   const pluginImages = useSelector(getPluginImages);
   const pluginNames = useSelector(getPluginNames);
-  const datasourceDrafts = useSelector(getDatasourceDrafts);
   const isLoading = useSelector(getIsListing);
+  const isDatasourceTesting = useSelector(getIsDatasourceTesting);
+  const isDatasourceUpdating = useSelector(getDatasourceLoading);
 
   // getting query from redirection url
   const userOrgs = useSelector(getUserApplicationsOrgsList);
@@ -287,8 +290,9 @@ function ReconnectDatasourceModal() {
   const [pageId, setPageId] = useState<string | null>(queryPageId);
   const [appId, setAppId] = useState<string | null>(queryAppId);
   const [appURL, setAppURL] = useState("");
-  const [datasouce, setDatasource] = useState<Datasource | null>(null);
+  const [datasource, setDatasource] = useState<Datasource | null>(null);
   const [isImport, setIsImport] = useState(queryIsImport);
+  const [isTesting, setIsTesting] = useState(false);
 
   // when redirecting from oauth, processing the status
   if (isImport) {
@@ -356,6 +360,19 @@ function ReconnectDatasourceModal() {
     }
   }, [organizationId, isModalOpen]);
 
+  useEffect(() => {
+    if (isModalOpen) {
+      // while updating datasource, testing flag should be false
+      if (isDatasourceUpdating) {
+        setIsTesting(false);
+      }
+      // while testing datasource, testing flag should be true
+      if (isDatasourceTesting) {
+        setIsTesting(true);
+      }
+    }
+  }, [isModalOpen, isDatasourceTesting, isDatasourceUpdating]);
+
   const handleClose = useCallback(() => {
     dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
     dispatch(setOrgIdForImport(""));
@@ -364,6 +381,7 @@ function ReconnectDatasourceModal() {
   }, [dispatch, setIsReconnectingDatasourcesModalOpen, isModalOpen]);
 
   const onSelectDatasource = useCallback((ds: Datasource) => {
+    setIsTesting(false);
     setSelectedDatasourceId(ds.id);
     setDatasource(ds);
     AnalyticsUtil.logEvent("RECONNECTING_DATASOURCE_ITEM_CLICK", {
@@ -385,21 +403,6 @@ function ReconnectDatasourceModal() {
       setSelectedDatasourceId(datasources[0].id ?? "");
     }
   }, [isConfigFetched, selectedDatasourceId, queryIsImport]);
-
-  useEffect(() => {
-    const id = selectedDatasourceId;
-    if (id) {
-      const config = datasources.find(
-        (datasource: Datasource) => datasource.id === id,
-      );
-      const notConfigured = config && !config.isConfigured;
-      if (notConfigured) {
-        const data = id in datasourceDrafts ? datasourceDrafts[id] : config;
-
-        dispatch(initialize(DATASOURCE_DB_FORM, _.omit(data, ["name"])));
-      }
-    }
-  }, [selectedDatasourceId]);
 
   const menuOptions = [
     {
@@ -426,8 +429,9 @@ function ReconnectDatasourceModal() {
       setAppURL(
         builderURL({
           applicationVersion:
-            importedApplication.applicationVersion ??
+            importedApplication?.applicationVersion ||
             ApplicationVersion.SLUG_URL,
+          applicationSlug: importedApplication?.slug || PLACEHOLDER_APP_SLUG,
           applicationId: appId,
           pageId: pageId,
         }),
@@ -437,13 +441,29 @@ function ReconnectDatasourceModal() {
 
   // checking of full configured
   useEffect(() => {
-    if (isModalOpen) {
+    if (isModalOpen && !isTesting) {
+      // if selected datasource is gsheet datasource, it shouldn't be redirected to app immediately
+      if (!queryIsImport && datasources.length) {
+        const selectedDS = datasources.find(
+          (ds: Datasource) => ds.id === selectedDatasourceId,
+        );
+        if (selectedDS) {
+          const authType =
+            selectedDS.datasourceConfiguration?.authentication
+              ?.authenticationType;
+
+          if (authType === AuthType.OAUTH2) return;
+        }
+      }
       const id = selectedDatasourceId;
       const pending = datasources.filter((ds: Datasource) => !ds.isConfigured);
       if (pending.length > 0) {
         let next: Datasource | undefined = undefined;
         if (id) {
           const index = datasources.findIndex((ds: Datasource) => ds.id === id);
+          if (index > -1 && !datasources[index].isConfigured) {
+            return;
+          }
           next = datasources
             .slice(index + 1)
             .find((ds: Datasource) => !ds.isConfigured);
@@ -455,7 +475,7 @@ function ReconnectDatasourceModal() {
         window.open(appURL, "_self");
       }
     }
-  }, [datasources, appURL, isModalOpen]);
+  }, [datasources, appURL, isModalOpen, isTesting, queryIsImport]);
 
   const mappedDataSources = datasources.map((ds: Datasource) => {
     return (
@@ -475,8 +495,7 @@ function ReconnectDatasourceModal() {
   });
 
   const shouldShowDBForm =
-    isConfigFetched && !isLoading && !datasouce?.isConfigured;
-  const shouldShowSuccessMessages = datasouce && datasouce.isConfigured;
+    isConfigFetched && !isLoading && !datasource?.isConfigured;
 
   return (
     <>
@@ -520,7 +539,7 @@ function ReconnectDatasourceModal() {
                   />
                 </DBFormWrapper>
               )}
-              {shouldShowSuccessMessages && SuccessMessages()}
+              {datasource?.isConfigured && SuccessMessages()}
             </ContentWrapper>
           </BodyContainer>
           <SkipToAppButtonWrapper>
@@ -538,7 +557,6 @@ function ReconnectDatasourceModal() {
                   AnalyticsUtil.logEvent(
                     "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK",
                   );
-                  window.open(appURL, "_self");
                 }}
                 size={Size.medium}
                 text={createMessage(SKIP_TO_APPLICATION)}

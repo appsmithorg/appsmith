@@ -33,7 +33,7 @@ font-size: 12px;
 
 //Styled help text, intended to be used with Form Fields
 const FormInputHelperText = styled.p<{ addMarginTop?: string }>`
-  color: #858282;
+  color: ${Colors.GREY_7};
   font-style: normal;
   font-weight: normal;
   font-size: 12px;
