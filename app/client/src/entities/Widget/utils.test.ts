@@ -117,11 +117,27 @@ describe("getAllPathsFromPropertyConfig", () => {
     };
     const config = tablePropertyPaneConfig;
 
+    const result = getAllPathsFromPropertyConfig(widget, config, {
+      selectedRow: true,
+      selectedRows: true,
+      tableData: true,
+    });
+
     const expected = {
       reactivePaths: {
         selectedRow: EvaluationSubstitutionType.TEMPLATE,
         selectedRows: EvaluationSubstitutionType.TEMPLATE,
-        tableData: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        tableData: "SMART_SUBSTITUTE",
+        "primaryColumns.status.boxShadow": EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.borderRadius":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.buttonVariant":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.buttonColor":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.buttonLabel":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.cellBackground":
@@ -136,7 +152,13 @@ describe("getAllPathsFromPropertyConfig", () => {
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.horizontalAlignment":
           EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.outputFormat":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.inputFormat":
+          EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.isCellVisible":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.computedValue":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.cellBackground":
           EvaluationSubstitutionType.TEMPLATE,
@@ -148,6 +170,8 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.name.horizontalAlignment":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.isCellVisible":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.computedValue":
           EvaluationSubstitutionType.TEMPLATE,
         primaryColumnId: EvaluationSubstitutionType.TEMPLATE,
         defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
@@ -169,6 +193,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         boxShadow: EvaluationSubstitutionType.TEMPLATE,
       },
       triggerPaths: {
+        "primaryColumns.status.onClick": true,
         onRowSelected: true,
         onPageChange: true,
         onPageSizeChange: true,
@@ -177,9 +202,38 @@ describe("getAllPathsFromPropertyConfig", () => {
       },
       validationPaths: {
         tableData: { type: "OBJECT_ARRAY", params: { default: [] } },
+        "primaryColumns.status.boxShadow": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: { type: ValidationTypes.TEXT },
+        },
+        "primaryColumns.status.borderRadius": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: { type: ValidationTypes.TEXT },
+        },
+        "primaryColumns.status.buttonVariant": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              default: "PRIMARY",
+              allowedValues: ["PRIMARY", "SECONDARY", "TERTIARY"],
+            },
+          },
+        },
+        "primaryColumns.status.buttonColor": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: { regex: /^(?![<|{{]).+/ },
+          },
+        },
+        "primaryColumns.status.isDisabled": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: { type: "BOOLEAN" },
+        },
         "primaryColumns.status.isCellVisible": {
           type: ValidationTypes.TABLE_PROPERTY,
-          params: { type: ValidationTypes.BOOLEAN },
+          params: { type: "BOOLEAN" },
         },
         "primaryColumns.createdAt.cellBackground": {
           type: ValidationTypes.TABLE_PROPERTY,
@@ -217,9 +271,69 @@ describe("getAllPathsFromPropertyConfig", () => {
             params: { allowedValues: ["LEFT", "CENTER", "RIGHT"] },
           },
         },
+        "primaryColumns.createdAt.outputFormat": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: [
+                "Epoch",
+                "Milliseconds",
+                "YYYY-MM-DD",
+                "YYYY-MM-DD HH:mm",
+                "YYYY-MM-DDTHH:mm:ss.sssZ",
+                "YYYY-MM-DDTHH:mm:ss",
+                "YYYY-MM-DD hh:mm:ss",
+                "Do MMM YYYY",
+                "DD/MM/YYYY",
+                "DD/MM/YYYY HH:mm",
+                "LLL",
+                "LL",
+                "D MMMM, YYYY",
+                "H:mm A D MMMM, YYYY",
+                "MM-DD-YYYY",
+                "DD-MM-YYYY",
+                "MM/DD/YYYY",
+                "DD/MM/YYYY",
+                "DD/MM/YY",
+                "MM/DD/YY",
+              ],
+            },
+          },
+        },
+        "primaryColumns.createdAt.inputFormat": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: [
+                "Epoch",
+                "Milliseconds",
+                "YYYY-MM-DD",
+                "YYYY-MM-DD HH:mm",
+                "YYYY-MM-DDTHH:mm:ss.sssZ",
+                "YYYY-MM-DDTHH:mm:ss",
+                "YYYY-MM-DD hh:mm:ss",
+                "Do MMM YYYY",
+                "DD/MM/YYYY",
+                "DD/MM/YYYY HH:mm",
+                "LLL",
+                "LL",
+                "D MMMM, YYYY",
+                "H:mm A D MMMM, YYYY",
+                "MM-DD-YYYY",
+                "DD-MM-YYYY",
+                "MM/DD/YYYY",
+                "DD/MM/YYYY",
+                "DD/MM/YY",
+                "MM/DD/YY",
+              ],
+            },
+          },
+        },
         "primaryColumns.createdAt.isCellVisible": {
           type: ValidationTypes.TABLE_PROPERTY,
-          params: { type: ValidationTypes.BOOLEAN },
+          params: { type: "BOOLEAN" },
         },
         "primaryColumns.name.cellBackground": {
           type: ValidationTypes.TABLE_PROPERTY,
@@ -259,7 +373,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         },
         "primaryColumns.name.isCellVisible": {
           type: ValidationTypes.TABLE_PROPERTY,
-          params: { type: ValidationTypes.BOOLEAN },
+          params: { type: "BOOLEAN" },
         },
         primaryColumnId: { type: ValidationTypes.TEXT },
         defaultSearchText: { type: ValidationTypes.TEXT },
@@ -273,16 +387,13 @@ describe("getAllPathsFromPropertyConfig", () => {
             },
           },
         },
-        isVisible: { type: ValidationTypes.BOOLEAN },
-        animateLoading: { type: ValidationTypes.BOOLEAN },
-        isSortable: {
-          type: ValidationTypes.BOOLEAN,
-          params: { default: true },
-        },
-        isVisibleSearch: { type: ValidationTypes.BOOLEAN },
-        isVisibleFilters: { type: ValidationTypes.BOOLEAN },
-        isVisibleDownload: { type: ValidationTypes.BOOLEAN },
-        isVisiblePagination: { type: ValidationTypes.BOOLEAN },
+        isVisible: { type: "BOOLEAN" },
+        animateLoading: { type: "BOOLEAN" },
+        isSortable: { type: "BOOLEAN", params: { default: true } },
+        isVisibleSearch: { type: "BOOLEAN" },
+        isVisibleFilters: { type: "BOOLEAN" },
+        isVisibleDownload: { type: "BOOLEAN" },
+        isVisiblePagination: { type: "BOOLEAN" },
         delimiter: { type: ValidationTypes.TEXT },
         cellBackground: { type: ValidationTypes.TEXT },
         accentColor: { type: ValidationTypes.TEXT },
@@ -293,6 +404,16 @@ describe("getAllPathsFromPropertyConfig", () => {
       },
       bindingPaths: {
         tableData: "SMART_SUBSTITUTE",
+        "primaryColumns.status.boxShadow": EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.borderRadius":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.buttonVariant":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.buttonColor":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.buttonLabel":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.cellBackground":
@@ -307,7 +428,13 @@ describe("getAllPathsFromPropertyConfig", () => {
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.horizontalAlignment":
           EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.outputFormat":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.inputFormat":
+          EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.isCellVisible":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.computedValue":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.cellBackground":
           EvaluationSubstitutionType.TEMPLATE,
@@ -319,6 +446,8 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.name.horizontalAlignment":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.isCellVisible":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.computedValue":
           EvaluationSubstitutionType.TEMPLATE,
         primaryColumnId: EvaluationSubstitutionType.TEMPLATE,
         defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
@@ -340,12 +469,6 @@ describe("getAllPathsFromPropertyConfig", () => {
         boxShadow: EvaluationSubstitutionType.TEMPLATE,
       },
     };
-
-    const result = getAllPathsFromPropertyConfig(widget, config, {
-      selectedRow: true,
-      selectedRows: true,
-      tableData: true,
-    });
 
     // Note: Removing until we figure out how functions are represented here.
     delete result.validationPaths.defaultSelectedRow.params?.fn;
