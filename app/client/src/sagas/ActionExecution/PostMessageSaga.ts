@@ -1,6 +1,9 @@
 import { spawn } from "redux-saga/effects";
 import { PostMessageDescription } from "../../entities/DataTree/actionTriggers";
-import { logActionExecutionError } from "sagas/ActionExecution/errorUtils";
+import {
+  logActionExecutionError,
+  TriggerFailureError,
+} from "sagas/ActionExecution/errorUtils";
 import { TriggerMeta } from "./ActionExecutionSagas";
 
 export function* postMessageSaga(
@@ -16,7 +19,15 @@ export function* executePostMessage(
 ) {
   const { message, targetOrigin } = payload;
   try {
-    window.parent.postMessage(message, targetOrigin, undefined);
+    if (targetOrigin === "*") {
+      throw new TriggerFailureError(
+        "Please enter a valid url as targetOrigin. Failing to provide a specific target discloses the data you send to any interested malicious site.",
+      );
+    } else if (!message) {
+      throw new TriggerFailureError("Please enter a message.");
+    } else {
+      window.parent.postMessage(message, targetOrigin, undefined);
+    }
   } catch (error) {
     logActionExecutionError(
       error.message,
