@@ -2,7 +2,10 @@ package com.appsmith.server.migrations;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.external.models.QDatasource;
+import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
@@ -35,6 +38,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
+import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
+import static com.appsmith.server.migrations.DatabaseChangelog.makeIndex;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -699,6 +705,45 @@ public class DatabaseChangelog2 {
                 }
             }
         }
+    }
+
+    /**
+     * This migration introduces indexes on newAction, actionCollection, newPage to improve the query performance for
+     * queries like getResourceByDefaultAppIdAndGitSyncId which excludes the deleted entries.
+     */
+    @ChangeSet(order = "007", id = "update-git-indexes", author = "")
+    public void addIndexesForGit(MongockTemplate mongockTemplate) {
+
+        dropIndexIfExists(mongockTemplate, NewAction.class, "defaultApplicationId_gitSyncId_compound_index");
+        dropIndexIfExists(mongockTemplate, ActionCollection.class, "defaultApplicationId_gitSyncId_compound_index");
+
+        String defaultResources = fieldName(QBaseDomain.baseDomain.defaultResources);
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex(
+                        defaultResources + "." + FieldName.APPLICATION_ID,
+                        fieldName(QBaseDomain.baseDomain.gitSyncId),
+                        fieldName(QBaseDomain.baseDomain.deleted)
+                )
+                .named("defaultApplicationId_gitSyncId_deleted_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, NewAction.class,
+                makeIndex(
+                        defaultResources + "." + FieldName.APPLICATION_ID,
+                        fieldName(QBaseDomain.baseDomain.gitSyncId),
+                        fieldName(QBaseDomain.baseDomain.deleted)
+                )
+                .named("defaultApplicationId_gitSyncId_deleted_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, NewPage.class,
+                makeIndex(
+                        defaultResources + "." + FieldName.APPLICATION_ID,
+                        fieldName(QBaseDomain.baseDomain.gitSyncId),
+                        fieldName(QBaseDomain.baseDomain.deleted)
+                )
+                .named("defaultApplicationId_gitSyncId_deleted_compound_index")
+        );
     }
 
 }

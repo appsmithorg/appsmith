@@ -839,8 +839,8 @@ export const ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET = {
 };
 
 export const ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS = {
-  bold: () => "Deploy your application",
-  normal: () => ",and see your creation live.",
+  bold: () => "Deploy your application,",
+  normal: () => "and see your creation live.",
 };
 
 export const ONBOARDING_CHECKLIST_FOOTER = () =>
