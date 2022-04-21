@@ -5,74 +5,20 @@ import {
   WidgetState,
 } from "widgets/BaseWidget";
 import React from "react";
-import {
-  PropertyPaneConfig,
-  PropertyPaneControlConfig,
-} from "constants/PropertyControlConstants";
-import { generateReactKey } from "./generators";
+import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import { RenderMode } from "constants/WidgetConstants";
 import * as log from "loglevel";
-import { PropertyPaneConfigTemplates } from "./WidgetFeatures";
+import { WidgetFeatures } from "./WidgetFeatures";
+import {
+  addPropertyConfigIds,
+  enhancePropertyPaneConfig,
+} from "./WidgetFactoryHelpers";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
-
-export interface WidgetFeatures {
-  dynamicHeight: boolean;
-}
-export interface WidgetConfiguration {
-  type: string;
-  name: string;
-  iconSVG?: string;
-  defaults: Partial<WidgetProps> & WidgetConfigProps;
-  hideCard?: boolean;
-  isCanvas?: boolean;
-  needsMeta?: boolean;
-  features?: WidgetFeatures;
-  properties: {
-    config: PropertyPaneConfig[];
-    default: Record<string, string>;
-    meta: Record<string, any>;
-    derived: DerivedPropertiesMap;
-  };
-}
-
-const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
-  return config.map((sectionOrControlConfig: PropertyPaneConfig) => {
-    sectionOrControlConfig.id = generateReactKey();
-    if (sectionOrControlConfig.children) {
-      sectionOrControlConfig.children = addPropertyConfigIds(
-        sectionOrControlConfig.children,
-      );
-    }
-    const config = sectionOrControlConfig as PropertyPaneControlConfig;
-    if (
-      config.panelConfig &&
-      config.panelConfig.children &&
-      Array.isArray(config.panelConfig.children)
-    ) {
-      config.panelConfig.children = addPropertyConfigIds(
-        config.panelConfig.children,
-      );
-
-      (sectionOrControlConfig as PropertyPaneControlConfig) = config;
-    }
-    return sectionOrControlConfig;
-  });
-};
-
 export type WidgetType = typeof WidgetFactory.widgetTypes[number];
-
-function enhancePropertyPaneConfig(
-  config: PropertyPaneConfig[],
-  features?: WidgetFeatures,
-) {
-  if (features && features.dynamicHeight) {
-    config.splice(1, 0, PropertyPaneConfigTemplates.DYNAMIC_HEIGHT);
-  }
-  return config;
-}
 
 class WidgetFactory {
   static widgetTypes: Record<string, string> = {};

@@ -1,5 +1,5 @@
 import { ButtonBoxShadowTypes } from "components/constants";
-import { WidgetConfiguration } from "utils/WidgetFactory";
+import { WidgetConfiguration } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 

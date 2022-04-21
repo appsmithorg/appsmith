@@ -4,13 +4,14 @@ import * as Sentry from "@sentry/react";
 import store from "store";
 
 import BaseWidget from "widgets/BaseWidget";
-import WidgetFactory, { WidgetConfiguration } from "./WidgetFactory";
+import WidgetFactory from "./WidgetFactory";
 
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import withMeta from "widgets/MetaHOC";
 import { generateReactKey } from "./generators";
 import { memoize } from "lodash";
 import { WidgetFeatureProps } from "./WidgetFeatures";
+import { WidgetConfiguration } from "widgets/constants";
 
 const generateWidget = memoize(function getWidgetComponent(
   Widget: typeof BaseWidget,
