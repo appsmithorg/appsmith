@@ -62,7 +62,6 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
     [key: string]: Record<string, string>;
   };
   editableCell: EditableCell;
-  allowBulkEditActions: boolean;
 }
 
 export const getCurrentRowBinding = (

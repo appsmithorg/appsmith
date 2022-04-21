@@ -227,12 +227,5 @@ export default {
       isBindProperty: false,
       isTriggerProperty: false,
     },
-    {
-      propertyName: "allowBulkEditActions",
-      label: "Allow bulk edit actions",
-      controlType: "SWITCH",
-      isBindProperty: false,
-      isTriggerProperty: false,
-    },
   ],
 };

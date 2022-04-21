@@ -72,9 +72,7 @@ export default {
         return (
           !(
             columnType === ColumnTypes.TEXT || columnType === ColumnTypes.NUMBER
-          ) ||
-          !isEditable ||
-          props.allowBulkEditActions
+          ) || !isEditable
         );
       },
       dependencies: ["primaryColumns"],
