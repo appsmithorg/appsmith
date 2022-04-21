@@ -1,4 +1,7 @@
-import { getActionIdFromURL } from "pages/Editor/Explorer/helpers";
+import {
+  getActionIdFromURL,
+  getJSCollectionIdFromURL,
+} from "pages/Editor/Explorer/helpers";
 
 describe("getActionIdFromUrl", () => {
   it("getsApiId", () => {
@@ -28,5 +31,17 @@ describe("getActionIdFromUrl", () => {
     );
     const response = getActionIdFromURL();
     expect(response).toBe("saasActionId");
+  });
+});
+
+describe("getJSCollectionIdFromURL", () => {
+  it("getCollectionId", () => {
+    window.history.pushState(
+      {},
+      "Query",
+      "/applications/appId/pages/pageId/edit/jsObjects/collectionId",
+    );
+    const response = getJSCollectionIdFromURL();
+    expect(response).toBe("collectionId");
   });
 });
