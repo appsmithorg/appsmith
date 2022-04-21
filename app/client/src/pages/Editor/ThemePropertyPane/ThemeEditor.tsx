@@ -140,20 +140,7 @@ function ThemeEditor() {
             </div>
           </div>
 
-          <Tooltip
-            content={
-              <div ref={themeBetaCardRef}>
-                <ThemeBetaCard />
-              </div>
-            }
-            isOpen={isBetaPopupActive && !isBetaCardShown}
-            popoverClassName={THEMING_BETA_CARD_POPOVER_CLASSNAME}
-            position="right"
-          >
-            <div onMouseOver={showBetaPopoverCard} ref={popoverRef}>
-              <ThemeCard theme={selectedTheme} />
-            </div>
-          </Tooltip>
+          <ThemeCard theme={selectedTheme} />
         </header>
         <div className="px-3 mt-4">
           <Button
@@ -166,7 +153,7 @@ function ThemeEditor() {
         </div>
         <main className="mt-1">
           {/* FONT  */}
-          <SettingSection className="px-3 py-3" title="Font">
+          <SettingSection className="px-3 py-3" isOpen title="Font">
             {Object.keys(selectedTheme.config.fontFamily).map(
               (fontFamilySectionName: string, index: number) => {
                 return (
@@ -192,7 +179,7 @@ function ThemeEditor() {
             )}
           </SettingSection>
           {/* COLORS */}
-          <SettingSection className="px-3 py-3 border-t" title="Color">
+          <SettingSection className="px-3 py-3 border-t" isOpen title="Color">
             <section className="space-y-2">
               <ThemeColorControl
                 theme={selectedTheme}
@@ -202,7 +189,7 @@ function ThemeEditor() {
           </SettingSection>
 
           {/* BORDER RADIUS */}
-          <SettingSection className="px-3 py-3 border-t " title="Border">
+          <SettingSection className="px-3 py-3 border-t " isOpen title="Border">
             {Object.keys(selectedTheme.config.borderRadius).map(
               (borderRadiusSectionName: string, index: number) => {
                 return (
@@ -229,7 +216,7 @@ function ThemeEditor() {
           </SettingSection>
 
           {/* BOX SHADOW */}
-          <SettingSection className="px-3 py-3 border-t " title="Shadow">
+          <SettingSection className="px-3 py-3 border-t " isOpen title="Shadow">
             {Object.keys(selectedTheme.config.boxShadow).map(
               (boxShadowSectionName: string, index: number) => {
                 return (

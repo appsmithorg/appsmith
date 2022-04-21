@@ -180,7 +180,7 @@ export const StyledButton = styled((props) => (
   `}
 
   border-radius: ${({ borderRadius }) => borderRadius};
-  box-shadow: ${({ boxShadow }) => boxShadow} !important;
+  box-shadow: ${({ boxShadow }) => boxShadow || "none"} !important;
 
 `;
 

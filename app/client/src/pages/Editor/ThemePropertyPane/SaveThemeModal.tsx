@@ -155,6 +155,7 @@ function SaveThemeModal(props: SaveThemeModalProps) {
             />
             <Button
               category={Category.primary}
+              disabled={!name}
               onClick={onSubmit}
               size={Size.medium}
               text="Save theme"
