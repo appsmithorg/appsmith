@@ -120,7 +120,10 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
 
                     ApplicationJson jsonFile = gson.fromJson(jsonString, fileType);
                     return jsonFile;
-                });
+                })
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "template", templateId))
+                );
     }
 
     @Override
