@@ -51,6 +51,7 @@ export const getDifferenceInJSCollection = (
               jsArguments: action.arguments,
               isAsync: action.isAsync,
             },
+            executeOnLoad: action.isAsync ? preExisted.executeOnLoad : false,
           });
         }
       } else {
