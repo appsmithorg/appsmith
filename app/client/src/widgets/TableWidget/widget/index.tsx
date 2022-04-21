@@ -51,10 +51,7 @@ import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { IconName } from "@blueprintjs/icons";
 import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
-import {
-  borderRadiusUtility,
-  boxShadowDynamicChecker,
-} from "widgets/WidgetUtils";
+import { borderRadiusUtility, boxShadowMigration } from "widgets/WidgetUtils";
 import { ButtonVariantTypes } from "components/constants";
 
 const ReactTableComponent = lazy(() =>
@@ -164,7 +161,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           );
 
           /**
-           * This conditionalBoxShadow is applied to run the boxShadowDynamicChecker on the following cases, when:
+           * This conditionalBoxShadow is applied to run the boxShadowMigration on the following cases, when:
            * 1. boxShadowColor property is present inside the columnProperties. OR
            * 2. When boxShadow property has value starting with VARIANT.
            *
@@ -178,7 +175,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             (columnProperties.hasOwnProperty("boxShadowColor") ||
             (columnProperties.hasOwnProperty("boxShadow") &&
               cellProperties.boxShadow.includes("VARIANT"))
-              ? boxShadowDynamicChecker(
+              ? boxShadowMigration(
                   this.props,
                   columnProperties.id,
                   cellProperties.boxShadow,
