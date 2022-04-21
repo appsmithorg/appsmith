@@ -78,7 +78,6 @@ interface ReactTableComponentProps {
   isVisiblePagination?: boolean;
   delimiter: string;
   isSortable?: boolean;
-  showTableLevelEditActions?: boolean;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -115,7 +114,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     selectedRowIndex,
     selectedRowIndices,
     serverSidePaginationEnabled,
-    showTableLevelEditActions,
     sortTableColumn: _sortTableColumn,
     tableData,
     totalRecordsCount,
@@ -290,7 +288,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       selectedRowIndex={selectedRowIndex}
       selectedRowIndices={selectedRowIndices}
       serverSidePaginationEnabled={serverSidePaginationEnabled}
-      showTableLevelEditActions={showTableLevelEditActions}
       sortTableColumn={sortTableColumn}
       toggleAllRowSelect={toggleAllRowSelect}
       totalRecordsCount={totalRecordsCount}
@@ -342,7 +339,6 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     // Using JSON stringify becuase isEqual doesnt work with functions,
     // and we are not changing the columns manually.
     JSON.stringify(prev.columns) === JSON.stringify(next.columns) &&
-    JSON.stringify(prev.editableCell) === JSON.stringify(next.editableCell) &&
-    prev.showTableLevelEditActions === next.showTableLevelEditActions
+    JSON.stringify(prev.editableCell) === JSON.stringify(next.editableCell)
   );
 });

@@ -73,6 +73,7 @@ export const renderSelect = (props: SelectProps) => {
           isFilterable={false}
           isLoading={false}
           isValid
+          labelText=""
           onFilterChange={noop}
           onOptionSelected={onSelect}
           options={optionsObject}
