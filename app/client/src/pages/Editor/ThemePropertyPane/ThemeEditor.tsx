@@ -50,7 +50,7 @@ const PopoverStyles = createGlobalStyle`
 }
 
 .${THEMING_BETA_CARD_POPOVER_CLASSNAME} .${CsClasses.BP3_POPOVER_ARROW_BORDER},
-.${CsClasses.BP3_POPOVER_ARROW_FILL} {
+.${THEMING_BETA_CARD_POPOVER_CLASSNAME} .${CsClasses.BP3_POPOVER_ARROW_FILL} {
   fill: #FFF !important;
   stroke: #FFF !important;
   box-shadow: 0px 0px 2px rgb(0 0 0 / 20%), 0px 2px 10px rgb(0 0 0 / 10%);

@@ -345,9 +345,7 @@ class BaseInputWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
-            hidden: () => {
-              return true;
-            },
+            invisible: true,
           },
           {
             propertyName: "borderRadius",

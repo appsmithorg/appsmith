@@ -364,7 +364,10 @@ const PropertyControl = memo((props: Props) => {
   );
 
   // Do not render the control if it needs to be hidden
-  if (props.hidden && props.hidden(widgetProperties, props.propertyName)) {
+  if (
+    (props.hidden && props.hidden(widgetProperties, props.propertyName)) ||
+    props.invisible
+  ) {
     return null;
   }
 
