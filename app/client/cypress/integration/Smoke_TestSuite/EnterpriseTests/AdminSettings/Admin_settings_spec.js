@@ -23,9 +23,11 @@ describe("Admin settings page", function() {
     cy.visit("/settings/general");
     cy.get(adminsSettings.authenticationTab).click();
     cy.url().should("contain", "/settings/authentication");
-    cy.get(EnterpriseAdminSettingsLocators.upgradeButton).each(($el) => {
-      cy.wrap($el).should("be.visible");
-      cy.wrap($el).should("contain", "UPGRADE");
-    });
+    cy.get(EnterpriseAdminSettingsLocators.upgradeOidcButton)
+      .should("be.visible")
+      .should("contain", "UPGRADE");
+    cy.get(EnterpriseAdminSettingsLocators.upgradeSamlButton)
+      .should("be.visible")
+      .should("contain", "UPGRADE");
   });
 });
