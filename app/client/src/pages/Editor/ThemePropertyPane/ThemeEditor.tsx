@@ -2,7 +2,7 @@ import { createGlobalStyle } from "styled-components";
 import { get, startCase } from "lodash";
 import MoreIcon from "remixicon-react/MoreFillIcon";
 import { useDispatch, useSelector } from "react-redux";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useState } from "react";
 import Save2LineIcon from "remixicon-react/Save2LineIcon";
 
 import ThemeCard from "./ThemeCard";
@@ -15,19 +15,16 @@ import {
 import {
   AppThemingMode,
   getAppThemingStack,
-  getIsBetaCardShown,
   getSelectedAppTheme,
 } from "selectors/appThemingSelectors";
 import {
   setAppThemingModeStackAction,
   updateSelectedAppThemeAction,
 } from "actions/appThemingActions";
-import { Tooltip } from "components/ads";
 import SettingSection from "./SettingSection";
 import SaveThemeModal from "./SaveThemeModal";
 import { AppTheme } from "entities/AppTheming";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { ThemeBetaCard } from "./ThemeBetaCard";
 import ThemeFontControl from "./controls/ThemeFontControl";
 import ThemeColorControl from "./controls/ThemeColorControl";
 import Button, { Category, Size } from "components/ads/Button";
@@ -36,7 +33,6 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";
 import BetaCard from "components/editorComponents/BetaCard";
 import { Classes as CsClasses } from "components/ads/common";
-import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
 
 const THEMING_BETA_CARD_POPOVER_CLASSNAME = `theming-beta-card-popover`;
 
@@ -59,18 +55,10 @@ const PopoverStyles = createGlobalStyle`
 
 function ThemeEditor() {
   const dispatch = useDispatch();
-  const popoverRef = useRef<HTMLDivElement>(null);
-  const themeBetaCardRef = useRef<HTMLDivElement>(null);
   const applicationId = useSelector(getCurrentApplicationId);
   const selectedTheme = useSelector(getSelectedAppTheme);
   const themingStack = useSelector(getAppThemingStack);
   const [isSaveModalOpen, setSaveModalOpen] = useState(false);
-  const [isBetaPopupActive, setBetaPopoverActive] = useState(true);
-  const showBetaPopoverCard = () => setBetaPopoverActive(true);
-  const hideBetaPopoverCard = () => setBetaPopoverActive(false);
-  const isBetaCardShown = useSelector(getIsBetaCardShown);
-
-  useOnClickOutside([popoverRef, themeBetaCardRef], hideBetaPopoverCard);
 
   /**
    * customizes the current theme

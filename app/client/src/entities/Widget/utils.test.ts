@@ -3,8 +3,6 @@ import { RenderModes } from "constants/WidgetConstants";
 import tablePropertyPaneConfig from "widgets/TableWidget/widget/propertyConfig";
 import chartPorpertyConfig from "widgets/ChartWidget/widget/propertyConfig";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { ButtonVariantTypes } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 describe("getAllPathsFromPropertyConfig", () => {
