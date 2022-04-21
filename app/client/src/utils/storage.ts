@@ -18,8 +18,6 @@ const STORAGE_KEYS: { [id: string]: string } = {
   FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY:
     "FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY",
   HIDE_CONCURRENT_EDITOR_WARNING_TOAST: "HIDE_CONCURRENT_EDITOR_WARNING_TOAST",
-  REFLOW_BETA_FLAG: "REFLOW_BETA_FLAG",
-  REFLOW_ONBOARDED_FLAG: "REFLOW_ONBOARDED_FLAG",
 };
 
 const store = localforage.createInstance({
@@ -54,47 +52,6 @@ export const saveCopiedWidgets = async (widgetJSON: string) => {
     log.error("An error occurred when storing copied widget: ", error);
     return false;
   }
-};
-
-const getStoredUsersBetaFlags = (email: any) => {
-  return store.getItem(email);
-};
-
-const setStoredUsersBetaFlags = (email: any, userBetaFlagsObj: any) => {
-  return store.setItem(email, userBetaFlagsObj);
-};
-
-export const setReflowBetaFlag = async (email: any, enable: boolean) => {
-  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
-  const updatedObj = {
-    ...userBetaFlagsObj,
-    [STORAGE_KEYS.REFLOW_BETA_FLAG]: enable,
-  };
-  setStoredUsersBetaFlags(email, updatedObj);
-};
-
-export const getReflowBetaFlag = async (email: any) => {
-  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
-  return userBetaFlagsObj && userBetaFlagsObj[STORAGE_KEYS.REFLOW_BETA_FLAG];
-};
-
-export const setReflowOnBoardingFlag = async (
-  email: any,
-  onBoardingState: boolean,
-) => {
-  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
-  const updatedObj = {
-    ...userBetaFlagsObj,
-    [STORAGE_KEYS.REFLOW_ONBOARDED_FLAG]: onBoardingState,
-  };
-  setStoredUsersBetaFlags(email, updatedObj);
-};
-
-export const getReflowOnBoardingFlag = async (email: any) => {
-  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
-  return (
-    userBetaFlagsObj && userBetaFlagsObj[STORAGE_KEYS.REFLOW_ONBOARDED_FLAG]
-  );
 };
 
 export const getCopiedWidgets = async () => {

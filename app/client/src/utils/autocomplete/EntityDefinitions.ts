@@ -610,6 +610,7 @@ export const GLOBAL_DEFS = {
   },
   file: {
     data: "string",
+    dataFormat: "string",
     name: "text",
     type: "file",
   },

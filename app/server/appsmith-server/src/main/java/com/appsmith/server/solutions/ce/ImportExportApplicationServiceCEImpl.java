@@ -920,6 +920,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                 // This does not apply to the traditional import via file approach
                                                 return Flux.fromIterable(invalidPageIds)
                                                         .flatMap(applicationPageService::deleteUnpublishedPage)
+                                                        .flatMap(page -> newPageService.archiveById(page.getId()))
                                                         .then()
                                                         .thenReturn(applicationPages);
                                             });
