@@ -102,6 +102,7 @@ jobs:
           APPSMITH_ENCRYPTION_SALT: "salt"
           APPSMITH_IS_SELF_HOSTED: false
           APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
+          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
         run: |
           ./build.sh versions:set \
           -DnewVersion=${{ steps.vars.outputs.version }} \
@@ -765,8 +766,34 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
-        
+        job:
+          [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+          ]
+
     # Service containers to run with this job. Required for running tests
     services:
       # Label used to access the service container
@@ -1277,7 +1304,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        machine: [ubuntu-latest,buildjet-4vcpu-ubuntu-2004]
+        machine: [ubuntu-latest, buildjet-4vcpu-ubuntu-2004]
     runs-on: ${{ matrix.machine }}
     defaults:
       run:
