@@ -45,18 +45,24 @@ export const PopoverStyles = createGlobalStyle<{
 }>`
   ${(props) => `
     .${props.portalClassName} .${Classes.POPOVER} {
-      border-radius: ${props.borderRadius} !important;
+      border-radius: ${
+        props.borderRadius === "1.5rem" ? `0.375rem` : props.borderRadius
+      } !important;
       overflow: hidden;
       box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
       margin-top: 4px !important;
     }
 
     .${props.portalClassName} .${Classes.BUTTON} {
-      border-radius: ${props.borderRadius} !important;
+      border-radius: ${
+        props.borderRadius === "1.5rem" ? `0.375rem` : props.borderRadius
+      } !important;
     }
 
     .${props.portalClassName}  .${Classes.INPUT} {
-      border-radius: ${props.borderRadius} !important;
+      border-radius: ${
+        props.borderRadius === "1.5rem" ? `0.375rem` : props.borderRadius
+      } !important;
     }
 
     .${props.portalClassName}  .${Classes.INPUT}:focus, .${

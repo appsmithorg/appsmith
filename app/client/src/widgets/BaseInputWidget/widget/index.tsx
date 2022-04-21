@@ -277,6 +277,7 @@ class BaseInputWidget<
             propertyName: "labelTextSize",
             label: "Text Size",
             controlType: "DROP_DOWN",
+            defaultValue: "1rem",
             options: [
               {
                 label: "sm",

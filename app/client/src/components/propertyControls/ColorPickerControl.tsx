@@ -16,7 +16,7 @@ class ColorPickerControl extends BaseControl<ColorPickerControlProps> {
     return (
       <ColorPickerComponent
         changeColor={this.handleChangeColor}
-        color={computedEvaluatedValue}
+        color={this.props.propertyValue ? computedEvaluatedValue : ""}
         showApplicationColors
         showThemeColors
       />

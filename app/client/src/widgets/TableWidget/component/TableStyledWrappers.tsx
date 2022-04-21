@@ -245,6 +245,7 @@ export const PaginationItemWrapper = styled.div<{
   disabled?: boolean;
   selected?: boolean;
   borderRadius: string;
+  accentColor: string;
 }>`
   background: ${(props) => (props.disabled ? Colors.MERCURY : Colors.WHITE)};
   border: 1px solid ${Colors.ALTO2};
@@ -259,7 +260,7 @@ export const PaginationItemWrapper = styled.div<{
   cursor: pointer;
   border-radius: ${({ borderRadius }) => borderRadius};
   &:hover {
-    border-color: ${Colors.GREEN};
+    border-color: ${({ accentColor }) => accentColor};
   }
   .bp3-icon svg {
     fill: ${(props) => (props.disabled ? Colors.GREY_8 : "")};
