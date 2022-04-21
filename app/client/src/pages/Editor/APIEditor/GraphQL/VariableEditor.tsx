@@ -37,10 +37,17 @@ const EXPECTED_VARIABLE = {
 };
 
 type VariableProps = {
+  // Name of the action to define the path to the config property
   actionName: string;
+  // Theme to be used in CodeEditor
   theme: EditorTheme;
 };
 
+/**
+ * Variable Editor is for writing Graphql variables using the Codemirror Editor which we use for JSON
+ * @param props Props that are required by the CodeEditor to render the variable editor
+ * @returns Component with Editor
+ */
 function VariableEditor(props: VariableProps) {
   return (
     <VariableWrapper>

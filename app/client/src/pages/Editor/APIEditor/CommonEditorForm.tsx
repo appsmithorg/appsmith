@@ -239,7 +239,9 @@ export interface CommonFormProps {
 
 type CommonFormPropsWithExtraParams = CommonFormProps & {
   formName: string;
+  // Body Tab Component which is passed on from the Parent Component
   bodyUIComponent: JSX.Element;
+  // Pagination Tab Component which is passed on from the Parent Component
   paginationUIComponent: JSX.Element;
   handleSubmit: any;
 };
@@ -507,6 +509,11 @@ function ImportedDatas(props: { data: any; attributeName: string }) {
   );
 }
 
+/**
+ * Commons editor form which is being used by API and GraphQL. Since most of the things were common to both so picking out the common part was a better option. For now Body and Pagination component are being passed on by the using component.
+ * @param props type CommonFormPropsWithExtraParams
+ * @returns Editor with respect to which type is using it
+ */
 function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [

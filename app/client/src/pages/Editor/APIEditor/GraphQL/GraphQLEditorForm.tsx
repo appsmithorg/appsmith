@@ -62,6 +62,11 @@ type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
 
 const DEFAULT_GRAPHQL_VARIABLE_WIDTH = 300;
 
+/**
+ * Graphql Editor form which uses the Common Editor and pass on the differentiating components from the API Editor.
+ * @param props using type Props
+ * @returns Graphql Editor Area which is used to editor APIs using GraphQL datasource.
+ */
 function GraphQLEditorForm(props: Props) {
   const { actionName } = props;
   const theme = EditorTheme.LIGHT;
@@ -71,7 +76,7 @@ function GraphQLEditorForm(props: Props) {
   );
 
   /**
-   * on graphql variable editor width change
+   * Variable Editor's resizeable handler for the changing of width
    */
   const onVariableEditorWidthChange = useCallback((newWidth) => {
     setVariableEditorWidth(newWidth);

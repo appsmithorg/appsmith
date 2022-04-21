@@ -6,10 +6,9 @@ import "codemirror-graphql/info";
 import "codemirror-graphql/jump";
 import "codemirror-graphql/mode";
 
-import "./css.css";
+import QueryWrapper from "./QueryWrapperWithCSS";
 import CodeEditor from "components/editorComponents/CodeEditor";
 import {
-  // CodeEditorBorder,
   EditorModes,
   EditorSize,
   TabBehaviour,
@@ -20,12 +19,6 @@ import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core/lib/esnext/common";
 import { Text, TextType } from "components/ads";
 
-const QueryWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-`;
-
 const QueryHeader = styled.div`
   display: flex;
   width: 100%;
@@ -33,6 +26,11 @@ const QueryHeader = styled.div`
   padding: 8px 16px;
 `;
 
+/**
+ * Query Editor is for writing Graphql query using the Codemirror Editor which we use
+ * @param props Props that are required by the CodeEditor to render the query editor
+ * @returns Component with Editor
+ */
 function QueryEditor(props: any) {
   const editorProps = {
     mode: EditorModes.GRAPHQL,
