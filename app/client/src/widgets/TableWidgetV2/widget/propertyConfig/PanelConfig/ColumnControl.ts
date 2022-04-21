@@ -61,10 +61,6 @@ export default {
           value: "iconButton",
         },
         {
-          label: "Select",
-          value: "select",
-        },
-        {
           label: "Edit Actions",
           value: "editActions",
         },
