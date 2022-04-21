@@ -135,10 +135,17 @@ export type EditorStyleProps = {
   popperPlacement?: Placement;
   popperZIndex?: Indices;
 };
-
+/**
+ *  line => Line to which the gutter is added
+ *
+ * element => HTML Element that gets added to line
+ *
+ * isFocusedAction => function called when focused
+ */
 export type GutterConfig = {
   line: number;
   element: HTMLElement;
+  isFocusedAction: () => void;
 };
 
 export type CodeEditorGutter = {
@@ -326,7 +333,6 @@ class CodeEditor extends Component<Props, State> {
 
   componentDidUpdate(prevProps: Props): void {
     this.editor.operation(() => {
-      this.handleCustomGutter(this.editor.getCursor().line);
       if (!this.state.isFocused) {
         // const currentMode = this.editor.getOption("mode");
         const editorValue = this.editor.getValue();
@@ -443,7 +449,7 @@ class CodeEditor extends Component<Props, State> {
     });
   }
 
-  handleCustomGutter = (lineNumber: number | null) => {
+  handleCustomGutter = (lineNumber: number | null, isFocused = false) => {
     const { customGutter } = this.props;
     const editor = this.editor;
     if (!customGutter || !editor) return;
@@ -460,11 +466,12 @@ class CodeEditor extends Component<Props, State> {
         customGutter.gutterId,
         gutterConfig.element,
       );
+      isFocused && gutterConfig.isFocusedAction();
     }
   };
 
   handleCursorMovement = (cm: CodeMirror.Editor) => {
-    this.handleCustomGutter(cm.getCursor().line);
+    this.handleCustomGutter(cm.getCursor().line, true);
     // ignore if disabled
     if (!this.props.input.onChange || this.props.disabled) {
       return;
@@ -496,8 +503,7 @@ class CodeEditor extends Component<Props, State> {
     this.handleChange();
     this.setState({ isFocused: false });
     this.editor.setOption("matchBrackets", false);
-    // this.handleCustomGutter(null);
-    this.handleCustomGutter(this.editor.getCursor().line);
+    this.handleCustomGutter(null);
   };
 
   handleBeforeChange = (

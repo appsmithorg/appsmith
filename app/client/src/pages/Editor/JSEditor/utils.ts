@@ -106,7 +106,7 @@ export const getJSFunctionLineGutter = (
   jsActions: JSAction[],
   runFuction: (jsAction: JSAction) => void,
   showGutters: boolean,
-  onSuccessAction: (jsAction: JSAction) => void,
+  onFocusAction: (jsAction: JSAction) => void,
 ): CodeEditorGutter => {
   const gutter: CodeEditorGutter = {
     getGutterConfig: null,
@@ -121,11 +121,13 @@ export const getJSFunctionLineGutter = (
         lineNumber,
         jsActions,
       );
-      config && onSuccessAction(config.action);
       return config
         ? {
             line: config.line,
             element: createGutterMarker(() => runFuction(config.action)),
+            isFocusedAction: () => {
+              onFocusAction(config.action);
+            },
           }
         : null;
     },
