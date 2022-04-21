@@ -156,15 +156,6 @@ export const getDifferenceInJSCollection = (
   } else {
     changedVariables = jsAction.variables;
   }
-  console.log(parsedBody, {
-    yes: {
-      newActions: toBeAddedActions,
-      updateActions: toBeUpdatedActions,
-      deletedActions: toBearchivedActions,
-      nameChangedActions: nameChangedActions,
-      changedVariables: changedVariables,
-    },
-  });
   return {
     newActions: toBeAddedActions,
     updateActions: toBeUpdatedActions,
