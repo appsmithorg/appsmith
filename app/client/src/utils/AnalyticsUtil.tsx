@@ -216,7 +216,8 @@ export type EventName =
   | "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK"
   | "TEMPLATE_FILTER_SELECTED"
   | "MANUAL_UPGRADE_CLICK"
-  | "PAGE_NOT_FOUND";
+  | "PAGE_NOT_FOUND"
+  | "SIMILAR_TEMPLATE_CLICK";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
