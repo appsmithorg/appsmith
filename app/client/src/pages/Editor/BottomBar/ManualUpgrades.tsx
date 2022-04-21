@@ -24,7 +24,6 @@ import {
   selectURLSlugs,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
-import { useLocalStorage } from "utils/hooks/localstorage";
 import { createMessage, CLEAN_URL_UPDATE } from "@appsmith/constants/messages";
 import { useLocation } from "react-router";
 import DisclaimerIcon from "remixicon-react/ErrorWarningLineIcon";
@@ -189,10 +188,6 @@ function UpdatesModal({
 }
 
 function ManualUpgrades() {
-  const [updateDismissed, setUpdateDismissed] = useLocalStorage(
-    "updateDismissed",
-    "",
-  );
   const applicationVersion = useSelector(selectApplicationVersion);
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
@@ -230,13 +225,6 @@ function ManualUpgrades() {
   );
   const [showModal, setShowModal] = React.useState(false);
 
-  const defaultProps =
-    !updateDismissed && applicationVersion < latestVersion
-      ? {
-          isOpen: true,
-        }
-      : {};
-
   const tooltipContent = (
     <div className="text-sm">
       {`${latestVersion - applicationVersion} pending update(s)`}
@@ -253,12 +241,10 @@ function ManualUpgrades() {
   return (
     <div className="relative" data-testid="update-indicator">
       <TooltipComponent
-        autoFocus={!updateDismissed && applicationVersion < latestVersion}
         content={tooltipContent}
         modifiers={{
           preventOverflow: { enabled: true },
         }}
-        {...defaultProps}
       >
         <Icon
           className="t--upgrade"
@@ -266,7 +252,6 @@ function ManualUpgrades() {
           fillColor={Colors.SCORPION}
           name="upgrade"
           onClick={() => {
-            setUpdateDismissed("true");
             setShowModal(applicationVersion < latestVersion);
           }}
           size={IconSize.XXXL}
