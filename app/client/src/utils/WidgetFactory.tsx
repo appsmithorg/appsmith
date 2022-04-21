@@ -13,6 +13,7 @@ import * as log from "loglevel";
 import { WidgetFeatures } from "./WidgetFeatures";
 import {
   addPropertyConfigIds,
+  convertFunctionsToString,
   enhancePropertyPaneConfig,
 } from "./WidgetFactoryHelpers";
 
@@ -71,8 +72,12 @@ class WidgetFactory {
           features,
         );
 
-        const finalPropertyPaneConfig = addPropertyConfigIds(
+        const serializablePropertyPaneConfig = convertFunctionsToString(
           enhancedPropertyPaneConfig,
+        );
+
+        const finalPropertyPaneConfig = addPropertyConfigIds(
+          serializablePropertyPaneConfig,
         );
 
         this.propertyPaneConfigsMap.set(

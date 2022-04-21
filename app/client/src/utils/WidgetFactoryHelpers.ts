@@ -2,6 +2,7 @@ import {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
 } from "constants/PropertyControlConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { generateReactKey } from "./generators";
 import { PropertyPaneConfigTemplates, WidgetFeatures } from "./WidgetFeatures";
 
@@ -50,4 +51,52 @@ export function enhancePropertyPaneConfig(
     config.splice(1, 0, PropertyPaneConfigTemplates.DYNAMIC_HEIGHT);
   }
   return config;
+}
+
+/* 
+  ValidationTypes.FUNCTION, allow us to configure functions within them,
+  However, these are not serializable, which results in them not being able to 
+  be sent to the workers.
+  We convert these functions to strings and delete the original function properties
+  in this function
+
+  property added `fnString`
+  property deleted `fn`
+*/
+
+export function convertFunctionsToString(config: PropertyPaneConfig[]) {
+  return config.map((sectionOrControlConfig: PropertyPaneConfig) => {
+    const controlConfig = sectionOrControlConfig as PropertyPaneControlConfig;
+    if (
+      controlConfig.validation &&
+      controlConfig.validation?.type === ValidationTypes.FUNCTION &&
+      controlConfig.validation?.params &&
+      controlConfig.validation?.params.fn
+    ) {
+      controlConfig.validation.params.fnString = controlConfig.validation.params.fn.toString();
+      delete controlConfig.validation.params.fn;
+      return sectionOrControlConfig;
+    }
+
+    if (sectionOrControlConfig.children) {
+      sectionOrControlConfig.children = convertFunctionsToString(
+        sectionOrControlConfig.children,
+      );
+    }
+
+    const config = sectionOrControlConfig as PropertyPaneControlConfig;
+
+    if (
+      config.panelConfig &&
+      config.panelConfig.children &&
+      Array.isArray(config.panelConfig.children)
+    ) {
+      config.panelConfig.children = convertFunctionsToString(
+        config.panelConfig.children,
+      );
+
+      (sectionOrControlConfig as PropertyPaneControlConfig) = config;
+    }
+    return sectionOrControlConfig;
+  });
 }

@@ -1,5 +1,10 @@
+import { ValidationTypes } from "constants/WidgetValidation";
 import { WidgetProps } from "widgets/BaseWidget";
-import { enhancePropertyPaneConfig } from "./WidgetFactoryHelpers";
+import { AutocompleteDataType } from "./autocomplete/TernServer";
+import {
+  convertFunctionsToString,
+  enhancePropertyPaneConfig,
+} from "./WidgetFactoryHelpers";
 import { DynamicHeight } from "./WidgetFeatures";
 
 const ORIGINAL_PROPERTY_CONFIG = [
@@ -179,5 +184,72 @@ describe("Widget Factory Helper tests", () => {
 
     expect(result_with_false).toStrictEqual(ORIGINAL_PROPERTY_CONFIG);
     expect(result_with_undefined).toStrictEqual(ORIGINAL_PROPERTY_CONFIG);
+  });
+
+  it("Makes sure that fn function validation params are converted to fnString", () => {
+    const add = (value: unknown) => {
+      return {
+        parsed: (value as string) + "__suffix",
+        message: [],
+        isValid: true,
+      };
+    };
+    const config = [
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "url",
+            label: "URL",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter URL",
+            inputType: "TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: add,
+                expected: {
+                  type: "number",
+                  example: `100`,
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
+              },
+            },
+          },
+        ],
+      },
+    ];
+
+    const expected = [
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "url",
+            label: "URL",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter URL",
+            inputType: "TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fnString: add.toString(),
+                expected: {
+                  type: "number",
+                  example: `100`,
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
+              },
+            },
+          },
+        ],
+      },
+    ];
+    const result = convertFunctionsToString(config);
+    expect(result).toStrictEqual(expected);
   });
 });
