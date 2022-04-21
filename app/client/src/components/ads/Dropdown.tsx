@@ -739,7 +739,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
             <OptionWrapper
               aria-selected={isSelected}
               className="t--dropdown-option"
-              key={index}
+              key={option.value}
               onClick={
                 // users should be able to unselect a selected option by clicking the option again.
                 isSelected && props.allowDeselection
@@ -850,7 +850,11 @@ export default function Dropdown(props: DropdownProps) {
         // Multi select -> typeof selected is array of objects
         if (isArray(selected) && selected.length < 1) {
           setSelected([option]);
-        } else {
+        } else if (
+          !(selected as DropdownOption[])
+            .map((x) => x.value)
+            .includes(option.value)
+        ) {
           const newOptions: DropdownOption[] = [
             ...(selected as DropdownOption[]),
             option,
