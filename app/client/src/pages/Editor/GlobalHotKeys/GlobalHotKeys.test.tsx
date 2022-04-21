@@ -86,7 +86,7 @@ describe("Canvas Hot Keys", () => {
           <MockApplication>
             <GlobalHotKeys
               getMousePosition={() => {
-                return { top: 0, left: 0 };
+                return { x: 0, y: 0 };
               }}
             >
               <UpdatedMainContainer dsl={dsl} />
@@ -210,7 +210,7 @@ describe("Canvas Hot Keys", () => {
           <MockApplication>
             <GlobalHotKeys
               getMousePosition={() => {
-                return { top: 0, left: 0 };
+                return { x: 0, y: 0 };
               }}
             >
               <UpdatedMainContainer dsl={dsl} />
@@ -256,7 +256,7 @@ describe("Canvas Hot Keys", () => {
           <MockApplication>
             <GlobalHotKeys
               getMousePosition={() => {
-                return { top: 0, left: 0 };
+                return { x: 0, y: 0 };
               }}
             >
               <UpdatedMainContainer dsl={dsl} />
@@ -345,7 +345,7 @@ describe("Canvas Hot Keys", () => {
           <MockApplication>
             <GlobalHotKeys
               getMousePosition={() => {
-                return { top: 0, left: 0 };
+                return { x: 0, y: 0 };
               }}
             >
               <UpdatedMainContainer dsl={dsl} />
@@ -406,7 +406,7 @@ describe("Cut/Copy/Paste hotkey", () => {
       <MockPageDSL dsl={dsl}>
         <GlobalHotKeys
           getMousePosition={() => {
-            return { top: 0, left: 0 };
+            return { x: 0, y: 0 };
           }}
         >
           <MockCanvas />
@@ -491,7 +491,7 @@ describe("Cut/Copy/Paste hotkey", () => {
       <MockPageDSL dsl={dsl}>
         <GlobalHotKeys
           getMousePosition={() => {
-            return { top: 0, left: 0 };
+            return { x: 0, y: 0 };
           }}
         >
           <MockCanvas />
@@ -566,7 +566,7 @@ describe("Undo/Redo hotkey", () => {
       <MockPageDSL>
         <GlobalHotKeys
           getMousePosition={() => {
-            return { top: 0, left: 0 };
+            return { x: 0, y: 0 };
           }}
         >
           <MockCanvas />
@@ -596,7 +596,7 @@ describe("Undo/Redo hotkey", () => {
       <MockPageDSL>
         <GlobalHotKeys
           getMousePosition={() => {
-            return { top: 0, left: 0 };
+            return { x: 0, y: 0 };
           }}
         >
           <MockCanvas />
@@ -626,7 +626,7 @@ describe("Undo/Redo hotkey", () => {
       <MockPageDSL>
         <GlobalHotKeys
           getMousePosition={() => {
-            return { top: 0, left: 0 };
+            return { x: 0, y: 0 };
           }}
         >
           <MockCanvas />
@@ -666,7 +666,7 @@ describe("cmd + s hotkey", () => {
         />
         <GlobalHotKeys
           getMousePosition={() => {
-            return { top: 0, left: 0 };
+            return { x: 0, y: 0 };
           }}
         >
           <div />

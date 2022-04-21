@@ -496,16 +496,16 @@ export function getMousePositions(
   canvasId: string,
   snapGrid: { snapRowSpace: number; snapColumnSpace: number },
   padding: number,
-  mouseLocation?: { top: number; left: number },
+  mouseLocation?: { x: number; y: number },
 ) {
   //check if the mouse location is inside of the container widget
   if (
     !mouseLocation ||
     !(
-      canvasRect.top < mouseLocation.top &&
-      canvasRect.left < mouseLocation.left &&
-      canvasRect.bottom > mouseLocation.top &&
-      canvasRect.right > mouseLocation.left
+      canvasRect.top < mouseLocation.y &&
+      canvasRect.left < mouseLocation.x &&
+      canvasRect.bottom > mouseLocation.y &&
+      canvasRect.right > mouseLocation.x
     )
   )
     return;
@@ -520,13 +520,13 @@ export function getMousePositions(
 
   // get mouse position relative to the canvas.
   const relativeMouseLocation = {
-    top: mouseLocation.top - rect.top - padding,
-    left: mouseLocation.left - rect.left - padding,
+    y: mouseLocation.y - rect.top - padding,
+    x: mouseLocation.x - rect.left - padding,
   };
 
   return {
-    top: Math.floor(relativeMouseLocation.top / snapGrid.snapRowSpace),
-    left: Math.floor(relativeMouseLocation.left / snapGrid.snapColumnSpace),
+    top: Math.floor(relativeMouseLocation.y / snapGrid.snapRowSpace),
+    left: Math.floor(relativeMouseLocation.x / snapGrid.snapColumnSpace),
   };
 }
 
@@ -550,8 +550,7 @@ export function getSnappedGrid(LayoutWidget: WidgetProps, canvasWidth: number) {
     // Widgets like ListWidget choose to have no container padding so will only have widget padding
     padding = WIDGET_PADDING * 2;
   }
-  let width = canvasWidth;
-  width -= padding;
+  const width = canvasWidth - padding;
   return {
     snapGrid: {
       snapRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,

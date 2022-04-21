@@ -1,14 +1,14 @@
 import { useEffect, useRef } from "react";
 
 export const useMouseLocation = () => {
-  const mousePosition = useRef<{ top: number; left: number }>({
-    top: 0,
-    left: 0,
+  const mousePosition = useRef<{ x: number; y: number }>({
+    x: 0,
+    y: 0,
   });
 
   const setMousePosition = (e: any) => {
     if (e) {
-      mousePosition.current = { top: e.clientY, left: e.clientX };
+      mousePosition.current = { x: e.clientX, y: e.clientY };
     }
   };
 

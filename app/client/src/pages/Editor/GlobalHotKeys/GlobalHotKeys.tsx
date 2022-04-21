@@ -55,7 +55,7 @@ import { commentModeSelector } from "selectors/commentsSelectors";
 
 type Props = {
   copySelectedWidget: () => void;
-  pasteCopiedWidget: (mouseLocation: { top: number; left: number }) => void;
+  pasteCopiedWidget: (mouseLocation: { x: number; y: number }) => void;
   deleteSelectedWidget: () => void;
   cutSelectedWidget: () => void;
   groupSelectedWidget: () => void;
@@ -80,7 +80,7 @@ type Props = {
   isExplorerPinned: boolean;
   setExplorerPinnedAction: (shouldPinned: boolean) => void;
   showCommitModal: () => void;
-  getMousePosition: () => { top: number; left: number };
+  getMousePosition: () => { x: number; y: number };
 };
 
 @HotkeysTarget
@@ -217,7 +217,7 @@ class GlobalHotKeys extends React.Component<Props> {
           label="Paste Widget"
           onKeyDown={() => {
             this.props.pasteCopiedWidget(
-              this.props.getMousePosition() || { top: 0, left: 0 },
+              this.props.getMousePosition() || { x: 0, y: 0 },
             );
           }}
         />
@@ -423,7 +423,7 @@ const mapStateToProps = (state: AppState) => ({
 const mapDispatchToProps = (dispatch: any) => {
   return {
     copySelectedWidget: () => dispatch(copyWidget(true)),
-    pasteCopiedWidget: (mouseLocation: { top: number; left: number }) =>
+    pasteCopiedWidget: (mouseLocation: { x: number; y: number }) =>
       dispatch(pasteWidget(false, mouseLocation)),
     deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
     cutSelectedWidget: () => dispatch(cutWidget()),

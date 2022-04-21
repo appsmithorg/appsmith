@@ -835,7 +835,7 @@ export function calculateNewWidgetPosition(
  */
 const getNewPositions = function*(
   copiedWidgetGroups: CopiedWidgetGroup[],
-  mouseLocation: { top: number; left: number },
+  mouseLocation: { x: number; y: number },
   copiedTotalWidth: number,
   copiedTopMostRow: number,
   copiedLeftMostColumn: number,
@@ -1026,7 +1026,7 @@ function* getNewPositionsBasedOnSelectedWidgets(
  */
 function* getNewPositionsBasedOnMousePositions(
   copiedWidgetGroups: CopiedWidgetGroup[],
-  mouseLocation: { top: number; left: number },
+  mouseLocation: { x: number; y: number },
   selectedWidgets: WidgetProps[],
   canvasWidgets: CanvasWidgetsReduxState,
   copiedTotalWidth: number,
@@ -1153,7 +1153,7 @@ function* getNewPositionsBasedOnMousePositions(
 function* pasteWidgetSaga(
   action: ReduxAction<{
     groupWidgets: boolean;
-    mouseLocation: { top: number; left: number };
+    mouseLocation: { x: number; y: number };
   }>,
 ) {
   let copiedWidgetGroups: CopiedWidgetGroup[] = yield getCopiedWidgets();
