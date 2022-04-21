@@ -103,7 +103,6 @@ export const StyledDropDownContainer = styled.div`
 export const StyledDropDown = styled(Dropdown)`
   background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
   box-shadow: none;
-  height: 36px;
 `;
 
 export const StyledMultiSelectDropDown = styled(MultiSelectDropdown)`
