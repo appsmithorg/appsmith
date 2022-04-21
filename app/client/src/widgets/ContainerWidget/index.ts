@@ -1,16 +1,12 @@
 import { ButtonBoxShadowTypes } from "components/constants";
-import { WidgetConfiguration } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
-export const CONFIG: WidgetConfiguration = {
+export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Container",
   iconSVG: IconSVG,
   isCanvas: true,
-  features: {
-    dynamicHeight: true,
-  },
   defaults: {
     backgroundColor: "#FFFFFF",
     rows: 40,
