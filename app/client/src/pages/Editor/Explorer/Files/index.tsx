@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { useActiveAction } from "../hooks";
 import { Entity } from "../Entity/index";
 import {
@@ -44,6 +44,14 @@ function Files() {
   }, [dispatch]);
 
   const activeActionId = useActiveAction();
+
+  useEffect(() => {
+    if (!activeActionId) return;
+    document.getElementById(`entity-${activeActionId}`)?.scrollIntoView({
+      block: "nearest",
+      inline: "nearest",
+    });
+  }, [activeActionId]);
 
   const onFilesToggle = useCallback(
     (isOpen: boolean) => {
