@@ -13,4 +13,5 @@ public interface ApplicationTemplateServiceCE {
     Mono<ApplicationTemplate> getTemplateDetails(String templateId);
     Mono<Application> importApplicationFromTemplate(String templateId, String organizationId);
     Mono<Application> mergeTemplateWithApplication(String templateId, String applicationId, String organizationId, String branchName, List<String> pagesToImport);
+    Mono<ApplicationTemplate> getFilters();
 }
