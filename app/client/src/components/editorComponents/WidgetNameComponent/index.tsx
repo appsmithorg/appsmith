@@ -182,4 +182,4 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   ) : null;
 }
 
-export default WidgetNameComponent;
+export default React.memo(WidgetNameComponent);
