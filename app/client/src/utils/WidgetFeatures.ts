@@ -10,6 +10,14 @@ export enum DynamicHeight {
   FIXED = "FIXED",
 }
 
+/* This contains all properties which will be added 
+   to a widget, automatically, by the Appsmith platform
+   Each feature, is a unique key, whose value is an object
+   with the list of properties to be added to a widget along
+   with their default values
+
+   Note: These are added to the widget configs during registration
+*/
 export const WidgetFeatureProps = {
   DYNAMIC_HEIGHT: {
     minDynamicHeight: 0,
@@ -18,6 +26,11 @@ export const WidgetFeatureProps = {
   },
 };
 
+/* Hide the min height and max height properties using this function
+   as the `hidden` hook in the property pane configuration
+   This function checks if the `dynamicHeight` property is enabled
+   and returns true if disabled, and false if enabled.
+*/
 export function hideDynamicHeightPropertyControl(props: WidgetProps) {
   return props.dynamicHeight !== DynamicHeight.HUG_CONTENTS;
 }
