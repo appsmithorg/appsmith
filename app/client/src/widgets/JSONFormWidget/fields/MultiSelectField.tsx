@@ -96,10 +96,34 @@ function MultiSelectField({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { executeAction } = useContext(FormContext);
 
+  const fieldDefaultValue = useMemo(() => {
+    const values: LabelValueType["value"][] | LabelValueType[] = (() => {
+      if (!isNil(passedDefaultValue) && validateOptions(passedDefaultValue)) {
+        return passedDefaultValue;
+      }
+
+      if (
+        !isNil(schemaItem.defaultValue) &&
+        validateOptions(schemaItem.defaultValue)
+      ) {
+        return schemaItem.defaultValue;
+      }
+
+      return [];
+    })();
+
+    if (values.length && isPrimitive(values[0])) {
+      return values as LabelValueType["value"][];
+    } else {
+      return componentValuesToFieldValues(values as LabelValueType[]);
+    }
+  }, [schemaItem.defaultValue, passedDefaultValue]);
+
   const {
     field: { onBlur, onChange, value },
     fieldState: { isDirty },
   } = useController({
+    defaultValue: fieldDefaultValue,
     name,
   });
 
@@ -123,29 +147,6 @@ function MultiSelectField({
   const [updateFilterText] = useUpdateInternalMetaState({
     propertyName: `${name}.filterText`,
   });
-
-  const fieldDefaultValue = useMemo(() => {
-    const values: LabelValueType["value"][] | LabelValueType[] = (() => {
-      if (!isNil(passedDefaultValue) && validateOptions(passedDefaultValue)) {
-        return passedDefaultValue;
-      }
-
-      if (
-        !isNil(schemaItem.defaultValue) &&
-        validateOptions(schemaItem.defaultValue)
-      ) {
-        return schemaItem.defaultValue;
-      }
-
-      return [];
-    })();
-
-    if (values.length && isPrimitive(values[0])) {
-      return values as LabelValueType["value"][];
-    } else {
-      return componentValuesToFieldValues(values as LabelValueType[]);
-    }
-  }, [schemaItem.defaultValue, passedDefaultValue]);
 
   const componentValues = fieldValuesToComponentValues(
     inputValue,

@@ -55,10 +55,13 @@ function CheckboxField({
   } = schemaItem;
   const { executeAction } = useContext(FormContext);
 
+  const fieldDefaultValue = passedDefaultValue ?? schemaItem.defaultValue;
+
   const {
     field: { onBlur, onChange, value },
     fieldState: { isDirty },
   } = useController({
+    defaultValue: fieldDefaultValue,
     name,
   });
 
@@ -118,7 +121,7 @@ function CheckboxField({
     <Field
       accessor={schemaItem.accessor}
       alignField={schemaItem.alignWidget}
-      defaultValue={passedDefaultValue ?? schemaItem.defaultValue}
+      defaultValue={fieldDefaultValue}
       fieldClassName={fieldClassName}
       hideLabel={hideLabel}
       inlineLabel

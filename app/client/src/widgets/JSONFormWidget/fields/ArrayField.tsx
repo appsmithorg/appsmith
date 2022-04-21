@@ -139,10 +139,15 @@ function ArrayField({
 
   const add = () => {
     let values = klona(getValues(name));
+    const defaultValue = schemaItemDefaultValue(
+      schemaItem.children[ARRAY_ITEM_KEY],
+      "identifier",
+    );
+
     if (values && values.length) {
-      values.push({});
+      values.push(defaultValue);
     } else {
-      values = [{}];
+      values = [defaultValue];
     }
     setValue(name, values);
   };

@@ -153,6 +153,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     field: { onBlur, onChange, value },
     fieldState: { isDirty },
   } = useController({
+    defaultValue: inputDefaultValue,
     name,
   });
 

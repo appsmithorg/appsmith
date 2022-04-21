@@ -2,12 +2,11 @@ import equal from "fast-deep-equal/es6";
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { ControllerProps, useFormContext } from "react-hook-form";
+import { klona } from "klona";
 
 import FieldLabel, { FieldLabelProps } from "./FieldLabel";
 import useUpdateAccessor from "../fields/useObserveAccessor";
 import { FIELD_MARGIN_BOTTOM } from "./styleConstants";
-
-import { klona } from "klona/full";
 
 type FieldProps<TValue> = React.PropsWithChildren<
   {
@@ -49,7 +48,7 @@ function Field<TValue>({
   name,
   tooltip,
 }: FieldProps<TValue>) {
-  const refDefaultValue = useRef<TValue>();
+  const refDefaultValue = useRef<TValue>(defaultValue);
   const { setValue } = useFormContext();
 
   useUpdateAccessor({ accessor });
@@ -58,10 +57,7 @@ function Field<TValue>({
     if (!equal(refDefaultValue.current, defaultValue)) {
       refDefaultValue.current = defaultValue;
 
-      // Follow the comment in Form component above reset(convertedFormData);
-      setTimeout(() => {
-        setValue(name, klona(defaultValue));
-      }, 0);
+      setValue(name, klona(defaultValue));
     }
   }, [defaultValue, setValue]);
 

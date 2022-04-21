@@ -71,19 +71,19 @@ function SelectField({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const isDirtyRef = useRef<boolean>(false);
   const { executeAction } = useContext(FormContext);
+  const fieldDefaultValue = composeDefaultValue(
+    schemaItem.defaultValue,
+    passedDefaultValue as DefaultValue,
+  );
   const {
     field: { onChange, value },
   } = useController({
+    defaultValue: fieldDefaultValue,
     name,
   });
 
   const isValueValid = isValid(schemaItem, value);
   const options = Array.isArray(schemaItem.options) ? schemaItem.options : [];
-
-  const defaultValue = composeDefaultValue(
-    schemaItem.defaultValue,
-    passedDefaultValue as DefaultValue,
-  );
 
   useRegisterFieldValidity({
     isValid: isValueValid,
@@ -186,7 +186,7 @@ function SelectField({
   return (
     <Field
       accessor={schemaItem.accessor}
-      defaultValue={defaultValue}
+      defaultValue={fieldDefaultValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}

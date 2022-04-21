@@ -1,4 +1,5 @@
 import React, { useCallback, useContext } from "react";
+import { Alignment } from "@blueprintjs/core";
 import { useController } from "react-hook-form";
 
 import FormContext from "../FormContext";
@@ -8,7 +9,6 @@ import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import { RadioOption } from "widgets/RadioGroupWidget/constants";
 import { BaseFieldComponentProps, FieldComponentBaseProps } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { Alignment } from "@blueprintjs/core";
 
 type RadioGroupComponentProps = FieldComponentBaseProps & {
   options: RadioOption[];
@@ -42,9 +42,11 @@ function RadioGroupField({
   schemaItem,
 }: RadioGroupFieldProps) {
   const { executeAction } = useContext(FormContext);
+  const fieldDefaultValue = passedDefaultValue || schemaItem.defaultValue;
   const {
     field: { onChange, value },
   } = useController({
+    defaultValue: fieldDefaultValue,
     name,
   });
 
@@ -76,7 +78,7 @@ function RadioGroupField({
   return (
     <Field
       accessor={schemaItem.accessor}
-      defaultValue={passedDefaultValue || schemaItem.defaultValue}
+      defaultValue={fieldDefaultValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}

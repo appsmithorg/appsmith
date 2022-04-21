@@ -101,9 +101,12 @@ function DateField({
   } = schemaItem;
   const { executeAction } = useContext(FormContext);
 
+  const fieldDefaultValue = passedDefaultValue ?? schemaItem.defaultValue;
+
   const {
     field: { onBlur, onChange, value },
   } = useController({
+    defaultValue: fieldDefaultValue,
     name,
   });
 
@@ -114,7 +117,6 @@ function DateField({
   });
 
   const isValueValid = isValid(schemaItem, value);
-  const defaultDateValue = passedDefaultValue ?? schemaItem.defaultValue;
 
   useRegisterFieldValidity({
     isValid: isValueValid,
@@ -212,7 +214,7 @@ function DateField({
   return (
     <Field
       accessor={schemaItem.accessor}
-      defaultValue={defaultDateValue}
+      defaultValue={fieldDefaultValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}

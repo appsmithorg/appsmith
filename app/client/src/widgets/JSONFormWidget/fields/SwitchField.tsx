@@ -44,10 +44,11 @@ function SwitchField({
     onFocus: onFocusDynamicString,
   } = schemaItem;
   const { executeAction } = useContext(FormContext);
-
+  const fieldDefaultValue = passedDefaultValue ?? schemaItem.defaultValue;
   const {
     field: { onBlur, onChange, value },
   } = useController({
+    defaultValue: fieldDefaultValue,
     name,
   });
 
@@ -101,7 +102,7 @@ function SwitchField({
   return (
     <Field
       accessor={schemaItem.accessor}
-      defaultValue={passedDefaultValue ?? schemaItem.defaultValue}
+      defaultValue={fieldDefaultValue}
       fieldClassName={fieldClassName}
       inlineLabel
       isRequiredField={schemaItem.isRequired}

@@ -1,3 +1,4 @@
+import { klona } from "klona";
 import {
   difference,
   isEmpty,
@@ -22,8 +23,6 @@ import {
   Schema,
   SchemaItem,
 } from "./constants";
-
-import { klona } from "klona/full";
 
 type Obj = Record<string, any>;
 type JSON = Obj | Obj[];
