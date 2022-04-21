@@ -1,4 +1,4 @@
-import derivedProperty from "./derived";
+import derivedProperty from "./_derived";
 
 describe("Derived property - ", () => {
   describe("isValid property", () => {

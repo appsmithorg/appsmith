@@ -71,7 +71,7 @@ export default {
     }
 
     if (text) {
-      const parsed = parseFloat(
+      let parsed = parseFloat(
         text
           .replace(new RegExp("\\" + getLocaleThousandSeparator(), "g"), "")
           .replace(new RegExp("\\" + getLocaleDecimalSeperator()), "."),
@@ -85,6 +85,10 @@ export default {
     } else {
       return undefined;
     }
+  },
+  //
+  noop: () => {
+    return undefined;
   },
   //
 };

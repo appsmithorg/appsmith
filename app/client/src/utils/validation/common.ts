@@ -27,6 +27,7 @@ export type ExpectedValueExample =
 export function getExpectedValue(
   config?: ValidationConfig,
 ): CodeEditorExpected | undefined {
+  let type: string;
   if (!config)
     return {
       type: UNDEFINED_VALIDATION,
@@ -77,7 +78,7 @@ export function getExpectedValue(
         autocompleteDataType: AutocompleteDataType.BOOLEAN,
       };
     case ValidationTypes.NUMBER:
-      let type = "number";
+      type = "number";
       let eg = 100;
       if (config.params?.min) {
         type = `${type} Min: ${config.params?.min}`;

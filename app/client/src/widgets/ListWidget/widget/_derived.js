@@ -178,4 +178,8 @@ export default {
     return { currentItem: structure, currentIndex: "" };
   },
   //
+  noop: () => {
+    return undefined;
+  },
+  //
 };

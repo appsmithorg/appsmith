@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
-import widgetPropertyFns from "!!raw-loader!./derived.js";
+import widgetPropertyFns from "./_derived";
 
 // TODO(abhinav):
 // Add unit test cases

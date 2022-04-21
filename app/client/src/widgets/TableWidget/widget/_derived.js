@@ -475,4 +475,8 @@ export default {
     return finalTableData;
   },
   //
+  noop: () => {
+    return undefined;
+  },
+  //
 };

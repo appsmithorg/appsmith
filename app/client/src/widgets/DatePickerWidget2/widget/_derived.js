@@ -26,4 +26,8 @@ export default {
     return dateValid;
   },
   //
+  noop: () => {
+    return undefined;
+  },
+  //
 };

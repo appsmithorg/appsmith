@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
-import widgetPropertyFns from "!!raw-loader!./derived.js";
+import widgetPropertyFns from "./_derived";
 
 // TODO(abhinav):
 // Add unit test cases
@@ -12,7 +12,7 @@ const regex = /(\w+):\s?\(props, moment, _\)\s?=>\s?{([\w\W\n]*?)},\n?\s+?\/\//g
 
 let m;
 
-while ((m = regex.exec(widgetPropertyFns)) !== null) {
+while ((m = regex.exec((widgetPropertyFns as unknown) as string)) !== null) {
   // This is necessary to avoid infinite loops with zero-width matches
   if (m.index === regex.lastIndex) {
     regex.lastIndex++;

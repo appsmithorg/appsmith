@@ -1,4 +1,4 @@
-const { match } = require("path-to-regexp");
+import { match } from "path-to-regexp";
 
 export const SAAS_BASE_PATH = `/saas`;
 export const SAAS_EDITOR_PATH = `${SAAS_BASE_PATH}/:pluginPackageName`;

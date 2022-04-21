@@ -17,4 +17,8 @@ export default {
     return tabLabels.length ? tabLabels[0].label : "";
   },
   //
+  noop: () => {
+    return undefined;
+  },
+  //
 };

@@ -18,7 +18,7 @@ import {
   getLocaleDecimalSeperator,
   limitDecimalValue,
 } from "widgets/CurrencyInputWidget/component/utilities";
-import derived from "widgets/CurrencyInputWidget/widget/derived";
+import derived from "widgets/CurrencyInputWidget/widget/_derived";
 import { isEmpty } from "../helper";
 
 type CurrencyInputComponentProps = BaseInputComponentProps & {

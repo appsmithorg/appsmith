@@ -108,4 +108,8 @@ export default {
     }
   },
   //
+  noop: () => {
+    return undefined;
+  },
+  //
 };

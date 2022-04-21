@@ -24,7 +24,7 @@ import {
 import { getWidgets } from "sagas/selectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
-import Worker from "worker-loader!../workers/evaluation.worker";
+import Worker from "workers/evaluation.worker?worker";
 import {
   EvalError,
   EVAL_WORKER_ACTIONS,

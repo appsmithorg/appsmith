@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
-import derivedProperty from "./derived";
+import derivedProperty from "./_derived";
 
 describe("Derived property - ", () => {
   describe("isValid property", () => {

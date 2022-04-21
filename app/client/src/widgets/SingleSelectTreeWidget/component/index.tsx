@@ -14,7 +14,6 @@ import {
   StyledIcon,
   InputContainer,
 } from "./index.styled";
-import "rc-tree-select/assets/index.less";
 import { DefaultValueType } from "rc-tree-select/lib/interface";
 import { TreeNodeProps } from "rc-tree-select/lib/TreeNode";
 import {

@@ -1,4 +1,4 @@
-import derivedProperty from "./derived";
+import derivedProperty from "./_derived";
 import moment from "moment";
 import _ from "lodash";
 
@@ -86,12 +86,6 @@ describe("Validates Derived Properties", () => {
     const input5 = {
       ...input1,
       listData: undefined,
-    };
-
-    // empty listData
-    const input6 = {
-      ...input1,
-      listData: [],
     };
 
     // empty listData

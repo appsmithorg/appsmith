@@ -1,4 +1,4 @@
-import derivedProperty from "./derived";
+import derivedProperty from "./_derived";
 import moment from "moment";
 import _ from "lodash";
 describe("Validates Derived Properties", () => {
