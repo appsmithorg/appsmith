@@ -1,4 +1,3 @@
-import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { PluginType } from "entities/Action";
 import { ENTITY_TYPE, SourceEntity } from "entities/AppsmithConsole";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
@@ -8,7 +7,7 @@ import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import {
   getCurrentApplicationId,
-  getCurrentPageId,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import {
   getAction,
@@ -18,12 +17,13 @@ import {
 import { getSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
-import { getQueryParams } from "../../../utils/AppsmithUtils";
-import { JS_COLLECTION_ID_URL } from "constants/routes";
+import { getQueryParams } from "utils/AppsmithUtils";
+import { datasourcesEditorIdURL, jsCollectionIdURL } from "RouteBuilder";
 
 function ActionLink(props: EntityLinkProps) {
   const applicationId = useSelector(getCurrentApplicationId);
   const action = useSelector((state: AppState) => getAction(state, props.id));
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   const onClick = useCallback(() => {
     if (action) {
@@ -31,7 +31,7 @@ function ActionLink(props: EntityLinkProps) {
       const actionConfig = getActionConfig(pluginType);
       const url =
         applicationId &&
-        actionConfig?.getURL(applicationId, pageId, id, pluginType);
+        actionConfig?.getURL(applicationSlug, pageSlug, pageId, id, pluginType);
 
       if (url) {
         history.push(url);
@@ -56,13 +56,11 @@ function ActionLink(props: EntityLinkProps) {
 }
 
 function JSCollectionLink(props: EntityLinkProps) {
-  const applicationId = useSelector(getCurrentApplicationId);
-  // const action = useSelector((state: AppState) => getJSAction(state, props.id));
-  const pageId = useSelector(getCurrentPageId);
   const onClick = useCallback(() => {
     if (props.id) {
-      // const { id } = action;
-      const url = JS_COLLECTION_ID_URL(applicationId, pageId, props.id);
+      const url = jsCollectionIdURL({
+        collectionId: props.id,
+      });
 
       if (url) {
         history.push(url);
@@ -118,18 +116,14 @@ function DatasourceLink(props: EntityLinkProps) {
   const datasource = useSelector((state: AppState) =>
     getDatasource(state, props.id),
   );
-  const pageId = useSelector(getCurrentPageId);
-  const applicationId = useSelector(getCurrentApplicationId);
 
   const onClick = () => {
     if (datasource) {
       history.push(
-        DATA_SOURCES_EDITOR_ID_URL(
-          applicationId,
-          pageId,
-          datasource.id,
-          getQueryParams(),
-        ),
+        datasourcesEditorIdURL({
+          datasourceId: datasource.id,
+          params: getQueryParams(),
+        }),
       );
       AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
         entityType: "DATASOURCE",

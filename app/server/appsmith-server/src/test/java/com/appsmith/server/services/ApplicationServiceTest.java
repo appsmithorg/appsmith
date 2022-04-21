@@ -37,6 +37,7 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -190,6 +191,7 @@ public class ApplicationServiceTest {
             gitConnectedApp.setOrganizationId(orgId);
             GitApplicationMetadata gitData = new GitApplicationMetadata();
             gitData.setBranchName("testBranch");
+            gitData.setDefaultBranchName("testBranch");
             gitData.setRepoName("testRepo");
             gitData.setRemoteUrl("git@test.com:user/testRepo.git");
             gitData.setRepoName("testRepo");
@@ -271,6 +273,7 @@ public class ApplicationServiceTest {
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEvaluationVersion()).isEqualTo(EVALUATION_VERSION);
+                    assertThat(application.getApplicationVersion()).isEqualTo(ApplicationVersion.LATEST_VERSION);
                     assertThat(application.getColor()).isNotEmpty();
                     assertThat(application.getEditModeThemeId()).isEqualTo(defaultThemeId);
                     assertThat(application.getPublishedModeThemeId()).isEqualTo(defaultThemeId);
@@ -1053,6 +1056,8 @@ public class ApplicationServiceTest {
                     assertThat(clonedApplication.getUpdatedAt()).isNotNull();
                     assertThat(clonedApplication.getEvaluationVersion()).isNotNull();
                     assertThat(clonedApplication.getEvaluationVersion()).isEqualTo(gitConnectedApp.getEvaluationVersion());
+                    assertThat(clonedApplication.getApplicationVersion()).isNotNull();
+                    assertThat(clonedApplication.getApplicationVersion()).isEqualTo(gitConnectedApp.getApplicationVersion());
 
                     List<ApplicationPage> pages = clonedApplication.getPages();
                     Set<String> clonedPageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
@@ -2271,6 +2276,7 @@ public class ApplicationServiceTest {
             assertThat(application.getPolicies()).isNotNull().isNotEmpty();
             assertThat(application.getModifiedBy()).isEqualTo("api_user");
             assertThat(application.getIsPublic()).isTrue();
+            assertThat(application.getIsManualUpdate()).isTrue();
         }).verifyComplete();
     }
 
@@ -2540,5 +2546,38 @@ public class ApplicationServiceTest {
                     assertThat(clonedTheme.getOrganizationId()).isNull();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getApplicationConnectedToGit_defaultBranchUpdated_returnBranchSpecificApplication() {
+        // Update the default Branch for the gitConected App
+        gitConnectedApp.getGitApplicationMetadata().setDefaultBranchName("release");
+        applicationService.save(gitConnectedApp).block();
+
+        Application testApplication = new Application();
+        testApplication.setName("getApplicationConnectedToGit_defaultBranchUpdated_returnBranchSpecificApplication");
+        testApplication.setOrganizationId(orgId);
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        gitData.setBranchName("release");
+        gitData.setDefaultApplicationId(gitConnectedApp.getId());
+        testApplication.setGitApplicationMetadata(gitData);
+        Application application = applicationPageService.createApplication(testApplication)
+                .flatMap(application1 -> importExportApplicationService.exportApplicationById(gitConnectedApp.getId(), gitData.getBranchName())
+                        .flatMap(applicationJson -> importExportApplicationService.importApplicationInOrganization(orgId, applicationJson, application1.getId(), gitData.getBranchName())))
+                .block();
+
+
+        Mono<Application> getApplication = applicationService.findByIdAndBranchName(gitConnectedApp.getId(), "release");
+        StepVerifier.create(getApplication)
+                .assertNext(application1 -> {
+                    assertThat(application1).isNotNull();
+                    assertThat(application1.getGitApplicationMetadata().getBranchName()).isNotEqualTo(gitConnectedApp.getGitApplicationMetadata().getBranchName());
+                    assertThat(application1.getGitApplicationMetadata().getBranchName()).isEqualTo(application.getGitApplicationMetadata().getBranchName());
+                    assertThat(application1.getId()).isEqualTo(gitConnectedApp.getId());
+                    assertThat(application1.getName()).isEqualTo(application.getName());
+                })
+                .verifyComplete();
+
     }
 }

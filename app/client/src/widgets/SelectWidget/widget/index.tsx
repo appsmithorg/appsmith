@@ -10,13 +10,22 @@ import {
 } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { LabelPosition } from "components/constants";
+import { Alignment } from "@blueprintjs/core";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { findIndex, isArray, isNumber, isString } from "lodash";
+import {
+  findIndex,
+  isArray,
+  isEqual,
+  isNumber,
+  isString,
+  LoDashStatic,
+} from "lodash";
 
 export function defaultOptionValueValidation(
   value: unknown,
   props: SelectWidgetProps,
-  _: any,
+  _: LoDashStatic,
 ): ValidationResponse {
   let isValid;
   let parsed;
@@ -40,7 +49,10 @@ export function defaultOptionValueValidation(
    */
   if (typeof value === "string") {
     try {
-      value = JSON.parse(value);
+      const parsedValue = JSON.parse(value);
+      if (_.isObject(parsedValue)) {
+        value = parsedValue;
+      }
     } catch (e) {}
   }
 
@@ -53,7 +65,7 @@ export function defaultOptionValueValidation(
   } else {
     isValid = false;
     parsed = {};
-    message = `value does not evaluate to type: string | { "label": "label1", "value": "value1" }`;
+    message = `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`;
   }
 
   return {
@@ -135,16 +147,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             },
           },
           {
-            helpText: "Sets a Label Text",
-            propertyName: "labelText",
-            label: "Label Text",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Enter Label text",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
             helpText: "Sets a Placeholder Text",
             propertyName: "placeholderText",
             label: "Placeholder",
@@ -214,6 +216,77 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "Label",
+        children: [
+          {
+            helpText: "Sets the label text of the widget",
+            propertyName: "labelText",
+            label: "Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter label text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label position of the widget",
+            propertyName: "labelPosition",
+            label: "Position",
+            controlType: "DROP_DOWN",
+            options: [
+              { label: "Left", value: LabelPosition.Left },
+              { label: "Top", value: LabelPosition.Top },
+              { label: "Auto", value: LabelPosition.Auto },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label alignment of the widget",
+            propertyName: "labelAlignment",
+            label: "Alignment",
+            controlType: "LABEL_ALIGNMENT_OPTIONS",
+            options: [
+              {
+                icon: "LEFT_ALIGN",
+                value: Alignment.LEFT,
+              },
+              {
+                icon: "RIGHT_ALIGN",
+                value: Alignment.RIGHT,
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+            hidden: (props: SelectWidgetProps) =>
+              props.labelPosition !== LabelPosition.Left,
+            dependencies: ["labelPosition"],
+          },
+          {
+            helpText:
+              "Sets the label width of the widget as the number of columns",
+            propertyName: "labelWidth",
+            label: "Width (in columns)",
+            controlType: "NUMERIC_INPUT",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            min: 0,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: {
+                natural: true,
+              },
+            },
+            hidden: (props: SelectWidgetProps) =>
+              props.labelPosition !== LabelPosition.Left,
+            dependencies: ["labelPosition"],
           },
         ],
       },
@@ -332,6 +405,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       value: undefined,
       label: undefined,
       filterText: "",
+      isDirty: false,
     };
   }
 
@@ -346,6 +420,16 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   componentDidMount() {
     super.componentDidMount();
     this.changeSelectedOption();
+  }
+
+  componentDidUpdate(prevProps: SelectWidgetProps): void {
+    // Reset isDirty to false if defaultOptionValue changes
+    if (
+      !isEqual(this.props.defaultOptionValue, prevProps.defaultOptionValue) &&
+      this.props.isDirty
+    ) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
   }
 
   isStringOrNumber = (value: any): value is string | number =>
@@ -379,10 +463,13 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         isLoading={this.props.isLoading}
         isValid={this.props.isValid}
         label={this.props.selectedOptionLabel}
+        labelAlignment={this.props.labelAlignment}
+        labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelWidth={this.getLabelWidth()}
         onFilterChange={this.onFilterChange}
         onOptionSelected={this.onOptionSelected}
         options={options}
@@ -405,6 +492,10 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       isChanged = !(this.props.selectedOptionValue === selectedOption.value);
     }
     if (isChanged) {
+      if (!this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", true);
+      }
+
       this.props.updateWidgetMetaProperty("label", selectedOption.label ?? "");
 
       this.props.updateWidgetMetaProperty("value", selectedOption.value ?? "", {
@@ -452,6 +543,10 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
 export interface SelectWidgetProps extends WidgetProps {
   placeholderText?: string;
+  labelText: string;
+  labelPosition?: LabelPosition;
+  labelAlignment?: Alignment;
+  labelWidth?: number;
   selectedIndex?: number;
   options?: DropdownOption[];
   onOptionChange?: string;
@@ -465,6 +560,7 @@ export interface SelectWidgetProps extends WidgetProps {
   serverSideFiltering: boolean;
   onFilterUpdate: string;
   isDirty?: boolean;
+  filterText: string;
 }
 
 export default SelectWidget;

@@ -52,18 +52,16 @@ import {
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
-import {
-  BUILDER_PAGE_URL,
-  DATA_SOURCES_EDITOR_ID_URL,
-  JS_COLLECTION_ID_URL,
-} from "constants/routes";
 import { getSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  selectPageSlugToIdMap,
+  selectURLSlugs,
+} from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
 import { get, noop } from "lodash";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { getQueryParams } from "../../../utils/AppsmithUtils";
+import { getQueryParams } from "utils/AppsmithUtils";
 import SnippetsFilter from "./SnippetsFilter";
 import SnippetRefinements from "./SnippetRefinements";
 import { Configure, Index } from "react-instantsearch-dom";
@@ -81,6 +79,11 @@ import {
   useFilteredPages,
   useFilteredWidgets,
 } from "./GlobalSearchHooks";
+import {
+  datasourcesEditorIdURL,
+  builderURL,
+  jsCollectionIdURL,
+} from "RouteBuilder";
 
 const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
   width: ${({ category, query }) =>
@@ -174,7 +177,7 @@ const getSortedResults = (
 const filterCategoryList = getFilterCategoryList();
 
 function GlobalSearch() {
-  const currentPageId = useSelector(getCurrentPageId);
+  const currentPageId = useSelector(getCurrentPageId) as string;
   const modalOpen = useSelector(isModalOpenSelector);
   const dispatch = useDispatch();
   const [snippets, setSnippetsState] = useState([]);
@@ -206,7 +209,6 @@ function GlobalSearch() {
     (state: AppState) => state.ui.globalSearch.filterContext.refinements,
   );
   const params = useParams<ExplorerURLParams>();
-  const applicationId = useSelector(getCurrentApplicationId);
 
   const toggleShow = () => {
     if (modalOpen) {
@@ -403,11 +405,20 @@ function GlobalSearch() {
     );
   };
 
+  const { applicationSlug } = useSelector(selectURLSlugs);
+  const pageIdToSlugMap = useSelector(selectPageSlugToIdMap);
+
   const handleActionClick = (item: SearchItem) => {
     const { config } = item;
     const { id, pageId, pluginType } = config;
     const actionConfig = getActionConfig(pluginType);
-    const url = actionConfig?.getURL(applicationId, pageId, id, pluginType);
+    const url = actionConfig?.getURL(
+      applicationSlug,
+      pageIdToSlugMap[pageId] as string,
+      pageId,
+      id,
+      pluginType,
+    );
     toggleShow();
     url && history.push(url);
   };
@@ -415,25 +426,37 @@ function GlobalSearch() {
   const handleJSCollectionClick = (item: SearchItem) => {
     const { config } = item;
     const { id, pageId } = config;
-    history.push(JS_COLLECTION_ID_URL(applicationId, pageId, id));
+    history.push(
+      jsCollectionIdURL({
+        applicationSlug,
+        pageSlug: pageIdToSlugMap[pageId],
+        pageId,
+        collectionId: id,
+      }),
+    );
     toggleShow();
   };
 
   const handleDatasourceClick = (item: SearchItem) => {
     toggleShow();
     history.push(
-      DATA_SOURCES_EDITOR_ID_URL(
-        applicationId,
-        item.pageId,
-        item.id,
-        getQueryParams(),
-      ),
+      datasourcesEditorIdURL({
+        pageSlug: pageIdToSlugMap[item.pageId],
+        pageId: item.pageId,
+        datasourceId: item.id,
+        params: getQueryParams(),
+      }),
     );
   };
 
   const handlePageClick = (item: SearchItem) => {
     toggleShow();
-    history.push(BUILDER_PAGE_URL({ applicationId, pageId: item.pageId }));
+    history.push(
+      builderURL({
+        pageSlug: pageIdToSlugMap[item.pageId] as string,
+        pageId: item.pageId,
+      }),
+    );
   };
 
   const onEnterSnippet = useSelector(
@@ -485,7 +508,12 @@ function GlobalSearch() {
     [SEARCH_ITEM_TYPES.actionOperation]: (e: SelectEvent, item: any) => {
       if (item.action) dispatch(item.action(currentPageId, "OMNIBAR"));
       else if (item.redirect)
-        item.redirect(currentPageId, "OMNIBAR", applicationId);
+        item.redirect(
+          applicationSlug,
+          pageIdToSlugMap[currentPageId],
+          currentPageId,
+          "OMNIBAR",
+        );
       dispatch(toggleShowGlobalSearchModal());
     },
   };

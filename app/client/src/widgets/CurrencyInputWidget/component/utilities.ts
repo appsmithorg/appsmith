@@ -11,24 +11,22 @@ export const countryToFlag = (isoCode: string) => {
 };
 
 /*
- Returns formatted value with maximum number of decimals based on decimalsInCurrency value 
+ Returns formatted value with maximum number of decimals based on decimalsInCurrency value
  and add commas based on user's locale
   for eg:
-  a) (2, 1235.456) will return 1,235.45 
+  a) (2, 1235.456) will return 1,235.45
   b) (1, 1234.456) will return 1,234.4
 */
 export const formatCurrencyNumber = (decimalsInCurrency = 0, value: string) => {
   const fractionDigits = decimalsInCurrency || 0;
-  const currentIndexOfDecimal = value.indexOf(getLocaleDecimalSeperator());
-  const indexOfDecimal = value.length - fractionDigits - 1;
-  const isDecimal =
-    value.includes(getLocaleDecimalSeperator()) &&
-    currentIndexOfDecimal <= indexOfDecimal;
+  const hasDecimal = value.includes(getLocaleDecimalSeperator());
   const locale = getLocale();
   const formatter = new Intl.NumberFormat(locale, {
     style: "decimal",
-    maximumFractionDigits: isDecimal ? fractionDigits : 0,
+    minimumFractionDigits: hasDecimal ? fractionDigits : 0,
+    maximumFractionDigits: hasDecimal ? fractionDigits : 0,
   });
+
   const parsedValue = parseLocaleFormattedStringToNumber(value);
   return formatter.format(isNaN(parsedValue) ? 0 : parsedValue);
 };
@@ -36,7 +34,7 @@ export const formatCurrencyNumber = (decimalsInCurrency = 0, value: string) => {
 /*
  Returns value in string format with maximum number of decimals based on decimalsInCurrency value
   for eg:
-  a) (2, 1235.456) will return 1235.45 
+  a) (2, 1235.456) will return 1235.45
   b) (1, 1234.456) will return 1234.4
 */
 export const limitDecimalValue = (decimals = 0, value = "") => {
@@ -51,7 +49,7 @@ export const limitDecimalValue = (decimals = 0, value = "") => {
       return (
         decimalValueArray[0] +
         decimalSeperator +
-        decimalValueArray[1].substr(0, decimals)
+        decimalValueArray[1].slice(0, decimals)
       );
     default:
       return value;

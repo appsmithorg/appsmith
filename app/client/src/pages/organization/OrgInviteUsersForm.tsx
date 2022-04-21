@@ -11,7 +11,7 @@ import {
   getCurrentAppOrg,
 } from "selectors/organizationSelectors";
 import Spinner from "components/editorComponents/Spinner";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { InviteUsersToOrgFormValues, inviteUsersToOrg } from "./helpers";
 import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
 import {
@@ -38,7 +38,7 @@ import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "./ManageUsers";
 import ScrollIndicator from "components/ads/ScrollIndicator";
-import UserApi from "api/UserApi";
+import UserApi from "@appsmith/api/UserApi";
 import { Colors } from "constants/Colors";
 
 const CommonTitleTextStyle = css`

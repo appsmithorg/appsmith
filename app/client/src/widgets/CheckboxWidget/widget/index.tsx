@@ -127,7 +127,17 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       isChecked: undefined,
+      isDirty: false,
     };
+  }
+
+  componentDidUpdate(prevProps: CheckboxWidgetProps) {
+    if (
+      this.props.defaultCheckedState !== prevProps.defaultCheckedState &&
+      this.props.isDirty
+    ) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
   }
 
   getPageView() {
@@ -148,6 +158,10 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   }
 
   onCheckChange = (isChecked: boolean) => {
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     this.props.updateWidgetMetaProperty("isChecked", isChecked, {
       triggerPropertyName: "onCheckChange",
       dynamicString: this.props.onCheckChange,

@@ -54,6 +54,7 @@ function CopyToClipboard(props: {
 
       <Button
         category={Category.tertiary}
+        className="t--copy-url"
         onClick={() => {
           copyToClipboard(copyText);
         }}

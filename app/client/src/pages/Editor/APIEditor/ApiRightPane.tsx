@@ -2,21 +2,19 @@ import React, { useEffect, useState, useMemo } from "react";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { StyledSeparator } from "pages/Applications/ProductUpdatesModal/ReleaseComponent";
-import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import history from "utils/history";
 import { TabComponent } from "components/ads/Tabs";
 import Text, { FontWeight, TextType } from "components/ads/Text";
 import { TabbedViewContainer } from "./Form";
 import get from "lodash/get";
-import { getQueryParams } from "../../../utils/AppsmithUtils";
+import { getQueryParams } from "utils/AppsmithUtils";
 import ActionRightPane, {
   useEntityDependencies,
 } from "components/editorComponents/ActionRightPane";
-import { useSelector } from "react-redux";
 import { Classes } from "components/ads/common";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
 import { sortedDatasourcesHandler } from "./helpers";
+import { datasourcesEditorIdURL } from "RouteBuilder";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
@@ -32,10 +30,12 @@ const EmptyDatasourceContainer = styled.div`
 `;
 
 const DatasourceContainer = styled.div`
-  .react-tabs__tab-list {
+  &&&&&&&&&&& .react-tabs__tab-list {
     padding: 0 16px !important;
     border-bottom: none;
     border-left: 2px solid #e8e8e8;
+    margin-left: 0px;
+    margin-right: 0px;
     .cs-icon {
       margin-right: 0;
     }
@@ -206,8 +206,6 @@ function ApiRightPane(props: any) {
     if (!!props.hasResponse) setSelectedIndex(1);
   }, [props.hasResponse]);
 
-  const applicationId = useSelector(getCurrentApplicationId);
-
   // array of datasources with the current action's datasource first, followed by the rest.
   const sortedDatasources = useMemo(
     () =>
@@ -255,12 +253,11 @@ function ApiRightPane(props: any) {
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   history.push(
-                                    DATA_SOURCES_EDITOR_ID_URL(
-                                      applicationId,
-                                      props.currentPageId,
-                                      d.id,
-                                      getQueryParams(),
-                                    ),
+                                    datasourcesEditorIdURL({
+                                      pageId: props.currentPageId,
+                                      datasourceId: d.id,
+                                      params: getQueryParams(),
+                                    }),
                                   );
                                 }}
                                 size={IconSize.LARGE}
@@ -268,7 +265,7 @@ function ApiRightPane(props: any) {
                             </IconContainer>
                           </DataSourceNameContainer>
                           <DatasourceURL>
-                            {d.datasourceConfiguration.url}
+                            {d.datasourceConfiguration?.url}
                           </DatasourceURL>
                           {dataSourceInfo && (
                             <>

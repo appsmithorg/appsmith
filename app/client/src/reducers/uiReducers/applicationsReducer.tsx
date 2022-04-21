@@ -4,7 +4,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ApplicationPayload,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { Organization, OrgUser } from "constants/orgConstants";
 import {
   createMessage,
@@ -128,12 +128,13 @@ const applicationsReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE]: (
     state: ApplicationsReduxState,
-    action: ReduxAction<{ name: string }>,
+    action: ReduxAction<{ name: string; slug: string }>,
   ) => ({
     ...state,
     currentApplication: {
       ...state.currentApplication,
-      name: action.payload,
+      name: action.payload.name,
+      slug: action.payload.slug,
     },
   }),
   [ReduxActionTypes.CURRENT_APPLICATION_LAYOUT_UPDATE]: (
@@ -422,7 +423,26 @@ const applicationsReducer = createReducer(initialState, {
         branchName: action.payload,
       },
     },
-  }),
+  }), // updating default branch when git sync on branch list
+  [ReduxActionTypes.FETCH_BRANCHES_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<any[]>,
+  ) => {
+    const defaultBranch = action.payload.find((branch: any) => branch.default);
+    if (defaultBranch) {
+      return {
+        ...state,
+        currentApplication: {
+          ...state.currentApplication,
+          gitApplicationMetadata: {
+            ...(state.currentApplication?.gitApplicationMetadata || {}),
+            defaultBranchName: defaultBranch.branchName,
+          },
+        },
+      };
+    }
+    return state;
+  },
   [ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_SUCCESS]: (
     state: ApplicationsReduxState,
   ) => ({

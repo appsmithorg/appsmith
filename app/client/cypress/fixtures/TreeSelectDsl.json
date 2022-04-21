@@ -122,6 +122,22 @@
             "renderMode":"CANVAS",
             "isLoading":false,
             "allowClear":false
+         },
+         {
+            "isVisible": true,
+            "text": "Label",
+            "textAlign": "LEFT",
+            "widgetName": "Text1",
+            "type": "TEXT_WIDGET",
+            "isLoading": false,
+            "parentColumnSpace": 15.974999999999998,
+            "parentRowSpace": 10,
+            "leftColumn": 3,
+            "rightColumn": 15,
+            "topRow": 10,
+            "bottomRow": 12,
+            "parentId": "bxekwxgc1i",
+            "widgetId": "9xcfqahpw2"
          }
       ]
    }

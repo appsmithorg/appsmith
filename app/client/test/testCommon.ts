@@ -4,7 +4,7 @@ import { editorInitializer } from "utils/EditorUtils";
 import {
   PageListPayload,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { initEditor } from "actions/initActions";
 import { useDispatch } from "react-redux";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
@@ -98,7 +98,7 @@ export const syntheticTestMouseEvent = (
 export function MockApplication({ children }: any) {
   editorInitializer();
   const dispatch = useDispatch();
-  dispatch(initEditor("app_id", "page_id"));
+  dispatch(initEditor({ pageId: "page_id" }));
   const mockResp: any = {
     organizationId: "org_id",
     pages: [{ id: "page_id", name: "Page1", isDefault: true }],

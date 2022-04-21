@@ -17,7 +17,7 @@ describe("Switchgroup Widget Functionality", function() {
     cy.get(".t--widget-textwidget").should("exist");
     cy.updateCodeInput(
       ".t--property-control-text",
-      `{{SwitchGroup1.selectedValues}}`,
+      `{{SwitchGroup1.selectedValues[0]}}`,
     );
   });
 
@@ -95,10 +95,11 @@ describe("Switchgroup Widget Functionality", function() {
       .eq(1)
       .click({ force: true })
       .type("{{BLUE}}", { parseSpecialCharSequences: false });
-
+    cy.wait(2000);
     cy.get(".t--property-control-options")
       .find(".t--js-toggle")
-      .click();
+      .trigger("click")
+      .wait(3000);
     // wait for a cyclic dependency error to occur
     cy.validateToastMessage("Cyclic dependency found while evaluating");
     // check if a crash messsge is appeared
@@ -109,7 +110,7 @@ describe("Switchgroup Widget Functionality", function() {
     // check if the evaluation is disabled
     cy.get(".t--widget-textwidget").should(
       "contain",
-      `{{SwitchGroup1.selectedValues}}`,
+      `{{SwitchGroup1.selectedValues[0]}}`,
     );
   });
 });

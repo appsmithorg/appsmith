@@ -12,9 +12,9 @@ import {
   ReduxActionTypes,
   ReduxActionWithMeta,
   ReduxFormActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { getFormData } from "selectors/formSelectors";
-import { API_EDITOR_FORM_NAME, SAAS_EDITOR_FORM } from "constants/forms";
+import { API_EDITOR_FORM_NAME, QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import {
   DEFAULT_API_ACTION_CONFIG,
   POST_BODY_FORMAT_OPTIONS_ARRAY,
@@ -23,19 +23,10 @@ import {
   CONTENT_TYPE_HEADER_KEY,
   EMPTY_KEY_VALUE_PAIRS,
   HTTP_METHOD,
+  HTTP_METHODS_DEFAULT_FORMAT_TYPES,
 } from "constants/ApiEditorConstants";
 import history from "utils/history";
-import {
-  API_EDITOR_ID_URL,
-  DATA_SOURCES_EDITOR_ID_URL,
-  INTEGRATION_EDITOR_MODES,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-} from "constants/routes";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
+import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
 import { initialize, autofill, change } from "redux-form";
 import { Property } from "api/ActionAPI";
 import { createNewApiName, getQueryParams } from "utils/AppsmithUtils";
@@ -67,7 +58,13 @@ import {
 } from "utils/ApiPaneUtils";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { Plugin } from "api/PluginApi";
 import { getDisplayFormat } from "selectors/apiPaneSelectors";
+import {
+  apiEditorIdURL,
+  datasourcesEditorIdURL,
+  integrationEditorURL,
+} from "RouteBuilder";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -118,19 +115,19 @@ function* syncApiParamsSaga(
 
 function* redirectToNewIntegrations(
   action: ReduxAction<{
-    applicationId: string;
     pageId: string;
     params?: Record<string, string>;
   }>,
 ) {
   history.push(
-    INTEGRATION_EDITOR_URL(
-      action.payload.applicationId,
-      action.payload.pageId,
-      INTEGRATION_TABS.ACTIVE,
-      INTEGRATION_EDITOR_MODES.AUTO,
-      action.payload.params,
-    ),
+    integrationEditorURL({
+      pageId: action.payload.pageId,
+      selectedTab: INTEGRATION_TABS.ACTIVE,
+      params: {
+        ...action.payload.params,
+        mode: INTEGRATION_EDITOR_MODES.AUTO,
+      },
+    }),
   );
 }
 
@@ -158,10 +155,7 @@ function* handleUpdateBodyContentType(
   let formData = { ...values.actionConfiguration.formData };
   if (formData === undefined) formData = {};
   formData["apiContentType"] =
-    title === POST_BODY_FORMAT_OPTIONS.RAW ||
-    title === POST_BODY_FORMAT_OPTIONS.NONE
-      ? previousContentType
-      : title;
+    title === POST_BODY_FORMAT_OPTIONS.NONE ? previousContentType : title;
 
   yield put(
     change(API_EDITOR_FORM_NAME, "actionConfiguration.formData", formData),
@@ -199,8 +193,7 @@ function* handleUpdateBodyContentType(
   // this is done to ensure user input isn't cleared off if they switch to raw or none mode.
   // however if the user types in a new value, we use the updated value (formValueChangeSaga - line 426).
   if (
-    (displayFormatValue === POST_BODY_FORMAT_OPTIONS.NONE ||
-      displayFormatValue === POST_BODY_FORMAT_OPTIONS.RAW) &&
+    displayFormatValue === POST_BODY_FORMAT_OPTIONS.NONE &&
     indexToUpdate !== -1
   ) {
     headers[indexToUpdate] = {
@@ -237,21 +230,52 @@ function* handleUpdateBodyContentType(
   }
 }
 
-function* initializeExtraFormDataSaga() {
+function* updateExtraFormDataSaga() {
   const formData = yield select(getFormData, API_EDITOR_FORM_NAME);
   const { values } = formData;
 
   // when initializing, check if theres a display format present, if not use Json display format as default.
   const extraFormData = yield select(getDisplayFormat, values.id);
 
-  // as a fail safe, if no display format is present, use Raw mode
-  const rawApiContentType = extraFormData?.displayFormat?.value
-    ? extraFormData?.displayFormat?.value
-    : POST_BODY_FORMAT_OPTIONS.RAW;
+  const headers: Array<{ key: string; value: string }> =
+    get(values, "actionConfiguration.headers") || [];
+  const contentTypeValue: string =
+    headers.find(
+      (h: { key: string; value: string }) => h.key === CONTENT_TYPE_HEADER_KEY,
+    )?.value || "";
+
+  let rawApiContentType;
 
   if (!extraFormData) {
-    yield call(setHeaderFormat, values.id, rawApiContentType);
+    /*
+     * Checking if the content-type header exists, if yes then set the body format type one of the three json, multipart or url encoded whichever matches else set raw as default
+     */
+    if (
+      [
+        POST_BODY_FORMAT_OPTIONS.JSON,
+        POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED,
+        POST_BODY_FORMAT_OPTIONS.MULTIPART_FORM_DATA,
+      ].includes(contentTypeValue)
+    ) {
+      rawApiContentType = contentTypeValue;
+    } else {
+      rawApiContentType = POST_BODY_FORMAT_OPTIONS.RAW;
+    }
+  } else {
+    if (
+      [
+        POST_BODY_FORMAT_OPTIONS.JSON,
+        POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED,
+        POST_BODY_FORMAT_OPTIONS.MULTIPART_FORM_DATA,
+      ].includes(contentTypeValue)
+    ) {
+      rawApiContentType = contentTypeValue;
+    } else {
+      rawApiContentType = POST_BODY_FORMAT_OPTIONS.RAW;
+    }
   }
+
+  yield call(setHeaderFormat, values.id, rawApiContentType);
 }
 
 function* changeApiSaga(
@@ -263,11 +287,11 @@ function* changeApiSaga(
   if (!action) action = yield select(getAction, id);
   if (!action) return;
   if (isSaas) {
-    yield put(initialize(SAAS_EDITOR_FORM, action));
+    yield put(initialize(QUERY_EDITOR_FORM_NAME, action));
   } else {
     yield put(initialize(API_EDITOR_FORM_NAME, action));
 
-    yield call(initializeExtraFormDataSaga);
+    yield call(updateExtraFormDataSaga);
 
     if (
       action.actionConfiguration &&
@@ -347,6 +371,8 @@ export function* updateFormFields(
     values?.actionConfiguration?.formData?.apiContentType ||
     POST_BODY_FORMAT_OPTIONS.JSON;
 
+  let extraFormDataToBeChanged = false;
+
   if (field === "actionConfiguration.httpMethod") {
     const { actionConfiguration } = values;
     if (!actionConfiguration.headers) return;
@@ -359,8 +385,11 @@ export function* updateFormFields(
 
     if (value !== HTTP_METHOD.GET) {
       // if user switches to other methods that is not GET and apiContentType is undefined set default apiContentType to JSON.
-      if (apiContentType === POST_BODY_FORMAT_OPTIONS.NONE)
-        apiContentType = POST_BODY_FORMAT_OPTIONS.JSON;
+      if (apiContentType === POST_BODY_FORMAT_OPTIONS.NONE) {
+        apiContentType =
+          HTTP_METHODS_DEFAULT_FORMAT_TYPES[value as HTTP_METHOD];
+        extraFormDataToBeChanged = true;
+      }
 
       const indexToUpdate = getIndextoUpdate(
         actionConfigurationHeaders,
@@ -387,6 +416,8 @@ export function* updateFormFields(
         actionConfigurationHeaders,
       ),
     );
+
+    if (extraFormDataToBeChanged) yield call(updateExtraFormDataSaga);
   }
 }
 
@@ -462,54 +493,53 @@ function* formValueChangeSaga(
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   const { id, pluginType } = actionPayload.payload;
-  const action = yield select(getAction, id);
+  const action: Action = yield select(getAction, id);
   const data = { ...action };
 
   if (pluginType === PluginType.API) {
     yield put(initialize(API_EDITOR_FORM_NAME, omit(data, "name")));
-    const applicationId: string = yield select(getCurrentApplicationId);
-    const pageId: string = yield select(getCurrentPageId);
     history.push(
-      API_EDITOR_ID_URL(applicationId, pageId, id, {
-        editName: "true",
-        from: "datasources",
+      apiEditorIdURL({
+        apiId: id,
+        params: {
+          editName: "true",
+          from: "datasources",
+        },
       }),
     );
   }
 }
 
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
-  const plugin = yield select(getPlugin, actionPayload.payload.pluginId);
+  const plugin: Plugin = yield select(
+    getPlugin,
+    actionPayload.payload.pluginId,
+  );
   // Only look at API plugins
   if (plugin.type !== PluginType.API) return;
 
-  const pageId = yield select(getCurrentPageId);
-  const applicationId = yield select(getCurrentApplicationId);
-
   history.push(
-    DATA_SOURCES_EDITOR_ID_URL(
-      applicationId,
-      pageId,
-      actionPayload.payload.id,
-      {
+    datasourcesEditorIdURL({
+      datasourceId: actionPayload.payload.id,
+      params: {
         from: "datasources",
         ...getQueryParams(),
       },
-    ),
+    }),
   );
 }
 
 function* handleCreateNewApiActionSaga(
   action: ReduxAction<{ pageId: string; from: EventLocation }>,
 ) {
-  const organizationId = yield select(getCurrentOrgId);
-  const pluginId = yield select(
+  const organizationId: string = yield select(getCurrentOrgId);
+  const pluginId: string = yield select(
     getPluginIdOfPackageName,
     REST_PLUGIN_PACKAGE_NAME,
   );
   const { pageId } = action.payload;
   if (pageId && pluginId) {
-    const actions = yield select(getActions);
+    const actions: ActionData[] = yield select(getActions);
     const pageActions = actions.filter(
       (a: ActionData) => a.config.pageId === pageId,
     );
@@ -568,9 +598,12 @@ function* handleApiNameChangeSuccessSaga(
     if (params.editName) {
       params.editName = "false";
     }
-    const applicationId = yield select(getCurrentApplicationId);
-    const pageId = yield select(getCurrentPageId);
-    history.push(API_EDITOR_ID_URL(applicationId, pageId, actionId, params));
+    history.push(
+      apiEditorIdURL({
+        apiId: actionId,
+        params,
+      }),
+    );
   }
 }
 

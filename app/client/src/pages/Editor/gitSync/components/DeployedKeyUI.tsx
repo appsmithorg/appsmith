@@ -22,13 +22,13 @@ import Menu from "components/ads/Menu";
 import { Position } from "@blueprintjs/core";
 import MenuItem from "components/ads/MenuItem";
 import Button, { Category, Size } from "components/ads/Button";
-import { useSSHKeyPair } from "pages/Editor/gitSync/hooks";
 import {
   NotificationBanner,
   NotificationVariant,
 } from "components/ads/NotificationBanner";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import { useSSHKeyPair } from "../hooks/useSSHKeyPair";
 
 const TooltipWrapper = styled.div`
   display: flex;

@@ -1,6 +1,9 @@
 import { createReducer } from "utils/AppsmithUtils";
 import { Log } from "entities/AppsmithConsole";
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { omit, isUndefined } from "lodash";
 
 const initialState: DebuggerReduxState = {
