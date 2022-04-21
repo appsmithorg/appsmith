@@ -72,8 +72,7 @@ import { renderImage } from "../component/renderHelpers/ImageRenderer";
 import { renderVideo } from "../component/renderHelpers/VideoRenders";
 import { renderIconButton } from "../component/renderHelpers/IconButtonRenderer";
 import { renderEditActions } from "../component/renderHelpers/EditActionsRenderer";
-
-const clone = require("rfdc/default");
+import { klona as clone } from "klona/full";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -483,7 +482,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
                       if (
                         props.cell.column.columnProperties.onSubmit &&
-                        !this.props.allowBulkEditActions &&
                         !this.hasRowEditActionsColumn()
                       ) {
                         this.onColumnEvent({
@@ -1128,11 +1126,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           }
           selectedRowIndices={this.getSelectedRowIndices()}
           serverSidePaginationEnabled={!!this.props.serverSidePaginationEnabled}
-          showTableLevelEditActions={
-            this.props.allowBulkEditActions &&
-            !!this.props.updatedRows.length &&
-            !this.hasRowEditActionsColumn()
-          }
           sortTableColumn={this.handleColumnSorting}
           tableData={transformedData}
           totalRecordsCount={totalRecordsCount}
