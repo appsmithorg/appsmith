@@ -1,5 +1,8 @@
 import { all, takeEvery, race, put, take } from "redux-saga/effects";
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import history from "utils/history";
 import { showActionConfirmationModal } from "actions/pluginActionActions";
 import { ModalInfo } from "reducers/uiReducers/modalActionReducer";

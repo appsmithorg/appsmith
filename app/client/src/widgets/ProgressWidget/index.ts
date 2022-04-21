@@ -20,7 +20,7 @@ export const CONFIG = {
     isVisible: true,
     steps: 1,
     progressType: ProgressType.LINEAR,
-    value: 50,
+    progress: 50,
     version: 1,
   },
   properties: {

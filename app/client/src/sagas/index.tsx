@@ -1,4 +1,4 @@
-import { call, all, spawn } from "redux-saga/effects";
+import { call, all, spawn, race, take } from "redux-saga/effects";
 import pageSagas from "sagas/PageSagas";
 import { watchActionSagas } from "./ActionSagas";
 import { watchJSActionSagas } from "./JSActionSagas";
@@ -43,8 +43,8 @@ import gitSyncSagas from "./GitSyncSagas";
 import log from "loglevel";
 import * as sentry from "@sentry/react";
 import formEvaluationChangeListener from "./FormEvaluationSaga";
-import SuperUserSagas from "./SuperUserSagas";
-import reflowSagas from "./ReflowSagas";
+import SuperUserSagas from "@appsmith/sagas/SuperUserSagas";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 const sagas = [
   initSagas,
@@ -89,23 +89,28 @@ const sagas = [
   draggingCanvasSagas,
   gitSyncSagas,
   SuperUserSagas,
-  reflowSagas,
 ];
 
-export function* rootSaga(sagasToRun = sagas) {
-  yield all(
-    sagasToRun.map((saga) =>
-      spawn(function*() {
-        while (true) {
-          try {
-            yield call(saga);
-            break;
-          } catch (e) {
-            log.error(e);
-            sentry.captureException(e);
+export function* rootSaga(sagasToRun = sagas): any {
+  // This race effect ensures that we fail as soon as the first safe crash is dispatched.
+  // Without this, all the subsequent safe crash failures would be shown in the toast messages as well.
+  const result = yield race({
+    running: all(
+      sagasToRun.map((saga) =>
+        spawn(function*() {
+          while (true) {
+            try {
+              yield call(saga);
+              break;
+            } catch (e) {
+              log.error(e);
+              sentry.captureException(e);
+            }
           }
-        }
-      }),
+        }),
+      ),
     ),
-  );
+    crashed: take(ReduxActionTypes.SAFE_CRASH_APPSMITH),
+  });
+  if (result.crashed) yield call(rootSaga);
 }
