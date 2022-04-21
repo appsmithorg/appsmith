@@ -273,7 +273,6 @@ export const DropdownWrapper = styled.div<{
   isOpen: boolean;
 }>`
   width: ${(props) => props.width};
-  max-height: 200px;
   z-index: 1;
   background-color: ${Colors.WHITE};
   overflow: hidden;
@@ -364,7 +363,6 @@ const OptionWrapper = styled.div<{
   display: flex;
   flex-direction: ${(props) =>
     props.subTextPosition === "BOTTOM" ? "column" : "row"};
-  min-height: 40px;
   align-items: ${(props) =>
     props.subTextPosition === "BOTTOM" ? "flex-start" : "center"};
   background-color: ${(props) => (props.selected ? Colors.GRAY_200 : null)};

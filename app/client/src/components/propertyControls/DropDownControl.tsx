@@ -50,6 +50,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
         <StyledDropDown
           boundary="scrollParent"
           dropdownHeight={this.props.dropdownHeight}
+          dropdownMaxHeight="200px"
           enableSearch={this.props.enableSearch}
           fillOptions
           hideSubText={this.props.hideSubText}
