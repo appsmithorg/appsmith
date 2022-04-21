@@ -148,6 +148,7 @@ export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
     <DropdownTriggerIconWrapper
       className="t--input-currency-change currency-change-dropdown-trigger"
       tabIndex={0}
+      type="button"
     >
       {selectedCurrency}
       {props.allowCurrencyChange && (

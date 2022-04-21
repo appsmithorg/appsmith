@@ -168,6 +168,7 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
       }`}
       disabled={props.disabled}
       tabIndex={0}
+      type="button"
     >
       <FlagWrapper>
         {selectedCountry.value && countryToFlag(selectedCountry.value)}
