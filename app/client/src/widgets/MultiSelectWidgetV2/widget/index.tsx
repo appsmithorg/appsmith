@@ -486,15 +486,15 @@ class MultiSelectWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      selectedOptions: `{{
-        this.options.filter(option =>
-          this.selectedOptionsArray.map(
-            selectedOption => selectedOption.value || selectedOption
-          ).includes(option.value)
-        )
-      }}`,
-      selectedOptionLabels: `{{this.selectedOptions.map(selectedOption => selectedOption.label)}}`,
-      selectedOptionValues: `{{this.selectedOptions.map(selectedOption => selectedOption.value)}}`,
+      // selectedOptions: `{{
+      //   this.options.filter(option =>
+      //       this.selectedOptionsArray.map(
+      //         selectedOption => selectedOption.value ?? selectedOption
+      //       ).includes(option.value)
+      //     )
+      // }}`,
+      selectedOptionLabels: `{{this.selectedOptions.map(o => o.label)}}`,
+      selectedOptionValues: `{{this.selectedOptions.map(o => o.value)}}`,
       isValid: `{{this.isRequired ? !!this.selectedOptionValues && this.selectedOptionValues.length > 0 : true}}`,
       value: `{{this.selectedOptionValues}}`,
     };
@@ -502,30 +502,37 @@ class MultiSelectWidget extends BaseWidget<
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      selectedOptionsArray: "defaultOptionValue",
+      selectedOptions: "defaultOptionValue",
       filterText: "",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      selectedOptionsArray: undefined,
+      selectedOptions: undefined,
       filterText: "",
       isDirty: false,
     };
   }
 
-  componentDidUpdate(prevProps: MultiSelectWidgetProps): void {
-    if (xorWith(this.props.options, prevProps.options).length > 0) {
-      const updatedSelectedOptionsArray = this.props.selectedOptionsArray.filter(
+  componentDidMount() {
+    this.setSelectedOptions();
+  }
+
+  componentDidUpdate(prevProps: MultiSelectWidgetProps) {
+    if (
+      !this.props.serverSideFiltering &&
+      xorWith(this.props.options, prevProps.options, isEqual).length > 0
+    ) {
+      const updatedSelectedOptions = this.props.selectedOptions.filter(
         (selectedOption) =>
           !!find(this.props.options, {
-            value: selectedOption.value || selectedOption,
+            value: selectedOption.value,
           }),
       );
       this.props.updateWidgetMetaProperty(
-        "selectedOptionsArray",
-        updatedSelectedOptionsArray,
+        "selectedOptions",
+        updatedSelectedOptions,
       );
     }
     // Check if defaultOptionValue is string
@@ -552,6 +559,13 @@ class MultiSelectWidget extends BaseWidget<
 
     if (hasChanges && this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", false);
+    }
+    // Sets selectedOptions
+    if (
+      xorWith(this.props.selectedOptions, prevProps.selectedOptions, isEqual)
+        .length > 0
+    ) {
+      this.setSelectedOptions();
     }
   }
 
@@ -604,8 +618,24 @@ class MultiSelectWidget extends BaseWidget<
     );
   }
 
+  setSelectedOptions = () => {
+    const matchingOptions = this.props.selectedOptions.reduce(
+      (prev: DropdownOption[], current) => {
+        const matchingOption = find(this.props.options, {
+          value: current.value ?? current,
+        }) as DropdownOption;
+        if (matchingOption) {
+          prev.push(matchingOption);
+        }
+        return prev;
+      },
+      [],
+    );
+    this.props.updateWidgetMetaProperty("selectedOptions", matchingOptions);
+  };
+
   onOptionChange = (value: DefaultValueType) => {
-    this.props.updateWidgetMetaProperty("selectedOptionsArray", value, {
+    this.props.updateWidgetMetaProperty("selectedOptions", value, {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,
       event: {

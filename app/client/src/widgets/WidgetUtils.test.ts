@@ -1,6 +1,6 @@
 import { ButtonVariantTypes } from "components/constants";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
-import { escapeSpecialChars, sanitizeKey } from "./WidgetUtils";
+import { escapeSpecialChars, flattenOptions, sanitizeKey } from "./WidgetUtils";
 import {
   getCustomTextColor,
   getCustomBackgroundColor,
@@ -207,5 +207,62 @@ describe(".sanitizeKey", () => {
       });
       expect(result).toEqual(expectedOutput);
     });
+  });
+});
+
+describe(".flattenOptions", () => {
+  it("Flattens the nested options array", () => {
+    const input = [
+      {
+        label: "Blue",
+        value: "BLUE",
+        children: [
+          {
+            label: "Dark Blue",
+            value: "DARK BLUE",
+          },
+          {
+            label: "Light Blue",
+            value: "LIGHT BLUE",
+          },
+        ],
+      },
+      {
+        label: "Green",
+        value: "GREEN",
+      },
+      {
+        label: "Red",
+        value: "RED",
+      },
+    ];
+    const expected = [
+      {
+        label: "Blue",
+        value: "BLUE",
+      },
+      {
+        label: "Dark Blue",
+        value: "DARK BLUE",
+      },
+      {
+        label: "Light Blue",
+        value: "LIGHT BLUE",
+      },
+
+      {
+        label: "Green",
+        value: "GREEN",
+      },
+      {
+        label: "Red",
+        value: "RED",
+      },
+    ];
+
+    const output = flattenOptions(input);
+    expect(input).toHaveLength(3);
+    expect(output).toHaveLength(5);
+    expect(output).toEqual(expected);
   });
 });

@@ -27,9 +27,72 @@ describe("Select Widgets selectedOptionLabels", function() {
       .eq(1)
       .should("contain.text", "BLUE");
     // 3. Changes options
+    // 3.1 Enable server side filtering
+    cy.togglebar(`.t--property-control-serversidefiltering input`);
     cy.updateCodeInput(
       optionsSelector,
       `[
+        {
+          "label": "Green",
+          "value": "GREEN"
+        },
+        {
+          "label": "Red",
+          "value": "RED"
+        }
+      ]`,
+    );
+    cy.get(`.t--widget-textwidget`)
+      .eq(0)
+      .should("contain.text", "Blue");
+    cy.get(`.t--widget-textwidget`)
+      .eq(1)
+      .should("contain.text", "BLUE");
+    // 3.2 Disable serverside filtering
+    cy.togglebarDisable(`.t--property-control-serversidefiltering input`);
+    cy.updateCodeInput(
+      optionsSelector,
+      `[
+        {
+          "label": "Blue",
+          "value": "BLUE"
+        },
+        {
+          "label": "Green",
+          "value": "GREEN"
+        },
+        {
+          "label": "Red",
+          "value": "RED"
+        }
+      ]`,
+    );
+    cy.updateCodeInput(
+      optionsSelector,
+      `[
+        {
+          "label": "Green",
+          "value": "GREEN"
+        },
+        {
+          "label": "Red",
+          "value": "RED"
+        }
+      ]`,
+    );
+    cy.get(`.t--widget-textwidget`)
+      .eq(0)
+      .should("not.contain.text", "Blue");
+    cy.get(`.t--widget-textwidget`)
+      .eq(1)
+      .should("not.contain.text", "BLUE");
+    cy.updateCodeInput(
+      optionsSelector,
+      `[
+        {
+          "label": "Blue",
+          "value": "BLUE"
+        },
         {
           "label": "Green",
           "value": "GREEN"
@@ -79,9 +142,76 @@ describe("Select Widgets selectedOptionLabels", function() {
       .should("contain.text", "BLUE")
       .and("contain.text", "RED");
     // 3. Changes options
+    // 3.1 Enable server side filtering
+    cy.togglebar(`.t--property-control-serversidefiltering input`);
     cy.updateCodeInput(
       optionsSelector,
       `[
+        {
+          "label": "Green",
+          "value": "GREEN"
+        },
+        {
+          "label": "Red",
+          "value": "RED"
+        }
+      ]`,
+    );
+    cy.get(`.t--widget-textwidget`)
+      .eq(2)
+      .should("contain.text", "Blue")
+      .and("contain.text", "Red");
+    cy.get(`.t--widget-textwidget`)
+      .eq(3)
+      .should("contain.text", "BLUE")
+      .and("contain.text", "RED");
+    // 3.2 Disable serverside filtering
+    cy.togglebarDisable(`.t--property-control-serversidefiltering input`);
+    cy.updateCodeInput(
+      optionsSelector,
+      `[
+        {
+          "label": "Blue",
+          "value": "BLUE"
+        },
+        {
+          "label": "Green",
+          "value": "GREEN"
+        },
+        {
+          "label": "Red",
+          "value": "RED"
+        }
+      ]`,
+    );
+    cy.updateCodeInput(
+      optionsSelector,
+      `[
+        {
+          "label": "Green",
+          "value": "GREEN"
+        },
+        {
+          "label": "Red",
+          "value": "RED"
+        }
+      ]`,
+    );
+    cy.get(`.t--widget-textwidget`)
+      .eq(2)
+      .should("not.contain.text", "Blue")
+      .and("contain.text", "Red");
+    cy.get(`.t--widget-textwidget`)
+      .eq(3)
+      .should("not.contain.text", "BLUE")
+      .and("contain.text", "RED");
+    cy.updateCodeInput(
+      optionsSelector,
+      `[
+        {
+          "label": "Blue",
+          "value": "BLUE"
+        },
         {
           "label": "Green",
           "value": "GREEN"

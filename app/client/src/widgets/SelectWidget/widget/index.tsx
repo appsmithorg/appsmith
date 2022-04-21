@@ -418,9 +418,12 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     this.setSelectedOption();
   }
 
-  componentDidUpdate(prevProps: SelectWidgetProps): void {
+  componentDidUpdate(prevProps: SelectWidgetProps) {
     // Sanitizes selectedOption if options changes
-    if (xorWith(this.props.options, prevProps.options, isEqual).length > 0) {
+    if (
+      !this.props.serverSideFiltering &&
+      xorWith(this.props.options, prevProps.options, isEqual).length > 0
+    ) {
       const found = find(this.props.options, {
         value: this.props.selectedOption.value,
       });
@@ -428,7 +431,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         this.props.updateWidgetMetaProperty("selectedOption", {});
       }
     }
-    // Sanitizes selectedOption
+    // Sets selectedOption
     if (!isEqual(this.props.selectedOption, prevProps.selectedOption)) {
       this.setSelectedOption();
     }
@@ -492,21 +495,30 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
   setSelectedOption = () => {
     const matchingOption = find(this.props.options, {
-      value: this.props.selectedOption?.value || this.props.selectedOption,
+      value: this.props.selectedOption.value ?? this.props.selectedOption,
     });
     this.props.updateWidgetMetaProperty("selectedOption", matchingOption || {});
   };
 
   onOptionSelected = (selectedOption: DropdownOption) => {
-    this.props.updateWidgetMetaProperty("selectedOption", selectedOption, {
-      triggerPropertyName: "onOptionChange",
-      dynamicString: this.props.onOptionChange,
-      event: {
-        type: EventType.ON_OPTION_CHANGE,
-      },
-    });
-    if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
+    let isChanged = true;
+
+    // Check if the value has changed. If no option
+    // selected till now, there is a change
+    if (this.props.selectedOptionValue) {
+      isChanged = !(this.props.selectedOptionValue === selectedOption.value);
+    }
+    if (isChanged) {
+      this.props.updateWidgetMetaProperty("selectedOption", selectedOption, {
+        triggerPropertyName: "onOptionChange",
+        dynamicString: this.props.onOptionChange,
+        event: {
+          type: EventType.ON_OPTION_CHANGE,
+        },
+      });
+      if (!this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", true);
+      }
     }
   };
 

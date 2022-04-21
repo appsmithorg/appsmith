@@ -19,7 +19,7 @@ import {
   FieldComponentBaseProps,
   FieldEventProps,
 } from "../constants";
-import { DropdownOption } from "widgets/MultiSelectTreeWidget/widget";
+import { DropdownOption } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isPrimitive, validateOptions } from "../helper";
 

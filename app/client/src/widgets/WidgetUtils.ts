@@ -17,6 +17,7 @@ import {
   ButtonVariantTypes,
   ButtonPlacement,
   ButtonPlacementTypes,
+  DropdownOption,
 } from "components/constants";
 import tinycolor from "tinycolor2";
 
@@ -253,4 +254,15 @@ export const sanitizeKey = (key: string, options?: SanitizeOptions) => {
   }
 
   return sanitizedKey;
+};
+
+export const flattenOptions = (options: DropdownOption[]) => {
+  let result: { label: string; value: string | number }[] = [];
+  options.forEach((option) => {
+    result.push({ label: option.label, value: option.value });
+    if (Array.isArray(option.children)) {
+      result = result.concat(flattenOptions(option.children));
+    }
+  });
+  return result;
 };

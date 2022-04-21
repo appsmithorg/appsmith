@@ -13,8 +13,9 @@ import { Layers } from "constants/Layers";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import SingleSelectTreeComponent from "../component";
-import { LabelPosition } from "components/constants";
+import { DropdownOption, LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
+import { flattenOptions } from "widgets/WidgetUtils";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -383,14 +384,14 @@ class SingleSelectTreeWidget extends BaseWidget<
   }
 
   componentDidMount() {
-    this.sanitizeSelectedOption();
+    this.setSelectedOption();
   }
 
-  componentDidUpdate(prevProps: SingleSelectTreeWidgetProps): void {
+  componentDidUpdate(prevProps: SingleSelectTreeWidgetProps) {
     if (
       xorWith(
-        this.flatOptions(this.props.options),
-        this.flatOptions(prevProps.options),
+        flattenOptions(this.props.options),
+        flattenOptions(prevProps.options),
         isEqual,
       ).length > 0
     ) {
@@ -403,7 +404,7 @@ class SingleSelectTreeWidget extends BaseWidget<
     }
     // Sanitizes selectedOption
     if (!isEqual(this.props.selectedOption, prevProps.selectedOption)) {
-      this.sanitizeSelectedOption();
+      this.setSelectedOption();
     }
     if (
       this.props.defaultOptionValue !== prevProps.defaultOptionValue &&
@@ -478,34 +479,11 @@ class SingleSelectTreeWidget extends BaseWidget<
     }
   };
 
-  flat(array: DropdownOption[]) {
-    let result: { value: string | number }[] = [];
-    array.forEach((a) => {
-      result.push({ value: a.value });
-      if (Array.isArray(a.children)) {
-        result = result.concat(this.flat(a.children));
-      }
-    });
-    return result;
-  }
-
-  flatOptions(options: DropdownOption[]) {
-    let result: { label: string; value: string | number }[] = [];
-    options.forEach((option) => {
-      result.push({ label: option.label, value: option.value });
-      if (Array.isArray(option.children)) {
-        result = result.concat(this.flatOptions(option.children));
-      }
-    });
-    return result;
-  }
-
   setSelectedOptionLabel(
     options: DropdownOption[],
     selectedValue: string | number,
   ) {
-    const flattenOptions = this.flatOptions(options);
-    const selectedLabel = find(flattenOptions, {
+    const selectedLabel = find(flattenOptions(options), {
       value: selectedValue,
     })?.label;
 
@@ -515,9 +493,9 @@ class SingleSelectTreeWidget extends BaseWidget<
     );
   }
 
-  sanitizeSelectedOption = () => {
-    const matchingOption = find(this.flatOptions(this.props.options), {
-      value: this.props.selectedOption?.value || this.props.selectedOption,
+  setSelectedOption = () => {
+    const matchingOption = find(flattenOptions(this.props.options), {
+      value: this.props.selectedOption.value ?? this.props.selectedOption,
     });
     this.props.updateWidgetMetaProperty("selectedOption", matchingOption || {});
   };
@@ -525,13 +503,6 @@ class SingleSelectTreeWidget extends BaseWidget<
   static getWidgetType(): WidgetType {
     return "SINGLE_SELECT_TREE_WIDGET";
   }
-}
-
-export interface DropdownOption {
-  label: string;
-  value: string | number;
-  disabled?: boolean;
-  children?: DropdownOption[];
 }
 
 export interface SingleSelectTreeWidgetProps extends WidgetProps {

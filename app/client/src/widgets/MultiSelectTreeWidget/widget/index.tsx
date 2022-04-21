@@ -2,7 +2,7 @@ import React, { ReactNode } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { TextSize, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isArray, find, findIndex, xor, xorWith, isEqual, uniq } from "lodash";
+import { isArray, find, xor, xorWith, isEqual, uniq } from "lodash";
 import {
   ValidationResponse,
   ValidationTypes,
@@ -14,8 +14,9 @@ import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import MultiTreeSelectComponent from "../component";
-import { LabelPosition } from "components/constants";
+import { DropdownOption, LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
+import { flattenOptions } from "widgets/WidgetUtils";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];
@@ -41,6 +42,46 @@ function defaultOptionValueValidation(value: unknown): ValidationResponse {
     parsed: values,
   };
 }
+
+export const getOptionSubTree = (
+  options: DropdownOption[],
+  value: string | number,
+  mode: CheckedStrategy,
+) => {
+  let result: { label: string; value: string | number }[] = [];
+  // Finds the target on the 1st level of the options tree
+  const targetOption = find(options, { value }) as DropdownOption;
+  if (targetOption) {
+    result = result.concat({
+      label: targetOption.label,
+      value: targetOption.value,
+    });
+    if (mode === "SHOW_PARENT") {
+      return result;
+    }
+    if (Array.isArray(targetOption.children)) {
+      // If found, Finds all decendants for the found target
+      if (mode === "SHOW_CHILD") {
+        return flattenOptions(targetOption.children);
+      }
+      return result.concat(flattenOptions(targetOption.children));
+    }
+  }
+  // Cannot find the target on the 1st level of the options tree
+  // Until finding the target or reaching out the leaves, loops
+  options.every((option) => {
+    if (Array.isArray(option.children)) {
+      // Finds the target from the children
+      const optionSubTree = getOptionSubTree(option.children, value, mode);
+      if (optionSubTree.length > 0) {
+        result = result.concat(optionSubTree);
+        return false;
+      }
+    }
+    return true;
+  });
+  return result;
+};
 class MultiSelectTreeWidget extends BaseWidget<
   MultiSelectTreeWidgetProps,
   WidgetState
@@ -410,6 +451,7 @@ class MultiSelectTreeWidget extends BaseWidget<
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       selectedOptionValueArr: "defaultOptionValue",
+      selectedLabel: "defaultOptionValue",
     };
   }
 
@@ -429,24 +471,19 @@ class MultiSelectTreeWidget extends BaseWidget<
     );
   }
 
-  componentDidUpdate(prevProps: MultiSelectTreeWidgetProps): void {
+  componentDidUpdate(prevProps: MultiSelectTreeWidgetProps) {
     if (
       xor(this.props.defaultOptionValue, prevProps.defaultOptionValue).length >
       0
     ) {
-      // Sets selectedLabel
-      this.setSelectedOptions(
-        this.props.options,
-        this.props.defaultOptionValue,
-      );
       if (this.props.isDirty) {
         this.props.updateWidgetMetaProperty("isDirty", false);
       }
     }
     if (
       xorWith(
-        this.flatOptions(this.props.options),
-        this.flatOptions(prevProps.options),
+        flattenOptions(this.props.options),
+        flattenOptions(prevProps.options),
         isEqual,
       ).length > 0
     ) {
@@ -480,7 +517,6 @@ class MultiSelectTreeWidget extends BaseWidget<
       ? this.props.selectedOptionValueArr
       : [];
 
-    const filteredValue = this.filterValues(values);
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
     const { componentWidth } = this.getComponentDimensions();
     const isInvalid =
@@ -515,7 +551,7 @@ class MultiSelectTreeWidget extends BaseWidget<
         onChange={this.onOptionChange}
         options={options}
         placeholder={this.props.placeholderText as string}
-        value={filteredValue}
+        value={values}
         widgetId={this.props.widgetId}
         width={componentWidth}
       />
@@ -539,28 +575,6 @@ class MultiSelectTreeWidget extends BaseWidget<
     }
   };
 
-  flat(array: DropdownOption[]) {
-    let result: { value: string }[] = [];
-    array.forEach((a) => {
-      result.push({ value: a.value });
-      if (Array.isArray(a.children)) {
-        result = result.concat(this.flat(a.children));
-      }
-    });
-    return result;
-  }
-
-  flatOptions(options: DropdownOption[]) {
-    let result: { label: string; value: string | number }[] = [];
-    options.forEach((option) => {
-      result.push({ label: option.label, value: option.value });
-      if (Array.isArray(option.children)) {
-        result = result.concat(this.flatOptions(option.children));
-      }
-    });
-    return result;
-  }
-
   setSelectedOptions(
     options: DropdownOption[],
     selectedValues: (string | number)[],
@@ -568,10 +582,11 @@ class MultiSelectTreeWidget extends BaseWidget<
     let selectedOptions: { label: string; value: string | number }[] = [];
     selectedValues.forEach((selectedValue) => {
       selectedOptions = selectedOptions.concat(
-        this.getOptionSubTree(options, selectedValue),
+        getOptionSubTree(options, selectedValue, this.props.mode),
       );
     });
 
+    // Here, _.uniq is just used to eliminate duplications produced by getOptionSubTree calculation
     const selectedOptionLabels = uniq(
       selectedOptions.map((option) => option.label),
     );
@@ -585,57 +600,9 @@ class MultiSelectTreeWidget extends BaseWidget<
     );
   }
 
-  getOptionSubTree(options: DropdownOption[], value: string | number) {
-    let result: { label: string; value: string | number }[] = [];
-    // Finds the target on the 1st level of the options tree
-    const targetOption = find(options, { value }) as DropdownOption;
-    if (targetOption) {
-      result = result.concat({
-        label: targetOption.label,
-        value: targetOption.value,
-      });
-      if (Array.isArray(targetOption.children)) {
-        // If found, Finds all decendants for the found target
-        result = result.concat(this.flatOptions(targetOption.children));
-      }
-      return result;
-    }
-    // Cannot find the target on the 1st level of the options tree
-    // Until finding the target or reaching out the leaves, loops
-    options.every((option) => {
-      if (Array.isArray(option.children)) {
-        // Finds the target from the children
-        const optionSubTree = this.getOptionSubTree(option.children, value);
-        if (optionSubTree.length > 0) {
-          result = result.concat(optionSubTree);
-          return false;
-        }
-      }
-      return true;
-    });
-    return result;
-  }
-
-  filterValues(values: string[] | undefined) {
-    const options = this.props.options ? this.flat(this.props.options) : [];
-    if (isArray(values)) {
-      return values.filter((o) => {
-        const index = findIndex(options, { value: o });
-        return index > -1;
-      });
-    }
-  }
-
   static getWidgetType(): WidgetType {
     return "MULTI_SELECT_TREE_WIDGET";
   }
-}
-
-export interface DropdownOption {
-  label: string;
-  value: string;
-  disabled?: boolean;
-  children?: DropdownOption[];
 }
 
 export interface MultiSelectTreeWidgetProps extends WidgetProps {
