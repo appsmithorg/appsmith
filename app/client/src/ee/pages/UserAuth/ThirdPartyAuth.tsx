@@ -1,3 +1,4 @@
+export * from "ce/pages/UserAuth/ThirdPartyAuth";
 import {
   default as ThirdPartyAuth,
   SocialLoginTypes as CE_SocialLoginTypes,

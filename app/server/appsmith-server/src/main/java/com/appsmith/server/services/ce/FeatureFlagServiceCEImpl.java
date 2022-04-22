@@ -52,6 +52,10 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                 .flatMap(featureName -> Mono.just(featureName).zipWith(currentUser));
 
         return featureUserTuple
-                .collectMap(tuple -> tuple.getT1(), tuple -> check(tuple.getT1(), tuple.getT2()));
+                .filter(objects -> !objects.getT2().isAnonymous())
+                .collectMap(
+                        Tuple2::getT1,
+                        tuple -> check(tuple.getT1(), tuple.getT2())
+                );
     }
 }

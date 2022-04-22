@@ -8,7 +8,7 @@ import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import WidgetFactory, { DerivedPropertiesMap } from "./WidgetFactory";
 
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import withMeta from "widgets/MetaHOC";
 import { generateReactKey } from "./generators";
 import { memoize } from "lodash";
@@ -26,7 +26,6 @@ export interface WidgetConfiguration {
     default: Record<string, string>;
     meta: Record<string, any>;
     derived: DerivedPropertiesMap;
-    loadingProperties?: Array<RegExp>;
   };
 }
 
@@ -56,7 +55,6 @@ export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
     config.properties.default,
     config.properties.meta,
     config.properties.config,
-    config.properties.loadingProperties,
   );
   configureWidget(config);
 };

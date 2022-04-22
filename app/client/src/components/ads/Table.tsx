@@ -1,8 +1,8 @@
 import { useTable, useSortBy } from "react-table";
 import React from "react";
 import styled from "styled-components";
-import { ReactComponent as DownArrow } from "../../assets/icons/ads/down_arrow.svg";
-import { ReactComponent as UpperArrow } from "../../assets/icons/ads/upper_arrow.svg";
+import { ReactComponent as DownArrow } from "assets/icons/ads/down_arrow.svg";
+import { ReactComponent as UpperArrow } from "assets/icons/ads/upper_arrow.svg";
 import { Classes } from "./common";
 
 const Styles = styled.div`

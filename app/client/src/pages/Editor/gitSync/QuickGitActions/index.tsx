@@ -32,7 +32,6 @@ import {
   showConnectGitModal,
 } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
-import getFeatureFlags from "utils/featureFlags";
 import {
   getCountOfChangesToCommit,
   getGitStatus,
@@ -45,6 +44,7 @@ import SpinnerLoader from "pages/common/SpinnerLoader";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 type QuickActionButtonProps = {
   className?: string;
@@ -203,7 +203,6 @@ const Container = styled.div`
   height: 100%;
   display: flex;
   align-items: center;
-  margin-left: ${(props) => props.theme.spaces[10]}px;
 `;
 
 const StyledIcon = styled(GitCommitLine)`
@@ -229,8 +228,9 @@ const PlaceholderButton = styled.div`
 function ConnectGitPlaceholder() {
   const dispatch = useDispatch();
   const isInGuidedTour = useSelector(inGuidedTour);
+  const featureFlags = useSelector(selectFeatureFlags);
 
-  const isTooltipEnabled = !getFeatureFlags().GIT || isInGuidedTour;
+  const isTooltipEnabled = !featureFlags.GIT || isInGuidedTour;
   const tooltipContent = !isInGuidedTour ? (
     <>
       <div>{createMessage(NOT_LIVE_FOR_YOU_YET)}</div>
@@ -242,7 +242,7 @@ function ConnectGitPlaceholder() {
       <div>{createMessage(DURING_ONBOARDING_TOUR)}</div>
     </>
   );
-  const isGitConnectionEnabled = getFeatureFlags().GIT && !isInGuidedTour;
+  const isGitConnectionEnabled = featureFlags.GIT && !isInGuidedTour;
 
   return (
     <Container>
@@ -297,6 +297,7 @@ export default function QuickGitActions() {
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
   const showPullLoadingState = isPullInProgress || isFetchingGitStatus;
   const changesToCommit = useSelector(getCountOfChangesToCommit);
+  const featureFlags = useSelector(selectFeatureFlags);
 
   const quickActionButtons = getQuickActionButtons({
     commit: () => {
@@ -345,7 +346,7 @@ export default function QuickGitActions() {
     showPullLoadingState,
     changesToCommit,
   });
-  return getFeatureFlags().GIT && isGitConnected ? (
+  return featureFlags.GIT && isGitConnected ? (
     <Container>
       <BranchButton />
       {quickActionButtons.map((button) => (

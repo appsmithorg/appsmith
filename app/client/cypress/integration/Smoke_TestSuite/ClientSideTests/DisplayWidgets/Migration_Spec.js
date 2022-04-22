@@ -35,9 +35,8 @@ describe("Migration Validate", function() {
       const uuid = () => Cypress._.random(0, 1e4);
       const name = uuid();
       cy.wait(2000);
-      cy.get(homePage.applicationName)
-        .clear()
-        .type(`app${name}`);
+      cy.AppSetupForRename();
+      cy.get(homePage.applicationName).type(`app${name}`);
       cy.wrap(`app${name}`).as("appname");
       cy.wait(2000);
 
@@ -203,8 +202,8 @@ describe("Migration Validate", function() {
         cy.get(selector + " span.bp3-popover-target span")
           .invoke("text")
           .then((url) => {
-            cy.get(selector + " span.bp3-popover-target")
-              .click()
+            cy.get(selector + " span.bp3-popover-target span")
+              .click({ force: true })
               .wait(2000);
             cy.wait("@postExecute");
             cy.url().should("contain", url);
@@ -382,7 +381,7 @@ describe("Migration Validate", function() {
           .invoke("text")
           .then((url) => {
             cy.get(selector + " span.bp3-popover-target")
-              .click()
+              .click({ force: true })
               .wait(2000);
             cy.wait("@postExecute");
             cy.url().should("contain", url);

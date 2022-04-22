@@ -49,10 +49,8 @@ function updateOptionValue<T>(
 }
 
 const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
-  padding: 0px 5px;
-  position: absolute;
-  right: 4px;
   cursor: pointer;
+
   && svg path {
     fill: ${(props) => props.theme.colors.propertyPane.deleteIconColor};
   }
@@ -64,15 +62,24 @@ const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   }
 `;
 
-const StyledOptionControlWrapper = styled(ControlWrapper)`
-  display: flex;
-  justify-content: flex-start;
-  padding-right: 16px;
-  width: calc(100% - 10px);
-`;
-
 const StyledBox = styled.div`
   width: 10px;
+`;
+
+const StyledButton = styled.button`
+  width: 28px;
+  height: 28px;
+
+  &&& svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  &&:focus {
+    svg path {
+      fill: ${(props) => props.theme.colors.propertyPane.title};
+    }
+  }
 `;
 
 type UpdatePairFunction = (pair: DropdownOption[]) => any;
@@ -191,7 +198,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     <>
       {renderPairs.map((pair: DropDownOptionWithKey, index) => {
         return (
-          <StyledOptionControlWrapper key={pair.key} orientation={"HORIZONTAL"}>
+          <ControlWrapper key={pair.key} orientation={"HORIZONTAL"}>
             <StyledInputGroup
               dataType={"text"}
               onBlur={onInputBlur}
@@ -213,14 +220,15 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
               placeholder={"Value"}
               value={pair.value}
             />
-            <StyledDeleteIcon
-              height={24}
+            <StyledBox />
+            <StyledButton
               onClick={() => {
                 deletePair(index);
               }}
-              width={24}
-            />
-          </StyledOptionControlWrapper>
+            >
+              <StyledDeleteIcon />
+            </StyledButton>
+          </ControlWrapper>
         );
       })}
 

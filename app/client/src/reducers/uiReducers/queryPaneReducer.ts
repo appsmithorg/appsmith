@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ReduxAction,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import _ from "lodash";
 import { Action } from "entities/Action";
 import { ActionResponse } from "api/ActionAPI";

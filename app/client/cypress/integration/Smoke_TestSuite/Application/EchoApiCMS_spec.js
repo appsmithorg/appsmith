@@ -2,12 +2,9 @@ const dsl = require("../../../fixtures/CMSdsl.json");
 const apiwidget = require("../../../locators/apiWidgetslocator.json");
 import apiEditor from "../../../locators/ApiEditor";
 import appPage from "../../../locators/CMSApplocators";
-
+const commonlocators = require("../../../locators/commonlocators.json");
 describe("Content Management System App", function() {
-  let orgid;
-  let newOrganizationName;
-  let appname;
-  let datasourceName;
+  let repoName;
 
   before(() => {
     cy.addDsl(dsl);
@@ -127,4 +124,30 @@ describe("Content Management System App", function() {
     cy.ResponseCheck("Dan.Wyman@hotmail.com");
     cy.ResponseCheck("Recusan");
   });
+  /*it("6. Connect app to git, verify data binding in edit and deploy mode", ()=>{
+    cy.get(`.t--entity-name:contains("Page1")`)
+    .should("be.visible")
+    .click({ force: true });
+    cy.generateUUID().then((uid) => {
+      repoName = uid;
+
+      cy.createTestGithubRepo(repoName);
+      cy.connectToGitRepo(repoName);
+    });
+    cy.latestDeployPreview()
+    cy.wait(2000)
+    cy.xpath("//span[text()='Curt50@gmail.com']").should("be.visible").click({ force: true });
+    cy.xpath(appPage.subjectField).type("Test");
+    cy.xpath(appPage.contentField)
+      .last()
+      .type("Task completed", { force: true });
+    cy.get(appPage.confirmButton)
+      .closest("div")
+      .click({ force: true });
+    cy.get(appPage.closeButton)
+      .closest("div")
+      .click({ force: true }); 
+      cy.get(commonlocators.backToEditor).click();
+      cy.wait(1000);
+  }) */
 });
