@@ -345,8 +345,8 @@ function ApiResponseView(props: Props) {
 
   const tabs = [
     {
-      key: "body",
-      title: "Body",
+      key: "response",
+      title: "Response",
       panelComponent: (
         <ResponseTabWrapper>
           {Array.isArray(messages) && messages.length > 0 && (
