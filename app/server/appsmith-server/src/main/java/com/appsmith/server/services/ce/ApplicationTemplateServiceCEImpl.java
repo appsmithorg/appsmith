@@ -24,6 +24,8 @@ import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Type;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServiceCE {
@@ -133,7 +135,9 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         ).flatMap(application -> {
             ApplicationTemplate applicationTemplate = new ApplicationTemplate();
             applicationTemplate.setId(templateId);
-            return analyticsService.sendObjectEvent(AnalyticsEvents.FORK, applicationTemplate, null)
+            Map<String, Object>  extraProperties = new HashMap<>();
+            extraProperties.put("templateAppName", application.getName());
+            return analyticsService.sendObjectEvent(AnalyticsEvents.FORK, applicationTemplate, extraProperties)
                     .thenReturn(application);
         });
     }
