@@ -18,7 +18,7 @@ import { Colors } from "constants/Colors";
 import Button, { Category, Size } from "components/ads/Button";
 import { hexToRgba } from "components/ads/common";
 import AppIcon from "components/ads/AppIcon";
-import { retryServerRestart } from "actions/settingsAction";
+import { retryServerRestart } from "@appsmith/actions/settingsAction";
 import { useDispatch } from "react-redux";
 
 const RestartBannerWrapper = styled.div`

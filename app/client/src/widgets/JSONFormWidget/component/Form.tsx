@@ -16,7 +16,7 @@ import { ROOT_SCHEMA_KEY, Schema } from "../constants";
 import { convertSchemaItemToFormData, schemaItemDefaultValue } from "../helper";
 import { TEXT_SIZES } from "constants/WidgetConstants";
 
-const clone = require("rfdc/default");
+import { klona } from "klona/full";
 
 export type FormProps<TValues = any> = PropsWithChildren<{
   backgroundColor?: string;
@@ -212,7 +212,7 @@ function Form<TValues = any>({
 
     const subscription = watch((values) => {
       if (!equal(valuesRef.current, values)) {
-        const clonedValue = clone(values);
+        const clonedValue = klona(values);
         valuesRef.current = clonedValue;
         debouncedUpdateFormData(clonedValue as TValues);
       }

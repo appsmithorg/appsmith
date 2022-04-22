@@ -16,6 +16,7 @@ import store from "store";
 import { logoutUser } from "actions/userActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import getQueryParamsObject from "utils/getQueryParamsObject";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -38,7 +39,8 @@ const is404orAuthPath = () => {
 // this will be used to calculate the time taken for an action
 // execution request
 export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
-  const branch = getCurrentGitBranch(store.getState());
+  const branch =
+    getCurrentGitBranch(store.getState()) || getQueryParamsObject().branch;
   if (branch) {
     config.headers.branchName = branch;
   }

@@ -7,7 +7,7 @@ import { TabComponent } from "components/ads/Tabs";
 import Text, { FontWeight, TextType } from "components/ads/Text";
 import { TabbedViewContainer } from "./Form";
 import get from "lodash/get";
-import { getQueryParams } from "../../../utils/AppsmithUtils";
+import { getQueryParams } from "utils/AppsmithUtils";
 import ActionRightPane, {
   useEntityDependencies,
 } from "components/editorComponents/ActionRightPane";
@@ -30,10 +30,12 @@ const EmptyDatasourceContainer = styled.div`
 `;
 
 const DatasourceContainer = styled.div`
-  .react-tabs__tab-list {
+  &&&&&&&&&&& .react-tabs__tab-list {
     padding: 0 16px !important;
     border-bottom: none;
     border-left: 2px solid #e8e8e8;
+    margin-left: 0px;
+    margin-right: 0px;
     .cs-icon {
       margin-right: 0;
     }

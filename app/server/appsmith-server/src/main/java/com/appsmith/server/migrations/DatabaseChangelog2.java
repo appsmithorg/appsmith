@@ -1,13 +1,19 @@
 package com.appsmith.server.migrations;
 
-import com.appsmith.server.domains.Application;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.external.models.QDatasource;
+import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QNewAction;
+import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -18,10 +24,12 @@ import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,6 +38,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
+import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
+import static com.appsmith.server.migrations.DatabaseChangelog.makeIndex;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -651,6 +662,88 @@ public class DatabaseChangelog2 {
                 Update.update(fieldName(QApplication.application.applicationVersion),
                         ApplicationVersion.EARLIEST_VERSION),
                 Application.class);
+    }
+
+    @ChangeSet(order = "006", id = "delete-orphan-pages", author = "")
+    public void deleteOrphanPages(MongockTemplate mongockTemplate) {
+
+        final Query validPagesQuery = query(where(fieldName(QApplication.application.deleted)).ne(true));
+        validPagesQuery.fields().include(fieldName(QApplication.application.pages));
+        validPagesQuery.fields().include(fieldName(QApplication.application.publishedPages));
+
+        final List<Application> applications = mongockTemplate.find(validPagesQuery, Application.class);
+
+        final Update deletionUpdates = new Update();
+        deletionUpdates.set(fieldName(QNewPage.newPage.deleted), true);
+        deletionUpdates.set(fieldName(QNewPage.newPage.deletedAt), Instant.now());
+
+        // Archive the pages which have the applicationId but the connection is missing from the application object.
+        for (Application application : applications) {
+            Set<String> validPageIds = new HashSet<>();
+            if (!CollectionUtils.isEmpty(application.getPages())) {
+                for (ApplicationPage applicationPage : application.getPages()) {
+                    validPageIds.add(applicationPage.getId());
+                }
+            }
+            if (!CollectionUtils.isEmpty(application.getPublishedPages())) {
+                for (ApplicationPage applicationPublishedPage : application.getPublishedPages()) {
+                    validPageIds.add(applicationPublishedPage.getId());
+                }
+            }
+            final Query pageQuery = query(where(fieldName(QNewPage.newPage.deleted)).ne(true));
+            pageQuery.addCriteria(where(fieldName(QNewPage.newPage.applicationId)).is(application.getId()));
+            pageQuery.fields().include(fieldName(QNewPage.newPage.applicationId));
+
+            final List<NewPage> pages = mongockTemplate.find(pageQuery, NewPage.class);
+            for (NewPage newPage : pages) {
+                if (!validPageIds.contains(newPage.getId())) {
+                    mongockTemplate.updateFirst(
+                            query(where(fieldName(QNewPage.newPage.id)).is(newPage.getId())),
+                            deletionUpdates,
+                            NewPage.class
+                    );
+                }
+            }
+        }
+    }
+
+    /**
+     * This migration introduces indexes on newAction, actionCollection, newPage to improve the query performance for
+     * queries like getResourceByDefaultAppIdAndGitSyncId which excludes the deleted entries.
+     */
+    @ChangeSet(order = "007", id = "update-git-indexes", author = "")
+    public void addIndexesForGit(MongockTemplate mongockTemplate) {
+
+        dropIndexIfExists(mongockTemplate, NewAction.class, "defaultApplicationId_gitSyncId_compound_index");
+        dropIndexIfExists(mongockTemplate, ActionCollection.class, "defaultApplicationId_gitSyncId_compound_index");
+
+        String defaultResources = fieldName(QBaseDomain.baseDomain.defaultResources);
+        ensureIndexes(mongockTemplate, ActionCollection.class,
+                makeIndex(
+                        defaultResources + "." + FieldName.APPLICATION_ID,
+                        fieldName(QBaseDomain.baseDomain.gitSyncId),
+                        fieldName(QBaseDomain.baseDomain.deleted)
+                )
+                .named("defaultApplicationId_gitSyncId_deleted_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, NewAction.class,
+                makeIndex(
+                        defaultResources + "." + FieldName.APPLICATION_ID,
+                        fieldName(QBaseDomain.baseDomain.gitSyncId),
+                        fieldName(QBaseDomain.baseDomain.deleted)
+                )
+                .named("defaultApplicationId_gitSyncId_deleted_compound_index")
+        );
+
+        ensureIndexes(mongockTemplate, NewPage.class,
+                makeIndex(
+                        defaultResources + "." + FieldName.APPLICATION_ID,
+                        fieldName(QBaseDomain.baseDomain.gitSyncId),
+                        fieldName(QBaseDomain.baseDomain.deleted)
+                )
+                .named("defaultApplicationId_gitSyncId_deleted_compound_index")
+        );
     }
 
 }

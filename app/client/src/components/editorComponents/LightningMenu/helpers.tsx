@@ -22,7 +22,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { Skin } from "constants/DefaultTheme";
-import { ReduxAction } from "constants/ReduxActionConstants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 
 export const getApiOptions = (
   skin: Skin,

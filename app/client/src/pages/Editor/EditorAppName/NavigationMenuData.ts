@@ -9,7 +9,7 @@ import {
   setCommentModeInUrl,
   useHideComments,
 } from "pages/Editor/ToggleModeButton";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 
 import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
