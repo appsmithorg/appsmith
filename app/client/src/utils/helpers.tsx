@@ -233,10 +233,40 @@ export const resolveAsSpaceChar = (value: string, limit?: number) => {
     .slice(0, limit || 30);
 };
 
-export const isMac = () => {
-  const platform =
-    typeof navigator !== "undefined" ? navigator.platform : undefined;
-  return !platform ? false : /Mac|iPod|iPhone|iPad/.test(platform);
+export const PLATFORM_OS = {
+  MAC: "MAC",
+  IOS: "IOS",
+  LINUX: "LINUX",
+  ANDROID: "ANDROID",
+  WINDOWS: "WINDOWS",
+};
+
+const platformOSRegex = {
+  [PLATFORM_OS.MAC]: /mac.*/i,
+  [PLATFORM_OS.IOS]: /(?:iphone|ipod|ipad|Pike v.*)/i,
+  [PLATFORM_OS.LINUX]: /(?:linux.*)/i,
+  [PLATFORM_OS.ANDROID]: /android.*|aarch64|arm.*/i,
+  [PLATFORM_OS.WINDOWS]: /win.*/i,
+};
+
+export const getPlatformOS = () => {
+  const browserPlatform =
+    typeof navigator !== "undefined" ? navigator.platform : null;
+  if (browserPlatform) {
+    const platformOSList = Object.entries(platformOSRegex);
+    for (let index = 0; index < platformOSList.length; index++) {
+      const [platformOS, regex] = platformOSList[index];
+      if (regex.test(browserPlatform)) {
+        return platformOS;
+      }
+    }
+  }
+  return null;
+};
+
+export const isMacOrIOS = () => {
+  const platformOS = getPlatformOS();
+  return platformOS === PLATFORM_OS.MAC || platformOS === PLATFORM_OS.IOS;
 };
 
 /**
@@ -553,14 +583,15 @@ export const truncateString = (
  *
  * @returns
  */
-export const modText = () => (isMac() ? <span>&#8984;</span> : "Ctrl +");
-export const altText = () => (isMac() ? <span>&#8997;</span> : "Alt +");
-export const shiftText = () => (isMac() ? <span>&#8682;</span> : "Shift +");
+export const modText = () => (isMacOrIOS() ? <span>&#8984;</span> : "Ctrl +");
+export const altText = () => (isMacOrIOS() ? <span>&#8997;</span> : "Alt +");
+export const shiftText = () =>
+  isMacOrIOS() ? <span>&#8682;</span> : "Shift +";
 
 export const undoShortCut = () => <span>{modText()} Z</span>;
 
 export const redoShortCut = () =>
-  isMac() ? (
+  isMacOrIOS() ? (
     <span>
       {modText()} {shiftText()} Z
     </span>
