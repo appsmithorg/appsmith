@@ -45,6 +45,9 @@ export class JSEditor {
       .click({ force: true });
     cy.get(this._newJSobj).click({ force: true });
 
+     // Assert that the name of the JS Object is focused 
+     cy.get(this._jsObjTxt).should("be.focused")
+
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
     //this.agHelper.WaitUntilEleDisappear(this.locator._toastMsg, 'created successfully')
     this.agHelper.Sleep();
