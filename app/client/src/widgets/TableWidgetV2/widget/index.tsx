@@ -216,8 +216,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                   }),
                 backgroundColor:
                   cellProperties.buttonColor || DEFAULT_BUTTON_COLOR,
-                buttonLabelColor:
-                  cellProperties.buttonLabelColor || DEFAULT_BUTTON_LABEL_COLOR,
                 isDisabled: !!cellProperties.isDisabled,
                 isCellVisible: cellProperties.isCellVisible ?? true,
                 columnActions: [
