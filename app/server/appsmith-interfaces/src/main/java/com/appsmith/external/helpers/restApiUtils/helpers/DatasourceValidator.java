@@ -1,4 +1,4 @@
-package com.external.helpers;
+package com.appsmith.external.helpers.restApiUtils.helpers;
 
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.OAuth2;

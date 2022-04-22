@@ -1,4 +1,4 @@
-package com.external.connections;
+package com.appsmith.external.helpers.restApiUtils.connections;
 
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 

@@ -1,20 +1,26 @@
-package com.external.helpers;
+package com.appsmith.external.helpers.restApiUtils.helpers;
 
 import com.appsmith.external.dtos.MultipartFormDataDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.PluginUtils;
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ApiContentType;
 import com.appsmith.external.models.Property;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonSyntaxException;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.http.client.reactive.ClientHttpRequest;
@@ -37,6 +43,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class DataUtils {
+
+    public  static String FIELD_API_CONTENT_TYPE = "apiContentType";
 
     private static DataUtils dataUtils;
     private final ObjectMapper objectMapper;
@@ -194,6 +202,12 @@ public class DataUtils {
                                         }
                                     } catch (JsonProcessingException e) {
                                         bodyBuilder.part(key, value);
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                        throw new AppsmithPluginException(
+                                                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                                "Unable to parse content. Expected to receive an array or object of multipart data"
+                                        );
                                     }
                                 } else {
                                     bodyBuilder.part(key, property.getValue());
@@ -281,5 +295,40 @@ public class DataUtils {
 
         return parsedJson;
 
+    }
+
+    public Object getRequestBodyObject(ActionConfiguration actionConfiguration, String reqContentType,
+                                              boolean encodeParamsToggle, HttpMethod httpMethod) {
+        // We initialize this object to an empty string because body can never be empty
+        // Based on the content-type, this Object may be of type MultiValueMap or String
+        Object requestBodyObj = "";
+
+        // We will read the request body for all HTTP calls where the apiContentType is NOT "none".
+        // This is irrespective of the content-type header or the HTTP method
+        String apiContentTypeStr = (String) PluginUtils.getValueSafelyFromFormData(
+                actionConfiguration.getFormData(),
+                FIELD_API_CONTENT_TYPE
+        );
+        ApiContentType apiContentType = ApiContentType.getValueFromString(apiContentTypeStr);
+
+        if (!httpMethod.equals(HttpMethod.GET)) {
+            // Read the body normally as this is a non-GET request
+            requestBodyObj = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
+        } else if (apiContentType != null && apiContentType != ApiContentType.NONE) {
+            // This is a GET request
+            // For all existing GET APIs, the apiContentType will be null. Hence we don't read the body
+            // Also, any new APIs which have apiContentType set to NONE shouldn't read the body.
+            // All other API content types should read the body
+            requestBodyObj = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
+        }
+
+        if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
+                || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
+            requestBodyObj = actionConfiguration.getBodyFormData();
+        }
+
+        requestBodyObj = dataUtils.buildBodyInserter(requestBodyObj, reqContentType, encodeParamsToggle);
+
+        return requestBodyObj;
     }
 }

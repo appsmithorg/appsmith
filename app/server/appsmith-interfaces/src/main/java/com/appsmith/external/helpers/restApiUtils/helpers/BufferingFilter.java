@@ -1,4 +1,4 @@
-package com.external.helpers;
+package com.appsmith.external.helpers.restApiUtils.helpers;
 
 import org.reactivestreams.Publisher;
 import org.springframework.core.io.buffer.DataBuffer;

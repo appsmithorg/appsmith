@@ -1,4 +1,4 @@
-package com.external.helpers;
+package com.appsmith.external.helpers.restApiUtils.helpers;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -162,6 +162,11 @@ public class BodyReceiver {
 
         @Override
         public MultiValueMap<String, HttpCookie> getCookies() {
+            return null;
+        }
+
+        @Override
+        public <T> T getNativeRequest() {
             return null;
         }
     }

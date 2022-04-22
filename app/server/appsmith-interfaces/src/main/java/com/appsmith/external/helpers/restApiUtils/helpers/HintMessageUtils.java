@@ -1,12 +1,16 @@
-package com.external.helpers;
+package com.appsmith.external.helpers.restApiUtils.helpers;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ApiKeyAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Property;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
+import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -26,10 +30,11 @@ import static com.appsmith.external.constants.Authentication.OAUTH2;
 import static com.appsmith.external.helpers.PluginUtils.getHintMessageForLocalhostUrl;
 import static com.appsmith.external.models.ApiKeyAuth.Type.HEADER;
 import static com.appsmith.external.models.ApiKeyAuth.Type.QUERY_PARAMS;
-import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.ACTION_CONFIG_ONLY;
-import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_AND_ACTION_CONFIG;
-import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_CONFIG_ONLY;
+import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.ACTION_CONFIG_ONLY;
+import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_AND_ACTION_CONFIG;
+import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_CONFIG_ONLY;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class HintMessageUtils {
 
     public enum DUPLICATE_ATTRIBUTE_LOCATION {
@@ -38,31 +43,40 @@ public class HintMessageUtils {
         DATASOURCE_AND_ACTION_CONFIG    // Duplicates with instance in both datasource and action config
     }
 
-    private enum ATTRIBUTE {
+    protected enum ATTRIBUTE {
         HEADER,
         PARAM
     }
 
-    private static String HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_DATASOURCE_CONFIG = "API queries linked to this " +
+    protected static HintMessageUtils hintMessageUtils;
+    public static HintMessageUtils getInstance() {
+        if (hintMessageUtils == null) {
+            hintMessageUtils = new HintMessageUtils();
+        }
+
+        return hintMessageUtils;
+    }
+
+    protected static String HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_DATASOURCE_CONFIG = "API queries linked to this " +
             "datasource may not run as expected because this datasource has duplicate definition(s) for {0}(s): {1}." +
             " Please remove the duplicate definition(s) to resolve this warning. Please note that some of the " +
             "authentication mechanisms also implicitly define a {0}.";
 
-    private static String HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_ACTION_DEFINED_IN_DATASOURCE_CONFIG = "Your API " +
+    protected static String HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_ACTION_DEFINED_IN_DATASOURCE_CONFIG = "Your API " +
             "query may not run as expected because its datasource has duplicate definition(s) for {0}(s): {1}. Please" +
             " remove the duplicate definition(s) from the datasource to resolve this warning.";
 
-    private static String HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_ACTION_CONFIG = "Your API query may not run as " +
+    protected static String HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_IN_ACTION_CONFIG = "Your API query may not run as " +
             "expected because it has duplicate definition(s) for {0}(s): {1}. Please remove the duplicate definition" +
             "(s) from the ''{2}'' tab to resolve this warning.";
 
-    private static String HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_WITH_INSTANCE_ACROSS_ACTION_AND_DATASOURCE_CONFIG =
+    protected static String HINT_MESSAGE_FOR_DUPLICATE_ATTRIBUTE_WITH_INSTANCE_ACROSS_ACTION_AND_DATASOURCE_CONFIG =
             "Your API query may not run as expected because it has duplicate definition(s) for {0}(s): {1}. Please " +
                     "remove the duplicate definition(s) from the ''{2}'' section of either the API query or the " +
                     "datasource. Please note that some of the authentication mechanisms also implicitly define a " +
                     "{0}.";
     
-    public static Set<String> getDatasourceHintMessages(DatasourceConfiguration datasourceConfiguration) {
+    public Set<String> getDatasourceHintMessages(DatasourceConfiguration datasourceConfiguration) {
         Set<String> datasourceHintMessages = new HashSet<>();
 
         /* Get hint message for localhost URL. */
@@ -91,7 +105,7 @@ public class HintMessageUtils {
         return datasourceHintMessages;
     }
 
-    public static Set<String> getActionHintMessages(ActionConfiguration actionConfiguration,
+    public Set<String> getActionHintMessages(ActionConfiguration actionConfiguration,
                                                     DatasourceConfiguration datasourceConfiguration) {
         Set<String> actionHintMessages = new HashSet<>();
 
@@ -182,7 +196,7 @@ public class HintMessageUtils {
         return actionHintMessages;
     }
 
-    public static Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> getAllDuplicateHeaders(ActionConfiguration actionConfiguration,
+    public Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> getAllDuplicateHeaders(ActionConfiguration actionConfiguration,
                                                                                 DatasourceConfiguration datasourceConfiguration) {
         Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateMap = new HashMap<>();
 
@@ -202,7 +216,7 @@ public class HintMessageUtils {
     }
 
     // Find all duplicate items in a list
-    private static Set findDuplicates(List allItems) {
+    protected Set findDuplicates(List allItems) {
         Set duplicateItems = new HashSet<String>();
         Set uniqueItems = new HashSet<String>();
 
@@ -218,7 +232,7 @@ public class HintMessageUtils {
         return duplicateItems;
     }
 
-    private static List getAllHeaders(ActionConfiguration actionConfiguration,
+    protected List getAllHeaders(ActionConfiguration actionConfiguration,
                                       DatasourceConfiguration datasourceConfiguration) {
         List allHeaders = new ArrayList<String>();
 
@@ -232,7 +246,7 @@ public class HintMessageUtils {
     }
 
     // Get all headers defined in API query editor page.
-    private static List getActionHeaders(ActionConfiguration actionConfiguration) {
+    protected List getActionHeaders(ActionConfiguration actionConfiguration) {
         List headers = new ArrayList<String>();
         if (actionConfiguration != null && !CollectionUtils.isEmpty(actionConfiguration.getHeaders())) {
             headers.addAll(getKeyList(actionConfiguration.getHeaders()));
@@ -242,7 +256,7 @@ public class HintMessageUtils {
     }
 
     // Get all headers defined in datasource editor page in the headers field.
-    private static List getDatasourceHeaders(DatasourceConfiguration datasourceConfiguration) {
+    protected List getDatasourceHeaders(DatasourceConfiguration datasourceConfiguration) {
         List headers = new ArrayList<String>();
         if (datasourceConfiguration != null && !CollectionUtils.isEmpty(datasourceConfiguration.getHeaders())) {
             headers.addAll(getKeyList(datasourceConfiguration.getHeaders()));
@@ -255,7 +269,7 @@ public class HintMessageUtils {
     }
 
     // Get all headers defined implicitly via authentication config for API.
-    private static Set<String> getAuthenticationHeaders(DatasourceConfiguration datasourceConfiguration) {
+    protected Set<String> getAuthenticationHeaders(DatasourceConfiguration datasourceConfiguration) {
 
         if (datasourceConfiguration == null || datasourceConfiguration.getAuthentication() == null) {
             return new HashSet<>();
@@ -284,7 +298,7 @@ public class HintMessageUtils {
         return headers;
     }
 
-    public static Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> getAllDuplicateParams(ActionConfiguration actionConfiguration,
+    public Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> getAllDuplicateParams(ActionConfiguration actionConfiguration,
                                                                                DatasourceConfiguration datasourceConfiguration) {
         Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateMap = new HashMap<>();
 
@@ -303,14 +317,14 @@ public class HintMessageUtils {
         return duplicateMap;
     }
 
-    private static List getKeyList(List<Property> propertyList) {
+    protected List getKeyList(List<Property> propertyList) {
         return propertyList.stream()
                 .map(item -> item.getKey())
                 .filter(key -> StringUtils.isNotEmpty(key))
                 .collect(Collectors.toList());
     }
 
-    private static List getAllParams(ActionConfiguration actionConfiguration,
+    protected List getAllParams(ActionConfiguration actionConfiguration,
                                      DatasourceConfiguration datasourceConfiguration) {
         List allParams = new ArrayList<String>();
 
@@ -323,7 +337,7 @@ public class HintMessageUtils {
         return allParams;
     }
 
-    private static List getActionParams(ActionConfiguration actionConfiguration) {
+    protected List getActionParams(ActionConfiguration actionConfiguration) {
         List<String> params = new ArrayList<>();
 
         if (actionConfiguration != null && !CollectionUtils.isEmpty(actionConfiguration.getQueryParameters())) {
@@ -333,7 +347,7 @@ public class HintMessageUtils {
         return params;
     }
 
-    private static List getDatasourceQueryParams(DatasourceConfiguration datasourceConfiguration) {
+    protected List getDatasourceQueryParams(DatasourceConfiguration datasourceConfiguration) {
         List<String> params = new ArrayList<>();
 
         if (datasourceConfiguration != null &&
@@ -347,7 +361,7 @@ public class HintMessageUtils {
         return params;
     }
 
-    private static Set getAuthenticationParams(DatasourceConfiguration datasourceConfiguration) {
+    protected Set getAuthenticationParams(DatasourceConfiguration datasourceConfiguration) {
 
         if (datasourceConfiguration == null || datasourceConfiguration.getAuthentication() == null) {
             return new HashSet<>();
@@ -368,5 +382,11 @@ public class HintMessageUtils {
         }
 
         return params;
+    }
+
+    public Mono<Tuple2<Set<String>, Set<String>>> getHintMessages(ActionConfiguration actionConfiguration,
+                                                                  DatasourceConfiguration datasourceConfiguration) {
+        return Mono.zip(Mono.just(getDatasourceHintMessages(datasourceConfiguration)),
+                Mono.just(getActionHintMessages(actionConfiguration, datasourceConfiguration)));
     }
 }

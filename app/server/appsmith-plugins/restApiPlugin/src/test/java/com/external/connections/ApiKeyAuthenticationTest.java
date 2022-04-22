@@ -1,5 +1,6 @@
 package com.external.connections;
 
+import com.appsmith.external.helpers.restApiUtils.connections.ApiKeyAuthentication;
 import com.appsmith.external.models.ApiKeyAuth;
 import org.junit.Test;
 import reactor.core.publisher.Mono;

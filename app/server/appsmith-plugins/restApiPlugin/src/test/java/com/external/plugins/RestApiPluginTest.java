@@ -2,6 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.helpers.PluginUtils;
+import com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -12,7 +13,7 @@ import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.services.SharedConfig;
-import com.external.connections.APIConnection;
+import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,12 +46,10 @@ import java.util.Set;
 
 import static com.appsmith.external.constants.Authentication.API_KEY;
 import static com.appsmith.external.constants.Authentication.OAUTH2;
-import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION;
-import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.ACTION_CONFIG_ONLY;
-import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_AND_ACTION_CONFIG;
-import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_CONFIG_ONLY;
-import static com.external.helpers.HintMessageUtils.getAllDuplicateHeaders;
-import static com.external.helpers.HintMessageUtils.getAllDuplicateParams;
+import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION;
+import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.ACTION_CONFIG_ONLY;
+import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_AND_ACTION_CONFIG;
+import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_CONFIG_ONLY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -58,6 +57,8 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 public class RestApiPluginTest {
+
+    private static HintMessageUtils hintMessageUtils;
 
     public class MockSharedConfig implements SharedConfig {
 
@@ -81,6 +82,7 @@ public class RestApiPluginTest {
 
     @Before
     public void setUp() {
+        hintMessageUtils = HintMessageUtils.getInstance();
     }
 
     @Test
@@ -638,7 +640,8 @@ public class RestApiPluginTest {
         actionConfig.setQueryParameters(actionParams);
 
         /* Test duplicate headers in datasource configuration only */
-        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateHeadersWithDsConfigOnly = getAllDuplicateHeaders(null, dsConfig);
+        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateHeadersWithDsConfigOnly =
+                hintMessageUtils.getAllDuplicateHeaders(null, dsConfig);
 
         // Header duplicates
         Set <String> expectedDuplicateHeaders = new HashSet<>();
@@ -647,7 +650,8 @@ public class RestApiPluginTest {
         assertTrue(expectedDuplicateHeaders.equals(duplicateHeadersWithDsConfigOnly.get(DATASOURCE_CONFIG_ONLY)));
 
         /* Test duplicate query params in datasource configuration only */
-        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateParamsWithDsConfigOnly = getAllDuplicateParams(null,
+        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateParamsWithDsConfigOnly =
+                hintMessageUtils.getAllDuplicateParams(null,
                 dsConfig);
 
         // Query param duplicates
@@ -657,7 +661,8 @@ public class RestApiPluginTest {
         assertTrue(expectedDuplicateParams.equals(duplicateParamsWithDsConfigOnly.get(DATASOURCE_CONFIG_ONLY)));
 
         /* Test duplicate headers in datasource + action configuration */
-        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateHeaders = getAllDuplicateHeaders(actionConfig, dsConfig);
+        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateHeaders =
+                hintMessageUtils.getAllDuplicateHeaders(actionConfig, dsConfig);
 
         // Header duplicates in ds config only
         expectedDuplicateHeaders = new HashSet<>();
@@ -678,7 +683,8 @@ public class RestApiPluginTest {
         assertTrue(expectedDuplicateHeaders.equals(allDuplicateHeaders.get(DATASOURCE_AND_ACTION_CONFIG)));
 
         /* Test duplicate query params in action + datasource config */
-        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateParams = getAllDuplicateParams(actionConfig,
+        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateParams =
+                hintMessageUtils.getAllDuplicateParams(actionConfig,
                 dsConfig);
 
         // Query param duplicates in datasource config only
@@ -716,7 +722,8 @@ public class RestApiPluginTest {
         actionConfig.setHeaders(actionHeaders);
 
         /* Test duplicate headers in datasource + action configuration */
-        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateHeaders = getAllDuplicateHeaders(actionConfig, dsConfig);
+        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateHeaders =
+                hintMessageUtils.getAllDuplicateHeaders(actionConfig, dsConfig);
 
         // Header duplicates in ds config only
         assertTrue(allDuplicateHeaders.get(DATASOURCE_CONFIG_ONLY).isEmpty());
@@ -749,7 +756,8 @@ public class RestApiPluginTest {
         actionConfig.setQueryParameters(actionParams);
 
         /* Test duplicate params in datasource + action configuration */
-        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateParams = getAllDuplicateParams(actionConfig,
+        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateParams =
+                hintMessageUtils.getAllDuplicateParams(actionConfig,
                 dsConfig);
 
         // Param duplicates in ds config only

@@ -1,6 +1,8 @@
 package com.external.connections;
 
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
+import com.appsmith.external.helpers.restApiUtils.connections.OAuth2ClientCredentials;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.OAuth2;
 import org.junit.Test;
