@@ -7,7 +7,7 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import { change, getFormValues, initialize } from "redux-form";
+import { change, getFormValues, initialize } from "redux-form/dist/redux-form";
 import _, { merge, isEmpty } from "lodash";
 import {
   ReduxAction,

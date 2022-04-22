@@ -15,7 +15,7 @@ import {
   IItemListRendererProps,
 } from "@blueprintjs/select";
 import { ButtonVariantTypes, DropdownOption } from "components/constants";
-import { WrappedFieldInputProps } from "redux-form";
+import { WrappedFieldInputProps } from "redux-form/dist/redux-form";
 
 interface ButtonWrapperProps {
   height?: string;

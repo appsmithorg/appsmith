@@ -1,5 +1,5 @@
 import React, { JSXElementConstructor, useEffect } from "react";
-import { FieldArray, WrappedFieldArrayProps } from "redux-form";
+import { FieldArray, WrappedFieldArrayProps } from "redux-form/dist/redux-form";
 import styled from "styled-components";
 import { Icon } from "@blueprintjs/core";
 import { FormIcons } from "icons/FormIcons";

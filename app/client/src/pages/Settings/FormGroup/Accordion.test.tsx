@@ -6,7 +6,7 @@ import {
 } from "@appsmith/pages/AdminSettings/config/types";
 import Accordion from "./Accordion";
 import { SETTINGS_FORM_NAME } from "constants/forms";
-import { reduxForm } from "redux-form";
+import { reduxForm } from "redux-form/dist/redux-form";
 
 let container: any = null;
 const setting = {

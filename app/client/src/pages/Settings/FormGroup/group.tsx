@@ -9,7 +9,7 @@ import TextInput from "./TextInput";
 import Toggle from "./Toggle";
 import Text from "./Text";
 import Button from "./Button";
-import { getFormValues } from "redux-form";
+import { getFormValues } from "redux-form/dist/redux-form";
 import { SETTINGS_FORM_NAME } from "constants/forms";
 import { useSelector } from "store";
 import {

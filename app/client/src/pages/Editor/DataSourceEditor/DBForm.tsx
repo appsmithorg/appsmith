@@ -10,7 +10,7 @@ import { Colors } from "constants/Colors";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import Connected from "./Connected";
 import { Datasource } from "entities/Datasource";
-import { reduxForm, InjectedFormProps } from "redux-form";
+import { reduxForm, InjectedFormProps } from "redux-form/dist/redux-form";
 import { APPSMITH_IP_ADDRESSES } from "constants/DatasourceEditorConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";

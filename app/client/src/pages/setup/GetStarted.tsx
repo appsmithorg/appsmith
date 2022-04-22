@@ -22,7 +22,7 @@ import {
   formValueSelector,
   InjectedFormProps,
   reduxForm,
-} from "redux-form";
+} from "redux-form/dist/redux-form";
 import styled from "styled-components";
 import { DropdownWrapper, withDropdown } from "./common";
 import { roleOptions, useCaseOptions } from "./constants";

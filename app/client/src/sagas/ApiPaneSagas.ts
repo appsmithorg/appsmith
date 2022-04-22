@@ -27,7 +27,7 @@ import {
 } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
-import { initialize, autofill, change } from "redux-form";
+import { initialize, autofill, change } from "redux-form/dist/redux-form";
 import { Property } from "api/ActionAPI";
 import { createNewApiName, getQueryParams } from "utils/AppsmithUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";

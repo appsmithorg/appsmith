@@ -1,6 +1,11 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Form, reduxForm, InjectedFormProps, Field } from "redux-form";
+import {
+  Form,
+  reduxForm,
+  InjectedFormProps,
+  Field,
+} from "redux-form/dist/redux-form";
 import { CREATE_APPLICATION_FORM_NAME } from "constants/forms";
 import {
   createMessage,

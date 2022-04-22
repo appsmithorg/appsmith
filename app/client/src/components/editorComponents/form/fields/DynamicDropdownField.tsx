@@ -1,5 +1,5 @@
 import React from "react";
-import { Field, BaseFieldProps } from "redux-form";
+import { Field, BaseFieldProps } from "redux-form/dist/redux-form";
 import DropdownComponent from "components/editorComponents/DropdownComponent";
 import { DropdownOption } from "components/constants";
 

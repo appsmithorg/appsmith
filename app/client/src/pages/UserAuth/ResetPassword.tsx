@@ -2,7 +2,11 @@ import React, { useLayoutEffect } from "react";
 import { AppState } from "reducers";
 import { withRouter, RouteComponentProps } from "react-router-dom";
 import { connect } from "react-redux";
-import { InjectedFormProps, reduxForm, Field } from "redux-form";
+import {
+  InjectedFormProps,
+  reduxForm,
+  Field,
+} from "redux-form/dist/redux-form";
 import { RESET_PASSWORD_FORM_NAME } from "constants/forms";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getIsTokenValid, getIsValidatingToken } from "selectors/authSelectors";

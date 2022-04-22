@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { FieldArray, WrappedFieldArrayProps } from "redux-form";
+import { FieldArray, WrappedFieldArrayProps } from "redux-form/dist/redux-form";
 import styled from "styled-components";
 import DynamicTextField from "./DynamicTextField";
 import FormRow from "components/editorComponents/FormRow";

@@ -6,7 +6,7 @@ import {
   reduxForm,
   InjectedFormProps,
   formValueSelector,
-} from "redux-form";
+} from "redux-form/dist/redux-form";
 import StyledForm from "components/editorComponents/Form";
 import {
   AuthCardHeader,

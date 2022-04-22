@@ -63,7 +63,7 @@ import _, { isEmpty } from "lodash";
 import { ReplayEditorUpdate } from "entities/Replay/ReplayEntity/ReplayEditor";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Datasource } from "entities/Datasource";
-import { initialize } from "redux-form";
+import { initialize } from "redux-form/dist/redux-form";
 import {
   API_EDITOR_FORM_NAME,
   DATASOURCE_DB_FORM,

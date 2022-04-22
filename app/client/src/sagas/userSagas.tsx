@@ -5,7 +5,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { reset } from "redux-form";
+import { reset } from "redux-form/dist/redux-form";
 import UserApi, {
   CreateUserRequest,
   CreateUserResponse,

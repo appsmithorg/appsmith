@@ -21,7 +21,7 @@ import "codemirror/addon/lint/lint.css";
 
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
-import { WrappedFieldInputProps } from "redux-form";
+import { WrappedFieldInputProps } from "redux-form/dist/redux-form";
 import _, { isString } from "lodash";
 import {
   DataTree,

@@ -5,7 +5,7 @@ import {
   formValueSelector,
   InjectedFormProps,
   reduxForm,
-} from "redux-form";
+} from "redux-form/dist/redux-form";
 import {
   HTTP_METHOD_OPTIONS,
   API_EDITOR_TABS,

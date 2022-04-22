@@ -10,7 +10,7 @@ import {
   getFormValues,
   InjectedFormProps,
   reduxForm,
-} from "redux-form";
+} from "redux-form/dist/redux-form";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import FormControl from "pages/Editor/FormControl";
 import { StyledInfo } from "components/formControls/InputTextControl";

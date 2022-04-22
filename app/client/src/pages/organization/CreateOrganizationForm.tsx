@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Form, reduxForm, InjectedFormProps } from "redux-form";
+import { Form, reduxForm, InjectedFormProps } from "redux-form/dist/redux-form";
 import { CREATE_ORGANIZATION_FORM_NAME } from "constants/forms";
 import {
   CreateOrganizationFormValues,

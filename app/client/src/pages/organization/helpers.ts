@@ -1,5 +1,5 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { SubmissionError } from "redux-form";
+import { SubmissionError } from "redux-form/dist/redux-form";
 export type InviteUsersToOrgByRoleValues = {
   id: string;
   users?: string;

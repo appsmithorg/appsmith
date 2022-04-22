@@ -1,5 +1,5 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { SubmissionError } from "redux-form";
+import { SubmissionError } from "redux-form/dist/redux-form";
 
 export type LoginFormValues = {
   username?: string;

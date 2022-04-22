@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen } from "test/testUtils";
 import DynamicTextFieldControl from "./DynamicTextFieldControl";
-import { reduxForm } from "redux-form";
+import { reduxForm } from "redux-form/dist/redux-form";
 import { mockCodemirrorRender } from "test/__mocks__/CodeMirrorEditorMock";
 import { PluginType } from "entities/Action";
 import { waitFor } from "@testing-library/dom";

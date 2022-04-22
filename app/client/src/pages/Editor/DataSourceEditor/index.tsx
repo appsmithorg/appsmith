@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { getFormValues } from "redux-form";
+import { getFormValues } from "redux-form/dist/redux-form";
 import { AppState } from "reducers";
 import _ from "lodash";
 import {

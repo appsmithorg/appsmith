@@ -1,6 +1,9 @@
 import React from "react";
 import Select, { InputActionMeta } from "react-select";
-import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import {
+  WrappedFieldInputProps,
+  WrappedFieldMetaProps,
+} from "redux-form/dist/redux-form";
 
 import { theme } from "constants/DefaultTheme";
 import { SelectComponents } from "react-select/src/components";

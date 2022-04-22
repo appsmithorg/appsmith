@@ -1,5 +1,5 @@
 import React from "react";
-import { formValueSelector, change } from "redux-form";
+import { formValueSelector, change } from "redux-form/dist/redux-form";
 import { connect } from "react-redux";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";

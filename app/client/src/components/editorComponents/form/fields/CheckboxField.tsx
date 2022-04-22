@@ -1,6 +1,6 @@
 import Checkbox, { CheckboxProps } from "components/ads/Checkbox";
 import React from "react";
-import { Field, BaseFieldProps } from "redux-form";
+import { Field, BaseFieldProps } from "redux-form/dist/redux-form";
 
 type RenderComponentProps = CheckboxProps & {
   input?: {

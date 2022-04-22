@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { InjectedFormProps, reduxForm } from "redux-form";
+import { InjectedFormProps, reduxForm } from "redux-form/dist/redux-form";
 import { HelpIcons } from "icons/HelpIcons";
 import UneditableField from "components/ads/formFields/UneditableField";
 import styled from "styled-components";

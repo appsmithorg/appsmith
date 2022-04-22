@@ -8,7 +8,7 @@ import {
 import { ControlProps } from "components/formControls/BaseControl";
 import { connect } from "react-redux";
 import { AnyAction, bindActionCreators, Dispatch } from "redux";
-import { change } from "redux-form";
+import { change } from "redux-form/dist/redux-form";
 
 type Props = {
   viewType: ViewTypes;

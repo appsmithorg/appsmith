@@ -2741,10 +2741,6 @@
   dependencies:
     any-observable "^0.3.0"
 
-"@scarf/scarf@^1.0.5":
-  version "1.1.0"
-  resolved "https://registry.npmjs.org/@scarf/scarf/-/scarf-1.1.0.tgz"
-
 "@sentry/browser@6.2.4":
   version "6.2.4"
   resolved "https://registry.npmjs.org/@sentry/browser/-/browser-6.2.4.tgz"
@@ -15322,12 +15318,12 @@ redux-devtools@^3.5.0:
     prop-types "^15.7.2"
     redux-devtools-instrument "^1.10.0"
 
-redux-form@^8.2.6:
-  version "8.3.6"
-  resolved "https://registry.npmjs.org/redux-form/-/redux-form-8.3.6.tgz"
+redux-form@^8.3.8:
+  version "8.3.8"
+  resolved "https://registry.yarnpkg.com/redux-form/-/redux-form-8.3.8.tgz#cd1a76c914655e3c599a375d6486a43bf8b4c1e3"
+  integrity sha512-PzXhA0d+awIc4PkuhbDa6dCEiraMrGMyyDlYEVNX6qEyW/G2SqZXrjav5zrpXb0CCeqQSc9iqwbMtYQXbJbOAQ==
   dependencies:
     "@babel/runtime" "^7.9.2"
-    "@scarf/scarf" "^1.0.5"
     es6-error "^4.1.1"
     hoist-non-react-statics "^3.3.2"
     invariant "^2.2.4"

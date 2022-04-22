@@ -1,6 +1,6 @@
 import React from "react";
 import _ from "lodash";
-import { Field } from "redux-form";
+import { Field } from "redux-form/dist/redux-form";
 import RadioGroupWrapper, { RadioGroupWrapperProps } from "./RadioGroupWrapper";
 
 interface RadioFieldProps {

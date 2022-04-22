@@ -1,5 +1,5 @@
 import React from "react";
-import { Field, WrappedFieldMetaProps } from "redux-form";
+import { Field, WrappedFieldMetaProps } from "redux-form/dist/redux-form";
 import { Intent } from "constants/DefaultTheme";
 import FormFieldError from "components/ads/formFields/FieldError";
 import {

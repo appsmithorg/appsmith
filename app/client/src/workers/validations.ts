@@ -284,6 +284,8 @@ export const validate = (
 export const WIDGET_TYPE_VALIDATION_ERROR =
   "This value does not evaluate to type"; // TODO: Lot's of changes in validations.ts file
 
+let type: string;
+
 export function getExpectedType(config?: ValidationConfig): string | undefined {
   if (!config) return UNDEFINED_VALIDATION; // basic fallback
   switch (config.type) {
@@ -307,7 +309,7 @@ export function getExpectedType(config?: ValidationConfig): string | undefined {
     case ValidationTypes.BOOLEAN:
       return "boolean";
     case ValidationTypes.NUMBER:
-      let type = "number";
+      type = "number";
       if (config.params?.min) {
         type = `${type} Min: ${config.params?.min}`;
       }

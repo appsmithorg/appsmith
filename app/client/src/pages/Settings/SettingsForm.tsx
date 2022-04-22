@@ -7,7 +7,11 @@ import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { connect, useDispatch } from "react-redux";
 import { RouteComponentProps, useParams, withRouter } from "react-router";
 import { AppState } from "reducers";
-import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
+import {
+  formValueSelector,
+  InjectedFormProps,
+  reduxForm,
+} from "redux-form/dist/redux-form";
 import {
   getSettings,
   getSettingsSavingState,

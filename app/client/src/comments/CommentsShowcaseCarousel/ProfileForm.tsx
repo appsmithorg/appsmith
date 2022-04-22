@@ -1,6 +1,6 @@
 import React from "react";
 
-import { reduxForm } from "redux-form";
+import { reduxForm } from "redux-form/dist/redux-form";
 
 import FormGroup from "components/ads/formFields/FormGroup";
 import FormTextField from "components/ads/formFields/TextField";

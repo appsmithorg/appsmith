@@ -1,7 +1,7 @@
 import React from "react";
 import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
-import { getFormValues } from "redux-form";
+import { getFormValues } from "redux-form/dist/redux-form";
 import styled from "styled-components";
 import { INTEGRATION_TABS, QueryEditorRouteParams } from "constants/routes";
 import history from "utils/history";

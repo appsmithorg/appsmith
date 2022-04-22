@@ -3,7 +3,7 @@ import {
   Field,
   WrappedFieldInputProps,
   WrappedFieldMetaProps,
-} from "redux-form";
+} from "redux-form/dist/redux-form";
 import styled from "styled-components";
 import { FormGroup, SettingComponentProps } from "./Common";
 import { FormTextFieldProps } from "components/ads/formFields/TextField";

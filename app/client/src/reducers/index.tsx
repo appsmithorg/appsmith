@@ -2,7 +2,7 @@ import { combineReducers } from "redux";
 import entityReducer from "./entityReducers";
 import uiReducer from "./uiReducers";
 import evaluationsReducer from "./evaluationReducers";
-import { reducer as formReducer } from "redux-form";
+import { reducer as formReducer } from "redux-form/dist/redux-form";
 import { CanvasWidgetsReduxState } from "./entityReducers/canvasWidgetsReducer";
 import { EditorReduxState } from "./uiReducers/editorReducer";
 import { ErrorReduxState } from "./uiReducers/errorReducer";

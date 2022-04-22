@@ -5,7 +5,7 @@ import {
   WrappedFieldArrayProps,
   WrappedFieldMetaProps,
   WrappedFieldInputProps,
-} from "redux-form";
+} from "redux-form/dist/redux-form";
 import styled from "styled-components";
 import { Icon } from "@blueprintjs/core";
 import { FormIcons } from "icons/FormIcons";

@@ -1,7 +1,7 @@
 import React, { ChangeEvent } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import CodeEditor from "components/editorComponents/CodeEditor";
-import { EventOrValueHandler } from "redux-form";
+import { EventOrValueHandler } from "redux-form/dist/redux-form";
 import {
   EditorModes,
   EditorSize,

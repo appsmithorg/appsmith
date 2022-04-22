@@ -6,7 +6,7 @@ import {
   ViewTypes,
 } from "components/formControls/utils";
 import { useSelector, shallowEqual } from "react-redux";
-import { getFormValues } from "redux-form";
+import { getFormValues } from "redux-form/dist/redux-form";
 import FormControlFactory from "utils/formControl/FormControlFactory";
 
 import { AppState } from "reducers";

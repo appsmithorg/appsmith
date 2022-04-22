@@ -1,6 +1,10 @@
 import React from "react";
 import { connect } from "react-redux";
-import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
+import {
+  reduxForm,
+  InjectedFormProps,
+  formValueSelector,
+} from "redux-form/dist/redux-form";
 import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants";
 import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";

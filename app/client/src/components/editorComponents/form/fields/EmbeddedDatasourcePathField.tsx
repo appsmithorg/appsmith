@@ -6,7 +6,7 @@ import {
   Field,
   formValueSelector,
   WrappedFieldInputProps,
-} from "redux-form";
+} from "redux-form/dist/redux-form";
 import CodeEditor, {
   EditorProps,
 } from "components/editorComponents/CodeEditor";

@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { submit } from "redux-form";
+import { submit } from "redux-form/dist/redux-form";
 import ApiEditorForm from "./Form";
 import RapidApiEditorForm from "./RapidApiEditorForm";
 import { deleteAction, runAction } from "actions/pluginActionActions";

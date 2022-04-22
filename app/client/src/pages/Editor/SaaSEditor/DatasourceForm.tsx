@@ -5,7 +5,11 @@ import { DATASOURCE_SAAS_FORM } from "constants/forms";
 import FormTitle from "pages/Editor/DataSourceEditor/FormTitle";
 import AdsButton, { Category } from "components/ads/Button";
 import { Datasource } from "entities/Datasource";
-import { getFormValues, InjectedFormProps, reduxForm } from "redux-form";
+import {
+  getFormValues,
+  InjectedFormProps,
+  reduxForm,
+} from "redux-form/dist/redux-form";
 import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 import { AppState } from "reducers";

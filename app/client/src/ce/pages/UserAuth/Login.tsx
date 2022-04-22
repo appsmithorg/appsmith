@@ -1,7 +1,11 @@
 import React from "react";
 import { Link, Redirect, useLocation } from "react-router-dom";
 import { connect, useSelector } from "react-redux";
-import { InjectedFormProps, reduxForm, formValueSelector } from "redux-form";
+import {
+  InjectedFormProps,
+  reduxForm,
+  formValueSelector,
+} from "redux-form/dist/redux-form";
 import {
   LOGIN_FORM_NAME,
   LOGIN_FORM_EMAIL_FIELD_NAME,

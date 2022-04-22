@@ -1,5 +1,5 @@
 import React, { RefObject, useRef, useState } from "react";
-import { InjectedFormProps } from "redux-form";
+import { InjectedFormProps } from "redux-form/dist/redux-form";
 import { Icon, Tag } from "@blueprintjs/core";
 import { isString } from "lodash";
 import {

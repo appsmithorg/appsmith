@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import styled from "styled-components";
-import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import {
+  WrappedFieldInputProps,
+  WrappedFieldMetaProps,
+} from "redux-form/dist/redux-form";
 import {
   IconName,
   IInputGroupProps,

@@ -1,5 +1,9 @@
 import React, { useEffect } from "react";
-import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
+import {
+  reduxForm,
+  InjectedFormProps,
+  formValueSelector,
+} from "redux-form/dist/redux-form";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { SIGNUP_FORM_NAME } from "constants/forms";
 import {

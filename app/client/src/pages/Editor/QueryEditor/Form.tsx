@@ -1,4 +1,4 @@
-import { formValueSelector, reduxForm } from "redux-form";
+import { formValueSelector, reduxForm } from "redux-form/dist/redux-form";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { Action } from "entities/Action";
 import { connect } from "react-redux";

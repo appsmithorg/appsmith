@@ -2,7 +2,7 @@ import Button, { Category } from "components/ads/Button";
 import { SETTINGS_FORM_NAME } from "constants/forms";
 import React from "react";
 import { useDispatch } from "react-redux";
-import { getFormValues } from "redux-form";
+import { getFormValues } from "redux-form/dist/redux-form";
 import { useSelector } from "store";
 import styled from "styled-components";
 import { FormGroup, SettingComponentProps } from "./Common";

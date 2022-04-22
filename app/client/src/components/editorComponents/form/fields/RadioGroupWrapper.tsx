@@ -1,6 +1,6 @@
 import RadioComponent from "components/ads/Radio";
 import React, { useEffect, useState } from "react";
-import { WrappedFieldInputProps } from "redux-form";
+import { WrappedFieldInputProps } from "redux-form/dist/redux-form";
 
 export type RadioGroupWrapperProps = {
   placeholder: string;

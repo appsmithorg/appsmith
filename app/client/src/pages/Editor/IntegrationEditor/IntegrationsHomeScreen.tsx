@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { connect } from "react-redux";
-import { reduxForm, InjectedFormProps } from "redux-form";
+import { reduxForm, InjectedFormProps } from "redux-form/dist/redux-form";
 import styled from "styled-components";
 import { AppState } from "reducers";
 import { API_HOME_SCREEN_FORM } from "constants/forms";

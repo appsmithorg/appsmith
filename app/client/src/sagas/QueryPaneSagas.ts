@@ -15,7 +15,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { autofill, change, initialize } from "redux-form";
+import { autofill, change, initialize } from "redux-form/dist/redux-form";
 import {
   getAction,
   getDatasource,

@@ -1,7 +1,7 @@
 import React, { Fragment, useContext, useEffect, useState } from "react";
 import styled, { css, ThemeContext } from "styled-components";
 import TagListField from "components/editorComponents/form/fields/TagListField";
-import { reduxForm, SubmissionError } from "redux-form";
+import { reduxForm, SubmissionError } from "redux-form/dist/redux-form";
 import SelectField from "components/editorComponents/form/fields/SelectField";
 import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";

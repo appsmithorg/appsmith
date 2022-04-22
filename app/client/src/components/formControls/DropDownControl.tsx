@@ -8,7 +8,7 @@ import {
   Field,
   WrappedFieldInputProps,
   WrappedFieldMetaProps,
-} from "redux-form";
+} from "redux-form/dist/redux-form";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { getDynamicFetchedValues } from "selectors/formSelectors";

@@ -4,7 +4,7 @@ import {
   BaseDropdown,
   DropdownProps,
 } from "components/designSystems/appsmith/Dropdown";
-import { Field } from "redux-form";
+import { Field } from "redux-form/dist/redux-form";
 import { replayHighlightClass } from "globalStyles/portals";
 
 interface DropdownFieldProps {

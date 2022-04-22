@@ -11,7 +11,7 @@ import ProgressiveImage, {
 import styled, { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import { useDispatch, useSelector } from "react-redux";
-import { getFormSyncErrors, getFormValues } from "redux-form";
+import { getFormSyncErrors, getFormValues } from "redux-form/dist/redux-form";
 
 import { isIntroCarouselVisibleSelector } from "selectors/commentsSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";

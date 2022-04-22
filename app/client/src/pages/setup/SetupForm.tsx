@@ -22,7 +22,7 @@ import {
   getFormSyncErrors,
   InjectedFormProps,
   reduxForm,
-} from "redux-form";
+} from "redux-form/dist/redux-form";
 import { isEmail, isStrongPassword } from "utils/formhelpers";
 import { AppState } from "reducers";
 import { SUPER_USER_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";

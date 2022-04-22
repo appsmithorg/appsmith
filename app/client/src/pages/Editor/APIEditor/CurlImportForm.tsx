@@ -1,5 +1,10 @@
 import React from "react";
-import { reduxForm, InjectedFormProps, Form, Field } from "redux-form";
+import {
+  reduxForm,
+  InjectedFormProps,
+  Form,
+  Field,
+} from "redux-form/dist/redux-form";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";

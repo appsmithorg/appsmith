@@ -1,4 +1,4 @@
-import { Form } from "redux-form";
+import { Form } from "redux-form/dist/redux-form";
 import styled from "styled-components";
 
 const StyledForm = styled(Form)`
