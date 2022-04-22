@@ -86,18 +86,18 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       propertyValue: unknown,
       actionExecution?: DebouncedExecuteActionPayload,
     ) => {
-      const { executeAction, updateWidgetMetaProperty } = this.context;
+      const { executeAction, syncUpdateWidgetMetaProperty } = this.context;
       const { widgetId } = this.props;
 
-      if (updateWidgetMetaProperty) {
-        updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
+      if (syncUpdateWidgetMetaProperty) {
+        syncUpdateWidgetMetaProperty(widgetId, propertyName, propertyValue);
 
         // look at this.props.__metaOptions, check for metaPropPath value
         // if they exist, then update the propertyName
         // Below code of updating metaOptions can be removed once we have ListWidget v2 where we better manage meta values of ListWidget.
         const metaOptions = this.props.__metaOptions;
         if (metaOptions) {
-          updateWidgetMetaProperty(
+          syncUpdateWidgetMetaProperty(
             metaOptions.widgetId,
             `${metaOptions.metaPropPrefix}.${this.props.widgetName}.${propertyName}[${metaOptions.index}]`,
             propertyValue,

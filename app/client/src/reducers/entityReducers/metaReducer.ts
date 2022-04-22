@@ -71,6 +71,20 @@ export const metaReducer = createReducer(initialState, {
 
     return nextState;
   },
+  [ReduxActionTypes.SET_META_PROP_AND_EVAL]: (
+    state: MetaState,
+    action: ReduxAction<UpdateWidgetMetaPropertyPayload>,
+  ) => {
+    const nextState = produce(state, (draftMetaState) => {
+      set(
+        draftMetaState,
+        `${action.payload.widgetId}.${action.payload.propertyName}`,
+        action.payload.propertyValue,
+      );
+    });
+
+    return nextState;
+  },
   [ReduxActionTypes.TABLE_PANE_MOVED]: (
     state: MetaState,
     action: ReduxAction<TableFilterPanePositionConfig>,

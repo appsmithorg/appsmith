@@ -16,15 +16,15 @@ export function updateWidgetMetaProperty(
   widgetId: string,
   propertyName: string,
   propertyValue: any,
-) {
-  return {
-    type: ReduxActionTypes.SET_META_PROP,
+): BatchAction<UpdateWidgetMetaPropertyPayload> {
+  return batchAction({
+    type: ReduxActionTypes.SET_META_PROP_AND_EVAL,
     payload: {
       widgetId,
       propertyName,
       propertyValue,
     },
-  };
+  });
 }
 
 export function resetWidgetMetaProperty(
@@ -64,8 +64,23 @@ export function updateMetaState(
 }
 
 export function triggerEvalOnMetaUpdate() {
-  return batchAction({
-    type: ReduxActionTypes.META_UPDATE_TRIGGER_EVAL,
+  return {
+    type: ReduxActionTypes.META_UPDATE_DEBOUNCED_EVAL,
     payload: {},
-  });
+  };
+}
+
+export function syncUpdateWidgetMetaProperty(
+  widgetId: string,
+  propertyName: string,
+  propertyValue: any,
+) {
+  return {
+    type: ReduxActionTypes.SET_META_PROP,
+    payload: {
+      widgetId,
+      propertyName,
+      propertyValue,
+    },
+  };
 }
