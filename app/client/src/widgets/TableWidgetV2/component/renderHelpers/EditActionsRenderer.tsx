@@ -4,7 +4,7 @@ import { IconName } from "@blueprintjs/icons";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { EditableCellActions } from "widgets/TableWidgetV2/constants";
-import { EditActionButton } from "../cellComponents/EditActionButton";
+import { Button } from "../cellComponents/Button";
 import { CellLayoutProperties } from "../Constants";
 import { ButtonVariant } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
@@ -58,7 +58,7 @@ export function renderEditActions(props: RenderEditActionsProps) {
     >
       {props.columnActions.map((action: EditColumnActions, index: number) => {
         return (
-          <EditActionButton
+          <Button
             action={action}
             isCellVisible={props.isCellVisible}
             isSelected={props.isSelected}

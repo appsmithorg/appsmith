@@ -270,15 +270,10 @@ export const MenuColumnWrapper = styled.div<{ selected: boolean }>`
   }
 `;
 
-export const ActionWrapper = styled.div<{
-  background?: string;
-  buttonLabelColor?: string;
-}>`
+export const ActionWrapper = styled.div`
   margin: 0 5px 0 0;
   &&&&&& {
     .bp3-button {
-      background: ${(props) => props.background};
-      color: ${(props) => props.buttonLabelColor};
       border: none;
     }
     .bp3-button span {
