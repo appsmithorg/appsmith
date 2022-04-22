@@ -30,7 +30,7 @@ describe("Theme validation", function() {
     cy.wait(2000);
 
     //Border validation
-    cy.contains("Border").click({ force: true });
+    //cy.contains("Border").click({ force: true });
     cy.get(themelocator.border).should("have.length", "3");
     cy.borderMouseover(0, "none");
     cy.borderMouseover(1, "md");
@@ -38,24 +38,16 @@ describe("Theme validation", function() {
     cy.contains("Border").click({ force: true });
 
     //Shadow validation
-    cy.contains("Shadow").click({ force: true });
-    cy.wait(5000);
+    //cy.contains("Shadow").click({ force: true });
+    cy.wait(2000);
     cy.shadowMouseover(0, "none");
     cy.shadowMouseover(1, "sm");
     cy.shadowMouseover(2, "md");
     cy.shadowMouseover(3, "lg");
     cy.contains("Shadow").click({ force: true });
 
-    //Color
-    cy.contains("Color").click({ force: true });
-    cy.wait(5000);
-    cy.colorMouseover(0, "Primary Color");
-    cy.validateColor(0, "#50AF6C");
-    cy.colorMouseover(1, "Background Color");
-    cy.validateColor(1, "#F6F6F6");
-
     //Font
-    cy.contains("Font").click({ force: true });
+    //cy.contains("Font").click({ force: true });
     cy.get("span[name='expand-more']").then(($elem) => {
       cy.get($elem).click({ force: true });
       cy.wait(250);
@@ -64,6 +56,15 @@ describe("Theme validation", function() {
         .eq(0)
         .should("have.text", "System Default");
     });
+    cy.contains("Font").click({ force: true });
+
+    //Color
+    //cy.contains("Color").click({ force: true });
+    cy.wait(2000);
+    cy.colorMouseover(0, "Primary Color");
+    cy.validateColor(0, "#50AF6C");
+    cy.colorMouseover(1, "Background Color");
+    cy.validateColor(1, "#F6F6F6");
   });
 
   it("Validate Default Theme change across application", function() {

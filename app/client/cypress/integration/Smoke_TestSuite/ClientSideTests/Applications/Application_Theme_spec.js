@@ -30,7 +30,7 @@ describe("Theme validation", function() {
     cy.wait(2000);
 
     //Border validation
-    cy.contains("Border").click({ force: true });
+    //cy.contains("Border").click({ force: true });
     cy.get(themelocator.border).should("have.length", "3");
     cy.borderMouseover(0, "none");
     cy.borderMouseover(1, "md");
@@ -47,7 +47,7 @@ describe("Theme validation", function() {
     cy.contains("Border").click({ force: true });
 
     //Shadow validation
-    cy.contains("Shadow").click({ force: true });
+    //cy.contains("Shadow").click({ force: true });
     cy.shadowMouseover(0, "none");
     cy.shadowMouseover(1, "sm");
     cy.shadowMouseover(2, "md");
@@ -63,44 +63,7 @@ describe("Theme validation", function() {
     cy.wait(5000);
     cy.contains("Shadow").click({ force: true });
 
-    //Color
-    cy.contains("Color").click({ force: true });
-    cy.colorMouseover(0, "Primary Color");
-    cy.validateColor(0, "#50AF6C");
-    cy.colorMouseover(1, "Background Color");
-    cy.validateColor(1, "#F6F6F6");
-
-    cy.get(themelocator.inputColor).click({ force: true });
-    cy.chooseColor(0, themelocator.greenColor);
-
-    cy.get(themelocator.inputColor).should("have.value", "#15803d");
-    cy.get(themelocator.inputColor).clear({ force: true });
-    cy.wait(2000);
-    cy.get(themelocator.inputColor).type("red");
-    cy.get(themelocator.inputColor).should("have.value", "red");
-    cy.wait(2000);
-
-    cy.get(themelocator.inputColor)
-      .eq(0)
-      .click({ force: true });
-    cy.get(themelocator.inputColor).click({ force: true });
-    cy.get('[data-testid="color-picker"]')
-      .first()
-      .click({ force: true });
-    cy.get("[style='background-color: rgb(21, 128, 61);']")
-      .last()
-      .click();
-    cy.wait(2000);
-    cy.get(themelocator.inputColor).should("have.value", "#15803d");
-    cy.get(themelocator.inputColor).clear({ force: true });
-    cy.wait(2000);
-    cy.get(themelocator.inputColor).type("Black");
-    cy.get(themelocator.inputColor).should("have.value", "Black");
-    cy.wait(2000);
-    cy.contains("Color").click({ force: true });
-
     //Font
-    cy.contains("Font").click({ force: true });
     cy.get("span[name='expand-more']").then(($elem) => {
       cy.get($elem).click({ force: true });
       cy.wait(250);
@@ -137,6 +100,44 @@ describe("Theme validation", function() {
             .text();
         });
     });
+    cy.contains("Font").click({ force: true });
+
+    //Color
+    //cy.contains("Color").click({ force: true });
+    cy.wait(2000);
+    cy.colorMouseover(0, "Primary Color");
+    cy.validateColor(0, "#50AF6C");
+    cy.colorMouseover(1, "Background Color");
+    cy.validateColor(1, "#F6F6F6");
+
+    cy.get(themelocator.inputColor).click({ force: true });
+    cy.chooseColor(0, themelocator.greenColor);
+
+    cy.get(themelocator.inputColor).should("have.value", "#15803d");
+    cy.get(themelocator.inputColor).clear({ force: true });
+    cy.wait(2000);
+    cy.get(themelocator.inputColor).type("red");
+    cy.get(themelocator.inputColor).should("have.value", "red");
+    cy.wait(2000);
+
+    cy.get(themelocator.inputColor)
+      .eq(0)
+      .click({ force: true });
+    cy.get(themelocator.inputColor).click({ force: true });
+    cy.get('[data-testid="color-picker"]')
+      .first()
+      .click({ force: true });
+    cy.get("[style='background-color: rgb(21, 128, 61);']")
+      .last()
+      .click();
+    cy.wait(2000);
+    cy.get(themelocator.inputColor).should("have.value", "#15803d");
+    cy.get(themelocator.inputColor).clear({ force: true });
+    cy.wait(2000);
+    cy.get(themelocator.inputColor).type("Black");
+    cy.get(themelocator.inputColor).should("have.value", "Black");
+    cy.wait(2000);
+    cy.contains("Color").click({ force: true });
   });
 
   it("Publish the App and validate Font across the app", function() {
