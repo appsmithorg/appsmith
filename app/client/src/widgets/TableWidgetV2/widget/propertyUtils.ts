@@ -373,6 +373,7 @@ export const updateEditActionsColumnEventsHook = (
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
   if (propertyValue === ColumnTypes.EDIT_ACTIONS) {
     const baseProperty = getBasePropertyPath(propertyPath);
+    const { widgetName } = props;
     const propertiesToUpdate = [];
 
     propertiesToUpdate.push({
@@ -403,6 +404,16 @@ export const updateEditActionsColumnEventsHook = (
     propertiesToUpdate.push({
       propertyPath: `${baseProperty}.discardActionLabel`,
       propertyValue: "Discard",
+    });
+
+    propertiesToUpdate.push({
+      propertyPath: `${baseProperty}.isSaveDisabled`,
+      propertyValue: `{{${widgetName}.updatedRowIndices.includes(currentIndex)}}`,
+    });
+
+    propertiesToUpdate.push({
+      propertyPath: `${baseProperty}.isDiscardDisabled`,
+      propertyValue: `{{${widgetName}.updatedRowIndices.includes(currentIndex)}}`,
     });
 
     return propertiesToUpdate;
