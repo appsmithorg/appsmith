@@ -2341,7 +2341,7 @@ public class ImportExportApplicationServiceTests {
         newOrganization.setName("template-org-with-ds");
 
         Application testApplication = new Application();
-        testApplication.setName("exportApplication_withMultiplePages_PagesOrderIsMaintainedINExportedAppJson");
+        testApplication.setName("exportAndImportApplication_withMultiplePagesOrderSameInDeployAndEditMode_PagesOrderIsMaintainedInEditAndViewMode");
         testApplication.setExportWithConfiguration(true);
         testApplication = applicationPageService.createApplication(testApplication, orgId).block();
         assert testApplication != null;
@@ -2436,7 +2436,7 @@ public class ImportExportApplicationServiceTests {
         newOrganization.setName("template-org-with-ds");
 
         Application testApplication = new Application();
-        testApplication.setName("exportApplication_withMultiplePages_PagesOrderIsMaintainedINExportedAppJson");
+        testApplication.setName("exportAndImportApplication_withMultiplePagesOrderDifferentInDeployAndEditMode_PagesOrderIsMaintainedInEditAndViewMode");
         testApplication.setExportWithConfiguration(true);
         testApplication = applicationPageService.createApplication(testApplication, orgId).block();
         assert testApplication != null;

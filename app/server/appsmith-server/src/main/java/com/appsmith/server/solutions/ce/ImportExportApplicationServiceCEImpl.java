@@ -899,10 +899,15 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 // Sort the published pages based on the json file order only
                                 List<String> publishedPageOrderList;
                                 if(Optional.ofNullable(applicationJson.getPublishedPageOrder()).isEmpty()) {
-                                    publishedPageOrderList = importedNewPageList.stream().map(newPage -> newPage.getPublishedPage().getName()).collect(Collectors.toList());
+                                    publishedPageOrderList = importedNewPageList.stream()
+                                            .filter(newPage -> !Optional.ofNullable(newPage.getPublishedPage()).isEmpty())
+                                            .map(newPage -> newPage.getPublishedPage().getName()).collect(Collectors.toList());
                                 } else {
                                     publishedPageOrderList = applicationJson.getPublishedPageOrder();
                                 }
+
+                                // When there is difference in number of pages between edit and view mode
+                                newPageList = newPageList.stream().filter(newPage -> !Optional.ofNullable(newPage.getPublishedPage()).isEmpty()).collect(Collectors.toList());
                                 Collections.sort(newPageList,
                                         Comparator.comparing(newPage -> publishedPageOrderList.indexOf(newPage.getPublishedPage().getName())));
                                 for (NewPage newPage : newPageList) {
