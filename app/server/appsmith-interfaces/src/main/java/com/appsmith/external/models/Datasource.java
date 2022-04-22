@@ -37,7 +37,7 @@ public class Datasource extends BaseDomain {
 
     String templateName;
 
-    DatasourceConfiguration datasourceConfiguration;
+    DatasourceCon   figuration datasourceConfiguration;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Set<String> invalids;

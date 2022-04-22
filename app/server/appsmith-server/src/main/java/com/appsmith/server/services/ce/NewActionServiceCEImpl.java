@@ -120,6 +120,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public static final String NATIVE_QUERY_PATH = "formToNativeQuery";
     public static final String NATIVE_QUERY_PATH_DATA = NATIVE_QUERY_PATH + "." + DATA;
     public static final String NATIVE_QUERY_PATH_STATUS = NATIVE_QUERY_PATH + "." + STATUS;
+    public static final String JS_PLUGIN_ID = "62606c986b7bdc12a6b835bf";
+    public static final PluginType JS_PLUGIN_TYPE = PluginType.JS;
 
     private final NewActionRepository repository;
     private final DatasourceService datasourceService;
@@ -1362,7 +1364,47 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params, String branchName) {
         return this.getUnpublishedActions(params, branchName)
+                .flatMap(this::sanitizeActionDTO)
                 .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()));
+    }
+
+    private Mono<ActionDTO> sanitizeActionDTO(ActionDTO actionDTO) {
+        Mono<ActionDTO> actionDTOMono = Mono.just(actionDTO);
+        if (actionDTO.getPluginType() == null || actionDTO.getPluginId() == null) {
+            Datasource datasource = actionDTO.getDatasource();
+            if (datasource != null && isPluginTypeOrPluginIdMissing(actionDTO)) {
+                providePluginTypeAndIdToActionDTOUsingDatasource(actionDTOMono);
+            }
+        }
+
+        return actionDTOMono;
+    }
+
+    private boolean isPluginTypeOrPluginIdMissing(ActionDTO actionDTO) {
+        // TODO: fill it
+        return false;
+    }
+
+    private void providePluginTypeAndIdToActionDTOUsingDatasource(Mono<ActionDTO>) {
+        if (actionDTO.getCollectionId() != null) {
+            setPluginIdAndTypeForJSAction(actionDTO);
+        }
+        else if (datasource.getPluginId() != null) {
+            String pluginId = datasource.getPluginId();
+            actionDTO.setPluginId(pluginId);
+
+            PluginType pluginType = getPluginTypeFromPluginId(pluginId);
+            actionDTO.setPluginType(pluginType);
+        }
+    }
+
+    private PluginType getPluginTypeFromPluginId(String pluginId) {
+        Plugin plugin = pluginService.findById(pluginId);
+    }
+
+    private void setPluginIdAndTypeForJSAction(ActionDTO actionDTO) {
+        actionDTO.setPluginId(JS_PLUGIN_ID);
+        actionDTO.setPluginType(JS_PLUGIN_TYPE);
     }
 
     // We can afford to make this call all the time since we already have all the info we need in context
