@@ -234,6 +234,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     // Refactor application to remove the ids
                     final String organizationId = application.getOrganizationId();
                     List<String> pageOrderList = application.getPages().stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toList());
+                    List<String> publishedPageOrderList = application.getPublishedPages().stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toList());
                     removeUnwantedFieldsFromApplicationDuringExport(application);
                     examplesOrganizationCloner.makePristine(application);
                     applicationJson.setExportedApplication(application);
@@ -253,6 +254,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     pageOrder.add(page.getUnpublishedPage().getName());
                                 }
                                 applicationJson.setPageOrder(pageOrder);
+
+                                Collections.sort(newPages, Comparator.comparing(newPage -> publishedPageOrderList.indexOf(newPage.getId())));
+                                pageOrder = new ArrayList<>();
+                                for (NewPage page: newPages) {
+                                    pageOrder.add(page.getUnpublishedPage().getName());
+                                }
+                                applicationJson.setPublishedPageOrder(pageOrder);
                                 return Mono.just(newPages);
                             })
                             .flatMap(newPageList -> {
@@ -860,7 +868,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             existingPagesMono
                     ).collectList()
                             .map(newPageList -> {
-                                // Check if the pages order match with json file
+                                // Sort the unPublished pages based on the json file order only
                                 List<String> pageOrderList;
                                 if(Optional.ofNullable(applicationJson.getPageOrder()).isEmpty()) {
                                     pageOrderList = importedNewPageList.stream().map(newPage -> newPage.getUnpublishedPage().getName()).collect(Collectors.toList());
@@ -870,10 +878,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 Collections.sort(newPageList,
                                         Comparator.comparing(newPage -> pageOrderList.indexOf(newPage.getUnpublishedPage().getName())));
                                 for (NewPage newPage : newPageList) {
-
                                     ApplicationPage unpublishedAppPage = new ApplicationPage();
-                                    ApplicationPage publishedAppPage = new ApplicationPage();
-
                                     if (newPage.getUnpublishedPage() != null && newPage.getUnpublishedPage().getName() != null) {
                                         unpublishedAppPage.setIsDefault(
                                                 StringUtils.equals(
@@ -886,6 +891,22 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         }
                                         pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
                                     }
+                                    if (unpublishedAppPage.getId() != null && newPage.getUnpublishedPage().getDeletedAt() == null) {
+                                        applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
+                                    }
+                                }
+
+                                // Sort the published pages based on the json file order only
+                                List<String> publishedPageOrderList;
+                                if(Optional.ofNullable(applicationJson.getPublishedPageOrder()).isEmpty()) {
+                                    publishedPageOrderList = importedNewPageList.stream().map(newPage -> newPage.getPublishedPage().getName()).collect(Collectors.toList());
+                                } else {
+                                    publishedPageOrderList = applicationJson.getPublishedPageOrder();;
+                                }
+                                Collections.sort(newPageList,
+                                        Comparator.comparing(newPage -> publishedPageOrderList.indexOf(newPage.getPublishedPage().getName())));
+                                for (NewPage newPage : newPageList) {
+                                    ApplicationPage publishedAppPage = new ApplicationPage();
 
                                     if (newPage.getPublishedPage() != null && newPage.getPublishedPage().getName() != null) {
                                         publishedAppPage.setIsDefault(
@@ -899,9 +920,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         }
                                         pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
                                     }
-                                    if (unpublishedAppPage.getId() != null && newPage.getUnpublishedPage().getDeletedAt() == null) {
-                                        applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
-                                    }
+
                                     if (publishedAppPage.getId() != null && newPage.getPublishedPage().getDeletedAt() == null) {
                                         applicationPages.get(PublishType.PUBLISHED).add(publishedAppPage);
                                     }
@@ -940,6 +959,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             });
                 })
                 .flatMap(applicationPageMap -> {
+                    // set it based on the order for published and unublished pages
                     importedApplication.setPages(applicationPageMap.get(PublishType.UNPUBLISHED));
                     importedApplication.setPublishedPages(applicationPageMap.get(PublishType.PUBLISHED));
 
