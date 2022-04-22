@@ -739,7 +739,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
             <OptionWrapper
               aria-selected={isSelected}
               className="t--dropdown-option"
-              key={option.value}
+              key={index}
               onClick={
                 // users should be able to unselect a selected option by clicking the option again.
                 isSelected && props.allowDeselection
