@@ -9,9 +9,10 @@ const StyledButton = styled(BaseButton)`
   min-width: 40px;
 `;
 
-export function EditActionButton(props: {
+export function Button(props: {
   isCellVisible: boolean;
   isSelected: boolean;
+  isDisabled: boolean;
   action: EditColumnActions;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }) {
@@ -39,7 +40,7 @@ export function EditActionButton(props: {
           borderRadius={props.action.borderRadius}
           buttonColor={props.action.backgroundColor}
           buttonVariant={props.action.variant}
-          disabled={props.action.isDisabled}
+          disabled={props.isDisabled}
           iconAlign={props.action.iconAlign}
           iconName={props.action.iconName}
           loading={loading}

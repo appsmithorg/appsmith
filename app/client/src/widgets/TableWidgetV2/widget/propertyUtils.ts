@@ -370,7 +370,13 @@ export const updateEditActionsColumnEventsHook = (
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: any,
-): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
+):
+  | Array<{
+      propertyPath: string;
+      propertyValue: any;
+      isDynamicPropertyPath?: boolean;
+    }>
+  | undefined => {
   if (propertyValue === ColumnTypes.EDIT_ACTIONS) {
     const baseProperty = getBasePropertyPath(propertyPath);
     const { widgetName } = props;
@@ -407,13 +413,25 @@ export const updateEditActionsColumnEventsHook = (
     });
 
     propertiesToUpdate.push({
+      propertyPath: `${baseProperty}.saveButtonColor`,
+      propertyValue: Colors.GREEN,
+    });
+
+    propertiesToUpdate.push({
+      propertyPath: `${baseProperty}.discardButtonColor`,
+      propertyValue: Colors.GREEN,
+    });
+
+    propertiesToUpdate.push({
       propertyPath: `${baseProperty}.isSaveDisabled`,
-      propertyValue: `{{${widgetName}.updatedRowIndices.includes(currentIndex)}}`,
+      propertyValue: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowIndices.includes(currentIndex)))}}`,
+      isDynamicPropertyPath: true,
     });
 
     propertiesToUpdate.push({
       propertyPath: `${baseProperty}.isDiscardDisabled`,
-      propertyValue: `{{${widgetName}.updatedRowIndices.includes(currentIndex)}}`,
+      propertyValue: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowIndices.includes(currentIndex)))}}`,
+      isDynamicPropertyPath: true,
     });
 
     return propertiesToUpdate;

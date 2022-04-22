@@ -113,6 +113,7 @@ import {
   isDropTarget,
   getValueFromTree,
   getVerifiedSelectedWidgets,
+  mergeDynamicPropertyPaths,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
@@ -524,7 +525,7 @@ export function getPropertiesToUpdate(
 export function* getPropertiesUpdatedWidget(
   updatesObj: UpdateWidgetPropertyPayload,
 ) {
-  const { updates, widgetId } = updatesObj;
+  const { dynamicUpdates, updates, widgetId } = updatesObj;
 
   const { modify = {}, remove = [], triggerPaths } = updates;
 
@@ -551,6 +552,16 @@ export function* getPropertiesUpdatedWidget(
       );
       widget.dynamicBindingPathList = dynamicBindingPathList;
       widget.dynamicTriggerPathList = dynamicTriggerPathList;
+
+      if (
+        dynamicUpdates?.dynamicPropertyPathList &&
+        dynamicUpdates?.dynamicPropertyPathList.length
+      ) {
+        widget.dynamicPropertyPathList = mergeDynamicPropertyPaths(
+          widget.dynamicPropertyPathList,
+          dynamicUpdates.dynamicPropertyPathList,
+        );
+      }
     }
   } catch (e) {
     log.debug("Error updating property paths: ", { e });

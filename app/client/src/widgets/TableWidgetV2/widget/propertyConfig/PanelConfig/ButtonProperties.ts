@@ -135,9 +135,12 @@ export default {
       controlType: "DROP_DOWN",
       customJSControl: "COMPUTE_VALUE_V2",
       isJSConvertible: true,
-      helpText: "Sets the variant of the icon button",
+      helpText: "Sets the variant",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.ICON_BUTTON]);
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.ICON_BUTTON,
+          ColumnTypes.BUTTON,
+        ]);
       },
       dependencies: ["primaryColumns", "columnOrder"],
       options: [
@@ -253,28 +256,6 @@ export default {
         },
       },
       isTriggerProperty: false,
-    },
-    {
-      propertyName: "buttonLabelColor",
-      label: "Label Color",
-      controlType: "COLOR_PICKER",
-      isJSConvertible: true,
-      customJSControl: "COMPUTE_VALUE_V2",
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.BUTTON]);
-      },
-      dependencies: ["primaryColumns", "columnOrder"],
-      isBindProperty: true,
-      isTriggerProperty: false,
-      validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
-        params: {
-          type: ValidationTypes.TEXT,
-          params: {
-            regex: /^(?![<|{{]).+/,
-          },
-        },
-      },
     },
     {
       propertyName: "menuColor",
