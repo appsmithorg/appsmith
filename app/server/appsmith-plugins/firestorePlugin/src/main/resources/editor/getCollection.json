@@ -86,15 +86,11 @@
           "value": "IN"
         },
         {
-          "label": "not in",
-          "value": "NOT_IN"
-        },
-        {
-          "label": "Array Contains",
+          "label": "Contains",
           "value": "ARRAY_CONTAINS"
         },
         {
-          "label": "Array Contains Any",
+          "label": "Any",
           "value": "ARRAY_CONTAINS_ANY"
         }
       ]
