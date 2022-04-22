@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { debounce, isEmpty } from "lodash";
 import { FormProvider, useForm } from "react-hook-form";
 import { Text } from "@blueprintjs/core";
+import { klona } from "klona";
 
 import useFixedFooter from "./useFixedFooter";
 import {
@@ -15,8 +16,6 @@ import { FORM_PADDING_Y, FORM_PADDING_X } from "./styleConstants";
 import { ROOT_SCHEMA_KEY, Schema } from "../constants";
 import { convertSchemaItemToFormData, schemaItemDefaultValue } from "../helper";
 import { TEXT_SIZES } from "constants/WidgetConstants";
-
-import { klona } from "klona/full";
 
 export type FormProps<TValues = any> = PropsWithChildren<{
   backgroundColor?: string;

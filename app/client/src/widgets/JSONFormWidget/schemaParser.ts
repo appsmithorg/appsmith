@@ -7,6 +7,8 @@ import {
   sortBy,
   startCase,
 } from "lodash";
+import { klona } from "klona";
+
 import { sanitizeKey } from "widgets/WidgetUtils";
 import {
   ARRAY_ITEM_KEY,
@@ -22,8 +24,6 @@ import {
   Schema,
   SchemaItem,
 } from "./constants";
-
-import { klona } from "klona/full";
 
 type Obj = Record<string, any>;
 type JSON = Obj | Obj[];
