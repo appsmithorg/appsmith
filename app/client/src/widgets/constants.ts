@@ -68,13 +68,14 @@ export const JSON_FORM_WIDGET_CHILD_STYLESHEET = {
     cellBorderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
     cellBoxShadow: "none",
   },
-  CHECKBOX_WIDGET: {
+  CHECKBOX: {
     accentColor: "{{appsmith.theme.colors.primaryColor}}",
     borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
   },
-  CHECKBOX_GROUP_WIDGET: {
+  CURRENCY_INPUT: {
     accentColor: "{{appsmith.theme.colors.primaryColor}}",
     borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
   },
   DATEPICKER: {
     accentColor: "{{appsmith.theme.colors.primaryColor}}",
