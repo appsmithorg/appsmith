@@ -55,6 +55,7 @@ export type PropertyPaneControlConfig = {
     propertyValue: any,
   ) => Array<{ propertyPath: string; propertyValue: any }> | undefined;
   hidden?: (props: any, propertyPath: string) => boolean;
+  invisible?: boolean;
   isBindProperty: boolean;
   isTriggerProperty: boolean;
   validation?: ValidationConfig;

@@ -254,7 +254,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             propertyName: "labelTextSize",
             label: "Label Text Size",
             controlType: "DROP_DOWN",
-            defaultValue: "PARAGRAPH",
+            defaultValue: "1rem",
             options: [
               {
                 label: "sm",

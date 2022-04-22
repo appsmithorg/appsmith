@@ -43,7 +43,7 @@ const StyleTabText = styled.div`
   justify-content: center;
   ${(props) => getTypographyByKey(props, "h6")}
   color: ${(props) => props.theme.colors.header.tabText};
-  height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
+  height: 32px;
   & span {
     height: 100%;
     font-size: 14px;
@@ -143,7 +143,7 @@ export function PageTabs(props: Props) {
 
   return (
     <div
-      className="flex items-end w-full h-full overflow-hidden gap-x-8"
+      className="flex items-end w-full h-full hidden-scrollbar gap-x-8"
       ref={props.measuredTabsRef}
     >
       {tabs.map((tab, index) => (

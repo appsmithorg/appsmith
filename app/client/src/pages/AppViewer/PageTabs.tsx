@@ -154,7 +154,7 @@ export function PageTabs(props: Props) {
 
   return (
     <div
-      className="flex w-full overflow-hidden gap-x-8"
+      className="flex w-full hidden-scrollbar gap-x-8"
       ref={props.measuredTabsRef}
     >
       {appPages.map((page) => (

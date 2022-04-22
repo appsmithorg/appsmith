@@ -287,6 +287,7 @@ const COMMON_PROPERTIES = {
     {
       propertyName: "labelTextSize",
       label: "Text Size",
+      defaultValue: "1rem",
       controlType: "DROP_DOWN",
       options: [
         {

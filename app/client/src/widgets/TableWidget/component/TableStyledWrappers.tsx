@@ -245,6 +245,7 @@ export const PaginationItemWrapper = styled.div<{
   disabled?: boolean;
   selected?: boolean;
   borderRadius: string;
+  accentColor: string;
 }>`
   background: ${(props) => (props.disabled ? Colors.MERCURY : Colors.WHITE)};
   border: 1px solid ${Colors.ALTO2};
@@ -259,7 +260,7 @@ export const PaginationItemWrapper = styled.div<{
   cursor: pointer;
   border-radius: ${({ borderRadius }) => borderRadius};
   &:hover {
-    border-color: ${Colors.GREEN};
+    border-color: ${({ accentColor }) => accentColor};
   }
   .bp3-icon svg {
     fill: ${(props) => (props.disabled ? Colors.GREY_8 : "")};
@@ -283,8 +284,9 @@ export const MenuColumnWrapper = styled.div<{ selected: boolean }>`
   }
 `;
 
-export const ActionWrapper = styled.div`
+export const ActionWrapper = styled.div<{ disabled: boolean }>`
   margin: 0 5px 0 0;
+  ${(props) => (props.disabled ? "cursor: not-allowed;" : null)}
   &&&&&& {
     .bp3-button {
       min-width: 50px;
@@ -298,6 +300,10 @@ export const ActionWrapper = styled.div`
       color: ${Colors.GREY_8};
     }
   }
+`;
+
+export const IconButtonWrapper = styled.div<{ disabled: boolean }>`
+  ${(props) => (props.disabled ? "cursor: not-allowed;" : null)}
 `;
 
 const JUSTIFY_CONTENT = {

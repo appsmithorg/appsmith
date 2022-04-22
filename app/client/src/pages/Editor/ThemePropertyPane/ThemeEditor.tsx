@@ -2,7 +2,7 @@ import { createGlobalStyle } from "styled-components";
 import { get, startCase } from "lodash";
 import MoreIcon from "remixicon-react/MoreFillIcon";
 import { useDispatch, useSelector } from "react-redux";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useState } from "react";
 import Save2LineIcon from "remixicon-react/Save2LineIcon";
 
 import ThemeCard from "./ThemeCard";
@@ -15,19 +15,16 @@ import {
 import {
   AppThemingMode,
   getAppThemingStack,
-  getIsBetaCardShown,
   getSelectedAppTheme,
 } from "selectors/appThemingSelectors";
 import {
   setAppThemingModeStackAction,
   updateSelectedAppThemeAction,
 } from "actions/appThemingActions";
-import { Tooltip } from "components/ads";
 import SettingSection from "./SettingSection";
 import SaveThemeModal from "./SaveThemeModal";
 import { AppTheme } from "entities/AppTheming";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { ThemeBetaCard } from "./ThemeBetaCard";
 import ThemeFontControl from "./controls/ThemeFontControl";
 import ThemeColorControl from "./controls/ThemeColorControl";
 import Button, { Category, Size } from "components/ads/Button";
@@ -36,7 +33,6 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";
 import BetaCard from "components/editorComponents/BetaCard";
 import { Classes as CsClasses } from "components/ads/common";
-import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
 
 const THEMING_BETA_CARD_POPOVER_CLASSNAME = `theming-beta-card-popover`;
 
@@ -50,7 +46,7 @@ const PopoverStyles = createGlobalStyle`
 }
 
 .${THEMING_BETA_CARD_POPOVER_CLASSNAME} .${CsClasses.BP3_POPOVER_ARROW_BORDER},
-.${CsClasses.BP3_POPOVER_ARROW_FILL} {
+.${THEMING_BETA_CARD_POPOVER_CLASSNAME} .${CsClasses.BP3_POPOVER_ARROW_FILL} {
   fill: #FFF !important;
   stroke: #FFF !important;
   box-shadow: 0px 0px 2px rgb(0 0 0 / 20%), 0px 2px 10px rgb(0 0 0 / 10%);
@@ -59,18 +55,10 @@ const PopoverStyles = createGlobalStyle`
 
 function ThemeEditor() {
   const dispatch = useDispatch();
-  const popoverRef = useRef<HTMLDivElement>(null);
-  const themeBetaCardRef = useRef<HTMLDivElement>(null);
   const applicationId = useSelector(getCurrentApplicationId);
   const selectedTheme = useSelector(getSelectedAppTheme);
   const themingStack = useSelector(getAppThemingStack);
   const [isSaveModalOpen, setSaveModalOpen] = useState(false);
-  const [isBetaPopupActive, setBetaPopoverActive] = useState(true);
-  const showBetaPopoverCard = () => setBetaPopoverActive(true);
-  const hideBetaPopoverCard = () => setBetaPopoverActive(false);
-  const isBetaCardShown = useSelector(getIsBetaCardShown);
-
-  useOnClickOutside([popoverRef, themeBetaCardRef], hideBetaPopoverCard);
 
   /**
    * customizes the current theme
@@ -140,20 +128,7 @@ function ThemeEditor() {
             </div>
           </div>
 
-          <Tooltip
-            content={
-              <div ref={themeBetaCardRef}>
-                <ThemeBetaCard />
-              </div>
-            }
-            isOpen={isBetaPopupActive && !isBetaCardShown}
-            popoverClassName={THEMING_BETA_CARD_POPOVER_CLASSNAME}
-            position="right"
-          >
-            <div onMouseOver={showBetaPopoverCard} ref={popoverRef}>
-              <ThemeCard theme={selectedTheme} />
-            </div>
-          </Tooltip>
+          <ThemeCard theme={selectedTheme} />
         </header>
         <div className="px-3 mt-4">
           <Button
@@ -166,7 +141,7 @@ function ThemeEditor() {
         </div>
         <main className="mt-1">
           {/* FONT  */}
-          <SettingSection className="px-3 py-3" title="Font">
+          <SettingSection className="px-3 py-3" isOpen title="Font">
             {Object.keys(selectedTheme.config.fontFamily).map(
               (fontFamilySectionName: string, index: number) => {
                 return (
@@ -192,7 +167,7 @@ function ThemeEditor() {
             )}
           </SettingSection>
           {/* COLORS */}
-          <SettingSection className="px-3 py-3 border-t" title="Color">
+          <SettingSection className="px-3 py-3 border-t" isOpen title="Color">
             <section className="space-y-2">
               <ThemeColorControl
                 theme={selectedTheme}
@@ -202,7 +177,7 @@ function ThemeEditor() {
           </SettingSection>
 
           {/* BORDER RADIUS */}
-          <SettingSection className="px-3 py-3 border-t " title="Border">
+          <SettingSection className="px-3 py-3 border-t " isOpen title="Border">
             {Object.keys(selectedTheme.config.borderRadius).map(
               (borderRadiusSectionName: string, index: number) => {
                 return (
@@ -229,7 +204,7 @@ function ThemeEditor() {
           </SettingSection>
 
           {/* BOX SHADOW */}
-          <SettingSection className="px-3 py-3 border-t " title="Shadow">
+          <SettingSection className="px-3 py-3 border-t " isOpen title="Shadow">
             {Object.keys(selectedTheme.config.boxShadow).map(
               (boxShadowSectionName: string, index: number) => {
                 return (

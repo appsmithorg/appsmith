@@ -153,10 +153,6 @@ export const DropdownStyles = createGlobalStyle<{
 ${({ dropDownWidth, id }) => `
   .select-popover-width-${id} {
     width: ${dropDownWidth}px !important;
-
-    & .${Classes.INPUT_GROUP} {
-      width: ${dropDownWidth}px;
-    }
   }
 `}
 .select-popover-wrapper {
@@ -209,7 +205,9 @@ export const DropdownContainer = styled.div<{
   }
 `;
 
-export const MenuItem = styled.div`
+export const MenuItem = styled.div<{
+  accentColor?: string;
+}>`
   & .menu-item-link {
     display: flex;
     flex-direction: row;
@@ -230,18 +228,19 @@ export const MenuItem = styled.div`
     background-color: transparent;
 
     &:hover {
-      background-color: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+      background-color: ${({ accentColor }) => lightenColor(accentColor)};
       color: ${Colors.GREY_10};
       position: relative;
     }
   }
 
   & .menu-item-active {
-    background-color: ${Colors.NARVIK_GREEN};
+    background-color: ${({ accentColor }) => lightenColor(accentColor)};
   }
 
   && .has-focus {
-    background-color: ${Colors.GREEN_SOLID_LIGHT_HOVER} !important;
+    background-color: ${({ accentColor }) =>
+      lightenColor(accentColor)} !important;
   }
 
   & .menu-item-text {

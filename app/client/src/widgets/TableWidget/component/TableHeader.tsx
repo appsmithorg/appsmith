@@ -189,6 +189,7 @@ function TableHeader(props: TableHeaderProps) {
       {props.isVisiblePagination && props.serverSidePaginationEnabled && (
         <PaginationWrapper>
           <PaginationItemWrapper
+            accentColor={props.accentColor}
             borderRadius={props.borderRadius}
             className="t--table-widget-prev-page"
             disabled={props.pageNo === 0}
@@ -199,6 +200,7 @@ function TableHeader(props: TableHeaderProps) {
             <Icon color={Colors.HIT_GRAY} icon="chevron-left" iconSize={16} />
           </PaginationItemWrapper>
           <PaginationItemWrapper
+            accentColor={props.accentColor}
             borderRadius={props.borderRadius}
             className="page-item"
             selected
@@ -206,6 +208,7 @@ function TableHeader(props: TableHeaderProps) {
             {props.pageNo + 1}
           </PaginationItemWrapper>
           <PaginationItemWrapper
+            accentColor={props.accentColor}
             borderRadius={props.borderRadius}
             className="t--table-widget-next-page"
             disabled={
@@ -225,6 +228,7 @@ function TableHeader(props: TableHeaderProps) {
             {props.tableData?.length} Records
           </RowWrapper>
           <PaginationItemWrapper
+            accentColor={props.accentColor}
             borderRadius={props.borderRadius}
             className="t--table-widget-prev-page"
             disabled={props.currentPageIndex === 0}
@@ -248,6 +252,7 @@ function TableHeader(props: TableHeaderProps) {
             of {props.pageCount}
           </RowWrapper>
           <PaginationItemWrapper
+            accentColor={props.accentColor}
             borderRadius={props.borderRadius}
             className="t--table-widget-next-page"
             disabled={props.currentPageIndex === props.pageCount - 1}

@@ -2,7 +2,7 @@ import {
   ButtonBorderRadiusTypes,
   ButtonVariantTypes,
 } from "components/constants";
-import { RenderModes, TextSizes } from "constants/WidgetConstants";
+import { TextSizes } from "constants/WidgetConstants";
 import { remove } from "lodash";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import { rgbaMigrationConstantV56 } from "./constants";
