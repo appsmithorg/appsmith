@@ -230,6 +230,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         } else {
             if (newAction.getUnpublishedAction() != null) {
                 action = newAction.getUnpublishedAction();
+            } else {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION, newAction.getId(), "No unpublished action found for edit mode"));
             }
         }
 
