@@ -517,10 +517,6 @@ export const renderEmptyRows = (
           {multiRowSelection && renderCheckBoxCell(false)}
           {row.cells.map((cell: any, cellIndex: number) => {
             const cellProps = cell.getCellProps();
-            if (columns[0]?.columnProperties?.cellBackground) {
-              cellProps.style.background =
-                columns[0].columnProperties.cellBackground;
-            }
             return <div {...cellProps} className="td" key={cellIndex} />;
           })}
         </div>
