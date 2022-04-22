@@ -601,6 +601,7 @@ export const GLOBAL_DEFS = {
   latLong: {
     lat: "number",
     long: "number",
+    title: "string",
   },
   mapMarker: {
     lat: "number",
@@ -610,6 +611,7 @@ export const GLOBAL_DEFS = {
   },
   file: {
     data: "string",
+    dataFormat: "string",
     name: "text",
     type: "file",
   },
