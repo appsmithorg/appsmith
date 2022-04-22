@@ -1,7 +1,7 @@
 import React from "react";
 import log from "loglevel";
-import { isEmpty, isString, maxBy, set, sortBy } from "lodash";
 import { klona } from "klona";
+import { isEmpty, isString, maxBy, set, sortBy } from "lodash";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import EmptyDataState from "components/utils/EmptyDataState";

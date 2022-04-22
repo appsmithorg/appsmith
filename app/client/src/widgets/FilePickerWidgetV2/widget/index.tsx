@@ -405,6 +405,7 @@ class FilePickerWidget extends BaseWidget<
                 data: reader.result,
                 name: file.meta ? file.meta.name : `File-${index + fileCount}`,
                 size: file.size,
+                dataFormat: this.props.fileDataType,
               };
               resolve(newFile);
             };
@@ -416,6 +417,7 @@ class FilePickerWidget extends BaseWidget<
               data: data,
               name: file.meta ? file.meta.name : `File-${index + fileCount}`,
               size: file.size,
+              dataFormat: this.props.fileDataType,
             };
             resolve(newFile);
           }

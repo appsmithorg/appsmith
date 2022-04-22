@@ -72,6 +72,9 @@ export type PropertyPaneControlConfig = {
     propertyPath: string,
     stylesheet?: AppTheme["stylesheet"][string],
   ) => AppTheme["stylesheet"][string][string];
+  // TODO(abhinav): To fix this, rename the options property of the controls which use this
+  // Alternatively, create a new structure
+  options?: any;
 };
 
 type ValidationConfigParams = {
