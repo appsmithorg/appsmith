@@ -1389,8 +1389,8 @@ export function purgeOrphanedDynamicPaths(widget: WidgetProps) {
  * Suppose, if the path is `path1.path2.path3.path4`, this function
  * checks in following paths in the tree as well, if _.get doesn't return a value
  *  - path1.path2.path3 -> path4
- *  - path1.path2 -> path3.path4 (will recursively traversed with same logic)
- *  - path1 -> path2.path3.path4 (will recursively traversed with same logic)
+ *  - path1.path2 -> path3.path4 (will recursively traverse with same logic)
+ *  - path1 -> path2.path3.path4 (will recursively traverse with same logic)
  */
 export function getValueFromTree(
   obj: Record<string, unknown>,
@@ -1417,26 +1417,19 @@ export function getValueFromTree(
       if (obj.hasOwnProperty(currentPath)) {
         const currentValue = obj[currentPath];
 
-        if (typeof currentValue !== "object") {
-          if (!poppedPath.length) {
-            //Valid path
-            return currentValue;
-          } else {
-            //Invalid path
-            return defaultValue;
-          }
+        if (!poppedPath.length) {
+          //Valid path
+          return currentValue;
+        } else if (typeof currentValue !== "object") {
+          //Invalid path
+          return defaultValue;
         } else {
-          if (!poppedPath.length) {
-            //Valid path
-            return currentValue;
-          } else {
-            //Valid path, need to traverse recursively with same strategy
-            return getValueFromTree(
-              currentValue as Record<string, unknown>,
-              poppedPath.join("."),
-              defaultValue,
-            );
-          }
+          //Valid path, need to traverse recursively with same strategy
+          return getValueFromTree(
+            currentValue as Record<string, unknown>,
+            poppedPath.join("."),
+            defaultValue,
+          );
         }
       } else {
         // We need the popped paths to traverse recursively

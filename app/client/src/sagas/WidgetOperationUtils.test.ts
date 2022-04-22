@@ -990,6 +990,7 @@ describe("getValueFromTree - ", () => {
           path1: {
             path2: "value",
           },
+          someotherPath: "testValue",
         },
         path: "path1.path2",
         output: "value",
@@ -1003,6 +1004,7 @@ describe("getValueFromTree - ", () => {
               path3: "value",
             },
           },
+          someotherPath: "testValue",
         },
         path: "path1.path2",
         output: {
@@ -1018,6 +1020,7 @@ describe("getValueFromTree - ", () => {
               path2: "value",
             },
           ],
+          someotherPath: "testValue",
         },
         path: "path1.0.path2",
         output: "value",
@@ -1033,6 +1036,7 @@ describe("getValueFromTree - ", () => {
               },
             },
           ],
+          someotherPath: "testValue",
         },
         path: "path1.0.path2",
         output: {
@@ -1055,6 +1059,7 @@ describe("getValueFromTree - ", () => {
           path1: {
             path2: "value",
           },
+          someotherPath: "testValue",
         },
         path: "path1.path4",
         output: "value",
@@ -1068,6 +1073,7 @@ describe("getValueFromTree - ", () => {
               path3: "value",
             },
           },
+          someotherPath: "testValue",
         },
         path: "path4.path2",
         output: {
@@ -1081,6 +1087,7 @@ describe("getValueFromTree - ", () => {
           path1: [
             {
               path2: "value",
+              someotherPath: "testValue",
             },
           ],
         },
@@ -1098,6 +1105,7 @@ describe("getValueFromTree - ", () => {
               },
             },
           ],
+          someotherPath: "testValue",
         },
         path: "path1.1.path2",
         output: {
@@ -1129,6 +1137,7 @@ describe("getValueFromTree - ", () => {
           "path1.path2": {
             path3: "value",
           },
+          someotherPath: "testValue",
         },
         path: "path1.path2.path3",
         output: "value",
@@ -1140,6 +1149,7 @@ describe("getValueFromTree - ", () => {
           path1: {
             "path2.path3": "value",
           },
+          someotherPath: "testValue",
         },
         path: "path1.path2.path3",
         output: "value",
@@ -1153,6 +1163,7 @@ describe("getValueFromTree - ", () => {
               "path3.path4": "value",
             },
           },
+          someotherPath: "testValue",
         },
         path: "path1.path2.path3.path4",
         output: "value",
@@ -1164,6 +1175,7 @@ describe("getValueFromTree - ", () => {
           "path1.path2": {
             "path3.path4": "value",
           },
+          someotherPath: "testValue",
         },
         path: "path1.path2.path3.path4",
         output: "value",
@@ -1175,6 +1187,7 @@ describe("getValueFromTree - ", () => {
           "path1.path2.path3": {
             path4: "value",
           },
+          someotherPath: "testValue",
         },
         path: "path1.path2.path3",
         output: {
@@ -1190,6 +1203,7 @@ describe("getValueFromTree - ", () => {
               path4: "value",
             },
           },
+          someotherPath: "testValue",
         },
         path: "path1.path2.path3",
         output: {
@@ -1207,6 +1221,7 @@ describe("getValueFromTree - ", () => {
               },
             },
           },
+          someotherPath: "testValue",
         },
         path: "path1.path2.path3.path4",
         output: {
@@ -1222,6 +1237,7 @@ describe("getValueFromTree - ", () => {
               path3: "value",
             },
           ],
+          someotherPath: "testValue",
         },
         path: "path1.path2.0.path3",
         output: "value",
@@ -1237,6 +1253,7 @@ describe("getValueFromTree - ", () => {
               },
             },
           ],
+          someotherPath: "testValue",
         },
         path: "path1.path2.0.path3.path4",
         output: "value",
@@ -1250,6 +1267,7 @@ describe("getValueFromTree - ", () => {
               "path3.path4": "value",
             },
           ],
+          someotherPath: "testValue",
         },
         path: "path1.path2.0.path3.path4",
         output: "value",
@@ -1267,6 +1285,7 @@ describe("getValueFromTree - ", () => {
               ],
             },
           ],
+          someotherPath: "testValue",
         },
         path: "path1.path2.0.path3.0.path4",
         output: "value",
@@ -1282,6 +1301,7 @@ describe("getValueFromTree - ", () => {
               },
             },
           ],
+          someotherPath: "testValue",
         },
         path: "path1.path2.0.path3",
         output: {
@@ -1297,6 +1317,7 @@ describe("getValueFromTree - ", () => {
               path4: "value",
             },
           ],
+          someotherPath: "testValue",
         },
         path: "path1.path2.path3.0",
         output: {
@@ -1316,6 +1337,7 @@ describe("getValueFromTree - ", () => {
               ],
             },
           ],
+          someotherPath: "testValue",
         },
         path: "path1.path2.path3.0.path4.0",
         output: {
@@ -1353,6 +1375,7 @@ describe("getValueFromTree - ", () => {
               ],
             },
           ],
+          someotherPath: "testValue",
         },
         path: "path1.path2.path3.0..path4.path5.0",
         output: {
@@ -1373,6 +1396,7 @@ describe("getValueFromTree - ", () => {
       {
         inputObj: {
           "path1.path2.path3": "value",
+          someotherPath: "testValue",
         },
         path: "path1.path2.path4",
         output: "value",
@@ -1384,6 +1408,7 @@ describe("getValueFromTree - ", () => {
           "path1.path2": {
             path3: "value",
           },
+          someotherPath: "testValue",
         },
         path: "path1.path3.path4",
         output: "value",
@@ -1395,6 +1420,7 @@ describe("getValueFromTree - ", () => {
           path1: {
             "path2.path3": "value",
           },
+          someotherPath: "testValue",
         },
         path: "path1.path2",
         output: "value",
@@ -1408,6 +1434,7 @@ describe("getValueFromTree - ", () => {
               "path3.path4": "value",
             },
           },
+          someotherPath: "testValue",
         },
         path: "path1.path2.path3",
         output: "value",
@@ -1419,6 +1446,7 @@ describe("getValueFromTree - ", () => {
           "path1.path2": {
             "path3.path4": "value",
           },
+          someotherPath: "testValue",
         },
         path: "path1.path3.path4",
         output: "value",
@@ -1430,6 +1458,7 @@ describe("getValueFromTree - ", () => {
           "path1.path2.path3": {
             path4: "value",
           },
+          someotherPath: "testValue",
         },
         path: "path1.path2",
         output: {
@@ -1445,6 +1474,7 @@ describe("getValueFromTree - ", () => {
               path4: "value",
             },
           },
+          someotherPath: "testValue",
         },
         path: "path1.path2",
         output: {
@@ -1462,6 +1492,7 @@ describe("getValueFromTree - ", () => {
               },
             },
           },
+          someotherPath: "testValue",
         },
         path: "path2.path3.path4",
         output: {
@@ -1477,6 +1508,7 @@ describe("getValueFromTree - ", () => {
               path3: "value",
             },
           ],
+          someotherPath: "testValue",
         },
         path: "path1.path2.1.path3",
         output: "value",
@@ -1492,6 +1524,7 @@ describe("getValueFromTree - ", () => {
               },
             },
           ],
+          someotherPath: "testValue",
         },
         path: "path1.path2.1.path3.path4",
         output: "value",
@@ -1505,6 +1538,7 @@ describe("getValueFromTree - ", () => {
               "path3.path4": "value",
             },
           ],
+          someotherPath: "testValue",
         },
         path: "path1.path2.1.path3.path4",
         output: "value",
@@ -1522,6 +1556,7 @@ describe("getValueFromTree - ", () => {
               ],
             },
           ],
+          someotherPath: "testValue",
         },
         path: "path1.path2.2.path3.0.path4",
         output: "value",
@@ -1537,6 +1572,7 @@ describe("getValueFromTree - ", () => {
               },
             },
           ],
+          someotherPath: "testValue",
         },
         path: "path1.0.path3",
         output: {
