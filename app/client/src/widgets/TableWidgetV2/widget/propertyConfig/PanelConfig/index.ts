@@ -13,11 +13,11 @@ export default {
   dependencies: ["primaryColumns", "columnOrder"],
   children: [
     ColumnControl,
-    Styles,
     ButtonProperties,
     SaveButtonProperties,
     DiscardButtonproperties,
     MenuItems,
+    Styles,
     Events,
   ],
 };

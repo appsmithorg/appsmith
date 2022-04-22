@@ -9,7 +9,6 @@ export function TableButton(props: {
   isSelected: boolean;
   action: ColumnAction;
   backgroundColor: string;
-  buttonLabelColor: string;
   isDisabled: boolean;
   isCellVisible: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
@@ -22,8 +21,6 @@ export function TableButton(props: {
 
   return (
     <ActionWrapper
-      background={props.backgroundColor}
-      buttonLabelColor={props.buttonLabelColor}
       onClick={(e) => {
         if (props.isSelected) {
           e.stopPropagation();
@@ -55,7 +52,6 @@ export interface RenderActionProps {
   isSelected: boolean;
   columnActions?: ColumnAction[];
   backgroundColor: string;
-  buttonLabelColor: string;
   isDisabled: boolean;
   isCellVisible: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
@@ -86,7 +82,6 @@ export const renderButton = (props: RenderActionProps) => {
           <TableButton
             action={action}
             backgroundColor={props.backgroundColor}
-            buttonLabelColor={props.buttonLabelColor}
             isCellVisible={props.isCellVisible}
             isDisabled={props.isDisabled}
             isSelected={props.isSelected}

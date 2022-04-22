@@ -8,11 +8,17 @@ export default {
     return hideByColumnType(
       props,
       propertyPath,
-      [ColumnTypes.TEXT, ColumnTypes.DATE, ColumnTypes.NUMBER, ColumnTypes.URL],
+      [
+        ColumnTypes.TEXT,
+        ColumnTypes.DATE,
+        ColumnTypes.NUMBER,
+        ColumnTypes.URL,
+        ColumnTypes.EDIT_ACTIONS,
+      ],
       true,
     );
   },
-  dependencies: ["primaryColumns"],
+  dependencies: ["primaryColumns", "columnOrder"],
   children: [
     {
       propertyName: "horizontalAlignment",
@@ -47,6 +53,15 @@ export default {
         },
       },
       isTriggerProperty: false,
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.TEXT,
+          ColumnTypes.DATE,
+          ColumnTypes.NUMBER,
+          ColumnTypes.URL,
+          ColumnTypes.EDIT_ACTIONS,
+        ]);
+      },
     },
     {
       propertyName: "textSize",
@@ -104,6 +119,14 @@ export default {
           },
         },
       },
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.TEXT,
+          ColumnTypes.DATE,
+          ColumnTypes.NUMBER,
+          ColumnTypes.URL,
+        ]);
+      },
     },
     {
       propertyName: "fontStyle",
@@ -133,6 +156,14 @@ export default {
         params: {
           type: ValidationTypes.TEXT,
         },
+      },
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.TEXT,
+          ColumnTypes.DATE,
+          ColumnTypes.NUMBER,
+          ColumnTypes.URL,
+        ]);
       },
     },
     {
@@ -168,6 +199,15 @@ export default {
         },
       },
       isTriggerProperty: false,
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.TEXT,
+          ColumnTypes.DATE,
+          ColumnTypes.NUMBER,
+          ColumnTypes.URL,
+          ColumnTypes.EDIT_ACTIONS,
+        ]);
+      },
     },
     {
       propertyName: "textColor",
@@ -187,6 +227,14 @@ export default {
         },
       },
       isTriggerProperty: false,
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.TEXT,
+          ColumnTypes.DATE,
+          ColumnTypes.NUMBER,
+          ColumnTypes.URL,
+        ]);
+      },
     },
     {
       propertyName: "cellBackground",
@@ -206,6 +254,15 @@ export default {
         },
       },
       isTriggerProperty: false,
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.TEXT,
+          ColumnTypes.DATE,
+          ColumnTypes.NUMBER,
+          ColumnTypes.URL,
+          ColumnTypes.EDIT_ACTIONS,
+        ]);
+      },
     },
   ],
 };
