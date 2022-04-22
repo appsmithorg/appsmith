@@ -511,7 +511,7 @@ export const Steps: StepsType = {
       {
         text: (
           <>
-            Select the button widget to see the properties in the propety pane.
+            Select the button widget to see the properties in the property pane.
             From the onClick dropdown, select <b>Execute a query</b> {"&"} then
             select <b>updateCustomerInfo</b> query
           </>
