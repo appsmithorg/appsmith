@@ -104,6 +104,7 @@ export const combineDynamicBindings = (
       if (jsSnippets[index] && jsSnippets[index].length > 0) {
         return jsSnippets[index];
       } else {
+        segment = segment.replaceAll("'", "\\'");
         return `'${segment}'`;
       }
     })
