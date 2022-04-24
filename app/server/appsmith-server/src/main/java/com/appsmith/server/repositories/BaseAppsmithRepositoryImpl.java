@@ -163,12 +163,13 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 });
     }
 
-    public Mono<UpdateResult> updateByCriteria(Criteria criteria, Update updateObj) {
-        if (criteria == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "criteria"));
+    public Mono<UpdateResult> updateByCriteria(List<Criteria> criteriaList, Update updateObj) {
+        if (criteriaList == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "criteriaList"));
         }
-        Query query = new Query(criteria);
-        query.addCriteria(new Criteria().andOperator(notDeleted()));
+        List<Criteria> allCriterias = new ArrayList<>(criteriaList);
+        allCriterias.add(notDeleted());
+        Query query = new Query(new Criteria().andOperator(allCriterias));
         return mongoOperations.updateMulti(query, updateObj, this.genericDomain);
     }
 

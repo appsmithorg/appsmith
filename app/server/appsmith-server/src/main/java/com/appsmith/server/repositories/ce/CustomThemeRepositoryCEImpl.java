@@ -56,13 +56,12 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
                 .map(ctx -> ctx.getAuthentication())
                 .flatMap(auth -> {
                     User user = (User) auth.getPrincipal();
-                    Criteria finalCriteria = criteria
-                            .andOperator(userAcl(user, AclPermission.MANAGE_THEMES));
+                    Criteria permissionCriteria = userAcl(user, AclPermission.MANAGE_THEMES);
 
                     Update update = new Update();
                     update.set(fieldName(QTheme.theme.deleted), true);
                     update.set(fieldName(QTheme.theme.deletedAt), Instant.now());
-                    return updateByCriteria(finalCriteria, update);
+                    return updateByCriteria(List.of(criteria, permissionCriteria), update);
                 }).map(updateResult -> updateResult.getModifiedCount() > 0);
     }
 
