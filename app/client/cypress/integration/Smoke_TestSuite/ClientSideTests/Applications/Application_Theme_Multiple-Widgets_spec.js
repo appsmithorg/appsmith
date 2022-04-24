@@ -10,6 +10,7 @@ const themelocator = require("../../../../locators/ThemeLocators.json");
 
 let themeBackgroudColor;
 let themeFont;
+let themeColour;
 
 describe("Binding the Table and input Widget", function() {
   it("Drag and drop form widget and validate Default font and list of font validation", function() {
@@ -31,13 +32,13 @@ describe("Binding the Table and input Widget", function() {
     cy.wait(2000);
 
     //Border validation
-    cy.contains("Border").click({ force: true });
+    //cy.contains("Border").click({ force: true });
     cy.get(themelocator.border).should("have.length", "3");
     cy.borderMouseover(0, "none");
     cy.borderMouseover(1, "md");
     cy.borderMouseover(2, "lg");
     cy.get(themelocator.border)
-      .eq(2)
+      .eq(1)
       .click({ force: true });
     cy.wait("@updateTheme").should(
       "have.nested.property",
@@ -48,7 +49,8 @@ describe("Binding the Table and input Widget", function() {
     cy.contains("Border").click({ force: true });
 
     //Shadow validation
-    cy.contains("Shadow").click({ force: true });
+    //cy.contains("Shadow").click({ force: true });
+    cy.wait(2000);
     cy.shadowMouseover(0, "none");
     cy.shadowMouseover(1, "sm");
     cy.shadowMouseover(2, "md");
@@ -63,26 +65,8 @@ describe("Binding the Table and input Widget", function() {
     );
     cy.wait(5000);
     cy.contains("Shadow").click({ force: true });
-    //Color
-    cy.contains("Color").click({ force: true });
-    cy.get(themelocator.color)
-      .eq(0)
-      .click({ force: true });
-    cy.get(themelocator.inputColor).clear();
-    cy.get(themelocator.inputColor).type("purple");
-    cy.get(themelocator.inputColor).should("have.value", "purple");
-
-    cy.get(themelocator.color)
-      .eq(1)
-      .click({ force: true });
-    cy.get(themelocator.inputColor).clear();
-    cy.get(themelocator.inputColor).type("brown");
-    cy.get(themelocator.inputColor).should("have.value", "brown");
-    cy.wait(2000);
-    cy.contains("Color").click({ force: true });
 
     //Font
-    cy.contains("Font").click({ force: true });
     cy.get("span[name='expand-more']").then(($elem) => {
       cy.get($elem).click({ force: true });
       cy.wait(250);
@@ -117,6 +101,24 @@ describe("Binding the Table and input Widget", function() {
             .text();
         });
     });
+    cy.contains("Font").click({ force: true });
+
+    //Color
+    cy.wait(3000);
+    cy.get(themelocator.color)
+      .eq(0)
+      .click({ force: true });
+    cy.get(themelocator.inputColor).clear();
+    cy.get(themelocator.inputColor).type("purple");
+    cy.get(themelocator.inputColor).should("have.value", "purple");
+    cy.get(themelocator.color)
+      .eq(1)
+      .click({ force: true });
+    cy.get(themelocator.inputColor).clear();
+    cy.get(themelocator.inputColor).type("brown");
+    cy.get(themelocator.inputColor).should("have.value", "brown");
+    cy.wait(2000);
+    cy.contains("Color").click({ force: true });
   });
 
   it("Publish the App and validate Font across the app", function() {
@@ -157,6 +159,7 @@ describe("Binding the Table and input Widget", function() {
           .then((selectedBackgroudColor) => {
             expect("rgba(0, 0, 0, 0)").to.equal(selectedBackgroudColor);
             themeBackgroudColor = CurrentBackgroudColor;
+            themeColour = selectedBackgroudColor;
           });
       });
   });
@@ -170,8 +173,7 @@ describe("Binding the Table and input Widget", function() {
         cy.get(".bp3-button:contains('Edit App')")
           .invoke("css", "background-color")
           .then((selectedBackgroudColor) => {
-            expect(CurrentBackgroudColor).to.equal(selectedBackgroudColor);
-            expect(CurrentBackgroudColor).to.equal(themeBackgroudColor);
+            expect(CurrentBackgroudColor).to.equal(themeColour);
             expect(selectedBackgroudColor).to.equal(themeBackgroudColor);
           });
       });
