@@ -1,4 +1,10 @@
-import { getIsStartingWithRemoteBranches, isValidGitRemoteUrl } from "./utils";
+import {
+  getIsStartingWithRemoteBranches,
+  isLocalBranch,
+  isRemoteBranch,
+  isValidGitRemoteUrl,
+  removeSpecialChars,
+} from "./utils";
 
 const validUrls = [
   "git@github.com:user/project.git",
@@ -14,9 +20,12 @@ const validUrls = [
   "ssh://host.xz/~user/path/to/repo.git",
   "ssh://user@host.xz/~/path/to/repo.git",
   "ssh://host.xz/~/path/to/repo.git",
+  "git@ssh.dev.azure.com:v3/something/other/thing",
+  "git@ssh.dev.azure.com:v3/something/other/thing.git",
 ];
 
 const invalidUrls = [
+  "git@ssh.dev.azure.com:v3/something/other/thing/",
   "gitclonegit://a@b:c/d.git",
   "https://github.com/user/project.git",
   "http://github.com/user/project.git",
@@ -58,6 +67,27 @@ describe("gitSync utils", () => {
       const expected = true;
       expect(actual).toEqual(expected);
     });
+
+    it("returns false if param:local starts with origin/", () => {
+      const actual = getIsStartingWithRemoteBranches(
+        "origin/a",
+        "origin/whateverelse",
+      );
+      const expected = false;
+      expect(actual).toEqual(expected);
+    });
+
+    it("returns empty string if param:local is empty string", () => {
+      const actual = getIsStartingWithRemoteBranches("a", "");
+      const expected = "";
+      expect(actual).toEqual(expected);
+    });
+
+    it("returns empty string if param:remote is empty string", () => {
+      const actual = getIsStartingWithRemoteBranches("", "");
+      const expected = "";
+      expect(actual).toEqual(expected);
+    });
   });
 
   describe("isValidGitRemoteUrl returns true for valid urls", () => {
@@ -76,6 +106,103 @@ describe("gitSync utils", () => {
         const actual = isValidGitRemoteUrl(invalidUrl);
         const expected = false;
         expect(actual).toEqual(expected);
+      });
+    });
+  });
+
+  describe("isRemoteBranch", () => {
+    it("returns true for branches that start with origin/", () => {
+      const branches = ["origin/", "origin/_", "origin/a", "origin/origin"];
+      const actual = branches.every(isRemoteBranch);
+      const expected = true;
+      expect(actual).toEqual(expected);
+    });
+
+    it("returns false for branches that don't start with origin/", () => {
+      const branches = [
+        "origin",
+        "original/",
+        "oriign/_",
+        "main/",
+        "upstream/origin",
+        "develop/",
+        "release/",
+        "master/",
+      ];
+      const actual = branches.every(isRemoteBranch);
+      const expected = false;
+      expect(actual).toEqual(expected);
+    });
+  });
+
+  describe("isLocalBranch", () => {
+    it("returns false for branches that start with origin/", () => {
+      const branches = ["origin/", "origin/_", "origin/a", "origin/origin"];
+      const actual = branches.every(isLocalBranch);
+      const expected = false;
+      expect(actual).toEqual(expected);
+    });
+
+    it("returns true for branches that don't start with origin/", () => {
+      const branches = [
+        "origin",
+        "original/",
+        "oriign/_",
+        "main/",
+        "upstream/origin",
+        "develop/",
+        "release/",
+        "master/",
+      ];
+      const actual = branches.every(isLocalBranch);
+      const expected = true;
+      expect(actual).toEqual(expected);
+    });
+  });
+
+  describe("removeSpecialCharacters", () => {
+    it("replaces special characters except / and - with _", () => {
+      const inputs = [
+        "abc_def",
+        "abc-def",
+        "abc*def",
+        "abc/def",
+        "abc&def",
+        "abc%def",
+        "abc#def",
+        "abc@def",
+        "abc!def",
+        "abc,def",
+        "abc<def",
+        "abc>def",
+        "abc?def",
+        "abc.def",
+        "abc;def",
+        "abc(def",
+      ];
+
+      const expected = [
+        "abc_def",
+        "abc-def",
+        "abc_def",
+        "abc/def",
+        "abc_def",
+        "abc_def",
+        "abc_def",
+        "abc_def",
+        "abc_def",
+        "abc_def",
+        "abc_def",
+        "abc_def",
+        "abc_def",
+        "abc_def",
+        "abc_def",
+        "abc_def",
+      ];
+
+      inputs.forEach((input, index) => {
+        const result = removeSpecialChars(input);
+        expect(result).toStrictEqual(expected[index]);
       });
     });
   });

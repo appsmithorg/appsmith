@@ -409,6 +409,34 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void connectApplicationToGit_InvalidRemoteUrlHttp_ThrowInvalidRemoteUrl() throws ClassCastException {
+
+        Application testApplication = new Application();
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        GitAuth gitAuth = new GitAuth();
+        gitAuth.setPublicKey("testkey");
+        gitAuth.setPrivateKey("privatekey");
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        testApplication.setName("InvalidRemoteUrlHttp");
+        testApplication.setOrganizationId(orgId);
+        Application application1 = applicationPageService.createApplication(testApplication).block();
+
+        GitConnectDTO gitConnectDTO = getConnectRequest("https://github.com/test/testRepo.git", testUserProfile);
+
+        Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.error(new ClassCastException("TransportHttp")));
+
+        Mono<Application> applicationMono = gitService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl");
+
+        StepVerifier
+                .create(applicationMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException && throwable.getMessage().equals(AppsmithError.INVALID_GIT_SSH_URL.getMessage()))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_InvalidFilePath_ThrowIOException() throws IOException {
 
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -731,7 +759,6 @@ public class GitServiceTest {
 
         Application application1 = this.createApplicationConnectedToGit("private_repo_1", "master", limitPrivateRepoTestOrgId);
         this.createApplicationConnectedToGit("private_repo_2", "master", limitPrivateRepoTestOrgId);
-        this.createApplicationConnectedToGit("private_repo_3", "master", limitPrivateRepoTestOrgId);
 
         Application testApplication = new Application();
         GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
@@ -2368,6 +2395,29 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void importApplicationFromGit_emptyRepo_ThrowError() {
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
+
+        ApplicationJson applicationJson = createAppJson(filePath).block();
+        applicationJson.setExportedApplication(null);
+        applicationJson.setDatasourceList(new ArrayList<>());
+
+        Mockito.when(gitExecutor.cloneApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just("defaultBranch"));
+        Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(applicationJson));
+
+        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(orgId, gitConnectDTO);
+
+        StepVerifier
+                .create(applicationMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().contains("Cannot import app from an empty repo"))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_validRequest_Success() throws GitAPIException, IOException {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
         GitAuth gitAuth = gitService.generateSSHKey().block();
@@ -2619,7 +2669,7 @@ public class GitServiceTest {
                 .create(applicationMono)
                 .assertNext(application1 -> {
                     assertThat(application1.getId()).isEqualTo(application.getId());
-                    assertThat(application1.getDeleted()).isTrue();
+                    assertThat(application1.getDeleted()).isFalse();
                 })
                 .verifyComplete();
     }
@@ -2658,6 +2708,32 @@ public class GitServiceTest {
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                         throwable.getMessage().contains("Cannot delete default branch"))
                 .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteBranch_defaultBranchUpdated_Success() throws IOException {
+        Application application = createApplicationConnectedToGit("deleteBranch_defaultBranchUpdated_Success", "master");
+        application.getGitApplicationMetadata().setDefaultBranchName("f1");
+        applicationService.save(application).block();
+
+        Application branchApp = createApplicationConnectedToGit("deleteBranch_defaultBranchUpdated_Success2", "f1");
+        branchApp.getGitApplicationMetadata().setDefaultBranchName("f1");
+        branchApp.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
+        applicationService.save(branchApp).block();
+
+        Mockito.when(gitExecutor.deleteBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
+
+        Mono<Application> applicationMono = gitService.deleteBranch(application.getId(), "master");
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application1 -> {
+                    assertThat(application1.getDeleted()).isEqualTo(Boolean.FALSE);
+                    assertThat(application1.getName()).isEqualTo("deleteBranch_defaultBranchUpdated_Success");
+                })
+                .verifyComplete();
     }
 
     // We are only testing git level operations from this testcase. For testcases related to scenarios like

@@ -1,5 +1,9 @@
 #When you are building, name it appsmith-server which is how it is referenced in docker-compose.yml
 
+FROM adoptopenjdk/openjdk11:jdk-11.0.10_9-alpine
+
+RUN ${JAVA_HOME}/bin/jlink --module-path jmods --add-modules jdk.jcmd --output /jcmd
+
 FROM adoptopenjdk/openjdk11:jre-11.0.10_9-alpine
 
 LABEL maintainer="boutora.mohamed@yahoo.fr"

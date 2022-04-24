@@ -594,6 +594,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                             // not exists when we clone the page.
                                             actionCollection.setPublishedCollection(null);
                                             actionCollection.getDefaultResources().setPageId(null);
+                                            // Assign new gitSyncId for cloned actionCollection
+                                            actionCollection.setGitSyncId(actionCollection.getApplicationId() + "_" + new ObjectId());
                                             return actionCollectionService.create(actionCollection)
                                                     .flatMap(savedActionCollection -> {
                                                         if (!StringUtils.hasLength(savedActionCollection.getDefaultResources().getCollectionId())) {
@@ -976,12 +978,20 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> {
+                    int publishedPageCount = 0;
+                    if(application.getPublishedPages() != null) {
+                        publishedPageCount = application.getPublishedPages().size();
+                    }
+
                     analyticsService.sendEvent(
                             AnalyticsEvents.PUBLISH_APPLICATION.getEventName(),
                             user.getUsername(),
                             Map.of(
                                     "appId", defaultIfNull(application.getId(), ""),
-                                    "appName", defaultIfNull(application.getName(), "")
+                                    "appName", defaultIfNull(application.getName(), ""),
+                                    "orgId", defaultIfNull(application.getOrganizationId(), ""),
+                                    "pageCount", publishedPageCount + "",
+                                    "publishedAt", defaultIfNull(application.getLastDeployedAt(), "")
                             )
                     );
                     return Mono.empty();

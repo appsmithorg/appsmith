@@ -1,13 +1,19 @@
 package com.appsmith.server.helpers;
 
 
+import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import org.eclipse.jgit.util.StringUtils;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClientRequest;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,10 +46,13 @@ public class GitUtils {
      * @return repo name extracted from repo url
      */
     public static String getRepoName(String remoteUrl) {
-        // Pattern to match all words in the text
-        final Matcher matcher = Pattern.compile("([^/]*).git$").matcher(remoteUrl);
+        // Pattern to match git SSH URL
+        final Matcher matcher = Pattern.compile("((git|ssh|http(s)?)|(git@[\\w.]+))(:(\\/\\/)?)([\\w.@:/\\-~]+)(\\.git|)(\\/)?").matcher(remoteUrl);
         if (matcher.find()) {
-            return matcher.group(1);
+            // To trim the postfix and prefix
+            return matcher.group(7)
+                    .replaceFirst("\\.git$", "")
+                    .replaceFirst("^(.*[\\\\\\/])", "");
         }
         throw new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Remote URL is incorrect, " +
                 "please add a URL in standard format. Example: git@example.com:username/reponame.git");
@@ -57,12 +66,23 @@ public class GitUtils {
      * @return if the repo is public
      * @throws IOException exception thrown during openConnection
      */
-    public static boolean isRepoPrivate(String remoteHttpsUrl) throws IOException {
-        URL url = new URL(remoteHttpsUrl);
-        HttpURLConnection huc = (HttpURLConnection) url.openConnection();
-        int responseCode = huc.getResponseCode();
-
-        return !(HttpURLConnection.HTTP_OK == responseCode || HttpURLConnection.HTTP_ACCEPTED == responseCode);
+    public static Mono<Boolean> isRepoPrivate(String remoteHttpsUrl) {
+        return WebClient
+                .create(remoteHttpsUrl)
+                .get()
+                .httpRequest(httpRequest -> {
+                    HttpClientRequest reactorRequest = httpRequest.getNativeRequest();
+                    reactorRequest.responseTimeout(Duration.ofSeconds(2));
+                })
+                .exchange()
+                .flatMap(response -> {
+                    if (response.statusCode().is2xxSuccessful()) {
+                        return Mono.just(Boolean.FALSE);
+                    } else {
+                        return Mono.just(Boolean.TRUE);
+                    }
+                })
+                .onErrorResume(throwable -> Mono.just(Boolean.TRUE));
     }
 
     /**

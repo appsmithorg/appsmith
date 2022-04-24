@@ -10,6 +10,7 @@ describe("Export application as a JSON file", function() {
 
   before(() => {
     cy.addDsl(dsl);
+    cy.wait(5000);
   });
 
   it("Check if exporting app flow works as expected", function() {

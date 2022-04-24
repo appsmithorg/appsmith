@@ -1,4 +1,5 @@
 import { get, set } from "lodash";
+import { klona } from "klona";
 
 import schemaTestData from "widgets/JSONFormWidget/schemaTestData";
 import {
@@ -15,8 +16,6 @@ import {
   hiddenIfArrayItemIsObject,
   updateChildrenDisabledStateHook,
 } from "./helper";
-
-const clone = require("rfdc/default");
 
 const widgetName = "JSONForm1";
 
@@ -87,7 +86,7 @@ describe(".fieldTypeUpdateHook", () => {
   });
 
   it("updates valid new schema item for a field type array -> multiselect", () => {
-    const schema = clone(schemaTestData.initialDataset.schemaOutput);
+    const schema = klona(schemaTestData.initialDataset.schemaOutput);
     const propertyPath = "schema.__root_schema__.children.hobbies.fieldType";
     const fieldType = FieldType.MULTISELECT;
 
