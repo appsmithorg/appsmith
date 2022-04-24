@@ -567,6 +567,9 @@ class MultiSelectWidget extends BaseWidget<
     ) {
       this.setSelectedOptions();
     }
+    if (this.props.serverSideFiltering !== prevProps.serverSideFiltering) {
+      this.setSelectedOptions();
+    }
   }
 
   getPageView() {
@@ -619,19 +622,32 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   setSelectedOptions = () => {
-    const matchingOptions = this.props.selectedOptions.reduce(
-      (prev: DropdownOption[], current) => {
-        const matchingOption = find(this.props.options, {
-          value: current.value ?? current,
-        }) as DropdownOption;
-        if (matchingOption) {
-          prev.push(matchingOption);
-        }
-        return prev;
-      },
-      [],
-    );
-    this.props.updateWidgetMetaProperty("selectedOptions", matchingOptions);
+    let value: DropdownOption[] = [];
+    if (!this.props.serverSideFiltering) {
+      const matchingOptions = this.props.selectedOptions.reduce(
+        (prev: DropdownOption[], current) => {
+          const matchingOption = find(this.props.options, {
+            value: current.value ?? current,
+          }) as DropdownOption;
+          if (matchingOption) {
+            prev.push(matchingOption);
+          }
+          return prev;
+        },
+        [],
+      );
+      value = matchingOptions;
+    } else {
+      const optionValue = this.props.selectedOptions.map(
+        (option) =>
+          ({
+            label: option.label ?? option,
+            value: option.value ?? option,
+          } as DropdownOption),
+      );
+      value = optionValue;
+    }
+    this.props.updateWidgetMetaProperty("selectedOptions", value);
   };
 
   onOptionChange = (value: DefaultValueType) => {
