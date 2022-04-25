@@ -663,7 +663,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(application -> {
                     // For git connected application user can update the default branch
                     // In such cases we should fork the application from the new default branch
-                    if(!Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()
+                    if(StringUtils.isEmpty(branchName)
+                            && !Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()
                             && !application.getGitApplicationMetadata().getBranchName().equals(application.getGitApplicationMetadata().getDefaultBranchName())) {
                         return applicationService.findByBranchNameAndDefaultApplicationId(
                                 application.getGitApplicationMetadata().getDefaultBranchName(),
