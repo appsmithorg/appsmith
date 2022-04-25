@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
-import _ from "lodash";
+import { set } from "lodash";
 import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
 import {
   ActionDescription,
@@ -76,7 +76,7 @@ const DATA_TREE_FUNCTIONS: Record<
   },
   storeValue: function(key: string, value: string, persist = true) {
     // momentarily store this value in local state to support loops
-    _.set(self, `appsmith.store[${key}]`, value);
+    set(self, `appsmith.store[${key}]`, value);
     return {
       type: ActionTriggerType.STORE_VALUE,
       payload: { key, value, persist },
@@ -275,7 +275,7 @@ export const enhanceDataTreeWithFunctions = (
           const func = funcOrFuncCreator.func(entity);
           const funcName = `${funcOrFuncCreator.path ||
             `${entityName}.${name}`}`;
-          _.set(
+          set(
             clonedDT,
             funcName,
             pusher.bind(
@@ -289,7 +289,7 @@ export const enhanceDataTreeWithFunctions = (
         }
       });
     } else {
-      _.set(
+      set(
         clonedDT,
         name,
         pusher.bind(
@@ -335,6 +335,9 @@ export const pusher = function(
   if (executionType && executionType === ExecutionType.TRIGGER) {
     this.TRIGGER_COLLECTOR.push(actionPayload);
   } else {
-    return promisifyAction(this.REQUEST_ID, actionPayload);
+    return promisifyAction({
+      workerRequestId: this.REQUEST_ID,
+      actionDescription: actionPayload,
+    });
   }
 };

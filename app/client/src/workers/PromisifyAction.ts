@@ -11,15 +11,18 @@ const ctx: Worker = self as any;
 import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
 import {
   ActionDescription,
-  ActionTriggerType,
+  // ActionTriggerType,
 } from "entities/DataTree/actionTriggers";
 import _ from "lodash";
 import { dataTreeEvaluator } from "workers/evaluation.worker";
 
-export const promisifyAction = (
-  workerRequestId: string,
-  actionDescription: ActionDescription,
-) => {
+export const promisifyAction = ({
+  actionDescription,
+  workerRequestId,
+}: {
+  actionDescription: ActionDescription;
+  workerRequestId: string;
+}) => {
   if (!self.ALLOW_ASYNC) {
     /**
      * To figure out if any function (JS action) is async, we do a dry run so that we can know if the function
@@ -27,7 +30,6 @@ export const promisifyAction = (
      * @link isFunctionAsync
      * */
     self.IS_ASYNC = true;
-    throw new Error("Async function called in a sync field");
   }
   const workerRequestIdCopy = workerRequestId.concat("");
   return new Promise((resolve, reject) => {
@@ -103,17 +105,17 @@ export const completePromise = (requestId: string, result: EvalResult) => {
   });
 };
 
-export const confirmationPromise = function(
-  requestId: string,
-  func: any,
-  name: string,
-  ...args: any[]
-) {
-  const payload: ActionDescription = {
-    type: ActionTriggerType.CONFIRMATION_MODAL,
-    payload: {
-      funName: name,
-    },
-  };
-  return promisifyAction(requestId, payload).then(() => func(...args));
-};
+// export const confirmationPromise = function(
+//   requestId: string,
+//   func: any,
+//   name: string,
+//   ...args: any[]
+// ) {
+//   const payload: ActionDescription = {
+//     type: ActionTriggerType.CONFIRMATION_MODAL,
+//     payload: {
+//       funName: name,
+//     },
+//   };
+//   return promisifyAction(requestId, payload).then(() => func(...args));
+// };
