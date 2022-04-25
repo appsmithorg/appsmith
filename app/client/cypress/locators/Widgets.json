@@ -102,7 +102,7 @@
     "greenColorHex": "#03b365",
     "yellowColorHex": "#FFC13D",
     "greenColor": "//div[@color='#03b365']",
-    "transparent": "//div[@color='transparent']",
+    "transparent": ".diagnol-cross",
     "yellowColor": "//div[@color='#FFC13D']",
     "blueColor": "//div[@color='#3366FF']",
     "toggleJsColor": ".t--property-control-textcolor .t--js-toggle",
