@@ -46,7 +46,7 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   useEffect(() => {
-    pageId && dispatch(fetchPublishedPage(pageId));
+    pageId && dispatch(fetchPublishedPage(pageId, true));
   }, [pageId, location.pathname]);
 
   // get appsmith editr link
