@@ -38,14 +38,16 @@ function SelectButton(props: SelectButtonProps) {
             <Icon
               className="dropdown-icon cancel-icon"
               data-testid="selectbutton.btn.cancel"
+              disabled={disabled}
               fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
               name="cross"
-              onClick={handleCancelClick}
+              onClick={!disabled ? handleCancelClick : undefined}
               size={IconSize.XXS}
             />
           ) : null}
           <Icon
             className="dropdown-icon"
+            disabled={disabled}
             fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
             name="dropdown"
           />

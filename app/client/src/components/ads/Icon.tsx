@@ -197,10 +197,11 @@ export const IconWrapper = styled.span<IconProps>`
 
   display: flex;
   align-items: center;
-
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   svg {
     width: ${(props) => sizeHandler(props.size)}px;
     height: ${(props) => sizeHandler(props.size)}px;
+    cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
     ${(props) =>
       !props.keepColors
         ? `
@@ -216,7 +217,12 @@ export const IconWrapper = styled.span<IconProps>`
     ${(props) => (props.invisible ? `visibility: hidden;` : null)};
 
     &:hover {
-      cursor: ${(props) => (props.clickable ? "pointer" : "default")};
+      cursor: ${(props) =>
+        props.disabled
+          ? "not-allowed"
+          : props.clickable
+          ? "pointer"
+          : "default"};
       ${(props) =>
         !props.keepColors
           ? `
@@ -398,6 +404,7 @@ export type IconProps = {
   keepColors?: boolean;
   loaderWithIconWrapper?: boolean;
   clickable?: boolean;
+  disabled?: boolean;
 };
 
 const Icon = forwardRef(

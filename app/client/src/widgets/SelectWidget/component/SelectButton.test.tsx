@@ -18,6 +18,15 @@ const renderComponent = (props: SelectButtonProps = defaultProps) => {
 };
 
 describe("SelectButton", () => {
+  it("should not clear value when disabled", () => {
+    const { getByTestId, getByText } = renderComponent({
+      ...defaultProps,
+      disabled: true,
+    });
+    fireEvent.click(getByTestId("selectbutton.btn.cancel"));
+    expect(defaultProps.handleCancelClick).not.toBeCalled();
+    expect(getByText("0")).toBeTruthy();
+  });
   it("should render correctly", () => {
     const { getByText } = renderComponent();
     expect(getByText("0")).toBeTruthy();
