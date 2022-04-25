@@ -1387,7 +1387,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * pluginType using the datasource object contained in the ActionDTO object.
      * Ref: https://github.com/appsmithorg/appsmith/issues/11927
      */
-    private Flux<NewAction> sanitizeAction(NewAction action) {
+    public Flux<NewAction> sanitizeAction(NewAction action) {
         Flux<NewAction> actionFlux = Flux.just(action);
         if (isPluginTypeOrPluginIdMissing(action)) {
             actionFlux = providePluginTypeAndIdToNewActionObjectUsingJSTypeOrDatasource(action)
