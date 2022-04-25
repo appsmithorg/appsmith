@@ -1,0 +1,80 @@
+name: Appsmith Helm Release Workflow
+
+# This workflow package & publish new version for Helm chart to S3 bucket
+# This workflow is automatically triggered when merging PR with target branch is `master`
+on:
+  # https://github.community/t/trigger-workflow-only-on-pull-request-merge/17359/3
+  # Merged pull request always results in a push and branch master is protected branch
+  # We can take use of 'push' action in this context 
+  push:
+    branches:
+      - master-test
+    paths:
+      - "deploy/helm/**"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    env:
+      HELM_DIRECTORY: deploy/helm
+      CHART_PATH: deploy/helm/Chart.yaml
+
+    defaults:
+      run:
+        working-directory: ${{ env.HELM_DIRECTORY }}
+        shell: bash
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.6.3
+
+      - name: Configure AWS Credentials
+        uses: aws-action/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Retrieve Helm version
+        id: helm-version
+        uses: KJ002/read-yaml@1.6
+        with:
+          file: "${{ github.workspace }}/${{ env.CHART_PATH }}"
+          key-path: '["version"]'
+
+      - name: Check existing Helm version
+        id: version-check
+        # Scan the S3 bucket with the Helm version retrieved from Chart.yaml
+        # Set flag is_duplicate_version if found Helm chart package corresponding to the version
+        run: |
+          scan_version_command="aws s3 ls s3://${{ secrets.S3_DOMAIN }} | awk '{print $4}' | grep appsmith-${{ steps.helm-version.outputs.data }}.tgz"
+          if eval "$scan_version_command"; then
+            echo "::set-output name=is_duplicate_version::true"
+          else
+            echo "::set-output name=is_duplicate_version::false"
+          fi
+
+      - name: Fail due to existing version in S3 bucket
+        if: steps.version-check.outputs.is_duplicate_version == 'true'
+        run: |
+          echo -e "\n ${{ steps.helm-version.outputs.data }} is already exist. Please re-check the Helm version in Chart.yaml \n"
+
+      - name: Publish Helm
+        # Only publish new Helm version if it does not exist in S3 bucket
+        if: steps.version-check.outputs.is_duplicate_version == 'false'
+        run: |
+          echo -e "\n Publishing new Helm chart version \n"
+          helm package .
+          aws s3 cp s3://${{ secrets.S3_DOMAIN }}/index.yaml .
+          helm repo index . --url http://${{ secrets.S3_DOMAIN }} --merge index.yaml
+          aws s3 cp ./appsmith-${{ steps.helm-version.outputs.data }}.tgz s3://${{ secrets.S3_DOMAIN }} 
+          aws s3 cp index.yaml s3://${{ secrets.S3_DOMAIN }}
