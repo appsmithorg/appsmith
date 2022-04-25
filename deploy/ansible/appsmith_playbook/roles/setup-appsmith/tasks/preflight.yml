@@ -1,9 +1,4 @@
 ---
-
-- name: Check if docker is installed
-  package_facts:
-    manager: auto
-
 - name: Check running container
   shell: docker inspect --format={{ '{{.State.Running}}' }} appsmith
   register: container_running
@@ -14,7 +9,7 @@
     path: '{{ install_dir }}'
   register: installDir
 
-- name: Check docker-compose.yml file exists 
+- name: Check docker-compose.yml file exists
   stat:
     path: '{{ install_dir }}/{{ template_file_name }}'
   register: template_file

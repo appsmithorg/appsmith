@@ -92,7 +92,7 @@ After complete the above step. Now the only remain step we need to do is run the
 You can run the ansible playbook with the following command
 
 ```
-$ ansible-playbook -i inventory appsmith-playbook.yml --extra-vars "@appsmith-vars.yml"
+$ ansible-playbook -i inventory appsmith-playbook.yml --extra-vars "@appsmith-vars.yml" --tags untagged
 ```
 
 The command above will use the host information from the `inventory` file & feed your configuration vars from `appsmith-vars.yml` before running the playbook
