@@ -22,6 +22,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 
 @RequiredArgsConstructor
@@ -38,7 +39,20 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
     public Mono<Application> forkApplicationToOrganization(String srcApplicationId, String targetOrganizationId) {
         final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, AclPermission.READ_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)))
+                .flatMap(application -> {
+                    // For git connected application user can update the default branch
+                    // In such cases we should fork the application from the new default branch
+                    if(!Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()
+                            && !application.getGitApplicationMetadata().getBranchName().equals(application.getGitApplicationMetadata().getDefaultBranchName())) {
+                        return applicationService.findByBranchNameAndDefaultApplicationId(
+                                application.getGitApplicationMetadata().getDefaultBranchName(),
+                                srcApplicationId,
+                                AclPermission.MANAGE_APPLICATIONS
+                        );
+                    }
+                    return Mono.just(application);
+                });
 
         final Mono<Organization> targetOrganizationMono = organizationService.findById(targetOrganizationId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, targetOrganizationId)));
