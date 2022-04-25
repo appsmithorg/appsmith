@@ -1,4 +1,25 @@
+import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { WidgetFeatures } from "utils/WidgetFeatures";
 import { WidgetProps } from "./BaseWidget";
+
+export interface WidgetConfiguration {
+  type: string;
+  name: string;
+  iconSVG?: string;
+  defaults: Partial<WidgetProps> & WidgetConfigProps;
+  hideCard?: boolean;
+  isCanvas?: boolean;
+  needsMeta?: boolean;
+  features?: WidgetFeatures;
+  properties: {
+    config: PropertyPaneConfig[];
+    default: Record<string, string>;
+    meta: Record<string, any>;
+    derived: DerivedPropertiesMap;
+  };
+}
 
 export const GRID_DENSITY_MIGRATION_V1 = 4;
 
@@ -27,6 +48,7 @@ export type AlignWidget = "LEFT" | "RIGHT";
 // Minimum Rows for Widget Popups
 export const MinimumPopupRows = 12;
 
+// Default boxShadowColor used in theming migration
 export const rgbaMigrationConstantV56 = "rgba(0, 0, 0, 0.25)";
 
 export const BUTTON_GROUP_CHILD_STYLESHEET = {
@@ -67,13 +89,14 @@ export const JSON_FORM_WIDGET_CHILD_STYLESHEET = {
     cellBorderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
     cellBoxShadow: "none",
   },
-  CHECKBOX_WIDGET: {
+  CHECKBOX: {
     accentColor: "{{appsmith.theme.colors.primaryColor}}",
     borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
   },
-  CHECKBOX_GROUP_WIDGET: {
+  CURRENCY_INPUT: {
     accentColor: "{{appsmith.theme.colors.primaryColor}}",
     borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
   },
   DATEPICKER: {
     accentColor: "{{appsmith.theme.colors.primaryColor}}",

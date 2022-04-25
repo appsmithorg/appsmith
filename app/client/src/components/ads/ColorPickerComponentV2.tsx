@@ -18,6 +18,7 @@ import {
 import { getWidgets } from "sagas/selectors";
 import { extractColorsFromString } from "utils/helpers";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 const FocusTrap = require("focus-trap-react");
 
 const MAX_COLS = 10;
@@ -422,7 +423,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
     return color ? (
       <ColorIcon
         className="rounded-full cursor-pointer"
-        color={evaluatedValue}
+        color={isDynamicValue(color) ? evaluatedValue : color}
         onClick={handleInputClick}
       />
     ) : (
@@ -473,7 +474,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
           onChange={handleChangeColor}
           onClick={handleInputClick}
           placeholder="enter color name or hex"
-          value={color ? evaluatedValue : ""}
+          value={color && isDynamicValue(color) ? evaluatedValue : color}
         />
 
         <ColorPickerPopup

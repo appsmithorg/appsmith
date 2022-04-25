@@ -20,8 +20,6 @@ export const STORAGE_KEYS: {
   FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY:
     "FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY",
   HIDE_CONCURRENT_EDITOR_WARNING_TOAST: "HIDE_CONCURRENT_EDITOR_WARNING_TOAST",
-  REFLOW_BETA_FLAG: "REFLOW_BETA_FLAG",
-  REFLOW_ONBOARDED_FLAG: "REFLOW_ONBOARDED_FLAG",
   APP_THEMING_BETA_SHOWN: "APP_THEMING_BETA_SHOWN",
 };
 
@@ -80,18 +78,6 @@ export const getBetaFlag = async (email: any, key: string) => {
   const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
 
   return userBetaFlagsObj && userBetaFlagsObj[key];
-};
-
-export const setReflowOnBoardingFlag = async (
-  email: any,
-  onBoardingState: boolean,
-) => {
-  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
-  const updatedObj = {
-    ...userBetaFlagsObj,
-    [STORAGE_KEYS.REFLOW_ONBOARDED_FLAG]: onBoardingState,
-  };
-  setStoredUsersBetaFlags(email, updatedObj);
 };
 
 export const getReflowOnBoardingFlag = async (email: any) => {

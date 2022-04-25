@@ -79,7 +79,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
     (event: React.FormEvent<HTMLInputElement>) => {
       onRadioSelectionChange(event.currentTarget.value);
     },
-    [],
+    [onRadioSelectionChange],
   );
 
   return (

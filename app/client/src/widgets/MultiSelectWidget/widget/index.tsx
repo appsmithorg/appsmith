@@ -262,6 +262,16 @@ class MultiSelectWidget extends BaseWidget<
         sectionName: "Styles",
         children: [
           {
+            propertyName: "accentColor",
+            label: "Accent Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+            invisible: true,
+          },
+          {
             propertyName: "labelTextColor",
             label: "Label Text Color",
             controlType: "COLOR_PICKER",
@@ -274,7 +284,7 @@ class MultiSelectWidget extends BaseWidget<
             propertyName: "labelTextSize",
             label: "Label Text Size",
             controlType: "DROP_DOWN",
-            defaultValue: "PARAGRAPH",
+            defaultValue: "1rem",
             options: [
               {
                 label: "sm",

@@ -50,33 +50,6 @@ const ScrollBtnContainer = styled.div<{ visible: boolean }>`
     opacity: 0;
     transition: visibility 0s linear 300ms, opacity 300ms;
     `}
-
-  &::after, &::before {
-    content: "";
-    display: block;
-    height: 100%;
-    width: 50px;
-    position: absolute;
-    right: 0;
-  }
-
-  &::before {
-    background: linear-gradient(
-      90deg,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(255, 255, 255, 0.5) 50%,
-      rgba(255, 255, 255, 1) 100%
-    );
-  }
-
-  &::after {
-    background: linear-gradient(
-      270deg,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(255, 255, 255, 0.5) 50%,
-      rgba(255, 255, 255, 1) 100%
-    );
-  }
 `;
 
 type AppViewerHeaderProps = {

@@ -109,9 +109,11 @@ export const getCustomTextColor = (theme: Theme, backgroundColor?: string) => {
     return theme.colors.button[ButtonStyleTypes.PRIMARY.toLowerCase()].primary
       .textColor;
   const isDark = percentageBrightness < 70;
+
   if (isDark) {
     return "#FFFFFF";
   }
+
   return "#000000";
 };
 
@@ -350,12 +352,12 @@ export const borderRadiusUtility = (borderRadius: string | undefined) => {
 };
 
 /**
- * Function used inside boxShadowDynamicChecker to replace the default rgba(0, 0, 0, 0.25) value with the computed boxShadowColor theming migration for table widget.
+ * Function used inside boxShadowMigration to replace the default rgba(0, 0, 0, 0.25) value with the computed boxShadowColor theming migration for table widget.
  * @param boxShadow
  * @param boxShadowColor
  * @returns
  */
-export const boxShadowColorUtility = (
+export const replaceRgbaMigrationConstant = (
   boxShadow: string,
   boxShadowColor: string,
 ) => {
@@ -366,7 +368,7 @@ export const boxShadowColorUtility = (
 };
 
 /**
- * Function used inside boxShadowDynamicChecker to map dynamicBinding based boxShadow to its respective mappings in theming migration for table widget.
+ * Function used inside boxShadowMigration to map dynamicBinding based boxShadow to its respective mappings in theming migration for table widget.
  * @param boxShadow
  * @param boxShadowColor
  * @returns
@@ -404,7 +406,7 @@ export const boxShadowUtility = (boxShadow: string, boxShadowColor: string) => {
  * @param boxShadowColor current box shadow color
  * @returns
  */
-export const boxShadowDynamicChecker = (
+export const boxShadowMigration = (
   child: WidgetProps,
   columnName: string,
   boxShadow: string,
@@ -413,18 +415,16 @@ export const boxShadowDynamicChecker = (
   const boxShadowRegex = new RegExp(columnName + ".boxShadow$");
   const boxShadowColorRegex = new RegExp(columnName + ".boxShadowColor$");
 
-  const isBoxShadowDynamic = find(
-    child.dynamicBindingPathList,
-    (value: { key: string }) => boxShadowRegex.test(value.key),
+  const isBoxShadowDynamic = find(child.dynamicBindingPathList, (value) =>
+    boxShadowRegex.test(value.key),
   );
-  const isBoxShadowColorDynamic = find(
-    child.dynamicBindingPathList,
-    (value: { key: string }) => boxShadowColorRegex.test(value.key),
+  const isBoxShadowColorDynamic = find(child.dynamicBindingPathList, (value) =>
+    boxShadowColorRegex.test(value.key),
   );
 
   //Case:1
   if (!isBoxShadowDynamic && isBoxShadowColorDynamic) {
-    return boxShadowColorUtility(boxShadow, boxShadowColor);
+    return replaceRgbaMigrationConstant(boxShadow, boxShadowColor);
   } else if (
     //Case 2 & 3:
     isBoxShadowDynamic &&
@@ -437,7 +437,10 @@ export const boxShadowDynamicChecker = (
     isBoxShadowColorDynamic
   ) {
     const constantBoxShadow = boxShadowUtility(boxShadow, "");
-    return boxShadowColorUtility(constantBoxShadow as string, boxShadowColor);
+    return replaceRgbaMigrationConstant(
+      constantBoxShadow as string,
+      boxShadowColor,
+    );
   }
 };
 

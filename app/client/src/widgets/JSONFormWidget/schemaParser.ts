@@ -7,6 +7,8 @@ import {
   sortBy,
   startCase,
 } from "lodash";
+import { klona } from "klona";
+
 import { sanitizeKey } from "widgets/WidgetUtils";
 import {
   ARRAY_ITEM_KEY,
@@ -24,8 +26,6 @@ import {
   FieldThemeStylesheet,
 } from "./constants";
 import { getFieldStylesheet } from "./helper";
-
-import { klona } from "klona/full";
 
 type Obj = Record<string, any>;
 type JSON = Obj | Obj[];

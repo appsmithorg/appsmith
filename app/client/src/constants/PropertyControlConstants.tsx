@@ -55,6 +55,7 @@ export type PropertyPaneControlConfig = {
     propertyValue: any,
   ) => Array<{ propertyPath: string; propertyValue: any }> | undefined;
   hidden?: (props: any, propertyPath: string) => boolean;
+  invisible?: boolean;
   isBindProperty: boolean;
   isTriggerProperty: boolean;
   validation?: ValidationConfig;
@@ -71,6 +72,9 @@ export type PropertyPaneControlConfig = {
     propertyPath: string,
     stylesheet?: AppTheme["stylesheet"][string],
   ) => AppTheme["stylesheet"][string][string];
+  // TODO(abhinav): To fix this, rename the options property of the controls which use this
+  // Alternatively, create a new structure
+  options?: any;
 };
 
 type ValidationConfigParams = {

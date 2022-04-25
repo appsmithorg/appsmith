@@ -457,8 +457,7 @@ export const MultiSelectContainer = styled.div<{
       border-radius: ${({ borderRadius }) => borderRadius} !important;
       box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       width: 100%;
-      transition: border-color 0.15s ease-in-out 0s,
-        box-shadow 0.15s ease-in-out 0s;
+      transition: none;
       background-color: white;
 
       .rc-select-selection-item {
@@ -571,8 +570,7 @@ export const MultiSelectContainer = styled.div<{
       box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       height: inherit;
       width: 100%;
-      transition: border-color 0.15s ease-in-out 0s,
-        box-shadow 0.15s ease-in-out 0s;
+      transition: none;
       border: 1px solid
         ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
       &:hover {

@@ -279,6 +279,10 @@
         "fillColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
       },
+      "PROGRESS_WIDGET": {
+        "fillColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+      },
       "RATE_WIDGET": {
         "activeColor": "{{appsmith.theme.colors.primaryColor}}"
       },
@@ -639,6 +643,10 @@
         "boxShadow": "none"
       },
       "PROGRESSBAR_WIDGET": {
+        "fillColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+      },
+      "PROGRESS_WIDGET": {
         "fillColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
       },
@@ -1005,6 +1013,10 @@
         "fillColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
       },
+      "PROGRESS_WIDGET": {
+        "fillColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+      },
       "RATE_WIDGET": {
         "activeColor": "{{appsmith.theme.colors.primaryColor}}"
       },
@@ -1365,6 +1377,10 @@
         "boxShadow": "none"
       },
       "PROGRESSBAR_WIDGET": {
+        "fillColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+      },
+      "PROGRESS_WIDGET": {
         "fillColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
       },

@@ -100,7 +100,7 @@ import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas"
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
 import { getReflow } from "selectors/widgetReflowSelectors";
-import { widgetReflowState } from "reducers/uiReducers/reflowReducer";
+import { widgetReflow } from "reducers/uiReducers/reflowReducer";
 import { stopReflowAction } from "actions/reflowActions";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 
@@ -170,7 +170,7 @@ export function* reflowWidgets(
   snapColumnSpace: number,
   snapRowSpace: number,
 ) {
-  const reflowState: widgetReflowState = yield select(getReflow);
+  const reflowState: widgetReflow = yield select(getReflow);
 
   const currentWidgets: {
     [widgetId: string]: FlattenedWidgetProps;
@@ -322,7 +322,12 @@ function* updateWidgetPropertySaga(
 export function* setWidgetDynamicPropertySaga(
   action: ReduxAction<SetWidgetDynamicPropertyPayload>,
 ) {
-  const { isDynamic, propertyPath, widgetId } = action.payload;
+  const {
+    isDynamic,
+    propertyPath,
+    shouldRejectDynamicBindingPathList = true,
+    widgetId,
+  } = action.payload;
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
   let widget = cloneDeep({ ...stateWidget });
   const propertyValue = _.get(widget, propertyPath);
@@ -343,9 +348,12 @@ export function* setWidgetDynamicPropertySaga(
     dynamicPropertyPathList = _.reject(dynamicPropertyPathList, {
       key: propertyPath,
     });
-    dynamicBindingPathList = _.reject(dynamicBindingPathList, {
-      key: propertyPath,
-    });
+
+    if (shouldRejectDynamicBindingPathList) {
+      dynamicBindingPathList = _.reject(dynamicBindingPathList, {
+        key: propertyPath,
+      });
+    }
     const { parsed } = yield call(
       validateProperty,
       propertyPath,
