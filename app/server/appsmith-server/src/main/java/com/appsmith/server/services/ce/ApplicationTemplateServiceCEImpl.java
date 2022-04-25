@@ -16,7 +16,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -30,6 +29,8 @@ import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServiceCE {
@@ -127,30 +128,32 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     private Mono<ApplicationJson> getApplicationJsonFromTemplate(String templateId) {
-        return getTemplateDetails(templateId).flatMap(applicationTemplate -> {
-            final String templateUrl = applicationTemplate.getAppDataUrl();
+        final String baseUrl = cloudServicesConfig.getBaseUrl();
+        final String templateUrl = baseUrl + "/api/v1/app-templates/" + templateId + "/application";
             /* using a custom url builder factory because default builder always encodes URL.
              It's expected that the appDataUrl is already encoded, so we don't need to encode that again.
              Encoding an encoded URL will not work and end up resulting a 404 error */
-            WebClient webClient = WebClient.builder()
-                    .uriBuilderFactory(new NoEncodingUriBuilderFactory(templateUrl))
-                    .build();
+        WebClient webClient = WebClient.builder()
+                .uriBuilderFactory(new NoEncodingUriBuilderFactory(templateUrl))
+                .build();
 
-            return webClient
-                    .get()
-                    .accept(MediaType.APPLICATION_JSON)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .map(jsonString -> {
-                        Gson gson = new GsonBuilder()
-                                .registerTypeAdapter(Instant.class, new GsonISOStringToInstantConverter())
-                                .create();
-                        Type fileType = new TypeToken<ApplicationJson>() {
-                        }.getType();
-                        ApplicationJson jsonFile = gson.fromJson(jsonString, fileType);
-                        return jsonFile;
-                    });
-        }).switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "template", templateId)));
+        return webClient
+                .get()
+                .retrieve()
+                .bodyToMono(String.class)
+                .map(jsonString -> {
+                    Gson gson = new GsonBuilder()
+                            .registerTypeAdapter(Instant.class, new GsonISOStringToInstantConverter())
+                            .create();
+                    Type fileType = new TypeToken<ApplicationJson>() {
+                    }.getType();
+
+                    ApplicationJson jsonFile = gson.fromJson(jsonString, fileType);
+                    return jsonFile;
+                })
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "template", templateId))
+                );
     }
 
     @Override
@@ -160,8 +163,10 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         ).flatMap(application -> {
             ApplicationTemplate applicationTemplate = new ApplicationTemplate();
             applicationTemplate.setId(templateId);
+            Map<String, Object>  extraProperties = new HashMap<>();
+            extraProperties.put("templateAppName", application.getName());
             return userDataService.addTemplateIdToLastUsedList(templateId).then(
-                    analyticsService.sendObjectEvent(AnalyticsEvents.FORK, applicationTemplate, null)
+                            analyticsService.sendObjectEvent(AnalyticsEvents.FORK, applicationTemplate, extraProperties)
             ).thenReturn(application);
         });
     }
@@ -174,6 +179,24 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             }
             return Flux.just();
         });
+    }
+
+    @Override
+    public Mono<ApplicationTemplate> getFilters() {
+        final String baseUrl = cloudServicesConfig.getBaseUrl();
+
+        return WebClient
+                .create(baseUrl + "/api/v1/app-templates/filters")
+                .get()
+                .exchangeToMono(clientResponse -> {
+                    if (clientResponse.statusCode().equals(HttpStatus.OK)) {
+                        return clientResponse.bodyToMono(ApplicationTemplate.class);
+                    } else if (clientResponse.statusCode().isError()) {
+                        return Mono.error(new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, clientResponse.statusCode()));
+                    } else {
+                        return clientResponse.createException().flatMap(Mono::error);
+                    }
+                });
     }
 
     public static class NoEncodingUriBuilderFactory extends DefaultUriBuilderFactory {

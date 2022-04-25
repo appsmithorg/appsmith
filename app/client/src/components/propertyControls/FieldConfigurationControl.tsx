@@ -1,6 +1,7 @@
 import React from "react";
-import { isEmpty, isString, maxBy, set, sortBy } from "lodash";
 import log from "loglevel";
+import { klona } from "klona";
+import { isEmpty, isString, maxBy, set, sortBy } from "lodash";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import EmptyDataState from "components/utils/EmptyDataState";
@@ -18,8 +19,6 @@ import { DraggableListCard } from "components/ads/DraggableListCard";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { InputText } from "./InputTextControl";
-
-import { klona } from "klona/full";
 
 type DroppableItem = BaseItemProps & {
   index: number;

@@ -96,6 +96,9 @@ export const EntityItem = styled.div<{
     background: ${Colors.GREY_2};
   }
 
+  scroll-margin-top: 36px;
+  scroll-snap-margin-top: 36px;
+
   & .${EntityClassNames.TOOLTIP} {
     ${entityTooltipCSS}
     .${Classes.POPOVER_TARGET} {
