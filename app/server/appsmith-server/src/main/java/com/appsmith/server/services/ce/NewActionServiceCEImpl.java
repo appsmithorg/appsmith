@@ -1407,6 +1407,14 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             return Flux.just(action);
         }
 
+        /**
+         * if path:
+         * In case an action object is related to a JS Object then it must have a non-null collectionId.
+         *
+         * else path:
+         * Otherwise, check if the datasource object has the pluginId. If so, use this pluginId to fetch the correct
+         * pluginType.  
+         */
         Datasource datasource = actionDTO.getDatasource();
         if (actionDTO.getCollectionId() != null) {
             return setPluginIdAndTypeForJSAction(action);
