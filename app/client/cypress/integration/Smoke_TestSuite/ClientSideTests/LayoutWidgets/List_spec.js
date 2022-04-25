@@ -181,13 +181,13 @@ describe("Container Widget Functionality", function() {
     cy.get(widgetsPage.listWidget).should(
       "have.css",
       "background-color",
-      "rgb(85, 61, 233)",
+      "rgb(126, 34, 206)",
     );
     // Verify List Item Background Color
     cy.get(widgetsPage.itemContainerWidget).should(
       "have.css",
       "background-color",
-      "rgb(85, 61, 233)",
+      "rgb(126, 34, 206)",
     );
     cy.get(publishPage.backToEditor).click({ force: true });
   });

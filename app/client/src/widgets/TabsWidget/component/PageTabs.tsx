@@ -63,16 +63,18 @@ const StyleTabText = styled.div`
 `;
 
 function PageTabName({
+  id,
   name,
   primaryColor,
 }: {
+  id: string;
   name: string;
   primaryColor: string;
 }) {
   const tabNameRef = useRef<HTMLSpanElement>(null);
   const [ellipsisActive, setEllipsisActive] = useState(false);
   const tabNameText = (
-    <StyleTabText>
+    <StyleTabText className={`t--tab-${name} t--tabid-${id}`}>
       <div className="relative flex items-center justify-center flex-grow">
         <span ref={tabNameRef}>{name}</span>
         {ellipsisActive && "..."}
@@ -163,6 +165,7 @@ export function PageTabs(props: Props) {
             }}
           >
             <PageTabName
+              id={tab.id}
               name={tab.label}
               primaryColor={get(
                 selectedTheme,
