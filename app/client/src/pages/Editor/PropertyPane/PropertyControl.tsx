@@ -24,6 +24,7 @@ import { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import {
   getEvalValuePath,
+  isDynamicValue,
   isPathADynamicProperty,
   isPathADynamicTrigger,
   THEME_BINDING_REGEX,
@@ -49,6 +50,8 @@ type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
   theme: EditorTheme;
 };
+
+const SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR = ["COLOR_PICKER"];
 
 const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
@@ -136,11 +139,26 @@ const PropertyControl = memo((props: Props) => {
         propertyName: propertyName,
         propertyState: !isDynamic ? "JS" : "NORMAL",
       });
+
+      let shouldRejectDynamicBindingPathList = true;
+
+      // we don't want to remove the path from dynamic binding list
+      // on toggling of js in case of few widgets
+      if (
+        SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR.includes(
+          props.controlType,
+        ) &&
+        isDynamicValue(propertyValue)
+      ) {
+        shouldRejectDynamicBindingPathList = false;
+      }
+
       dispatch(
         setWidgetDynamicProperty(
           widgetProperties?.widgetId,
           propertyName,
           !isDynamic,
+          shouldRejectDynamicBindingPathList,
         ),
       );
     },

@@ -65,13 +65,13 @@ describe("App Theming funtionality", function() {
       .first(0)
       .trigger("click", { force: true });
 
-    //Click the back button
+    //Click the back button //Commenting below since expanded by default
     //cy.get(commonlocators.selectThemeBackBtn).click({ force: true });
 
     //Click the border radius toggle
-    cy.contains("Border")
-      .click({ force: true })
-      .wait(500);
+    // cy.contains("Border")
+    //   .click({ force: true })
+    //   .wait(500);
 
     // change app border radius
     cy.get(commonlocators.themeAppBorderRadiusBtn)
@@ -98,8 +98,8 @@ describe("App Theming funtionality", function() {
         );
       });
 
-    //Change the color:
-    cy.contains("Color").click({ force: true });
+    //Change the color://Commenting below since expanded by default
+    //cy.contains("Color").click({ force: true });
 
     //Change the primary color:
     cy.get(".border-2")
@@ -139,8 +139,8 @@ describe("App Theming funtionality", function() {
         );
       });
 
-    //Change the shadow
-    cy.contains("Shadow").click({ force: true });
+    //Change the shadow //Commenting below since expanded by default
+    //cy.contains("Shadow").click({ force: true });
     cy.contains("App Box Shadow")
       .siblings("div")
       .children("span")
@@ -154,8 +154,8 @@ describe("App Theming funtionality", function() {
         );
       });
 
-    //Change the font
-    cy.contains("Font").click({ force: true });
+    //Change the font //Commenting below since expanded by default
+    //cy.contains("Font").click({ force: true });
 
     cy.get("span[name='expand-more']").then(($elem) => {
       cy.get($elem).click({ force: true });
@@ -215,9 +215,9 @@ describe("App Theming funtionality", function() {
       .trigger("click", { force: true });
 
     //#region Change Font & verify widgets:
-    cy.contains("Font")
-      .click({ force: true })
-      .wait(200);
+    // cy.contains("Font")
+    //   .click({ force: true })
+    //   .wait(200);//Commenting below since expanded by default
     cy.get("span[name='expand-more']").then(($elem) => {
       cy.get($elem).click({ force: true });
       cy.wait(250);
@@ -249,9 +249,9 @@ describe("App Theming funtionality", function() {
 
     //#region Change Color & verify widgets:
     //Change the primary color:
-    cy.contains("Color")
-      .click({ force: true })
-      .wait(200);
+    // cy.contains("Color")
+    //   .click({ force: true })
+    //   .wait(200);
     cy.get(".border-2")
       .first()
       .click({ force: true });
@@ -297,9 +297,9 @@ describe("App Theming funtionality", function() {
     //#endregion
 
     //#region Change Border radius & verify widgets
-    cy.contains("Border")
-      .click({ force: true })
-      .wait(200);
+    // cy.contains("Border")
+    //   .click({ force: true })
+    //   .wait(200);
     cy.get(commonlocators.themeAppBorderRadiusBtn)
       .eq(2)
       .click({ force: true });
@@ -322,7 +322,7 @@ describe("App Theming funtionality", function() {
     //#endregion
 
     //#region Change the shadow & verify widgets
-    cy.contains("Shadow").click({ force: true });
+    //cy.contains("Shadow").click({ force: true });
     cy.contains("App Box Shadow")
       .siblings("div")
       .children("span")

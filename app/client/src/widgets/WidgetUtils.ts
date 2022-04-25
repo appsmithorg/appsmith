@@ -109,9 +109,11 @@ export const getCustomTextColor = (theme: Theme, backgroundColor?: string) => {
     return theme.colors.button[ButtonStyleTypes.PRIMARY.toLowerCase()].primary
       .textColor;
   const isDark = percentageBrightness < 70;
+
   if (isDark) {
     return "#FFFFFF";
   }
+
   return "#000000";
 };
 

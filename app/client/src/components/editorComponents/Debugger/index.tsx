@@ -42,7 +42,6 @@ const TriggerContainer = styled.div<{
   overflow: visible;
   display: flex;
   align-items: center;
-  margin-right: ${(props) => props.theme.spaces[10]}px;
 
   .debugger-count {
     color: ${Colors.WHITE};

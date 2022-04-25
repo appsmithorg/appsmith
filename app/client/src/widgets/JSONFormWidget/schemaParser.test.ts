@@ -1,4 +1,5 @@
 import { get, set } from "lodash";
+import { klona } from "klona";
 
 import SchemaParser, {
   applyPositions,
@@ -21,8 +22,6 @@ import {
   Schema,
   SchemaItem,
 } from "./constants";
-
-import { klona } from "klona/full";
 
 const widgetName = "JSONForm1";
 
