@@ -88,6 +88,9 @@ RUN chmod 0644 /etc/cron.d/*
 
 RUN chmod +x entrypoint.sh renew-certificate.sh
 
+# disable uid/gid bits for the user inside container
+RUN find / \( -perm -2000 -o -perm -4000 \) | xargs chmod -s
+
 # Update path to load appsmith utils tool as default
 ENV PATH /opt/appsmith/utils/node_modules/.bin:$PATH
 
