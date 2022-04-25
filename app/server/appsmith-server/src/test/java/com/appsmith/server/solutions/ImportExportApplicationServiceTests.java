@@ -2468,10 +2468,10 @@ public class ImportExportApplicationServiceTests {
                     assertThat(pageList.get(1)).isEqualTo("abc");
                     assertThat(pageList.get(2)).isEqualTo("Page1");
 
-                    List<String> publishedPageList = applicationJson.getPageOrder();
-                    assertThat(publishedPageList.get(0)).isEqualTo("123");
-                    assertThat(publishedPageList.get(1)).isEqualTo("abc");
-                    assertThat(publishedPageList.get(2)).isEqualTo("Page1");
+                    List<String> publishedPageOrder = applicationJson.getPageOrder();
+                    assertThat(publishedPageOrder.get(0)).isEqualTo("123");
+                    assertThat(publishedPageOrder.get(1)).isEqualTo("abc");
+                    assertThat(publishedPageOrder.get(2)).isEqualTo("Page1");
                 })
                 .verifyComplete();
 
