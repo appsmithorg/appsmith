@@ -258,7 +258,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 Collections.sort(newPages, Comparator.comparing(newPage -> publishedPageOrderList.indexOf(newPage.getId())));
                                 pageOrder = new ArrayList<>();
                                 for (NewPage page: newPages) {
-                                    pageOrder.add(page.getUnpublishedPage().getName());
+                                    pageOrder.add(page.getPublishedPage().getName());
                                 }
                                 applicationJson.setPublishedPageOrder(pageOrder);
                                 return Mono.just(newPages);
