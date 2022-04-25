@@ -90,9 +90,7 @@ function PostBodyData(props: Props) {
             expected={expectedPostBody}
             mode={EditorModes.JSON_WITH_BINDING}
             name="actionConfiguration.body"
-            placeholder={
-              '{\n  "name":"{{ inputName.property }}",\n  "preference":"{{ dropdownName.property }}"\n}\n\n\\\\Take widget inputs using {{ }}'
-            }
+            placeholder={`{{{name: inputName.property, preference: dropdownName.property}}}`}
             showLineNumbers
             size={EditorSize.EXTENDED}
             tabBehaviour={TabBehaviour.INDENT}
