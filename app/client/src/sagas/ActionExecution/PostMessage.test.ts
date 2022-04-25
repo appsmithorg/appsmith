@@ -34,6 +34,8 @@ describe("PostMessageSaga", () => {
     it("calls window.parent with message and target origin", () => {
       const dispatched: any[] = [];
 
+      const postMessage = jest.spyOn(window.parent, "postMessage");
+
       runSaga(
         {
           dispatch: (action) => dispatched.push(action),
@@ -46,13 +48,13 @@ describe("PostMessageSaga", () => {
         {},
       );
 
-      expect(window.parent.postMessage).toHaveBeenCalledWith(
+      expect(postMessage).toHaveBeenCalledWith(
         "hello world",
         "https://dev.appsmith.com",
-        {},
+        undefined,
       );
 
-      expect(dispatched).toEqual(undefined);
+      expect(dispatched).toEqual([]);
     });
   });
 });
