@@ -284,61 +284,49 @@ export const updateDerivedColumnsHook = (
   propertyPath: string,
   propertyValue: any,
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
-  let propertiesToUpdate: Array<{
-    propertyPath: string;
-    propertyValue: any;
-  }> = [];
-  if (props && propertyValue) {
-    // If we're adding a column, we need to add it to the `derivedColumns` property as well
-    if (/^primaryColumns\.\w+$/.test(propertyPath)) {
-      const newId = propertyValue.id;
-      if (newId) {
-        // sets default value for some properties
-        propertyValue.buttonColor = Colors.GREEN;
-        propertyValue.menuColor = Colors.GREEN;
-        propertyValue.labelColor = Colors.WHITE;
+  const addColumnRegex = /^primaryColumns\.\w+$/; // primaryColumns.customColumn1
+  const updateColumnRegex = /^primaryColumns\.(\w+)\.(.*)$/; // primaryColumns.customColumn1.computedValue
 
-        propertiesToUpdate = [
-          {
-            propertyPath: `derivedColumns.${newId}`,
-            propertyValue,
-          },
-        ];
-      }
+  // // If we're adding a column, we need to add it to the `derivedColumns` property as well
+  if (addColumnRegex.test(propertyPath)) {
+    const propertiesToUpdate = [];
 
-      const oldColumnOrder = props.columnOrder || [];
-      const newColumnOrder = [...oldColumnOrder, propertyValue.id];
-      propertiesToUpdate.push({
-        propertyPath: "columnOrder",
-        propertyValue: newColumnOrder,
-      });
-    }
-    // If we're updating a columns' name, we need to update the `derivedColumns` property as well.
-    const regex = /^primaryColumns\.(\w+)\.(.*)$/;
-    if (regex.test(propertyPath)) {
-      const matches = propertyPath.match(regex);
-      if (matches && matches.length === 3) {
-        // updated to use column keys
-        const columnId = matches[1];
-        const columnProperty = matches[2];
-        const primaryColumn = props.primaryColumns[columnId];
-        const isDerived = primaryColumn ? primaryColumn.isDerived : false;
+    // sets default value for some properties
+    propertyValue.buttonColor = Colors.GREEN;
+    propertyValue.menuColor = Colors.GREEN;
+    propertyValue.labelColor = Colors.WHITE;
 
-        const { derivedColumns = {} } = props;
+    propertiesToUpdate.push({
+      propertyPath: `derivedColumns.${propertyValue.id}`,
+      propertyValue,
+    });
 
-        if (isDerived && derivedColumns && derivedColumns[columnId]) {
-          propertiesToUpdate = [
-            {
-              propertyPath: `derivedColumns.${columnId}.${columnProperty}`,
-              propertyValue: propertyValue,
-            },
-          ];
-        }
-      }
-    }
-    if (propertiesToUpdate.length > 0) return propertiesToUpdate;
+    const oldColumnOrder = props.columnOrder || [];
+    const newColumnOrder = [...oldColumnOrder, propertyValue.id];
+    propertiesToUpdate.push({
+      propertyPath: "columnOrder",
+      propertyValue: newColumnOrder,
+    });
+
+    return propertiesToUpdate;
   }
-  return;
+
+  // If we're updating a columns' name, computed value, we need to update the `derivedColumns` property as well.
+  const matches = propertyPath.match(updateColumnRegex);
+  if (matches && matches.length === 3) {
+    const columnId = matches[1];
+    const columnProperty = matches[2];
+    const { derivedColumns = {} } = props;
+    // only change derived properties of custom columns
+    if (derivedColumns[columnId]) {
+      return [
+        {
+          propertyPath: `derivedColumns.${columnId}.${columnProperty}`,
+          propertyValue: propertyValue,
+        },
+      ];
+    }
+  }
 };
 // Gets the base property path excluding the current property.
 // For example, for  `primaryColumns[5].computedValue` it will return
