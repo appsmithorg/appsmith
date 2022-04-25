@@ -419,7 +419,13 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   }
 
   componentDidUpdate(prevProps: SelectWidgetProps) {
-    // Sanitizes selectedOption if options changes
+    // Reset isDirty to false if defaultOptionValue changes
+    if (
+      !isEqual(this.props.defaultOptionValue, prevProps.defaultOptionValue) &&
+      this.props.isDirty
+    ) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
     if (
       !this.props.serverSideFiltering &&
       xorWith(this.props.options, prevProps.options, isEqual).length > 0
@@ -427,20 +433,15 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       const found = find(this.props.options, {
         value: this.props.selectedOption.value,
       });
-      if (!found) {
-        this.props.updateWidgetMetaProperty("selectedOption", {});
-      }
+
+      this.props.updateWidgetMetaProperty("selectedOption", found || {});
     }
     // Sets selectedOption
     if (!isEqual(this.props.selectedOption, prevProps.selectedOption)) {
       this.setSelectedOption();
     }
-    // Reset isDirty to false if defaultOptionValue changes
-    if (
-      !isEqual(this.props.defaultOptionValue, prevProps.defaultOptionValue) &&
-      this.props.isDirty
-    ) {
-      this.props.updateWidgetMetaProperty("isDirty", false);
+    if (this.props.serverSideFiltering !== prevProps.serverSideFiltering) {
+      this.setSelectedOption();
     }
   }
 
@@ -494,10 +495,21 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   }
 
   setSelectedOption = () => {
-    const matchingOption = find(this.props.options, {
-      value: this.props.selectedOption.value ?? this.props.selectedOption,
-    });
-    this.props.updateWidgetMetaProperty("selectedOption", matchingOption || {});
+    let value: DropdownOption;
+    if (!this.props.serverSideFiltering) {
+      const matchingOption = find(this.props.options, {
+        value: this.props.selectedOption.value ?? this.props.selectedOption,
+      });
+      value = matchingOption || {};
+    } else {
+      const matchingOption = {
+        label: this.props.selectedOption.label ?? this.props.selectedOption,
+        value: this.props.selectedOption.value ?? this.props.selectedOption,
+      };
+      value = matchingOption;
+    }
+
+    this.props.updateWidgetMetaProperty("selectedOption", value);
   };
 
   onOptionSelected = (selectedOption: DropdownOption) => {
