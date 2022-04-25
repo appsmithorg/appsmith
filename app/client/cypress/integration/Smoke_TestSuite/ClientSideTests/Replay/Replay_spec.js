@@ -185,7 +185,7 @@ describe("Undo/Redo functionality", function() {
     cy.get(widgetsPage.textColor)
       .first()
       .invoke("attr", "value")
-      .should("contain", "#231F20");
+      .should("contain", "#03b365z");
 
     cy.get("body").type(`{${modifierKey}}{shift}z`);
 
