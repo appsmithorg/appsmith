@@ -41,6 +41,7 @@ import {
 } from "selectors/entitiesSelector";
 import history from "utils/history";
 import { saasEditorApiIdURL } from "RouteBuilder";
+import GraphQLEditorForm from "./GraphQL/GraphQLEditorForm";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -204,6 +205,24 @@ class ApiEditor extends React.Component<Props> {
             }
             isDeleting={isDeleting}
             isRunning={isRunning}
+            onDeleteClick={this.handleDeleteClick}
+            onRunClick={this.handleRunClick}
+            paginationType={paginationType}
+            pluginId={pluginId}
+            settingsConfig={this.props.settingsConfig}
+          />
+        )}
+        {formUiComponent === "GraphQLEditorForm" && (
+          <GraphQLEditorForm
+            apiName={this.props.apiName}
+            appName={
+              this.props.currentApplication
+                ? this.props.currentApplication.name
+                : ""
+            }
+            isDeleting={isDeleting}
+            isRunning={isRunning}
+            match={this.props.match}
             onDeleteClick={this.handleDeleteClick}
             onRunClick={this.handleRunClick}
             paginationType={paginationType}

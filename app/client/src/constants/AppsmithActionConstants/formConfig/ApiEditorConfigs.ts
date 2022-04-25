@@ -87,6 +87,18 @@ export default [
           },
         ],
       },
+      {
+        label: "Query",
+        configProperty: "actionConfiguration.query",
+        controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+        evaluationSubstitutionType: "SMART_SUBSTITUTE",
+      },
+      {
+        label: "Variable",
+        configProperty: "actionConfiguration.variable",
+        controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+        evaluationSubstitutionType: "SMART_SUBSTITUTE",
+      },
     ],
   },
 ];

@@ -534,7 +534,7 @@ const mapStateToProps = (
 ): ReduxStateProps => {
   const apiFormValueSelector = formValueSelector(ownProps.formName);
   const datasourceFromAction = apiFormValueSelector(state, "datasource");
-  let datasourceMerged = datasourceFromAction;
+  let datasourceMerged = datasourceFromAction || {};
   // Todo: fix this properly later in #2164
   if (datasourceFromAction && "id" in datasourceFromAction) {
     const datasourceFromDataSourceList = getDatasource(

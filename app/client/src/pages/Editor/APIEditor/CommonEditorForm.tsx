@@ -3,12 +3,13 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   HTTP_METHOD_OPTIONS,
   API_EDITOR_TABS,
+  GRAPHQL_HTTP_METHOD_OPTIONS,
 } from "constants/ApiEditorConstants";
 import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationField, SuggestedWidget } from "api/ActionAPI";
-import { Action, PaginationType } from "entities/Action";
+import { Action, isGraphqlPlugin, PaginationType } from "entities/Action";
 import {
   setGlobalSearchQuery,
   toggleShowGlobalSearchModal,
@@ -51,6 +52,7 @@ import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core/lib/esnext/common";
 import { Classes as BluePrintClasses } from "@blueprintjs/core";
 import { replayHighlightClass } from "globalStyles/portals";
+import { getPlugin } from "selectors/entitiesSelector";
 
 const Form = styled.form`
   position: relative;
@@ -237,7 +239,9 @@ export interface CommonFormProps {
 
 type CommonFormPropsWithExtraParams = CommonFormProps & {
   formName: string;
+  // Body Tab Component which is passed on from the Parent Component
   bodyUIComponent: JSX.Element;
+  // Pagination Tab Component which is passed on from the Parent Component
   paginationUIComponent: JSX.Element;
   handleSubmit: any;
 };
@@ -505,6 +509,11 @@ function ImportedDatas(props: { data: any; attributeName: string }) {
   );
 }
 
+/**
+ * Commons editor form which is being used by API and GraphQL. Since most of the things were common to both so picking out the common part was a better option. For now Body and Pagination component are being passed on by the using component.
+ * @param props type CommonFormPropsWithExtraParams
+ * @returns Editor with respect to which type is using it
+ */
 function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [
@@ -543,6 +552,12 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
   const { pageId } = useParams<ExplorerURLParams>();
+
+  const plugin = useSelector((state: AppState) =>
+    getPlugin(state, pluginId ?? ""),
+  );
+
+  const isGraphql = isGraphqlPlugin(plugin);
 
   const theme = EditorTheme.LIGHT;
   const handleClickLearnHow = (e: React.MouseEvent) => {
@@ -594,7 +609,9 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                 height={"35px"}
                 name="actionConfiguration.httpMethod"
                 optionWidth={"110px"}
-                options={HTTP_METHOD_OPTIONS}
+                options={
+                  isGraphql ? GRAPHQL_HTTP_METHOD_OPTIONS : HTTP_METHOD_OPTIONS
+                }
                 placeholder="Method"
                 width={"110px"}
               />
