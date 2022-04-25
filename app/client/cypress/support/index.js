@@ -28,6 +28,7 @@ import { initLocalstorageRegistry } from "./Objects/Registry";
 import "./OrgCommands";
 import "./queryCommands";
 import "./widgetCommands";
+import "./AdminSettingsCommands";
 /// <reference types="cypress-xpath" />
 
 Cypress.on("uncaught:exception", () => {
@@ -95,7 +96,6 @@ before(function() {
 
 beforeEach(function() {
   initLocalstorage();
-  initLocalstorageRegistry();
   Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   cy.startServerAndRoutes();
   //-- Delete local storage data of entity explorer

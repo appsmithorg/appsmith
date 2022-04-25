@@ -3,7 +3,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { updateAndSaveLayout, WidgetResize } from "actions/pageActions";
 import {
   CanvasWidgetsReduxState,
@@ -100,7 +100,7 @@ import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas"
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
 import { getReflow } from "selectors/widgetReflowSelectors";
-import { widgetReflowState } from "reducers/uiReducers/reflowReducer";
+import { widgetReflow } from "reducers/uiReducers/reflowReducer";
 import { stopReflowAction } from "actions/reflowActions";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 
@@ -170,7 +170,7 @@ export function* reflowWidgets(
   snapColumnSpace: number,
   snapRowSpace: number,
 ) {
-  const reflowState: widgetReflowState = yield select(getReflow);
+  const reflowState: widgetReflow = yield select(getReflow);
 
   const currentWidgets: {
     [widgetId: string]: FlattenedWidgetProps;

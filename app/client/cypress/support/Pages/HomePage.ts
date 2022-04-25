@@ -15,7 +15,7 @@ export class HomePage {
     private _orgShareUsersIcon = (orgName: string) => ".t--org-section:contains(" + orgName + ") .org-share-user-icons"
     private _shareOrg = (orgName: string) => ".t--org-section:contains(" + orgName + ") button:contains('Share')"
     private _email = "//input[@type='email']"
-    _visibleTextSpan = (spanText: string) => "span:contains('" + spanText + "')"
+    _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']"
     private _userRole = (role: string) => "//div[contains(@class, 'label-container')]//span[1][text()='" + role + "']"
     private _manageUsers = ".manageUsers"
     private _appHome = "//a[@href='/applications']"
@@ -47,7 +47,7 @@ export class HomePage {
 
     public CreateNewOrg(orgNewName: string) {
         let oldName: string = ""
-        cy.get(this._visibleTextSpan('New Organization'))
+        cy.xpath(this._visibleTextSpan('New Organization'))
             .should("be.visible")
             .first()
             .click({ force: true });
@@ -156,7 +156,7 @@ export class HomePage {
             if (!$appName.hasClass(this._editAppName)) {
                 cy.get(this._applicationName).click();
                 cy.get(this._appMenu)
-                    .contains("Rename", { matchCase: false })
+                    .contains("Edit Name", { matchCase: false })
                     .click();
             }
         });
@@ -216,7 +216,7 @@ export class HomePage {
             .find(this._orgName)
             .find(this._optionsIcon)
             .click({ force: true });
-        cy.get(this._visibleTextSpan('Members')).click({ force: true });
+        cy.xpath(this._visibleTextSpan('Members')).click({ force: true });
         cy.wait("@getMembers").should(
             "have.nested.property",
             "response.body.responseMeta.status",
@@ -239,7 +239,7 @@ export class HomePage {
             .find(this._orgName)
             .find(this._optionsIcon)
             .click({ force: true });
-        cy.get(this._visibleTextSpan('Members')).last().click({ force: true });
+        cy.xpath(this._visibleTextSpan('Members')).last().click({ force: true });
         cy.wait("@getMembers").should(
             "have.nested.property",
             "response.body.responseMeta.status",
@@ -252,7 +252,7 @@ export class HomePage {
         this.OpenMembersPageForOrg(orgName)
         cy.xpath(this._userRoleDropDown(email, currentRole)).first().trigger('click');
         //cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
-        cy.get(this._visibleTextSpan(newRole)).last().click({ force: true });
+        cy.xpath(this._visibleTextSpan(newRole)).last().click({ force: true });
         this.agHelper.Sleep()
         this.NavigateToHome()
     }
