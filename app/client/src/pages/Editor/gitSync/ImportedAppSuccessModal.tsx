@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import Dialog from "components/ads/DialogComponent";
 import styled, { useTheme } from "styled-components";
@@ -12,6 +12,7 @@ import {
 import Icon from "components/ads/Icon";
 import { Theme } from "constants/DefaultTheme";
 import { getCurrentUser } from "selectors/usersSelectors";
+import { Button, Category, Size } from "components/ads";
 
 const Container = styled.div`
   height: 461px;
@@ -40,12 +41,27 @@ const BodyContainer = styled.div`
   }
 `;
 
+const ActionButtonWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  margin: 30px 0px 0px;
+  position: absolute;
+  width: 100%;
+  bottom: 0px;
+`;
+
+const ActionButton = styled(Button)`
+  margin-right: 16px;
+`;
+
 function ImportedApplicationSuccessModal() {
   const importedAppSuccess = localStorage.getItem("importApplicationSuccess");
-  const isOpen = importedAppSuccess === "true";
+  // const isOpen = importedAppSuccess === "true";
+  const [isOpen, setIsOpen] = useState(importedAppSuccess === "true");
   const currentUser = useSelector(getCurrentUser);
 
   const onClose = () => {
+    setIsOpen(false);
     localStorage.setItem("importApplicationSuccess", "false");
   };
   const theme = useTheme() as Theme;
@@ -81,6 +97,17 @@ function ImportedApplicationSuccessModal() {
           >
             {createMessage(APPLICATION_IMPORT_SUCCESS_DESCRIPTION)}
           </Text>
+          <ActionButtonWrapper>
+            <ActionButton
+              category={Category.primary}
+              className="t--import-success-modal-got-it"
+              onClick={() => {
+                onClose();
+              }}
+              size={Size.medium}
+              text="GOT IT"
+            />
+          </ActionButtonWrapper>
         </BodyContainer>
       </Container>
     </Dialog>
