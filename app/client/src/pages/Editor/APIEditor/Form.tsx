@@ -145,7 +145,7 @@ export const TabbedViewContainer = styled.div`
   overflow: auto;
   position: relative;
   height: 100%;
-  border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-top: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   ${FormRow} {
     min-height: auto;
     padding: ${(props) => props.theme.spaces[0]}px;
@@ -231,7 +231,7 @@ const Link = styled.a`
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
-  height: calc(100% - 118px);
+  height: calc(100% - 110px);
   position: relative;
 `;
 interface APIFormProps {
