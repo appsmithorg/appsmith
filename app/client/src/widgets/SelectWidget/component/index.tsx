@@ -6,7 +6,7 @@ import {
   IItemListRendererProps,
   IItemRendererProps,
 } from "@blueprintjs/select";
-import { debounce, findIndex, isEmpty, isNil, isNumber } from "lodash";
+import { debounce, findIndex, isEmpty, isEqual, isNil, isNumber } from "lodash";
 import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
 import { FixedSizeList } from "react-window";
 import { TextSize } from "constants/WidgetConstants";
@@ -39,7 +39,6 @@ const MAX_RENDER_MENU_ITEMS_HEIGHT = 300;
 
 interface SelectComponentState {
   activeItemIndex: number | undefined;
-  query?: string;
   isOpen?: boolean;
 }
 
@@ -54,14 +53,12 @@ class SelectComponent extends React.Component<
   state = {
     // used to show focused item for keyboard up down key interection
     activeItemIndex: -1,
-    query: "",
     isOpen: false,
   };
 
   componentDidMount = () => {
     // set default selectedIndex as focused index
     this.setState({ activeItemIndex: this.props.selectedIndex });
-    this.setState({ query: this.props.filterText });
   };
 
   componentDidUpdate = (prevProps: SelectComponentProps) => {
@@ -113,15 +110,10 @@ class SelectComponent extends React.Component<
     });
     return optionIndex === this.props.selectedIndex;
   };
-  onQueryChange = (filterValue: string) => {
-    this.setState({ query: filterValue });
+  onQueryChange = debounce((filterValue: string) => {
+    if (isEqual(filterValue, this.props.filterText)) return;
     this.props.onFilterChange(filterValue);
     this.listRef?.current?.scrollTo(0);
-    if (!this.props.serverSideFiltering) return;
-    return this.serverSideSearch(filterValue);
-  };
-  serverSideSearch = debounce((filterValue: string) => {
-    this.props.onFilterChange(filterValue);
   }, DEBOUNCE_TIMEOUT);
 
   renderSingleSelectItem = (
@@ -195,7 +187,7 @@ class SelectComponent extends React.Component<
     // Don't scroll if the list is filtered.
     const optionsCount = this.props.options.length;
     const scrollOffset: number =
-      !this.state.query &&
+      !this.props.filterText &&
       isNumber(activeItemIndex) &&
       optionsCount * ITEM_SIZE > MAX_RENDER_MENU_ITEMS_HEIGHT
         ? activeItemIndex * ITEM_SIZE
@@ -341,7 +333,7 @@ class SelectComponent extends React.Component<
               },
               popoverClassName: `select-popover-wrapper select-popover-width-${this.props.widgetId}`,
             }}
-            query={this.state.query}
+            query={this.props.filterText}
             scrollToActiveItem
             value={this.props.value as string}
           >
