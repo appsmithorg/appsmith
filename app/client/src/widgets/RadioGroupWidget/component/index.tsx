@@ -109,7 +109,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
               inline={inline}
               key={optInd}
               label={option.label}
-              value={option.value}
+              value={option.value + ""}
             />
           );
         })}
