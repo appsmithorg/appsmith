@@ -102,6 +102,11 @@ describe("Git import flow", function() {
     cy.get(datasourceEditor.sectionAuthentication).click();
     cy.testSaveDatasource();
     cy.wait(2000);
+    cy.get(reconnectDatasourceModal.ImportSuccessModal).should("be.visible");
+    cy.get(reconnectDatasourceModal.ImportSuccessModalCloseBtn).click({
+      force: true,
+    });
+    cy.wait(1000);
     /* cy.get(homePage.toastMessage).should(
       "contain",
      "Application imported successfully",

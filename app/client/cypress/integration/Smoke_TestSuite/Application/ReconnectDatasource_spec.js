@@ -73,7 +73,7 @@ describe("Reconnect Datasource Modal validation while importing application", fu
             "All your datasources are configuered and ready to use.",
           );
           cy.get(".t--import-success-modal-got-it").click({ force: true });
-          cy.get(".t--import-app-success-modal").should("not.be.visible");
+          cy.get(".t--import-app-success-modal").should("not.exist");
 
           const uuid = () => Cypress._.random(0, 1e4);
           const name = uuid();
