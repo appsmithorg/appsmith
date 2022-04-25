@@ -182,7 +182,7 @@ jobs:
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
           body: |
-            Tests running at: <https://github.com/appsmithorg/appsmith/actions/runs/${{ github.run_id }}>.
+            Tests running at: <https://github.com/appsmithorg/appsmith-ee/actions/runs/${{ github.run_id }}>.
             Workflow: `${{ github.workflow }}`.
             Commit: `${{ github.event.client_payload.slash_command.sha }}`.
             PR: ${{ github.event.client_payload.pull_request.number }}.
@@ -1597,7 +1597,7 @@ jobs:
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
           body: |
-            UI Performance test run logs and artifacts: <https://github.com/appsmithorg/appsmith/actions/runs/${{ github.run_id }}>.
+            UI Performance test run logs and artifacts: <https://github.com/appsmithorg/appsmith-ee/actions/runs/${{ github.run_id }}>.
             Commit: `${{ github.event.client_payload.slash_command.sha }}`.
             Results: ${{ steps.read_summary.outputs.contents }}
 
