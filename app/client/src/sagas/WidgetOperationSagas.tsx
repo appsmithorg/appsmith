@@ -107,6 +107,7 @@ import {
   getPastePositionMapFromMousePointer,
   getBoundariesFromSelectedWidgets,
   WIDGET_PASTE_PADDING,
+  getWidgetsFromIds,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
@@ -842,7 +843,7 @@ const getNewPositions = function*(
 ) {
   const selectedWidgetIDs: string[] = yield select(getSelectedWidgets);
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const selectedWidgets = selectedWidgetIDs.map((each) => canvasWidgets[each]);
+  const selectedWidgets = getWidgetsFromIds(selectedWidgetIDs, canvasWidgets);
 
   //if the copied widget is a modal widget, then it has to paste on the main container
   if (
@@ -858,7 +859,7 @@ const getNewPositions = function*(
     !(
       selectedWidgets.length === 1 && checkIsDropTarget(selectedWidgets[0].type)
     ) &&
-    selectedWidgetIDs.length > 0
+    selectedWidgets.length > 0
   ) {
     const newPastingPositionDetails: NewPastePositionVariables = yield call(
       getNewPositionsBasedOnSelectedWidgets,

@@ -854,6 +854,25 @@ export function getReflowedPositions(
 }
 
 /**
+ * method to return array of widget properties from widgetsIds, without any undefined values
+ *
+ * @param widgetsIds
+ * @param canvasWidgets
+ * @returns array of widgets properties
+ */
+export function getWidgetsFromIds(
+  widgetsIds: string[],
+  canvasWidgets: CanvasWidgetsReduxState,
+) {
+  const widgets = [];
+  for (const currentId of widgetsIds) {
+    if (canvasWidgets[currentId]) widgets.push(canvasWidgets[currentId]);
+  }
+
+  return widgets;
+}
+
+/**
  * group copied widgets into a container
  *
  * @param copiedWidgetGroups
