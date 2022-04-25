@@ -11,6 +11,22 @@ export interface UpdateWidgetMetaPropertyPayload {
   propertyName: string;
   propertyValue: any;
 }
+
+export type WidgetMetaUpdates = {
+  widgetId: string;
+  propertyName: string;
+  propertyValue: any;
+}[];
+
+export const updateWidgetMetaProperties = (
+  widgetMetaUpdates: WidgetMetaUpdates,
+): BatchAction<UpdateWidgetMetaPropertyPayload> => {
+  return batchAction({
+    type: ReduxActionTypes.SET_META_PROP,
+    payload: widgetMetaUpdates,
+  });
+};
+
 export const updateWidgetMetaProperty = (
   widgetId: string,
   propertyName: string,

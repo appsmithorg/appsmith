@@ -17,6 +17,7 @@ import { OccupiedSpace } from "constants/CanvasEditorConstants";
 
 import {
   resetChildrenMetaProperty,
+  updateWidgetMetaProperties,
   updateWidgetMetaProperty,
 } from "actions/metaActions";
 
@@ -26,6 +27,13 @@ export type EditorContextType = {
     operation: WidgetOperation,
     widgetId: string,
     payload: any,
+  ) => void;
+  updateWidgetMetaProperties?: (
+    metaUpdates: {
+      widgetId: string;
+      propertyName: string;
+      propertyValue: any;
+    }[],
   ) => void;
   updateWidgetProperty?: (
     widgetId: string,
@@ -61,6 +69,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
     executeAction,
     resetChildrenMetaProperty,
     updateWidget,
+    updateWidgetMetaProperties,
     updateWidgetMetaProperty,
     updateWidgetProperty,
   } = props;
@@ -73,6 +82,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       updateWidget,
       updateWidgetProperty,
       updateWidgetMetaProperty,
+      updateWidgetMetaProperties,
       disableDrag,
       resetChildrenMetaProperty,
       deleteWidgetProperty,
@@ -82,7 +92,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       executeAction,
       updateWidget,
       updateWidgetProperty,
-      updateWidgetMetaProperty,
+      updateWidgetMetaProperties,
       disableDrag,
       resetChildrenMetaProperty,
       deleteWidgetProperty,
@@ -106,6 +116,7 @@ const mapDispatchToProps = {
   executeAction: executeTrigger,
   updateWidget,
   updateWidgetMetaProperty,
+  updateWidgetMetaProperties,
   resetChildrenMetaProperty,
   disableDrag: disableDragAction,
   deleteWidgetProperty: deletePropertyAction,

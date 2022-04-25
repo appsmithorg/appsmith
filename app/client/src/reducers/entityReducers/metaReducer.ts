@@ -1,4 +1,4 @@
-import { set, cloneDeep, get } from "lodash";
+import { set, get } from "lodash";
 import { createReducer } from "utils/AppsmithUtils";
 import { UpdateWidgetMetaPropertyPayload } from "actions/metaActions";
 
@@ -10,7 +10,8 @@ import {
 import { Diff } from "deep-diff";
 import produce from "immer";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { isWidget } from "../../workers/evaluationUtils";
+import { isWidget } from "workers/evaluationUtils";
+import { WidgetMetaUpdates } from "actions/metaActions";
 
 export type MetaState = Record<string, Record<string, unknown>>;
 
@@ -59,17 +60,24 @@ export const metaReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.SET_META_PROP]: (
     state: MetaState,
-    action: ReduxAction<UpdateWidgetMetaPropertyPayload>,
+    action: ReduxAction<UpdateWidgetMetaPropertyPayload | WidgetMetaUpdates>,
   ) => {
-    const next = cloneDeep(state);
-
-    set(
-      next,
-      `${action.payload.widgetId}.${action.payload.propertyName}`,
-      action.payload.propertyValue,
-    );
-
-    return next;
+    const nextState = produce(state, (draftMetaState) => {
+      if (Array.isArray(action.payload)) {
+        const metaUpdates = action.payload;
+        metaUpdates.forEach(({ propertyName, propertyValue, widgetId }) => {
+          set(draftMetaState, `${widgetId}.${propertyName}`, propertyValue);
+        });
+      } else if (action.payload.widgetId) {
+        set(
+          draftMetaState,
+          `${action.payload.widgetId}.${action.payload.propertyName}`,
+          action.payload.propertyValue,
+        );
+      }
+      return draftMetaState;
+    });
+    return nextState;
   },
   [ReduxActionTypes.TABLE_PANE_MOVED]: (
     state: MetaState,

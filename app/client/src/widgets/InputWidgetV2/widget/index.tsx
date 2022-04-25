@@ -16,12 +16,13 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import BaseInputWidget from "widgets/BaseInputWidget";
-import { isNil, merge, toString } from "lodash";
+import { isNil, merge } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import { getParsedText } from "./Utilities";
+import MetaUpdatesMap from "../../MetaUpdatesMap";
 
 export function defaultValueValidation(
   value: any,
@@ -363,15 +364,15 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   };
 
   componentDidUpdate = (prevProps: InputWidgetProps) => {
-    if (
-      prevProps.inputText !== this.props.inputText &&
-      this.props.inputText !== toString(this.props.text)
-    ) {
-      this.props.updateWidgetMetaProperty(
-        "text",
-        getParsedText(this.props.inputText, this.props.inputType),
-      );
-    }
+    // if (
+    //   prevProps.inputText !== this.props.inputText &&
+    //   this.props.inputText !== toString(this.props.text)
+    // ) {
+    //   this.props.updateWidgetMetaProperty(
+    //     "text",
+    //     getParsedText(this.props.inputText, this.props.inputType),
+    //   );
+    // }
 
     if (prevProps.inputType !== this.props.inputType) {
       this.props.updateWidgetMetaProperty(
@@ -389,6 +390,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   };
 
   onValueChange = (value: string) => {
+    const newMetaUpdates = new MetaUpdatesMap();
     /*
      * Ideally text property should be derived property. But widgets
      * with derived properties won't work as expected inside a List
@@ -396,11 +398,8 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
      * TODO(Balaji): Once we refactor the List widget, need to conver
      * text to a derived property.
      */
-    this.props.updateWidgetMetaProperty(
-      "text",
-      getParsedText(value, this.props.inputType),
-    );
-    this.props.updateWidgetMetaProperty("inputText", value, {
+    newMetaUpdates.add("text", getParsedText(value, this.props.inputType));
+    newMetaUpdates.add("inputText", value, {
       triggerPropertyName: "onTextChanged",
       dynamicString: this.props.onTextChanged,
       event: {
@@ -408,16 +407,16 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       },
     });
     if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
+      newMetaUpdates.add("isDirty", true);
     }
+    this.props.updateWidgetMetaProperties(newMetaUpdates.toArray());
   };
 
   resetWidgetText = () => {
-    this.props.updateWidgetMetaProperty("inputText", "");
-    this.props.updateWidgetMetaProperty(
-      "text",
-      getParsedText("", this.props.inputType),
-    );
+    const newMetaUpdates = new MetaUpdatesMap();
+    newMetaUpdates.add("inputText", "");
+    newMetaUpdates.add("text", getParsedText("", this.props.inputType));
+    this.props.updateWidgetMetaProperties(newMetaUpdates.toArray());
   };
 
   getPageView() {
