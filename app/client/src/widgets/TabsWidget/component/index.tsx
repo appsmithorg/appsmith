@@ -280,7 +280,7 @@ function TabsComponent(props: TabsComponentProps) {
       {props.shouldShowTabs && (
         <Container className="relative hidden px-6 h-9 md:flex">
           <ScrollBtnContainer
-            className="left-0"
+            className="left-0 scroll-nav-left-button"
             onMouseDown={() => startScrolling(true)}
             onMouseLeave={stopScrolling}
             onMouseUp={stopScrolling}
@@ -299,7 +299,7 @@ function TabsComponent(props: TabsComponentProps) {
             tabsScrollable={tabsScrollable}
           />
           <ScrollBtnContainer
-            className="right-0"
+            className="right-0 scroll-nav-right-button"
             onMouseDown={() => startScrolling(false)}
             onMouseLeave={stopScrolling}
             onMouseUp={stopScrolling}
