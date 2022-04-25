@@ -28,6 +28,7 @@ import {
   ENTITY_ID_TOOLTIP,
   REDIRECT_URL_TOOLTIP,
 } from "@appsmith/constants/messages";
+import { Toaster, Variant } from "components/ads";
 
 export type MenuItemsProps = {
   id: string;
@@ -54,6 +55,7 @@ export const MENU_ITEMS_MAP: MenuItemsProps[] = [
         className: "t--sso-metadata-url-input",
         label: "Metadata URL",
         name: "metadataUrl",
+        isRequired: true,
       },
     ],
   },
@@ -68,6 +70,7 @@ export const MENU_ITEMS_MAP: MenuItemsProps[] = [
         label: "Metadata XML",
         name: "metadataXml",
         type: "Area",
+        isRequired: true,
       },
     ],
   },
@@ -81,22 +84,26 @@ export const MENU_ITEMS_MAP: MenuItemsProps[] = [
         className: "t--sso-metadata-entity-id-input",
         label: "Entity ID",
         name: "metadataEntityId",
+        isRequired: true,
       },
       {
         className: "t--sso-metadata-sso-url-input",
         label: "Single Sign On URL",
         name: "metadataSsoUrl",
+        isRequired: true,
       },
       {
         className: "t--sso-metadata-pub-cert-input",
         label: "X509 Public Certificate",
         name: "metadataPubCert",
+        isRequired: true,
       },
       {
         className: "t--email-input",
         label: "Email",
         hint: "Configure the mapping of IdP attribute keys for email.",
         name: "metadataEmail",
+        isRequired: true,
       },
     ],
   },
@@ -184,6 +191,11 @@ function MetadataForm(
           },
         }),
       );
+    } else {
+      Toaster.show({
+        text: "Mandatory fields cannot be empty",
+        variant: Variant.danger,
+      });
     }
   };
 

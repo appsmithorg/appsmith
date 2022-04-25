@@ -16,6 +16,8 @@ import RestartBanner from "pages/Settings/RestartBanner";
 import { BottomSpace } from "pages/Settings/SettingsForm";
 import { DisconnectService } from "pages/Settings/DisconnectService";
 import { fetchSamlMetadata } from "@appsmith/actions/settingsAction";
+import { connectedMethods } from "@appsmith/utils/adminSettingsHelpers";
+import { Toaster, Variant } from "components/ads";
 
 function getSettingLabel(name = "") {
   return name.replace(/-/g, "");
@@ -43,6 +45,21 @@ export function Sso() {
   const dispatch = useDispatch();
   const saved = details?.isConnected ? true : false;
 
+  const saveBlocked = () => {
+    Toaster.show({
+      text: "Cannot disconnect the only connected authentication method.",
+      variant: Variant.danger,
+    });
+  };
+
+  const disconnect = () => {
+    if (connectedMethods.length >= 2) {
+      dispatch(fetchSamlMetadata({ isEnabled: false }));
+    } else {
+      saveBlocked();
+    }
+  };
+
   return (
     <Wrapper>
       <SettingsFormWrapper>
@@ -57,9 +74,7 @@ export function Sso() {
           <>
             <SamlAuthTest />
             <DisconnectService
-              disconnect={() =>
-                dispatch(fetchSamlMetadata({ isEnabled: false }))
-              }
+              disconnect={() => disconnect()}
               subHeader="Changes to this section can disrupt user authentication. Proceed with caution"
               warning="SAML 2.0 will be removed as primary method of authentication"
             />

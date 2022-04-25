@@ -106,6 +106,11 @@ export const RaisedCard = styled(SettingsFormWrapper)`
   }
 `;
 
+export const StyledAsterisk = styled.span`
+  color: ${Colors.ERROR_RED};
+  margin-left: 2px;
+`;
+
 export type InputProps = {
   className?: string;
   placeholder?: string;
@@ -114,10 +119,11 @@ export type InputProps = {
   subText?: string;
   hint?: string;
   type?: "Area" | "Text";
+  isRequired?: boolean;
 };
 
 export function Input(props: InputProps) {
-  const { name, placeholder, type = "Text" } = props;
+  const { isRequired, name, placeholder, type = "Text" } = props;
   let InputField;
   if (type === "Area") {
     InputField = (
@@ -140,6 +146,7 @@ export function Input(props: InputProps) {
     <InputContainer>
       <Text color={Colors.GREY_9} type={TextType.P1}>
         {props.label}
+        {isRequired && <StyledAsterisk>*</StyledAsterisk>}
         {props.hint && (
           <Tooltip
             autoFocus={false}
