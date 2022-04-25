@@ -53,7 +53,7 @@ describe("Tab widget test", function() {
     cy.get(publish.tabWidget)
       .contains(this.data.tabName)
       .click({ force: true })
-      .should("be.selected");
+      .should("have.class", "is-selected");
     cy.get(publish.backToEditor).click();
   });
   it("Tab Widget Functionality To Unchecked Visible Widget", function() {
@@ -133,20 +133,21 @@ describe("Tab widget test", function() {
   */
   it("Tabs widget should have navigation arrows if tabs don't fit", function() {
     const rightNavButtonSelector =
-      Layoutpage.tabWidget + " button.scroll-nav-right-button";
+      Layoutpage.tabWidget + " .scroll-nav-right-button";
     const leftNavButtonSelector =
-      Layoutpage.tabWidget + " button.scroll-nav-left-button";
+      Layoutpage.tabWidget + " .scroll-nav-left-button";
 
     cy.openPropertyPane("tabswidget");
     // Add a new tab
     cy.get(Layoutpage.tabButton).click({ force: true });
-    cy.tabVerify(2, "Tab3-for-testing-scroll-navigation-controls");
+    cy.get(Layoutpage.tabButton).click({ force: true });
+    cy.tabVerify(3, "Tab3-for-testing-scroll-navigation-controls");
     // Should show off right navigation arrow
-    cy.get(rightNavButtonSelector).should("exist");
-    // Click on the right navigation arrow
-    cy.get(rightNavButtonSelector).click({ force: true });
-    // Should show off left navigation arrow
     cy.get(leftNavButtonSelector).should("exist");
+    // Click on the right navigation arrow
+    cy.get(leftNavButtonSelector).click({ force: true });
+    // Should show off left navigation arrow
+    cy.get(rightNavButtonSelector).should("exist");
   });
 });
 

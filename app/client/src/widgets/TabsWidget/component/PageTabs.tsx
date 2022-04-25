@@ -63,18 +63,24 @@ const StyleTabText = styled.div`
 `;
 
 function PageTabName({
+  id,
   name,
   primaryColor,
+  selected,
 }: {
+  id: string;
   name: string;
   primaryColor: string;
+  selected: boolean;
 }) {
   const tabNameRef = useRef<HTMLSpanElement>(null);
   const [ellipsisActive, setEllipsisActive] = useState(false);
   const tabNameText = (
-    <StyleTabText>
+    <StyleTabText className={`t--tab-${name} t--tabid-${id}`}>
       <div className="relative flex items-center justify-center flex-grow">
-        <span ref={tabNameRef}>{name}</span>
+        <span className={selected ? "is-selected" : ""} ref={tabNameRef}>
+          {name}
+        </span>
         {ellipsisActive && "..."}
       </div>
       <StyledBottomBorder primaryColor={primaryColor} />
@@ -163,12 +169,14 @@ export function PageTabs(props: Props) {
             }}
           >
             <PageTabName
+              id={tab.id}
               name={tab.label}
               primaryColor={get(
                 selectedTheme,
                 "properties.colors.primaryColor",
                 "inherit",
               )}
+              selected={props.selectedTabWidgetId === tab.widgetId}
             />
           </PageTab>
         </PageTabContainer>

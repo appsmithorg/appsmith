@@ -431,9 +431,12 @@ Cypress.Commands.add("selectColor", (GivenProperty) => {
   ).click({
     force: true,
   });
-  cy.get(widgetsPage.colorsAvailable)
-    .first()
-    .click({ force: true });
+
+  cy.get(widgetsPage.colorPickerV2Color)
+    .eq(-15)
+    .then(($elem) => {
+      cy.get($elem).click({ force: true });
+    });
 });
 
 Cypress.Commands.add("toggleJsAndUpdate", (endp, value) => {

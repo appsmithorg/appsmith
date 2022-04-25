@@ -177,7 +177,7 @@ describe("Select Widget Functionality", function() {
       }`,
     );
     cy.PublishtheApp();
-    cy.get(".bp3-button")
+    cy.get(".bp3-button.select-button")
       .eq(0)
       .should("be.visible")
       .click({ force: true });

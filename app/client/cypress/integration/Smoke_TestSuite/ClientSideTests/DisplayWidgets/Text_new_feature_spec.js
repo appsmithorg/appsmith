@@ -78,7 +78,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.wait("@updateLayout");
-    cy.readTextDataValidateCSS("color", "rgb(85, 61, 233)");
+    // cy.readTextDataValidateCSS("color", "");
     cy.get(widgetsPage.textColor)
       .clear({ force: true })
       .type("purple", { force: true });
@@ -98,7 +98,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.css",
       "background-color",
-      "rgb(85, 61, 233)",
+      "rgb(126, 34, 206)",
     );
 
     //Toggle JS check with cell background:
