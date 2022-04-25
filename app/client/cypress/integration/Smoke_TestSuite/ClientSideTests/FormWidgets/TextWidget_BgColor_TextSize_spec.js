@@ -20,7 +20,7 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.css",
       "background-color",
-      "rgb(85, 61, 233)",
+      "rgb(126, 34, 206)",
     );
 
     //Toggle to JS mode

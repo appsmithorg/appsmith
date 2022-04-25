@@ -209,10 +209,13 @@ export const migrateStylingPropertiesForTheming = (
           const newBoxShadowColor =
             column.boxShadowColor || rgbaMigrationConstantV56;
 
-          addPropertyToDynamicPropertyPathList(
-            `primaryColumns.${key}.boxShadow`,
-            child,
-          );
+          if (column.boxShadow) {
+            addPropertyToDynamicPropertyPathList(
+              `primaryColumns.${key}.boxShadow`,
+              child,
+            );
+          }
+
           switch (column.boxShadow) {
             case BoxShadowTypes.VARIANT1:
               if (!isBoxShadowColorDynamic) {
@@ -418,56 +421,58 @@ export const migrateStylingPropertiesForTheming = (
           clonedSchema[ROOT_SCHEMA_KEY],
           `schema.${ROOT_SCHEMA_KEY}`,
           (schemaItem, propertyPath) => {
-            switch (schemaItem.labelTextSize) {
-              case TextSizes.PARAGRAPH2:
-                schemaItem.labelTextSize = THEMEING_TEXT_SIZES.xs;
-                addPropertyToDynamicPropertyPathList(
-                  `${propertyPath}.labelTextSize`,
-                  child,
-                );
-                break;
-              case TextSizes.PARAGRAPH:
-                schemaItem.labelTextSize = THEMEING_TEXT_SIZES.sm;
-                break;
-              case TextSizes.HEADING3:
-                schemaItem.labelTextSize = THEMEING_TEXT_SIZES.base;
-                break;
-              case TextSizes.HEADING2:
-                schemaItem.labelTextSize = THEMEING_TEXT_SIZES.md;
-                addPropertyToDynamicPropertyPathList(
-                  `${propertyPath}.labelTextSize`,
-                  child,
-                );
-                break;
-              case TextSizes.HEADING1:
-                schemaItem.labelTextSize = THEMEING_TEXT_SIZES.lg;
-                addPropertyToDynamicPropertyPathList(
-                  `${propertyPath}.labelTextSize`,
-                  child,
-                );
-                break;
-              default:
-                schemaItem.labelTextSize = THEMEING_TEXT_SIZES.sm;
+            if (schemaItem) {
+              switch (schemaItem.labelTextSize) {
+                case TextSizes.PARAGRAPH2:
+                  schemaItem.labelTextSize = THEMEING_TEXT_SIZES.xs;
+                  addPropertyToDynamicPropertyPathList(
+                    `${propertyPath}.labelTextSize`,
+                    child,
+                  );
+                  break;
+                case TextSizes.PARAGRAPH:
+                  schemaItem.labelTextSize = THEMEING_TEXT_SIZES.sm;
+                  break;
+                case TextSizes.HEADING3:
+                  schemaItem.labelTextSize = THEMEING_TEXT_SIZES.base;
+                  break;
+                case TextSizes.HEADING2:
+                  schemaItem.labelTextSize = THEMEING_TEXT_SIZES.md;
+                  addPropertyToDynamicPropertyPathList(
+                    `${propertyPath}.labelTextSize`,
+                    child,
+                  );
+                  break;
+                case TextSizes.HEADING1:
+                  schemaItem.labelTextSize = THEMEING_TEXT_SIZES.lg;
+                  addPropertyToDynamicPropertyPathList(
+                    `${propertyPath}.labelTextSize`,
+                    child,
+                  );
+                  break;
+                default:
+                  schemaItem.labelTextSize = THEMEING_TEXT_SIZES.sm;
+              }
+
+              // Set the default borderRadius
+              !has(schemaItem, "borderRadius") &&
+                set(schemaItem, "borderRadius", THEMING_BORDER_RADIUS.none);
+              // Set the default borderRadius for the Item styles in an array type:
+              !has(schemaItem, "cellBorderRadius") &&
+                set(schemaItem, "cellBorderRadius", THEMING_BORDER_RADIUS.none);
+
+              // Sets the default value for the boxShadow
+              !has(schemaItem, "boxShadow") &&
+                set(schemaItem, "boxShadow", DEFAULT_BOXSHADOW);
+
+              // Sets the default value for the boxShadow property of Item styles inside an array:
+              !has(schemaItem, "cellBoxShadow") &&
+                set(schemaItem, "cellBoxShadow", DEFAULT_BOXSHADOW);
+
+              // Sets default value as green for the accentColor(Most of the widgets require the below property):
+              !has(schemaItem, "accentColor") &&
+                set(schemaItem, "accentColor", Colors.GREEN);
             }
-
-            // Set the default borderRadius
-            !has(schemaItem, "borderRadius") &&
-              set(schemaItem, "borderRadius", THEMING_BORDER_RADIUS.none);
-            // Set the default borderRadius for the Item styles in an array type:
-            !has(schemaItem, "cellBorderRadius") &&
-              set(schemaItem, "cellBorderRadius", THEMING_BORDER_RADIUS.none);
-
-            // Sets the default value for the boxShadow
-            !has(schemaItem, "boxShadow") &&
-              set(schemaItem, "boxShadow", DEFAULT_BOXSHADOW);
-
-            // Sets the default value for the boxShadow property of Item styles inside an array:
-            !has(schemaItem, "cellBoxShadow") &&
-              set(schemaItem, "cellBoxShadow", DEFAULT_BOXSHADOW);
-
-            // Sets default value as green for the accentColor(Most of the widgets require the below property):
-            !has(schemaItem, "accentColor") &&
-              set(schemaItem, "accentColor", Colors.GREEN);
           },
         );
 

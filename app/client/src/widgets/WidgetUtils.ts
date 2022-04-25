@@ -529,7 +529,7 @@ export const parseSchemaItem = (
 ) => {
   // Update the theme stuff for this schema
   callback(schemaItem, propertyPath);
-  if (!isEmpty(schemaItem.children)) {
+  if (schemaItem && !isEmpty(schemaItem.children)) {
     Object.values(schemaItem.children).forEach((schemaItem) => {
       const childPropertyPath = `${propertyPath}.children.${schemaItem.identifier}`;
       parseSchemaItem(schemaItem, childPropertyPath, callback);
