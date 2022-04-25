@@ -82,6 +82,15 @@ export const DropdownWrapper = styled(StyledFormGroup)`
   }
 `;
 
+export const Center = styled.div`
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+`;
+
 export function withDropdown(options: OptionType[], width: string) {
   return function DropdownField(
     componentProps: FormTextFieldProps & {

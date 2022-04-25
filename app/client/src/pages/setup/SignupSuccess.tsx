@@ -24,6 +24,8 @@ import PerformanceTracker, {
 import Landing from "./Welcome";
 import { error } from "loglevel";
 import { matchPath } from "react-router";
+import { Center } from "pages/setup/common";
+import { IconSize, Spinner } from "components/ads";
 
 export function SignupSuccess() {
   const dispatch = useDispatch();
@@ -108,6 +110,12 @@ export function SignupSuccess() {
     shouldEnableFirstTimeUserOnboarding !== "true"
   ) {
     redirectUsingQueryParam();
+    // Showing a loader until the redirect
+    return (
+      <Center>
+        <Spinner size={IconSize.XXXXL} />
+      </Center>
+    );
   }
   return <Landing forSuperUser={false} onGetStarted={onGetStarted} />;
 }
