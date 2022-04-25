@@ -290,6 +290,10 @@ class JSONFormWidget extends BaseWidget<
 
   getFormData = () => this.props.formData;
 
+  onFormValidityUpdate = (isValid: boolean) => {
+    this.props.updateWidgetMetaProperty("isValid", isValid);
+  };
+
   getPageView() {
     return (
       // Warning!!! Do not ever introduce formData as a prop directly,
@@ -309,6 +313,7 @@ class JSONFormWidget extends BaseWidget<
         getFormData={this.getFormData}
         isSubmitting={this.state.isSubmitting}
         isWidgetMounting={this.isWidgetMounting}
+        onFormValidityUpdate={this.onFormValidityUpdate}
         onSubmit={this.onSubmit}
         registerResetObserver={this.registerResetObserver}
         renderMode={this.props.renderMode}

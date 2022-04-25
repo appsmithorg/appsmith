@@ -38,6 +38,7 @@ export type JSONFormComponentProps<TValues = any> = {
   getFormData: () => TValues;
   isSubmitting: boolean;
   isWidgetMounting: boolean;
+  onFormValidityUpdate: (isValid: boolean) => void;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   registerResetObserver: (callback: () => void) => void;
   renderMode: RenderMode;
@@ -96,6 +97,7 @@ function JSONFormComponent<TValues>({
   getFormData,
   isSubmitting,
   isWidgetMounting,
+  onFormValidityUpdate,
   registerResetObserver,
   renderMode,
   resetButtonLabel,
@@ -176,6 +178,7 @@ function JSONFormComponent<TValues>({
           hideFooter={hideFooter}
           isSubmitting={isSubmitting}
           isWidgetMounting={isWidgetMounting}
+          onFormValidityUpdate={onFormValidityUpdate}
           onSubmit={rest.onSubmit}
           registerResetObserver={registerResetObserver}
           resetButtonLabel={resetButtonLabel}

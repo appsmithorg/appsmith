@@ -136,7 +136,7 @@ Cypress.Commands.add(
     }
     cy.get(".string-value").contains(baseurl.concat(path));
     cy.get(".string-value").contains(verb);
-    cy.get("[data-cy=t--tab-body]")
+    cy.get("[data-cy=t--tab-response]")
       .first()
       .click({ force: true });
   },

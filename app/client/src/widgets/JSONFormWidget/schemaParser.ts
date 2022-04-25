@@ -8,6 +8,8 @@ import {
   sortBy,
   startCase,
 } from "lodash";
+import { klona } from "klona";
+
 import { sanitizeKey } from "widgets/WidgetUtils";
 import {
   ARRAY_ITEM_KEY,
