@@ -663,7 +663,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Override
     public Mono<Map> loadPluginResource(String pluginId, String resourcePath) {
-        return findById(pluginId)
+         return findById(pluginId)
                 .map(plugin -> {
                     if ("editor.json".equals(resourcePath)) {
                         // UI config will be available if this plugin is sourced from the cloud

@@ -120,8 +120,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public static final String NATIVE_QUERY_PATH = "formToNativeQuery";
     public static final String NATIVE_QUERY_PATH_DATA = NATIVE_QUERY_PATH + "." + DATA;
     public static final String NATIVE_QUERY_PATH_STATUS = NATIVE_QUERY_PATH + "." + STATUS;
-    public static final String JS_PLUGIN_ID = "62606c986b7bdc12a6b835bf";
     public static final PluginType JS_PLUGIN_TYPE = PluginType.JS;
+    public static final String JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 
     private final NewActionRepository repository;
     private final DatasourceService datasourceService;
@@ -1102,7 +1102,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Flux<NewAction> findUnpublishedOnLoadActionsExplicitSetByUserInPage(String pageId) {
         return repository
-                .findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(pageId, MANAGE_ACTIONS);
+                .findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(pageId, MANAGE_ACTIONS)
+                .flatMap(this::sanitizeAction);
     }
 
     /**
@@ -1115,27 +1116,36 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Flux<NewAction> findUnpublishedActionsInPageByNames(Set<String> names, String pageId) {
         return repository
-                .findUnpublishedActionsByNameInAndPageId(names, pageId, MANAGE_ACTIONS);
+                .findUnpublishedActionsByNameInAndPageId(names, pageId, MANAGE_ACTIONS)
+                .flatMap(this::sanitizeAction);
     }
 
     @Override
     public Mono<NewAction> findById(String id) {
-        return repository.findById(id);
+        return repository.findById(id)
+                .flux()
+                .flatMap(this::sanitizeAction)
+                .last();
     }
 
     @Override
     public Mono<NewAction> findById(String id, AclPermission aclPermission) {
-        return repository.findById(id, aclPermission);
+        return repository.findById(id, aclPermission)
+                .flux()
+                .flatMap(this::sanitizeAction)
+                .last();
     }
 
     @Override
     public Flux<NewAction> findByPageId(String pageId, AclPermission permission) {
-        return repository.findByPageId(pageId, permission);
+        return repository.findByPageId(pageId, permission)
+                .flatMap(this::sanitizeAction);
     }
 
     @Override
     public Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission permission) {
-        return repository.findByPageIdAndViewMode(pageId, viewMode, permission);
+        return repository.findByPageIdAndViewMode(pageId, viewMode, permission)
+                .flatMap(this::sanitizeAction);
     }
 
     @Override
@@ -1153,7 +1163,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     // every created action starts from an unpublishedAction state.
 
                     return Mono.just(action);
-                });
+                })
+                .flatMap(this::sanitizeAction);
     }
 
     @Override
@@ -1322,9 +1333,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             return applicationService
                     .findById(params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS)
                     .flatMapMany(application -> repository.findByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS))
+                    .flatMap(this::sanitizeAction)
                     .flatMap(this::setTransientFieldsInUnpublishedAction);
         }
         return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, READ_ACTIONS, sort)
+                .flatMap(this::sanitizeAction)
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
     }
 
@@ -1364,47 +1377,66 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params, String branchName) {
         return this.getUnpublishedActions(params, branchName)
-                .flatMap(this::sanitizeActionDTO)
                 .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()));
     }
 
-    private Mono<ActionDTO> sanitizeActionDTO(ActionDTO actionDTO) {
-        Mono<ActionDTO> actionDTOMono = Mono.just(actionDTO);
-        if (actionDTO.getPluginType() == null || actionDTO.getPluginId() == null) {
-            Datasource datasource = actionDTO.getDatasource();
-            if (datasource != null && isPluginTypeOrPluginIdMissing(actionDTO)) {
-                providePluginTypeAndIdToActionDTOUsingDatasource(actionDTOMono);
-            }
+    /**
+     * This method has been added in response to certain cases where it was found that pluginId and pluginType keys
+     * were missing from the NewAction object in the database.Since it is currently not know what exactly causes
+     * these values to go missing, this check will serve as a workaround by fetching and setting pluginId and
+     * pluginType using the datasource object contained in the ActionDTO object.
+     * Ref: https://github.com/appsmithorg/appsmith/issues/11927
+     */
+    private Flux<NewAction> sanitizeAction(NewAction action) {
+        Flux<NewAction> actionFlux = Flux.just(action);
+        if (isPluginTypeOrPluginIdMissing(action)) {
+            actionFlux = providePluginTypeAndIdToNewActionObjectUsingJSTypeOrDatasource(action)
+                    .flatMap(this::save);
         }
 
-        return actionDTOMono;
+        return actionFlux;
     }
 
-    private boolean isPluginTypeOrPluginIdMissing(ActionDTO actionDTO) {
-        // TODO: fill it
-        return false;
+    private boolean isPluginTypeOrPluginIdMissing(NewAction action) {
+        return action.getPluginId() == null || action.getPluginType() == null;
     }
 
-    private void providePluginTypeAndIdToActionDTOUsingDatasource(Mono<ActionDTO>) {
+    private Flux<NewAction> providePluginTypeAndIdToNewActionObjectUsingJSTypeOrDatasource(NewAction action) {
+        ActionDTO actionDTO = action.getUnpublishedAction();
+        if (actionDTO == null) {
+            return Flux.just(action);
+        }
+
+        Datasource datasource = actionDTO.getDatasource();
         if (actionDTO.getCollectionId() != null) {
-            setPluginIdAndTypeForJSAction(actionDTO);
+            return setPluginIdAndTypeForJSAction(action);
         }
-        else if (datasource.getPluginId() != null) {
+        else if (datasource != null && datasource.getPluginId() != null) {
             String pluginId = datasource.getPluginId();
-            actionDTO.setPluginId(pluginId);
+            action.setPluginId(pluginId);
 
-            PluginType pluginType = getPluginTypeFromPluginId(pluginId);
-            actionDTO.setPluginType(pluginType);
+            return setPluginTypeFromId(action, pluginId);
         }
+
+        return Flux.just(action);
     }
 
-    private PluginType getPluginTypeFromPluginId(String pluginId) {
-        Plugin plugin = pluginService.findById(pluginId);
+    private Flux<NewAction> setPluginTypeFromId(NewAction action, String pluginId) {
+        return pluginService.findById(pluginId)
+                .flatMapMany(plugin -> {
+                    action.setPluginType(plugin.getType());
+                    return Flux.just(action);
+                });
     }
 
-    private void setPluginIdAndTypeForJSAction(ActionDTO actionDTO) {
-        actionDTO.setPluginId(JS_PLUGIN_ID);
-        actionDTO.setPluginType(JS_PLUGIN_TYPE);
+    private Flux<NewAction> setPluginIdAndTypeForJSAction(NewAction action) {
+        action.setPluginType(JS_PLUGIN_TYPE);
+
+        return pluginService.findByPackageName(JS_PLUGIN_PACKAGE_NAME)
+                .flatMapMany(plugin -> {
+                    action.setPluginId(plugin.getId());
+                    return Flux.just(action);
+                });
     }
 
     // We can afford to make this call all the time since we already have all the info we need in context
@@ -1443,7 +1475,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Flux<NewAction> findByPageId(String pageId) {
-        return repository.findByPageId(pageId);
+        return repository.findByPageId(pageId)
+                .flatMap(this::sanitizeAction);
     }
 
     /**
@@ -1684,7 +1717,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return repository.findByBranchNameAndDefaultActionId(branchName, defaultActionId, permission)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId + "," + branchName))
-                );
+                )
+                .flux()
+                .flatMap(this::sanitizeAction)
+                .last();
     }
 
     public Mono<String> findBranchedIdByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission) {
