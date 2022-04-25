@@ -46,9 +46,6 @@ export const CONFIG = {
       {
         key: "primaryColumns.action.borderRadius",
       },
-      {
-        key: "primaryColumns.action.menuColor",
-      },
     ],
     primaryColumns: {
       step: {
