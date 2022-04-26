@@ -9,7 +9,7 @@ import {
   VirtuosoGridHandle,
 } from "react-virtuoso";
 
-import BaseControl, { ControlProps } from "./BaseControl";
+import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import TooltipComponent from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
@@ -101,6 +101,7 @@ const ICON_NAMES = Object.keys(IconNames).map<IconType>(
   (name: string) => IconNames[name as keyof typeof IconNames],
 );
 ICON_NAMES.unshift(NONE);
+const icons = new Set(ICON_NAMES);
 
 const TypedSelect = Select.ofType<IconType>();
 
@@ -386,6 +387,11 @@ class IconSelectControl extends BaseControl<
 
   static getControlType() {
     return "ICON_SELECT";
+  }
+
+  static canDisplayValueInUI(config: ControlData, value: any): boolean {
+    if (icons.has(value)) return true;
+    return false;
   }
 }
 

@@ -1,9 +1,10 @@
 import React from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
+import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import ButtonTabComponent, {
   ButtonTabOption,
 } from "components/ads/ButtonTabComponent";
 import produce from "immer";
+import { DropDownControlProps } from "./DropDownControl";
 
 class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
   selectButton = (value: string) => {
@@ -36,6 +37,17 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
 
   static getControlType() {
     return "BUTTON_TABS";
+  }
+
+  static canDisplayValueInUI(config: ControlData, value: any): boolean {
+    // TODO(aswath): We need to allow CSV values. ex: BOLD,ITALIC
+    if (
+      (config as DropDownControlProps)?.options
+        ?.map((x: { value: string }) => x.value)
+        .includes(value)
+    )
+      return true;
+    return false;
   }
 }
 
