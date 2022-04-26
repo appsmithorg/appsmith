@@ -1,34 +1,28 @@
-name: Appsmith Helm Release Workflow
+name: Helm Charts Publish
 
-# This workflow package & publish new version for Helm chart to S3 bucket
-# This workflow is automatically triggered when merging PR with target branch is `master`
+# Package & publish new version for Helm chart to S3 bucket.
+
 on:
-  # https://github.community/t/trigger-workflow-only-on-pull-request-merge/17359/3
-  # Merged pull request always results in a push and branch master is protected branch
-  # We can take use of 'push' action in this context 
   push:
     branches:
-      - master-test
+      - master
     paths:
       - "deploy/helm/**"
 
-jobs:
-  release:
-    runs-on: ubuntu-latest
-    continue-on-error: true
+  workflow_dispatch:
 
-    env:
-      HELM_DIRECTORY: deploy/helm
-      CHART_PATH: deploy/helm/Chart.yaml
+jobs:
+  publish:
+    runs-on: ubuntu-latest
 
     defaults:
       run:
-        working-directory: ${{ env.HELM_DIRECTORY }}
+        working-directory: deploy/helm
         shell: bash
 
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -37,44 +31,37 @@ jobs:
         with:
           version: v3.6.3
 
-      - name: Configure AWS Credentials
-        uses: aws-action/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Retrieve Helm version
+      - name: Get the chart version
         id: helm-version
-        uses: KJ002/read-yaml@1.6
-        with:
-          file: "${{ github.workspace }}/${{ env.CHART_PATH }}"
-          key-path: '["version"]'
+        run: |
+          awk '$1 == "version:" {print $2}' "${{ github.workspace }}/deploy/helm/Chart.yaml"
 
       - name: Check existing Helm version
         id: version-check
         # Scan the S3 bucket with the Helm version retrieved from Chart.yaml
-        # Set flag is_duplicate_version if found Helm chart package corresponding to the version
+        # If an archive with this version already exists in the bucket, fail immediately.
+        env:
+          AWS_ACCESS_KEY_ID: "${{ secrets.HELM_AWS_ACCESS_KEY_ID }}"
+          AWS_SECRET_ACCESS_KEY: "${{ secrets.HELM_AWS_SECRET_ACCESS_KEY }}"
         run: |
-          scan_version_command="aws s3 ls s3://${{ secrets.S3_DOMAIN }} | awk '{print $4}' | grep appsmith-${{ steps.helm-version.outputs.data }}.tgz"
-          if eval "$scan_version_command"; then
-            echo "::set-output name=is_duplicate_version::true"
-          else
-            echo "::set-output name=is_duplicate_version::false"
+          archive="appsmith-${{ steps.helm-version.outputs.data }}.tgz"
+          if [[ "$archive" == "$(aws s3api list-objects --bucket helm.appsmith.com --prefix "$archive")" ]]; then
+            echo "$archive is already present in the Helm bucket. Please change the version number in Chart.yaml file" >&2
+            exit 1
           fi
 
-      - name: Fail due to existing version in S3 bucket
-        if: steps.version-check.outputs.is_duplicate_version == 'true'
-        run: |
-          echo -e "\n ${{ steps.helm-version.outputs.data }} is already exist. Please re-check the Helm version in Chart.yaml \n"
-
       - name: Publish Helm
-        # Only publish new Helm version if it does not exist in S3 bucket
-        if: steps.version-check.outputs.is_duplicate_version == 'false'
+        env:
+          AWS_ACCESS_KEY_ID: "${{ secrets.HELM_AWS_ACCESS_KEY_ID }}"
+          AWS_SECRET_ACCESS_KEY: "${{ secrets.HELM_AWS_SECRET_ACCESS_KEY }}"
+          # Not really sure why this is needed, but without it, we see the error:
+          #   <botocore.awsrequest.AWSRequest object at 0x7fde607adac0>
+          #   Error: Process completed with exit code 255.
+          AWS_EC2_METADATA_DISABLED: true
         run: |
-          echo -e "\n Publishing new Helm chart version \n"
+          echo "Publishing new Helm chart version"
           helm package .
-          aws s3 cp s3://${{ secrets.S3_DOMAIN }}/index.yaml .
-          helm repo index . --url http://${{ secrets.S3_DOMAIN }} --merge index.yaml
-          aws s3 cp ./appsmith-${{ steps.helm-version.outputs.data }}.tgz s3://${{ secrets.S3_DOMAIN }} 
-          aws s3 cp index.yaml s3://${{ secrets.S3_DOMAIN }}
+          aws s3 cp s3://${{ secrets.HELM_S3_BUCKET }}/index.yaml .
+          helm repo index . --url https://${{ secrets.HELM_S3_BUCKET }} --merge index.yaml
+          aws s3 cp appsmith-${{ steps.helm-version.outputs.data }}.tgz s3://${{ secrets.HELM_S3_BUCKET }}
+          aws s3 cp index.yaml s3://${{ secrets.HELM_S3_BUCKET }}
