@@ -27,6 +27,7 @@ import {
   createMessage,
   ENTITY_ID_TOOLTIP,
   REDIRECT_URL_TOOLTIP,
+  MANDATORY_FIELDS_ERROR,
 } from "@appsmith/constants/messages";
 import { Toaster, Variant } from "components/ads";
 
@@ -156,19 +157,20 @@ function MetadataForm(
   const submit = () => {
     const {
       metadataEmail,
+      metadataEntityId,
       metadataPubCert,
       metadataSsoUrl,
       metadataUrl,
       metadataXml,
     } = props.settings;
-    if (activeTabIndex === 0 && metadataUrl) {
+    if (activeTabIndex === 0 && metadataUrl?.toString().trim()) {
       dispatch(
         fetchSamlMetadata({
           isEnabled: true,
           importFromUrl: metadataUrl,
         }),
       );
-    } else if (activeTabIndex === 1 && metadataXml) {
+    } else if (activeTabIndex === 1 && metadataXml?.toString().trim()) {
       dispatch(
         fetchSamlMetadata({
           isEnabled: true,
@@ -177,9 +179,10 @@ function MetadataForm(
       );
     } else if (
       activeTabIndex === 2 &&
-      metadataEmail &&
-      metadataSsoUrl &&
-      metadataPubCert
+      metadataEmail?.toString().trim() &&
+      metadataSsoUrl?.toString().trim() &&
+      metadataPubCert?.toString().trim() &&
+      metadataEntityId?.toString().trim()
     ) {
       dispatch(
         fetchSamlMetadata({
@@ -193,7 +196,7 @@ function MetadataForm(
       );
     } else {
       Toaster.show({
-        text: "Mandatory fields cannot be empty",
+        text: createMessage(MANDATORY_FIELDS_ERROR),
         variant: Variant.danger,
       });
     }

@@ -22,8 +22,10 @@ import {
 } from "@appsmith/pages/AdminSettings/config/types";
 import {
   createMessage,
+  DISCONNECT_AUTH_ERROR,
   DISCONNECT_SERVICE_SUBHEADER,
   DISCONNECT_SERVICE_WARNING,
+  MANDATORY_FIELDS_ERROR,
 } from "@appsmith/constants/messages";
 import { Toaster, Variant } from "components/ads";
 import {
@@ -118,7 +120,7 @@ export function OidcSettingsForm(
       }
     } else {
       Toaster.show({
-        text: "Mandatory fields cannot be empty",
+        text: createMessage(MANDATORY_FIELDS_ERROR),
         variant: Variant.danger,
       });
     }
@@ -200,7 +202,7 @@ export function OidcSettingsForm(
 
   const saveBlocked = () => {
     Toaster.show({
-      text: "Cannot disconnect the only connected authentication method.",
+      text: createMessage(DISCONNECT_AUTH_ERROR),
       variant: Variant.danger,
     });
   };

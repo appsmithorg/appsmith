@@ -17,6 +17,12 @@ import { BottomSpace } from "pages/Settings/SettingsForm";
 import { DisconnectService } from "pages/Settings/DisconnectService";
 import { fetchSamlMetadata } from "@appsmith/actions/settingsAction";
 import { connectedMethods } from "@appsmith/utils/adminSettingsHelpers";
+import {
+  createMessage,
+  DISCONNECT_AUTH_ERROR,
+  DISCONNECT_SERVICE_SUBHEADER,
+  DISCONNECT_SERVICE_WARNING,
+} from "@appsmith/constants/messages";
 import { Toaster, Variant } from "components/ads";
 
 function getSettingLabel(name = "") {
@@ -47,7 +53,7 @@ export function Sso() {
 
   const saveBlocked = () => {
     Toaster.show({
-      text: "Cannot disconnect the only connected authentication method.",
+      text: createMessage(DISCONNECT_AUTH_ERROR),
       variant: Variant.danger,
     });
   };
@@ -75,8 +81,8 @@ export function Sso() {
             <SamlAuthTest />
             <DisconnectService
               disconnect={() => disconnect()}
-              subHeader="Changes to this section can disrupt user authentication. Proceed with caution"
-              warning="SAML 2.0 will be removed as primary method of authentication"
+              subHeader={createMessage(DISCONNECT_SERVICE_SUBHEADER)}
+              warning={`SAML 2.0 ${createMessage(DISCONNECT_SERVICE_WARNING)}`}
             />
           </>
         )}
