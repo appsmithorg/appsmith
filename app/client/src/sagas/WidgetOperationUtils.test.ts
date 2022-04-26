@@ -17,6 +17,7 @@ import {
   CopiedWidgetGroup,
   getPastePositionMapFromMousePointer,
   getReflowedPositions,
+  getWidgetsFromIds,
 } from "./WidgetOperationUtils";
 
 describe("WidgetOperationSaga", () => {
@@ -935,5 +936,46 @@ describe("WidgetOperationSaga", () => {
         bottomRow: 105,
       },
     });
+  });
+  it("should test getWidgetsFromIds", () => {
+    const widgets = {
+      "1234": {
+        widgetId: "1234",
+        topRow: 40,
+        leftColumn: 10,
+        rightColumn: 35,
+        bottomRow: 70,
+      } as FlattenedWidgetProps,
+      "1233": {
+        widgetId: "1233",
+        topRow: 45,
+        leftColumn: 30,
+        rightColumn: 60,
+        bottomRow: 70,
+      } as FlattenedWidgetProps,
+      "1235": {
+        widgetId: "1235",
+        topRow: 75,
+        leftColumn: 15,
+        rightColumn: 30,
+        bottomRow: 110,
+      } as FlattenedWidgetProps,
+    };
+    expect(getWidgetsFromIds(["1235", "1234", "1237"], widgets)).toEqual([
+      {
+        widgetId: "1235",
+        topRow: 75,
+        leftColumn: 15,
+        rightColumn: 30,
+        bottomRow: 110,
+      },
+      {
+        widgetId: "1234",
+        topRow: 40,
+        leftColumn: 10,
+        rightColumn: 35,
+        bottomRow: 70,
+      },
+    ]);
   });
 });
