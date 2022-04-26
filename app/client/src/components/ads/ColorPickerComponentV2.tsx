@@ -18,7 +18,6 @@ import {
 import { getWidgets } from "sagas/selectors";
 import { extractColorsFromString } from "utils/helpers";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
 const FocusTrap = require("focus-trap-react");
 
 const MAX_COLS = 10;

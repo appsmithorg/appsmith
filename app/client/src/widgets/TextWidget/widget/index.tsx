@@ -313,6 +313,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   getPageView() {
     return (
       <WidgetStyleContainer
+        className="t--text-widget-container"
         {...pick(this.props, [
           "widgetId",
           "containerStyle",
