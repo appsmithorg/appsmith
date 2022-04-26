@@ -108,6 +108,8 @@ import {
   getBoundariesFromSelectedWidgets,
   WIDGET_PASTE_PADDING,
   getWidgetsFromIds,
+  getDefaultCanvas,
+  isDropTarget,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
@@ -123,7 +125,6 @@ import {
   getBottomRowAfterReflow,
 } from "utils/reflowHookUtils";
 import { PrevReflowState, ReflowDirection, SpaceMap } from "reflow/reflowTypes";
-import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import { WidgetSpace } from "constants/CanvasEditorConstants";
 import { reflow } from "reflow";
 import { getBottomMostRow } from "reflow/reflowUtils";
@@ -857,7 +858,8 @@ const getNewPositions = function*(
   // then call the method to calculate and return positions based on selected widgets.
   if (
     !(
-      selectedWidgets.length === 1 && checkIsDropTarget(selectedWidgets[0].type)
+      selectedWidgets.length === 1 &&
+      isDropTarget(selectedWidgets[0].type, true)
     ) &&
     selectedWidgets.length > 0
   ) {
@@ -1034,18 +1036,12 @@ function* getNewPositionsBasedOnMousePositions(
   copiedTopMostRow: number,
   copiedLeftMostColumn: number,
 ) {
-  // set default of main container
-  let containerWidget = canvasWidgets[MAIN_CONTAINER_WIDGET_ID];
-  let canvasId: string | undefined = MAIN_CONTAINER_WIDGET_ID;
-  let canvasDOM: Element | undefined | null = document.querySelector(
-    `#${getSlidingCanvasName(MAIN_CONTAINER_WIDGET_ID)}`,
+  let { canvasDOM, canvasId, containerWidget } = getDefaultCanvas(
+    canvasWidgets,
   );
 
   //if the selected widget is a layout widget then change the pasting canvas.
-  if (
-    selectedWidgets.length === 1 &&
-    checkIsDropTarget(selectedWidgets[0].type)
-  ) {
+  if (selectedWidgets.length === 1 && isDropTarget(selectedWidgets[0].type)) {
     containerWidget = selectedWidgets[0];
     ({ canvasDOM, canvasId } = getCanvasIdForContainer(containerWidget));
   }

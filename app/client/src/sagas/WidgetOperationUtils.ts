@@ -331,6 +331,8 @@ export const getParentWidgetIdForPasting = function*(
     if (childWidget && childWidget.type === "CANVAS_WIDGET") {
       newWidgetParentId = childWidget.widgetId;
     }
+  } else if (selectedWidget && selectedWidget.type === "CANVAS_WIDGET") {
+    newWidgetParentId = selectedWidget.widgetId;
   }
   return newWidgetParentId;
 };
@@ -560,6 +562,37 @@ export function getSnappedGrid(LayoutWidget: WidgetProps, canvasWidth: number) {
     },
     padding: padding / 2,
   };
+}
+
+/**
+ * method to return default canvas,
+ * It is MAIN_CONTAINER_WIDGET_ID by default or
+ * if a modal is open, then default canvas is a Modal's canvas
+ *
+ * @param canvasWidgets
+ * @returns
+ */
+export function getDefaultCanvas(canvasWidgets: CanvasWidgetsReduxState) {
+  const containerDOM = document.querySelector(".t--modal-widget");
+  //if a modal is open, then get it's canvas Id
+  if (containerDOM && containerDOM.id && canvasWidgets[containerDOM.id]) {
+    const containerWidget = canvasWidgets[containerDOM.id];
+    const { canvasDOM, canvasId } = getCanvasIdForContainer(containerWidget);
+    return {
+      canvasId,
+      canvasDOM,
+      containerWidget,
+    };
+  } else {
+    //default canvas is set as MAIN_CONTAINER_WIDGET_ID
+    return {
+      canvasId: MAIN_CONTAINER_WIDGET_ID,
+      containerWidget: canvasWidgets[MAIN_CONTAINER_WIDGET_ID],
+      canvasDOM: document.querySelector(
+        `#${getSlidingCanvasName(MAIN_CONTAINER_WIDGET_ID)}`,
+      ),
+    };
+  }
 }
 
 /**
@@ -870,6 +903,20 @@ export function getWidgetsFromIds(
   }
 
   return widgets;
+}
+
+/**
+ * Check if it is drop target Including the CANVAS_WIDGET
+ *
+ * @param type
+ * @returns
+ */
+export function isDropTarget(type: WidgetType, includeCanvasWidget = false) {
+  const isLayoutWidget = !!WidgetFactory.widgetConfigMap.get(type)?.isCanvas;
+
+  if (includeCanvasWidget) return isLayoutWidget || type === "CANVAS_WIDGET";
+
+  return isLayoutWidget;
 }
 
 /**
