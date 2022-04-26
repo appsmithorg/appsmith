@@ -78,7 +78,10 @@ interface ReactTableComponentProps {
   isSortable?: boolean;
 }
 
-function ReactTableComponent(props: ReactTableComponentProps) {
+const ReactTableComponent = React.forwardRef<
+  HTMLDivElement,
+  ReactTableComponentProps
+>((props, ref) => {
   const {
     applyFilter,
     columns,
@@ -274,6 +277,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       pageNo={pageNo - 1}
       pageSize={pageSize || 1}
       prevPageClick={prevPageClick}
+      ref={ref}
       searchKey={searchKey}
       searchTableData={searchTableData}
       selectTableRow={selectTableRow}
@@ -290,7 +294,9 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       width={width}
     />
   );
-}
+});
+
+ReactTableComponent.displayName = "ReactTableComponent";
 
 export default React.memo(ReactTableComponent, (prev, next) => {
   return (
