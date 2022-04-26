@@ -25,6 +25,7 @@ import AppViewerPageContainer from "./AppViewerPageContainer";
 import {
   resetChildrenMetaProperty,
   updateWidgetMetaProperty,
+  syncUpdateWidgetMetaProperty,
 } from "actions/metaActions";
 import { editorInitializer } from "utils/EditorUtils";
 import * as Sentry from "@sentry/react";
@@ -108,6 +109,11 @@ export type AppViewerProps = {
     widgetId: string,
     updates: BatchPropertyUpdatePayload,
   ) => void;
+  syncUpdateWidgetMetaProperty: (
+    widgetId: string,
+    propertyName: string,
+    propertyValue: any,
+  ) => void;
 } & RouteComponentProps<BuilderRouteParams>;
 
 type Props = AppViewerProps & RouteComponentProps<AppViewerRouteParams>;
@@ -163,15 +169,24 @@ class AppViewer extends Component<Props> {
   public render() {
     const { isInitialized, location } = this.props;
     const isEmbeded = location.search.indexOf("embed=true") !== -1;
+
+    const {
+      batchUpdateWidgetProperty,
+      executeAction,
+      resetChildrenMetaProperty,
+      syncUpdateWidgetMetaProperty,
+      updateWidgetMetaProperty,
+    } = this.props;
     return (
       <ThemeProvider theme={this.props.lightTheme}>
         <GlobalHotKeys>
           <EditorContext.Provider
             value={{
-              executeAction: this.props.executeAction,
-              updateWidgetMetaProperty: this.props.updateWidgetMetaProperty,
-              resetChildrenMetaProperty: this.props.resetChildrenMetaProperty,
-              batchUpdateWidgetProperty: this.props.batchUpdateWidgetProperty,
+              batchUpdateWidgetProperty,
+              executeAction,
+              resetChildrenMetaProperty,
+              syncUpdateWidgetMetaProperty,
+              updateWidgetMetaProperty,
             }}
           >
             <ContainerWithComments>
@@ -237,6 +252,14 @@ const mapDispatchToProps = (dispatch: any) => ({
     widgetId: string,
     updates: BatchPropertyUpdatePayload,
   ) => dispatch(batchUpdateWidgetProperty(widgetId, updates)),
+  syncUpdateWidgetMetaProperty: (
+    widgetId: string,
+    propertyName: string,
+    propertyValue: any,
+  ) =>
+    dispatch(
+      syncUpdateWidgetMetaProperty(widgetId, propertyName, propertyValue),
+    ),
 });
 
 export default withRouter(
