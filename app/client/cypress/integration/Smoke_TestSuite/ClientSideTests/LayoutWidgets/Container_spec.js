@@ -83,11 +83,11 @@ describe("Container Widget Functionality", function() {
     // check if border radius is changed on button
 
     cy.get(`.t--property-control-borderradius  button > div`)
-      .eq(1)
+      .eq(0)
       .click({ force: true });
 
     cy.get(`.t--property-control-borderradius  button > div`)
-      .eq(1)
+      .eq(0)
       .invoke("css", "border-top-left-radius")
       .then((borderRadius) => {
         cy.get(
@@ -98,27 +98,17 @@ describe("Container Widget Functionality", function() {
 
   it("Test Box shadow and verity", function() {
     cy.get(`.t--property-control-boxshadow  button > div`)
-      .eq(1)
+      .eq(0)
       .click({ force: true });
 
     cy.get(`.t--property-control-boxshadow  button > div`)
-      .eq(1)
+      .eq(0)
       .invoke("css", "box-shadow")
       .then((boxShadow) => {
         cy.get(
           `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}']`,
         ).should("have.css", "box-shadow", boxShadow);
       });
-  });
-
-  it("Test overflow of widget boundaries", function() {
-    cy.testJsontext("borderwidth", "500");
-    // prevent overflow of widget boundaries
-    cy.get(
-      `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}']`,
-    )
-      .should("have.css", "overflow")
-      .and("eq", "hidden");
   });
 
   afterEach(() => {

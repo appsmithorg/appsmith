@@ -788,6 +788,12 @@ Cypress.Commands.add("selectTextSize", (text) => {
     .click({ force: true });
 });
 
+Cypress.Commands.add("selectTxtSize", (text) => {
+  cy.get(".t--dropdown-option")
+    .contains(text)
+    .click({ force: true });
+});
+
 Cypress.Commands.add("getAlert", (alertcss) => {
   cy.get(commonlocators.dropdownSelectButton).click({ force: true });
   cy.get(widgetsPage.menubar)

@@ -58,7 +58,7 @@ describe("Layout OnLoad Actions tests", function () {
     //apiPage.RunAPI();
 
     //Adding dependency in right order matters!
-    ee.SelectEntityByName("WIDGETS");
+    ee.expandCollapseEntity("WIDGETS");
     ee.SelectEntityByName("Image1");
     jsEditor.EnterJSContext("Image", `{{RandomFlora.data}}`, true);
 
@@ -113,7 +113,7 @@ describe("Layout OnLoad Actions tests", function () {
     agHelper.DeployApp()
     agHelper.Sleep()//waiting for error toast - incase it wants to appear!
     agHelper.AssertElementAbsence(locator._toastMsg)
-    agHelper.Sleep(5000)//for all api's to ccomplete call!
+    agHelper.Sleep(5000)//for all api's to complete call!
     cy.wait("@viewPage").then(($response) => {
       const respBody = JSON.stringify($response.response?.body);
 

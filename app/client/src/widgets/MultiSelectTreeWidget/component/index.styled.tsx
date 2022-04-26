@@ -263,6 +263,7 @@ border: 1px solid #E8E8E8;
       border-width: 2px;
       border-style: solid;
       border-color: ${Colors.GEYSER};
+      border-radius: ${({ borderRadius }) => borderRadius};
       &::before {
         width: auto;
         height: 1em;
@@ -418,6 +419,7 @@ border: 1px solid #E8E8E8;
     border-radius: 0px;
     border-collapse: separate;
     transition: all .1s;
+    border-radius: ${({ borderRadius }) => borderRadius};
 }
   .rc-tree-select-tree
   .rc-tree-select-tree-treenode

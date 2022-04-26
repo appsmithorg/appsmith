@@ -24,9 +24,11 @@ describe("In a button group widget, menu button width", function() {
       .then((targetWidth) => {
         expect(targetWidth).to.be.lessThan(minWidth);
         // Check if popover width is set to its target width
-        cy.get(
-          `.bp3-popover2.menu-button-width-${widgetId}-${menuButtonId}`,
-        ).should("have.css", "width", `${minWidth}px`);
+        cy.get(`.bp3-popover2.button-group-${widgetId}`).should(
+          "have.css",
+          "width",
+          `${minWidth}px`,
+        );
       });
   });
 
@@ -48,9 +50,11 @@ describe("In a button group widget, menu button width", function() {
       .then((targetWidth) => {
         expect(targetWidth).to.be.greaterThan(minWidth);
         // Check if popover width is set to its target width
-        cy.get(
-          `.bp3-popover2.menu-button-width-${widgetId}-${menuButtonId}`,
-        ).should("have.css", "width", `${targetWidth}px`);
+        cy.get(`.bp3-popover2.button-group-${widgetId}`).should(
+          "have.css",
+          "width",
+          `${targetWidth}px`,
+        );
       });
   });
 
@@ -75,9 +79,11 @@ describe("In a button group widget, menu button width", function() {
       .then((targetWidth) => {
         expect(targetWidth).to.be.greaterThan(minWidth);
         // Check if popover width is set to its target width
-        cy.get(
-          `.bp3-popover2.menu-button-width-${widgetId}-${menuButtonId}`,
-        ).should("have.css", "width", `${targetWidth}px`);
+        cy.get(`.bp3-popover2.button-group-${widgetId}`).should(
+          "have.css",
+          "width",
+          `${targetWidth}px`,
+        );
       });
   });
 
@@ -108,9 +114,11 @@ describe("In a button group widget, menu button width", function() {
       .then((targetWidth) => {
         expect(targetWidth).to.be.greaterThan(minWidth);
         // Check if popover width is set to its target width
-        cy.get(
-          `.bp3-popover2.menu-button-width-${widgetId}-${menuButtonId}`,
-        ).should("have.css", "width", `${targetWidth}px`);
+        cy.get(`.bp3-popover2.button-group-${widgetId}`).should(
+          "have.css",
+          "width",
+          `${targetWidth}px`,
+        );
       });
   });
 
@@ -136,9 +144,11 @@ describe("In a button group widget, menu button width", function() {
       .invoke("outerWidth")
       .then((targetWidth) => {
         // Check if popover width is set to its target width
-        cy.get(
-          `.bp3-popover2.menu-button-width-${widgetId}-${menuButtonId}`,
-        ).should("have.css", "width", `${targetWidth}px`);
+        cy.get(`.bp3-popover2.button-group-${widgetId}`).should(
+          "have.css",
+          "width",
+          `${targetWidth}px`,
+        );
       });
   });
 
