@@ -394,12 +394,14 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       selectedOption: "defaultOptionValue",
+      value: "defaultOptionValue",
       filterText: "",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
+      value: undefined,
       selectedOption: undefined,
       filterText: "",
       isDirty: false,
@@ -431,7 +433,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       xorWith(this.props.options, prevProps.options, isEqual).length > 0
     ) {
       const found = find(this.props.options, {
-        value: this.props.selectedOption.value,
+        value: this.props.selectedOption.value ?? this.props.selectedOption,
       });
 
       this.props.updateWidgetMetaProperty("selectedOption", found || {});

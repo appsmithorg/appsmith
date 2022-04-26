@@ -475,7 +475,6 @@ class MultiSelectTreeWidget extends BaseWidget<
   }
 
   componentDidMount() {
-    // Sets selectedLabel
     this.setSelectedOptions(
       this.props.options,
       this.props.selectedOptionValueArr,
@@ -498,7 +497,6 @@ class MultiSelectTreeWidget extends BaseWidget<
         isEqual,
       ).length > 0
     ) {
-      // Sets selectedLabel
       this.setSelectedOptions(
         this.props.options,
         this.props.selectedOptionValueArr,
@@ -509,7 +507,12 @@ class MultiSelectTreeWidget extends BaseWidget<
         .length > 0 &&
       this.props.isDirty === false
     ) {
-      // Sets selectedLabel
+      this.setSelectedOptions(
+        this.props.options,
+        this.props.selectedOptionValueArr,
+      );
+    }
+    if (this.props.mode !== prevProps.mode) {
       this.setSelectedOptions(
         this.props.options,
         this.props.selectedOptionValueArr,
