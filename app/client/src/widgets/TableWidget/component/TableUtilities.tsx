@@ -517,7 +517,14 @@ export const renderEmptyRows = (
           {multiRowSelection && renderCheckBoxCell(false)}
           {row.cells.map((cell: any, cellIndex: number) => {
             const cellProps = cell.getCellProps();
-            return <div {...cellProps} className="td" key={cellIndex} />;
+            return (
+              <div
+                {...cellProps}
+                className="td"
+                data-cy={`empty-row-${index}-cell-${cellIndex}`}
+                key={cellIndex}
+              />
+            );
           })}
         </div>
       );
