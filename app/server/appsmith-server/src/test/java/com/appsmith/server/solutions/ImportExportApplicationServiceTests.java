@@ -2409,10 +2409,7 @@ public class ImportExportApplicationServiceTests {
         Application testApplication = new Application();
         testApplication.setName("Application_" + randomId);
         Mono<ApplicationJson> exportedAppJson = applicationPageService.createApplication(testApplication, orgId)
-                //.zipWith(themeRepository.save(customTheme))
                 .flatMap(application -> {
-                    //Application application = objects.getT1();
-                    // Theme theme = objects.getT2();
                     application.setEditModeThemeId("invalid-theme-id");
                     application.setPublishedModeThemeId("invalid-theme-id");
                     String branchName = null;
