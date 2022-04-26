@@ -914,10 +914,13 @@ export const overrideWidgetProperties = ({
         [entity.widgetName, ...overriddenPropertyPathArray],
         clonedValue,
       );
-      if (overriddenPropertyPathArray[0] === "meta") {
+      if (
+        !propertyPath.includes("meta.") &&
+        overriddenPropertyPathArray[0] === "meta"
+      ) {
         _.set(
           metaUpdates,
-          [entity.widgetName, ...overriddenPropertyPathArray],
+          [entity.widgetId, ...overriddenPropertyPathArray.slice(1)],
           clonedValue,
         );
       }

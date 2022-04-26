@@ -287,7 +287,7 @@ export default class DataTreeEvaluator {
         evaluationOrder: [],
         unEvalUpdates: [],
         jsUpdates: {},
-        metaUpdates: this.metaUpdates,
+        metaUpdates: {},
       };
     }
     //find all differences which can lead to updating of dependency map
@@ -385,11 +385,13 @@ export default class DataTreeEvaluator {
       evaluate: (evalStop - evalStart).toFixed(2),
     };
     this.logs.push({ timeTakenForSubTreeEval });
+    const metaUpdates = this.metaUpdates;
+    this.metaUpdates = {};
     return {
       evaluationOrder,
       unEvalUpdates: translatedDiffs,
       jsUpdates: jsUpdates,
-      metaUpdates: this.metaUpdates,
+      metaUpdates,
     };
   }
 
