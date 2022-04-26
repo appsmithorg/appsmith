@@ -85,6 +85,7 @@ import {
 import { klona } from "klona/full";
 
 export default class DataTreeEvaluator {
+  metaUpdates: DataTree = {}; // here we store all the meta value changes done in evaluation cycle
   dependencyMap: DependencyMap = {};
   sortedDependencies: Array<string> = [];
   inverseDependencyMap: DependencyMap = {};
@@ -241,6 +242,7 @@ export default class DataTreeEvaluator {
     evaluationOrder: string[];
     unEvalUpdates: DataTreeDiff[];
     jsUpdates: Record<string, JSUpdate>;
+    metaUpdates: DataTree;
   } {
     let localUnEvalTree = Object.assign({}, unEvalTree);
     const totalStart = performance.now();
@@ -285,6 +287,7 @@ export default class DataTreeEvaluator {
         evaluationOrder: [],
         unEvalUpdates: [],
         jsUpdates: {},
+        metaUpdates: this.metaUpdates,
       };
     }
     //find all differences which can lead to updating of dependency map
@@ -386,6 +389,7 @@ export default class DataTreeEvaluator {
       evaluationOrder,
       unEvalUpdates: translatedDiffs,
       jsUpdates: jsUpdates,
+      metaUpdates: this.metaUpdates,
     };
   }
 
@@ -673,12 +677,13 @@ export default class DataTreeEvaluator {
                 evalPropertyValue,
                 unEvalPropertyValue,
               });
-              const overwriteObj = overrideWidgetProperties(
+              const overwriteObj = overrideWidgetProperties({
                 entity,
                 propertyPath,
-                parsedValue,
+                value: parsedValue,
                 currentTree,
-              );
+                metaUpdates: this.metaUpdates,
+              });
 
               if (overwriteObj && overwriteObj.overwriteParsedValue) {
                 parsedValue = overwriteObj.newValue;

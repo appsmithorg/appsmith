@@ -1,4 +1,4 @@
-import { set, cloneDeep, get } from "lodash";
+import { set, cloneDeep } from "lodash";
 import { createReducer } from "utils/AppsmithUtils";
 import { UpdateWidgetMetaPropertyPayload } from "actions/metaActions";
 
@@ -7,10 +7,9 @@ import {
   ReduxAction,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { Diff } from "deep-diff";
 import produce from "immer";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { isWidget } from "../../workers/evaluationUtils";
+import merge from "lodash/merge";
 
 export type MetaState = Record<string, Record<string, unknown>>;
 
@@ -20,40 +19,14 @@ export const metaReducer = createReducer(initialState, {
   [ReduxActionTypes.UPDATE_META_STATE]: (
     state: MetaState,
     action: ReduxAction<{
-      updates: Diff<any, any>[];
-      updatedDataTree: DataTree;
+      metaUpdates: DataTree;
     }>,
   ) => {
-    const { updatedDataTree, updates } = action.payload;
+    const { metaUpdates } = action.payload;
 
     // if metaObject is updated in dataTree we also update meta values, to keep meta state in sync.
     const newMetaState = produce(state, (draftMetaState) => {
-      if (updates.length) {
-        updates.forEach((update) => {
-          // if meta field is updated in the dataTree then update metaReducer values.
-          if (
-            update.kind === "E" &&
-            update.path?.length &&
-            update.path?.length > 1 &&
-            update.path[1] === "meta"
-          ) {
-            // path eg: Input1.meta.defaultText
-            const entity = get(updatedDataTree, update.path[0]);
-            const metaPropertyPath = update.path.slice(2);
-            if (
-              isWidget(entity) &&
-              entity.widgetId &&
-              metaPropertyPath.length
-            ) {
-              set(
-                draftMetaState,
-                [entity.widgetId, ...metaPropertyPath],
-                update.rhs,
-              );
-            }
-          }
-        });
-      }
+      return merge(draftMetaState, metaUpdates);
     });
     return newMetaState;
   },
