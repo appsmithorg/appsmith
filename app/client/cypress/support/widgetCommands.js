@@ -73,6 +73,21 @@ Cypress.Commands.add("changeColumnType", (dataType) => {
         */
 });
 
+Cypress.Commands.add("changeFieldType", (dataType) => {
+  cy.get(commonlocators.changeFieldType)
+    .last()
+    .click();
+  cy.get(".t--dropdown-option")
+    .children()
+    .contains(dataType)
+    .click();
+  cy.wait("@updateLayout").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
 Cypress.Commands.add("switchToPaginationTab", () => {
   cy.get(apiwidget.paginationTab)
     .first()
