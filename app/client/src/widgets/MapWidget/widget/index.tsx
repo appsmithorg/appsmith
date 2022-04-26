@@ -241,8 +241,8 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     return {};
   }
 
-  updateCenter = (lat: number, long: number) => {
-    this.props.updateWidgetMetaProperty("center", { lat, long });
+  updateCenter = (lat: number, long: number, title?: string) => {
+    this.props.updateWidgetMetaProperty("center", { lat, long, title });
   };
 
   updateMarker = (lat: number, long: number, index: number) => {
