@@ -267,6 +267,29 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
  * COMPONENT
  *-----------------------------------------------------------------------------
  */
+
+interface LeftIconProps {
+  color: string;
+  handleInputClick?: () => void;
+}
+
+function LeftIcon(props: LeftIconProps) {
+  return props.color ? (
+    <ColorIcon
+      className="rounded-full cursor-pointer"
+      color={props.color}
+      onClick={props.handleInputClick}
+    />
+  ) : (
+    <ColorPickerIconContainer
+      className="cursor-pointer"
+      onClick={props.handleInputClick}
+    >
+      <ColorPickerIcon />
+    </ColorPickerIconContainer>
+  );
+}
+
 function ColorPickerComponent(props: ColorPickerProps) {
   const inputRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
@@ -417,25 +440,6 @@ function ColorPickerComponent(props: ColorPickerProps) {
     }
   }, [props.color]);
 
-  const evaluatedValue = color || "";
-
-  function LeftIcon() {
-    return color ? (
-      <ColorIcon
-        className="rounded-full cursor-pointer"
-        color={isDynamicValue(color) ? evaluatedValue : color}
-        onClick={handleInputClick}
-      />
-    ) : (
-      <ColorPickerIconContainer
-        className="cursor-pointer"
-        onClick={handleInputClick}
-      >
-        <ColorPickerIcon />
-      </ColorPickerIconContainer>
-    );
-  }
-
   const handleInputClick = () => {
     isClick.current = true;
   };
@@ -470,11 +474,13 @@ function ColorPickerComponent(props: ColorPickerProps) {
         <StyledInputGroup
           autoFocus={props.autoFocus}
           inputRef={inputGroupRef}
-          leftIcon={<LeftIcon />}
+          leftIcon={
+            <LeftIcon color={color} handleInputClick={handleInputClick} />
+          }
           onChange={handleChangeColor}
           onClick={handleInputClick}
           placeholder="enter color name or hex"
-          value={color && isDynamicValue(color) ? evaluatedValue : color}
+          value={color}
         />
 
         <ColorPickerPopup

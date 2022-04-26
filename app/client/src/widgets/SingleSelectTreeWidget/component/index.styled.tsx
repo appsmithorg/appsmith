@@ -538,6 +538,10 @@ ${({ dropDownWidth, id }) => `
 }
 .rc-tree-select-tree-treenode:hover {
 	background: ${({ accentColor }) => lightenColor(accentColor)};
+
+  .rc-tree-select-tree-iconEle {
+    border-color: ${({ accentColor }) => accentColor} !important;;
+  }
 }
 .rc-tree-select-tree-node-selected {
 	background-color: none;

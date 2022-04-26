@@ -2,6 +2,7 @@ import React from "react";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import ColorPickerComponent from "components/ads/ColorPickerComponentV2";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 class ColorPickerControl extends BaseControl<ColorPickerControlProps> {
   handleChangeColor = (color: string) => {
@@ -16,7 +17,11 @@ class ColorPickerControl extends BaseControl<ColorPickerControlProps> {
     return (
       <ColorPickerComponent
         changeColor={this.handleChangeColor}
-        color={this.props.propertyValue ? computedEvaluatedValue : ""}
+        color={
+          this.props.propertyValue && isDynamicValue(this.props.propertyValue)
+            ? computedEvaluatedValue
+            : this.props.propertyValue || ""
+        }
         showApplicationColors
         showThemeColors
       />
