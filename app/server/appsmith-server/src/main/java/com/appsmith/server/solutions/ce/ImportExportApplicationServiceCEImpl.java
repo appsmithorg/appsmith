@@ -255,9 +255,12 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 }
                                 applicationJson.setPageOrder(pageOrder);
 
-                                Collections.sort(newPages, Comparator.comparing(newPage -> publishedPageOrderList.indexOf(newPage.getId())));
+                                List<NewPage> newPageList = newPages;
+                                // When there is difference in number of pages between edit and view mode
+                                newPageList = newPageList.stream().filter(newPage -> !Optional.ofNullable(newPage.getPublishedPage()).isEmpty()).collect(Collectors.toList());
+                                Collections.sort(newPageList, Comparator.comparing(newPage -> publishedPageOrderList.indexOf(newPage.getId())));
                                 pageOrder = new ArrayList<>();
-                                for (NewPage page: newPages) {
+                                for (NewPage page: newPageList) {
                                     pageOrder.add(page.getPublishedPage().getName());
                                 }
                                 applicationJson.setPublishedPageOrder(pageOrder);
