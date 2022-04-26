@@ -900,7 +900,7 @@ export const overrideWidgetProperties = ({
   propertyPath: string;
   value: unknown;
   currentTree: DataTree;
-  metaUpdates: DataTree;
+  metaUpdates: Record<string, unknown>;
 }) => {
   const clonedValue = klona(value);
   if (propertyPath in entity.overridingPropertyPaths) {
@@ -915,7 +915,7 @@ export const overrideWidgetProperties = ({
         clonedValue,
       );
       if (
-        !propertyPath.includes("meta.") &&
+        propertyPath.split(".")[0] !== "meta" &&
         overriddenPropertyPathArray[0] === "meta"
       ) {
         _.set(

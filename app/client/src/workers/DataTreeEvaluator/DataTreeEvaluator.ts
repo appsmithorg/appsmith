@@ -85,7 +85,6 @@ import {
 import { klona } from "klona/full";
 
 export default class DataTreeEvaluator {
-  metaUpdates: DataTree = {}; // here we store all the meta value changes done in evaluation cycle
   dependencyMap: DependencyMap = {};
   sortedDependencies: Array<string> = [];
   inverseDependencyMap: DependencyMap = {};
@@ -148,7 +147,7 @@ export default class DataTreeEvaluator {
     this.inverseDependencyMap = this.getInverseDependencyTree();
     // Evaluate
     const evaluateStart = performance.now();
-    const evaluatedTree = this.evaluateTree(
+    const { evaluatedTree, metaUpdates } = this.evaluateTree(
       localUnEvalTree,
       this.resolvedFunctions,
       this.sortedDependencies,
@@ -178,7 +177,7 @@ export default class DataTreeEvaluator {
       },
     };
     this.logs.push({ timeTakenForFirstTree });
-    return { evalTree: this.evalTree, jsUpdates: jsUpdates };
+    return { evalTree: this.evalTree, jsUpdates: jsUpdates, metaUpdates };
   }
 
   isJSObjectFunction(dataTree: DataTree, jsObjectName: string, key: string) {
@@ -242,7 +241,7 @@ export default class DataTreeEvaluator {
     evaluationOrder: string[];
     unEvalUpdates: DataTreeDiff[];
     jsUpdates: Record<string, JSUpdate>;
-    metaUpdates: DataTree;
+    metaUpdates: Record<string, unknown>;
   } {
     let localUnEvalTree = Object.assign({}, unEvalTree);
     const totalStart = performance.now();
@@ -355,7 +354,7 @@ export default class DataTreeEvaluator {
     removedPaths.forEach((removedPath) => {
       _.unset(this.evalTree, removedPath);
     });
-    const newEvalTree = this.evaluateTree(
+    const { evaluatedTree: newEvalTree, metaUpdates } = this.evaluateTree(
       this.evalTree,
       this.resolvedFunctions,
       evaluationOrder,
@@ -385,8 +384,7 @@ export default class DataTreeEvaluator {
       evaluate: (evalStop - evalStart).toFixed(2),
     };
     this.logs.push({ timeTakenForSubTreeEval });
-    const metaUpdates = this.metaUpdates;
-    this.metaUpdates = {};
+
     return {
       evaluationOrder,
       unEvalUpdates: translatedDiffs,
@@ -607,10 +605,11 @@ export default class DataTreeEvaluator {
     oldUnevalTree: DataTree,
     resolvedFunctions: Record<string, any>,
     sortedDependencies: Array<string>,
-  ): DataTree {
+  ): { evaluatedTree: DataTree; metaUpdates: Record<string, unknown> } {
     const tree = klona(oldUnevalTree);
+    const metaUpdates: Record<string, unknown> = {};
     try {
-      return sortedDependencies.reduce(
+      const evaluatedTree = sortedDependencies.reduce(
         (currentTree: DataTree, fullPropertyPath: string) => {
           const { entityName, propertyPath } = getEntityNameAndPropertyPath(
             fullPropertyPath,
@@ -684,7 +683,7 @@ export default class DataTreeEvaluator {
                 propertyPath,
                 value: parsedValue,
                 currentTree,
-                metaUpdates: this.metaUpdates,
+                metaUpdates,
               });
 
               if (overwriteObj && overwriteObj.overwriteParsedValue) {
@@ -737,12 +736,13 @@ export default class DataTreeEvaluator {
         },
         tree,
       );
+      return { evaluatedTree, metaUpdates };
     } catch (e) {
       this.errors.push({
         type: EvalErrorTypes.EVAL_TREE_ERROR,
         message: e.message,
       });
-      return tree;
+      return { evaluatedTree: tree, metaUpdates };
     }
   }
 
