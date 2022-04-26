@@ -24,7 +24,11 @@ import { useTheme } from "styled-components";
 import { findIndex, isArray } from "lodash";
 
 export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
-type SubTextPosition = "BOTTOM" | "LEFT";
+
+enum SubTextPosition {
+  BOTTOM,
+  LEFT,
+}
 
 export type DropdownOption = {
   label?: string;
@@ -339,7 +343,7 @@ const StyledSubText = styled(Text)<{
   subTextPosition?: SubTextPosition;
 }>`
   ${(props) =>
-    props.subTextPosition === "BOTTOM"
+    props.subTextPosition === SubTextPosition.BOTTOM
       ? "margin-top: 3px"
       : "margin-left: auto"};
   &&& {
@@ -361,9 +365,9 @@ const OptionWrapper = styled.div<{
   cursor: pointer;
   display: flex;
   flex-direction: ${(props) =>
-    props.subTextPosition === "BOTTOM" ? "column" : "row"};
+    props.subTextPosition === SubTextPosition.BOTTOM ? "column" : "row"};
   align-items: ${(props) =>
-    props.subTextPosition === "BOTTOM" ? "flex-start" : "center"};
+    props.subTextPosition === SubTextPosition.BOTTOM ? "flex-start" : "center"};
   background-color: ${(props) => (props.selected ? Colors.GRAY_200 : null)};
   &&& svg {
     rect {
@@ -851,9 +855,9 @@ export default function Dropdown(props: DropdownProps) {
         if (isArray(selected) && selected.length < 1) {
           setSelected([option]);
         } else if (
-          !(selected as DropdownOption[])
+          (selected as DropdownOption[])
             .map((x) => x.value)
-            .includes(option.value)
+            .findIndex((x) => option.value === x)
         ) {
           const newOptions: DropdownOption[] = [
             ...(selected as DropdownOption[]),
