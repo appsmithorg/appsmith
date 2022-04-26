@@ -24,20 +24,10 @@ import {
   selectURLSlugs,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
-import { useLocalStorage } from "utils/hooks/localstorage";
 import { createMessage, CLEAN_URL_UPDATE } from "@appsmith/constants/messages";
 import { useLocation } from "react-router";
 import DisclaimerIcon from "remixicon-react/ErrorWarningLineIcon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-
-function RedDot() {
-  return (
-    <div
-      className="h-2 w-2 bg-red-600 rounded-full absolute top-0 left-3"
-      data-testid="update-indicator"
-    />
-  );
-}
 
 const StyledList = styled.ul`
   list-style: disc;
@@ -198,10 +188,6 @@ function UpdatesModal({
 }
 
 function ManualUpgrades() {
-  const [updateDismissed, setUpdateDismissed] = useLocalStorage(
-    "updateDismissed",
-    "",
-  );
   const applicationVersion = useSelector(selectApplicationVersion);
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
@@ -239,37 +225,26 @@ function ManualUpgrades() {
   );
   const [showModal, setShowModal] = React.useState(false);
 
-  const defaultProps =
-    !updateDismissed && applicationVersion < latestVersion
-      ? {
-          isOpen: true,
-        }
-      : {};
+  const tooltipContent = (
+    <div className="text-sm">
+      {`${latestVersion - applicationVersion} pending update(s)`}
+      <ul className="mt-1">
+        {updates.slice(applicationVersion - 1).map((u) => (
+          <li key={u.name}>{u.shortDesc}</li>
+        ))}
+      </ul>
+    </div>
+  );
 
-  const tooltipContent =
-    applicationVersion < latestVersion ? (
-      <div className="text-sm">
-        {`${latestVersion - applicationVersion} pending update(s)`}
-        <ul className="mt-1">
-          {updates.slice(applicationVersion - 1).map((u) => (
-            <li key={u.name}>{u.shortDesc}</li>
-          ))}
-        </ul>
-      </div>
-    ) : (
-      "No new updates"
-    );
+  if (applicationVersion === latestVersion) return null;
 
   return (
-    <div className="relative">
-      {applicationVersion < latestVersion && <RedDot />}
+    <div className="relative" data-testid="update-indicator">
       <TooltipComponent
-        autoFocus={!updateDismissed && applicationVersion < latestVersion}
         content={tooltipContent}
         modifiers={{
           preventOverflow: { enabled: true },
         }}
-        {...defaultProps}
       >
         <Icon
           className="t--upgrade"
@@ -277,7 +252,6 @@ function ManualUpgrades() {
           fillColor={Colors.SCORPION}
           name="upgrade"
           onClick={() => {
-            setUpdateDismissed("true");
             setShowModal(applicationVersion < latestVersion);
           }}
           size={IconSize.XXXL}
