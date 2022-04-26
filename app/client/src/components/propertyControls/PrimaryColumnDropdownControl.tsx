@@ -35,6 +35,8 @@ class PrimaryColumnDropdownControl extends BaseControl<ControlProps> {
     return (
       <StyledDropDownContainer>
         <StyledDropDown
+          dropdownMaxHeight="200px"
+          fillOptions
           onSelect={this.onItemSelect}
           options={options}
           selected={defaultSelected}
