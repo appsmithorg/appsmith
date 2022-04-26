@@ -101,7 +101,7 @@ const MyMapComponent = withGoogleMap((props: any) => {
         const lat = location.lat();
         const long = location.lng();
         setMapCenter({ lat, lng: long });
-        props.updateCenter(lat, long);
+        props.updateCenter(lat, long, places[0].formatted_address);
         props.unselectMarker();
       }
     }
