@@ -72,7 +72,9 @@ describe("Fork application across orgs", function() {
       }
 
       cy.PublishtheApp();
-      cy.get(homePage.shareButton).click();
+      cy.get("button:contains('Share')")
+        .first()
+        .click({ force: true });
       cy.enablePublicAccess();
 
       cy.url().then((url) => {
@@ -81,15 +83,19 @@ describe("Fork application across orgs", function() {
         cy.get(homePage.signOutIcon).click();
 
         cy.visit(forkableAppUrl);
-        cy.get(applicationLocators.forkButton).click();
-
+        cy.get(applicationLocators.forkButton)
+          .first()
+          .click({ force: true });
         cy.get(loginPageLocators.signupLink).click();
 
         cy.generateUUID().then((uid) => {
           cy.get(signupPageLocators.username).type(`${uid}@appsmith.com`);
           cy.get(signupPageLocators.password).type(uid);
           cy.get(signupPageLocators.submitBtn).click();
-          cy.wait(1000);
+          cy.wait(10000);
+          cy.get(applicationLocators.forkButton)
+            .first()
+            .click({ force: true });
           cy.get(homePage.forkAppOrgButton).should("be.visible");
         });
       });

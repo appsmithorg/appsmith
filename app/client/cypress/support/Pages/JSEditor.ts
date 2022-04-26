@@ -77,6 +77,7 @@ export class JSEditor {
           input.type(JSCode, {
             parseSpecialCharSequences: false,
             delay: 150,
+            force: true
           });
         }
       });
