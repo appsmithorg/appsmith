@@ -20,14 +20,16 @@ const options = Object.keys(boxShadowOptions).map((optionKey) => ({
       key={optionKey}
       openOnTargetFocus={false}
     >
-      <div
-        className="flex items-center justify-center w-5 h-5 bg-white"
-        style={{ boxShadow: boxShadowOptions[optionKey] }}
-      >
-        {boxShadowOptions[optionKey] === "none" && (
-          <CloseLineIcon className="text-gray-700" />
-        )}
-      </div>
+      <button>
+        <div
+          className="flex items-center justify-center w-5 h-5 bg-white"
+          style={{ boxShadow: boxShadowOptions[optionKey] }}
+        >
+          {boxShadowOptions[optionKey] === "none" && (
+            <CloseLineIcon className="text-gray-700" />
+          )}
+        </div>
+      </button>
     </TooltipComponent>
   ),
   value: boxShadowOptions[optionKey],

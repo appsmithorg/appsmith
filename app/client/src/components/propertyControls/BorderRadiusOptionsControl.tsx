@@ -25,10 +25,12 @@ const options = Object.keys(borderRadiusOptions).map((optionKey) => ({
       key={optionKey}
       openOnTargetFocus={false}
     >
-      <div
-        className="w-5 h-5 border-t-2 border-l-2 border-gray-500"
-        style={{ borderTopLeftRadius: borderRadiusOptions[optionKey] }}
-      />
+      <button>
+        <div
+          className="w-5 h-5 border-t-2 border-l-2 border-gray-500"
+          style={{ borderTopLeftRadius: borderRadiusOptions[optionKey] }}
+        />
+      </button>
     </TooltipComponent>
   ),
   value: borderRadiusOptions[optionKey],

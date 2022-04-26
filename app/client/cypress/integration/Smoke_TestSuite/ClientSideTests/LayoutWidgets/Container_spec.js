@@ -111,16 +111,6 @@ describe("Container Widget Functionality", function() {
       });
   });
 
-  it("Test overflow of widget boundaries", function() {
-    cy.testJsontext("borderwidth", "500");
-    // prevent overflow of widget boundaries
-    cy.get(
-      `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}']`,
-    )
-      .should("have.css", "overflow")
-      .and("eq", "hidden");
-  });
-
   afterEach(() => {
     // put your clean up code if any
   });
