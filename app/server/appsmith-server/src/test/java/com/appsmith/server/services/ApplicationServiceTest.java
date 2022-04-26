@@ -1295,6 +1295,10 @@ public class ApplicationServiceTest {
                             "\t\tconst data = await cloneActionTest.run();\n" +
                             "\t\treturn data;\n" +
                             "\t}\n" +
+                            "\tanotherMethod: async () => {\n" +
+                            "\t\tconst data = await cloneActionTest.run();\n" +
+                            "\t\treturn data;\n" +
+                            "\t}\n" +
                             "}");
                     ActionDTO action1 = new ActionDTO();
                     action1.setName("getData");
@@ -1304,7 +1308,16 @@ public class ApplicationServiceTest {
                                     "\t\tconst data = await cloneActionTest.run();\n" +
                                     "\t\treturn data;\n" +
                                     "\t}");
-                    actionCollectionDTO.setActions(List.of(action1));
+
+                    ActionDTO action2 = new ActionDTO();
+                    action2.setName("anotherMethod");
+                    action2.setActionConfiguration(new ActionConfiguration());
+                    action2.getActionConfiguration().setBody(
+                            "async () => {\n" +
+                                    "\t\tconst data = await cloneActionTest.run();\n" +
+                                    "\t\treturn data;\n" +
+                                    "\t}");
+                    actionCollectionDTO.setActions(List.of(action1, action2));
                     actionCollectionDTO.setPluginType(PluginType.JS);
 
                     return Mono.zip(
@@ -1399,7 +1412,7 @@ public class ApplicationServiceTest {
                                 });
                     });
 
-                    assertThat(actionList).hasSize(2);
+                    assertThat(actionList).hasSize(3);
                     actionList.forEach(newAction -> {
                         assertThat(newAction.getDefaultResources()).isNotNull();
                         assertThat(newAction.getDefaultResources().getActionId()).isEqualTo(newAction.getId());
@@ -1422,7 +1435,7 @@ public class ApplicationServiceTest {
                         ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
 
                         assertThat(unpublishedCollection.getDefaultToBranchedActionIdsMap())
-                                .hasSize(1);
+                                .hasSize(2);
                         unpublishedCollection.getDefaultToBranchedActionIdsMap().keySet()
                                 .forEach(key ->
                                         assertThat(key).isEqualTo(unpublishedCollection.getDefaultToBranchedActionIdsMap().get(key))
