@@ -12,6 +12,8 @@ import PropertyPaneConnections from "./PropertyPaneConnections";
 import CopyIcon from "remixicon-react/FileCopyLineIcon";
 import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 import { WidgetType } from "constants/WidgetConstants";
+import { isWidgetDeprecated } from "../utils";
+import { DeprecationMessage } from "./DeprecationMessage";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -111,7 +113,7 @@ function PropertyPaneView(
       />
 
       <div
-        className="p-3 pb-24 overflow-x-hidden overflow-y-scroll t--property-pane-view"
+        className="pt-3 pb-24 overflow-x-hidden overflow-y-scroll t--property-pane-view"
         data-guided-tour-id="property-pane"
       >
         {!doActionsExist && !hideConnectDataCTA && (
@@ -122,7 +124,7 @@ function PropertyPaneView(
           />
         )}
         <PropertyPaneConnections widgetName={widgetProperties.widgetName} />
-
+        {isWidgetDeprecated(widgetProperties.type) && <DeprecationMessage />}
         <PropertyControlsGenerator
           id={widgetProperties.widgetId}
           panel={panel}

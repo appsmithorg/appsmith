@@ -10,6 +10,7 @@ export interface WidgetConfiguration {
   iconSVG?: string;
   defaults: Partial<WidgetProps> & WidgetConfigProps;
   hideCard?: boolean;
+  isDeprecated?: boolean;
   isCanvas?: boolean;
   needsMeta?: boolean;
   features?: WidgetFeatures;
