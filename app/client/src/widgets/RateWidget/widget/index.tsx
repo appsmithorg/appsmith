@@ -257,6 +257,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           maxCount={this.props.maxCount}
           onValueChanged={this.valueChangedHandler}
           readonly={this.props.isDisabled}
+          ref={this.contentRef}
           rightColumn={this.props.rightColumn}
           size={this.props.size}
           tooltips={this.props.tooltips}

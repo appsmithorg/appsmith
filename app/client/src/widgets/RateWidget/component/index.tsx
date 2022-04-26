@@ -95,61 +95,65 @@ function renderStarsWithTooltip(props: RateComponentProps) {
   return _.concat(starWithTooltip, starWithoutTooltip);
 }
 
-function RateComponent(props: RateComponentProps) {
-  const rateContainerRef = React.createRef<HTMLDivElement>();
+const RateComponent = React.forwardRef<HTMLDivElement, RateComponentProps>(
+  (props, ref) => {
+    const rateContainerRef = ref as React.MutableRefObject<HTMLDivElement>;
 
-  const {
-    bottomRow,
-    inactiveColor,
-    isAllowHalf,
-    isDisabled,
-    leftColumn,
-    maxCount,
-    onValueChanged,
-    readonly,
-    rightColumn,
-    size,
-    topRow,
-    value,
-  } = props;
+    const {
+      bottomRow,
+      inactiveColor,
+      isAllowHalf,
+      isDisabled,
+      leftColumn,
+      maxCount,
+      onValueChanged,
+      readonly,
+      rightColumn,
+      size,
+      topRow,
+      value,
+    } = props;
 
-  const [scrollable, setScrollable] = useState(false);
+    const [scrollable, setScrollable] = useState(false);
 
-  useEffect(() => {
-    const rateContainerElement = rateContainerRef.current;
-    if (
-      rateContainerElement &&
-      rateContainerElement.scrollHeight > rateContainerElement.clientHeight
-    ) {
-      setScrollable(true);
-    } else {
-      setScrollable(false);
-    }
-  }, [leftColumn, rightColumn, topRow, bottomRow, maxCount, size]);
+    useEffect(() => {
+      const rateContainerElement = rateContainerRef.current;
+      if (
+        rateContainerElement &&
+        rateContainerElement.scrollHeight > rateContainerElement.clientHeight
+      ) {
+        setScrollable(true);
+      } else {
+        setScrollable(false);
+      }
+    }, [leftColumn, rightColumn, topRow, bottomRow, maxCount, size]);
 
-  return (
-    <RateContainer
-      isDisabled={Boolean(isDisabled)}
-      ref={rateContainerRef}
-      scrollable={scrollable}
-    >
-      <Rating
-        emptySymbol={
-          <Star
-            color={inactiveColor || Colors.ALTO_3}
-            icon={IconNames.STAR}
-            iconSize={RATE_SIZES[size]}
-          />
-        }
-        fractions={isAllowHalf ? 2 : 1}
-        fullSymbol={renderStarsWithTooltip(props)}
-        initialRating={value}
-        onChange={onValueChanged}
-        readonly={readonly}
-        stop={maxCount}
-      />
-    </RateContainer>
-  );
-}
+    return (
+      <RateContainer
+        isDisabled={Boolean(isDisabled)}
+        ref={rateContainerRef}
+        scrollable={scrollable}
+      >
+        <Rating
+          emptySymbol={
+            <Star
+              color={inactiveColor || Colors.ALTO_3}
+              icon={IconNames.STAR}
+              iconSize={RATE_SIZES[size]}
+            />
+          }
+          fractions={isAllowHalf ? 2 : 1}
+          fullSymbol={renderStarsWithTooltip(props)}
+          initialRating={value}
+          onChange={onValueChanged}
+          readonly={readonly}
+          stop={maxCount}
+        />
+      </RateContainer>
+    );
+  },
+);
+
+RateComponent.displayName = "RateComponent";
 
 export default RateComponent;
