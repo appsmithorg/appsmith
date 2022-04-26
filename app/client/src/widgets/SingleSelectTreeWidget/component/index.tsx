@@ -144,6 +144,13 @@ function SingleSelectTreeComponent({
     }
     return document.querySelector(`.${CANVAS_CLASSNAME}`) as HTMLElement;
   }, []);
+  const onSelectionChange = useCallback(
+    (value?: DefaultValueType, labelList?: ReactNode[]) => {
+      setFilter("");
+      onChange(value, labelList);
+    },
+    [],
+  );
   const onClear = useCallback(() => onChange([], []), []);
   const onOpen = useCallback((open: boolean) => {
     if (open) {
@@ -258,7 +265,7 @@ function SingleSelectTreeComponent({
           maxTagCount={"responsive"}
           maxTagPlaceholder={(e) => `+${e.length} more`}
           notFoundContent="No Results Found"
-          onChange={onChange}
+          onChange={onSelectionChange}
           onClear={onClear}
           onDropdownVisibleChange={onOpen}
           placeholder={placeholder}
@@ -272,7 +279,7 @@ function SingleSelectTreeComponent({
           treeDefaultExpandAll={expandAll}
           treeIcon
           treeNodeFilterProp="label"
-          value={value}
+          value={filter ? "" : value} // value should empty when filter value exist otherwise dropdown flickers #12714
         />
       </InputContainer>
     </TreeSelectContainer>

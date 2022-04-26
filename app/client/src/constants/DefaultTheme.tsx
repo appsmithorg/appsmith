@@ -2690,7 +2690,7 @@ export const light: ColorType = {
     bg: lightShades[11],
     tabBg: lightShades[11],
     text: lightShades[16],
-    dividerBg: lightShades[13],
+    dividerBg: lightShades[3],
     iconHoverBg: lightShades[1],
     requestTree: {
       bg: lightShades[11],
