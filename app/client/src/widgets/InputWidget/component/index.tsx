@@ -281,7 +281,7 @@ export const isNumberInputType = (inputType: InputType) => {
     inputType === "PHONE_NUMBER"
   );
 };
-class InputComponent extends React.Component<
+class InputComponent extends React.PureComponent<
   InputComponentProps,
   InputComponentState
 > {

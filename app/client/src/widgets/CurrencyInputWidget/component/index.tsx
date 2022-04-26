@@ -8,7 +8,7 @@ import BaseInputComponent, {
 import { RenderModes } from "constants/WidgetConstants";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 
-class CurrencyInputComponent extends React.Component<
+class CurrencyInputComponent extends React.PureComponent<
   CurrencyInputComponentProps
 > {
   onKeyDown = (
