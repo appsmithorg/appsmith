@@ -112,7 +112,7 @@ export interface DefaultDropDownValueNodeProps {
   isOpen?: boolean;
   hasError?: boolean;
   renderNode?: RenderOption;
-  selectedOptionClickHandler?: (option: DropdownOption) => void;
+  removeSelectedOptionClickHandler?: (option: DropdownOption) => void;
   placeholder?: string;
   showDropIcon?: boolean;
   optionWidth: string;
@@ -210,6 +210,12 @@ const Selected = styled.div<{
   justify-content: space-between;
   width: 100%;
   min-height: ${(props) => props.height};
+
+  ${(props) =>
+    props.isMultiSelect &&
+    `
+    max-height: 38px;
+  `}
   cursor: ${(props) =>
     props.disabled || props.isLoading ? "not-allowed" : "pointer"};
   ${(props) =>
@@ -545,9 +551,9 @@ function DefaultDropDownValueNode({
   isMultiSelect,
   optionWidth,
   placeholder,
+  removeSelectedOptionClickHandler,
   renderNode,
   selected,
-  selectedOptionClickHandler,
   showDropIcon,
   showLabelOnly,
 }: DefaultDropDownValueNodeProps) {
@@ -582,8 +588,8 @@ function DefaultDropDownValueNode({
                 <StyledClose
                   onClick={(event: any) => {
                     event.stopPropagation();
-                    if (selectedOptionClickHandler) {
-                      selectedOptionClickHandler(s as DropdownOption);
+                    if (removeSelectedOptionClickHandler) {
+                      removeSelectedOptionClickHandler(s as DropdownOption);
                     }
                   }}
                 />
@@ -645,7 +651,7 @@ function DefaultDropDownValueNode({
 
 interface DropdownOptionsProps extends DropdownProps, DropdownSearchProps {
   optionClickHandler: (option: DropdownOption) => void;
-  selectedOptionClickHandler: (option: DropdownOption) => void;
+  removeSelectedOptionClickHandler: (option: DropdownOption) => void;
   renderOption?: RenderOption;
   headerLabel?: string;
   selected: DropdownOption | DropdownOption[];
@@ -739,7 +745,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
                 onClick={
                   // users should be able to unselect a selected option by clicking the option again.
                   isSelected && props.allowDeselection
-                    ? () => props.selectedOptionClickHandler(option)
+                    ? () => props.removeSelectedOptionClickHandler(option)
                     : () => props.optionClickHandler(option)
                 }
                 role="option"
@@ -826,7 +832,7 @@ export default function Dropdown(props: DropdownProps) {
   );
 
   const closeIfOpen = () => {
-    if (isOpen) {
+    if (isOpen && !props.isMultiSelect) {
       setIsOpen(false);
     }
   };
@@ -852,12 +858,13 @@ export default function Dropdown(props: DropdownProps) {
             option,
           ];
           setSelected(newOptions);
+          setIsOpen(true);
         }
       } else {
         // Single select -> typeof selected is object
         setSelected(option);
+        setIsOpen(false);
       }
-      setIsOpen(false);
       onSelect && onSelect(option.value, option);
       option.onSelect && option.onSelect(option.value, option);
     },
@@ -865,10 +872,14 @@ export default function Dropdown(props: DropdownProps) {
   );
 
   //Removes selected option, should be called when allowDeselection=true
-  const selectedOptionClickHandler = useCallback(
+  const removeSelectedOptionClickHandler = useCallback(
     (optionToBeRemoved: DropdownOption) => {
       let selectedOptions: DropdownOption | DropdownOption[] = [];
-      setIsOpen(false);
+      if (props.isMultiSelect) {
+        setIsOpen(true);
+      } else {
+        setIsOpen(false);
+      }
       if (!Array.isArray(selected)) {
         if (optionToBeRemoved.value === selected.value) {
           selectedOptions = optionToBeRemoved;
@@ -966,7 +977,7 @@ export default function Dropdown(props: DropdownProps) {
     "100%",
   );
 
-  let dropdownHeight = props.isMultiSelect ? "auto" : "38px";
+  let dropdownHeight = "38px";
   if (props.height) {
     dropdownHeight = props.height;
   }
@@ -1013,9 +1024,9 @@ export default function Dropdown(props: DropdownProps) {
           isMultiSelect={props.isMultiSelect}
           optionWidth={dropdownOptionWidth}
           placeholder={placeholder}
+          removeSelectedOptionClickHandler={removeSelectedOptionClickHandler}
           renderNode={renderOption}
           selected={selected}
-          selectedOptionClickHandler={selectedOptionClickHandler}
           showDropIcon={showDropIcon}
           showLabelOnly={props.showLabelOnly}
         />
@@ -1071,8 +1082,8 @@ export default function Dropdown(props: DropdownProps) {
           isOpen={isOpen}
           optionClickHandler={optionClickHandler}
           optionWidth={dropdownOptionWidth}
+          removeSelectedOptionClickHandler={removeSelectedOptionClickHandler}
           selected={selected ? selected : { id: undefined, value: undefined }}
-          selectedOptionClickHandler={selectedOptionClickHandler}
         />
       </Popover>
     </DropdownContainer>

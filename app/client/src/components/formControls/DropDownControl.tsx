@@ -116,6 +116,7 @@ function renderDropdown(
 
   return (
     <Dropdown
+      allowDeselection={props?.isMultiSelect}
       boundary="window"
       disabled={props.disabled}
       dontUsePortal={false}
