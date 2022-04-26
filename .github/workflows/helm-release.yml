@@ -32,19 +32,18 @@ jobs:
           version: v3.6.3
 
       - name: Get the chart version
-        id: helm-version
+        id: chart-version
         run: |
           awk '$1 == "version:" {print $2}' "${{ github.workspace }}/deploy/helm/Chart.yaml"
 
-      - name: Check existing Helm version
-        id: version-check
-        # Scan the S3 bucket with the Helm version retrieved from Chart.yaml
-        # If an archive with this version already exists in the bucket, fail immediately.
+      # Scan the S3 bucket with the Helm version retrieved from Chart.yaml
+      # If an archive with this version already exists in the bucket, fail immediately.
+      - name: Check chart version is not already published
         env:
           AWS_ACCESS_KEY_ID: "${{ secrets.HELM_AWS_ACCESS_KEY_ID }}"
           AWS_SECRET_ACCESS_KEY: "${{ secrets.HELM_AWS_SECRET_ACCESS_KEY }}"
         run: |
-          archive="appsmith-${{ steps.helm-version.outputs.data }}.tgz"
+          archive="appsmith-${{ steps.chart-version.outputs.data }}.tgz"
           if [[ "$archive" == "$(aws s3api list-objects --bucket helm.appsmith.com --prefix "$archive")" ]]; then
             echo "$archive is already present in the Helm bucket. Please change the version number in Chart.yaml file" >&2
             exit 1
@@ -63,5 +62,5 @@ jobs:
           helm package .
           aws s3 cp s3://${{ secrets.HELM_S3_BUCKET }}/index.yaml .
           helm repo index . --url https://${{ secrets.HELM_S3_BUCKET }} --merge index.yaml
-          aws s3 cp appsmith-${{ steps.helm-version.outputs.data }}.tgz s3://${{ secrets.HELM_S3_BUCKET }}
+          aws s3 cp appsmith-${{ steps.chart-version.outputs.data }}.tgz s3://${{ secrets.HELM_S3_BUCKET }}
           aws s3 cp index.yaml s3://${{ secrets.HELM_S3_BUCKET }}
