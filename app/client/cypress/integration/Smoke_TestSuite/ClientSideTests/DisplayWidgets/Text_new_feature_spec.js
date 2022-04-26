@@ -142,12 +142,12 @@ describe("Text Widget color/font/alignment Functionality", function() {
   });
   it("Test border width, color and verity", function() {
     cy.testJsontext("borderwidth", "10");
+    cy.wait("@updateLayout");
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.css",
       "border-width",
       "10px",
     );
-
     cy.selectColor("bordercolor");
     cy.readTextDataValidateCSS("border-color", "rgb(229, 231, 235)");
   });

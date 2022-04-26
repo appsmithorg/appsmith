@@ -12,8 +12,7 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
   it("Drag and drop form widget and validate", function() {
     cy.log("Login Successful");
     cy.reload(); // To remove the rename tooltip
-    cy.wait(40000);
-    cy.get(explorer.addWidget).click();
+    cy.get(explorer.addWidget).click({ force: true });
     cy.get(commonlocators.entityExplorersearch).should("be.visible");
     cy.get(commonlocators.entityExplorersearch)
       .clear()
@@ -36,7 +35,7 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
     cy.selectColor("backgroundcolor");
     cy.get(formWidgetsPage.formD)
       .should("have.css", "background-color")
-      .and("eq", "rgb(85, 61, 233)");
+      .and("eq", "rgb(126, 34, 206)");
     /**
      * @param{toggleButton Css} Assert to be checked
      */
