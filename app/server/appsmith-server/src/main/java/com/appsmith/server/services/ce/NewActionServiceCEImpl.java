@@ -373,10 +373,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     action.setInvalids(invalids);
                     action.setPluginName(plugin.getName());
                     newAction.setUnpublishedAction(action);
-                    newAction.setPluginType(plugin.getType());
-                    newAction.setPluginId(plugin.getId());
                     return newAction;
-                }).map(this::extractAndSetJsonPathKeys)
+                })
+                .flatMap(this::sanitizeAction)
+                .map(this::extractAndSetJsonPathKeys)
                 .map(updatedAction -> {
                     // In case of external datasource (not embedded) instead of storing the entire datasource
                     // again inside the action, instead replace it with just the datasource ID. This is so that
@@ -1123,17 +1123,13 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Mono<NewAction> findById(String id) {
         return repository.findById(id)
-                .flux()
-                .flatMap(this::sanitizeAction)
-                .last();
+                .flatMap(this::sanitizeAction);
     }
 
     @Override
     public Mono<NewAction> findById(String id, AclPermission aclPermission) {
         return repository.findById(id, aclPermission)
-                .flux()
-                .flatMap(this::sanitizeAction)
-                .last();
+                .flatMap(this::sanitizeAction);
     }
 
     @Override
@@ -1381,30 +1377,32 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     /**
-     * This method has been added in response to certain cases where it was found that pluginId and pluginType keys
+     * This method is meant to be used to check for any missing or bad values in NewAction object and attempt to fix it.
+     *
+     * This method is added in response to certain cases where it was found that pluginId and pluginType keys
      * were missing from the NewAction object in the database.Since it is currently not know what exactly causes
      * these values to go missing, this check will serve as a workaround by fetching and setting pluginId and
      * pluginType using the datasource object contained in the ActionDTO object.
      * Ref: https://github.com/appsmithorg/appsmith/issues/11927
+     *
      */
-    public Flux<NewAction> sanitizeAction(NewAction action) {
-        Flux<NewAction> actionFlux = Flux.just(action);
+    public Mono<NewAction> sanitizeAction(NewAction action) {
+        Mono<NewAction> actionMono = Mono.just(action);
         if (isPluginTypeOrPluginIdMissing(action)) {
-            actionFlux = providePluginTypeAndIdToNewActionObjectUsingJSTypeOrDatasource(action)
-                    .flatMap(this::save);
+            actionMono = providePluginTypeAndIdToNewActionObjectUsingJSTypeOrDatasource(action);
         }
 
-        return actionFlux;
+        return actionMono;
     }
 
     private boolean isPluginTypeOrPluginIdMissing(NewAction action) {
         return action.getPluginId() == null || action.getPluginType() == null;
     }
 
-    private Flux<NewAction> providePluginTypeAndIdToNewActionObjectUsingJSTypeOrDatasource(NewAction action) {
+    private Mono<NewAction> providePluginTypeAndIdToNewActionObjectUsingJSTypeOrDatasource(NewAction action) {
         ActionDTO actionDTO = action.getUnpublishedAction();
         if (actionDTO == null) {
-            return Flux.just(action);
+            return Mono.just(action);
         }
 
         /**
@@ -1413,7 +1411,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
          *
          * else path:
          * Otherwise, check if the datasource object has the pluginId. If so, use this pluginId to fetch the correct
-         * pluginType.  
+         * pluginType.
          */
         Datasource datasource = actionDTO.getDatasource();
         if (actionDTO.getCollectionId() != null) {
@@ -1426,24 +1424,24 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             return setPluginTypeFromId(action, pluginId);
         }
 
-        return Flux.just(action);
+        return Mono.just(action);
     }
 
-    private Flux<NewAction> setPluginTypeFromId(NewAction action, String pluginId) {
+    private Mono<NewAction> setPluginTypeFromId(NewAction action, String pluginId) {
         return pluginService.findById(pluginId)
-                .flatMapMany(plugin -> {
+                .flatMap(plugin -> {
                     action.setPluginType(plugin.getType());
-                    return Flux.just(action);
+                    return Mono.just(action);
                 });
     }
 
-    private Flux<NewAction> setPluginIdAndTypeForJSAction(NewAction action) {
+    private Mono<NewAction> setPluginIdAndTypeForJSAction(NewAction action) {
         action.setPluginType(JS_PLUGIN_TYPE);
 
         return pluginService.findByPackageName(JS_PLUGIN_PACKAGE_NAME)
-                .flatMapMany(plugin -> {
+                .flatMap(plugin -> {
                     action.setPluginId(plugin.getId());
-                    return Flux.just(action);
+                    return Mono.just(action);
                 });
     }
 
@@ -1470,7 +1468,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         if (action.getGitSyncId() == null) {
             action.setGitSyncId(action.getApplicationId() + "_" + Instant.now().toString());
         }
-        return repository.save(action);
+
+        return sanitizeAction(action)
+                .flatMap(sanitizedAction -> repository.save(sanitizedAction));
     }
 
     @Override
@@ -1478,7 +1478,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         actions.stream()
                 .filter(action -> action.getGitSyncId() == null)
                 .forEach(action -> action.setGitSyncId(action.getApplicationId() + "_" + Instant.now().toString()));
-        return repository.saveAll(actions);
+
+        return Flux.fromIterable(actions)
+                .flatMap(this::sanitizeAction)
+                .collectList()
+                .flatMapMany(actionList -> repository.saveAll(actionList));
     }
 
     @Override
@@ -1726,9 +1730,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId + "," + branchName))
                 )
-                .flux()
-                .flatMap(this::sanitizeAction)
-                .last();
+                .flatMap(this::sanitizeAction);
     }
 
     public Mono<String> findBranchedIdByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission) {

@@ -246,18 +246,7 @@ public class NewActionServiceCEImplTest {
         actionDTO.setDatasource(datasource);
         action.setUnpublishedAction(actionDTO);
 
-        /**
-         * Mock `save` method of NewActionService to return the Mono.just(arg[0]), where arg[0] is the updated action
-         * object
-         */
-        NewActionServiceCE spyNewActionService = spy(newActionService);
-        doAnswer(invocation -> {
-            Object[] args = invocation.getArguments();
-            return Mono.just(args[0]);
-        })
-                .when(spyNewActionService).save(any());
-
-        Flux<NewAction> updatedActionFlux = spyNewActionService.sanitizeAction(action);
+        Mono<NewAction> updatedActionFlux = newActionService.sanitizeAction(action);
         StepVerifier.create(updatedActionFlux)
                 .assertNext(updatedAction -> {
                     assertEquals("testId", updatedAction.getPluginId());
@@ -283,18 +272,7 @@ public class NewActionServiceCEImplTest {
         actionDTO.setCollectionId("testId");
         action.setUnpublishedAction(actionDTO);
 
-        /**
-         * Mock `save` method of NewActionService to return the Mono.just(arg[0]), where arg[0] is the updated action
-         * object
-         */
-        NewActionServiceCE spyNewActionService = spy(newActionService);
-        doAnswer(invocation -> {
-            Object[] args = invocation.getArguments();
-            return Mono.just(args[0]);
-        })
-                .when(spyNewActionService).save(any());
-
-        Flux<NewAction> updatedActionFlux = spyNewActionService.sanitizeAction(action);
+        Mono<NewAction> updatedActionFlux = newActionService.sanitizeAction(action);
         StepVerifier.create(updatedActionFlux)
                 .assertNext(updatedAction -> {
                     assertEquals("testId", updatedAction.getPluginId());
