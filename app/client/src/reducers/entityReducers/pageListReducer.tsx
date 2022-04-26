@@ -5,7 +5,7 @@ import {
   PageListPayload,
   ClonePageSuccessPayload,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/AppsmithUtils";
 import { GenerateCRUDSuccess } from "actions/pageActions";
 
@@ -45,6 +45,7 @@ export const pageListReducer = createReducer(initialState, {
         action.payload.pages[0].pageId,
     };
   },
+  [ReduxActionTypes.RESET_PAGE_LIST]: () => initialState,
   [ReduxActionTypes.CREATE_PAGE_SUCCESS]: (
     state: PageListReduxState,
     action: ReduxAction<{

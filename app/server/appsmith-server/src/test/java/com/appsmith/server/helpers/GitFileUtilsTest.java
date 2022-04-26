@@ -2,7 +2,10 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.models.ApplicationGitReference;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.ApplicationJson;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import lombok.SneakyThrows;
@@ -25,9 +28,13 @@ import reactor.test.StepVerifier;
 
 import java.lang.reflect.Type;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -99,6 +106,98 @@ public class GitFileUtilsTest {
                     });
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void getSerializableResource_allEntitiesArePresentForApplication_keysIncludesSeparator() {
+        ApplicationJson validAppJson = createAppJson(filePath).block();
+        ApplicationGitReference applicationGitReference = gitFileUtils.createApplicationReference(validAppJson);
+
+        List<String> pageNames = validAppJson.getPageList()
+                .stream()
+                .map(newPage -> newPage.getUnpublishedPage().getName())
+                .collect(Collectors.toList());
+
+        List<String> actionNames = validAppJson.getActionList()
+                .stream()
+                .map(newAction -> newAction.getUnpublishedAction().getValidName().replace(".", "-"))
+                .collect(Collectors.toList());
+
+        List<String> collectionNames = validAppJson.getActionCollectionList()
+                .stream()
+                .map(actionCollection -> actionCollection.getUnpublishedCollection().getName())
+                .collect(Collectors.toList());
+
+        Map<String, Object> actions = applicationGitReference.getActions();
+        for (Map.Entry<String, Object> entry : actions.entrySet()) {
+            assertThat(entry.getKey()).contains(NAME_SEPARATOR);
+            String[] names = entry.getKey().split(NAME_SEPARATOR);
+            final String queryName = names[0].replace(".", "-");
+            final String pageName = names[1];
+            assertThat(actionNames).contains(queryName);
+            assertThat(pageNames).contains(pageName);
+        }
+
+        Map<String, Object> actionsCollections = applicationGitReference.getActionsCollections();
+        for (Map.Entry<String, Object> entry : actionsCollections.entrySet()) {
+            assertThat(entry.getKey()).contains(NAME_SEPARATOR);
+            String[] names = entry.getKey().split(NAME_SEPARATOR);
+            final String collectionName = names[0].replace(".", "-");
+            final String pageName = names[1];
+            assertThat(collectionNames).contains(collectionName);
+            assertThat(pageNames).contains(pageName);
+        }
+
+        Map<String, Object> pages = applicationGitReference.getPages();
+        for (Map.Entry<String, Object> entry : pages.entrySet()) {
+            assertThat(entry.getKey()).doesNotContain(NAME_SEPARATOR);
+        }
+    }
+
+    @Test
+    public void getSerializableResource_withDeletedEntities_excludeDeletedEntities() {
+        ApplicationJson validAppJson = createAppJson(filePath).block();
+
+        NewPage deletedPage = validAppJson.getPageList().get(validAppJson.getPageList().size() - 1);
+        deletedPage
+                .getUnpublishedPage()
+                .setDeletedAt(Instant.now());
+
+        NewAction deletedAction = validAppJson.getActionList().get(validAppJson.getActionList().size() - 1);
+        deletedAction
+                .getUnpublishedAction()
+                .setDeletedAt(Instant.now());
+
+        ActionCollection deletedCollection = validAppJson.getActionCollectionList().get(validAppJson.getActionCollectionList().size() - 1);
+        deletedCollection
+                .getUnpublishedCollection()
+                .setDeletedAt(Instant.now());
+
+        ApplicationGitReference applicationGitReference = gitFileUtils.createApplicationReference(validAppJson);
+
+        Map<String, Object> actions = applicationGitReference.getActions();
+        for (Map.Entry<String, Object> entry : actions.entrySet()) {
+            String[] names = entry.getKey().split(NAME_SEPARATOR);
+            final String queryName = names[0].replace(".", "-");
+            assertThat(queryName).isNotEmpty();
+            assertThat(deletedAction.getUnpublishedAction().getValidName().replace(".", "-")).isNotEqualTo(queryName);
+        }
+
+        Map<String, Object> actionsCollections = applicationGitReference.getActionsCollections();
+        for (Map.Entry<String, Object> entry : actionsCollections.entrySet()) {
+            String[] names = entry.getKey().split(NAME_SEPARATOR);
+            final String collectionName = names[0].replace(".", "-");
+            assertThat(collectionName).isNotEmpty();
+            assertThat(deletedCollection.getUnpublishedCollection().getName()).isNotEqualTo(collectionName);
+        }
+
+        Map<String, Object> pages = applicationGitReference.getPages();
+        for (Map.Entry<String, Object> entry : pages.entrySet()) {
+            assertThat(entry.getKey()).doesNotContain(NAME_SEPARATOR);
+            String pageName = entry.getKey();
+            assertThat(pageName).isNotEmpty();
+            assertThat(deletedPage.getUnpublishedPage().getName()).isNotEqualTo(pageName);
+        }
     }
 
     @SneakyThrows

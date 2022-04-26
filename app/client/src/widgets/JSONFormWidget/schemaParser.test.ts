@@ -1,4 +1,5 @@
 import { get, set } from "lodash";
+import { klona } from "klona";
 
 import SchemaParser, {
   applyPositions,
@@ -21,8 +22,6 @@ import {
   Schema,
   SchemaItem,
 } from "./constants";
-
-const clone = require("rfdc/default");
 
 const widgetName = "JSONForm1";
 
@@ -73,10 +72,10 @@ describe("#parse", () => {
     expect(initialSchema).toEqual(testData.initialDataset.schemaOutput);
 
     // With null field
-    const nulledDataSource = clone(testData.initialDataset.dataSource);
+    const nulledDataSource = klona(testData.initialDataset.dataSource);
     set(nulledDataSource, "dob", null);
 
-    const expectedNulledSchema = clone(initialSchema);
+    const expectedNulledSchema = klona(initialSchema);
     set(expectedNulledSchema, "__root_schema__.children.dob.sourceData", null);
     set(expectedNulledSchema, "__root_schema__.sourceData.dob", null);
 
@@ -89,10 +88,10 @@ describe("#parse", () => {
     expect(schemaWithNulledField).toEqual(expectedNulledSchema);
 
     // With undefined field
-    const undefinedDataSource = clone(nulledDataSource);
+    const undefinedDataSource = klona(nulledDataSource);
     set(undefinedDataSource, "boolean", undefined);
 
-    const expectedUndefinedSchema = clone(expectedNulledSchema);
+    const expectedUndefinedSchema = klona(expectedNulledSchema);
     set(
       expectedUndefinedSchema,
       "__root_schema__.children.boolean.sourceData",
@@ -1192,7 +1191,7 @@ describe(".getKeysFromSchema", () => {
   });
 
   it("return keys for non custom fields only", () => {
-    const schema = clone(
+    const schema = klona(
       testData.initialDataset.schemaOutput.__root_schema__.children,
     );
 
@@ -1217,7 +1216,7 @@ describe(".getKeysFromSchema", () => {
   });
 
   it("return keys and including custom field keys", () => {
-    const schema = clone(
+    const schema = klona(
       testData.initialDataset.schemaOutput.__root_schema__.children,
     );
 
@@ -1242,7 +1241,7 @@ describe(".getKeysFromSchema", () => {
 });
 
 it("return only custom field keys", () => {
-  const schema = clone(
+  const schema = klona(
     testData.initialDataset.schemaOutput.__root_schema__.children,
   );
 
@@ -1259,7 +1258,7 @@ it("return only custom field keys", () => {
 
 describe("#applyPositions", () => {
   it("applies positions to new keys added to the schema ", () => {
-    const schema: Schema = clone(
+    const schema: Schema = klona(
       testData.initialDataset.schemaOutput.__root_schema__.children,
     );
 
@@ -1288,7 +1287,7 @@ describe("#applyPositions", () => {
   });
 
   it("repositions any when keys are deleted only when new keys added to the schema ", () => {
-    const schema: Schema = clone(
+    const schema: Schema = klona(
       testData.initialDataset.schemaOutput.__root_schema__.children,
     );
 

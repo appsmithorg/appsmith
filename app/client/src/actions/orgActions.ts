@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SaveOrgLogo, SaveOrgRequest } from "api/OrgApi";
 
 export const fetchOrg = (orgId: string, skipValidation?: boolean) => {

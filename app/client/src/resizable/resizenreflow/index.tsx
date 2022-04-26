@@ -7,10 +7,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { useReflow } from "utils/hooks/useReflow";
-import {
-  getReflowSelector,
-  isReflowEnabled,
-} from "selectors/widgetReflowSelectors";
+import { getReflowSelector } from "selectors/widgetReflowSelectors";
 import { useSelector } from "react-redux";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
@@ -163,7 +160,6 @@ type ResizableProps = {
 export function ReflowResizable(props: ResizableProps) {
   const resizableRef = useRef<HTMLDivElement>(null);
   const [isResizing, setResizing] = useState(false);
-  const reflowEnabled = useSelector(isReflowEnabled);
 
   const occupiedSpaces = useSelector(getOccupiedSpaces);
   const occupiedSpacesBySiblingWidgets = useMemo(() => {
@@ -252,12 +248,6 @@ export function ReflowResizable(props: ResizableProps) {
           bottomMostRow = 0,
           movementLimitMap: MovementLimitMap | undefined = {};
 
-        if (!reflowEnabled && resizedPositions) {
-          const isColliding = checkForCollision(resizedPositions);
-          if (isColliding) {
-            return prevState;
-          }
-        }
         if (resizedPositions) {
           //calling reflow to update movements of reflowing widgets and get movementLimit of current resizing widget
           ({ bottomMostRow, movementLimitMap } = reflow(

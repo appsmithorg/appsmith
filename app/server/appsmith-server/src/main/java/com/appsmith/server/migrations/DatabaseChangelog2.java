@@ -1,6 +1,5 @@
 package com.appsmith.server.migrations;
 
-import com.appsmith.server.domains.Application;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.QBaseDomain;
@@ -30,6 +29,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

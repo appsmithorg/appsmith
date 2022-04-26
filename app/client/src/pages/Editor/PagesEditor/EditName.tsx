@@ -8,7 +8,7 @@ import useClick from "utils/hooks/useClick";
 import { updatePage } from "actions/pageActions";
 import { MenuIcons } from "icons/MenuIcons";
 import { resolveAsSpaceChar } from "utils/helpers";
-import { Page } from "constants/ReduxActionConstants";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import EditNameInput from "pages/Editor/Explorer/Entity/Name";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import TooltipComponent from "components/ads/Tooltip";

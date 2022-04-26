@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+
 export class JSEditor {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
@@ -12,7 +13,7 @@ export class JSEditor {
   private _bindingsClose = ".t--entity-property-close"
   private _propertyList = ".t--entity-property"
   private _responseTabAction = (funName: string) => "//div[@class='function-name'][text()='" + funName + "']/following-sibling::div//*[local-name()='svg']"
-  private _functionSetting = (settingTxt: string) => "//span[contains(text(),'" + settingTxt + "')]/parent::div/following-sibling::input[@type='checkbox']"
+  private _functionSetting = (settingTxt: string) => "//span[text()='" + settingTxt + "']/parent::div/following-sibling::input[@type='checkbox']"
   _dialog = (dialogHeader: string) => "//div[contains(@class, 'bp3-dialog')]//h4[contains(text(), '" + dialogHeader + "')]"
   private _closeSettings = "span[icon='small-cross']"
 
@@ -108,12 +109,7 @@ export class JSEditor {
     this.agHelper.AssertAutoSave(); //Ample wait due to open bug # 10284
   }
 
-  public EnterJSContext(
-    endp: string,
-    value: string,
-    paste = true,
-    toToggleOnJS = false,
-  ) {
+  public EnterJSContext(endp: string, value: string, paste = true, toToggleOnJS = false, notField = false) {
     if (toToggleOnJS) {
       cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
         .invoke("attr", "class")
@@ -135,7 +131,7 @@ export class JSEditor {
     //   .type("{del}", { force: true });
 
     if (paste) {
-      this.agHelper.EnterValue(value, endp)
+      this.agHelper.EnterValue(value, endp, notField)
     }
     else {
       cy.get(this.locator._propertyControl + endp.replace(/ +/g, "").toLowerCase() + " " + this.locator._codeMirrorTextArea)
@@ -183,6 +179,16 @@ export class JSEditor {
 
   }
 
+  public RemoveText(endp: string) {
+    cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
+      .first()
+      .focus()
+      .type("{uparrow}", { force: true })
+      .type("{ctrl}{shift}{downarrow}", { force: true })
+      .type("{del}", { force: true });
+    this.agHelper.AssertAutoSave()
+  }
+
   public RenameJSObjFromForm(renameVal: string) {
     cy.get(this._jsObjName).click({ force: true });
     cy.get(this._jsObjTxt)
@@ -210,7 +216,7 @@ export class JSEditor {
 
   public validateDefaultJSObjProperties(jsObjName: string) {
     this.ee.ActionContextMenuByEntityName(jsObjName, "Show Bindings");
-    cy.get(this._propertyList).then(function($lis) {
+    cy.get(this._propertyList).then(function ($lis) {
       const bindingsLength = $lis.length;
       expect(bindingsLength).to.be.at.least(4);
       expect($lis.eq(0).text()).to.be.oneOf([
@@ -236,12 +242,12 @@ export class JSEditor {
 
   public EnableOnPageLoad(funName: string, onLoad = true, bfrCalling = true) {
 
-    this.agHelper.XpathNClick(this._responseTabAction(funName))
+    this.agHelper.GetNClick(this._responseTabAction(funName))
     this.agHelper.AssertElementPresence(this._dialog('Function settings'))
     if (onLoad)
-      this.agHelper.CheckUncheck(this._functionSetting('Run Function on Page load'), true)
+      this.agHelper.CheckUncheck(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_ONPAGELOAD()), true)
     if (bfrCalling)
-      this.agHelper.CheckUncheck(this._functionSetting('Request confirmation before calling function?'), true)
+      this.agHelper.CheckUncheck(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_CONFIRM_EXECUTION()), true)
 
     this.agHelper.GetNClick(this._closeSettings)
   }
