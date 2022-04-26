@@ -164,7 +164,7 @@ class FormControlRegistry {
       buildPropertyControl(controlProps: DropDownControlProps): JSX.Element {
         return (
           <DropDownControl
-            fetchOptionsCondtionally={controlProps?.fetchOptionsCondtionally}
+            fetchOptionsConditionally={controlProps?.fetchOptionsConditionally}
             isMultiSelect
             isSearchable
             {...controlProps}

@@ -1,12 +1,14 @@
 import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
 import FormControl from "pages/Editor/FormControl";
 import Icon, { IconSize } from "components/ads/Icon";
 import styled, { css } from "styled-components";
-import { FieldArray } from "redux-form";
+import { FieldArray, getFormValues } from "redux-form";
 import { ControlProps } from "./BaseControl";
 import { Colors } from "constants/Colors";
 import { getBindingOrConfigPathsForSortingControl } from "entities/Action/actionProperties";
 import { SortingSubComponent } from "./utils";
+import { get, isArray } from "lodash";
 
 // sorting's order dropdown values
 enum OrderDropDownValues {
@@ -108,18 +110,45 @@ export const StyledBottomLabel = styled.span`
 `;
 
 function SortingComponent(props: any) {
+  const formValues: any = useSelector((state) =>
+    getFormValues(props.formName)(state),
+  );
+
   const onDeletePressed = (index: number) => {
     props.fields.remove(index);
   };
 
   useEffect(() => {
-    if (props.fields.length < 1) {
-      props.fields.push({
-        column: "",
-        order: OrderDropDownValues.ASCENDING,
-      });
-    } else {
-      onDeletePressed(props.index);
+    // this path represents the path to the sortBy object, wherever the location is in the actionConfiguration object
+    let sortingObjectPath;
+    // if the path ends with .data which we expect it to.
+    if (props.configProperty.endsWith(".data")) {
+      // we remove the .data and get the path of the sort object
+      // NOTE: 5 is used because (.data) = 5
+      sortingObjectPath = props.configProperty.substring(
+        0,
+        props.configProperty.length - 5,
+      );
+    }
+    // sortDataValue is the path to the value (.data included) itself in the sort object
+    const sortDataValue = get(formValues, props.configProperty);
+    // sort object value is the path to the sort object itself.
+    const sortObjectValue = get(formValues, sortingObjectPath);
+
+    // The reason we are making this check is to prevent new fields from being pushed when the form control is visited
+    // for some reason the fields object is initially undefined in first render, before being initialized with the correct values after.
+    // so we check to see if the sortObjectValue exist first (if the value has been initalized).
+    // and if after it has been initalized the data value is not an array (which we expect it to be) it means the data value has not been assigned a value yet
+    if (!!sortObjectValue && !isArray(sortDataValue)) {
+      // then we check if the fields have any items in it, if it does not, we push an empty field.
+      if (props.fields.length < 1) {
+        props.fields.push({
+          column: "",
+          order: OrderDropDownValues.ASCENDING,
+        });
+      } else {
+        onDeletePressed(props.index);
+      }
     }
   }, [props.fields.length]);
 

@@ -7,7 +7,7 @@ import { allowedControlTypes } from "components/formControls/utils";
 const dropDownFieldConfig: any = {
   label: "",
   controlType: "DROP_DOWN",
-  fetchOptionsCondtionally: true,
+  fetchOptionsConditionally: true,
   options: [],
 };
 

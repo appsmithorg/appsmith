@@ -81,6 +81,7 @@ export interface ControlData {
   identifier?: string;
   sectionName?: string;
   disabled?: boolean;
+  staticDependencyPathList?: string[];
 }
 export type FormConfigType = Omit<ControlData, "configProperty"> & {
   configProperty?: string;

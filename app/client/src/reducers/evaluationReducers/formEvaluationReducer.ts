@@ -15,6 +15,7 @@ export type DynamicValues = {
   data: any;
   config: DynamicValuesConfig;
   evaluatedConfig: DynamicValuesConfig;
+  dynamicDependencyPathList?: string[];
 };
 
 export type DynamicValuesConfig = { url?: string; params: Record<string, any> };
@@ -34,6 +35,8 @@ export type ConditionalOutput = {
   fetchDynamicValues?: DynamicValues;
   conditionals?: ConditonalObject;
   evaluateFormConfig?: EvaluatedFormConfig;
+  configPropertyPath?: string;
+  staticDependencyPathList?: string[];
 };
 
 export type FormConfigEvalObject = {

@@ -10,7 +10,7 @@ import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import { ActionConfig } from "entities/Action";
 import { FormEvalActionPayload } from "sagas/FormEvaluationSaga";
 import { FormConfigType } from "components/formControls/BaseControl";
-import { isEmpty, merge } from "lodash";
+import { isArray, isEmpty, merge } from "lodash";
 import { extractEvalConfigFromFormConfig } from "components/formControls/utils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 
@@ -23,6 +23,10 @@ export enum ConditionType {
   EVALUATE_FORM_CONFIG = "evaluateFormConfig", // When set, the component will evaluate the form config settings
 }
 
+enum FormDataPaths {
+  COMMAND = "actionConfiguration.formData.command.data",
+}
+
 // Object to hold the initial eval object
 let finalEvalObj: FormEvalOutput;
 
@@ -31,19 +35,21 @@ const generateInitialEvalState = (formConfig: FormConfigType) => {
   const conditionals: Record<string, any> = {};
   const conditionTypes: Record<string, any> = {};
 
+  // // Any element is only added to the eval state if they have a conditional statement present, if not they are allowed to be rendered
+  // if ("conditionals" in formConfig && !!formConfig.conditionals) {
+  let key = "unknowns";
+
+  // A unique key is used to refer the object in the eval state, can be propertyName, configProperty or identifier
+  if ("propertyName" in formConfig && !!formConfig.propertyName) {
+    key = formConfig.propertyName;
+  } else if ("configProperty" in formConfig && !!formConfig.configProperty) {
+    key = formConfig.configProperty;
+  } else if ("identifier" in formConfig && !!formConfig.identifier) {
+    key = formConfig.identifier;
+  }
+
   // Any element is only added to the eval state if they have a conditional statement present, if not they are allowed to be rendered
   if ("conditionals" in formConfig && !!formConfig.conditionals) {
-    let key = "unknowns";
-
-    // A unique key is used to refer the object in the eval state, can be propertyName, configProperty or identifier
-    if ("propertyName" in formConfig && !!formConfig.propertyName) {
-      key = formConfig.propertyName;
-    } else if ("configProperty" in formConfig && !!formConfig.configProperty) {
-      key = formConfig.configProperty;
-    } else if ("identifier" in formConfig && !!formConfig.identifier) {
-      key = formConfig.identifier;
-    }
-
     const allConditionTypes = Object.keys(formConfig.conditionals);
     if (
       allConditionTypes.includes(ConditionType.HIDE) ||
@@ -85,19 +91,34 @@ const generateInitialEvalState = (formConfig: FormConfigType) => {
         hasFetchFailed: false,
         data: [],
         config: formConfig.conditionals.fetchDynamicValues.config,
+        dynamicDependencyPathList:
+          formConfig.conditionals.fetchDynamicValues.dynamicDependencyPathList,
         evaluatedConfig: { params: {} },
       };
       conditionTypes.fetchDynamicValues = dynamicValues;
       conditionals.fetchDynamicValues =
         formConfig.conditionals.fetchDynamicValues.condition;
     }
-
-    // Conditionals are stored in the eval state itself for quick access
-    finalEvalObj[key] = {
-      ...conditionTypes,
-      conditionals,
-    };
   }
+
+  // keep the configProperty in the formConfig values.
+  let configPropertyPath;
+  if (!!formConfig.configProperty) {
+    configPropertyPath = formConfig.configProperty;
+  }
+
+  let staticDependencyPathList;
+  if (!!formConfig.staticDependencyPathList) {
+    staticDependencyPathList = formConfig.staticDependencyPathList;
+  }
+
+  // Conditionals are stored in the eval state itself for quick access
+  finalEvalObj[key] = {
+    ...conditionTypes,
+    conditionals,
+    configPropertyPath,
+    staticDependencyPathList,
+  };
 
   if ("children" in formConfig && !!formConfig.children)
     formConfig.children.forEach((config: FormConfigType) =>
@@ -114,7 +135,7 @@ function evaluateDynamicValuesConfig(
   actionConfiguration: ActionConfig,
   config: Record<string, any>,
 ) {
-  const evaluatedConfig: Record<string, any> = config;
+  const evaluatedConfig: Record<string, any> = { ...config };
   const configArray = Object.entries(config);
   if (configArray.length > 0) {
     configArray.forEach(([key, value]) => {
@@ -161,6 +182,8 @@ function evaluateFormConfigElements(
 function evaluate(
   actionConfiguration: ActionConfig,
   currentEvalState: FormEvalOutput,
+  actionDiffPath?: string,
+  hasRouteChanged?: boolean,
 ) {
   Object.keys(currentEvalState).forEach((key: string) => {
     try {
@@ -182,16 +205,54 @@ function evaluate(
               currentEvalState[key].hasOwnProperty("fetchDynamicValues") &&
               !!currentEvalState[key].fetchDynamicValues
             ) {
-              (currentEvalState[key]
-                .fetchDynamicValues as DynamicValues).allowedToFetch = output;
-              (currentEvalState[key]
-                .fetchDynamicValues as DynamicValues).isLoading = output;
-              (currentEvalState[key]
-                .fetchDynamicValues as DynamicValues).evaluatedConfig = evaluateDynamicValuesConfig(
-                actionConfiguration,
-                (currentEvalState[key].fetchDynamicValues as DynamicValues)
-                  .config,
-              ) as DynamicValuesConfig;
+              // this boolean value represents if the current action diff path is a dependency to the form config.
+              let isActionDiffADependency = false;
+
+              // If the key in the currentEval state has dynamicDependencyPathList, we check to see if the path of the changed value
+              // exists in the path list, if it does, we evaluate the dynamicValues and fetch the data via API call,
+              // but if the value does not exist in the path list, we prevent the dynamic value from being refetched via API call.
+              // in other words, if the current actionDiffPath is a dependency, then isActionDiffADependency becomes true.
+              if (
+                currentEvalState[key] &&
+                !!currentEvalState[key]?.fetchDynamicValues
+                  ?.dynamicDependencyPathList &&
+                isArray(
+                  currentEvalState[key]?.fetchDynamicValues
+                    ?.dynamicDependencyPathList,
+                ) &&
+                !!actionDiffPath &&
+                currentEvalState[
+                  key
+                ]?.fetchDynamicValues?.dynamicDependencyPathList?.includes(
+                  actionDiffPath,
+                )
+              ) {
+                isActionDiffADependency = true;
+              }
+
+              // if the actionDiffPath is a dependency or if the route has changed of if there's not actionDiffPath at all
+              // we want to trigger an API call for the dynamic values.
+              if (
+                isActionDiffADependency ||
+                !actionDiffPath ||
+                hasRouteChanged
+              ) {
+                (currentEvalState[key]
+                  .fetchDynamicValues as DynamicValues).allowedToFetch = output;
+                (currentEvalState[key]
+                  .fetchDynamicValues as DynamicValues).isLoading = output;
+                (currentEvalState[key]
+                  .fetchDynamicValues as DynamicValues).evaluatedConfig = evaluateDynamicValuesConfig(
+                  actionConfiguration,
+                  (currentEvalState[key].fetchDynamicValues as DynamicValues)
+                    .config,
+                ) as DynamicValuesConfig;
+              } else {
+                (currentEvalState[key]
+                  .fetchDynamicValues as DynamicValues).allowedToFetch = false;
+                (currentEvalState[key]
+                  .fetchDynamicValues as DynamicValues).isLoading = false;
+              }
             } else if (
               conditionType === ConditionType.EVALUATE_FORM_CONFIG &&
               currentEvalState[key].hasOwnProperty("evaluateFormConfig") &&
@@ -222,13 +283,75 @@ function getFormEvaluation(
   formId: string,
   actionConfiguration: ActionConfig,
   currentEvalState: FormEvaluationState,
+  actionDiffPath?: string,
+  hasRouteChanged?: boolean,
 ): FormEvaluationState {
   // Only change the form evaluation state if the form ID is same or the evaluation state is present
   if (!!currentEvalState && currentEvalState.hasOwnProperty(formId)) {
-    currentEvalState[formId] = evaluate(
-      actionConfiguration,
-      currentEvalState[formId],
-    );
+    const currentFormIdEvalState = currentEvalState[formId];
+    // specific conditions to be evaluated
+    let conditionToBeEvaluated = {};
+    // dynamic conditions always need evaluations
+    let dynamicConditionsToBeFetched = {};
+    for (const [key, value] of Object.entries(currentFormIdEvalState)) {
+      if (
+        value &&
+        !!value.configPropertyPath &&
+        actionDiffPath?.includes(value.configPropertyPath)
+      ) {
+        // static dependency pathlist should be a key of identifiers that point to formControls that are dependent on the result of the current form config value.
+        // it is important to note the difference between staticDependencyPathList and dynamicDependencyPathList is that the former is for formConfigs that don't require API calls
+        if (!!value.staticDependencyPathList) {
+          value.staticDependencyPathList.forEach((key) => {
+            conditionToBeEvaluated = {
+              ...conditionToBeEvaluated,
+              [key]: currentFormIdEvalState[key],
+            };
+          });
+        }
+        conditionToBeEvaluated = { ...conditionToBeEvaluated, [key]: value };
+      }
+
+      // if there are dynamic values present, add them to the condition to be evaluated.
+      if (value && (!!value.fetchDynamicValues || !!value.evaluateFormConfig)) {
+        dynamicConditionsToBeFetched = {
+          ...dynamicConditionsToBeFetched,
+          [key]: value,
+        };
+      }
+    }
+
+    // if no condition is to be evaluated or if the currently changing action diff path is the command path
+    // then we run evaluations on the whole form.
+    // However if the action diff path is simply changing its viewType, we don't want to evaluate the whole form.
+    if (
+      (isEmpty(conditionToBeEvaluated) ||
+        actionDiffPath === FormDataPaths.COMMAND) &&
+      !actionDiffPath?.endsWith(".viewType")
+    ) {
+      conditionToBeEvaluated = evaluate(
+        actionConfiguration,
+        currentEvalState[formId],
+        actionDiffPath,
+        hasRouteChanged,
+      );
+    } else {
+      conditionToBeEvaluated = {
+        ...conditionToBeEvaluated,
+        ...dynamicConditionsToBeFetched,
+      };
+      conditionToBeEvaluated = evaluate(
+        actionConfiguration,
+        conditionToBeEvaluated,
+        actionDiffPath,
+        hasRouteChanged,
+      );
+    }
+
+    currentEvalState[formId] = {
+      ...currentEvalState[formId],
+      ...conditionToBeEvaluated,
+    };
   }
 
   return currentEvalState;
@@ -273,12 +396,23 @@ export function setFormEvaluationSaga(
     // This is the initial evaluation state, evaluations can now be run on top of this
     return { [payload.formId]: finalEvalObj };
   } else {
-    const { actionConfiguration, formId } = payload;
+    const {
+      actionConfiguration,
+      actionDiffPath,
+      formId,
+      hasRouteChanged,
+    } = payload;
     // In case the formData is not ready or the form is not of type UQI, return empty state
     if (!actionConfiguration || !actionConfiguration.formData) {
       return currentEvalState;
     } else {
-      return getFormEvaluation(formId, actionConfiguration, currentEvalState);
+      return getFormEvaluation(
+        formId,
+        actionConfiguration,
+        currentEvalState,
+        actionDiffPath,
+        hasRouteChanged,
+      );
     }
   }
 }

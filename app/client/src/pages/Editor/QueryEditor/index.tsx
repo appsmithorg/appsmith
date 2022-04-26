@@ -48,7 +48,7 @@ import { diff, Diff } from "deep-diff";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { integrationEditorURL } from "RouteBuilder";
 import { getConfigInitialValues } from "components/formControls/utils";
-import { merge } from "lodash";
+import { isArray, merge } from "lodash";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
 
 const EmptyStateContainer = styled.div`
@@ -70,6 +70,8 @@ type ReduxDispatchProps = {
     formData: QueryActionConfig,
     datasourceId: string,
     pluginId: string,
+    actionDiffPath?: string,
+    hasRouteChanged?: boolean,
   ) => void;
   initFormEvaluation: (
     editorConfig: any,
@@ -173,6 +175,29 @@ class QueryEditor extends React.Component<Props> {
         PerformanceTransactionName.RUN_QUERY_CLICK,
       );
     }
+
+    const formDataDiff = diff(prevProps.formData, this.props.formData);
+
+    // actionDiffPath is the path of the form input which was changed by the user.
+    let actionDiffPath = "";
+    let hasRouteChanged = false;
+
+    // if the formDataDiff is greater than 1, it means a lot of form controls have either been edited, added or deleted
+    // which we can infer as a route change.
+    // kind of an hack (Jugarrr).
+    if (!!formDataDiff && formDataDiff?.length > 1) {
+      hasRouteChanged = true;
+    }
+
+    if (
+      formDataDiff &&
+      !!formDataDiff[0] &&
+      "path" in formDataDiff[0] &&
+      isArray(formDataDiff[0].path)
+    ) {
+      actionDiffPath = formDataDiff[0].path.join(".");
+    }
+
     // Update the page when the queryID is changed by changing the
     // URL or selecting new query from the query pane
     // reusing same logic for changing query panes for switching query editor datasources, since the operations are similar.
@@ -190,13 +215,15 @@ class QueryEditor extends React.Component<Props> {
         (this.props.formData.hasOwnProperty("actionConfiguration") &&
           !!prevProps.formData &&
           prevProps.formData.hasOwnProperty("actionConfiguration") &&
-          !!diff(prevProps.formData, this.props.formData)))
+          !!formDataDiff))
     ) {
       this.props.runFormEvaluation(
         this.props.formData.id,
         this.props.formData.actionConfiguration,
         this.props.formData.datasource.id,
         this.props.formData.pluginId,
+        actionDiffPath,
+        hasRouteChanged,
       );
     }
   }
@@ -377,8 +404,19 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
     formData: QueryActionConfig,
     datasourceId: string,
     pluginId: string,
+    actionDiffPath?: string,
+    hasRouteChanged?: boolean,
   ) => {
-    dispatch(startFormEvaluations(formId, formData, datasourceId, pluginId));
+    dispatch(
+      startFormEvaluations(
+        formId,
+        formData,
+        datasourceId,
+        pluginId,
+        actionDiffPath,
+        hasRouteChanged,
+      ),
+    );
   },
   initFormEvaluation: (
     editorConfig: any,

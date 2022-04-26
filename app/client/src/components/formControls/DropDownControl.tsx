@@ -142,7 +142,7 @@ export interface DropDownControlProps extends ControlProps {
   subtitle?: string;
   isMultiSelect?: boolean;
   isSearchable?: boolean;
-  fetchOptionsCondtionally?: boolean;
+  fetchOptionsConditionally?: boolean;
   isLoading: boolean;
 }
 
@@ -152,12 +152,12 @@ const mapStateToProps = (
 ): { isLoading: boolean; options: DropdownOption[] } => {
   // Added default options to prevent error when options is undefined
   let isLoading = false;
-  let options: DropdownOption[] = ownProps.fetchOptionsCondtionally
+  let options: DropdownOption[] = ownProps.fetchOptionsConditionally
     ? []
     : ownProps.options;
 
   try {
-    if (ownProps.fetchOptionsCondtionally) {
+    if (ownProps.fetchOptionsConditionally) {
       const dynamicFetchedValues = getDynamicFetchedValues(state, ownProps);
       isLoading = dynamicFetchedValues.isLoading;
       options = dynamicFetchedValues.data;

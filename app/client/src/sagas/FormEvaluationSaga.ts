@@ -28,6 +28,8 @@ export type FormEvalActionPayload = {
   actionConfiguration?: ActionConfig;
   editorConfig?: FormConfigType[];
   settingConfig?: FormConfigType[];
+  actionDiffPath?: string;
+  hasRouteChanged?: boolean;
 };
 
 const evalQueue: ReduxAction<FormEvalActionPayload>[] = [];
@@ -147,15 +149,19 @@ function* fetchDynamicValueSaga(
   configProperty: string,
 ) {
   try {
-    const { config } = value.fetchDynamicValues as DynamicValues;
-    const { params } = config;
+    const { evaluatedConfig } = value.fetchDynamicValues as DynamicValues;
+    const { params } = evaluatedConfig;
 
     dynamicFetchedValues.hasStarted = true;
 
     let url = PluginsApi.defaultDynamicTriggerURL(datasourceId);
 
-    if ("url" in config && !!config.url && config.url.length > 0)
-      url = config.url;
+    if (
+      "url" in evaluatedConfig &&
+      !!evaluatedConfig.url &&
+      evaluatedConfig.url.length > 0
+    )
+      url = evaluatedConfig.url;
 
     // Call the API to fetch the dynamic values
     const response: ApiResponse = yield call(
