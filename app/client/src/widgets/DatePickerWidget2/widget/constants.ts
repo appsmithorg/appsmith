@@ -1,3 +1,4 @@
+import { SubTextPosition } from "components/ads";
 import moment from "moment";
 
 export const DateFormatOptions = [
@@ -83,5 +84,5 @@ export const DateFormatOptions = [
   },
 ].map((x) => ({
   ...x,
-  subTextPosition: "BOTTOM",
+  subTextPosition: SubTextPosition.BOTTOM,
 }));

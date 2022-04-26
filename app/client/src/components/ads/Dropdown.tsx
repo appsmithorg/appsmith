@@ -25,7 +25,7 @@ import { findIndex, isArray } from "lodash";
 
 export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
 
-enum SubTextPosition {
+export enum SubTextPosition {
   BOTTOM,
   LEFT,
 }
@@ -756,7 +756,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
                   ? props.highlightIndex === index
                   : isSelected
               }
-              subTextPosition={option.subTextPosition}
+              subTextPosition={option.subTextPosition ?? SubTextPosition.LEFT}
             >
               {option.leftElement && (
                 <LeftIconWrapper>{option.leftElement}</LeftIconWrapper>
