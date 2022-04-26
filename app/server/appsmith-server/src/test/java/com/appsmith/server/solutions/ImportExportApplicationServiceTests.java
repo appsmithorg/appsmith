@@ -94,6 +94,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -2397,5 +2398,31 @@ public class ImportExportApplicationServiceTests {
                 .verifyComplete();
 
     }
-    
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void exportApplicationById_WhenThemeDoesNotExist_ExportedWithDefaultTheme() {
+        Theme customTheme = new Theme();
+        customTheme.setName("my-custom-theme");
+
+        String randomId = UUID.randomUUID().toString();
+        Application testApplication = new Application();
+        testApplication.setName("Application_" + randomId);
+        Mono<ApplicationJson> exportedAppJson = applicationPageService.createApplication(testApplication, orgId)
+                //.zipWith(themeRepository.save(customTheme))
+                .flatMap(application -> {
+                    //Application application = objects.getT1();
+                    // Theme theme = objects.getT2();
+                    application.setEditModeThemeId("invalid-theme-id");
+                    application.setPublishedModeThemeId("invalid-theme-id");
+                    String branchName = null;
+                    return applicationService.save(application)
+                            .then(importExportApplicationService.exportApplicationById(application.getId(), branchName));
+                });
+
+        StepVerifier.create(exportedAppJson).assertNext(applicationJson -> {
+            assertThat(applicationJson.getEditModeTheme().getName()).isEqualTo(Theme.DEFAULT_THEME_NAME);
+            assertThat(applicationJson.getPublishedTheme().getName()).isEqualTo(Theme.DEFAULT_THEME_NAME);
+        }).verifyComplete();
+    }
 }
