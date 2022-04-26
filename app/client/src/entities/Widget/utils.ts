@@ -1,11 +1,14 @@
-import { WidgetProps } from "widgets/BaseWidget";
 import {
   PropertyPaneConfig,
   ValidationConfig,
 } from "constants/PropertyControlConstants";
-import { get, isObject, isUndefined, omitBy } from "lodash";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { get, isObject, isUndefined, omitBy } from "lodash";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import memoizee from "memoizee/weak";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { WidgetProps } from "widgets/BaseWidget";
 
 /**
  * @typedef {Object} Paths
@@ -163,7 +166,7 @@ const childHasPanelConfig = (
   return { reactivePaths, triggerPaths, validationPaths, bindingPaths };
 };
 
-export const getAllPathsFromPropertyConfig = (
+const getAllPathsFromPropertyConfigWithoutMemo = (
   widget: WidgetProps,
   widgetConfig: readonly PropertyPaneConfig[],
   defaultProperties: Record<string, any>,
@@ -275,6 +278,21 @@ export const getAllPathsFromPropertyConfig = (
 
   return { reactivePaths, triggerPaths, validationPaths, bindingPaths };
 };
+
+export const getAllPathsFromPropertyConfig = memoizee(
+  getAllPathsFromPropertyConfigWithoutMemo,
+  {
+    max: 1000,
+    length: false,
+    normalizer: (args: Array<any>) => {
+      return (
+        JSON.stringify(args[0]) +
+        JSON.stringify(args[1]) +
+        JSON.stringify(args[2])
+      );
+    },
+  },
+);
 
 /**
  * this function gets the next available row for pasting widgets

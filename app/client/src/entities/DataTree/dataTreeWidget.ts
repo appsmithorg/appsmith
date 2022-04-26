@@ -12,8 +12,11 @@ import {
   DataTreeWidget,
   ENTITY_TYPE,
 } from "./dataTreeFactory";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import memoizee from "memoizee";
 
-export const generateDataTreeWidget = (
+const generateDataTreeWidgetWithoutMemo = (
   widget: FlattenedWidgetProps,
   widgetMetaProps: Record<string, unknown> = {},
 ): DataTreeWidget => {
@@ -25,7 +28,6 @@ export const generateDataTreeWidget = (
   const defaultMetaProps = WidgetFactory.getWidgetMetaPropertiesMap(
     widget.type,
   );
-
   const derivedPropertyMap = WidgetFactory.getWidgetDerivedPropertiesMap(
     widget.type,
   );
@@ -163,3 +165,11 @@ export const generateDataTreeWidget = (
     },
   );
 };
+
+export const generateDataTreeWidget = memoizee(
+  generateDataTreeWidgetWithoutMemo,
+  {
+    max: 1000,
+    length: false,
+  },
+);
