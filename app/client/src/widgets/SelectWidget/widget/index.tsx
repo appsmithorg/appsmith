@@ -394,14 +394,12 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       selectedOption: "defaultOptionValue",
-      value: "defaultOptionValue",
       filterText: "",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      value: undefined,
       selectedOption: undefined,
       filterText: "",
       isDirty: false,
@@ -413,6 +411,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       isValid: `{{this.isRequired  ? !!this.selectedOptionValue || this.selectedOptionValue === 0 : true}}`,
       selectedOptionLabel: `{{this.selectedOption.label}}`,
       selectedOptionValue: `{{this.selectedOption.value}}`,
+      value: `{{ this.selectedOption.value }}`,
     };
   }
 

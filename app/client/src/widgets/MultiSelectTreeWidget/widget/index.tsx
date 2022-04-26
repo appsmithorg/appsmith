@@ -515,7 +515,7 @@ class MultiSelectTreeWidget extends BaseWidget<
     if (this.props.mode !== prevProps.mode) {
       this.setSelectedOptions(
         this.props.options,
-        this.props.selectedOptionValueArr,
+        this.props.defaultOptionValue,
       );
     }
   }
