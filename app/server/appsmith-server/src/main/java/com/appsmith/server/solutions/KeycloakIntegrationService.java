@@ -1,6 +1,5 @@
 package com.appsmith.server.solutions;
 
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
@@ -9,17 +8,19 @@ public interface KeycloakIntegrationService {
 
     Mono<Boolean> createRealm();
 
-    Mono<Boolean> createClient(ServerWebExchange exchange);
+    Mono<Boolean> createClient(String exchange);
 
     Mono<String> generateClientSecret();
 
-    Mono<Map<String, Object>> importSamlConfigFromUrl(Map<String, String> config);
+    Mono<Map<String, Object>> importSamlConfigFromUrl(Map<String, String> config, String baseUrl);
 
-    Mono<Boolean> createSamlIdentityProvider();
+    Mono<Boolean> createSamlIdentityProviderOnKeycloak(Map<String, Object> identityProviderRequest);
 
-    Mono<Boolean> createSamlIdentityProvider(Map<String, Object> identityProviderRequest);
+    Mono<Boolean> createSamlIdentityProviderExplicitConfiguration(Map<String, Object> configuration, String baseUrl);
 
-    Mono<Boolean> createSamlIdentityProviderFromIdpConfigFromUrl(Map<String, String> request);
+    Mono<Boolean> createSamlIdentityProviderFromIdpConfigFromUrl(Map<String, String> request, String baseUrl);
 
     Mono<Boolean> deleteRealm();
+
+    Mono<Boolean> createSamlIdentityProviderFromXml(String importFromXml, String baseUrl);
 }

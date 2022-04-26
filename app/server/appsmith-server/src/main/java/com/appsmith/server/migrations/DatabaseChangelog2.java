@@ -1,6 +1,5 @@
 package com.appsmith.server.migrations;
 
-import com.appsmith.server.domains.Application;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.QBaseDomain;

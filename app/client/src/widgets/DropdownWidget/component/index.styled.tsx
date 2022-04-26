@@ -1,4 +1,4 @@
-import { Label } from "@blueprintjs/core";
+import { Alignment, Label } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import {
@@ -6,13 +6,39 @@ import {
   TextSize,
   TEXT_SIZES,
 } from "constants/WidgetConstants";
+import { LabelPosition } from "components/constants";
+import Tooltip from "components/ads/Tooltip";
+import { LABEL_MAX_WIDTH_RATE } from "components/ads/LabelWithTooltip";
 
 export const TextLabelWrapper = styled.div<{
   compactMode: boolean;
+  alignment?: Alignment;
+  position?: LabelPosition;
+  width?: number;
 }>`
-  ${(props) =>
-    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
   display: flex;
+
+  ${({ alignment, compactMode, position, width }) => `
+    ${
+      position !== LabelPosition.Top &&
+      (position === LabelPosition.Left || compactMode)
+        ? `&&& {margin-right: 5px; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
+        : `width: 100%;`
+    }
+    ${position === LabelPosition.Left &&
+      `
+      ${!width && `width: 33%`};
+      ${alignment === Alignment.RIGHT && `justify-content: flex-end`};
+      label {
+        ${width && `width: ${width}px`};
+        ${
+          alignment === Alignment.RIGHT
+            ? `text-align: right`
+            : `text-align: left`
+        };
+      }
+    `}
+  `}
 `;
 
 export const StyledLabel = styled(Label)<{
@@ -39,4 +65,8 @@ export const StyledLabel = styled(Label)<{
     props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
   font-style: ${(props) =>
     props?.$labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
+`;
+
+export const StyledTooltip = styled(Tooltip)`
+  overflow: hidden;
 `;

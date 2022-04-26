@@ -314,11 +314,13 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
                                                         unpublishedCollection
                                                                 .getDefaultToBranchedActionIdsMap()
                                                                 .forEach((defaultActionId, oldActionId) -> {
-                                                                    if (!StringUtils.isEmpty(actionIdsMap.get(oldActionId))) {
+                                                                    if (StringUtils.hasLength(oldActionId)
+                                                                            && StringUtils.hasLength(actionIdsMap.get(oldActionId))) {
+
+                                                                        // As this is a new application and not connected
+                                                                        // through git branch, the default and newly
+                                                                        // created actionId will be same
                                                                         newActionIds
-                                                                            // As this is a new application and not connected
-                                                                            // through git branch, the default and newly
-                                                                            // created actionId will be same
                                                                             .put(actionIdsMap.get(oldActionId), actionIdsMap.get(oldActionId));
                                                                     } else {
                                                                         log.debug("Unable to find action {} while forking inside ID map: {}", oldActionId, actionIdsMap);

@@ -12,8 +12,7 @@ import {
   TreeSelectContainer,
   DropdownStyles,
   StyledIcon,
-  StyledLabel,
-  TextLabelWrapper,
+  InputContainer,
 } from "./index.styled";
 import "rc-tree-select/assets/index.less";
 import { DefaultValueType } from "rc-tree-select/lib/interface";
@@ -23,10 +22,13 @@ import {
   MODAL_PORTAL_CLASSNAME,
   TextSize,
 } from "constants/WidgetConstants";
-import { Button, Classes, InputGroup } from "@blueprintjs/core";
+import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
+import { LabelPosition } from "components/constants";
+import LabelWithTooltip from "components/ads/LabelWithTooltip";
+
 export interface TreeSelectProps
   extends Required<
     Pick<
@@ -42,7 +44,10 @@ export interface TreeSelectProps
   value?: DefaultValueType;
   onChange: (value?: DefaultValueType, labelList?: ReactNode[]) => void;
   expandAll: boolean;
-  labelText?: string;
+  labelText: string;
+  labelPosition?: LabelPosition;
+  labelAlignment?: Alignment;
+  labelWidth?: number;
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
@@ -101,10 +106,13 @@ function SingleSelectTreeComponent({
   filterText,
   isFilterable,
   isValid,
+  labelAlignment,
+  labelPosition,
   labelStyle,
   labelText,
   labelTextColor,
   labelTextSize,
+  labelWidth,
   loading,
   onChange,
   options,
@@ -115,6 +123,7 @@ function SingleSelectTreeComponent({
 }: TreeSelectProps): JSX.Element {
   const [key, setKey] = useState(Math.random());
   const [filter, setFilter] = useState(filterText ?? "");
+
   const labelRef = useRef<HTMLDivElement>(null);
   const _menu = useRef<HTMLElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -135,6 +144,13 @@ function SingleSelectTreeComponent({
     }
     return document.querySelector(`.${CANVAS_CLASSNAME}`) as HTMLElement;
   }, []);
+  const onSelectionChange = useCallback(
+    (value?: DefaultValueType, labelList?: ReactNode[]) => {
+      setFilter("");
+      onChange(value, labelList);
+    },
+    [],
+  );
   const onClear = useCallback(() => onChange([], []), []);
   const onOpen = useCallback((open: boolean) => {
     if (open) {
@@ -196,74 +212,76 @@ function SingleSelectTreeComponent({
   return (
     <TreeSelectContainer
       compactMode={compactMode}
+      data-testid="treeselect-container"
       isValid={isValid}
+      labelPosition={labelPosition}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
       <DropdownStyles dropDownWidth={memoDropDownWidth} id={widgetId} />
       {labelText && (
-        <TextLabelWrapper compactMode={compactMode} ref={labelRef}>
-          <StyledLabel
-            $compactMode={compactMode}
-            $disabled={disabled}
-            $labelStyle={labelStyle}
-            $labelText={labelText}
-            $labelTextColor={labelTextColor}
-            $labelTextSize={labelTextSize}
-            className={`tree-select-label ${
-              loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
-            }`}
-            disabled={disabled}
-          >
-            {labelText}
-          </StyledLabel>
-        </TextLabelWrapper>
+        <LabelWithTooltip
+          alignment={labelAlignment}
+          className={`tree-select-label`}
+          color={labelTextColor}
+          compact={compactMode}
+          disabled={disabled}
+          fontSize={labelTextSize}
+          fontStyle={labelStyle}
+          loading={loading}
+          position={labelPosition}
+          ref={labelRef}
+          text={labelText}
+          width={labelWidth}
+        />
       )}
-      <TreeSelect
-        allowClear={allowClear}
-        animation="slide-up"
-        choiceTransitionName="rc-tree-select-selection__choice-zoom"
-        className="rc-tree-select"
-        clearIcon={
-          <Icon
-            className="clear-icon"
-            fillColor={Colors.GREY_10}
-            name="close-x"
-          />
-        }
-        disabled={disabled}
-        dropdownClassName={`tree-select-dropdown single-tree-select-dropdown treeselect-popover-width-${widgetId}`}
-        dropdownRender={dropdownRender}
-        dropdownStyle={dropdownStyle}
-        filterTreeNode
-        getPopupContainer={getDropdownPosition}
-        inputIcon={
-          <Icon
-            className="dropdown-icon"
-            fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
-            name="dropdown"
-          />
-        }
-        key={key}
-        loading={loading}
-        maxTagCount={"responsive"}
-        maxTagPlaceholder={(e) => `+${e.length} more`}
-        notFoundContent="No Results Found"
-        onChange={onChange}
-        onClear={onClear}
-        onDropdownVisibleChange={onOpen}
-        placeholder={placeholder}
-        searchValue={filter}
-        showArrow
-        showSearch={false}
-        style={{ width: "100%" }}
-        switcherIcon={switcherIcon}
-        transitionName="rc-tree-select-dropdown-slide-up"
-        treeData={options}
-        treeDefaultExpandAll={expandAll}
-        treeIcon
-        treeNodeFilterProp="label"
-        value={value}
-      />
+      <InputContainer compactMode={compactMode} labelPosition={labelPosition}>
+        <TreeSelect
+          allowClear={allowClear}
+          animation="slide-up"
+          choiceTransitionName="rc-tree-select-selection__choice-zoom"
+          className="rc-tree-select"
+          clearIcon={
+            <Icon
+              className="clear-icon"
+              fillColor={Colors.GREY_10}
+              name="close-x"
+            />
+          }
+          disabled={disabled}
+          dropdownClassName={`tree-select-dropdown single-tree-select-dropdown treeselect-popover-width-${widgetId}`}
+          dropdownRender={dropdownRender}
+          dropdownStyle={dropdownStyle}
+          filterTreeNode
+          getPopupContainer={getDropdownPosition}
+          inputIcon={
+            <Icon
+              className="dropdown-icon"
+              fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
+              name="dropdown"
+            />
+          }
+          key={key}
+          loading={loading}
+          maxTagCount={"responsive"}
+          maxTagPlaceholder={(e) => `+${e.length} more`}
+          notFoundContent="No Results Found"
+          onChange={onSelectionChange}
+          onClear={onClear}
+          onDropdownVisibleChange={onOpen}
+          placeholder={placeholder}
+          searchValue={filter}
+          showArrow
+          showSearch={false}
+          style={{ width: "100%" }}
+          switcherIcon={switcherIcon}
+          transitionName="rc-tree-select-dropdown-slide-up"
+          treeData={options}
+          treeDefaultExpandAll={expandAll}
+          treeIcon
+          treeNodeFilterProp="label"
+          value={filter ? "" : value} // value should empty when filter value exist otherwise dropdown flickers #12714
+        />
+      </InputContainer>
     </TreeSelectContainer>
   );
 }

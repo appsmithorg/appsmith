@@ -43,8 +43,7 @@ describe("JSObjects OnLoad Actions tests", function() {
         );;
       })
     });
-    ee.expandCollapseEntity("WIDGETS");
-    ee.SelectEntityByName("Table1");
+    ee.SelectEntityByName("Table1", 'WIDGETS');
     jsEditor.EnterJSContext("Table Data", "{{GetUser.data}}");
 
     agHelper.DeployApp();

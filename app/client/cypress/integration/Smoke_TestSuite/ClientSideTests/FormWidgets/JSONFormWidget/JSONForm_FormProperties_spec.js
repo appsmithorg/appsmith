@@ -1,5 +1,6 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
+const widgetsPage = require("../../../../../locators/Widgets.json");
 
 const backBtn = ".t--property-pane-back-btn";
 const fieldPrefix = ".t--jsonformfield";
@@ -66,5 +67,24 @@ describe("JSON Form Widget Form Bindings", () => {
       .contains("Submit")
       .parent("button")
       .should("not.have.attr", "disabled");
+  });
+
+  it("Should set isValid to false when form is invalid", () => {
+    cy.openPropertyPane("textwidget");
+    cy.testJsontext("text", "{{JSONForm1.isValid}}");
+
+    cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("true");
+
+    cy.get(`${fieldPrefix}-name input`)
+      .clear()
+      .wait(300);
+
+    cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("false");
+
+    cy.get(`${fieldPrefix}-name input`)
+      .type("JOHN")
+      .wait(300);
+
+    cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("true");
   });
 });
