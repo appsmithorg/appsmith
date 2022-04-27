@@ -7,7 +7,6 @@ require("cypress-file-upload");
 const googleForm = require("../locators/GoogleForm.json");
 const googleData = require("../fixtures/googleSource.json");
 const githubForm = require("../locators/GithubForm.json");
-const githubData = require("../fixtures/githubSource.json");
 
 Cypress.Commands.add("fillGoogleFormPartly", () => {
   cy.get(googleForm.googleClientId).type(
