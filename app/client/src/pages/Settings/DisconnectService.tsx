@@ -54,6 +54,14 @@ export function DisconnectService(props: {
   warning: string;
 }) {
   const [warnDisconnectAuth, setWarnDisconnectAuth] = useState(false);
+  const [disconnectCalled, setDisconnectCalled] = useState(false);
+
+  const callDisconnect = () => {
+    if (!disconnectCalled) {
+      setDisconnectCalled(true);
+      props.disconnect();
+    }
+  };
 
   return (
     <Container>
@@ -63,7 +71,7 @@ export function DisconnectService(props: {
       <DisconnectButton
         data-testid="disconnect-service-button"
         onClick={() =>
-          warnDisconnectAuth ? props.disconnect() : setWarnDisconnectAuth(true)
+          warnDisconnectAuth ? callDisconnect() : setWarnDisconnectAuth(true)
         }
         text={
           warnDisconnectAuth
