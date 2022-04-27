@@ -688,6 +688,10 @@ export const CONTACT_SALES_MESSAGE_ON_INTERCOM = (orgName: string) =>
 export const REPOSITORY_LIMIT_REACHED = () => "Repository Limit Reached";
 export const REPOSITORY_LIMIT_REACHED_INFO = () =>
   "Adding and using upto 3 repositories is free. To add more repositories kindly upgrade.";
+export const APPLICATION_IMPORT_SUCCESS = (username: string) =>
+  `${username}! Your application is ready to use.`;
+export const APPLICATION_IMPORT_SUCCESS_DESCRIPTION = () =>
+  "All your datasources are configuered and ready to use.";
 export const NONE_REVERSIBLE_MESSAGE = () =>
   "This action is non reversible. Proceed with caution.";
 export const CONTACT_SUPPORT_TO_UPGRADE = () =>
@@ -999,6 +1003,9 @@ export const TEST_EMAIL_SUCCESS = (email: string) => () =>
   `Test email sent, please check the inbox of ${email}`;
 export const TEST_EMAIL_SUCCESS_TROUBLESHOOT = () => "Troubleshoot";
 export const TEST_EMAIL_FAILURE = () => "Sending Test Email Failed";
+export const DISCONNECT_AUTH_ERROR = () =>
+  "Cannot disconnect the only connected authentication method.";
+export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
 //Reflow Beta Screen
 export const REFLOW_BETA_CHECKBOX_LABEL = () =>
   "Turn on new drag & drop experience";
