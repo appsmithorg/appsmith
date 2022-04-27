@@ -54,6 +54,8 @@ export const MENU_ITEMS_MAP: MenuItemsProps[] = [
     inputs: [
       {
         className: "t--sso-metadata-url-input",
+        hint:
+          "Metadata is an XML file which has configuration data used to establish trust between the SP and IDP. Paste the public URL of the XML file that contains the IdP information.",
         label: "Metadata URL",
         name: "metadataUrl",
         isRequired: true,
@@ -68,6 +70,8 @@ export const MENU_ITEMS_MAP: MenuItemsProps[] = [
     inputs: [
       {
         className: "t--sso-metadata-xml-input",
+        hint:
+          "Metadata is an XML file which has configuration data used to establish trust between the SP and IDP. Paste the file's text in its entirety here.",
         label: "Metadata XML",
         name: "metadataXml",
         type: "Area",
@@ -83,26 +87,33 @@ export const MENU_ITEMS_MAP: MenuItemsProps[] = [
     inputs: [
       {
         className: "t--sso-metadata-entity-id-input",
+        hint:
+          "The application-defined unique identifier that is most often the SP Entity ID of your application.",
         label: "Entity ID",
         name: "metadataEntityId",
         isRequired: true,
       },
       {
         className: "t--sso-metadata-sso-url-input",
+        hint:
+          "The location where the SAML assertion is sent with a HTTP POST. This is often referred to as the SAML Assertion Consumer Service (ACS) URL for your application.",
         label: "Single Sign On URL",
         name: "metadataSsoUrl",
         isRequired: true,
       },
       {
         className: "t--sso-metadata-pub-cert-input",
+        hint:
+          "The PEM or DER encoded public key certificate of the Identity Provider used to verify SAML message and assertion signatures.",
         label: "X509 Public Certificate",
         name: "metadataPubCert",
         isRequired: true,
       },
       {
         className: "t--email-input",
+        hint:
+          "Identifies the NameID or Name Identifier which is used to identity the subject of a SAML assertion. Use the NameID format that identifies the email of the user defined in the IdP User Profile.",
         label: "Email",
-        hint: "Configure the mapping of IdP attribute keys for email.",
         name: "metadataEmail",
         isRequired: true,
       },
