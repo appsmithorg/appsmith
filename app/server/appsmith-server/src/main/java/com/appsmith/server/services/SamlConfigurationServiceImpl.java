@@ -91,6 +91,17 @@ public class SamlConfigurationServiceImpl implements SamlConfigurationService {
                     return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
 
                 })
+                .onErrorResume(AppsmithException.class, error -> {
+                    if (error instanceof AppsmithException &&
+                            error.getAppErrorCode().equals(AppsmithError.SAML_CONFIGURATION_FAILURE.getAppErrorCode())) {
+                        // In case there was an error in configuring SAML, clean up the realm created before
+                        // creating the identity provider
+                        return keycloakIntegrationService.deleteRealm()
+                                .then(Mono.error(error));
+                    }
+
+                    return Mono.error(error);
+                })
                 .flatMap(updatedConfig -> envManager.applyChanges(
                         Map.of(
                                 APPSMITH_SSO_SAML_ENABLED.toString(), "true",

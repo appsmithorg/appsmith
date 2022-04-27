@@ -576,8 +576,9 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
                                 // Find the media type of the response to parse the body as required.
                                 MediaType contentType = headers.getContentType();
                                 HttpStatus statusCode = stringResponseEntity.getStatusCode();
+
                                 if (!statusCode.is2xxSuccessful()) {
-                                    return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                                    return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE));
                                 }
 
                                 byte[] body = stringResponseEntity.getBody();
@@ -590,11 +591,11 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
                                         Map<String, Object> responseMap = objectMapper.readValue(jsonBody, tr);
                                         return Mono.just(responseMap);
                                     } catch (IOException e) {
-                                        return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, jsonBody, e));
+                                        return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE, jsonBody, e));
                                     }
                                 }
 
-                                return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                                return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE));
                             });
                 });
     }
