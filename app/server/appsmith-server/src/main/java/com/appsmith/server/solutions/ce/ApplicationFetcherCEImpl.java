@@ -113,8 +113,8 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                     Flux<Application> applicationFlux = applicationRepository
                             .findByMultipleOrganizationIds(orgIds, READ_APPLICATIONS)
                             .filter(application -> application.getGitApplicationMetadata() == null
-                                    || (!StringUtils.isEmpty(application.getGitApplicationMetadata().getDefaultBranchName())
-                                    && application.getGitApplicationMetadata().getBranchName().equals(application.getGitApplicationMetadata().getDefaultBranchName()))
+                                            || StringUtils.isEmpty(application.getGitApplicationMetadata().getDefaultBranchName())
+                                            || application.getGitApplicationMetadata().getBranchName().equals(application.getGitApplicationMetadata().getDefaultBranchName())
                             )
                             .map(responseUtils::updateApplicationWithDefaultResources);
 
