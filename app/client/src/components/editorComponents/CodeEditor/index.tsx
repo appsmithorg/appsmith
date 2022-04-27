@@ -198,6 +198,7 @@ class CodeEditor extends Component<Props, State> {
   componentDidMount(): void {
     if (this.codeEditorTarget.current) {
       const options: EditorConfiguration = {
+        autoRefresh: true,
         mode: this.props.mode,
         theme: EditorThemes[this.props.theme],
         viewportMargin: 10,
