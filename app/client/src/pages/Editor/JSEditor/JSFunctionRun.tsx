@@ -67,7 +67,7 @@ export function JSFunctionRun({
   return (
     <DropdownWithCTAWrapper isDisabled={disabled}>
       <Dropdown
-        customBadge={<FlagBadge name="Aysnc" />}
+        customBadge={<FlagBadge name="Async" />}
         height={RUN_BUTTON_DEFAULTS.HEIGHT}
         onSelect={onSelect}
         options={options}

@@ -3,32 +3,18 @@ import { ancestor } from "acorn-walk";
 import { CodeEditorGutter } from "components/editorComponents/CodeEditor";
 import { JSAction, JSCollection } from "entities/JSCollection";
 import {
-  ECMA_VERSION,
-  NodeTypes,
-  SourceType,
   RUN_GUTTER_CLASSNAME,
   RUN_GUTTER_ID,
   NO_FUNCTION_DROPDOWN_OPTION,
 } from "./constants";
 import { DropdownOption } from "components/ads/Dropdown";
 import { find, memoize, sortBy } from "lodash";
-
-interface IdentifierNode extends Node {
-  type: NodeTypes.Identifier;
-  name: string;
-}
-interface PropertyNode extends Node {
-  type: NodeTypes.Property;
-  key: IdentifierNode;
-}
+import { ECMA_VERSION, NodeTypes, SourceType } from "constants/ast";
+import { isLiteralNode, isPropertyNode, PropertyNode } from "workers/ast";
 
 export interface JSActionDropdownOption extends DropdownOption {
   data: JSAction | null;
 }
-
-const isPropertyNode = (node: Node): node is PropertyNode => {
-  return node.type === NodeTypes.Property;
-};
 
 export const getAST = memoize((code: string, sourceType: SourceType) =>
   parse(code, {
@@ -48,14 +34,16 @@ export const isCursorWithinNode = (
   );
 };
 
+const getNameFromPropertyNode = (node: PropertyNode): string =>
+  isLiteralNode(node.key) ? String(node.key.value) : node.key.name;
+
 // Function to get start line of js function from code, returns null if function not found
 export const getJSFunctionStartLineFromCode = (
   code: string,
   cursorLine: number,
-  jsActions: JSAction[],
-): { line: number; action: JSAction } | null => {
+): { line: number; actionName: string } | null => {
   let ast: Node = { end: 0, start: 0, type: "" };
-  let result: { line: number; action: JSAction } | null = null;
+  let result: { line: number; actionName: string } | null = null;
   try {
     ast = getAST(code, SourceType.module);
   } catch (e) {
@@ -66,10 +54,10 @@ export const getJSFunctionStartLineFromCode = (
     Property(node, ancestors: Node[]) {
       // We are only interested in identifiers at this depth (exported object keys)
       const depth = ancestors.length - 3;
-      const action =
-        isPropertyNode(node) && find(jsActions, ["name", node.key.name]);
       if (
-        action &&
+        isPropertyNode(node) &&
+        (node.value.type === NodeTypes.ArrowFunctionExpression ||
+          node.value.type === NodeTypes.FunctionExpression) &&
         node.loc &&
         isCursorWithinNode(node.loc, cursorLine + 1) &&
         ancestors[depth] &&
@@ -78,7 +66,7 @@ export const getJSFunctionStartLineFromCode = (
         // 1 is subtracted because codeMirror's line is zero-indexed, this isn't
         result = {
           line: node.loc.start.line - 1,
-          action,
+          actionName: getNameFromPropertyNode(node),
         };
       }
     },
@@ -116,17 +104,14 @@ export const getJSFunctionLineGutter = (
 
   return {
     getGutterConfig: (code: string, lineNumber: number) => {
-      const config = getJSFunctionStartLineFromCode(
-        code,
-        lineNumber,
-        jsActions,
-      );
-      return config
+      const config = getJSFunctionStartLineFromCode(code, lineNumber);
+      const action = find(jsActions, ["name", config?.actionName]);
+      return config && action
         ? {
             line: config.line,
-            element: createGutterMarker(() => runFuction(config.action)),
+            element: createGutterMarker(() => runFuction(action)),
             isFocusedAction: () => {
-              onFocusAction(config.action);
+              onFocusAction(action);
             },
           }
         : null;

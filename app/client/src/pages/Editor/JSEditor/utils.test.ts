@@ -23,44 +23,60 @@ const BASE_JS_OBJECT_BODY = `export default {
 	}	
 }`;
 
-const BASE_JS_ACTION = {
-  organizationId: "organization-id",
-  pageId: "page-id",
-  collectionId: "collection-id",
-  pluginId: "plugin-id",
-  executeOnLoad: false,
-  dynamicBindingPathList: [],
-  isValid: false,
-  invalids: [],
-  jsonPathKeys: [],
-  cacheResponse: "",
-  confirmBeforeExecute: false,
-  messages: [],
-  clientSideExecution: false,
-  actionConfiguration: {
-    body: BASE_JS_OBJECT_BODY,
-    isAsync: true,
-    timeoutInMillisecond: 1000,
-    jsArguments: [],
-  },
+const BASE_JS_OBJECT_BODY_WITH_LITERALS = `export default {
+	myVar1: [],
+	myVar2: {},
+	["myFun1"]: () => {
+		//write code here
+		return FilePicker1
+	},
+	["myFun2"]: async () => {
+		//use async-await or promises
+		await Api3.run()
+		await Api3.run()
+		return Api3.data
+	}	
+}`;
+
+const BASE_JS_ACTION = (useLiterals = false) => {
+  return {
+    organizationId: "organization-id",
+    pageId: "page-id",
+    collectionId: "collection-id",
+    pluginId: "plugin-id",
+    executeOnLoad: false,
+    dynamicBindingPathList: [],
+    isValid: false,
+    invalids: [],
+    jsonPathKeys: [],
+    cacheResponse: "",
+    confirmBeforeExecute: false,
+    messages: [],
+    clientSideExecution: false,
+    actionConfiguration: {
+      body: useLiterals
+        ? BASE_JS_OBJECT_BODY_WITH_LITERALS
+        : BASE_JS_OBJECT_BODY,
+      isAsync: true,
+      timeoutInMillisecond: 1000,
+      jsArguments: [],
+    },
+  };
 };
 
-const createJSAction = (name: string): JSAction => {
+const createJSAction = (name: string, useLiterals = false): JSAction => {
   return {
-    ...BASE_JS_ACTION,
+    ...BASE_JS_ACTION(useLiterals),
     id: uniqueId(name),
     name,
   };
 };
 
 describe("getJSFunctionStartLineFromCode", () => {
-  const JSActions = [createJSAction("myFun1"), createJSAction("myFun2")];
-
   it("returns null when cursor isn't within any function", () => {
     const actualResponse = getJSFunctionStartLineFromCode(
       BASE_JS_OBJECT_BODY,
       100,
-      JSActions,
     );
 
     const expectedResponse = null;
@@ -72,12 +88,26 @@ describe("getJSFunctionStartLineFromCode", () => {
     const actualResponse1 = getJSFunctionStartLineFromCode(
       BASE_JS_OBJECT_BODY,
       4,
-      JSActions,
     );
     const actualResponse2 = getJSFunctionStartLineFromCode(
       BASE_JS_OBJECT_BODY,
       9,
-      JSActions,
+    );
+    const expectedStartLine1 = 3; // startLine of myFun1
+    const expectedStartLine2 = 7; // startLine of myFun2
+
+    expect(actualResponse1?.line).toStrictEqual(expectedStartLine1);
+    expect(actualResponse2?.line).toStrictEqual(expectedStartLine2);
+  });
+
+  it("returns correct start line of function when object keys are literals", () => {
+    const actualResponse1 = getJSFunctionStartLineFromCode(
+      BASE_JS_OBJECT_BODY_WITH_LITERALS,
+      4,
+    );
+    const actualResponse2 = getJSFunctionStartLineFromCode(
+      BASE_JS_OBJECT_BODY_WITH_LITERALS,
+      9,
     );
     const expectedStartLine1 = 3; // startLine of myFun1
     const expectedStartLine2 = 7; // startLine of myFun2
