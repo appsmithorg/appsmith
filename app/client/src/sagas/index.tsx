@@ -44,7 +44,6 @@ import log from "loglevel";
 import * as sentry from "@sentry/react";
 import formEvaluationChangeListener from "./FormEvaluationSaga";
 import SuperUserSagas from "@appsmith/sagas/SuperUserSagas";
-import reflowSagas from "./ReflowSagas";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 const sagas = [
@@ -90,7 +89,6 @@ const sagas = [
   draggingCanvasSagas,
   gitSyncSagas,
   SuperUserSagas,
-  reflowSagas,
 ];
 
 export function* rootSaga(sagasToRun = sagas): any {

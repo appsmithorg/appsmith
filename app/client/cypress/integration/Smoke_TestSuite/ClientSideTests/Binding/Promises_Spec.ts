@@ -126,7 +126,8 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     })
     agHelper.DeployApp()
     agHelper.ClickButton("Submit");
-    agHelper.ValidateToastMessage("Today's quote for You")
+    //agHelper.ValidateToastMessage("Today's quote for You")
+    cy.get(locator._toastMsg).should("have.length", 1).contains(/Today's quote for You|Unable to fetch quote for/g)
     agHelper.NavigateBacktoEditor()
   });
 

@@ -62,7 +62,7 @@ function RadioGroupField({
 
       if (schemaItem.onSelectionChange && executeAction) {
         executeAction({
-          triggerPropertyName: "onSelectionOptionChange",
+          triggerPropertyName: "onSelectionChange",
           dynamicString: schemaItem.onSelectionChange,
           event: {
             type: EventType.ON_OPTION_CHANGE,

@@ -196,7 +196,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     );
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    table.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
     agHelper.NavigateBacktoEditor()
@@ -211,7 +211,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     agHelper.DeployApp(locator._spanButton('Submit'))
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    table.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
     agHelper.NavigateBacktoEditor()

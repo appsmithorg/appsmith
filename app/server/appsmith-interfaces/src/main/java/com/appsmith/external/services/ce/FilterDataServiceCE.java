@@ -75,6 +75,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             ConditionalOperator.NOT_EQ, "<>",
             ConditionalOperator.GT, ">",
             ConditionalOperator.GTE, ">=",
+            ConditionalOperator.CONTAINS, "LIKE",
             ConditionalOperator.IN, "IN",
             ConditionalOperator.NOT_IN, "NOT IN"
     );
@@ -99,6 +100,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
      * Overloaded Method to handle plugin-based DataType conversion.
      * Plugins implementing this passes parameter 'dataTypeConversionMap' to instruct how their DataTypes to be processed.
      * Example: GoogleSheet plugin handled it in a way that Integer, Long and Float DataTypes to be treated as Double.
+     *
      * @param items
      * @param conditionList
      * @param dataTypeConversionMap - A Map to provide custom Datatype(value) against the actual Datatype(key) found.
@@ -137,7 +139,8 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
 
     /**
      * This filter method is using the new UQI format.
-     * @param items - data
+     *
+     * @param items               - data
      * @param uqiDataFilterParams - filter conditions to apply on data
      * @return filtered data
      */
@@ -292,9 +295,9 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
      * E.g. if the projectionColumns is a list that contains ["ID, Name"], then this method will add the following
      * SQL line: `SELECT ID, Name from tableName`, otherwise it will add: `SELECT * FROM tableName`
      *
-     * @param sb - SQL query builder
+     * @param sb                - SQL query builder
      * @param projectionColumns - list of columns that need to be displayed
-     * @param tableName - table name in database
+     * @param tableName         - table name in database
      */
     private void addProjectionCondition(StringBuilder sb, List<String> projectionColumns, String tableName) {
         if (!CollectionUtils.isEmpty(projectionColumns)) {
@@ -304,8 +307,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
 
             sb.setLength(sb.length() - 1);
             sb.append(" FROM " + tableName);
-        }
-        else {
+        } else {
             sb.append("SELECT * FROM " + tableName);
         }
     }
@@ -313,12 +315,12 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
     /**
      * This method adds `ORDER BY` clause to the SQL query. E.g. if the sortBy list is
      * [
-     *   {"columnName": "ID", "type": "ASCENDING"},
-     *   {"columnName": "Name", "type": "DESCENDING"}
+     * {"columnName": "ID", "type": "ASCENDING"},
+     * {"columnName": "Name", "type": "DESCENDING"}
      * ]
      * then this method will add the following line to the SQL query: `ORDER BY ID ASC, Name DESC`
      *
-     * @param sb - SQL query builder
+     * @param sb     - SQL query builder
      * @param sortBy - list of columns to sort by and sort type (ascending / descending)
      * @throws AppsmithPluginException
      */
@@ -354,8 +356,8 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
 
     /**
      * Checks if:
-     *  o `sortBy` condition list is null or empty
-     *  o all column names in the sortBy list are empty
+     * o `sortBy` condition list is null or empty
+     * o all column names in the sortBy list are empty
      */
     private boolean isSortConditionEmpty(List<Map<String, String>> sortBy) {
         if (CollectionUtils.isEmpty(sortBy)) {
@@ -368,9 +370,10 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
 
     /**
      * Filter Query before UQI implementation
-     * @param tableName - table name in database
-     * @param conditions - Where Conditions
-     * @param schema    - The Schema
+     *
+     * @param tableName             - table name in database
+     * @param conditions            - Where Conditions
+     * @param schema                - The Schema
      * @param dataTypeConversionMap - A Map to provide custom Datatype against the actual Datatype found.
      * @return
      */
@@ -459,9 +462,20 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             sb.append(" ");
 
             if (value == null || value.equals(StringUtils.EMPTY)) {
-                if (operator == ConditionalOperator.EQ || operator == ConditionalOperator.IN) {
+                if (Set.of(
+                        ConditionalOperator.EQ,
+                        ConditionalOperator.IN,
+                        ConditionalOperator.CONTAINS,
+                        ConditionalOperator.LTE,
+                        ConditionalOperator.LT
+                ).contains(operator)) {
                     sb.append("IS NULL");
-                } else if (operator == ConditionalOperator.NOT_IN) {
+                } else if (Set.of(
+                        ConditionalOperator.NOT_IN,
+                        ConditionalOperator.NOT_EQ,
+                        ConditionalOperator.GTE,
+                        ConditionalOperator.GT
+                ).contains(operator)) {
                     sb.append("IS NOT NULL");
                 }
                 isEmptyConditionValue = true;
@@ -470,50 +484,62 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             }
             sb.append(" ");
 
-            // These are array operations. Convert value into appropriate format and then append
-            if (!(value == null || StringUtils.EMPTY.equals(value)) &&    //value should not be EMPTY or null
-                    (operator == ConditionalOperator.IN || operator == ConditionalOperator.NOT_IN)) {
+            // value should not be EMPTY or null
+            if (!isEmptyConditionValue) {
+                // These are array operations. Convert value into appropriate format and then append
+                if (operator == ConditionalOperator.IN || operator == ConditionalOperator.NOT_IN) {
 
-                StringBuilder valueBuilder = new StringBuilder("(");
+                    StringBuilder valueBuilder = new StringBuilder("(");
 
-                try {
-                    List<Object> arrayValues = objectMapper.readValue(value, List.class);
-                    List<String> updatedStringValues = arrayValues
-                            .stream()
-                            .map(fieldValue -> {
-                                values.add(new PreparedStatementValueDTO(String.valueOf(fieldValue), schema.get(path)));
-                                return "?";
-                            })
-                            .collect(Collectors.toList());
-                    String finalValues = String.join(",", updatedStringValues);
-                    valueBuilder.append(finalValues);
-                } catch (IOException e) {
-                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            value + " could not be parsed into an array");
+                    try {
+                        List<Object> arrayValues = objectMapper.readValue(value, List.class);
+                        List<String> updatedStringValues = arrayValues
+                                .stream()
+                                .map(fieldValue -> {
+                                    values.add(new PreparedStatementValueDTO(String.valueOf(fieldValue), schema.get(path)));
+                                    return "?";
+                                })
+                                .collect(Collectors.toList());
+                        String finalValues = String.join(",", updatedStringValues);
+                        valueBuilder.append(finalValues);
+                    } catch (IOException e) {
+                        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                value + " could not be parsed into an array");
+                    }
+
+                    valueBuilder.append(")");
+                    value = valueBuilder.toString();
+                    sb.append(value);
+
+                } else if (operator == ConditionalOperator.CONTAINS) {
+                    String escapedLikeValue = value
+                            .replace("!", "!!")
+                            .replace("%", "!%")
+                            .replace("_", "!_")
+                            .replace("[", "![");
+                    sb.append("? ESCAPE '!'");
+                    escapedLikeValue = "%" + escapedLikeValue + "%";
+                    values.add(new PreparedStatementValueDTO(escapedLikeValue, schema.get(path)));
+                } else {
+                    // Not an array. Simply add a placeholder
+                    sb.append("?");
+                    values.add(new PreparedStatementValueDTO(value, schema.get(path)));
                 }
-
-                valueBuilder.append(")");
-                value = valueBuilder.toString();
-                sb.append(value);
-
-            } else if (!isEmptyConditionValue) {
-                // Not an array. Simply add a placeholder
-                sb.append("?");
-                values.add(new PreparedStatementValueDTO(value, schema.get(path)));
             }
         }
         return sb.toString();
     }
 
     public void insertAllData(String tableName, ArrayNode items, Map<String, DataType> schema) {
-        insertAllData( tableName, items, schema, null);
+        insertAllData(tableName, items, schema, null);
     }
 
     /**
      * Overloaded Method to handle plugin-based DataType conversion.
-     * @param tableName - table name in database
-     * @param items     - Data
-     * @param schema    - The Schema
+     *
+     * @param tableName             - table name in database
+     * @param items                 - Data
+     * @param schema                - The Schema
      * @param dataTypeConversionMap - A Map to provide custom Datatype against the actual Datatype found.
      */
     public void insertAllData(String tableName, ArrayNode items, Map<String, DataType> schema, Map<DataType, DataType> dataTypeConversionMap) {
@@ -714,6 +740,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
 
     /**
      * Overloaded Method to handle plugin-based DataType conversion.
+     *
      * @param items
      * @param dataTypeConversionMap - A Map to provide custom Datatype against the actual Datatype found.
      * @return
@@ -761,7 +788,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                                     } else {
                                         DataType foundDataType = stringToKnownDataTypeConverter(value);
                                         DataType convertedDataType = foundDataType;
-                                        if(name != "rowIndex" && dataTypeConversionMap != null) {
+                                        if (name != "rowIndex" && dataTypeConversionMap != null) {
                                             convertedDataType = dataTypeConversionMap.getOrDefault(foundDataType, foundDataType);
                                         }
                                         return convertedDataType;
@@ -786,7 +813,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                 if (!StringUtils.isEmpty(value)) {
                     DataType foundDataType = stringToKnownDataTypeConverter(value);
                     DataType dataType = foundDataType;
-                    if(dataTypeConversionMap != null) {
+                    if (dataTypeConversionMap != null) {
                         dataType = dataTypeConversionMap.getOrDefault(foundDataType, foundDataType);
                     }
                     schema.put(columnName, dataType);
@@ -810,6 +837,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
 
     /**
      * Overloaded Method to handle plugin-based DataType conversion.
+     *
      * @param preparedStatement
      * @param index
      * @param value
@@ -825,7 +853,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             dataType = dataTypeConversionMap.getOrDefault(topRowDataType, topRowDataType);
         }
 
-        String strNumericValue = value.trim().replaceAll(",","");
+        String strNumericValue = value.trim().replaceAll(",", "");
 
         // Override datatype to null for empty values
         if (StringUtils.isEmpty(value)) {
@@ -985,6 +1013,14 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                         value = valueBuilder.toString();
                         sb.append(value);
 
+                    } else if (operator == ConditionalOperator.CONTAINS) {
+                        final String escapedLikeValue = value
+                                .replace("!", "!!")
+                                .replace("%", "!%")
+                                .replace("_", "!_")
+                                .replace("[", "![");
+                        sb.append("? ESCAPE '!'");
+                        values.add(new PreparedStatementValueDTO("%" + escapedLikeValue + "%", schema.get(path)));
                     } else {
                         // Not an array. Simply add a placeholder
                         sb.append("?");
