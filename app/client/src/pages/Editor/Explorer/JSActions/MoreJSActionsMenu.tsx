@@ -23,6 +23,7 @@ import {
   CONTEXT_MOVE,
   createMessage,
 } from "@appsmith/constants/messages";
+import { getAutoIndentShortcutKeyText } from "../../../../components/editorComponents/CodeEditor/utils/autoIndentUtils";
 
 type EntityContextMenuProps = {
   id: string;
@@ -110,6 +111,8 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
     }));
   });
 
+  const prettifyCodeKeyboardShortCut = getAutoIndentShortcutKeyText();
+
   return (
     <TreeDropdown
       className={props.className}
@@ -152,7 +155,7 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
         {
           value: "prettify",
           icon: "code",
-          subText: "SHIFT + ALT + S",
+          subText: prettifyCodeKeyboardShortCut,
           onSelect: () => {
             console.log("here");
           },
