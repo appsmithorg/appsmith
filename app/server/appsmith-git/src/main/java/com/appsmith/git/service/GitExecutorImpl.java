@@ -10,6 +10,7 @@ import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.AppsmithBotAsset;
 import com.appsmith.git.constants.Constraint;
+import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.git.constants.GitDirectories;
 import com.appsmith.git.helpers.RepositoryHelper;
 import com.appsmith.git.helpers.SshTransportConfigCallback;
@@ -48,7 +49,6 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -470,7 +470,7 @@ public class GitExecutorImpl implements GitExecutor {
                 long modifiedJSObjects = 0L;
                 long modifiedDatasources = 0L;
                 for (String x : modifiedAssets) {
-                    if (x.contains(GitDirectories.PAGE_DIRECTORY + "/")) {
+                    if (x.contains(CommonConstants.CANVAS)) {
                         modifiedPages++;
                     } else if (x.contains(GitDirectories.ACTION_DIRECTORY + "/")) {
                         modifiedQueries++;
@@ -688,7 +688,10 @@ public class GitExecutorImpl implements GitExecutor {
 
     private Mono<Ref> resetToLastCommit(Git git) throws GitAPIException {
         return Mono.fromCallable(() -> {
+            // Remove tracked files
             Ref ref = git.reset().setMode(ResetCommand.ResetType.HARD).call();
+            // Remove untracked files
+            git.clean().setForce(true).setCleanDirectories(true).call();
             return ref;
         })
         .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))

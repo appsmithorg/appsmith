@@ -50,7 +50,7 @@ import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { IconName } from "@blueprintjs/icons";
 import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
-import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
+import { ButtonVariantTypes } from "components/constants";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -168,7 +168,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               onCommandClick: (action: string, onComplete: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
               backgroundColor: cellProperties.buttonColor || "transparent",
-              buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
+              buttonVariant:
+                cellProperties.buttonVariant || ButtonVariantTypes.PRIMARY,
               isDisabled: cellProperties.isDisabled || false,
               isCellVisible: cellProperties.isCellVisible ?? true,
               columnActions: [
@@ -223,7 +224,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               borderRadius: cellProperties.borderRadius,
               boxShadow: cellProperties.boxShadow,
               boxShadowColor: cellProperties.boxShadowColor,
-              iconName: cellProperties.iconName,
+              iconName: cellProperties.iconName || undefined,
               iconAlign: cellProperties.iconAlign,
               isCellVisible: cellProperties.isCellVisible ?? true,
               label: cellProperties.menuButtonLabel ?? "Open menu",
@@ -240,7 +241,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                   dynamicTrigger: columnProperties.onClick || "",
                 },
               ],
-              iconName: (cellProperties.iconName || IconNames.ADD) as IconName,
+              iconName: cellProperties.iconName as IconName,
               buttonColor: cellProperties.buttonColor || Colors.GREEN,
               buttonVariant: cellProperties.buttonVariant || "PRIMARY",
               borderRadius: cellProperties.borderRadius || "SHARP",

@@ -3,7 +3,7 @@ import * as log from "loglevel";
 import smartlookClient from "smartlook-client";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
-import { ANONYMOUS_USERNAME, User } from "../constants/userConstants";
+import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { sha256 } from "js-sha256";
 
 export type EventLocation =
@@ -15,6 +15,7 @@ export type EventLocation =
   | "OMNIBAR";
 
 export type EventName =
+  | "SWITCH_DATASOURCE"
   | "LOGIN_CLICK"
   | "SIGNUP_CLICK"
   | "PAGE_VIEW"
@@ -110,6 +111,7 @@ export type EventName =
   | "GSHEET_AUTH_COMPLETE"
   | "CYCLICAL_DEPENDENCY_ERROR"
   | "DISCORD_LINK_CLICK"
+  | "INTERCOM_CLICK"
   | "BINDING_SUCCESS"
   | "APP_MENU_OPTION_CLICK"
   | "SLASH_COMMAND"
@@ -155,6 +157,7 @@ export type EventName =
   | "COMMENTS_ONBOARDING_MODAL_TRIGGERED"
   | "REPLAY_UNDO"
   | "REPLAY_REDO"
+  | "URL_COPIED"
   | "SNIPPET_CUSTOMIZE"
   | "SNIPPET_EXECUTE"
   | "SNIPPET_FILTER"
@@ -168,6 +171,7 @@ export type EventName =
   | "SIGNPOSTING_PUBLISH_CLICK"
   | "SIGNPOSTING_BUILD_APP_CLICK"
   | "SIGNPOSTING_WELCOME_TOUR_CLICK"
+  | "GS_BRANCH_MORE_MENU_OPEN"
   | "GS_OPEN_BRANCH_LIST_POPUP"
   | "GS_CREATE_NEW_BRANCH"
   | "GS_SYNC_BRANCHES"
@@ -194,7 +198,9 @@ export type EventName =
   | "GS_CONTACT_SALES_CLICK"
   | "GS_REGENERATE_SSH_KEY_CONFIRM_CLICK"
   | "GS_REGENERATE_SSH_KEY_MORE_CLICK"
+  | "GS_SWITCH_BRANCH"
   | "REFLOW_BETA_FLAG"
+  | "CONTAINER_JUMP"
   | "CONNECT_GIT_CLICK"
   | "REPO_URL_EDIT"
   | "GENERATE_KEY_BUTTON_CLICK"
@@ -204,7 +210,13 @@ export type EventName =
   | "DEFAULT_CONFIGURATION_EDIT_BUTTON_CLICK"
   | "DEFAULT_CONFIGURATION_CHECKBOX_TOGGLED"
   | "CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK"
-  | "DATASOURCE_AUTH_COMPLETE";
+  | "DATASOURCE_AUTH_COMPLETE"
+  | "RECONNECTING_DATASOURCE_ITEM_CLICK"
+  | "ADD_MISSING_DATASOURCE_LINK_CLICK"
+  | "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK"
+  | "TEMPLATE_FILTER_SELECTED"
+  | "MANUAL_UPGRADE_CLICK"
+  | "PAGE_NOT_FOUND";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");

@@ -59,6 +59,10 @@ const Container = styled.div`
   }
 
   table {
+    margin: 0.25rem 0;
+    th {
+      text-align: left;
+    }
     th:nth-child(1) {
       width: 150px;
     }
@@ -100,6 +104,30 @@ const Container = styled.div`
   .CodeMirror {
     pre {
       background: transparent !important;
+    }
+  }
+`;
+
+const StyledDocumentationDescription = styled.div`
+  h1 {
+    margin: 0.5rem 0;
+    font-size: 1.5rem;
+  }
+  h2 {
+    font-size: 1.25rem;
+    margin: 0.5rem 0 0.25rem;
+  }
+  h3 {
+    font-size: 1rem;
+    margin: 0.5rem 0 0.25rem;
+  }
+  img,
+  pre {
+    margin: 0.25rem 0;
+  }
+  td {
+    strong {
+      font-weight: 600;
     }
   }
 `;
@@ -152,7 +180,10 @@ function DocumentationDescription({
   };
 
   return content ? (
-    <div dangerouslySetInnerHTML={{ __html: content }} ref={containerRef} />
+    <StyledDocumentationDescription
+      dangerouslySetInnerHTML={{ __html: content }}
+      ref={containerRef}
+    />
   ) : null;
 }
 

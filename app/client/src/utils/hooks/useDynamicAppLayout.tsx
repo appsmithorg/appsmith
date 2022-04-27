@@ -1,12 +1,11 @@
 import { debounce, get } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getWidgetByID, getWidgets } from "sagas/selectors";
+import { getWidgets } from "sagas/selectors";
 
 import {
   DefaultLayoutType,
   layoutConfigurations,
-  MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import {
   getExplorerPinned,
@@ -15,6 +14,7 @@ import {
 import {
   getCurrentApplicationLayout,
   getCurrentPageId,
+  getMainCanvasProps,
   previewModeSelector,
 } from "selectors/editorSelectors";
 import { APP_MODE } from "entities/App";
@@ -36,7 +36,7 @@ export const useDynamicAppLayout = () => {
   const domEntityExplorer = document.querySelector(".js-entity-explorer");
   const domPropertyPane = document.querySelector(".js-property-pane-sidebar");
   const { height: screenHeight, width: screenWidth } = useWindowSizeHooks();
-  const mainContainer = useSelector(getWidgetByID(MAIN_CONTAINER_WIDGET_ID));
+  const mainCanvasProps = useSelector(getMainCanvasProps);
   const isPreviewMode = useSelector(previewModeSelector);
   const currentPageId = useSelector(getCurrentPageId);
   const canvasWidgets = useSelector(getWidgets);
@@ -46,8 +46,8 @@ export const useDynamicAppLayout = () => {
    * calculates min height
    */
   const calculatedMinHeight = useMemo(() => {
-    return calculateDynamicHeight(canvasWidgets, mainContainer?.minHeight);
-  }, [mainContainer]);
+    return calculateDynamicHeight(canvasWidgets, mainCanvasProps?.height);
+  }, [mainCanvasProps]);
 
   /**
    * app layout range i.e minWidth and maxWidth for the current layout
@@ -131,17 +131,17 @@ export const useDynamicAppLayout = () => {
    */
   const resizeToLayout = () => {
     const calculatedWidth = calculateCanvasWidth();
-    const { rightColumn } = mainContainer || {};
+    const { width: rightColumn } = mainCanvasProps || {};
 
     if (rightColumn !== calculatedWidth) {
       dispatch(
-        updateCanvasLayoutAction(calculatedWidth, mainContainer?.minHeight),
+        updateCanvasLayoutAction(calculatedWidth, mainCanvasProps?.height),
       );
     }
   };
 
   const debouncedResize = useCallback(debounce(resizeToLayout, 250), [
-    mainContainer,
+    mainCanvasProps,
     screenWidth,
   ]);
 
@@ -149,15 +149,12 @@ export const useDynamicAppLayout = () => {
    * when screen height is changed, update canvas layout
    */
   useEffect(() => {
-    if (calculatedMinHeight !== mainContainer?.minHeight) {
+    if (calculatedMinHeight !== mainCanvasProps?.height) {
       dispatch(
-        updateCanvasLayoutAction(
-          mainContainer?.rightColumn,
-          calculatedMinHeight,
-        ),
+        updateCanvasLayoutAction(mainCanvasProps?.width, calculatedMinHeight),
       );
     }
-  }, [screenHeight, mainContainer?.minHeight]);
+  }, [screenHeight, mainCanvasProps?.height]);
 
   useEffect(() => {
     debouncedResize();
@@ -177,7 +174,7 @@ export const useDynamicAppLayout = () => {
   }, [
     appLayout,
     currentPageId,
-    mainContainer?.rightColumn,
+    mainCanvasProps?.width,
     isPreviewMode,
     explorerWidth,
     isExplorerPinned,

@@ -2,7 +2,7 @@
   "identifier": "READ_FILE",
   "controlType": "SECTION",
   "conditionals": {
-    "show": "{{actionConfiguration.formData.command === 'READ_FILE'}}"
+    "show": "{{actionConfiguration.formData.command.data === 'READ_FILE'}}"
   },
   "children": [
     {
@@ -11,7 +11,7 @@
       "children": [
         {
           "label": "Bucket Name",
-          "configProperty": "actionConfiguration.formData.bucket",
+          "configProperty": "actionConfiguration.formData.bucket.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "isRequired": true,
@@ -26,14 +26,17 @@
       "children": [
         {
           "label": "File Path",
-          "configProperty": "actionConfiguration.path",
+          "configProperty": "actionConfiguration.formData.path.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": ""
         },
         {
           "label": "Base64 Encode File - Yes/No",
-          "configProperty": "actionConfiguration.formData.read.usingBase64Encoding",
+          "configProperty": "actionConfiguration.formData.read.dataType.data",
           "controlType": "DROP_DOWN",
+          "-subtitle": "Allowed values: YES, NO",
+          "-tooltipText": "Allowed values: YES, NO",
+          "-alternateViewTypes": ["json"],
           "initialValue": "YES",
           "options": [
             {

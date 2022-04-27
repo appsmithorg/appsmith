@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.server.converters.GsonISOStringToInstantConverter;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationTemplate;
@@ -11,12 +12,20 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.lang.reflect.Type;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServiceCE {
@@ -90,29 +99,71 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                 });
     }
 
-    private Mono<ApplicationJson> getApplicationFromTemplate(String templateId) {
+    private Mono<ApplicationJson> getApplicationJsonFromTemplate(String templateId) {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
-        WebClient webClient = WebClient.create(baseUrl + "/api/v1/app-templates/" + templateId + "/appdata");
+        final String templateUrl = baseUrl + "/api/v1/app-templates/" + templateId + "/application";
+            /* using a custom url builder factory because default builder always encodes URL.
+             It's expected that the appDataUrl is already encoded, so we don't need to encode that again.
+             Encoding an encoded URL will not work and end up resulting a 404 error */
+        WebClient webClient = WebClient.builder()
+                .uriBuilderFactory(new NoEncodingUriBuilderFactory(templateUrl))
+                .build();
+
         return webClient
                 .get()
-                .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(String.class)
                 .map(jsonString -> {
-                    Gson gson = new Gson();
-                    return gson.fromJson(jsonString, ApplicationJson.class);
-                });
+                    Gson gson = new GsonBuilder()
+                            .registerTypeAdapter(Instant.class, new GsonISOStringToInstantConverter())
+                            .create();
+                    Type fileType = new TypeToken<ApplicationJson>() {
+                    }.getType();
+
+                    ApplicationJson jsonFile = gson.fromJson(jsonString, fileType);
+                    return jsonFile;
+                })
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "template", templateId))
+                );
     }
 
     @Override
     public Mono<Application> importApplicationFromTemplate(String templateId, String organizationId) {
-        return getApplicationFromTemplate(templateId).flatMap(applicationJson ->
+        return getApplicationJsonFromTemplate(templateId).flatMap(applicationJson ->
             importExportApplicationService.importApplicationInOrganization(organizationId, applicationJson)
         ).flatMap(application -> {
             ApplicationTemplate applicationTemplate = new ApplicationTemplate();
             applicationTemplate.setId(templateId);
-            return analyticsService.sendObjectEvent(AnalyticsEvents.FORK, applicationTemplate, null)
+            Map<String, Object>  extraProperties = new HashMap<>();
+            extraProperties.put("templateAppName", application.getName());
+            return analyticsService.sendObjectEvent(AnalyticsEvents.FORK, applicationTemplate, extraProperties)
                     .thenReturn(application);
         });
+    }
+
+    @Override
+    public Mono<ApplicationTemplate> getFilters() {
+        final String baseUrl = cloudServicesConfig.getBaseUrl();
+
+        return WebClient
+                .create(baseUrl + "/api/v1/app-templates/filters")
+                .get()
+                .exchangeToMono(clientResponse -> {
+                    if (clientResponse.statusCode().equals(HttpStatus.OK)) {
+                        return clientResponse.bodyToMono(ApplicationTemplate.class);
+                    } else if (clientResponse.statusCode().isError()) {
+                        return Mono.error(new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, clientResponse.statusCode()));
+                    } else {
+                        return clientResponse.createException().flatMap(Mono::error);
+                    }
+                });
+    }
+
+    public static class NoEncodingUriBuilderFactory extends DefaultUriBuilderFactory {
+        public NoEncodingUriBuilderFactory(String baseUriTemplate) {
+            super(UriComponentsBuilder.fromHttpUrl(baseUriTemplate));
+            super.setEncodingMode(EncodingMode.NONE);
+        }
     }
 }

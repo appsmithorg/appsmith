@@ -140,6 +140,49 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       .should("have.text", "May 4, 2021 6:25 AM");
   });
 
+  it("Check isDirty meta property", function() {
+    cy.openPropertyPane("textwidget");
+    cy.updateCodeInput(".t--property-control-text", `{{DatePicker1.isDirty}}`);
+    // Init isDirty
+    cy.openPropertyPane("datepickerwidget2");
+    cy.get(formWidgetsPage.toggleJsDefaultDate).click();
+    cy.get(".t--property-control-defaultdate .bp3-input").clear();
+    cy.get(formWidgetsPage.toggleJsDefaultDate).click();
+    cy.testJsontext(
+      "defaultdate",
+      '{{moment("04/05/2021 05:25", "DD/MM/YYYY HH:mm").toISOString()}}',
+    );
+    cy.closePropertyPane();
+    // Check if initial value of isDirty is false
+    cy.get(".t--widget-textwidget")
+      .first()
+      .should("contain", "false");
+    // Interact with UI
+    cy.get(".t--draggable-datepickerwidget2 .bp3-input")
+      .clear({
+        force: true,
+      })
+      .type("04/05/2021 06:25");
+    cy.wait("@updateLayout");
+    // Check if isDirty is set to true
+    cy.get(".t--widget-textwidget")
+      .first()
+      .should("contain", "true");
+    // Change defaultDate
+    cy.openPropertyPane("datepickerwidget2");
+    cy.get(formWidgetsPage.toggleJsDefaultDate).click();
+    cy.get(".t--property-control-defaultdate .bp3-input").clear();
+    cy.get(formWidgetsPage.toggleJsDefaultDate).click();
+    cy.testJsontext(
+      "defaultdate",
+      '{{moment("07/05/2021 05:25", "DD/MM/YYYY HH:mm").toISOString()}}',
+    );
+    // Check if isDirty is reset to false
+    cy.get(".t--widget-textwidget")
+      .first()
+      .should("contain", "false");
+  });
+
   it("Datepicker default date validation with js binding", function() {
     cy.PublishtheApp();
     // eslint-disable-next-line cypress/no-unnecessary-waiting

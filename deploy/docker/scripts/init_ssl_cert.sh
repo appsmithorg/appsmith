@@ -6,14 +6,7 @@ init_ssl_cert() {
   local rsa_key_size=4096
   local data_path="/appsmith-stacks/data/certificate"
 
-  mkdir -p "$data_path" "$data_path"/{conf,www}
-
-  if ! [[ -e "$data_path/conf/options-ssl-nginx.conf" && -e "$data_path/conf/ssl-dhparams.pem" ]]; then
-    echo "Downloading recommended TLS parameters..."
-    curl -s https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf >"$data_path/conf/options-ssl-nginx.conf"
-    curl -s https://raw.githubusercontent.com/certbot/certbot/master/certbot/certbot/ssl-dhparams.pem >"$data_path/conf/ssl-dhparams.pem"
-    echo
-  fi
+  mkdir -p "$data_path/www"
 
   echo "Re-generating nginx config template with domain"
   bash "/opt/appsmith/templates/nginx-app-http.conf.template.sh" "$APPSMITH_CUSTOM_DOMAIN" >"/etc/nginx/conf.d/nginx_app.conf.template"

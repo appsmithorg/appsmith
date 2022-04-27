@@ -63,7 +63,7 @@ const RightContainer = styled.div`
 `;
 
 const TimerContainer = styled.div<ThemeProp>`
-  color: ${Colors.GREY_4};
+  color: ${Colors.GREY_8};
 `;
 
 interface RecorderLeftButtonStyleProps {

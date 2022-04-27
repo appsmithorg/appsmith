@@ -254,7 +254,7 @@ public class ThemeServiceTest {
     public void cloneThemeToApplication_WhenSrcThemeIsCustomTheme_NewThemeCreated() {
         Application newApplication = createApplication("api_user", Set.of(MANAGE_APPLICATIONS));
         Theme customTheme = new Theme();
-        customTheme.setName("custom theme");
+        customTheme.setDisplayName("custom theme");
         customTheme.setPolicies(Set.copyOf(
                 policyUtils.generatePolicyFromPermission(Set.of(MANAGE_THEMES), "api_user").values()
         ));
@@ -270,7 +270,7 @@ public class ThemeServiceTest {
         StepVerifier.create(newAndOldThemeMono)
                 .assertNext(objects -> {
                     assertThat(objects.getT1().getId()).isNotEqualTo(objects.getT2().getId());
-                    assertThat(objects.getT1().getName()).isEqualTo(objects.getT2().getName());
+                    assertThat(objects.getT1().getDisplayName()).isEqualTo(objects.getT2().getDisplayName());
                 })
                 .verifyComplete();
     }
@@ -283,7 +283,7 @@ public class ThemeServiceTest {
         Mono<Tuple2<Theme, Theme>> newAndOldThemeMono = applicationRepository.save(srcApplication)
                 .flatMap(application -> {
                     Theme srcCustomTheme = new Theme();
-                    srcCustomTheme.setName("custom theme");
+                    srcCustomTheme.setDisplayName("custom theme");
                     srcCustomTheme.setApplicationId(application.getId());
                     srcCustomTheme.setPolicies(Set.copyOf(
                             policyUtils.generatePolicyFromPermission(Set.of(MANAGE_THEMES), "api_user").values()
@@ -306,7 +306,7 @@ public class ThemeServiceTest {
                     Theme srcTheme = objects.getT2();
 
                     assertThat(clonnedTheme.getId()).isNotEqualTo(srcTheme.getId());
-                    assertThat(clonnedTheme.getName()).isEqualTo(srcTheme.getName());
+                    assertThat(clonnedTheme.getDisplayName()).isEqualTo(srcTheme.getDisplayName());
                     assertThat(clonnedTheme.getApplicationId()).isNull();
                     assertThat(clonnedTheme.getOrganizationId()).isNull();
                 })
@@ -321,7 +321,7 @@ public class ThemeServiceTest {
         ).values();
 
         Theme customTheme = new Theme();
-        customTheme.setName("custom theme for edit mode");
+        customTheme.setDisplayName("custom theme for edit mode");
         customTheme.setPolicies(Set.copyOf(themePolicies));
 
         Mono<Tuple2<Theme, Theme>> applicationThemesMono = themeService.save(customTheme)
@@ -341,8 +341,8 @@ public class ThemeServiceTest {
                 .assertNext(objects -> {
                     Theme editTheme = objects.getT1();
                     Theme publishedTheme = objects.getT2();
-                    assertThat(editTheme.getName()).isEqualTo(customTheme.getName());
-                    assertThat(publishedTheme.getName()).isEqualToIgnoringCase("classic");
+                    assertThat(editTheme.getDisplayName()).isEqualTo(customTheme.getDisplayName());
+                    assertThat(publishedTheme.getDisplayName()).isEqualToIgnoringCase("classic");
                 }).verifyComplete();
     }
 
@@ -374,7 +374,7 @@ public class ThemeServiceTest {
 
     @WithUserDetails("api_user")
     @Test
-    public void publishTheme_WhenSystemThemeInEditModeAndCustomThemeInPublishedMode_PublisedCopyDeleted() {
+    public void publishTheme_WhenSystemThemeInEditModeAndCustomThemeInPublishedMode_PublishedCopyDeleted() {
         Mono<Theme> classicThemeMono = themeService.getSystemTheme("classic").cache();
 
         Theme customTheme = new Theme();
@@ -407,7 +407,7 @@ public class ThemeServiceTest {
         ).values();
 
         Theme customTheme = new Theme();
-        customTheme.setName("my-custom-theme");
+        customTheme.setDisplayName("my-custom-theme");
         customTheme.setPolicies(Set.copyOf(themePolicies));
 
         Mono<Tuple2<Theme, Theme>> appThemesMono = themeService.save(customTheme)
@@ -428,7 +428,7 @@ public class ThemeServiceTest {
                 .assertNext(objects -> {
                     Theme editModeTheme = objects.getT1();
                     Theme publishedModeTheme = objects.getT2();
-                    assertThat(editModeTheme.getName()).isEqualTo(publishedModeTheme.getName()); // same name
+                    assertThat(editModeTheme.getDisplayName()).isEqualTo(publishedModeTheme.getDisplayName()); // same name
                     assertThat(editModeTheme.getId()).isNotEqualTo(publishedModeTheme.getId()); // different id
                 }).verifyComplete();
     }
@@ -437,7 +437,7 @@ public class ThemeServiceTest {
     @Test
     public void updateTheme_WhenSystemThemeIsSet_NewThemeCreated() {
         Theme customTheme = new Theme();
-        customTheme.setName("My custom theme");
+        customTheme.setDisplayName("My custom theme");
 
         Mono<Tuple2<Theme, Theme>> appThemesMono = themeService.getSystemTheme("classic")
                 .flatMap(theme -> {
@@ -456,11 +456,11 @@ public class ThemeServiceTest {
                 .assertNext(objects -> {
                     Theme editModeTheme = objects.getT1(); // should be a new theme
                     Theme publishedModeTheme = objects.getT2(); // should be the system theme
-                    assertThat(editModeTheme.getName()).isEqualTo(customTheme.getName());
+                    assertThat(editModeTheme.getDisplayName()).isEqualTo(customTheme.getDisplayName());
                     assertThat(editModeTheme.getId()).isNotEqualTo(publishedModeTheme.getId()); // different id
                     assertThat(editModeTheme.isSystemTheme()).isFalse();
                     assertThat(publishedModeTheme.isSystemTheme()).isTrue();
-                    assertThat(publishedModeTheme.getName()).isEqualToIgnoringCase("classic");
+                    assertThat(publishedModeTheme.getDisplayName()).isEqualToIgnoringCase("classic");
                 }).verifyComplete();
     }
 
@@ -471,7 +471,7 @@ public class ThemeServiceTest {
                 Set.of(MANAGE_THEMES), "api_user"
         ).values();
         Theme customTheme = new Theme();
-        customTheme.setName("My custom theme");
+        customTheme.setDisplayName("My custom theme");
         customTheme.setPolicies(Set.copyOf(themePolicies));
 
         Mono<Theme> saveCustomThemeMono = themeService.save(customTheme);
@@ -485,7 +485,7 @@ public class ThemeServiceTest {
                     return applicationRepository.save(application);
                 }).flatMap(application -> {
                     Theme themeCustomization = new Theme();
-                    themeCustomization.setName("Updated name");
+                    themeCustomization.setDisplayName("Updated name");
                     return themeService.updateTheme(application.getId(), themeCustomization).then(Mono.zip(
                             themeService.getApplicationTheme(application.getId(), ApplicationMode.EDIT),
                             themeService.getApplicationTheme(application.getId(), ApplicationMode.PUBLISHED),
@@ -504,10 +504,10 @@ public class ThemeServiceTest {
                     assertThat(appBeforeUpdateTheme.getPublishedModeThemeId()).isEqualTo(publishedModeTheme.getId());
                     assertThat(editModeTheme.isSystemTheme()).isFalse();
                     assertThat(editModeTheme.getId()).isNotEqualTo(publishedModeTheme.getId()); // different id
-                    assertThat(editModeTheme.getName()).isEqualTo("Updated name");
+                    assertThat(editModeTheme.getDisplayName()).isEqualTo("Updated name");
 
                     assertThat(publishedModeTheme.isSystemTheme()).isTrue();
-                    assertThat(publishedModeTheme.getName()).isEqualToIgnoringCase("classic");
+                    assertThat(publishedModeTheme.getDisplayName()).isEqualToIgnoringCase("classic");
                 }).verifyComplete();
     }
 
@@ -541,7 +541,7 @@ public class ThemeServiceTest {
         ).values();
 
         Theme customTheme = new Theme();
-        customTheme.setName("my-custom-theme");
+        customTheme.setDisplayName("my-custom-theme");
         customTheme.setPolicies(Set.copyOf(themePolicies));
 
         Mono<Theme> appThemesMono = themeService.save(customTheme)
@@ -582,7 +582,7 @@ public class ThemeServiceTest {
         ).values();
 
         Theme customTheme = new Theme();
-        customTheme.setName("Classic");
+        customTheme.setDisplayName("Classic");
         customTheme.setPolicies(Set.copyOf(themePolicies));
 
         Mono<Tuple3<List<Theme>, Theme, Application>> tuple3Mono = themeService.save(customTheme).flatMap(theme -> {
@@ -592,7 +592,7 @@ public class ThemeServiceTest {
             return applicationRepository.save(application);
         }).flatMap(application -> {
             Theme theme = new Theme();
-            theme.setName("My custom theme");
+            theme.setDisplayName("My custom theme");
             return themeService.persistCurrentTheme(application.getId(), theme)
                     .map(theme1 -> Tuples.of(theme1, application));
         }).flatMap(persistedThemeAndApp ->
@@ -629,7 +629,7 @@ public class ThemeServiceTest {
                 })
                 .flatMap(savedApplication -> {
                     Theme theme = new Theme();
-                    theme.setName("My custom theme");
+                    theme.setDisplayName("My custom theme");
                     return themeService.persistCurrentTheme(savedApplication.getId(), theme)
                             .map(theme1 -> Tuples.of(theme1, savedApplication.getId()));
                 }).flatMap(persistedThemeAndAppId ->
@@ -652,7 +652,7 @@ public class ThemeServiceTest {
     @WithUserDetails("api_user")
     @Test
     public void delete_WhenSystemTheme_NotAllowed() {
-        StepVerifier.create(themeService.getDefaultThemeId().flatMap(themeService::delete))
+        StepVerifier.create(themeService.getDefaultThemeId().flatMap(themeService::archiveById))
                 .expectError(AppsmithException.class)
                 .verify();
     }
@@ -669,9 +669,9 @@ public class ThemeServiceTest {
                 })
                 .flatMap(savedApplication -> {
                     Theme themeCustomization = new Theme();
-                    themeCustomization.setName("Updated name");
+                    themeCustomization.setDisplayName("Updated name");
                     return themeService.updateTheme(savedApplication.getId(), themeCustomization);
-                }).flatMap(customizedTheme -> themeService.delete(customizedTheme.getId()));
+                }).flatMap(customizedTheme -> themeService.archiveById(customizedTheme.getId()));
 
         StepVerifier.create(deleteThemeMono)
                 .expectErrorMessage(AppsmithError.UNSUPPORTED_OPERATION.getMessage())
@@ -690,10 +690,10 @@ public class ThemeServiceTest {
                 })
                 .flatMap(savedApplication -> {
                     Theme themeCustomization = new Theme();
-                    themeCustomization.setName("Updated name");
+                    themeCustomization.setDisplayName("Updated name");
                     return themeService.persistCurrentTheme(savedApplication.getId(), themeCustomization);
                 })
-                .flatMap(customizedTheme -> themeService.delete(customizedTheme.getId())
+                .flatMap(customizedTheme -> themeService.archiveById(customizedTheme.getId())
                         .then(themeService.getThemeById(customizedTheme.getId(), READ_THEMES)));
 
         StepVerifier.create(deleteThemeMono).verifyComplete();
@@ -705,6 +705,7 @@ public class ThemeServiceTest {
         Mono<Theme> updateThemeNameMono = themeService.getDefaultThemeId().flatMap(themeId -> {
             Theme theme = new Theme();
             theme.setName("My theme");
+            theme.setDisplayName("My theme");
             return themeService.updateName(themeId, theme);
         });
         StepVerifier.create(updateThemeNameMono).expectError(AppsmithException.class).verify();
@@ -723,18 +724,20 @@ public class ThemeServiceTest {
                 })
                 .flatMap(savedApplication -> {
                     Theme themeCustomization = new Theme();
-                    themeCustomization.setName("old name");
+                    themeCustomization.setDisplayName("old name");
                     return themeService.persistCurrentTheme(savedApplication.getId(), themeCustomization);
                 })
                 .flatMap(customizedTheme -> {
                     Theme theme = new Theme();
                     theme.setName("new name");
+                    theme.setDisplayName("new display name");
                     return themeService.updateName(customizedTheme.getId(), theme)
                             .then(themeService.getThemeById(customizedTheme.getId(), READ_THEMES));
                 });
 
         StepVerifier.create(updateThemeNameMono).assertNext(theme -> {
             assertThat(theme.getName()).isEqualTo("new name");
+            assertThat(theme.getDisplayName()).isEqualTo("new display name");
             assertThat(theme.isSystemTheme()).isFalse();
             assertThat(theme.getApplicationId()).isNotNull();
             assertThat(theme.getOrganizationId()).isEqualTo("test-org");

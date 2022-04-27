@@ -9,9 +9,9 @@ export type ResponseMeta = {
   error?: APIResponseError;
 };
 
-export type ApiResponse = {
+export type ApiResponse<T = any> = {
   responseMeta: ResponseMeta;
-  data: any;
+  data: T;
   code?: string;
 };
 

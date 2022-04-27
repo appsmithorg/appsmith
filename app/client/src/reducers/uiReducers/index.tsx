@@ -8,6 +8,7 @@ import apiPaneReducer from "./apiPaneReducer";
 import datasourcePaneReducer from "./datasourcePaneReducer";
 import authReducer from "./authReducer";
 import orgReducer from "./orgReducer";
+import templateReducer from "./templateReducer";
 import usersReducer from "./usersReducer";
 import { widgetDraggingReducer } from "./dragResizeReducer";
 import importedCollectionsReducer from "./importedCollectionsReducer";
@@ -38,6 +39,7 @@ import gitSyncReducer from "./gitSyncReducer";
 import crudInfoModalReducer from "./crudInfoModalReducer";
 import { widgetReflowReducer } from "./reflowReducer";
 import jsObjectNameReducer from "./jsObjectNameReducer";
+import mainCanvasReducer from "./mainCanvasReducer";
 
 const uiReducer = combineReducers({
   editor: editorReducer,
@@ -48,6 +50,7 @@ const uiReducer = combineReducers({
   applications: applicationsReducer,
   apiPane: apiPaneReducer,
   auth: authReducer,
+  templates: templateReducer,
   orgs: orgReducer,
   users: usersReducer,
   widgetDragResize: widgetDraggingReducer,
@@ -79,6 +82,7 @@ const uiReducer = combineReducers({
   appCollab: appCollabReducer,
   crudInfoModal: crudInfoModalReducer,
   widgetReflow: widgetReflowReducer,
+  mainCanvas: mainCanvasReducer,
 });
 
 export default uiReducer;

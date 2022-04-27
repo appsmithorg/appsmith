@@ -201,7 +201,7 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
                             .findFirst()
                             .orElse("");
 
-                    return doOnlyCloneApplicationObjectWithoutItsDependenciesAndReturnPages(application, newApplicationIds)
+                    return doOnlyCloneApplicationObjectWithoutItsDependenciesAndReturnNonDeletedPages(application, newApplicationIds)
                             .flatMap(page ->
                                     Mono.zip(
                                             Mono.just(page),
@@ -314,11 +314,13 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
                                                         unpublishedCollection
                                                                 .getDefaultToBranchedActionIdsMap()
                                                                 .forEach((defaultActionId, oldActionId) -> {
-                                                                    if (!StringUtils.isEmpty(actionIdsMap.get(oldActionId))) {
+                                                                    if (StringUtils.hasLength(oldActionId)
+                                                                            && StringUtils.hasLength(actionIdsMap.get(oldActionId))) {
+
+                                                                        // As this is a new application and not connected
+                                                                        // through git branch, the default and newly
+                                                                        // created actionId will be same
                                                                         newActionIds
-                                                                            // As this is a new application and not connected
-                                                                            // through git branch, the default and newly
-                                                                            // created actionId will be same
                                                                             .put(actionIdsMap.get(oldActionId), actionIdsMap.get(oldActionId));
                                                                     } else {
                                                                         log.debug("Unable to find action {} while forking inside ID map: {}", oldActionId, actionIdsMap);
@@ -430,7 +432,7 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
      * @param applicationIds : List where the cloned new application's id would be stored
      * @return A flux that yields all the pages in the template application
      */
-    private Flux<NewPage> doOnlyCloneApplicationObjectWithoutItsDependenciesAndReturnPages(Application application, List<String> applicationIds) {
+    private Flux<NewPage> doOnlyCloneApplicationObjectWithoutItsDependenciesAndReturnNonDeletedPages(Application application, List<String> applicationIds) {
         final String templateApplicationId = application.getId();
         return cloneApplicationDocument(application)
                 .flatMapMany(
@@ -438,7 +440,7 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
                             applicationIds.add(savedApplication.getId());
                             return forkThemes(application, savedApplication).thenMany(
                                     newPageRepository
-                                            .findByApplicationId(templateApplicationId)
+                                            .findByApplicationIdAndNonDeletedEditMode(templateApplicationId, AclPermission.READ_PAGES)
                                             .map(newPage -> {
                                                 log.info("Preparing page for cloning {} {}.", newPage.getUnpublishedPage().getName(), newPage.getId());
                                                 newPage.setApplicationId(savedApplication.getId());

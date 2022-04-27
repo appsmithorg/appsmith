@@ -3,6 +3,8 @@ package com.external.plugins;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -14,6 +16,7 @@ import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -55,17 +58,25 @@ import java.util.stream.StreamSupport;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
-import static com.external.constants.FieldName.COMMAND;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDataOrDefault;
+import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.external.constants.FieldName.BODY;
+import static com.external.constants.FieldName.COMMAND;
 import static com.external.constants.FieldName.DELETE_KEY_PATH;
 import static com.external.constants.FieldName.END_BEFORE;
 import static com.external.constants.FieldName.LIMIT_DOCUMENTS;
+import static com.external.constants.FieldName.NEXT;
 import static com.external.constants.FieldName.ORDER_BY;
+import static com.external.constants.FieldName.SMART_SUBSTITUTION;
+import static com.external.constants.FieldName.PATH;
+import static com.external.constants.FieldName.PREV;
 import static com.external.constants.FieldName.START_AFTER;
 import static com.external.constants.FieldName.TIMESTAMP_VALUE_PATH;
 import static com.external.constants.FieldName.WHERE;
 import static com.external.constants.FieldName.WHERE_CHILDREN;
 import static com.external.utils.WhereConditionUtils.applyWhereConditional;
+import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
@@ -87,7 +98,7 @@ public class FirestorePlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class FirestorePluginExecutor implements PluginExecutor<Firestore> {
+    public static class FirestorePluginExecutor implements PluginExecutor<Firestore>, SmartSubstitutionInterface {
 
         private final Scheduler scheduler = Schedulers.elastic();
 
@@ -100,23 +111,74 @@ public class FirestorePlugin extends BasePlugin {
         }
 
         @Override
+        public Object substituteValueInInput(int index,
+                                             String binding,
+                                             String value,
+                                             Object input,
+                                             List<Map.Entry<String, String>> insertedParams,
+                                             Object... args) {
+            String jsonBody = (String) input;
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams,
+                    null);
+        }
+
+        @Override
         public Mono<ActionExecutionResult> executeParameterized(
                 Firestore connection,
                 ExecuteActionDTO executeActionDTO,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
+            Object smartSubstitutionObject = actionConfiguration.getFormData().getOrDefault(SMART_SUBSTITUTION, TRUE);
+            Boolean smartJsonSubstitution = TRUE;
+            if (smartSubstitutionObject instanceof Boolean) {
+                smartJsonSubstitution = (Boolean) smartSubstitutionObject;
+            } else if (smartSubstitutionObject instanceof String) {
+                // Older UI configuration used to set this value as a string which may/may not be castable to a boolean
+                // directly. This is to ensure we are backward compatible
+                smartJsonSubstitution = Boolean.parseBoolean((String) smartSubstitutionObject);
+            }
+
+            // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
+            List<Map.Entry<String, String>> parameters = new ArrayList<>();
+            if (TRUE.equals(smartJsonSubstitution)) {
+                String query = getValueSafelyFromFormData(actionConfiguration.getFormData(), BODY, String.class);
+                if (query != null) {
+
+                    // First extract all the bindings in order
+                    List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
+                    // Replace all the bindings with a ? as expected in a prepared statement.
+                    String updatedQuery = MustacheHelper.replaceMustacheWithPlaceholder(query, mustacheKeysInOrder);
+
+                    try {
+                        updatedQuery = (String) smartSubstitutionOfBindings(updatedQuery,
+                                mustacheKeysInOrder,
+                                executeActionDTO.getParams(),
+                                parameters);
+                    } catch (AppsmithPluginException e) {
+                        ActionExecutionResult errorResult = new ActionExecutionResult();
+                        errorResult.setIsExecutionSuccess(false);
+                        errorResult.setErrorInfo(e);
+                        errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+                        return Mono.just(errorResult);
+                    }
+
+                    setValueSafelyInFormData(actionConfiguration.getFormData(), BODY, updatedQuery);
+                }
+            }
+
             // Do the template substitutions.
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
             final Map<String, Object> requestData = new HashMap<>();
 
-            String query = actionConfiguration.getBody();
-
-            final String path = actionConfiguration.getPath();
-            requestData.put("path", path == null ? "" : path);
-
             Map<String, Object> formData = actionConfiguration.getFormData();
+
+            String query = (String) getValueSafelyFromFormDataOrDefault(formData, BODY, "");
+
+            final String path = (String) getValueSafelyFromFormDataOrDefault(formData, PATH, "");
+            requestData.put("path", path);
+
             String command = getValueSafelyFromFormData(formData, COMMAND, String.class);
 
             if (isBlank(command)) {
@@ -141,8 +203,7 @@ public class FirestorePlugin extends BasePlugin {
             Set<String> hintMessages = new HashSet<>();
 
             return Mono
-                    .justOrEmpty(actionConfiguration.getBody())
-                    .defaultIfEmpty("")
+                    .justOrEmpty(query)
                     .flatMap(strBody -> {
 
                         if (method == null) {
@@ -555,8 +616,10 @@ public class FirestorePlugin extends BasePlugin {
             }
 
             Map<String, Object> startAfterTemp = null;
-            final String startAfterJson = StringUtils.isBlank(actionConfiguration.getNext()) ? "{}" :
-                    actionConfiguration.getNext();
+            String startAfterJson = (String) getValueSafelyFromFormDataOrDefault(formData, NEXT, "{}");
+            if (StringUtils.isEmpty(startAfterJson)) {
+                startAfterJson = "{}";
+            }
             requestParams.add(new RequestParamDTO(START_AFTER, startAfterJson, null, null, null));
             if (PaginationField.NEXT.equals(paginationField)) {
                 try {
@@ -567,8 +630,10 @@ public class FirestorePlugin extends BasePlugin {
             }
 
             Map<String, Object> endBeforeTemp = null;
-            final String endBeforeJson = StringUtils.isBlank(actionConfiguration.getPrev()) ? "{}" :
-                    actionConfiguration.getPrev();
+            String endBeforeJson = (String) getValueSafelyFromFormDataOrDefault(formData, PREV, "{}");
+            if (StringUtils.isEmpty(endBeforeJson)) {
+                endBeforeJson = "{}";
+            }
             requestParams.add(new RequestParamDTO(END_BEFORE, endBeforeJson, null, null, null));
             if (PaginationField.PREV.equals(paginationField)) {
                 try {

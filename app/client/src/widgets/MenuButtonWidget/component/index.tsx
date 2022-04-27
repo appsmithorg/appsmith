@@ -25,22 +25,10 @@ import {
   getAlignText,
   WidgetContainerDiff,
 } from "widgets/WidgetUtils";
-import _ from "lodash";
-
-type MenuButtonContainerProps = {
-  disabled?: boolean;
-};
-
-export const MenuButtonContainer = styled.div<MenuButtonContainerProps>`
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  ${({ disabled }) => disabled && "cursor: not-allowed;"}
-
-  & > .${Classes.POPOVER2_TARGET} {
-    height: 100%;
-  }
-`;
+import orderBy from "lodash/orderBy";
+import uniqueId from "lodash/uniqueId";
+import { RenderMode } from "constants/WidgetConstants";
+import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 
 const PopoverStyles = createGlobalStyle<{
   parentWidth: number;
@@ -50,6 +38,11 @@ const PopoverStyles = createGlobalStyle<{
   .menu-button-popover > .${Classes.POPOVER2_CONTENT} {
     background: none;
   }
+
+  & > .${Classes.POPOVER2_TARGET} {
+    height: 100%;
+  }
+
   ${({ id, menuDropDownWidth, parentWidth }) => `
   .menu-button-width-${id} {
 
@@ -89,7 +82,6 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
   box-shadow: none !important;
 
   ${({ buttonColor, buttonVariant, theme }) => `
-    &:enabled {
       background: ${
         getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
           ? getCustomBackgroundColor(buttonVariant, buttonColor)
@@ -97,9 +89,8 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
           ? theme.colors.button.primary.primary.bgColor
           : "none"
       } !important;
-    }
 
-    &:hover:enabled, &:active:enabled {
+    &:hover, &:active {
       background: ${
         getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
           ? getCustomHoverColor(theme, buttonVariant, buttonColor)
@@ -114,7 +105,6 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
     &:disabled {
       background-color: ${theme.colors.button.disabled.bgColor} !important;
       color: ${theme.colors.button.disabled.textColor} !important;
-      pointer-events: none;
       border-color: ${theme.colors.button.disabled.bgColor} !important;
       > span {
         color: ${theme.colors.button.disabled.textColor} !important;
@@ -255,9 +245,11 @@ function PopoverContent(props: PopoverContentProps) {
   const { isCompact, menuItems: itemsObj, onItemClicked } = props;
 
   if (!itemsObj) return <StyledMenu />;
-  const items = Object.keys(itemsObj)
+  const visibleItems = Object.keys(itemsObj)
     .map((itemKey) => itemsObj[itemKey])
     .filter((item) => item.isVisible === true);
+
+  const items = orderBy(visibleItems, ["index"], ["asc"]);
 
   const listItems = items.map((menuItem) => {
     const {
@@ -313,6 +305,7 @@ export interface PopoverTargetButtonProps {
   isDisabled?: boolean;
   label?: string;
   placement?: ButtonPlacement;
+  renderMode?: RenderMode;
 }
 
 function PopoverTargetButton(props: PopoverTargetButtonProps) {
@@ -327,24 +320,32 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
     isDisabled,
     label,
     placement,
+    renderMode,
   } = props;
   const isRightAlign = iconAlign === Alignment.RIGHT;
 
   return (
-    <BaseButton
-      alignText={getAlignText(isRightAlign, iconName)}
-      borderRadius={borderRadius}
-      boxShadow={boxShadow}
-      boxShadowColor={boxShadowColor}
+    <DragContainer
       buttonColor={buttonColor}
       buttonVariant={buttonVariant}
       disabled={isDisabled}
-      fill
-      icon={isRightAlign ? undefined : iconName}
-      placement={placement}
-      rightIcon={isRightAlign ? iconName : undefined}
-      text={label}
-    />
+      renderMode={renderMode}
+    >
+      <BaseButton
+        alignText={getAlignText(isRightAlign, iconName)}
+        borderRadius={borderRadius}
+        boxShadow={boxShadow}
+        boxShadowColor={boxShadowColor}
+        buttonColor={buttonColor}
+        buttonVariant={buttonVariant}
+        disabled={isDisabled}
+        fill
+        icon={isRightAlign ? undefined : iconName}
+        placement={placement}
+        rightIcon={isRightAlign ? iconName : undefined}
+        text={label}
+      />
+    </DragContainer>
   );
 }
 
@@ -382,6 +383,7 @@ export interface MenuButtonComponentProps {
   placement?: ButtonPlacement;
   width: number;
   menuDropDownWidth: number;
+  renderMode?: RenderMode;
 }
 
 function MenuButtonComponent(props: MenuButtonComponentProps) {
@@ -400,12 +402,13 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     menuVariant,
     onItemClicked,
     placement,
+    renderMode,
     width,
   } = props;
-  const id = _.uniqueId();
+  const id = uniqueId();
 
   return (
-    <MenuButtonContainer disabled={isDisabled}>
+    <>
       <PopoverStyles
         id={id}
         menuDropDownWidth={menuDropDownWidth}
@@ -436,9 +439,10 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
           isDisabled={isDisabled}
           label={label}
           placement={placement}
+          renderMode={renderMode}
         />
       </Popover2>
-    </MenuButtonContainer>
+    </>
   );
 }
 

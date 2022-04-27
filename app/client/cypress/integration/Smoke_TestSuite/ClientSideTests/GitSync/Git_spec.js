@@ -19,6 +19,11 @@ const mainBranch = "master";
 const inputNameTempBranch3 = "inputNameTempBranch3";
 const inputNameTempBranch31 = "inputNameTempBranch31";
 
+const cleanUrlBranch = "feat/clean_url";
+
+let applicationId = null;
+let applicationName = null;
+
 let repoName;
 describe("Git sync:", function() {
   before(() => {
@@ -26,7 +31,13 @@ describe("Git sync:", function() {
     cy.createOrg();
     cy.wait("@createOrg").then((interception) => {
       const newOrganizationName = interception.response.body.data.name;
-      cy.CreateAppForOrg(newOrganizationName, newOrganizationName);
+      cy.generateUUID().then((uid) => {
+        cy.CreateAppForOrg(newOrganizationName, uid);
+        applicationName = uid;
+        cy.get("@currentApplicationId").then(
+          (currentAppId) => (applicationId = currentAppId),
+        );
+      });
     });
 
     cy.generateUUID().then((uid) => {
@@ -60,7 +71,6 @@ describe("Git sync:", function() {
       widgetsPage.buttonWidget,
       commonlocators.buttonInner,
     );
-
     cy.get(homePage.publishButton).click();
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
     cy.get(gitSyncLocators.commitButton).click();
@@ -113,10 +123,12 @@ describe("Git sync:", function() {
     cy.switchGitBranch(mainBranch);
     cy.createGitBranch(tempBranch2);
     cy.get(explorerLocators.explorerSwitchId).click({ force: true });
+    cy.CheckAndUnfoldEntityItem("PAGES");
     cy.Createpage("NewPage");
     cy.commitAndPush();
     cy.merge(mainBranch);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
+    cy.wait(8000);
     cy.switchGitBranch(mainBranch);
     cy.contains("NewPage");
   });
@@ -184,9 +196,8 @@ describe("Git sync:", function() {
     cy.get(gitSyncLocators.gitPullCount);
 
     cy.get(gitSyncLocators.bottomBarPullButton).click();
-
     cy.contains(Cypress.env("MESSAGES").GIT_CONFLICTING_INFO());
-    cy.get("body").type("{esc}");
+    cy.xpath("//span[@name='close-modal']").click({ force: true });
   });
 
   it("clicking '+' icon on bottom bar should open deploy popup", function() {
@@ -196,7 +207,55 @@ describe("Git sync:", function() {
     cy.get("[data-cy=t--tab-DEPLOY]")
       .invoke("attr", "aria-selected")
       .should("eq", "true");
-    cy.get(gitSyncLocators.closeGitSyncModal).click();
+    cy.get(gitSyncLocators.closeGitSyncModal).click({ force: true });
+  });
+
+  it("checks clean url updates across branches", () => {
+    cy.Deletepage("NewPage");
+    cy.wait(1000);
+    let legacyPathname = "";
+    let newPathname = "";
+    cy.intercept("GET", "/api/v1/pages?*mode=EDIT", (req) => {
+      req.continue();
+    }).as("appAndPages");
+    cy.reload();
+    //cy.pause();
+    cy.wait("@appAndPages").then((intercept2) => {
+      const { application, pages } = intercept2.response.body.data;
+      const defaultPage = pages.find((p) => p.isDefault);
+      legacyPathname = `/applications/${application.id}/pages/${defaultPage.id}`;
+      newPathname = `/app/${application.slug}/${defaultPage.slug}-${defaultPage.id}`;
+    });
+
+    cy.location().should((location) => {
+      expect(location.pathname).includes(newPathname);
+    });
+
+    cy.request("PUT", `/api/v1/applications/${applicationId}`, {
+      applicationVersion: 1,
+    });
+
+    cy.createGitBranch(cleanUrlBranch);
+
+    cy.location().should((location) => {
+      expect(location.pathname).includes(legacyPathname);
+    });
+
+    cy.switchGitBranch(mainBranch);
+
+    cy.get(".t--upgrade").click({ force: true });
+
+    cy.get(".t--upgrade-confirm").click({ force: true });
+
+    cy.location().should((location) => {
+      expect(location.pathname).includes(newPathname);
+    });
+
+    cy.createGitBranch(cleanUrlBranch);
+
+    cy.location().should((location) => {
+      expect(location.pathname).includes(legacyPathname);
+    });
   });
 
   after(() => {
@@ -213,7 +272,6 @@ describe("Git sync:", function() {
       201,
     );
     cy.get("#loading").should("not.exist");
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
 
     cy.AppSetupForRename();

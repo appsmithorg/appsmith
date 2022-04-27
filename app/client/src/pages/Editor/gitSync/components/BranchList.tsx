@@ -12,10 +12,10 @@ import {
 } from "actions/gitSyncActions";
 import {
   getCurrentGitBranch,
+  getDefaultGitBranchName,
   getFetchingBranches,
   getGitBranches,
   getGitBranchNames,
-  getDefaultGitBranchName,
 } from "selectors/gitSyncSelectors";
 
 import Skeleton from "components/utils/Skeleton";
@@ -29,23 +29,22 @@ import {
   SWITCH_BRANCHES,
   SYNC_BRANCHES,
 } from "@appsmith/constants/messages";
-
-import { Branch } from "entities/GitSync";
-import Button, { Category, Size } from "components/ads/Button";
 import { Space } from "./StyledComponents";
 import Icon, { IconSize, IconWrapper } from "components/ads/Icon";
 import { get } from "lodash";
 import Tooltip from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
 import Spinner from "components/ads/Spinner";
-import Text, { TextType } from "components/ads/Text";
-import { Classes } from "components/ads/common";
-import { isEllipsisActive } from "utils/helpers";
-import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
-
-import SegmentHeader from "components/ads/ListSegmentHeader";
-import BetaTag from "./BetaTag";
+import {
+  isLocalBranch,
+  isRemoteBranch,
+  removeSpecialChars,
+} from "pages/Editor/gitSync/utils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useActiveHoverIndex, useFilteredBranches } from "../hooks";
+import { BranchListItemContainer } from "./BranchListItemContainer";
+import { RemoteBranchList } from "./RemoteBranchList";
+import { LocalBranchList } from "./LocalBranchList";
 
 const ListContainer = styled.div`
   flex: 1;
@@ -67,72 +66,41 @@ const BranchDropdownContainer = styled.div`
   min-height: 0;
 `;
 
-const BranchListItemContainer = styled.div<{
-  hovered?: boolean;
-  active?: boolean;
-  isDefault?: boolean;
-}>`
-  padding: ${(props) =>
-    `${props.theme.spaces[4]}px ${props.theme.spaces[5]}px`};
-  ${(props) => getTypographyByKey(props, "p1")};
-  cursor: pointer;
-  &:hover {
-    background-color: ${Colors.Gallery};
-  }
-  width: 100%;
-
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  background-color: ${(props) =>
-    props.hovered || props.active ? Colors.GREY_3 : ""};
-
-  display: ${(props) => (props.isDefault ? "flex" : "block")};
-  .${Classes.TEXT} {
-    width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
-  }
-`;
-
 // used for skeletons
 const textInputHeight = 38;
 const textHeight = 18;
-
-function DefaultTag() {
-  return (
-    <div style={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
-      <Button
-        category={Category.tertiary}
-        disabled
-        size={Size.xxs}
-        text={"DEFAULT"}
-      />
-    </div>
-  );
-}
 
 const CreateNewBranchContainer = styled.div`
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+
   & ${IconWrapper} {
     display: inline;
   }
-  & span {
-    display: inline;
+
+  & div {
+    display: inline-block;
     word-break: break-all;
   }
+
   & .large-text {
     ${(props) => getTypographyByKey(props, "p1")};
     color: ${Colors.BLACK};
   }
+
   & .small-text {
     ${(props) => getTypographyByKey(props, "p3")};
     color: ${Colors.GREY_7};
   }
+`;
+
+const SpinnerContainer = styled.div`
+  align-self: center;
+  width: 12px;
+  position: absolute;
+  right: 16px;
 `;
 
 function CreateNewBranch({
@@ -172,61 +140,15 @@ function CreateNewBranch({
         size={IconSize.XXXL}
       />
       <CreateNewBranchContainer className={className} ref={itemRef}>
-        <span className="large-text">{`Create Branch: ${branch} `}</span>
-        <span className="small-text">{`from \`${currentBranch}\``}</span>
+        <div className="large-text">{`Create Branch: ${branch} `}</div>
+        <div className="small-text">{`from \`${currentBranch}\``}</div>
       </CreateNewBranchContainer>
-      <div style={{ alignSelf: "center", width: 12 }}>
-        {isCreatingNewBranch && <Spinner />}
-      </div>
+      <SpinnerContainer>{isCreatingNewBranch && <Spinner />}</SpinnerContainer>
     </div>
   );
 }
 
-function BranchListItem({
-  active,
-  branch,
-  className,
-  hovered,
-  isDefault,
-  onClick,
-  shouldScrollIntoView,
-}: any) {
-  const itemRef = React.useRef<HTMLDivElement>(null);
-  const textRef = React.useRef<HTMLSpanElement>(null);
-  useEffect(() => {
-    if (itemRef.current && shouldScrollIntoView)
-      scrollIntoView(itemRef.current, {
-        scrollMode: "if-needed",
-        block: "nearest",
-        inline: "nearest",
-      });
-  }, [shouldScrollIntoView]);
-
-  return (
-    <BranchListItemContainer
-      active={active}
-      className={className}
-      hovered={hovered}
-      isDefault={isDefault}
-      onClick={onClick}
-      ref={itemRef}
-    >
-      <Tooltip
-        boundary="window"
-        content={branch}
-        disabled={!isEllipsisActive(textRef.current)}
-        position={Position.TOP}
-      >
-        <Text ref={textRef} type={TextType.P1}>
-          {branch}
-        </Text>
-      </Tooltip>
-      {isDefault && <DefaultTag />}
-    </BranchListItemContainer>
-  );
-}
-
-function LoadingRow() {
+export function LoadingRow() {
   return (
     <BranchListItemContainer>
       <div style={{ height: textHeight, width: "100%" }}>
@@ -236,7 +158,7 @@ function LoadingRow() {
   );
 }
 
-function BranchesLoading() {
+export function BranchesLoading() {
   return (
     <>
       <LoadingRow />
@@ -246,81 +168,7 @@ function BranchesLoading() {
   );
 }
 
-export const removeSpecialChars = (value: string) => {
-  const separatorRegex = /(?![/-])\W+/;
-  return value.split(separatorRegex).join("_");
-};
-
-// filter the branches according to the search text
-// also pushes the default branch to the top
-const useFilteredBranches = (branches: Array<Branch>, searchText: string) => {
-  const [filteredBranches, setFilteredBranches] = useState<Array<string>>([]);
-  useEffect(() => {
-    setFilteredBranches(
-      branches.reduce((res: Array<string>, curr: Branch) => {
-        let shouldPush = false;
-        if (searchText) {
-          shouldPush =
-            curr.branchName?.toLowerCase().indexOf(searchText.toLowerCase()) !==
-            -1;
-        } else {
-          shouldPush = true;
-        }
-
-        if (shouldPush) {
-          if (curr.default) {
-            res.unshift(curr.branchName);
-          } else {
-            res.push(curr.branchName);
-          }
-        }
-
-        return res;
-      }, []),
-    );
-  }, [branches, searchText]);
-  return filteredBranches;
-};
-
-const useActiveHoverIndex = (
-  currentBranch: string | undefined,
-  filteredBranches: Array<string>,
-  isCreateNewBranchInputValid: boolean,
-) => {
-  const effectiveLength = isCreateNewBranchInputValid
-    ? filteredBranches.length
-    : filteredBranches.length - 1;
-
-  const [activeHoverIndex, setActiveHoverIndexInState] = useState(0);
-  const setActiveHoverIndex = (index: number) => {
-    if (index < 0) setActiveHoverIndexInState(effectiveLength);
-    else if (index > effectiveLength) setActiveHoverIndexInState(0);
-    else setActiveHoverIndexInState(index);
-  };
-
-  useEffect(() => {
-    const activeBranchIdx = filteredBranches.indexOf(currentBranch || "");
-    if (activeBranchIdx !== -1) {
-      setActiveHoverIndex(
-        isCreateNewBranchInputValid ? activeBranchIdx + 1 : activeBranchIdx,
-      );
-    } else {
-      setActiveHoverIndex(0);
-    }
-  }, [currentBranch, filteredBranches, isCreateNewBranchInputValid]);
-
-  return { activeHoverIndex, setActiveHoverIndex };
-};
-
-const getIsActiveItem = (
-  isCreateNewBranchInputValid: boolean,
-  activeHoverIndex: number,
-  index: number,
-) =>
-  (isCreateNewBranchInputValid ? activeHoverIndex - 1 : activeHoverIndex) ===
-  index;
-
-function Header({
+export function Header({
   closePopup,
   fetchBranches,
 }: {
@@ -347,7 +195,7 @@ function Header({
         >
           <Tooltip
             content={createMessage(SYNC_BRANCHES)}
-            hoverOpenDelay={1000}
+            hoverOpenDelay={10}
             modifiers={{
               flip: { enabled: false },
             }}
@@ -363,9 +211,6 @@ function Header({
             />
           </Tooltip>
         </span>
-        <div style={{ marginLeft: 6 }}>
-          <BetaTag />
-        </div>
       </div>
       <Icon
         className="t--close-branch-list"
@@ -413,6 +258,12 @@ export default function BranchList(props: {
 
   const filteredBranches = useFilteredBranches(branches, searchText);
 
+  const localBranches = filteredBranches.filter((b: string) =>
+    isLocalBranch(b),
+  );
+  const remoteBranches = filteredBranches.filter((b: string) =>
+    isRemoteBranch(b),
+  );
   const { activeHoverIndex, setActiveHoverIndex } = useActiveHoverIndex(
     currentBranch,
     filteredBranches,
@@ -443,7 +294,10 @@ export default function BranchList(props: {
     );
   };
 
-  const switchBranch = (branch: string) => {
+  const switchBranch = (branch: string): void => {
+    AnalyticsUtil.logEvent("GS_SWITCH_BRANCH", {
+      source: "BRANCH_LIST_POPUP_FROM_BOTTOM_BAR",
+    });
     dispatch(switchGitBranchInit(branch));
   };
 
@@ -463,6 +317,15 @@ export default function BranchList(props: {
     if (typeof props.setIsPopupOpen === "function") props.setIsPopupOpen(false);
   };
 
+  const remoteBranchList = RemoteBranchList(remoteBranches, switchBranch);
+  const localBranchList = LocalBranchList(
+    localBranches,
+    currentBranch,
+    isCreateNewBranchInputValid,
+    activeHoverIndex,
+    defaultBranch,
+    switchBranch,
+  );
   return (
     <BranchListHotkeys
       handleDownKey={handleDownKey}
@@ -473,8 +336,9 @@ export default function BranchList(props: {
       <BranchDropdownContainer>
         <Header
           closePopup={() => {
-            if (typeof props.setIsPopupOpen === "function")
+            if (typeof props.setIsPopupOpen === "function") {
               props.setIsPopupOpen(false);
+            }
           }}
           fetchBranches={pruneAndFetchBranches}
         />
@@ -510,33 +374,8 @@ export default function BranchList(props: {
                 shouldScrollIntoView={activeHoverIndex === 0}
               />
             )}
-            <SegmentHeader title={"Local branches"} />
-            {filteredBranches.map((branch: string, index: number) => (
-              <>
-                {getIsStartingWithRemoteBranches(
-                  filteredBranches[index - 1],
-                  branch,
-                ) && <SegmentHeader title={"Remote branches"} />}
-                <BranchListItem
-                  active={currentBranch === branch}
-                  branch={branch}
-                  className="t--branch-item"
-                  hovered={getIsActiveItem(
-                    isCreateNewBranchInputValid,
-                    activeHoverIndex,
-                    index,
-                  )}
-                  isDefault={branch === defaultBranch}
-                  key={branch}
-                  onClick={() => switchBranch(branch)}
-                  shouldScrollIntoView={getIsActiveItem(
-                    isCreateNewBranchInputValid,
-                    activeHoverIndex,
-                    index,
-                  )}
-                />
-              </>
-            ))}
+            {localBranchList}
+            {remoteBranchList}
           </ListContainer>
         )}
       </BranchDropdownContainer>

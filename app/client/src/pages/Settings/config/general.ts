@@ -1,6 +1,6 @@
-import { isEmail } from "../../../utils/formhelpers";
-import { apiRequestConfig } from "../../../api/Api";
-import UserApi from "../../../api/UserApi";
+import { isEmail } from "utils/formhelpers";
+import { apiRequestConfig } from "api/Api";
+import UserApi from "@appsmith/api/UserApi";
 import {
   AdminConfigType,
   SettingCategories,
@@ -16,7 +16,7 @@ export const config: AdminConfigType = {
   settings: [
     {
       id: "APPSMITH_INSTANCE_NAME",
-      category: "general",
+      category: SettingCategories.GENERAL,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Instance Name",
@@ -24,7 +24,7 @@ export const config: AdminConfigType = {
     },
     {
       id: "APPSMITH_ADMIN_EMAILS",
-      category: "general",
+      category: SettingCategories.GENERAL,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.EMAIL,
       label: "Admin Email",
@@ -51,24 +51,19 @@ export const config: AdminConfigType = {
           "_blank",
         );
       },
-      category: "general",
+      category: SettingCategories.GENERAL,
       controlType: SettingTypes.BUTTON,
       label: "Generated Docker Compose File",
       text: "Download",
     },
     {
       id: "APPSMITH_DISABLE_TELEMETRY",
-      category: "general",
+      category: SettingCategories.GENERAL,
       controlType: SettingTypes.TOGGLE,
-      label: "Disable Sharing Anonymous Usage Data",
+      label: "Share anonymous usage data",
       subText: "Share anonymous usage data to help improve the product",
-      toggleText: (value: boolean) => {
-        if (value) {
-          return "Don't share any data";
-        } else {
-          return "Share data & make appsmith better!";
-        }
-      },
+      toggleText: (value: boolean) =>
+        value ? "Share Anonymous Telemetry" : "Don't share any data",
     },
   ],
 } as AdminConfigType;

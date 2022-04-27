@@ -1,3 +1,5 @@
+/// <reference types="Cypress" />
+
 const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const dsl = require("../../../../fixtures/listdsl.json");
@@ -8,11 +10,13 @@ describe("Container Widget Functionality", function() {
 
   before(() => {
     cy.addDsl(dsl);
+    cy.wait(5000);
   });
 
-  it("List-Unckeck Visible field Validation", function() {
+  it("1. List-Unckeck Visible field Validation", function() {
     // Open Property pane
-    cy.SearchEntityandOpen("List1");
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.selectEntityByName("List1");
     //Uncheck the disabled checkbox and validate
     cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -20,9 +24,10 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("List-Check Visible field Validation", function() {
+  it("2. List-Check Visible field Validation", function() {
     // Open Property pane
-    cy.SearchEntityandOpen("List1");
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.selectEntityByName("List1");
     //Check the disableed checkbox and Validate
     cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -30,9 +35,10 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("Toggle JS - List-Unckeck Visible field Validation", function() {
+  it("3. Toggle JS - List-Unckeck Visible field Validation", function() {
     // Open Property pane
-    cy.SearchEntityandOpen("List1");
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.selectEntityByName("List1");
     //Uncheck the disabled checkbox using JS and validate
     cy.get(widgetsPage.toggleVisible).click({ force: true });
     cy.testJsontext("visible", "false");
@@ -41,9 +47,10 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("Toggle JS - List-Check Visible field Validation", function() {
+  it("4. Toggle JS - List-Check Visible field Validation", function() {
     // Open Property pane
-    cy.SearchEntityandOpen("List1");
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.selectEntityByName("List1");
     //Check the disabled checkbox using JS and Validate
     cy.testJsontext("visible", "true");
     cy.PublishtheApp();
@@ -51,16 +58,20 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("checks if list shows correct no. of items", function() {
+  it("5. checks if list shows correct no. of items", function() {
     // Verify the length of list
     cy.get(commonlocators.containerWidget).then(function($lis) {
       expect($lis).to.have.length(2);
     });
   });
 
-  it("checks currentItem binding", function() {
+  it("6. checks currentItem binding", function() {
     // Open property pane
-    cy.SearchEntityandOpen("Text1");
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.CheckAndUnfoldEntityItem("List1");
+    cy.CheckAndUnfoldEntityItem("Container1");
+    cy.selectEntityByName("Text1");
+    //cy.SearchEntityandOpen("Text1");
     cy.testJsontext("text", `{{currentItem.first_name}}`);
     cy.wait(1000);
 
@@ -72,26 +83,53 @@ describe("Container Widget Functionality", function() {
     });
   });
 
-  it("checks button action", function() {
+  it("7. doesn't alter the no of items present when invalid item spacing is entered", () => {
+    // Open Property pane
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.selectEntityByName("List1");
+    // Update an invalid value to item spacing
+    cy.testJsontext("itemspacing\\(" + "px" + "\\)", "-");
+    cy.wait(2000);
+
+    // Verify the length of list
+    cy.get(commonlocators.containerWidget).then(function($lis) {
+      expect($lis).to.have.length(2);
+    });
+
+    // Clear item spacing
+    cy.testJsontext("itemspacing\\(" + "px" + "\\)", "");
+    cy.wait(2000);
+
+    // Close property pane
+    cy.closePropertyPane();
+  });
+
+  it("8. checks button action", function() {
     // Open property pane
-    cy.SearchEntityandOpen("Button1");
-    cy.testJsontext("label", `{{currentItem.first_name}}`);
-    cy.addAction("{{currentItem.first_name}}");
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.CheckAndUnfoldEntityItem("List1");
+    cy.CheckAndUnfoldEntityItem("Container1");
+    cy.selectEntityByName("Button1");
+    //cy.SearchEntityandOpen("Button1");
+    cy.testJsontext("label", `{{currentItem.last_name}}`);
+    cy.addAction("{{currentItem.last_name}}");
 
     cy.PublishtheApp();
     // Verify Widget Button by clicking on it
-    cy.get(`${widgetsPage.widgetBtn}`)
+    cy.get(widgetsPage.widgetBtn)
+      .closest("div")
       .first()
-      .click();
+      .click({ force: true });
     // Verify the click on first button
-    cy.get(commonlocators.toastmsg).contains(items[0].first_name);
+    cy.get(commonlocators.toastmsg).contains(items[0].last_name);
   });
 
-  it("it checks onListItem click action", function() {
+  it("9. it checks onListItem click action", function() {
     // Verify Clicking on list item shows message of first name
     cy.get(publishPage.backToEditor).click({ force: true });
     // Open property pane
-    cy.SearchEntityandOpen("List1");
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.selectEntityByName("List1");
     // Verify Action type and Message of List Item
     cy.addAction("{{currentItem.first_name}}");
 
@@ -104,39 +142,35 @@ describe("Container Widget Functionality", function() {
     cy.get(commonlocators.toastmsg).contains(items[0].first_name);
   });
 
-  it("it checks pagination", function() {
+  it("10. it checks pagination", function() {
     // clicking on second pagination button
     cy.get(`${commonlocators.paginationButton}-2`).click();
 
     // now we are on the second page which shows first the 3rd item in the list
     cy.get(commonlocators.TextInside).then(function($lis) {
       expect($lis.eq(0)).to.contain(items[2].first_name);
+      expect($lis.eq(1)).to.contain(items[3].first_name);
     });
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("Chart-Copy Verification", function() {
+  it("11. ListWidget-Copy & Delete Verification", function() {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     //Copy Chart and verify all properties
-    cy.SearchEntityandOpen("List1");
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.selectEntityByName("List1");
     cy.copyWidget("List1Copy", commonlocators.containerWidget);
-
-    // cy.PublishtheApp();
-  });
-
-  it("Chart-Delete Verification", function() {
-    // Delete the Chart widget
-    cy.SearchEntityandOpen("List1Copy");
     cy.deleteWidget();
     cy.PublishtheApp();
-    // Verify the cart is deleted
-    cy.get(commonlocators.containerWidget).should("not.exist");
+    // Verify the copied list widget is deleted
+    cy.get(commonlocators.containerWidget).should("have.length", 2);
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("List widget background colour and deploy ", function() {
+  it("12. List widget background colour and deploy ", function() {
     // Open Property pane
-    cy.SearchEntityandOpen("List1");
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.selectEntityByName("List1");
     // Scroll down to Styles and Add background colour
     cy.selectColor("backgroundcolor");
     cy.wait(1000);
@@ -158,9 +192,10 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("Toggle JS - List widget background colour and deploy ", function() {
+  it("13. Toggle JS - List widget background colour and deploy ", function() {
     // Open Property pane
-    cy.SearchEntityandOpen("List1");
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.selectEntityByName("List1");
     // Scroll down to Styles and Add background colour
     cy.get(widgetsPage.backgroundColorToggle).click({ force: true });
     cy.testJsontext("backgroundcolor", "#FFC13D");
@@ -184,9 +219,10 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("Add new item in the list widget array object", function() {
+  it("14. Add new item in the list widget array object", function() {
     // Open Property pane
-    cy.SearchEntityandOpen("List1");
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.selectEntityByName("List1");
     //Add the new item in the list
     cy.testJsontext("items", JSON.stringify(this.data.ListItems));
     cy.wait(2000);
@@ -194,9 +230,10 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("Adding large item Spacing for item card", function() {
+  it("15. Adding large item Spacing for item card", function() {
     // Open Property pane
-    cy.SearchEntityandOpen("List1");
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.selectEntityByName("List1");
     // Scroll down to Styles and Add item spacing for item card
     cy.testJsontext("itemspacing\\(" + "px" + "\\)", 12);
     cy.wait(2000);
@@ -205,9 +242,10 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("Renaming the widget from Property pane and Entity explorer ", function() {
+  it("16. Renaming the widget from Property pane and Entity explorer ", function() {
     // Open Property pane
-    cy.SearchEntityandOpen("List1");
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.selectEntityByName("List1");
     // Change the list widget name from property pane and Verify it
     cy.widgetText(
       "List2",

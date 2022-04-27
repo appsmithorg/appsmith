@@ -2,6 +2,7 @@ import { AxiosPromise } from "axios";
 import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
 import { GitConfig } from "entities/GitSync";
+import ApplicationApi from "./ApplicationApi";
 
 export type CommitPayload = {
   applicationId: string;
@@ -28,7 +29,6 @@ export type ConnectToGitPayload = {
     authorName: string;
     authorEmail: string;
   };
-  isImport?: boolean;
   isDefaultProfile?: boolean;
 };
 
@@ -130,6 +130,33 @@ class GitSyncAPI extends Api {
 
   static disconnectGit({ applicationId }: { applicationId: string }) {
     return Api.post(`${GitSyncAPI.baseURL}/disconnect/${applicationId}`);
+  }
+
+  static importApp(payload: ConnectToGitPayload, orgId: string) {
+    return Api.post(`${GitSyncAPI.baseURL}/import/${orgId}`, payload);
+  }
+
+  static getSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
+    return Api.get(ApplicationApi.baseURL + "/ssh-keypair/" + applicationId);
+  }
+
+  static generateSSHKeyPair(
+    applicationId: string,
+    isImporting?: boolean,
+  ): AxiosPromise<ApiResponse> {
+    const url = isImporting
+      ? "v1/git/import/keys"
+      : ApplicationApi.baseURL + "/ssh-keypair/" + applicationId;
+    return isImporting ? Api.get(url) : Api.post(url);
+  }
+
+  static deleteBranch(
+    applicationId: string,
+    branchName: string,
+  ): AxiosPromise<ApiResponse> {
+    return Api.delete(GitSyncAPI.baseURL + "/branch/" + applicationId, {
+      branchName,
+    });
   }
 }
 

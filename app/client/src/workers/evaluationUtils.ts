@@ -27,7 +27,9 @@ import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { Variable } from "entities/JSCollection";
-const clone = require("rfdc/default");
+import { PluginType } from "entities/Action";
+import { klona } from "klona/full";
+import { warn as logWarn } from "loglevel";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -92,6 +94,15 @@ export function getEntityNameAndPropertyPath(
   return { entityName, propertyPath };
 }
 
+//these paths are not required to go through evaluate tree as these are internal properties
+const ignorePathsForEvalRegex =
+  ".(reactivePaths|bindingPaths|triggerPaths|validationPaths|dynamicBindingPathList)";
+
+//match if paths are part of ignorePathsForEvalRegex
+const isUninterestingChangeForDependencyUpdate = (path: string) => {
+  return path.match(ignorePathsForEvalRegex);
+};
+
 export const translateDiffEventToDataTreeDiffEvent = (
   difference: Diff<any, any>,
   unEvalDataTree: DataTree,
@@ -106,7 +117,15 @@ export const translateDiffEventToDataTreeDiffEvent = (
   if (!difference.path) {
     return result;
   }
+
   const propertyPath = convertPathToString(difference.path);
+  //we do not need evaluate these paths coz these are internal paths
+  const isUninterestingPathForUpdateTree = isUninterestingChangeForDependencyUpdate(
+    propertyPath,
+  );
+  if (!!isUninterestingPathForUpdateTree) {
+    return result;
+  }
   const { entityName } = getEntityNameAndPropertyPath(propertyPath);
   const entity = unEvalDataTree[entityName];
   const isJsAction = isJSAction(entity);
@@ -145,11 +164,17 @@ export const translateDiffEventToDataTreeDiffEvent = (
       } else if (difference.lhs === undefined || difference.rhs === undefined) {
         // Handle static value changes that change structure that can lead to
         // old bindings being eligible
-        if (difference.lhs === undefined && isTrueObject(difference.rhs)) {
+        if (
+          difference.lhs === undefined &&
+          (isTrueObject(difference.rhs) || Array.isArray(difference.rhs))
+        ) {
           result.event = DataTreeDiffEvent.NEW;
           result.payload = { propertyPath };
         }
-        if (difference.rhs === undefined && isTrueObject(difference.lhs)) {
+        if (
+          difference.rhs === undefined &&
+          (isTrueObject(difference.lhs) || Array.isArray(difference.lhs))
+        ) {
           result.event = DataTreeDiffEvent.DELETE;
           result.payload = { propertyPath };
         }
@@ -267,6 +292,16 @@ export function isJSAction(entity: DataTreeEntity): entity is DataTreeJSAction {
   );
 }
 
+export function isJSObject(entity: DataTreeEntity): entity is DataTreeJSAction {
+  return (
+    typeof entity === "object" &&
+    "ENTITY_TYPE" in entity &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION &&
+    "pluginType" in entity &&
+    entity.pluginType === PluginType.JS
+  );
+}
+
 // We need to remove functions from data tree to avoid any unexpected identifier while JSON parsing
 // Check issue https://github.com/appsmithorg/appsmith/issues/719
 export const removeFunctions = (value: any) => {
@@ -285,13 +320,14 @@ export const removeFunctions = (value: any) => {
 
 export const makeParentsDependOnChildren = (
   depMap: DependencyMap,
+  allkeys: Record<string, true>,
 ): DependencyMap => {
   //return depMap;
   // Make all parents depend on child
   Object.keys(depMap).forEach((key) => {
-    depMap = makeParentsDependOnChild(depMap, key);
+    depMap = makeParentsDependOnChild(depMap, key, allkeys);
     depMap[key].forEach((path) => {
-      depMap = makeParentsDependOnChild(depMap, path);
+      depMap = makeParentsDependOnChild(depMap, path, allkeys);
     });
   });
   return depMap;
@@ -300,10 +336,16 @@ export const makeParentsDependOnChildren = (
 export const makeParentsDependOnChild = (
   depMap: DependencyMap,
   child: string,
+  allkeys: Record<string, true>,
 ): DependencyMap => {
   const result: DependencyMap = depMap;
   let curKey = child;
-
+  if (!allkeys[curKey]) {
+    logWarn(
+      `makeParentsDependOnChild - ${curKey} is not present in dataTree.`,
+      "This might result in a cyclic dependency.",
+    );
+  }
   let matches: Array<string> | null;
   // Note: The `=` is intentional
   // Stops looping when match is null
@@ -341,6 +383,7 @@ export function validateWidgetProperty(
   config: ValidationConfig,
   value: unknown,
   props: Record<string, unknown>,
+  propertyPath: string,
 ) {
   if (!config) {
     return {
@@ -348,7 +391,7 @@ export function validateWidgetProperty(
       parsed: value,
     };
   }
-  return validate(config, value, props);
+  return validate(config, value, props, propertyPath);
 }
 
 export function validateActionProperty(
@@ -361,7 +404,7 @@ export function validateActionProperty(
       parsed: value,
     };
   }
-  return validate(config, value, {});
+  return validate(config, value, {}, "");
 }
 
 export function getValidatedTree(tree: DataTree) {
@@ -378,6 +421,7 @@ export function getValidatedTree(tree: DataTree) {
         validation,
         value,
         entity,
+        property,
       );
       _.set(parsedEntity, property, parsed);
       const evaluatedValue = isValid
@@ -388,7 +432,10 @@ export function getValidatedTree(tree: DataTree) {
       const safeEvaluatedValue = removeFunctions(evaluatedValue);
       _.set(
         parsedEntity,
-        getEvalValuePath(`${entityKey}.${property}`, false),
+        getEvalValuePath(`${entityKey}.${property}`, {
+          isPopulated: false,
+          fullPath: false,
+        }),
         safeEvaluatedValue,
       );
       if (!isValid) {
@@ -402,7 +449,10 @@ export function getValidatedTree(tree: DataTree) {
         addErrorToEntityProperty(
           evalErrors,
           tree,
-          getEvalErrorPath(`${entityKey}.${property}`, false),
+          getEvalErrorPath(`${entityKey}.${property}`, {
+            isPopulated: false,
+            fullPath: false,
+          }),
         );
       }
     });
@@ -467,7 +517,12 @@ export function getSafeToRenderDataTree(
     Object.entries(entity.validationPaths).forEach(([property, validation]) => {
       const value = _.get(entity, property);
       // Pass it through parse
-      const { parsed } = validateWidgetProperty(validation, value, entity);
+      const { parsed } = validateWidgetProperty(
+        validation,
+        value,
+        entity,
+        property,
+      );
       _.set(safeToRenderEntity, property, parsed);
     });
     // Set derived values to undefined or else they would go as bindings
@@ -508,8 +563,11 @@ export const addErrorToEntityProperty = (
   path: string,
 ) => {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(path);
+  const isPrivateEntityPath = getAllPrivateWidgetsInDataTree(dataTree)[
+    entityName
+  ];
   const logBlackList = _.get(dataTree, `${entityName}.logBlackList`, {});
-  if (propertyPath && !(propertyPath in logBlackList)) {
+  if (propertyPath && !(propertyPath in logBlackList) && !isPrivateEntityPath) {
     const existingErrors = _.get(
       dataTree,
       `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
@@ -544,7 +602,7 @@ export const isDynamicLeaf = (unEvalTree: DataTree, propertyPath: string) => {
     return false;
   const relativePropertyPath = convertPathToString(propPathEls);
   return (
-    relativePropertyPath in entity.bindingPaths ||
+    relativePropertyPath in entity.reactivePaths ||
     (isWidget(entity) && relativePropertyPath in entity.triggerPaths)
   );
 };
@@ -566,33 +624,69 @@ export const updateJSCollectionInDataTree = (
       const action = parsedBody.actions[i];
       if (jsCollection.hasOwnProperty(action.name)) {
         if (jsCollection[action.name] !== action.body) {
+          const data = _.get(
+            modifiedDataTree,
+            `${jsCollection.name}.${action.name}.data`,
+            {},
+          );
           _.set(
             modifiedDataTree,
             `${jsCollection.name}.${action.name}`,
-            action.body,
+            new String(action.body),
+          );
+
+          _.set(
+            modifiedDataTree,
+            `${jsCollection.name}.${action.name}.data`,
+            data,
           );
         }
       } else {
-        const bindingPaths = jsCollection.bindingPaths;
-        bindingPaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
-        _.set(modifiedDataTree, `${jsCollection}.bindingPaths`, bindingPaths);
+        const reactivePaths = jsCollection.reactivePaths;
+        reactivePaths[action.name] =
+          EvaluationSubstitutionType.SMART_SUBSTITUTE;
+        reactivePaths[`${action.name}.data`] =
+          EvaluationSubstitutionType.TEMPLATE;
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.reactivePaths`,
+          reactivePaths,
+        );
         const dynamicBindingPathList = jsCollection.dynamicBindingPathList;
         dynamicBindingPathList.push({ key: action.name });
         _.set(
           modifiedDataTree,
-          `${jsCollection}.dynamicBindingPathList`,
+          `${jsCollection.name}.dynamicBindingPathList`,
           dynamicBindingPathList,
         );
         const dependencyMap = jsCollection.dependencyMap;
         dependencyMap["body"].push(action.name);
-        _.set(modifiedDataTree, `${jsCollection}.dependencyMap`, dependencyMap);
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.dependencyMap`,
+          dependencyMap,
+        );
         const meta = jsCollection.meta;
-        meta[action.name] = { arguments: action.arguments };
+        meta[action.name] = {
+          arguments: action.arguments,
+          isAsync: false,
+          confirmBeforeExecute: false,
+        };
         _.set(modifiedDataTree, `${jsCollection.name}.meta`, meta);
+        const data = _.get(
+          modifiedDataTree,
+          `${jsCollection.name}.${action.name}.data`,
+          {},
+        );
         _.set(
           modifiedDataTree,
           `${jsCollection.name}.${action.name}`,
-          action.body,
+          new String(action.body.toString()),
+        );
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.${action.name}.data`,
+          data,
         );
       }
     }
@@ -604,12 +698,12 @@ export const updateJSCollectionInDataTree = (
         (js: ParsedJSSubAction) => js.name === preAction,
       );
       if (!existed) {
-        const bindingPaths = jsCollection.bindingPaths;
-        delete bindingPaths[preAction];
+        const reactivePaths = jsCollection.reactivePaths;
+        delete reactivePaths[preAction];
         _.set(
           modifiedDataTree,
-          `${jsCollection.name}.bindingPaths`,
-          bindingPaths,
+          `${jsCollection.name}.reactivePaths`,
+          reactivePaths,
         );
         let dynamicBindingPathList = jsCollection.dynamicBindingPathList;
         dynamicBindingPathList = dynamicBindingPathList.filter(
@@ -636,6 +730,7 @@ export const updateJSCollectionInDataTree = (
         delete meta[preAction];
         _.set(modifiedDataTree, `${jsCollection.name}.meta`, meta);
         delete modifiedDataTree[`${jsCollection.name}`][`${preAction}`];
+        delete modifiedDataTree[`${jsCollection.name}`][`${preAction}.data`];
       }
     }
   }
@@ -702,12 +797,12 @@ export const removeFunctionsAndVariableJSCollection = (
   }
   //remove functions
   let dynamicBindingPathList = entity.dynamicBindingPathList;
-  const bindingPaths = entity.bindingPaths;
+  const reactivePaths = entity.reactivePaths;
   const meta = entity.meta;
   let dependencyMap = entity.dependencyMap["body"];
   for (let i = 0; i < functionsList.length; i++) {
     const actionName = functionsList[i];
-    delete bindingPaths[actionName];
+    delete reactivePaths[actionName];
     delete meta[actionName];
     delete modifiedDataTree[`${entity.name}`][`${actionName}`];
     dynamicBindingPathList = dynamicBindingPathList.filter(
@@ -715,7 +810,7 @@ export const removeFunctionsAndVariableJSCollection = (
     );
     dependencyMap = dependencyMap.filter((item: any) => item !== actionName);
   }
-  _.set(modifiedDataTree, `${entity.name}.bindingPaths`, bindingPaths);
+  _.set(modifiedDataTree, `${entity.name}.reactivePaths`, reactivePaths);
   _.set(
     modifiedDataTree,
     `${entity.name}.dynamicBindingPathList`,
@@ -800,7 +895,7 @@ export const overrideWidgetProperties = (
   value: unknown,
   currentTree: DataTree,
 ) => {
-  const clonedValue = clone(value);
+  const clonedValue = klona(value);
   if (propertyPath in entity.overridingPropertyPaths) {
     const overridingPropertyPaths =
       entity.overridingPropertyPaths[propertyPath];
@@ -823,7 +918,7 @@ export const overrideWidgetProperties = (
       entity.propertyOverrideDependency[propertyPath];
     if (propertyOverridingKeyMap.DEFAULT) {
       const defaultValue = entity[propertyOverridingKeyMap.DEFAULT];
-      const clonedDefaultValue = clone(defaultValue);
+      const clonedDefaultValue = klona(defaultValue);
       if (defaultValue !== undefined) {
         const propertyPathArray = propertyPath.split(".");
         _.set(

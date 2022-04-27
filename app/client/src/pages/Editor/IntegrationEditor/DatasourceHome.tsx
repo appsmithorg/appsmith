@@ -9,11 +9,11 @@ import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
-import { CurrentApplicationData } from "constants/ReduxActionConstants";
+import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
 import { getQueryParams } from "utils/AppsmithUtils";
-import { getGenerateCRUDEnabledPluginMap } from "../../../selectors/entitiesSelector";
-import { GenerateCRUDEnabledPluginMap } from "../../../api/PluginApi";
+import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
+import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 
 // This function remove the given key from queryParams and return string
@@ -126,7 +126,7 @@ interface ReduxDispatchProps {
 
 interface ReduxStateProps {
   plugins: Plugin[];
-  currentApplication?: CurrentApplicationData;
+  currentApplication?: ApplicationPayload;
   pluginImages: Record<string, string>;
   isSaving: boolean;
   generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap;

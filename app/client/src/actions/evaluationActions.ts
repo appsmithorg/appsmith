@@ -2,12 +2,12 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import _ from "lodash";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import { Diff } from "deep-diff";
-import { QueryActionConfig } from "../entities/Action";
+import { QueryActionConfig } from "entities/Action";
 
 export const FIRST_EVAL_REDUX_ACTIONS = [
   // Pages
@@ -45,6 +45,7 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
   ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
   ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS,
+  ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
   // App Data
   ReduxActionTypes.SET_APP_MODE,
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,

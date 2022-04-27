@@ -1,9 +1,9 @@
 import styled from "styled-components";
 import React from "react";
-import { ReduxAction } from "constants/ReduxActionConstants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { Dispatch } from "react";
 import { useDispatch } from "react-redux";
-import Icon, { IconSize } from "../../components/ads/Icon";
+import Icon, { IconSize } from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 
 export type CalloutType = "Warning" | "Info";
@@ -32,6 +32,7 @@ export const Wrapper = styled.div<{ type?: CalloutType }>`
     font-size: 12px;
     line-height: 16px;
   }
+  
   a {
     font-style: normal;
     font-weight: 600;
@@ -83,10 +84,12 @@ export function Callout(props: {
       )}
       <div>
         <h4>{props.title}</h4>
-        <a {...linkProps}>
-          {props.actionLabel}&nbsp;&nbsp;
-          <Icon name="right-arrow" size={IconSize.LARGE} />
-        </a>
+        {props.actionLabel && (
+          <a {...linkProps}>
+            {props.actionLabel}&nbsp;&nbsp;
+            <Icon name="right-arrow" size={IconSize.LARGE} />
+          </a>
+        )}
       </div>
     </Wrapper>
   );

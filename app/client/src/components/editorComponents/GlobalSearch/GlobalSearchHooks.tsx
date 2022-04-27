@@ -1,14 +1,11 @@
 import React from "react";
 import { createNewQueryAction } from "actions/apiPaneActions";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import { INTEGRATION_TABS } from "constants/routes";
 import { Datasource } from "entities/Datasource";
 import { keyBy } from "lodash";
 import { useAppWideAndOtherDatasource } from "pages/Editor/Explorer/hooks";
 import { useMemo } from "react";
-import {
-  getCurrentApplicationId,
-  getPageList,
-} from "selectors/editorSelectors";
+import { getPageList } from "selectors/editorSelectors";
 import {
   getActions,
   getAllPageWidgets,
@@ -27,6 +24,7 @@ import {
 import AddDatasourceIcon from "remixicon-react/AddBoxLineIcon";
 import { Colors } from "constants/Colors";
 import { PluginType } from "entities/Action";
+import { integrationEditorURL } from "RouteBuilder";
 
 export const useFilteredFileOperations = (query = "") => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
@@ -44,7 +42,6 @@ export const useFilteredFileOperations = (query = "") => {
   if (newApiActionIdx > -1) {
     actionOperations[newApiActionIdx].pluginId = restApiPlugin?.id;
   }
-  const applicationId = useSelector(getCurrentApplicationId);
   return useMemo(() => {
     let fileOperations: any =
       actionOperations.filter((op) =>
@@ -97,9 +94,18 @@ export const useFilteredFileOperations = (query = "") => {
         title: "New Datasource",
         icon: <AddDatasourceIcon color={Colors.DOVE_GRAY2} size={20} />,
         kind: SEARCH_ITEM_TYPES.actionOperation,
-        redirect: (pageId: string) => {
+        redirect: (
+          applicationSlug: string,
+          pageSlug: string,
+          pageId: string,
+        ) => {
           history.push(
-            INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+            integrationEditorURL({
+              applicationSlug,
+              pageSlug,
+              pageId,
+              selectedTab: INTEGRATION_TABS.NEW,
+            }),
           );
         },
       },

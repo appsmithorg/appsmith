@@ -146,6 +146,7 @@ export function DebugButton(props: DebugButtonProps) {
       onClick={props.onClick}
       tag="button"
       text="Debug"
+      type="button"
       variant={Variant.danger}
     />
   );

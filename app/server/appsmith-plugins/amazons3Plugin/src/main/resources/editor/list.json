@@ -1,8 +1,8 @@
 {
   "identifier": "LIST",
-  "controlType" : "SECTION",
+  "controlType": "SECTION",
   "conditionals": {
-    "show": "{{actionConfiguration.formData.command === 'LIST'}}"
+    "show": "{{actionConfiguration.formData.command.data === 'LIST'}}"
   },
   "children": [
     {
@@ -11,7 +11,7 @@
       "children": [
         {
           "label": "Bucket Name",
-          "configProperty": "actionConfiguration.formData.bucket",
+          "configProperty": "actionConfiguration.formData.bucket.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "isRequired": true,
@@ -22,19 +22,22 @@
     {
       "controlType": "SECTION",
       "label": "Query",
-      "description" : "Optional",
+      "description": "Optional",
       "children": [
         {
           "label": "Prefix",
-          "configProperty": "actionConfiguration.formData.list.prefix",
+          "configProperty": "actionConfiguration.formData.list.prefix.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": ""
         },
         {
-          "label": "Where",
-          "configProperty": "actionConfiguration.formData.list.where",
+          "label": "Where Condition",
+          "configProperty": "actionConfiguration.formData.list.where.data",
           "nestedLevels": 3,
           "controlType": "WHERE_CLAUSE",
+          "-subtitle": "Array of Objects",
+          "-tooltipText": "Array of Objects",
+          "-alternateViewTypes": ["json"],
           "logicalTypes": [
             {
               "label": "AND",
@@ -72,8 +75,11 @@
       "children": [
         {
           "label": "Generate Signed URL",
-          "configProperty": "actionConfiguration.formData.list.signedUrl",
+          "configProperty": "actionConfiguration.formData.list.signedUrl.data",
           "controlType": "DROP_DOWN",
+          "-subtitle": "Allowed values: YES, NO",
+          "-tooltipText": "Allowed values: YES, NO",
+          "-alternateViewTypes": ["json"],
           "initialValue": "NO",
           "options": [
             {
@@ -88,17 +94,20 @@
         },
         {
           "label": "Expiry Duration of Signed URL (Minutes)",
-          "configProperty": "actionConfiguration.formData.list.expiry",
+          "configProperty": "actionConfiguration.formData.list.expiry.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": "5",
           "conditionals": {
-            "show": "{{actionConfiguration.formData.list.signedUrl === 'YES'}}"
+            "show": "{{actionConfiguration.formData.list.signedUrl.data === 'YES'}}"
           }
         },
         {
           "label": "Generate Un-signed URL",
-          "configProperty": "actionConfiguration.formData.list.unSignedUrl",
+          "configProperty": "actionConfiguration.formData.list.unSignedUrl.data",
           "controlType": "DROP_DOWN",
+          "-subtitle": "Allowed values: YES, NO",
+          "-tooltipText": "Allowed values: YES, NO",
+          "-alternateViewTypes": ["json"],
           "initialValue": "YES",
           "options": [
             {
@@ -113,13 +122,19 @@
         },
         {
           "label": "Sort By",
-          "configProperty": "actionConfiguration.formData.list.sortBy",
-          "controlType": "SORTING"
+          "configProperty": "actionConfiguration.formData.list.sortBy.data",
+          "controlType": "SORTING",
+          "-subtitle": "Array of Objects",
+          "-tooltipText": "Array of Objects",
+          "-alternateViewTypes": ["json"]
         },
         {
           "label": "Paginate By",
-          "configProperty": "actionConfiguration.formData.list.pagination",
-          "controlType": "PAGINATION"
+          "configProperty": "actionConfiguration.formData.list.pagination.data",
+          "controlType": "PAGINATION",
+          "-subtitle": "Object",
+          "-tooltipText": "Object",
+          "-alternateViewTypes": ["json"]
         }
       ]
     }

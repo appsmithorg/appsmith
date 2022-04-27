@@ -11,7 +11,6 @@ import { Datasource } from "entities/Datasource";
 import { useEffect, useState } from "react";
 import { fetchRawGithubContentList } from "./githubHelper";
 import { PluginType } from "entities/Action";
-import { altText, modText } from "./HelpBar";
 import { WidgetType } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getPluginByPackageName } from "selectors/entitiesSelector";
@@ -21,9 +20,10 @@ import { CurlIconV2, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { EventLocation } from "utils/AnalyticsUtil";
-import { getCurlImportPageURL } from "constants/routes";
 import { getQueryParams } from "utils/AppsmithUtils";
 import history from "utils/history";
+import { curlImportPageURL } from "RouteBuilder";
+import { isMac, modText, shiftText } from "utils/helpers";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -71,11 +71,15 @@ export type DocSearchItem = {
 };
 
 export const comboHelpText = {
-  [SEARCH_CATEGORY_ID.SNIPPETS]: <>{modText()} + J</>,
-  [SEARCH_CATEGORY_ID.DOCUMENTATION]: <>{modText()} + L</>,
-  [SEARCH_CATEGORY_ID.NAVIGATION]: <>{modText()} + P</>,
-  [SEARCH_CATEGORY_ID.INIT]: <>{modText()} + K</>,
-  [SEARCH_CATEGORY_ID.ACTION_OPERATION]: <>{altText()} + Shift + N</>,
+  [SEARCH_CATEGORY_ID.SNIPPETS]: <>{modText()} J</>,
+  [SEARCH_CATEGORY_ID.DOCUMENTATION]: <>{modText()} L</>,
+  [SEARCH_CATEGORY_ID.NAVIGATION]: <>{modText()} P</>,
+  [SEARCH_CATEGORY_ID.INIT]: <>{modText()} K</>,
+  [SEARCH_CATEGORY_ID.ACTION_OPERATION]: (
+    <>
+      {modText()} {shiftText()} {isMac() ? "+" : "Plus"}
+    </>
+  ),
 };
 
 export type Snippet = {
@@ -330,9 +334,10 @@ export type ActionOperation = {
   kind: SEARCH_ITEM_TYPES;
   action?: (pageId: string, location: EventLocation) => any;
   redirect?: (
+    applicationSlug: string,
+    pageSlug: string,
     pageId: string,
     from: EventLocation,
-    applicationId: string,
   ) => any;
   pluginId?: string;
 };
@@ -357,11 +362,21 @@ export const actionOperations: ActionOperation[] = [
     desc: "Import a cURL Request",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: <CurlIconV2 />,
-    redirect: (pageId: string, from: EventLocation, applicationId: string) => {
+    redirect: (
+      applicationSlug: string,
+      pageSlug: string,
+      pageId: string,
+      from: EventLocation,
+    ) => {
       const queryParams = getQueryParams();
-      const curlImportURL = getCurlImportPageURL(applicationId, pageId, {
-        from,
-        ...queryParams,
+      const curlImportURL = curlImportPageURL({
+        applicationSlug,
+        pageSlug,
+        pageId,
+        params: {
+          from,
+          ...queryParams,
+        },
       });
       history.push(curlImportURL);
     },

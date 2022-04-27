@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import Dialog from "components/ads/DialogComponent";
 import {
   getDisconnectDocUrl,
@@ -6,7 +6,6 @@ import {
   getIsDisconnectGitModalOpen,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
-import { useCallback } from "react";
 import {
   disconnectGit,
   setIsDisconnectGitModalOpen,
@@ -23,18 +22,24 @@ import { Theme } from "constants/DefaultTheme";
 import {
   APPLICATION_NAME,
   createMessage,
-  DISCONNECT,
-  DISCONNECT_FROM_GIT,
-  GIT_DISCONNECTION_SUBMENU,
+  GIT_REVOKE_ACCESS,
+  GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS,
   LEARN_MORE,
   NONE_REVERSIBLE_MESSAGE,
-  TYPE_PROMO_CODE,
+  REVOKE,
 } from "@appsmith/constants/messages";
 import Link from "./components/Link";
 import TextInput from "components/ads/TextInput";
 import Button, { Category, Size } from "components/ads/Button";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Subtitle, Title } from "./components/StyledComponents";
+import { Variant } from "components/ads";
+
+const StyledDialog = styled(Dialog)`
+  && .bp3-dialog-body {
+    margin-top: 0;
+  }
+`;
 
 const Container = styled.div`
   height: 600px;
@@ -43,33 +48,23 @@ const Container = styled.div`
   flex-direction: column;
   position: relative;
   overflow-y: hidden;
-  padding: 0px ${(props) => props.theme.spaces[4]}px;
+  padding: 0;
 `;
 
 const BodyContainer = styled.div`
   display: flex;
   flex-direction: column;
-  height: calc(100% - ${MENU_HEIGHT}px);
-`;
-
-const MenuContainer = styled.div`
-  height: ${MENU_HEIGHT}px;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
+    //height: calc(100% - ${MENU_HEIGHT}px);
 `;
 
 const CloseBtnContainer = styled.div`
   position: absolute;
-  right: ${(props) => props.theme.spaces[1]}px;
-  top: ${(props) => props.theme.spaces[5]}px;
-
-  padding: ${(props) => props.theme.spaces[1]}px;
-  border-radius: ${(props) => props.theme.radii[1]}px;
+  right: 0;
+  top: 0;
 `;
 
 const ButtonContainer = styled.div`
-  margin-top: ${(props) => `${props.theme.spaces[11]}px`};
+  margin-top: 24px;
 `;
 
 function DisconnectGitModal() {
@@ -89,7 +84,7 @@ function DisconnectGitModal() {
 
   const theme = useTheme() as Theme;
   return (
-    <Dialog
+    <StyledDialog
       canEscapeKeyClose
       canOutsideClickClose
       className={Classes.DISCONNECT_GIT_MODAL}
@@ -99,14 +94,62 @@ function DisconnectGitModal() {
       width={"550px"}
     >
       <Container>
-        <MenuContainer>
-          <Text color={Colors.GREY_4} type={TextType.P3}>
-            {createMessage(GIT_DISCONNECTION_SUBMENU)}
-          </Text>
-        </MenuContainer>
         <BodyContainer>
-          <InfoWrapper isError style={{ margin: `${theme.spaces[7]}px 0px` }}>
-            <Icon fillColor={Colors.CRIMSON} name="info" size={IconSize.XXXL} />
+          <div>
+            <Title style={{ marginTop: 0, marginBottom: "8px" }}>
+              {createMessage(GIT_REVOKE_ACCESS, disconnectingApp.name)}
+            </Title>
+            <Subtitle color={Colors.OXFORD_BLUE}>
+              {createMessage(
+                GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS,
+                disconnectingApp.name,
+              )}
+            </Subtitle>
+            <CloseBtnContainer
+              className="t--close-disconnect-modal"
+              onClick={handleClose}
+            >
+              <Icon
+                fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
+                name="close-modal"
+                size={IconSize.XXXXL}
+              />
+            </CloseBtnContainer>
+          </div>
+          <div
+            style={{
+              margin: `${theme.spaces[11]}px 0px 0`,
+            }}
+          >
+            <div style={{ marginBottom: "8px" }}>
+              <Text type={TextType.P1}>{createMessage(APPLICATION_NAME)}</Text>
+            </div>
+            <div style={{ width: "264px" }}>
+              <TextInput
+                className="t--git-app-name-input"
+                fill
+                onBlur={(event) => {
+                  AnalyticsUtil.logEvent(
+                    "GS_MATCHING_REPO_NAME_ON_GIT_DISCONNECT_MODAL",
+                    {
+                      value: event.target.value,
+                      expecting: disconnectingApp.name,
+                    },
+                  );
+                }}
+                onChange={(value) => setAppName(value)}
+                trimValue={false}
+                value={appName}
+              />
+            </div>
+          </div>
+
+          <InfoWrapper isError style={{ margin: `${theme.spaces[7]}px 0 0` }}>
+            <Icon
+              fillColor={Colors.CRIMSON}
+              name="warning-line"
+              size={IconSize.XXXL}
+            />
             <div style={{ display: "block" }}>
               <Text
                 color={Colors.CRIMSON}
@@ -129,36 +172,7 @@ function DisconnectGitModal() {
               />
             </div>
           </InfoWrapper>
-          <Title>
-            {createMessage(DISCONNECT_FROM_GIT, disconnectingApp.name)}
-          </Title>
-          <Subtitle color={Colors.OXFORD_BLUE}>
-            {createMessage(TYPE_PROMO_CODE, disconnectingApp.name)}
-          </Subtitle>
-          <Text
-            style={{
-              margin: `${theme.spaces[12] + 2}px 0px ${theme.spaces[3]}px`,
-            }}
-            type={TextType.P1}
-          >
-            {createMessage(APPLICATION_NAME)}
-          </Text>
-          <TextInput
-            className="t--git-app-name-input"
-            fill
-            onBlur={(event) => {
-              AnalyticsUtil.logEvent(
-                "GS_MATCHING_REPO_NAME_ON_GIT_DISCONNECT_MODAL",
-                {
-                  value: event.target.value,
-                  expecting: disconnectingApp.name,
-                },
-              );
-            }}
-            onChange={(value) => setAppName(value)}
-            trimValue={false}
-            value={appName}
-          />
+
           <ButtonContainer>
             <Button
               category={Category.primary}
@@ -169,22 +183,13 @@ function DisconnectGitModal() {
               onClick={onDisconnectGit}
               size={Size.large}
               tag="button"
-              text={createMessage(DISCONNECT)}
+              text={createMessage(REVOKE)}
+              variant={Variant.danger}
             />
           </ButtonContainer>
         </BodyContainer>
-        <CloseBtnContainer
-          className="t--close-disconnect-modal"
-          onClick={handleClose}
-        >
-          <Icon
-            fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
-            name="close-modal"
-            size={IconSize.XXXXL}
-          />
-        </CloseBtnContainer>
       </Container>
-    </Dialog>
+    </StyledDialog>
   );
 }
 

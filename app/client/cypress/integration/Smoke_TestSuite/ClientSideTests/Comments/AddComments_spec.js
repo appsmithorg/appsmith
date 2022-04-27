@@ -1,8 +1,7 @@
-const commentsLocators = require("../../../../locators/commentsLocators.json");
+import commentsLocators from "../../../../locators/CommentsLocators";
 const commonLocators = require("../../../../locators/commonlocators.json");
 import homePage from "../../../../locators/HomePage";
 const dsl = require("../../../../fixtures/basicDsl.json");
-const { typeIntoDraftEditor } = require("./utils");
 
 const newCommentText1 = "new comment text 1";
 let commentThreadId;
@@ -59,7 +58,7 @@ describe("Comments", function() {
     cy.wait(1000);
     cy.get(commonLocators.canvas).click(50, 50);
 
-    typeIntoDraftEditor(commentsLocators.mentionsInput, newCommentText1);
+    cy.typeIntoDraftEditor(commentsLocators.mentionsInput, newCommentText1);
     cy.get(commentsLocators.mentionsInput).type("{enter}");
     // when user adds first comment, following command will count for the headers of the comment card
     // in case of "Skip Tour" this has to be 2.
@@ -67,6 +66,7 @@ describe("Comments", function() {
       .its("length")
       .should("eq", 2);
   });
+
   it("Completing comments tour adds bot comment in first thread", function() {
     cy.generateUUID().then((uid) => {
       cy.Signup(`${uid}@appsmithtest.com`, uid);
@@ -96,7 +96,7 @@ describe("Comments", function() {
     cy.get(commentsLocators.switchToCommentModeBtn).click({ force: true });
     cy.get(commonLocators.canvas).click(50, 50);
 
-    typeIntoDraftEditor(commentsLocators.mentionsInput, newCommentText1);
+    cy.typeIntoDraftEditor(commentsLocators.mentionsInput, newCommentText1);
     cy.get(commentsLocators.mentionsInput).type("{enter}");
     cy.get("[data-cy=comments-card-header]")
       .its("length")
@@ -110,7 +110,7 @@ describe("Comments", function() {
     // wait for transition to be completed
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(300);
-    typeIntoDraftEditor(commentsLocators.mentionsInput, newCommentText1);
+    cy.typeIntoDraftEditor(commentsLocators.mentionsInput, newCommentText1);
     cy.get(commentsLocators.mentionsInput).type("{enter}");
     cy.wait("@createNewThread").then((response) => {
       commentThreadId = response.response.body.data.id;

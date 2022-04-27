@@ -1,11 +1,8 @@
 import React, { useState } from "react";
 import { find, noop } from "lodash";
 import { DropdownOption } from "components/constants";
-import {
-  StyledDropDownContainer,
-  StyledMenuItem,
-  StyledMenu,
-} from "components/propertyControls/StyledControls";
+import { StyledDropDownContainer } from "components/propertyControls/StyledControls";
+import { StyledMenu } from "components/ads/TreeDropdown";
 import {
   Button as BlueprintButton,
   PopoverInteractionKind,
@@ -13,6 +10,8 @@ import {
   IPopoverSharedProps,
   Popover,
   Classes,
+  Position,
+  MenuItem,
 } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import styled from "constants/DefaultTheme";
@@ -24,6 +23,7 @@ export type TreeDropdownOption = DropdownOption & {
   children?: TreeDropdownOption[];
   className?: string;
   type?: string;
+  confirmDelete?: boolean;
 };
 
 type Setter = (value: TreeDropdownOption, defaultVal?: string) => void;
@@ -42,6 +42,11 @@ type TreeDropdownProps = {
   toggle?: React.ReactNode;
   className?: string;
   modifiers?: IPopoverSharedProps["modifiers"];
+  setConfirmDelete?: (val: boolean) => void;
+  onMenuToggle?: (isOpen: boolean) => void;
+  position?: Position;
+  icon?: React.ReactNode;
+  editorPage?: boolean;
 };
 
 export const StyledPopover = styled(Popover)`
@@ -112,6 +117,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     optionTree,
     selectedLabelModifier,
     selectedValue,
+    setConfirmDelete,
     toggle,
   } = props;
   const selectedOption = getSelectedOption(
@@ -125,6 +131,11 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   const handleSelect = (option: TreeDropdownOption) => {
     if (option.onSelect) {
       option.onSelect(option, props.onSelect);
+      if (option.value === "delete" && !option.confirmDelete) {
+        setIsOpen(true);
+      } else {
+        setIsOpen(false);
+      }
     } else {
       const defaultVal = getDefaults ? getDefaults(option.value) : undefined;
       onSelect(option, defaultVal);
@@ -136,10 +147,10 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       selectedOption.value === option.value ||
       selectedOption.type === option.value;
     return (
-      <StyledMenuItem
+      <MenuItem
         active={isSelected}
         className={option.className || "single-select"}
-        icon={option.id === "create" ? "plus" : undefined}
+        icon={option.icon}
         intent={option.intent}
         key={option.value}
         onClick={
@@ -147,7 +158,6 @@ export default function TreeDropdown(props: TreeDropdownProps) {
             ? noop
             : (e: any) => {
                 handleSelect(option);
-                setIsOpen(false);
                 e.stopPropagation();
               }
         }
@@ -160,7 +170,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         text={option.label}
       >
         {option.children && option.children.map(renderTreeOption)}
-      </StyledMenuItem>
+      </MenuItem>
     );
   }
 
@@ -194,8 +204,9 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       modifiers={props.modifiers}
       onClose={() => {
         setIsOpen(false);
+        setConfirmDelete ? setConfirmDelete(false) : null;
       }}
-      position={PopoverPosition.RIGHT_TOP}
+      position={props.position || PopoverPosition.RIGHT_TOP}
       targetProps={{
         onClick: (e: any) => {
           setIsOpen(true);

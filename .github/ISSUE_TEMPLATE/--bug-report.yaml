@@ -12,13 +12,12 @@ body:
 - type: checkboxes
   attributes:
     label: Is there an existing issue for this?
-    description: Please search to see if an issue already exists for the bug you encountered.
     options:
     - label: I have searched the existing issues
       required: true
 - type: textarea
   attributes:
-    label: Current Behavior
+    label: Description
     description: A concise description of what you're experiencing and what you expect.
     placeholder: |
       When I do <X>, <Y> happens and I see the error message attached below:
@@ -29,7 +28,7 @@ body:
 - type: textarea
   attributes:
     label: Steps To Reproduce
-    description: Add steps to reproduce this behaviour, include console / network logs & screenshots
+    description: Add steps to reproduce this behaviour, include console / network logs & videos
     placeholder: |
       1. Go to '...'
       2. Click on '....'
@@ -37,22 +36,19 @@ body:
       4. See error
   validations:
     required: true
-- type: dropdown
-  id: env
+- type: input
+  id: app
   attributes:
-    label: Environment
-    options:
-      - Production
-      - Release
-      - Deploy Preview
+    label: Public Sample App
+    description: "Share a public sample application that reproduces the bug using our mock databases if possible"
+    placeholder: "https://app.appsmith.com/applications/61e022f1eb0501052b9fa205/pages/61e02308eb0501052b9fa20c"
   validations:
-    required: true
-- type: dropdown
+    required: false
+- type: input
   id: version
   attributes:
     label: Version
-    options:
-      - Cloud
-      - Self-Hosted
+    description: "The version of your Appsmith Instance"
+    placeholder: "Cloud / Self Hosted - 1.6.6"
   validations:
     required: true

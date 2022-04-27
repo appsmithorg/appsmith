@@ -8,6 +8,7 @@ import {
   isMac,
   flashElement,
   hasClass,
+  shiftText,
 } from "./helpers";
 import localStorage from "./localStorage";
 import { Toaster } from "components/ads/Toast";
@@ -28,14 +29,14 @@ import {
 export const getReplayToastActionText = (replayType = "undo") => {
   switch (replayType) {
     case "undo":
-      return <>UNDO ({modText()}+Z) </>;
+      return <>UNDO ({modText()} Z) </>;
     case "redo":
       return isMac() ? (
         <>
-          REDO ({modText()}+<span>&#8682;</span>+Z){" "}
+          REDO ({modText()} {shiftText()} Z){" "}
         </>
       ) : (
-        <>REDO ({modText()}+Y) </>
+        <>REDO ({modText()} Y) </>
       );
   }
 };

@@ -24,6 +24,43 @@ const PropertyPaneConfig = [
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
+        helpText:
+          "Bind the List.pageNo property in your API and call it onPageChange",
+        propertyName: "serverSidePaginationEnabled",
+        label: "Server Side Pagination",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
+        propertyName: "isVisible",
+        label: "Visible",
+        helpText: "Controls the visibility of the widget",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+      {
+        propertyName: "animateLoading",
+        label: "Animate Loading",
+        controlType: "SWITCH",
+        helpText: "Controls the loading of the widget",
+        defaultValue: true,
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+    ],
+  },
+  {
+    sectionName: "Styles",
+    children: [
+      {
         propertyName: "backgroundColor",
         label: "Background Color",
         controlType: "COLOR_PICKER",
@@ -60,7 +97,6 @@ const PropertyPaneConfig = [
           },
         },
       },
-
       {
         helpText: "Spacing between items in Pixels",
         placeholderText: "0",
@@ -71,38 +107,6 @@ const PropertyPaneConfig = [
         isTriggerProperty: false,
         inputType: "INTEGER",
         validation: { type: ValidationTypes.NUMBER, params: { min: -8 } },
-      },
-      {
-        helpText:
-          "Bind the List.pageNo property in your API and call it onPageChange",
-        propertyName: "serverSidePaginationEnabled",
-        label: "Server Side Pagination",
-        controlType: "SWITCH",
-        isBindProperty: false,
-        isTriggerProperty: false,
-      },
-      {
-        propertyName: "isVisible",
-        label: "Visible",
-        helpText: "Controls the visibility of the widget",
-        controlType: "SWITCH",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.BOOLEAN,
-        },
-      },
-      {
-        propertyName: "animateLoading",
-        label: "Animate Loading",
-        controlType: "SWITCH",
-        helpText: "Controls the loading of the widget",
-        defaultValue: true,
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
       },
     ],
   },

@@ -1,8 +1,8 @@
 {
   "identifier": "INSERT",
-  "controlType" : "SECTION",
+  "controlType": "SECTION",
   "conditionals": {
-    "show": "{{actionConfiguration.formData.command === 'INSERT'}}"
+    "show": "{{actionConfiguration.formData.command.data === 'INSERT'}}"
   },
   "children": [
     {
@@ -11,7 +11,7 @@
       "children": [
         {
           "label": "Collection",
-          "configProperty": "actionConfiguration.formData.collection",
+          "configProperty": "actionConfiguration.formData.collection.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE"
         }
@@ -20,15 +20,15 @@
     {
       "controlType": "SECTION",
       "label": "Query",
-      "description" : "Optional",
+      "description": "Optional",
       "children": [
         {
           "label": "Documents",
-          "configProperty": "actionConfiguration.formData.insert.documents",
+          "configProperty": "actionConfiguration.formData.insert.documents.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
-          "placeholderText" : "[ { _id: 1, user: \"abc123\", status: \"A\" } ]"
+          "placeholderText": "[ { _id: 1, user: \"abc123\", status: \"A\" } ]"
         }
       ]
     }

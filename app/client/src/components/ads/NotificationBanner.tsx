@@ -94,12 +94,6 @@ const TextContainer = styled.div`
 const CloseButtonContainer = styled.div`
   display: flex;
   justify-items: center;
-
-  & button {
-    position: unset;
-    top: unset;
-    right: 3px;
-  }
 `;
 const IconContainer = styled.div``;
 const LearnMoreContainer = styled.div``;

@@ -1,25 +1,28 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "store";
 import { getUserApplicationsOrgs } from "selectors/applicationSelectors";
 import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { AppState } from "reducers";
-import { Size } from "components/ads/Button";
-import {
-  StyledDialog,
-  StyledRadioComponent,
-  ForkButton,
-  OrganizationList,
-  ButtonWrapper,
-  SpinnerWrapper,
-} from "./ForkModalStyles";
-import Divider from "components/editorComponents/Divider";
+import Button, { Category, Size } from "components/ads/Button";
+import { StyledDialog, ButtonWrapper, SpinnerWrapper } from "./ForkModalStyles";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { useLocation } from "react-router";
 import Spinner from "components/ads/Spinner";
 import { IconSize } from "components/ads/Icon";
 import { matchViewerForkPath } from "constants/routes";
+import { Colors } from "constants/Colors";
+import { Dropdown } from "components/ads";
+import {
+  CANCEL,
+  createMessage,
+  FORK,
+  FORK_APP_MODAL_EMPTY_TITLE,
+  FORK_APP_MODAL_LOADING_TITLE,
+  FORK_APP_MODAL_SUCCESS_TITLE,
+} from "@appsmith/constants/messages";
+import { getAllApplications } from "actions/applicationActions";
 
 type ForkApplicationModalProps = {
   applicationId: string;
@@ -32,12 +35,21 @@ type ForkApplicationModalProps = {
 
 function ForkApplicationModal(props: ForkApplicationModalProps) {
   const { isModalOpen, setModalClose } = props;
-  const [organizationId, selectOrganizationId] = useState("");
+  const [organization, selectOrganization] = useState<{
+    label: string;
+    value: string;
+  }>({ label: "", value: "" });
   const dispatch = useDispatch();
   const userOrgs = useSelector(getUserApplicationsOrgs);
   const forkingApplication = useSelector(
     (state: AppState) => state.ui.applications.forkingApplication,
   );
+
+  useEffect(() => {
+    if (!userOrgs.length) {
+      dispatch(getAllApplications());
+    }
+  }, [userOrgs.length]);
 
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const { pathname } = useLocation();
@@ -49,7 +61,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
       type: ReduxActionTypes.FORK_APPLICATION_INIT,
       payload: {
         applicationId: props.applicationId,
-        organizationId,
+        organizationId: organization?.value,
       },
     });
   };
@@ -64,7 +76,10 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
     });
 
     if (filteredUserOrgs.length) {
-      selectOrganizationId(filteredUserOrgs[0].organization.id);
+      selectOrganization({
+        label: filteredUserOrgs[0].organization.name,
+        value: filteredUserOrgs[0].organization.id,
+      });
     }
 
     return filteredUserOrgs.map((org) => {
@@ -75,43 +90,63 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
     });
   }, [userOrgs]);
 
+  const modalHeading = isFetchingApplications
+    ? createMessage(FORK_APP_MODAL_LOADING_TITLE)
+    : !organizationList.length
+    ? createMessage(FORK_APP_MODAL_EMPTY_TITLE)
+    : createMessage(FORK_APP_MODAL_SUCCESS_TITLE);
+
   return (
     <StyledDialog
       canOutsideClickClose
       className={"fork-modal"}
+      headerIcon={{ name: "fork-2", bgColor: Colors.GEYSER_LIGHT }}
       isOpen={isModalOpen || showBasedOnURL}
-      maxHeight={"540px"}
       setModalClose={setModalClose}
-      title={"Choose where to fork the app"}
+      title={modalHeading}
       trigger={props.trigger}
     >
-      <Divider />
-      {isFetchingApplications && (
+      {isFetchingApplications ? (
         <SpinnerWrapper>
           <Spinner size={IconSize.XXXL} />
         </SpinnerWrapper>
+      ) : (
+        !!organizationList.length && (
+          <>
+            <Dropdown
+              boundary="viewport"
+              dropdownMaxHeight={"200px"}
+              fillOptions
+              onSelect={(_, dropdownOption) =>
+                selectOrganization(dropdownOption)
+              }
+              options={organizationList}
+              selected={organization}
+              showLabelOnly
+              width={"100%"}
+            />
+
+            <ButtonWrapper>
+              <Button
+                category={Category.tertiary}
+                disabled={forkingApplication}
+                onClick={() => setModalClose && setModalClose(false)}
+                size={Size.large}
+                tag="button"
+                text={createMessage(CANCEL)}
+              />
+              <Button
+                className="t--fork-app-to-org-button"
+                isLoading={forkingApplication}
+                onClick={forkApplication}
+                size={Size.large}
+                tag="button"
+                text={createMessage(FORK)}
+              />
+            </ButtonWrapper>
+          </>
+        )
       )}
-      {!isFetchingApplications && organizationList.length && (
-        <OrganizationList>
-          <StyledRadioComponent
-            className={"radio-group"}
-            columns={1}
-            defaultValue={organizationList[0].value}
-            onSelect={(value) => selectOrganizationId(value)}
-            options={organizationList}
-          />
-        </OrganizationList>
-      )}
-      <ButtonWrapper>
-        <ForkButton
-          cypressSelector={"t--fork-app-to-org-button"}
-          disabled={!organizationId}
-          isLoading={forkingApplication}
-          onClick={forkApplication}
-          size={Size.large}
-          text={"FORK"}
-        />
-      </ButtonWrapper>
     </StyledDialog>
   );
 }

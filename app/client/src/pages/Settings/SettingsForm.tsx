@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from "react";
-import { saveSettings } from "actions/settingsAction";
+import { saveSettings } from "@appsmith/actions/settingsAction";
 import { SETTINGS_FORM_NAME } from "constants/forms";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import _ from "lodash";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { connect, useDispatch } from "react-redux";
@@ -18,7 +18,23 @@ import Group from "./FormGroup/group";
 import RestartBanner from "./RestartBanner";
 import AdminConfig from "./config";
 import SaveAdminSettings from "./SaveSettings";
-import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
+import {
+  SettingTypes,
+  Setting,
+} from "@appsmith/pages/AdminSettings/config/types";
+import { DisconnectService } from "./DisconnectService";
+import {
+  createMessage,
+  DISCONNECT_AUTH_ERROR,
+  DISCONNECT_SERVICE_SUBHEADER,
+  DISCONNECT_SERVICE_WARNING,
+  MANDATORY_FIELDS_ERROR,
+} from "@appsmith/constants/messages";
+import { Toaster, Variant } from "components/ads";
+import {
+  connectedMethods,
+  saveAllowed,
+} from "@appsmith/utils/adminSettingsHelpers";
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -28,7 +44,9 @@ const Wrapper = styled.div`
   overflow: auto;
 `;
 
-const SettingsFormWrapper = styled.div``;
+const SettingsFormWrapper = styled.div`
+  max-width: 40rem;
+`;
 
 export const BottomSpace = styled.div`
   height: ${(props) => props.theme.settings.footerHeight + 20}px;
@@ -73,15 +91,53 @@ export function SettingsForm(
 ) {
   const params = useParams() as any;
   const { category, subCategory } = params;
-  const settings = useSettings(category, subCategory);
+  const settingsDetails = useSettings(category, subCategory);
+  const { settings, settingsConfig } = props;
   const details = getSettingDetail(category, subCategory);
   const dispatch = useDispatch();
   const isSavable = AdminConfig.savableCategories.includes(
     subCategory ?? category,
   );
+  const pageTitle = getSettingLabel(
+    details?.title || (subCategory ?? category),
+  );
 
   const onSave = () => {
-    dispatch(saveSettings(props.settings));
+    if (checkMandatoryFileds()) {
+      if (saveAllowed(props.settings)) {
+        dispatch(saveSettings(props.settings));
+      } else {
+        saveBlocked();
+      }
+    } else {
+      Toaster.show({
+        text: createMessage(MANDATORY_FIELDS_ERROR),
+        variant: Variant.danger,
+      });
+    }
+  };
+
+  const checkMandatoryFileds = () => {
+    const requiredFields = settingsDetails.filter((eachSetting) => {
+      const isInitialSettingBlank =
+        settingsConfig[eachSetting.id]?.toString().trim() === "" ||
+        settingsConfig[eachSetting.id] === undefined;
+      const isInitialSettingNotBlank = settingsConfig[eachSetting.id];
+      const isNewSettingBlank =
+        settings[eachSetting.id]?.toString()?.trim() === "";
+      const isNewSettingNotBlank = !settings[eachSetting.id];
+
+      if (
+        eachSetting.isRequired &&
+        !eachSetting.isHidden &&
+        ((isInitialSettingBlank && isNewSettingNotBlank) ||
+          (isInitialSettingNotBlank && isNewSettingBlank))
+      ) {
+        return eachSetting.id;
+      }
+    });
+
+    return !(requiredFields.length > 0);
   };
 
   const onClear = () => {
@@ -90,13 +146,6 @@ export function SettingsForm(
       if (setting && setting.controlType == SettingTypes.TOGGLE) {
         props.settingsConfig[settingName] =
           props.settingsConfig[settingName].toString() == "true";
-
-        if (
-          typeof props.settingsConfig["APPSMITH_SIGNUP_DISABLED"] ===
-          "undefined"
-        ) {
-          props.settingsConfig["APPSMITH_SIGNUP_DISABLED"] = true;
-        }
       }
     });
     props.initialize(props.settingsConfig);
@@ -111,20 +160,39 @@ export function SettingsForm(
     });
   }, []);
 
+  const saveBlocked = () => {
+    Toaster.show({
+      text: createMessage(DISCONNECT_AUTH_ERROR),
+      variant: Variant.danger,
+    });
+  };
+
+  const disconnect = (currentSettings: AdminConfig) => {
+    const updatedSettings: any = {};
+    if (connectedMethods.length >= 2) {
+      _.forEach(currentSettings, (setting: Setting) => {
+        if (!setting.isHidden && setting.controlType !== SettingTypes.LINK) {
+          updatedSettings[setting.id] = "";
+        }
+      });
+      dispatch(saveSettings(updatedSettings));
+    } else {
+      saveBlocked();
+    }
+  };
+
   return (
     <Wrapper>
       <SettingsFormWrapper>
         <HeaderWrapper>
-          <SettingsHeader>
-            {getSettingLabel(details?.title || (subCategory ?? category))}
-          </SettingsHeader>
+          <SettingsHeader>{pageTitle}</SettingsHeader>
           {details?.subText && (
             <SettingsSubHeader>{details.subText}</SettingsSubHeader>
           )}
         </HeaderWrapper>
         <Group
           category={category}
-          settings={settings}
+          settings={settingsDetails}
           subCategory={subCategory}
         />
         {isSavable && (
@@ -134,6 +202,15 @@ export function SettingsForm(
             onSave={onSave}
             settings={props.settings}
             valid={props.valid}
+          />
+        )}
+        {details?.isConnected && (
+          <DisconnectService
+            disconnect={() => disconnect(settingsDetails)}
+            subHeader={createMessage(DISCONNECT_SERVICE_SUBHEADER)}
+            warning={`${pageTitle} ${createMessage(
+              DISCONNECT_SERVICE_WARNING,
+            )}`}
           />
         )}
         <BottomSpace />
@@ -149,9 +226,9 @@ export function SettingsForm(
 const validate = (values: Record<string, any>) => {
   const errors: any = {};
   _.filter(values, (value, name) => {
-    const message = AdminConfig.validate(name, value);
-    if (message) {
-      errors[name] = message;
+    const err_message = AdminConfig.validate(name, value);
+    if (err_message) {
+      errors[name] = err_message;
     }
   });
   return errors;

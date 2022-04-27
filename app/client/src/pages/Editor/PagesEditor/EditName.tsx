@@ -8,14 +8,14 @@ import useClick from "utils/hooks/useClick";
 import { updatePage } from "actions/pageActions";
 import { MenuIcons } from "icons/MenuIcons";
 import { resolveAsSpaceChar } from "utils/helpers";
-import { BUILDER_PAGE_URL } from "constants/routes";
-import { Page } from "constants/ReduxActionConstants";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import EditNameInput from "pages/Editor/Explorer/Entity/Name";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import TooltipComponent from "components/ads/Tooltip";
 import { createMessage, GO_TO_PAGE } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core";
+import { builderURL } from "RouteBuilder";
 
 const LinkIcon = MenuIcons.LINK_ICON;
 
@@ -80,7 +80,9 @@ function EditName(props: Props) {
   const switchPage = useCallback(() => {
     if (!!applicationId && !isEditing) {
       history.push(
-        BUILDER_PAGE_URL({ applicationId, pageId: props.page.pageId }),
+        builderURL({
+          pageId: props.page.pageId,
+        }),
       );
     }
   }, [props.page.pageId, applicationId]);

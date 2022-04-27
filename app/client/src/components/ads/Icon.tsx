@@ -5,6 +5,7 @@ import { ReactComponent as BugIcon } from "assets/icons/ads/bug.svg";
 import { ReactComponent as CancelIcon } from "assets/icons/ads/cancel.svg";
 // import { ReactComponent as ExpandMore } from "assets/icons/ads/expand-more.svg";
 import { ReactComponent as CrossIcon } from "assets/icons/ads/cross.svg";
+import { ReactComponent as Fork2Icon } from "assets/icons/ads/fork-2.svg";
 import { ReactComponent as OpenIcon } from "assets/icons/ads/open.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
 import { ReactComponent as GeneralIcon } from "assets/icons/ads/general.svg";
@@ -68,9 +69,11 @@ import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/organizationIcon.svg";
 import { ReactComponent as SettingIcon } from "assets/icons/control/settings.svg";
 import { ReactComponent as DropdownIcon } from "assets/icons/ads/dropdown.svg";
+import { ReactComponent as ChatIcon } from "assets/icons/ads/app-icons/chat.svg";
+import { ReactComponent as JsIcon } from "assets/icons/ads/js.svg";
 
 import styled from "styled-components";
-import { CommonComponentProps, Classes } from "./common";
+import { Classes, CommonComponentProps } from "./common";
 import { noop } from "lodash";
 import { theme } from "constants/DefaultTheme";
 import Spinner from "./Spinner";
@@ -79,6 +82,7 @@ import { ControlIcons } from "icons/ControlIcons";
 // remix icons
 import AddMoreIcon from "remixicon-react/AddCircleLineIcon";
 import AddMoreFillIcon from "remixicon-react/AddCircleFillIcon";
+// import AlertFillIcon from "remixicon-react/AlertFillIcon";
 import ArrowLeftRightIcon from "remixicon-react/ArrowLeftRightLineIcon";
 import ArrowDownLineIcon from "remixicon-react/ArrowDownLineIcon";
 import BookIcon from "remixicon-react/BookOpenLineIcon";
@@ -87,6 +91,8 @@ import CheckLineIcon from "remixicon-react/CheckLineIcon";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
 import CloseCircleIcon from "remixicon-react/CloseCircleFillIcon";
 import CommentContextMenu from "remixicon-react/More2FillIcon";
+import More2FillIcon from "remixicon-react/More2FillIcon";
+import CompassesLine from "remixicon-react/CompassesLineIcon";
 import ContextMenuIcon from "remixicon-react/MoreFillIcon";
 import CreateNewIcon from "remixicon-react/AddLineIcon";
 import Database2Line from "remixicon-react/Database2LineIcon";
@@ -98,25 +104,28 @@ import Download from "remixicon-react/DownloadCloud2LineIcon";
 import DuplicateIcon from "remixicon-react/FileCopyLineIcon";
 import EditIcon from "remixicon-react/PencilFillIcon";
 import EditLineIcon from "remixicon-react/EditLineIcon";
+import EditUnderlineIcon from "remixicon-react/EditLineIcon";
 import Emoji from "remixicon-react/EmotionLineIcon";
 import ExpandMore from "remixicon-react/ArrowDownSLineIcon";
+import DownArrowIcon from "remixicon-react/ArrowDownSLineIcon";
 import ExpandLess from "remixicon-react/ArrowUpSLineIcon";
 import EyeOn from "remixicon-react/EyeLineIcon";
 import EyeOff from "remixicon-react/EyeOffLineIcon";
 import FileTransfer from "remixicon-react/FileTransferLineIcon";
+import FileLine from "remixicon-react/FileLineIcon";
 import Filter from "remixicon-react/Filter2FillIcon";
 import GitMerge from "remixicon-react/GitMergeLineIcon";
 import GitCommit from "remixicon-react/GitCommitLineIcon";
 import GitPullRequst from "remixicon-react/GitPullRequestLineIcon";
 import GuideIcon from "remixicon-react/GuideFillIcon";
 import HelpIcon from "remixicon-react/QuestionMarkIcon";
+// import HelpFillIcon from "remixicon-react/QuestionFillIcon";
 import LightbulbFlashLine from "remixicon-react/LightbulbFlashLineIcon";
 import InfoIcon from "remixicon-react/InformationLineIcon";
 import KeyIcon from "remixicon-react/Key2LineIcon";
 import LeftArrowIcon2 from "remixicon-react/ArrowLeftSLineIcon";
 import Link2 from "remixicon-react/LinkIcon";
 import LeftArrowIcon from "remixicon-react/ArrowLeftLineIcon";
-import More2FillIcon from "remixicon-react/More2FillIcon";
 import NewsPaperLine from "remixicon-react/NewspaperLineIcon";
 import OvalCheck from "remixicon-react/CheckboxCircleLineIcon";
 import OvalCheckFill from "remixicon-react/CheckboxCircleFillIcon";
@@ -131,10 +140,8 @@ import Trash from "remixicon-react/DeleteBinLineIcon";
 import UpArrow from "remixicon-react/ArrowUpSFillIcon";
 import WarningIcon from "remixicon-react/ErrorWarningFillIcon";
 import WarningLineIcon from "remixicon-react/ErrorWarningLineIcon";
-import EditUnderlineIcon from "remixicon-react/EditLineIcon";
 import LogoutIcon from "remixicon-react/LogoutBoxRLineIcon";
 import ShareLineIcon from "remixicon-react/ShareLineIcon";
-import DownArrowIcon from "remixicon-react/ArrowDownSLineIcon";
 import LoaderLineIcon from "remixicon-react/LoaderLineIcon";
 import WidgetIcon from "remixicon-react/FunctionLineIcon";
 import RefreshLineIcon from "remixicon-react/RefreshLineIcon";
@@ -143,9 +150,13 @@ import EditBoxLineIcon from "remixicon-react/EditBoxLineIcon";
 import StarLineIcon from "remixicon-react/StarLineIcon";
 import StarFillIcon from "remixicon-react/StarFillIcon";
 import Settings2LineIcon from "remixicon-react/Settings2LineIcon";
+import UploadCloud2LineIcon from "remixicon-react/UploadCloud2LineIcon";
+import DownloadLineIcon from "remixicon-react/DownloadLineIcon";
 import FileListLineIcon from "remixicon-react/FileListLineIcon";
 import HamburgerIcon from "remixicon-react/MenuLineIcon";
 import MagicLineIcon from "remixicon-react/MagicLineIcon";
+import UserHeartLineIcon from "remixicon-react/UserHeartLineIcon";
+import DvdLineIcon from "remixicon-react/DvdLineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -246,12 +257,14 @@ const ICON_LOOKUP = {
   "close-modal": <CloseLineIcon />,
   "close-x": <CloseLineIcon />,
   "comment-context-menu": <CommentContextMenu />,
+  "compasses-line": <CompassesLine />,
   "context-menu": <ContextMenuIcon />,
   "database-2-line": <Database2Line />,
   "delete-blank": <DeleteBin7 />,
   "double-arrow-right": <DoubleArrowRightIcon />,
   "down-arrow": <DownArrowIcon />,
   "down-arrow-2": <ArrowDownLineIcon />,
+  "download-line": <DownloadLineIcon />,
   "edit-box-line": <EditBoxLineIcon />,
   "edit-line": <EditLineIcon />,
   "edit-underline": <EditUnderlineIcon />,
@@ -259,6 +272,9 @@ const ICON_LOOKUP = {
   "expand-more": <ExpandMore />,
   "eye-off": <EyeOff />,
   "eye-on": <EyeOn />,
+  "file-line": <FileLine />,
+  "file-list-line": <FileListLineIcon />,
+  "fork-2": <Fork2Icon />,
   "file-transfer": <FileTransfer />,
   "git-branch": <GitBranchLineIcon />,
   "git-commit": <GitCommit />,
@@ -291,11 +307,14 @@ const ICON_LOOKUP = {
   "trash-outline": <TrashOutline />,
   "trending-flat": <TrendingFlat />,
   "unread-pin": <UnreadPin />,
+  "upload-cloud": <UploadCloud2LineIcon />,
   "user-2": <UserV2Icon />,
+  "user-heart-line": <UserHeartLineIcon />,
   "view-all": <RightArrowIcon />,
   "view-less": <LeftArrowIcon />,
   "warning-line": <WarningLineIcon />,
   "warning-triangle": <WarningTriangleIcon />,
+  "chat-help": <ChatIcon />,
   billing: <BillingIcon />,
   book: <BookIcon />,
   bug: <BugIcon />,
@@ -323,14 +342,17 @@ const ICON_LOOKUP = {
   gear: <GearIcon />,
   general: <GeneralIcon />,
   guide: <GuideIcon />,
+  hamburger: <HamburgerIcon />,
   help: <HelpIcon />,
   info: <InfoIcon />,
+  js: <JsIcon />,
   key: <KeyIcon />,
   lightning: <LightningIcon />,
   link: <LinkIcon />,
   loader: <LoaderLineIcon />,
   logout: <LogoutIcon />,
   manage: <ManageIcon />,
+  member: <UserHeartLineIcon />,
   mobile: <MobileIcon />,
   open: <OpenIcon />,
   pin: <Pin />,
@@ -358,8 +380,7 @@ const ICON_LOOKUP = {
   warning: <WarningIcon />,
   widget: <WidgetIcon />,
   workspace: <WorkspaceIcon />,
-  "file-list-line": <FileListLineIcon />,
-  hamburger: <HamburgerIcon />,
+  upgrade: <DvdLineIcon />,
 };
 
 export const IconCollection = Object.keys(ICON_LOOKUP);
@@ -415,4 +436,4 @@ const Icon = forwardRef(
 
 Icon.displayName = "Icon";
 
-export default Icon;
+export default React.memo(Icon);

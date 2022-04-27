@@ -20,6 +20,7 @@
     "selectwidget": ".t--widget-selectwidget",
     "textWidget": ".t--draggable-textwidget",
     "tableWidget": ".t--draggable-tablewidget",
+    "jsonFormWidget": ".t--draggable-jsonformwidget",
     "tableOnRowSelected": ".t--property-control-onrowselected",
     "dropdownSelectButton": ".t--open-dropdown-Select",
     "buttonOnClick": ".t--property-control-onclick .bp3-popover-target",
@@ -69,7 +70,7 @@
     "defaultSingleSelectValue": ".bp3-popover-target > div > .bp3-button > .bp3-button-text",
     "widgetBtn": ".t--widget-buttonwidget button",
     "widgetBtnText": ".t--widget-buttonwidget button .bp3-button-text",
-    "iconWidgetBtn": ".t--widget-iconwidget svg",
+    "iconWidgetBtn": ".t--draggable-iconbuttonwidget button",
     "actionSelect": ".t--open-dropdown-Select-Action",
     "inputOnTextChange": ".t--property-control-ontextchanged .t--open-dropdown-Select-Action",
     "tableActionSelect": ".t--property-control-onsearchtextchanged .t--open-dropdown-Select-Action",
@@ -99,7 +100,7 @@
     "boxShadow": ".t--property-control-boxshadow .bp3-button-group",
     "backgroundcolorPicker": ".t--property-control-backgroundcolour input",
     "backgroundcolorPickerNew": ".t--property-control-backgroundcolor input",
-    "greenColor": "//div[@color='#03b365']",
+    "greenColor": "div[color='#03B365']",
     "transparent": "//div[@color='transparent']",
     "yellowColor": "//div[@color='#FFC13D']",
     "blueColor": "//div[@color='#3366FF']",
@@ -171,5 +172,7 @@
     "backgroundColorToggle": ".t--property-control-backgroundcolor .t--js-toggle",
     "cellBackground": ".t--property-control-cellbackgroundcolor",
     "cellBackgroundToggle": ".t--property-control-cellbackgroundcolor .t--js-toggle",
-    "borderColorPickerNew": ".t--property-control-bordercolor input"
+    "borderColorPickerNew": ".t--property-control-bordercolor input",
+    "selectedTextSize": ".t--property-control-textsize .bp3-popover-target .sub-text",
+    "modalCloseButton": ".t--draggable-iconbuttonwidget .bp3-button"
 }

@@ -1,5 +1,6 @@
 package com.appsmith.server.git;
 
+import com.appsmith.external.constants.Assets;
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
@@ -513,6 +514,7 @@ public class GitExecutorTest {
                     assertThat(gitStatusDTO.getIsClean()).isEqualTo(Boolean.TRUE);
                     assertThat(gitStatusDTO.getAheadCount()).isEqualTo(0);
                     assertThat(gitStatusDTO.getBehindCount()).isEqualTo(0);
+                    assertThat(gitStatusDTO.getDiscardDocUrl()).isEqualTo(Assets.GIT_DISCARD_DOC_URL);
                 })
                 .verifyComplete();
     }

@@ -140,7 +140,7 @@ public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepo
     }
 
     @Override
-    public Mono<T> delete(ID id) {
+    public Mono<T> archiveById(ID id) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 

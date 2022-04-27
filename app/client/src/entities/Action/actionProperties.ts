@@ -1,16 +1,26 @@
 import { Action } from "entities/Action/index";
 import _ from "lodash";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { isHidden } from "components/formControls/utils";
+import {
+  alternateViewTypeInputConfig,
+  isHidden,
+  ViewTypes,
+} from "components/formControls/utils";
 import {
   PaginationSubComponent,
   SortingSubComponent,
   WhereClauseSubComponent,
   allowedControlTypes,
 } from "components/formControls/utils";
+import formControlTypes from "utils/formControl/formControlTypes";
 
-const dynamicFields = ["QUERY_DYNAMIC_TEXT", "QUERY_DYNAMIC_INPUT_TEXT"];
+const dynamicFields = [
+  formControlTypes.QUERY_DYNAMIC_TEXT,
+  formControlTypes.QUERY_DYNAMIC_INPUT_TEXT,
+];
 
+type ReactivePaths = Record<string, EvaluationSubstitutionType>;
+type BindingPaths = ReactivePaths;
 const getCorrectEvaluationSubstitutionType = (substitutionType?: string) => {
   if (substitutionType) {
     if (substitutionType === EvaluationSubstitutionType.SMART_SUBSTITUTE) {
@@ -22,19 +32,24 @@ const getCorrectEvaluationSubstitutionType = (substitutionType?: string) => {
   return EvaluationSubstitutionType.TEMPLATE;
 };
 
-export const getBindingPathsOfAction = (
+export const getBindingAndReactivePathsOfAction = (
   action: Action,
   formConfig?: any[],
-): Record<string, EvaluationSubstitutionType> => {
-  const bindingPaths: Record<string, EvaluationSubstitutionType> = {
+): { reactivePaths: ReactivePaths; bindingPaths: BindingPaths } => {
+  let reactivePaths: ReactivePaths = {
     data: EvaluationSubstitutionType.TEMPLATE,
     isLoading: EvaluationSubstitutionType.TEMPLATE,
     datasourceUrl: EvaluationSubstitutionType.TEMPLATE,
   };
+  const bindingPaths: BindingPaths = {};
   if (!formConfig) {
-    return {
-      ...bindingPaths,
+    reactivePaths = {
+      ...reactivePaths,
       config: EvaluationSubstitutionType.TEMPLATE,
+    };
+    return {
+      reactivePaths,
+      bindingPaths,
     };
   }
   const recursiveFindBindingPaths = (formConfig: any) => {
@@ -48,7 +63,16 @@ export const getBindingPathsOfAction = (
             formConfig.evaluationSubstitutionType,
           );
         }
-      } else if (formConfig.controlType === "ARRAY_FIELD") {
+      } else if (
+        "alternateViewTypes" in formConfig &&
+        Array.isArray(formConfig.alternateViewTypes) &&
+        formConfig.alternateViewTypes.length > 0 &&
+        formConfig.alternateViewTypes.includes(ViewTypes.JSON)
+      ) {
+        bindingPaths[configPath] = getCorrectEvaluationSubstitutionType(
+          alternateViewTypeInputConfig.evaluationSubstitutionType,
+        );
+      } else if (formConfig.controlType === formControlTypes.ARRAY_FIELD) {
         let actionValue = _.get(action, formConfig.configProperty);
         if (Array.isArray(actionValue)) {
           actionValue = actionValue.filter((val) => val);
@@ -68,7 +92,7 @@ export const getBindingPathsOfAction = (
             });
           }
         }
-      } else if (formConfig.controlType === "WHERE_CLAUSE") {
+      } else if (formConfig.controlType === formControlTypes.WHERE_CLAUSE) {
         const recursiveFindBindingPathsForWhereClause = (
           newConfigPath: string,
           actionValue: any,
@@ -125,7 +149,7 @@ export const getBindingPathsOfAction = (
             recursiveFindBindingPathsForWhereClause(childrenPath, value);
           });
         }
-      } else if (formConfig.controlType === "PAGINATION") {
+      } else if (formConfig.controlType === formControlTypes.PAGINATION) {
         const limitPath = getBindingOrConfigPathsForPaginationControl(
           PaginationSubComponent.Offset,
           configPath,
@@ -140,7 +164,7 @@ export const getBindingPathsOfAction = (
         bindingPaths[offsetPath] = getCorrectEvaluationSubstitutionType(
           formConfig.evaluationSubstitutionType,
         );
-      } else if (formConfig.controlType === "SORTING") {
+      } else if (formConfig.controlType === formControlTypes.SORTING) {
         const actionValue = _.get(action, formConfig.configProperty);
         if (Array.isArray(actionValue)) {
           actionValue.forEach((fieldConfig: any, index: number) => {
@@ -162,7 +186,7 @@ export const getBindingPathsOfAction = (
             );
           });
         }
-      } else if (formConfig.controlType === "ENTITY_SELECTOR") {
+      } else if (formConfig.controlType === formControlTypes.ENTITY_SELECTOR) {
         if (Array.isArray(formConfig.schema)) {
           formConfig.schema.forEach((schemaField: any, index: number) => {
             if (allowedControlTypes.includes(schemaField.controlType)) {
@@ -180,7 +204,11 @@ export const getBindingPathsOfAction = (
     }
   };
   formConfig.forEach(recursiveFindBindingPaths);
-  return bindingPaths;
+  reactivePaths = {
+    ...reactivePaths,
+    ...bindingPaths,
+  };
+  return { reactivePaths, bindingPaths };
 };
 
 export const getBindingOrConfigPathsForSortingControl = (

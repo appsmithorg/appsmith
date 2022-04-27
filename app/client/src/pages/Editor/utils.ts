@@ -1,6 +1,8 @@
 import { getDependenciesFromInverseDependencies } from "components/editorComponents/Debugger/helpers";
 import _, { debounce } from "lodash";
+import { useMemo } from "react";
 import ReactDOM from "react-dom";
+import { useLocation } from "react-router";
 import ResizeObserver from "resize-observer-polyfill";
 
 export const draggableElement = (
@@ -226,4 +228,9 @@ export const useIsWidgetActionConnectionPresent = (
     });
   }
   return isBindingAvailable;
+};
+
+export const useQuery = () => {
+  const { search } = useLocation();
+  return useMemo(() => new URLSearchParams(search), [search]);
 };

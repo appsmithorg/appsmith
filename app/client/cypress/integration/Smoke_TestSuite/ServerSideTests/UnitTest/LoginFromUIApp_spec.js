@@ -22,6 +22,9 @@ describe("Login from UI and check the functionality", function() {
       cy.get(pages.deletePage)
         .first()
         .click({ force: true });
+      cy.get(pages.deletePageConfirm)
+        .first()
+        .click({ force: true });
       cy.wait(2000);
     });
     cy.wait("@deletePage");

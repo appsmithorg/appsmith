@@ -55,7 +55,7 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<String> findBranchedApplicationId(String branchName, String defaultApplicationId, AclPermission permission);
 
-    Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId);
+    Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId, AclPermission permission);
 
     Mono<Long> getGitConnectedApplicationsCountWithPrivateRepoByOrgId(String organizationId);
 
@@ -64,5 +64,7 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
     String getRandomAppCardColor();
 
     Mono<UpdateResult> setAppTheme(String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission);
+
+    Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId);
 
 }

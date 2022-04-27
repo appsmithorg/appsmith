@@ -30,16 +30,12 @@ async function testTyping() {
   const perf = new Perf();
   await perf.launch();
   const page = perf.getPage();
-  // await page.goto(
-  //   "https://dev.appsmith.com/applications/61f8d29164802f7676ae8631/pages/61f8d29164802f7676ae8637/edit",
-  //   {
-  //     waitUntil: "networkidle0",
-  //   },
-  // );
 
-  await perf.importApplication(`${APP_ROOT}/tests/dsl/blog-admin-app.json`);
+  await perf.importApplication(
+    `${APP_ROOT}/tests/dsl/blog-admin-app-postgres.json`,
+  );
 
-  await delay(20000, "for newly created page to settle down");
+  await delay(5000, "for newly created page to settle down");
   // Make the elements of the dropdown render
   await page.waitForSelector(SEL.multiSelect);
   await page.click(SEL.multiSelect);

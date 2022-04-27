@@ -1,34 +1,40 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { useActiveAction } from "../hooks";
 import { Entity } from "../Entity/index";
 import {
   createMessage,
   ADD_QUERY_JS_TOOLTIP,
+  ADD_QUERY_JS_BUTTON,
+  EMPTY_QUERY_JS_BUTTON_TEXT,
+  EMPTY_QUERY_JS_MAIN_TEXT,
 } from "@appsmith/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { ExplorerActionEntity } from "../Actions/ActionEntity";
 import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { Colors } from "constants/Colors";
 import {
+  comboHelpText,
   filterCategories,
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
-import EntityPlaceholder from "../Entity/Placeholder";
 import { selectFilesForExplorer } from "selectors/entitiesSelector";
-
-const emptyNode = (
-  <EntityPlaceholder step={0}>
-    Click the <strong>+</strong> icon above to create a new query, API or JS
-    Object
-  </EntityPlaceholder>
-);
+import { getExplorerStatus, saveExplorerStatus } from "../helpers";
+import Icon from "components/ads/Icon";
+import { noop } from "lodash";
+import { AddEntity, EmptyComponent } from "../common";
 
 function Files() {
+  const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId) as string;
   const files = useSelector(selectFilesForExplorer);
   const dispatch = useDispatch();
+  const isFilesOpen = getExplorerStatus(applicationId, "queriesAndJs");
+
   const onCreate = useCallback(() => {
     dispatch(
       setGlobalSearchCategory(
@@ -38,6 +44,21 @@ function Files() {
   }, [dispatch]);
 
   const activeActionId = useActiveAction();
+
+  useEffect(() => {
+    if (!activeActionId) return;
+    document.getElementById(`entity-${activeActionId}`)?.scrollIntoView({
+      block: "nearest",
+      inline: "nearest",
+    });
+  }, [activeActionId]);
+
+  const onFilesToggle = useCallback(
+    (isOpen: boolean) => {
+      saveExplorerStatus(applicationId, "queriesAndJs", isOpen);
+    },
+    [applicationId],
+  );
 
   const fileEntities = useMemo(
     () =>
@@ -80,21 +101,44 @@ function Files() {
 
   return (
     <Entity
-      addButtonHelptext={createMessage(ADD_QUERY_JS_TOOLTIP)}
+      addButtonHelptext={
+        <>
+          {createMessage(ADD_QUERY_JS_TOOLTIP)} (
+          {comboHelpText[SEARCH_CATEGORY_ID.ACTION_OPERATION]})
+        </>
+      }
       alwaysShowRightIcon
       className={`group files`}
       disabled={false}
       entityId={pageId + "_widgets"}
       icon={null}
-      isDefaultExpanded
+      isDefaultExpanded={isFilesOpen === null ? true : isFilesOpen}
       isSticky
       key={pageId + "_widgets"}
       name="QUERIES/JS"
       onCreate={onCreate}
+      onToggle={onFilesToggle}
       searchKeyword={""}
       step={0}
     >
-      {fileEntities.length ? fileEntities : emptyNode}
+      {fileEntities.length ? (
+        fileEntities
+      ) : (
+        <EmptyComponent
+          addBtnText={createMessage(EMPTY_QUERY_JS_BUTTON_TEXT)}
+          addFunction={onCreate || noop}
+          mainText={createMessage(EMPTY_QUERY_JS_MAIN_TEXT)}
+        />
+      )}
+      {fileEntities.length > 0 && (
+        <AddEntity
+          action={onCreate}
+          entityId={pageId + "_queries_js_add_new_datasource"}
+          icon={<Icon name="plus" />}
+          name={createMessage(ADD_QUERY_JS_BUTTON)}
+          step={1}
+        />
+      )}
     </Entity>
   );
 }

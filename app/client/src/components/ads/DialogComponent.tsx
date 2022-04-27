@@ -10,6 +10,7 @@ const StyledDialog = styled(Dialog)<{
   maxHeight?: string;
   maxWidth?: string;
   showHeaderUnderline?: boolean;
+  noModalBodyMarginTop?: boolean;
 }>`
   && {
     border-radius: 0;
@@ -22,12 +23,12 @@ const StyledDialog = styled(Dialog)<{
 
     & .${Classes.DIALOG_HEADER} {
       position: relative;
-      padding: 0px;
-      padding-bottom: 0;
+      padding: 0;
       background: ${(props) => props.theme.colors.modal.bg};
       box-shadow: none;
-      .${Classes.ICON} {
-        color: ${(props) => props.theme.colors.modal.iconColor};
+      min-height: unset;
+      svg {
+        color: ${Colors.GREY_800};
       }
 
       .${Classes.BUTTON}.${Classes.MINIMAL}:hover {
@@ -39,19 +40,23 @@ const StyledDialog = styled(Dialog)<{
       color: ${(props) => props.theme.colors.modal.headerText};
       font-weight: ${(props) => props.theme.typography.h1.fontWeight};
       font-size: ${(props) => props.theme.typography.h1.fontSize}px;
-      line-height: ${(props) => props.theme.typography.h1.lineHeight}px;
+      line-height: unset;
       letter-spacing: ${(props) => props.theme.typography.h1.letterSpacing};
     }
 
     .${Classes.DIALOG_CLOSE_BUTTON} {
-      color: ${Colors.CHARCOAL};
+      color: ${Colors.SCORPION};
       min-width: 0;
       padding: 0;
 
       svg {
-        fill: ${Colors.CHARCOAL};
+        fill: ${Colors.SCORPION};
         width: 24px;
         height: 24px;
+
+        &:hover {
+          fill: ${Colors.COD_GRAY};
+        }
       }
     }
 
@@ -78,7 +83,7 @@ const StyledDialog = styled(Dialog)<{
 
     & .${Classes.DIALOG_BODY} {
       margin: 0;
-      margin-top: 24px;
+      margin-top: ${(props) => (props.noModalBodyMarginTop ? "0px" : "16px")};
       overflow: auto;
     }
 
@@ -93,6 +98,10 @@ const HeaderIconWrapper = styled.div<{ bgColor?: string }>`
   border-radius: 50%;
   margin-right: 10px;
   background: ${(props) => props.bgColor || props.theme.colors.modal.iconBg};
+  cursor: default;
+  .cs-icon svg {
+    cursor: default;
+  }
 `;
 
 type DialogComponentProps = {
@@ -120,6 +129,7 @@ type DialogComponentProps = {
   canEscapeKeyClose?: boolean;
   className?: string;
   maxWidth?: string;
+  noModalBodyMarginTop?: boolean;
 };
 
 export function DialogComponent(props: DialogComponentProps) {
@@ -170,6 +180,7 @@ export function DialogComponent(props: DialogComponentProps) {
         isOpen={isOpen}
         maxHeight={props.maxHeight}
         maxWidth={props.maxWidth}
+        noModalBodyMarginTop={props.noModalBodyMarginTop}
         onClose={onClose}
         onOpening={props.onOpening}
         setMaxWidth={props.setMaxWidth}

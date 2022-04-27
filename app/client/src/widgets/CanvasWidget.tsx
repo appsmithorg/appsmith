@@ -3,10 +3,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import ContainerWidget, {
   ContainerWidgetProps,
 } from "widgets/ContainerWidget/widget";
-import {
-  GridDefaults,
-  MAIN_CONTAINER_WIDGET_ID,
-} from "constants/WidgetConstants";
+import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { getCanvasClassName } from "utils/generators";
@@ -51,6 +48,15 @@ class CanvasWidget extends ContainerWidget {
     if (childWidgetData.detachFromLayout && !childWidgetData.isVisible) {
       return null;
     }
+
+    // We don't render invisible widgets in view mode
+    if (
+      this.props.renderMode === RenderModes.PAGE &&
+      !childWidgetData.isVisible
+    ) {
+      return null;
+    }
+
     const snapSpaces = this.getSnapSpaces();
 
     childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
@@ -71,10 +77,7 @@ class CanvasWidget extends ContainerWidget {
 
     const style: CSSProperties = {
       width: "100%",
-      height:
-        this.props.widgetId === MAIN_CONTAINER_WIDGET_ID
-          ? "100%"
-          : `${height}px`,
+      height: `${height}px`,
       background: "none",
       position: "relative",
     };

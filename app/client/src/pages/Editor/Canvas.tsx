@@ -8,14 +8,14 @@ import { DSLWidget } from "widgets/constants";
 
 import CanvasMultiPointerArena, {
   POINTERS_CANVAS_ID,
-} from "../common/CanvasArenas/CanvasMultiPointerArena";
+} from "pages/common/CanvasArenas/CanvasMultiPointerArena";
 import { throttle } from "lodash";
 import { RenderModes } from "constants/WidgetConstants";
 import { isMultiplayerEnabledForUser as isMultiplayerEnabledForUserSelector } from "selectors/appCollabSelectors";
 import { useDispatch } from "react-redux";
 import { initPageLevelSocketConnection } from "actions/websocketActions";
 import { collabShareUserPointerEvent } from "actions/appCollabActions";
-import { getIsPageLevelSocketConnected } from "../../selectors/websocketSelectors";
+import { getIsPageLevelSocketConnected } from "selectors/websocketSelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getPageLevelSocketRoomId } from "sagas/WebsocketSagas/utils";
 

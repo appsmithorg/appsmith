@@ -44,7 +44,9 @@ class RequestConfirmationModal extends React.Component<Props> {
   };
 
   onKeyUp = (event: KeyboardEvent) => {
-    if (event.keyCode === Keys.ENTER) {
+    // Sometimes calling the shortcut keys "Cmd + Enter" also triggers the onConfirm function below
+    // so We check if no multiple keys are being pressed currently before executing this block of code.
+    if (!(event.metaKey || event.ctrlKey) && event.keyCode === Keys.ENTER) {
       // please note: due to the way the state is being updated, the last action will always correspond to the right Action Modal.
       // this is not a bug.
       this.onConfirm(this.props.modals[this.props.modals.length - 1]);
@@ -75,20 +77,26 @@ class RequestConfirmationModal extends React.Component<Props> {
   render() {
     const { dispatch, modals } = this.props;
 
+    // making sure that only modals that are set to be open are eventually opened.
+    // basically filters out modals that have already been opened and prevents it from flashing after other modals have been confirmed.
+    const modalsToBeOpened = modals.filter((modal) => modal.modalOpen === true);
+
     return (
       <>
-        {modals.map((modalInfo: ModalInfo, index: number) => (
+        {modalsToBeOpened.map((modalInfo: ModalInfo, index: number) => (
           <DialogComponent
             canEscapeKeyClose
             isOpen={modalInfo?.modalOpen}
             key={index}
             maxHeight={"80vh"}
+            noModalBodyMarginTop
             onClose={() => this.handleClose(modalInfo)}
-            title="Confirm Action"
+            title="Confirmation Dialog"
             width={"580px"}
           >
             <ModalBody>
-              {createMessage(QUERY_CONFIRMATION_MODAL_MESSAGE)}
+              {createMessage(QUERY_CONFIRMATION_MODAL_MESSAGE)}{" "}
+              <b>{modalInfo.name}</b> ?
             </ModalBody>
             <ModalFooter>
               <Button
@@ -98,18 +106,18 @@ class RequestConfirmationModal extends React.Component<Props> {
                   dispatch(cancelActionConfirmationModal(modalInfo.name));
                   this.handleClose(modalInfo);
                 }}
-                size={Size.medium}
+                size={Size.large}
                 tag="button"
-                text="Cancel"
+                text="No"
                 type="button"
               />
               <Button
                 category={Category.primary}
                 cypressSelector="t--confirm-modal-btn"
                 onClick={() => this.onConfirm(modalInfo)}
-                size={Size.medium}
+                size={Size.large}
                 tag="button"
-                text="Confirm"
+                text="Yes"
                 type="button"
               />
             </ModalFooter>

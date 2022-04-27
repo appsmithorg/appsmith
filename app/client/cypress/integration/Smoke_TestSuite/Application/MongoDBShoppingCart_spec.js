@@ -2,7 +2,9 @@ const dsl = require("../../../fixtures/mongoAppdsl.json");
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
+const commonlocators = require("../../../locators/commonlocators.json");
 
+let repoName;
 describe("Shopping cart App", function() {
   let datasourceName;
 
@@ -13,10 +15,9 @@ describe("Shopping cart App", function() {
     cy.startRoutesForDatasource();
   });
 
-  it("Create MongoDB datasource and add Insert, Find, Update and Delete queries", function() {
+  it("1. Create MongoDB datasource and add Insert, Find, Update and Delete queries", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MongoDB).click();
-    cy.getPluginFormsAndCreateDatasource();
     cy.fillMongoDatasourceForm();
     cy.testSaveDatasource();
     cy.get("@createDatasource").then((httpResponse) => {
@@ -32,16 +33,14 @@ describe("Shopping cart App", function() {
     cy.get(".CodeEditorTarget")
       .first()
       .type("Productnames");
-    cy.get(".CodeEditorTarget")
-      .eq(1)
-      .type("{}");
+    cy.assertPageSave();
     cy.get(appPage.dropdownChevronLeft).click();
     // EditProducts query to update the cart
     cy.get(queryLocators.createQuery)
       .last()
       .click();
     cy.get(queryLocators.queryNameField).type("EditProducts");
-    cy.get("[data-cy='actionConfiguration.formData.command']").click();
+    cy.get("[data-cy='actionConfiguration.formData.command.data']").click();
     cy.get(".t--dropdown-option")
       .eq(2)
       .click();
@@ -56,23 +55,22 @@ describe("Shopping cart App", function() {
     cy.get(".CodeEditorTarget")
       .eq(2)
       .type(
-        `{
-      "title" : "{{title.text}}",
+        `{"title" : "{{title.text}}",
       "description" :"{{description.text}}",
       "price" : {{price.text}},
-      "quantity":{{quantity.text}}
-    `,
+      "quantity":{{quantity.text}}`,
         {
           parseSpecialCharSequences: false,
         },
       );
+    cy.assertPageSave();
     cy.get(appPage.dropdownChevronLeft).click();
     // Add product query
     cy.get(queryLocators.createQuery)
       .last()
       .click();
     cy.get(queryLocators.queryNameField).type("AddProduct");
-    cy.get("[data-cy='actionConfiguration.formData.command']").click();
+    cy.get("[data-cy='actionConfiguration.formData.command.data']").click();
     cy.get(".t--dropdown-option")
       .eq(1)
       .click();
@@ -82,21 +80,20 @@ describe("Shopping cart App", function() {
     cy.get(".CodeEditorTarget")
       .eq(1)
       .type(
-        `[{
-        "title" : "{{Title.text}}",
+        `[{"title" : "{{Title.text}}",
         "description": "{{Description.text}}",
         "price" : {{Price.text}},
-        "quantity" : {{Quantity.text}}
-      `,
+        "quantity" : {{Quantity.text}}`,
         { parseSpecialCharSequences: false },
       );
+    cy.assertPageSave();
     cy.get(appPage.dropdownChevronLeft).click();
     // delete product
     cy.get(queryLocators.createQuery)
       .last()
       .click();
     cy.get(queryLocators.queryNameField).type("DeleteProduct");
-    cy.get("[data-cy='actionConfiguration.formData.command']").click();
+    cy.get("[data-cy='actionConfiguration.formData.command.data']").click();
     cy.get(".t--dropdown-option")
       .eq(3)
       .click();
@@ -108,51 +105,82 @@ describe("Shopping cart App", function() {
       .type('{"title":"{{Table1.selectedRow.title}}"}', {
         parseSpecialCharSequences: false,
       });
+    cy.assertPageSave();
+
     cy.get(appPage.dropdownChevronLeft).click();
     cy.get(appPage.dropdownChevronLeft).click();
   });
-  it("Perform CRUD operations and validate data", function() {
+
+  it("2. Perform CRUD operations and validate data", function() {
     // Adding the books to the Add cart form
     cy.xpath(appPage.bookname).type("Atomic habits");
     cy.xpath(appPage.bookgenre).type("Self help");
     cy.xpath(appPage.bookprice).type(200);
     cy.xpath(appPage.bookquantity).type(2);
-    cy.xpath(appPage.addtoCart)
-      .last()
+    cy.get("span:contains('Submit')")
+      .closest("div")
+      .eq(1)
       .click();
-    cy.wait(2000);
-    cy.xpath(appPage.bookname).type("A man called ove");
-    cy.xpath(appPage.bookgenre).type("Fiction");
-    cy.xpath(appPage.bookprice).type(100);
-    cy.xpath(appPage.bookquantity).type(1);
-    cy.xpath(appPage.addtoCart)
-      .last()
+    cy.assertPageSave();
+    cy.wait(8000);
+    cy.xpath(appPage.bookname)
+      .click()
+      .type("A man called ove");
+    cy.xpath(appPage.bookgenre)
+      .click()
+      .type("Fiction");
+    cy.xpath(appPage.bookprice)
+      .click()
+      .type(100);
+    cy.xpath(appPage.bookquantity)
+      .click()
+      .type(1);
+    cy.get("span:contains('Submit')")
+      .closest("div")
+      .eq(1)
       .click();
-    cy.wait(2000);
-    cy.xpath(appPage.addtoCart)
-      .first()
-      .click();
+    cy.assertPageSave();
+    cy.wait(8000);
     // Deleting the book from the cart
     cy.get(".tableWrap")
       .children()
       .within(() => {
-        cy.xpath(appPage.deletefromCart)
-          .first()
+        cy.get("span:contains('Delete')")
+          .closest("div")
+          .eq(0)
           .click();
         // validating that the book is deleted
-        cy.xpath(appPage.deletefromCart).should("have.length", 1);
+        cy.get("span:contains('Delete')").should("have.length", 1);
       });
     // Updating the book quantity from edit cart
     cy.xpath(appPage.editbookquantity)
       .clear()
       .type("3");
-    cy.xpath(appPage.addtoCart)
-      .first()
+    cy.get("span:contains('Submit')")
+      .closest("div")
+      .eq(0)
       .click();
+    cy.assertPageSave();
+    cy.wait(5000);
     // validating updated value in the cart
     cy.get(".selected-row")
       .children()
       .eq(3)
       .should("have.text", "3");
   });
+  /*it("Connect the appplication to git and validate data in deploy mode and edit mode", function() {
+    cy.generateUUID().then((uid) => {
+      repoName = uid;
+      cy.createTestGithubRepo(repoName);
+      cy.connectToGitRepo(repoName);
+    });
+    cy.latestDeployPreview();
+    cy.wait(2000)
+    cy.get(".selected-row").children().eq(0)
+    .should("have.text", "A man called ove");
+    cy.get(commonlocators.backToEditor).click();
+    cy.get(".selected-row").children().eq(0)
+    .should("have.text", "A man called ove");
+    cy.wait(1000);
+  }) */
 });

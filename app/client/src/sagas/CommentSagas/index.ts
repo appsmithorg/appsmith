@@ -2,7 +2,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { put, takeLatest, all, call, select } from "redux-saga/effects";
 import {
   createUnpublishedCommentThreadSuccess,
@@ -26,7 +26,7 @@ import { waitForInit } from "sagas/InitSagas";
 
 import CommentsApi from "api/CommentsAPI";
 
-import { validateResponse } from "../ErrorSagas";
+import { validateResponse } from "sagas/ErrorSagas";
 
 import {
   getCurrentApplicationId,

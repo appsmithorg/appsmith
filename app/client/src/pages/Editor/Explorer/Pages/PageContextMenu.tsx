@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback } from "react";
+import React, { ReactNode, useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import TreeDropdown, {
   TreeDropdownOption,
@@ -16,6 +16,14 @@ import {
 } from "actions/pageActions";
 import styled from "styled-components";
 import { Icon } from "@blueprintjs/core";
+import {
+  CONTEXT_EDIT_NAME,
+  CONTEXT_CLONE,
+  CONTEXT_SET_AS_HOME_PAGE,
+  CONTEXT_DELETE,
+  CONFIRM_CONTEXT_DELETE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 const CustomLabel = styled.div`
   display: flex;
@@ -32,6 +40,7 @@ export function PageContextMenu(props: {
   isHidden: boolean;
 }) {
   const dispatch = useDispatch();
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   /**
    * delete the page
@@ -88,12 +97,12 @@ export function PageContextMenu(props: {
     {
       value: "rename",
       onSelect: editPageName,
-      label: "Edit Name",
+      label: createMessage(CONTEXT_EDIT_NAME),
     },
     {
       value: "clone",
       onSelect: clonePage,
-      label: "Clone",
+      label: createMessage(CONTEXT_CLONE),
     },
     {
       value: "visibility",
@@ -111,15 +120,21 @@ export function PageContextMenu(props: {
     optionTree.push({
       value: "setdefault",
       onSelect: setPageAsDefaultCallback,
-      label: "Set as Home Page",
+      label: createMessage(CONTEXT_SET_AS_HOME_PAGE),
     });
   }
 
   if (!props.isDefaultPage) {
     optionTree.push({
+      className: "t--apiFormDeleteBtn single-select",
+      confirmDelete: confirmDelete,
       value: "delete",
-      onSelect: deletePageCallback,
-      label: "Delete",
+      onSelect: () => {
+        confirmDelete ? deletePageCallback() : setConfirmDelete(true);
+      },
+      label: confirmDelete
+        ? createMessage(CONFIRM_CONTEXT_DELETE)
+        : createMessage(CONTEXT_DELETE),
       intent: "danger",
     });
   }
@@ -131,6 +146,7 @@ export function PageContextMenu(props: {
       onSelect={noop}
       optionTree={optionTree}
       selectedValue=""
+      setConfirmDelete={setConfirmDelete}
       toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
   );

@@ -33,19 +33,29 @@ describe("Duplicate application", function() {
       .click({ force: true });
     cy.get(homePage.duplicateApp).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(4000);
-    cy.wait("@getPage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.get("@getPage").then((httpResponse) => {
-      duplicateApplicationDsl = httpResponse.response.body.data.layouts[0].dsl;
-      cy.log(JSON.stringify(duplicateApplicationDsl));
-      cy.log(JSON.stringify(parentApplicationDsl));
-      expect(JSON.stringify(duplicateApplicationDsl)).to.deep.equal(
-        JSON.stringify(parentApplicationDsl),
+
+    cy.wait("@cloneApp").then((httpResponse) => {
+      const application = httpResponse.response.body.data;
+      cy.wait(4000);
+      cy.wait("@getPage").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        200,
       );
+      cy.get("@getPage").then((httpResponse) => {
+        const page = httpResponse.response.body.data;
+        duplicateApplicationDsl =
+          httpResponse.response.body.data.layouts[0].dsl;
+        cy.log(JSON.stringify(duplicateApplicationDsl));
+        cy.log(JSON.stringify(parentApplicationDsl));
+        expect(JSON.stringify(duplicateApplicationDsl)).to.deep.equal(
+          JSON.stringify(parentApplicationDsl),
+        );
+        cy.url().should(
+          "include",
+          `/${application.slug}/${page.slug}-${page.id}`,
+        );
+      });
     });
   });
 });

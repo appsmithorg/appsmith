@@ -178,14 +178,14 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                     // If any of the explicitly set on page load actions havent been added yet, add them to the 0th set
                     // of actions set since no relationships were found with any other appsmith entity
                     if (!pageLoadActionNames.isEmpty()) {
-                        onPageLoadActionSet.addAll(explicitUserSetOnLoadActions);
+                        onPageLoadActionSet.addAll(pageLoadActionNames);
 
                         // In case there are no page load actions, initialize the 0th set of page load actions list.
                         if (onPageLoadActionsSchedulingOrder.isEmpty()) {
                             onPageLoadActionsSchedulingOrder.add(new HashSet<>());
                         }
 
-                        onPageLoadActionsSchedulingOrder.get(0).addAll(explicitUserSetOnLoadActions);
+                        onPageLoadActionsSchedulingOrder.get(0).addAll(pageLoadActionNames);
                     }
 
                     return onPageLoadActionsSchedulingOrder;
@@ -789,7 +789,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
             for (Property x : dynamicBindingPathList) {
                 final String fieldPath = String.valueOf(x.getKey());
 
-                // Ignore pagination configuration since paginatio technically does not belong to dynamic binding list.
+                // Ignore pagination configuration since pagination technically does not belong to dynamic binding list.
                 if (fieldPath.equals("prev") || fieldPath.equals("next")) {
                     continue;
                 }
@@ -823,7 +823,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                     }
                     // After updating the parent, check for the types
                     if (parent == null) {
-                        // path doesnt seem to exist. Ignore.
+                        // path doesn't seem to exist. Ignore.
                     } else if (parent instanceof String) {
                         // If we get String value, then this is a leaf node
                         isLeafNode = true;

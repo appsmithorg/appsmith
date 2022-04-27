@@ -6,10 +6,11 @@
   "username": "input[name='datasourceConfiguration.authentication.username']",
   "password": "input[name='datasourceConfiguration.authentication.password']",
   "authenticationAuthtype": "[data-cy=datasourceConfiguration\\.authentication\\.authType]",
-  "url": "input[name='datasourceConfiguration.url']",
+  "url": "input[name='url']",
   "MongoDB": ".t--plugin-name:contains('MongoDB')",
   "RESTAPI": ".t--plugin-name:contains('REST API')",
   "PostgreSQL": ".t--plugin-name:contains('PostgreSQL')",
+  "SMTP":".t--plugin-name:contains('SMTP')",
   "MySQL": ".t--plugin-name:contains('MySQL')",
   "sectionAuthentication": "[data-cy=section-Authentication]",
   "PostgresEntity": ".t--entity-name:contains(PostgreSQL)",
@@ -56,5 +57,6 @@
   "mockUserDatasources":".t--datasource-name:contains('Users')",
   "mongoUriDropdown": "//p[text()='Use Mongo Connection String URI']/following-sibling::div",
   "mongoUriYes": "//div[text()='Yes']",
-  "mongoUriInput":"//p[text()='Connection String URI']/following-sibling::div//input"
+  "mongoUriInput":"//p[text()='Connection String URI']/following-sibling::div//input",
+  "saveBtn": ".t--save-datasource"
 }

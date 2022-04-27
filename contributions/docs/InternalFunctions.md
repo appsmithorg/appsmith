@@ -7,12 +7,10 @@ Steps to contribute:
 ## Functions docs template
 Copy paste this template in the file you are updating
 ```bash
----
-description: >-
-  Description of the function
----
 
 # Function Name
+  
+  Add the description here
 
 ## Signature
 

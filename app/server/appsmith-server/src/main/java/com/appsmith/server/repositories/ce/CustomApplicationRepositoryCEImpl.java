@@ -7,13 +7,18 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.UpdateResult;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -21,6 +26,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.File;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
@@ -139,12 +145,12 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Flux<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId) {
+    public Flux<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId, AclPermission permission) {
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
 
         Criteria applicationIdCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId);
         Criteria deletionCriteria = where(fieldName(QApplication.application.deleted)).ne(true);
-        return queryAll(List.of(applicationIdCriteria, deletionCriteria), AclPermission.MANAGE_APPLICATIONS);
+        return queryAll(List.of(applicationIdCriteria, deletionCriteria), permission);
     }
 
     /**
@@ -188,6 +194,19 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Criteria gitAuthCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.gitAuth)).exists(Boolean.TRUE);
         Criteria organizationIdCriteria = where(fieldName(QApplication.application.organizationId)).is(organizationId);
         return queryAll(List.of(organizationIdCriteria, repoCriteria, gitAuthCriteria), AclPermission.MANAGE_APPLICATIONS);
+    }
+
+    @Override
+    public Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId) {
+        String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
+
+        Query query = new Query();
+        query.addCriteria(where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId));
+        query.addCriteria(where(fieldName(QApplication.application.deleted)).ne(true));
+        query.equals(where("this." + gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.branchName))
+                .equals("this." +gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultBranchName)));
+
+        return mongoOperations.findOne(query,Application.class);
     }
 
     @Override

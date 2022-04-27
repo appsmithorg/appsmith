@@ -36,7 +36,7 @@ describe("parseDocumentationContent", () => {
     const sampleItem = {
       rawTitle: sampleTitleResponse,
       rawDocument: sampleDocumentResponse,
-      path: "master/security",
+      path: "security",
       query: "Security",
     };
     const result = parseDocumentationContent(sampleItem);

@@ -3,7 +3,7 @@ import {
   ReduxAction,
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { OrgRole, Org, OrgUser } from "constants/orgConstants";
 
 const initialState: OrgReduxState = {

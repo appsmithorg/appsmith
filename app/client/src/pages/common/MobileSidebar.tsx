@@ -3,12 +3,12 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import ProfileImage from "pages/common/ProfileImage";
 import MenuItem from "components/ads/MenuItem";
-import { ADMIN_SETTINGS_CATEGORY_DEFAULT_URL } from "constants/routes";
+import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
 import {
   getOnSelectAction,
   DropdownOnSelectActions,
 } from "./CustomizedDropdown/dropdownHelpers";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import {
@@ -121,7 +121,7 @@ export default function MobileSideBar(props: MobileSideBarProps) {
             icon="setting"
             onSelect={() => {
               getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                path: ADMIN_SETTINGS_CATEGORY_DEFAULT_URL,
+                path: ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
               });
             }}
             text={createMessage(ADMIN_SETTINGS)}

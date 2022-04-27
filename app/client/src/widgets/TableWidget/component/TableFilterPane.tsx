@@ -14,7 +14,7 @@ import Popper from "pages/Editor/Popper";
 import { generateClassName } from "utils/generators";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
 import { getWidgetMetaProps } from "sagas/selectors";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { selectWidgetAction } from "actions/widgetSelectionActions";
 import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/draghandler.svg";
 
@@ -80,7 +80,7 @@ class TableFilterPane extends Component<Props> {
         Prevent the FilterPane from overflowing the canvas when the 
         table widget is on the very top of the canvas.
       */
-      const boundaryParent = document.querySelector('[type="CANVAS_WIDGET"]');
+      const boundaryParent = document.querySelector("#root");
 
       return (
         <Popper

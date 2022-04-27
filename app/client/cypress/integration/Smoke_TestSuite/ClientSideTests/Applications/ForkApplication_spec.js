@@ -1,10 +1,13 @@
 const dsl = require("../../../../fixtures/basicDsl.json");
 import homePage from "../../../../locators/HomePage";
-const commonlocators = require("../../../../locators/commonlocators.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
+import applicationLocators from "../../../../locators/Applications.json";
+import signupPageLocators from "../../../../locators/SignupPage.json";
+import loginPageLocators from "../../../../locators/LoginPage.json";
+import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
 
 let forkedApplicationDsl;
 let parentApplicationDsl;
+let forkableAppUrl;
 
 describe("Fork application across orgs", function() {
   before(() => {
@@ -32,11 +35,6 @@ describe("Fork application across orgs", function() {
       .first()
       .click({ force: true });
     cy.get(homePage.forkAppFromMenu).click({ force: true });
-    // select a different org here
-    cy.get(homePage.forkAppOrgList)
-      .children()
-      .last()
-      .click({ force: true });
     cy.get(homePage.forkAppOrgButton).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(4000);
@@ -52,6 +50,49 @@ describe("Fork application across orgs", function() {
       expect(JSON.stringify(forkedApplicationDsl)).to.contain(
         JSON.stringify(parentApplicationDsl),
       );
+    });
+  });
+
+  it("Non signed user should be able to fork a public forkable app", function() {
+    cy.NavigateToHome();
+    cy.get(homePage.homeIcon).click();
+    cy.get(homePage.optionsIcon)
+      .first()
+      .click();
+    cy.get(homePage.orgImportAppOption).click({ force: true });
+    cy.get(homePage.orgImportAppModal).should("be.visible");
+    cy.xpath(homePage.uploadLogo).attachFile("forkNonSignedInUser.json");
+    cy.wait("@importNewApplication").then((interception) => {
+      const { isPartialImport } = interception.response.body.data;
+      if (isPartialImport) {
+        cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
+          force: true,
+        });
+        cy.wait(2000);
+      }
+
+      cy.PublishtheApp();
+      cy.get(homePage.shareButton).click();
+      cy.enablePublicAccess();
+
+      cy.url().then((url) => {
+        forkableAppUrl = url;
+        cy.get(homePage.profileMenu).click();
+        cy.get(homePage.signOutIcon).click();
+
+        cy.visit(forkableAppUrl);
+        cy.get(applicationLocators.forkButton).click();
+
+        cy.get(loginPageLocators.signupLink).click();
+
+        cy.generateUUID().then((uid) => {
+          cy.get(signupPageLocators.username).type(`${uid}@appsmith.com`);
+          cy.get(signupPageLocators.password).type(uid);
+          cy.get(signupPageLocators.submitBtn).click();
+          cy.wait(1000);
+          cy.get(homePage.forkAppOrgButton).should("be.visible");
+        });
+      });
     });
   });
 });

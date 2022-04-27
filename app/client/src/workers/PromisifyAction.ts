@@ -9,7 +9,10 @@ const ctx: Worker = self as any;
  * needs a REQUEST_ID to be passed in to know which request is going on right now
  */
 import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
-import { ActionDescription } from "entities/DataTree/actionTriggers";
+import {
+  ActionDescription,
+  ActionTriggerType,
+} from "entities/DataTree/actionTriggers";
 import _ from "lodash";
 import { dataTreeEvaluator } from "workers/evaluation.worker";
 
@@ -98,4 +101,19 @@ export const completePromise = (requestId: string, result: EvalResult) => {
     },
     requestId,
   });
+};
+
+export const confirmationPromise = function(
+  requestId: string,
+  func: any,
+  name: string,
+  ...args: any[]
+) {
+  const payload: ActionDescription = {
+    type: ActionTriggerType.CONFIRMATION_MODAL,
+    payload: {
+      funName: name,
+    },
+  };
+  return promisifyAction(requestId, payload).then(() => func(...args));
 };

@@ -9,6 +9,8 @@ export type ParsedJSSubAction = {
   body: string;
   arguments: Array<Variable>;
   isAsync: boolean;
+  // parsedFunction - used only to determine if function is async
+  parsedFunction?: () => unknown;
 };
 
 export type ParsedBody = {
@@ -112,8 +114,8 @@ export const getDifferenceInJSCollection = (
         organizationId: jsAction.organizationId,
         actionConfiguration: {
           body: action.body,
-          isAsync: false,
-          timeoutInMilliseconds: 0,
+          isAsync: action.isAsync,
+          timeoutInMillisecond: 0,
           jsArguments: [],
         },
       };
@@ -196,9 +198,10 @@ export const createDummyJSCollectionActions = (
       actionConfiguration: {
         body: "() => {\n\t\t//write code here\n\t}",
         isAsync: false,
-        timeoutInMilliseconds: 0,
+        timeoutInMillisecond: 0,
         jsArguments: [],
       },
+      clientSideExecution: true,
     },
     {
       name: "myFun2",
@@ -206,11 +209,12 @@ export const createDummyJSCollectionActions = (
       organizationId,
       executeOnLoad: false,
       actionConfiguration: {
-        body: "() => {\n\t\t//write code here\n\t}",
-        isAsync: false,
-        timeoutInMilliseconds: 0,
+        body: "async () => {\n\t\t//use async-await or promises\n\t}",
+        isAsync: true,
+        timeoutInMillisecond: 0,
         jsArguments: [],
       },
+      clientSideExecution: true,
     },
   ];
   return {

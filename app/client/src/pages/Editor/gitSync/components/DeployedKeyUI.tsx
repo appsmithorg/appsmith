@@ -22,13 +22,13 @@ import Menu from "components/ads/Menu";
 import { Position } from "@blueprintjs/core";
 import MenuItem from "components/ads/MenuItem";
 import Button, { Category, Size } from "components/ads/Button";
-import { useSSHKeyPair } from "pages/Editor/gitSync/hooks";
 import {
   NotificationBanner,
   NotificationVariant,
 } from "components/ads/NotificationBanner";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import { useSSHKeyPair } from "../hooks/useSSHKeyPair";
 
 const TooltipWrapper = styled.div`
   display: flex;
@@ -61,7 +61,7 @@ const KeyText = styled.span`
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  color: ${Colors.CODE_GRAY};
+  color: ${Colors.COD_GRAY};
 `;
 
 const MoreMenuWrapper = styled.div`
@@ -93,7 +93,7 @@ type DeployedKeyUIProps = {
 };
 
 const NotificationBannerContainer = styled.div`
-  max-width: 456px;
+  max-width: calc(100% - 30px);
 `;
 
 function CopySSHKey(showCopied: boolean, copyToClipboard: () => void) {

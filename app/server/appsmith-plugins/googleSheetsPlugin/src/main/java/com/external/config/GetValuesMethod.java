@@ -99,7 +99,7 @@ public class GetValuesMethod implements Method {
             }
         } else if ("RANGE".equalsIgnoreCase(methodConfig.getQueryFormat())) {
             if (methodConfig.getSpreadsheetRange() == null || methodConfig.getSpreadsheetRange().isBlank()) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Data Range");
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field 'Cell Range'");
             }
         } else {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Invalid query format");

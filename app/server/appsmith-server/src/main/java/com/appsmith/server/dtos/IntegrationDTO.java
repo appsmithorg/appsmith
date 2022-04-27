@@ -37,6 +37,8 @@ public class IntegrationDTO {
 
     String branch;
 
+    String importForGit;
+
     public enum Type {
         @JsonProperty("oAuth2")
         OAUTH2

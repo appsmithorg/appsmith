@@ -1,14 +1,14 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { JSCollection } from "entities/JSCollection";
+import { JSAction, JSCollection } from "entities/JSCollection";
 import {
   ReduxActionTypes,
   ReduxAction,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
-import { keyBy } from "lodash";
+} from "@appsmith/constants/ReduxActionConstants";
+import { set, keyBy } from "lodash";
+import produce from "immer";
 
 const initialState: JSCollectionDataState = [];
-
 export interface JSCollectionData {
   isLoading: boolean;
   config: JSCollection;
@@ -64,8 +64,9 @@ const jsActionsReducer = createReducer(initialState, {
     action: ReduxAction<{ data: JSCollection }>,
   ): JSCollectionDataState =>
     state.map((a) => {
-      if (a.config.id === action.payload.data.id)
-        return { isLoading: false, config: action.payload.data };
+      if (a.config.id === action.payload.data.id) {
+        return { ...a, isLoading: false, config: action.payload.data };
+      }
       return a;
     }),
   [ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS]: (
@@ -75,6 +76,7 @@ const jsActionsReducer = createReducer(initialState, {
     state.map((a) => {
       if (a.config.id === action.payload.data.id)
         return {
+          ...a,
           isLoading: false,
           config: action.payload.data,
         };
@@ -245,9 +247,9 @@ const jsActionsReducer = createReducer(initialState, {
   [ReduxActionTypes.EXECUTE_JS_FUNCTION_INIT]: (
     state: JSCollectionDataState,
     action: ReduxAction<{
-      results: any;
+      collectionName: string;
       collectionId: string;
-      actionId: string;
+      action: JSAction;
     }>,
   ): JSCollectionDataState =>
     state.map((a) => {
@@ -256,7 +258,7 @@ const jsActionsReducer = createReducer(initialState, {
           ...a,
           isExecuting: {
             ...a.isExecuting,
-            [action.payload.actionId]: true,
+            [action.payload.action.id]: true,
           },
         };
       }
@@ -286,6 +288,71 @@ const jsActionsReducer = createReducer(initialState, {
       }
       return a;
     }),
+  [ReduxActionTypes.UPDATE_JS_FUNCTION_PROPERTY_SUCCESS]: (
+    state: JSCollectionDataState,
+    action: ReduxAction<{ collection: JSCollection }>,
+  ): JSCollectionDataState =>
+    state.map((a) => {
+      if (a.config.id === action.payload.collection.id) {
+        return {
+          ...a,
+          data: action.payload,
+        };
+      }
+      return a;
+    }),
+  [ReduxActionTypes.TOGGLE_FUNCTION_EXECUTE_ON_LOAD_SUCCESS]: (
+    state: JSCollectionDataState,
+    action: ReduxAction<{
+      actionId: string;
+      collectionId: string;
+      executeOnLoad: boolean;
+    }>,
+  ): JSCollectionDataState =>
+    state.map((a) => {
+      if (a.config.id === action.payload.collectionId) {
+        const updatedActions = a.config.actions.map((jsAction) => {
+          if (jsAction.id === action.payload.actionId) {
+            set(jsAction, `executeOnLoad`, action.payload.executeOnLoad);
+          }
+          return jsAction;
+        });
+        return {
+          ...a,
+          config: {
+            ...a.config,
+            actions: updatedActions,
+          },
+        };
+      }
+      return a;
+    }),
+  [ReduxActionTypes.SET_JS_ACTION_TO_EXECUTE_ON_PAGELOAD]: (
+    state: JSCollectionDataState,
+    action: ReduxAction<
+      Array<{
+        executeOnLoad: boolean;
+        id: string;
+        name: string;
+        collectionId: string;
+      }>
+    >,
+  ) => {
+    return produce(state, (draft) => {
+      const CollectionUpdateSearch = keyBy(action.payload, "collectionId");
+      const actionUpdateSearch = keyBy(action.payload, "id");
+      draft.forEach((action, index) => {
+        if (action.config.id in CollectionUpdateSearch) {
+          const allActions = draft[index].config.actions;
+          allActions.forEach((js) => {
+            if (js.id in actionUpdateSearch) {
+              js.executeOnLoad = actionUpdateSearch[js.id].executeOnLoad;
+            }
+          });
+        }
+      });
+    });
+  },
 });
 
 export default jsActionsReducer;

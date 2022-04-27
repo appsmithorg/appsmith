@@ -4,6 +4,7 @@ import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
@@ -12,7 +13,7 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
-import com.appsmith.server.dtos.GitImportDTO;
+import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -196,8 +197,8 @@ public class GitControllerCE {
     }
     
     @PostMapping("/import/{organizationId}")
-    public Mono<ResponseDTO<GitImportDTO>> importApplicationFromGit(@PathVariable String organizationId,
-                                                                    @RequestBody GitConnectDTO gitConnectDTO) {
+    public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromGit(@PathVariable String organizationId,
+                                                                            @RequestBody GitConnectDTO gitConnectDTO) {
         return service.importApplicationFromGit(organizationId, gitConnectDTO)
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
@@ -210,10 +211,18 @@ public class GitControllerCE {
 
     @DeleteMapping("/branch/{defaultApplicationId}")
     public Mono<ResponseDTO<Application>> deleteBranch(@PathVariable String defaultApplicationId, @RequestParam String branchName) {
-        log.debug("Going to delete branch ", branchName);
+        log.debug("Going to delete branch {} for defaultApplicationId {}", branchName, defaultApplicationId);
         return service.deleteBranch(defaultApplicationId, branchName)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
+    @PutMapping("/discard/{defaultApplicationId}")
+    public Mono<ResponseDTO<Application>> discardChanges(@PathVariable String defaultApplicationId,
+                                                         @RequestParam(required = false, defaultValue = "true") Boolean doPull,
+                                                         @RequestHeader(name = FieldName.BRANCH_NAME) String branchName) {
+        log.debug("Going to discard changes for branch {} with defaultApplicationId {}", branchName, defaultApplicationId);
+        return service.discardChanges(defaultApplicationId, branchName, doPull)
+                .map(result -> new ResponseDTO<>((HttpStatus.OK.value()), result, null));
+    }
 
 }

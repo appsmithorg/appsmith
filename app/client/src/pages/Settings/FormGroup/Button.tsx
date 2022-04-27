@@ -9,7 +9,7 @@ import { FormGroup, SettingComponentProps } from "./Common";
 
 const ButtonWrapper = styled.div`
   width: 357px;
-  margin-bottom: ${(props) => props.theme.spaces[12]}px;
+  margin-bottom: ${(props) => props.theme.spaces[11]}px;
   margin-top: 3px;
 `;
 

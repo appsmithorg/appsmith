@@ -30,6 +30,7 @@ export const generatePropertyControl = (
       const sectionConfig: PropertyPaneSectionConfig = config as PropertyPaneSectionConfig;
       return (
         <Boxed
+          key={config.id + props.id}
           show={
             sectionConfig.sectionName !== "General" &&
             props.type === "TABLE_WIDGET"
@@ -39,7 +40,7 @@ export const generatePropertyControl = (
           <PropertySection
             hidden={sectionConfig.hidden}
             id={config.id || sectionConfig.sectionName}
-            isDefaultOpen
+            isDefaultOpen={sectionConfig.isDefaultOpen}
             key={config.id + props.id}
             name={sectionConfig.sectionName}
             propertyPath={sectionConfig.propertySectionPath}
@@ -51,6 +52,7 @@ export const generatePropertyControl = (
     } else if ((config as PropertyPaneControlConfig).controlType) {
       return (
         <Boxed
+          key={config.id + props.id}
           show={
             (config as PropertyPaneControlConfig).propertyName !==
               "tableData" && props.type === "TABLE_WIDGET"

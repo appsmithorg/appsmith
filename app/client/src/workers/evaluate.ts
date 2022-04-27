@@ -147,7 +147,25 @@ export const createGlobalData = (
       Object.keys(resolvedObject).forEach((key: any) => {
         const dataTreeKey = GLOBAL_DATA[datum];
         if (dataTreeKey) {
+          const data = dataTreeKey[key]?.data;
+          //do not remove we will be investigating this
+          //const isAsync = dataTreeKey?.meta[key]?.isAsync || false;
+          //const confirmBeforeExecute =
+          dataTreeKey?.meta[key]?.confirmBeforeExecute || false;
           dataTreeKey[key] = resolvedObject[key];
+          // if (isAsync && confirmBeforeExecute) {
+          //   dataTreeKey[key] = confirmationPromise.bind(
+          //     {},
+          //     context?.requestId,
+          //     resolvedObject[key],
+          //     dataTreeKey.name + "." + key,
+          //   );
+          // } else {
+          //   dataTreeKey[key] = resolvedObject[key];
+          // }
+          if (!!data) {
+            dataTreeKey[key]["data"] = data;
+          }
         }
       });
     });
@@ -336,6 +354,7 @@ export function isFunctionAsync(
   userFunction: unknown,
   dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
+  logs: unknown[] = [],
 ) {
   return (function() {
     /**** Setting the eval context ****/
@@ -355,7 +374,25 @@ export function isFunctionAsync(
         Object.keys(resolvedObject).forEach((key: any) => {
           const dataTreeKey = GLOBAL_DATA[datum];
           if (dataTreeKey) {
+            const data = dataTreeKey[key]?.data;
+            //do not remove, we will be investigating this
+            // const isAsync = dataTreeKey.meta[key]?.isAsync || false;
+            // const confirmBeforeExecute =
+            //   dataTreeKey.meta[key]?.confirmBeforeExecute || false;
             dataTreeKey[key] = resolvedObject[key];
+            // if (isAsync && confirmBeforeExecute) {
+            //   dataTreeKey[key] = confirmationPromise.bind(
+            //     {},
+            //     "",
+            //     resolvedObject[key],
+            //     key,
+            //   );
+            // } else {
+            //   dataTreeKey[key] = resolvedObject[key];
+            // }
+            if (!!data) {
+              dataTreeKey[key].data = data;
+            }
           }
         });
       });
@@ -368,7 +405,6 @@ export function isFunctionAsync(
       // @ts-ignore: No types available
       self[key] = GLOBAL_DATA[key];
     });
-
     try {
       if (typeof userFunction === "function") {
         const returnValue = userFunction();
@@ -380,7 +416,9 @@ export function isFunctionAsync(
         }
       }
     } catch (e) {
-      console.error("Error when determining async function", e);
+      // We do not want to throw errors for internal operations, to users.
+      // logLevel should help us in debugging this.
+      logs.push({ error: "Error when determining async function" + e });
     }
     const isAsync = !!self.IS_ASYNC;
     for (const entity in GLOBAL_DATA) {

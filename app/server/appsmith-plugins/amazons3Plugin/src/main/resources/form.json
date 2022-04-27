@@ -39,6 +39,10 @@
               "value": "dream-objects"
             },
             {
+              "label": "MinIO",
+              "value": "minio"
+            },
+            {
               "label": "Other",
               "value": "other"
             }
@@ -48,6 +52,7 @@
           "label": "Access Key",
           "configProperty": "datasourceConfiguration.authentication.username",
           "controlType": "INPUT_TEXT",
+          "isRequired": true,
           "initialValue": ""
         },
         {
@@ -56,14 +61,16 @@
           "controlType": "INPUT_TEXT",
           "dataType": "PASSWORD",
           "initialValue": "",
+          "isRequired": true,
           "encrypted": true
         },
         {
-          "label": "Endpoint URL",
+          "label": "Endpoint URL (with or without protocol and port no)",
           "configProperty": "datasourceConfiguration.endpoints[0].host",
           "controlType": "INPUT_TEXT",
           "initialValue": "",
-          "placeholderText": "user-storage.de-fra1.upcloudobjects.com",
+          "isRequired": true,
+          "placeholderText": "https://user-storage.de-fra1.upcloudobjects.com",
           "hidden": {
             "path": "datasourceConfiguration.properties[1].value",
             "comparison": "EQUALS",
@@ -84,9 +91,19 @@
           "initialValue": "",
           "placeholderText": "de-fra1",
           "hidden": {
-            "path": "datasourceConfiguration.properties[1].value",
-            "comparison": "NOT_EQUALS",
-            "value": "other"
+            "conditionType": "AND",
+            "conditions": [
+              {
+                "path": "datasourceConfiguration.properties[1].value",
+                "comparison": "NOT_EQUALS",
+                "value": "other"
+              },
+              {
+                "path": "datasourceConfiguration.properties[1].value",
+                "comparison": "NOT_EQUALS",
+                "value": "minio"
+              }
+            ]
           }
         }
       ]

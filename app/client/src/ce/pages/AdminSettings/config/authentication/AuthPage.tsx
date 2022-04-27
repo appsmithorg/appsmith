@@ -11,8 +11,8 @@ import {
   EDIT,
   UPGRADE,
   UPGRADE_TO_EE,
+  AUTHENTICATION_METHOD_ENABLED,
 } from "@appsmith/constants/messages";
-import { getAdminSettingsCategoryUrl } from "constants/routes";
 import { Callout, CalloutType } from "components/ads/CalloutV2";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -20,6 +20,9 @@ import { useSelector } from "react-redux";
 import bootIntercom from "utils/bootIntercom";
 import { Colors } from "constants/Colors";
 import Icon from "components/ads/Icon";
+import TooltipComponent from "components/ads/Tooltip";
+import { Position } from "@blueprintjs/core";
+import { adminSettingsCategoryUrl } from "RouteBuilder";
 
 const { intercomAppID } = getAppsmithConfigs();
 
@@ -122,7 +125,7 @@ const Label = styled.span<{ enterprise?: boolean }>`
     background: #fff;
   `
       : `
-    color: #03B365;
+    color: ${Colors.GREEN};
     background: #E5F6EC;
   `};
   padding: 0px 4px;
@@ -170,7 +173,23 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                       </>
                     )}
                     {method.isConnected && (
-                      <Icon fillColor="#03B365" name="oval-check" />
+                      <TooltipComponent
+                        autoFocus={false}
+                        content={createMessage(
+                          AUTHENTICATION_METHOD_ENABLED,
+                          method.label,
+                        )}
+                        hoverOpenDelay={0}
+                        minWidth={"180px"}
+                        openOnTargetFocus={false}
+                        position={Position.RIGHT}
+                      >
+                        <Icon
+                          className={`${method.category}-green-check`}
+                          fillColor={Colors.GREEN}
+                          name="oval-check"
+                        />
+                      </TooltipComponent>
                     )}
                   </MethodTitle>
                   <MethodDets>{method.subText}</MethodDets>
@@ -187,16 +206,18 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                     method.isConnected ? Category.primary : Category.tertiary
                   }
                   className={`t--settings-sub-category-${
-                    method.needsUpgrade ? "upgrade" : method.category
+                    method.needsUpgrade
+                      ? `upgrade-${method.category}`
+                      : method.category
                   }`}
                   data-cy="btn-auth-account"
                   onClick={() =>
                     !method.needsUpgrade || method.isConnected
                       ? history.push(
-                          getAdminSettingsCategoryUrl(
-                            SettingCategories.AUTHENTICATION,
-                            method.category,
-                          ),
+                          adminSettingsCategoryUrl({
+                            category: SettingCategories.AUTHENTICATION,
+                            subCategory: method.category,
+                          }),
                         )
                       : triggerIntercom(method.label)
                   }

@@ -26,10 +26,6 @@ describe("Git disconnect modal:", function() {
     cy.get(gitSyncLocators.gitSyncModal).should("not.exist");
     cy.get(gitSyncLocators.disconnectGitModal).should("exist");
 
-    // title and info text checking
-    cy.get(gitSyncLocators.disconnectGitModal).contains(
-      Cypress.env("MESSAGES").GIT_DISCONNECTION_SUBMENU(),
-    );
     cy.get(gitSyncLocators.disconnectGitModal).contains(
       Cypress.env("MESSAGES").NONE_REVERSIBLE_MESSAGE(),
     );
@@ -49,10 +45,10 @@ describe("Git disconnect modal:", function() {
       .then((state) => {
         const { name } = state.ui.gitSync.disconnectingGitApp;
         cy.get(gitSyncLocators.disconnectGitModal).contains(
-          Cypress.env("MESSAGES").DISCONNECT_FROM_GIT(name),
+          Cypress.env("MESSAGES").GIT_REVOKE_ACCESS(name),
         );
         cy.get(gitSyncLocators.disconnectGitModal).contains(
-          Cypress.env("MESSAGES").TYPE_PROMO_CODE(name),
+          Cypress.env("MESSAGES").GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS(name),
         );
       });
 

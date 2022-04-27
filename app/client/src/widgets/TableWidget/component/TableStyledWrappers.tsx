@@ -3,6 +3,7 @@ import { TableSizes, CellLayoutProperties, CellAlignment } from "./Constants";
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar } from "constants/DefaultTheme";
 import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
+import { Classes } from "@blueprintjs/core";
 
 export const TableWrapper = styled.div<{
   width: number;
@@ -25,7 +26,7 @@ export const TableWrapper = styled.div<{
     height: 100%;
     display: block;
     position: relative;
-    width: ${(props) => props.width - 8}px;
+    width: ${(props) => props.width}px;
     overflow-x: auto;
     ${hideScrollbar};
     .thumb-horizontal {
@@ -134,7 +135,7 @@ export const TableWrapper = styled.div<{
     cursor: pointer;
     display: inline-block;
     width: 100%;
-    height: 38px;
+    height: 32px;
     &.reorder-line {
       width: 1px;
       height: 100%;
@@ -241,7 +242,7 @@ export const PaginationItemWrapper = styled.div<{
     border-color: ${Colors.GREEN};
   }
   .bp3-icon svg {
-    fill: ${(props) => (props.disabled ? Colors.GREY_4 : "")};
+    fill: ${(props) => (props.disabled ? Colors.GREY_8 : "")};
   }
 `;
 
@@ -262,26 +263,26 @@ export const MenuColumnWrapper = styled.div<{ selected: boolean }>`
   }
 `;
 
-export const ActionWrapper = styled.div<{
-  background: string;
-  buttonLabelColor: string;
-}>`
+export const ActionWrapper = styled.div<{ disabled: boolean }>`
   margin: 0 5px 0 0;
+  ${(props) => (props.disabled ? "cursor: not-allowed;" : null)}
   &&&&&& {
     .bp3-button {
-      background: ${(props) => props.background};
-      color: ${(props) => props.buttonLabelColor};
-      border: none;
+      min-width: 50px;
     }
     .bp3-button span {
-      font-weight: 400;
+      font-weight: 500;
       text-decoration: none;
     }
     &&& .bp3-disabled {
       background: ${Colors.GREY_1};
-      color: ${Colors.GREY_4};
+      color: ${Colors.GREY_8};
     }
   }
+`;
+
+export const IconButtonWrapper = styled.div<{ disabled: boolean }>`
+  ${(props) => (props.disabled ? "cursor: not-allowed;" : null)}
 `;
 
 const JUSTIFY_CONTENT = {
@@ -353,25 +354,31 @@ export const DraggableHeaderWrapper = styled.div<{
 
 export const CellWrapper = styled.div<{
   isHidden?: boolean;
+  isPadding?: boolean;
   cellProperties?: CellLayoutProperties;
   isHyperLink?: boolean;
   useLinkToolTip?: boolean;
   isCellVisible?: boolean;
   isTextType?: boolean;
+  lineHeight?: number;
 }>`
   display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
-
-  align-items: center;
+  align-items: ${(props) => (props.isPadding ? "center" : "flex-start")};
   justify-content: flex-start;
-  width: 100%;
+  width: ${(props) => (props.isPadding ? "100%" : "calc(100% - 10px)")};
   height: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   opacity: ${(props) => (props.isHidden ? "0.6" : "1")};
   ${TableStyles};
-  padding: 0 10px;
+  padding: ${(props) => (props.isPadding ? "0 10px" : " 0px")};
   line-height: 28px;
+  .${Classes.POPOVER_WRAPPER}, > span > span > span {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   .image-cell-wrapper {
     width: 100%;
     height: 100%;
@@ -422,7 +429,7 @@ export const CellWrapper = styled.div<{
   }
   &:hover {
     .hidden-icon {
-      display: inline;
+      display: flex;
     }
   }
 `;
@@ -573,4 +580,10 @@ export const MenuCategoryWrapper = styled.div`
 
 export const MenuStyledOptionHeader = styled.div`
   font-weight: 600;
+`;
+
+export const ColumnWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  height: 100%;
 `;

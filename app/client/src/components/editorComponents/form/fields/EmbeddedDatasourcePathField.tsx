@@ -36,13 +36,12 @@ import StoreAsDatasource, {
 } from "components/editorComponents/StoreAsDatasource";
 import { urlGroupsRegexExp } from "constants/AppsmithActionConstants/ActionConstants";
 import styled from "styled-components";
-import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
 import Text, { FontWeight, TextType } from "components/ads/Text";
 import history from "utils/history";
 import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
 import * as FontFamilies from "constants/Fonts";
-import { getQueryParams } from "../../../../utils/AppsmithUtils";
+import { getQueryParams } from "utils/AppsmithUtils";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 
@@ -59,6 +58,7 @@ import {
   getDatasource,
   getDatasourcesByPluginId,
 } from "selectors/entitiesSelector";
+import { datasourcesEditorIdURL } from "RouteBuilder";
 
 type ReduxStateProps = {
   orgId: string;
@@ -87,6 +87,7 @@ const DatasourceContainer = styled.div`
   display: flex;
   position: relative;
   align-items: center;
+  height: 35px;
   .t--datasource-editor {
     background-color: ${Colors.WHITE};
     .cm-s-duotone-light.CodeMirror {
@@ -335,7 +336,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
                     ),
                   )
                   .map((datasource: Datasource) => ({
-                    text: datasource.datasourceConfiguration.url,
+                    text: datasource.datasourceConfiguration?.url,
                     data: datasource,
                     className: !datasource.isValid
                       ? "datasource-hint custom invalid"
@@ -396,7 +397,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
       const evaluatedDatasourceUrl =
         "id" in datasource
-          ? datasource.datasourceConfiguration.url
+          ? datasource.datasourceConfiguration?.url
           : entity.datasourceUrl;
 
       const fullDatasourceUrlPath =
@@ -511,12 +512,11 @@ class EmbeddedDatasourcePathComponent extends React.Component<
             onClick={() => {
               this.props.setDatasourceEditorMode(datasource.id, false);
               history.push(
-                DATA_SOURCES_EDITOR_ID_URL(
-                  this.props.applicationId,
-                  this.props.currentPageId,
-                  datasource.id,
-                  getQueryParams(),
-                ),
+                datasourcesEditorIdURL({
+                  pageId: this.props.currentPageId ?? "",
+                  datasourceId: datasource.id,
+                  params: getQueryParams(),
+                }),
               );
             }}
           >

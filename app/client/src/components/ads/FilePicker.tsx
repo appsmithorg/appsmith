@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Button, { Category, Size } from "./Button";
 import axios from "axios";
-import { ReactComponent as UploadIcon } from "../../assets/icons/ads/upload.svg";
-import { ReactComponent as UploadSuccessIcon } from "../../assets/icons/ads/upload_success.svg";
+import { ReactComponent as UploadIcon } from "assets/icons/ads/upload.svg";
+import { ReactComponent as UploadSuccessIcon } from "assets/icons/ads/upload_success.svg";
 import { DndProvider, useDrop, DropTargetMonitor } from "react-dnd";
 import HTML5Backend, { NativeTypes } from "react-dnd-html5-backend";
 import Text, { TextType } from "./Text";
@@ -16,7 +16,7 @@ import {
 } from "@appsmith/constants/messages";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
-import Icon, { IconSize } from "./Icon";
+import Icon, { IconName, IconSize } from "./Icon";
 import { error as logError } from "loglevel";
 const CLOUDINARY_PRESETS_NAME = "";
 const CLOUDINARY_CLOUD_NAME = "";
@@ -43,6 +43,11 @@ export type FilePickerProps = {
   logoUploadError?: string;
   fileType: FileType;
   delayedUpload?: boolean;
+  uploadIcon?: IconName;
+  title?: string;
+  description?: string;
+  containerClickable?: boolean; // when cotainer is clicked, it'll be work as button
+  iconFillColor?: string;
 };
 
 export const ContainerDiv = styled.div<{

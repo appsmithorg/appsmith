@@ -6,7 +6,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   ReduxActionWithoutPayload,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { Action } from "entities/Action";
 import { batchAction } from "actions/batchActions";
 import { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
@@ -221,6 +221,13 @@ export const executePluginActionSuccess = (payload: {
   payload: payload,
 });
 
+export const setActionResponseDisplayFormat = (
+  payload: UpdateActionPropertyActionPayload,
+) => ({
+  type: ReduxActionTypes.SET_ACTION_RESPONSE_DISPLAY_FORMAT,
+  payload: payload,
+});
+
 export const executePluginActionError = (
   executeErrorPayload: ExecuteErrorPayload,
 ): ReduxAction<ExecuteErrorPayload> => {
@@ -275,6 +282,20 @@ export const setActionsToExecuteOnPageLoad = (
 ) => {
   return {
     type: ReduxActionTypes.SET_ACTION_TO_EXECUTE_ON_PAGELOAD,
+    payload: actions,
+  };
+};
+
+export const setJSActionsToExecuteOnPageLoad = (
+  actions: Array<{
+    executeOnLoad: boolean;
+    id: string;
+    name: string;
+    collectionId?: string;
+  }>,
+) => {
+  return {
+    type: ReduxActionTypes.SET_JS_ACTION_TO_EXECUTE_ON_PAGELOAD,
     payload: actions,
   };
 };

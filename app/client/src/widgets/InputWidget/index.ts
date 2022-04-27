@@ -1,3 +1,5 @@
+import { Alignment } from "@blueprintjs/core";
+import { LabelPosition } from "components/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -11,6 +13,9 @@ export const CONFIG = {
     inputType: "TEXT",
     rows: 4,
     label: "",
+    labelPosition: LabelPosition.Left,
+    labelAlignment: Alignment.LEFT,
+    labelWidth: 5,
     columns: 20,
     widgetName: "Input",
     version: 1,

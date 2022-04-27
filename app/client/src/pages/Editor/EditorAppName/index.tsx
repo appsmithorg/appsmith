@@ -194,7 +194,7 @@ export function EditorAppName(props: EditorAppNameProps) {
   });
 
   const NavigationMenuItems = (
-    <StyledMenu>
+    <StyledMenu className="t--application-edit-menu">
       <NavigationMenu
         menuItems={NavigationMenuData}
         setIsPopoverOpen={setIsPopoverOpen}

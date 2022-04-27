@@ -217,12 +217,13 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     //Post Execute call not happening.. hence commenting it for this case
     //cy.wait("@post_Execute").should("have.nested.property", "response.body.responseMeta.status", 200,);
 
-    cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
+    cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
     });
     cy.get("span:contains('GOT IT')").click();
 
     //Bug verification starts
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.selectEntityByName("ListFiles");
     cy.wait(2000);
     cy.selectEntityByName("Page3");

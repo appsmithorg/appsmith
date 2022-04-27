@@ -421,6 +421,10 @@
       "new": true
     }
   ],
+  "pageOrder": [
+    "Page1",
+    "Page2"
+  ],
   "actionList": [
     {
       "id": "60aca092136c4b7178f6790a",
@@ -442,12 +446,10 @@
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "{\n \"find\": \"users\",\n \"sort\": {\n \"id\": 1\n },\n \"limit\": 10\n}",
-          "pluginSpecifiedTemplates": [
-            {
-              "value": false
-            }
-          ]
+          "formData": {
+            "smartSubstitution": false,
+            "body": "{\n \"find\": \"users\",\n \"sort\": {\n \"id\": 1\n },\n \"limit\": 10\n}"
+          }
         },
         "executeOnLoad": true,
         "dynamicBindingPathList": [],

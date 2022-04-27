@@ -40,7 +40,6 @@ import { Variant } from "components/ads/common";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 
-import { commentModeSelector } from "selectors/commentsSelectors";
 import {
   createMessage,
   SAVE_HOTKEY_TOASTER_MESSAGE,
@@ -51,6 +50,8 @@ import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
+import { matchBuilderPath } from "constants/routes";
+import { commentModeSelector } from "selectors/commentsSelectors";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -144,7 +145,7 @@ class GlobalHotKeys extends React.Component<Props> {
         />
         <Hotkey
           allowInInput
-          combo="alt + shift + n"
+          combo="mod + plus"
           global
           label="Create New"
           onKeyDown={(e) =>
@@ -257,8 +258,10 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Select all Widget"
           onKeyDown={(e: any) => {
-            this.props.selectAllWidgetsInit();
-            e.preventDefault();
+            if (matchBuilderPath(window.location.pathname)) {
+              this.props.selectAllWidgetsInit();
+              e.preventDefault();
+            }
           }}
         />
         <Hotkey

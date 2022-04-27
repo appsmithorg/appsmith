@@ -119,7 +119,8 @@ describe("Git sync:", function() {
   // rename entities
   it("makes branch specific resource updates", function() {
     cy.switchGitBranch(childBranchKey);
-
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("PAGES");
     cy.GlobalSearchEntity("ParentPage1");
     cy.RenameEntity("ParentPageRenamed", true);
     cy.GlobalSearchEntity("ParentApi1");
@@ -208,7 +209,7 @@ describe("Git sync:", function() {
     cy.get(gitSyncLocators.syncBranches).click();
     cy.get(gitSyncLocators.branchListItem)
       .contains(tempBranchRegex)
-      .should("not.exist");
+      .should("exist");
     cy.get(gitSyncLocators.branchListItem)
       .contains(remoteTempBranchRenamedRegex)
       .should("exist");
@@ -225,6 +226,7 @@ describe("Git sync:", function() {
   it("error faced when user switches branch with new page", function() {
     cy.generateUUID().then((uuid) => {
       cy.createGitBranch(childBranchKey);
+      cy.CheckAndUnfoldEntityItem("PAGES");
       cy.Createpage(uuid);
       cy.switchGitBranch("master");
       cy.contains("Page not found");

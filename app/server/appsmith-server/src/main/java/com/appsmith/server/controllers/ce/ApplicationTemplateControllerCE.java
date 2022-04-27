@@ -40,9 +40,16 @@ public class ApplicationTemplateControllerCE {
                 .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
     }
 
+    @GetMapping("filters")
+    public Mono<ResponseDTO<ApplicationTemplate>> getFilters() {
+        return applicationTemplateService.getFilters()
+                .map(filters -> new ResponseDTO<>(HttpStatus.OK.value(), filters, null));
+    }
+
     @PostMapping("{templateId}/import/{organizationId}")
-    public Mono<Application> importApplicationFromTemplate(@PathVariable String templateId,
+    public Mono<ResponseDTO<Application>> importApplicationFromTemplate(@PathVariable String templateId,
                                                            @PathVariable String organizationId) {
-        return applicationTemplateService.importApplicationFromTemplate(templateId, organizationId);
+        return applicationTemplateService.importApplicationFromTemplate(templateId, organizationId)
+                .map(importedApp -> new ResponseDTO<>(HttpStatus.OK.value(), importedApp, null));
     }
 }

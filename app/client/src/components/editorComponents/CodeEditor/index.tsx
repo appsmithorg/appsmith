@@ -151,6 +151,8 @@ export type EditorProps = EditorStyleProps &
     highlightedTextClassName?: string;
     handleMouseEnter?: (event: MouseEvent) => void;
     handleMouseLeave?: () => void;
+    isReadOnly?: boolean;
+    isRawView?: boolean;
   };
 
 type Props = ReduxStateProps &
@@ -196,6 +198,7 @@ class CodeEditor extends Component<Props, State> {
   componentDidMount(): void {
     if (this.codeEditorTarget.current) {
       const options: EditorConfiguration = {
+        autoRefresh: true,
         mode: this.props.mode,
         theme: EditorThemes[this.props.theme],
         viewportMargin: 10,
@@ -792,6 +795,8 @@ class CodeEditor extends Component<Props, State> {
             hoverInteraction={hoverInteraction}
             isFocused={this.state.isFocused}
             isNotHover={this.state.isFocused || this.state.isOpened}
+            isRawView={this.props.isRawView}
+            isReadOnly={this.props.isReadOnly}
             onMouseMove={this.handleLintTooltip}
             onMouseOver={this.handleMouseMove}
             ref={this.editorWrapperRef}

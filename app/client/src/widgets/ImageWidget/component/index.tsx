@@ -3,7 +3,7 @@ import { ComponentProps } from "widgets/BaseComponent";
 import styled from "styled-components";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { Colors } from "constants/Colors";
-import { createMessage, IMAGE_LOAD_ERROR } from "ce/constants/messages";
+import { createMessage, IMAGE_LOAD_ERROR } from "@appsmith/constants/messages";
 
 export interface StyledImageProps {
   defaultImageUrl: string;
@@ -115,6 +115,17 @@ class ImageComponent extends React.Component<
       zoomingState: ZoomingState.MAX_ZOOMED_OUT,
     };
   }
+
+  componentDidUpdate = (prevProps: ImageComponentProps) => {
+    // reset the imageError flag when the defaultImageUrl or imageUrl changes
+    if (
+      (prevProps.imageUrl !== this.props.imageUrl ||
+        prevProps.defaultImageUrl !== this.props.defaultImageUrl) &&
+      this.state.imageError
+    ) {
+      this.setState({ imageError: false });
+    }
+  };
 
   render() {
     const { imageUrl, maxZoomLevel } = this.props;

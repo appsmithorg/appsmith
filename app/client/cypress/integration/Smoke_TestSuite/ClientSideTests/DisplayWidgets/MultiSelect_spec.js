@@ -102,4 +102,42 @@ describe("MultiSelect Widget Functionality", function() {
       .first()
       .should("have.text", "Green");
   });
+  it("should display the right label", () => {
+    cy.openPropertyPane("multiselectwidgetv2");
+    cy.updateCodeInput(
+      ".t--property-control-options",
+      `[
+        {
+          "label": "Blue",
+          "value": "BLUE"
+        },
+        {
+          "label": "Green",
+          "value": "GREEN"
+        },
+        {
+          "label": "Red",
+          "value": "RED"
+        }
+      ]`,
+    );
+    cy.updateCodeInput(
+      ".t--property-control-defaultvalue",
+      `[
+      "GREEN",
+      "RED"
+    ]`,
+    );
+    cy.get(".t--property-control-options .t--codemirror-has-error").should(
+      "not.exist",
+    );
+    cy.get(".t--property-control-defaultvalue .t--codemirror-has-error").should(
+      "not.exist",
+    );
+    cy.wait(100);
+    cy.get(formWidgetsPage.multiselectwidgetv2)
+      .find(".rc-select-selection-item-content")
+      .first()
+      .should("have.text", "Green");
+  });
 });

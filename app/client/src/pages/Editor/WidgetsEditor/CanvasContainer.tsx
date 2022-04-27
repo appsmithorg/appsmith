@@ -55,6 +55,7 @@ function CanvasContainer() {
     </Centered>
   );
   let node: ReactNode;
+
   if (isFetchingPage) {
     node = pageLoading;
   }
@@ -71,7 +72,9 @@ function CanvasContainer() {
         "mt-9": shouldHaveTopMargin,
       })}
       key={currentPageId}
-      style={{ height: `calc(100% - ${shouldHaveTopMargin ? "2rem" : "0px"})` }}
+      style={{
+        height: `calc(100vh - ${shouldHaveTopMargin ? "2rem" : "0px"})`,
+      }}
     >
       {node}
     </Container>

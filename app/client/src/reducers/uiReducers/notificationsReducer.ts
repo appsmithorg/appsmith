@@ -1,4 +1,7 @@
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { AppsmithNotification } from "entities/Notification";
 import { uniqBy } from "lodash";
 import { createReducer } from "utils/AppsmithUtils";

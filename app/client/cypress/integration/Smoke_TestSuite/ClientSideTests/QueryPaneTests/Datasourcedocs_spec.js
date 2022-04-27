@@ -39,13 +39,7 @@ describe("Check datasource doc links", function() {
   });
 
   it("3. Delete the query and datasources", function() {
-    cy.get(queryEditor.queryMoreAction).click();
-    cy.get(queryEditor.deleteUsingContext).click();
-    cy.wait("@deleteAction").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.deleteQueryUsingContext();
 
     cy.deleteDatasource(postgresDatasourceName);
   });

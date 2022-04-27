@@ -94,9 +94,75 @@ export const isHidden = (values: any, hiddenConfig?: HiddenType) => {
   return !!hiddenConfig;
 };
 
+export enum ViewTypes {
+  JSON = "json",
+  COMPONENT = "component",
+}
+
+export const alternateViewTypeInputConfig = {
+  label: "",
+  isValid: true,
+  controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+  evaluationSubstitutionType: "TEMPLATE",
+  inputType: "JSON",
+};
+
+export const getViewType = (values: any, configProperty: string) => {
+  if (
+    configProperty.startsWith("actionConfiguration.formData") &&
+    configProperty.endsWith(".data")
+  ) {
+    const pathForViewType = configProperty.replace(".data", ".viewType");
+    return get(values, pathForViewType, ViewTypes.COMPONENT);
+  } else {
+    return ViewTypes.COMPONENT;
+  }
+};
+
+export const switchViewType = (
+  values: any,
+  configProperty: string,
+  viewType: string,
+  formName: string,
+  changeFormValue: (formName: string, path: string, value: any) => void,
+) => {
+  const newViewType =
+    viewType === ViewTypes.JSON ? ViewTypes.COMPONENT : ViewTypes.JSON;
+  const pathForJsonData = configProperty.replace(".data", ".jsonData");
+  const pathForComponentData = configProperty.replace(
+    ".data",
+    ".componentData",
+  );
+  const jsonData = get(values, pathForJsonData);
+  const componentData = get(values, pathForComponentData);
+  const currentData = get(values, configProperty);
+
+  if (newViewType === ViewTypes.JSON) {
+    changeFormValue(formName, pathForComponentData, currentData);
+    if (!!jsonData) {
+      changeFormValue(formName, configProperty, jsonData);
+    }
+  } else {
+    changeFormValue(formName, pathForJsonData, currentData);
+    if (!!componentData) {
+      changeFormValue(formName, configProperty, componentData);
+    }
+  }
+
+  changeFormValue(
+    formName,
+    configProperty.replace(".data", ".viewType"),
+    newViewType,
+  );
+};
+
 // Function that extracts the initial value from the JSON configs
-export const getConfigInitialValues = (config: Record<string, any>[]) => {
-  const configInitialValues = {};
+export const getConfigInitialValues = (
+  config: Record<string, any>[],
+  multipleViewTypesSupported = false,
+) => {
+  const configInitialValues: Record<string, any> = {};
+
   // We expect the JSON configs to be an array of objects
   if (!Array.isArray(config)) return configInitialValues;
 
@@ -115,16 +181,63 @@ export const getConfigInitialValues = (config: Record<string, any>[]) => {
         set(configInitialValues, section.configProperty, section.initialValue);
       }
     } else if (section.controlType === "WHERE_CLAUSE") {
+      let logicalTypes = [];
+      if ("logicalTypes" in section && section.logicalTypes.length > 0) {
+        logicalTypes = section.logicalTypes;
+      } else {
+        logicalTypes = [
+          {
+            label: "OR",
+            value: "OR",
+          },
+          {
+            label: "AND",
+            value: "AND",
+          },
+        ];
+      }
       set(
         configInitialValues,
         `${section.configProperty}.condition`,
-        section.logicalTypes[0].value,
+        logicalTypes[0].value,
       );
+      if (
+        multipleViewTypesSupported &&
+        section.configProperty.includes(".data")
+      ) {
+        set(
+          configInitialValues,
+          section.configProperty.replace(".data", ".viewType"),
+          "component",
+        );
+        set(
+          configInitialValues,
+          section.configProperty.replace(".data", ".componentData.condition"),
+          logicalTypes[0].value,
+        );
+      }
     }
     if ("children" in section) {
       section.children.forEach((section: any) => {
         parseConfig(section);
       });
+    } else if (
+      "configProperty" in section &&
+      multipleViewTypesSupported &&
+      section.configProperty.includes(".data")
+    ) {
+      set(
+        configInitialValues,
+        section.configProperty.replace(".data", ".viewType"),
+        "component",
+      );
+      if (section.configProperty in configInitialValues) {
+        set(
+          configInitialValues,
+          section.configProperty.replace(".data", ".componentData"),
+          configInitialValues[section.configProperty],
+        );
+      }
     }
   };
 
@@ -142,7 +255,7 @@ export const actionPathFromName = (
   const ActionConfigStarts = "actionConfiguration.";
   let path = name;
   if (path.startsWith(ActionConfigStarts)) {
-    path = "config." + path.substr(ActionConfigStarts.length);
+    path = "config." + path.slice(ActionConfigStarts.length);
   }
   return `${actionName}.${path}`;
 };

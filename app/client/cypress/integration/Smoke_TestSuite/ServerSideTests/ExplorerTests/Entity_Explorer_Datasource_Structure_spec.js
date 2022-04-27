@@ -8,7 +8,7 @@ let datasourceName;
 
 describe("Entity explorer datasource structure", function() {
   beforeEach(() => {
-    cy.ClearSearch();
+    //cy.ClearSearch();
     cy.startRoutesForDatasource();
     cy.createPostgresDatasource();
     cy.get("@createDatasource").then((httpResponse) => {
@@ -16,7 +16,7 @@ describe("Entity explorer datasource structure", function() {
     });
   });
 
-  it("Entity explorer datasource structure", function() {
+  it("1. Entity explorer datasource structure", function() {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.wait("@createNewApi").should(
       "have.nested.property",
@@ -30,6 +30,7 @@ describe("Entity explorer datasource structure", function() {
       .should("have.value", "MyQuery")
       .blur();
     cy.WaitAutoSave();
+    cy.CheckAndUnfoldEntityItem("DATASOURCES");
     cy.get(".t--entity-name")
       .contains(datasourceName)
       .click({ force: true });
@@ -61,30 +62,19 @@ describe("Entity explorer datasource structure", function() {
       201,
     );
 
-    cy.get(queryEditor.queryMoreAction).click();
-    cy.get(queryEditor.deleteUsingContext).click();
-    cy.wait("@deleteAction").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.deleteQueryUsingContext();
 
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.GlobalSearchEntity("MyQuery");
     cy.get(`.t--entity-name:contains(MyQuery)`).click();
-    cy.get(queryEditor.queryMoreAction).click();
-    cy.get(queryEditor.deleteUsingContext).click();
-    cy.wait("@deleteAction").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.deleteQueryUsingContext();
 
     cy.get(commonlocators.entityExplorersearch).clear({ force: true });
 
     cy.deleteDatasource(datasourceName);
   });
 
-  it("Refresh datasource structure", function() {
+  it("2. Refresh datasource structure", function() {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click({ force: true });
 
@@ -104,7 +94,7 @@ describe("Entity explorer datasource structure", function() {
       .replace(/[^a-z]+/g, "");
     cy.typeValueNValidate(`CREATE TABLE public.${tableName} ( ID int );`);
     cy.onlyQueryRun();
-    cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
+    cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.request.requestParams.Query.value).to.contain(
         tableName,
       );
@@ -126,10 +116,10 @@ describe("Entity explorer datasource structure", function() {
       200,
     );
     // Expand datasource
-    cy.get(`.t--entity.datasource:contains(${datasourceName})`)
-      .find(explorer.collapse)
-      .first()
-      .click();
+    // cy.get(`.t--entity.datasource:contains(${datasourceName})`)
+    //   .find(explorer.collapse)
+    //   .first()
+    //   .click();
     cy.xpath("//div[text()='public." + tableName + "']").should("exist");
 
     // cy.get(explorer.refreshStructure).click({ force: true });

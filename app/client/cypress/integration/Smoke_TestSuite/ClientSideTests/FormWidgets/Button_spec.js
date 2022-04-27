@@ -8,6 +8,8 @@ const modalWidgetPage = require("../../../../locators/ModalWidget.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 
+const iconAlignmentProperty = ".t--property-control-iconalignment";
+
 describe("Button Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
@@ -15,6 +17,52 @@ describe("Button Widget Functionality", function() {
 
   beforeEach(() => {
     cy.openPropertyPane("buttonwidget");
+  });
+
+  it("Icon alignment should not change when changing the icon", () => {
+    // Add an icon
+    cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
+      force: true,
+    });
+
+    cy.get(".bp3-icon-add")
+      .first()
+      .click({
+        force: true,
+      });
+
+    // Assert if the icon exists
+    cy.get(`${widgetsPage.buttonWidget} .bp3-icon-add`).should("exist");
+    // Change icon alignment to right
+    cy.get(`${iconAlignmentProperty} .t--button-tab-right`)
+      .last()
+      .click({
+        force: true,
+      });
+    cy.wait(200);
+    // Assert if the icon appears on the right hand side of the button text
+    cy.get(widgetsPage.buttonWidget)
+      .contains("Submit")
+      .children("span")
+      .should("have.length", 2);
+    cy.get(`${widgetsPage.buttonWidget} span.bp3-button-text`)
+      .next()
+      .should("have.class", "bp3-icon-add");
+    // Change the existing icon
+    cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
+      force: true,
+    });
+    cy.get(".bp3-icon-airplane")
+      .first()
+      .click({
+        force: true,
+      });
+    // Assert if the icon changes
+    // Assert if the icon still exists on the right side of the text
+    cy.get(`${widgetsPage.buttonWidget} .bp3-icon-airplane`)
+      .should("exist")
+      .prev()
+      .should("have.text", "Submit");
   });
 
   it("Button-Color Validation", function() {
@@ -137,7 +185,7 @@ describe("Button Widget Functionality", function() {
   it("Toggle JS - Button-Unckeck Visible field Validation", function() {
     //Uncheck the disabled checkbox using JS and validate
     cy.get(widgetsPage.toggleVisible).click({ force: true });
-    cy.testJsontext("visible", "true");
+    cy.testJsontext("visible", "false");
     cy.PublishtheApp();
     cy.get(publishPage.buttonWidget).should("not.exist");
   });

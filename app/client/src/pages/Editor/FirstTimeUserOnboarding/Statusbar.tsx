@@ -1,6 +1,5 @@
 import { Icon } from "@blueprintjs/core";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { getOnboardingCheckListUrl } from "constants/routes";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useIsWidgetActionConnectionPresent } from "pages/Editor/utils";
 import React, { SyntheticEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,7 +7,6 @@ import { RouteComponentProps, withRouter } from "react-router-dom";
 import { getEvaluationInverseDependencyMap } from "selectors/dataTreeSelectors";
 import {
   getApplicationLastDeployedAt,
-  getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import {
@@ -37,6 +35,7 @@ import {
 import { getTypographyByKey } from "constants/DefaultTheme";
 
 import { Colors } from "constants/Colors";
+import { onboardingCheckListUrl } from "RouteBuilder";
 
 const Wrapper = styled.div<{ active: boolean }>`
   width: 100%;
@@ -44,8 +43,9 @@ const Wrapper = styled.div<{ active: boolean }>`
     props.active ? props.theme.colors.welcomeTourStickySidebarBackground : ""};
   cursor: ${(props) => (props.active ? "default" : "pointer")};
   height: ${(props) => props.theme.onboarding.statusBarHeight}px;
-  padding: 10px 16px;
+  padding: 12px 16px;
   transition: background-color 0.3s ease;
+  border: 1px solid ${Colors.Gallery};
 
   ${(props) =>
     props.active &&
@@ -192,8 +192,6 @@ const useStatus = (): { percentage: number; content: string } => {
 
 export function OnboardingStatusbar(props: RouteComponentProps) {
   const dispatch = useDispatch();
-  const applicationId = useSelector(getCurrentApplicationId);
-  const pageId = useSelector(getCurrentPageId);
   const { content, percentage } = useStatus();
   const isChecklistPage = props.location.pathname.indexOf("/checklist") > -1;
   const isGenerateAppPage =
@@ -231,7 +229,7 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
       className="sticky top-0 t--onboarding-statusbar"
       data-testid="statusbar-container"
       onClick={() => {
-        history.push(getOnboardingCheckListUrl(applicationId, pageId));
+        history.push(onboardingCheckListUrl());
       }}
     >
       {!isFirstTimeUserOnboardingComplete && (

@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { TourType } from "entities/Tour";
 
 export const setActiveTour = (tourType: TourType) => ({

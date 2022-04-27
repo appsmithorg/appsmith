@@ -33,12 +33,6 @@ export const getActiveGitSyncModalTab = (state: AppState) =>
 export const getIsGitErrorPopupVisible = (state: AppState) =>
   state.ui.gitSync.isErrorPopupVisible;
 
-export const getIsImportAppViaGitModalOpen = (state: AppState) =>
-  state.ui.gitSync.isImportAppViaGitModalOpen;
-
-export const getOrganizationIdForImport = (state: AppState) =>
-  state.ui.gitSync.organizationIdForImport;
-
 export const getGlobalGitConfig = (state: AppState) =>
   state.ui.gitSync.globalGitConfig;
 
@@ -92,7 +86,14 @@ export const getIsGitConnected = createSelector(
   getCurrentAppGitMetaData,
   (gitMetaData) => !!(gitMetaData && gitMetaData.remoteUrl),
 );
-export const getGitBranches = (state: AppState) => state.ui.gitSync.branches;
+
+/**
+ * getGitBranches: returns list of git branches in redux store
+ * @param state {AppState}
+ * @return Branch[]
+ */
+export const getGitBranches = (state: AppState): Branch[] =>
+  state.ui.gitSync.branches;
 
 export const getGitBranchNames = createSelector(getGitBranches, (branches) =>
   branches.map((branchObj) => branchObj.branchName),
@@ -107,7 +108,7 @@ export const getDefaultGitBranchName = createSelector(
 export const getFetchingBranches = (state: AppState) =>
   state.ui.gitSync.fetchingBranches;
 
-export const getCurrentGitBranch = (state: AppState) => {
+export const getCurrentGitBranch = (state: AppState): string | undefined => {
   const { gitApplicationMetadata } = getCurrentApplication(state) || {};
   return gitApplicationMetadata?.branchName;
 };
@@ -144,13 +145,11 @@ const FALLBACK_GIT_SYNC_DOCS_URL =
 
 // git connect ssh key deploy url
 export const getSSHKeyDeployDocUrl = (state: AppState) =>
-  state.ui.applications.currentApplication?.deployKeyDocUrl ||
-  FALLBACK_GIT_SYNC_DOCS_URL;
+  state.ui.gitSync.deployKeyDocUrl || FALLBACK_GIT_SYNC_DOCS_URL;
 
 // git connect remote url
 export const getRemoteUrlDocUrl = (state: AppState) =>
-  state.ui.applications.currentApplication?.deployKeyDocUrl ||
-  FALLBACK_GIT_SYNC_DOCS_URL;
+  state.ui.gitSync.deployKeyDocUrl || FALLBACK_GIT_SYNC_DOCS_URL;
 
 // git deploy conflict doc url
 export const getConflictFoundDocUrlDeploy = (state: AppState) =>
@@ -173,3 +172,11 @@ export const getConnectingErrorDocUrl = (state: AppState) =>
 export const getUpstreamErrorDocUrl = (state: AppState) =>
   state.ui.gitSync.commitAndPushError?.error?.referenceDoc ||
   FALLBACK_GIT_SYNC_DOCS_URL;
+
+export const getSshKeyPair = (state: AppState) => state.ui.gitSync.SSHKeyPair;
+
+export const getIsImportingApplicationViaGit = (state: AppState) =>
+  state.ui.gitSync.isImportingApplicationViaGit;
+
+export const getDeleteBranchWarning = (state: AppState) =>
+  state.ui.gitSync.deleteBranchWarning;

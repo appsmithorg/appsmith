@@ -14,6 +14,7 @@ export default {
   branchSearchInput: ".t--branch-search-input",
   branchListItem: ".t--branch-item",
   closeGitSyncModal: ".t--close-git-sync-modal",
+  closeRevokeModal: ".t--close-disconnect-modal",
   gitSyncModal: ".git-sync-modal",
   bottomBarCommitButton: ".t--bottom-bar-commit",
   bottomBarMergeButton: ".t--bottom-bar-merge",
@@ -46,4 +47,6 @@ export default {
   learnMoreOnRepoLimitModal: ".t--learn-more-repo-limit-modal",
   gitSyncModalDeployTab: "[data-cy=t--tab-DEPLOY]",
   gitPullCount: ".t--bottom-bar-pull .count",
+  gitConnectionContainer: "[data-test=t--git-connection-container]",
+  gitRemoteURLContainer: "[data-test=t--remote-url-container]",
 };

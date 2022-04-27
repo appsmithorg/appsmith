@@ -41,9 +41,10 @@ import reactor.util.function.Tuple2;
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -101,6 +102,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         if (!StringUtils.hasLength(datasource.getGitSyncId())) {
             datasource.setGitSyncId(datasource.getOrganizationId() + "_" + new ObjectId());
         }
+
         Mono<Datasource> datasourceMono = Mono.just(datasource);
         if (!StringUtils.hasLength(datasource.getName())) {
             datasourceMono = sequenceService
@@ -119,6 +121,9 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
         return datasourceWithPoliciesMono
                 .flatMap(this::validateAndSaveDatasourceToRepository)
+                .flatMap(savedDatasource ->
+                    analyticsService.sendCreateEvent(savedDatasource, getAnalyticsProperties(savedDatasource))
+                )
                 .flatMap(this::populateHintMessages); // For REST API datasource create flow.
     }
 
@@ -190,7 +195,6 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
         Mono<Datasource> datasourceMono = repository.findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)));
-
         return datasourceMono
                 .map(dbDatasource -> {
                     copyNestedNonNullProperties(datasource, dbDatasource);
@@ -202,6 +206,9 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     return dbDatasource;
                 })
                 .flatMap(this::validateAndSaveDatasourceToRepository)
+                .flatMap(savedDatasource ->
+                        analyticsService.sendUpdateEvent(savedDatasource, getAnalyticsProperties(savedDatasource))
+                )
                 .flatMap(this::populateHintMessages);
     }
 
@@ -247,7 +254,12 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                         invalids.addAll(pluginExecutor.validateDatasource(datasourceConfiguration));
                     }
 
-                    return Mono.just(datasource);
+                    return pluginMono.map(plugin -> {
+                        // setting the plugin name to datasource.
+                        // this is required in analytics events for datasource e.g. create ds, update ds
+                        datasource.setPluginName(plugin.getName());
+                        return datasource;
+                    });
                 });
     }
 
@@ -281,10 +293,15 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 .flatMap(this::validateDatasource)
                 .zipWith(currentUserMono)
                 .flatMap(tuple -> {
-                    Datasource savedDatasource = tuple.getT1();
+                    Datasource unsavedDatasource = tuple.getT1();
                     User user = tuple.getT2();
-                    Datasource userPermissionsInDatasource = repository.setUserPermissionsInObject(savedDatasource, user);
-                    return repository.save(userPermissionsInDatasource);
+                    Datasource userPermissionsInDatasource = repository.setUserPermissionsInObject(unsavedDatasource, user);
+                    return repository.save(userPermissionsInDatasource).map(savedDatasource -> {
+                        // datasource.pluginName is a transient field. It was set by validateDatasource method
+                        // object from db will have pluginName=null so set it manually from the unsaved datasource obj
+                        savedDatasource.setPluginName(unsavedDatasource.getPluginName());
+                        return savedDatasource;
+                    });
                 });
     }
 
@@ -367,11 +384,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         // Remove branch name as datasources are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
         if (params.getFirst(FieldName.ORGANIZATION_ID) != null) {
-            return findAllByOrganizationId(params.getFirst(FieldName.ORGANIZATION_ID), AclPermission.READ_DATASOURCES)
-                    .map(datasource -> {
-                        datasource.setIsConfigured(Optional.ofNullable(datasource.getDatasourceConfiguration()).isEmpty());
-                        return datasource;
-                    });
+            return findAllByOrganizationId(params.getFirst(FieldName.ORGANIZATION_ID), AclPermission.READ_DATASOURCES);
         }
 
         return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
@@ -393,7 +406,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
-    public Mono<Datasource> delete(String id) {
+    public Mono<Datasource> archiveById(String id) {
         return repository
                 .findById(id, MANAGE_DATASOURCES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)))
@@ -410,9 +423,16 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
-    public Mono<Datasource> deleteByIdAndBranchName(String id, String branchName) {
+    public Mono<Datasource> archiveByIdAndBranchName(String id, String branchName) {
         // Ignore branchName as datasources are branch independent entity
-        return this.delete(id);
+        return this.archiveById(id);
     }
 
+    private Map<String, Object> getAnalyticsProperties(Datasource datasource) {
+        Map<String, Object> analyticsProperties = new HashMap<>();
+        analyticsProperties.put("orgId", datasource.getOrganizationId());
+        analyticsProperties.put("pluginName", datasource.getPluginName());
+        analyticsProperties.put("dsName", datasource.getName());
+        return analyticsProperties;
+    }
 }
