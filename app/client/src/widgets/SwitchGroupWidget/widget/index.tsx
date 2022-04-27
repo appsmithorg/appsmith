@@ -275,8 +275,10 @@ class SwitchGroupWidget extends BaseWidget<
                 subText: "3.75rem",
               },
             ],
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "labelStyle",

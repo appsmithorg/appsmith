@@ -214,6 +214,8 @@ export const migrateStylingPropertiesForTheming = (
               `primaryColumns.${key}.boxShadow`,
               child,
             );
+          } else {
+            column.boxShadow = "none";
           }
 
           switch (column.boxShadow) {

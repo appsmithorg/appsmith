@@ -183,7 +183,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                     ? columnProperties.boxShadowColor[originalIndex]
                     : columnProperties.boxShadowColor,
                 )
-              : cellProperties.boxShadow) || "NONE";
+              : cellProperties.boxShadow) || "none";
 
           let isSelected = false;
           if (this.props.multiRowSelection) {
