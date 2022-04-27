@@ -47,7 +47,13 @@ function NameEditor(props: NameEditorProps) {
   const [forceUpdate, setForceUpdate] = useState(false);
   const dispatch = useDispatch();
   if (!currentActionConfig?.id) {
-    log.error("No correct API id or Query id found in the url.");
+    log.error(
+      `No correct ${
+        props.pluginType === PluginType.JS
+          ? "JSObject Id"
+          : "API id or Query id"
+      } found in the url.`,
+    );
   }
   const guidedTourEnabled = useSelector(inGuidedTour);
 
