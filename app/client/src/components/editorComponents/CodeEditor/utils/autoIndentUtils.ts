@@ -1,14 +1,14 @@
 import { getPlatformOS, PLATFORM_OS } from "utils/helpers";
 
 const autoIndentShortcut = {
-  [PLATFORM_OS.MAC]: "shift-cmd-p",
-  [PLATFORM_OS.IOS]: "shift-cmd-p",
-  [PLATFORM_OS.WINDOWS]: "shift-alt-f",
-  [PLATFORM_OS.ANDROID]: "shift-alt-f",
-  [PLATFORM_OS.LINUX]: "shift-ctrl-i",
+  [PLATFORM_OS.MAC]: "Shift-Cmd-P",
+  [PLATFORM_OS.IOS]: "Shift-Cmd-P",
+  [PLATFORM_OS.WINDOWS]: "Shift-Alt-F",
+  [PLATFORM_OS.ANDROID]: "Shift-Alt-F",
+  [PLATFORM_OS.LINUX]: "Shift-Ctrl-I",
 };
 
 export const getAutoIndentShortcutKey = () => {
   const platformOS = getPlatformOS();
-  return platformOS ? autoIndentShortcut[platformOS] : "shift-alt-f";
+  return platformOS ? autoIndentShortcut[platformOS] : "Shift-Alt-F";
 };

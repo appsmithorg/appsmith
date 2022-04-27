@@ -94,6 +94,7 @@ import {
   LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS,
 } from "./constants";
 import { getAutoIndentShortcutKey } from "./utils/autoIndentUtils";
+import editor from "../../../pages/Editor";
 
 interface ReduxStateProps {
   dynamicData: DataTree;
@@ -226,6 +227,9 @@ class CodeEditor extends Component<Props, State> {
   }
   componentDidMount(): void {
     if (this.codeEditorTarget.current) {
+      // const autoIndentKey = getAutoIndentShortcutKey();
+      // const isReadOnly = !this.props.input.onChange || this.props.disabled;
+      // const showLineNumbers = this.props.showLineNumbers;
       const options: EditorConfiguration = {
         autoRefresh: true,
         mode: this.props.mode,
@@ -270,10 +274,9 @@ class CodeEditor extends Component<Props, State> {
       const isReadOnly = !this.props.input.onChange || this.props.disabled;
       if (this.props.showLineNumbers && !isReadOnly) {
         const autoIndentKey = getAutoIndentShortcutKey();
-        console.log("auto indent keys", autoIndentKey);
         options.extraKeys[autoIndentKey] = (editor) => {
           editor.eachLine((line) => {
-            const lineNumber = this.editor.getLineNumber(line);
+            const lineNumber = editor.getLineNumber(line);
             if (!!lineNumber) {
               editor.indentLine(lineNumber);
             }
