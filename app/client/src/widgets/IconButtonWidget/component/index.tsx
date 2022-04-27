@@ -20,7 +20,7 @@ import {
   getCustomBackgroundColor,
   getCustomBorderColor,
   getCustomHoverColor,
-  getCustomTextColor,
+  getComplementaryGrayscaleColor,
 } from "widgets/WidgetUtils";
 
 type IconButtonContainerProps = {
@@ -161,7 +161,7 @@ export const StyledButton = styled((props) => (
 
       color: ${
         buttonVariant === ButtonVariantTypes.PRIMARY
-          ? getCustomTextColor(theme, buttonColor)
+          ? getComplementaryGrayscaleColor(buttonColor)
           : getCustomBackgroundColor(
               ButtonVariantTypes.PRIMARY,
               buttonColor,

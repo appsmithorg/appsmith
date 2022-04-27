@@ -24,7 +24,7 @@ import {
   getCustomBackgroundColor,
   getCustomBorderColor,
   getCustomHoverColor,
-  getCustomTextColor,
+  getComplementaryGrayscaleColor,
   getCustomJustifyContent,
   getAlignText,
   WidgetContainerDiff,
@@ -145,7 +145,7 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
       overflow: hidden;
       color: ${
         buttonVariant === ButtonVariantTypes.PRIMARY
-          ? getCustomTextColor(theme, buttonColor)
+          ? getComplementaryGrayscaleColor(buttonColor)
           : getCustomBackgroundColor(
               ButtonVariantTypes.PRIMARY,
               buttonColor,

@@ -15,8 +15,8 @@ import {
   getCustomBackgroundColor,
   getCustomBorderColor,
   getCustomHoverColor,
-  getCustomTextColor,
   lightenColor,
+  getComplementaryGrayscaleColor,
 } from "widgets/WidgetUtils";
 import { darkenActive, darkenHover } from "constants/DefaultTheme";
 import { ThemeProp } from "components/ads/common";
@@ -139,7 +139,7 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
 
       color: ${
         buttonVariant === ButtonVariantTypes.PRIMARY
-          ? getCustomTextColor(theme, buttonColor)
+          ? getComplementaryGrayscaleColor(buttonColor)
           : getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor)
       } !important;
     }

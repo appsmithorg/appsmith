@@ -23,8 +23,8 @@ import { Colors } from "constants/Colors";
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
-  getCustomTextColor,
   getCustomJustifyContent,
+  getComplementaryGrayscaleColor,
 } from "widgets/WidgetUtils";
 import { RenderMode, RenderModes } from "constants/WidgetConstants";
 import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
@@ -216,7 +216,7 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
     & span {
       color: ${
         buttonVariant === ButtonVariantTypes.PRIMARY
-          ? getCustomTextColor(theme, buttonColor)
+          ? getComplementaryGrayscaleColor(buttonColor)
           : getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor)
       } !important;
     }
