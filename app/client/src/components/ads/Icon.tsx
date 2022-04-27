@@ -198,10 +198,13 @@ export const IconWrapper = styled.span<IconProps>`
   display: flex;
   align-items: center;
   cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  &:hover {
+    cursor: ${(props) =>
+      props.disabled ? "not-allowed" : props.clickable ? "pointer" : "default"};
+  }
   svg {
     width: ${(props) => sizeHandler(props.size)}px;
     height: ${(props) => sizeHandler(props.size)}px;
-    cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
     ${(props) =>
       !props.keepColors
         ? `
@@ -217,12 +220,6 @@ export const IconWrapper = styled.span<IconProps>`
     ${(props) => (props.invisible ? `visibility: hidden;` : null)};
 
     &:hover {
-      cursor: ${(props) =>
-        props.disabled
-          ? "not-allowed"
-          : props.clickable
-          ? "pointer"
-          : "default"};
       ${(props) =>
         !props.keepColors
           ? `
@@ -408,7 +405,10 @@ export type IconProps = {
 };
 
 const Icon = forwardRef(
-  (props: IconProps & CommonComponentProps, ref: Ref<HTMLSpanElement>) => {
+  (
+    { onClick, ...props }: IconProps & CommonComponentProps,
+    ref: Ref<HTMLSpanElement>,
+  ) => {
     const iconName = props.name;
     const returnIcon =
       ICON_LOOKUP[iconName as keyof typeof ICON_LOOKUP] || null;
@@ -418,7 +418,12 @@ const Icon = forwardRef(
     let loader = <Spinner size={props.size} />;
     if (props.loaderWithIconWrapper) {
       loader = (
-        <IconWrapper className={Classes.ICON} clickable={clickable} {...props}>
+        <IconWrapper
+          className={Classes.ICON}
+          clickable={clickable}
+          onClick={undefined}
+          {...props}
+        >
           <Spinner size={props.size} />
         </IconWrapper>
       );
@@ -429,9 +434,9 @@ const Icon = forwardRef(
         className={`${Classes.ICON} ${props.className}`}
         clickable={clickable}
         data-cy={props.cypressSelector}
+        onClick={props.disabled ? noop : onClick}
         ref={ref}
         {...props}
-        onClick={props.onClick || noop}
       >
         {returnIcon}
       </IconWrapper>

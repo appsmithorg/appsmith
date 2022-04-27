@@ -41,7 +41,7 @@ function SelectButton(props: SelectButtonProps) {
               disabled={disabled}
               fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
               name="cross"
-              onClick={!disabled ? handleCancelClick : undefined}
+              onClick={handleCancelClick}
               size={IconSize.XXS}
             />
           ) : null}
