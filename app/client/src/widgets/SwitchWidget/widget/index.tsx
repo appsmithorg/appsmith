@@ -1,7 +1,7 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import { SwitchComponent } from "../component";
+import SwitchComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 

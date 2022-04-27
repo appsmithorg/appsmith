@@ -11,7 +11,7 @@ import {
   FieldComponentBaseProps,
   FieldEventProps,
 } from "../constants";
-import { SwitchComponent } from "widgets/SwitchWidget/component";
+import SwitchComponent from "widgets/SwitchWidget/component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 type SwitchComponentOwnProps = FieldComponentBaseProps &

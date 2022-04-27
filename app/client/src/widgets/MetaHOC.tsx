@@ -1,6 +1,6 @@
 import React from "react";
 import BaseWidget, { WidgetProps } from "./BaseWidget";
-import { debounce, fromPairs } from "lodash";
+import { debounce } from "lodash";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -37,13 +37,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
 
     constructor(props: metaHOCProps) {
       super(props);
-
-      const metaProperties = WrappedWidget.getMetaPropertiesMap();
-      this.initialMetaState = fromPairs(
-        Object.keys(metaProperties).map((metaProperty) => {
-          return [metaProperty, this.props[metaProperty]];
-        }),
-      );
+      this.initialMetaState = { ...WrappedWidget.getMetaPropertiesMap() };
     }
 
     debouncedTriggerEvalOnMetaUpdate = debounce(
@@ -127,8 +121,8 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
 
     updatedProps = () => {
       return {
-        ...this.props,
         ...this.initialMetaState,
+        ...this.props,
         ...this.props.metaState,
       };
     };
