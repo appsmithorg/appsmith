@@ -1,0 +1,135 @@
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import reducer from "./canvasWidgetsReducer";
+
+describe("Canvas Widgets Reducer", () => {
+  it("should return the initial state", () => {
+    expect(reducer(undefined, { type: "", payload: "" })).toEqual({});
+  });
+
+  it("should update the paths", () => {
+    const initialState = {
+      "0": { children: ["xyz123"] },
+      xyz123: {
+        bottomRow: 20,
+        topRow: 10,
+        someValue: {
+          apple: "orange",
+        },
+      },
+    };
+    const type = ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES;
+    const payload = {
+      xyz123: [
+        {
+          propertyPath: "someValue.apple",
+          propertyValue: "apple",
+        },
+      ],
+    };
+    const expected = {
+      "0": { children: ["xyz123"] },
+      xyz123: {
+        bottomRow: 20,
+        topRow: 10,
+        someValue: {
+          apple: "apple",
+        },
+      },
+    };
+
+    expect(reducer(initialState, { type, payload })).toEqual(expected);
+  });
+
+  it("should create paths if they donot exist", () => {
+    const initialState = {
+      "0": { children: ["xyz123"] },
+      xyz123: {
+        bottomRow: 20,
+        topRow: 10,
+        someValue: {
+          apple: "orange",
+        },
+      },
+    };
+    const type = ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES;
+    const payload = {
+      xyz123: [
+        {
+          propertyPath: "someValue.games.ball",
+          propertyValue: ["football"],
+        },
+      ],
+    };
+    const expected = {
+      "0": { children: ["xyz123"] },
+      xyz123: {
+        bottomRow: 20,
+        topRow: 10,
+        someValue: {
+          apple: "orange",
+          games: {
+            ball: ["football"],
+          },
+        },
+      },
+    };
+
+    expect(reducer(initialState, { type, payload })).toEqual(expected);
+  });
+
+  it("should not update the paths if the values are the same", () => {
+    const initialState = {
+      "0": { children: ["xyz123"] },
+      xyz123: {
+        bottomRow: 20,
+        topRow: 10,
+        someValue: {
+          apple: "orange",
+        },
+      },
+    };
+    const type = ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES;
+    const payload = {
+      xyz123: [
+        {
+          propertyPath: "someValue.apple",
+          propertyValue: "orange",
+        },
+      ],
+    };
+
+    // Reference equality check using toBe
+    expect(reducer(initialState, { type, payload })).toBe(initialState);
+  });
+
+  it("should have the same reference for paths not updated", () => {
+    const initialState = {
+      "0": { children: ["xyz123"] },
+      xyz123: {
+        bottomRow: 20,
+        topRow: 10,
+        someValue: {
+          apple: "orange",
+          games: {
+            ball: ["football"],
+          },
+        },
+      },
+    };
+    const type = ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES;
+    const payload = {
+      xyz123: [
+        {
+          propertyPath: "someValue.apple",
+          propertyValue: "orange",
+        },
+      ],
+    };
+
+    const result = reducer(initialState, { type, payload }).xyz123.someValue
+      .games;
+
+    // Reference equality check using toBe
+    expect(result).toBe(initialState.xyz123.someValue.games);
+  });
+});
