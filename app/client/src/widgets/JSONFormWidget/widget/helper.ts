@@ -272,6 +272,7 @@ export const computeSchema = ({
       updatedValue: currSourceData,
       metaInfo: {
         limitExceeded: true,
+        currentLimit: MAX_ALLOWED_FIELDS,
       },
     });
 
