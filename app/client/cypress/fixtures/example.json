@@ -299,5 +299,23 @@
       "name": "Charizard",
       "img": "http://www.serebii.net/pokemongo/pokemon/006.png"
     }
-  ]  
+  ],
+  "TableURLColumnType": [
+    {
+      "image": "https://wallpaperaccess.com/full/1376499.jpg",
+      "userName": "Michael Lawson"
+    },
+    {
+      "image": "https://wallpaperaccess.com/full/1688623.jpg",
+      "userName": "Lindsay Ferguson"
+    },
+    {
+      "image": "https://wallpaperaccess.com/full/2117775.jpg",
+      "userName": "Byron Fields"
+    },
+    {
+      "image": "https://wallpaperaccess.com/full/812632.jpg",
+      "userName": "Toby William"
+    }
+  ] 
 }
