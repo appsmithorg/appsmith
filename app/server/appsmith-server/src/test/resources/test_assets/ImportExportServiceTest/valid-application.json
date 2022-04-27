@@ -421,6 +421,10 @@
       "new": true
     }
   ],
+  "pageOrder": [
+    "Page1",
+    "Page2"
+  ],
   "actionList": [
     {
       "id": "60aca092136c4b7178f6790a",
