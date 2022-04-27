@@ -7,6 +7,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Progress Bar", // The display name which will be made in uppercase and show in the widgets panel ( can have spaces )
   hideCard: true,
+  isDeprecated: true,
   iconSVG: IconSVG,
   needsMeta: false, // Defines if this widget adds any meta properties
   isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
