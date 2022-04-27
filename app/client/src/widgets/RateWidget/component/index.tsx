@@ -34,21 +34,26 @@ export const RateContainer = styled.div<RateContainerProps>`
   > span {
     display: flex !important;
     flex-wrap: wrap;
-    height: 100%;
     align-items: center;
+    gap: 5px;
+    height: auto;
 
     & > span {
       height: 100%;
+
+      & > span {
+        height: 100%;
+        padding: 0;
+        display: flex !important;
+        align-items: center;
+      }
     }
   }
 
   ${({ isDisabled }) => isDisabled && disable}
 `;
 
-export const Star = styled(Icon)`
-  padding: ${(props) =>
-    props.iconSize === 12 ? 2.92 : props.iconSize === 16 ? 4.37 : 4.93}px;
-`;
+export const Star = styled(Icon)``;
 
 export interface RateComponentProps extends ComponentProps {
   value: number;

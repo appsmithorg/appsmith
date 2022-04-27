@@ -46,6 +46,9 @@ export const CONFIG = {
       {
         key: "primaryColumns.action.borderRadius",
       },
+      {
+        key: "primaryColumns.action.boxShadow",
+      },
     ],
     primaryColumns: {
       step: {

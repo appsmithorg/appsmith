@@ -78,7 +78,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.wait("@updateLayout");
-    // cy.readTextDataValidateCSS("color", "");
+    cy.readTextDataValidateCSS("color", "rgb(126, 34, 206)");
     cy.get(widgetsPage.textColor)
       .clear({ force: true })
       .type("purple", { force: true });
@@ -143,7 +143,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
   it("Test border width, color and verity", function() {
     cy.testJsontext("borderwidth", "10");
     cy.wait("@updateLayout");
-    cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
+    cy.get(`${widgetsPage.textWidget} .t--text-widget-container`).should(
       "have.css",
       "border-width",
       "10px",

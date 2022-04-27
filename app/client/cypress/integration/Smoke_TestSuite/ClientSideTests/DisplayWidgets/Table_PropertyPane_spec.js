@@ -292,7 +292,7 @@ describe("Table Widget property pane feature validation", function() {
     // Changing Cell backgroud color to rgb(126, 34, 206) and validate
     cy.selectColor("cellbackground");
     cy.readTabledataValidateCSS(
-      "1",
+      "0",
       "0",
       "background",
       "rgb(126, 34, 206) none repeat scroll 0% 0% / auto padding-box border-box",

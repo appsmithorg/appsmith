@@ -99,9 +99,10 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
 
   if (isFetchingPage) return pageLoading;
 
+  if (!(widgets.children && widgets.children.length > 0)) return pageNotFound;
+
   return (
     <Section height={widgets.bottomRow}>
-      {!(widgets.children && widgets.children.length > 0) && pageNotFound}
       <AppPage
         appName={currentApplication?.name}
         dsl={widgets}
