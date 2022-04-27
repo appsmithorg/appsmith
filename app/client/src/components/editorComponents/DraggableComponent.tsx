@@ -1,4 +1,4 @@
-import React, { CSSProperties, useCallback, useMemo, useRef } from "react";
+import React, { CSSProperties, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
@@ -105,17 +105,14 @@ function DraggableComponent(props: DraggableComponentProps) {
   const isCurrentWidgetDragging = isDragging && isSelected;
   const isCurrentWidgetResizing = isResizing && isSelected;
   // When mouse is over this draggable
-  const handleMouseOver = useCallback(
-    (e: any) => {
-      focusWidget &&
-        !isResizingOrDragging &&
-        !isFocused &&
-        !props.resizeDisabled &&
-        focusWidget(props.widgetId);
-      e.stopPropagation();
-    },
-    [props.resizeDisabled, focusWidget, isResizingOrDragging, isFocused],
-  );
+  const handleMouseOver = (e: any) => {
+    focusWidget &&
+      !isResizingOrDragging &&
+      !isFocused &&
+      !props.resizeDisabled &&
+      focusWidget(props.widgetId);
+    e.stopPropagation();
+  };
   const shouldRenderComponent = !(isSelected && isDragging);
   // Display this draggable based on the current drag state
   const dragWrapperStyle: CSSProperties = {
@@ -149,54 +146,41 @@ function DraggableComponent(props: DraggableComponentProps) {
   const className = `${classNameForTesting}`;
   const draggableRef = useRef<HTMLDivElement>(null);
 
-  const onDragStart = useCallback(
-    (e: any) => {
-      e.preventDefault();
-      e.stopPropagation();
-      // allowDrag check is added as react jest test simulation is not respecting default behaviour
-      // of draggable=false and triggering onDragStart. allowDrag condition check is purely for the test cases.
-      if (allowDrag && draggableRef.current && !(e.metaKey || e.ctrlKey)) {
-        if (!isFocused) return;
+  const onDragStart = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // allowDrag check is added as react jest test simulation is not respecting default behaviour
+    // of draggable=false and triggering onDragStart. allowDrag condition check is purely for the test cases.
+    if (allowDrag && draggableRef.current && !(e.metaKey || e.ctrlKey)) {
+      if (!isFocused) return;
 
-        if (!isSelected) {
-          selectWidget(props.widgetId);
-        }
-        const widgetHeight = props.bottomRow - props.topRow;
-        const widgetWidth = props.rightColumn - props.leftColumn;
-        const bounds = draggableRef.current.getBoundingClientRect();
-        const startPoints = {
-          top: Math.min(
-            Math.max((e.clientY - bounds.top) / props.parentRowSpace, 0),
-            widgetHeight - 1,
-          ),
-          left: Math.min(
-            Math.max((e.clientX - bounds.left) / props.parentColumnSpace, 0),
-            widgetWidth - 1,
-          ),
-        };
-        showTableFilterPane();
-        setDraggingCanvas(props.parentId);
-
-        setDraggingState({
-          isDragging: true,
-          dragGroupActualParent: props.parentId || "",
-          draggingGroupCenter: { widgetId: props.widgetId },
-          startPoints,
-        });
+      if (!isSelected) {
+        selectWidget(props.widgetId);
       }
-    },
-    [
-      allowDrag,
-      props.widgetId,
-      props.topRow,
-      props.bottomRow,
-      props.leftColumn,
-      props.rightColumn,
-      props.parentRowSpace,
-      props.parentColumnSpace,
-      props.parentId,
-    ],
-  );
+      const widgetHeight = props.bottomRow - props.topRow;
+      const widgetWidth = props.rightColumn - props.leftColumn;
+      const bounds = draggableRef.current.getBoundingClientRect();
+      const startPoints = {
+        top: Math.min(
+          Math.max((e.clientY - bounds.top) / props.parentRowSpace, 0),
+          widgetHeight - 1,
+        ),
+        left: Math.min(
+          Math.max((e.clientX - bounds.left) / props.parentColumnSpace, 0),
+          widgetWidth - 1,
+        ),
+      };
+      showTableFilterPane();
+      setDraggingCanvas(props.parentId);
+
+      setDraggingState({
+        isDragging: true,
+        dragGroupActualParent: props.parentId || "",
+        draggingGroupCenter: { widgetId: props.widgetId },
+        startPoints,
+      });
+    }
+  };
 
   return (
     <DraggableWrapper
