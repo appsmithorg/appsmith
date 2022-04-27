@@ -336,7 +336,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.selectedRow).should(
       "have.css",
       "background-color",
-      "rgb(225, 221, 251)",
+      "rgb(231, 244, 234)",
     );
     cy.get(publish.backToEditor).click();
   });
@@ -360,7 +360,7 @@ describe("Table Widget property pane feature validation", function() {
       cy.get(selector + " button").should(
         "have.css",
         "background-color",
-        "rgb(3, 179, 101)",
+        "rgb(80, 175, 108)",
       );
       cy.get(selector + " button > span").should(
         "have.css",
@@ -382,12 +382,12 @@ describe("Table Widget property pane feature validation", function() {
       cy.get(selector + " button > span").should(
         "have.css",
         "color",
-        "rgb(3, 179, 101)",
+        "rgb(80, 175, 108)",
       );
       cy.get(selector + " button").should(
         "have.css",
         "border",
-        "1px solid rgb(3, 179, 101)",
+        `0.994318px solid rgb(80, 175, 108)`,
       );
     });
     cy.selectDropdownValue(commonlocators.tableButtonVariant, "Tertiary");
