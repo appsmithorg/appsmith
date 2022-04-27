@@ -123,6 +123,18 @@ export type ComponentDefaultValuesFnProps<TSourceData = any> = {
   skipDefaultValueProcessing: boolean;
 };
 
+export type Modifier<
+  TSchemaItem extends SchemaItem = any,
+  TValue = unknown,
+  TReturn = unknown
+> = (schemaItem: TSchemaItem, value?: TValue) => TReturn;
+
+export type PropertyValueModifiers = Partial<Record<keyof SchemaItem, any>>;
+
+type Modifiers = {
+  [key in FieldType]?: () => PropertyValueModifiers;
+};
+
 // This defines a react component with componentDefaultValues property attached to it.
 export type FieldComponent = {
   (props: BaseFieldComponentProps): JSX.Element | null;
@@ -130,6 +142,7 @@ export type FieldComponent = {
     | FieldComponentBaseProps
     | ((props: ComponentDefaultValuesFnProps) => FieldComponentBaseProps);
   isValidType?: (value: any, options?: any) => boolean;
+  propertyValueModifiers?: () => any;
 };
 
 export type FieldState<TObj> =
@@ -274,4 +287,8 @@ export const getBindingTemplate = (widgetName: string) => {
   const suffixTemplate = `))(${widgetName}.sourceData, ${widgetName}.formData, ${widgetName}.fieldState)}}`;
 
   return { prefixTemplate, suffixTemplate };
+};
+
+export const modifiers: Modifiers = {
+  [FieldType.DATEPICKER]: DateField?.propertyValueModifiers,
 };

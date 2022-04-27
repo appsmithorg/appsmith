@@ -12,6 +12,8 @@ import {
   BaseFieldComponentProps,
   FieldEventProps,
   ComponentDefaultValuesFnProps,
+  Modifier,
+  PropertyValueModifiers,
 } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { dateFormatOptions } from "../widget/propertyConfig/properties/date";
@@ -78,7 +80,21 @@ const componentDefaultValues = ({
   };
 };
 
-type DateFieldProps = BaseFieldComponentProps<DateComponentProps>;
+export type DateFieldProps = BaseFieldComponentProps<DateComponentProps>;
+
+export const convertValueToISO = (value: string, dateFormat: string) => {
+  if (moment(value, ISO_DATE_FORMAT, true).isValid()) {
+    return value;
+  }
+
+  const valueInSelectedFormat = moment(value, dateFormat, true);
+
+  if (valueInSelectedFormat.isValid()) {
+    return valueInSelectedFormat.format(ISO_DATE_FORMAT);
+  }
+
+  return value;
+};
 
 export const isValidType = (value: string) =>
   dateFormatOptions.some(({ value: format }) =>
@@ -87,6 +103,36 @@ export const isValidType = (value: string) =>
 
 const isValid = (schemaItem: DateFieldProps["schemaItem"], value?: string) =>
   !schemaItem.isRequired || Boolean(value?.trim());
+
+export const defaultValueModifier = (
+  schemaItem: DateFieldProps["schemaItem"],
+  defaultValue: string,
+) => {
+  if (typeof defaultValue !== "string") return;
+
+  const valueInISOFormat = convertValueToISO(
+    defaultValue,
+    schemaItem.dateFormat,
+  );
+
+  if (schemaItem.convertToISO && defaultValue !== valueInISOFormat) {
+    return valueInISOFormat;
+  }
+
+  if (
+    !schemaItem.convertToISO &&
+    defaultValue &&
+    defaultValue === valueInISOFormat &&
+    moment(defaultValue, ISO_DATE_FORMAT, true).isValid()
+  ) {
+    return moment(defaultValue).format(schemaItem.dateFormat);
+  }
+  return defaultValue;
+};
+
+const propertyValueModifiers: () => PropertyValueModifiers = () => ({
+  defaultValue: defaultValueModifier as Modifier,
+});
 
 function DateField({
   fieldClassName,
@@ -154,18 +200,8 @@ function DateField({
   const valueInISOFormat = useMemo(() => {
     if (!isValueValid || typeof value !== "string") return "";
 
-    if (moment(value, ISO_DATE_FORMAT, true).isValid()) {
-      return value;
-    }
-
-    const valueInSelectedFormat = moment(value, schemaItem.dateFormat, true);
-
-    if (valueInSelectedFormat.isValid()) {
-      return valueInSelectedFormat.format(ISO_DATE_FORMAT);
-    }
-
-    return value;
-  }, [value, schemaItem.dateFormat]);
+    return convertValueToISO(value, schemaItem.dateFormat);
+  }, [value, schemaItem.dateFormat, convertValueToISO, isValueValid]);
 
   useEffect(() => {
     if (schemaItem.convertToISO && value !== valueInISOFormat) {
@@ -231,5 +267,6 @@ function DateField({
 
 DateField.componentDefaultValues = componentDefaultValues;
 DateField.isValidType = isValidType;
+DateField.propertyValueModifiers = propertyValueModifiers;
 
 export default DateField;

@@ -167,7 +167,7 @@ function Form<TValues = any>({
         ? schemaItemDefaultValue(schema[ROOT_SCHEMA_KEY], "identifier")
         : {};
 
-    if (typeof defaultValues === "object") {
+    if (defaultValues && typeof defaultValues === "object") {
       reset(defaultValues);
     }
   };

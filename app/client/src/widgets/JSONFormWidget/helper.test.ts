@@ -362,8 +362,8 @@ describe(".schemaItemDefaultValue", () => {
 
     const expectedDefaultValue = [
       {
-        college: "Some college name",
-        newDate: "10/10/2001",
+        graduating_college: "Some college name",
+        graduation_date: "10/10/2001",
       },
     ];
 

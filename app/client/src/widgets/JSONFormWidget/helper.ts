@@ -1,7 +1,13 @@
 import { isNil, isPlainObject, merge } from "lodash";
 import { LabelValueType } from "rc-select/lib/interface/generator";
 
-import { ARRAY_ITEM_KEY, FieldType, Schema, SchemaItem } from "./constants";
+import {
+  ARRAY_ITEM_KEY,
+  FieldType,
+  modifiers,
+  Schema,
+  SchemaItem,
+} from "./constants";
 
 type ConvertFormDataOptions = {
   fromId: keyof SchemaItem | (keyof SchemaItem)[];
@@ -203,7 +209,7 @@ export const schemaItemDefaultValue = (
         schemaItem.defaultValue as unknown[],
         {
           fromId: ["originalIdentifier", "accessor"],
-          toId: "accessor",
+          toId: toKey,
         },
       );
 
@@ -224,7 +230,13 @@ export const schemaItemDefaultValue = (
     return merge(defaultArrayValue, sanitizedDefaultValue);
   }
 
-  const { defaultValue } = schemaItem;
+  const { defaultValue, fieldType } = schemaItem;
+
+  if (modifiers[fieldType]) {
+    const propertyModifiers = modifiers[fieldType]?.();
+    return propertyModifiers?.defaultValue?.(schemaItem, defaultValue);
+  }
+
   return defaultValue;
 };
 
