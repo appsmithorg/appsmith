@@ -34,9 +34,9 @@ export const RateContainer = styled.div<RateContainerProps>`
   > span {
     display: flex !important;
     flex-wrap: wrap;
-    height: 100%;
     align-items: center;
     gap: 5px;
+    height: auto;
 
     & > span {
       height: 100%;
