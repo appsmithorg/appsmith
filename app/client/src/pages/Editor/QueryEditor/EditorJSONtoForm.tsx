@@ -135,7 +135,7 @@ export const TabbedViewContainer = styled.div`
     }
   }
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
-  border-top: 2px solid #e8e8e8;
+  border-top: 1px solid #e8e8e8;
 `;
 
 const SettingsWrapper = styled.div`
@@ -341,7 +341,7 @@ const NoDataSourceContainer = styled.div`
 const TabContainerView = styled.div`
   flex: 1;
   overflow: auto;
-  border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-top: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   ${thinScrollbar}
   a {
     font-size: 14px;
@@ -376,6 +376,7 @@ const Wrapper = styled.div`
 
 const SidebarWrapper = styled.div<{ show: boolean }>`
   border: 1px solid #e8e8e8;
+  border-bottom: 0;
   display: ${(props) => (props.show ? "flex" : "none")};
   width: ${(props) => props.theme.actionSidePane.width}px;
 `;

@@ -9,6 +9,7 @@ import styled from "styled-components";
 import { ControllerRenderProps, useFormContext } from "react-hook-form";
 import { get, set } from "lodash";
 import { Icon } from "@blueprintjs/core";
+import { klona } from "klona";
 
 import Accordion from "../component/Accordion";
 import FieldLabel from "../component/FieldLabel";
@@ -29,8 +30,6 @@ import { Colors } from "constants/Colors";
 import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import { generateReactKey } from "utils/generators";
 import { schemaItemDefaultValue } from "../helper";
-
-import { klona } from "klona/full";
 
 type ArrayComponentProps = FieldComponentBaseProps & {
   backgroundColor?: string;
