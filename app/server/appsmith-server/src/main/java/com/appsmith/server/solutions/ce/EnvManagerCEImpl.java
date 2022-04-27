@@ -43,6 +43,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.HashMap;
@@ -351,6 +352,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     final String originalContent;
                     try {
                         originalContent = Files.readString(Path.of(commonConfig.getEnvFilePath()));
+                    } catch (NoSuchFileException e) {
+                        return Mono.error(new AppsmithException(AppsmithError.ENV_FILE_NOT_FOUND));
                     } catch (IOException e) {
                         log.error("Unable to read env file " + commonConfig.getEnvFilePath(), e);
                         return Mono.error(e);
