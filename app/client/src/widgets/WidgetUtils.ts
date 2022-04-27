@@ -213,21 +213,16 @@ export const escapeSpecialChars = (stringifiedJSONObject: string) => {
  * @param borderRadius
  * @returns
  */
-export const getComplementaryGrayscaleColor = (color = "#fff", alpha = 1) => {
-  const brightness = tinycolor(color)
-    .greyscale()
-    .getBrightness();
-  const percentageBrightness = (brightness / 255) * 100;
-  const isDark = percentageBrightness < 70;
+export const getComplementaryGrayscaleColor = (color = "#fff") => {
+  const rgb: any = tinycolor(color).toRgb();
 
-  if (isDark)
-    return tinycolor("#fff")
-      .setAlpha(alpha)
-      .toHexString();
+  const brightness = Math.round(
+    (parseInt(rgb.r) * 299 + parseInt(rgb.g) * 587 + parseInt(rgb.b) * 114) /
+      1000,
+  );
+  const textColor = brightness > 125 ? "black" : "white";
 
-  return tinycolor("#000")
-    .setAlpha(alpha)
-    .toHexString();
+  return textColor;
 };
 
 /**
