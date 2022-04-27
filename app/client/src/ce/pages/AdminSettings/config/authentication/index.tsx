@@ -181,6 +181,7 @@ export const Github_Auth_Callout: AuthMethodType = {
 
 export const Saml_Auth_Callout: AuthMethodType = {
   id: "APPSMITH_SAML_AUTH",
+  category: "saml",
   label: "SAML 2.0",
   subText: `Enable your organization to sign in with your preferred SAML2 compliant provider.`,
   image: SamlSso,
@@ -190,6 +191,7 @@ export const Saml_Auth_Callout: AuthMethodType = {
 
 export const Oidc_Auth_Callout: AuthMethodType = {
   id: "APPSMITH_OIDC_AUTH",
+  category: "oidc",
   label: "OIDC",
   subText: `Enable your organization to sign in with Open ID Connect.`,
   image: OIDC,

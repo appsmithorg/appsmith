@@ -7,7 +7,7 @@ import { Classes } from "components/ads/common";
 import { useLocation } from "react-router-dom";
 
 const StyledManageUsers = styled("a")`
-  margin-top: 20px;
+  margin-top: 12px;
   display: inline-flex;
   &&&& {
     text-decoration: none;
