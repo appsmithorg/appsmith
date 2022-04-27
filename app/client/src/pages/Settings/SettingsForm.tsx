@@ -35,6 +35,7 @@ import {
   connectedMethods,
   saveAllowed,
 } from "@appsmith/utils/adminSettingsHelpers";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -105,11 +106,20 @@ export function SettingsForm(
   const onSave = () => {
     if (checkMandatoryFileds()) {
       if (saveAllowed(props.settings)) {
+        AnalyticsUtil.logEvent("SAVE_ADMIN_SETTINGS", {
+          method: pageTitle,
+        });
         dispatch(saveSettings(props.settings));
       } else {
+        AnalyticsUtil.logEvent("ERROR_SAVING_ADMIN_SETTINGS", {
+          error: createMessage(DISCONNECT_AUTH_ERROR),
+        });
         saveBlocked();
       }
     } else {
+      AnalyticsUtil.logEvent("ERROR_SAVING_ADMIN_SETTINGS", {
+        error: createMessage(MANDATORY_FIELDS_ERROR),
+      });
       Toaster.show({
         text: createMessage(MANDATORY_FIELDS_ERROR),
         variant: Variant.danger,
@@ -176,6 +186,9 @@ export function SettingsForm(
         }
       });
       dispatch(saveSettings(updatedSettings));
+      AnalyticsUtil.logEvent("DISCONNECT_AUTH_METHOD", {
+        method: pageTitle,
+      });
     } else {
       saveBlocked();
     }

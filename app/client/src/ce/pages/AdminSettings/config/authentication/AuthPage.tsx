@@ -23,6 +23,7 @@ import Icon from "components/ads/Icon";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const { intercomAppID } = getAppsmithConfigs();
 
@@ -149,6 +150,28 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
     }
   };
 
+  const onClickHandler = (method: AuthMethodType) => {
+    if (!method.needsUpgrade || method.isConnected) {
+      AnalyticsUtil.logEvent(
+        method.isConnected ? "EDIT_AUTH_METHOD" : "ENABLE_AUTH_METHOD",
+        {
+          method: method.label,
+        },
+      );
+      history.push(
+        adminSettingsCategoryUrl({
+          category: SettingCategories.AUTHENTICATION,
+          subCategory: method.category,
+        }),
+      );
+    } else {
+      AnalyticsUtil.logEvent("UPGRADE_AUTH_METHOD", {
+        method: method.label,
+      });
+      triggerIntercom(method.label);
+    }
+  };
+
   return (
     <Wrapper>
       <SettingsFormWrapper>
@@ -211,16 +234,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                       : method.category
                   }`}
                   data-cy="btn-auth-account"
-                  onClick={() =>
-                    !method.needsUpgrade || method.isConnected
-                      ? history.push(
-                          adminSettingsCategoryUrl({
-                            category: SettingCategories.AUTHENTICATION,
-                            subCategory: method.category,
-                          }),
-                        )
-                      : triggerIntercom(method.label)
-                  }
+                  onClick={() => onClickHandler(method)}
                   text={createMessage(
                     method.isConnected
                       ? EDIT
