@@ -106,18 +106,18 @@ export function SettingsForm(
   const onSave = () => {
     if (checkMandatoryFileds()) {
       if (saveAllowed(props.settings)) {
-        AnalyticsUtil.logEvent("SAVE_ADMIN_SETTINGS", {
+        AnalyticsUtil.logEvent("ADMIN_SETTINGS_SAVE", {
           method: pageTitle,
         });
         dispatch(saveSettings(props.settings));
       } else {
-        AnalyticsUtil.logEvent("ERROR_SAVING_ADMIN_SETTINGS", {
+        AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
           error: createMessage(DISCONNECT_AUTH_ERROR),
         });
         saveBlocked();
       }
     } else {
-      AnalyticsUtil.logEvent("ERROR_SAVING_ADMIN_SETTINGS", {
+      AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
         error: createMessage(MANDATORY_FIELDS_ERROR),
       });
       Toaster.show({
@@ -186,7 +186,7 @@ export function SettingsForm(
         }
       });
       dispatch(saveSettings(updatedSettings));
-      AnalyticsUtil.logEvent("DISCONNECT_AUTH_METHOD", {
+      AnalyticsUtil.logEvent("ADMIN_SETTINGS_DISCONNECT_AUTH_METHOD", {
         method: pageTitle,
       });
     } else {

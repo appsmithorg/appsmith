@@ -153,7 +153,9 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
   const onClickHandler = (method: AuthMethodType) => {
     if (!method.needsUpgrade || method.isConnected) {
       AnalyticsUtil.logEvent(
-        method.isConnected ? "EDIT_AUTH_METHOD" : "ENABLE_AUTH_METHOD",
+        method.isConnected
+          ? "ADMIN_SETTINGS_EDIT_AUTH_METHOD"
+          : "ADMIN_SETTINGS_ENABLE_AUTH_METHOD",
         {
           method: method.label,
         },
@@ -165,7 +167,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
         }),
       );
     } else {
-      AnalyticsUtil.logEvent("UPGRADE_AUTH_METHOD", {
+      AnalyticsUtil.logEvent("ADMIN_SETTINGS_UPGRADE_AUTH_METHOD", {
         method: method.label,
       });
       triggerIntercom(method.label);
