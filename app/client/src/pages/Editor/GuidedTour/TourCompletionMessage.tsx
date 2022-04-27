@@ -22,7 +22,8 @@ import {
 } from "@appsmith/constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import { builderURL } from "RouteBuilder";
+import history from "utils/history";
+import { APPLICATIONS_URL } from "constants/routes";
 
 const Container = styled.div`
   background-color: ${(props) => props.theme.colors.guidedTour.card.background};
@@ -104,6 +105,7 @@ function CongratulationsView() {
     setShow(false);
     dispatch(showPostCompletionMessage(false));
     setPostWelcomeTourState(false);
+    history.push(APPLICATIONS_URL);
   };
 
   if (!show) return null;
@@ -155,11 +157,10 @@ function CongratulationsView() {
           <Button
             className="t--start-building"
             height="38"
-            href={builderURL()}
             onClick={hideMessage}
             size={Size.large}
+            tag="button"
             text={createMessage(END_BUTTON_TEXT)}
-            type="button"
           />
         </Wrapper>
       </Container>

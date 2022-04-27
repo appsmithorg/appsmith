@@ -778,7 +778,7 @@ jobs:
       fail-fast: false
       matrix:
         job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
-        
+
     # Service containers to run with this job. Required for running tests
     services:
       # Label used to access the service container
@@ -1207,17 +1207,22 @@ jobs:
 
               return completed_at;
             } else {
-              const { data: result } = await github.checks.update({
-              ...context.repo,
-              check_run_id: check[0].id,
-              status: 'completed',
-              conclusion: JSON.parse(process.env.matrix_result).result,
-                output: {
-                  title: "Integration tests result for ok to test",
-                  summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
-                }
-            });
-
+              try {
+                const { data: result } = await github.checks.update({
+                  ...context.repo,
+                  check_run_id: check[0].id,
+                  status: 'completed',
+                  conclusion: JSON.parse(process.env.matrix_result).result,
+                    output: {
+                      title: "Integration tests result for ok to test",
+                      summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
+                    }
+                });
+              } catch(e) {
+                console.error({ error: e.message });
+              }
+              
+            console.log({ result });
             return result;
             }
 
