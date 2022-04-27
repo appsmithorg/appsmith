@@ -78,6 +78,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -234,6 +235,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     // Refactor application to remove the ids
                     final String organizationId = application.getOrganizationId();
                     List<String> pageOrderList = application.getPages().stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toList());
+                    List<String> publishedPageOrderList = application.getPublishedPages().stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toList());
                     removeUnwantedFieldsFromApplicationDuringExport(application);
                     examplesOrganizationCloner.makePristine(application);
                     applicationJson.setExportedApplication(application);
@@ -245,9 +247,24 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     return pageFlux
                             .collectList()
-                            // Maintain the page order while exporting the application
+                            // Save the page order to json while exporting the application
                             .flatMap(newPages ->  {
                                 Collections.sort(newPages, Comparator.comparing(newPage -> pageOrderList.indexOf(newPage.getId())));
+                                List<String> pageOrder = new ArrayList<>();
+                                for (NewPage page: newPages) {
+                                    pageOrder.add(page.getUnpublishedPage().getName());
+                                }
+                                applicationJson.setPageOrder(pageOrder);
+
+                                List<NewPage> newPageList = newPages;
+                                // When there is difference in number of pages between edit and view mode
+                                newPageList = newPageList.stream().filter(newPage -> !Optional.ofNullable(newPage.getPublishedPage()).isEmpty()).collect(Collectors.toList());
+                                Collections.sort(newPageList, Comparator.comparing(newPage -> publishedPageOrderList.indexOf(newPage.getId())));
+                                pageOrder = new ArrayList<>();
+                                for (NewPage page: newPageList) {
+                                    pageOrder.add(page.getPublishedPage().getName());
+                                }
+                                applicationJson.setPublishedPageOrder(pageOrder);
                                 return Mono.just(newPages);
                             })
                             .flatMap(newPageList -> {
@@ -307,7 +324,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                                 Flux<Datasource> datasourceFlux = Boolean.TRUE.equals(application.getExportWithConfiguration())
                                         ? datasourceRepository.findAllByOrganizationId(organizationId, AclPermission.READ_DATASOURCES)
-                                        : datasourceRepository.findAllByOrganizationId(organizationId, AclPermission.MANAGE_DATASOURCES);
+                                        : datasourceRepository.findAllByOrganizationId(organizationId, MANAGE_DATASOURCES);
 
                                 return datasourceFlux.collectList();
                             })
@@ -903,15 +920,17 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     return importedNewPagesMono
                             .map(newPageList -> {
-                                // Check if the pages order match with json file
-                                List<String> pageOrderList = importedNewPageList.stream().map(newPage -> newPage.getUnpublishedPage().getName()).collect(Collectors.toList());
+                                // Sort the unPublished pages based on the json file order only
+                                List<String> pageOrderList;
+                                if(Optional.ofNullable(applicationJson.getPageOrder()).isEmpty()) {
+                                    pageOrderList = importedNewPageList.stream().map(newPage -> newPage.getUnpublishedPage().getName()).collect(Collectors.toList());
+                                } else {
+                                    pageOrderList = applicationJson.getPageOrder();
+                                }
                                 Collections.sort(newPageList,
                                         Comparator.comparing(newPage -> pageOrderList.indexOf(newPage.getUnpublishedPage().getName())));
                                 for (NewPage newPage : newPageList) {
-
                                     ApplicationPage unpublishedAppPage = new ApplicationPage();
-                                    ApplicationPage publishedAppPage = new ApplicationPage();
-
                                     if (newPage.getUnpublishedPage() != null && newPage.getUnpublishedPage().getName() != null) {
                                         unpublishedAppPage.setIsDefault(
                                                 StringUtils.equals(
@@ -924,6 +943,27 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         }
                                         pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
                                     }
+                                    if (unpublishedAppPage.getId() != null && newPage.getUnpublishedPage().getDeletedAt() == null) {
+                                        applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
+                                    }
+                                }
+
+                                // Sort the published pages based on the json file order only
+                                List<String> publishedPageOrderList;
+                                if(Optional.ofNullable(applicationJson.getPublishedPageOrder()).isEmpty()) {
+                                    publishedPageOrderList = importedNewPageList.stream()
+                                            .filter(newPage -> !Optional.ofNullable(newPage.getPublishedPage()).isEmpty())
+                                            .map(newPage -> newPage.getPublishedPage().getName()).collect(Collectors.toList());
+                                } else {
+                                    publishedPageOrderList = applicationJson.getPublishedPageOrder();
+                                }
+
+                                // When there is difference in number of pages between edit and view mode
+                                newPageList = newPageList.stream().filter(newPage -> !Optional.ofNullable(newPage.getPublishedPage()).isEmpty()).collect(Collectors.toList());
+                                Collections.sort(newPageList,
+                                        Comparator.comparing(newPage -> publishedPageOrderList.indexOf(newPage.getPublishedPage().getName())));
+                                for (NewPage newPage : newPageList) {
+                                    ApplicationPage publishedAppPage = new ApplicationPage();
 
                                     if (newPage.getPublishedPage() != null && newPage.getPublishedPage().getName() != null) {
                                         publishedAppPage.setIsDefault(
@@ -937,9 +977,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         }
                                         pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
                                     }
-                                    if (unpublishedAppPage.getId() != null && newPage.getUnpublishedPage().getDeletedAt() == null) {
-                                        applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
-                                    }
+
                                     if (publishedAppPage.getId() != null && newPage.getPublishedPage().getDeletedAt() == null) {
                                         applicationPages.get(PublishType.PUBLISHED).add(publishedAppPage);
                                     }
@@ -978,6 +1016,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             });
                 })
                 .flatMap(applicationPageMap -> {
+                    // set it based on the order for published and unublished pages
                     if(appendToApp) {
                         if(importedApplication.getPages() == null) {
                             importedApplication.setPages(new ArrayList<>());
@@ -1104,7 +1143,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 return mapActionAndCollectionIdWithPageLayout(
                                         newPage, actionIdMap, unpublishedActionIdToCollectionIdMap, publishedActionIdToCollectionIdMap
                                 )
-                                        .flatMap(newPageService::save);
+                                .flatMap(newPageService::save);
                             })
                             .then(applicationService.update(importedApplication.getId(), importedApplication))
                             .map(application -> {
