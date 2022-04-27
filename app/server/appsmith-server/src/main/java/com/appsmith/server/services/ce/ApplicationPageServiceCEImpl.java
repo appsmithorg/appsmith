@@ -62,6 +62,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
@@ -557,7 +558,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                             unpublishedCollection.setPageId(newPageId);
                                             actionCollection.setApplicationId(clonedPage.getApplicationId());
 
-                                            actionCollection.setDefaultResources(clonedPageDefaultResources);
+                                            DefaultResources defaultResources = new DefaultResources();
+                                            copyNestedNonNullProperties(clonedPageDefaultResources, defaultResources);
+                                            actionCollection.setDefaultResources(defaultResources);
 
                                             DefaultResources defaultResourcesForDTO = new DefaultResources();
                                             defaultResourcesForDTO.setPageId(clonedPageDefaultResources.getPageId());
@@ -576,14 +579,27 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                             if (StringUtils.isEmpty(clonedPageDefaultResources.getBranchName())) {
                                                 unpublishedCollection
                                                         .getDefaultToBranchedActionIdsMap()
-                                                        .forEach((defaultId, oldActionId) ->
-                                                                updatedDefaultToBranchedActionId.put(actionIdsMap.get(oldActionId), actionIdsMap.get(oldActionId)));
-
+                                                        .forEach((defaultId, oldActionId) -> {
+                                                            // Filter out the actionIds for which the reference is not
+                                                            // present in cloned actions, this happens when we have
+                                                            // deleted action in unpublished mode
+                                                            if (StringUtils.hasLength(oldActionId) && StringUtils.hasLength(actionIdsMap.get(oldActionId))) {
+                                                                updatedDefaultToBranchedActionId
+                                                                        .put(actionIdsMap.get(oldActionId), actionIdsMap.get(oldActionId));
+                                                            }
+                                                        });
                                             } else {
                                                 unpublishedCollection
                                                         .getDefaultToBranchedActionIdsMap()
-                                                        .forEach((defaultId, oldActionId) ->
-                                                                updatedDefaultToBranchedActionId.put(defaultId, actionIdsMap.get(oldActionId)));
+                                                        .forEach((defaultId, oldActionId) -> {
+                                                            // Filter out the actionIds for which the reference is not
+                                                            // present in cloned actions, this happens when we have
+                                                            // deleted action in unpublished mode
+                                                            if (StringUtils.hasLength(defaultId) && StringUtils.hasLength(actionIdsMap.get(oldActionId))) {
+                                                                updatedDefaultToBranchedActionId
+                                                                        .put(defaultId, actionIdsMap.get(oldActionId));
+                                                            }
+                                                        });
                                             }
                                             unpublishedCollection.setDefaultToBranchedActionIdsMap(updatedDefaultToBranchedActionId);
 

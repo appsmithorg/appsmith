@@ -6,7 +6,7 @@ describe("Reconnect Datasource Modal validation while importing application", fu
   let appid;
   let newOrganizationName;
   let appName;
-  it("Import application from json with one postgres", function() {
+  it("Import application from json with one postgres and success modal", function() {
     cy.NavigateToHome();
     // import application
     cy.generateUUID().then((uid) => {
@@ -49,16 +49,32 @@ describe("Reconnect Datasource Modal validation while importing application", fu
             cy.get(
               "[data-cy='datasourceConfiguration.connection.ssl.authType']",
             ).should("contain", "Default");
-            cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
-              force: true,
-            });
+
+            cy.ReconnectDatasource("Untitled Datasource");
+            cy.wait(1000);
+            cy.fillPostgresDatasourceForm();
+            cy.testSaveDatasource();
             cy.wait(2000);
+
+            // cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
+            //   force: true,
+            // });
+            // cy.wait(2000);
           } else {
             cy.get(homePage.toastMessage).should(
               "contain",
               "Application imported successfully",
             );
           }
+          // check datasource configured success modal
+          cy.get(".t--import-app-success-modal").should("be.visible");
+          cy.get(".t--import-app-success-modal").should(
+            "contain",
+            "All your datasources are configuered and ready to use.",
+          );
+          cy.get(".t--import-success-modal-got-it").click({ force: true });
+          cy.get(".t--import-app-success-modal").should("not.exist");
+
           const uuid = () => Cypress._.random(0, 1e4);
           const name = uuid();
           appName = `app${name}`;

@@ -139,9 +139,14 @@ public class FilterDataServiceTest {
             Condition condition1 = new Condition("anotherKey", "GT", "15");
             conditionList.add(condition1);
 
-
             Condition condition2 = new Condition("orderStatus", "EQ", "READY");
             conditionList.add(condition2);
+
+            Condition condition3 = new Condition("productName", "CONTAINS", "Chicken");
+            conditionList.add(condition3);
+
+            Condition condition4 = new Condition("productName", "NOT_EQ", "Chicken Sub");
+            conditionList.add(condition4);
 
             ArrayNode filteredData = filterDataService.filterData(items, conditionList);
 

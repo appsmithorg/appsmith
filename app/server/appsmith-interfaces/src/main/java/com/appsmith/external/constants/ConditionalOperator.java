@@ -73,4 +73,10 @@ public enum ConditionalOperator {
             return "or";
         }
     },
+    CONTAINS {
+        @Override
+        public String toString() {
+            return "like";
+        }
+    }
 }
