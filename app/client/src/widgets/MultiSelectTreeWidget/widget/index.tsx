@@ -451,7 +451,7 @@ class MultiSelectTreeWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      selectedOptionLabels: `{{ this.selectedLabel }}`,
+      selectedOptionLabels: `{{ this.selectedLabel.filter(label => !!label) }}`,
       selectedOptionValues:
         '{{ this.selectedOptionValueArr.filter((o) => JSON.stringify(this.options).match(new RegExp(`"value":"${o}"`, "g")) )}}',
       isValid: `{{ this.isRequired  ? this.selectedOptionValues?.length > 0 : true}}`,
@@ -462,7 +462,6 @@ class MultiSelectTreeWidget extends BaseWidget<
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       selectedOptionValueArr: "defaultOptionValue",
-      selectedLabel: "defaultOptionValue",
     };
   }
 
