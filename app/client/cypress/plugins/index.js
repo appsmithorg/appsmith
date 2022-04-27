@@ -137,5 +137,8 @@ module.exports = (on, config) => {
   return config;
 };
 module.exports = (on, config) => {
+  
   addMatchImageSnapshotPlugin(on, config);
+  require('@cypress/code-coverage/task')(on, config);
+  return config;
 };

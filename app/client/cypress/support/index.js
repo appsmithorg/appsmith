@@ -29,6 +29,7 @@ import "./OrgCommands";
 import "./queryCommands";
 import "./widgetCommands";
 import "./AdminSettingsCommands";
+import '@cypress/code-coverage/support'
 /// <reference types="cypress-xpath" />
 
 Cypress.on("uncaught:exception", () => {

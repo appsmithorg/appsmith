@@ -203,6 +203,7 @@
   ],
   "devDependencies": {
     "@babel/core": "^7.7.4",
+    "@cypress/code-coverage": "^3.9.12",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.2.6",
     "@testing-library/react-hooks": "^7.0.2",
