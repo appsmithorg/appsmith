@@ -5,6 +5,7 @@ import { getExistingWidgetNames } from "sagas/selectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
 
 import WidgetFactory from "utils/WidgetFactory";
+import { getSelectedWidget, getSelectedWidgets } from "./ui";
 
 const getCanvasWidgets = (state: AppState) => state.entities.canvasWidgets;
 export const getModalDropdownList = createSelector(
@@ -49,3 +50,33 @@ export const getParentWidget = createSelector(
     return;
   },
 );
+
+// Check if current widget is in the list of selected widgets
+export const isCurrentWidgetSelected = (widgetId: string) => {
+  return createSelector(getSelectedWidgets, (widgets): boolean =>
+    widgets.includes(widgetId),
+  );
+};
+
+export const isCurrentWidgetFocused = (widgetId: string) => {
+  return createSelector(
+    (state: AppState) => state.ui.widgetDragResize.focusedWidget,
+    (widget): boolean => widget === widgetId,
+  );
+};
+
+// Check if current widget is the last selected widget
+export const isCurrentWidgetLastSelected = (widgetId: string) => {
+  return createSelector(
+    getSelectedWidget,
+    (widget): boolean => widget === widgetId,
+  );
+};
+
+// Check if current widget is one of multiple selected widgets
+export const isMultiSelectedWidget = (widgetId: string) => {
+  return createSelector(
+    getSelectedWidgets,
+    (widgets): boolean => widgets.length > 1 && widgets.includes(widgetId),
+  );
+};

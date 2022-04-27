@@ -15,6 +15,7 @@ import {
 } from "constants/WidgetConstants";
 import React, { Component, ReactNode } from "react";
 import { get, memoize } from "lodash";
+import memoizeOne from "memoize-one";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import SnipeableComponent from "components/editorComponents/SnipeableComponent";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
@@ -39,6 +40,32 @@ import PreventInteractionsOverlay from "components/editorComponents/PreventInter
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
+
+const getPositionStyle_ = memoizeOne(
+  (
+    componentHeight: number,
+    componentWidth: number,
+    topRow: number,
+    parentRowSpace: number,
+    parentColumnSpace: number,
+    noContainerOffset: boolean | undefined,
+    leftColumn: number,
+  ) => {
+    return {
+      positionType: PositionTypes.ABSOLUTE,
+      componentHeight,
+      componentWidth,
+      yPosition:
+        topRow * parentRowSpace +
+        (noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
+      xPosition:
+        leftColumn * parentColumnSpace +
+        (noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
+      xPositionUnit: CSSUnits.PIXEL,
+      yPositionUnit: CSSUnits.PIXEL,
+    };
+  },
+);
 
 /***
  * BaseWidget
@@ -382,23 +409,18 @@ abstract class BaseWidget<
   /**
    * generates styles that positions the widget
    */
-  private getPositionStyle(): BaseStyle {
+  private getPositionStyle = () => {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
-
-    return {
-      positionType: PositionTypes.ABSOLUTE,
+    return getPositionStyle_(
       componentHeight,
       componentWidth,
-      yPosition:
-        this.props.topRow * this.props.parentRowSpace +
-        (this.props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
-      xPosition:
-        this.props.leftColumn * this.props.parentColumnSpace +
-        (this.props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
-      xPositionUnit: CSSUnits.PIXEL,
-      yPositionUnit: CSSUnits.PIXEL,
-    };
-  }
+      this.props.topRow,
+      this.props.parentRowSpace,
+      this.props.parentColumnSpace,
+      this.props.noContainerOffset,
+      this.props.leftColumn,
+    );
+  };
 
   // TODO(abhinav): These defaultProps seem unneccessary. Check it out.
   static defaultProps: Partial<WidgetProps> | undefined = {

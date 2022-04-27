@@ -1,4 +1,4 @@
-import React, { CSSProperties, useMemo, useRef } from "react";
+import React, { CSSProperties, useCallback, useMemo, useRef } from "react";
 import styled from "styled-components";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
@@ -15,6 +15,7 @@ import {
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { isCurrentWidgetSelected } from "selectors/widgetSelectors";
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -70,24 +71,17 @@ export const canDrag = (
 function DraggableComponent(props: DraggableComponentProps) {
   // Dispatch hook handy to set a widget as focused/selected
   const { focusWidget, selectWidget } = useWidgetSelection();
-
   const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isSelected = useSelector(isCurrentWidgetSelected(props.widgetId));
+  // This state tels us which widget is focused
+  // The value is the widgetId of the focused widget.
+  const isFocused = useSelector(isCurrentWidgetSelected(props.widgetId));
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean
   const { setDraggingCanvas, setDraggingState } = useWidgetDragResize();
   const showTableFilterPane = useShowTableFilterPane();
-  const selectedWidgets = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
-  );
-  // This state tels us which widget is focused
-  // The value is the widgetId of the focused widget.
-  const focusedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.focusedWidget,
-  );
-  const isCurrentWidgetFocused = focusedWidget === props.widgetId;
-  const isCurrentWidgetSelected = selectedWidgets.includes(props.widgetId);
 
   // This state tells us whether a `ResizableComponent` is resizing
   const isResizing = useSelector(
@@ -108,18 +102,21 @@ function DraggableComponent(props: DraggableComponentProps) {
 
   // True when any widget is dragging or resizing, including this one
   const isResizingOrDragging = !!isResizing || !!isDragging;
-  const isCurrentWidgetDragging = isDragging && isCurrentWidgetSelected;
-  const isCurrentWidgetResizing = isResizing && isCurrentWidgetSelected;
+  const isCurrentWidgetDragging = isDragging && isSelected;
+  const isCurrentWidgetResizing = isResizing && isSelected;
   // When mouse is over this draggable
-  const handleMouseOver = (e: any) => {
-    focusWidget &&
-      !isResizingOrDragging &&
-      !isCurrentWidgetFocused &&
-      !props.resizeDisabled &&
-      focusWidget(props.widgetId);
-    e.stopPropagation();
-  };
-  const shouldRenderComponent = !(isCurrentWidgetSelected && isDragging);
+  const handleMouseOver = useCallback(
+    (e: any) => {
+      focusWidget &&
+        !isResizingOrDragging &&
+        !isFocused &&
+        !props.resizeDisabled &&
+        focusWidget(props.widgetId);
+      e.stopPropagation();
+    },
+    [props.resizeDisabled, focusWidget, isResizingOrDragging, isFocused],
+  );
+  const shouldRenderComponent = !(isSelected && isDragging);
   // Display this draggable based on the current drag state
   const dragWrapperStyle: CSSProperties = {
     display: isCurrentWidgetDragging ? "none" : "block",
@@ -152,46 +149,59 @@ function DraggableComponent(props: DraggableComponentProps) {
   const className = `${classNameForTesting}`;
   const draggableRef = useRef<HTMLDivElement>(null);
 
-  const onDragStart = (e: any) => {
-    e.preventDefault();
-    e.stopPropagation();
-    // allowDrag check is added as react jest test simulation is not respecting default behaviour
-    // of draggable=false and triggering onDragStart. allowDrag condition check is purely for the test cases.
-    if (allowDrag && draggableRef.current && !(e.metaKey || e.ctrlKey)) {
-      if (!isCurrentWidgetFocused) return;
+  const onDragStart = useCallback(
+    (e: any) => {
+      e.preventDefault();
+      e.stopPropagation();
+      // allowDrag check is added as react jest test simulation is not respecting default behaviour
+      // of draggable=false and triggering onDragStart. allowDrag condition check is purely for the test cases.
+      if (allowDrag && draggableRef.current && !(e.metaKey || e.ctrlKey)) {
+        if (!isFocused) return;
 
-      if (!isCurrentWidgetSelected) {
-        selectWidget(props.widgetId);
+        if (!isSelected) {
+          selectWidget(props.widgetId);
+        }
+        const widgetHeight = props.bottomRow - props.topRow;
+        const widgetWidth = props.rightColumn - props.leftColumn;
+        const bounds = draggableRef.current.getBoundingClientRect();
+        const startPoints = {
+          top: Math.min(
+            Math.max((e.clientY - bounds.top) / props.parentRowSpace, 0),
+            widgetHeight - 1,
+          ),
+          left: Math.min(
+            Math.max((e.clientX - bounds.left) / props.parentColumnSpace, 0),
+            widgetWidth - 1,
+          ),
+        };
+        showTableFilterPane();
+        setDraggingCanvas(props.parentId);
+
+        setDraggingState({
+          isDragging: true,
+          dragGroupActualParent: props.parentId || "",
+          draggingGroupCenter: { widgetId: props.widgetId },
+          startPoints,
+        });
       }
-      const widgetHeight = props.bottomRow - props.topRow;
-      const widgetWidth = props.rightColumn - props.leftColumn;
-      const bounds = draggableRef.current.getBoundingClientRect();
-      const startPoints = {
-        top: Math.min(
-          Math.max((e.clientY - bounds.top) / props.parentRowSpace, 0),
-          widgetHeight - 1,
-        ),
-        left: Math.min(
-          Math.max((e.clientX - bounds.left) / props.parentColumnSpace, 0),
-          widgetWidth - 1,
-        ),
-      };
-      showTableFilterPane();
-      setDraggingCanvas(props.parentId);
-
-      setDraggingState({
-        isDragging: true,
-        dragGroupActualParent: props.parentId || "",
-        draggingGroupCenter: { widgetId: props.widgetId },
-        startPoints,
-      });
-    }
-  };
+    },
+    [
+      allowDrag,
+      props.widgetId,
+      props.topRow,
+      props.bottomRow,
+      props.leftColumn,
+      props.rightColumn,
+      props.parentRowSpace,
+      props.parentColumnSpace,
+      props.parentId,
+    ],
+  );
 
   return (
     <DraggableWrapper
       className={className}
-      data-testid={isCurrentWidgetSelected ? "t--selected" : ""}
+      data-testid={isSelected ? "t--selected" : ""}
       draggable={allowDrag}
       onDragStart={onDragStart}
       onMouseOver={handleMouseOver}

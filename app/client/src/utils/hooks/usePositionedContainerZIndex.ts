@@ -4,7 +4,7 @@ import { Layers } from "constants/Layers";
 import { useMemo } from "react";
 import { AppState } from "reducers";
 
-import { getSelectedWidgets } from "selectors/ui";
+import { isCurrentWidgetSelected } from "selectors/widgetSelectors";
 import { useSelector } from "store";
 
 export const usePositionedContainerZIndex = (
@@ -14,9 +14,8 @@ export const usePositionedContainerZIndex = (
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
-  const selectedWidgets = useSelector(getSelectedWidgets);
-  const isThisWidgetDragging =
-    isDragging && selectedWidgets.includes(props.widgetId);
+  const isWidgetSelected = useSelector(isCurrentWidgetSelected(props.widgetId));
+  const isThisWidgetDragging = isDragging && isWidgetSelected;
 
   const zIndex = useMemo(() => {
     if (isDragging) {
