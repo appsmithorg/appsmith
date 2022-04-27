@@ -319,7 +319,7 @@ function* updateWidgetPropertySaga(
   );
 }
 
-function removeDynamicBindingProperties(
+export function removeDynamicBindingProperties(
   propertyPath: string,
   dynamicBindingPathList: DynamicPath[],
 ) {
@@ -328,8 +328,8 @@ function removeDynamicBindingProperties(
       we are doing this because when you toggle js off we only 
       receive the  `primaryColumns.` properties not the `derivedColumns.`
       properties therefore we need just a hard-codded check.
-      In Table widget v2 we are removing the `derivedColumns.`
-      properties altogether.
+
+      (TODO) - Arsalan remove this primaryColumns check when the Table widget v2 is live.
     */
   if (_.startsWith(propertyPath, "primaryColumns")) {
     // primaryColumns.customColumn1.isVisible -> customColumn1.isVisible
@@ -337,10 +337,14 @@ function removeDynamicBindingProperties(
       .split(".")
       .splice(1)
       .join(".");
-    // remove all bindings with customColumn1.isVisible both
-    // primaryColumns and derivedColumns
+
+    const tablePropertyPathsToRemove = [
+      propertyPath, // primaryColumns.customColumn1.isVisible
+      `derivedColumns.${tableProperty}`, // derivedColumns.customColumn1.isVisible
+    ];
+
     return _.reject(dynamicBindingPathList, ({ key }) =>
-      _.includes(key, tableProperty),
+      tablePropertyPathsToRemove.includes(key),
     );
   } else {
     return _.reject(dynamicBindingPathList, {
@@ -348,7 +352,6 @@ function removeDynamicBindingProperties(
     });
   }
 }
-
 export function* setWidgetDynamicPropertySaga(
   action: ReduxAction<SetWidgetDynamicPropertyPayload>,
 ) {

@@ -279,36 +279,36 @@ export function updateIconAlignmentHook(
 // For example, when we add a new column or update a derived column's name
 // The propertyPath will be of the type `primaryColumns.columnId`
 // Handling BindingProperty of derived columns
+const addColumnRegex = /^primaryColumns\.\w+$/; // primaryColumns.customColumn1
+const updateColumnRegex = /^primaryColumns\.(\w+)\.(.*)$/; // primaryColumns.customColumn1.computedValue
+
 export const updateDerivedColumnsHook = (
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: any,
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
-  const addColumnRegex = /^primaryColumns\.\w+$/; // primaryColumns.customColumn1
-  const updateColumnRegex = /^primaryColumns\.(\w+)\.(.*)$/; // primaryColumns.customColumn1.computedValue
-
   // // If we're adding a column, we need to add it to the `derivedColumns` property as well
-  if (addColumnRegex.test(propertyPath)) {
-    const propertiesToUpdate = [];
+  if (propertyValue && addColumnRegex.test(propertyPath)) {
+    if (propertyValue.id) {
+      const propertiesToUpdate = [];
+      // sets default value for some properties
+      propertyValue.buttonColor = Colors.GREEN;
+      propertyValue.menuColor = Colors.GREEN;
+      propertyValue.labelColor = Colors.WHITE;
 
-    // sets default value for some properties
-    propertyValue.buttonColor = Colors.GREEN;
-    propertyValue.menuColor = Colors.GREEN;
-    propertyValue.labelColor = Colors.WHITE;
+      propertiesToUpdate.push({
+        propertyPath: `derivedColumns.${propertyValue.id}`,
+        propertyValue,
+      });
 
-    propertiesToUpdate.push({
-      propertyPath: `derivedColumns.${propertyValue.id}`,
-      propertyValue,
-    });
-
-    const oldColumnOrder = props.columnOrder || [];
-    const newColumnOrder = [...oldColumnOrder, propertyValue.id];
-    propertiesToUpdate.push({
-      propertyPath: "columnOrder",
-      propertyValue: newColumnOrder,
-    });
-
-    return propertiesToUpdate;
+      const oldColumnOrder = props.columnOrder || [];
+      const newColumnOrder = [...oldColumnOrder, propertyValue.id];
+      propertiesToUpdate.push({
+        propertyPath: "columnOrder",
+        propertyValue: newColumnOrder,
+      });
+      return propertiesToUpdate;
+    }
   }
 
   // If we're updating a columns' name, computed value, we need to update the `derivedColumns` property as well.
