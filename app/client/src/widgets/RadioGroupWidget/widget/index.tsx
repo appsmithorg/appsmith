@@ -22,7 +22,7 @@ import RadioGroupComponent from "../component";
  * 2. The `value` property should consists of unique values only.
  * 3. Data types of all the value props should be the same.
  */
-function optionsCustomValidation(
+export function optionsCustomValidation(
   options: unknown,
   props: any,
   _: any,
