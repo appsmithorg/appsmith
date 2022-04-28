@@ -27,6 +27,7 @@ import { AppState } from "reducers";
 import { EntityIcon, getPluginIcon } from "../ExplorerIcons";
 import SubmenuHotKeys from "./SubmenuHotkeys";
 import scrollIntoView from "scroll-into-view-if-needed";
+import { Colors } from "constants/Colors";
 
 const SubMenuContainer = styled.div`
   width: 250px;
@@ -35,6 +36,14 @@ const SubMenuContainer = styled.div`
     height: 220px;
     overflow: hidden;
     overflow-y: auto;
+    div.active {
+      background: ${Colors.GREY_2};
+    }
+    > div {
+      &: hover {
+        background: ${Colors.GREY_2};
+      }
+    }
   }
 `;
 
@@ -155,8 +164,8 @@ export default function ExplorerSubMenu() {
                 return (
                   <div
                     className={classNames({
-                      "px-4 py-2 cursor-pointer text-sm flex gap-2 hover:bg-gray-100": true,
-                      "bg-gray-100 active": activeItemIdx === idx,
+                      "px-4 py-2 cursor-pointer text-sm flex gap-2": true,
+                      active: activeItemIdx === idx,
                       "font-medium text-gray":
                         item.kind === SEARCH_ITEM_TYPES.sectionTitle,
                     })}
