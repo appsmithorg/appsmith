@@ -434,6 +434,29 @@ export interface WidgetBuilder<T extends WidgetProps, S extends WidgetState> {
   buildWidget(widgetProps: T): JSX.Element;
 }
 
+export type DebouncedExecuteActionPayload = Omit<
+  ExecuteTriggerPayload,
+  "dynamicString"
+> & {
+  dynamicString?: string;
+};
+type MetaUpdate = {
+  propertyName: string;
+  propertyValue: unknown;
+  actionExecution?: DebouncedExecuteActionPayload;
+};
+
+export type MetaUpdates = MetaUpdate[];
+
+export interface WidgetMethodProps {
+  updateWidgetMetaProperties: (metaUpdates: MetaUpdates) => void;
+  updateWidgetMetaProperty: (
+    propertyName: string,
+    propertyValue: unknown,
+    actionExecution?: DebouncedExecuteActionPayload,
+  ) => void;
+}
+
 export interface WidgetBaseProps {
   widgetId: string;
   type: WidgetType;
@@ -505,7 +528,8 @@ export interface WidgetDataProps
 export interface WidgetProps
   extends WidgetDataProps,
     WidgetDynamicPathListProps,
-    DataTreeEvaluationProps {
+    DataTreeEvaluationProps,
+    WidgetMethodProps {
   key?: string;
   isDefaultClickDisabled?: boolean;
   [key: string]: any;

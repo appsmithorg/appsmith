@@ -9,6 +9,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import produce from "immer";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { WidgetMetaUpdates } from "actions/metaActions";
 
 export type MetaState = Record<string, Record<string, unknown>>;
 
@@ -31,30 +32,23 @@ export const metaReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.SET_META_PROP]: (
     state: MetaState,
-    action: ReduxAction<UpdateWidgetMetaPropertyPayload>,
+    action: ReduxAction<UpdateWidgetMetaPropertyPayload | WidgetMetaUpdates>,
   ) => {
     const nextState = produce(state, (draftMetaState) => {
-      set(
-        draftMetaState,
-        `${action.payload.widgetId}.${action.payload.propertyName}`,
-        action.payload.propertyValue,
-      );
+      if (Array.isArray(action.payload)) {
+        const metaUpdates = action.payload;
+        metaUpdates.forEach(({ propertyName, propertyValue, widgetId }) => {
+          set(draftMetaState, `${widgetId}.${propertyName}`, propertyValue);
+        });
+      } else if (action.payload.widgetId) {
+        set(
+          draftMetaState,
+          `${action.payload.widgetId}.${action.payload.propertyName}`,
+          action.payload.propertyValue,
+        );
+      }
+      return draftMetaState;
     });
-
-    return nextState;
-  },
-  [ReduxActionTypes.SET_META_PROP_AND_EVAL]: (
-    state: MetaState,
-    action: ReduxAction<UpdateWidgetMetaPropertyPayload>,
-  ) => {
-    const nextState = produce(state, (draftMetaState) => {
-      set(
-        draftMetaState,
-        `${action.payload.widgetId}.${action.payload.propertyName}`,
-        action.payload.propertyValue,
-      );
-    });
-
     return nextState;
   },
   [ReduxActionTypes.TABLE_PANE_MOVED]: (

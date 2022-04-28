@@ -7,14 +7,29 @@ import { BatchAction, batchAction } from "actions/batchActions";
 export interface UpdateWidgetMetaPropertyPayload {
   widgetId: string;
   propertyName: string;
-  propertyValue: any;
+  propertyValue: unknown;
 }
 
-export function updateWidgetMetaProperty(
+export type WidgetMetaUpdates = {
+  widgetId: string;
+  propertyName: string;
+  propertyValue: unknown;
+}[];
+
+export const updateWidgetMetaProperties = (
+  widgetMetaUpdates: WidgetMetaUpdates,
+): BatchAction<UpdateWidgetMetaPropertyPayload> => {
+  return batchAction({
+    type: ReduxActionTypes.SET_META_PROP,
+    payload: widgetMetaUpdates,
+  });
+};
+
+export const updateWidgetMetaProperty = (
   widgetId: string,
   propertyName: string,
   propertyValue: any,
-): BatchAction<UpdateWidgetMetaPropertyPayload> {
+): BatchAction<UpdateWidgetMetaPropertyPayload> => {
   return batchAction({
     type: ReduxActionTypes.SET_META_PROP_AND_EVAL,
     payload: {
@@ -23,7 +38,7 @@ export function updateWidgetMetaProperty(
       propertyValue,
     },
   });
-}
+};
 
 export function resetWidgetMetaProperty(
   widgetId: string,

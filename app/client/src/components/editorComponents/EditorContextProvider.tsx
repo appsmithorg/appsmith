@@ -17,6 +17,7 @@ import { OccupiedSpace } from "constants/CanvasEditorConstants";
 
 import {
   resetChildrenMetaProperty,
+  updateWidgetMetaProperties,
   updateWidgetMetaProperty,
   syncUpdateWidgetMetaProperty,
 } from "actions/metaActions";
@@ -27,6 +28,13 @@ export type EditorContextType = {
     operation: WidgetOperation,
     widgetId: string,
     payload: any,
+  ) => void;
+  updateWidgetMetaProperties?: (
+    metaUpdates: {
+      widgetId: string;
+      propertyName: string;
+      propertyValue: any;
+    }[],
   ) => void;
   updateWidgetProperty?: (
     widgetId: string,
@@ -45,6 +53,7 @@ export type EditorContextType = {
   batchUpdateWidgetProperty?: (
     widgetId: string,
     updates: BatchPropertyUpdatePayload,
+    shouldReplay?: boolean,
   ) => void;
   syncUpdateWidgetMetaProperty?: (
     widgetId: string,
@@ -68,6 +77,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
     resetChildrenMetaProperty,
     syncUpdateWidgetMetaProperty,
     updateWidget,
+    updateWidgetMetaProperties,
     updateWidgetMetaProperty,
     updateWidgetProperty,
   } = props;
@@ -81,6 +91,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       updateWidgetProperty,
       updateWidgetMetaProperty,
       syncUpdateWidgetMetaProperty,
+      updateWidgetMetaProperties,
       disableDrag,
       resetChildrenMetaProperty,
       deleteWidgetProperty,
@@ -92,6 +103,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       updateWidgetProperty,
       updateWidgetMetaProperty,
       syncUpdateWidgetMetaProperty,
+      updateWidgetMetaProperties,
       disableDrag,
       resetChildrenMetaProperty,
       deleteWidgetProperty,
@@ -120,6 +132,7 @@ const mapDispatchToProps = {
     propertyName: string,
     propertyValue: any,
   ) => syncUpdateWidgetMetaProperty(widgetId, propertyName, propertyValue),
+  updateWidgetMetaProperties,
   resetChildrenMetaProperty,
   disableDrag: disableDragAction,
   deleteWidgetProperty: deletePropertyAction,
