@@ -198,10 +198,6 @@ export const IconWrapper = styled.span<IconProps>`
   display: flex;
   align-items: center;
   cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
-  &:hover {
-    cursor: ${(props) =>
-      props.disabled ? "not-allowed" : props.clickable ? "pointer" : "default"};
-  }
   svg {
     width: ${(props) => sizeHandler(props.size)}px;
     height: ${(props) => sizeHandler(props.size)}px;
@@ -418,12 +414,7 @@ const Icon = forwardRef(
     let loader = <Spinner size={props.size} />;
     if (props.loaderWithIconWrapper) {
       loader = (
-        <IconWrapper
-          className={Classes.ICON}
-          clickable={clickable}
-          onClick={undefined}
-          {...props}
-        >
+        <IconWrapper className={Classes.ICON} clickable={clickable} {...props}>
           <Spinner size={props.size} />
         </IconWrapper>
       );
