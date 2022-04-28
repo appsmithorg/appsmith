@@ -124,11 +124,10 @@ function ArrayField({
   const keysRef = useRef<string[]>([]);
   const removedKeys = useRef<string[]>([]);
   const defaultValue = getDefaultValue(schemaItem, passedDefaultValue);
+  const cachedDefaultValue = useRef<unknown[]>(defaultValue);
+
   const value = watch(name);
   const valueLength = value?.length || 0;
-  const [cachedDefaultValue, setCachedDefaultValue] = useState<unknown[]>(
-    defaultValue,
-  );
 
   useUpdateAccessor({ accessor: schemaItem.accessor });
 
@@ -162,26 +161,13 @@ function ArrayField({
         (key) => key === removedKey,
       );
 
-      // If the array has some default value passed from the sourceData
-      // and the default array item is removed then we need to remove the
-      // same index data from the default value in order to avoid that
-      // data to get populated when add button is clicked as we use
-      // cachedDefaultValue[index] in the FieldRenderer
-      if (removedIndex < cachedDefaultValue.length) {
-        setCachedDefaultValue((prevDefaultValue) => {
-          const clonedValue = klona(prevDefaultValue);
-
-          clonedValue.splice(removedIndex, 1);
-
-          return clonedValue;
-        });
-      }
-
       // Manually remove from the values and re-insert to maintain the position of the
       // values
       const newValues = klona(
         values.filter((_val: any, index: number) => index !== removedIndex),
       );
+
+      cachedDefaultValue.current = newValues;
 
       removedKeys.current = [removedKey];
 
@@ -221,7 +207,7 @@ function ArrayField({
 
   useDeepEffect(() => {
     setValue(name, klona(defaultValue));
-    setCachedDefaultValue(klona(defaultValue));
+    cachedDefaultValue.current = klona(defaultValue);
   }, [defaultValue]);
 
   /**
@@ -277,7 +263,7 @@ function ArrayField({
             <FieldRenderer
               fieldName={fieldName}
               options={DEFAULT_FIELD_RENDERER_OPTIONS}
-              passedDefaultValue={cachedDefaultValue[index]}
+              passedDefaultValue={cachedDefaultValue.current[index]}
               propertyPath={fieldPropertyPath}
               schemaItem={arrayItemSchema}
             />
