@@ -13,7 +13,10 @@ import CopyIcon from "remixicon-react/FileCopyLineIcon";
 import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 import { WidgetType } from "constants/WidgetConstants";
 import { isWidgetDeprecated } from "../utils";
-import { DeprecationMessage } from "./DeprecationMessage";
+import { BannerMessage } from "components/ads/BannerMessage";
+import { Colors } from "constants/Colors";
+import { IconSize } from "components/ads";
+import { WIDGET_DEPRECATION_WARNING } from "@appsmith/constants/messages";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -124,7 +127,17 @@ function PropertyPaneView(
           />
         )}
         <PropertyPaneConnections widgetName={widgetProperties.widgetName} />
-        {isWidgetDeprecated(widgetProperties.type) && <DeprecationMessage />}
+        {isWidgetDeprecated(widgetProperties.type) && (
+          <BannerMessage
+            backgroundColor={Colors.WARNING_ORANGE}
+            className="t--deprecation-warning"
+            icon="warning-line"
+            iconColor={Colors.WARNING_SOLID}
+            iconSize={IconSize.XXXXL}
+            message={WIDGET_DEPRECATION_WARNING}
+            textColor={Colors.BROWN}
+          />
+        )}
         <PropertyControlsGenerator
           id={widgetProperties.widgetId}
           panel={panel}
