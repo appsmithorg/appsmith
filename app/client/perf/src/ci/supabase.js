@@ -99,7 +99,7 @@ const saveData = async (results) => {
       row["meta"] = run_meta.id;
       const runs = results[action][metric];
       runs.forEach((value, i) => {
-        row["value"] = value;
+        row = { ...row, value };
         rows.push(row);
       });
     });

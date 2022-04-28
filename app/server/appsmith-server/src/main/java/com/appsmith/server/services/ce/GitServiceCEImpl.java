@@ -712,6 +712,12 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 if (error instanceof TimeoutException) {
                                     return Mono.error(new AppsmithException(AppsmithError.GIT_EXECUTION_TIMEOUT));
                                 }
+                                if (error instanceof ClassCastException) {
+                                    // To catch TransportHttp cast error in case HTTP URL is passed instead of SSH URL
+                                    if(error.getMessage().contains("TransportHttp")) {
+                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_URL));
+                                    }
+                                }
                                 return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, error.getMessage()));
                             });
                         });

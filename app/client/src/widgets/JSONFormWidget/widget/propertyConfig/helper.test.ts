@@ -1,4 +1,5 @@
 import { get, set } from "lodash";
+import { klona } from "klona";
 
 import schemaTestData from "widgets/JSONFormWidget/schemaTestData";
 import {
@@ -15,8 +16,6 @@ import {
   hiddenIfArrayItemIsObject,
   updateChildrenDisabledStateHook,
 } from "./helper";
-
-import { klona } from "klona/full";
 
 const widgetName = "JSONForm1";
 

@@ -471,7 +471,7 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        uses: martijnhols/actions-cache@v3
+        uses: martijnhols/actions-cache@v3.0.2
         with:
           path: |
             ~/run_result
@@ -593,12 +593,12 @@ jobs:
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-          APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
-          APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
-          APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
-          APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
           POSTGRES_PASSWORD: postgres
         run: |
           cd app/client
@@ -622,12 +622,12 @@ jobs:
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-          APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
-          APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
-          APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
-          APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
         with:
           browser: chrome
@@ -661,12 +661,12 @@ jobs:
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-          APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
-          APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
-          APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
-          APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
         with:
           browser: chrome
@@ -778,7 +778,7 @@ jobs:
       fail-fast: false
       matrix:
         job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
-        
+
     # Service containers to run with this job. Required for running tests
     services:
       # Label used to access the service container
@@ -806,7 +806,7 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        uses: martijnhols/actions-cache@v3
+        uses: martijnhols/actions-cache@v3.0.2
         with:
           path: |
             ~/run_result
@@ -952,12 +952,12 @@ jobs:
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-          APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
-          APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
-          APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
-          APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
           POSTGRES_PASSWORD: postgres
         run: |
           ./cypress/setup-test.sh
@@ -979,12 +979,12 @@ jobs:
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-          APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
-          APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
-          APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
-          APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
         with:
           browser: chrome
@@ -1017,12 +1017,12 @@ jobs:
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-          APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
-          APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
-          APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
-          APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
         with:
           browser: chrome
@@ -1207,18 +1207,22 @@ jobs:
 
               return completed_at;
             } else {
-              const { data: result } = await github.checks.update({
-              ...context.repo,
-              check_run_id: check[0].id,
-              status: 'completed',
-              conclusion: JSON.parse(process.env.matrix_result).result,
-                output: {
-                  title: "Integration tests result for ok to test",
-                  summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
-                }
-            });
-
-            return result;
+              try {
+                const { data: result } = await github.checks.update({
+                  ...context.repo,
+                  check_run_id: check[0].id,
+                  status: 'completed',
+                  conclusion: JSON.parse(process.env.matrix_result).result,
+                    output: {
+                      title: "Integration tests result for ok to test",
+                      summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
+                    }
+                });
+                console.log({ result });
+                return result;
+              } catch(e) {
+                console.error({ error: e.message });
+              }
             }
 
       - name: Dump the client payload context
@@ -1456,12 +1460,12 @@ jobs:
           CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
           CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-          APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
-          APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
-          APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
-          APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
           POSTGRES_PASSWORD: postgres
         run: |
           ./cypress/setup-test.sh

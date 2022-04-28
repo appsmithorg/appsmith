@@ -25,17 +25,27 @@ describe("AForce - Community Issues page validations", function () {
 
   let reconnect = true, selectedRow: number;
   it("1. Import application json and validate headers", () => {
-
-    homePage.ImportApp("AForceMigrationExport.json", reconnect)
-    if (reconnect)
-      dataSources.ReconnectDataSourcePostgres("AForceDB")
-    //Validate table is not empty!
-    table.WaitUntilTableLoad()
-    //Validating order of header columns!
-    table.AssertTableHeaderOrder("TypeTitleStatus+1CommentorsVotesAnswerUpVoteStatesupvote_ididgithub_issue_idauthorcreated_atdescriptionlabelsstatelinkupdated_at")
-    //Validating hidden columns:
-    table.AssertHiddenColumns(['States', 'upvote_id', 'id', 'github_issue_id', 'author', 'created_at', 'description', 'labels', 'state', 'link', 'updated_at'])
-
+    cy.visit("/applications");
+    homePage.ImportApp("AForceMigrationExport.json", reconnect);
+    cy.wait("@importNewApplication").then((interception) => {
+      cy.wait(100);
+      const { isPartialImport } = interception.response.body.data;
+      if (isPartialImport) {
+        // should reconnect modal
+        dataSources.ReconnectDataSourcePostgres("AForceDB")
+      } else {
+        cy.get(homePage.toastMessage).should(
+          "contain",
+          "Application imported successfully",
+        );
+      }
+      //Validate table is not empty!
+      table.WaitUntilTableLoad()
+      //Validating order of header columns!
+      table.AssertTableHeaderOrder("TypeTitleStatus+1CommentorsVotesAnswerUpVoteStatesupvote_ididgithub_issue_idauthorcreated_atdescriptionlabelsstatelinkupdated_at")
+      //Validating hidden columns:
+      table.AssertHiddenColumns(['States', 'upvote_id', 'id', 'github_issue_id', 'author', 'created_at', 'description', 'labels', 'state', 'link', 'updated_at'])
+    });
   });
 
   it("2. Validate table navigation with Server Side pagination enabled with Default selected row", () => {
