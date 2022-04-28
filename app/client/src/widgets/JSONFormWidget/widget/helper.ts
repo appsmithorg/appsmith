@@ -1,6 +1,7 @@
 import equal from "fast-deep-equal/es6";
 import { difference, isEmpty } from "lodash";
 import log from "loglevel";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { MetaInternalFieldState } from ".";
@@ -264,6 +265,17 @@ export const computeSchema = ({
 
   const count = countFields(currSourceData);
   if (count > MAX_ALLOWED_FIELDS) {
+    AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
+      widgetType: "JSON_FORM_WIDGET",
+      widgetName,
+      propertyName: "sourceData",
+      updatedValue: currSourceData,
+      metaInfo: {
+        limitExceeded: true,
+        currentLimit: MAX_ALLOWED_FIELDS,
+      },
+    });
+
     return {
       status: ComputedSchemaStatus.LIMIT_EXCEEDED,
       schema: prevSchema,

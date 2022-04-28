@@ -79,7 +79,10 @@ import {
   ConditionalOutput,
   FormEvalOutput,
 } from "reducers/evaluationReducers/formEvaluationReducer";
-import { responseTabComponent } from "components/editorComponents/ApiResponseView";
+import {
+  responseTabComponent,
+  InlineButton,
+} from "components/editorComponents/ApiResponseView";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -360,11 +363,6 @@ const TabContainerView = styled.div`
     }
   }
   position: relative;
-`;
-
-const InlineButton = styled(Button)`
-  display: inline-flex;
-  margin: 0 4px;
 `;
 
 const Wrapper = styled.div`
