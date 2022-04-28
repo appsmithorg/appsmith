@@ -2,7 +2,11 @@ import React from "react";
 import { Alignment } from "@blueprintjs/core";
 import { xor } from "lodash";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -439,7 +443,7 @@ class SwitchGroupWidget extends BaseWidget<
   };
 }
 
-export interface SwitchGroupWidgetProps extends WidgetProps {
+export interface SwitchGroupWidgetProps extends WidgetProps, WidgetMethodProps {
   options: OptionProps[];
   defaultSelectedValues: string[];
   selectedValuesArray: string[];

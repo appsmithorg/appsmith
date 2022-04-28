@@ -3,7 +3,11 @@ import equal from "fast-deep-equal/es6";
 import { connect } from "react-redux";
 import { debounce, difference, isEmpty, noop } from "lodash";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import JSONFormComponent from "../component";
 import propertyConfig from "./propertyConfig";
 import { AppState } from "reducers";
@@ -22,9 +26,9 @@ import {
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { convertSchemaItemToFormData } from "../helper";
-import { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
+import { DebouncedExecuteActionPayload } from "../../BaseWidget";
 
-export interface JSONFormWidgetProps extends WidgetProps {
+export interface JSONFormWidgetProps extends WidgetProps, WidgetMethodProps {
   autoGenerateForm?: boolean;
   borderColor?: string;
   borderRadius?: number;

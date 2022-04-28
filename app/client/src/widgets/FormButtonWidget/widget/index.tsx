@@ -1,5 +1,9 @@
 import React from "react";
-import { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import {
   EventType,
@@ -195,7 +199,7 @@ class FormButtonWidget extends ButtonWidget {
   }
 }
 
-export interface FormButtonWidgetProps extends WidgetProps {
+export interface FormButtonWidgetProps extends WidgetProps, WidgetMethodProps {
   text?: string;
   onClick?: string;
   isVisible?: boolean;

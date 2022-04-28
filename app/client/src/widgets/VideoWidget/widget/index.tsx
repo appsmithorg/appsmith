@@ -1,5 +1,9 @@
 import React, { Suspense, lazy } from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -174,7 +178,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
   }
 }
 
-export interface VideoWidgetProps extends WidgetProps {
+export interface VideoWidgetProps extends WidgetProps, WidgetMethodProps {
   url: string;
   autoPlay: boolean;
   onPause?: string;

@@ -17,7 +17,11 @@ import memoizeOne from "memoize-one";
 import shallowEqual from "shallowequal";
 import WidgetFactory from "utils/WidgetFactory";
 import { removeFalsyEntries } from "utils/helpers";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import ListComponent, {
   ListComponentEmpty,
@@ -877,7 +881,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   }
 }
 
-export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
+export interface ListWidgetProps<T extends WidgetProps>
+  extends WidgetProps,
+    WidgetMethodProps {
   children?: T[];
   shouldScrollContents?: boolean;
   onListItemClick?: string;

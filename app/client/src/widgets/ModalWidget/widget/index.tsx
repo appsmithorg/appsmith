@@ -5,7 +5,11 @@ import { connect } from "react-redux";
 import { UIElementSize } from "components/editorComponents/ResizableUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import ModalComponent from "../component";
 import { RenderMode, WIDGET_PADDING } from "constants/WidgetConstants";
@@ -223,7 +227,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   }
 }
 
-export interface ModalWidgetProps extends WidgetProps {
+export interface ModalWidgetProps extends WidgetProps, WidgetMethodProps {
   renderMode: RenderMode;
   isOpen?: boolean;
   children?: WidgetProps[];

@@ -1,7 +1,11 @@
 import React from "react";
 import { IconName } from "@blueprintjs/icons";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -19,7 +23,7 @@ import { IconNames } from "@blueprintjs/icons";
 const ICON_NAMES = Object.keys(IconNames).map(
   (name: string) => IconNames[name as keyof typeof IconNames],
 );
-export interface IconButtonWidgetProps extends WidgetProps {
+export interface IconButtonWidgetProps extends WidgetProps, WidgetMethodProps {
   iconName?: IconName;
   buttonColor?: string;
   buttonVariant: ButtonVariant;

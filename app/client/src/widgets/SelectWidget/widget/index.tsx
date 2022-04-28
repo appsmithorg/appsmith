@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import SelectComponent from "../component";
@@ -541,7 +545,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   }
 }
 
-export interface SelectWidgetProps extends WidgetProps {
+export interface SelectWidgetProps extends WidgetProps, WidgetMethodProps {
   placeholderText?: string;
   labelText: string;
   labelPosition?: LabelPosition;

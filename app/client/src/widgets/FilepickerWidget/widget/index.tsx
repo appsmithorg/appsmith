@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import FilePickerComponent from "../component";
 import Uppy from "@uppy/core";
@@ -475,7 +479,7 @@ export interface FilePickerWidgetState extends WidgetState {
   uppy: any;
 }
 
-export interface FilePickerWidgetProps extends WidgetProps {
+export interface FilePickerWidgetProps extends WidgetProps, WidgetMethodProps {
   label: string;
   maxNumFiles?: number;
   maxFileSize?: number;

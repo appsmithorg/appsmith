@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "../../BaseWidget";
 import styled from "styled-components";
 import IconComponent, { IconType } from "../component";
 import {
@@ -72,7 +76,7 @@ export const IconSizes: { [key: string]: number } = {
 
 export type IconSize = typeof IconSizes[keyof typeof IconSizes] | undefined;
 
-export interface IconWidgetProps extends WidgetProps {
+export interface IconWidgetProps extends WidgetProps, WidgetMethodProps {
   iconName: IconType;
   onClick: string;
   iconSize: IconSize;

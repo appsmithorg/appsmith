@@ -54,10 +54,11 @@ import PreviewModeComponent from "components/editorComponents/PreviewModeCompone
  */
 
 abstract class BaseWidget<
-  T extends WidgetProps,
+  T extends WidgetProps & WidgetMethodProps,
   K extends WidgetState
 > extends Component<T, K> {
   static contextType = EditorContext;
+  context!: React.ContextType<typeof EditorContext>;
 
   static getPropertyPaneConfig(): PropertyPaneConfig[] {
     return [];
@@ -151,7 +152,7 @@ abstract class BaseWidget<
 
   resetChildrenMetaProperty(widgetId: string) {
     const { resetChildrenMetaProperty } = this.context;
-    resetChildrenMetaProperty(widgetId);
+    if (resetChildrenMetaProperty) resetChildrenMetaProperty(widgetId);
   }
 
   /* eslint-disable @typescript-eslint/no-empty-function */
@@ -443,7 +444,7 @@ export type DebouncedExecuteActionPayload = Omit<
 type MetaUpdate = {
   propertyName: string;
   propertyValue: unknown;
-  actionExecution?: DebouncedExecuteActionPayload;
+  actionExecution?: ExecuteTriggerPayload;
 };
 
 export type MetaUpdates = MetaUpdate[];
@@ -453,7 +454,7 @@ export interface WidgetMethodProps {
   updateWidgetMetaProperty: (
     propertyName: string,
     propertyValue: unknown,
-    actionExecution?: DebouncedExecuteActionPayload,
+    actionExecution?: ExecuteTriggerPayload,
   ) => void;
 }
 
@@ -528,8 +529,7 @@ export interface WidgetDataProps
 export interface WidgetProps
   extends WidgetDataProps,
     WidgetDynamicPathListProps,
-    DataTreeEvaluationProps,
-    WidgetMethodProps {
+    DataTreeEvaluationProps {
   key?: string;
   isDefaultClickDisabled?: boolean;
   [key: string]: any;

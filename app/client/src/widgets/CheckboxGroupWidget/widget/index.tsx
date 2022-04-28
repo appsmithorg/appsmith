@@ -7,7 +7,11 @@ import {
 } from "constants/WidgetValidation";
 import { TextSize, WidgetType } from "constants/WidgetConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -559,7 +563,9 @@ class CheckboxGroupWidget extends BaseWidget<
   };
 }
 
-export interface CheckboxGroupWidgetProps extends WidgetProps {
+export interface CheckboxGroupWidgetProps
+  extends WidgetProps,
+    WidgetMethodProps {
   options: OptionProps[];
   isInline: boolean;
   isSelectAll?: boolean;

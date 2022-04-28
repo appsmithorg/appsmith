@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 import { WidgetType, TextSize } from "constants/WidgetConstants";
@@ -463,7 +467,7 @@ export interface BaseInputValidator {
   validationRegex: string;
   errorMessage: string;
 }
-export interface BaseInputWidgetProps extends WidgetProps {
+export interface BaseInputWidgetProps extends WidgetProps, WidgetMethodProps {
   inputType: InputTypes;
   tooltip?: string;
   isDisabled?: boolean;

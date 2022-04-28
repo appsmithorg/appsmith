@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import DocumentViewerComponent from "../component";
 import {
   ValidationTypes,
@@ -125,7 +129,9 @@ class DocumentViewerWidget extends BaseWidget<
   }
 }
 
-export interface DocumentViewerWidgetProps extends WidgetProps {
+export interface DocumentViewerWidgetProps
+  extends WidgetProps,
+    WidgetMethodProps {
   docUrl: string;
 }
 

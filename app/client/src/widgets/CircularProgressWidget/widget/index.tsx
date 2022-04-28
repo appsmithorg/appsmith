@@ -3,7 +3,11 @@ import pick from "lodash/pick";
 
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import { ValidationTypes } from "constants/WidgetValidation";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import CircularProgressComponent, {
   CircularProgressComponentProps,
@@ -11,6 +15,7 @@ import CircularProgressComponent, {
 
 interface CircularProgressWidgetProps
   extends WidgetProps,
+    WidgetMethodProps,
     CircularProgressComponentProps {}
 
 class CircularProgressWidget extends BaseWidget<

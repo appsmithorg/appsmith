@@ -1,6 +1,10 @@
 import React from "react";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
@@ -317,7 +321,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
   };
 }
 
-export interface CameraWidgetProps extends WidgetProps {
+export interface CameraWidgetProps extends WidgetProps, WidgetMethodProps {
   isDisabled: boolean;
   isMirrored: boolean;
   isVisible: boolean;

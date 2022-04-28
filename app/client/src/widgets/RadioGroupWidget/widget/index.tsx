@@ -2,7 +2,11 @@ import React from "react";
 import { Alignment } from "@blueprintjs/core";
 import { isArray, compact, isNumber } from "lodash";
 
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "../../BaseWidget";
 import { TextSize, WidgetType } from "constants/WidgetConstants";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
@@ -534,7 +538,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   }
 }
 
-export interface RadioGroupWidgetProps extends WidgetProps {
+export interface RadioGroupWidgetProps extends WidgetProps, WidgetMethodProps {
   options: RadioOption[];
   selectedOptionValue: string;
   onSelectionChange: string;

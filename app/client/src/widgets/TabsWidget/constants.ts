@@ -1,11 +1,12 @@
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps, WidgetMethodProps } from "widgets/BaseWidget";
 
 export interface TabContainerWidgetProps extends WidgetProps {
   tabId: string;
 }
 
 export interface TabsWidgetProps<T extends TabContainerWidgetProps>
-  extends WidgetProps {
+  extends WidgetProps,
+    WidgetMethodProps {
   isVisible?: boolean;
   shouldScrollContents: boolean;
   tabs: Array<{

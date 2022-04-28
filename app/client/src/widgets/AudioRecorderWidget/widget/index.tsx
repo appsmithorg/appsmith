@@ -1,6 +1,10 @@
 import React from "react";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -9,7 +13,9 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { createBlobUrl } from "utils/AppsmithUtils";
 import { FileDataTypes } from "widgets/constants";
 
-export interface AudioRecorderWidgetProps extends WidgetProps {
+export interface AudioRecorderWidgetProps
+  extends WidgetProps,
+    WidgetMethodProps {
   backgroundColor: string;
   iconColor: string;
   isDisabled: boolean;

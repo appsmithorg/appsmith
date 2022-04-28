@@ -2,7 +2,11 @@ import React from "react";
 import { get } from "lodash";
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
@@ -561,7 +565,7 @@ class ButtonGroupWidget extends BaseWidget<
   }
 }
 
-export interface ButtonGroupWidgetProps extends WidgetProps {
+export interface ButtonGroupWidgetProps extends WidgetProps, WidgetMethodProps {
   orientation: string;
   isDisabled: boolean;
   borderRadius?: ButtonBorderRadiusTypes;

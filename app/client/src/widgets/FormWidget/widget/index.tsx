@@ -1,6 +1,6 @@
 import React from "react";
 import _, { get, some, isEqual } from "lodash";
-import { WidgetProps } from "../../BaseWidget";
+import { WidgetProps, WidgetMethodProps } from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import ContainerWidget, {
   ContainerWidgetProps,
@@ -38,7 +38,7 @@ class FormWidget extends ContainerWidget {
     }
   }
 
-  componentDidUpdate(prevProps: ContainerWidgetProps<any>) {
+  componentDidUpdate(prevProps: ContainerWidgetProps<any> & WidgetMethodProps) {
     super.componentDidUpdate(prevProps);
     this.updateFormData();
     // Check if the form is dirty

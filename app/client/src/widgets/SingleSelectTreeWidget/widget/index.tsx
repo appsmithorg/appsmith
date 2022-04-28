@@ -1,5 +1,9 @@
 import React, { ReactNode } from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import { TextSize, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isArray, findIndex } from "lodash";
@@ -498,7 +502,9 @@ export interface DropdownOption {
   children?: DropdownOption[];
 }
 
-export interface SingleSelectTreeWidgetProps extends WidgetProps {
+export interface SingleSelectTreeWidgetProps
+  extends WidgetProps,
+    WidgetMethodProps {
   placeholderText?: string;
   selectedIndex?: number;
   options?: DropdownOption[];

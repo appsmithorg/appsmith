@@ -1,5 +1,9 @@
 import React, { lazy, Suspense } from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "../../BaseWidget";
 import { TextSize, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -372,7 +376,9 @@ class RichTextEditorWidget extends BaseWidget<
   }
 }
 
-export interface RichTextEditorWidgetProps extends WidgetProps {
+export interface RichTextEditorWidgetProps
+  extends WidgetProps,
+    WidgetMethodProps {
   defaultText?: string;
   text: string;
   inputType: string;

@@ -1,5 +1,9 @@
 import * as React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import { WidgetType, RenderModes } from "constants/WidgetConstants";
 import ImageComponent from "../component";
 
@@ -216,7 +220,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
 
 export type ImageShape = "RECTANGLE" | "CIRCLE" | "ROUNDED";
 
-export interface ImageWidgetProps extends WidgetProps {
+export interface ImageWidgetProps extends WidgetProps, WidgetMethodProps {
   image: string;
   imageShape: ImageShape;
   defaultImage: string;

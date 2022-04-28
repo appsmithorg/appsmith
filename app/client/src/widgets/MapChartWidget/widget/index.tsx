@@ -1,6 +1,10 @@
 import React, { lazy, Suspense } from "react";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
@@ -330,7 +334,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
   }
 }
 
-export interface MapChartWidgetProps extends WidgetProps {
+export interface MapChartWidgetProps extends WidgetProps, WidgetMethodProps {
   mapTitle?: string;
   mapType: MapType;
   onDataPointClick?: string;

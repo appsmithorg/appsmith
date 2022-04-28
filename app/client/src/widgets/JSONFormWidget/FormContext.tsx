@@ -3,7 +3,7 @@ import React, { createContext, useMemo } from "react";
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { RenderMode } from "constants/WidgetConstants";
 import { JSONFormWidgetState } from "./widget";
-import { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
+import { DebouncedExecuteActionPayload } from "../BaseWidget";
 
 type FormContextProps<TValues = any> = React.PropsWithChildren<{
   executeAction: (actionPayload: ExecuteTriggerPayload) => void;

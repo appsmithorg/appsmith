@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import MapComponent from "../component";
 
@@ -388,7 +392,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   }
 }
 
-export interface MapWidgetProps extends WidgetProps {
+export interface MapWidgetProps extends WidgetProps, WidgetMethodProps {
   isDisabled?: boolean;
   isVisible?: boolean;
   enableSearch: boolean;

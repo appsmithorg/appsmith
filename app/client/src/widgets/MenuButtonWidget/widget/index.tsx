@@ -1,6 +1,10 @@
 import React from "react";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import MenuButtonComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -15,7 +19,7 @@ import {
 } from "components/constants";
 import { IconName } from "@blueprintjs/icons";
 import { MinimumPopupRows } from "widgets/constants";
-export interface MenuButtonWidgetProps extends WidgetProps {
+export interface MenuButtonWidgetProps extends WidgetProps, WidgetMethodProps {
   label?: string;
   isDisabled?: boolean;
   isVisible?: boolean;

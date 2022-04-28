@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import CheckboxComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -176,7 +180,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   }
 }
 
-export interface CheckboxWidgetProps extends WidgetProps {
+export interface CheckboxWidgetProps extends WidgetProps, WidgetMethodProps {
   label: string;
   defaultCheckedState: boolean;
   isChecked?: boolean;

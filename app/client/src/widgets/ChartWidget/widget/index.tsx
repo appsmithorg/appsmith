@@ -1,6 +1,10 @@
 import React, { lazy, Suspense } from "react";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -76,7 +80,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
   }
 }
 
-export interface ChartWidgetProps extends WidgetProps {
+export interface ChartWidgetProps extends WidgetProps, WidgetMethodProps {
   chartType: ChartType;
   chartData: AllChartData;
   customFusionChartConfig: CustomFusionChartConfig;

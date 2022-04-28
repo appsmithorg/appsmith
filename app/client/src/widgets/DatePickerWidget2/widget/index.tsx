@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import { TextSize, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DatePickerComponent from "../component";
@@ -443,7 +447,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   }
 }
 
-export interface DatePickerWidget2Props extends WidgetProps {
+export interface DatePickerWidget2Props extends WidgetProps, WidgetMethodProps {
   defaultDate: string;
   selectedDate: string;
   formattedDate: string;

@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import ButtonComponent, { ButtonType } from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -412,7 +416,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   }
 }
 
-export interface ButtonWidgetProps extends WidgetProps {
+export interface ButtonWidgetProps extends WidgetProps, WidgetMethodProps {
   text?: string;
   onClick?: string;
   isDisabled?: boolean;

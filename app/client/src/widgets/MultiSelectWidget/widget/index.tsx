@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isArray } from "lodash";
@@ -465,7 +469,7 @@ export interface DropdownOption {
   disabled?: boolean;
 }
 
-export interface MultiSelectWidgetProps extends WidgetProps {
+export interface MultiSelectWidgetProps extends WidgetProps, WidgetMethodProps {
   placeholderText?: string;
   selectedIndex?: number;
   selectedIndexArr?: number[];

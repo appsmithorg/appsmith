@@ -1,6 +1,10 @@
 import React from "react";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import ProgressComponent from "../component";
@@ -186,7 +190,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
   }
 }
 
-export interface ProgressWidgetProps extends WidgetProps {
+export interface ProgressWidgetProps extends WidgetProps, WidgetMethodProps {
   isIndeterminate: boolean;
   progressType: ProgressType;
   progress: number;

@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 import { WidgetType, RenderModes, TextSize } from "constants/WidgetConstants";
@@ -889,7 +893,7 @@ export interface InputValidator {
   validationRegex: string;
   errorMessage: string;
 }
-export interface InputWidgetProps extends WidgetProps {
+export interface InputWidgetProps extends WidgetProps, WidgetMethodProps {
   inputType: InputType;
   currencyCountryCode?: string;
   noOfDecimals?: number;

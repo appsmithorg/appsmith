@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { RateSize } from "../constants";
 import RateComponent from "../component";
@@ -273,7 +277,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
   }
 }
 
-export interface RateWidgetProps extends WidgetProps {
+export interface RateWidgetProps extends WidgetProps, WidgetMethodProps {
   maxCount: number;
   size: RateSize;
   defaultRate?: number;

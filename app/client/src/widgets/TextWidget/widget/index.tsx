@@ -9,7 +9,11 @@ import { TextSize } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 import TextComponent, { TextAlign } from "../component";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { OverflowTypes } from "../constants";
@@ -318,6 +322,7 @@ export interface TextStyles {
 
 export interface TextWidgetProps
   extends WidgetProps,
+    WidgetMethodProps,
     TextStyles,
     WidgetStyleContainerProps {
   text?: string;

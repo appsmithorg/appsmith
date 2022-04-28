@@ -9,7 +9,11 @@ import {
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "widgets/BaseWidget";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 
@@ -20,10 +24,10 @@ import { compact, map, sortBy } from "lodash";
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 class ContainerWidget extends BaseWidget<
-  ContainerWidgetProps<WidgetProps>,
+  ContainerWidgetProps<WidgetProps> & WidgetMethodProps,
   WidgetState
 > {
-  constructor(props: ContainerWidgetProps<WidgetProps>) {
+  constructor(props: ContainerWidgetProps<WidgetProps> & WidgetMethodProps) {
     super(props);
     this.renderChildWidget = this.renderChildWidget.bind(this);
   }

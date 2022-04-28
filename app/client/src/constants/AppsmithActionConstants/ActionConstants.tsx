@@ -26,7 +26,7 @@ export type TriggerSource = {
 };
 
 export type ExecuteTriggerPayload = {
-  dynamicString: string;
+  dynamicString?: string;
   event: ExecuteActionPayloadEvent;
   callbackData?: Array<any>;
   triggerPropertyName?: string;

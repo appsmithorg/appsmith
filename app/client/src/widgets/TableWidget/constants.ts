@@ -5,10 +5,12 @@ import {
   TableStyles,
   SortOrderTypes,
 } from "./component/Constants";
-import { WidgetProps } from "widgets/BaseWidget";
-import { WithMeta } from "widgets/MetaHOC";
+import { WidgetProps, WidgetMethodProps } from "widgets/BaseWidget";
 
-export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
+export interface TableWidgetProps
+  extends WidgetProps,
+    WidgetMethodProps,
+    TableStyles {
   nextPageKey?: string;
   prevPageKey?: string;
   label: string;

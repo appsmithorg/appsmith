@@ -1,6 +1,10 @@
 import React from "react";
 import styled from "styled-components";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "./BaseWidget";
 
 const SkeletonWrapper = styled.div`
   height: 100%;
@@ -39,7 +43,7 @@ export const CONFIG = {
   },
 };
 
-export interface SkeletonWidgetProps extends WidgetProps {
+export interface SkeletonWidgetProps extends WidgetProps, WidgetMethodProps {
   isLoading: boolean;
 }
 

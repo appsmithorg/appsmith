@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget, {
+  WidgetProps,
+  WidgetState,
+  WidgetMethodProps,
+} from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import SwitchComponent from "../component";
 
@@ -165,7 +169,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   };
 }
 
-export interface SwitchWidgetProps extends WidgetProps {
+export interface SwitchWidgetProps extends WidgetProps, WidgetMethodProps {
   isSwitchedOn: boolean;
   defaultSwitchState: boolean;
   alignWidget: AlignWidget;

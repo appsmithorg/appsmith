@@ -1,6 +1,6 @@
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps, WidgetMethodProps } from "widgets/BaseWidget";
 
-export interface IframeWidgetProps extends WidgetProps {
+export interface IframeWidgetProps extends WidgetProps, WidgetMethodProps {
   source: string;
   srcDoc?: string;
   title?: string;
