@@ -365,7 +365,7 @@ describe("Table Widget property pane feature validation", function() {
       cy.get(selector + " button > span").should(
         "have.css",
         "color",
-        "rgb(255, 255, 255)",
+        "rgb(0, 0, 0)",
       );
     });
     cy.selectDropdownValue(commonlocators.tableButtonVariant, "Secondary");
@@ -387,7 +387,7 @@ describe("Table Widget property pane feature validation", function() {
       cy.get(selector + " button").should(
         "have.css",
         "border",
-        `0.994318px solid rgb(80, 175, 108)`,
+        `1px solid rgb(80, 175, 108)`,
       );
     });
     cy.selectDropdownValue(commonlocators.tableButtonVariant, "Tertiary");
