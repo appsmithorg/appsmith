@@ -15,7 +15,10 @@ import {
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { isCurrentWidgetSelected } from "selectors/widgetSelectors";
+import {
+  isCurrentWidgetFocused,
+  isCurrentWidgetSelected,
+} from "selectors/widgetSelectors";
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -77,7 +80,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   const isSelected = useSelector(isCurrentWidgetSelected(props.widgetId));
   // This state tels us which widget is focused
   // The value is the widgetId of the focused widget.
-  const isFocused = useSelector(isCurrentWidgetSelected(props.widgetId));
+  const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean
   const { setDraggingCanvas, setDraggingState } = useWidgetDragResize();
