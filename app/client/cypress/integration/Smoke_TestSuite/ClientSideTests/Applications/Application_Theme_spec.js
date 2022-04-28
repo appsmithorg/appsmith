@@ -10,7 +10,7 @@ const themelocator = require("../../../../locators/ThemeLocators.json");
 let themeBackgroudColor;
 let themeFont;
 
-describe("Theme validation", function() {
+describe("Theme validation usecases", function() {
   it("Drag and drop form widget and validate Default font and list of font validation", function() {
     cy.log("Login Successful");
     cy.reload(); // To remove the rename tooltip

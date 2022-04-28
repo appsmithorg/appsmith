@@ -12,8 +12,8 @@ let themeBackgroudColor;
 let themeFont;
 let themeColour;
 
-describe("Binding the Table and input Widget", function() {
-  it("Drag and drop form widget and validate Default font and list of font validation", function() {
+describe("Theme validation usecase for multi-select widget", function() {
+  it("Drag and drop multi-select widget and validate Default font and list of font validation", function() {
     cy.log("Login Successful");
     cy.reload(); // To remove the rename tooltip
     cy.get(explorer.addWidget).click();
