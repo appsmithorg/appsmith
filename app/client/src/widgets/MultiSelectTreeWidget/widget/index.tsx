@@ -2,7 +2,7 @@ import React, { ReactNode } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { TextSize, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isArray, find, xor, xorWith, isEqual, uniq } from "lodash";
+import { isArray, find, xor, xorWith, isEqual } from "lodash";
 import {
   ValidationResponse,
   ValidationTypes,
@@ -62,7 +62,18 @@ export const getOptionSubTree = (
     if (Array.isArray(targetOption.children)) {
       // If found, Finds all decendants for the found target
       if (mode === "SHOW_CHILD") {
-        return flattenOptions(targetOption.children);
+        const collection = [targetOption];
+        const finalChildren = [];
+        while (collection.length) {
+          const node = collection.shift() as DropdownOption;
+          if (!node.children || node.children.length === 0) {
+            finalChildren.push({ label: node.label, value: node.value });
+          } else {
+            collection.push(...node.children);
+          }
+        }
+
+        return finalChildren;
       }
       return result.concat(flattenOptions(targetOption.children));
     }
@@ -440,7 +451,7 @@ class MultiSelectTreeWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      selectedOptionLabels: `{{ this.selectedLabel }}`,
+      selectedOptionLabels: `{{ this.selectedLabel.filter(label => !!label) }}`,
       selectedOptionValues:
         '{{ this.selectedOptionValueArr.filter((o) => JSON.stringify(this.options).match(new RegExp(`"value":"${o}"`, "g")) )}}',
       isValid: `{{ this.isRequired  ? this.selectedOptionValues?.length > 0 : true}}`,
@@ -451,7 +462,6 @@ class MultiSelectTreeWidget extends BaseWidget<
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       selectedOptionValueArr: "defaultOptionValue",
-      selectedLabel: "defaultOptionValue",
     };
   }
 
@@ -464,7 +474,6 @@ class MultiSelectTreeWidget extends BaseWidget<
   }
 
   componentDidMount() {
-    // Sets selectedLabel
     this.setSelectedOptions(
       this.props.options,
       this.props.selectedOptionValueArr,
@@ -487,7 +496,6 @@ class MultiSelectTreeWidget extends BaseWidget<
         isEqual,
       ).length > 0
     ) {
-      // Sets selectedLabel
       this.setSelectedOptions(
         this.props.options,
         this.props.selectedOptionValueArr,
@@ -498,10 +506,15 @@ class MultiSelectTreeWidget extends BaseWidget<
         .length > 0 &&
       this.props.isDirty === false
     ) {
-      // Sets selectedLabel
       this.setSelectedOptions(
         this.props.options,
         this.props.selectedOptionValueArr,
+      );
+    }
+    if (this.props.mode !== prevProps.mode) {
+      this.setSelectedOptions(
+        this.props.options,
+        this.props.defaultOptionValue,
       );
     }
   }
@@ -586,13 +599,9 @@ class MultiSelectTreeWidget extends BaseWidget<
       );
     });
 
-    // Here, _.uniq is just used to eliminate duplications produced by getOptionSubTree calculation
-    const selectedOptionLabels = uniq(
-      selectedOptions.map((option) => option.label),
-    );
-    const selectedOptionValues = uniq(
-      selectedOptions.map((option) => option.value),
-    );
+    const selectedOptionLabels = selectedOptions.map((option) => option.label);
+    const selectedOptionValues = selectedOptions.map((option) => option.value);
+
     this.props.updateWidgetMetaProperty("selectedLabel", selectedOptionLabels);
     this.props.updateWidgetMetaProperty(
       "selectedOptionValueArr",

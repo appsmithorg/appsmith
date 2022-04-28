@@ -102,7 +102,7 @@ const TabbedViewWrapper = styled.div`
 `;
 
 const SectionDivider = styled.div`
-  height: 2px;
+  height: 1px;
   width: 100%;
   background: ${(props) => props.theme.colors.apiPane.dividerBg};
 `;
@@ -153,9 +153,9 @@ const StyledCallout = styled(Callout)`
   }
 `;
 
-const InlineButton = styled(Button)`
+export const InlineButton = styled(Button)`
   display: inline-flex;
-  margin: 0 4px;
+  margin: 0 8px;
 `;
 
 const HelpSection = styled.div`
@@ -222,7 +222,7 @@ const ResponseDataContainer = styled.div`
   flex: 1;
   overflow: auto;
   display: flex;
-  margin-bottom: 10px;
+  padding-bottom: 10px;
   flex-direction: column;
   & .CodeEditorTarget {
     overflow: hidden;
@@ -345,8 +345,8 @@ function ApiResponseView(props: Props) {
 
   const tabs = [
     {
-      key: "body",
-      title: "Body",
+      key: "response",
+      title: "Response",
       panelComponent: (
         <ResponseTabWrapper>
           {Array.isArray(messages) && messages.length > 0 && (

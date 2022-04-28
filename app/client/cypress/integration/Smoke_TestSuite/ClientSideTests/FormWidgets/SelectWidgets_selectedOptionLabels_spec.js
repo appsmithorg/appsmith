@@ -50,36 +50,6 @@ describe("Select Widgets selectedOptionLabels", function() {
       .should("contain.text", "BLUE");
     // 3.2 Disable serverside filtering
     cy.togglebarDisable(`.t--property-control-serversidefiltering input`);
-    cy.updateCodeInput(
-      optionsSelector,
-      `[
-        {
-          "label": "Blue",
-          "value": "BLUE"
-        },
-        {
-          "label": "Green",
-          "value": "GREEN"
-        },
-        {
-          "label": "Red",
-          "value": "RED"
-        }
-      ]`,
-    );
-    cy.updateCodeInput(
-      optionsSelector,
-      `[
-        {
-          "label": "Green",
-          "value": "GREEN"
-        },
-        {
-          "label": "Red",
-          "value": "RED"
-        }
-      ]`,
-    );
     cy.get(`.t--widget-textwidget`)
       .eq(0)
       .should("not.contain.text", "Blue");
@@ -167,23 +137,6 @@ describe("Select Widgets selectedOptionLabels", function() {
       .and("contain.text", "RED");
     // 3.2 Disable serverside filtering
     cy.togglebarDisable(`.t--property-control-serversidefiltering input`);
-    cy.updateCodeInput(
-      optionsSelector,
-      `[
-        {
-          "label": "Blue",
-          "value": "BLUE"
-        },
-        {
-          "label": "Green",
-          "value": "GREEN"
-        },
-        {
-          "label": "Red",
-          "value": "RED"
-        }
-      ]`,
-    );
     cy.updateCodeInput(
       optionsSelector,
       `[
@@ -315,6 +268,34 @@ describe("Select Widgets selectedOptionLabels", function() {
       .eq(7)
       .should("contain.text", "BLUE")
       .and("contain.text", "DARK BLUE")
+      .and("contain.text", "LIGHT BLUE")
+      .and("contain.text", "RED");
+    // 2.1 Change mode: SHOW_PARENT
+    cy.selectDropdownValue(
+      ".t--property-control-mode",
+      "Display only parent items",
+    );
+    cy.get(`.t--widget-textwidget`)
+      .eq(6)
+      .should("contain.text", "Blue")
+      .and("contain.text", "Red");
+    cy.get(`.t--widget-textwidget`)
+      .eq(7)
+      .should("contain.text", "BLUE")
+      .and("contain.text", "RED");
+    // 2.2 Change mode: SHOW_CHILD
+    cy.selectDropdownValue(
+      ".t--property-control-mode",
+      "Display only child items",
+    );
+    cy.get(`.t--widget-textwidget`)
+      .eq(6)
+      .should("contain.text", "Dark Blue")
+      .and("contain.text", "Light Blue")
+      .and("contain.text", "Red");
+    cy.get(`.t--widget-textwidget`)
+      .eq(7)
+      .should("contain.text", "DARK BLUE")
       .and("contain.text", "LIGHT BLUE")
       .and("contain.text", "RED");
     // 3. Changes options

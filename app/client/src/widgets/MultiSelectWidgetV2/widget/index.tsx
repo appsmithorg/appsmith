@@ -486,13 +486,6 @@ class MultiSelectWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      // selectedOptions: `{{
-      //   this.options.filter(option =>
-      //       this.selectedOptionsArray.map(
-      //         selectedOption => selectedOption.value ?? selectedOption
-      //       ).includes(option.value)
-      //     )
-      // }}`,
       selectedOptionLabels: `{{this.selectedOptions.map(o => o.label)}}`,
       selectedOptionValues: `{{this.selectedOptions.map(o => o.value)}}`,
       isValid: `{{this.isRequired ? !!this.selectedOptionValues && this.selectedOptionValues.length > 0 : true}}`,
@@ -520,21 +513,6 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: MultiSelectWidgetProps) {
-    if (
-      !this.props.serverSideFiltering &&
-      xorWith(this.props.options, prevProps.options, isEqual).length > 0
-    ) {
-      const updatedSelectedOptions = this.props.selectedOptions.filter(
-        (selectedOption) =>
-          !!find(this.props.options, {
-            value: selectedOption.value,
-          }),
-      );
-      this.props.updateWidgetMetaProperty(
-        "selectedOptions",
-        updatedSelectedOptions,
-      );
-    }
     // Check if defaultOptionValue is string
     let isStringArray = false;
     if (
@@ -560,7 +538,23 @@ class MultiSelectWidget extends BaseWidget<
     if (hasChanges && this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", false);
     }
-    // Sets selectedOptions
+    // Updates selectedOptions for the cases below
+
+    if (
+      !this.props.serverSideFiltering &&
+      xorWith(this.props.options, prevProps.options, isEqual).length > 0
+    ) {
+      const updatedSelectedOptions = this.props.selectedOptions.filter(
+        (selectedOption) =>
+          !!find(this.props.options, {
+            value: selectedOption.value,
+          }),
+      );
+      this.props.updateWidgetMetaProperty(
+        "selectedOptions",
+        updatedSelectedOptions,
+      );
+    }
     if (
       xorWith(this.props.selectedOptions, prevProps.selectedOptions, isEqual)
         .length > 0

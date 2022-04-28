@@ -14,6 +14,16 @@ describe("getOptionSubTree", () => {
           {
             label: "Light Blue",
             value: "LIGHT BLUE",
+            children: [
+              {
+                label: "Dark Blues",
+                value: "DARK BLUEs",
+              },
+              {
+                label: "Light Blues",
+                value: "LIGHT BLUEs",
+              },
+            ],
           },
         ],
       },
@@ -47,6 +57,16 @@ describe("getOptionSubTree", () => {
           {
             label: "Light Blue",
             value: "LIGHT BLUE",
+            children: [
+              {
+                label: "Dark Blues",
+                value: "DARK BLUEs",
+              },
+              {
+                label: "Light Blues",
+                value: "LIGHT BLUEs",
+              },
+            ],
           },
         ],
       },
@@ -67,8 +87,12 @@ describe("getOptionSubTree", () => {
         value: "DARK BLUE",
       },
       {
-        label: "Light Blue",
-        value: "LIGHT BLUE",
+        label: "Dark Blues",
+        value: "DARK BLUEs",
+      },
+      {
+        label: "Light Blues",
+        value: "LIGHT BLUEs",
       },
     ];
 
@@ -89,6 +113,16 @@ describe("getOptionSubTree", () => {
           {
             label: "Light Blue",
             value: "LIGHT BLUE",
+            children: [
+              {
+                label: "Dark Blues",
+                value: "DARK BLUEs",
+              },
+              {
+                label: "Light Blues",
+                value: "LIGHT BLUEs",
+              },
+            ],
           },
         ],
       },
@@ -115,6 +149,14 @@ describe("getOptionSubTree", () => {
       {
         label: "Light Blue",
         value: "LIGHT BLUE",
+      },
+      {
+        label: "Dark Blues",
+        value: "DARK BLUEs",
+      },
+      {
+        label: "Light Blues",
+        value: "LIGHT BLUEs",
       },
     ];
 
