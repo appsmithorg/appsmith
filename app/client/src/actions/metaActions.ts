@@ -18,11 +18,11 @@ export type WidgetMetaUpdates = {
 
 export const updateWidgetMetaProperties = (
   widgetMetaUpdates: WidgetMetaUpdates,
-): BatchAction<UpdateWidgetMetaPropertyPayload> => {
-  return batchAction({
+): ReduxAction<WidgetMetaUpdates> => {
+  return {
     type: ReduxActionTypes.SET_META_PROP,
     payload: widgetMetaUpdates,
-  });
+  };
 };
 
 export const updateWidgetMetaProperty = (

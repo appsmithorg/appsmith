@@ -30,6 +30,7 @@ import {
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import MetaUpdatesMap from "widgets/MetaUpdatesMap";
 
 export function defaultValueValidation(
   value: any,
@@ -234,6 +235,7 @@ class PhoneInputWidget extends BaseInputWidget<
   };
 
   onValueChange = (value: string) => {
+    const newMetaUpdates = new MetaUpdatesMap();
     let formattedValue;
 
     // Don't format, as value is typed, when user is deleting
@@ -242,21 +244,30 @@ class PhoneInputWidget extends BaseInputWidget<
     } else {
       formattedValue = value;
     }
-
-    this.props.updateWidgetMetaProperty(
-      "value",
-      parseIncompletePhoneNumber(formattedValue),
-    );
-    this.props.updateWidgetMetaProperty("text", formattedValue, {
+    newMetaUpdates.add("value", parseIncompletePhoneNumber(formattedValue));
+    // this.props.updateWidgetMetaProperty(
+    //   "value",
+    //   parseIncompletePhoneNumber(formattedValue),
+    // );
+    newMetaUpdates.add("text", formattedValue, {
       triggerPropertyName: "onTextChanged",
       dynamicString: this.props.onTextChanged,
       event: {
         type: EventType.ON_TEXT_CHANGE,
       },
     });
+    // this.props.updateWidgetMetaProperty("text", formattedValue, {
+    //   triggerPropertyName: "onTextChanged",
+    //   dynamicString: this.props.onTextChanged,
+    //   event: {
+    //     type: EventType.ON_TEXT_CHANGE,
+    //   },
+    // });
     if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
+      newMetaUpdates.add("isDirty", true);
+      // this.props.updateWidgetMetaProperty("isDirty", true);
     }
+    this.props.updateWidgetMetaProperties(newMetaUpdates.toArray());
   };
 
   handleFocusChange = (focusState: boolean) => {
