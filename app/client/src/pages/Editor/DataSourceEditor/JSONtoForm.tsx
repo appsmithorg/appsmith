@@ -5,7 +5,7 @@ import FormControl from "../FormControl";
 import Collapsible from "./Collapsible";
 import { ControlProps } from "components/formControls/BaseControl";
 import { Datasource } from "entities/Datasource";
-import { isHidden } from "components/formControls/utils";
+import { isHidden, caculateIsHidden } from "components/formControls/utils";
 import log from "loglevel";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import CloseEditor from "components/editorComponents/CloseEditor";
@@ -278,8 +278,11 @@ export class JSONtoForm<
   setupConfig = (config: ControlProps) => {
     const { configProperty, controlType, isRequired } = config;
     this.configDetails[configProperty] = controlType;
-
-    if (isRequired) {
+    let isFieldHidden;
+    if (config.hasOwnProperty("hidden")) {
+      isFieldHidden = caculateIsHidden(this.props.formData, config.hidden);
+    }
+    if (isRequired && !isFieldHidden) {
       this.requiredFields[configProperty] = config;
     }
   };
