@@ -871,16 +871,25 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             existingPagesMono
                     ).collectList()
                             .map(newPageList -> {
-                                // Sort the unPublished pages based on the json file order only
+                                // Save the map of pageName and NewPage
+                                for(NewPage newPage : newPageList) {
+                                    if (newPage.getUnpublishedPage() != null && newPage.getUnpublishedPage().getName() != null) {
+                                        pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
+                                    }
+                                    if (newPage.getPublishedPage() != null && newPage.getPublishedPage().getName() != null) {
+                                        pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
+                                    }
+                                }
+
+                                // ReOrder the pages based on the order for unPublished view
                                 List<String> pageOrderList;
                                 if(Optional.ofNullable(applicationJson.getPageOrder()).isEmpty()) {
                                     pageOrderList = importedNewPageList.stream().map(newPage -> newPage.getUnpublishedPage().getName()).collect(Collectors.toList());
                                 } else {
                                     pageOrderList = applicationJson.getPageOrder();
                                 }
-                                Collections.sort(newPageList,
-                                        Comparator.comparing(newPage -> pageOrderList.indexOf(newPage.getUnpublishedPage().getName())));
-                                for (NewPage newPage : newPageList) {
+                                for(String pageName : pageOrderList) {
+                                    NewPage newPage = pageNameMap.get(pageName);
                                     ApplicationPage unpublishedAppPage = new ApplicationPage();
                                     if (newPage.getUnpublishedPage() != null && newPage.getUnpublishedPage().getName() != null) {
                                         unpublishedAppPage.setIsDefault(
@@ -892,14 +901,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         if (newPage.getDefaultResources() != null) {
                                             unpublishedAppPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
                                         }
-                                        pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
                                     }
                                     if (unpublishedAppPage.getId() != null && newPage.getUnpublishedPage().getDeletedAt() == null) {
                                         applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
                                     }
                                 }
 
-                                // Sort the published pages based on the json file order only
+                                // ReOrder the pages based on the order for published view
                                 List<String> publishedPageOrderList;
                                 if(Optional.ofNullable(applicationJson.getPublishedPageOrder()).isEmpty()) {
                                     publishedPageOrderList = importedNewPageList.stream()
@@ -908,14 +916,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 } else {
                                     publishedPageOrderList = applicationJson.getPublishedPageOrder();
                                 }
-
-                                // When there is difference in number of pages between edit and view mode
-                                newPageList = newPageList.stream().filter(newPage -> !Optional.ofNullable(newPage.getPublishedPage()).isEmpty()).collect(Collectors.toList());
-                                Collections.sort(newPageList,
-                                        Comparator.comparing(newPage -> publishedPageOrderList.indexOf(newPage.getPublishedPage().getName())));
-                                for (NewPage newPage : newPageList) {
+                                // ReOrder the pages based on the order for unPublished view
+                                for(String pageName : publishedPageOrderList) {
+                                    NewPage newPage = pageNameMap.get(pageName);
                                     ApplicationPage publishedAppPage = new ApplicationPage();
-
                                     if (newPage.getPublishedPage() != null && newPage.getPublishedPage().getName() != null) {
                                         publishedAppPage.setIsDefault(
                                                 StringUtils.equals(
