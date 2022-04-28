@@ -214,7 +214,7 @@ const Selected = styled.div<{
   ${(props) =>
     props.isMultiSelect &&
     `
-    max-height: 38px;
+    min-height: 38px;
   `}
   cursor: ${(props) =>
     props.disabled || props.isLoading ? "not-allowed" : "pointer"};
@@ -977,7 +977,7 @@ export default function Dropdown(props: DropdownProps) {
     "100%",
   );
 
-  let dropdownHeight = "38px";
+  let dropdownHeight = props.isMultiSelect ? "auto" : "38px";
   if (props.height) {
     dropdownHeight = props.height;
   }

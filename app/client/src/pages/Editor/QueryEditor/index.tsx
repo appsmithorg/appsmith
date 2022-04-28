@@ -184,8 +184,9 @@ class QueryEditor extends React.Component<Props> {
 
     // if the formDataDiff is greater than 1, it means a lot of form controls have either been edited, added or deleted
     // which we can infer as a route change.
-    // kind of an hack (Jugarrr).
-    if (!!formDataDiff && formDataDiff?.length > 1) {
+    // the reason why we use a length of 3 here is to safely allow a threshold beyond which we can assume route has changed.
+    // kind of an hack (Jugarrr) - this would be fixed when we update the url for google sheets.
+    if (!!formDataDiff && formDataDiff?.length > 3) {
       hasRouteChanged = true;
     }
 
