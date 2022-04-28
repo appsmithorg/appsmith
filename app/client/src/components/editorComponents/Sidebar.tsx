@@ -41,7 +41,6 @@ import { Colors } from "constants/Colors";
 import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { builderURL } from "RouteBuilder";
-import ExplorerSubMenu from "pages/Editor/Explorer/Files/Submenu";
 
 type Props = {
   width: number;

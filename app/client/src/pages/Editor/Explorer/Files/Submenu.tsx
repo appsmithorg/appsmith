@@ -1,17 +1,8 @@
 import { Popover2 } from "@blueprintjs/popover2";
 import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
-import {
-  SEARCH_ITEM_TYPES,
-  SelectEvent,
-} from "components/editorComponents/GlobalSearch/utils";
+import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
 import styled from "constants/DefaultTheme";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentPageId,
@@ -145,7 +136,7 @@ export default function ExplorerSubMenu() {
                 {query && (
                   <button
                     className="p-1 hover:bg-trueGray-200"
-                    onClick={(e) => setQuery("")}
+                    onClick={() => setQuery("")}
                   >
                     <CrossIcon className="w-3 h-3 text-trueGray-100" />
                   </button>
