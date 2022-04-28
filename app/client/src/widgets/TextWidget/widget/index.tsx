@@ -171,32 +171,32 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             defaultValue: "1rem",
             options: [
               {
-                label: "sm",
+                label: "S",
                 value: "0.875rem",
                 subText: "0.875rem",
               },
               {
-                label: "base",
+                label: "M",
                 value: "1rem",
                 subText: "1rem",
               },
               {
-                label: "lg",
+                label: "L",
                 value: "1.25rem",
                 subText: "1.25rem",
               },
               {
-                label: "xl",
+                label: "XL",
                 value: "1.875rem",
                 subText: "1.875rem",
               },
               {
-                label: "2xl",
+                label: "XXL",
                 value: "3rem",
                 subText: "3rem",
               },
               {
-                label: "3xl",
+                label: "3XL",
                 value: "3.75rem",
                 subText: "3.75rem",
               },
