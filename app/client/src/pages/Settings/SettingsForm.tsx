@@ -111,9 +111,6 @@ export function SettingsForm(
         });
         dispatch(saveSettings(props.settings));
       } else {
-        AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
-          error: createMessage(DISCONNECT_AUTH_ERROR),
-        });
         saveBlocked();
       }
     } else {
@@ -150,7 +147,12 @@ export function SettingsForm(
     return !(requiredFields.length > 0);
   };
 
-  const onClear = () => {
+  const onClear = (event?: React.FocusEvent<any, any>) => {
+    if (event?.type === "click") {
+      AnalyticsUtil.logEvent("ADMIN_SETTINGS_RESET", {
+        method: pageTitle,
+      });
+    }
     _.forEach(props.settingsConfig, (value, settingName) => {
       const setting = AdminConfig.settingsMap[settingName];
       if (setting && setting.controlType == SettingTypes.TOGGLE) {
@@ -171,6 +173,9 @@ export function SettingsForm(
   }, []);
 
   const saveBlocked = () => {
+    AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
+      error: createMessage(DISCONNECT_AUTH_ERROR),
+    });
     Toaster.show({
       text: createMessage(DISCONNECT_AUTH_ERROR),
       variant: Variant.danger,
