@@ -440,14 +440,14 @@ const ActionOperation = styled.div<{ isActive: boolean }>`
   }
 `;
 
-function ActionOperationItem({ isActiveItem, item }: any) {
+export function ActionOperationItem({ className, isActiveItem, item }: any) {
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const icon = item.pluginId && getPluginIcon(pluginGroups[item.pluginId]);
   return (
-    <ActionOperation isActive={isActiveItem}>
+    <ActionOperation className={className} isActive={isActiveItem}>
       <div className="action-icon">
         {item.icon ? item.icon : <EntityIcon>{icon}</EntityIcon>}
       </div>

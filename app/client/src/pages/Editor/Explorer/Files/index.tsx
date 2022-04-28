@@ -27,6 +27,7 @@ import { getExplorerStatus, saveExplorerStatus } from "../helpers";
 import Icon from "components/ads/Icon";
 import { noop } from "lodash";
 import { AddEntity, EmptyComponent } from "../common";
+import ExplorerSubMenu from "./Submenu";
 
 function Files() {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -109,6 +110,7 @@ function Files() {
       }
       alwaysShowRightIcon
       className={`group files`}
+      customAddButton={<ExplorerSubMenu />}
       disabled={false}
       entityId={pageId + "_widgets"}
       icon={null}
