@@ -35,7 +35,7 @@ describe("getActionIdFromUrl", () => {
 });
 
 describe("getJSCollectionIdFromURL", () => {
-  it("getCollectionId", () => {
+  it("returns collectionId from path", () => {
     window.history.pushState(
       {},
       "Query",
@@ -43,5 +43,15 @@ describe("getJSCollectionIdFromURL", () => {
     );
     const response = getJSCollectionIdFromURL();
     expect(response).toBe("collectionId");
+  });
+
+  it("returns undefined", () => {
+    window.history.pushState(
+      {},
+      "Query",
+      "/applications/appId/pages/pageId/edit/jsObjects",
+    );
+    const response = getJSCollectionIdFromURL();
+    expect(response).toBe(undefined);
   });
 });

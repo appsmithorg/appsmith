@@ -125,6 +125,11 @@ describe("generateDataTreeJSAction", () => {
           },
         ],
       },
+      data: {
+        abcd: {
+          users: [{ id: 1, name: "John" }],
+        },
+      },
     };
     const expected = {
       myVar1: [],
@@ -168,7 +173,9 @@ describe("generateDataTreeJSAction", () => {
         body: ["myFun2", "myFun1"],
       },
       myFun2: {
-        data: {},
+        data: {
+          users: [{ id: 1, name: "John" }],
+        },
       },
       myFun1: {
         data: {},
