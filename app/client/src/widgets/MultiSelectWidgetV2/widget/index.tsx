@@ -486,8 +486,8 @@ class MultiSelectWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      selectedOptionLabels: `{{this.selectedOptions.map(o => o.label)}}`,
-      selectedOptionValues: `{{this.selectedOptions.map(o => o.value)}}`,
+      selectedOptionLabels: `{{this.selectedOptionValues.map(value => _.find(this.options, {value})?.label)}}`,
+      selectedOptionValues: `{{!this.serverSideFiltering ? this.selectedOptions?.filter(selectedOption => this.options?.some(option => option.value === (selectedOption.value ?? selectedOption))).map(o => o.value ?? o)  : this.selectedOptions.map(o => o.value ?? o)}}`,
       isValid: `{{this.isRequired ? !!this.selectedOptionValues && this.selectedOptionValues.length > 0 : true}}`,
       value: `{{this.selectedOptionValues}}`,
     };
@@ -514,55 +514,23 @@ class MultiSelectWidget extends BaseWidget<
 
   componentDidUpdate(prevProps: MultiSelectWidgetProps) {
     // Check if defaultOptionValue is string
-    let isStringArray = false;
     if (
-      this.props.defaultOptionValue.some(
-        (value: any) => isString(value) || isFinite(value),
-      )
-    ) {
-      isStringArray = true;
-    }
-
-    const hasChanges = isStringArray
-      ? xorWith(
-          this.props.defaultOptionValue as string[],
-          prevProps.defaultOptionValue as string[],
-          isEqual,
-        ).length > 0
-      : xorWith(
-          this.props.defaultOptionValue as OptionValue[],
-          prevProps.defaultOptionValue as OptionValue[],
-          isEqual,
-        ).length > 0;
-
-    if (hasChanges && this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", false);
-    }
-    // Updates selectedOptions for the cases below
-
-    if (
-      !this.props.serverSideFiltering &&
-      xorWith(this.props.options, prevProps.options, isEqual).length > 0
-    ) {
-      const updatedSelectedOptions = this.props.selectedOptions.filter(
-        (selectedOption) =>
-          !!find(this.props.options, {
-            value: selectedOption.value,
-          }),
-      );
-      this.props.updateWidgetMetaProperty(
-        "selectedOptions",
-        updatedSelectedOptions,
-      );
-    }
-    if (
+      xorWith(
+        this.props.defaultOptionValue as string[],
+        prevProps.defaultOptionValue as string[],
+        isEqual,
+      ).length > 0 ||
+      xorWith(
+        this.props.defaultOptionValue as OptionValue[],
+        prevProps.defaultOptionValue as OptionValue[],
+        isEqual,
+      ).length > 0 ||
       xorWith(this.props.selectedOptions, prevProps.selectedOptions, isEqual)
         .length > 0
     ) {
-      this.setSelectedOptions();
-    }
-    if (this.props.serverSideFiltering !== prevProps.serverSideFiltering) {
-      this.setSelectedOptions();
+      if (this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", false);
+      }
     }
   }
 
@@ -570,10 +538,8 @@ class MultiSelectWidget extends BaseWidget<
     const options = isArray(this.props.options) ? this.props.options : [];
     const minDropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
     const { componentWidth } = this.getComponentDimensions();
-    const values: LabelValueType[] = this.props.selectedOptions
-      ? this.props.selectedOptions.map((o) =>
-          isString(o) || isNumber(o) ? { value: o } : { value: o.value },
-        )
+    const values: LabelValueType[] = this.props.selectedOptionValues
+      ? this.props.selectedOptionValues.map((o) => ({ value: o }))
       : [];
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
