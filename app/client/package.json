@@ -79,7 +79,7 @@
     "loglevel": "^1.7.1",
     "lottie-web": "^5.7.4",
     "mammoth": "^1.4.19",
-    "marked": "^2.0.0",
+    "marked": "^4.0.10",
     "memoize-one": "^5.2.1",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.27",
