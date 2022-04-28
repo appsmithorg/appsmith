@@ -34,7 +34,7 @@ const MessageText = styled.p`
 
 export function DeprecationMessage() {
   return (
-    <MessageContainer>
+    <MessageContainer className="t--deprecation-warning">
       <WarningIcon
         fillColor={Colors.WARNING_SOLID}
         name="warning-line"
