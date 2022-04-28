@@ -1,6 +1,8 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
+const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+const publishPage = require("../../../../../locators/publishWidgetspage.json");
 
 const backBtn = ".t--property-pane-back-btn";
 const fieldPrefix = ".t--jsonformfield";
@@ -86,5 +88,29 @@ describe("JSON Form Widget Form Bindings", () => {
       .wait(300);
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("true");
+  });
+
+  it("Should set isValid to false on first load when form is invalid", () => {
+    cy.addDsl(dslWithoutSchema);
+
+    const schema = {
+      name: "",
+    };
+
+    cy.openPropertyPane("textwidget");
+    cy.testJsontext("text", "{{JSONForm1.isValid}}");
+
+    cy.openPropertyPane("jsonformwidget");
+    cy.testJsontext("sourcedata", JSON.stringify(schema));
+
+    // make name field required
+    cy.openFieldConfiguration("name");
+    cy.togglebar(`${propertyControlPrefix}-required input`);
+
+    cy.PublishtheApp();
+
+    cy.get(".t--widget-textwidget .bp3-ui-text").contains("false");
+
+    cy.get(publishPage.backToEditor).click({ force: true });
   });
 });
