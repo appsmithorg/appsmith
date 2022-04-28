@@ -1,0 +1,505 @@
+const pages = require("../../../../locators/Pages.json");
+const generatePage = require("../../../../locators/GeneratePage.json");
+const explorer = require("../../../../locators/explorerlocators.json");
+const apiwidget = require("../../../../locators/apiWidgetslocator.json");
+const dynamicInputLocators = require("../../../../locators/DynamicInput.json");
+const queryLocators = require("../../../../locators/QueryEditor.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
+import jsActions from "../../../../locators/jsActionLocators";
+import gitSyncLocators from "../../../../locators/gitSyncLocators";
+import ApiEditor from "../../../../locators/ApiEditor";
+import homePage from "../../../../locators/HomePage";
+import datasource from "../../../../locators/DatasourcesEditor.json";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+const ee = ObjectsRegistry.EntityExplorer;
+const newPage = "ApiCalls_1";
+const pageName = "crudpage_1";
+const tempBranch = "feat/tempBranch";
+const tempBranch1 = "feat/tempBranch1";
+const mainBranch = "master";
+let datasourceName;
+let repoName;
+
+describe("Git sync apps", function() {
+  before(() => {
+    // cy.NavigateToHome();
+    // cy.createOrg();
+    //  cy.wait("@createOrg").then((interception) => {
+    //    const newOrganizationName = interception.response.body.data.name;
+    //    cy.CreateAppForOrg(newOrganizationName, "gitSyncApp");
+  });
+  it("Generate postgreSQL crud page , connect to git, clone the page, rename page with special character in it", () => {
+    cy.NavigateToHome();
+    cy.get(homePage.createNew)
+      .first()
+      .click({ force: true });
+
+    cy.wait("@createNewApplication").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+
+    // create New App and  generate Postgres CRUD page
+    cy.get(generatePage.generateCRUDPageActionCard).click();
+
+    cy.get(generatePage.selectDatasourceDropdown).click();
+
+    cy.contains("Connect New Datasource").click();
+
+    cy.get(datasource.PostgreSQL).click();
+
+    cy.fillPostgresDatasourceForm();
+
+    cy.generateUUID().then((UUID) => {
+      datasourceName = `${UUID}`;
+      cy.renameDatasource(datasourceName);
+    });
+
+    cy.get(".t--save-datasource").click();
+    cy.wait("@saveDatasource").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+
+    cy.wait("@getDatasourceStructure").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+
+    cy.get(generatePage.selectTableDropdown).click();
+
+    cy.get(generatePage.dropdownOption)
+      .first()
+      .click();
+    //  skip optional search column selection.
+    cy.get(generatePage.generatePageFormSubmitBtn).click();
+
+    cy.wait("@replaceLayoutWithCRUDPage").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+    cy.wait("@getActions");
+    cy.wait("@postExecute").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+
+    cy.get("span:contains('GOT IT')").click();
+    // connect app to git
+    cy.generateUUID().then((uid) => {
+      repoName = uid;
+
+      cy.createTestGithubRepo(repoName);
+      cy.connectToGitRepo(repoName);
+    });
+    // rename page to crud_page
+    cy.renameEntity("Page1", pageName);
+    // create a clone of page
+    cy.get(`.t--entity-name:contains(${pageName})`)
+      .trigger("mouseover")
+      .click({ force: true });
+    cy.xpath(apiwidget.popover)
+      .first()
+      .should("be.hidden")
+      .invoke("show")
+      .click({ force: true });
+    cy.get(pages.clonePage).click({ force: true });
+    cy.wait("@clonePage").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+  });
+  it("Create api queries from api pane and cURL import , bind it to widget and clone page from page settings", () => {
+    cy.Createpage(newPage);
+    cy.get(`.t--entity-item:contains(${newPage})`).click();
+    cy.wait(1000);
+    // create a get api call
+    cy.NavigateToAPI_Panel();
+    cy.CreateAPI("get_data");
+    // creating get request using echo
+    cy.enterDatasourceAndPath("https://mock-api.appsmith.com/echo", "/get");
+    cy.get(apiwidget.headerKey).type("info");
+    cy.xpath("//span[text()='Key']").click();
+    // entering the data in header
+    cy.get(apiwidget.headerValue).type("This is a test", {
+      parseSpecialCharSequences: false,
+    });
+    cy.SaveAndRunAPI();
+    cy.ResponseStatusCheck("200");
+    cy.get(".bp3-icon-chevron-left").click();
+    // curl import
+    cy.get(pages.integrationCreateNew)
+      .should("be.visible")
+      .click({ force: true });
+    cy.get(ApiEditor.curlImage).click({ force: true });
+    cy.get("textarea").type(
+      'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST https://mock-api.appsmith.com/echo/post',
+      {
+        force: true,
+        parseSpecialCharSequences: false,
+      },
+    );
+    cy.importCurl();
+    cy.RunAPI();
+    cy.ResponseStatusCheck("201 CREATED");
+    cy.get("@curlImport").then((response) => {
+      cy.expect(response.response.body.responseMeta.success).to.eq(true);
+      cy.get(apiwidget.ApiName)
+        .invoke("text")
+        .then((text) => {
+          const someText = text;
+          expect(someText).to.equal(response.response.body.data.name);
+        });
+    });
+    cy.get(explorer.addWidget).click();
+    // bind input widgets to the api calls responses
+    cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
+    cy.get(".t--widget-inputwidgetv2").should("exist");
+    cy.get(dynamicInputLocators.input)
+      .eq(1)
+      .click({ force: true })
+      .type("{{Api1.data.body.name}}", { parseSpecialCharSequences: false });
+    cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 500 });
+    cy.get(".t--widget-inputwidgetv2").should("exist");
+    cy.get(dynamicInputLocators.input)
+      .eq(1)
+      .click({ force: true })
+      .type("{{get_data.data.headers.info}}", {
+        parseSpecialCharSequences: false,
+      });
+    cy.wait(2000);
+    // clone the page from page settings
+    cy.xpath("//span[contains(@class,'entity-right-icon')]").click({
+      force: true,
+    });
+    cy.xpath("(//button[@type='button'])")
+      .eq(9)
+      .click();
+    cy.wait("@clonePage").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+    cy.get(`.t--entity-item:contains(${newPage} Copy)`).click();
+    cy.wait("@getPage");
+  });
+  it("Commit and push changes, validate data binding on all pages in edit and deploy mode on master", () => {
+    // verfiy data binding on all pages in edit mode
+    cy.get(".bp3-input")
+      .first()
+      .should("have.value", "morpheus");
+    cy.get(".bp3-input")
+      .eq(1)
+      .should("have.value", "This is a test");
+
+    cy.get(`.t--entity-item:contains(${newPage})`)
+      .last()
+      .click();
+    cy.wait("@getPage");
+    cy.get(".bp3-input")
+      .first()
+      .should("have.value", "morpheus");
+    cy.get(".bp3-input")
+      .eq(1)
+      .should("have.value", "This is a test");
+
+    cy.get(`.t--entity-item:contains(${pageName} Copy)`).click();
+    cy.wait("@getPage");
+    cy.readTabledataPublish("0", "1").then((cellData) => {
+      expect(cellData).to.be.equal("New Config");
+    });
+    cy.get(`.t--entity-item:contains(${pageName})`)
+      .first()
+      .click();
+    cy.wait("@getPage");
+    cy.readTabledataPublish("0", "1").then((cellData) => {
+      expect(cellData).to.be.equal("New Config");
+    });
+    // commit and push the changes
+    cy.commitAndPush();
+    cy.wait(2000);
+    // verify data binding on all pages in deploy mode
+    cy.latestDeployPreview();
+    cy.readTabledataPublish("0", "1").then((cellData) => {
+      expect(cellData).to.be.equal("New Config");
+    });
+    cy.get(".t--page-switch-tab")
+      .contains(`${pageName} Copy`)
+      .click({ force: true });
+    cy.readTabledataPublish("0", "1").then((cellData) => {
+      expect(cellData).to.be.equal("New Config");
+    });
+    cy.get(".t--page-switch-tab")
+      .contains(`${newPage}`)
+      .click({ force: true });
+    cy.get(".bp3-input")
+      .first()
+      .should("have.value", "morpheus");
+    cy.get(".bp3-input")
+      .eq(1)
+      .should("have.value", "This is a test");
+    cy.get(".t--page-switch-tab")
+      .contains(`${newPage} Copy`)
+      .click({ force: true });
+    cy.get(".bp3-input")
+      .first()
+      .should("have.value", "morpheus");
+    cy.get(".bp3-input")
+      .eq(1)
+      .should("have.value", "This is a test");
+    cy.get(commonlocators.backToEditor).click();
+    cy.wait(2000);
+  });
+  it("Create a new branch feat/branch1, add jsObject and datasource query, move them to new page i.e. Child_Page and bind to widgets", () => {
+    cy.createGitBranch(tempBranch);
+    cy.wait(1000);
+    // create jsObject and rename it
+    cy.createJSObject('return "Success";');
+    cy.wait(2000);
+    // create postgres select query
+    //cy.CheckAndUnfoldEntityItem("DATASOURCES");
+    cy.NavigateToQueryEditor();
+    cy.NavigateToActiveTab();
+    cy.get(datasource.datasourceCard)
+      .contains(datasourceName)
+      .scrollIntoView()
+      .should("be.visible")
+      .closest(datasource.datasourceCard)
+      .within(() => {
+        cy.get(datasource.createQuerty).click();
+      });
+    cy.get(queryLocators.queryNameField).type("get_users");
+    cy.get(queryLocators.switch)
+      .last()
+      .click({ force: true });
+    cy.get(queryLocators.templateMenu).click();
+    cy.get(queryLocators.query).click({ force: true });
+    // writing query to get the schema
+    cy.get(".CodeMirror textarea")
+      .first()
+      .focus()
+      .type("SELECT * FROM users ORDER BY id LIMIT 10;", {
+        force: true,
+        parseSpecialCharSequences: false,
+      });
+    cy.WaitAutoSave();
+    cy.runQuery();
+    // create a new page
+    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.Createpage("Child_Page");
+    cy.wait(1000);
+    cy.get(`.t--entity-name:contains(${newPage} Copy)`)
+      .trigger("mouseover")
+      .click({ force: true });
+    // move jsObject and postgres query to new page
+    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    ee.ActionContextMenuByEntityName("get_users", "Move to page", "Child_Page");
+    cy.wait(2000);
+    cy.get(`.t--entity-name:contains(${newPage} Copy)`)
+      .trigger("mouseover")
+      .click({ force: true });
+    ee.ActionContextMenuByEntityName("JSObject1", "Move to page", "Child_Page");
+    cy.wait(2000);
+    cy.get(explorer.addWidget).click();
+    // bind input widgets to the jsObject and query response
+    cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
+    cy.get(".t--widget-inputwidgetv2").should("exist");
+    cy.get(dynamicInputLocators.input)
+      .eq(1)
+      .click({ force: true })
+      .type("{{JSObject1.myFun1()}}", { parseSpecialCharSequences: false });
+    cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 500 });
+    cy.get(".t--widget-inputwidgetv2").should("exist");
+    cy.get(dynamicInputLocators.input)
+      .eq(1)
+      .click({ force: true })
+      .type("{{get_users.data[0].name}}", {
+        parseSpecialCharSequences: false,
+      });
+    cy.wait(2000);
+  });
+  it("Commit and push changes, validate data binding on all pages in edit and deploy mode on feat/branch", () => {
+    // commit and push changes
+    cy.get(homePage.publishButton).click();
+    cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
+    cy.get(gitSyncLocators.commitButton).click();
+    cy.wait(8000);
+    cy.get(gitSyncLocators.closeGitSyncModal).click();
+    // verfiy data binding on all pages in deploy mode
+    cy.latestDeployPreview();
+    cy.get(".bp3-input")
+      .first()
+      .should("have.value", "Success");
+    cy.get(".bp3-input")
+      .eq(1)
+      .should("have.value", "Test user 7");
+    cy.get(".t--page-switch-tab")
+      .contains(`${pageName}`)
+      .click({ force: true });
+    cy.readTabledataPublish("0", "1").then((cellData) => {
+      expect(cellData).to.be.equal("New Config");
+    });
+    cy.get(".t--page-switch-tab")
+      .contains(`${pageName} Copy`)
+      .click({ force: true });
+    cy.readTabledataPublish("0", "1").then((cellData) => {
+      expect(cellData).to.be.equal("New Config");
+    });
+    cy.get(".t--page-switch-tab")
+      .contains(`${newPage}`)
+      .click({ force: true });
+    cy.get(".bp3-input")
+      .first()
+      .should("have.value", "morpheus");
+    cy.get(".bp3-input")
+      .eq(1)
+      .should("have.value", "This is a test");
+    cy.get(".t--page-switch-tab")
+      .contains(`${newPage} Copy`)
+      .click({ force: true });
+    cy.get(".bp3-input")
+      .first()
+      .should("have.value", "morpheus");
+    cy.get(".bp3-input")
+      .eq(1)
+      .should("have.value", "This is a test");
+    cy.get(commonlocators.backToEditor).click();
+    cy.wait(2000);
+    // verfiy data binding on all pages in edit mode
+    cy.get(".bp3-input")
+      .first()
+      .should("have.value", "morpheus");
+    cy.get(".bp3-input")
+      .eq(1)
+      .should("have.value", "This is a test");
+    cy.get(`.t--entity-item:contains(Child_Page)`)
+      .first()
+      .click();
+    cy.wait("@getPage");
+    cy.get(".bp3-input")
+      .first()
+      .should("have.value", "Success");
+    cy.get(".bp3-input")
+      .eq(1)
+      .should("have.value", "Test user 7");
+    cy.get(`.t--entity-item:contains(${newPage})`)
+      .last()
+      .click();
+    cy.wait("@getPage");
+    cy.get(".bp3-input")
+      .first()
+      .should("have.value", "morpheus");
+    cy.get(".bp3-input")
+      .eq(1)
+      .should("have.value", "This is a test");
+
+    cy.get(`.t--entity-item:contains(${pageName} Copy)`).click();
+    cy.wait("@getPage");
+    cy.readTabledataPublish("0", "1").then((cellData) => {
+      expect(cellData).to.be.equal("New Config");
+    });
+    cy.get(`.t--entity-item:contains(${pageName})`)
+      .first()
+      .click();
+    cy.wait("@getPage");
+    cy.readTabledataPublish("0", "1").then((cellData) => {
+      expect(cellData).to.be.equal("New Config");
+    });
+  });
+  it("Switch to master and verfiy no uncommitted changes should be shown on master", () => {
+    cy.switchGitBranch("master");
+    cy.wait(2000);
+    // verify commit input box is disabled
+    cy.get(homePage.publishButton).click();
+    cy.get(".t--commit-comment-input")
+      .should("be.disabled")
+      .and("have.text", "No changes to commit");
+    cy.get(gitSyncLocators.closeGitSyncModal).click();
+  });
+  it("Switch to tempBranch , Clone the Child_Page, change it's visiblity to hide and deploy, merge to master", () => {
+    cy.switchGitBranch(tempBranch);
+    cy.wait(2000);
+    //  clone the Child_Page
+    cy.get(`.t--entity-name:contains(Child_Page)`)
+      .trigger("mouseover")
+      .click({ force: true });
+    cy.xpath(apiwidget.popover)
+      .first()
+      .should("be.hidden")
+      .invoke("show")
+      .click({ force: true });
+    cy.get(pages.clonePage).click({ force: true });
+    cy.wait("@clonePage").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+    // change cloned page visiblity to hidden
+    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.get(".t--entity-name:contains('Child_Page Copy')").should("be.visible");
+    cy.hoverAndClick();
+    cy.selectAction("Hide");
+    cy.merge(mainBranch);
+    cy.get(gitSyncLocators.closeGitSyncModal).click();
+    cy.wait(2000);
+    cy.latestDeployPreview();
+    // verify page is hidden on deploy mode
+    cy.get(".t--page-switch-tab").should("not.contain", "Child_Page Copy");
+    cy.get(commonlocators.backToEditor).click();
+    cy.wait(2000);
+  });
+  it("Verify Page visiblity on master in edit and deploy mode", () => {
+    cy.switchGitBranch(mainBranch);
+    cy.wait(2000);
+    cy.latestDeployPreview();
+    cy.get(".t--page-switch-tab").should("not.contain", "Child_Page Copy");
+    cy.get(commonlocators.backToEditor).click();
+    cy.wait(2000);
+  });
+  it("Create new branch, delete a page settings and merge back to master, verify page is deleted on master", () => {
+    cy.createGitBranch(tempBranch1);
+    // delete page from page settings
+    cy.xpath("//span[contains(@class,'entity-right-icon')]").click({
+      force: true,
+    });
+    cy.xpath("(//button[@type='button'])")
+      .eq(7)
+      .click();
+    cy.get(homePage.publishButton).click();
+    cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
+    cy.get(gitSyncLocators.commitButton).click();
+    cy.wait(8000);
+    cy.get(gitSyncLocators.closeGitSyncModal).click();
+    cy.merge(mainBranch);
+    cy.get(gitSyncLocators.closeGitSyncModal).click();
+    // verify Child_Page is not on master
+    cy.switchGitBranch(mainBranch);
+    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.get(`.t--entity-name:contains("${pageName}")`).should("not.exist");
+    // create another branch and verify deleted page doesn't exist on it
+    cy.createGitBranch(tempBranch0);
+    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.get(`.t--entity-name:contains("${pageName}")`).should("not.exist");
+  });
+
+  it("Import app from git and verify page order should not change", () => {
+    cy.get(homePage.homeIcon).click();
+    cy.get(homePage.optionsIcon)
+      .first()
+      .click();
+    cy.get(homePage.orgImportAppOption).click({ force: true });
+    cy.get(".t--import-json-card")
+      .next()
+      .click();
+    // import application from git
+    cy.importAppFromGit(repoName);
+    cy.wait(2000);
+    // verify page order remains same as in orignal app
+  });
+});
