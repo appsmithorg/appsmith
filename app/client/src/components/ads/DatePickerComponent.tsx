@@ -170,20 +170,16 @@ function useKeyboardNavigation(clearButtonText: string) {
     } else {
       const popoverElement = popoverRef.current;
       if (popoverElement) {
-        const focusableElements = getKeyboardFocusableElements(popoverElement);
-        if (
-          focusableElements.some(
-            (element) => document.activeElement === element,
-          )
-        ) {
+        if (DatePickerVisibilityRef.current) {
+          // if datepicker is visible on pressing
+          // escape hide it and put focus back to input
           if (e.key === "Escape") {
             e.preventDefault();
             e.stopPropagation();
             setDatePickerVisibility(false);
+            inputRef.current?.focus();
           }
-        }
 
-        if (DatePickerVisibilityRef.current) {
           const focusableElements = getKeyboardFocusableElements(
             popoverElement,
           );
@@ -229,37 +225,12 @@ function useKeyboardNavigation(clearButtonText: string) {
     }
   }
 
-  function handleDocumentClick(e: Event) {
-    if (popoverRef.current) {
-      if (popoverRef.current.contains(e.target as Node)) {
-        const $footerBar = popoverRef.current.querySelector(
-          ".bp3-datepicker-footer",
-        );
-        if ($footerBar) {
-          const $buttons = Array.from(
-            $footerBar.querySelectorAll("button.bp3-button"),
-          );
-          if ($buttons.some((button) => button.contains(e.target as Node))) {
-            setDatePickerVisibility(false);
-          }
-        }
-      }
-    }
-  }
-
   useEffect(() => {
     document.body.addEventListener("keydown", handleKeydown);
-    document.addEventListener("click", handleDocumentClick);
     return () => {
       document.body.removeEventListener("keydown", handleKeydown);
-      document.removeEventListener("click", handleDocumentClick);
     };
   }, []);
-
-  function handleOnDayClick() {
-    setDatePickerVisibility(false);
-    inputRef.current?.focus();
-  }
 
   function handleInteraction(nextOpenState: boolean) {
     setDatePickerVisibility(nextOpenState);
@@ -286,7 +257,6 @@ function useKeyboardNavigation(clearButtonText: string) {
 
     // event handlers
     handleTimePickerKeydown,
-    handleOnDayClick,
     handleDateInputClick,
     handleInteraction,
   };
@@ -300,7 +270,6 @@ function DatePickerComponent(props: DatePickerComponentProps) {
   const {
     handleDateInputClick,
     handleInteraction,
-    handleOnDayClick,
     handleTimePickerKeydown,
     inputRef,
     isDatePickerVisible,
@@ -312,7 +281,6 @@ function DatePickerComponent(props: DatePickerComponentProps) {
       className={Classes.DATE_PICKER_OVARLAY}
       clearButtonText={clearButtonText}
       closeOnSelection={props.closeOnSelection}
-      dayPickerProps={{ onDayClick: handleOnDayClick }}
       formatDate={props.formatDate}
       highlightCurrentDay={props.highlightCurrentDay}
       inputProps={{
