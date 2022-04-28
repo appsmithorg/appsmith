@@ -1,0 +1,11 @@
+{
+  "redirectURL": "[name='redirect-url-form']",
+  "entityID": "[name='entity-id--url-form']",
+  "metadataURL": "[name='metadataUrl']",
+  "saveBtn": ".t--admin-settings-save-button",
+  "metadataXML": ".t--code-editor-wrapper",
+  "editEntityId": "[name='metadataEntityId']",
+  "ssoURL": "[name='metadataSsoUrl']",
+  "pubCert": "[name='metadataPubCert']",
+  "email": "[name='metadataEmail']"
+ }

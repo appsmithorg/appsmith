@@ -28,6 +28,7 @@ import { initLocalstorageRegistry } from "./Objects/Registry";
 import "./OrgCommands";
 import "./queryCommands";
 import "./widgetCommands";
+import "./SAMLCommands";
 import "./AdminSettingsCommands";
 /// <reference types="cypress-xpath" />
 
