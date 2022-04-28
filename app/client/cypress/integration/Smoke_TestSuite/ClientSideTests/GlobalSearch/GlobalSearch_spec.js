@@ -122,7 +122,6 @@ describe("GlobalSearch", function() {
           expect(loc.pathname).includes(expectedPage.pageId);
         });
       });
-    cy.NavigateToHome();
   });
 
   it("6. Shortcuts should get triggered when the modal is open", () => {
