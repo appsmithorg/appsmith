@@ -278,11 +278,11 @@ export class JSONtoForm<
   setupConfig = (config: ControlProps) => {
     const { configProperty, controlType, isRequired } = config;
     this.configDetails[configProperty] = controlType;
-    let isFieldHidden;
+    let isFieldVisible = true;
     if (config.hasOwnProperty("hidden")) {
-      isFieldHidden = caculateIsHidden(this.props.formData, config.hidden);
+      isFieldVisible = !caculateIsHidden(this.props.formData, config.hidden);
     }
-    if (isRequired && !isFieldHidden) {
+    if (isRequired && isFieldVisible) {
       this.requiredFields[configProperty] = config;
     }
   };
