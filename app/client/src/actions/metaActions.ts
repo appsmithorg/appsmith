@@ -48,7 +48,7 @@ export const resetChildrenMetaProperty = (
   };
 };
 
-export const updateMetaState = (metaUpdates: DataTree) => {
+export const updateMetaState = (metaUpdates: Record<string, unknown>) => {
   return {
     type: ReduxActionTypes.UPDATE_META_STATE,
     payload: {

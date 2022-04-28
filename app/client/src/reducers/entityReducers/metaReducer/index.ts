@@ -13,7 +13,7 @@ import merge from "lodash/merge";
 
 export type MetaState = Record<string, Record<string, unknown>>;
 
-const initialState: MetaState = {};
+export const initialState: MetaState = {};
 
 export const metaReducer = createReducer(initialState, {
   [ReduxActionTypes.UPDATE_META_STATE]: (
