@@ -894,3 +894,37 @@ export function purgeOrphanedDynamicPaths(widget: WidgetProps) {
   }
   return widget;
 }
+
+export function removeDynamicBindingProperties(
+  propertyPath: string,
+  dynamicBindingPathList: DynamicPath[],
+) {
+  /*
+      The Below if loop removes the "derived" properties for the table
+      we are doing this because when you toggle js off we only 
+      receive the  `primaryColumns.` properties not the `derivedColumns.`
+      properties therefore we need just a hard-codded check.
+
+      (TODO) - Arsalan remove this primaryColumns check when the Table widget v2 is live.
+    */
+  if (_.startsWith(propertyPath, "primaryColumns")) {
+    // primaryColumns.customColumn1.isVisible -> customColumn1.isVisible
+    const tableProperty = propertyPath
+      .split(".")
+      .splice(1)
+      .join(".");
+
+    const tablePropertyPathsToRemove = [
+      propertyPath, // primaryColumns.customColumn1.isVisible
+      `derivedColumns.${tableProperty}`, // derivedColumns.customColumn1.isVisible
+    ];
+
+    return _.reject(dynamicBindingPathList, ({ key }) =>
+      tablePropertyPathsToRemove.includes(key),
+    );
+  } else {
+    return _.reject(dynamicBindingPathList, {
+      key: propertyPath,
+    });
+  }
+}
