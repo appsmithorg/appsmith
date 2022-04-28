@@ -106,6 +106,10 @@ export const EntityItem = styled.div<{
     }
   }
 
+  .file-ops {
+    height: 36px;
+  }
+
   & .${EntityClassNames.COLLAPSE_TOGGLE} {
     svg {
       path {

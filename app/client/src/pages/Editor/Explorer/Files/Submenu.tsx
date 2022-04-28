@@ -110,6 +110,7 @@ export default function ExplorerSubMenu() {
   return (
     <Popover2
       canEscapeKeyClose
+      className="file-ops"
       content={
         <SubmenuHotKeys
           handleDownKey={handleDownKey}
@@ -180,7 +181,7 @@ export default function ExplorerSubMenu() {
       placement="right-start"
       usePortal
     >
-      <EntityAddButton className="" onClick={() => setShow(true)} />
+      <EntityAddButton onClick={() => setShow(true)} />
     </Popover2>
   );
 }
