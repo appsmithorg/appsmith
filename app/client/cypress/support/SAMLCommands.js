@@ -5,7 +5,6 @@ require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 
 const samlForm = require("../locators/SAMLForm.json");
-const samlData = require("../fixtures/samlSource.json");
 
 Cypress.Commands.add("fillSamlForm", (type) => {
   if (type === "URL") {

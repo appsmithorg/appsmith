@@ -138,6 +138,33 @@ const OIDC_Auth: AdminConfigType = {
       subText: "Name of the claim which represents the email of the user",
       isRequired: true,
     },
+    {
+      id: "APPSMITH_OAUTH2_OIDC_ADVANCED",
+      category: SettingCategories.OIDC_AUTH,
+      subCategory: SettingSubCategories.OIDC,
+      controlType: SettingTypes.ACCORDION,
+      label: "Advanced",
+      advanced: [
+        {
+          id: "APPSMITH_OAUTH2_OIDC_SIGNING_ALGO",
+          category: SettingCategories.OIDC_AUTH,
+          subCategory: SettingSubCategories.OIDC,
+          controlType: SettingTypes.DROPDOWN,
+          label: "Token Signing Algorithm",
+          dropdownOptions: [
+            { id: "RS256", value: "RS256" },
+            { id: "RS384", value: "RS384" },
+            { id: "RS512", value: "RS512" },
+            { id: "ES256", value: "ES256" },
+            { id: "ES384", value: "ES384" },
+            { id: "ES512", value: "ES512" },
+            { id: "PS256", value: "PS256" },
+            { id: "PS384", value: "PS384" },
+            { id: "PS512", value: "PS512" },
+          ],
+        },
+      ],
+    },
   ],
 };
 

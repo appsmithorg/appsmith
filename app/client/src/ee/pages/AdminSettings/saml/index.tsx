@@ -24,12 +24,13 @@ import {
   DISCONNECT_SERVICE_WARNING,
 } from "@appsmith/constants/messages";
 import { Toaster, Variant } from "components/ads";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
-function getSettingLabel(name = "") {
+export function getSettingLabel(name = "") {
   return name.replace(/-/g, "");
 }
 
-function getSettingDetail(category: string, subCategory: string) {
+export function getSettingDetail(category: string, subCategory: string) {
   return AdminConfig.getCategoryDetails(category, subCategory);
 }
 
@@ -52,6 +53,9 @@ export function Sso() {
   const saved = details?.isConnected ? true : false;
 
   const saveBlocked = () => {
+    AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
+      error: createMessage(DISCONNECT_AUTH_ERROR),
+    });
     Toaster.show({
       text: createMessage(DISCONNECT_AUTH_ERROR),
       variant: Variant.danger,
@@ -61,6 +65,9 @@ export function Sso() {
   const disconnect = () => {
     if (connectedMethods.length >= 2) {
       dispatch(fetchSamlMetadata({ isEnabled: false }));
+      AnalyticsUtil.logEvent("ADMIN_SETTINGS_DISCONNECT_AUTH_METHOD", {
+        method: pageTitle,
+      });
     } else {
       saveBlocked();
     }
