@@ -3,7 +3,6 @@ import {
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { BatchAction, batchAction } from "actions/batchActions";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
 
 export interface UpdateWidgetMetaPropertyPayload {
   widgetId: string;
