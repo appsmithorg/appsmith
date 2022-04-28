@@ -4,7 +4,7 @@
     "displayName": "Classic",
     "config": {
       "colors": {
-        "primaryColor": "#03B365",
+        "primaryColor": "#16a34a",
         "backgroundColor": "#F6F6F6"
       },
       "borderRadius": {
@@ -349,7 +349,7 @@
     },
     "properties": {
       "colors": {
-        "primaryColor": "#03B365",
+        "primaryColor": "#16a34a",
         "backgroundColor": "#F6F6F6"
       },
       "borderRadius": {
