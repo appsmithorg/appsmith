@@ -310,14 +310,31 @@ public class ApplicationFetcherUnitTest {
                 })
                 .flatMap(application -> {
                     // Create a new branched App resource in the same org and verify that branch App does not show up in the response.
+                    Application branchApp = new Application();
+                    branchApp.setName("branched App");
+                    branchApp.setOrganizationId(application.getOrganizationId());
+                    branchApp.setId("org-" + 5 + "-app-" + 5);
                     GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
                     gitApplicationMetadata.setDefaultApplicationId(application.getId());
                     gitApplicationMetadata.setBranchName("master");
                     gitApplicationMetadata.setRemoteUrl("remnoteUrl");
-                    Application branchApp = new Application();
-                    branchApp.setName("branched App");
-                    branchApp.setOrganizationId(application.getOrganizationId());
                     branchApp.setGitApplicationMetadata(gitApplicationMetadata);
+
+                    // Set dummy applicationPages
+                    ApplicationPage unpublishedPage = new ApplicationPage();
+                    unpublishedPage.setId("page" + 5);
+                    unpublishedPage.setDefaultPageId("page" + 5);
+                    unpublishedPage.setIsDefault(true);
+
+                    ApplicationPage publishedPage = new ApplicationPage();
+                    publishedPage.setId("page" + 5);
+                    publishedPage.setDefaultPageId("page" + 5);
+                    publishedPage.setIsDefault(true);
+
+                    branchApp.setPages(List.of(unpublishedPage));
+                    branchApp.setPublishedPages(List.of(publishedPage));
+                    applications.add(branchApp);
+
                     return applicationService.save(branchApp);
                 })
                 .then(applicationFetcher.getAllApplications());
