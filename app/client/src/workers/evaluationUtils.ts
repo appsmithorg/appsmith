@@ -889,12 +889,19 @@ export const getDataTreeWithoutPrivateWidgets = (
   return treeWithoutPrivateWidgets;
 };
 
-export const overrideWidgetProperties = (
-  entity: DataTreeWidget,
-  propertyPath: string,
-  value: unknown,
-  currentTree: DataTree,
-) => {
+export const overrideWidgetProperties = ({
+  currentTree,
+  entity,
+  metaUpdates,
+  propertyPath,
+  value,
+}: {
+  entity: DataTreeWidget;
+  propertyPath: string;
+  value: unknown;
+  currentTree: DataTree;
+  metaUpdates: Record<string, unknown>;
+}) => {
   const clonedValue = klona(value);
   if (propertyPath in entity.overridingPropertyPaths) {
     const overridingPropertyPaths =
@@ -907,6 +914,16 @@ export const overrideWidgetProperties = (
         [entity.widgetName, ...overriddenPropertyPathArray],
         clonedValue,
       );
+      if (
+        propertyPath.split(".")[0] !== "meta" &&
+        overriddenPropertyPathArray[0] === "meta"
+      ) {
+        _.set(
+          metaUpdates,
+          [entity.widgetId, ...overriddenPropertyPathArray.slice(1)],
+          clonedValue,
+        );
+      }
     });
   } else if (
     propertyPath in entity.propertyOverrideDependency &&
@@ -926,6 +943,7 @@ export const overrideWidgetProperties = (
           [entity.widgetName, ...propertyPathArray],
           clonedDefaultValue,
         );
+
         return {
           overwriteParsedValue: true,
           newValue: clonedDefaultValue,

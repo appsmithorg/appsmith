@@ -3,8 +3,6 @@ import {
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { BatchAction, batchAction } from "actions/batchActions";
-import { Diff } from "deep-diff";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
 
 export interface UpdateWidgetMetaPropertyPayload {
   widgetId: string;
@@ -50,18 +48,14 @@ export function resetChildrenMetaProperty(
   };
 }
 
-export function updateMetaState(
-  updates: Diff<any, any>[],
-  updatedDataTree: DataTree,
-) {
+export const updateMetaState = (metaUpdates: Record<string, unknown>) => {
   return {
     type: ReduxActionTypes.UPDATE_META_STATE,
     payload: {
-      updates,
-      updatedDataTree,
+      metaUpdates,
     },
   };
-}
+};
 
 export function triggerEvalOnMetaUpdate() {
   return {

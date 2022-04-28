@@ -102,6 +102,7 @@ ctx.addEventListener(
         let evaluationOrder: string[] = [];
         let unEvalUpdates: DataTreeDiff[] = [];
         let jsUpdates: Record<string, any> = {};
+        let metaUpdates: Record<string, unknown> = {};
         try {
           if (!dataTreeEvaluator) {
             replayMap = replayMap || {};
@@ -117,6 +118,7 @@ ctx.addEventListener(
             evaluationOrder = dataTreeEvaluator.sortedDependencies;
             dataTree = dataTreeResponse.evalTree;
             jsUpdates = dataTreeResponse.jsUpdates;
+            metaUpdates = dataTreeResponse.metaUpdates;
             // We need to clean it to remove any possible functions inside the tree.
             // If functions exist, it will crash the web worker
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
@@ -145,6 +147,7 @@ ctx.addEventListener(
             evaluationOrder = dataTreeEvaluator.sortedDependencies;
             dataTree = dataTreeResponse.evalTree;
             jsUpdates = dataTreeResponse.jsUpdates;
+            metaUpdates = dataTreeResponse.metaUpdates;
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           } else {
             if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
@@ -161,6 +164,7 @@ ctx.addEventListener(
             unEvalUpdates = updateResponse.unEvalUpdates;
             dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));
             jsUpdates = updateResponse.jsUpdates;
+            metaUpdates = updateResponse.metaUpdates;
           }
           dependencies = dataTreeEvaluator.inverseDependencyMap;
           errors = dataTreeEvaluator.errors;
@@ -192,6 +196,7 @@ ctx.addEventListener(
           logs,
           unEvalUpdates,
           jsUpdates,
+          metaUpdates,
         };
       }
       case EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS: {
