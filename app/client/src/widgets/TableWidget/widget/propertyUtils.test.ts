@@ -1,4 +1,7 @@
-import { defaultSelectedRowValidation } from "./propertyUtils";
+import {
+  defaultSelectedRowValidation,
+  updateIconNameHook,
+} from "./propertyUtils";
 import _ from "lodash";
 
 const tableWProps = {
@@ -152,11 +155,48 @@ const tableWProps = {
     status: 75,
   },
 };
+
 describe("unit test case for property utils", () => {
   it("case: check if the defaultSelectedRowValiation returns parsed value as undefined", () => {
     const value = defaultSelectedRowValidation("", tableWProps as any, _);
 
     expect(value.isValid).toBeTruthy();
     expect(value.parsed).toEqual(undefined);
+  });
+  it("case: when columnType is menuButton, iconName should be empty string", () => {
+    const propertiesToUpdate = updateIconNameHook(
+      tableWProps as any,
+      "primaryColumns.action.columnType",
+      "menuButton",
+    );
+    const output = [
+      {
+        propertyPath: "primaryColumns.action.columnType",
+        propertyValue: "menuButton",
+      },
+      {
+        propertyPath: "primaryColumns.action.iconName",
+        propertyValue: "",
+      },
+    ];
+    expect(propertiesToUpdate).toEqual(output);
+  });
+  it("case: when columnType is iconButton, iconName value should be add", () => {
+    const propertiesToUpdate = updateIconNameHook(
+      tableWProps as any,
+      "primaryColumns.action.columnType",
+      "iconButton",
+    );
+    const output = [
+      {
+        propertyPath: "primaryColumns.action.columnType",
+        propertyValue: "iconButton",
+      },
+      {
+        propertyPath: "primaryColumns.action.iconName",
+        propertyValue: "add",
+      },
+    ];
+    expect(propertiesToUpdate).toEqual(output);
   });
 });

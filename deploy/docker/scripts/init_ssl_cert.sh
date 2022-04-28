@@ -6,39 +6,7 @@ init_ssl_cert() {
   local rsa_key_size=4096
   local data_path="/appsmith-stacks/data/certificate"
 
-  mkdir -p "$data_path" "$data_path"/{conf,www}
-
-  if ! [[ -e "$data_path/conf/options-ssl-nginx.conf" && -e "$data_path/conf/ssl-dhparams.pem" ]]; then
-    echo "Adding recommended TLS parameters..."
-    cat <<EOF > "$data_path/conf/options-ssl-nginx.conf"
-# This file contains important security parameters. If you modify this file
-# manually, Certbot will be unable to automatically provide future security
-# updates. Instead, Certbot will print and log an error message with a path to
-# the up-to-date file that you will need to refer to when manually updating
-# this file.
-
-ssl_session_cache shared:le_nginx_SSL:10m;
-ssl_session_timeout 1440m;
-ssl_session_tickets off;
-
-ssl_protocols TLSv1.2 TLSv1.3;
-ssl_prefer_server_ciphers off;
-
-ssl_ciphers "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384";
-EOF
-
-    cat <<EOF > "$data_path/conf/ssl-dhparams.pem"
------BEGIN DH PARAMETERS-----
-MIIBCAKCAQEA//////////+t+FRYortKmq/cViAnPTzx2LnFg84tNpWp4TZBFGQz
-+8yTnc4kmz75fS/jY2MMddj2gbICrsRhetPfHtXV/WVhJDP1H18GbtCFY2VVPe0a
-87VXE15/V8k1mE8McODmi3fipona8+/och3xWKE2rec1MKzKT0g6eXq8CrGCsyT7
-YdEIqUuyyOP7uWrat2DX9GgdT0Kj3jlN9K5W7edjcrsZCwenyO4KbXCeAvzhzffi
-7MA0BM0oNC9hkXL+nOmFg/+OTxIy7vKBg8P+OxtMb61zO7X8vC7CIAXFjvGDfRaD
-ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
------END DH PARAMETERS-----
-EOF
-    echo
-  fi
+  mkdir -p "$data_path/www"
 
   echo "Re-generating nginx config template with domain"
   bash "/opt/appsmith/templates/nginx-app-http.conf.template.sh" "$APPSMITH_CUSTOM_DOMAIN" >"/etc/nginx/conf.d/nginx_app.conf.template"

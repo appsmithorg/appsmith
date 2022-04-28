@@ -1,4 +1,7 @@
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import { RefactorAction, SetFunctionPropertyPayload } from "api/JSActionAPI";
 export const createNewJSCollection = (
@@ -51,13 +54,24 @@ export const refactorJSCollectionAction = (payload: {
   };
 };
 
-export const executeJSFunction = (payload: {
+export const executeJSFunctionInit = (payload: {
   collectionName: string;
   action: JSAction;
   collectionId: string;
 }) => {
   return {
     type: ReduxActionTypes.EXECUTE_JS_FUNCTION_INIT,
+    payload,
+  };
+};
+
+export const startExecutingJSFunction = (payload: {
+  collectionName: string;
+  action: JSAction;
+  collectionId: string;
+}) => {
+  return {
+    type: ReduxActionTypes.START_EXECUTE_JS_FUNCTION,
     payload,
   };
 };

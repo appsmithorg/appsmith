@@ -2,11 +2,10 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 import homePage from "../../../../locators/HomePage";
-const explorer = require("../../../../locators/explorerlocators.json");
-import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let ee = ObjectsRegistry.EntityExplorer;
 
 let datasourceName;
-const agHelper = new AggregateHelper();
 
 describe("Create a query with a mongo datasource, run, save and then delete the query", function() {
   beforeEach(() => {
@@ -163,7 +162,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.deleteQueryUsingContext();
   });
 
-  it("7. Verify generation of NewPage from collection [Select]", function() {
+  it("7. Verify generation of NewPage from collection [Select] + Bug 12162", function() {
     //Verifying Select from UI
     cy.NavigateToDSGeneratePage(datasourceName);
     cy.get(generatePage.selectTableDropdown).click();
@@ -191,6 +190,20 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     ); //This verifies the Select on the table, ie page is created fine
 
     cy.ClickGotIt();
+
+    //Check if table is loaded & CRUD is success
+
+    cy.get(generatePage.selectedRow).should("exist");
+    cy.get(generatePage.updateBtn)
+      .closest("button")
+      .then((selector) => {
+        cy.get(selector)
+          .invoke("attr", "class")
+          .then((classes) => {
+            cy.log("classes are:" + classes);
+            expect(classes).not.contain("bp3-disabled");
+          });
+      });
   });
 
   it("8. Validate Deletion of the Newly Created Page", () => {
@@ -215,7 +228,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
 
   it("9. Bug 7399: Validate Form based & Raw command based templates", function() {
     let id;
-    agHelper.expandCollapseEntity(`${datasourceName}`);
+    ee.expandCollapseEntity(`${datasourceName}`);
     cy.xpath(queryLocators.listingAndReviewContext)
       .invoke("show")
       .click({ force: true });

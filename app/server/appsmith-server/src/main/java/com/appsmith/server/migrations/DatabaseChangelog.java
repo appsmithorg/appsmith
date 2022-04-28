@@ -166,6 +166,7 @@ public class DatabaseChangelog {
     public static final String KEY = "key";
     public static final String START_AFTER = "startAfter";
     public static final String END_BEFORE = "endBefore";
+    public static final String SMART_SUBSTITUTION = "smartSubstitution";
 
     @AllArgsConstructor
     @NoArgsConstructor
@@ -186,7 +187,7 @@ public class DatabaseChangelog {
      * Also, please check out the following blog on how to best create indexes :
      * https://emptysqua.re/blog/optimizing-mongodb-compound-indexes/
      */
-    private static Index makeIndex(String... fields) {
+    public static Index makeIndex(String... fields) {
         if (fields.length == 1) {
             return new Index(fields[0], Sort.Direction.ASC).named(fields[0]);
         } else {
@@ -202,14 +203,14 @@ public class DatabaseChangelog {
      * Given a MongockTemplate, a domain class and a bunch of Index definitions, this pure utility function will ensure
      * those indexes on the database behind the MongockTemplate instance.
      */
-    private static void ensureIndexes(MongockTemplate mongoTemplate, Class<?> entityClass, Index... indexes) {
+    public static void ensureIndexes(MongockTemplate mongoTemplate, Class<?> entityClass, Index... indexes) {
         IndexOperations indexOps = mongoTemplate.indexOps(entityClass);
         for (Index index : indexes) {
             indexOps.ensureIndex(index);
         }
     }
 
-    private static void dropIndexIfExists(MongockTemplate mongoTemplate, Class<?> entityClass, String name) {
+    public static void dropIndexIfExists(MongockTemplate mongoTemplate, Class<?> entityClass, String name) {
         try {
             mongoTemplate.indexOps(entityClass).dropIndex(name);
         } catch (UncategorizedMongoDbException ignored) {
@@ -4849,9 +4850,9 @@ public class DatabaseChangelog {
      * @return query
      */
     private Query getQueryToFetchAllPluginActionsWhichAreNotDeleted(Plugin plugin) {
-        Criteria pluginIdIsMongoPluginId = where("pluginId").is(plugin.getId());
+        Criteria pluginIdMatchesSuppliedPluginId = where("pluginId").is(plugin.getId());
         Criteria isNotDeleted = where("deleted").ne(true);
-        return query((new Criteria()).andOperator(pluginIdIsMongoPluginId, isNotDeleted));
+        return query((new Criteria()).andOperator(pluginIdMatchesSuppliedPluginId, isNotDeleted));
     }
 
     /**
@@ -4892,7 +4893,7 @@ public class DatabaseChangelog {
         updateMockdbEndpoint(mongockTemplate);
     }
 
-    @ChangeSet(order = "111", id = "migrate-from-RSA-SHA1-to-ECDSA-SHA2-protocol-for-key-generation", author = "")
+    @ChangeSet(order = "112", id = "migrate-from-RSA-SHA1-to-ECDSA-SHA2-protocol-for-key-generation", author = "")
     public void migrateFromRSASha1ToECDSASha2Protocol(MongockTemplate mongockTemplate) {
         Query query = new Query();
         query.addCriteria(Criteria.where("gitApplicationMetadata.gitAuth").exists(TRUE));
@@ -5072,5 +5073,45 @@ public class DatabaseChangelog {
             );
         }
     }
-    
+
+    @ChangeSet(order = "118", id = "set-firestore-smart-substitution-to-false-for-old-cmds", author = "")
+    public void setFirestoreSmartSubstitutionToFalseForOldCommands(MongockTemplate mongockTemplate) {
+        Plugin firestorePlugin = mongockTemplate.findOne(query(where("packageName").is("firestore-plugin")),
+                Plugin.class);
+
+        /* Query to get all Mongo actions which are not deleted */
+        Query queryToGetActions = getQueryToFetchAllPluginActionsWhichAreNotDeleted(firestorePlugin);
+
+        /* Update the previous query to only include id field */
+        queryToGetActions.fields().include(fieldName(QNewAction.newAction.id));
+
+        /* Fetch Firestore actions using the previous query */
+        List<NewAction> firestoreActions = mongockTemplate.find(queryToGetActions, NewAction.class);
+
+        /* set key formData.smartSubstitution */
+        setSmartSubstitutionFieldForEachAction(firestoreActions, mongockTemplate);
+    }
+
+    private void setSmartSubstitutionFieldForEachAction(List<NewAction> firestoreActions,
+                                                        MongockTemplate mongockTemplate) {
+        firestoreActions.stream()
+                .map(NewAction::getId) /* iterate over one action id at a time */
+                .map(actionId -> fetchActionUsingId(actionId, mongockTemplate)) /* fetch action using id */
+                .filter(this::hasUnpublishedActionConfiguration)
+                .forEachOrdered(firestoreAction -> {
+                    /* set key for unpublished action */
+                    Map<String, Object> unpublishedFormData =
+                            firestoreAction.getUnpublishedAction().getActionConfiguration().getFormData();
+                    setValueSafelyInFormData(unpublishedFormData, SMART_SUBSTITUTION, FALSE.toString());
+
+                    /* set key for published action */
+                    if (hasPublishedActionConfiguration(firestoreAction)) {
+                        Map<String, Object> publishedFormData =
+                                firestoreAction.getPublishedAction().getActionConfiguration().getFormData();
+                        setValueSafelyInFormData(publishedFormData, SMART_SUBSTITUTION, FALSE.toString());
+                    }
+
+                    mongockTemplate.save(firestoreAction);
+                });
+    }
 }

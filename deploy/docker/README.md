@@ -164,7 +164,7 @@ This command will migrate all data and configuration of running container on sou
 
 The container runs multiple processes, including the Appsmith server, Nginx, MongoDB etc., inside a single Docker container. These processes are started and managed by [supervisord](http://supervisord.org/).
 
-Supervisord comes with a web interface for managing the various processes, available at <http://localhost:9001>, as well as a command line interface towards the same goal.
+Supervisord comes with a web interface for managing the various processes, available at <http://localhost/supervisor/>, as well as a command line interface towards the same goal.
 
 Here's a screenshot of the web interface listing all the processes managed:
 

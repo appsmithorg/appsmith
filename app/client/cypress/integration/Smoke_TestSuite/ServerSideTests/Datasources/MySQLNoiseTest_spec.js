@@ -55,13 +55,13 @@ describe("MySQL noise test", function() {
     cy.get(commonlocators.toastmsg).contains(
       "UncaughtPromiseRejection: NoiseTestQuery failed to execute",
     );
-    cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
+    cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.statusCode).to.eq("200 OK");
     });
-    cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
+    cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.statusCode).to.eq("200 OK");
     });
-    cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
+    cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.statusCode).to.eq("5004");
       expect(response.body.data.title).to.eq(
         "Datasource configuration is invalid",

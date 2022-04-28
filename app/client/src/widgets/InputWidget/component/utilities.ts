@@ -9,10 +9,10 @@ export const countryToFlag = (isoCode: string) => {
 };
 
 /*
- Returns formatted value with maximum number of decimals based on decimalsInCurrency value 
+ Returns formatted value with maximum number of decimals based on decimalsInCurrency value
  and add commas based on user's local browser
   for eg:
-  a) (2, 1235.456) will return 1,234.56 
+  a) (2, 1235.456) will return 1,234.56
   b) (1, 1234.456) will return 1,234.5
 */
 export const formatCurrencyNumber = (
@@ -48,7 +48,7 @@ export const formatCurrencyNumber = (
 /*
  Returns number in string format with maximum number of decimals based on decimalsInCurrency value
   for eg:
-  a) (2, 1235.456) will return 1234.56 
+  a) (2, 1235.456) will return 1234.56
   b) (1, 1234.456) will return 1234.5
 */
 export const limitDecimalValue = (
@@ -68,7 +68,7 @@ export const limitDecimalValue = (
       value =
         decimalValueArray[0] +
         decimalSeparator +
-        decimalValueArray[1].substr(0, decimalsInCurrency);
+        decimalValueArray[1].slice(0, decimalsInCurrency);
     }
     return value;
   } else {
@@ -78,7 +78,7 @@ export const limitDecimalValue = (
 
 /*
 Return the type of decimal separator for decimal digit numbers
-  eg: 
+  eg:
   getDecimalSeparator("en-US") will return "."
   getDecimalSeparator("fr-FR") will return ","
 */
@@ -94,7 +94,7 @@ export const getDecimalSeparator = (locale: string) => {
 
 /*
 Return the type of decimal separator for decimal digit numbers
-  eg: 
+  eg:
   getGroupSeparator("en-US") will return ","
   getGroupSeparator("fr-FR") will return " "
 */

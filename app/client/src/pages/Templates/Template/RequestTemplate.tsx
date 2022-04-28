@@ -16,7 +16,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   padding: ${(props) => props.theme.spaces[11]}px;
-  background-color: rgba(248, 248, 248, 0.5);
+  background-color: ${Colors.SEA_SHELL};
   transition: all 1s ease-out;
   margin-bottom: ${(props) => props.theme.spaces[12]}px;
 
@@ -43,24 +43,25 @@ const Wrapper = styled.div`
 `;
 
 const StyledImage = styled.img`
-  height: 147px;
+  height: 168px;
   object-fit: cover;
 `;
 
+const REQUEST_TEMPLATE_URL =
+  "https://app.appsmith.com/applications/6241b5a8c99df2369931a653/pages/6241b5a8c99df2369931a656";
+
 function RequestTemplate() {
   const onClick = () => {
-    window.open(
-      "https://github.com/appsmithorg/appsmith/issues/new?assignees=Kocharrahul8&labels=Example+Apps&template=Templates.yaml&title=%5BTemplate%5D%3A+",
-    );
+    window.open(REQUEST_TEMPLATE_URL);
   };
 
   return (
     <Wrapper>
       <StyledImage src={RequestTemplateSvg} />
-      <Text className={"title"} type={TextType.H4}>
+      <Text className={"title"} type={TextType.H1}>
         {createMessage(COULDNT_FIND_TEMPLATE)}
       </Text>
-      <Text className={"description"} type={TextType.P2}>
+      <Text className={"description"} type={TextType.P1}>
         {createMessage(COULDNT_FIND_TEMPLATE_DESCRIPTION)}
       </Text>
       <Button

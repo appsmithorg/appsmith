@@ -1,0 +1,59 @@
+{
+    "dsl": {
+      "widgetName": "MainContainer",
+      "backgroundColor": "none",
+      "rightColumn": 816,
+      "snapColumns": 64,
+      "detachFromLayout": true,
+      "widgetId": "0",
+      "topRow": 0,
+      "bottomRow": 360,
+      "containerStyle": "none",
+      "snapRows": 125,
+      "parentRowSpace": 1,
+      "type": "CANVAS_WIDGET",
+      "canExtend": true,
+      "version": 53,
+      "minHeight": 340,
+      "parentColumnSpace": 1,
+      "dynamicTriggerPathList": [],
+      "dynamicBindingPathList": [],
+      "leftColumn": 0,
+      "children": [
+        {
+          "isVisible": true,
+          "animateLoading": true,
+          "text": "{{appsmith}}",
+          "buttonColor": "#03B365",
+          "buttonVariant": "PRIMARY",
+          "placement": "CENTER",
+          "widgetName": "Button1",
+          "isDisabled": false,
+          "isDefaultClickDisabled": true,
+          "recaptchaType": "V3",
+          "version": 1,
+          "type": "BUTTON_WIDGET",
+          "hideCard": false,
+          "displayName": "Button",
+          "key": "shydybeo1d",
+          "iconSVG": "/static/media/icon.cca02633.svg",
+          "widgetId": "llztjclhrm",
+          "renderMode": "CANVAS",
+          "isLoading": false,
+          "parentColumnSpace": 12.5625,
+          "parentRowSpace": 10,
+          "leftColumn": 21,
+          "rightColumn": 37,
+          "topRow": 18,
+          "bottomRow": 22,
+          "parentId": "0",
+          "dynamicBindingPathList": [
+            {
+              "key": "text"
+            }
+          ],
+          "dynamicTriggerPathList": []
+        }
+      ]
+    }
+  }

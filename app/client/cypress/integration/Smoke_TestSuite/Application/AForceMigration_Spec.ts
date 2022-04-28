@@ -1,507 +1,330 @@
-// const widgetsPage = require("../../../locators/Widgets.json");
-// import homePage from "../../../locators/HomePage";
+/// <reference types="Cypress" />
+import { ObjectsRegistry } from "../../../support/Objects/Registry";
 
-// describe("Migration Validate", function () {
-//   it("1. Import application and Validate Migration on pageload", function () {
-//     // import application
-//     cy.get(homePage.homeIcon).click();
-//     cy.get(homePage.optionsIcon)
-//       .first()
-//       .click();
-//     cy.get(homePage.orgImportAppOption).click({ force: true });
-//     cy.get(homePage.orgImportAppModal).should("be.visible");
-//     cy.xpath(homePage.uploadLogo)
-//       .attachFile("TableMigrationAppExported.json")
-//       .wait(500);
-//     cy.get(homePage.orgImportAppButton)
-//       .trigger("click")
-//       .wait(500);
-//     cy.get(homePage.orgImportAppModal).should("not.exist");
+let homePage = ObjectsRegistry.HomePage,
+  dataSources = ObjectsRegistry.DataSources,
+  table = ObjectsRegistry.Table,
+  agHelper = ObjectsRegistry.AggregateHelper,
+  ee = ObjectsRegistry.EntityExplorer,
+  jsEditor = ObjectsRegistry.JSEditor,
+  locator = ObjectsRegistry.CommonLocators;
 
-//     cy.wait("@importNewApplication").then((interception) => {
-//       let appId = interception.response.body.data.id;
-//       let defaultPage = interception.response.body.data.pages.find(
-//         (eachPage) => !!eachPage.isDefault,
-//       );
+describe("AForce - Community Issues page validations", function () {
 
-//       cy.get(homePage.toastMessage).should(
-//         "contain",
-//         "Application imported successfully",
-//       );
+  before(function () {
+    agHelper.clearLocalStorageCache();
+  });
 
-//       //Renaming imported app!
-//       const uuid = () => Cypress._.random(0, 1e4);
-//       const name = uuid();
-//       cy.wait(2000);
-//       cy.get(homePage.applicationName)
-//         .clear()
-//         .type(`app${name}`);
-//       cy.wrap(`app${name}`).as("appname");
-//       cy.wait(2000);
+  beforeEach(() => {
+    agHelper.restoreLocalStorageCache();
+  });
 
-//       // Validating data binding for the imported application - Page1
+  afterEach(() => {
+    agHelper.saveLocalStorageCache();
+  });
 
-//       //Validating Latitude & Longitude are hidden columns:
-//       cy.xpath(
-//         "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//div[text()='latitude']/parent::div/parent::div",
-//       )
-//         .invoke("attr", "class")
-//         .then((classes) => {
-//           cy.log("classes are:" + classes);
-//           expect(classes).includes("hidden-header");
-//         });
+  let reconnect = true, selectedRow: number;
+  it("1. Import application json and validate headers", () => {
+    cy.visit("/applications");
+    homePage.ImportApp("AForceMigrationExport.json", reconnect);
+    cy.wait("@importNewApplication").then((interception) => {
+      cy.wait(100);
+      const { isPartialImport } = interception.response.body.data;
+      if (isPartialImport) {
+        // should reconnect modal
+        dataSources.ReconnectDataSourcePostgres("AForceDB")
+      } else {
+        cy.get(homePage.toastMessage).should(
+          "contain",
+          "Application imported successfully",
+        );
+      }
+      //Validate table is not empty!
+      table.WaitUntilTableLoad()
+      //Validating order of header columns!
+      table.AssertTableHeaderOrder("TypeTitleStatus+1CommentorsVotesAnswerUpVoteStatesupvote_ididgithub_issue_idauthorcreated_atdescriptionlabelsstatelinkupdated_at")
+      //Validating hidden columns:
+      table.AssertHiddenColumns(['States', 'upvote_id', 'id', 'github_issue_id', 'author', 'created_at', 'description', 'labels', 'state', 'link', 'updated_at'])
+    });
+  });
 
-//       cy.xpath(
-//         "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//div[text()='longitude']/parent::div/parent::div",
-//       )
-//         .invoke("attr", "class")
-//         .then((classes) => {
-//           cy.log("classes are:" + classes);
-//           expect(classes).includes("hidden-header");
-//         });
+  it("2. Validate table navigation with Server Side pagination enabled with Default selected row", () => {
+    ee.SelectEntityByName("Table1", 'WIDGETS')
+    agHelper.AssertExistingToggleState("serversidepagination", 'checked')
 
-//       //Validating order of header row!
-//       cy.xpath(
-//         "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]",
-//       )
-//         .invoke("text")
-//         .then((x) => {
-//           expect(x).to.eq(
-//             "Card NumberidNameاسمaddress住所PhoneemailCompanyjobimagessnPin CodeCreditLimitOutstandingStateAvailable LimitCard TypeChange Credit limitimageURLlatitudelongitude",
-//           );
-//           cy.log("header set is:" + x);
-//         });
+    agHelper.EvaluateExistingPropertyFieldValue("Default Selected Row")
+      .then($selectedRow => {
+        selectedRow = Number($selectedRow);
+        table.AssertSelectedRow(selectedRow)
+      });
 
-//       //Validating Id column sorting happens as Datatype is Number in app!
-//       cy.xpath(
-//         "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//div[text()='id']",
-//       )
-//         .click()
-//         .wait(2000);
+    agHelper.DeployApp()
+    table.WaitUntilTableLoad()
 
-//       cy.readTabledataPublish("0", "1").then((cellData) => {
-//         expect(cellData).to.be.equal("100");
-//       });
+    //Verify hidden columns are infact hidden in deployed app!
+    table.AssertTableHeaderOrder("TypeTitleStatus+1CommentorsVotesAnswerUpVote")//from case #1
 
-//       cy.readTabledataPublish("1", "1").then((cellData) => {
-//         expect(cellData).to.be.equal("99");
-//       });
+    table.AssertSelectedRow(selectedRow)//Assert default selected row
 
-//       cy.readTabledataPublish("2", "1").then((cellData) => {
-//         expect(cellData).to.be.equal("98");
-//       });
+    table.AssertPageNumber(1);
+    table.NavigateToNextPage()//page 2
+    agHelper.Sleep(3000)//wait for table navigation to take effect!
+    table.WaitUntilTableLoad()
+    table.AssertSelectedRow(selectedRow)
 
-//       //Revert the Id column sorting!
-//       cy.xpath(
-//         "//div[@class='tableWrap']//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//div[text()='id']",
-//       )
-//         .click()
-//         .wait(2000);
 
-//       cy.readTabledataPublish("0", "1").then((cellData) => {
-//         expect(cellData).to.be.equal("1");
-//       });
+    table.NavigateToNextPage()//page 3
+    agHelper.Sleep(3000)//wait for table navigation to take effect!
+    table.WaitForTableEmpty()//page 3
+    table.NavigateToPreviousPage()//page 2
+    agHelper.Sleep(3000)//wait for table navigation to take effect!
+    table.WaitUntilTableLoad()
+    table.AssertSelectedRow(selectedRow)
 
-//       cy.readTabledataPublish("1", "1").then((cellData) => {
-//         expect(cellData).to.be.equal("2");
-//       });
+    table.NavigateToPreviousPage()//page 1
+    agHelper.Sleep(3000)//wait for table navigation to take effect!
+    table.WaitUntilTableLoad()
+    table.AssertSelectedRow(selectedRow)
+    table.AssertPageNumber(1);
 
-//       cy.readTabledataPublish("2", "1").then((cellData) => {
-//         expect(cellData).to.be.equal("3");
-//       });
+  })
 
-//       //Validating image column is present:
-//       cy.getTableDataSelector("0", "10").then((selector) => {
-//         cy.get(selector + " div")
-//           .invoke("attr", "class")
-//           .then((classes) => {
-//             cy.log("classes are:" + classes);
-//             expect(classes).to.eq("image-cell");
-//           });
-//       });
+  it("3. Validate table navigation with Server Side pagination disabled with Default selected row selection", () => {
 
-//       //Card Number mapping to text widget!
-//       cy.isSelectRow(2);
-//       cy.wait(2500); //time for table row select to reflect!
-//       cy.readTabledataPublish("2", "0").then((cardNumber) => {
-//         cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
-//           .eq(1)
-//           .invoke("text")
-//           .then((cardNo) => {
-//             var format = /^\d{4}-\d{4}-\d{4}(-\d{4})?$/;
-//             expect(cardNumber).match(format);
-//             expect(cardNumber).to.be.equal(cardNo);
-//           });
-//       });
+    agHelper.NavigateBacktoEditor()
+    table.WaitUntilTableLoad()
+    ee.SelectEntityByName("Table1", 'WIDGETS')
+    agHelper.ToggleOnOrOff('serversidepagination', 'Off')
+    agHelper.DeployApp()
+    table.WaitUntilTableLoad()
+    table.AssertPageNumber(1, 'Off');
+    table.AssertSelectedRow(selectedRow)
+    agHelper.NavigateBacktoEditor()
+    table.WaitUntilTableLoad()
+    ee.SelectEntityByName("Table1", 'WIDGETS')
+    agHelper.ToggleOnOrOff('serversidepagination', 'On')
 
-//       //Address mapping to text widget!
-//       cy.readTabledataPublish("2", "4").then((address) => {
-//         cy.xpath("//div[contains(@class, ' t--widget-textwidget')][2]")
-//           .eq(1)
-//           .invoke("text")
-//           .then((addr) => {
-//             expect(address.replace(/\r?\n|\r/, "")).to.eq(addr);
-//           });
-//       });
+  });
 
-//       //Validating Available limit column computation maintained!
-//       cy.readTabledataPublish("2", "16").then((availLimit) => {
-//         cy.readTabledataPublish("2", "13").then((creditLimit) => {
-//           cy.readTabledataPublish("2", "14").then((outstanding) => {
-//             expect(Number(availLimit)).to.eq(creditLimit - outstanding);
-//           });
-//         });
-//       });
+  it("4. Change Default selected row in table and verify", () => {
 
-//       //Validating State button click & binding & text widget mapping!
-//       cy.getTableDataSelector("2", "15").then((selector) => {
-//         cy.get(selector + " button.bp3-button")
-//           .click()
-//           .wait(3000);
+    jsEditor.EnterJSContext("Default Selected Row", "1")
+    agHelper.DeployApp()
+    table.WaitUntilTableLoad()
+    table.AssertPageNumber(1);
+    table.AssertSelectedRow(1)
+    table.NavigateToNextPage()//page 2
+    table.AssertPageNumber(2);
+    table.AssertSelectedRow(1)
+    agHelper.NavigateBacktoEditor()
+    table.WaitUntilTableLoad()
 
-//         cy.waitUntil(
-//           () =>
-//             cy
-//               .xpath("//div[contains(@class, ' t--widget-textwidget')][2]", {
-//                 timeout: 30000,
-//               })
-//               .eq(0)
-//               .should("contain.text", "State:"),
-//           {
-//             errorMsg: "Execute call did not complete evn after 10 secs",
-//             timeout: 20000,
-//             interval: 1000,
-//           },
-//         ).then(() => cy.wait(500));
+  });
 
-//         cy.get(selector + " button span")
-//           .invoke("text")
-//           .then((statetxt) => {
-//             cy.xpath("//div[contains(@class, ' t--widget-textwidget')][2]")
-//               .eq(0)
-//               .invoke("text")
-//               .then((txtWidtxt) => {
-//                 cy.log("statetxt is:" + statetxt);
-//                 let text =
-//                   statetxt == "Activate" ? "State:Inactive" : "State:Active";
-//                 expect(text).to.eq(txtWidtxt);
-//               });
-//           });
-//       });
+  it.skip("5. Verify Default search text in table as per 'Default Search Text' property set + Bug 12228", () => {
 
-//       //Validating Image URL click & navigation!
-//       cy.getTableDataSelector("2", "19").then((selector) => {
-//         // Stubbing window.open to open in the same tab
-//         cy.window().then((window) => {
-//           cy.stub(window, "open").callsFake((url) => {
-//             window.location.href = url; //.substring(1);
-//             window.location.target = "_self";
-//           });
-//         });
+    ee.SelectEntityByName("Table1", 'WIDGETS')
+    jsEditor.EnterJSContext("Default Search Text", "Bug", false)
+    agHelper.DeployApp()
+    table.AssertSearchText('Bug')
+    table.WaitUntilTableLoad()
+    table.WaitUntilTableLoad()
+    agHelper.NavigateBacktoEditor()
 
-//         cy.get(selector + " span.bp3-popover-target span")
-//           .invoke("text")
-//           .then((url) => {
-//             cy.get(selector + " span.bp3-popover-target")
-//               .click()
-//               .wait(2000);
-//             cy.wait("@postExecute");
-//             cy.url().should("contain", url);
-//             cy.go(-1);
-//           });
-//       });
+    ee.SelectEntityByName("Table1", 'WIDGETS')
+    jsEditor.EnterJSContext("Default Search Text", "Question", false)
+    agHelper.DeployApp()
+    table.AssertSearchText('Question')
+    table.WaitUntilTableLoad()
+    agHelper.NavigateBacktoEditor()
+    table.WaitUntilTableLoad()
 
-//       // cy.wait(4000);
-//       // cy.get("div.tableWrap").should("be.visible"); //wait for page load!
+    ee.SelectEntityByName("Table1", 'WIDGETS')
+    jsEditor.EnterJSContext("Default Search Text", "Epic", false)//Bug 12228 - Searching based on hidden column value should not be allowed
+    agHelper.DeployApp()
+    table.AssertSearchText('Epic')
+    table.WaitForTableEmpty()
+    agHelper.NavigateBacktoEditor()
+    table.WaitUntilTableLoad()
 
-//       cy.waitUntil(
-//         () => cy.get("div.tableWrap", { timeout: 30000 }).should("be.visible"),
-//         {
-//           errorMsg: "Page is not loaded evn after 10 secs",
-//           timeout: 30000,
-//           interval: 2000,
-//         },
-//       ).then(() => cy.wait(1000)); //wait for page load!
+    ee.SelectEntityByName("Table1", 'WIDGETS')
+    jsEditor.RemoveText('defaultsearchtext')
+    table.WaitUntilTableLoad()
 
-//       cy.isSelectRow(2); //as aft refresh row selection is also gone
-//       cy.getTableDataSelector("2", "18").then((selector) => {
-//         cy.get(selector + " button")
-//           .click()
-//           .wait(1000);
+  });
 
-//         cy.xpath(
-//           "//div//a[contains(@class, 'bp3-menu-item')]/div[text()='AddcreditLimit']/parent::a",
-//         )
-//           .click()
-//           .wait(2000);
+  it.skip("6. Validate Search table with Client Side Search enabled & disabled", () => {
+    ee.SelectEntityByName("Table1", 'WIDGETS')
+    agHelper.AssertExistingToggleState("enableclientsidesearch", 'checked')
 
-//         cy.waitUntil(
-//           () =>
-//             cy
-//               .xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
-//                 timeout: 30000,
-//               })
-//               .eq(0)
-//               .should("contain.text", "CreditLimit:"),
-//           {
-//             errorMsg: "Execute call did not complete evn after 10 secs",
-//             timeout: 20000,
-//             interval: 1000,
-//           },
-//         ).then(() => cy.wait(500)); //allow time for n/w to finish
+    agHelper.DeployApp()
+    table.WaitUntilTableLoad()
 
-//         cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
-//           timeout: 30000,
-//         })
-//           .eq(0)
-//           .invoke("text")
-//           .then((addreduce) => {
-//             expect(addreduce).to.eq("CreditLimit:Add");
-//           });
-//       });
+    table.SearchTable('Bug')
+    table.WaitUntilTableLoad()
+    cy.xpath(table._searchBoxCross).click()
 
-//       //Manu Btn validation: - 2nd menu item
-//       cy.getTableDataSelector("2", "18").then((selector) => {
-//         cy.get(selector + " button")
-//           .click()
-//           .wait(1000);
+    table.SearchTable('Question')
+    table.WaitUntilTableLoad()
+    cy.xpath(table._searchBoxCross).click()
 
-//         cy.xpath(
-//           "//div//a[contains(@class, 'bp3-menu-item')]/div[text()='Reducecreditlimit']/parent::a",
-//         )
-//           .click()
-//           .wait(2000);
+    agHelper.NavigateBacktoEditor()
+    table.WaitUntilTableLoad()
 
-//         cy.waitUntil(
-//           () =>
-//             cy
-//               .xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
-//                 timeout: 30000,
-//               })
-//               .eq(0)
-//               .should("contain.text", "CreditLimit:"),
-//           {
-//             errorMsg: "Execute call did not complete evn after 10 secs",
-//             timeout: 20000,
-//             interval: 1000,
-//           },
-//         ).then(() => cy.wait(500)); //allow time for n/w to finish
+    ee.SelectEntityByName("Table1", 'WIDGETS')
+    agHelper.ToggleOnOrOff("enableclientsidesearch", 'Off')
 
-//         cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
-//           timeout: 30000,
-//         })
-//           .eq(0)
-//           .invoke("text")
-//           .then((addreduce) => {
-//             expect(addreduce).to.eq("CreditLimit:Reduce");
-//           });
-//       });
+    agHelper.DeployApp()
+    table.WaitUntilTableLoad()
 
-//       //Another row!
-//       //Card Number mapping to text widget!
-//       cy.isSelectRow(4);
-//       cy.wait(2500); //time for table row select to reflect!
-//       cy.readTabledataPublish("4", "0").then((cardNumber) => {
-//         cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
-//           .eq(1)
-//           .invoke("text")
-//           .then((cardNo) => {
-//             var format = /^\d{4}-\d{4}-\d{4}(-\d{4})?$/;
-//             expect(cardNumber).match(format);
-//             expect(cardNumber).to.be.equal(cardNo);
-//           });
-//       });
+    table.SearchTable('Bug')
+    table.WaitForTableEmpty()
+    cy.xpath(table._searchBoxCross).click()
 
-//       //Address mapping to text widget!
-//       cy.readTabledataPublish("4", "4").then((address) => {
-//         cy.xpath("//div[contains(@class, ' t--widget-textwidget')][2]")
-//           .eq(1)
-//           .invoke("text")
-//           .then((addr) => {
-//             expect(address.replace(/\r?\n|\r/, "")).to.eq(addr);
-//           });
-//       });
+    table.SearchTable('Question')
+    table.WaitForTableEmpty()
+    cy.xpath(table._searchBoxCross).click()
 
-//       //Validating Available limit column computation maintained!
-//       cy.readTabledataPublish("4", "16").then((availLimit) => {
-//         cy.readTabledataPublish("4", "13").then((creditLimit) => {
-//           cy.readTabledataPublish("4", "14").then((outstanding) => {
-//             expect(Number(availLimit)).to.eq(creditLimit - outstanding);
-//           });
-//         });
-//       });
+    agHelper.NavigateBacktoEditor()
+    table.WaitUntilTableLoad()
+    ee.SelectEntityByName("Table1", 'WIDGETS')
+    agHelper.ToggleOnOrOff("enableclientsidesearch", 'On')
+  })
 
-//       //Validating State button click & binding & text widget mapping!
-//       cy.getTableDataSelector("4", "15").then((selector) => {
-//         cy.get(selector + " button.bp3-button")
-//           .click()
-//           .wait(2000);
+  it("7. Validate Filter table", () => {
+    agHelper.DeployApp()
+    table.WaitUntilTableLoad()
 
-//         cy.waitUntil(
-//           () =>
-//             cy
-//               .xpath("//div[contains(@class, ' t--widget-textwidget')][2]", {
-//                 timeout: 30000,
-//               })
-//               .eq(0)
-//               .should("contain.text", "State:"),
-//           {
-//             errorMsg: "Execute call did not complete evn after 10 secs",
-//             timeout: 20000,
-//             interval: 1000,
-//           },
-//         ).then(() => cy.wait(500));
+    //One filter
+    table.FilterTable("Type", "is exactly", "Bug")
+    table.ReadTableRowColumnData(0, 1).then(($cellData) => {
+      expect($cellData).to.eq("[Bug]: Postgres queries unable to execute with more than 9 placeholders");
+    });
+    table.ReadTableRowColumnData(2, 1).then(($cellData) => {
+      expect($cellData).to.eq("[Bug]: Input updates with default values are not captured");
+    });
+    table.RemoveFilterNVerify("Question", true, false)
 
-//         cy.get(selector + " button span")
-//           .invoke("text")
-//           .then((statetxt) => {
-//             cy.xpath("//div[contains(@class, ' t--widget-textwidget')][2]")
-//               .eq(0)
-//               .invoke("text")
-//               .then((txtWidtxt) => {
-//                 cy.log("statetxt is:" + statetxt);
-//                 let text =
-//                   statetxt == "Activate" ? "State:Inactive" : "State:Active";
-//                 expect(text).to.eq(txtWidtxt);
-//               });
-//           });
-//       });
+    //Two filters - OR
+    table.FilterTable("Type", "starts with", "Trouble")
+    table.ReadTableRowColumnData(0, 0).then(($cellData) => {
+      expect($cellData).to.eq("Troubleshooting");
+    });
+    table.ReadTableRowColumnData(0, 1).then(($cellData) => {
+      expect($cellData).to.eq("Renew expired SSL certificate on a self-hosted instance");
+    });
 
-//       //Validating Image URL click & navigation!
-//       cy.getTableDataSelector("4", "19").then((selector) => {
-//         // Stubbing window.open to open in the same tab
-//         cy.window().then((window) => {
-//           cy.stub(window, "open").callsFake((url) => {
-//             window.location.href = url; //.substring(1);
-//             window.location.target = "_self";
-//           });
-//         });
+    table.FilterTable("Title", "contains", "query", 'OR', 1)
+    table.ReadTableRowColumnData(1, 0).then(($cellData) => {
+      expect($cellData).to.eq("Question");
+    });
+    table.ReadTableRowColumnData(7, 1).then(($cellData) => {
+      expect($cellData).to.eq("Run storeValue commands before a Query.run()");
+    });
+    table.RemoveFilterNVerify("Question", true, false)
 
-//         cy.get(selector + " span.bp3-popover-target span")
-//           .invoke("text")
-//           .then((url) => {
-//             cy.get(selector + " span.bp3-popover-target")
-//               .click()
-//               .wait(2000);
-//             cy.wait("@postExecute");
-//             cy.url().should("contain", url);
-//             cy.go(-1);
-//           });
-//       });
+     //Two filters - AND
+     table.FilterTable("Votes", "greater than", "3")
+     table.ReadTableRowColumnData(1, 1).then(($cellData) => {
+       expect($cellData).to.eq("Combine queries from different datasources");
+     });
+ 
+     table.FilterTable("Title", "contains", "button", 'AND', 1)
+     table.ReadTableRowColumnData(0, 1).then(($cellData) => {
+       expect($cellData).to.eq("Change the video in the video player with a button click");
+     });
+     table.RemoveFilterNVerify("Question", true, false)
+  })
+  
+  it("8. Validate Adding a New issue from Add Modal", () => {
+    // agHelper.DeployApp()
+    // table.WaitUntilTableLoad()
 
-//       //cy.wait(4000);
-//       //cy.get("div.tableWrap").should("be.visible");
+    cy.get(table._addIcon).closest('div').click()
+    agHelper.AssertElementPresence(locator._modal)
+    agHelper.SelectFromDropDown('Suggestion', 't--modal-widget')
 
-//       cy.waitUntil(
-//         () => cy.get("div.tableWrap", { timeout: 30000 }).should("be.visible"),
-//         {
-//           errorMsg: "Page is not loaded evn after 10 secs",
-//           timeout: 30000,
-//           interval: 2000,
-//         },
-//       ).then(() => cy.wait(1000)); //wait for page load!
+    cy.get(locator._inputWidgetv1InDeployed).eq(3).type("Adding Title Suggestion via script")
+    cy.get(locator._textAreainputWidgetv1InDeployed).eq(1).type("Adding Description Suggestion via script")
+    cy.get(locator._inputWidgetv1InDeployed).eq(4).type("https://github.com/appsmithorg/appsmith/issues/12532")
+    agHelper.SelectFromMultiSelect(['Epic', 'Task'], 1)
+    cy.xpath(table._visibleTextSpan('Labels')).click()
+    cy.get(locator._inputWidgetv1InDeployed).eq(5).type("https://release.app.appsmith.com/applications/62486d45ab307a026918639e/pages/62486d45ab307a02691863a7")
+    agHelper.SelectFromMultiSelect(['Documented', 'Needs App'], 1, true, 'multiselectwidget')
 
-//       //Manu Btn validation: - 1st menu item
-//       cy.isSelectRow(4); //as aft refresh row selection is also gone
-//       cy.getTableDataSelector("4", "18").then((selector) => {
-//         cy.get(selector + " button")
-//           .click()
-//           .wait(1000);
+    agHelper.ClickButton('Confirm')
+    agHelper.Sleep(3000)
+    table.SearchTable('Suggestion', 2)
+    table.WaitUntilTableLoad()
 
-//         cy.xpath(
-//           "//div//a[contains(@class, 'bp3-menu-item')]/div[text()='AddcreditLimit']/parent::a",
-//         )
-//           .click()
-//           .wait(2000); //allow time for n/w to finish
+    table.ReadTableRowColumnData(0, 0, 1000).then((cellData) => {
+      expect(cellData).to.be.equal("Suggestion");
+    });
 
-//         cy.waitUntil(
-//           () =>
-//             cy
-//               .xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
-//                 timeout: 30000,
-//               })
-//               .eq(0)
-//               .should("contain.text", "CreditLimit:"),
-//           {
-//             errorMsg: "Execute call did not complete evn after 10 secs",
-//             timeout: 20000,
-//             interval: 1000,
-//           },
-//         ).then(() => cy.wait(500)); //allow time for n/w to finish
+    table.ReadTableRowColumnData(0, 1, 1000).then((cellData) => {
+      expect(cellData).to.be.equal("Adding Title Suggestion via script");
+    });
 
-//         cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
-//           timeout: 30000,
-//         })
-//           .eq(0)
-//           .invoke("text")
-//           .then((addreduce) => {
-//             expect(addreduce).to.eq("CreditLimit:Add");
-//           });
-//       });
+  })
 
-//       //Manu Btn validation: - 2nd menu item
-//       cy.getTableDataSelector("4", "18").then((selector) => {
-//         cy.get(selector + " button")
-//           .click()
-//           .wait(1000);
+  it("9. Validate Updating issue from Details tab", () => {
 
-//         cy.xpath(
-//           "//div//a[contains(@class, 'bp3-menu-item')]/div[text()='Reducecreditlimit']/parent::a",
-//         )
-//           .click()
-//           .wait(2000); //allow time for n/w to finish
+    agHelper.AssertElementAbsence(locator._widgetInDeployed('tabswidget'))
+    table.SelectTableRow(0)
+    agHelper.AssertElementPresence(locator._widgetInDeployed('tabswidget'))
+    agHelper.GetNClick(locator._inputWidgetv1InDeployed).type("-updating title")
+    agHelper.GetNClick(locator._textAreainputWidgetv1InDeployed).type("-updating desc")
+    agHelper.GetNClick(locator._inputWidgetv1InDeployed, 1).type("-updating issue link")
+    agHelper.SelectFromDropDown('Troubleshooting', 't--widget-tabswidget')
+    agHelper.SelectFromMultiSelect(['Epic', 'Task'], 0, false)
+    agHelper.SelectFromMultiSelect(['High', 'Dependencies'], 0, true)
+    agHelper.SelectFromDropDown('[Bug] TypeError: o is undefined', 't--widget-tabswidget', 1)
+    agHelper.GetNClick(locator._inputWidgetv1InDeployed, 2).type("-updating answer link")
 
-//         cy.waitUntil(
-//           () =>
-//             cy
-//               .xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
-//                 timeout: 30000,
-//               })
-//               .eq(0)
-//               .should("contain.text", "CreditLimit:"),
-//           {
-//             errorMsg: "Execute call did not complete evn after 10 secs",
-//             timeout: 20000,
-//             interval: 1000,
-//           },
-//         ).then(() => cy.wait(500)); //allow time for n/w to finish
+    //cy.get("body").tab().type("{enter}")
 
-//         cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
-//           timeout: 30000,
-//         })
-//           .eq(0)
-//           .invoke("text")
-//           .then((addreduce) => {
-//             expect(addreduce).to.eq("CreditLimit:Reduce");
-//           });
-//       });
-//     });
+    //agHelper.TypeTab()
+    // cy.get(locator._widgetInDeployed('multiselectwidget'))
+    // .eq(0).typeTab(false, false)
+    // cy.get(locator._widgetInDeployed('multiselectwidget'))
+    // .eq(0).trigger('focus').trigger('keydown', {
+    //   key: 'Enter',
+    // })
 
-//     //Page 2 Validations:
 
-//     cy.selectEntityByName("Change color and font");
-//     cy.selectEntityByName("WIDGETS");
-//     cy.selectEntityByName("Table1");
+    //agHelper.Sleep(2000)
+    //cy.get("body").type("{enter}")
 
-//     cy.get(widgetsPage.bold)
-//       .invoke("attr", "aria-selected")
-//       .then((sel) => expect(Boolean(sel)).to.be.true);
-//     cy.get(widgetsPage.centerAlign)
-//       .eq(0)
-//       .invoke("attr", "aria-selected")
-//       .then((sel) => expect(Boolean(sel)).to.be.true); //Text align
-//     cy.get(widgetsPage.centerAlign)
-//       .eq(1)
-//       .invoke("attr", "aria-selected")
-//       .then((sel) => expect(Boolean(sel)).to.be.true); //Vertical align
-//     cy.get(widgetsPage.textColor)
-//       .first()
-//       .invoke("attr", "value")
-//       .should("contain", "#2E3D49");
-//     cy.get(`${widgetsPage.cellBackground} input`)
-//       .first()
-//       .invoke("attr", "value")
-//       .should("contain", "#FFC13D");
-//     cy.get(widgetsPage.selectedTextSize).should("have.text", "24px");
-//   });
-// });
+    agHelper.RemoveMultiSelectItems(['Documented', 'Needs App'])
+
+    //agHelper.SelectFromMultiSelect(['Documented', 'Needs App', 'App Built'], 0, false, 'multiselectwidget')
+    agHelper.SelectFromMultiSelect(['Needs Product'], 0, true, 'multiselectwidget')
+    agHelper.ClickButton('Save')
+
+    table.ReadTableRowColumnData(0, 0, 1000).then((cellData) => {
+      expect(cellData).to.be.equal("Troubleshooting");
+    });
+
+    table.ReadTableRowColumnData(0, 1, 1000).then((cellData) => {
+      expect(cellData).to.be.equal("Adding Title Suggestion via script-updating title");
+    });
+
+  })
+
+  it("10. Validate Deleting the newly created issue", () => {
+    agHelper.AssertElementAbsence(locator._widgetInDeployed('tabswidget'))
+    table.SelectTableRow(0)
+    agHelper.AssertElementPresence(locator._widgetInDeployed('tabswidget'))
+    cy.get(table._trashIcon).closest('div').click()
+    agHelper.AssertElementAbsence(locator._widgetInDeployed('tabswidget'))
+    table.WaitForTableEmpty()
+
+    //2nd search is not working, hence commenting below
+    // cy.xpath(table._searchBoxCross).click()
+    // table.SearchTable('Troubleshooting')
+    // table.WaitUntilTableLoad()
+    // table.ReadTableRowColumnData(0, 1).then((cellData) => {
+    //   expect(cellData).not.to.be.equal("Adding Title Suggestion via script-updating title");
+    // });
+  });
+});

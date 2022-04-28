@@ -44,7 +44,7 @@ function General() {
     try {
       await forgotPasswordSubmitHandler({ email: user?.email }, dispatch);
       Toaster.show({
-        text: `${createMessage(FORGOT_PASSWORD_SUCCESS_TEXT)} ${user?.email}`,
+        text: createMessage(FORGOT_PASSWORD_SUCCESS_TEXT, user?.email),
         variant: Variant.success,
       });
       dispatch(logoutUser());

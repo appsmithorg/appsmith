@@ -10,4 +10,5 @@ public interface ApplicationTemplateServiceCE {
     Flux<ApplicationTemplate> getSimilarTemplates(String templateId);
     Mono<ApplicationTemplate> getTemplateDetails(String templateId);
     Mono<Application> importApplicationFromTemplate(String templateId, String organizationId);
+    Mono<ApplicationTemplate> getFilters();
 }

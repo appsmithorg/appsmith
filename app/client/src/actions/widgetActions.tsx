@@ -2,7 +2,7 @@ import {
   ReduxActionTypes,
   ReduxAction,
   WidgetReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { BatchAction, batchAction } from "actions/batchActions";
 import PerformanceTracker, {

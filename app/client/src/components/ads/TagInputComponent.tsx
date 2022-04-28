@@ -167,9 +167,10 @@ function TagInputComponent(props: TagInputProps) {
         onKeyDown={onKeyDown}
         placeholder={props.placeholder}
         separator={props.separator || ","}
-        tagProps={{
+        tagProps={(tag) => ({
+          className: tag + "_tag",
           round: true,
-        }}
+        })}
         values={inputValues || [""]}
       />
     </TagInputWrapper>

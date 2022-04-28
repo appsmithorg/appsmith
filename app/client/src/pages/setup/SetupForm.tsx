@@ -16,7 +16,13 @@ import {
   WELCOME_FORM_VERIFY_PASSWORD_FIELD_NAME,
   WELCOME_FORM_CUSTOM_USECASE_FIELD_NAME,
 } from "constants/forms";
-import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
+import {
+  FormErrors,
+  formValueSelector,
+  getFormSyncErrors,
+  InjectedFormProps,
+  reduxForm,
+} from "redux-form";
 import { isEmail, isStrongPassword } from "utils/formhelpers";
 import { AppState } from "reducers";
 import { SUPER_USER_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
@@ -107,7 +113,16 @@ const validate = (values: DetailsFormValues) => {
   return errors;
 };
 
-function SetupForm(props: InjectedFormProps & DetailsFormValues) {
+export type SetupFormProps = DetailsFormValues & {
+  formSyncErrors?: FormErrors<string, string>;
+} & InjectedFormProps<
+    DetailsFormValues,
+    {
+      formSyncErrors?: FormErrors<string, string>;
+    }
+  >;
+
+function SetupForm(props: SetupFormProps) {
   const signupURL = `/api/v1/${SUPER_USER_SUBMIT_PATH}`;
   const [showDetailsForm, setShowDetailsForm] = useState(true);
   const formRef = useRef<HTMLFormElement>(null);
@@ -148,6 +163,33 @@ function SetupForm(props: InjectedFormProps & DetailsFormValues) {
     return true;
   };
 
+  const onKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
+    if (event.key === "Enter") {
+      if (props.valid) {
+        if (showDetailsForm) {
+          // If we are on the details page we do not want to submit the form
+          // instead we move the user to the next page
+          event.preventDefault();
+          onNext();
+        }
+      } else {
+        // The fields to be marked as touched so that we can display the errors
+        const toTouch = [];
+        // We fetch the fields which are invalid
+        for (const key in props.formSyncErrors) {
+          props.formSyncErrors.hasOwnProperty(key) && toTouch.push(key);
+        }
+        props.touch(...toTouch);
+        // prevent submitting the form on enter if the values are invalid
+        event.preventDefault();
+      }
+    }
+  };
+
+  const onNext = () => {
+    setShowDetailsForm(false);
+  };
+
   return (
     <PageWrapper>
       <SetupFormContainer>
@@ -156,13 +198,15 @@ function SetupForm(props: InjectedFormProps & DetailsFormValues) {
         </LogoContainer>
         <form
           action={signupURL}
+          data-testid="super-user-form"
           id="super-user-form"
           method="POST"
+          onKeyDown={onKeyDown}
           onSubmit={onSubmit}
           ref={formRef}
         >
           <SetupStep active={showDetailsForm}>
-            <DetailsForm {...props} onNext={() => setShowDetailsForm(false)} />
+            <DetailsForm {...props} onNext={onNext} />
           </SetupStep>
           <SetupStep active={!showDetailsForm}>
             <DataCollectionForm />
@@ -186,11 +230,14 @@ export default connect((state: AppState) => {
     role_name: selector(state, WELCOME_FORM_ROLE_NAME_FIELD_NAME),
     useCase: selector(state, WELCOME_FORM_USECASE_FIELD_NAME),
     custom_useCase: selector(state, WELCOME_FORM_CUSTOM_USECASE_FIELD_NAME),
+    formSyncErrors: getFormSyncErrors(WELCOME_FORM_NAME)(state),
   };
 }, null)(
-  reduxForm<DetailsFormValues>({
-    validate,
-    form: WELCOME_FORM_NAME,
-    touchOnBlur: true,
-  })(SetupForm),
+  reduxForm<DetailsFormValues, { formSyncErrors?: FormErrors<string, string> }>(
+    {
+      validate,
+      form: WELCOME_FORM_NAME,
+      touchOnBlur: true,
+    },
+  )(SetupForm),
 );

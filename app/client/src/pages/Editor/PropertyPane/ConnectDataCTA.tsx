@@ -2,16 +2,8 @@ import Button, { Category, Size } from "components/ads/Button";
 import React, { useCallback } from "react";
 import { AppState } from "reducers";
 import styled from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
-import {
-  INTEGRATION_EDITOR_MODES,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-} from "constants/routes";
+import { useDispatch } from "react-redux";
+import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import {
   setGlobalSearchQuery,
@@ -20,6 +12,7 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { WidgetType } from "constants/WidgetConstants";
+import { integrationEditorURL } from "RouteBuilder";
 
 const StyledDiv = styled.div`
   color: ${(props) => props.theme.colors.propertyPane.ctaTextColor};
@@ -60,8 +53,6 @@ type ConnectDataCTAProps = {
 };
 
 function ConnectDataCTA(props: ConnectDataCTAProps) {
-  const applicationId = useSelector(getCurrentApplicationId);
-  const pageId = useSelector(getCurrentPageId);
   const dispatch = useDispatch();
 
   const openHelpModal = useCallback(() => {
@@ -75,12 +66,10 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
   const onClick = () => {
     const { widgetId, widgetTitle, widgetType } = props;
     history.push(
-      INTEGRATION_EDITOR_URL(
-        applicationId,
-        pageId,
-        INTEGRATION_TABS.NEW,
-        INTEGRATION_EDITOR_MODES.AUTO,
-      ),
+      integrationEditorURL({
+        selectedTab: INTEGRATION_TABS.NEW,
+        params: { mode: INTEGRATION_EDITOR_MODES.AUTO },
+      }),
     );
     AnalyticsUtil.logEvent("CONNECT_DATA_CLICK", {
       widgetTitle,

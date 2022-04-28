@@ -6,8 +6,8 @@ import {
   RenderDropdownOptionType,
 } from "components/ads/Dropdown";
 import { useSelector } from "react-redux";
-import { getPluginImages } from "../../../../selectors/entitiesSelector";
-import { Classes } from "../../../../components/ads/common";
+import { getPluginImages } from "selectors/entitiesSelector";
+import { Classes } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
 import { FormIcons } from "icons/FormIcons";
 import _ from "lodash";
@@ -25,9 +25,7 @@ const OptionWrapper = styled.div<{
   width?: string;
 }>`
   padding: ${(props) =>
-    props.selected
-      ? `${props.theme.spaces[1]}px 0px`
-      : `${props.theme.spaces[3]}px ${props.theme.spaces[5]}px`};
+    `${props.theme.spaces[3]}px ${props.theme.spaces[5]}px`};
   ${(props) => (!props.disabled ? "cursor: pointer" : "")};
   display: flex;
   align-items: center;

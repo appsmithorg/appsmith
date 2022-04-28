@@ -131,7 +131,7 @@ function KeyValueRow(
             {!props.actionConfig && (
               <div style={{ marginLeft: "16px", width: "20vw" }}>
                 <div
-                  data-replay-id={valueTextFieldName}
+                  data-replay-id={btoa(valueTextFieldName)}
                   style={{ display: "flex", flexDirection: "row" }}
                 >
                   <Field

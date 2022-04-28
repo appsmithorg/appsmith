@@ -2,33 +2,55 @@
 
 set -e
 
+function get_maximum_heap(){ 
+    resource=$(ulimit -u)
+    echo "Resource : $resource"
+    if [[ "$resource" -le 256 ]]; then
+        maximum_heap=128
+    elif [[ "$resource" -le 512 ]]; then
+        maximum_heap=256
+    fi
+}
+
+function setup_backend_heap_arg(){
+    if [[ ! -z ${maximum_heap} ]]; then
+      export APPSMITH_JAVA_HEAP_ARG="-Xmx${maximum_heap}m"
+    fi
+}
+
 init_env_file() {
   CONF_PATH="/appsmith-stacks/configuration"
   ENV_PATH="$CONF_PATH/docker.env"
   TEMPLATES_PATH="/opt/appsmith/templates"
+
+  # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
+  printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\"'\"'/; s/=/='/; s/$/'/" > "$TEMPLATES_PATH/pre-define.env"
+  
   echo "Initialize .env file"
   if ! [[ -e "$ENV_PATH" ]]; then
     # Generate new docker.env file when initializing container for first time or in Heroku which does not have persistent volume
     echo "Generating default configuration file"
     mkdir -p "$CONF_PATH"
-    APPSMITH_MONGODB_USER="appsmith"
-    APPSMITH_MONGODB_PASSWORD=$(
+    local default_appsmith_mongodb_user="appsmith"
+    local generated_appsmith_mongodb_password=$(
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ""
     )
-    APPSMITH_ENCRYPTION_PASSWORD=$(
+    local generated_appsmith_encryption_password=$(
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ""
     )
-    APPSMITH_ENCRYPTION_SALT=$(
+    local generated_appsmith_encription_salt=$(
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ""
     )
-    bash "$TEMPLATES_PATH/docker.env.sh" "$APPSMITH_MONGODB_USER" "$APPSMITH_MONGODB_PASSWORD" "$APPSMITH_ENCRYPTION_PASSWORD" "$APPSMITH_ENCRYPTION_SALT" > "$ENV_PATH"
+    local generated_appsmith_supervisor_password=$(
+      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+      echo ''
+    )
+    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" > "$ENV_PATH"
   fi
 
-  # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
-  printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\"'\"'/; s/=/='/; s/$/'/" > "$TEMPLATES_PATH/pre-define.env"
 
   echo "Load environment configuration"
   set -o allexport
@@ -159,16 +181,38 @@ configure_supervisord() {
   cp -f "$SUPERVISORD_CONF_PATH/application_process/"*.conf /etc/supervisor/conf.d
 
   # Disable services based on configuration
-  if [[ $isUriLocal -eq 0 ]]; then
-    cp "$SUPERVISORD_CONF_PATH/mongodb.conf" /etc/supervisor/conf.d/
+  if [[ -z "${DYNO}" ]]; then
+    if [[ $isUriLocal -eq 0 ]]; then
+      cp "$SUPERVISORD_CONF_PATH/mongodb.conf" /etc/supervisor/conf.d/
+    fi
+    if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
+      cp "$SUPERVISORD_CONF_PATH/redis.conf" /etc/supervisor/conf.d/
+      # Enable saving Redis session data to disk more often, so recent sessions aren't cleared on restart.
+      sed -i 's/^# save 60 10000$/save 60 1/g' /etc/redis/redis.conf
+    fi
+    if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
+      cp "$SUPERVISORD_CONF_PATH/cron.conf" /etc/supervisor/conf.d/
+    fi
   fi
-  if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
-    cp "$SUPERVISORD_CONF_PATH/redis.conf" /etc/supervisor/conf.d/
-    # Enable saving Redis session data to disk more often, so recent sessions aren't cleared on restart.
-    sed -i 's/^# save 60 10000$/save 60 1/g' /etc/redis/redis.conf
-  fi
-  if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
-    cp "$SUPERVISORD_CONF_PATH/cron.conf" /etc/supervisor/conf.d/
+}
+
+# This is a workaround to get Redis working on diffent memory pagesize
+# https://github.com/appsmithorg/appsmith/issues/11773
+check_redis_compatible_page_size() {
+  local page_size
+  page_size="$(getconf PAGE_SIZE)"
+  if [[ $page_size -gt 4096 ]]; then
+    echo "Compile Redis stable with page size of $page_size"
+    echo "Downloading Redis source..."
+    curl https://download.redis.io/redis-stable.tar.gz -L | tar xvz
+    cd redis-stable/
+    echo "Compiling Redis from source..."
+    make && make install
+    echo "Cleaning up Redis source..."
+    cd ..
+    rm -rf redis-stable/
+  else
+    echo "Redis is compatible with page size of $page_size"
   fi
 }
 
@@ -176,11 +220,24 @@ configure_supervisord() {
 init_env_file
 unset_unused_variables
 check_mongodb_uri
-init_mongodb
-init_replica_set
+if [[ -z "${DYNO}" ]]; then
+  # Don't run MongoDB if running in a Heroku dyno.
+  init_mongodb
+  init_replica_set
+else 
+  # These functions are used to limit heap size for Backend process when deployed on Heroku
+  get_maximum_heap
+  setup_backend_heap_arg
+fi
 mount_letsencrypt_directory
+check_redis_compatible_page_size
 configure_supervisord
 
+CREDENTIAL_PATH="/etc/nginx/passwords"
+if ! [[ -e "$CREDENTIAL_PATH" ]]; then
+  echo "Generating Basic Authentication file"
+  printf "$APPSMITH_SUPERVISOR_USER:$(openssl passwd -apr1 $APPSMITH_SUPERVISOR_PASSWORD)" > "$CREDENTIAL_PATH"
+fi
 # Ensure the restore path exists in the container, so an archive can be copied to it, if need be.
 mkdir -p /appsmith-stacks/data/{backup,restore}
 

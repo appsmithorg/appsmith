@@ -1,3 +1,5 @@
+import { Alignment } from "@blueprintjs/core";
+import { LabelPosition } from "components/constants";
 import moment from "moment";
 import { TimePrecision } from "./constants";
 import IconSVG from "./icon.svg";
@@ -12,7 +14,10 @@ export const CONFIG = {
     isDisabled: false,
     datePickerType: "DATE_PICKER",
     rows: 4,
-    label: "",
+    label: "Label",
+    labelPosition: LabelPosition.Left,
+    labelAlignment: Alignment.LEFT,
+    labelWidth: 5,
     dateFormat: "YYYY-MM-DD HH:mm",
     columns: 20,
     widgetName: "DatePicker",

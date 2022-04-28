@@ -1,6 +1,6 @@
 import { AppIconName } from "components/ads/AppIcon";
 import { AppColorCode } from "constants/DefaultTheme";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SubmissionError } from "redux-form";
 export type CreateApplicationFormValues = {
   applicationName: string;

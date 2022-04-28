@@ -6,14 +6,16 @@ LABEL maintainer="tech@appsmith.com"
 WORKDIR /opt/appsmith
 
 # The env variables are needed for Appsmith server to correctly handle non-roman scripts like Arabic.
-ENV LANG C.UTF-8  
-ENV LC_ALL C.UTF-8 
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
 
 # Update APT packages - Base Layer
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
-  supervisor curl cron certbot nginx gnupg wget netcat openssh-client \
-  software-properties-common gettext openjdk-11-jre \
-  python3-pip python-setuptools git \
+RUN apt-get update \
+  && apt-get upgrade --yes \
+  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    supervisor curl cron certbot nginx gnupg wget netcat openssh-client \
+    software-properties-common gettext openjdk-11-jre \
+    python3-pip python-setuptools git \
   && add-apt-repository ppa:redislabs/redis \
   && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
   && apt-get remove -y git python3-pip \
@@ -25,7 +27,7 @@ RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
 RUN echo "deb [ arch=amd64,arm64 ]http://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
   && apt-get remove wget -y
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
-  && apt-get -y install --no-install-recommends -y mongodb-org=4.4.6 nodejs redis \
+  && apt-get -y install --no-install-recommends -y mongodb-org=4.4.6 nodejs redis build-essential \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
@@ -86,11 +88,13 @@ RUN chmod 0644 /etc/cron.d/*
 
 RUN chmod +x entrypoint.sh renew-certificate.sh
 
+# Disable setuid/setgid bits for the files inside container.
+RUN find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true
+
 # Update path to load appsmith utils tool as default
 ENV PATH /opt/appsmith/utils/node_modules/.bin:$PATH
 
 EXPOSE 80
 EXPOSE 443
-EXPOSE 9001
 ENTRYPOINT [ "/opt/appsmith/entrypoint.sh" ]
 CMD ["/usr/bin/supervisord", "-n"]

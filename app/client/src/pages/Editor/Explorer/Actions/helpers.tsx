@@ -2,27 +2,18 @@ import React, { ReactNode, useMemo } from "react";
 import { dbQueryIcon, ApiMethodIcon, EntityIcon } from "../ExplorerIcons";
 import { PluginType } from "entities/Action";
 import { generateReactKey } from "utils/generators";
-import {
-  API_EDITOR_ID_URL,
-  QUERIES_EDITOR_ID_URL,
-  INTEGRATION_EDITOR_URL,
-  API_EDITOR_URL,
-  QUERIES_EDITOR_URL,
-  INTEGRATION_TABS,
-} from "constants/routes";
 
-import { ExplorerURLParams } from "../helpers";
 import { Plugin } from "api/PluginApi";
-import {
-  SAAS_BASE_URL,
-  SAAS_EDITOR_API_ID_URL,
-} from "pages/Editor/SaaSEditor/constants";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { groupBy } from "lodash";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import { trimQueryString } from "utils/helpers";
+import {
+  apiEditorIdURL,
+  queryEditorIdURL,
+  saasEditorApiIdURL,
+} from "RouteBuilder";
 
 // TODO [new_urls] update would break for existing paths
 // using a common todo, this needs to be fixed
@@ -32,29 +23,14 @@ export type ActionGroupConfig = {
   icon: JSX.Element;
   key: string;
   getURL: (
-    applicationId: string,
+    applicationSlug: string,
+    pageSlug: string,
     pageId: string,
     id: string,
     pluginType: PluginType,
     plugin?: Plugin,
   ) => string;
-  generateCreatePageURL: (
-    applicationId: string,
-    pageId: string,
-    selectedTab: string,
-    mode?: string,
-  ) => string;
   getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => ReactNode;
-  isGroupActive: (
-    params: ExplorerURLParams,
-    pageId: string,
-    applicationId: string,
-  ) => boolean;
-  isGroupExpanded: (
-    params: ExplorerURLParams,
-    pageId: string,
-    applicationId: string,
-  ) => boolean;
 };
 
 // When we have new action plugins, we can just add it to this map
@@ -67,26 +43,32 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
     icon: dbQueryIcon,
     key: generateReactKey(),
     getURL: (
-      applicationId: string,
+      applicationSlug: string,
+      pageSlug: string,
       pageId: string,
       id: string,
       pluginType: PluginType,
       plugin?: Plugin,
     ) => {
       if (!!plugin && pluginType === PluginType.SAAS) {
-        return SAAS_EDITOR_API_ID_URL(
-          applicationId,
+        return saasEditorApiIdURL({
+          applicationSlug,
+          pageSlug,
           pageId,
-          plugin.packageName,
-          id,
-        );
+          pluginPackageName: plugin.packageName,
+          apiId: id,
+        });
       } else if (
         pluginType === PluginType.DB ||
         pluginType === PluginType.REMOTE
       ) {
-        return QUERIES_EDITOR_ID_URL(applicationId, pageId, id);
+        return queryEditorIdURL({
+          pageSlug,
+          pageId,
+          queryId: id,
+        });
       } else {
-        return API_EDITOR_ID_URL(applicationId, pageId, id);
+        return apiEditorIdURL({ pageSlug, pageId, apiId: id });
       }
     },
     getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => {
@@ -102,55 +84,6 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
         );
       else if (plugin && plugin.type === PluginType.DB) return dbQueryIcon;
     },
-    generateCreatePageURL: INTEGRATION_EDITOR_URL,
-    isGroupActive: (
-      params: ExplorerURLParams,
-      pageId: string,
-      applicationId: string,
-    ) =>
-      [
-        trimQueryString(
-          INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
-        ),
-        trimQueryString(
-          INTEGRATION_EDITOR_URL(
-            applicationId,
-            pageId,
-            INTEGRATION_TABS.ACTIVE,
-          ),
-        ),
-        trimQueryString(API_EDITOR_URL(applicationId, pageId)),
-        trimQueryString(SAAS_BASE_URL(applicationId, pageId)),
-        trimQueryString(QUERIES_EDITOR_URL(applicationId, pageId)),
-      ].includes(window.location.pathname),
-    isGroupExpanded: (
-      params: ExplorerURLParams,
-      pageId: string,
-      applicationId: string,
-    ) =>
-      window.location.pathname.indexOf(
-        trimQueryString(
-          INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
-        ),
-      ) > -1 ||
-      window.location.pathname.indexOf(
-        trimQueryString(
-          INTEGRATION_EDITOR_URL(
-            applicationId,
-            pageId,
-            INTEGRATION_TABS.ACTIVE,
-          ),
-        ),
-      ) > -1 ||
-      window.location.pathname.indexOf(
-        trimQueryString(API_EDITOR_URL(applicationId, pageId)),
-      ) > -1 ||
-      window.location.pathname.indexOf(
-        trimQueryString(SAAS_BASE_URL(applicationId, pageId)),
-      ) > -1 ||
-      window.location.pathname.indexOf(
-        trimQueryString(QUERIES_EDITOR_URL(applicationId, pageId)),
-      ) > -1,
   },
 ];
 

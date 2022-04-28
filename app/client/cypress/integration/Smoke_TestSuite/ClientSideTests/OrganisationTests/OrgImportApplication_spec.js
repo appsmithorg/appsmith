@@ -8,6 +8,7 @@ describe("Organization Import Application", function() {
 
   before(() => {
     cy.addDsl(dsl);
+    cy.wait(5000);
   });
 
   it("Can Import Application from json", function() {
@@ -49,18 +50,22 @@ describe("Organization Import Application", function() {
 
             cy.wait("@importNewApplication").then((interception) => {
               const importedApp = interception.response.body.data.application;
-              let appId = importedApp.id;
-              let defaultPage = importedApp.pages.find(
-                (eachPage) => !!eachPage.isDefault,
-              );
+              const { pages } = importedApp;
+              const appSlug = importedApp.slug;
+              let defaultPage = pages.find((eachPage) => eachPage.isDefault);
               cy.get(homePage.toastMessage).should(
                 "contain",
                 "Application imported successfully",
               );
-              cy.url().should(
-                "include",
-                `/applications/${appId}/pages/${defaultPage.id}/edit`,
-              );
+              cy.wait("@getPagesForCreateApp").then((interception) => {
+                const pages = interception.response.body.data.pages;
+                const pageSlug =
+                  pages.find((page) => page.isDefault)?.slug ?? "page";
+                cy.url().should(
+                  "include",
+                  `/${appSlug}/${pageSlug}-${defaultPage.id}`,
+                );
+              });
             });
           });
         });

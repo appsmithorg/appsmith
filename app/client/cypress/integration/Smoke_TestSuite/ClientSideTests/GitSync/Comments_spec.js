@@ -1,5 +1,4 @@
 const commonLocators = require("../../../../locators/commonlocators.json");
-const { typeIntoDraftEditor } = require("../Comments/utils");
 import commentsLocators from "../../../../locators/CommentsLocators";
 
 const newCommentText1 = "new comment text 1";
@@ -36,7 +35,7 @@ describe("Git sync:", function() {
     cy.createGitBranch("ChildBranch");
     // Add a comment on the child branch
     cy.get(commonLocators.canvas).click(50, 50);
-    typeIntoDraftEditor(commentsLocators.mentionsInput, newCommentText1);
+    cy.typeIntoDraftEditor(commentsLocators.mentionsInput, newCommentText1);
     cy.get(commentsLocators.mentionsInput).type("{enter}");
     cy.switchGitBranch("master");
     cy.get(newCommentText1).should("not.exist");

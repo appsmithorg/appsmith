@@ -14,7 +14,7 @@ import {
   removeFunctions,
   validateWidgetProperty,
 } from "./evaluationUtils";
-import DataTreeEvaluator from "workers/DataTreeEvaluator";
+import DataTreeEvaluator from "workers/DataTreeEvaluator/DataTreeEvaluator";
 import ReplayEntity from "entities/Replay";
 import evaluate, {
   evaluateAsync,
@@ -249,9 +249,9 @@ ctx.addEventListener(
         return true;
       }
       case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
-        const { props, validation, value } = requestData;
+        const { property, props, validation, value } = requestData;
         return removeFunctions(
-          validateWidgetProperty(validation, value, props),
+          validateWidgetProperty(validation, value, props, property),
         );
       }
       case EVAL_WORKER_ACTIONS.UNDO: {

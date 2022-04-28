@@ -23,6 +23,10 @@ export const PopoverStyles = createGlobalStyle`
   .onboarding-carousel .${Classes.OVERLAY_CONTENT} {
     filter: drop-shadow(0px 6px 20px rgba(0, 0, 0, 0.15));
   }
+  .templates-notification .bp3-popover2-arrow {
+    // !important because top is specified as an inline style in the lib
+    top: -8px !important;
+  }
   .templates-notification .bp3-popover2-arrow-fill {
     fill: ${Colors.SEA_SHELL};
   }
@@ -32,5 +36,13 @@ export const PopoverStyles = createGlobalStyle`
 
   .auth-type-dropdown .ads-dropdown-options-wrapper {
     padding: 0;
+  }
+  .manual-upgrades {
+    z-index: 10 !important;
+    .manual-upgrades-overlay {
+      .bp3-overlay-backdrop {
+        opacity: 0.3;
+      }
+    }
   }
 `;

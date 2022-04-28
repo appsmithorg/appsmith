@@ -74,7 +74,7 @@ function WidgetsEditor() {
       window.location.hash.length > 0 &&
       !guidedTourEnabled
     ) {
-      const widgetIdFromURLHash = window.location.hash.substr(1);
+      const widgetIdFromURLHash = window.location.hash.slice(1);
       flashElementsById(widgetIdFromURLHash);
       if (document.getElementById(widgetIdFromURLHash))
         selectWidget(widgetIdFromURLHash);

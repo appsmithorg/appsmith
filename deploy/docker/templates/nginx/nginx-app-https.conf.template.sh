@@ -19,6 +19,8 @@ map \$http_x_forwarded_proto \$origin_scheme {
   default \$http_x_forwarded_proto;
   '' \$scheme;
 }
+# redirect log to stdout for supervisor to capture
+access_log /dev/stdout;
 
 server {
   listen 80;
@@ -34,9 +36,31 @@ server {
   ssl_certificate $SSL_CERT_PATH;
   ssl_certificate_key $SSL_KEY_PATH;
 
-
   include /appsmith-stacks/data/certificate/conf/options-ssl-nginx.conf;
   ssl_dhparam /appsmith-stacks/data/certificate/conf/ssl-dhparams.pem;
+
+  location = /supervisor {
+    return 301 /supervisor/;
+  }
+
+  location /supervisor/ {
+      proxy_http_version 1.1;
+      proxy_buffering    off;
+      proxy_max_temp_file_size 0;
+      proxy_redirect    off;
+      proxy_set_header  Host             \$http_host/supervisor/;
+      proxy_set_header  X-Real-IP        \$remote_addr;
+      proxy_set_header  X-Forwarded-For  \$proxy_add_x_forwarded_for;
+      proxy_set_header 	X-Forwarded-Proto \$origin_scheme;
+      proxy_set_header 	X-Forwarded-Host \$http_host;
+      proxy_set_header   Connection       "";
+      proxy_pass http://localhost:9001/;
+      auth_basic "Protected";
+      auth_basic_user_file /etc/nginx/passwords;
+  }
+
+  proxy_set_header X-Forwarded-Proto \$origin_scheme;
+  proxy_set_header X-Forwarded-Host \$host;  
 
   client_max_body_size 100m;
 
@@ -49,8 +73,6 @@ server {
     root /appsmith-stacks/data/certificate/certbot;
   }
 
-  proxy_set_header X-Forwarded-Proto \$origin_scheme;
-  proxy_set_header X-Forwarded-Host \$host;
 
   location / {
     try_files \$uri /index.html =404;

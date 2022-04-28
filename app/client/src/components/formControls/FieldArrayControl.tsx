@@ -57,11 +57,10 @@ const AddMoreAction = styled.div`
     color: #03b365;
   }
 `;
-
 function NestedComponents(props: any) {
   useEffect(() => {
     if (props.fields.length < 1) {
-      props.fields.push({});
+      props.fields.push({ path: "", value: "" });
     }
   }, [props.fields.length]);
   return (
@@ -95,7 +94,7 @@ function NestedComponents(props: any) {
             </SecondaryBox>
           );
         })}
-      <AddMoreAction onClick={() => props.fields.push({})}>
+      <AddMoreAction onClick={() => props.fields.push({ path: "", value: "" })}>
         {/*Hardcoded label to be removed */}
         <Text type={TextType.H5}>+ Add Condition (And)</Text>
       </AddMoreAction>

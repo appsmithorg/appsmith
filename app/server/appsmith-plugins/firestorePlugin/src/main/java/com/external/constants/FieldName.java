@@ -16,6 +16,7 @@ public class FieldName {
     public static final String END_BEFORE = "endBefore.data";
     public static final String WHERE = "where.data";
     public static final String CHILDREN = "children";
+    public static final String SMART_SUBSTITUTION = "smartSubstitution";
 
     public static final String WHERE_CHILDREN = WHERE + "." + CHILDREN;
 }

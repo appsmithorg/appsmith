@@ -19,6 +19,7 @@ export type TabProp = {
 const TabsWrapper = styled.div<{
   shouldOverflow?: boolean;
   vertical?: boolean;
+  responseViewer?: boolean;
 }>`
   border-radius: 0px;
   height: 100%;
@@ -47,6 +48,20 @@ const TabsWrapper = styled.div<{
       overflow-x: auto;
       white-space: nowrap;
     `}
+
+    ${(props) =>
+      props.responseViewer &&
+      `
+      margin-left: 30px;
+      display: flex;
+      align-items: center;
+      height: 24px;
+      background-color: ${props.theme.colors.multiSwitch.bg} !important;
+      width: fit-content;
+      padding-left: 1px;
+      margin-top: 10px !important;
+      margin-bottom: 10px !important;
+    `}
   }
   .react-tabs__tab {
     align-items: center;
@@ -58,6 +73,12 @@ const TabsWrapper = styled.div<{
     padding: 0px 3px;
     margin-right: ${(props) =>
       !props.vertical ? `${props.theme.spaces[12] - 3}px` : 0};
+
+    ${(props) =>
+      props.responseViewer &&
+      `
+       
+      `}
   }
 
   .react-tabs__tab,
@@ -67,6 +88,21 @@ const TabsWrapper = styled.div<{
     &:after {
       content: none;
     }
+
+    ${(props) =>
+      props.responseViewer &&
+      `
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        height: 22px;
+        padding: 0 12px;
+        border: 1px solid ${props.theme.colors.multiSwitch.border};
+        margin-right: -1px;
+        margin-left: -1px;
+        margin-top: -2px;
+        height: 100%;
+      `}
   }
 
   .react-tabs__tab--selected {
@@ -74,10 +110,26 @@ const TabsWrapper = styled.div<{
     path {
       fill: ${(props) => props.theme.colors.tabs.hover};
     }
+
+    ${(props) =>
+      props.responseViewer &&
+      `
+        background-color: ${props.theme.colors.multiSwitch.selectedBg};
+        border: 1px solid ${props.theme.colors.multiSwitch.border};
+        border-radius: 0px;
+        font-weight: normal;
+      `}
   }
+
+  ${(props) =>
+    props.responseViewer &&
+    `
+      padding: 0px;
+      margin-top: 10px;
+  `}
 `;
 
-export const TabTitle = styled.span`
+export const TabTitle = styled.span<{ responseViewer?: boolean }>`
   font-size: ${(props) => props.theme.typography.h5.fontSize}px;
   font-weight: ${(props) => props.theme.typography.h5.fontWeight};
   line-height: ${(props) => props.theme.typography.h5.lineHeight - 3}px;
@@ -85,6 +137,17 @@ export const TabTitle = styled.span`
   margin: 0;
   display: flex;
   align-items: center;
+
+  ${(props) =>
+    props.responseViewer &&
+    `
+    font-size: 12px;
+    font-weight: normal;
+    line-height: 16px;
+    letter-spacing: normal;
+    text-transform: uppercase;
+    color: ${props.theme.colors.text.normal};
+    `}
 `;
 
 export const TabCount = styled.div`
@@ -103,6 +166,7 @@ export const TabCount = styled.div`
 const TabTitleWrapper = styled.div<{
   selected: boolean;
   vertical: boolean;
+  responseViewer?: boolean;
 }>`
   display: flex;
   width: 100%;
@@ -122,6 +186,12 @@ const TabTitleWrapper = styled.div<{
       }
     }
   }
+
+  ${(props) =>
+    props.responseViewer &&
+    `
+      padding: 0px;
+    `}
 
   .${Classes.ICON} {
     margin-right: ${(props) => props.theme.spaces[1]}px;
@@ -153,6 +223,10 @@ const TabTitleWrapper = styled.div<{
 
   .tab-title {
     font-weight: 700;
+    ${props.responseViewer &&
+      `
+        font-weight: normal;
+      `}
   }
 
   &::after {
@@ -167,6 +241,11 @@ const TabTitleWrapper = styled.div<{
     height: ${props.vertical ? "100%" : `${props.theme.spaces[1] - 2}px`};
     background-color: ${props.theme.colors.info.main};
     z-index: ${Indices.Layer3};
+
+    ${props.responseViewer &&
+      `
+        display: none;
+      `}
   }
   `
       : ""}
@@ -176,19 +255,26 @@ export type TabItemProps = {
   tab: TabProp;
   selected: boolean;
   vertical: boolean;
+  responseViewer?: boolean;
 };
 
 function DefaultTabItem(props: TabItemProps) {
-  const { selected, tab, vertical } = props;
+  const { responseViewer, selected, tab, vertical } = props;
   return (
-    <TabTitleWrapper selected={selected} vertical={vertical}>
+    <TabTitleWrapper
+      responseViewer={responseViewer}
+      selected={selected}
+      vertical={vertical}
+    >
       {tab.icon ? (
         <Icon
           name={tab.icon}
           size={tab.iconSize ? tab.iconSize : IconSize.XXXL}
         />
       ) : null}
-      <TabTitle className="tab-title">{tab.title}</TabTitle>
+      <TabTitle className="tab-title" responseViewer={responseViewer}>
+        {tab.title}
+      </TabTitle>
       {tab.count && tab.count > 0 ? <TabCount>{tab.count}</TabCount> : null}
     </TabTitleWrapper>
   );
@@ -201,6 +287,7 @@ export type TabbedViewComponentType = CommonComponentProps & {
   overflow?: boolean;
   vertical?: boolean;
   tabItemComponent?: (props: TabItemProps) => JSX.Element;
+  responseViewer?: boolean;
 };
 
 export function TabComponent(props: TabbedViewComponentType) {
@@ -216,6 +303,7 @@ export function TabComponent(props: TabbedViewComponentType) {
   return (
     <TabsWrapper
       data-cy={props.cypressSelector}
+      responseViewer={props.responseViewer}
       shouldOverflow={props.overflow}
       vertical={props.vertical}
     >
@@ -234,6 +322,7 @@ export function TabComponent(props: TabbedViewComponentType) {
               key={tab.key}
             >
               <TabItem
+                responseViewer={props.responseViewer}
                 selected={
                   index === props.selectedIndex || index === selectedIndex
                 }

@@ -2,7 +2,7 @@ import {
   ReduxAction,
   ReduxActionTypes,
   WidgetReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   all,
   put,
@@ -19,7 +19,6 @@ import {
 } from "utils/storage";
 
 import { getCurrentUser } from "selectors/usersSelectors";
-import { BUILDER_PAGE_URL, QUERIES_EDITOR_ID_URL } from "constants/routes";
 import history from "utils/history";
 import TourApp from "pages/Editor/GuidedTour/app.json";
 
@@ -41,6 +40,7 @@ import {
 } from "actions/onboardingActions";
 import {
   getCurrentApplicationId,
+  selectURLSlugs,
   getCurrentPageId,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
@@ -52,11 +52,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getWidgets } from "./selectors";
-import {
-  clearActionResponse,
-  setActionProperty,
-} from "actions/pluginActionActions";
-import { QueryAction } from "entities/Action";
+import { clearActionResponse } from "actions/pluginActionActions";
 import {
   importApplication,
   updateApplicationLayout,
@@ -70,6 +66,8 @@ import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { builderURL, queryEditorIdURL } from "RouteBuilder";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 
@@ -162,24 +160,13 @@ function* setUpTourAppSaga() {
   );
   // Update getCustomers query body
   const query: ActionData | undefined = yield select(getQueryAction);
-  let body = (query?.config as QueryAction).actionConfiguration.body;
-  body = body?.replace("10", "20");
-  yield put(
-    setActionProperty({
-      actionId: query?.config.id ?? "",
-      propertyName: "actionConfiguration.body",
-      value: body,
-    }),
-  );
-  yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
   yield put(clearActionResponse(query?.config.id ?? ""));
-  const applicationId = yield select(getCurrentApplicationId);
+  const applicationId: string = yield select(getCurrentApplicationId);
   history.push(
-    QUERIES_EDITOR_ID_URL(
-      applicationId,
-      query?.config.pageId,
-      query?.config.id,
-    ),
+    queryEditorIdURL({
+      pageId: query?.config.pageId ?? "",
+      queryId: query?.config.id ?? "",
+    }),
   );
 
   yield put(
@@ -201,7 +188,7 @@ function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
 
   const defaultConfig = WidgetFactory.widgetConfigMap.get(widgetConfig.type);
 
-  const evalTree = yield select(getDataTree);
+  const evalTree: DataTree = yield select(getDataTree);
   const widgets = yield select(getWidgets);
 
   const widgetName = getNextWidgetName(widgets, widgetConfig.type, evalTree, {
@@ -305,7 +292,6 @@ function* selectWidgetSaga(
   const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
     getWidgets,
   );
-  const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
   const widget = Object.values(widgets).find((widget) => {
     return widget.widgetName === action.payload.widgetName;
@@ -313,7 +299,7 @@ function* selectWidgetSaga(
 
   if (widget) {
     // Navigate to the widget as well, usefull especially when we are not on the canvas
-    navigateToCanvas({ applicationId, pageId, widgetId: widget.widgetId });
+    navigateToCanvas({ pageId, widgetId: widget.widgetId });
     yield put(selectWidgetInitAction(widget.widgetId));
     // Delay to wait for the fields to render
     yield delay(1000);
@@ -339,7 +325,7 @@ function* setFirstTimeUserOnboardingIntroModalVisibility(
 }
 
 function* endFirstTimeUserOnboardingSaga() {
-  const firstTimeUserExperienceAppId = yield select(
+  const firstTimeUserExperienceAppId: string = yield select(
     getFirstTimeUserOnboardingApplicationId,
   );
   yield put({
@@ -387,9 +373,11 @@ function* firstTimeUserOnboardingInitSaga(
     type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
     payload: true,
   });
+  const { applicationSlug, pageSlug } = yield select(selectURLSlugs);
   history.replace(
-    BUILDER_PAGE_URL({
-      applicationId: action.payload.applicationId,
+    builderURL({
+      applicationSlug,
+      pageSlug,
       pageId: action.payload.pageId,
     }),
   );

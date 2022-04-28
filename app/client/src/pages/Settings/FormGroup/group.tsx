@@ -12,11 +12,15 @@ import Button from "./Button";
 import { getFormValues } from "redux-form";
 import { SETTINGS_FORM_NAME } from "constants/forms";
 import { useSelector } from "store";
-import { createMessage } from "@appsmith/constants/messages";
+import {
+  createMessage,
+  REDIRECT_URL_TOOLTIP,
+} from "@appsmith/constants/messages";
 import { Callout } from "components/ads/CalloutV2";
-import { RedirectUrlReduxForm } from "components/ads/formFields/RedirectUrlForm";
+import { CopyUrlReduxForm } from "components/ads/formFields/CopyUrlForm";
 import Accordion from "./Accordion";
 import TagInputField from "./TagInputField";
+import Dropdown from "./Dropdown";
 import { Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 
@@ -54,23 +58,24 @@ const GroupBody = styled.div`
   }
   & .tag-input {
     .t--admin-settings-tag-input {
-      label {
-        + div {
-          margin: 0;
-        }
-      }
-      .${Classes.TAG_INPUT}, .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
-        border: 1.2px solid ${Colors.ALTO2};
-        box-shadow: none;
-        .bp3-tag {
-          background: #f8f8f8;
-          color: #000;
-          svg:hover {
-            cursor: pointer;
-            path {
-              fill: currentColor;
+      > div {
+        margin: 0;
+        .${Classes.TAG_INPUT}, .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
+          border: 1.2px solid var(--appsmith-color-black-250);
+          box-shadow: none;
+          .bp3-tag {
+            background: var(--appsmith-color-black-50);
+            color: ${Colors.BLACK};
+            svg:hover {
+              cursor: pointer;
+              path {
+                fill: currentColor;
+              }
             }
           }
+        }
+        .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
+          border: 1.2px solid var(--appsmith-input-focus-border-color);
         }
       }
     }
@@ -178,11 +183,15 @@ export default function Group({
                 return (
                   <div
                     className={setting.isHidden ? "hide" : ""}
-                    data-testid="admin-settings-redirect-url"
+                    data-testid="admin-settings-uneditable-field"
                     key={setting.name || setting.id}
                   >
-                    <RedirectUrlReduxForm
+                    <CopyUrlReduxForm
+                      fieldName={setting.fieldName}
+                      form={setting.formName}
                       helpText={setting.helpText}
+                      title={setting.label}
+                      tooltip={createMessage(REDIRECT_URL_TOOLTIP)}
                       value={setting.value}
                     />
                   </div>
@@ -218,6 +227,21 @@ export default function Group({
                       settings={setting.advanced}
                       subCategory={subCategory}
                     />
+                  </div>
+                );
+              case SettingTypes.DROPDOWN:
+                return (
+                  <div
+                    className={setting.isHidden ? "hide" : ""}
+                    data-testid="admin-settings-dropdown"
+                    key={setting.name || setting.id}
+                  >
+                    {setting.dropdownOptions && (
+                      <Dropdown
+                        dropdownOptions={setting.dropdownOptions}
+                        setting={setting}
+                      />
+                    )}
                   </div>
                 );
             }

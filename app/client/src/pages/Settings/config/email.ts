@@ -1,10 +1,10 @@
-import { EMAIL_SETUP_DOC } from "../../../constants/ThirdPartyConstants";
-import { isEmail } from "../../../utils/formhelpers";
+import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
+import { isEmail } from "utils/formhelpers";
 import { Dispatch } from "react";
 import {
   ReduxAction,
   ReduxActionTypes,
-} from "../../../constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { isNil, omitBy } from "lodash";
 import {
   AdminConfigType,

@@ -20,9 +20,9 @@ import { CurlIconV2, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { EventLocation } from "utils/AnalyticsUtil";
-import { getCurlImportPageURL } from "constants/routes";
 import { getQueryParams } from "utils/AppsmithUtils";
 import history from "utils/history";
+import { curlImportPageURL } from "RouteBuilder";
 import { isMac, modText, shiftText } from "utils/helpers";
 
 export type SelectEvent =
@@ -334,9 +334,10 @@ export type ActionOperation = {
   kind: SEARCH_ITEM_TYPES;
   action?: (pageId: string, location: EventLocation) => any;
   redirect?: (
+    applicationSlug: string,
+    pageSlug: string,
     pageId: string,
     from: EventLocation,
-    applicationId: string,
   ) => any;
   pluginId?: string;
 };
@@ -361,11 +362,21 @@ export const actionOperations: ActionOperation[] = [
     desc: "Import a cURL Request",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: <CurlIconV2 />,
-    redirect: (pageId: string, from: EventLocation, applicationId: string) => {
+    redirect: (
+      applicationSlug: string,
+      pageSlug: string,
+      pageId: string,
+      from: EventLocation,
+    ) => {
       const queryParams = getQueryParams();
-      const curlImportURL = getCurlImportPageURL(applicationId, pageId, {
-        from,
-        ...queryParams,
+      const curlImportURL = curlImportPageURL({
+        applicationSlug,
+        pageSlug,
+        pageId,
+        params: {
+          from,
+          ...queryParams,
+        },
       });
       history.push(curlImportURL);
     },

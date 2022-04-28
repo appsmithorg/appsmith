@@ -1,11 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Title } from "../components/StyledComponents";
+import { Space, Title } from "../components/StyledComponents";
 import {
-  DEPLOY_YOUR_APPLICATION,
-  COMMIT_TO,
-  createMessage,
+  CHANGES_ONLY_MIGRATION,
+  CHANGES_ONLY_USER,
+  CHANGES_USER_AND_MIGRATION,
   COMMIT_AND_PUSH,
+  COMMIT_TO,
   COMMITTING_AND_PUSHING_CHANGES,
+  createMessage,
+  DEPLOY_YOUR_APPLICATION,
   FETCH_GIT_STATUS,
   GIT_NO_UPDATED_TOOLTIP,
   GIT_UPSTREAM_CHANGES,
@@ -18,18 +21,17 @@ import Button, { Size } from "components/ads/Button";
 import { LabelContainer } from "components/ads/Checkbox";
 
 import {
+  getConflictFoundDocUrlDeploy,
+  getGitCommitAndPushError,
   getGitStatus,
-  getIsFetchingGitStatus,
+  getIsCommitSuccessful,
   getIsCommittingInProgress,
+  getIsFetchingGitStatus,
   getIsPullingProgress,
   getPullFailed,
-  getGitCommitAndPushError,
   getUpstreamErrorDocUrl,
-  getConflictFoundDocUrlDeploy,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
-
-import { Space } from "../components/StyledComponents";
 import { Colors } from "constants/Colors";
 import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 
@@ -40,9 +42,8 @@ import {
   fetchGitStatusInit,
   gitPullInit,
 } from "actions/gitSyncActions";
-import { getIsCommitSuccessful } from "selectors/gitSyncSelectors";
 import StatusLoader from "../components/StatusLoader";
-import { clearCommitSuccessfulState } from "../../../../actions/gitSyncActions";
+import { clearCommitSuccessfulState } from "actions/gitSyncActions";
 import Statusbar, {
   StatusbarWrapper,
 } from "pages/Editor/gitSync/components/Statusbar";
@@ -56,11 +57,15 @@ import Icon, { IconSize } from "components/ads/Icon";
 
 import { isMac } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getApplicationLastDeployedAt } from "selectors/editorSelectors";
+import {
+  getApplicationLastDeployedAt,
+  getCurrentApplication,
+} from "selectors/editorSelectors";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import useAutoGrow from "utils/hooks/useAutoGrow";
 
 const Section = styled.div`
+  margin-top: ${(props) => props.theme.spaces[11]}px;
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
 `;
 
@@ -132,9 +137,21 @@ function Deploy() {
   const currentBranch = gitMetaData?.branchName;
   const dispatch = useDispatch();
 
+  const currentApplication = useSelector(getCurrentApplication);
+  const isAutoUpdate = currentApplication?.isAutoUpdate || false;
+  const isManualUpdate = currentApplication?.isManualUpdate || true;
+  const changeReason = isAutoUpdate
+    ? isManualUpdate
+      ? CHANGES_USER_AND_MIGRATION
+      : CHANGES_ONLY_MIGRATION
+    : CHANGES_ONLY_USER;
+  const changeReasonText = createMessage(changeReason);
+
   const handleCommit = (doPush: boolean) => {
     AnalyticsUtil.logEvent("GS_COMMIT_AND_PUSH_BUTTON_CLICK", {
       source: "GIT_DEPLOY_MODAL",
+      isAutoUpdate,
+      isManualUpdate,
     });
     if (currentBranch) {
       dispatch(
@@ -197,9 +214,15 @@ function Deploy() {
   const autogrowHeight = useAutoGrow(commitMessageDisplay, 37);
 
   return (
-    <Container>
+    <Container data-testid={"t--deploy-tab-container"}>
       <Title>{createMessage(DEPLOY_YOUR_APPLICATION)}</Title>
       <Section>
+        <Text
+          data-testid={"t--git-deploy-change-reason-text"}
+          type={TextType.P1}
+        >
+          {changeReasonText}
+        </Text>
         <GitChanged />
         <Row>
           <SectionTitle>
@@ -268,10 +291,14 @@ function Deploy() {
             width="max-content"
           />
         )}
-        <ConflictInfo
-          isConflicting={isConflicting}
-          learnMoreLink={gitConflictDocumentUrl}
-        />
+        {isConflicting && (
+          <ConflictInfo
+            browserSupportedRemoteUrl={
+              gitMetaData?.browserSupportedRemoteUrl || ""
+            }
+            learnMoreLink={gitConflictDocumentUrl}
+          />
+        )}
         {showCommitButton && (
           <Tooltip
             autoFocus={false}

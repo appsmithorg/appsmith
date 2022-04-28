@@ -49,7 +49,7 @@ const stripMarkdown = (text: string) =>
   text.replace(/---\n[description]([\S\s]*?)---/gm, "");
 
 const getDocumentationCTA = (path: any) => {
-  const href = path.replace("master", HelpBaseURL);
+  const href = `${HelpBaseURL}/${path}`;
   const htmlString = `<a class="documentation-cta" href="${href}" target="_blank">Open Documentation</a>`;
   return htmlToElement(htmlString);
 };

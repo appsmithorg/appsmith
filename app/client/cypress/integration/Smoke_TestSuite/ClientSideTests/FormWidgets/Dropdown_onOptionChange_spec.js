@@ -23,7 +23,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(formWidgetsPage.selectWidget)
       .find(widgetLocators.dropdownSingleSelect)
       .click({ force: true });
-    cy.get(commonlocators.singleSelectMenuItem)
+    cy.get(commonlocators.singleSelectWidgetMenuItem)
       .contains("Option 2")
       .click({ force: true });
     cy.wait(1000);
@@ -58,7 +58,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(formWidgetsPage.selectWidget)
       .find(widgetLocators.dropdownSingleSelect)
       .click({ force: true });
-    cy.get(commonlocators.singleSelectMenuItem)
+    cy.get(commonlocators.singleSelectWidgetMenuItem)
       .contains("Option 3")
       .click({ force: true });
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
@@ -110,7 +110,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(formWidgetsPage.selectWidget)
       .find(widgetLocators.dropdownSingleSelect)
       .click({ force: true });
-    cy.get(commonlocators.singleSelectMenuItem)
+    cy.get(commonlocators.singleSelectWidgetMenuItem)
       .contains("Option 2")
       .click({ force: true });
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
@@ -131,7 +131,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(formWidgetsPage.selectWidget)
       .find(widgetLocators.dropdownSingleSelect)
       .click({ force: true });
-    cy.get(commonlocators.singleSelectMenuItem)
+    cy.get(commonlocators.singleSelectWidgetMenuItem)
       .contains("Option 2")
       .click({ force: true });
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
@@ -151,7 +151,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(formWidgetsPage.selectWidget)
       .find(widgetLocators.dropdownSingleSelect)
       .click({ force: true });
-    cy.get(commonlocators.singleSelectMenuItem)
+    cy.get(commonlocators.singleSelectWidgetMenuItem)
       .contains("Option 1")
       .click({ force: true });
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
@@ -178,7 +178,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(formWidgetsPage.selectWidget)
       .find(widgetLocators.dropdownSingleSelect)
       .click({ force: true });
-    cy.get(commonlocators.singleSelectMenuItem)
+    cy.get(commonlocators.singleSelectWidgetMenuItem)
       .contains("Option 3")
       .click({ force: true });
     // Verify Option is changed

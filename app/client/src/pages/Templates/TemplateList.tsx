@@ -5,6 +5,13 @@ import Template from "./Template";
 import { Template as TemplateInterface } from "api/TemplatesApi";
 import RequestTemplate from "./Template/RequestTemplate";
 
+const breakpointColumnsObject = {
+  default: 4,
+  3000: 3,
+  1500: 2,
+  950: 1,
+};
+
 const Wrapper = styled.div`
   padding-right: ${(props) => props.theme.spaces[12]}px;
   padding-left: ${(props) => props.theme.spaces[12]}px;
@@ -19,11 +26,6 @@ const Wrapper = styled.div`
   }
 `;
 
-const FirstRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: ${(props) => props.theme.spaces[8]}px;
-`;
 interface TemplateListProps {
   templates: TemplateInterface[];
 }
@@ -31,18 +33,13 @@ interface TemplateListProps {
 function TemplateList(props: TemplateListProps) {
   return (
     <Wrapper>
-      <FirstRow>
-        {props.templates.slice(0, 2).map((template) => (
-          <Template key={template.id} size="large" template={template} />
-        ))}
-      </FirstRow>
       <Masonry
-        breakpointCols={3}
+        breakpointCols={breakpointColumnsObject}
         className="grid"
         columnClassName="grid_column"
       >
-        {props.templates.slice(2).map((template) => (
-          <Template key={template.id} template={template} />
+        {props.templates.map((template) => (
+          <Template key={template.id} size="large" template={template} />
         ))}
         <RequestTemplate />
       </Masonry>

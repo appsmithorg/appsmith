@@ -37,6 +37,7 @@ const PageWrapper = styled.div`
   margin-top: ${(props) => props.theme.homePage.header}px;
   display: flex;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
+  padding-left: 8vw;
 `;
 
 export const TemplateListWrapper = styled.div`
@@ -44,6 +45,7 @@ export const TemplateListWrapper = styled.div`
   width: calc(100% - ${(props) => props.theme.homePage.sidebar}px);
   height: calc(100vh - ${(props) => props.theme.headerHeight});
   overflow: auto;
+  padding-right: 8vw;
 `;
 
 export const ResultsCount = styled.div`

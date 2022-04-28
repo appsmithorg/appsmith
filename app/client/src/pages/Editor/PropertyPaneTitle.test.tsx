@@ -6,7 +6,7 @@ import userEvent from "@testing-library/user-event";
 import { ThemeProvider } from "constants/DefaultTheme";
 import { lightTheme } from "selectors/themeSelectors";
 import { Provider } from "react-redux";
-import store from "../../store";
+import store from "store";
 
 describe("<PropertyPaneTitle />", () => {
   it("should focus when f2 is pressed", async () => {

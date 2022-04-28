@@ -1,0 +1,60 @@
+{
+    "dsl": {
+      "widgetName": "MainContainer",
+      "backgroundColor": "none",
+      "rightColumn": 816,
+      "snapColumns": 64,
+      "detachFromLayout": true,
+      "widgetId": "0",
+      "topRow": 0,
+      "bottomRow": 1320,
+      "containerStyle": "none",
+      "snapRows": 125,
+      "parentRowSpace": 1,
+      "type": "CANVAS_WIDGET",
+      "canExtend": true,
+      "version": 56,
+      "minHeight": 1292,
+      "parentColumnSpace": 1,
+      "dynamicBindingPathList": [],
+      "leftColumn": 0,
+      "children": [
+        {
+          "isVisible": true,
+          "label": "",
+          "widgetName": "Input1",
+          "version": 2,
+          "defaultText": "{{JSObject1.myFun1()}}",
+          "iconAlign": "left",
+          "autoFocus": false,
+          "labelStyle": "",
+          "resetOnSubmit": true,
+          "isRequired": false,
+          "isDisabled": false,
+          "animateLoading": true,
+          "inputType": "TEXT",
+          "type": "INPUT_WIDGET_V2",
+          "hideCard": false,
+          "displayName": "Input",
+          "key": "aco5l52fup",
+          "iconSVG": "/static/media/icon.9f505595.svg",
+          "widgetId": "m69vw37r1x",
+          "renderMode": "CANVAS",
+          "isLoading": false,
+          "parentColumnSpace": 12.5625,
+          "parentRowSpace": 10,
+          "leftColumn": 22,
+          "rightColumn": 42,
+          "topRow": 20,
+          "bottomRow": 24,
+          "parentId": "0",
+          "dynamicBindingPathList": [
+            {
+              "key": "defaultText"
+            }
+          ],
+          "dynamicTriggerPathList": []
+        }
+      ]
+    }
+  }

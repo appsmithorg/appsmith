@@ -1,0 +1,11 @@
+name: Copy labels from a connected issue to the PR
+
+on:
+  pull_request:
+    types: [opened, labeled, unlabeled, assigned, edited, reopened, synchronize, ready_for_review]
+jobs:
+  copy-labels-from-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check and copy labels
+        uses: appsmithorg/process-automations/actions/copy-labels-to-pr@main

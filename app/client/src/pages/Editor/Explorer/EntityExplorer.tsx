@@ -10,7 +10,6 @@ import Divider from "components/editorComponents/Divider";
 import Search from "./ExplorerSearch";
 import { NonIdealState, Classes, IPanelProps } from "@blueprintjs/core";
 import WidgetSidebar from "../WidgetSidebar";
-import { BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
 import JSDependencies from "./JSDependencies";
 import PerformanceTracker, {
@@ -26,13 +25,10 @@ import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelecto
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
 import Datasources from "./Datasources";
 import Files from "./Files";
 import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
+import { builderURL } from "RouteBuilder";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -78,8 +74,6 @@ const StyledDivider = styled(Divider)`
 function EntityExplorer(props: IPanelProps) {
   const dispatch = useDispatch();
   const [searchKeyword, setSearchKeyword] = useState("");
-  const applicationId = useSelector(getCurrentApplicationId);
-  const currentPageId = useSelector(getCurrentPageId);
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
     null,
   );
@@ -94,18 +88,13 @@ function EntityExplorer(props: IPanelProps) {
   const noResults = false;
   const { openPanel } = props;
   const showWidgetsSidebar = useCallback(() => {
-    history.push(BUILDER_PAGE_URL({ applicationId, pageId: currentPageId }));
+    history.push(builderURL());
     openPanel({ component: WidgetSidebar });
     dispatch(forceOpenWidgetPanel(true));
     if (isFirstTimeUserOnboardingEnabled) {
       dispatch(toggleInOnboardingWidgetSelection(true));
     }
-  }, [
-    openPanel,
-    applicationId,
-    isFirstTimeUserOnboardingEnabled,
-    currentPageId,
-  ]);
+  }, [openPanel, isFirstTimeUserOnboardingEnabled]);
 
   /**
    * filter entitites

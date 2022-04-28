@@ -20,6 +20,8 @@ import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { matchPath, useLocation } from "react-router";
 import {
   API_EDITOR_ID_PATH,
+  BUILDER_PATH,
+  BUILDER_PATH_DEPRECATED,
   JS_COLLECTION_ID_PATH,
   QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
@@ -360,29 +362,35 @@ export const useEntityEditState = (entityId: string) => {
 
 export function useActiveAction() {
   const location = useLocation();
+
+  const baseMatch = matchPath<{ apiId: string }>(location.pathname, {
+    path: [BUILDER_PATH, BUILDER_PATH_DEPRECATED],
+    strict: false,
+    exact: false,
+  });
+
+  const basePath = baseMatch?.path || "";
+
   const apiMatch = matchPath<{ apiId: string }>(location.pathname, {
-    path: API_EDITOR_ID_PATH,
+    path: `${basePath}${API_EDITOR_ID_PATH}`,
   });
   if (apiMatch?.params?.apiId) {
     return apiMatch.params.apiId;
   }
-  const queryMatch = matchPath<{ queryId: string }>(window.location.pathname, {
-    path: QUERIES_EDITOR_ID_PATH,
+  const queryMatch = matchPath<{ queryId: string }>(location.pathname, {
+    path: `${basePath}${QUERIES_EDITOR_ID_PATH}`,
   });
   if (queryMatch?.params?.queryId) {
     return queryMatch.params.queryId;
   }
-  const jsMatch = matchPath<{ collectionId: string }>(
-    window.location.pathname,
-    {
-      path: JS_COLLECTION_ID_PATH,
-    },
-  );
+  const jsMatch = matchPath<{ collectionId: string }>(location.pathname, {
+    path: `${basePath}${JS_COLLECTION_ID_PATH}`,
+  });
   if (jsMatch?.params?.collectionId) {
     return jsMatch.params.collectionId;
   }
-  const saasMatch = matchPath<{ apiId: string }>(window.location.pathname, {
-    path: SAAS_EDITOR_API_ID_PATH,
+  const saasMatch = matchPath<{ apiId: string }>(location.pathname, {
+    path: `${basePath}${SAAS_EDITOR_API_ID_PATH}`,
   });
   if (saasMatch?.params?.apiId) {
     return saasMatch.params.apiId;

@@ -83,7 +83,28 @@ describe("Container Widget Functionality", function() {
     });
   });
 
-  it("7. checks button action", function() {
+  it("7. doesn't alter the no of items present when invalid item spacing is entered", () => {
+    // Open Property pane
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.selectEntityByName("List1");
+    // Update an invalid value to item spacing
+    cy.testJsontext("itemspacing\\(" + "px" + "\\)", "-");
+    cy.wait(2000);
+
+    // Verify the length of list
+    cy.get(commonlocators.containerWidget).then(function($lis) {
+      expect($lis).to.have.length(2);
+    });
+
+    // Clear item spacing
+    cy.testJsontext("itemspacing\\(" + "px" + "\\)", "");
+    cy.wait(2000);
+
+    // Close property pane
+    cy.closePropertyPane();
+  });
+
+  it("8. checks button action", function() {
     // Open property pane
     cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.CheckAndUnfoldEntityItem("List1");
@@ -95,14 +116,15 @@ describe("Container Widget Functionality", function() {
 
     cy.PublishtheApp();
     // Verify Widget Button by clicking on it
-    cy.get(`${widgetsPage.widgetBtn}`)
+    cy.get(widgetsPage.widgetBtn)
+      .closest("div")
       .first()
-      .click();
+      .click({ force: true });
     // Verify the click on first button
     cy.get(commonlocators.toastmsg).contains(items[0].last_name);
   });
 
-  it("8. it checks onListItem click action", function() {
+  it("9. it checks onListItem click action", function() {
     // Verify Clicking on list item shows message of first name
     cy.get(publishPage.backToEditor).click({ force: true });
     // Open property pane
@@ -120,18 +142,19 @@ describe("Container Widget Functionality", function() {
     cy.get(commonlocators.toastmsg).contains(items[0].first_name);
   });
 
-  it("9. it checks pagination", function() {
+  it("10. it checks pagination", function() {
     // clicking on second pagination button
     cy.get(`${commonlocators.paginationButton}-2`).click();
 
     // now we are on the second page which shows first the 3rd item in the list
     cy.get(commonlocators.TextInside).then(function($lis) {
       expect($lis.eq(0)).to.contain(items[2].first_name);
+      expect($lis.eq(1)).to.contain(items[3].first_name);
     });
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("10. ListWidget-Copy & Delete Verification", function() {
+  it("11. ListWidget-Copy & Delete Verification", function() {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     //Copy Chart and verify all properties
     cy.CheckAndUnfoldEntityItem("WIDGETS");
@@ -144,7 +167,7 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("11. List widget background colour and deploy ", function() {
+  it("12. List widget background colour and deploy ", function() {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("List1");
@@ -169,7 +192,7 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("12. Toggle JS - List widget background colour and deploy ", function() {
+  it("13. Toggle JS - List widget background colour and deploy ", function() {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("List1");
@@ -196,7 +219,7 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("13. Add new item in the list widget array object", function() {
+  it("14. Add new item in the list widget array object", function() {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("List1");
@@ -207,7 +230,7 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("14. Adding large item Spacing for item card", function() {
+  it("15. Adding large item Spacing for item card", function() {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("List1");
@@ -219,7 +242,7 @@ describe("Container Widget Functionality", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
   });
 
-  it("15. Renaming the widget from Property pane and Entity explorer ", function() {
+  it("16. Renaming the widget from Property pane and Entity explorer ", function() {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("List1");

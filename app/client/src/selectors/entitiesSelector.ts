@@ -14,16 +14,16 @@ import {
 import { Action, PluginType } from "entities/Action";
 import { find, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
-import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppStoreState } from "reducers/entityReducers/appReducer";
 import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
 import { JSCollection } from "entities/JSCollection";
-import { DefaultPlugin, GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
+import { DefaultPlugin, GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { APP_MODE } from "entities/App";
-import getFeatureFlags from "utils/featureFlags";
 import { ExplorerFileEntity } from "pages/Editor/Explorer/helpers";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
+import { selectFeatureFlags } from "./usersSelectors";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -158,12 +158,23 @@ export const getIsExecutingDatasourceQuery = (state: AppState): boolean => {
   return state.entities.datasources.executingDatasourceQuery;
 };
 
+export const getIsDatasourceTesting = (state: AppState): boolean => {
+  return state.entities.datasources.isTesting;
+};
+
 export const getEditorConfig = (state: AppState, pluginId: string): any[] => {
   return state.entities.plugins.editorConfigs[pluginId];
 };
 
 export const getSettingConfig = (state: AppState, pluginId: string): any[] => {
   return state.entities.plugins.settingConfigs[pluginId];
+};
+
+export const getDatasourceFormButtonConfig = (
+  state: AppState,
+  pluginId: string,
+): string[] => {
+  return state.entities.plugins.datasourceFormButtonConfigs[pluginId];
 };
 
 export const getActions = (state: AppState): ActionDataState =>
@@ -372,6 +383,14 @@ export const getAction = (
 ): Action | undefined => {
   const action = find(state.entities.actions, (a) => a.config.id === actionId);
   return action ? action.config : undefined;
+};
+
+export const getActionData = (
+  state: AppState,
+  actionId: string,
+): ActionResponse | undefined => {
+  const action = find(state.entities.actions, (a) => a.config.id === actionId);
+  return action ? action.data : undefined;
 };
 
 export const getJSCollection = (
@@ -648,12 +667,17 @@ export const getIsListing = (state: AppState) => {
   return state.entities.datasources.isListing;
 };
 
+export const getDatasourceLoading = (state: AppState) => {
+  return state.entities.datasources.loading;
+};
+
 export const selectFilesForExplorer = createSelector(
   getActionsForCurrentPage,
   getJSCollectionsForCurrentPage,
   selectDatasourceIdToNameMap,
-  (actions, jsActions, datasourceIdToNameMap) => {
-    const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
+  selectFeatureFlags,
+  (actions, jsActions, datasourceIdToNameMap, featureFlags) => {
+    const { JS_EDITOR: isJSEditorEnabled } = featureFlags;
     const files = [...actions, ...(isJSEditorEnabled ? jsActions : [])].reduce(
       (acc, file) => {
         let group = "";

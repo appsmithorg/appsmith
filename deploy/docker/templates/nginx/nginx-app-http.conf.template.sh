@@ -13,9 +13,11 @@ map \$http_x_forwarded_proto \$origin_scheme {
   default \$http_x_forwarded_proto;
   '' \$scheme;
 }
+# redirect log to stdout for supervisor to capture
+access_log /dev/stdout;
 
 server {
-  listen 80;
+  listen ${PORT:-80} default_server;
   server_name $CUSTOM_DOMAIN;
 
   client_max_body_size 100m;
@@ -27,6 +29,28 @@ server {
 
   location /.well-known/acme-challenge/ {
     root /appsmith-stacks/data/certificate/certbot;
+  }
+
+  location = /supervisor {
+    return 301 /supervisor/;
+  }
+
+  location /supervisor/ {
+    proxy_http_version 1.1;
+    proxy_buffering     off;
+    proxy_max_temp_file_size 0;
+    proxy_redirect     off;
+    
+    proxy_set_header  Host             	\$http_host/supervisor/;
+    proxy_set_header  X-Forwarded-For  	\$proxy_add_x_forwarded_for;
+    proxy_set_header 	X-Forwarded-Proto \$scheme;
+    proxy_set_header 	X-Forwarded-Host 	\$http_host;
+    proxy_set_header  Connection       "";
+    
+    proxy_pass http://localhost:9001/;
+
+    auth_basic "Protected";
+    auth_basic_user_file /etc/nginx/passwords;
   }
 
   proxy_set_header X-Forwarded-Proto \$origin_scheme;

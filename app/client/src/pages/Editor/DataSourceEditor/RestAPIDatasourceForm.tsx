@@ -28,7 +28,7 @@ import {
   redirectAuthorizationCode,
   updateDatasource,
 } from "actions/datasourceActions";
-import { ReduxAction } from "constants/ReduxActionConstants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   datasourceToFormValues,
   formValuesToDatasource,
@@ -56,7 +56,7 @@ import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import Callout from "components/ads/Callout";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { ButtonVariantTypes } from "components/constants";
-import { updateReplayEntity } from "../../../actions/pageActions";
+import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 interface DatasourceRestApiEditorProps {
@@ -424,8 +424,23 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   renderEditor = () => {
-    const { formData, messages } = this.props;
+    const {
+      datasource,
+      datasourceId,
+      formData,
+      isSaving,
+      messages,
+      pageId,
+    } = this.props;
+    const isAuthorized = _.get(
+      datasource,
+      "datasourceConfiguration.authentication.isAuthorized",
+      false,
+    );
     if (!formData) return;
+
+    const { authentication } = formData;
+
     return (
       <>
         {messages &&
@@ -521,27 +536,36 @@ class DatasourceRestAPIEditor extends React.Component<
           )}
         </FormInputContainer>
         {this.renderAuthFields()}
-        <FormInputContainer data-replay-id={btoa("ssl")}>
-          {this.renderDropdownControlViaFormControl(
-            "connection.ssl.authType",
-            [
-              {
-                label: "No",
-                value: "DEFAULT",
-              },
-              {
-                label: "Yes",
-                value: "SELF_SIGNED_CERTIFICATE",
-              },
-            ],
-            "Use Self-signed certificate",
-            "",
-            true,
-            "",
-            "DEFAULT",
-          )}
-        </FormInputContainer>
+        <Collapsible title="Advanced Settings">
+          {this.renderOauth2AdvancedSettings()}
+        </Collapsible>
         {this.renderSelfSignedCertificateFields()}
+        {formData.authType &&
+          formData.authType === AuthType.OAuth2 &&
+          _.get(authentication, "grantType") ===
+            GrantType.AuthorizationCode && (
+            <FormInputContainer>
+              <AuthorizeButton
+                disabled={this.disableSave()}
+                filled
+                intent="primary"
+                loading={isSaving}
+                onClick={() =>
+                  this.save(
+                    redirectAuthorizationCode(
+                      pageId,
+                      datasourceId,
+                      PluginType.API,
+                    ),
+                  )
+                }
+                size="small"
+                text={
+                  isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"
+                }
+              />
+            </FormInputContainer>
+          )}
       </>
     );
   };
@@ -815,50 +839,78 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   renderOauth2AdvancedSettings = () => {
+    const { authentication, authType } = this.props.formData;
+    const isGrantTypeAuthorizationCode =
+      _.get(authentication, "grantType") === GrantType.AuthorizationCode;
+    const isAuthenticationTypeOAuth2 = authType === AuthType.OAuth2;
     return (
       <>
-        <FormInputContainer
-          data-replay-id={btoa("authentication.sendScopeWithRefreshToken")}
-        >
+        {isAuthenticationTypeOAuth2 && isGrantTypeAuthorizationCode && (
+          <FormInputContainer
+            data-replay-id={btoa("authentication.sendScopeWithRefreshToken")}
+          >
+            {this.renderDropdownControlViaFormControl(
+              "authentication.sendScopeWithRefreshToken",
+              [
+                {
+                  label: "Yes",
+                  value: true,
+                },
+                {
+                  label: "No",
+                  value: false,
+                },
+              ],
+              "Send scope with refresh token",
+              "",
+              false,
+              "",
+            )}
+          </FormInputContainer>
+        )}
+        {isAuthenticationTypeOAuth2 && isGrantTypeAuthorizationCode && (
+          <FormInputContainer
+            data-replay-id={btoa(
+              "authentication.refreshTokenClientCredentialsLocation",
+            )}
+          >
+            {this.renderDropdownControlViaFormControl(
+              "authentication.refreshTokenClientCredentialsLocation",
+              [
+                {
+                  label: "Body",
+                  value: "BODY",
+                },
+                {
+                  label: "Header",
+                  value: "HEADER",
+                },
+              ],
+              "Send client credentials with (on refresh token):",
+              "",
+              false,
+              "",
+            )}
+          </FormInputContainer>
+        )}
+        <FormInputContainer data-replay-id={btoa("ssl")}>
           {this.renderDropdownControlViaFormControl(
-            "authentication.sendScopeWithRefreshToken",
+            "connection.ssl.authType",
             [
-              {
-                label: "Yes",
-                value: true,
-              },
               {
                 label: "No",
-                value: false,
-              },
-            ],
-            "Send scope with refresh token",
-            "",
-            false,
-            "",
-          )}
-        </FormInputContainer>
-        <FormInputContainer
-          data-replay-id={btoa(
-            "authentication.refreshTokenClientCredentialsLocation",
-          )}
-        >
-          {this.renderDropdownControlViaFormControl(
-            "authentication.refreshTokenClientCredentialsLocation",
-            [
-              {
-                label: "Body",
-                value: "BODY",
+                value: "DEFAULT",
               },
               {
-                label: "Header",
-                value: "HEADER",
+                label: "Yes",
+                value: "SELF_SIGNED_CERTIFICATE",
               },
             ],
-            "Send client credentials with (on refresh token):",
+            "Use Self-signed certificate",
             "",
-            false,
+            true,
             "",
+            "DEFAULT",
           )}
         </FormInputContainer>
       </>
@@ -902,12 +954,8 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   renderOauth2AuthorizationCode = () => {
-    const { datasource, datasourceId, formData, isSaving, pageId } = this.props;
-    const isAuthorized = _.get(
-      datasource,
-      "datasourceConfiguration.authentication.isAuthorized",
-      false,
-    );
+    const { formData } = this.props;
+
     const redirectURL =
       window.location.origin + "/api/v1/datasources/authorize";
     return (
@@ -971,24 +1019,6 @@ class DatasourceRestAPIEditor extends React.Component<
 
         {!_.get(formData.authentication, "isAuthorizationHeader", true) &&
           this.renderOauth2CommonAdvanced()}
-        <Collapsible title="Advanced Settings">
-          {this.renderOauth2AdvancedSettings()}
-        </Collapsible>
-        <FormInputContainer>
-          <AuthorizeButton
-            disabled={this.disableSave()}
-            filled
-            intent="primary"
-            loading={isSaving}
-            onClick={() =>
-              this.save(
-                redirectAuthorizationCode(pageId, datasourceId, PluginType.API),
-              )
-            }
-            size="small"
-            text={isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"}
-          />
-        </FormInputContainer>
       </>
     );
   };

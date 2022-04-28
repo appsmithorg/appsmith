@@ -10,8 +10,6 @@ import {
 import { getQueryParams } from "utils/AppsmithUtils";
 import { useDispatch } from "react-redux";
 import { showPostCompletionMessage } from "actions/onboardingActions";
-import { useSelector } from "store";
-import { getEditorURL } from "selectors/appViewSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
@@ -23,6 +21,9 @@ import {
   RATING_TITLE,
 } from "@appsmith/constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
+import history from "utils/history";
+import { APPLICATIONS_URL } from "constants/routes";
 
 const Container = styled.div`
   background-color: ${(props) => props.theme.colors.guidedTour.card.background};
@@ -78,7 +79,6 @@ function CongratulationsView() {
   const [ratingComplete, setRatingComplete] = useState(false);
   const [show, setShow] = useState(false);
   const dispatch = useDispatch();
-  const editorUrl = useSelector(getEditorURL);
 
   const onValueChanged = (value: number) => {
     AnalyticsUtil.logEvent("GUIDED_TOUR_RATING", {
@@ -105,6 +105,7 @@ function CongratulationsView() {
     setShow(false);
     dispatch(showPostCompletionMessage(false));
     setPostWelcomeTourState(false);
+    history.push(APPLICATIONS_URL);
   };
 
   if (!show) return null;
@@ -126,7 +127,7 @@ function CongratulationsView() {
               emptySymbol={
                 <Icon
                   className={"t--guided-tour-rating star"}
-                  fillColor={"#858282"}
+                  fillColor={Colors.GREY_7}
                   name="star-line"
                   size={IconSize.XXXXL}
                 />
@@ -156,11 +157,10 @@ function CongratulationsView() {
           <Button
             className="t--start-building"
             height="38"
-            href={editorUrl}
             onClick={hideMessage}
             size={Size.large}
+            tag="button"
             text={createMessage(END_BUTTON_TEXT)}
-            type="button"
           />
         </Wrapper>
       </Container>

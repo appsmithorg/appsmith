@@ -105,6 +105,22 @@
                         "bottomRow": 7,
                         "parentId": "7tkpo9s22m",
                         "widgetId": "6h8j08u7ea"
+                      },
+                      {
+                        "isVisible": true,
+                        "text": "Label",
+                        "textAlign": "LEFT",
+                        "widgetName": "Text1",
+                        "type": "TEXT_WIDGET",
+                        "isLoading": false,
+                        "parentColumnSpace": 71.75,
+                        "parentRowSpace": 38,
+                        "leftColumn": 3,
+                        "rightColumn": 5,
+                        "topRow": 10,
+                        "bottomRow": 12,
+                        "parentId": "bxekwxgc1i",
+                        "widgetId": "9xcfqahpw2"
                       }
                     ],
                     "widgetId": "7tkpo9s22m",

@@ -11,7 +11,7 @@ import {
   getCurrentAppOrg,
 } from "selectors/organizationSelectors";
 import Spinner from "components/editorComponents/Spinner";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { InviteUsersToOrgFormValues, inviteUsersToOrg } from "./helpers";
 import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
 import {
@@ -38,7 +38,7 @@ import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "./ManageUsers";
 import ScrollIndicator from "components/ads/ScrollIndicator";
-import UserApi from "api/UserApi";
+import UserApi from "@appsmith/api/UserApi";
 import { Colors } from "constants/Colors";
 
 const CommonTitleTextStyle = css`
@@ -125,7 +125,7 @@ const UserRole = styled.div`
   flex-basis: 25%;
   flex-shrink: 0;
   .${Classes.TEXT} {
-    color: ${(props) => props.theme.colors.modal.headerText};
+    color: ${Colors.COD_GRAY};
   }
 `;
 
@@ -138,6 +138,14 @@ const UserName = styled.div`
 
     &:nth-child(1) {
       margin-bottom: 1px;
+    }
+
+    &[type="h5"] {
+      color: ${Colors.COD_GRAY};
+    }
+
+    &[type="p2"] {
+      color: ${Colors.GRAY};
     }
   }
 `;
@@ -155,8 +163,8 @@ const Loading = styled(Spinner)`
 const MailConfigContainer = styled.div`
   display: flex;
   flex-direction: column;
-  padding: ${(props) => props.theme.spaces[9]}px
-    ${(props) => props.theme.spaces[2]}px;
+  padding: 24px 4px;
+  padding-bottom: 0;
   align-items: center;
   && > span {
     color: ${(props) => props.theme.colors.modal.email.message};

@@ -13,14 +13,14 @@ import {
   CONNECTING_REPO,
   createMessage,
   GENERATE_KEY,
+  IMPORT_BTN_LABEL,
+  IMPORT_FROM_GIT_REPOSITORY,
+  IMPORTING_APP_FROM_GIT,
   LEARN_MORE,
   PASTE_SSH_URL_INFO,
   REMOTE_URL,
   REMOTE_URL_INFO,
   REMOTE_URL_INPUT_PLACEHOLDER,
-  IMPORT_FROM_GIT_REPOSITORY,
-  IMPORT_BTN_LABEL,
-  IMPORTING_APP_FROM_GIT,
   UPDATE_CONFIG,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
@@ -29,7 +29,6 @@ import UserGitProfileSettings from "../components/UserGitProfileSettings";
 import { AUTH_TYPE_OPTIONS } from "../constants";
 import { Colors } from "constants/Colors";
 import Button, { Category, Size } from "components/ads/Button";
-import { useGitConnect, useSSHKeyPair } from "../hooks";
 import { useDispatch, useSelector } from "react-redux";
 import copy from "copy-to-clipboard";
 import {
@@ -54,11 +53,11 @@ import {
   getGlobalGitConfig,
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
+  getIsImportingApplicationViaGit,
   getLocalGitConfig,
   getRemoteUrlDocUrl,
   getTempRemoteUrl,
   getUseGlobalProfile,
-  getIsImportingApplicationViaGit,
 } from "selectors/gitSyncSelectors";
 import Statusbar, {
   StatusbarWrapper,
@@ -70,6 +69,8 @@ import Link from "../components/Link";
 import TooltipComponent from "components/ads/Tooltip";
 import Icon, { IconSize } from "components/ads/Icon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { isValidGitRemoteUrl } from "../utils";
+import { useGitConnect, useSSHKeyPair } from "../hooks";
 
 export const UrlOptionContainer = styled.div`
   display: flex;
@@ -122,11 +123,12 @@ const RemoteUrlInfoWrapper = styled.div`
 const Section = styled.div``;
 
 const StickyMenuWrapper = styled.div`
-  position: sticky;
+  position: static;
   top: 0px;
   height: fit-content;
   z-index: 9999;
   background: white;
+  margin-right: 10px;
 `;
 
 const TooltipWrapper = styled.div`
@@ -140,12 +142,6 @@ const TooltipWrapper = styled.div`
 
 // v1 only support SSH
 const selectedAuthType = AUTH_TYPE_OPTIONS[0];
-const HTTP_LITERAL = "https";
-
-const SSH_INIT_FORMAT_REGEX = new RegExp(/^(ssh|.+@).*/);
-
-const remoteUrlIsInvalid = (value: string) =>
-  value.startsWith(HTTP_LITERAL) || !SSH_INIT_FORMAT_REGEX.test(value);
 
 type AuthorInfo = {
   authorName: string;
@@ -263,7 +259,7 @@ function GitConnection({ isImport }: Props) {
   }, [authorInfo.authorEmail, authorInfo.authorName, localGitConfig]);
 
   const remoteUrlChangeHandler = (value: string) => {
-    const isInvalid = remoteUrlIsInvalid(value);
+    const isInvalid = !isValidGitRemoteUrl(value);
     setIsValidRemoteUrl(isInvalid);
     setRemoteUrl(value);
     dispatch(remoteUrlInputValue({ tempRemoteUrl: value }));
@@ -392,7 +388,7 @@ function GitConnection({ isImport }: Props) {
   }, []);
 
   return (
-    <Container ref={scrollWrapperRef}>
+    <Container data-test="t--git-connection-container" ref={scrollWrapperRef}>
       <Section>
         <StickyMenuWrapper>
           <Title>
@@ -402,7 +398,7 @@ function GitConnection({ isImport }: Props) {
           </Title>
           <Subtitle>{createMessage(CONNECT_TO_GIT_SUBTITLE)}</Subtitle>
         </StickyMenuWrapper>
-        <UrlOptionContainer>
+        <UrlOptionContainer data-test="t--remote-url-container">
           <Text color={Colors.GREY_9} type={TextType.P1}>
             {createMessage(REMOTE_URL)}
           </Text>

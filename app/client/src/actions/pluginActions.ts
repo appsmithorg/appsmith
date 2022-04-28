@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ReduxActionWithoutPayload,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { PluginFormPayload } from "api/PluginApi";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 
@@ -23,6 +23,7 @@ export type PluginFormsPayload = {
   editorConfigs: Record<string, any[]>;
   settingConfigs: Record<string, any[]>;
   dependencies: Record<string, DependencyMap>;
+  datasourceFormButtonConfigs: Record<string, string[]>;
 };
 
 export const fetchPluginFormConfigsSuccess = (

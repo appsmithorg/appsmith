@@ -1,13 +1,10 @@
-import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
-import { HomePage } from "../../../../support/Pages/HomePage";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry"
 
-const agHelper = new AggregateHelper();
-const homePage = new HomePage();
+let orgid: any, appid: any;
+let agHelper = ObjectsRegistry.AggregateHelper,
+    homePage = ObjectsRegistry.HomePage;
 
 describe("Create new org and invite user & validate all roles", () => {
-    let orgid: any;
-    let appid: any;
-
     it("1. Create new Organization, Share with a user from UI & verify", () => {
         homePage.NavigateToHome()
         agHelper.GenerateUUID()
@@ -18,7 +15,7 @@ describe("Create new org and invite user & validate all roles", () => {
             homePage.CreateNewOrg(orgid)
             homePage.CheckOrgShareUsersCount(orgid, 1);
             homePage.InviteUserToOrg(orgid, Cypress.env("TESTUSERNAME1"), 'App Viewer');
-            cy.get(homePage._visibleTextSpan('MANAGE USERS')).click({ force: true })
+            cy.xpath(homePage._visibleTextSpan('MANAGE USERS')).click({ force: true })
             homePage.NavigateToHome()
             homePage.CheckOrgShareUsersCount(orgid, 2);
             homePage.CreateAppInOrg(orgid, appid);

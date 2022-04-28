@@ -32,7 +32,7 @@ describe("Test Create Api and Bind to Table widget", function() {
   it("Test_Validate the Api data is updated on List widget", function() {
     cy.SearchEntityandOpen("List1");
     cy.testJsontext("items", "{{Api1.data.users}}");
-    cy.get(".t--draggable-textwidget span").should("have.length.gte", 8);
+    cy.get(".t--draggable-textwidget span").should("have.length", 8);
     cy.get(".t--draggable-textwidget span")
       .first()
       .invoke("text")
@@ -50,7 +50,7 @@ describe("Test Create Api and Bind to Table widget", function() {
       },
     ).then(() => cy.wait(500));
 
-    cy.get(".t--widget-textwidget span").should("have.length.gte", 8);
+    cy.get(".t--widget-textwidget span").should("have.length", 8);
     cy.get(".t--widget-textwidget span")
       .first()
       .invoke("text")
@@ -63,7 +63,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
     cy.SearchEntityandOpen("List1");
     cy.testJsontext("itemspacing\\(px\\)", "50");
-    cy.get(".t--draggable-textwidget span").should("have.length.gte", 6);
+    cy.get(".t--draggable-textwidget span").should("have.length", 6);
     cy.get(".t--draggable-textwidget span")
       .first()
       .invoke("text")
@@ -79,7 +79,7 @@ describe("Test Create Api and Bind to Table widget", function() {
         interval: 1000,
       },
     ).then(() => cy.wait(500));
-    cy.get(".t--widget-textwidget span").should("have.length.gte", 6);
+    cy.get(".t--widget-textwidget span").should("have.length", 6);
     cy.get(".t--widget-textwidget span")
       .first()
       .invoke("text")

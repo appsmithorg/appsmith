@@ -20,6 +20,7 @@
     "selectwidget": ".t--widget-selectwidget",
     "textWidget": ".t--draggable-textwidget",
     "tableWidget": ".t--draggable-tablewidget",
+    "jsonFormWidget": ".t--draggable-jsonformwidget",
     "tableOnRowSelected": ".t--property-control-onrowselected",
     "dropdownSelectButton": ".t--open-dropdown-Select",
     "buttonOnClick": ".t--property-control-onclick .bp3-popover-target",

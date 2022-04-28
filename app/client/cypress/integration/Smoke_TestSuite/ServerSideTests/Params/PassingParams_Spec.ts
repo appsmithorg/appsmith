@@ -1,12 +1,13 @@
-import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
-import { JSEditor } from "../../../../support/Pages/JSEditor";
-import { DataSources } from "../../../../support/Pages/DataSources";
-import { CommonLocators } from "../../../../support/Objects/CommonLocators";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry"
 
-const agHelper = new AggregateHelper();
-const jsEditor = new JSEditor();
-const dataSources = new DataSources();
-const locator = new CommonLocators();
+let guid: any, jsName: any;
+let agHelper = ObjectsRegistry.AggregateHelper,
+  dataSources = ObjectsRegistry.DataSources,
+  jsEditor = ObjectsRegistry.JSEditor,
+  locator = ObjectsRegistry.CommonLocators,
+  ee = ObjectsRegistry.EntityExplorer,
+  table = ObjectsRegistry.Table,
+  apiPage = ObjectsRegistry.ApiPage;
 
 describe("[Bug] - 10784 - Passing params from JS to SQL query should not break", () => {
   before(() => {
@@ -15,10 +16,8 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     });
   });
 
-  let guid: any;
-
-  it("1. With Optional chaining : {{ this?.params?.condition }}", function() {
-    agHelper.NavigateToDSCreateNew();
+  it("1. With Optional chaining : {{ this?.params?.condition }}", function () {
+    dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("PostgreSQL");
     dataSources.FillPostgresDSForm();
     agHelper.GenerateUUID();
@@ -29,387 +28,204 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
       cy.log("ds name is :" + guid);
       dataSources.NavigateToActiveDSQueryPane(guid);
       agHelper.GetNClick(dataSources._templateMenu);
-      agHelper.RenameWithInPane("Params1");
+      agHelper.RenameWithInPane("ParamsTest");
       agHelper.EnterValue(
         "SELECT * FROM public.users where id = {{this?.params?.condition || '1=1'}} order by id",
       );
       jsEditor.CreateJSObject(
-        'Params1.run(() => {},() => {},{"condition": selRecordFilter.selectedOptionValue})',
+        'ParamsTest.run(() => {},() => {},{"condition": selRecordFilter.selectedOptionValue})', true, false, false
       );
     });
-    agHelper.expandCollapseEntity("WIDGETS");
-    agHelper.SelectEntityByName("Button1");
+    ee.SelectEntityByName("Button1", 'WIDGETS');
     cy.get("@jsObjName").then((jsObjName) => {
+      jsName = jsObjName;
       jsEditor.EnterJSContext(
-        "onclick",
+        "onClick",
         "{{" + jsObjName + ".myFun1()}}",
         true,
         true,
       );
     });
-    agHelper.SelectEntityByName("Table1");
-    jsEditor.EnterJSContext("tabledata", "{{Params1.data}}");
+    ee.SelectEntityByName("Table1");
+    jsEditor.EnterJSContext("Table Data", "{{ParamsTest.data}}");
 
+    ee.SelectEntityByName("ParamsTest", 'QUERIES/JS');
+    apiPage.DisableOnPageLoadRun()//Bug 12476
+
+    agHelper.DeployApp(locator._spanButton('Submit'))
+    agHelper.SelectDropDown("7");
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
-      expect(cellData).to.be.equal("8");
-    });
-
-    agHelper.SelectDropDown("selectwidget", "7");
-    agHelper.Sleep(2000);
-    agHelper.ClickButton("Submit");
-    agHelper.Sleep(2000);
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
+
+    agHelper.NavigateBacktoEditor()
   });
 
-  it("2. With Optional chaining : {{ (function() { return this?.params?.condition })() }}", function() {
-    dataSources.NavigateToActiveDSQueryPane(guid);
-    agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.RenameWithInPane("Params2");
+  it("2. With Optional chaining : {{ (function() { return this?.params?.condition })() }}", function () {
+    ee.SelectEntityByName("ParamsTest", 'QUERIES/JS');
     agHelper.EnterValue(
       "SELECT * FROM public.users where id = {{(function() { return this?.params?.condition })() || '1=1'}} order by id",
     );
-    jsEditor.CreateJSObject(
-      'Params2.run(() => {},() => {},{"condition": selRecordFilter.selectedOptionValue})',
-    );
-
-    agHelper.SelectEntityByName("Button1");
-    cy.get("@jsObjName").then((jsObjName) => {
-      jsEditor.EnterJSContext(
-        "onclick",
-        "{{" + jsObjName + ".myFun1()}}",
-        true,
-        true,
-      );
-    });
-    agHelper.SelectEntityByName("Table1");
-    jsEditor.EnterJSContext("tabledata", "{{Params2.data}}");
-
+    agHelper.DeployApp(locator._spanButton('Submit'))
+    agHelper.SelectDropDown("9");
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
-      expect(cellData).to.be.equal("7");
-    });
-
-    agHelper.SelectDropDown("selectwidget", "9");
-    agHelper.Sleep(2000);
-    agHelper.ClickButton("Submit");
-    agHelper.Sleep(2000);
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
+    agHelper.NavigateBacktoEditor()
   });
 
-  it("3. With Optional chaining : {{ (() => { return this?.params?.condition })() }}", function() {
-    dataSources.NavigateToActiveDSQueryPane(guid);
-    agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.RenameWithInPane("Params3");
+  it("3. With Optional chaining : {{ (() => { return this?.params?.condition })() }}", function () {
+    ee.SelectEntityByName("ParamsTest", 'QUERIES/JS');
     agHelper.EnterValue(
       "SELECT * FROM public.users where id = {{(() => { return this?.params?.condition })() || '1=1'}} order by id",
     );
-    jsEditor.CreateJSObject(
-      'Params3.run(() => {},() => {},{"condition": selRecordFilter.selectedOptionValue})',
-    );
-
-    agHelper.SelectEntityByName("Button1");
-    cy.get("@jsObjName").then((jsObjName) => {
-      jsEditor.EnterJSContext(
-        "onclick",
-        "{{" + jsObjName + ".myFun1()}}",
-        true,
-        true,
-      );
-    });
-    agHelper.SelectEntityByName("Table1");
-    jsEditor.EnterJSContext("tabledata", "{{Params3.data}}");
-
+    agHelper.DeployApp(locator._spanButton('Submit'))
+    agHelper.SelectDropDown("7");
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
-      expect(cellData).to.be.equal("9");
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
+      expect(cellData).to.be.equal("7");
     });
-
-    agHelper.SelectDropDown("selectwidget", "8");
-    agHelper.Sleep(2000);
-    agHelper.ClickButton("Submit");
-    agHelper.Sleep(2000);
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
-      expect(cellData).to.be.equal("8");
-    });
+    agHelper.NavigateBacktoEditor()
   });
 
-  it("4. With Optional chaining : {{ this?.params.condition }}", function() {
-    dataSources.NavigateToActiveDSQueryPane(guid);
-    agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.RenameWithInPane("Params4");
+  it("4. With Optional chaining : {{ this?.params.condition }}", function () {
+    ee.SelectEntityByName("ParamsTest", 'QUERIES/JS');
     agHelper.EnterValue(
       "SELECT * FROM public.users where id = {{this?.params.condition || '1=1'}} order by id",
     );
-    jsEditor.CreateJSObject(
-      'Params4.run(() => {},() => {},{"condition": selRecordFilter.selectedOptionValue})',
-    );
-
-    agHelper.SelectEntityByName("Button1");
-    cy.get("@jsObjName").then((jsObjName) => {
-      jsEditor.EnterJSContext(
-        "onclick",
-        "{{" + jsObjName + ".myFun1()}}",
-        true,
-        true,
-      );
-    });
-    agHelper.SelectEntityByName("Table1");
-    jsEditor.EnterJSContext("tabledata", "{{Params4.data}}");
-
+    agHelper.DeployApp(locator._spanButton('Submit'))
+    agHelper.SelectDropDown("9");
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
-      expect(cellData).to.be.equal("8");
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
+      expect(cellData).to.be.equal("9");
     });
-
-    agHelper.SelectDropDown("selectwidget", "7");
-    agHelper.Sleep(2000);
-    agHelper.ClickButton("Submit");
-    agHelper.Sleep(2000);
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
-      expect(cellData).to.be.equal("7");
-    });
+    agHelper.NavigateBacktoEditor()
   });
 
-  it("5. With Optional chaining : {{ (function() { return this?.params.condition })() }}", function() {
-    dataSources.NavigateToActiveDSQueryPane(guid);
-    agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.RenameWithInPane("Params5");
+  it("5. With Optional chaining : {{ (function() { return this?.params.condition })() }}", function () {
+    ee.SelectEntityByName("ParamsTest", 'QUERIES/JS');
     agHelper.EnterValue(
       "SELECT * FROM public.users where id = {{(function() { return this?.params.condition })() || '1=1'}} order by id",
     );
-    jsEditor.CreateJSObject(
-      'Params5.run(() => {},() => {},{"condition": selRecordFilter.selectedOptionValue})',
-    );
-
-    agHelper.SelectEntityByName("Button1");
-    cy.get("@jsObjName").then((jsObjName) => {
-      jsEditor.EnterJSContext(
-        "onclick",
-        "{{" + jsObjName + ".myFun1()}}",
-        true,
-        true,
-      );
-    });
-    agHelper.SelectEntityByName("Table1");
-    jsEditor.EnterJSContext("tabledata", "{{Params5.data}}");
-
+    agHelper.DeployApp(locator._spanButton('Submit'))
+    agHelper.SelectDropDown("7");
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
-
-    agHelper.SelectDropDown("selectwidget", "9");
-    agHelper.Sleep(2000);
-    agHelper.ClickButton("Submit");
-    agHelper.Sleep(2000);
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
-      expect(cellData).to.be.equal("9");
-    });
+    agHelper.NavigateBacktoEditor()
   });
 
-  it("6. With Optional chaining : {{ (() => { return this?.params.condition })() }}", function() {
-    dataSources.NavigateToActiveDSQueryPane(guid);
-    agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.RenameWithInPane("Params6");
+  it("6. With Optional chaining : {{ (() => { return this?.params.condition })() }}", function () {
+    ee.SelectEntityByName("ParamsTest", 'QUERIES/JS');
     agHelper.EnterValue(
       "SELECT * FROM public.users where id = {{(() => { return this?.params.condition })() || '1=1'}} order by id",
     );
-    jsEditor.CreateJSObject(
-      'Params6.run(() => {},() => {},{"condition": selRecordFilter.selectedOptionValue})',
-    );
-
-    agHelper.SelectEntityByName("Button1");
-    cy.get("@jsObjName").then((jsObjName) => {
-      jsEditor.EnterJSContext(
-        "onclick",
-        "{{" + jsObjName + ".myFun1()}}",
-        true,
-        true,
-      );
-    });
-    agHelper.SelectEntityByName("Table1");
-    jsEditor.EnterJSContext("tabledata", "{{Params6.data}}");
-
+    agHelper.DeployApp(locator._spanButton('Submit'))
+    agHelper.SelectDropDown("9");
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
-
-    agHelper.SelectDropDown("selectwidget", "8");
-    agHelper.Sleep(2000);
-    agHelper.ClickButton("Submit");
-    agHelper.Sleep(2000);
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
-      expect(cellData).to.be.equal("8");
-    });
+    agHelper.NavigateBacktoEditor()
   });
 
-  it("7. With No Optional chaining : {{ this.params.condition }}", function() {
-    dataSources.NavigateToActiveDSQueryPane(guid);
-    agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.RenameWithInPane("Params7");
+  it("7. With No Optional chaining : {{ this.params.condition }}", function () {
+    ee.SelectEntityByName("ParamsTest", 'QUERIES/JS');
     agHelper.EnterValue(
       "SELECT * FROM public.users where id = {{this.params.condition || '1=1'}} order by id",
     );
-    jsEditor.CreateJSObject(
-      'Params7.run(() => {},() => {},{"condition": selRecordFilter.selectedOptionValue})',
-    );
-
-    agHelper.SelectEntityByName("Button1");
-    cy.get("@jsObjName").then((jsObjName) => {
-      jsEditor.EnterJSContext(
-        "onclick",
-        "{{" + jsObjName + ".myFun1()}}",
-        true,
-        true,
-      );
-    });
-    agHelper.SelectEntityByName("Table1");
-    jsEditor.EnterJSContext("tabledata", "{{Params7.data}}");
-
+    agHelper.DeployApp(locator._spanButton('Submit'))
+    agHelper.SelectDropDown("7");
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
-      expect(cellData).to.be.equal("8");
-    });
-
-    agHelper.SelectDropDown("selectwidget", "7");
-    agHelper.Sleep(2000);
-    agHelper.ClickButton("Submit");
-    agHelper.Sleep(2000);
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
+    agHelper.NavigateBacktoEditor()
   });
 
-  it("8. With No Optional chaining : {{ (function() { return this.params.condition })() }}", function() {
-    dataSources.NavigateToActiveDSQueryPane(guid);
-    agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.RenameWithInPane("Params8");
+  it("8. With No Optional chaining : {{ (function() { return this.params.condition })() }}", function () {
+    ee.SelectEntityByName("ParamsTest", 'QUERIES/JS');
     agHelper.EnterValue(
       "SELECT * FROM public.users where id = {{(function() { return this.params.condition })() || '1=1'}} order by id",
     );
-    jsEditor.CreateJSObject(
-      'Params8.run(() => {},() => {},{"condition": selRecordFilter.selectedOptionValue})',
-    );
-
-    agHelper.SelectEntityByName("Button1");
-    cy.get("@jsObjName").then((jsObjName) => {
-      jsEditor.EnterJSContext(
-        "onclick",
-        "{{" + jsObjName + ".myFun1()}}",
-        true,
-        true,
-      );
-    });
-    agHelper.SelectEntityByName("Table1");
-    jsEditor.EnterJSContext("tabledata", "{{Params8.data}}");
-
+    agHelper.DeployApp(locator._spanButton('Submit'))
+    agHelper.SelectDropDown("8");
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
-      expect(cellData).to.be.equal("7");
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
+      expect(cellData).to.be.equal("8");
     });
-
-    agHelper.SelectDropDown("selectwidget", "9");
-    agHelper.Sleep(2000);
-    agHelper.ClickButton("Submit");
-    agHelper.Sleep(2000);
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
-      expect(cellData).to.be.equal("9");
-    });
+    agHelper.NavigateBacktoEditor()
   });
 
-  it("9. With No Optional chaining : {{ (() => { return this.params.condition })() }}", function() {
-    dataSources.NavigateToActiveDSQueryPane(guid);
-    agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.RenameWithInPane("Params9");
+  it("9. With No Optional chaining : {{ (() => { return this.params.condition })() }}", function () {
+    ee.SelectEntityByName("ParamsTest", 'QUERIES/JS');
     agHelper.EnterValue(
       "SELECT * FROM public.users where id = {{(() => { return this.params.condition })() || '1=1'}} order by id",
     );
-    jsEditor.CreateJSObject(
-      'Params9.run(() => {},() => {},{"condition": selRecordFilter.selectedOptionValue})',
-    );
-
-    agHelper.SelectEntityByName("Button1");
-    cy.get("@jsObjName").then((jsObjName) => {
-      jsEditor.EnterJSContext(
-        "onclick",
-        "{{" + jsObjName + ".myFun1()}}",
-        true,
-        true,
-      );
-    });
-    agHelper.SelectEntityByName("Table1");
-    jsEditor.EnterJSContext("tabledata", "{{Params9.data}}");
-
+    agHelper.DeployApp(locator._spanButton('Submit'))
+    agHelper.SelectDropDown("9");
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
-
-    agHelper.SelectDropDown("selectwidget", "8");
-    agHelper.Sleep(2000);
-    agHelper.ClickButton("Submit");
-    agHelper.Sleep(2000);
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
-      expect(cellData).to.be.equal("8");
-    });
+    agHelper.NavigateBacktoEditor()
   });
 
-  it("10. With Optional chaining : {{ this?.params?.condition }} && no optional paramter passed", function() {
-    dataSources.NavigateToActiveDSQueryPane(guid);
-    agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.RenameWithInPane("Params10");
+  it("10. With Optional chaining : {{ this.params.condition }} && direct paramter passed", function () {
+    ee.SelectEntityByName("ParamsTest", 'QUERIES/JS');
     agHelper.EnterValue(
       "SELECT * FROM public.users where id = {{(() => { return this.params.condition })() || '7'}} order by id",
     );
-    jsEditor.CreateJSObject(
-      'Params10.run(() => {},() => {},{"condition": selRecordFilter.selectedOptionValue})',
-    );
 
-    agHelper.SelectEntityByName("Button1");
-    cy.get("@jsObjName").then((jsObjName) => {
-      jsEditor.EnterJSContext(
-        "onclick",
-        "{{" + jsObjName + ".myFun1()}}",
-        true,
-        true,
-      );
-    });
-    agHelper.SelectEntityByName("Table1");
-    jsEditor.EnterJSContext("tabledata", "{{Params10.data}}");
-
-    //When No selected option passed
-    cy.xpath(locator._selectWidgetDropdown("selectwidget")).within(() =>
+    agHelper.DeployApp(locator._spanButton('Submit'))
+    //Verifh when No selected option passed
+    cy.xpath(locator._selectWidgetDropdownInDeployed("selectwidget")).within(() =>
       cy.get(locator._crossBtn).click(),
     );
     agHelper.ClickButton("Submit");
-    agHelper.Sleep(2000);
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    agHelper.ReadTableRowColumnData(0, 0).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
+    agHelper.NavigateBacktoEditor()
+
+  });
+
+  it("11. With Optional chaining : {{ this.params.condition }} && no optional paramter passed", function () {
+    ee.SelectEntityByName("ParamsTest", 'QUERIES/JS');
+    agHelper.EnterValue(
+      "SELECT * FROM public.users where id = {{(() => { return this.params.condition })()}} order by id",
+    );
+    agHelper.DeployApp(locator._spanButton('Submit'))
+    agHelper.ClickButton("Submit");
+    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+      expect(cellData).to.be.equal("8");
+    });
+    agHelper.NavigateBacktoEditor()
+  });
+
+  it("12. Delete all entities - Query, JSObjects, Datasource + Bug 12532", () => {
+    ee.expandCollapseEntity('QUERIES/JS')
+    ee.ActionContextMenuByEntityName('ParamsTest', 'Delete', 'Are you sure?')
+    agHelper.ValidateNetworkStatus("@deleteAction", 200)
+    ee.ActionContextMenuByEntityName(jsName as string, 'Delete', 'Are you sure?')
+    agHelper.ValidateNetworkStatus("@deleteJSCollection", 200)
+    // //Bug 12532
+    // ee.expandCollapseEntity('DATASOURCES')
+    // ee.ActionContextMenuByEntityName(guid, 'Delete', 'Are you sure?')
+    // agHelper.ValidateNetworkStatus("@deleteAction", 200)
   });
 });

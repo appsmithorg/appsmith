@@ -41,6 +41,7 @@ export interface PluginFormPayload {
   editor: any[];
   setting: any[];
   dependencies: DependencyMap;
+  formButton: string[];
 }
 
 export interface DefaultPlugin {

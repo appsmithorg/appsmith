@@ -10,6 +10,7 @@
     "icon": "single-person",
     "slug": "app2896",
     "evaluationVersion": 2,
+    "applicationVersion": 2,
     "new": true
   },
   "datasourceList": [
