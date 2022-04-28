@@ -88,6 +88,9 @@ RUN chmod 0644 /etc/cron.d/*
 
 RUN chmod +x entrypoint.sh renew-certificate.sh
 
+# Disable setuid/setgid bits for the files inside container.
+RUN find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true
+
 # Update path to load appsmith utils tool as default
 ENV PATH /opt/appsmith/utils/node_modules/.bin:$PATH
 
