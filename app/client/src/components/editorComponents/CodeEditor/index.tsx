@@ -230,9 +230,6 @@ class CodeEditor extends Component<Props, State> {
   }
   componentDidMount(): void {
     if (this.codeEditorTarget.current) {
-      // const autoIndentKey = getAutoIndentShortcutKey();
-      // const isReadOnly = !this.props.input.onChange || this.props.disabled;
-      // const showLineNumbers = this.props.showLineNumbers;
       const options: EditorConfiguration = {
         autoRefresh: true,
         mode: this.props.mode,
