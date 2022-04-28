@@ -20,7 +20,10 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { getPageListAsOptions } from "selectors/entitiesSelector";
-import { getAutoIndentShortcutKeyText } from "../../../../components/editorComponents/CodeEditor/utils/autoIndentUtils";
+import {
+  autoIndentCode,
+  getAutoIndentShortcutKeyText,
+} from "../../../../components/editorComponents/CodeEditor/utils/autoIndentUtils";
 
 type EntityContextMenuProps = {
   id: string;
@@ -152,7 +155,10 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
           icon: "code",
           subText: prettifyCodeKeyboardShortCut,
           onSelect: () => {
-            console.log("here");
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            const editor = document.querySelector(".CodeMirror").CodeMirror;
+            autoIndentCode(editor);
           },
           label: "Prettify Code",
         },
