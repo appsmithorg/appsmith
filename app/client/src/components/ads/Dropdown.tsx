@@ -951,7 +951,16 @@ export default function Dropdown(props: DropdownProps) {
           e.preventDefault();
           if (isOpen) {
             if (props.isMultiSelect) {
-              setHighlight((x) => (x === 0 ? props.options.length - 1 : x - 1));
+              setHighlight((x) => {
+                const index = x < 1 ? props.options.length - 1 : x - 1;
+                document
+                  .querySelectorAll(".t--dropdown-option")
+                  [index]?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                  });
+                return index;
+              });
             } else {
               setSelected((prevSelected) => {
                 let index = findIndex(
@@ -960,6 +969,12 @@ export default function Dropdown(props: DropdownProps) {
                 );
                 if (index === 0) index = props.options.length - 1;
                 else index--;
+                document
+                  .querySelectorAll(".t--dropdown-option")
+                  [index]?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                  });
                 return props.options[index];
               });
             }
@@ -972,7 +987,16 @@ export default function Dropdown(props: DropdownProps) {
           e.preventDefault();
           if (isOpen) {
             if (props.isMultiSelect) {
-              setHighlight((x) => (x + 1 === props.options.length ? 0 : x + 1));
+              setHighlight((x) => {
+                const index = x + 1 === props.options.length ? 0 : x + 1;
+                document
+                  .querySelectorAll(".t--dropdown-option")
+                  [index]?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                  });
+                return index;
+              });
             } else {
               setSelected((prevSelected) => {
                 let index = findIndex(
@@ -981,6 +1005,12 @@ export default function Dropdown(props: DropdownProps) {
                 );
                 if (index === props.options.length - 1) index = 0;
                 else index++;
+                document
+                  .querySelectorAll(".t--dropdown-option")
+                  [index]?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                  });
                 return props.options[index];
               });
             }
