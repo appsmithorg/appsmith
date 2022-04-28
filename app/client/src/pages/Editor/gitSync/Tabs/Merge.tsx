@@ -37,7 +37,6 @@ import {
   getIsFetchingMergeStatus,
   getFetchingBranches,
   getIsMergeInProgress,
-  // getPullFailed,
 } from "selectors/gitSyncSelectors";
 import { fetchMergeStatusInit } from "actions/gitSyncActions";
 import MergeStatus, { MERGE_STATUS_STATE } from "../components/MergeStatus";
@@ -271,10 +270,15 @@ export default function Merge() {
       </Row>
       <MergeStatus message={mergeStatusMessage} status={status} />
       <Space size={10} />
-      <ConflictInfo
-        isConflicting={isConflicting}
-        learnMoreLink={gitConflictDocumentUrl}
-      />
+      {isConflicting && (
+        <ConflictInfo
+          browserSupportedRemoteUrl={
+            gitMetaData?.browserSupportedRemoteUrl || ""
+          }
+          learnMoreLink={gitConflictDocumentUrl}
+        />
+      )}
+
       {showMergeSuccessIndicator ? (
         <MergeSuccessIndicator />
       ) : (

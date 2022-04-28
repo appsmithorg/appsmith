@@ -249,7 +249,7 @@ public class PluginUtils {
             String nestedFieldName = String.join(".", trimmedFieldNames);
 
             // Now set the value from the new nested map using trimmed field name (without the parent key)
-            setDataValueSafelyInFormData(nestedMap, nestedFieldName, value);
+            setValueSafelyInFormData(nestedMap, nestedFieldName, value);
         } else {
             // This is a top level field. Set the value
             formData.put(field, value);

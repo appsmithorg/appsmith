@@ -65,6 +65,9 @@ export type PropertyPaneControlConfig = {
   dependencies?: string[];
   evaluatedDependencies?: string[]; // dependencies to be picked from the __evaluated__ object
   expected?: CodeEditorExpected;
+  // TODO(abhinav): To fix this, rename the options property of the controls which use this
+  // Alternatively, create a new structure
+  options?: any;
 };
 
 type ValidationConfigParams = {
@@ -97,6 +100,7 @@ type ValidationConfigParams = {
   ignoreCase?: boolean; //to ignore the case of key
   type?: ValidationTypes; // Used for ValidationType.TABLE_PROPERTY to define sub type
   params?: ValidationConfigParams; // Used for ValidationType.TABLE_PROPERTY to define sub type params
+  limitLineBreaks?: boolean; // Used for ValidationType.TEXT to limit line breaks in a large json object.
 };
 
 export type ValidationConfig = {

@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 import { AppState } from "reducers";
 import Switch from "components/ads/Switch";
 import Spinner from "components/editorComponents/Spinner";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const ShareWithPublicOption = styled.div`

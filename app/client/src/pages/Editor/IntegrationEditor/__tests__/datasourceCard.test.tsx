@@ -1,5 +1,5 @@
 import React from "react";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import store from "store";
 import { render } from "test/testUtils";
 import DatasourceCard from "../DatasourceCard";

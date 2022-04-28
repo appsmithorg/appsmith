@@ -41,9 +41,10 @@ import reactor.util.function.Tuple2;
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -120,6 +121,9 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
         return datasourceWithPoliciesMono
                 .flatMap(this::validateAndSaveDatasourceToRepository)
+                .flatMap(savedDatasource ->
+                    analyticsService.sendCreateEvent(savedDatasource, getAnalyticsProperties(savedDatasource))
+                )
                 .flatMap(this::populateHintMessages); // For REST API datasource create flow.
     }
 
@@ -202,6 +206,9 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     return dbDatasource;
                 })
                 .flatMap(this::validateAndSaveDatasourceToRepository)
+                .flatMap(savedDatasource ->
+                        analyticsService.sendUpdateEvent(savedDatasource, getAnalyticsProperties(savedDatasource))
+                )
                 .flatMap(this::populateHintMessages);
     }
 
@@ -247,7 +254,12 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                         invalids.addAll(pluginExecutor.validateDatasource(datasourceConfiguration));
                     }
 
-                    return Mono.just(datasource);
+                    return pluginMono.map(plugin -> {
+                        // setting the plugin name to datasource.
+                        // this is required in analytics events for datasource e.g. create ds, update ds
+                        datasource.setPluginName(plugin.getName());
+                        return datasource;
+                    });
                 });
     }
 
@@ -281,10 +293,15 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 .flatMap(this::validateDatasource)
                 .zipWith(currentUserMono)
                 .flatMap(tuple -> {
-                    Datasource savedDatasource = tuple.getT1();
+                    Datasource unsavedDatasource = tuple.getT1();
                     User user = tuple.getT2();
-                    Datasource userPermissionsInDatasource = repository.setUserPermissionsInObject(savedDatasource, user);
-                    return repository.save(userPermissionsInDatasource);
+                    Datasource userPermissionsInDatasource = repository.setUserPermissionsInObject(unsavedDatasource, user);
+                    return repository.save(userPermissionsInDatasource).map(savedDatasource -> {
+                        // datasource.pluginName is a transient field. It was set by validateDatasource method
+                        // object from db will have pluginName=null so set it manually from the unsaved datasource obj
+                        savedDatasource.setPluginName(unsavedDatasource.getPluginName());
+                        return savedDatasource;
+                    });
                 });
     }
 
@@ -411,4 +428,11 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         return this.archiveById(id);
     }
 
+    private Map<String, Object> getAnalyticsProperties(Datasource datasource) {
+        Map<String, Object> analyticsProperties = new HashMap<>();
+        analyticsProperties.put("orgId", datasource.getOrganizationId());
+        analyticsProperties.put("pluginName", datasource.getPluginName());
+        analyticsProperties.put("dsName", datasource.getName());
+        return analyticsProperties;
+    }
 }

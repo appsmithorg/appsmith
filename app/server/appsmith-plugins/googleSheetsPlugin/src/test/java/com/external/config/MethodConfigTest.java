@@ -1,11 +1,12 @@
 package com.external.config;
 
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 public class MethodConfigTest {
 
@@ -36,18 +37,55 @@ public class MethodConfigTest {
 
                 switch (testPropKeys[i]) {
                     case "range":
-                        Assert.assertEquals(methodConfig.getSpreadsheetRange(), e.getKey());
+                        assertEquals(methodConfig.getSpreadsheetRange(), e.getKey());
                         break;
                     case "tableHeaderIndex":
-                        Assert.assertEquals(methodConfig.getTableHeaderIndex(), e.getKey());
+                        assertEquals(methodConfig.getTableHeaderIndex(), e.getKey());
                         break;
                     case "rowIndex":
-                        Assert.assertEquals(methodConfig.getRowIndex(), e.getKey());
+                        assertEquals(methodConfig.getRowIndex(), e.getKey());
                         break;
                 }
 
             }
         }
     }
+
+//    @Test
+//    public void testInitialEmptyWhereCondition() {
+//        Map condition = new LinkedHashMap();
+//        condition.put(PATH_KEY, "");
+//        condition.put(VALUE_KEY, "");
+//
+//        List<Map> listOfConditions = new ArrayList<>();
+//        listOfConditions.add(condition);
+//
+//        Property property = new Property("where", listOfConditions);
+//        List<Property> propertyList = new ArrayList();
+//        propertyList.add(property);
+//
+//        MethodConfig methodConfig = new MethodConfig(propertyList);
+//        List<Condition> parsedWhereConditions = methodConfig.getWhereConditions();
+//        assertEquals(0, parsedWhereConditions.size());
+//    }
+//
+//    @Test(expected = AppsmithPluginException.class)
+//    public void testNonEmptyOperatorWithEmptyColumnWhereCondition() {
+//        Map condition = new LinkedHashMap();
+//        condition.put(PATH_KEY, "");
+//        condition.put(OPERATOR_KEY, "EQ");
+//        condition.put(VALUE_KEY, "");
+//
+//        List<Map> listOfConditions = new ArrayList<>();
+//        listOfConditions.add(condition);
+//
+//        Property property = new Property("where", listOfConditions);
+//        List<Property> propertyList = new ArrayList();
+//        propertyList.add(property);
+//
+//        MethodConfig methodConfig = new MethodConfig(propertyList);
+//        List<Condition> parsedWhereConditions = methodConfig.getWhereConditions();
+//        assertEquals(0, parsedWhereConditions.size());
+//    }
 }
 

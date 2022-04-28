@@ -8,7 +8,6 @@ const LargeTemplate = styled(TemplateLayout)`
   display: flex;
   flex: 1;
   flex-direction: column;
-  max-width: 50%;
   cursor: pointer;
   &:hover {
     box-shadow: 0px 20px 24px -4px rgba(16, 24, 40, 0.1),
@@ -30,21 +29,9 @@ const LargeTemplate = styled(TemplateLayout)`
   }
 
   .image-wrapper {
-    padding: ${(props) =>
-      `${props.theme.spaces[9]}px ${props.theme.spaces[11]}px ${props.theme.spaces[0]}px`};
     transition: all 1s ease-out;
     width: 100%;
     height: 270px;
-  }
-
-  .fork-button {
-    height: 38px;
-    width: 38px;
-
-    svg {
-      height: 18px;
-      width: 18px;
-    }
   }
 `;
 

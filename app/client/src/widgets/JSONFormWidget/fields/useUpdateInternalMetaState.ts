@@ -1,34 +1,49 @@
-import { set } from "lodash";
-import { useContext, useEffect } from "react";
+import { debounce, set } from "lodash";
+import { useMemo, useContext, useCallback } from "react";
+import { klona } from "klona";
 
+import { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
 import FormContext from "../FormContext";
-
-const clone = require("rfdc/default");
 
 export type UseUpdateInternalMetaStateProps = {
   propertyName?: string;
-  propertyValue?: string | number;
 };
+
+const DEBOUNCE_TIMEOUT = 100;
 
 function useUpdateInternalMetaState({
   propertyName,
-  propertyValue,
 }: UseUpdateInternalMetaStateProps) {
   const { setMetaInternalFieldState } = useContext(FormContext);
 
-  useEffect(() => {
-    if (propertyName) {
-      setMetaInternalFieldState((prevState) => {
-        const metaInternalFieldState = clone(prevState.metaInternalFieldState);
-        set(metaInternalFieldState, propertyName, propertyValue);
+  const updateProperty = useCallback(
+    (
+      propertyValue: unknown,
+      afterUpdateAction?: DebouncedExecuteActionPayload,
+    ) => {
+      if (propertyName) {
+        setMetaInternalFieldState((prevState) => {
+          const metaInternalFieldState = klona(
+            prevState.metaInternalFieldState,
+          );
+          set(metaInternalFieldState, propertyName, propertyValue);
 
-        return {
-          ...prevState,
-          metaInternalFieldState,
-        };
-      });
-    }
-  }, [propertyName, propertyValue, setMetaInternalFieldState]);
+          return {
+            ...prevState,
+            metaInternalFieldState,
+          };
+        }, afterUpdateAction);
+      }
+    },
+    [setMetaInternalFieldState, propertyName],
+  );
+
+  const debouncedUpdateProperty = useMemo(
+    () => debounce(updateProperty, DEBOUNCE_TIMEOUT),
+    [updateProperty],
+  );
+
+  return [debouncedUpdateProperty];
 }
 
 export default useUpdateInternalMetaState;

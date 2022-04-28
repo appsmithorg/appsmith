@@ -3,22 +3,17 @@ import React, { ReactNode } from "react";
 import { connect } from "react-redux";
 
 import { UIElementSize } from "components/editorComponents/ResizableUtils";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import ModalComponent from "../component";
-import {
-  RenderMode,
-  MAIN_CONTAINER_WIDGET_ID,
-  WIDGET_PADDING,
-} from "constants/WidgetConstants";
+import { RenderMode, WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
 import { AppState } from "reducers";
-import { getWidget } from "sagas/selectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
-import { snipingModeSelector } from "selectors/editorSelectors";
+import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
 import { deselectAllInitAction } from "actions/widgetSelectionActions";
 import { ValidationTypes } from "constants/WidgetValidation";
 
@@ -81,7 +76,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   };
 
   getMaxModalWidth() {
-    return this.props.mainContainer.rightColumn * 0.95;
+    return this.props.mainCanvasWidth * 0.95;
   }
 
   getModalWidth(width: number) {
@@ -241,7 +236,7 @@ export interface ModalWidgetProps extends WidgetProps {
   shouldScrollContents?: boolean;
   size: string;
   onClose: string;
-  mainContainer: WidgetProps;
+  mainCanvasWidth: number;
 }
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -267,7 +262,7 @@ const mapDispatchToProps = (dispatch: any) => ({
 
 const mapStateToProps = (state: AppState) => {
   const props = {
-    mainContainer: getWidget(state, MAIN_CONTAINER_WIDGET_ID),
+    mainCanvasWidth: getCanvasWidth(state),
     isCommentMode: commentModeSelector(state),
     isSnipingMode: snipingModeSelector(state),
     selectedWidget: state.ui.widgetDragResize.lastSelectedWidget,

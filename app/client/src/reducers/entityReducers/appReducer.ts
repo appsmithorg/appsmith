@@ -1,5 +1,8 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { User } from "constants/userConstants";
 import { APP_MODE } from "entities/App";
 

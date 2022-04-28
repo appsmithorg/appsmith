@@ -9,8 +9,7 @@ import BottomBar from "./BottomBar";
 import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
 import WidgetsEditor from "./WidgetsEditor";
 import { updateExplorerWidthAction } from "actions/explorerActions";
-import { BUILDER_CHECKLIST_URL, BUILDER_URL } from "constants/routes";
-import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
+import { BUILDER_PATH, BUILDER_PATH_DEPRECATED } from "constants/routes";
 import EntityExplorerSidebar from "components/editorComponents/Sidebar";
 import classNames from "classnames";
 import { previewModeSelector } from "selectors/editorSelectors";
@@ -63,12 +62,12 @@ function MainContainer() {
           className="relative flex flex-col w-full overflow-auto"
           id="app-body"
         >
-          <Switch key={BUILDER_URL}>
-            <SentryRoute component={WidgetsEditor} exact path={BUILDER_URL} />
+          <Switch key={BUILDER_PATH}>
+            <SentryRoute component={WidgetsEditor} exact path={BUILDER_PATH} />
             <SentryRoute
-              component={OnboardingChecklist}
+              component={WidgetsEditor}
               exact
-              path={BUILDER_CHECKLIST_URL}
+              path={BUILDER_PATH_DEPRECATED}
             />
             <SentryRoute component={EditorsRouter} />
           </Switch>

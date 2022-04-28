@@ -6,7 +6,6 @@ import {
 } from "selectors/editorSelectors";
 import Entity, { EntityClassNames } from "../Entity";
 import history from "utils/history";
-import { BUILDER_PAGE_URL, PAGE_LIST_EDITOR_URL } from "constants/routes";
 import { createPage, updatePage } from "actions/pageActions";
 import {
   hiddenPageIcon,
@@ -20,7 +19,7 @@ import {
   ADD_PAGE_TOOLTIP,
   PAGE_PROPERTIES_TOOLTIP,
 } from "@appsmith/constants/messages";
-import { Page } from "constants/ReduxActionConstants";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { Position } from "@blueprintjs/core";
@@ -32,6 +31,7 @@ import { resolveAsSpaceChar } from "utils/helpers";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { selectAllPages } from "selectors/entitiesSelector";
+import { builderURL, pageListEditorURL } from "RouteBuilder";
 import { saveExplorerStatus, getExplorerStatus } from "../helpers";
 
 const StyledEntity = styled(Entity)`
@@ -54,7 +54,7 @@ const StyledEntity = styled(Entity)`
 
 function Pages() {
   const applicationId = useSelector(getCurrentApplicationId);
-  const pages = useSelector(selectAllPages);
+  const pages: Page[] = useSelector(selectAllPages);
   const currentPageId = useSelector(getCurrentPageId);
   const pinned = useSelector(getExplorerPinned);
   const dispatch = useDispatch();
@@ -64,14 +64,14 @@ function Pages() {
     document.getElementsByClassName("activePage")[0]?.scrollIntoView();
   }, [currentPageId]);
 
-  const switchPage = useCallback(
-    (pageId) => {
-      if (!!applicationId) {
-        history.push(BUILDER_PAGE_URL({ applicationId, pageId }));
-      }
-    },
-    [applicationId],
-  );
+  const switchPage = useCallback((page: Page) => {
+    history.push(
+      builderURL({
+        pageSlug: page.slug as string,
+        pageId: page.pageId,
+      }),
+    );
+  }, []);
 
   const createPageCallback = useCallback(() => {
     const name = getNextEntityName(
@@ -107,12 +107,12 @@ function Pages() {
   }, [pinned, dispatch, setExplorerPinnedAction]);
 
   const onClickRightIcon = useCallback(() => {
-    history.push(PAGE_LIST_EDITOR_URL(applicationId, currentPageId));
-  }, [applicationId, currentPageId]);
+    history.push(pageListEditorURL({ pageId: currentPageId }));
+  }, [currentPageId]);
 
   const onPageListSelection = React.useCallback(
-    () => history.push(PAGE_LIST_EDITOR_URL(applicationId, currentPageId)),
-    [applicationId, currentPageId],
+    () => history.push(pageListEditorURL({ pageId: currentPageId })),
+    [currentPageId],
   );
 
   const onPageToggle = useCallback(
@@ -142,7 +142,7 @@ function Pages() {
 
         return (
           <StyledEntity
-            action={() => switchPage(page.pageId)}
+            action={() => switchPage(page)}
             className={`page ${isCurrentPage && "activePage"}`}
             contextMenu={contextMenu}
             entityId={page.pageId}

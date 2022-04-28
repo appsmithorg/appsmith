@@ -4,12 +4,12 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { getWidgetIcon } from "../ExplorerIcons";
 import WidgetContextMenu from "./WidgetContextMenu";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { useNavigateToWidget } from "./useNavigateToWidget";
+import WidgetIcon from "./WidgetIcon";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
@@ -80,6 +80,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
   const widgetsToExpand = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidgetAncestry,
   );
+  const icon = <WidgetIcon type={props.widgetType} />;
 
   const shouldExpand = widgetsToExpand.includes(props.widgetId);
 
@@ -129,7 +130,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
       contextMenu={showContextMenu && contextMenu}
       entityId={props.widgetId}
       highlight={lastSelectedWidget === props.widgetId}
-      icon={getWidgetIcon(props.widgetType)}
+      icon={icon}
       isDefaultExpanded={
         shouldExpand ||
         (!!props.searchKeyword && !!props.childWidgets) ||

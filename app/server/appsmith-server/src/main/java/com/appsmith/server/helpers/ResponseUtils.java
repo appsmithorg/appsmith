@@ -345,9 +345,9 @@ public class ResponseUtils {
         if (application.getClientSchemaVersion() == null || application.getServerSchemaVersion() == null
                 || (JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion())
                 && JsonSchemaVersions.serverVersion.equals(application.getServerSchemaVersion()))) {
-            application.setIsManualUpdate(true);
+            application.setIsAutoUpdate(false);
         } else {
-            application.setIsManualUpdate(false);
+            application.setIsAutoUpdate(true);
         }
         return application;
     }

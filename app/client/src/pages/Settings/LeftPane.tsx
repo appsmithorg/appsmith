@@ -1,10 +1,10 @@
 import { Colors } from "constants/Colors";
-import { getAdminSettingsCategoryUrl } from "constants/routes";
 import React from "react";
 import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
 import AdminConfig from "./config";
 import { Category } from "@appsmith/pages/AdminSettings/config/types";
+import { adminSettingsCategoryUrl } from "RouteBuilder";
 
 const Wrapper = styled.div`
   flex-basis: ${(props) =>
@@ -84,8 +84,11 @@ function Categories({
             className={`t--settings-category-${config.slug}`}
             to={
               !parentCategory
-                ? getAdminSettingsCategoryUrl(config.slug)
-                : getAdminSettingsCategoryUrl(parentCategory.slug, config.slug)
+                ? adminSettingsCategoryUrl({ category: config.slug })
+                : adminSettingsCategoryUrl({
+                    category: parentCategory.slug,
+                    subCategory: config.slug,
+                  })
             }
           >
             {config.title}

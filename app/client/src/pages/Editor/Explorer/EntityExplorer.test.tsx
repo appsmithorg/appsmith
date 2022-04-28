@@ -10,11 +10,17 @@ import { generateReactKey } from "utils/generators";
 import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
 import store from "store";
 import Datasources from "./Datasources";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { mockDatasources } from "./mockTestData";
 import { updateCurrentPage } from "actions/pageActions";
 
 jest.useFakeTimers();
+const pushState = jest.spyOn(window.history, "pushState");
+pushState.mockImplementation((state: any, title: any, url: any) => {
+  window.document.title = title;
+  window.location.pathname = url;
+});
+
 describe("Entity Explorer tests", () => {
   it("checks datasources section in explorer", () => {
     store.dispatch({

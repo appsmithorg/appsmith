@@ -1,10 +1,8 @@
 import { bindDataOnCanvas } from "actions/pluginActionActions";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import {
-  BUILDER_PAGE_URL,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-} from "constants/routes";
+import { updateURLFactory } from "RouteBuilder";
+import { builderURL, integrationEditorURL } from "RouteBuilder";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { INTEGRATION_TABS } from "constants/routes";
 import React from "react";
 import { Provider } from "react-redux";
 import { fireEvent, render, screen } from "test/testUtils";
@@ -48,6 +46,12 @@ describe("Checklist", () => {
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
+    updateURLFactory({
+      applicationSlug: initialState.ui.applications.currentApplication.slug,
+      applicationId: initialState.entities.pageList.applicationId,
+      pageSlug: initialState.entities.pageList.pages[0].slug,
+      pageId: initialState.entities.pageList.currentPageId,
+    });
   });
 
   afterEach(() => {
@@ -78,11 +82,9 @@ describe("Checklist", () => {
     expect(banner.length).toBe(0);
     fireEvent.click(datasourceButton[0]);
     expect(history).toHaveBeenCalledWith(
-      INTEGRATION_EDITOR_URL(
-        initialState.entities.pageList.applicationId,
-        initialState.entities.pageList.currentPageId,
-        INTEGRATION_TABS.NEW,
-      ),
+      integrationEditorURL({
+        selectedTab: INTEGRATION_TABS.NEW,
+      }),
     );
   });
 
@@ -95,11 +97,9 @@ describe("Checklist", () => {
     const actionButton = screen.queryAllByTestId("checklist-action-button");
     fireEvent.click(actionButton[0]);
     expect(history).toHaveBeenCalledWith(
-      INTEGRATION_EDITOR_URL(
-        initialState.entities.pageList.applicationId,
-        initialState.entities.pageList.currentPageId,
-        INTEGRATION_TABS.ACTIVE,
-      ),
+      integrationEditorURL({
+        selectedTab: INTEGRATION_TABS.ACTIVE,
+      }),
     );
   });
 
@@ -109,12 +109,7 @@ describe("Checklist", () => {
     expect(actionButton.length).toBe(0);
     const widgetButton = screen.queryAllByTestId("checklist-widget-button");
     fireEvent.click(widgetButton[0]);
-    expect(history).toHaveBeenCalledWith(
-      BUILDER_PAGE_URL({
-        applicationId: initialState.entities.pageList.applicationId,
-        pageId: initialState.entities.pageList.currentPageId,
-      }),
-    );
+    expect(history).toHaveBeenCalledWith(builderURL());
     expect(dispatch).toHaveBeenCalledWith({
       type: ReduxActionTypes.TOGGLE_ONBOARDING_WIDGET_SELECTION,
       payload: true,

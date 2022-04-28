@@ -2,10 +2,10 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 import homePage from "../../../../locators/HomePage";
-import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let ee = ObjectsRegistry.EntityExplorer;
 
 let datasourceName;
-const agHelper = new AggregateHelper();
 
 describe("Create a query with a mongo datasource, run, save and then delete the query", function() {
   beforeEach(() => {
@@ -228,7 +228,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
 
   it("9. Bug 7399: Validate Form based & Raw command based templates", function() {
     let id;
-    agHelper.expandCollapseEntity(`${datasourceName}`);
+    ee.expandCollapseEntity(`${datasourceName}`);
     cy.xpath(queryLocators.listingAndReviewContext)
       .invoke("show")
       .click({ force: true });

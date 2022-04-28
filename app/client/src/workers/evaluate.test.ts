@@ -27,6 +27,7 @@ describe("evaluateSync", () => {
     text: "value",
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     bindingPaths: {},
+    reactivePaths: {},
     triggerPaths: {},
     validationPaths: {},
     logBlackList: {},

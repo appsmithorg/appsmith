@@ -1,18 +1,14 @@
-import { Template } from "api/TemplatesApi";
+import { FilterKeys, Template } from "api/TemplatesApi";
 import Fuse from "fuse.js";
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
 import { getOrganizationCreateApplication } from "./applicationSelectors";
 import { getWidgetCards } from "./editorSelectors";
 import { getDefaultPlugins } from "./entitiesSelector";
-import {
-  functions as allIndustries,
-  useCases as allUseCases,
-} from "pages/Templates/constants";
 import { Filter } from "pages/Templates/Filters";
 
 const fuzzySearchOptions = {
-  keys: ["title", "id", "functions", "useCases"],
+  keys: ["title", "id", "datasources", "widgets"],
   shouldSort: true,
   threshold: 0.5,
   location: 0,
@@ -51,28 +47,44 @@ export const getTemplateFiltersLength = createSelector(
 
 export const isFetchingTemplatesSelector = (state: AppState) =>
   state.ui.templates.gettingAllTemplates;
+export const isFetchingTemplateSelector = (state: AppState) =>
+  state.ui.templates.gettingTemplate;
 
 export const getTemplateById = (id: string) => (state: AppState) => {
   return state.ui.templates.templates.find((template) => template.id === id);
 };
 
+export const getActiveTemplateSelector = (state: AppState) =>
+  state.ui.templates.activeTemplate;
+
 export const getFilteredTemplateList = createSelector(
   getTemplatesSelector,
   getTemplateFilterSelector,
-  (templates, templatesFilters) => {
-    if (Object.keys(templatesFilters).length) {
-      return templates.filter((template) => {
-        return Object.keys(templatesFilters).every((filterKey) => {
-          if (!templatesFilters[filterKey].length) return true;
+  getTemplateFiltersLength,
+  (templates, templatesFilters, numberOfFiltersApplied) => {
+    const result: Template[] = [];
 
-          return templatesFilters[filterKey].every((value: string) =>
-            template[filterKey as keyof Template].includes(value),
-          );
-        });
-      });
+    if (!numberOfFiltersApplied) {
+      return templates;
     }
 
-    return templates;
+    if (!Object.keys(templatesFilters).length) {
+      return templates;
+    }
+
+    Object.keys(templatesFilters).map((filter) => {
+      templates.map((template) => {
+        if (
+          template[filter as FilterKeys].some((templateFilter) => {
+            return templatesFilters[filter].includes(templateFilter);
+          })
+        ) {
+          result.push(template);
+        }
+      });
+    });
+
+    return result;
   },
 );
 
@@ -113,8 +125,6 @@ export const getFilterListSelector = createSelector(
   (widgetConfigs, allDatasources, templates) => {
     const filters: Record<string, Filter[]> = {
       datasources: [],
-      useCases: [],
-      functions: [],
       widgets: [],
     };
 
@@ -153,8 +163,6 @@ export const getFilterListSelector = createSelector(
     templates.map((template) => {
       filterFilters("datasources", allDatasources, template);
       filterFilters("widgets", allWidgets, template);
-      filterFilters("useCases", allUseCases, template);
-      filterFilters("functions", allIndustries, template);
     });
 
     return filters;

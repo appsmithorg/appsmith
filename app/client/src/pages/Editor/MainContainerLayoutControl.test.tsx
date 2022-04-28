@@ -6,7 +6,7 @@ import { Provider } from "react-redux";
 
 import { lightTheme } from "selectors/themeSelectors";
 import { ThemeProvider } from "constants/DefaultTheme";
-import store from "../../store";
+import store from "store";
 import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
 
 function navigateWithArrowKeys(key: string, noOfPresses: number) {

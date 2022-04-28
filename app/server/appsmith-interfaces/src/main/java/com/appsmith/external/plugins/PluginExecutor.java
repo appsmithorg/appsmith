@@ -208,4 +208,18 @@ public interface PluginExecutor<C> extends ExtensionPoint {
     default Mono<TriggerResultDTO> trigger(C connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
         return Mono.empty();
     }
+
+    /**
+     * This method coverts a plugin's form data to its native query. Currently, it is meant to help users
+     * switch easily from form based input to raw input mode by providing a readily available translation of the form
+     * data to raw query. It stores its result at the following two keys:
+     *   o formToNativeQuery.status: success / error
+     *   o formToNativeQuery.data: translated raw query if status is success or error message if status is error.
+     * Each plugin must override this method to provide their own translation logic.
+     * @param actionConfiguration
+     * @return modified actionConfiguration object after setting the two keys mentioned above in `formData`.
+     */
+    default ActionConfiguration extractAndSetNativeQueryFromFormData(ActionConfiguration actionConfiguration) {
+        return actionConfiguration;
+    }
 }

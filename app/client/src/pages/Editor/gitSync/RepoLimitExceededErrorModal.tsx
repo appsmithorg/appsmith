@@ -12,7 +12,6 @@ import {
 } from "actions/gitSyncActions";
 import Button, { Category, Size } from "components/ads/Button";
 import styled, { useTheme } from "styled-components";
-import { MENU_HEIGHT } from "./constants";
 import Text, { TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
 import {
@@ -39,7 +38,7 @@ import {
 import {
   ApplicationPayload,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import InfoWrapper from "./components/InfoWrapper";
 
@@ -55,7 +54,7 @@ const Container = styled.div`
 const BodyContainer = styled.div`
   display: flex;
   flex-direction: column;
-  height: calc(100% - ${MENU_HEIGHT}px);
+  height: 100%;
 `;
 
 const CloseBtnContainer = styled.div`
@@ -69,7 +68,7 @@ const ButtonContainer = styled.div`
 `;
 
 const ApplicationWrapper = styled.div`
-  margin-top: ${(props) => props.theme.spaces[7]}px;
+  margin-bottom: ${(props) => props.theme.spaces[7]}px;
   display: flex;
   justify-content: space-between;
 `;
@@ -78,10 +77,24 @@ const TextWrapper = styled.div`
   display: block;
 `;
 
-const StyledDialog = styled(Dialog)`
-  && .bp3-dialog-body {
-    margin-top: 0;
+const AppListContainer = styled.div`
+  height: calc(100% - 40px);
+  margin-top: 16px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  padding-right: 5px;
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(75, 72, 72, 0.5);
+    width: 4px;
+    border-radius: ${(props) => props.theme.radii[3]}px;
   }
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  position: relative;
 `;
 
 function RepoLimitExceededErrorModal() {
@@ -149,12 +162,13 @@ function RepoLimitExceededErrorModal() {
   };
 
   return (
-    <StyledDialog
+    <Dialog
       canEscapeKeyClose
       canOutsideClickClose
       className="t--git-repo-limited-modal"
       isOpen={isOpen}
       maxWidth={"900px"}
+      noModalBodyMarginTop
       onClose={onClose}
       width={"550px"}
     >
@@ -239,38 +253,40 @@ function RepoLimitExceededErrorModal() {
               />
             </div>
           </InfoWrapper>
-          {applications.map((application: ApplicationPayload) => {
-            const { gitApplicationMetadata } = application;
-            return (
-              <ApplicationWrapper
-                className="t--connected-app-wrapper"
-                key={application.id}
-              >
-                <div>
-                  <TextWrapper>
-                    <Text color={Colors.OXFORD_BLUE} type={TextType.H4}>
-                      {application.name}
-                    </Text>
-                  </TextWrapper>
-                  <TextWrapper>
-                    <Text color={Colors.OXFORD_BLUE} type={TextType.P3}>
-                      {gitApplicationMetadata?.remoteUrl}
-                    </Text>
-                  </TextWrapper>
-                </div>
-                <Link
-                  className="t--disconnect-link"
-                  color={Colors.CRIMSON}
-                  hasIcon
-                  link=""
-                  onClick={() =>
-                    openDisconnectGitModal(application.id, application.name)
-                  }
-                  text={createMessage(REVOKE_ACCESS)}
-                />
-              </ApplicationWrapper>
-            );
-          })}
+          <AppListContainer>
+            {applications.map((application: ApplicationPayload) => {
+              const { gitApplicationMetadata } = application;
+              return (
+                <ApplicationWrapper
+                  className="t--connected-app-wrapper"
+                  key={application.id}
+                >
+                  <div>
+                    <TextWrapper>
+                      <Text color={Colors.OXFORD_BLUE} type={TextType.H4}>
+                        {application.name}
+                      </Text>
+                    </TextWrapper>
+                    <TextWrapper>
+                      <Text color={Colors.OXFORD_BLUE} type={TextType.P3}>
+                        {gitApplicationMetadata?.remoteUrl}
+                      </Text>
+                    </TextWrapper>
+                  </div>
+                  <Link
+                    className="t--disconnect-link"
+                    color={Colors.CRIMSON}
+                    hasIcon
+                    link=""
+                    onClick={() =>
+                      openDisconnectGitModal(application.id, application.name)
+                    }
+                    text={createMessage(REVOKE_ACCESS)}
+                  />
+                </ApplicationWrapper>
+              );
+            })}
+          </AppListContainer>
         </BodyContainer>
         <CloseBtnContainer onClick={onClose}>
           <Icon
@@ -280,7 +296,7 @@ function RepoLimitExceededErrorModal() {
           />
         </CloseBtnContainer>
       </Container>
-    </StyledDialog>
+    </Dialog>
   );
 }
 

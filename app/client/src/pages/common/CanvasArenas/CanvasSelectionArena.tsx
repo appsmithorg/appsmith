@@ -20,7 +20,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { XYCord } from "./hooks/useCanvasDragging";
 import { theme } from "constants/DefaultTheme";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
-import { commentModeSelector } from "../../../selectors/commentsSelectors";
+import { commentModeSelector } from "selectors/commentsSelectors";
 import { StickyCanvasArena } from "./StickyCanvasArena";
 import { getAbsolutePixels } from "utils/helpers";
 

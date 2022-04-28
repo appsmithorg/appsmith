@@ -3,13 +3,10 @@ import React, {
   useState,
   useRef,
   useContext,
+  useMemo,
   useCallback,
 } from "react";
 import styled, { ThemeContext } from "styled-components";
-import {
-  getApplicationViewerPageURL,
-  BUILDER_PAGE_URL,
-} from "constants/routes";
 import {
   Card,
   Classes,
@@ -17,7 +14,7 @@ import {
   ICardProps,
   Position,
 } from "@blueprintjs/core";
-import { ApplicationPayload } from "constants/ReduxActionConstants";
+import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -61,6 +58,7 @@ import { Variant } from "components/ads/common";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 import { Colors } from "constants/Colors";
 import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
+import { builderURL, viewerURL } from "RouteBuilder";
 import history from "utils/history";
 
 type NameWrapperProps = {
@@ -441,6 +439,12 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const applicationId = props.application?.id;
   const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
 
+  const defaultPageSlug = useMemo(() => {
+    const pages = props.application.pages || [];
+    const defaultPage = pages.find((page) => page.isDefault);
+    return defaultPage?.slug || defaultPage?.name;
+  }, []);
+
   useEffect(() => {
     let colorCode;
     if (props.application.color) {
@@ -473,7 +477,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       moreActionItems.push({
         onSelect: forkApplicationInitiate,
         text: "Fork",
-        icon: "compasses-line",
+        icon: "fork-2",
         cypressSelector: "t--fork-app",
       });
     }
@@ -588,13 +592,26 @@ export function ApplicationCard(props: ApplicationCardProps) {
     initials += props.application.name[1].toUpperCase() || "";
   }
 
-  const viewApplicationURL = getApplicationViewerPageURL({
-    applicationId: applicationId,
-    pageId: props.application.defaultPageId,
+  // should show correct branch of application when edit mode
+  const params: any = {};
+  if (showGitBadge) {
+    params.branch = showGitBadge;
+  }
+  const viewApplicationURL = viewerURL({
+    applicationSlug: props.application.slug as string,
+    applicationVersion: props.application.applicationVersion,
+    pageSlug: defaultPageSlug || "page",
+    applicationId: props.application.id,
+    pageId: props.application.defaultPageId as string,
+    params,
   });
-  const editApplicationURL = BUILDER_PAGE_URL({
-    applicationId: applicationId,
-    pageId: props.application.defaultPageId,
+  const editApplicationURL = builderURL({
+    applicationSlug: props.application.slug as string,
+    applicationVersion: props.application.applicationVersion,
+    applicationId: props.application.id,
+    pageSlug: defaultPageSlug || "page",
+    pageId: props.application.defaultPageId as string,
+    params,
   });
 
   const appNameText = (

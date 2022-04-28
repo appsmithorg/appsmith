@@ -348,7 +348,81 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("14. Table-Delete Verification", function() {
+  it("14. Verify table column type button with button variant", function() {
+    // Open property pane
+    cy.openPropertyPane("tablewidget");
+    // Add new column in the table with name "CustomColumn"
+    cy.addColumn("CustomColumn");
+
+    cy.tableColumnDataValidation("customColumn2"); //To be updated later
+
+    cy.editColumn("customColumn2");
+    cy.changeColumnType("Button");
+    // default selected opts
+    cy.get(commonlocators.tableButtonVariant + " span[type='p1']").should(
+      "have.text",
+      "Primary",
+    );
+    cy.getTableDataSelector("1", "6").then((selector) => {
+      cy.get(selector + " button").should(
+        "have.css",
+        "background-color",
+        "rgb(3, 179, 101)",
+      );
+      cy.get(selector + " button > span").should(
+        "have.css",
+        "color",
+        "rgb(255, 255, 255)",
+      );
+    });
+    cy.selectDropdownValue(commonlocators.tableButtonVariant, "Secondary");
+    cy.get(commonlocators.tableButtonVariant + " span[type='p1']").should(
+      "have.text",
+      "Secondary",
+    );
+    cy.getTableDataSelector("1", "6").then((selector) => {
+      cy.get(selector + " button").should(
+        "have.css",
+        "background-color",
+        "rgba(0, 0, 0, 0)",
+      );
+      cy.get(selector + " button > span").should(
+        "have.css",
+        "color",
+        "rgb(3, 179, 101)",
+      );
+      cy.get(selector + " button").should(
+        "have.css",
+        "border",
+        "1px solid rgb(3, 179, 101)",
+      );
+    });
+    cy.selectDropdownValue(commonlocators.tableButtonVariant, "Tertiary");
+    cy.get(commonlocators.tableButtonVariant + " span[type='p1']").should(
+      "have.text",
+      "Tertiary",
+    );
+    cy.getTableDataSelector("1", "6").then((selector) => {
+      cy.get(selector + " button").should(
+        "have.css",
+        "background-color",
+        "rgba(0, 0, 0, 0)",
+      );
+      cy.get(selector + " button > span").should(
+        "have.css",
+        "color",
+        "rgb(3, 179, 101)",
+      );
+      cy.get(selector + " button").should(
+        "have.css",
+        "border",
+        "0px none rgb(24, 32, 38)",
+      );
+    });
+    cy.closePropertyPane();
+  });
+
+  it("15. Table-Delete Verification", function() {
     // Open property pane
     cy.openPropertyPane("tablewidget");
     // Delete the Table widget

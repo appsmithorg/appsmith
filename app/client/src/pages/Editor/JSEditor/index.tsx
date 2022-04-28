@@ -39,6 +39,7 @@ class JSEditor extends React.Component<Props> {
         <JsEditorForm jsAction={jsAction} settingsConfig={settingsConfig} />
       );
     }
+    return null;
   }
 }
 

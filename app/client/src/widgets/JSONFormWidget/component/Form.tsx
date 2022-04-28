@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { debounce, isEmpty } from "lodash";
 import { FormProvider, useForm } from "react-hook-form";
 import { Text } from "@blueprintjs/core";
+import { klona } from "klona";
 
 import useFixedFooter from "./useFixedFooter";
 import {
@@ -16,8 +17,6 @@ import { ROOT_SCHEMA_KEY, Schema } from "../constants";
 import { convertSchemaItemToFormData, schemaItemDefaultValue } from "../helper";
 import { TEXT_SIZES } from "constants/WidgetConstants";
 
-const clone = require("rfdc/default");
-
 export type FormProps<TValues = any> = PropsWithChildren<{
   backgroundColor?: string;
   disabledWhenInvalid?: boolean;
@@ -25,6 +24,7 @@ export type FormProps<TValues = any> = PropsWithChildren<{
   getFormData: () => TValues;
   hideFooter: boolean;
   isSubmitting: boolean;
+  onFormValidityUpdate: (isValid: boolean) => void;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   registerResetObserver: (callback: () => void) => void;
   resetButtonLabel: string;
@@ -125,6 +125,7 @@ function Form<TValues = any>({
   getFormData,
   hideFooter,
   isSubmitting,
+  onFormValidityUpdate,
   onSubmit,
   registerResetObserver,
   resetButtonLabel,
@@ -212,7 +213,7 @@ function Form<TValues = any>({
 
     const subscription = watch((values) => {
       if (!equal(valuesRef.current, values)) {
-        const clonedValue = clone(values);
+        const clonedValue = klona(values);
         valuesRef.current = clonedValue;
         debouncedUpdateFormData(clonedValue as TValues);
       }
@@ -231,6 +232,10 @@ function Form<TValues = any>({
       bodyRef.current.scrollTo({ top: 0 });
     }
   }, [scrollContents]);
+
+  useEffect(() => {
+    onFormValidityUpdate(!isFormInValid);
+  }, [onFormValidityUpdate, isFormInValid]);
 
   return (
     <FormProvider {...methods}>

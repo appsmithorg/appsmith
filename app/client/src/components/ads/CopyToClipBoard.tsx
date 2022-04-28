@@ -19,7 +19,11 @@ const Wrapper = styled.div<{ offset?: string }>`
   }
 `;
 
-function CopyToClipboard(props: { copyText: string; btnWidth?: string }) {
+function CopyToClipboard(props: {
+  className?: string;
+  copyText: string;
+  btnWidth?: string;
+}) {
   const { copyText } = props;
   const copyURLInput = createRef<HTMLInputElement>();
   const [isCopied, setIsCopied] = useState(false);
@@ -38,7 +42,7 @@ function CopyToClipboard(props: { copyText: string; btnWidth?: string }) {
     }
   };
   return (
-    <Wrapper offset={props.btnWidth}>
+    <Wrapper className={props.className} offset={props.btnWidth}>
       <TextInput
         defaultValue={copyText}
         onChange={() => {
@@ -50,6 +54,7 @@ function CopyToClipboard(props: { copyText: string; btnWidth?: string }) {
 
       <Button
         category={Category.tertiary}
+        className="t--copy-url"
         onClick={() => {
           copyToClipboard(copyText);
         }}

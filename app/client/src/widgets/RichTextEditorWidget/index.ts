@@ -1,3 +1,5 @@
+import { Alignment } from "@blueprintjs/core";
+import { LabelPosition } from "components/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -17,6 +19,10 @@ export const CONFIG = {
     widgetName: "RichTextEditor",
     isDefaultClickDisabled: true,
     inputType: "html",
+    labelText: "Label",
+    labelPosition: LabelPosition.Left,
+    labelAlignment: Alignment.LEFT,
+    labelWidth: 5,
     version: 1,
   },
   properties: {

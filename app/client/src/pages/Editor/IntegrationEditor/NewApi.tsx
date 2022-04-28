@@ -1,7 +1,6 @@
 import React, { useCallback, useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { getCurlImportPageURL } from "constants/routes";
 import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "reducers";
 import { Colors } from "constants/Colors";
@@ -14,11 +13,12 @@ import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginType } from "entities/Action";
 import { Spinner } from "@blueprintjs/core";
 import { getQueryParams } from "utils/AppsmithUtils";
-import { GenerateCRUDEnabledPluginMap } from "../../../api/PluginApi";
-import { getGenerateCRUDEnabledPluginMap } from "../../../selectors/entitiesSelector";
+import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
+import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { selectURLSlugs } from "selectors/editorSelectors";
+import { curlImportPageURL } from "RouteBuilder";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -151,8 +151,6 @@ const API_ACTION = {
 function NewApiScreen(props: Props) {
   const { createNewApiAction, history, isCreating, pageId, plugins } = props;
 
-  const applicationId = useSelector(getCurrentApplicationId);
-
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
     getGenerateCRUDEnabledPluginMap,
   );
@@ -187,6 +185,8 @@ function NewApiScreen(props: Props) {
     }
   };
 
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
+
   // On click of any API card, handleOnClick action should be called to check if user came from generate-page flow.
   // if yes then show UnsupportedDialog for the API which are not supported to generate CRUD page.
   const handleOnClick = (actionType: string, params?: any) => {
@@ -218,9 +218,14 @@ function NewApiScreen(props: Props) {
         });
 
         delete queryParams.isGeneratePageMode;
-        const curlImportURL = getCurlImportPageURL(applicationId, pageId, {
-          from: "datasources",
-          ...queryParams,
+        const curlImportURL = curlImportPageURL({
+          applicationSlug,
+          pageSlug,
+          pageId,
+          params: {
+            from: "datasources",
+            ...queryParams,
+          },
         });
 
         history.push(curlImportURL);

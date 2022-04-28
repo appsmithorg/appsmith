@@ -7,7 +7,7 @@ const testdata = require("../../../../fixtures/testdata.json");
 describe("Rest Bugs tests", function() {
   it("Bug 5550: Not able to run APIs in parallel", function() {
     cy.addDsl(dslParallel);
-    cy.wait(5000); //settling time for dsl!
+    cy.wait(8000); //settling time for dsl!
     cy.get(".bp3-spinner").should("not.exist");
 
     //Api 1
@@ -19,56 +19,90 @@ describe("Rest Bugs tests", function() {
 
     //Api 2
     cy.NavigateToAPI_Panel();
-    cy.CreateAPI("CatFacts");
-    cy.enterDatasource(
-      "https://cat-fact.herokuapp.com/facts/random?animal_type=cat",
-    );
-    cy.assertPageSave();
-
-    cy.get("body").click(0, 0);
-
-    //Api 3
-    cy.NavigateToAPI_Panel();
     cy.CreateAPI("DogImage");
     cy.enterDatasource("https://dog.ceo/api/breeds/image/random");
     cy.assertPageSave();
     //important - needed for autosave of API before running
     cy.get("body").click(0, 0);
 
+    //Api 3
+    cy.NavigateToAPI_Panel();
+    cy.CreateAPI("NumberFact");
+    cy.enterDatasource("http://numbersapi.com/random/math");
+    cy.assertPageSave();
+    cy.get("body").click(0, 0);
+
     //Api 4
     cy.NavigateToAPI_Panel();
-    cy.CreateAPI("DogFacts");
+    cy.CreateAPI("CocktailDB");
     cy.enterDatasource(
-      "https://cat-fact.herokuapp.com/facts/random?animal_type=dog",
+      "https://www.thecocktaildb.com/api/json/v1/1/search.php?s=margarita",
     );
     cy.assertPageSave();
     cy.get("body").click(0, 0);
 
-    cy.contains(commonlocators.entityName, "Page1").click({ force: true });
-    cy.clickButton("Get Facts!");
+    cy.contains(commonlocators.entityName, "Page1")
+      .click({ force: true })
+      .wait(2000);
+    cy.clickButton("Invoke APIs!");
     cy.wait(12000); // for all api calls to complete!
 
-    cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
-      expect(response.body.data.isExecutionSuccess).to.eq(true);
-      expect(response.body.data.body[0].url.length).to.be.above(0);
-    });
+    //Cat Image
+    cy.xpath("//img/parent::div")
+      .eq(0)
+      .find("img")
+      .invoke("attr", "src")
+      .then(($src) => {
+        expect($src).not.eq("https://assets.appsmith.com/widgets/default.png");
+        //expect($src).contains("cat");
+      });
 
-    cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
-      expect(response.body.data.isExecutionSuccess).to.eq(true);
-      expect(response.body.data.body.type).to.eq("cat");
-    });
+    // cy.wait("@postExecute").then(({ response }) => {
+    //   expect(response.body.data.isExecutionSuccess).to.eq(true);
+    //   expect(response.body.data.body[0].url.length).to.be.above(0); //Cat image
+    // });
 
-    cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
-      expect(response.body.data.isExecutionSuccess).to.eq(true);
-      expect(response.body.data.body.message.length).to.be.above(0);
-    });
+    // cy.wait("@postExecute").then(({ response }) => {
+    //   expect(response.body.data.isExecutionSuccess).to.eq(true);
+    //   expect(response.body.data.body.message.length).to.be.above(0); //Dog Image
+    // });
 
-    cy.wait("@postExecute", { timeout: 8000 }).then(({ response }) => {
-      //cy.log("Response is :"+ JSON.stringify(response.body))
+    //Dog Image
+    cy.xpath("//img/parent::div")
+      .eq(1)
+      .find("img")
+      .invoke("attr", "src")
+      .then(($src) => {
+        expect($src).not.eq("https://assets.appsmith.com/widgets/default.png");
+        //expect($src).contains("dog");
+      });
 
-      expect(response.body.data.isExecutionSuccess).to.eq(true);
-      expect(response.body.data.body.type).to.eq("dog");
-    });
+    // cy.wait("@postExecute").then(({ response }) => {
+    //   expect(response.body.data.isExecutionSuccess).to.eq(true);
+    //   expect(response.body.data.body.length).to.be.above(0); //Number fact
+    // });
+
+    cy.get(".t--draggable-textwidget")
+      .eq(0)
+      .invoke("text")
+      .then(($txt) => expect($txt).to.have.length.greaterThan(25));
+
+    // cy.wait("@postExecute").then(({ response }) => {
+    //   //cy.log("Response is :"+ JSON.stringify(response.body))
+    //   expect(response.body.data.isExecutionSuccess).to.eq(true);
+    //   expect(response.body.data.request.url.length).to.be.above(0); //Cocktail
+    // });
+
+    //Cocktail DB
+
+    cy.xpath("//img/parent::div")
+      .eq(2)
+      .find("img")
+      .invoke("attr", "src")
+      .then(($src) => {
+        expect($src).not.eq("https://assets.appsmith.com/widgets/default.png");
+        //expect($src).contains("cocktail");
+      });
 
     //Spread to check later!
     // cy.wait(['@postExecute', '@postExecute', '@postExecute', '@postExecute'], { timeout: 8000 }).spread(
@@ -120,6 +154,8 @@ describe("Rest Bugs tests", function() {
 
   it("Bug 4775: No Cyclical dependency when Api returns an error", function() {
     cy.addDsl(dslTable);
+    cy.wait(5000); //settling time for dsl!
+    cy.get(".bp3-spinner").should("not.exist");
     //Api 1
     cy.CreateAPI("Currencies");
     cy.enterDatasource("https://api.coinbase.com/v2/currencies");

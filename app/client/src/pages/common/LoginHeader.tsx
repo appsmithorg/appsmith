@@ -28,7 +28,7 @@ const LogoContainer = styled.div`
 
 export function LoginHeader() {
   return (
-    <StyledPageHeader>
+    <StyledPageHeader data-testid="t--appsmith-login-header">
       <LogoContainer>
         <Link to={BASE_URL}>
           <AppsmithLogo className="logoimg t--Appsmith-logo-image" />

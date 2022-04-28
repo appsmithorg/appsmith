@@ -26,4 +26,5 @@ public interface ConfigServiceCE {
 
     Flux<Datasource> getTemplateDatasources();
 
+    Mono<Void> delete(String name);
 }

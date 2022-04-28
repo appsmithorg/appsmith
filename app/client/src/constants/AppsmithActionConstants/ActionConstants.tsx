@@ -6,6 +6,7 @@ import apiActionSettingsConfig from "constants/AppsmithActionConstants/formConfi
 import apiActionEditorConfig from "constants/AppsmithActionConstants/formConfig/ApiEditorConfigs";
 import saasActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/GoogleSheetsSettingsConfig";
 import apiActionDependencyConfig from "constants/AppsmithActionConstants/formConfig/ApiDependencyConfigs";
+import apiActionDatasourceFormButtonConfig from "constants/AppsmithActionConstants/formConfig/ApiDatasourceFormsButtonConfig";
 
 export type ExecuteActionPayloadEvent = {
   type: EventType;
@@ -165,4 +166,12 @@ export const defaultActionDependenciesConfig: Record<
   [PluginType.SAAS]: {},
   [PluginType.REMOTE]: {},
   [PluginType.JS]: {},
+};
+
+export const defaultDatasourceFormButtonConfig: Record<PluginType, string[]> = {
+  [PluginType.API]: apiActionDatasourceFormButtonConfig.API,
+  [PluginType.DB]: apiActionDatasourceFormButtonConfig.DB,
+  [PluginType.SAAS]: apiActionDatasourceFormButtonConfig.SAAS,
+  [PluginType.REMOTE]: apiActionDatasourceFormButtonConfig.REMOTE,
+  [PluginType.JS]: [],
 };

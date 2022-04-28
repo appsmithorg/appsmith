@@ -1,20 +1,19 @@
 import { takeLeading, all, put, select } from "redux-saga/effects";
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
-import history from "../utils/history";
-import { BUILDER_PAGE_URL } from "../constants/routes";
 import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "../selectors/editorSelectors";
-import { ActionData } from "../reducers/entityReducers/actionsReducer";
-import { getCanvasWidgets } from "../selectors/entitiesSelector";
+  ReduxActionTypes,
+  ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
+import history from "utils/history";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { ActionData } from "reducers/entityReducers/actionsReducer";
+import { getCanvasWidgets } from "selectors/entitiesSelector";
 import {
   setWidgetDynamicProperty,
   updateWidgetPropertyRequest,
-} from "../actions/controlActions";
-import { Toaster } from "../components/ads/Toast";
-import { Variant } from "../components/ads/common";
-import AnalyticsUtil from "../utils/AnalyticsUtil";
+} from "actions/controlActions";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import {
   SNIPING_NOT_SUPPORTED,
@@ -22,6 +21,7 @@ import {
 } from "@appsmith/constants/messages";
 
 import WidgetFactory from "utils/WidgetFactory";
+import { builderURL } from "RouteBuilder";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -30,7 +30,7 @@ export function* bindDataToWidgetSaga(
     widgetId: string;
   }>,
 ) {
-  const pageId = yield select(getCurrentPageId);
+  const pageId: string = yield select(getCurrentPageId);
   // console.log("Binding Data in Saga");
   const currentURL = new URL(window.location.href);
   const searchParams = currentURL.searchParams;
@@ -159,10 +159,8 @@ export function* bindDataToWidgetSaga(
         force: true,
       },
     });
-    const applicationId = yield select(getCurrentApplicationId);
     history.replace(
-      BUILDER_PAGE_URL({
-        applicationId,
+      builderURL({
         pageId,
       }),
     );

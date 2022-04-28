@@ -13,7 +13,6 @@ import {
   UPGRADE_TO_EE,
   AUTHENTICATION_METHOD_ENABLED,
 } from "@appsmith/constants/messages";
-import { getAdminSettingsCategoryUrl } from "constants/routes";
 import { Callout, CalloutType } from "components/ads/CalloutV2";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -23,6 +22,8 @@ import { Colors } from "constants/Colors";
 import Icon from "components/ads/Icon";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
+import { adminSettingsCategoryUrl } from "RouteBuilder";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const { intercomAppID } = getAppsmithConfigs();
 
@@ -149,6 +150,30 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
     }
   };
 
+  const onClickHandler = (method: AuthMethodType) => {
+    if (!method.needsUpgrade || method.isConnected) {
+      AnalyticsUtil.logEvent(
+        method.isConnected
+          ? "ADMIN_SETTINGS_EDIT_AUTH_METHOD"
+          : "ADMIN_SETTINGS_ENABLE_AUTH_METHOD",
+        {
+          method: method.label,
+        },
+      );
+      history.push(
+        adminSettingsCategoryUrl({
+          category: SettingCategories.AUTHENTICATION,
+          subCategory: method.category,
+        }),
+      );
+    } else {
+      AnalyticsUtil.logEvent("ADMIN_SETTINGS_UPGRADE_AUTH_METHOD", {
+        method: method.label,
+      });
+      triggerIntercom(method.label);
+    }
+  };
+
   return (
     <Wrapper>
       <SettingsFormWrapper>
@@ -184,7 +209,11 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                         openOnTargetFocus={false}
                         position={Position.RIGHT}
                       >
-                        <Icon fillColor={Colors.GREEN} name="oval-check" />
+                        <Icon
+                          className={`${method.category}-green-check`}
+                          fillColor={Colors.GREEN}
+                          name="oval-check"
+                        />
                       </TooltipComponent>
                     )}
                   </MethodTitle>
@@ -202,19 +231,12 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                     method.isConnected ? Category.primary : Category.tertiary
                   }
                   className={`t--settings-sub-category-${
-                    method.needsUpgrade ? "upgrade" : method.category
+                    method.needsUpgrade
+                      ? `upgrade-${method.category}`
+                      : method.category
                   }`}
                   data-cy="btn-auth-account"
-                  onClick={() =>
-                    !method.needsUpgrade || method.isConnected
-                      ? history.push(
-                          getAdminSettingsCategoryUrl(
-                            SettingCategories.AUTHENTICATION,
-                            method.category,
-                          ),
-                        )
-                      : triggerIntercom(method.label)
-                  }
+                  onClick={() => onClickHandler(method)}
                   text={createMessage(
                     method.isConnected
                       ? EDIT

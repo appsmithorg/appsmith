@@ -188,7 +188,7 @@ public class DatabaseChangelog {
      * Also, please check out the following blog on how to best create indexes :
      * https://emptysqua.re/blog/optimizing-mongodb-compound-indexes/
      */
-    private static Index makeIndex(String... fields) {
+    public static Index makeIndex(String... fields) {
         if (fields.length == 1) {
             return new Index(fields[0], Sort.Direction.ASC).named(fields[0]);
         } else {
@@ -204,14 +204,14 @@ public class DatabaseChangelog {
      * Given a MongockTemplate, a domain class and a bunch of Index definitions, this pure utility function will ensure
      * those indexes on the database behind the MongockTemplate instance.
      */
-    private static void ensureIndexes(MongockTemplate mongoTemplate, Class<?> entityClass, Index... indexes) {
+    public static void ensureIndexes(MongockTemplate mongoTemplate, Class<?> entityClass, Index... indexes) {
         IndexOperations indexOps = mongoTemplate.indexOps(entityClass);
         for (Index index : indexes) {
             indexOps.ensureIndex(index);
         }
     }
 
-    private static void dropIndexIfExists(MongockTemplate mongoTemplate, Class<?> entityClass, String name) {
+    public static void dropIndexIfExists(MongockTemplate mongoTemplate, Class<?> entityClass, String name) {
         try {
             mongoTemplate.indexOps(entityClass).dropIndex(name);
         } catch (UncategorizedMongoDbException ignored) {

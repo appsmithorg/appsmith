@@ -34,6 +34,10 @@ import static com.external.constants.FieldName.TABLE_HEADER_INDEX;
 @AllArgsConstructor
 @ToString
 public class MethodConfig {
+    public static final String PATH_KEY = "path";
+    public static final String VALUE_KEY = "value";
+    public static final String OPERATOR_KEY = "operator";
+
     String spreadsheetId;
     String spreadsheetUrl;
     String spreadsheetRange;

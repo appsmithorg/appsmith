@@ -50,7 +50,7 @@ export const ControlPropertyLabelContainer = styled.div`
   }
 `;
 
-export const JSToggleButton = styled.span<{ active: boolean }>`
+export const JSToggleButton = styled.button<{ active: boolean }>`
   margin: 4px;
   margin-top: 0px;
   cursor: pointer;

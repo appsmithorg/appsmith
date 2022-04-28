@@ -9,10 +9,7 @@ import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
-  P,
-  S
-> {
+class BaseControl<P extends ControlProps, S = {}> extends Component<P, S> {
   updateProperty(propertyName: string, propertyValue: any) {
     if (!_.isNil(this.props.onPropertyChange))
       this.props.onPropertyChange(propertyName, propertyValue);

@@ -4,7 +4,7 @@ import {
   UpdateCanvasPayload,
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import moment from "moment";
 import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
 

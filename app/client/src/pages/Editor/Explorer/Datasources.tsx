@@ -14,7 +14,7 @@ import { getPlugins } from "selectors/entitiesSelector";
 import { keyBy, noop } from "lodash";
 import Entity from "./Entity";
 import history from "utils/history";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import { INTEGRATION_TABS } from "constants/routes";
 import {
   ADD_DATASOURCE_BUTTON,
   createMessage,
@@ -32,6 +32,7 @@ import {
 } from "./helpers";
 import Icon from "components/ads/Icon";
 import { AddEntity, EmptyComponent } from "./common";
+import { integrationEditorURL } from "RouteBuilder";
 
 const ShowAll = styled.div`
   padding: 0.25rem 1.5rem;
@@ -49,24 +50,30 @@ const ShowAll = styled.div`
 
 const Datasources = React.memo(() => {
   const { appWideDS, otherDS } = useAppWideAndOtherDatasource();
-  const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId) || "";
   const plugins = useSelector(getPlugins);
+  const applicationId = useSelector(getCurrentApplicationId);
   const isDatasourcesOpen = getExplorerStatus(applicationId, "datasource");
   const pluginGroups = React.useMemo(() => keyBy(plugins, "id"), [plugins]);
   const addDatasource = useCallback(() => {
     history.push(
-      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+      integrationEditorURL({
+        pageId,
+        selectedTab: INTEGRATION_TABS.NEW,
+      }),
     );
-  }, [applicationId, pageId]);
+  }, [pageId]);
   const activeDatasourceId = useDatasourceIdFromURL();
   const datasourceSuggestions = useDatasourceSuggestions();
 
   const listDatasource = useCallback(() => {
     history.push(
-      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+      integrationEditorURL({
+        pageId,
+        selectedTab: INTEGRATION_TABS.ACTIVE,
+      }),
     );
-  }, [applicationId, pageId]);
+  }, [pageId]);
 
   const datasourceElements = React.useMemo(
     () =>

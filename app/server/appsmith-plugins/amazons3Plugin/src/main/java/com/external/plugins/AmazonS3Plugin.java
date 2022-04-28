@@ -974,17 +974,6 @@ public class AmazonS3Plugin extends BasePlugin {
                         "the endpoint URL of your S3 instance.");
             }
 
-            final boolean usingCustomServiceProvider =
-                    OTHER_S3_SERVICE_PROVIDER.equals(properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue());
-            if (usingCustomServiceProvider
-                    && (properties.size() < (CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX + 1)
-                    || properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX) == null
-                    || StringUtils.isNullOrEmpty((String) properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX).getValue()))) {
-                invalids.add("Required parameter 'Region' is empty. Did you forget to edit the 'Region' field" +
-                        " in the datasource creation form ? You need to fill it with the region where " +
-                        "your S3 instance is hosted.");
-            }
-
             return invalids;
         }
 

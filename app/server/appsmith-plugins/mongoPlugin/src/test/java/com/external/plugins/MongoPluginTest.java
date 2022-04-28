@@ -18,9 +18,12 @@ import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.mongodb.DBRef;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoSecurityException;
 import com.mongodb.reactivestreams.client.MongoClient;
@@ -54,6 +57,7 @@ import static com.appsmith.external.constants.DisplayDataType.JSON;
 import static com.appsmith.external.constants.DisplayDataType.RAW;
 import static com.appsmith.external.helpers.PluginUtils.OBJECT_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.external.plugins.constants.FieldName.AGGREGATE_LIMIT;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINES;
@@ -89,7 +93,7 @@ import static org.mockito.Mockito.when;
  * Unit tests for MongoPlugin
  */
 
-public class MongoPluginTest {
+public class    MongoPluginTest {
 
     MongoPlugin.MongoPluginExecutor pluginExecutor = new MongoPlugin.MongoPluginExecutor();
 
@@ -137,8 +141,25 @@ public class MongoPluginTest {
                                 )),
                                 new Document(Map.of("name", "Kierra Gentry", "gender", "F", "age", 40))
                         ))).block();
-                    }
 
+
+                        final MongoCollection<Document> addressCollection = mongoClient.getDatabase("test")
+                                .getCollection("address");
+                        Mono.from(addressCollection.insertMany(List.of(
+                                new Document(Map.of(
+                                        "user", new DBRef("test", "users", "1"),
+                                        "street", "First Street",
+                                        "city", "Line One",
+                                        "state", "UP"
+                                )),
+                                new Document(Map.of(
+                                        "user", new DBRef("AAA", "BBB", "2000"),
+                                        "street", "Second Street",
+                                        "city", "Line Two",
+                                        "state", "UP"
+                                ))
+                        ))).block();
+                    }
                     return Mono.empty();
                 }).block();
     }
@@ -250,6 +271,55 @@ public class MongoPluginTest {
                 })
                 .verifyComplete();
     }
+
+    /**
+     * Test for DBRef after codec implementation
+     */
+    @Test
+    public void testExecuteQueryDBRef() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
+                "      find: \"address\",\n" +
+                "      limit: 10,\n" +
+                "    }");
+        actionConfiguration.setFormData(configMap);
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+
+                    assertEquals(2, ((ArrayNode) result.getBody()).size());
+
+                    /*
+                     * Provided Input : new DBRef("test", "users", "1")
+                     * To test if we are getting the expected output after external codec implementation.
+                     * Note: when the codec is removed from the MongoDBPlugin, this is found failing
+                     */
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+                        String expectedOutputJsonString = "{\"$db\":\"test\",\"$ref\":\"users\",\"$id\":\"1\"}";
+                        JsonNode outputNode = mapper.readTree(expectedOutputJsonString);
+                        assertEquals(outputNode, (((ArrayNode) result.getBody()).findValue("user")));
+                    } catch (JsonProcessingException e) {
+                        assert false;
+                    }
+
+                })
+                .verifyComplete();
+    }
+
 
     @Test
     public void testExecuteReadQuery() {
@@ -477,8 +547,13 @@ public class MongoPluginTest {
 
         StepVerifier.create(structureMono)
                 .assertNext(structure -> {
+                    //Sort the Tables since one more table is added and to maintain sequence
+                    structure.getTables().sort(
+                            (DatasourceStructure.Table t1, DatasourceStructure.Table t2)
+                                    ->t2.getName().compareTo(t1.getName())
+                    );
                     assertNotNull(structure);
-                    assertEquals(1, structure.getTables().size());
+                    assertEquals(2, structure.getTables().size());
 
                     final DatasourceStructure.Table usersTable = structure.getTables().get(0);
                     assertEquals("users", usersTable.getName());
@@ -2038,56 +2113,328 @@ public class MongoPluginTest {
     }
 
     @Test
-    public void testBuildClientURI_withoutUserInfoAndAuthSource() {
+    public void testFormToNativeQueryConversionForFindCommand() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
 
-        final String testUri = "mongodb://host:port/db?param";
-        final String resultUri = "mongodb://host:port/db?param&authSource=admin";
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "FIND");
+        setDataValueSafelyInFormData(configMap, FIND_QUERY, "{{Input1.text}}");
+        setDataValueSafelyInFormData(configMap, FIND_SORT, "{ id: 1 }");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        actionConfiguration.setFormData(configMap);
 
-        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        final DBAuth dbAuth = new DBAuth();
-        datasourceConfiguration.setAuthentication(dbAuth);
-        datasourceConfiguration.setProperties(List.of(
-                new Property("0", "Yes"),
-                new Property("1", testUri)
-        ));
-        final String clientURI = pluginExecutor.buildClientURI(datasourceConfiguration);
-        assertEquals(resultUri, clientURI);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("Input1.text");
+        param1.setValue("{ age: { \"$gte\": 30 } }");
+        params.add(param1);
+        executeActionDTO.setParams(params);
+
+        pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, getDataValueSafelyFromFormData(configMap, "misc.formToNativeQuery", STRING_TYPE));
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, executeActionDTO,
+                dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(2, ((ArrayNode) result.getBody()).size());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
+                })
+                .verifyComplete();
     }
 
     @Test
-    public void testBuildClientURI_withUserInfoAndAuthSource() {
+    public void testFormToNativeQueryConversionForInsertCommand() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
 
-        final String testUri = "mongodb://user:pass@host:port/db?param&authSource=notAdmin";
-        final String resultUri = "mongodb://user:newPass@host:port/db?param&authSource=notAdmin";
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "INSERT");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "{{Input1.text}}");
+        setDataValueSafelyInFormData(configMap, INSERT_DOCUMENT, "[{name : \"ZZZ Insert Form Array Test 1\", gender : " +
+                "\"F\", age : 40, tag : \"test\"}, {name : \"ZZZ Insert Form Array Test 2\", gender : \"F\", age : " +
+                "40, tag : \"test\"}]");
 
-        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        final DBAuth dbAuth = new DBAuth();
-        dbAuth.setPassword("newPass");
-        datasourceConfiguration.setAuthentication(dbAuth);
-        datasourceConfiguration.setProperties(List.of(
-                new Property("0", "Yes"),
-                new Property("1", testUri)
-        ));
-        final String clientURI = pluginExecutor.buildClientURI(datasourceConfiguration);
-        assertEquals(resultUri, clientURI);
+        actionConfiguration.setFormData(configMap);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("Input1.text");
+        param1.setValue("users");
+        params.add(param1);
+        executeActionDTO.setParams(params);
+
+        pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, getDataValueSafelyFromFormData(configMap, "misc.formToNativeQuery", STRING_TYPE));
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                executeActionDTO, dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
+                })
+                .verifyComplete();
+
+        // Clean up this newly inserted value
+        configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "DELETE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, DELETE_QUERY, "{\"tag\" : \"test\"}");
+        setDataValueSafelyInFormData(configMap, DELETE_LIMIT, "ALL");
+
+        actionConfiguration.setFormData(configMap);
+        // Run the delete command
+        dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig,
+                actionConfiguration)).block();
     }
 
     @Test
-    public void testBuildClientURI_withoutDbInfoAndPortsAndParams() {
+    public void testFormToNativeQueryConversionForUpdateCommand() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
 
-        final String testUri = "mongodb://user:pass@host";
-        final String resultUri = "mongodb://user:newPass@host/?authSource=admin";
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPDATE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        // Query for all the documents in the collection
+        setDataValueSafelyInFormData(configMap, UPDATE_QUERY, "{}");
+        setDataValueSafelyInFormData(configMap, UPDATE_OPERATION, "{{Input1.text}}");
+        setDataValueSafelyInFormData(configMap, UPDATE_LIMIT, "ALL");
+        actionConfiguration.setFormData(configMap);
 
-        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        final DBAuth dbAuth = new DBAuth();
-        dbAuth.setPassword("newPass");
-        datasourceConfiguration.setAuthentication(dbAuth);
-        datasourceConfiguration.setProperties(List.of(
-                new Property("0", "Yes"),
-                new Property("1", testUri)
-        ));
-        final String clientURI = pluginExecutor.buildClientURI(datasourceConfiguration);
-        assertEquals(resultUri, clientURI);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("Input1.text");
+        param1.setValue("{ $set: { \"updatedByCommand\": false }}");
+        params.add(param1);
+        executeActionDTO.setParams(params);
+
+        pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, getDataValueSafelyFromFormData(configMap, "misc.formToNativeQuery", STRING_TYPE));
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                executeActionDTO, dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    JsonNode value = ((ObjectNode) result.getBody()).get("nModified");
+                    assertEquals(value.asText(), "3");
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testFormToNativeQueryConversionForDeleteCommand() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        // Insert multiple documents which would match the delete criterion
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "INSERT");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, INSERT_DOCUMENT, "[{\"name\" : \"To Delete1\", \"tag\" : \"delete\"}, " +
+                "{\"name\" : \"To Delete2\", \"tag\" : \"delete\"}]");
+
+        actionConfiguration.setFormData(configMap);
+
+        dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig,
+                actionConfiguration)).block();
+
+        // Now that the documents have been inserted, lets delete both of them
+        configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "DELETE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, DELETE_QUERY, "{{Input1.text}}");
+        setDataValueSafelyInFormData(configMap, DELETE_LIMIT, "ALL");
+        setDataValueSafelyInFormData(configMap, BODY, "");
+        actionConfiguration.setFormData(configMap);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("Input1.text");
+        param1.setValue("{tag : \"delete\"}");
+        params.add(param1);
+        executeActionDTO.setParams(params);
+
+        pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, getDataValueSafelyFromFormData(configMap, "misc.formToNativeQuery", STRING_TYPE));
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                executeActionDTO, dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    JsonNode value = ((ObjectNode) result.getBody()).get("n");
+                    assertEquals(value.asInt(), 2);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testFormToNativeQueryConversionForCountCommand() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "COUNT");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "{{Input1.text}}");
+        setDataValueSafelyInFormData(configMap, COUNT_QUERY, "{}");
+        actionConfiguration.setFormData(configMap);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("Input1.text");
+        param1.setValue("users");
+        params.add(param1);
+        executeActionDTO.setParams(params);
+
+        pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, getDataValueSafelyFromFormData(configMap, "misc.formToNativeQuery", STRING_TYPE));
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                executeActionDTO, dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    JsonNode value = ((ObjectNode) result.getBody()).get("n");
+                    assertEquals(value.asInt(), 3);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testFormToNativeQueryConversionForDistinctCommand() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "DISTINCT");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, DISTINCT_QUERY, "{}");
+        setDataValueSafelyInFormData(configMap, DISTINCT_KEY, "{{Input1.text}}");
+        actionConfiguration.setFormData(configMap);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("Input1.text");
+        param1.setValue("name");
+        params.add(param1);
+        executeActionDTO.setParams(params);
+
+        pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, getDataValueSafelyFromFormData(configMap, "misc.formToNativeQuery",
+                STRING_TYPE));
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                executeActionDTO, dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    ArrayNode valuesNode = (ArrayNode) ((ObjectNode) result.getBody()).get("values");
+                    int valuesSize = valuesNode.size();
+                    assertEquals(valuesSize, 3);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testFormToNativeQueryConversionForAggregateCommand() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "AGGREGATE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, AGGREGATE_PIPELINES, "{{Input1.text}}");
+        actionConfiguration.setFormData(configMap);
+
+        pluginExecutor.extractAndSetNativeQueryFromFormData(actionConfiguration);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, getDataValueSafelyFromFormData(configMap, "misc.formToNativeQuery", STRING_TYPE));
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("Input1.text");
+        param1.setValue("[ {$sort :{ _id  : 1 }}, { $project: { age : 1}}, {$count: \"userCount\"} ]");
+        params.add(param1);
+        executeActionDTO.setParams(params);
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                executeActionDTO, dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    JsonNode value = ((ArrayNode) result.getBody()).get(0).get("userCount");
+                    assertEquals(value.asInt(), 3);
+                })
+                .verifyComplete();
     }
 
     @Test

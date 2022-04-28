@@ -15,10 +15,7 @@ import { IPanelProps } from "@blueprintjs/core";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import PropertyPaneTitle from "../PropertyPaneTitle";
 import { BindingText } from "../APIEditor/Form";
-
-import { ControlIcons } from "icons/ControlIcons";
-
-const QuestionIcon = ControlIcons.QUESTION;
+import QuestionIcon from "remixicon-react/QuestionLineIcon";
 
 function PanelHeader(props: PanelHeaderProps) {
   return (
@@ -37,7 +34,8 @@ function PanelHeader(props: PanelHeaderProps) {
                 <span> to a widget property</span>
               </div>
             ),
-            icon: <QuestionIcon height={16} width={16} />,
+            icon: <QuestionIcon className="w-4 h-4 text-gray-500" />,
+            tooltipPosition: "bottom-right",
           },
         ]}
         isPanelTitle

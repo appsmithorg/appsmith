@@ -15,6 +15,9 @@ const settings = [
     subText: "",
     category: "test",
     controlType: SettingTypes.BUTTON,
+    fieldName: "uneditable-field",
+    formName: "UneditableField",
+    value: "http://localhost",
   },
 ];
 

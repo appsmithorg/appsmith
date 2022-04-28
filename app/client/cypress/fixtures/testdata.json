@@ -137,5 +137,9 @@
   "apiContentTypeForm": "tab--FORM_URLENCODED",
   "apiContentTypeMultiPart": "tab--MULTIPART_FORM_DATA",
   "noBodyErrorMessageDiv": "#NoBodyMessageDiv",
-  "noBodyErrorMessage": "This request does not have a body"
+  "noBodyErrorMessage": "This request does not have a body",
+  "v2Key": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
+  "v3Key": "6LcnzQgfAAAAAMwMlQLppqx7STvZ6pZJoDMXti8k",
+  "invalidKey": "abc123",
+  "errorMsg": "Google Re-Captcha token generation failed! Please check the Re-captcha site key."
 }

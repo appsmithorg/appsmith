@@ -27,11 +27,45 @@ class FormWidget extends ContainerWidget {
   componentDidMount() {
     super.componentDidMount();
     this.updateFormData();
+
+    // Check if the form is dirty
+    const hasChanges = this.checkFormValueChanges(
+      get(this.props, "children[0]"),
+    );
+
+    if (hasChanges !== this.props.hasChanges) {
+      this.props.updateWidgetMetaProperty("hasChanges", hasChanges);
+    }
   }
 
   componentDidUpdate(prevProps: ContainerWidgetProps<any>) {
     super.componentDidUpdate(prevProps);
     this.updateFormData();
+    // Check if the form is dirty
+    const hasChanges = this.checkFormValueChanges(
+      get(this.props, "children[0]"),
+    );
+
+    if (hasChanges !== this.props.hasChanges) {
+      this.props.updateWidgetMetaProperty("hasChanges", hasChanges);
+    }
+  }
+
+  checkFormValueChanges(
+    containerWidget: ContainerWidgetProps<WidgetProps>,
+  ): boolean {
+    const childWidgets = containerWidget.children || [];
+
+    const hasChanges = childWidgets.some((child) => child.isDirty);
+    if (!hasChanges) {
+      return childWidgets.some(
+        (child) =>
+          child.children &&
+          this.checkFormValueChanges(get(child, "children[0]")),
+      );
+    }
+
+    return hasChanges;
   }
 
   updateFormData() {
@@ -75,6 +109,7 @@ class FormWidget extends ContainerWidget {
 export interface FormWidgetProps extends ContainerComponentProps {
   name: string;
   data: Record<string, unknown>;
+  hasChanges: boolean;
 }
 
 export default FormWidget;

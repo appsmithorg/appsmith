@@ -77,9 +77,13 @@ class RequestConfirmationModal extends React.Component<Props> {
   render() {
     const { dispatch, modals } = this.props;
 
+    // making sure that only modals that are set to be open are eventually opened.
+    // basically filters out modals that have already been opened and prevents it from flashing after other modals have been confirmed.
+    const modalsToBeOpened = modals.filter((modal) => modal.modalOpen === true);
+
     return (
       <>
-        {modals.map((modalInfo: ModalInfo, index: number) => (
+        {modalsToBeOpened.map((modalInfo: ModalInfo, index: number) => (
           <DialogComponent
             canEscapeKeyClose
             isOpen={modalInfo?.modalOpen}

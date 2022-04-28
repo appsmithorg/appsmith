@@ -12,7 +12,7 @@ export const getIndexOfRegex = (
   regex: RegExp,
   start = 0,
 ): number => {
-  const pos = str.substr(start).search(regex);
+  const pos = str.slice(start).search(regex);
   return pos > -1 ? pos + start : pos;
 };
 
@@ -44,7 +44,7 @@ export const getKeyPositionInString = (
   let positions: Position[] = [];
   if (str.includes("\n")) {
     for (const index of indices) {
-      const substr = str.substr(0, index);
+      const substr = str.slice(0, index);
       const substrLines = substr.split("\n");
       const ch = last(substrLines)?.length || 0;
       const line = substrLines.length - 1;
@@ -103,7 +103,7 @@ export const getLintAnnotations = (
           bindingLocation.line !== currentLine ? ch : bindingLocation.ch + ch;
         // Jshint counts \t as two characters and codemirror counts it as 1.
         // So we need to subtract number of tabs to get accurate position
-        const tabs = lineContent.substr(0, currentCh).match(/\t/g)?.length || 0;
+        const tabs = lineContent.slice(0, currentCh).match(/\t/g)?.length || 0;
 
         const from = {
           line: currentLine,

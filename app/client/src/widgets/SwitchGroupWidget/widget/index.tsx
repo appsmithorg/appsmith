@@ -1,5 +1,6 @@
 import React from "react";
 import { Alignment } from "@blueprintjs/core";
+import { xor } from "lodash";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -8,6 +9,9 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 import SwitchGroupComponent, { OptionProps } from "../component";
+import { LabelPosition } from "components/constants";
+import { TextSize } from "constants/WidgetConstants";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 class SwitchGroupWidget extends BaseWidget<
   SwitchGroupWidgetProps,
@@ -152,6 +156,150 @@ class SwitchGroupWidget extends BaseWidget<
         ],
       },
       {
+        sectionName: "Label",
+        children: [
+          {
+            helpText: "Sets the label text of the widget",
+            propertyName: "labelText",
+            label: "Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter label text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label position of the widget",
+            propertyName: "labelPosition",
+            label: "Position",
+            controlType: "DROP_DOWN",
+            options: [
+              { label: "Left", value: LabelPosition.Left },
+              { label: "Top", value: LabelPosition.Top },
+              { label: "Auto", value: LabelPosition.Auto },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label alignment of the widget",
+            propertyName: "labelAlignment",
+            label: "Alignment",
+            controlType: "LABEL_ALIGNMENT_OPTIONS",
+            options: [
+              {
+                icon: "LEFT_ALIGN",
+                value: Alignment.LEFT,
+              },
+              {
+                icon: "RIGHT_ALIGN",
+                value: Alignment.RIGHT,
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+            hidden: (props: SwitchGroupWidgetProps) =>
+              props.labelPosition !== LabelPosition.Left,
+            dependencies: ["labelPosition"],
+          },
+          {
+            helpText:
+              "Sets the label width of the widget as the number of columns",
+            propertyName: "labelWidth",
+            label: "Width (in columns)",
+            controlType: "NUMERIC_INPUT",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            min: 0,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: {
+                natural: true,
+              },
+            },
+            hidden: (props: SwitchGroupWidgetProps) =>
+              props.labelPosition !== LabelPosition.Left,
+            dependencies: ["labelPosition"],
+          },
+        ],
+      },
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "labelTextColor",
+            label: "Label Text Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "labelTextSize",
+            label: "Label Text Size",
+            controlType: "DROP_DOWN",
+            defaultValue: "PARAGRAPH",
+            options: [
+              {
+                label: "Heading 1",
+                value: "HEADING1",
+                subText: "24px",
+                icon: "HEADING_ONE",
+              },
+              {
+                label: "Heading 2",
+                value: "HEADING2",
+                subText: "18px",
+                icon: "HEADING_TWO",
+              },
+              {
+                label: "Heading 3",
+                value: "HEADING3",
+                subText: "16px",
+                icon: "HEADING_THREE",
+              },
+              {
+                label: "Paragraph",
+                value: "PARAGRAPH",
+                subText: "14px",
+                icon: "PARAGRAPH",
+              },
+              {
+                label: "Paragraph 2",
+                value: "PARAGRAPH2",
+                subText: "12px",
+                icon: "PARAGRAPH_TWO",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "labelStyle",
+            label: "Label Font Style",
+            controlType: "BUTTON_TABS",
+            options: [
+              {
+                icon: "BOLD_FONT",
+                value: "BOLD",
+              },
+              {
+                icon: "ITALICS_FONT",
+                value: "ITALIC",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+      {
         sectionName: "Actions",
         children: [
           {
@@ -178,6 +326,7 @@ class SwitchGroupWidget extends BaseWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedValuesArray: undefined,
+      isDirty: false,
     };
   }
 
@@ -189,6 +338,7 @@ class SwitchGroupWidget extends BaseWidget<
           selectedValue => this.options.map(option => option.value).includes(selectedValue)
         )
       }}`,
+      value: `{{this.selectedValues}}`,
     };
   }
 
@@ -196,29 +346,64 @@ class SwitchGroupWidget extends BaseWidget<
     return "SWITCH_GROUP_WIDGET";
   }
 
+  componentDidUpdate(prevProps: SwitchGroupWidgetProps): void {
+    if (
+      xor(this.props.defaultSelectedValues, prevProps.defaultSelectedValues)
+        .length > 0
+    ) {
+      if (this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", false);
+      }
+
+      this.props.updateWidgetMetaProperty(
+        "selectedValuesArray",
+        this.props.defaultSelectedValues,
+      );
+    }
+  }
+
   getPageView() {
     const {
       alignment,
+      bottomRow,
       isDisabled,
       isInline,
       isRequired,
       isValid,
+      labelAlignment,
+      labelPosition,
+      labelStyle,
+      labelText,
+      labelTextColor,
+      labelTextSize,
       options,
-      parentRowSpace,
       selectedValues,
+      topRow,
+      widgetId,
     } = this.props;
+
+    const { componentHeight } = this.getComponentDimensions();
 
     return (
       <SwitchGroupComponent
         alignment={alignment}
+        compactMode={!((bottomRow - topRow) / GRID_DENSITY_MIGRATION_V1 > 1)}
         disabled={isDisabled}
+        height={componentHeight}
         inline={isInline}
+        labelAlignment={labelAlignment}
+        labelPosition={labelPosition}
+        labelStyle={labelStyle}
+        labelText={labelText}
+        labelTextColor={labelTextColor}
+        labelTextSize={labelTextSize}
+        labelWidth={this.getLabelWidth()}
         onChange={this.handleSwitchStateChange}
         options={options}
         required={isRequired}
-        rowSpace={parentRowSpace}
         selected={selectedValues}
         valid={isValid}
+        widgetId={widgetId}
       />
     );
   }
@@ -233,6 +418,10 @@ class SwitchGroupWidget extends BaseWidget<
         selectedValuesArray = selectedValuesArray.filter(
           (item: string) => item !== value,
         );
+      }
+
+      if (!this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", true);
       }
 
       this.props.updateWidgetMetaProperty(
@@ -253,12 +442,20 @@ class SwitchGroupWidget extends BaseWidget<
 export interface SwitchGroupWidgetProps extends WidgetProps {
   options: OptionProps[];
   defaultSelectedValues: string[];
+  selectedValuesArray: string[];
   isInline: boolean;
-  isRequired?: boolean;
-  isValid?: boolean;
-  isDisabled?: boolean;
+  isRequired: boolean;
+  isValid: boolean;
+  isDisabled: boolean;
   alignment: Alignment;
-  onSelectionChange?: boolean;
+  labelText?: string;
+  labelPosition?: LabelPosition;
+  labelAlignment?: Alignment;
+  labelWidth?: number;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+  labelStyle?: string;
+  onSelectionChange?: string;
 }
 
 export default SwitchGroupWidget;

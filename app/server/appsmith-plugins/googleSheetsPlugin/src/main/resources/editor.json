@@ -1,0 +1,551 @@
+{
+  "editor": [
+    {
+      "sectionName": "",
+      "id": 1,
+      "children": [
+        {
+          "label": "Method Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "method"
+        },
+        {
+          "label": "Method",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "initialValue": "GET",
+          "options": [
+            {
+              "label": "Fetch sheet rows",
+              "value": "GET"
+            },
+            {
+              "label": "Insert sheet row",
+              "value": "APPEND"
+            },
+            {
+              "label": "Update sheet row",
+              "value": "UPDATE"
+            },
+            {
+              "label": "Delete row",
+              "value": "DELETE_ROW"
+            },
+            {
+              "label": "List sheets",
+              "value": "LIST"
+            },
+            {
+              "label": "Fetch sheet",
+              "value": "INFO"
+            },
+            {
+              "label": "Create new spreadsheet",
+              "value": "CREATE"
+            },
+            {
+              "label": "Delete sheet",
+              "value": "DELETE"
+            },
+            {
+              "label": "Bulk insert rows",
+              "value": "BULK_APPEND"
+            },
+            {
+              "label": "Bulk update rows",
+              "value": "BULK_UPDATE"
+            }
+          ]
+        },
+        {
+          "label": "Spreadsheet URL Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "sheetUrl"
+        },
+        {
+          "label": "Spreadsheet URL",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "IN",
+            "value": ["CREATE", "LIST"]
+          },
+          "placeholderText": "https://docs.google.com/spreadsheets/d/xyz/edit#gid=0",
+          "initialValue": ""
+        },
+        {
+          "label": "Spreadsheet Name Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "spreadsheetName"
+        },
+        {
+          "label": "Spreadsheet Name",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_IN",
+            "value": ["CREATE"]
+          },
+          "initialValue": ""
+        },
+        {
+          "label": "Delete Format Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[12].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "deleteFormat"
+        },
+        {
+          "label": "Select Entity",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[12].value",
+          "controlType": "DROP_DOWN",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "DELETE"
+          },
+          "initialValue": "SHEET",
+          "options": [
+            {
+              "label": "Single Sheet",
+              "value": "SHEET"
+            },
+            {
+              "label": "Entire Spreadsheet",
+              "value": "SPREADSHEET"
+            }
+          ]
+        },
+        {
+          "label": "Sheet Name Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "sheetName"
+        },
+        {
+          "label": "Sheet Name",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "NOT_IN",
+                "value": [
+                  "GET",
+                  "UPDATE",
+                  "BULK_UPDATE",
+                  "DELETE_ROW",
+                  "DELETE",
+                  "APPEND",
+                  "BULK_APPEND"
+                ]
+              },
+              {
+                "conditionType": "AND",
+                "conditions": [
+                  {
+                    "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                    "comparison": "EQUALS",
+                    "value": "DELETE"
+                  },
+                  {
+                    "path": "actionConfiguration.pluginSpecifiedTemplates[12].value",
+                    "comparison": "EQUALS",
+                    "value": "SPREADSHEET"
+                  }
+                ]
+              }
+            ]
+          },
+          "initialValue": "Sheet1"
+        },
+        {
+          "label": "Table Header Index Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "tableHeaderIndex"
+        },
+        {
+          "label": "Table Heading Row Index",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_IN",
+            "value": [
+              "GET",
+              "UPDATE",
+              "BULK_UPDATE",
+              "DELETE_ROW",
+              "APPEND",
+              "BULK_APPEND"
+            ]
+          },
+          "initialValue": "1"
+        },
+        {
+          "label": "Query Format Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "queryFormat"
+        },
+        {
+          "label": "Query Format",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].value",
+          "controlType": "DROP_DOWN",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_IN",
+            "value": ["GET"]
+          },
+          "initialValue": "ROWS",
+          "options": [
+            {
+              "label": "Query rows",
+              "value": "ROWS"
+            },
+            {
+              "label": "Query range",
+              "value": "RANGE"
+            }
+          ]
+        },
+        {
+          "label": "Range Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "range"
+        },
+        {
+          "label": "Cell Range",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "NOT_EQUALS",
+                "value": "GET"
+              },
+              {
+                "conditionType": "AND",
+                "conditions": [
+                  {
+                    "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                    "comparison": "EQUALS",
+                    "value": "GET"
+                  },
+                  {
+                    "path": "actionConfiguration.pluginSpecifiedTemplates[5].value",
+                    "comparison": "EQUALS",
+                    "value": "ROWS"
+                  }
+                ]
+              }
+            ]
+          },
+          "initialValue": "",
+          "placeholderText": "A2:B"
+        },
+        {
+          "label": "Row Offset Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "rowOffset"
+        },
+        {
+          "label": "Row Offset",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "NOT_IN",
+                "value": ["GET"]
+              },
+              {
+                "conditionType": "AND",
+                "conditions": [
+                  {
+                    "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                    "comparison": "EQUALS",
+                    "value": "GET"
+                  },
+                  {
+                    "path": "actionConfiguration.pluginSpecifiedTemplates[5].value",
+                    "comparison": "EQUALS",
+                    "value": "RANGE"
+                  }
+                ]
+              }
+            ]
+          },
+          "initialValue": "0",
+          "placeholderText": "0"
+        },
+        {
+          "label": "Row Index Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[11].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "rowIndex"
+        },
+        {
+          "label": "Row Index",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[11].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_IN",
+            "value": ["DELETE_ROW"]
+          },
+          "initialValue": "0",
+          "placeholderText": "0"
+        },
+        {
+          "label": "Row Limit Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "rowLimit"
+        },
+        {
+          "label": "Row Limit",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "NOT_EQUALS",
+                "value": "GET"
+              },
+              {
+                "conditionType": "AND",
+                "conditions": [
+                  {
+                    "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                    "comparison": "EQUALS",
+                    "value": "GET"
+                  },
+                  {
+                    "path": "actionConfiguration.pluginSpecifiedTemplates[5].value",
+                    "comparison": "EQUALS",
+                    "value": "RANGE"
+                  }
+                ]
+              }
+            ]
+          },
+          "initialValue": "10",
+          "placeholderText": "10"
+        },
+        {
+          "label": "Where Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[14].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "where"
+        },
+        {
+          "label": "Where Conditions",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[14].value",
+          "controlType": "ARRAY_FIELD",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "GET"
+          },
+          "initialValue": [],
+          "schema": [
+            {
+              "label": "Column Name",
+              "key": "path",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "placeholderText": "name"
+            },
+            {
+              "label": "Operator",
+              "key": "operator",
+              "controlType": "DROP_DOWN",
+              "initialValue": "EQ",
+              "options": [
+                {
+                  "label": "<",
+                  "value": "LT"
+                },
+                {
+                  "label": "<=",
+                  "value": "LTE"
+                },
+                {
+                  "label": "==",
+                  "value": "EQ"
+                },
+                {
+                  "label": "!=",
+                  "value": "NOT_EQ"
+                },
+                {
+                  "label": ">=",
+                  "value": "GTE"
+                },
+                {
+                  "label": ">",
+                  "value": "GT"
+                },
+                {
+                  "label": "contains",
+                  "value": "CONTAINS"
+                },
+                {
+                  "label": "in",
+                  "value": "IN"
+                },
+                {
+                  "label": "not in",
+                  "value": "NOT_IN"
+                }
+              ]
+            },
+            {
+              "label": "Value",
+              "key": "value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "placeholderText": "Tobias"
+            }
+          ]
+        },
+        {
+          "label": "Row Object Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "rowObject"
+        },
+        {
+          "label": "Row Object",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].value",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "SMART_SUBSTITUTE",
+          "hidden": {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "NOT_IN",
+                "value": ["APPEND", "UPDATE"]
+              },
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[13].value",
+                "comparison": "EQUALS",
+                "value": false
+              }
+            ]
+          },
+          "placeholderText": "{{\n  {\n    ...Table1.selectedRow, \n    columnName: Input1.text\n  }\n}}"
+        },
+        {
+          "label": "Row Object",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].value",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "SMART_SUBSTITUTE",
+          "hidden": {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "NOT_IN",
+                "value": ["APPEND", "UPDATE"]
+              },
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[13].value",
+                "comparison": "EQUALS",
+                "value": true
+              }
+            ]
+          },
+          "placeholderText": "{{\n  {\n    ...Table1.selectedRow, \n    columnName: Input1.text\n  }\n}}"
+        },
+        {
+          "label": "Row Objects Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[10].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "rowObjects"
+        },
+        {
+          "label": "Row Objects",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[10].value",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "SMART_SUBSTITUTE",
+          "hidden": {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "NOT_IN",
+                "value": ["CREATE", "BULK_APPEND", "BULK_UPDATE"]
+              },
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[13].value",
+                "comparison": "EQUALS",
+                "value": false
+              }
+            ]
+          },
+          "placeholderText": "{{\n  Table1.selectedRows.map((row) => {\n    return { ...row, columnName: Input1.text }\n  })\n}}"
+        },
+        {
+          "label": "Row Objects",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[10].value",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "SMART_SUBSTITUTE",
+          "hidden": {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "NOT_IN",
+                "value": ["CREATE", "BULK_APPEND", "BULK_UPDATE"]
+              },
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[13].value",
+                "comparison": "EQUALS",
+                "value": true
+              }
+            ]
+          },
+          "placeholderText": "{{\n  Table1.selectedRows.map((row) => {\n    return { ...row, columnName: Input1.text }\n  })\n}}"
+        },
+        {
+          "label": "Smart JSON Substitution Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[13].key",
+          "hidden": true,
+          "controlType": "INPUT_TEXT",
+          "initialValue": "smartSubstitution"
+        }
+      ]
+    }
+  ]
+}

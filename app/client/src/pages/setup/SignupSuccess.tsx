@@ -1,10 +1,13 @@
 import { firstTimeUserOnboardingInit } from "actions/onboardingActions";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   APPLICATIONS_URL,
-  extractAppIdAndPageIdFromUrl,
+  BUILDER_PATH,
+  BUILDER_PATH_DEPRECATED,
   SIGNUP_SUCCESS_URL,
+  VIEWER_PATH,
+  VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import { requiresAuth } from "pages/UserAuth/requiresAuthHOC";
 import React from "react";
@@ -20,6 +23,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import Landing from "./Welcome";
 import { error } from "loglevel";
+import { matchPath } from "react-router";
 
 export function SignupSuccess() {
   const dispatch = useDispatch();
@@ -39,11 +43,28 @@ export function SignupSuccess() {
           window.location.pathname == SIGNUP_SUCCESS_URL &&
           shouldEnableFirstTimeUserOnboarding === "true"
         ) {
-          const { applicationId, pageId } = extractAppIdAndPageIdFromUrl(
-            redirectUrl,
-          );
-          if (applicationId && pageId) {
-            dispatch(firstTimeUserOnboardingInit(applicationId, pageId));
+          let urlObject;
+          try {
+            urlObject = new URL(redirectUrl);
+          } catch (e) {}
+          const match = matchPath<{
+            pageId: string;
+            applicationId: string;
+          }>(urlObject?.pathname ?? redirectUrl, {
+            path: [
+              BUILDER_PATH,
+              BUILDER_PATH_DEPRECATED,
+              VIEWER_PATH,
+              VIEWER_PATH_DEPRECATED,
+            ],
+            strict: false,
+            exact: false,
+          });
+          const { applicationId, pageId } = match?.params || {};
+          if (applicationId || pageId) {
+            dispatch(
+              firstTimeUserOnboardingInit(applicationId, pageId as string),
+            );
           }
         } else if (getIsSafeRedirectURL(redirectUrl)) {
           window.location.replace(redirectUrl);

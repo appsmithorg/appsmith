@@ -329,7 +329,10 @@ const PropertyControl = memo((props: Props) => {
 
     const evaluatedValue = _.get(
       widgetProperties,
-      getEvalValuePath(dataTreePath, false),
+      getEvalValuePath(dataTreePath, {
+        isPopulated: true,
+        fullPath: false,
+      }),
     );
 
     const { additionalAutoComplete, ...rest } = props;
@@ -422,7 +425,9 @@ const PropertyControl = memo((props: Props) => {
             {isConvertible && (
               <JSToggleButton
                 active={isDynamic}
-                className={`t--js-toggle ${isDynamic ? "is-active" : ""}`}
+                className={`focus:ring-2 t--js-toggle ${
+                  isDynamic ? "is-active" : ""
+                }`}
                 onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
               >
                 <ControlIcons.JS_TOGGLE />
