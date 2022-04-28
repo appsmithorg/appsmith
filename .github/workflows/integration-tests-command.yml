@@ -1262,12 +1262,11 @@ jobs:
                       summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
                     }
                 });
+                console.log({ result });
+                return result;
               } catch(e) {
                 console.error({ error: e.message });
               }
-              
-            console.log({ result });
-            return result;
             }
 
       - name: Dump the client payload context
