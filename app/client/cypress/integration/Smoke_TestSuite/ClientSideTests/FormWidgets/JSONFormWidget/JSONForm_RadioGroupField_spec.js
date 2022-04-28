@@ -25,6 +25,22 @@ function selectAndValidateOption(selector, option, expectedFormData) {
   );
 }
 
+function clearOptionsProperty() {
+  cy.get(".t--property-control-options .CodeMirror  textarea")
+    .first()
+    .focus()
+    .type("{ctrl}{shift}{downarrow}")
+    .then(($cm) => {
+      if ($cm.val() !== "") {
+        cy.get(".t--property-control-options .CodeMirror textarea")
+          .first()
+          .clear({
+            force: true,
+          });
+      }
+    });
+}
+
 describe("JSONForm RadioGroup Field", () => {
   beforeEach(() => {
     cy.addDsl(dslWithoutSchema);
@@ -59,6 +75,7 @@ describe("JSONForm RadioGroup Field", () => {
     cy.openFieldConfiguration("binary");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Radio Group$/);
 
+    clearOptionsProperty();
     cy.testJsontext("options", JSON.stringify(options));
 
     cy.wait(2000);
@@ -107,6 +124,7 @@ describe("JSONForm RadioGroup Field", () => {
     cy.openFieldConfiguration("accept");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Radio Group$/);
 
+    clearOptionsProperty();
     cy.testJsontext("options", JSON.stringify(options));
 
     cy.wait(2000);
