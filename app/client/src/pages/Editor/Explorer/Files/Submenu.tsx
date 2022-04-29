@@ -24,7 +24,7 @@ const SubMenuContainer = styled.div`
   width: 250px;
   box-shadow: 0px 24px 48px -12px rgba(16, 24, 40, 0.25);
   .ops-container {
-    height: 220px;
+    max-height: 220px;
     overflow: hidden;
     overflow-y: auto;
     div.active {
@@ -121,27 +121,25 @@ export default function ExplorerSubMenu() {
             <div className="px-4 py-2 text-sm font-medium text-gray">
               CREATE NEW
             </div>
-            <div className="sticky top-0">
-              <div className="flex items-center space-x-2 px-4">
-                <SearchIcon className="box-content w-4 h-4" />
-                <input
-                  autoComplete="off"
-                  autoFocus
-                  className="flex-grow text-sm py-2 text-gray-800 bg-transparent placeholder-trueGray-500"
-                  onChange={onChange}
-                  placeholder="Search Datasources"
-                  type="text"
-                  value={query}
-                />
-                {query && (
-                  <button
-                    className="p-1 hover:bg-trueGray-200"
-                    onClick={() => setQuery("")}
-                  >
-                    <CrossIcon className="w-3 h-3 text-trueGray-100" />
-                  </button>
-                )}
-              </div>
+            <div className="flex items-center space-x-2 px-4">
+              <SearchIcon className="box-content w-4 h-4" />
+              <input
+                autoComplete="off"
+                autoFocus
+                className="flex-grow text-sm py-2 text-gray-800 bg-transparent placeholder-trueGray-500"
+                onChange={onChange}
+                placeholder="Search datasources"
+                type="text"
+                value={query}
+              />
+              {query && (
+                <button
+                  className="p-1 hover:bg-trueGray-200"
+                  onClick={() => setQuery("")}
+                >
+                  <CrossIcon className="w-3 h-3 text-trueGray-100" />
+                </button>
+              )}
             </div>
             <div className="ops-container">
               {fileOperations.map((item: any, idx: number) => {
@@ -164,7 +162,7 @@ export default function ExplorerSubMenu() {
                     key={`file-op-${idx}`}
                     onClick={() => handleClick(item)}
                   >
-                    {icon}
+                    {icon && <span className="flex-shrink-0">{icon}</span>}
                     <span className="overflow-hidden whitespace-nowrap overflow-ellipsis">
                       {item.title}
                     </span>
