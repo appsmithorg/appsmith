@@ -42,7 +42,7 @@ const Container = (props: Props) => {
           props.datasourceStructure.error &&
           props.datasourceStructure.error.message
             ? props.datasourceStructure.error.message
-            : "No information available"}
+            : "Schema not available"}
         </EntityPlaceholder>
       );
     }
