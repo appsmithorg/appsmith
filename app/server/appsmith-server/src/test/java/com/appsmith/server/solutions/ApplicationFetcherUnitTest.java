@@ -2,14 +2,18 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
@@ -18,7 +22,9 @@ import com.appsmith.server.services.UserService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Flux;
@@ -64,6 +70,9 @@ public class ApplicationFetcherUnitTest {
     NewPageService newPageService;
 
     ApplicationFetcher applicationFetcher;
+
+    @MockBean
+    ApplicationService applicationService;
 
     User testUser;
 
@@ -194,6 +203,9 @@ public class ApplicationFetcherUnitTest {
                     .thenReturn(updateDefaultPageIdsWithinApplication(application));
         }
 
+        Mockito.when(applicationService.createOrUpdateSshKeyPair(Mockito.anyString()))
+                .thenReturn(Mono.just(new GitAuth()));
+
         StepVerifier.create(applicationFetcher.getAllApplications())
                 .assertNext(userHomepageDTO -> {
                     List<OrganizationApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
@@ -211,6 +223,140 @@ public class ApplicationFetcherUnitTest {
                         }
                     }
                 }).verifyComplete();
+    }
+
+    @Test
+    public void getAllApplications_gitConnectedAppScenarios_OnlyTheDefaultBranchedAppIsReturned() {
+        initMocks();
+        // mock the user data to return recently used orgs and apps
+        UserData userData = new UserData();
+        Mockito.when(userDataService.getForCurrentUser()).thenReturn(Mono.just(userData));
+
+        // mock the list of applications
+        List<Application> applications = createDummyApplications(4,4);
+        List<NewPage> pageList = createDummyPages(4, 4);
+
+        Mockito.when(applicationRepository.findByMultipleOrganizationIds(
+                testUser.getOrganizationIds(), READ_APPLICATIONS)
+        ).thenReturn(Flux.fromIterable(applications));
+
+        Mockito.when(newPageService.findPageSlugsByApplicationIds(anyList(), eq(READ_PAGES)))
+                .thenReturn(Flux.fromIterable(pageList));
+
+        for (Application application : applications) {
+            Mockito
+                    .when(responseUtils.updateApplicationWithDefaultResources(application))
+                    .thenReturn(updateDefaultPageIdsWithinApplication(application));
+        }
+
+        Mockito.when(applicationService.createOrUpdateSshKeyPair(Mockito.anyString()))
+                .thenReturn(Mono.just(new GitAuth()));
+
+        StepVerifier.create(applicationFetcher.getAllApplications())
+                .assertNext(userHomepageDTO -> {
+                    List<OrganizationApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    assertThat(dtos.size()).isEqualTo(4);
+                    for (OrganizationApplicationsDTO dto : dtos) {
+                        assertThat(dto.getApplications().size()).isEqualTo(4);
+                        List<Application> applicationList = dto.getApplications();
+                        for (Application application : applicationList) {
+                            application.getPages().forEach(
+                                    page -> assertThat(page.getSlug()).isEqualTo(page.getId()+"-unpublished-slug")
+                            );
+                            application.getPublishedPages().forEach(
+                                    page -> assertThat(page.getSlug()).isEqualTo(page.getId()+"-published-slug")
+                            );
+                        }
+                    }
+                }).verifyComplete();
+
+        // Generate SSH keys for an app - to test if the app is visible in home page when the git connect step is aborted in middle
+        Mockito.when(applicationService.save(Mockito.any(Application.class)))
+                .thenReturn(Mono.just(new Application()));
+        Mono<UserHomepageDTO> userHomepageDTOMono = applicationFetcher.getAllApplications()
+                .flatMap(userHomepageDTO -> {
+                    List<OrganizationApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<Application> applicationList = dtos.get(0).getApplications();
+                    return Mono.just(applicationList.get(0));
+                })
+                // After choosing the any app randomly to connect to git, Generate keys and stop the process
+                .flatMap(application -> applicationService.createOrUpdateSshKeyPair(application.getId()))
+                .then(applicationFetcher.getAllApplications());
+
+        StepVerifier.create(userHomepageDTOMono)
+                .assertNext(userHomepageDTO -> {
+                    List<OrganizationApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    assertThat(dtos.size()).isEqualTo(4);
+                    for (OrganizationApplicationsDTO dto : dtos) {
+                        assertThat(dto.getApplications().size()).isEqualTo(4);
+                        List<Application> applicationList = dto.getApplications();
+                        for (Application application : applicationList) {
+                            application.getPages().forEach(
+                                    page -> assertThat(page.getSlug()).isEqualTo(page.getId()+"-unpublished-slug")
+                            );
+                            application.getPublishedPages().forEach(
+                                    page -> assertThat(page.getSlug()).isEqualTo(page.getId()+"-published-slug")
+                            );
+                        }
+                    }
+                }).verifyComplete();
+
+        // For connect and create branch flow scenarios where - defaultBranchName is somehow not saved in DB
+        userHomepageDTOMono = applicationFetcher.getAllApplications()
+                .flatMap(userHomepageDTO -> {
+                    List<OrganizationApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<Application> applicationList = dtos.get(0).getApplications();
+                    return Mono.just(applicationList.get(0));
+                })
+                .flatMap(application -> {
+                    // Create a new branched App resource in the same org and verify that branch App does not show up in the response.
+                    Application branchApp = new Application();
+                    branchApp.setName("branched App");
+                    branchApp.setOrganizationId(application.getOrganizationId());
+                    branchApp.setId("org-" + 5 + "-app-" + 5);
+                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    gitApplicationMetadata.setDefaultApplicationId(application.getId());
+                    gitApplicationMetadata.setBranchName("master");
+                    gitApplicationMetadata.setRemoteUrl("remnoteUrl");
+                    branchApp.setGitApplicationMetadata(gitApplicationMetadata);
+
+                    // Set dummy applicationPages
+                    ApplicationPage unpublishedPage = new ApplicationPage();
+                    unpublishedPage.setId("page" + 5);
+                    unpublishedPage.setDefaultPageId("page" + 5);
+                    unpublishedPage.setIsDefault(true);
+
+                    ApplicationPage publishedPage = new ApplicationPage();
+                    publishedPage.setId("page" + 5);
+                    publishedPage.setDefaultPageId("page" + 5);
+                    publishedPage.setIsDefault(true);
+
+                    branchApp.setPages(List.of(unpublishedPage));
+                    branchApp.setPublishedPages(List.of(publishedPage));
+                    applications.add(branchApp);
+
+                    return applicationService.save(branchApp);
+                })
+                .then(applicationFetcher.getAllApplications());
+
+        StepVerifier.create(userHomepageDTOMono)
+                .assertNext(userHomepageDTO -> {
+                    List<OrganizationApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    assertThat(dtos.size()).isEqualTo(4);
+                    for (OrganizationApplicationsDTO dto : dtos) {
+                        assertThat(dto.getApplications().size()).isEqualTo(4);
+                        List<Application> applicationList = dto.getApplications();
+                        for (Application application : applicationList) {
+                            application.getPages().forEach(
+                                    page -> assertThat(page.getSlug()).isEqualTo(page.getId()+"-unpublished-slug")
+                            );
+                            application.getPublishedPages().forEach(
+                                    page -> assertThat(page.getSlug()).isEqualTo(page.getId()+"-published-slug")
+                            );
+                        }
+                    }
+                }).verifyComplete();
+
     }
 
     @Test
