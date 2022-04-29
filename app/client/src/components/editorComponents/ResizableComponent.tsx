@@ -243,7 +243,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     };
 
     return omit(allHandles, get(props, "disabledResizeHandles", []));
-  }, [props]);
+  }, [get(props, "disabledResizeHandles", [])]);
 
   const isEnabled =
     !isDragging &&
