@@ -21,6 +21,7 @@ import {
   CHANGE_APP_THEME,
   createMessage,
   DELETE_APP_THEME,
+  SAVE_APP_THEME,
 } from "@appsmith/constants/messages";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { undoAction, updateReplayEntity } from "actions/pageActions";
@@ -202,7 +203,7 @@ export function* saveSelectedTheme(action: ReduxAction<SaveAppThemeAction>) {
 
     // shows toast
     Toaster.show({
-      text: createMessage(CHANGE_APP_THEME, name),
+      text: createMessage(SAVE_APP_THEME, name),
       variant: Variant.success,
     });
   } catch (error) {

@@ -1,6 +1,7 @@
 import { startCase } from "lodash";
 import classNames from "classnames";
 import React, { useState } from "react";
+import styled from "styled-components";
 
 import { AppTheme } from "entities/AppTheming";
 import TooltipComponent from "components/ads/Tooltip";
@@ -11,6 +12,12 @@ interface ThemeColorControlProps {
   updateTheme: (theme: AppTheme) => void;
 }
 
+const ColorBox = styled.div<{
+  background: string;
+}>`
+  background: ${({ background }) => background};
+`;
+
 function ThemeColorControl(props: ThemeColorControlProps) {
   const { theme, updateTheme } = props;
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
@@ -19,11 +26,12 @@ function ThemeColorControl(props: ThemeColorControlProps) {
   return (
     <div className="space-y-2">
       <div className="flex space-x-2">
-        {Object.keys(theme.config.colors).map(
+        {Object.keys(theme.properties.colors).map(
           (colorName: string, index: number) => {
             return (
               <TooltipComponent content={startCase(colorName)} key={index}>
-                <div
+                <ColorBox
+                  background={userDefinedColors[colorName]}
                   className={classNames({
                     "w-6 h-6 rounded-full border-2 cursor-pointer ring-gray-700": true,
                     "ring-1": selectedColor === colorName,
@@ -33,7 +41,6 @@ function ThemeColorControl(props: ThemeColorControlProps) {
                       colorName !== selectedColor ? colorName : null,
                     );
                   }}
-                  style={{ background: userDefinedColors[colorName] }}
                 />
               </TooltipComponent>
             );
