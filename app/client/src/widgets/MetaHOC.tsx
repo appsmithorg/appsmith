@@ -40,8 +40,33 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       this.initialMetaState = { ...WrappedWidget.getMetaPropertiesMap() };
     }
 
+    handleTriggerEvalOnMetaUpdate = (
+      actionExecution?: DebouncedExecuteActionPayload,
+    ) => {
+      const { executeAction } = this.context;
+      if (actionExecution && actionExecution.dynamicString && executeAction) {
+        executeAction({
+          ...actionExecution,
+          source: {
+            id: this.props.widgetId,
+            name: this.props.widgetName,
+          },
+        });
+        actionExecution.triggerPropertyName &&
+          AppsmithConsole.info({
+            text: `${actionExecution.triggerPropertyName} triggered`,
+            source: {
+              type: ENTITY_TYPE.WIDGET,
+              id: this.props.widgetId,
+              name: this.props.widgetName,
+            },
+          });
+      }
+      this.props.triggerEvalOnMetaUpdate();
+    };
+
     debouncedTriggerEvalOnMetaUpdate = debounce(
-      this.props.triggerEvalOnMetaUpdate,
+      this.handleTriggerEvalOnMetaUpdate,
       200,
       {
         leading: true,
@@ -72,7 +97,6 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
         propertyValue,
         actionExecution,
       );
-      this.debouncedTriggerEvalOnMetaUpdate();
     };
 
     handleUpdateWidgetMetaProperty = (
@@ -80,7 +104,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       propertyValue: unknown,
       actionExecution?: DebouncedExecuteActionPayload,
     ) => {
-      const { executeAction, syncUpdateWidgetMetaProperty } = this.context;
+      const { syncUpdateWidgetMetaProperty } = this.context;
       const { widgetId } = this.props;
 
       if (syncUpdateWidgetMetaProperty) {
@@ -98,25 +122,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
           );
         }
       }
-
-      if (actionExecution && actionExecution.dynamicString && executeAction) {
-        executeAction({
-          ...actionExecution,
-          source: {
-            id: this.props.widgetId,
-            name: this.props.widgetName,
-          },
-        });
-        actionExecution.triggerPropertyName &&
-          AppsmithConsole.info({
-            text: `${actionExecution.triggerPropertyName} triggered`,
-            source: {
-              type: ENTITY_TYPE.WIDGET,
-              id: this.props.widgetId,
-              name: this.props.widgetName,
-            },
-          });
-      }
+      this.debouncedTriggerEvalOnMetaUpdate(actionExecution);
     };
 
     updatedProps = () => {
