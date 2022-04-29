@@ -419,7 +419,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         return newPageService.archivePagesByApplicationId(application.getId(), MANAGE_PAGES)
                 .then(actionCollectionService.archiveActionCollectionByApplicationId(application.getId(), MANAGE_ACTIONS))
                 .then(newActionService.archiveActionsByApplicationId(application.getId(), MANAGE_ACTIONS))
-                .thenReturn(application)
+                .then(themeService.archiveApplicationThemes(application))
                 .flatMap(applicationService::archive)
                 .flatMap(analyticsService::sendDeleteEvent);
     }
