@@ -58,6 +58,7 @@ import {
   JS_EXECUTION_SUCCESS,
   JS_EXECUTION_FAILURE,
   JS_EXECUTION_FAILURE_TOASTER,
+  JS_EXECUTION_SUCCESS_TOASTER,
   JS_FUNCTION_CREATE_SUCCESS,
   JS_FUNCTION_DELETE_SUCCESS,
   JS_FUNCTION_UPDATE_SUCCESS,
@@ -265,8 +266,13 @@ function* updateJSCollection(data: {
             createMessage(JS_FUNCTION_DELETE_SUCCESS),
           );
         }
-        // @ts-expect-error: response is of type unknown
-        yield put(updateJSCollectionSuccess({ data: response?.data }));
+
+        yield put(
+          updateJSCollectionSuccess({
+            // @ts-expect-error: response is of type unknown
+            data: response?.data,
+          }),
+        );
       }
     }
   } catch (error) {
@@ -342,6 +348,10 @@ export function* handleExecuteJSFunctionSaga(data: {
         id: collectionId,
       },
       state: { response: result },
+    });
+    Toaster.show({
+      text: createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name),
+      variant: Variant.success,
     });
   } catch (error) {
     AppsmithConsole.addError({
