@@ -24,11 +24,14 @@ import Spinner from "components/ads/Spinner";
 import useGoogleFont from "utils/hooks/useGoogleFont";
 import { IconSize } from "components/ads/Icon";
 
-const Container = styled.section`
+const Container = styled.section<{
+  background: string;
+}>`
   width: 100%;
   position: relative;
   overflow-x: auto;
   overflow-y: auto;
+  background: ${({ background }) => background};
   &:before {
     position: absolute;
     top: 0;
@@ -76,6 +79,11 @@ function CanvasContainer() {
 
   return (
     <Container
+      background={
+        isPreviewMode
+          ? selectedTheme.properties.colors.backgroundColor
+          : "initial"
+      }
       className={classNames({
         [`${getCanvasClassName()} scrollbar-thin`]: true,
         "mt-0": !shouldHaveTopMargin,
@@ -85,9 +93,6 @@ function CanvasContainer() {
       style={{
         height: `calc(100% - ${shouldHaveTopMargin ? "2rem" : "0px"})`,
         fontFamily: fontFamily,
-        background: isPreviewMode
-          ? selectedTheme.properties.colors.backgroundColor
-          : "initial",
       }}
     >
       {isAppThemeChanging && (

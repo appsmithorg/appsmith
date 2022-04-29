@@ -1,9 +1,10 @@
-import React, { memo, useCallback, useEffect } from "react";
-import store, { useSelector } from "store";
-import WidgetFactory from "utils/WidgetFactory";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
+import styled from "styled-components";
+import store, { useSelector } from "store";
 import { DSLWidget } from "widgets/constants";
+import WidgetFactory from "utils/WidgetFactory";
+import React, { memo, useCallback, useEffect } from "react";
 
 import CanvasMultiPointerArena, {
   POINTERS_CANVAS_ID,
@@ -29,6 +30,13 @@ type PointerEventDataType = {
   data: { x: number; y: number };
   user: any;
 };
+
+const Container = styled.section<{
+  background: string;
+}>`
+  background: ${({ background }) => background};
+  }
+`;
 
 const getPointerData = (
   e: any,
@@ -94,7 +102,8 @@ const Canvas = memo((props: CanvasProps) => {
 
   try {
     return (
-      <div
+      <Container
+        background={backgroundForCanvas}
         className="relative mx-auto t--canvas-artboard pb-52"
         data-testid="t--canvas-artboard"
         id="art-board"
@@ -110,7 +119,6 @@ const Canvas = memo((props: CanvasProps) => {
         }}
         style={{
           width: props.dsl.rightColumn,
-          background: backgroundForCanvas,
         }}
       >
         {props.dsl.widgetId &&
@@ -118,7 +126,7 @@ const Canvas = memo((props: CanvasProps) => {
         {isMultiplayerEnabledForUser && (
           <CanvasMultiPointerArena pageId={pageId} />
         )}
-      </div>
+      </Container>
     );
   } catch (error) {
     log.error("Error rendering DSL", error);
