@@ -30,6 +30,7 @@ export function defaultOptionValueValidation(
   let isValid;
   let parsed;
   let message = "";
+  const { options, serverSideFiltering } = props;
 
   /*
    * Function to check if the object has `label` and `value`
@@ -61,11 +62,44 @@ export function defaultOptionValueValidation(
      * When value is "", "green", 444, {label: "green", value: "green"}
      */
     isValid = true;
-    parsed = value;
+    // parsed = value;
   } else {
     isValid = false;
     parsed = {};
     message = `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`;
+  }
+
+  if (isValid) {
+    // Normalizes value
+    if (_.isString(value) || _.isFinite(value)) {
+      parsed = { value } as DropdownOption;
+    } else {
+      parsed = value as DropdownOption;
+    }
+    // Checks for server side filtering
+    // Checks if the value exists in options
+    const matchingOption = _.find(options, {
+      value: parsed.value,
+    });
+
+    if (matchingOption) {
+      parsed = matchingOption;
+    } else {
+      if (serverSideFiltering) {
+        // Server side filtering: ON
+        // Checks value type
+        if (_.isString(value) || _.isFinite(value)) {
+          isValid = false;
+          parsed = {};
+          message = `Default value is missing in options. Please use {label : <string | num>, value : < string | num>} format to show default for server side data`;
+        }
+      } else {
+        // Server side filtering: OFF
+        isValid = false;
+        parsed = {};
+        message = `Default value is missing in options. Please update the value.`;
+      }
+    }
   }
 
   return {
@@ -415,33 +449,20 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     };
   }
 
-  componentDidMount() {
-    this.setSelectedOption();
-  }
-
   componentDidUpdate(prevProps: SelectWidgetProps) {
     // Reset isDirty to false if defaultOptionValue changes
-    if (
-      !isEqual(this.props.defaultOptionValue, prevProps.defaultOptionValue) &&
-      this.props.isDirty
-    ) {
-      this.props.updateWidgetMetaProperty("isDirty", false);
-    }
-    if (
-      !this.props.serverSideFiltering &&
-      xorWith(this.props.options, prevProps.options, isEqual).length > 0
-    ) {
-      const found = find(this.props.options, {
-        value: this.props.selectedOption.value ?? this.props.selectedOption,
-      });
-
-      this.props.updateWidgetMetaProperty("selectedOption", found || {});
-    }
-    // Sets selectedOption
-    if (!isEqual(this.props.selectedOption, prevProps.selectedOption)) {
+    if (!isEqual(this.props.defaultOptionValue, prevProps.defaultOptionValue)) {
+      if (this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", false);
+      }
       this.setSelectedOption();
     }
-    if (this.props.serverSideFiltering !== prevProps.serverSideFiltering) {
+    if (
+      (!this.props.serverSideFiltering &&
+        xorWith(this.props.options, prevProps.options, isEqual).length > 0) ||
+      this.props.serverSideFiltering !== prevProps.serverSideFiltering
+    ) {
+      // Sets selectedOption
       this.setSelectedOption();
     }
   }
@@ -496,21 +517,24 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   }
 
   setSelectedOption = () => {
-    let value: DropdownOption;
-    if (!this.props.serverSideFiltering) {
-      const matchingOption = find(this.props.options, {
-        value: this.props.selectedOption.value ?? this.props.selectedOption,
-      });
-      value = matchingOption || {};
+    const matchingOption = find(this.props.options, {
+      value: this.props.selectedOption.value,
+    });
+    if (matchingOption) {
+      this.props.updateWidgetMetaProperty("selectedOption", matchingOption);
     } else {
-      const matchingOption = {
-        label: this.props.selectedOption.label ?? this.props.selectedOption,
-        value: this.props.selectedOption.value ?? this.props.selectedOption,
-      };
-      value = matchingOption;
+      if (
+        this.props.serverSideFiltering &&
+        this.props.defaultOptionValue.hasOwnProperty("label")
+      ) {
+        this.props.updateWidgetMetaProperty(
+          "selectedOption",
+          this.props.defaultOptionValue,
+        );
+      } else {
+        this.props.updateWidgetMetaProperty("selectedOption", {});
+      }
     }
-
-    this.props.updateWidgetMetaProperty("selectedOption", value);
   };
 
   onOptionSelected = (selectedOption: DropdownOption) => {
