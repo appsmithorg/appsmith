@@ -167,7 +167,10 @@ const jsObject: JSCollectionData = {
       },
     ],
   },
-  data: {},
+  data: {
+    fun1: {},
+    fun2: [],
+  },
   isExecuting: {},
 };
 
@@ -178,6 +181,8 @@ describe("getPropsForJSActionEntity", () => {
       "myFun2()": "Function",
       myVar1: [],
       myVar2: {},
+      "myFun1.data": {},
+      "myFun2.data": [],
     };
     const result = getPropsForJSActionEntity(jsObject);
     expect(expectedProperties).toStrictEqual(result);

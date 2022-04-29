@@ -117,7 +117,7 @@ const JSObject2: JSCollection = {
   id: "1234",
   applicationId: "app123",
   organizationId: "org123",
-  name: "JSObject3",
+  name: "JSObject2",
   pageId: "page123",
   pluginId: "plugin123",
   pluginType: PluginType.JS,
@@ -131,7 +131,7 @@ const JSObject2: JSCollection = {
       pluginType: "JS",
       pluginId: "plugin123",
       name: "myFun1",
-      fullyQualifiedName: "JSObject3.myFun1",
+      fullyQualifiedName: "JSObject2.myFun1",
       datasource: {
         userPermissions: [],
         name: "UNUSED_DATASOURCE",
@@ -164,7 +164,7 @@ const JSObject2: JSCollection = {
       jsonPathKeys: ["() => {\n\t\t//write code here\n\t}"],
       confirmBeforeExecute: false,
       userPermissions: ["read:actions", "execute:actions", "manage:actions"],
-      validName: "JSObject3.myFun1",
+      validName: "JSObject2.myFun1",
     },
     {
       id: "fun2",
@@ -173,7 +173,7 @@ const JSObject2: JSCollection = {
       pluginType: "JS",
       pluginId: "plugin123",
       name: "myFun2",
-      fullyQualifiedName: "JSObject3.myFun2",
+      fullyQualifiedName: "JSObject2.myFun2",
       datasource: {
         userPermissions: [],
         name: "UNUSED_DATASOURCE",
@@ -206,7 +206,7 @@ const JSObject2: JSCollection = {
       jsonPathKeys: ["async () => {\n\t\t//use async-await or promises\n\t}"],
       confirmBeforeExecute: false,
       userPermissions: ["read:actions", "execute:actions", "manage:actions"],
-      validName: "JSObject3.myFun2",
+      validName: "JSObject2.myFun2",
     },
   ],
   archivedActions: [],
@@ -421,8 +421,382 @@ const resultChangedVariable = {
   ],
 };
 
-describe("get difference in updated and new js collection", () => {
-  it("get name changed js action", () => {
+const parsedBodyWithChangeInBody: ParsedBody = {
+  actions: [
+    {
+      name: "myFun1",
+      body: "() => {\n\t\t//write code here\n\t}",
+      arguments: [],
+      isAsync: false,
+    },
+    {
+      name: "myFun2",
+      body:
+        "async () => {\n\t\t//use async-await or promises\n\tconsole.log('content changed')}",
+      arguments: [],
+      isAsync: true,
+    },
+  ],
+  variables: [
+    {
+      name: "myVar1",
+      value: [],
+    },
+    {
+      name: "myVar2",
+      value: {},
+    },
+  ],
+};
+
+const resultChangedBody = {
+  newActions: [],
+  updateActions: [
+    {
+      id: "fun2",
+      applicationId: "app123",
+      organizationId: "org123",
+      pluginType: "JS",
+      pluginId: "plugin123",
+      name: "myFun2",
+      fullyQualifiedName: "JSObject2.myFun2",
+      datasource: {
+        userPermissions: [],
+        name: "UNUSED_DATASOURCE",
+        pluginId: "plugin123",
+        organizationId: "org123",
+        messages: [],
+        isValid: true,
+        new: true,
+      },
+      pageId: "page123",
+      collectionId: "1234",
+      actionConfiguration: {
+        timeoutInMillisecond: 10000,
+        paginationType: "NONE",
+        encodeParamsToggle: true,
+        body:
+          "async () => {\n\t\t//use async-await or promises\n\tconsole.log('content changed')}",
+        jsArguments: [],
+        isAsync: true,
+      },
+      executeOnLoad: false,
+      clientSideExecution: true,
+      dynamicBindingPathList: [
+        {
+          key: "body",
+        },
+      ],
+      isValid: true,
+      invalids: [],
+      messages: [],
+      jsonPathKeys: ["async () => {\n\t\t//use async-await or promises\n\t}"],
+      confirmBeforeExecute: false,
+      userPermissions: ["read:actions", "execute:actions", "manage:actions"],
+      validName: "JSObject2.myFun2",
+    },
+  ],
+  deletedActions: [],
+  nameChangedActions: [],
+  changedVariables: [],
+};
+const parsedBodyWithChangedParameters: ParsedBody = {
+  actions: [
+    {
+      name: "myFun1",
+      body: "() => {\n\t\t//write code here\n\t}",
+      arguments: [],
+      isAsync: false,
+    },
+    {
+      name: "myFun2",
+      body: "async (a,b) => {\n\t\t//use async-await or promises\n\t}",
+      arguments: [
+        { name: "a", value: undefined },
+        { name: "b", value: undefined },
+      ],
+      isAsync: true,
+    },
+  ],
+  variables: [
+    {
+      name: "myVar1",
+      value: [],
+    },
+    {
+      name: "myVar2",
+      value: {},
+    },
+  ],
+};
+
+const resultChangedParameters = {
+  newActions: [],
+  updateActions: [
+    {
+      id: "fun2",
+      applicationId: "app123",
+      organizationId: "org123",
+      pluginType: "JS",
+      pluginId: "plugin123",
+      name: "myFun2",
+      fullyQualifiedName: "JSObject2.myFun2",
+      datasource: {
+        userPermissions: [],
+        name: "UNUSED_DATASOURCE",
+        pluginId: "plugin123",
+        organizationId: "org123",
+        messages: [],
+        isValid: true,
+        new: true,
+      },
+      pageId: "page123",
+      collectionId: "1234",
+      actionConfiguration: {
+        timeoutInMillisecond: 10000,
+        paginationType: "NONE",
+        encodeParamsToggle: true,
+        body: "async (a,b) => {\n\t\t//use async-await or promises\n\t}",
+        jsArguments: [
+          { name: "a", value: undefined },
+          { name: "b", value: undefined },
+        ],
+        isAsync: true,
+      },
+      executeOnLoad: false,
+      clientSideExecution: true,
+      dynamicBindingPathList: [
+        {
+          key: "body",
+        },
+      ],
+      isValid: true,
+      invalids: [],
+      messages: [],
+      jsonPathKeys: ["async () => {\n\t\t//use async-await or promises\n\t}"],
+      confirmBeforeExecute: false,
+      userPermissions: ["read:actions", "execute:actions", "manage:actions"],
+      validName: "JSObject2.myFun2",
+    },
+  ],
+  deletedActions: [],
+  nameChangedActions: [],
+  changedVariables: [],
+};
+
+const parsedBodyWithRemovedAsync: ParsedBody = {
+  actions: [
+    {
+      name: "myFun1",
+      body: "() => {\n\t\t//write code here\n\t}",
+      arguments: [],
+      isAsync: false,
+    },
+    {
+      name: "myFun2",
+      body: "() => {\n\t\t//use async-await or promises\n\t}",
+      arguments: [],
+      isAsync: false,
+    },
+  ],
+  variables: [
+    {
+      name: "myVar1",
+      value: [],
+    },
+    {
+      name: "myVar2",
+      value: {},
+    },
+  ],
+};
+
+const resultRemovedAsync = {
+  newActions: [],
+  updateActions: [
+    {
+      id: "fun2",
+      applicationId: "app123",
+      organizationId: "org123",
+      pluginType: "JS",
+      pluginId: "plugin123",
+      name: "myFun2",
+      fullyQualifiedName: "JSObject2.myFun2",
+      datasource: {
+        userPermissions: [],
+        name: "UNUSED_DATASOURCE",
+        pluginId: "plugin123",
+        organizationId: "org123",
+        messages: [],
+        isValid: true,
+        new: true,
+      },
+      pageId: "page123",
+      collectionId: "1234",
+      actionConfiguration: {
+        timeoutInMillisecond: 10000,
+        paginationType: "NONE",
+        encodeParamsToggle: true,
+        body: "() => {\n\t\t//use async-await or promises\n\t}",
+        jsArguments: [],
+        isAsync: false,
+      },
+      executeOnLoad: false,
+      clientSideExecution: true,
+      dynamicBindingPathList: [
+        {
+          key: "body",
+        },
+      ],
+      isValid: true,
+      invalids: [],
+      messages: [],
+      jsonPathKeys: ["async () => {\n\t\t//use async-await or promises\n\t}"],
+      confirmBeforeExecute: false,
+      userPermissions: ["read:actions", "execute:actions", "manage:actions"],
+      validName: "JSObject2.myFun2",
+    },
+  ],
+  deletedActions: [],
+  nameChangedActions: [],
+  changedVariables: [],
+};
+
+const parsedBodyWithAddedAsync: ParsedBody = {
+  actions: [
+    {
+      name: "myFun1",
+      body: "async () => {\n\t\t//write code here\n\t}",
+      arguments: [],
+      isAsync: true,
+    },
+    {
+      name: "myFun2",
+      body: "async () => {\n\t\t//use async-await or promises\n\t}",
+      arguments: [],
+      isAsync: true,
+    },
+  ],
+  variables: [
+    {
+      name: "myVar1",
+      value: [],
+    },
+    {
+      name: "myVar2",
+      value: {},
+    },
+  ],
+};
+
+const resultAddedAsync = {
+  newActions: [],
+  updateActions: [
+    {
+      id: "fun1",
+      applicationId: "app123",
+      organizationId: "org123",
+      pluginType: "JS",
+      pluginId: "plugin123",
+      name: "myFun1",
+      fullyQualifiedName: "JSObject2.myFun1",
+      datasource: {
+        userPermissions: [],
+        name: "UNUSED_DATASOURCE",
+        pluginId: "plugin123",
+        organizationId: "org123",
+        messages: [],
+        isValid: true,
+        new: true,
+      },
+      pageId: "page123",
+      collectionId: "1234",
+      actionConfiguration: {
+        timeoutInMillisecond: 10000,
+        paginationType: "NONE",
+        encodeParamsToggle: true,
+        body: "async () => {\n\t\t//write code here\n\t}",
+        jsArguments: [],
+        isAsync: true,
+      },
+      executeOnLoad: false,
+      clientSideExecution: true,
+      dynamicBindingPathList: [
+        {
+          key: "body",
+        },
+      ],
+      isValid: true,
+      invalids: [],
+      messages: [],
+      jsonPathKeys: ["() => {\n\t\t//write code here\n\t}"],
+      confirmBeforeExecute: false,
+      userPermissions: ["read:actions", "execute:actions", "manage:actions"],
+      validName: "JSObject2.myFun1",
+    },
+  ],
+  deletedActions: [],
+  nameChangedActions: [],
+  changedVariables: [],
+};
+
+const parsedBodyWithAddedAction: ParsedBody = {
+  actions: [
+    {
+      name: "myFun1",
+      body: "() => {\n\t\t//write code here\n\t}",
+      arguments: [],
+      isAsync: false,
+    },
+    {
+      name: "myFun2",
+      body: "async () => {\n\t\t//use async-await or promises\n\t}",
+      arguments: [],
+      isAsync: true,
+    },
+    {
+      name: "myFun3",
+      body: "async () => {\n\t\t//use async-await or promises\n\t}",
+      arguments: [],
+      isAsync: true,
+    },
+  ],
+  variables: [
+    {
+      name: "myVar1",
+      value: [],
+    },
+    {
+      name: "myVar2",
+      value: {},
+    },
+  ],
+};
+
+const resultAddedAction = {
+  newActions: [
+    {
+      name: "myFun3",
+      executeOnLoad: false,
+      pageId: "page123",
+      collectionId: "1234",
+      organizationId: "org123",
+      actionConfiguration: {
+        body: "async () => {\n\t\t//use async-await or promises\n\t}",
+        isAsync: true,
+        timeoutInMillisecond: 0,
+        jsArguments: [],
+      },
+    },
+  ],
+  updateActions: [],
+  deletedActions: [],
+  nameChangedActions: [],
+  changedVariables: [],
+};
+
+describe("getDifferenceInJSCollection", () => {
+  it("gets name changed js action", () => {
     const result = getDifferenceInJSCollection(
       parsedBodyWithRenamedAction,
       JSObject1,
@@ -430,21 +804,58 @@ describe("get difference in updated and new js collection", () => {
     expect(resultRenamedActions).toStrictEqual(result);
   });
 
-  it("get deleted js action", () => {
+  it("gets deleted js action", () => {
     const result = getDifferenceInJSCollection(
       parsedBodyWithDeletedAction,
       JSObject1,
     );
     expect(resultDeletedActions).toStrictEqual(result);
   });
-});
 
-describe("get difference for variables", () => {
-  it("get changed variable value in difference", () => {
+  it("gets added js action ", () => {
+    const result = getDifferenceInJSCollection(
+      parsedBodyWithAddedAction,
+      JSObject2,
+    );
+    expect(resultAddedAction).toStrictEqual(result);
+  });
+
+  it("gets changed variable value in difference", () => {
     const result = getDifferenceInJSCollection(
       parsedBodyWithChangedVariable,
       JSObject2,
     );
     expect(resultChangedVariable).toStrictEqual(result);
+  });
+
+  it("gets updated body value in difference", () => {
+    const result = getDifferenceInJSCollection(
+      parsedBodyWithChangeInBody,
+      JSObject2,
+    );
+    expect(resultChangedBody).toStrictEqual(result);
+  });
+
+  it("gets updated params value in difference", () => {
+    const result = getDifferenceInJSCollection(
+      parsedBodyWithChangedParameters,
+      JSObject2,
+    );
+    expect(resultChangedParameters).toStrictEqual(result);
+  });
+  it("gets removed async tag in difference", () => {
+    const result = getDifferenceInJSCollection(
+      parsedBodyWithRemovedAsync,
+      JSObject2,
+    );
+    expect(resultRemovedAsync).toStrictEqual(result);
+  });
+
+  it("gets added async tag value in difference", () => {
+    const result = getDifferenceInJSCollection(
+      parsedBodyWithAddedAsync,
+      JSObject2,
+    );
+    expect(resultAddedAsync).toStrictEqual(result);
   });
 });
