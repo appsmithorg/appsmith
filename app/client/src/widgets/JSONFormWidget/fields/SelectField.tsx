@@ -13,6 +13,7 @@ import { DropdownOption } from "widgets/SelectWidget/constants";
 import { isPrimitive } from "../helper";
 import { isNil } from "lodash";
 import { Colors } from "constants/Colors";
+import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 
 type MetaProps = {
   filterText?: string;
@@ -42,6 +43,7 @@ const COMPONENT_DEFAULT_VALUES: SelectComponentProps = {
   isRequired: false,
   isVisible: true,
   label: "",
+  labelTextSize: BASE_LABEL_TEXT_SIZE,
   serverSideFiltering: false,
   options: [
     { label: "Blue", value: "BLUE" },

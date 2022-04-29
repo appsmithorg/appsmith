@@ -18,6 +18,7 @@ import { dateFormatOptions } from "../widget/propertyConfig/properties/date";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { Colors } from "constants/Colors";
+import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 
 type DateComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
@@ -52,6 +53,7 @@ const COMPONENT_DEFAULT_VALUES = {
   minDate: "1920-12-31T18:30:00.000Z",
   shortcuts: false,
   timePrecision: TimePrecision.MINUTE,
+  labelTextSize: BASE_LABEL_TEXT_SIZE,
 };
 
 const componentDefaultValues = ({

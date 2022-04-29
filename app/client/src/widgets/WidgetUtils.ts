@@ -307,6 +307,7 @@ export const PopoverStyles = createGlobalStyle<{
 
 /**
  * Maps the old font sizes such as HEADING1, HEADING2 etc. to the new theming fontSizes(in rems).
+ * This is specifically added for the theming migration. For text-widget v2 this function should be removed.
  * @param fontSize
  * @returns
  */
@@ -329,7 +330,8 @@ export const fontSizeUtility = (fontSize: string | undefined) => {
 };
 
 /**
- * Function to map Old borderRadius(with dynamic binding) to the new theming border radius in theming migration
+ * Function to map Old borderRadius(with dynamic binding) to the new theming border radius in theming migration.
+ * This function should be removed from the widgets whenever their is a new version release for the widgets.
  * @param borderRadius
  * @returns
  */

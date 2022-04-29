@@ -4,7 +4,7 @@ import { ControllerRenderProps } from "react-hook-form";
 import { sortBy } from "lodash";
 
 import Accordion from "../component/Accordion";
-import FieldLabel from "../component/FieldLabel";
+import FieldLabel, { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 import FieldRenderer from "./FieldRenderer";
 import NestedFormWrapper from "../component/NestedFormWrapper";
 import useUpdateAccessor from "./useObserveAccessor";
@@ -45,6 +45,7 @@ const COMPONENT_DEFAULT_VALUES: ObjectComponentProps = {
   isDisabled: false,
   isRequired: false,
   isVisible: true,
+  labelTextSize: BASE_LABEL_TEXT_SIZE,
   label: "",
 };
 

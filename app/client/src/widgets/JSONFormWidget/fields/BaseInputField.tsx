@@ -33,6 +33,7 @@ import {
 import BaseInputComponent, {
   InputHTMLType,
 } from "widgets/BaseInputWidget/component";
+import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 
 export type BaseInputComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
@@ -83,6 +84,7 @@ const COMPONENT_DEFAULT_VALUES: BaseInputComponentProps = {
   isRequired: false,
   isSpellCheck: false,
   isVisible: true,
+  labelTextSize: BASE_LABEL_TEXT_SIZE,
   label: "",
 };
 

@@ -20,6 +20,7 @@ import {
 } from "widgets/CurrencyInputWidget/component/utilities";
 import derived from "widgets/CurrencyInputWidget/widget/derived";
 import { isEmpty } from "../helper";
+import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 
 type CurrencyInputComponentProps = BaseInputComponentProps & {
   currencyCountryCode: string;
@@ -48,6 +49,7 @@ const COMPONENT_DEFAULT_VALUES: CurrencyInputComponentProps = {
   isRequired: false,
   isSpellCheck: false,
   isVisible: true,
+  labelTextSize: BASE_LABEL_TEXT_SIZE,
   label: "",
 };
 

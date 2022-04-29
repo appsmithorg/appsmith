@@ -23,6 +23,7 @@ import { DropdownOption } from "widgets/MultiSelectTreeWidget/widget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isPrimitive, validateOptions } from "../helper";
 import { Colors } from "constants/Colors";
+import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 
 type MultiSelectComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
@@ -53,6 +54,7 @@ const COMPONENT_DEFAULT_VALUES: MultiSelectComponentProps = {
   isRequired: false,
   isVisible: true,
   label: "",
+  labelTextSize: BASE_LABEL_TEXT_SIZE,
   serverSideFiltering: false,
   options: [
     { label: "Blue", value: "BLUE" },

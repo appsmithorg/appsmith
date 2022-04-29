@@ -10,6 +10,7 @@ import { BaseFieldComponentProps, FieldComponentBaseProps } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
 import { Alignment } from "@blueprintjs/core";
+import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 
 type RadioGroupComponentProps = FieldComponentBaseProps & {
   options: RadioOption[];
@@ -28,6 +29,7 @@ const COMPONENT_DEFAULT_VALUES: RadioGroupComponentProps = {
   isRequired: false,
   isVisible: true,
   label: "",
+  labelTextSize: BASE_LABEL_TEXT_SIZE,
   options: [
     { label: "Yes", value: "Y" },
     { label: "No", value: "N" },
