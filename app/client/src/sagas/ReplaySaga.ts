@@ -258,13 +258,17 @@ function* replayThemeSaga(replayEntity: Canvas, replay: any) {
 
   yield put(selectWidgetAction());
 
-  yield put(
-    updateSelectedAppThemeAction({
-      theme: replayEntity.theme,
-      shouldReplay: false,
-      applicationId,
-    }),
-  );
+  // todo(pawan): check with arun/rahul on how we can get rid of this check
+  // better way to do is set shouldreplay = false when evaluating tree
+  if (replayEntity.theme.id) {
+    yield put(
+      updateSelectedAppThemeAction({
+        theme: replayEntity.theme,
+        shouldReplay: false,
+        applicationId,
+      }),
+    );
+  }
 }
 
 function* replayActionSaga(

@@ -441,6 +441,7 @@ function* evaluationChangeListenerSaga() {
     const action: EvaluationReduxAction<unknown | unknown[]> = yield take(
       evtActionChannel,
     );
+
     if (shouldProcessBatchedAction(action)) {
       const postEvalActions = getPostEvalActions(action);
       yield call(
