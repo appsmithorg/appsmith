@@ -486,7 +486,9 @@ class MultiSelectWidget extends BaseWidget<
   static getDerivedPropertiesMap() {
     return {
       selectedOptionLabels: `{{
-        this.selectedOptionValues.map(value => _.find(this.options, {value})?.label)
+        !this.serverSideFiltering
+          ? this.selectedOptionValues.map(value => _.find(this.options, {value})?.label)
+          : this.selectedOptions.map(o => o.label ?? o)
       }}`,
       selectedOptionValues: `{{
         !this.serverSideFiltering
@@ -494,7 +496,8 @@ class MultiSelectWidget extends BaseWidget<
             selectedOption => this.options?.some(
               option => option.value === (selectedOption.value ?? selectedOption)
             )).map(o => o.value ?? o)
-          : this.selectedOptions.map(o => o.value ?? o)}}`,
+          : this.selectedOptions.map(o => o.value ?? o)
+      }}`,
       isValid: `{{this.isRequired ? !!this.selectedOptionValues && this.selectedOptionValues.length > 0 : true}}`,
       value: `{{this.selectedOptionValues}}`,
     };
