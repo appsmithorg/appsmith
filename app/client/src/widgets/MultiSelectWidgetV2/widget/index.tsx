@@ -397,7 +397,7 @@ class MultiSelectWidget extends BaseWidget<
             propertyName: "labelTextSize",
             label: "Label Text Size",
             controlType: "DROP_DOWN",
-            defaultValue: "1rem",
+            defaultValue: "0.875rem",
             options: [
               {
                 label: "S",
@@ -420,12 +420,12 @@ class MultiSelectWidget extends BaseWidget<
                 subText: "1.875rem",
               },
               {
-                label: "XXL",
+                label: "2xl",
                 value: "3rem",
                 subText: "3rem",
               },
               {
-                label: "3XL",
+                label: "3xl",
                 value: "3.75rem",
                 subText: "3.75rem",
               },

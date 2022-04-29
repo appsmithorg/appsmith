@@ -498,7 +498,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             propertyName: "labelTextSize",
             label: "Text Size",
             controlType: "DROP_DOWN",
-            defaultValue: "1rem",
+            defaultValue: "0.875rem",
             options: [
               {
                 label: "S",
