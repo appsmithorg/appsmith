@@ -93,7 +93,6 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
           actionExecution,
         },
       ]);
-      this.debouncedTriggerEvalOnMetaUpdate();
     };
 
     handleUpdateWidgetMetaProperties = (
@@ -145,6 +144,8 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
           this.logExecuteTrigger(actionExecution);
         }
       });
+
+      this.debouncedTriggerEvalOnMetaUpdate();
     };
 
     updatedProps = () => {
