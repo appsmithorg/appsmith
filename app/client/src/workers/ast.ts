@@ -303,7 +303,7 @@ const getPropertyAccessor = (propertyNode: IdentifierNode | LiteralNode) => {
 
 export const parseJSObjectWithAST = (jsObjectBody: string) => {
   const createString = `var jsObj = ${jsObjectBody}`;
-  const ast = parse(createString, { ecmaVersion: 11 });
+  const ast = parse(createString, { ecmaVersion: ECMA_VERSION });
   const rawKeyValues: any = [];
   const parsedObject: any = [];
   simple(ast, {

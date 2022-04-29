@@ -726,14 +726,14 @@ export default class DataTreeEvaluator {
             const variableList: Array<string> =
               _.get(entity, "variables") || [];
             if (variableList.indexOf(propertyPath) > -1) {
-              const getVarEvalValue = _.get(
+              const currentEvaluatedValue = _.get(
                 currentTree,
                 getEvalValuePath(fullPropertyPath, {
                   isPopulated: true,
                   fullPath: true,
                 }),
               );
-              if (!getVarEvalValue) {
+              if (!currentEvaluatedValue) {
                 _.set(
                   currentTree,
                   getEvalValuePath(fullPropertyPath, {
@@ -744,7 +744,7 @@ export default class DataTreeEvaluator {
                 );
                 _.set(currentTree, fullPropertyPath, evalPropertyValue);
               } else {
-                _.set(currentTree, fullPropertyPath, getVarEvalValue);
+                _.set(currentTree, fullPropertyPath, currentEvaluatedValue);
               }
             }
             return currentTree;
@@ -1055,6 +1055,8 @@ export default class DataTreeEvaluator {
     if (correctFormat) {
       const body = entity.body.replace(/export default/g, "");
       try {
+        delete this.resolvedFunctions[`${entityName}`];
+        delete this.currentJSCollectionState[`${entityName}`];
         const parsedObject = parseJSObjectWithAST(body);
         const actions: any = [];
         const variables: any = [];
