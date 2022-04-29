@@ -30,6 +30,7 @@ import FormTextField from "components/ads/formFields/TextField";
 import Button, { Size } from "components/ads/Button";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
 import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
+import localStorage from "utils/localStorage";
 import { isEmail, isEmptyString } from "utils/formhelpers";
 import { LoginFormValues } from "pages/UserAuth/helpers";
 import { withTheme } from "styled-components";
@@ -183,6 +184,7 @@ export function Login(props: LoginFormProps) {
                 disabled={!isFormValid}
                 fill
                 onClick={() => {
+                  localStorage.setItem(LOGIN_FORM_EMAIL_FIELD_NAME, email);
                   PerformanceTracker.startTracking(
                     PerformanceTransactionName.LOGIN_CLICK,
                   );
@@ -209,9 +211,22 @@ export function Login(props: LoginFormProps) {
 }
 
 const selector = formValueSelector(LOGIN_FORM_NAME);
-export default connect((state) => ({
-  emailValue: selector(state, LOGIN_FORM_EMAIL_FIELD_NAME),
-}))(
+export default connect((state) => {
+  const queryParams = new URLSearchParams(location.search);
+
+  return {
+    initialValues: {
+      /* 
+        take username(email) from local storage if error param is present in URL 
+        otherwise use empty string 
+      */
+      username: queryParams.get("error")
+        ? localStorage.getItem(LOGIN_FORM_EMAIL_FIELD_NAME) || ""
+        : "",
+    },
+    emailValue: selector(state, LOGIN_FORM_EMAIL_FIELD_NAME),
+  };
+})(
   reduxForm<LoginFormValues, { emailValue: string }>({
     validate,
     touchOnBlur: true,
