@@ -49,7 +49,21 @@ services:
     volumes:
       - ./stacks:/appsmith-stacks
     restart: unless-stopped
+  #   # Uncomment the lines below to enable auto-update
+  #   labels:
+  #     com.centurylinklabs.watchtower.enable: "true"
+
+  # auto_update:
+  #   image: containrrr/watchtower:latest-dev
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   # Update check interval in seconds.
+  #   command: --schedule "0 0 * ? * *" --label-enable --cleanup
+  #   restart: unless-stopped
+
+
 ```
+>>Note: To enable auto-update for Appsmith, please uncomment all the commented lines in the docker-compose file.
 
 After saving this file, `cd` to the folder that contains this file and run the following command to start Appsmith:
 
