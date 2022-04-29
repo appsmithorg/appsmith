@@ -224,6 +224,7 @@ export type EventName =
   | "TEMPLATE_FILTER_SELECTED"
   | "MANUAL_UPGRADE_CLICK"
   | "PAGE_NOT_FOUND"
+  | "SIMILAR_TEMPLATE_CLICK"
   | "RUN_JS_FUNCTION";
 
 function getApplicationId(location: Location) {
