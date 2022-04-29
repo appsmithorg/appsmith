@@ -5,7 +5,20 @@ export class JSEditor {
   public locator = ObjectsRegistry.CommonLocators;
   public ee = ObjectsRegistry.EntityExplorer;
 
-  private _runButton = "//li//*[local-name() = 'svg' and @class='run-button']";
+  private _runButton = "button.run-js-action";
+  private _settingsTab = ".tab-title:contains('Settings')";
+  private _codeTab = ".tab-title:contains('Code')";
+  private _onPageLoadRadioButton = (functionName: string, onLoad: boolean) =>
+    `.${functionName}-on-page-load-setting label:contains(${
+      onLoad ? "Yes" : "No"
+    }) span.checkbox`;
+  private _confirmBeforeExecuteRadioButton = (
+    functionName: string,
+    shouldConfirm: boolean,
+  ) =>
+    `.${functionName}-confirm-before-execute label:contains(${
+      shouldConfirm ? "Yes" : "No"
+    }) span.checkbox`;
   private _outputConsole = ".CodeEditorTarget";
   private _jsObjName = ".t--js-action-name-edit-field span";
   private _jsObjTxt = ".t--js-action-name-edit-field input";
@@ -87,7 +100,7 @@ export class JSEditor {
     if (toRun) {
       //clicking 1 times & waits for 3 second for result to be populated!
       Cypress._.times(1, () => {
-        cy.xpath(this._runButton)
+        cy.get(this._runButton)
           .first()
           .click()
           .wait(3000);
@@ -109,13 +122,21 @@ export class JSEditor {
     this.agHelper.AssertAutoSave(); //Ample wait due to open bug # 10284
   }
 
-  public EnterJSContext(endp: string, value: string, paste = true, toToggleOnJS = false, notField = false) {
+  public EnterJSContext(
+    endp: string,
+    value: string,
+    paste = true,
+    toToggleOnJS = false,
+    notField = false,
+  ) {
     if (toToggleOnJS) {
       cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
         .invoke("attr", "class")
         .then((classes: any) => {
           if (!classes.includes("is-active")) {
-            cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+            cy.get(
+              this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()),
+            )
               .first()
               .click({ force: true });
           }
@@ -131,19 +152,22 @@ export class JSEditor {
     //   .type("{del}", { force: true });
 
     if (paste) {
-      this.agHelper.EnterValue(value, endp, notField)
-    }
-    else {
-      cy.get(this.locator._propertyControl + endp.replace(/ +/g, "").toLowerCase() + " " + this.locator._codeMirrorTextArea)
+      this.agHelper.EnterValue(value, endp, notField);
+    } else {
+      cy.get(
+        this.locator._propertyControl +
+          endp.replace(/ +/g, "").toLowerCase() +
+          " " +
+          this.locator._codeMirrorTextArea,
+      )
         .first()
         .then((el: any) => {
           const input = cy.get(el);
           input.type(value, {
             parseSpecialCharSequences: false,
           });
-        })
+        });
     }
-
 
     // cy.focused().then(($cm: any) => {
     //   if ($cm.contents != "") {
@@ -175,18 +199,22 @@ export class JSEditor {
     //     });
     // });
 
-    this.agHelper.AssertAutoSave()//Allowing time for Evaluate value to capture value
-
+    this.agHelper.AssertAutoSave(); //Allowing time for Evaluate value to capture value
   }
 
   public RemoveText(endp: string) {
-    cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
+    cy.get(
+      this.locator._propertyControl +
+        endp +
+        " " +
+        this.locator._codeMirrorTextArea,
+    )
       .first()
       .focus()
       .type("{uparrow}", { force: true })
       .type("{ctrl}{shift}{downarrow}", { force: true })
       .type("{del}", { force: true });
-    this.agHelper.AssertAutoSave()
+    this.agHelper.AssertAutoSave();
   }
 
   public RenameJSObjFromForm(renameVal: string) {
@@ -216,7 +244,7 @@ export class JSEditor {
 
   public validateDefaultJSObjProperties(jsObjName: string) {
     this.ee.ActionContextMenuByEntityName(jsObjName, "Show Bindings");
-    cy.get(this._propertyList).then(function ($lis) {
+    cy.get(this._propertyList).then(function($lis) {
       const bindingsLength = $lis.length;
       expect(bindingsLength).to.be.at.least(4);
       expect($lis.eq(0).text()).to.be.oneOf([
@@ -257,5 +285,23 @@ export class JSEditor {
     this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_ONPAGELOAD()), onLoad)
     this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_CONFIRM_EXECUTION()), bfrCalling)
     this.agHelper.GetNClick(this._closeSettings)
+  }
+  public AddJSFunctionSettings(
+    funName: string,
+    onLoad = true,
+    bfrCalling = true,
+  ) {
+    // Navigate to Settings tab
+    this.agHelper.GetNClick(this._settingsTab);
+    // Set onPageLoad
+    cy.get(this._onPageLoadRadioButton(funName, onLoad))
+      .first()
+      .click();
+    // Set confirmBeforeExecute
+    cy.get(this._confirmBeforeExecuteRadioButton(funName, bfrCalling))
+      .first()
+      .click();
+    // Return to code tab
+    this.agHelper.GetNClick(this._codeTab);
   }
 }
