@@ -234,7 +234,7 @@ storageClass:
 autoupdate:
   ## @param autoupdate.enabled - Enable config autoupdate
   ##
-  enabled: true
+  enabled: false
   ## @param autoupdate.scheduler - Schedule cron job to check & update Helm image
   ##
   scheduler: "0 * * * *"

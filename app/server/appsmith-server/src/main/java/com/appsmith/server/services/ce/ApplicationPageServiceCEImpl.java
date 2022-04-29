@@ -59,6 +59,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -675,6 +676,20 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     public Mono<Application> cloneApplication(String applicationId, String branchName) {
 
         Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
+                .flatMap(application -> {
+                    // For git connected application user can update the default branch
+                    // In such cases we should fork the application from the new default branch
+                    if(StringUtils.isEmpty(branchName)
+                            && !Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()
+                            && !application.getGitApplicationMetadata().getBranchName().equals(application.getGitApplicationMetadata().getDefaultBranchName())) {
+                        return applicationService.findByBranchNameAndDefaultApplicationId(
+                                application.getGitApplicationMetadata().getDefaultBranchName(),
+                                applicationId,
+                                AclPermission.MANAGE_APPLICATIONS
+                        );
+                    }
+                    return Mono.just(application);
+                })
                 .cache();
 
         // Find the name for the cloned application which wouldn't lead to duplicate key exception
