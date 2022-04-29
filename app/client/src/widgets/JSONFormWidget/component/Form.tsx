@@ -203,11 +203,16 @@ function Form<TValues = any>({
        *  to be hydrated with the default value rather than the formData.
        */
       if (isEmpty(formData) || isWidgetMounting) {
+        /**
+         * In Form always convert data to align with identifier rather than accessor.
+         * Reason: Form's only consider identifier (used as names of field registration). If
+         * some entity is consuming form's data then that entity has to do manipulation as it sees fit.
+         *  */
         const defaultValues = schemaItemDefaultValue(
           schema[ROOT_SCHEMA_KEY],
-          "accessor",
+          "identifier",
         ) as TValues;
-        updateFormData(defaultValues, true);
+        updateFormData(defaultValues);
         reset(defaultValues);
       } else {
         // When the accessor changes, this formData needs to be converted to have

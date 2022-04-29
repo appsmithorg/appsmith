@@ -200,6 +200,8 @@ export const schemaItemDefaultValue = (
   }
 
   if (schemaItem.fieldType === FieldType.ARRAY) {
+    if (schemaItem.defaultValue === null) return null;
+
     const defaultArrayValue = processArray(schemaItem.children, toKey);
     let sanitizedDefaultValue: unknown[] = [];
 

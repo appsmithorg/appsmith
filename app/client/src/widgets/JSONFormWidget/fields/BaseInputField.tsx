@@ -154,6 +154,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     fieldState: { isDirty },
   } = useController({
     defaultValue: inputDefaultValue,
+    shouldUnregister: true,
     name,
   });
 

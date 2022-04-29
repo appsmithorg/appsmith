@@ -124,7 +124,9 @@ function ArrayField({
   const keysRef = useRef<string[]>([]);
   const removedKeys = useRef<string[]>([]);
   const defaultValue = getDefaultValue(schemaItem, passedDefaultValue);
-  const cachedDefaultValue = useRef<unknown[]>(defaultValue);
+  const [cachedDefaultValue, setCachedDefaultValue] = useState<unknown[]>(
+    defaultValue,
+  );
 
   const value = watch(name);
   const valueLength = value?.length || 0;
@@ -167,7 +169,7 @@ function ArrayField({
         values.filter((_val: any, index: number) => index !== removedIndex),
       );
 
-      cachedDefaultValue.current = newValues;
+      setCachedDefaultValue(newValues);
 
       removedKeys.current = [removedKey];
 
@@ -207,7 +209,7 @@ function ArrayField({
 
   useDeepEffect(() => {
     setValue(name, klona(defaultValue));
-    cachedDefaultValue.current = klona(defaultValue);
+    setCachedDefaultValue(klona(defaultValue));
   }, [defaultValue]);
 
   /**
@@ -263,7 +265,7 @@ function ArrayField({
             <FieldRenderer
               fieldName={fieldName}
               options={DEFAULT_FIELD_RENDERER_OPTIONS}
-              passedDefaultValue={cachedDefaultValue.current[index]}
+              passedDefaultValue={cachedDefaultValue[index]}
               propertyPath={fieldPropertyPath}
               schemaItem={arrayItemSchema}
             />
