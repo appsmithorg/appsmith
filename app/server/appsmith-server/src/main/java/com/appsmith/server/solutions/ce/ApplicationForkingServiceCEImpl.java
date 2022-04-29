@@ -17,6 +17,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ExamplesOrganizationCloner;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -39,20 +40,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
     public Mono<Application> forkApplicationToOrganization(String srcApplicationId, String targetOrganizationId) {
         final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, AclPermission.READ_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)))
-                .flatMap(application -> {
-                    // For git connected application user can update the default branch
-                    // In such cases we should fork the application from the new default branch
-                    if(!Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()
-                            && !application.getGitApplicationMetadata().getBranchName().equals(application.getGitApplicationMetadata().getDefaultBranchName())) {
-                        return applicationService.findByBranchNameAndDefaultApplicationId(
-                                application.getGitApplicationMetadata().getDefaultBranchName(),
-                                srcApplicationId,
-                                AclPermission.MANAGE_APPLICATIONS
-                        );
-                    }
-                    return Mono.just(application);
-                });
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
 
         final Mono<Organization> targetOrganizationMono = organizationService.findById(targetOrganizationId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, targetOrganizationId)));
@@ -106,6 +94,23 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     public Mono<Application> forkApplicationToOrganization(String srcApplicationId,
                                                            String targetOrganizationId,
                                                            String branchName) {
+        if(StringUtils.isEmpty(branchName)) {
+            return applicationService.findById(srcApplicationId, AclPermission.READ_APPLICATIONS)
+                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)))
+                    .flatMap(application -> {
+                        // For git connected application user can update the default branch
+                        // In such cases we should fork the application from the new default branch
+                        if (!Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()
+                                && !application.getGitApplicationMetadata().getBranchName().equals(application.getGitApplicationMetadata().getDefaultBranchName())) {
+                            return applicationService.findBranchedApplicationId(
+                                    application.getGitApplicationMetadata().getDefaultBranchName(),
+                                    srcApplicationId,
+                                    AclPermission.MANAGE_APPLICATIONS
+                            ).flatMap(appId -> forkApplicationToOrganization(appId, targetOrganizationId));
+                        }
+                        return forkApplicationToOrganization(application.getId(), targetOrganizationId);
+                    });
+        }
         return applicationService.findBranchedApplicationId(branchName, srcApplicationId, AclPermission.READ_APPLICATIONS)
                 .flatMap(branchedApplicationId -> forkApplicationToOrganization(branchedApplicationId, targetOrganizationId))
                 .map(responseUtils::updateApplicationWithDefaultResources);
