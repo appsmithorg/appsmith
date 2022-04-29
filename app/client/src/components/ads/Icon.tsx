@@ -197,7 +197,7 @@ export const IconWrapper = styled.span<IconProps>`
 
   display: flex;
   align-items: center;
-  cursor: ${(props) => 
+  cursor: ${(props) =>
     props.disabled ? "not-allowed" : props.clickable ? "pointer" : "default"};
   svg {
     width: ${(props) => sizeHandler(props.size)}px;
