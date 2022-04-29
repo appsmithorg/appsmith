@@ -166,7 +166,7 @@ describe("Git Bug: Fix clone page issue where JSObject are not showing up in des
   });
 });
 describe("Git synced app with JSObject", function() {
-  it("Create an app with JSObject, connect it to git and verify its data in edit and deploy mode", function() {
+  it.only("Create an app with JSObject, connect it to git and verify its data in edit and deploy mode", function() {
     cy.NavigateToHome();
     cy.createOrg();
     cy.wait("@createOrg").then((interception) => {
@@ -206,6 +206,7 @@ describe("Git synced app with JSObject", function() {
       cy.connectToGitRepo(repoName);
       cy.wait(3000);
     });
+    cy.commitAndPush();
     cy.latestDeployPreview();
     cy.wait(2000);
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
