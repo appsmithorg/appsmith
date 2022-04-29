@@ -3,7 +3,6 @@ import { useActiveAction } from "../hooks";
 import { Entity, EntityClassNames } from "../Entity/index";
 import {
   createMessage,
-  ADD_QUERY_JS_TOOLTIP,
   ADD_QUERY_JS_BUTTON,
   EMPTY_QUERY_JS_BUTTON_TEXT,
   EMPTY_QUERY_JS_MAIN_TEXT,
@@ -18,7 +17,6 @@ import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { Colors } from "constants/Colors";
 import {
-  comboHelpText,
   filterCategories,
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
