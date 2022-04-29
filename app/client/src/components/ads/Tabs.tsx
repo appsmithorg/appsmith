@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { RefObject, useCallback, useState } from "react";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 import styled from "styled-components";
@@ -6,6 +6,10 @@ import Icon, { IconName, IconSize } from "./Icon";
 import { Classes, CommonComponentProps } from "./common";
 import { useEffect } from "react";
 import { Indices } from "constants/Layers";
+import { theme } from "constants/DefaultTheme";
+import useResizeObserver from "utils/hooks/useResizeObserver";
+
+export const TAB_MIN_HEIGHT = `36px`;
 
 export type TabProp = {
   key: string;
@@ -28,7 +32,7 @@ const TabsWrapper = styled.div<{
     height: 100%;
   }
   .react-tabs__tab-panel {
-    height: calc(100% - 36px);
+    height: ${() => `calc(100% - ${TAB_MIN_HEIGHT})`};
     overflow: auto;
   }
   .react-tabs__tab-list {
@@ -251,6 +255,13 @@ const TabTitleWrapper = styled.div<{
       : ""}
 `;
 
+const CollapseIconWrapper = styled.div`
+  position: absolute;
+  right: 14px;
+  top: ${() => theme.spaces[3] - 1}px;
+  cursor: pointer;
+`;
+
 export type TabItemProps = {
   tab: TabProp;
   selected: boolean;
@@ -288,17 +299,87 @@ export type TabbedViewComponentType = CommonComponentProps & {
   vertical?: boolean;
   tabItemComponent?: (props: TabItemProps) => JSX.Element;
   responseViewer?: boolean;
+  canCollapse?: boolean;
+  // Reference to container for collapsing or expanding content
+  containerRef?: RefObject<HTMLElement>;
+  // height of container when expanded
+  expandedHeight?: string;
 };
 
-export function TabComponent(props: TabbedViewComponentType) {
+// Props required to support a collapsible (foldable) tab component
+export type CollapsibleTabProps = {
+  // Reference to container for collapsing or expanding content
+  containerRef: RefObject<HTMLDivElement>;
+  // height of container when expanded( usually the default height of the tab component)
+  expandedHeight: string;
+};
+
+export type CollapsibleTabbedViewComponentType = TabbedViewComponentType &
+  CollapsibleTabProps;
+
+export const collapsibleTabRequiredPropKeys: Array<keyof CollapsibleTabProps> = [
+  "containerRef",
+  "expandedHeight",
+];
+
+// Tab is considered collapsible only when all required collapsible props are present
+export const isCollapsibleTabComponent = (
+  props: TabbedViewComponentType | CollapsibleTabbedViewComponentType,
+): props is CollapsibleTabbedViewComponentType =>
+  collapsibleTabRequiredPropKeys.every((key) => key in props);
+
+export function TabComponent(
+  props: TabbedViewComponentType | CollapsibleTabbedViewComponentType,
+) {
   const TabItem = props.tabItemComponent || DefaultTabItem;
   // for setting selected state of an uncontrolled component
   const [selectedIndex, setSelectedIndex] = useState(props.selectedIndex || 0);
+  const [isExpanded, setIsExpanded] = useState(true);
 
   useEffect(() => {
     if (typeof props.selectedIndex === "number")
       setSelectedIndex(props.selectedIndex);
   }, [props.selectedIndex]);
+
+  const handleContainerResize = () => {
+    if (!isCollapsibleTabComponent(props)) return;
+    const { containerRef, expandedHeight } = props;
+    if (containerRef?.current && expandedHeight) {
+      containerRef.current.style.height = isExpanded
+        ? TAB_MIN_HEIGHT
+        : expandedHeight;
+    }
+    setIsExpanded((prev) => !prev);
+  };
+
+  const resizeCallback = useCallback(
+    (entries: ResizeObserverEntry[]) => {
+      if (entries && entries.length) {
+        const {
+          contentRect: { height },
+        } = entries[0];
+        if (height > Number(TAB_MIN_HEIGHT.replace("px", "")) + 6) {
+          !isExpanded && setIsExpanded(true);
+        } else {
+          isExpanded && setIsExpanded(false);
+        }
+      }
+    },
+    [isExpanded],
+  );
+
+  useResizeObserver(
+    isCollapsibleTabComponent(props) ? props.containerRef?.current : null,
+    resizeCallback,
+  );
+
+  useEffect(() => {
+    if (!isCollapsibleTabComponent(props)) return;
+    const { containerRef } = props;
+    if (!isExpanded && containerRef.current) {
+      containerRef.current.style.height = TAB_MIN_HEIGHT;
+    }
+  }, [isExpanded]);
 
   return (
     <TabsWrapper
@@ -307,6 +388,16 @@ export function TabComponent(props: TabbedViewComponentType) {
       shouldOverflow={props.overflow}
       vertical={props.vertical}
     >
+      {isCollapsibleTabComponent(props) && (
+        <CollapseIconWrapper>
+          <Icon
+            name={isExpanded ? "expand-more" : "expand-less"}
+            onClick={handleContainerResize}
+            size={IconSize.XXXXL}
+          />
+        </CollapseIconWrapper>
+      )}
+
       <Tabs
         onSelect={(index: number) => {
           props.onSelect && props.onSelect(index);

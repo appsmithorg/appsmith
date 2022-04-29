@@ -199,6 +199,7 @@ export type EventName =
   | "GS_REGENERATE_SSH_KEY_CONFIRM_CLICK"
   | "GS_REGENERATE_SSH_KEY_MORE_CLICK"
   | "GS_SWITCH_BRANCH"
+  | "ADMIN_SETTINGS_RESET"
   | "ADMIN_SETTINGS_SAVE"
   | "ADMIN_SETTINGS_ERROR"
   | "ADMIN_SETTINGS_DISCONNECT_AUTH_METHOD"
@@ -222,7 +223,9 @@ export type EventName =
   | "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK"
   | "TEMPLATE_FILTER_SELECTED"
   | "MANUAL_UPGRADE_CLICK"
-  | "PAGE_NOT_FOUND";
+  | "PAGE_NOT_FOUND"
+  | "SIMILAR_TEMPLATE_CLICK"
+  | "RUN_JS_FUNCTION";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
