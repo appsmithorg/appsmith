@@ -164,7 +164,7 @@ export const Google_Auth_Callout: AuthMethodType = {
   category: SettingCategories.GOOGLE_AUTH,
   label: "Google",
   subText:
-    "Enable your organization to sign in with Google (OAuth) single sign-on (SSO).",
+    "Enable your organization to sign in with Google (OAuth 2.0) single sign-on (SSO).",
   image: Google,
   type: "LINK",
   isConnected: enableGoogleOAuth,
