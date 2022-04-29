@@ -571,6 +571,7 @@ export const entityDefinitions: Record<string, unknown> = {
     formData: generateTypeDef(widget.formData),
     sourceData: generateTypeDef(widget.sourceData),
     fieldState: generateTypeDef(widget.fieldState),
+    isValid: "bool",
   }),
   PROGRESS_WIDGET: {
     "!doc":
