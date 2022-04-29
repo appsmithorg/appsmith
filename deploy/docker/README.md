@@ -48,15 +48,7 @@ services:
       - "9001:9001"
     volumes:
       - ./stacks:/appsmith-stacks
-    labels:
-      com.centurylinklabs.watchtower.enable: "true"
-
-  auto_update:
-    image: containrrr/watchtower
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    # Update check every hour.
-    command: --schedule "0 0 * ? * *" --label-enable --cleanup
+    restart: unless-stopped
 ```
 
 After saving this file, `cd` to the folder that contains this file and run the following command to start Appsmith:
