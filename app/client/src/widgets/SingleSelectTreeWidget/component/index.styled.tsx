@@ -909,9 +909,6 @@ export const InputContainer = styled.div<{
   width: 100%;
   height: 100%;
 
-  ${({ compactMode, labelPosition }) =>
-    labelPosition !== LabelPosition.Top && compactMode && `overflow-x: hidden`};
-
   &,
   & .rc-tree-select {
     ${({ labelPosition }) =>

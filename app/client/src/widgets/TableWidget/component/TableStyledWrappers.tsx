@@ -435,8 +435,12 @@ export const CellWrapper = styled.div<{
 `;
 
 export const CellCheckboxWrapper = styled(CellWrapper)<{ isChecked?: boolean }>`
-  justify-content: center;
-  width: 40px;
+  &&& {
+    justify-content: center;
+    width: 40px;
+    padding: 0px;
+    align-items: center;
+  }
   & > div {
     ${(props) =>
       props.isChecked
