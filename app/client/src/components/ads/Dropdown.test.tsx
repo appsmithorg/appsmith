@@ -171,27 +171,39 @@ describe("<Dropdown /> - Keyboard Navigation", () => {
 describe("<Dropdown isMultiSelect /> - Keyboard Navigation", () => {
   it("After selecting an option using arrow, {Enter} or ' ' should trigger optionClick", () => {
     const handleOnSelect = jest.fn();
-    render(getTestComponent(handleOnSelect, undefined, true));
+    render(getTestComponent(handleOnSelect, optionsProps, undefined, true));
     userEvent.tab();
     userEvent.keyboard("{Enter}");
     userEvent.keyboard("{ArrowDown}");
     userEvent.keyboard("{Enter}");
     expect(handleOnSelect).toHaveBeenLastCalledWith(
-      props.options[0].value,
-      props.options[0],
+      optionsProps.options[0].value,
+      optionsProps.options[0],
     );
     userEvent.keyboard("{ArrowDown}");
     userEvent.keyboard(" ");
     expect(handleOnSelect).toHaveBeenLastCalledWith(
-      props.options[1].value,
-      props.options[1],
+      optionsProps.options[1].value,
+      optionsProps.options[1],
     );
     userEvent.keyboard("{ArrowDown}");
     userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{Enter}");
+    expect(handleOnSelect).toHaveBeenLastCalledWith(
+      optionsProps.options[0].value,
+      optionsProps.options[0],
+    );
+    userEvent.keyboard("{ArrowUp}");
+    userEvent.keyboard("{Enter}");
+    expect(handleOnSelect).toHaveBeenLastCalledWith(
+      optionsProps.options[2].value,
+      optionsProps.options[2],
+    );
+    userEvent.keyboard("{ArrowUp}");
     userEvent.keyboard(" ");
     expect(handleOnSelect).toHaveBeenLastCalledWith(
-      props.options[0].value,
-      props.options[0],
+      optionsProps.options[1].value,
+      optionsProps.options[1],
     );
   });
 });
