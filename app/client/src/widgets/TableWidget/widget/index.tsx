@@ -13,6 +13,7 @@ import {
   sortBy,
   xorWith,
   isEmpty,
+  find,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -50,6 +51,7 @@ import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { IconName } from "@blueprintjs/icons";
 import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
+import { borderRadiusUtility, boxShadowMigration } from "widgets/WidgetUtils";
 import { ButtonVariantTypes } from "components/constants";
 
 const ReactTableComponent = lazy(() =>
@@ -117,7 +119,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     let totalColumnSizes = 0;
     const defaultColumnWidth = 150;
     const allColumnProperties = this.props.tableColumns || [];
-
     for (let index = 0; index < allColumnProperties.length; index++) {
       const isAllCellVisible: boolean | boolean[] =
         allColumnProperties[index].isCellVisible;
@@ -147,13 +148,43 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           const rowIndex: number = props.cell.row.index;
           const data = this.props.filteredTableData[rowIndex];
           const originalIndex = data.__originalIndex__ ?? rowIndex;
-
+          const isBoxShadowColorInDynamicList = find(
+            this.props.dynamicBindingPathList,
+            (value: { key: string }) =>
+              value.key.includes(`${columnProperties.id}.boxShadowColor`),
+          );
           // cellProperties order or size does not change when filter/sorting/grouping is applied
           // on the data thus original index is need to identify the column's cell property.
           const cellProperties = getCellProperties(
             columnProperties,
             originalIndex,
           );
+
+          /**
+           * This conditionalBoxShadow is applied to run the boxShadowMigration on the following cases, when:
+           * 1. boxShadowColor property is present inside the columnProperties. OR
+           * 2. When boxShadow property has value starting with VARIANT.
+           *
+           * We are running this on the above specific conditions because we need to run it post app theming goes to prod.
+           * This will help us to migrate the dynamic values present in the boxShadow and boxShadowColor which themingMigrations script won't be able to handle.
+           * In this way it will run only for the older table widget which has boxShadowColor property inside it or boxShadow contains string value starting with VARIANT.
+           *
+           * NOTE: For the new table widget, these conditions needs to be removed so that table widget later on uses only cellProperties.boxShadow.
+           */
+          const conditionalBoxShadow =
+            (columnProperties.hasOwnProperty("boxShadowColor") ||
+            (columnProperties.hasOwnProperty("boxShadow") &&
+              cellProperties.boxShadow.includes("VARIANT"))
+              ? boxShadowMigration(
+                  this.props,
+                  columnProperties.id,
+                  cellProperties.boxShadow,
+                  isBoxShadowColorInDynamicList
+                    ? columnProperties.boxShadowColor[originalIndex]
+                    : columnProperties.boxShadowColor,
+                )
+              : cellProperties.boxShadow) || "none";
+
           let isSelected = false;
           if (this.props.multiRowSelection) {
             isSelected =
@@ -167,11 +198,16 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isSelected: isSelected,
               onCommandClick: (action: string, onComplete: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
-              backgroundColor: cellProperties.buttonColor || "transparent",
+              backgroundColor:
+                cellProperties.buttonColor || this.props.accentColor,
+              buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
               buttonVariant:
                 cellProperties.buttonVariant || ButtonVariantTypes.PRIMARY,
               isDisabled: cellProperties.isDisabled || false,
               isCellVisible: cellProperties.isCellVisible ?? true,
+              borderRadius:
+                cellProperties.borderRadius || this.props.borderRadius,
+              boxShadow: cellProperties.boxShadow,
               columnActions: [
                 {
                   id: columnProperties.id,
@@ -220,10 +256,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               menuItems: cellProperties.menuItems,
               isCompact: cellProperties.isCompact || false,
               menuVariant: cellProperties.menuVariant ?? "PRIMARY",
-              menuColor: cellProperties.menuColor || Colors.GREEN,
-              borderRadius: cellProperties.borderRadius,
-              boxShadow: cellProperties.boxShadow,
-              boxShadowColor: cellProperties.boxShadowColor,
+              menuColor:
+                cellProperties.menuColor ||
+                this.props.accentColor ||
+                Colors.GREEN,
+              borderRadius:
+                borderRadiusUtility(cellProperties.borderRadius) ||
+                this.props.borderRadius,
+              boxShadow: conditionalBoxShadow,
               iconName: cellProperties.iconName || undefined,
               iconAlign: cellProperties.iconAlign,
               isCellVisible: cellProperties.isCellVisible ?? true,
@@ -242,18 +282,21 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 },
               ],
               iconName: cellProperties.iconName as IconName,
-              buttonColor: cellProperties.buttonColor || Colors.GREEN,
+              buttonColor:
+                cellProperties.buttonColor ||
+                this.props.accentColor ||
+                Colors.GREEN,
               buttonVariant: cellProperties.buttonVariant || "PRIMARY",
-              borderRadius: cellProperties.borderRadius || "SHARP",
-              boxShadow: cellProperties.boxShadow || "NONE",
-              boxShadowColor: cellProperties.boxShadowColor || "",
+              borderRadius:
+                borderRadiusUtility(cellProperties.borderRadius) ||
+                this.props.borderRadius,
+              boxShadow: conditionalBoxShadow,
               isCellVisible: cellProperties.isCellVisible ?? true,
               disabled: !!cellProperties.isDisabled,
             };
             return renderIconButton(iconButtonProps, isHidden, cellProperties);
           } else {
             const isCellVisible = cellProperties.isCellVisible ?? true;
-
             return renderCell(
               props.cell.value,
               columnProperties.columnType,
@@ -779,11 +822,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       isVisibleSearch;
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();
-
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
+          accentColor={this.props.accentColor}
           applyFilter={this.applyFilters}
+          borderRadius={this.props.borderRadius}
+          boxShadow={this.props.boxShadow}
           columnSizeMap={this.props.columnSizeMap}
           columns={tableColumns}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}

@@ -13,14 +13,18 @@ import {
 } from "../constants";
 import { SwitchComponent } from "widgets/SwitchWidget/component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Colors } from "constants/Colors";
 
 type SwitchComponentOwnProps = FieldComponentBaseProps &
   FieldEventProps & {
     alignWidget: AlignWidget;
+    accentColor?: string;
     onChange?: string;
   };
 
 type SwitchFieldProps = BaseFieldComponentProps<SwitchComponentOwnProps>;
+
+const DEFAULT_BG_COLOR = Colors.GREEN;
 
 const COMPONENT_DEFAULT_VALUES: SwitchComponentOwnProps = {
   alignWidget: "LEFT",
@@ -85,6 +89,7 @@ function SwitchField({
   const fieldComponent = useMemo(
     () => (
       <SwitchComponent
+        accentColor={schemaItem.accentColor || DEFAULT_BG_COLOR}
         alignWidget={schemaItem.alignWidget}
         inputRef={(e) => (inputRef.current = e)}
         isDisabled={schemaItem.isDisabled}
@@ -95,7 +100,13 @@ function SwitchField({
         widgetId=""
       />
     ),
-    [schemaItem.alignWidget, schemaItem.isDisabled, onSwitchChange, value],
+    [
+      schemaItem.alignWidget,
+      schemaItem.accentColor,
+      schemaItem.isDisabled,
+      onSwitchChange,
+      value,
+    ],
   );
 
   return (

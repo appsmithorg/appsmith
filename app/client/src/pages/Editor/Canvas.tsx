@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useEffect } from "react";
 import store, { useSelector } from "store";
 import WidgetFactory from "utils/WidgetFactory";
-import ArtBoard from "pages/common/ArtBoard";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { DSLWidget } from "widgets/constants";
@@ -17,7 +16,9 @@ import { initPageLevelSocketConnection } from "actions/websocketActions";
 import { collabShareUserPointerEvent } from "actions/appCollabActions";
 import { getIsPageLevelSocketConnected } from "selectors/websocketSelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getPageLevelSocketRoomId } from "sagas/WebsocketSagas/utils";
+import { previewModeSelector } from "selectors/editorSelectors";
 
 interface CanvasProps {
   dsl: DSLWidget;
@@ -64,6 +65,9 @@ const useShareMousePointerEvent = () => {
 // TODO(abhinav): get the render mode from context
 const Canvas = memo((props: CanvasProps) => {
   const { pageId } = props;
+  const isPreviewMode = useSelector(previewModeSelector);
+  const selectedTheme = useSelector(getSelectedAppTheme);
+
   const shareMousePointer = useShareMousePointerEvent();
   const isWebsocketConnected = useSelector(getIsPageLevelSocketConnected);
   const currentGitBranch = useSelector(getCurrentGitBranch);
@@ -77,10 +81,21 @@ const Canvas = memo((props: CanvasProps) => {
     [shareMousePointer, pageId],
   );
 
+  /**
+   * background for canvas
+   */
+  let backgroundForCanvas;
+
+  if (isPreviewMode) {
+    backgroundForCanvas = "initial";
+  } else {
+    backgroundForCanvas = selectedTheme.properties.colors.backgroundColor;
+  }
+
   try {
     return (
-      <ArtBoard
-        className="t--canvas-artboard"
+      <div
+        className="relative mx-auto t--canvas-artboard pb-52"
         data-testid="t--canvas-artboard"
         id="art-board"
         onMouseMove={(e) => {
@@ -93,14 +108,17 @@ const Canvas = memo((props: CanvasProps) => {
           );
           !!data && delayedShareMousePointer(data);
         }}
-        width={props.dsl.rightColumn}
+        style={{
+          width: props.dsl.rightColumn,
+          background: backgroundForCanvas,
+        }}
       >
         {props.dsl.widgetId &&
           WidgetFactory.createWidget(props.dsl, RenderModes.CANVAS)}
         {isMultiplayerEnabledForUser && (
           <CanvasMultiPointerArena pageId={pageId} />
         )}
-      </ArtBoard>
+      </div>
     );
   } catch (error) {
     log.error("Error rendering DSL", error);

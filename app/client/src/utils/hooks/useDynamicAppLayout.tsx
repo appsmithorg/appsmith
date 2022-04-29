@@ -97,8 +97,8 @@ export const useDynamicAppLayout = () => {
       calculatedWidth -= propertyPaneWidth;
     }
 
-    // if explorer is unpinned or its preview mode, we don't need to subtract the EE width
-    if (isExplorerPinned === true && isPreviewMode === false) {
+    // if explorer is closed or its preview mode, we don't need to subtract the EE width
+    if (isExplorerPinned === true && !isPreviewMode) {
       const explorerWidth = domEntityExplorer?.clientWidth || 0;
 
       calculatedWidth -= explorerWidth;
@@ -108,10 +108,12 @@ export const useDynamicAppLayout = () => {
       case maxWidth < 0:
       case appLayout?.type === "FLUID":
       case calculatedWidth < maxWidth && calculatedWidth > minWidth:
+        const totalWidthToSubtract = BORDERS_WIDTH + GUTTER_WIDTH;
+        // NOTE: gutter + border width will be only substracted when theme mode and preview mode are off
         return (
           calculatedWidth -
           (appMode === APP_MODE.EDIT && !isPreviewMode
-            ? BORDERS_WIDTH + GUTTER_WIDTH
+            ? totalWidthToSubtract
             : 0)
         );
       case calculatedWidth < minWidth:
@@ -168,6 +170,7 @@ export const useDynamicAppLayout = () => {
    *  - preview mode
    *  - explorer width
    *  - explorer is pinned
+   *  - theme mode is turned on
    */
   useEffect(() => {
     resizeToLayout();

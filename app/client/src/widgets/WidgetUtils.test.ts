@@ -1,11 +1,40 @@
-import { ButtonVariantTypes } from "components/constants";
+import {
+  ButtonBorderRadiusTypes,
+  ButtonVariantTypes,
+} from "components/constants";
+import { TextSizes } from "constants/WidgetConstants";
+import { remove } from "lodash";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
-import { escapeSpecialChars, sanitizeKey } from "./WidgetUtils";
+import { rgbaMigrationConstantV56 } from "./constants";
+import {
+  borderRadiusUtility,
+  replaceRgbaMigrationConstant,
+  boxShadowMigration,
+  boxShadowUtility,
+  escapeSpecialChars,
+  fontSizeUtility,
+  lightenColor,
+  sanitizeKey,
+} from "./WidgetUtils";
 import {
   getCustomTextColor,
   getCustomBackgroundColor,
   getCustomHoverColor,
 } from "./WidgetUtils";
+
+const tableWidgetProps = {
+  dynamicBindingPathList: [
+    {
+      key: "primaryColumns.action.boxShadowColor",
+    },
+  ],
+  primaryColumns: {
+    action: {
+      boxShadow: "0px 0px 4px 3px rgba(0, 0, 0, 0.25)",
+      boxShadowColor: ["red", "red", "red"],
+    },
+  },
+};
 
 describe("validate widget utils button style functions", () => {
   const theme = getTheme(ThemeMode.LIGHT);
@@ -31,8 +60,9 @@ describe("validate widget utils button style functions", () => {
 
     // background color is light
     const yellowBackground = "#FFC13D";
-    const expected2 = "#333";
+    const expected2 = "#FFFFFF";
     const result2 = getCustomTextColor(theme, yellowBackground);
+
     expect(result2).toStrictEqual(expected2);
   });
 
@@ -87,6 +117,7 @@ describe("validate widget utils button style functions", () => {
       ButtonVariantTypes.PRIMARY,
       backgroundColor,
     );
+
     expect(result1).toStrictEqual(expected1);
 
     // variant : PRIMARY without background
@@ -95,12 +126,13 @@ describe("validate widget utils button style functions", () => {
     expect(result2).toStrictEqual(expected2);
 
     // variant : SECONDARY
-    const expected3 = "#85fdc8";
+    const expected3 = "#dcfeef";
     const result3 = getCustomHoverColor(
       theme,
       ButtonVariantTypes.SECONDARY,
       backgroundColor,
     );
+
     expect(result3).toStrictEqual(expected3);
 
     // variant : SECONDARY without background
@@ -109,7 +141,7 @@ describe("validate widget utils button style functions", () => {
     expect(result4).toStrictEqual(expected4);
 
     // variant : TERTIARY
-    const expected5 = "#85fdc8";
+    const expected5 = "#dcfeef";
     const result5 = getCustomHoverColor(
       theme,
       ButtonVariantTypes.TERTIARY,
@@ -130,6 +162,30 @@ hello! how are you?
     const result = escapeSpecialChars(testString);
     const expectedResult = "a\nb\nc\nhello! how are you?\n";
     expect(result).toStrictEqual(expectedResult);
+  });
+
+  it("Check if the color is lightened with lightenColor utility", () => {
+    /**
+     * Colors with :
+     *   0% brightness = #000000,
+     * > 40% brightness = #696969
+     * > 50% brightness = #8a8a8a
+     * > 60% brightness = #b0b0b0
+     * > 70% brightness = #d6d4d4
+     */
+
+    const actualColors = [
+      "#000000",
+      "#696969",
+      "#8a8a8a",
+      "#b0b0b0",
+      "#d6d4d4",
+    ];
+    const lightColors = ["#ededed", "#ededed", "#ededed", "#ededed", "#eeeded"];
+
+    actualColors.forEach((color, idx) => {
+      expect(lightenColor(color)).toEqual(lightColors[idx]);
+    });
   });
 });
 
@@ -207,5 +263,169 @@ describe(".sanitizeKey", () => {
       });
       expect(result).toEqual(expectedOutput);
     });
+  });
+});
+
+describe("Test widget utility functions", () => {
+  it("case: fontSizeUtility returns the font sizes based on variant", () => {
+    const expectedFontSize = "0.75rem";
+
+    expect(fontSizeUtility(TextSizes.PARAGRAPH2)).toEqual(expectedFontSize);
+  });
+
+  it("case: borderRadiusUtility returns the borderRadius based on borderRadius variant", () => {
+    const expectedBorderRadius = "0.375rem";
+    expect(borderRadiusUtility(ButtonBorderRadiusTypes.ROUNDED)).toEqual(
+      expectedBorderRadius,
+    );
+  });
+
+  it("case: replaceRgbaMigrationConstant returns the new boxShadow by replacing default boxShadowColor with new boxShadowColor", () => {
+    const boxShadow = "0px 0px 4px 3px rgba(0, 0, 0, 0.25)";
+    const boxShadowColor = "red";
+    const expectedBoxShadow = "0px 0px 4px 3px red";
+    expect(replaceRgbaMigrationConstant(boxShadow, boxShadowColor)).toEqual(
+      expectedBoxShadow,
+    );
+  });
+
+  it("case: boxShadowUtility returns the new boxShadow", () => {
+    const variants = [
+      "VARIANT1",
+      "VARIANT2",
+      "VARIANT3",
+      "VARIANT4",
+      "VARIANT5",
+    ];
+    let newBoxShadowColor = rgbaMigrationConstantV56;
+    let expectedBoxShadows = [
+      `0px 0px 4px 3px ${newBoxShadowColor}`,
+      `3px 3px 4px ${newBoxShadowColor}`,
+      `0px 1px 3px ${newBoxShadowColor}`,
+      `2px 2px 0px  ${newBoxShadowColor}`,
+      `-2px -2px 0px ${newBoxShadowColor}`,
+    ];
+
+    // Check the boxShadow when the boxShadowColor is set to default;
+    variants.forEach((value: string, index: number) => {
+      expect(boxShadowUtility(value, newBoxShadowColor)).toEqual(
+        expectedBoxShadows[index],
+      );
+    });
+
+    // Check the boxShadow when the boxShadowColor is set to custom color;
+    newBoxShadowColor = "red";
+    expectedBoxShadows = [
+      `0px 0px 4px 3px ${newBoxShadowColor}`,
+      `3px 3px 4px ${newBoxShadowColor}`,
+      `0px 1px 3px ${newBoxShadowColor}`,
+      `2px 2px 0px  ${newBoxShadowColor}`,
+      `-2px -2px 0px ${newBoxShadowColor}`,
+    ];
+    variants.forEach((value: string, index: number) => {
+      expect(boxShadowUtility(value, newBoxShadowColor)).toEqual(
+        expectedBoxShadows[index],
+      );
+    });
+  });
+
+  it("case: boxShadowMigration returns correct boxShadow whenever boxShadow and boxShadowColor ar dynamic", () => {
+    /**
+     * Function usd inside table widget cell properties for Icon and menu button types.
+     * This function is used to run theming migration boxShadow and boxShadowColor has dynamic bindings
+     * Function runs for the following scenarios, when:
+     * 1. boxShadow: Static; boxShadowColor: Dynamic
+     * 2. boxShadow: Dynamic; boxShadowColor: Static
+     * 3. boxShadow: Dynamic; boxShadowColor: empty
+     * 4. boxShadow: Dynamic; boxShadowColor: dynamic
+     */
+
+    // Case 1:
+    expect(
+      boxShadowMigration(
+        tableWidgetProps as any,
+        "action",
+        "0px 0px 4px 3px rgba(0, 0, 0, 0.25)",
+        "red",
+      ),
+    ).toEqual("0px 0px 4px 3px red");
+
+    // Case 2 & 3:
+    // Make boxShadow dynamic
+    /**
+     * 1. Add the boxShadow to the DBPL
+     * 2. Remove boxShadowColor from the DBPL
+     * 3. Assign the action.boxShadowcolor as a static value.
+     * 4. Assign the action.boxShadowcolor as a empty value.
+     */
+    tableWidgetProps.dynamicBindingPathList.push({
+      key: "primaryColumns.action.boxShadow",
+    });
+    // Remove boxShadowColor from dynamicBindingPathList
+    remove(
+      tableWidgetProps.dynamicBindingPathList,
+      (value: { key: string }) =>
+        value.key === "primaryColumns.action.boxShadowColor",
+    );
+    // Assign values to boxShadow and boxShadowColor
+    tableWidgetProps.primaryColumns.action.boxShadow = "VARIANT1";
+    tableWidgetProps.primaryColumns.action.boxShadowColor = "blue" as any;
+    let newBoxShadow = boxShadowMigration(
+      tableWidgetProps as any,
+      "action",
+      tableWidgetProps.primaryColumns.action.boxShadow,
+      tableWidgetProps.primaryColumns.action.boxShadowColor,
+    );
+    expect(newBoxShadow).toEqual("0px 0px 4px 3px blue");
+
+    tableWidgetProps.primaryColumns.action.boxShadow = "VARIANT1";
+    tableWidgetProps.primaryColumns.action.boxShadowColor = "" as any; // Add empty boxShadowColor.
+
+    newBoxShadow = boxShadowMigration(
+      tableWidgetProps as any,
+      "action",
+      tableWidgetProps.primaryColumns.action.boxShadow,
+      tableWidgetProps.primaryColumns.action.boxShadowColor,
+    );
+    expect(newBoxShadow).toEqual("0px 0px 4px 3px rgba(0, 0, 0, 0.25)");
+
+    // Case 4:
+    // Add boxShadow and boxShadowColor to the dynamicBindingPathList
+    tableWidgetProps.dynamicBindingPathList = [
+      ...tableWidgetProps.dynamicBindingPathList,
+      {
+        key: "primaryColumns.action.boxShadow",
+      },
+      {
+        key: "primaryColumns.action.boxShadowColor",
+      },
+    ];
+
+    // Assign values to boxShadow and boxShadowColor
+    tableWidgetProps.primaryColumns.action.boxShadow = "VARIANT1";
+    tableWidgetProps.primaryColumns.action.boxShadowColor = [
+      "orange",
+      "orange",
+      "orange",
+    ];
+    newBoxShadow = boxShadowMigration(
+      tableWidgetProps as any,
+      "action",
+      tableWidgetProps.primaryColumns.action.boxShadow,
+      tableWidgetProps.primaryColumns.action.boxShadowColor[0],
+    );
+    expect(newBoxShadow).toEqual("0px 0px 4px 3px orange");
+
+    tableWidgetProps.primaryColumns.action.boxShadow = "VARIANT1";
+    tableWidgetProps.primaryColumns.action.boxShadowColor = ["", "", ""] as any; // Add empty boxShadowColor when dynamic
+
+    // Add empty boxShadowColor.
+    newBoxShadow = boxShadowMigration(
+      tableWidgetProps as any,
+      "action",
+      tableWidgetProps.primaryColumns.action.boxShadow,
+      tableWidgetProps.primaryColumns.action.boxShadowColor[0],
+    );
+    expect(newBoxShadow).toEqual("0px 0px 4px 3px rgba(0, 0, 0, 0.25)");
   });
 });

@@ -57,6 +57,8 @@ const overlayerMixin = css`
 
 export interface CameraContainerProps {
   disabled: boolean;
+  boxShadow: string;
+  borderRadius: string;
 }
 
 const CameraContainer = styled.div<CameraContainerProps>`
@@ -65,6 +67,8 @@ const CameraContainer = styled.div<CameraContainerProps>`
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => boxShadow};
   background: ${({ disabled }) => (disabled ? Colors.GREY_3 : Colors.BLACK)};
 
   .fullscreen {
@@ -857,6 +861,8 @@ function DevicePopover(props: DevicePopoverProps) {
 
 function CameraComponent(props: CameraComponentProps) {
   const {
+    borderRadius,
+    boxShadow,
     disabled,
     mirrored,
     mode,
@@ -1196,7 +1202,11 @@ function CameraComponent(props: CameraComponentProps) {
   };
 
   return (
-    <CameraContainer disabled={!!error || disabled}>
+    <CameraContainer
+      borderRadius={borderRadius}
+      boxShadow={boxShadow}
+      disabled={!!error || disabled}
+    >
       <FullScreen handle={fullScreenHandle}>{renderComponent()}</FullScreen>
     </CameraContainer>
   );
@@ -1214,6 +1224,8 @@ export interface CameraComponentProps {
   onVideoSave: () => void;
   videoBlobURL?: string;
   width: number;
+  borderRadius: string;
+  boxShadow: string;
 }
 
 export default CameraComponent;

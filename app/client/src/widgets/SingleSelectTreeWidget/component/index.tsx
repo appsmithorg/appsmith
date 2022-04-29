@@ -55,8 +55,11 @@ export interface TreeSelectProps
   dropDownWidth: number;
   width: number;
   isValid: boolean;
-  filterText?: string;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
   widgetId: string;
+  filterText?: string;
   isFilterable: boolean;
 }
 
@@ -97,7 +100,10 @@ const switcherIcon = (treeNode: TreeNodeProps) => {
 const FOCUS_TIMEOUT = 500;
 
 function SingleSelectTreeComponent({
+  accentColor,
   allowClear,
+  borderRadius,
+  boxShadow,
   compactMode,
   disabled,
   dropdownStyle,
@@ -152,6 +158,7 @@ function SingleSelectTreeComponent({
     [],
   );
   const onClear = useCallback(() => onChange([], []), []);
+  const id = widgetId;
   const onOpen = useCallback((open: boolean) => {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
@@ -211,13 +218,21 @@ function SingleSelectTreeComponent({
 
   return (
     <TreeSelectContainer
+      accentColor={accentColor}
+      borderRadius={borderRadius}
+      boxShadow={boxShadow}
       compactMode={compactMode}
       data-testid="treeselect-container"
       isValid={isValid}
       labelPosition={labelPosition}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
-      <DropdownStyles dropDownWidth={memoDropDownWidth} id={widgetId} />
+      <DropdownStyles
+        accentColor={accentColor}
+        borderRadius={borderRadius}
+        dropDownWidth={memoDropDownWidth}
+        id={id}
+      />
       {labelText && (
         <LabelWithTooltip
           alignment={labelAlignment}

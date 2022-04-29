@@ -323,7 +323,12 @@ function* updateWidgetPropertySaga(
 export function* setWidgetDynamicPropertySaga(
   action: ReduxAction<SetWidgetDynamicPropertyPayload>,
 ) {
-  const { isDynamic, propertyPath, widgetId } = action.payload;
+  const {
+    isDynamic,
+    propertyPath,
+    shouldRejectDynamicBindingPathList = true,
+    widgetId,
+  } = action.payload;
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
   let widget = cloneDeep({ ...stateWidget });
   const propertyValue = _.get(widget, propertyPath);
@@ -346,11 +351,12 @@ export function* setWidgetDynamicPropertySaga(
       key: propertyPath,
     });
 
-    dynamicBindingPathList = removeDynamicBindingProperties(
-      propertyPath,
-      dynamicBindingPathList,
-    );
-
+    if (shouldRejectDynamicBindingPathList) {
+      dynamicBindingPathList = removeDynamicBindingProperties(
+        propertyPath,
+        dynamicBindingPathList,
+      );
+    }
     const { parsed } = yield call(
       validateProperty,
       propertyPath,
@@ -368,7 +374,7 @@ export function* setWidgetDynamicPropertySaga(
   yield put(updateAndSaveLayout(widgets));
 }
 
-function getPropertiesToUpdate(
+export function getPropertiesToUpdate(
   widget: WidgetProps,
   updates: Record<string, unknown>,
   triggerPaths?: string[],

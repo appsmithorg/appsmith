@@ -74,19 +74,19 @@ export const CONFIG = {
                   },
                   props: {
                     text: "Modal Title",
-                    fontSize: "HEADING1",
+                    fontSize: "1.25rem",
                     version: 1,
                   },
                 },
                 {
                   type: "BUTTON_WIDGET",
                   position: {
-                    left: 36,
+                    left: 32,
                     top: 16,
                   },
                   size: {
                     rows: 4,
-                    cols: 12,
+                    cols: 16,
                   },
                   props: {
                     text: "Close",
@@ -103,7 +103,7 @@ export const CONFIG = {
                   },
                   size: {
                     rows: 4,
-                    cols: 12,
+                    cols: 16,
                   },
                   props: {
                     text: "Confirm",

@@ -135,13 +135,18 @@ Cypress.Commands.add("shareAndPublic", (email, role) => {
 });
 
 Cypress.Commands.add("enablePublicAccess", () => {
-  cy.get(homePage.enablePublicAccess).click();
+  cy.get(homePage.enablePublicAccess)
+    .first()
+    .click({ force: true });
   cy.wait("@changeAccess").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
   );
-  cy.get(homePage.closeBtn).click();
+  cy.wait(10000);
+  cy.get(homePage.closeBtn)
+    .first()
+    .click({ force: true });
 });
 
 Cypress.Commands.add("deleteUserFromOrg", (orgName) => {

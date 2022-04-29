@@ -1,6 +1,7 @@
 import { OverflowTypes } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { DEFAULT_FONT_SIZE } from "constants/ThemeConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -8,7 +9,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   defaults: {
     text: "Label",
-    fontSize: "PARAGRAPH",
+    fontSize: DEFAULT_FONT_SIZE,
     fontStyle: "BOLD",
     textAlign: "LEFT",
     textColor: "#231F20",

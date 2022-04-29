@@ -85,6 +85,7 @@ import { Channel } from "redux-saga";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FormEvalActionPayload } from "./FormEvaluationSaga";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { updateMetaState } from "actions/metaActions";
 import { getAllActionValidationConfig } from "selectors/entitiesSelector";
 
@@ -99,6 +100,7 @@ function* evaluateTreeSaga(
   const allActionValidationConfig = yield select(getAllActionValidationConfig);
   const unevalTree = yield select(getUnevaluatedDataTree);
   const widgets = yield select(getWidgets);
+  const theme = yield select(getSelectedAppTheme);
 
   log.debug({ unevalTree });
   PerformanceTracker.startAsyncTracking(
@@ -111,6 +113,7 @@ function* evaluateTreeSaga(
       unevalTree,
       widgetTypeConfigMap,
       widgets,
+      theme,
       shouldReplay,
       allActionValidationConfig,
     },

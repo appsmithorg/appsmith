@@ -1,44 +1,33 @@
 import React, { useRef, useEffect, useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
 import styled from "styled-components";
-import {
-  ApplicationPayload,
-  PageListPayload,
-} from "@appsmith/constants/ReduxActionConstants";
-import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
+import { get } from "lodash";
 import { isEllipsisActive } from "utils/helpers";
 import TooltipComponent from "components/ads/Tooltip";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Position } from "@blueprintjs/core";
 
-import { getAppMode } from "selectors/applicationSelectors";
 import { useSelector } from "react-redux";
 
-import { trimQueryString } from "utils/helpers";
-import { getPageURL } from "utils/AppsmithUtils";
-import { viewerURL } from "RouteBuilder";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 
-const PageTab = styled(NavLink)`
+const PageTab = styled.div`
   display: flex;
   max-width: 170px;
   align-self: flex-end;
   cursor: pointer;
   text-decoration: none;
-  padding: 0px ${(props) => props.theme.spaces[7]}px;
   &:hover {
     text-decoration: none;
   }
 `;
 
-const StyledBottomBorder = styled.div`
+const StyledBottomBorder = styled.div<{ primaryColor: string }>`
   position: relative;
   transition: all 0.3s ease-in-out;
   height: 2px;
   width: 100%;
   left: -100%;
-  top: 9px;
-  background-color: ${(props) =>
-    props.theme.colors.header.activeTabBorderBottom};
+  background-color: ${({ primaryColor }) => primaryColor};
   ${PageTab}:hover & {
     position: relative;
     width: 100%;
@@ -54,9 +43,10 @@ const StyleTabText = styled.div`
   justify-content: center;
   ${(props) => getTypographyByKey(props, "h6")}
   color: ${(props) => props.theme.colors.header.tabText};
-  height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
+  height: 32px;
   & span {
     height: 100%;
+    font-size: 14px;
     max-width: 138px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -72,18 +62,28 @@ const StyleTabText = styled.div`
   }
 `;
 
-function PageTabName({ name }: { name: string }) {
+function PageTabName({
+  id,
+  name,
+  primaryColor,
+  selected,
+}: {
+  id: string;
+  name: string;
+  primaryColor: string;
+  selected: boolean;
+}) {
   const tabNameRef = useRef<HTMLSpanElement>(null);
   const [ellipsisActive, setEllipsisActive] = useState(false);
   const tabNameText = (
-    <StyleTabText>
-      <div className="relative flex ">
-        <div className="relative flex items-center justify-center flex-grow">
-          <span ref={tabNameRef}>{name}</span>
-        </div>
+    <StyleTabText className={`t--tab-${name} t--tabid-${id}`}>
+      <div className="relative flex items-center justify-center flex-grow">
+        <span className={selected ? "is-selected" : ""} ref={tabNameRef}>
+          {name}
+        </span>
         {ellipsisActive && "..."}
       </div>
-      <StyledBottomBorder />
+      <StyledBottomBorder primaryColor={primaryColor} />
     </StyleTabText>
   );
 
@@ -130,55 +130,54 @@ function PageTabContainer({
 }
 
 type Props = {
-  currentApplicationDetails?: ApplicationPayload;
-  appPages: PageListPayload;
+  tabs: Array<{
+    id: string;
+    label: string;
+    widgetId: string;
+    isVisible?: boolean;
+  }>;
   measuredTabsRef: (ref: HTMLElement | null) => void;
   tabsScrollable: boolean;
   setShowScrollArrows: () => void;
+  tabChange: (tabId: string) => void;
+  selectedTabWidgetId: string;
 };
 
 export function PageTabs(props: Props) {
-  const { appPages, currentApplicationDetails } = props;
-  const location = useLocation();
-  const { pathname } = location;
-  const appMode = useSelector(getAppMode);
-  const [query, setQuery] = useState("");
-
-  useEffect(() => {
-    setQuery(window.location.search);
-  }, [location]);
+  const { tabChange, tabs } = props;
+  const selectedTheme = useSelector(getSelectedAppTheme);
 
   return (
     <div
-      className="flex w-full overflow-auto scrollbar-none"
+      className="flex items-end w-full h-full hidden-scrollbar gap-x-8"
       ref={props.measuredTabsRef}
     >
-      {appPages.map((page) => (
+      {tabs.map((tab, index) => (
         <PageTabContainer
-          isTabActive={
-            pathname ===
-            trimQueryString(
-              viewerURL({
-                applicationSlug:
-                  currentApplicationDetails?.slug || PLACEHOLDER_APP_SLUG,
-                pageSlug: page.slug || PLACEHOLDER_PAGE_SLUG,
-                pageId: page.pageId,
-              }),
-            )
-          }
-          key={page.pageId}
+          isTabActive={props.selectedTabWidgetId === tab.widgetId}
+          key={index}
           setShowScrollArrows={props.setShowScrollArrows}
           tabsScrollable={props.tabsScrollable}
         >
           <PageTab
-            activeClassName="is-active"
-            className="t--page-switch-tab"
-            to={{
-              pathname: getPageURL(page, appMode, currentApplicationDetails),
-              search: query,
+            className={`t--page-switch-tab ${
+              props.selectedTabWidgetId === tab.widgetId ? "is-active" : ""
+            }`}
+            onClick={(event: React.MouseEvent<HTMLDivElement>) => {
+              tabChange(tab.widgetId);
+              event.stopPropagation();
             }}
           >
-            <PageTabName name={page.pageName} />
+            <PageTabName
+              id={tab.id}
+              name={tab.label}
+              primaryColor={get(
+                selectedTheme,
+                "properties.colors.primaryColor",
+                "inherit",
+              )}
+              selected={props.selectedTabWidgetId === tab.widgetId}
+            />
           </PageTab>
         </PageTabContainer>
       ))}

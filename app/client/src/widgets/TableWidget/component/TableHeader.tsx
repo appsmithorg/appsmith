@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from "react";
 import styled from "styled-components";
-import { Icon, NumericInput, Keys } from "@blueprintjs/core";
+import { Icon, NumericInput, Keys, Classes } from "@blueprintjs/core";
 import {
   RowWrapper,
   PaginationWrapper,
@@ -18,13 +18,14 @@ import TableDataDownload from "./TableDataDownload";
 import { Colors } from "constants/Colors";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
-const PageNumberInputWrapper = styled(NumericInput)`
+const PageNumberInputWrapper = styled(NumericInput)<{
+  borderRadius: string;
+}>`
   &&& input {
     box-shadow: none;
     border: 1px solid ${Colors.ALTO2};
     background: linear-gradient(0deg, ${Colors.WHITE}, ${Colors.WHITE}),
       ${Colors.POLAR};
-    border-radius: none;
     box-sizing: border-box;
     width: 24px;
     height: 24px;
@@ -32,9 +33,7 @@ const PageNumberInputWrapper = styled(NumericInput)`
     padding: 0 !important;
     text-align: center;
     font-size: 12px;
-  }
-  &&& input:focus {
-    border: 1px solid ${Colors.FERN_GREEN};
+    border-radius: ${({ borderRadius }) => borderRadius};
   }
   &&&.bp3-control-group > :only-child {
     border-radius: 0;
@@ -42,9 +41,24 @@ const PageNumberInputWrapper = styled(NumericInput)`
   margin: 0 8px;
 `;
 
-const SearchComponentWrapper = styled.div`
+const SearchComponentWrapper = styled.div<{
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
+}>`
   margin: 3px 10px;
   flex: 0 0 200px;
+
+  & .${Classes.INPUT} {
+    border-radius: ${({ borderRadius }) => borderRadius} !important;
+  }
+
+  & .${Classes.INPUT}:active, & .${Classes.INPUT}:focus {
+    border-radius: ${({ borderRadius }) => borderRadius};
+    border: 0px solid !important;
+    border-color: ${({ accentColor }) => accentColor} !important;
+    box-shadow: none !important;
+  }
 `;
 
 function PageNumberInput(props: {
@@ -52,6 +66,7 @@ function PageNumberInput(props: {
   pageCount: number;
   updatePageNo: (pageNo: number, event?: EventType) => void;
   disabled: boolean;
+  borderRadius: string;
 }) {
   const [pageNumber, setPageNumber] = React.useState(props.pageNo || 0);
   useEffect(() => {
@@ -81,6 +96,7 @@ function PageNumberInput(props: {
   );
   return (
     <PageNumberInputWrapper
+      borderRadius={props.borderRadius}
       buttonPosition="none"
       clampValueOnBlur
       className="t--table-widget-page-input"
@@ -127,13 +143,20 @@ interface TableHeaderProps {
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
   delimiter: string;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
 }
 
 function TableHeader(props: TableHeaderProps) {
   return (
     <>
       {props.isVisibleSearch && (
-        <SearchComponentWrapper>
+        <SearchComponentWrapper
+          accentColor={props.accentColor}
+          borderRadius={props.borderRadius}
+          boxShadow={props.boxShadow}
+        >
           <SearchComponent
             onSearch={props.searchTableData}
             placeholder="Search..."
@@ -166,6 +189,8 @@ function TableHeader(props: TableHeaderProps) {
       {props.isVisiblePagination && props.serverSidePaginationEnabled && (
         <PaginationWrapper>
           <PaginationItemWrapper
+            accentColor={props.accentColor}
+            borderRadius={props.borderRadius}
             className="t--table-widget-prev-page"
             disabled={props.pageNo === 0}
             onClick={() => {
@@ -174,10 +199,17 @@ function TableHeader(props: TableHeaderProps) {
           >
             <Icon color={Colors.HIT_GRAY} icon="chevron-left" iconSize={16} />
           </PaginationItemWrapper>
-          <PaginationItemWrapper className="page-item" selected>
+          <PaginationItemWrapper
+            accentColor={props.accentColor}
+            borderRadius={props.borderRadius}
+            className="page-item"
+            selected
+          >
             {props.pageNo + 1}
           </PaginationItemWrapper>
           <PaginationItemWrapper
+            accentColor={props.accentColor}
+            borderRadius={props.borderRadius}
             className="t--table-widget-next-page"
             disabled={
               !!props.totalRecordsCount && props.pageNo === props.pageCount - 1
@@ -196,6 +228,8 @@ function TableHeader(props: TableHeaderProps) {
             {props.tableData?.length} Records
           </RowWrapper>
           <PaginationItemWrapper
+            accentColor={props.accentColor}
+            borderRadius={props.borderRadius}
             className="t--table-widget-prev-page"
             disabled={props.currentPageIndex === 0}
             onClick={() => {
@@ -209,6 +243,7 @@ function TableHeader(props: TableHeaderProps) {
           <RowWrapper>
             Page{" "}
             <PageNumberInput
+              borderRadius={props.borderRadius}
               disabled={props.pageCount === 1}
               pageCount={props.pageCount}
               pageNo={props.pageNo + 1}
@@ -217,6 +252,8 @@ function TableHeader(props: TableHeaderProps) {
             of {props.pageCount}
           </RowWrapper>
           <PaginationItemWrapper
+            accentColor={props.accentColor}
+            borderRadius={props.borderRadius}
             className="t--table-widget-next-page"
             disabled={props.currentPageIndex === props.pageCount - 1}
             onClick={() => {

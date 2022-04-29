@@ -68,6 +68,34 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
           },
         ],
       },
+
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "backgroundColor",
+            helpText: "Sets the background color of the widget",
+            label: "Background color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
     ];
   }
   static defaultProps = {
@@ -184,6 +212,8 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
     return (
       <ModalComponent
+        backgroundColor={this.props.backgroundColor}
+        borderRadius={this.props.borderRadius}
         canEscapeKeyClose={!!this.props.canEscapeKeyClose}
         canOutsideClickClose={!!this.props.canOutsideClickClose}
         className={`t--modal-widget ${generateClassName(this.props.widgetId)}`}
@@ -236,6 +266,9 @@ export interface ModalWidgetProps extends WidgetProps {
   shouldScrollContents?: boolean;
   size: string;
   onClose: string;
+  mainContainer: WidgetProps;
+  backgroundColor: string;
+  borderRadius: string;
   mainCanvasWidth: number;
 }
 

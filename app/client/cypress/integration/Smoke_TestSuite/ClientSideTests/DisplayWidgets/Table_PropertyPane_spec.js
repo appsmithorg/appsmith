@@ -273,41 +273,34 @@ describe("Table Widget property pane feature validation", function() {
     cy.readTabledataValidateCSS("0", "0", "align-items", "flex-end", true);
   });
 
-  it("11. Test to validate text color and text background", function() {
-    cy.get(widgetsPage.textColor)
-      .first()
-      .click({ force: true });
-    // Changing text color to GREEN and validate
-    cy.get(widgetsPage.greenColor)
-      .last()
-      .click();
+  it("Test to validate text color and text background", function() {
+    cy.openPropertyPane("tablewidget");
+
+    // Changing text color to rgb(126, 34, 206) and validate
+    cy.selectColor("textcolor");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(5000);
     cy.wait("@updateLayout");
-    cy.readTabledataValidateCSS("1", "0", "color", "rgb(3, 179, 101)", true);
+    cy.readTabledataValidateCSS("1", "0", "color", "rgb(126, 34, 206)");
+
     // Changing text color to PURPLE and validate using JS
     cy.get(widgetsPage.toggleJsColor).click();
     cy.testCodeMirrorLast("purple");
     cy.wait("@updateLayout");
-    cy.readTabledataValidateCSS("1", "0", "color", "rgb(128, 0, 128)", true);
-    // Changing Cell backgroud color to GREEN and validate
-    cy.get(widgetsPage.backgroundColor)
-      .first()
-      .click({ force: true });
-    cy.get(widgetsPage.greenColor)
-      .last()
-      .click();
-    cy.wait("@updateLayout");
+    cy.readTabledataValidateCSS("1", "0", "color", "rgb(128, 0, 128)");
+
+    // Changing Cell backgroud color to rgb(126, 34, 206) and validate
+    cy.selectColor("cellbackground");
     cy.readTabledataValidateCSS(
-      "1",
+      "0",
       "0",
       "background",
-      "rgb(3, 179, 101) none repeat scroll 0% 0% / auto padding-box border-box",
+      "rgb(126, 34, 206) none repeat scroll 0% 0% / auto padding-box border-box",
       true,
     );
     // Changing Cell backgroud color to PURPLE and validate using JS
     cy.get(widgetsPage.toggleJsBcgColor).click();
-    cy.testCodeMirrorLast("purple");
+    cy.updateCodeInput(".t--property-control-cellbackground", "purple");
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS(
       "0",
@@ -343,7 +336,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.selectedRow).should(
       "have.css",
       "background-color",
-      "rgb(236, 249, 243)",
+      "rgb(231, 244, 234)",
     );
     cy.get(publish.backToEditor).click();
   });
@@ -367,12 +360,12 @@ describe("Table Widget property pane feature validation", function() {
       cy.get(selector + " button").should(
         "have.css",
         "background-color",
-        "rgb(3, 179, 101)",
+        "rgb(80, 175, 108)",
       );
       cy.get(selector + " button > span").should(
         "have.css",
         "color",
-        "rgb(255, 255, 255)",
+        "rgb(0, 0, 0)",
       );
     });
     cy.selectDropdownValue(commonlocators.tableButtonVariant, "Secondary");
@@ -389,12 +382,12 @@ describe("Table Widget property pane feature validation", function() {
       cy.get(selector + " button > span").should(
         "have.css",
         "color",
-        "rgb(3, 179, 101)",
+        "rgb(80, 175, 108)",
       );
       cy.get(selector + " button").should(
         "have.css",
         "border",
-        "1px solid rgb(3, 179, 101)",
+        `1px solid rgb(80, 175, 108)`,
       );
     });
     cy.selectDropdownValue(commonlocators.tableButtonVariant, "Tertiary");

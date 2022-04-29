@@ -406,10 +406,13 @@ class InputComponent extends React.Component<
       );
       return (
         <ISDCodeDropdown
+          accentColor={this.props.accentColor}
+          borderRadius={this.props.borderRadius}
           disabled={disabled}
           onISDCodeChange={this.props.onISDCodeChange}
           options={ISDCodeDropdownOptions}
           selected={selectedISDCode}
+          widgetId={this.props.widgetId}
         />
       );
     } else if (inputType === InputTypes.CURRENCY) {
@@ -418,10 +421,13 @@ class InputComponent extends React.Component<
       );
       return (
         <CurrencyTypeDropdown
+          accentColor={this.props.accentColor}
           allowCurrencyChange={this.props.allowCurrencyChange && !disabled}
+          borderRadius={this.props.borderRadius}
           onCurrencyTypeChange={this.props.onCurrencyTypeChange}
           options={CurrencyDropdownOptions}
           selected={selectedCurrencyCountryCode}
+          widgetId={this.props.widgetId}
         />
       );
     } else if (this.props.iconName && this.props.iconAlign === "left") {
@@ -705,6 +711,9 @@ export interface InputComponentProps extends ComponentProps {
       | React.KeyboardEvent<HTMLTextAreaElement>
       | React.KeyboardEvent<HTMLInputElement>,
   ) => void;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
 }
 
 export default InputComponent;

@@ -564,6 +564,9 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
       {showDateInput ? (
         <DatePickerWrapper className="t--table-filter-date-input">
           <DatePickerComponent
+            accentColor="blue"
+            backgroundColor="#fff"
+            borderRadius="SHARP"
             closeOnSelection
             compactMode
             dateFormat="YYYY-MM-DD HH:mm"

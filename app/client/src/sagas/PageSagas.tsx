@@ -348,7 +348,7 @@ export function* fetchAllPublishedPagesSaga() {
     const pageIds = yield select(getAllPageIds);
     yield all(
       pageIds.map((pageId: string) => {
-        return call(PageApi.fetchPublishedPage, { pageId });
+        return call(PageApi.fetchPublishedPage, { pageId, bustCache: true });
       }),
     );
   } catch (error) {

@@ -12,7 +12,12 @@ import {
   EventType,
   ExecuteTriggerPayload,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { FieldState, ROOT_SCHEMA_KEY, Schema } from "../constants";
+import {
+  FieldState,
+  FieldThemeStylesheet,
+  ROOT_SCHEMA_KEY,
+  Schema,
+} from "../constants";
 import {
   ComputedSchemaStatus,
   computeSchema,
@@ -47,6 +52,7 @@ export interface JSONFormWidgetProps extends WidgetProps {
   submitButtonLabel: string;
   submitButtonStyles: ButtonStyleProps;
   title: string;
+  childStylesheet: FieldThemeStylesheet;
 }
 
 export type MetaInternalFieldState = FieldState<{
@@ -173,6 +179,7 @@ class JSONFormWidget extends BaseWidget<
       prevSchema: widget.schema,
       prevSourceData,
       widgetName: widget.widgetName,
+      fieldThemeStylesheets: widget.childStylesheet,
     });
     const { dynamicPropertyPathList, schema, status } = computedSchema;
 

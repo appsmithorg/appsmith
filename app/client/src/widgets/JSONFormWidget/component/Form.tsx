@@ -111,9 +111,7 @@ const StyledFormBody = styled.div<StyledFormBodyProps>`
   padding: ${FORM_PADDING_Y}px ${FORM_PADDING_X}px;
 `;
 
-const StyledResetButtonWrapper = styled.div`
-  background: #fff;
-`;
+const StyledResetButtonWrapper = styled.div``;
 
 const DEBOUNCE_TIMEOUT = 200;
 

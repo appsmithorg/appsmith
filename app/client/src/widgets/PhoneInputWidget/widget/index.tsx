@@ -289,8 +289,11 @@ class PhoneInputWidget extends BaseInputWidget<
 
     return (
       <PhoneInputComponent
+        accentColor={this.props.accentColor}
         allowDialCodeChange={this.props.allowDialCodeChange}
         autoFocus={this.props.autoFocus}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         compactMode={
           !(
             (this.props.bottomRow - this.props.topRow) /

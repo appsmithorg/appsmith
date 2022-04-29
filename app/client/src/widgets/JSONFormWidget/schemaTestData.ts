@@ -1,6 +1,7 @@
 import {
   ARRAY_ITEM_KEY,
   DataType,
+  FieldThemeStylesheet,
   FieldType,
   ROOT_SCHEMA_KEY,
 } from "./constants";
@@ -53,6 +54,9 @@ const initialDataset = {
           identifier: "name",
           originalIdentifier: "name",
           position: 0,
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
         },
         age: {
           isDisabled: false,
@@ -72,6 +76,9 @@ const initialDataset = {
           identifier: "age",
           originalIdentifier: "age",
           position: 1,
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
         },
         dob: {
           closeOnSelection: false,
@@ -96,6 +103,9 @@ const initialDataset = {
           identifier: "dob",
           originalIdentifier: "dob",
           position: 2,
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
         },
         boolean: {
           alignWidget: "LEFT",
@@ -114,6 +124,8 @@ const initialDataset = {
           identifier: "boolean",
           originalIdentifier: "boolean",
           position: 3,
+          backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+          boxShadow: "none",
         },
         hobbies: {
           isDisabled: false,
@@ -137,6 +149,9 @@ const initialDataset = {
           identifier: "hobbies",
           originalIdentifier: "hobbies",
           position: 4,
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
         },
         __: {
           isDisabled: false,
@@ -156,6 +171,9 @@ const initialDataset = {
           identifier: "__",
           originalIdentifier: "%%",
           position: 5,
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
         },
         xn__j2bd4cyac6f: {
           isDisabled: false,
@@ -175,6 +193,9 @@ const initialDataset = {
           identifier: "xn__j2bd4cyac6f",
           originalIdentifier: "हिन्दि",
           position: 6,
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
         },
         education: {
           backgroundColor: "#FAFAFA",
@@ -207,6 +228,10 @@ const initialDataset = {
                   identifier: "college",
                   originalIdentifier: "college",
                   position: 0,
+                  accentColor: "{{appsmith.theme.colors.primaryColor}}",
+                  borderRadius:
+                    "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  boxShadow: "none",
                 },
                 number: {
                   isDisabled: false,
@@ -225,6 +250,10 @@ const initialDataset = {
                   identifier: "number",
                   originalIdentifier: "number",
                   position: 1,
+                  accentColor: "{{appsmith.theme.colors.primaryColor}}",
+                  borderRadius:
+                    "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  boxShadow: "none",
                 },
                 graduationDate: {
                   closeOnSelection: false,
@@ -248,6 +277,10 @@ const initialDataset = {
                   identifier: "graduationDate",
                   originalIdentifier: "graduationDate",
                   position: 2,
+                  accentColor: "{{appsmith.theme.colors.primaryColor}}",
+                  borderRadius:
+                    "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  boxShadow: "none",
                 },
                 boolean: {
                   alignWidget: "LEFT",
@@ -265,6 +298,8 @@ const initialDataset = {
                   identifier: "boolean",
                   originalIdentifier: "boolean",
                   position: 3,
+                  backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+                  boxShadow: "none",
                 },
               },
               dataType: DataType.OBJECT,
@@ -325,6 +360,9 @@ const initialDataset = {
               identifier: "Line1",
               originalIdentifier: "Line1",
               position: 0,
+              accentColor: "{{appsmith.theme.colors.primaryColor}}",
+              borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+              boxShadow: "none",
             },
             city: {
               isSpellCheck: false,
@@ -344,6 +382,9 @@ const initialDataset = {
               identifier: "city",
               originalIdentifier: "city",
               position: 1,
+              accentColor: "{{appsmith.theme.colors.primaryColor}}",
+              borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+              boxShadow: "none",
             },
           },
           dataType: DataType.OBJECT,
@@ -438,6 +479,9 @@ const withRemovedKeyFromInitialDataset = {
           identifier: "name",
           originalIdentifier: "name",
           position: 0,
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
         },
         age: {
           isDisabled: false,
@@ -457,6 +501,9 @@ const withRemovedKeyFromInitialDataset = {
           identifier: "age",
           originalIdentifier: "age",
           position: 1,
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
         },
         dob: {
           closeOnSelection: false,
@@ -481,6 +528,9 @@ const withRemovedKeyFromInitialDataset = {
           identifier: "dob",
           originalIdentifier: "dob",
           position: 2,
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
         },
         hobbies: {
           isDisabled: false,
@@ -505,6 +555,9 @@ const withRemovedKeyFromInitialDataset = {
           identifier: "hobbies",
           originalIdentifier: "hobbies",
           position: 4,
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
         },
         xn__j2bd4cyac6f: {
           isDisabled: false,
@@ -524,6 +577,9 @@ const withRemovedKeyFromInitialDataset = {
           identifier: "xn__j2bd4cyac6f",
           originalIdentifier: "हिन्दि",
           position: 6,
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
         },
         education: {
           backgroundColor: "#FAFAFA",
@@ -556,6 +612,10 @@ const withRemovedKeyFromInitialDataset = {
                   identifier: "college",
                   originalIdentifier: "college",
                   position: 0,
+                  accentColor: "{{appsmith.theme.colors.primaryColor}}",
+                  borderRadius:
+                    "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  boxShadow: "none",
                 },
                 number: {
                   isDisabled: false,
@@ -574,6 +634,10 @@ const withRemovedKeyFromInitialDataset = {
                   identifier: "number",
                   originalIdentifier: "number",
                   position: 1,
+                  accentColor: "{{appsmith.theme.colors.primaryColor}}",
+                  borderRadius:
+                    "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  boxShadow: "none",
                 },
                 graduationDate: {
                   closeOnSelection: false,
@@ -597,6 +661,10 @@ const withRemovedKeyFromInitialDataset = {
                   identifier: "graduationDate",
                   originalIdentifier: "graduationDate",
                   position: 2,
+                  accentColor: "{{appsmith.theme.colors.primaryColor}}",
+                  borderRadius:
+                    "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  boxShadow: "none",
                 },
                 boolean: {
                   alignWidget: "LEFT",
@@ -614,6 +682,8 @@ const withRemovedKeyFromInitialDataset = {
                   identifier: "boolean",
                   originalIdentifier: "boolean",
                   position: 3,
+                  backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+                  boxShadow: "none",
                 },
               },
               dataType: DataType.OBJECT,
@@ -674,6 +744,9 @@ const withRemovedKeyFromInitialDataset = {
               identifier: "Line1",
               originalIdentifier: "Line1",
               position: 0,
+              accentColor: "{{appsmith.theme.colors.primaryColor}}",
+              borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+              boxShadow: "none",
             },
             city: {
               isDisabled: false,
@@ -693,6 +766,9 @@ const withRemovedKeyFromInitialDataset = {
               identifier: "city",
               originalIdentifier: "city",
               position: 1,
+              accentColor: "{{appsmith.theme.colors.primaryColor}}",
+              borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+              boxShadow: "none",
             },
           },
           dataType: DataType.OBJECT,
@@ -786,6 +862,9 @@ const withRemovedAddedKeyToInitialDataset = {
           identifier: "name",
           originalIdentifier: "name",
           position: 0,
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
         },
         age: {
           isDisabled: false,
@@ -805,6 +884,9 @@ const withRemovedAddedKeyToInitialDataset = {
           identifier: "age",
           originalIdentifier: "age",
           position: 1,
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
         },
         dob: {
           closeOnSelection: false,
@@ -829,6 +911,9 @@ const withRemovedAddedKeyToInitialDataset = {
           identifier: "dob",
           originalIdentifier: "dob",
           position: 2,
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
         },
         hobbies: {
           isDisabled: false,
@@ -853,6 +938,9 @@ const withRemovedAddedKeyToInitialDataset = {
           identifier: "hobbies",
           originalIdentifier: "hobbies",
           position: 3,
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
         },
         xn__j2bd4cyac6f: {
           isDisabled: false,
@@ -872,6 +960,9 @@ const withRemovedAddedKeyToInitialDataset = {
           identifier: "xn__j2bd4cyac6f",
           originalIdentifier: "हिन्दि",
           position: 4,
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
         },
         education: {
           backgroundColor: "#FAFAFA",
@@ -904,6 +995,10 @@ const withRemovedAddedKeyToInitialDataset = {
                   identifier: "college",
                   originalIdentifier: "college",
                   position: 0,
+                  accentColor: "{{appsmith.theme.colors.primaryColor}}",
+                  borderRadius:
+                    "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  boxShadow: "none",
                 },
                 number: {
                   isDisabled: false,
@@ -922,6 +1017,10 @@ const withRemovedAddedKeyToInitialDataset = {
                   identifier: "number",
                   originalIdentifier: "number",
                   position: 1,
+                  accentColor: "{{appsmith.theme.colors.primaryColor}}",
+                  borderRadius:
+                    "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  boxShadow: "none",
                 },
                 graduationDate: {
                   closeOnSelection: false,
@@ -945,6 +1044,10 @@ const withRemovedAddedKeyToInitialDataset = {
                   identifier: "graduationDate",
                   originalIdentifier: "graduationDate",
                   position: 2,
+                  accentColor: "{{appsmith.theme.colors.primaryColor}}",
+                  borderRadius:
+                    "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  boxShadow: "none",
                 },
                 boolean: {
                   alignWidget: "LEFT",
@@ -962,6 +1065,8 @@ const withRemovedAddedKeyToInitialDataset = {
                   identifier: "boolean",
                   originalIdentifier: "boolean",
                   position: 3,
+                  backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+                  boxShadow: "none",
                 },
               },
               dataType: DataType.OBJECT,
@@ -1022,6 +1127,9 @@ const withRemovedAddedKeyToInitialDataset = {
               identifier: "Line1",
               originalIdentifier: "Line1",
               position: 0,
+              accentColor: "{{appsmith.theme.colors.primaryColor}}",
+              borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+              boxShadow: "none",
             },
             city: {
               isSpellCheck: false,
@@ -1041,6 +1149,9 @@ const withRemovedAddedKeyToInitialDataset = {
               identifier: "city",
               originalIdentifier: "city",
               position: 1,
+              accentColor: "{{appsmith.theme.colors.primaryColor}}",
+              borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+              boxShadow: "none",
             },
           },
           dataType: DataType.OBJECT,
@@ -1072,6 +1183,9 @@ const withRemovedAddedKeyToInitialDataset = {
           identifier: "gender",
           originalIdentifier: "gender",
           position: 7,
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
         },
       },
       dataType: DataType.OBJECT,
@@ -1107,8 +1221,75 @@ const withRemovedAddedKeyToInitialDataset = {
   },
 };
 
+const fieldThemeStylesheets = ({
+  CHECKBOX: {
+    backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  CURRENCY_INPUT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  DATEPICKER: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  EMAIL_INPUT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  MULTISELECT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  MULTILINE_TEXT_INPUT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  NUMBER_INPUT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  PASSWORD_INPUT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  PHONE_NUMBER_INPUT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  RADIO_GROUP: {
+    backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+    boxShadow: "none",
+  },
+  SELECT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  SWITCH: {
+    backgroundColor: "{{appsmith.theme.colors.primaryColor}}",
+    boxShadow: "none",
+  },
+  TEXT_INPUT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+} as unknown) as FieldThemeStylesheet;
+
 export default {
   initialDataset,
   withRemovedKeyFromInitialDataset,
   withRemovedAddedKeyToInitialDataset,
+  fieldThemeStylesheets,
 };

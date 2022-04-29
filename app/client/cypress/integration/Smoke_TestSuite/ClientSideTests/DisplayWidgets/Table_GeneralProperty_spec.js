@@ -139,15 +139,15 @@ describe("Table Widget property pane feature validation", function() {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     // Select Heading 1 text size
-    cy.selectTextSize("Heading 1");
+    cy.selectTxtSize("lg");
     // Verify the font size is 24px
-    cy.readTabledataValidateCSS("0", "0", "font-size", "24px");
+    cy.readTabledataValidateCSS("0", "0", "font-size", "20px");
     // close propert pane
 
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     // Verify the font size is 24px
-    cy.readTabledataValidateCSS("0", "0", "font-size", "24px");
+    cy.readTabledataValidateCSS("0", "0", "font-size", "20px");
   });
 
   it("8. Test to validate open new tab icon shows when URL type data validate link text ", function() {

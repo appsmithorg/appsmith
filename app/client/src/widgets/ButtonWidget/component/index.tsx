@@ -7,7 +7,6 @@ import {
   Button,
   Alignment,
   Position,
-  Classes,
 } from "@blueprintjs/core";
 import { Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
@@ -27,22 +26,18 @@ import ReCAPTCHA from "react-google-recaptcha";
 import { Colors } from "constants/Colors";
 import _ from "lodash";
 import {
-  ButtonBoxShadow,
-  ButtonBoxShadowTypes,
-  ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
+  ButtonPlacement,
   ButtonVariant,
   ButtonVariantTypes,
   RecaptchaType,
   RecaptchaTypes,
-  ButtonPlacement,
 } from "components/constants";
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
-  getCustomTextColor,
   getCustomJustifyContent,
   getAlignText,
+  getComplementaryGrayscaleColor,
 } from "widgets/WidgetUtils";
 import { DragContainer } from "./DragContainer";
 import { buttonHoverActiveStyles } from "./utils";
@@ -77,7 +72,7 @@ const TooltipStyles = createGlobalStyle`
 `;
 
 /*
-  Don't use buttonHoverActiveStyles in a nested function it won't work - 
+  Don't use buttonHoverActiveStyles in a nested function it won't work -
 
   const buttonHoverActiveStyles = css ``
 
@@ -96,94 +91,85 @@ const TooltipStyles = createGlobalStyle`
 */
 
 const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
-  height: 100%;
-  background-image: none !important;
-  font-weight: ${(props) => props.theme.fontWeights[2]};
-  outline: none;
-  padding: 0px 10px;
+height: 100%;
+background-image: none !important;
+font-weight: ${(props) => props.theme.fontWeights[2]};
+outline: none;
+padding: 0px 10px;
+gap: 8px;
 
-  &:hover, &:active {
-    ${buttonHoverActiveStyles}
-   }
+&:hover, &:active {
+  ${buttonHoverActiveStyles}
+ }
 
-  ${({ buttonColor, buttonVariant, theme }) => `
-      background: ${
-        getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
-          ? getCustomBackgroundColor(buttonVariant, buttonColor)
-          : buttonVariant === ButtonVariantTypes.PRIMARY
-          ? theme.colors.button.primary.primary.bgColor
-          : "none"
-      } !important;
-
-
-    &:disabled, &.${Classes.DISABLED} {
-      background-color: ${theme.colors.button.disabled.bgColor} !important;
-      cursor: not-allowed;
-      color: ${theme.colors.button.disabled.textColor} !important;
-      border-color: ${theme.colors.button.disabled.bgColor} !important;
-      > span {
-        color: ${theme.colors.button.disabled.textColor} !important;
-      }
-    }
-
-    border: ${
-      getCustomBorderColor(buttonVariant, buttonColor) !== "none"
-        ? `1px solid ${getCustomBorderColor(buttonVariant, buttonColor)}`
-        : buttonVariant === ButtonVariantTypes.SECONDARY
-        ? `1px solid ${theme.colors.button.primary.secondary.borderColor}`
+${({ buttonColor, buttonVariant, theme }) => `
+    background: ${
+      getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
+        ? getCustomBackgroundColor(buttonVariant, buttonColor)
+        : buttonVariant === ButtonVariantTypes.PRIMARY
+        ? theme.colors.button.primary.primary.bgColor
         : "none"
     } !important;
 
-    & > span {
-      max-height: 100%;
-      max-width: 99%;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
 
-      color: ${
-        buttonVariant === ButtonVariantTypes.PRIMARY
-          ? getCustomTextColor(theme, buttonColor)
-          : getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor)
-      } !important;
+  &:disabled {
+    cursor: not-allowed;
+    background-color: ${Colors.GREY_1} !important;
+    color: ${Colors.GREY_9} !important;
+    box-shadow: none !important;
+    pointer-events: none;
+    border-color: ${Colors.GREY_1} !important;
+
+    > span {
+      color: ${Colors.GREY_9} !important;
     }
-  `}
+  }
 
-  border-radius: ${({ borderRadius }) =>
-    borderRadius === ButtonBorderRadiusTypes.ROUNDED ? "5px" : 0};
+  border: ${
+    getCustomBorderColor(buttonVariant, buttonColor) !== "none"
+      ? `1px solid ${getCustomBorderColor(buttonVariant, buttonColor)}`
+      : buttonVariant === ButtonVariantTypes.SECONDARY
+      ? `1px solid ${theme.colors.button.primary.secondary.borderColor}`
+      : "none"
+  } !important;
 
-  box-shadow: ${({ boxShadow, boxShadowColor, theme }) =>
-    boxShadow === ButtonBoxShadowTypes.VARIANT1
-      ? `0px 0px 4px 3px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant1}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT2
-      ? `3px 3px 4px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant2}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT3
-      ? `0px 1px 3px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant3}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT4
-      ? `2px 2px 0px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant4}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT5
-      ? `-2px -2px 0px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant5}`
-      : "none"} !important;
+  & > * {
+    margin-right: 0;
+  }
 
-  ${({ placement }) =>
-    placement
-      ? `
-      justify-content: ${getCustomJustifyContent(placement)};
-      & > span.bp3-button-text {
-        flex: unset !important;
-      }
-    `
-      : ""}
+  & > span {
+    max-height: 100%;
+    max-width: 99%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    line-height: normal;
+
+    color: ${
+      buttonVariant === ButtonVariantTypes.PRIMARY
+        ? getComplementaryGrayscaleColor(buttonColor)
+        : getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor)
+    } !important;
+  }
+`}
+
+border-radius: ${({ borderRadius }) => borderRadius};
+box-shadow: ${({ boxShadow }) => `${boxShadow ?? "none"}`} !important;
+
+${({ placement }) =>
+  placement
+    ? `
+    justify-content: ${getCustomJustifyContent(placement)};
+    & > span.bp3-button-text {
+      flex: unset !important;
+    }
+  `
+    : ""}
 `;
 
-const StyledButton = styled((props) => (
+export const StyledButton = styled((props) => (
   <Button
     {..._.omit(props, [
       "borderRadius",
@@ -200,9 +186,9 @@ const StyledButton = styled((props) => (
 export type ButtonStyleProps = {
   buttonColor?: string;
   buttonVariant?: ButtonVariant;
-  boxShadow?: ButtonBoxShadow;
+  boxShadow?: string;
   boxShadowColor?: string;
-  borderRadius?: ButtonBorderRadius;
+  borderRadius?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
   placement?: ButtonPlacement;
@@ -293,8 +279,8 @@ interface ButtonComponentProps extends ComponentProps {
   type: ButtonType;
   buttonColor?: string;
   buttonVariant?: ButtonVariant;
-  borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
+  borderRadius?: string;
+  boxShadow?: string;
   boxShadowColor?: string;
   iconName?: IconName;
   iconAlign?: Alignment;

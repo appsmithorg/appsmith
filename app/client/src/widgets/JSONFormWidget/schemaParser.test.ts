@@ -27,21 +27,21 @@ const widgetName = "JSONForm1";
 
 describe("#parse", () => {
   it("returns a new schema for a valid data source", () => {
-    const result = SchemaParser.parse(
-      widgetName,
-      testData.initialDataset.dataSource,
-      {},
-    );
+    const result = SchemaParser.parse(widgetName, {
+      currSourceData: testData.initialDataset.dataSource,
+      schema: {},
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
 
     expect(result).toEqual(testData.initialDataset.schemaOutput);
   });
 
   it("returns an updated schema when a key removed from existing data source", () => {
-    const result = SchemaParser.parse(
-      widgetName,
-      testData.withRemovedKeyFromInitialDataset.dataSource,
-      testData.initialDataset.schemaOutput,
-    );
+    const result = SchemaParser.parse(widgetName, {
+      currSourceData: testData.withRemovedKeyFromInitialDataset.dataSource,
+      schema: testData.initialDataset.schemaOutput,
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
 
     expect(result).toEqual(
       testData.withRemovedKeyFromInitialDataset.schemaOutput,
@@ -51,11 +51,11 @@ describe("#parse", () => {
   it("returns an updated schema when new key added to existing data source", () => {
     const widgetName = "JSONForm1";
 
-    const result = SchemaParser.parse(
-      widgetName,
-      testData.withRemovedAddedKeyToInitialDataset.dataSource,
-      testData.initialDataset.schemaOutput,
-    );
+    const result = SchemaParser.parse(widgetName, {
+      currSourceData: testData.withRemovedAddedKeyToInitialDataset.dataSource,
+      schema: testData.initialDataset.schemaOutput,
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
 
     expect(result).toEqual(
       testData.withRemovedAddedKeyToInitialDataset.schemaOutput,
@@ -63,11 +63,11 @@ describe("#parse", () => {
   });
 
   it("returns unmodified schema when existing field's value in data source changes to null/undefined", () => {
-    const initialSchema = SchemaParser.parse(
-      widgetName,
-      testData.initialDataset.dataSource,
-      {},
-    );
+    const initialSchema = SchemaParser.parse(widgetName, {
+      currSourceData: testData.initialDataset.dataSource,
+      schema: {},
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
 
     expect(initialSchema).toEqual(testData.initialDataset.schemaOutput);
 
@@ -79,11 +79,11 @@ describe("#parse", () => {
     set(expectedNulledSchema, "__root_schema__.children.dob.sourceData", null);
     set(expectedNulledSchema, "__root_schema__.sourceData.dob", null);
 
-    const schemaWithNulledField = SchemaParser.parse(
-      widgetName,
-      nulledDataSource,
-      initialSchema,
-    );
+    const schemaWithNulledField = SchemaParser.parse(widgetName, {
+      currSourceData: nulledDataSource,
+      schema: initialSchema,
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
 
     expect(schemaWithNulledField).toEqual(expectedNulledSchema);
 
@@ -103,11 +103,11 @@ describe("#parse", () => {
       undefined,
     );
 
-    const schemaWithUndefinedField = SchemaParser.parse(
-      widgetName,
-      undefinedDataSource,
-      schemaWithNulledField,
-    );
+    const schemaWithUndefinedField = SchemaParser.parse(widgetName, {
+      currSourceData: undefinedDataSource,
+      schema: schemaWithNulledField,
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
 
     expect(schemaWithUndefinedField).toEqual(expectedUndefinedSchema);
   });

@@ -27,6 +27,7 @@ export type PhoneInputFieldProps = BaseFieldComponentProps<
 type ISDCodeDropdownComponentProps = {
   allowDialCodeChange: boolean;
   dialCode: string;
+  fieldName: string;
   isDisabled: boolean;
   propertyPath: string;
 };
@@ -75,6 +76,7 @@ const transformValue = (value: string) => {
 function ISDCodeDropdownComponent({
   allowDialCodeChange,
   dialCode,
+  fieldName,
   isDisabled,
   propertyPath,
 }: ISDCodeDropdownComponentProps) {
@@ -99,6 +101,7 @@ function ISDCodeDropdownComponent({
       onISDCodeChange={onISDCodeChange}
       options={ISDCodeDropdownOptions}
       selected={selectedISDCode}
+      widgetId={fieldName}
     />
   );
 }
@@ -114,6 +117,7 @@ function PhoneInputField({
     <ISDCodeDropdownComponent
       allowDialCodeChange={schemaItem.allowDialCodeChange}
       dialCode={schemaItem.dialCode}
+      fieldName={name}
       isDisabled={schemaItem.isDisabled}
       propertyPath={propertyPath}
     />
