@@ -11,7 +11,7 @@ import { WhereClauseSubComponent } from "./utils";
 import Tooltip from "components/ads/Tooltip";
 
 //Dropdwidth and Icon have fixed widths
-const DropdownWidth = 130; //pixel value
+const DropdownWidth = 100; //pixel value
 const Margin = 8; //pixel value, space between two adjacent fields
 //Offsets are pixel values adjusted for Margin = 8px, and DropdownWidth = 100px
 //Offsets are used to calculate flexible width of Key and Value fields
