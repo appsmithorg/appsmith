@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from "react";
 import { useActiveAction } from "../hooks";
-import { Entity } from "../Entity/index";
+import { Entity, EntityClassNames } from "../Entity/index";
 import {
   createMessage,
   ADD_QUERY_JS_TOOLTIP,
@@ -102,15 +102,11 @@ function Files() {
 
   return (
     <Entity
-      addButtonHelptext={
-        <>
-          {createMessage(ADD_QUERY_JS_TOOLTIP)} (
-          {comboHelpText[SEARCH_CATEGORY_ID.ACTION_OPERATION]})
-        </>
-      }
       alwaysShowRightIcon
       className={`group files`}
-      customAddButton={<ExplorerSubMenu />}
+      customAddButton={
+        <ExplorerSubMenu className={`${EntityClassNames.ADD_BUTTON} files`} />
+      }
       disabled={false}
       entityId={pageId + "_widgets"}
       icon={null}

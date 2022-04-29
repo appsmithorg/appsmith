@@ -1,6 +1,10 @@
 import { Popover2 } from "@blueprintjs/popover2";
 import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
-import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
+import {
+  comboHelpText,
+  SEARCH_CATEGORY_ID,
+  SEARCH_ITEM_TYPES,
+} from "components/editorComponents/GlobalSearch/utils";
 import styled from "constants/DefaultTheme";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,6 +23,11 @@ import { EntityIcon, getPluginIcon } from "../ExplorerIcons";
 import SubmenuHotKeys from "./SubmenuHotkeys";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { Colors } from "constants/Colors";
+import { Position } from "@blueprintjs/core";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { EntityClassNames } from "../Entity";
+import TooltipComponent from "components/ads/Tooltip";
+import { ADD_QUERY_JS_BUTTON, createMessage } from "ce/constants/messages";
 
 const SubMenuContainer = styled.div`
   width: 250px;
@@ -30,7 +39,7 @@ const SubMenuContainer = styled.div`
     div.active {
       background: ${Colors.GREY_2};
     }
-    > div {
+    > div:not(.section-title) {
       &: hover {
         background: ${Colors.GREY_2};
       }
@@ -38,7 +47,9 @@ const SubMenuContainer = styled.div`
   }
 `;
 
-export default function ExplorerSubMenu() {
+type SubMenuProps = { className: string };
+
+export default function ExplorerSubMenu({ className }: SubMenuProps) {
   const [query, setQuery] = useState("");
   const [show, setShow] = useState(false);
   const fileOperations = useFilteredFileOperations(query);
@@ -51,6 +62,10 @@ export default function ExplorerSubMenu() {
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const [activeItemIdx, setActiveItemIdx] = useState(0);
+
+  useEffect(() => {
+    setQuery("");
+  }, [show]);
 
   useEffect(() => {
     const element = document.getElementById(`file-op-${activeItemIdx}`);
@@ -93,19 +108,23 @@ export default function ExplorerSubMenu() {
     handleClick(item);
   };
 
-  const handleClick = (item: any) => {
-    if (item.action) {
-      dispatch(item.action(pageId, "SUBMENU"));
-    } else if (item.redirect) {
-      item.redirect(
-        applicationSlug,
-        pageIdToSlugMap[pageId],
-        pageId,
-        "SUBMENU",
-      );
-    }
-    setShow(false);
-  };
+  const handleClick = useCallback(
+    (item: any) => {
+      if (item.kind === SEARCH_ITEM_TYPES.sectionTitle) return;
+      if (item.action) {
+        dispatch(item.action(pageId, "SUBMENU"));
+      } else if (item.redirect) {
+        item.redirect(
+          applicationSlug,
+          pageIdToSlugMap[pageId],
+          pageId,
+          "SUBMENU",
+        );
+      }
+      setShow(false);
+    },
+    [pageId, dispatch, setShow],
+  );
 
   return (
     <Popover2
@@ -153,9 +172,13 @@ export default function ExplorerSubMenu() {
                 return (
                   <div
                     className={classNames({
-                      "px-4 py-2 cursor-pointer text-sm flex gap-2": true,
-                      active: activeItemIdx === idx,
-                      "font-medium text-gray":
+                      "px-4 py-2 text-sm flex gap-2": true,
+                      "cursor-pointer":
+                        item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
+                      active:
+                        activeItemIdx === idx &&
+                        item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
+                      "font-medium text-gray section-title":
                         item.kind === SEARCH_ITEM_TYPES.sectionTitle,
                     })}
                     id={`file-op-${idx}`}
@@ -177,9 +200,22 @@ export default function ExplorerSubMenu() {
       minimal
       onClose={() => setShow(false)}
       placement="right-start"
-      usePortal
     >
-      <EntityAddButton onClick={() => setShow(true)} />
+      <TooltipComponent
+        boundary="viewport"
+        className={EntityClassNames.TOOLTIP}
+        content={
+          <>
+            {createMessage(ADD_QUERY_JS_BUTTON)} (
+            {comboHelpText[SEARCH_CATEGORY_ID.ACTION_OPERATION]})
+          </>
+        }
+        disabled={show}
+        hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+        position={Position.RIGHT}
+      >
+        <EntityAddButton className={className} onClick={() => setShow(true)} />
+      </TooltipComponent>
     </Popover2>
   );
 }

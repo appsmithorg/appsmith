@@ -279,27 +279,21 @@ export const Entity = forwardRef(
     const itemRef = useRef<HTMLDivElement | null>(null);
     useClick(itemRef, handleClick, noop);
 
-    const customAddButton =
-      props.customAddButton ||
-      (props.addButtonHelptext ? (
-        <TooltipComponent
-          boundary="viewport"
-          className={EntityClassNames.TOOLTIP}
-          content={props.addButtonHelptext}
-          hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-          position={Position.RIGHT}
-        >
-          <AddButton
-            className={`${EntityClassNames.ADD_BUTTON} ${props.className}`}
-            onClick={props.onCreate}
-          />
-        </TooltipComponent>
-      ) : (
+    const addButton = props.customAddButton || (
+      <TooltipComponent
+        boundary="viewport"
+        className={EntityClassNames.TOOLTIP}
+        content={props.addButtonHelptext || ""}
+        disabled={!props.addButtonHelptext}
+        hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+        position={Position.RIGHT}
+      >
         <AddButton
           className={`${EntityClassNames.ADD_BUTTON} ${props.className}`}
           onClick={props.onCreate}
         />
-      ));
+      </TooltipComponent>
+    );
 
     return (
       <Boxed
@@ -363,7 +357,7 @@ export const Entity = forwardRef(
                 {props.rightIcon}
               </IconWrapper>
             )}
-            {customAddButton}
+            {addButton}
             {props.contextMenu && (
               <ContextMenuWrapper>{props.contextMenu}</ContextMenuWrapper>
             )}
