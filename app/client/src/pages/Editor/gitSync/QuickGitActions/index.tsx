@@ -203,7 +203,6 @@ const Container = styled.div`
   height: 100%;
   display: flex;
   align-items: center;
-  margin-left: ${(props) => props.theme.spaces[10]}px;
 `;
 
 const StyledIcon = styled(GitCommitLine)`

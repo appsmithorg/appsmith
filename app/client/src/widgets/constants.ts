@@ -1,4 +1,25 @@
+import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { WidgetFeatures } from "utils/WidgetFeatures";
 import { WidgetProps } from "./BaseWidget";
+
+export interface WidgetConfiguration {
+  type: string;
+  name: string;
+  iconSVG?: string;
+  defaults: Partial<WidgetProps> & WidgetConfigProps;
+  hideCard?: boolean;
+  isCanvas?: boolean;
+  needsMeta?: boolean;
+  features?: WidgetFeatures;
+  properties: {
+    config: PropertyPaneConfig[];
+    default: Record<string, string>;
+    meta: Record<string, any>;
+    derived: DerivedPropertiesMap;
+  };
+}
 
 export const GRID_DENSITY_MIGRATION_V1 = 4;
 

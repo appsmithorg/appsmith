@@ -394,4 +394,17 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
             return repository.save(theme);
         }
     }
+
+    /**
+     * This will archive themes related to the provided Application.
+     * It'll delete any theme that was saved for this application. It'll also delete the draft themes for this Application.
+     * @param application Application object
+     * @return Provided Application publisher
+     */
+    @Override
+    public Mono<Application> archiveApplicationThemes(Application application) {
+        return repository.archiveByApplicationId(application.getId())
+                .then(repository.archiveDraftThemesById(application.getEditModeThemeId(), application.getPublishedModeThemeId()))
+                .thenReturn(application);
+    }
 }

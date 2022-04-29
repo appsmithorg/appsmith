@@ -44,6 +44,7 @@ export type DropdownOption = {
   onSelect?: DropdownOnSelect;
   data?: any;
   isSectionHeader?: boolean;
+  hasCustomBadge?: boolean;
 };
 export interface DropdownSearchProps {
   enableSearch?: boolean;
@@ -107,6 +108,8 @@ export type DropdownProps = CommonComponentProps &
     defaultIcon?: IconName;
     allowDeselection?: boolean; //prevents de-selection of the selected option
     truncateOption?: boolean; // enabled wrapping and adding tooltip on option item of dropdown menu
+    customBadge?: JSX.Element;
+    selectedHighlightBg?: string;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption | DropdownOption[];
@@ -258,6 +261,10 @@ export const DropdownContainer = styled.div<{ width: string; height?: string }>`
   span.bp3-popover-target {
     display: inline-block;
     width: 100%;
+    height: 100%;
+  }
+  span.bp3-popover-target div {
+    height: 100%;
   }
 
   span.bp3-popover-wrapper {
@@ -359,6 +366,7 @@ const StyledSubText = styled(Text)<{
 const OptionWrapper = styled.div<{
   selected: boolean;
   subTextPosition?: SubTextPosition;
+  selectedHighlightBg?: string;
 }>`
   padding: ${(props) => props.theme.spaces[3] + 1}px
     ${(props) => props.theme.spaces[5]}px;
@@ -368,7 +376,11 @@ const OptionWrapper = styled.div<{
     props.subTextPosition === SubTextPosition.BOTTOM ? "column" : "row"};
   align-items: ${(props) =>
     props.subTextPosition === SubTextPosition.BOTTOM ? "flex-start" : "center"};
-  background-color: ${(props) => (props.selected ? Colors.GRAY_200 : null)};
+  align-items: center;
+  min-height: 36px;
+  background-color: ${(props) =>
+    props.selected ? props.selectedHighlightBg || Colors.GRAY_200 : null};
+
   &&& svg {
     rect {
       fill: ${(props) => props.theme.colors.dropdownIconBg};
@@ -399,7 +411,8 @@ const OptionWrapper = styled.div<{
   }
 
   &:hover {
-    background-color: ${Colors.GRAY_200};
+    background-color: ${(props) =>
+      props.selectedHighlightBg || Colors.GRAY_200};
 
     &&& svg {
       rect {
@@ -692,9 +705,12 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
   };
   const theme = useTheme() as Theme;
 
+  if (!options.length) return null;
+
   return (
     <DropdownWrapper
       className="ads-dropdown-options-wrapper"
+      data-testid="dropdown-options-wrapper"
       isOpen={props.isOpen}
       width={optionWidth}
     >
@@ -752,6 +768,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
                   ? props.highlightIndex === index
                   : isSelected
               }
+              selectedHighlightBg={props.selectedHighlightBg}
               subTextPosition={option.subTextPosition ?? SubTextPosition.LEFT}
             >
               {option.leftElement && (
@@ -772,12 +789,18 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               ) : null}
               {props.showLabelOnly ? (
                 props.truncateOption ? (
-                  <TooltipWrappedText
-                    label={option.label || ""}
-                    type={TextType.P1}
-                  />
+                  <>
+                    <TooltipWrappedText
+                      label={option.label || ""}
+                      type={TextType.P1}
+                    />
+                    {option.hasCustomBadge && props.customBadge}
+                  </>
                 ) : (
-                  <Text type={TextType.P1}>{option.label}</Text>
+                  <>
+                    <Text type={TextType.P1}>{option.label}</Text>
+                    {option.hasCustomBadge && props.customBadge}
+                  </>
                 )
               ) : option.label && option.value ? (
                 <LabelWrapper className="label-container">
