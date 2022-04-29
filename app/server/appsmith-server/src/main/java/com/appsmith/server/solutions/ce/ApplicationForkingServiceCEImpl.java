@@ -105,7 +105,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                             return applicationService.findBranchedApplicationId(
                                     application.getGitApplicationMetadata().getDefaultBranchName(),
                                     srcApplicationId,
-                                    AclPermission.MANAGE_APPLICATIONS
+                                    AclPermission.READ_APPLICATIONS
                             ).flatMap(appId -> forkApplicationToOrganization(appId, targetOrganizationId));
                         }
                         return forkApplicationToOrganization(application.getId(), targetOrganizationId);
