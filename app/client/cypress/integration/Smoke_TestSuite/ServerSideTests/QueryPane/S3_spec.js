@@ -37,6 +37,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
 
     cy.fillAmazonS3DatasourceForm();
+    cy.get(datasource.saveBtn).should("be.enabled");
     cy.testSaveDatasource();
   });
 
