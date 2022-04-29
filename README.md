@@ -198,6 +198,7 @@ We love our contributors! We're committed to fostering an open and welcoming env
   <tr>
     <td align="center"><a href="https://github.com/prsidhu"><img src="https://avatars.githubusercontent.com/u/5424788?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Preet Sidhu</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=prsidhu" title="Code">💻</a> <a href="https://github.com/appsmithorg/appsmith/issues?q=author%3Aprsidhu" title="Bug reports">🐛</a></td>
     <td align="center"><a href="https://www.varstack.com"><img src="https://avatars.githubusercontent.com/u/9394044?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Pallav Agarwal</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=pallavagarwal07" title="Code">💻</a> <a href="https://github.com/appsmithorg/appsmith/issues?q=author%3Apallavagarwal07" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/ganganimaulik"><img src="https://avatars.githubusercontent.com/u/10296400?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Maulik</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=ganganimaulik" title="Code">💻</a></td>
   </tr>
 </table>
 
