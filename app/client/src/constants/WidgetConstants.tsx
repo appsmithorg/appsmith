@@ -1,5 +1,6 @@
 import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { WidgetType as FactoryWidgetType } from "utils/WidgetFactory";
+import { THEMEING_TEXT_SIZES } from "./ThemeConstants";
 export type WidgetType = FactoryWidgetType;
 
 export const SKELETON_WIDGET_TYPE = "SKELETON_WIDGET";
@@ -138,3 +139,5 @@ export const WIDGET_STATIC_PROPS = {
 };
 
 export type TextSize = keyof typeof TextSizes;
+
+export const DEFAULT_FONT_SIZE = THEMEING_TEXT_SIZES.base;

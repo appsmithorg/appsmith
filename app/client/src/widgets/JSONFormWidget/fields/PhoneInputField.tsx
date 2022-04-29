@@ -14,6 +14,7 @@ import ISDCodeDropdown, {
   ISDCodeDropdownOptions,
 } from "widgets/PhoneInputWidget/component/ISDCodeDropdown";
 import { isEmpty } from "../helper";
+import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 
 type PhoneInputComponentProps = BaseInputComponentProps & {
   allowDialCodeChange: boolean;
@@ -39,6 +40,7 @@ const COMPONENT_DEFAULT_VALUES: PhoneInputComponentProps = {
   isRequired: false,
   isSpellCheck: false,
   isVisible: true,
+  labelTextSize: BASE_LABEL_TEXT_SIZE,
   label: "",
 };
 
