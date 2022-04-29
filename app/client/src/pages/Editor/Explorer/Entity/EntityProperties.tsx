@@ -16,7 +16,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import classNames from "classnames";
 import styled from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
 const CloseIcon = ControlIcons.CLOSE_CONTROL;

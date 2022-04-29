@@ -39,7 +39,7 @@ import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar"
 import Pages from "pages/Editor/Explorer/Pages";
 import { Colors } from "constants/Colors";
 import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { builderURL } from "RouteBuilder";
 
 type Props = {

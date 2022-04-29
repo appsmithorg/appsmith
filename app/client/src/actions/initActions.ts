@@ -1,4 +1,7 @@
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
 
 export type InitializeEditorPayload = {
   applicationId?: string;

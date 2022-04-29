@@ -29,7 +29,6 @@ import UserGitProfileSettings from "../components/UserGitProfileSettings";
 import { AUTH_TYPE_OPTIONS } from "../constants";
 import { Colors } from "constants/Colors";
 import Button, { Category, Size } from "components/ads/Button";
-import { useGitConnect, useSSHKeyPair } from "../hooks";
 import { useDispatch, useSelector } from "react-redux";
 import copy from "copy-to-clipboard";
 import {
@@ -71,6 +70,7 @@ import TooltipComponent from "components/ads/Tooltip";
 import Icon, { IconSize } from "components/ads/Icon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { isValidGitRemoteUrl } from "../utils";
+import { useGitConnect, useSSHKeyPair } from "../hooks";
 
 export const UrlOptionContainer = styled.div`
   display: flex;

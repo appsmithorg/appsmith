@@ -6039,7 +6039,7 @@
 													"renderMode": "CANVAS",
 													"isLoading": false,
 													"iconAlign": "left",
-													"defaultText": ""
+													"defaultText": "{{Table1.selectedRow.answer}}"
 												},
 												{
 													"boxShadow": "NONE",

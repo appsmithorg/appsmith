@@ -239,6 +239,15 @@ export const isPathADynamicBinding = (
   }
   return false;
 };
+/**
+ * Get property path from full property path
+ * Input: "Table1.meta.searchText" => Output: "meta.searchText"
+ * @param {string} fullPropertyPath
+ * @return {*}
+ */
+export const getPropertyPath = (fullPropertyPath: string) => {
+  return fullPropertyPath.substring(fullPropertyPath.indexOf(".") + 1);
+};
 
 export const getWidgetDynamicTriggerPathList = (
   widget: WidgetProps,

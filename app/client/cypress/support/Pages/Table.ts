@@ -1,4 +1,7 @@
 import { ObjectsRegistry } from "../Objects/Registry"
+const path = require("path");
+
+type filterTypes ='contains' | 'does not contain' | 'starts with' | 'ends with' | 'is exactly' | 'empty' | 'not empty' | 'is equal to' |'not equal to' |'greater than' |'greater than or equal to' |'less than'|'less than or equal to';
 
 export class Table {
   public agHelper = ObjectsRegistry.AggregateHelper
@@ -18,21 +21,28 @@ export class Table {
   _liNextPage = "li[title='Next Page']"
   _liPreviousPage = "li[title='Previous Page']"
   _liCurrentSelectedPage = "//div[@type='LIST_WIDGET']//ul[contains(@class, 'rc-pagination')]/li[contains(@class, 'rc-pagination-item-active')]/a"
+  private _searchText = "input[type='search']"
+  _searchBoxCross = "//div[contains(@class, 't--search-input')]/following-sibling::div"
+  _addIcon = "button span[icon='add']"
+  _trashIcon = "button span[icon='trash']"
+  _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']"
+  _filterBtn = ".t--table-filter-toggle-btn"
+  _filterColumnsDropdown = ".t--table-filter-columns-dropdown"
+  _dropdownText = ".t--dropdown-option"
+  _filterConditionDropdown = ".t--table-filter-conditions-dropdown"
+  _filterInputValue = ".t--table-filter-value-input"
+  private _filterApplyBtn = ".t--apply-filter-btn"
+  private _filterCloseBtn = ".t--close-filter-btn"
+  private _removeFilter = ".t--table-filter-remove-btn"
+  private _clearAllFilter = ".t--clear-all-filter-btn"
+  private _addFilter = ".t--add-filter-btn"
+  _filterOperatorDropdown = ".t--table-filter-operators-dropdown"
+  private _downloadBtn = ".t--table-download-btn"
+  private _downloadOption = ".t--table-download-data-option"
 
 
   public WaitUntilTableLoad() {
-    // cy.waitUntil(() => cy.xpath(this._table, { timeout: 80000 }).should('be.visible'),
-    //   {
-    //     errorMsg: "Element did not appear",
-    //     timeout: 10000,
-    //     interval: 2000
-    //   }).then(() => this.agHelper.Sleep(500))
-
-    // this.ReadTableRowColumnData(0, 0).then((cellData) => {
-    //   expect(cellData).not.empty;
-    // });
-
-    cy.waitUntil(() => this.ReadTableRowColumnData(0, 0),
+    cy.waitUntil(() => this.ReadTableRowColumnData(0, 0, 2000),
       {
         errorMsg: "Table is not populated",
         timeout: 10000,
@@ -62,8 +72,8 @@ export class Table {
     });
   }
 
-  public ReadTableRowColumnData(rowNum: number, colNum: number) {
-    this.agHelper.Sleep(2000)//Settling time for table!
+  public ReadTableRowColumnData(rowNum: number, colNum: number, timeout = 1000) { //timeout can be sent higher values incase of larger tables
+    this.agHelper.Sleep(timeout)//Settling time for table!
     return cy.get(this._tableRowColumnData(rowNum, colNum)).invoke("text");
   }
 
@@ -118,6 +128,82 @@ export class Table {
   public SelectTableRow(rowIndex: number) {
     cy.get(this._tableRow(rowIndex, 0)).first().click({ force: true });
     this.agHelper.Sleep()//for select to reflect
+  }
+
+  public AssertSearchText(searchTxt: string) {
+    cy.get(this._searchText).should('have.value', searchTxt)
+  }
+
+  public SearchTable(searchTxt: string, index = 0) {
+    cy.get(this._searchText).eq(index).type(searchTxt)
+  }
+
+  public RemoveSearchTextNVerify(cellDataAfterSearchRemoved: string) {
+    this.agHelper.GetNClick(this._searchBoxCross)
+    this.ReadTableRowColumnData(0, 0).then(aftSearchRemoved => {
+      expect(aftSearchRemoved).to.eq(cellDataAfterSearchRemoved);
+    });
+  }
+
+  public FilterTable(colName: string, colCondition: filterTypes, inputText = "", operator: 'AND' | 'OR' | '' = '', index = 0) {
+    if (operator) {
+      this.agHelper.GetNClick(this._addFilter)
+      this.agHelper.GetNClick(this._filterOperatorDropdown)
+      cy.get(this._dropdownText).contains(operator).click()
+    }
+    else
+      this.agHelper.GetNClick(this._filterBtn)
+
+    this.agHelper.GetNClick(this._filterColumnsDropdown, index)
+    cy.get(this._dropdownText).contains(colName).click()
+    this.agHelper.GetNClick(this._filterConditionDropdown, index)
+    cy.get(this._dropdownText).contains(colCondition).click()
+
+    if (inputText)
+      this.agHelper.GetNClick(this._filterInputValue, index).type(inputText).wait(500)
+
+    this.agHelper.GetNClick(this._filterApplyBtn)
+    //this.agHelper.ClickButton("APPLY")
+  }
+
+  public RemoveFilterNVerify(cellDataAfterFilterRemoved: string, toClose = true, removeOne = true, index = 0,) {
+    if (removeOne)
+      this.agHelper.GetNClick(this._removeFilter, index)
+    else
+      this.agHelper.GetNClick(this._clearAllFilter)
+
+    if (toClose)
+      this.CloseFilter()
+    this.ReadTableRowColumnData(0, 0).then(aftFilterRemoved => {
+      expect(aftFilterRemoved).to.eq(cellDataAfterFilterRemoved);
+    });
+  }
+
+  public CloseFilter() {
+    this.agHelper.GetNClick(this._filterCloseBtn)
+  }
+
+  public DownloadFromTable(filetype: "Download as CSV" | "Download as Excel") {
+    cy.get(this._downloadBtn).click({ force: true });
+    cy.get(this._downloadOption)
+      .contains(filetype)
+      .click({ force: true });
+  }
+
+  public ValidateDownloadNVerify(fileName: string, textToBePresent: string) {
+    let downloadsFolder = Cypress.config("downloadsFolder");
+    cy.log("downloadsFolder is:" + downloadsFolder);
+    cy.readFile(path.join(downloadsFolder, fileName)).should("exist");
+    this.VerifyDownloadedFile(fileName, textToBePresent)
+  }
+
+  public VerifyDownloadedFile(fileName: string, textToBePresent: string) {
+    const downloadedFilename = Cypress.config("downloadsFolder")
+      .concat("/")
+      .concat(fileName);
+    cy.readFile(downloadedFilename, "binary", {
+      timeout: 15000,
+    }).should((buffer) => expect(buffer).to.contain(textToBePresent));
   }
 
   //List methods - keeping it for now!

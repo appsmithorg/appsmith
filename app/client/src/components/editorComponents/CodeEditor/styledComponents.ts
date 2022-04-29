@@ -47,6 +47,7 @@ export const EditorWrapper = styled.div<{
   borderLess?: boolean;
   isNotHover?: boolean;
   isReadOnly?: boolean;
+  isRawView?: boolean;
   border?: CodeEditorBorder;
   hoverInteraction?: boolean;
   fill?: boolean;
@@ -292,14 +293,15 @@ export const EditorWrapper = styled.div<{
     props.isReadOnly &&
     ` 
       &&&&&&&&&& .cm-m-javascript.cm-number {
-        color: #268bd2;
+        color: ${props.isRawView ? "#000" : "#268bd2"};
+
       }
       &&&&&&&& .cm-m-javascript.cm-string.cm-property {
-        color: #002b36;
+        color: ${props.isRawView ? "#000" : "#002b36"};
       }
 
       &&&&&&&& .cm-m-javascript.cm-string {
-        color: #cb4b16;
+        color: ${props.isRawView ? "#000" : "#cb4b16"};
       }
     `}
 `;

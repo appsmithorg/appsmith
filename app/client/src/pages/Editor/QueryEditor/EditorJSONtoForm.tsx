@@ -10,9 +10,9 @@ import {
   SingleValueProps,
 } from "react-select";
 import { Datasource } from "entities/Datasource";
+import { getPluginImages } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import FormControl from "../FormControl";
-import Table from "./Table";
 import { Action, QueryAction, SaaSAction } from "entities/Action";
 import { useDispatch, useSelector } from "react-redux";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
@@ -70,6 +70,7 @@ import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
+import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import Guide from "pages/Editor/GuidedTour/Guide";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
@@ -78,7 +79,10 @@ import {
   ConditionalOutput,
   FormEvalOutput,
 } from "reducers/evaluationReducers/formEvaluationReducer";
-import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
+import {
+  responseTabComponent,
+  InlineButton,
+} from "components/editorComponents/ApiResponseView";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -125,7 +129,7 @@ export const TabbedViewContainer = styled.div`
   }
   &&& {
     ul.react-tabs__tab-list {
-      padding: 0px ${(props) => props.theme.spaces[12]}px;
+      margin: 0px ${(props) => props.theme.spaces[11]}px;
       background-color: ${(props) =>
         props.theme.colors.apiPane.responseBody.bg};
     }
@@ -134,7 +138,7 @@ export const TabbedViewContainer = styled.div`
     }
   }
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
-  border-top: 2px solid #e8e8e8;
+  border-top: 1px solid #e8e8e8;
 `;
 
 const SettingsWrapper = styled.div`
@@ -182,7 +186,7 @@ const SecondaryWrapper = styled.div`
 const HelpSection = styled.div``;
 
 const ResponseContentWrapper = styled.div`
-  padding: 10px 15px;
+  padding: 10px 0px;
   overflow-y: auto;
   height: 100%;
 
@@ -322,15 +326,6 @@ const StyledSpinner = styled.div`
   width: 5vw;
 `;
 
-// const ActionButton = styled(BaseButton)`
-//   &&&& {
-//     min-width: 72px;
-//     width: auto;
-//     margin: 0 5px;
-//     min-height: 30px;
-//   }
-// `;
-
 const NoDataSourceContainer = styled.div`
   align-items: center;
   display: flex;
@@ -349,7 +344,7 @@ const NoDataSourceContainer = styled.div`
 const TabContainerView = styled.div`
   flex: 1;
   overflow: auto;
-  border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-top: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   ${thinScrollbar}
   a {
     font-size: 14px;
@@ -364,15 +359,10 @@ const TabContainerView = styled.div`
   }
   &&& {
     ul.react-tabs__tab-list {
-      padding-left: 23px;
+      margin-left: 24px;
     }
   }
   position: relative;
-`;
-
-const InlineButton = styled(Button)`
-  display: inline-flex;
-  margin: 0 4px;
 `;
 
 const Wrapper = styled.div`
@@ -384,6 +374,7 @@ const Wrapper = styled.div`
 
 const SidebarWrapper = styled.div<{ show: boolean }>`
   border: 1px solid #e8e8e8;
+  border-bottom: 0;
   display: ${(props) => (props.show ? "flex" : "none")};
   width: ${(props) => props.theme.actionSidePane.width}px;
 `;
@@ -395,7 +386,6 @@ type QueryFormProps = {
   isDeleting: boolean;
   isRunning: boolean;
   dataSources: Datasource[];
-  DATASOURCES_OPTIONS: any;
   uiComponent: UIComponentTypes;
   executedQueryData?: {
     body: any;
@@ -412,11 +402,17 @@ type QueryFormProps = {
   formName: string;
   settingConfig: any;
   formData: SaaSAction | QueryAction;
+  responseDisplayFormat: { title: string; value: string };
+  responseDataTypes: { key: string; title: string }[];
+  updateActionResponseDisplayFormat: ({
+    field,
+    id,
+    value,
+  }: UpdateActionPropertyActionPayload) => void;
 };
 
 type ReduxProps = {
   actionName: string;
-  responseType: string | undefined;
   plugin?: Plugin;
   pluginId: string;
   documentationLink: string | undefined;
@@ -432,7 +428,6 @@ export function EditorJSONtoForm(props: Props) {
   const {
     actionName,
     dataSources,
-    DATASOURCES_OPTIONS,
     documentationLink,
     editorConfig,
     executedQueryData,
@@ -442,10 +437,12 @@ export function EditorJSONtoForm(props: Props) {
     onCreateDatasourceClick,
     onRunClick,
     plugin,
-    responseType,
+    responseDataTypes,
+    responseDisplayFormat,
     runErrorMessage,
     settingConfig,
     uiComponent,
+    updateActionResponseDisplayFormat,
   } = props;
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
@@ -492,8 +489,6 @@ export function EditorJSONtoForm(props: Props) {
       hintMessages = executedQueryData.messages;
     }
   }
-
-  const isTableResponse = responseType === "TABLE";
 
   const dispatch = useDispatch();
 
@@ -741,6 +736,35 @@ export function EditorJSONtoForm(props: Props) {
     });
   };
 
+  const responseBodyTabs =
+    responseDataTypes &&
+    responseDataTypes.map((dataType, index) => {
+      return {
+        index: index,
+        key: dataType.key,
+        title: dataType.title,
+        panelComponent: responseTabComponent(
+          dataType.key,
+          output,
+          tableBodyHeight,
+        ),
+      };
+    });
+
+  const onResponseTabSelect = (tab: any) => {
+    updateActionResponseDisplayFormat({
+      id: currentActionConfig?.id || "",
+      field: "responseDisplayFormat",
+      value: tab.title,
+    });
+  };
+
+  const selectedTabIndex =
+    responseDataTypes &&
+    responseDataTypes.findIndex(
+      (dataType) => dataType.title === responseDisplayFormat?.title,
+    );
+
   const responseTabs = [
     {
       key: "Response",
@@ -785,19 +809,19 @@ export function EditorJSONtoForm(props: Props) {
               ))}
             </HelpSection>
           )}
-          {output &&
-            (isTableResponse ? (
-              <Table data={output} tableBodyHeight={tableBodyHeight} />
-            ) : (
-              <ReadOnlyEditor
-                folding
-                height={"100%"}
-                input={{
-                  value: JSON.stringify(output, null, 2),
-                }}
-                isReadOnly
+          {currentActionConfig &&
+            output &&
+            responseBodyTabs &&
+            responseBodyTabs.length > 0 &&
+            selectedTabIndex !== -1 && (
+              <EntityBottomTabs
+                defaultIndex={selectedTabIndex}
+                onSelect={onResponseTabSelect}
+                responseViewer
+                selectedTabIndex={selectedTabIndex}
+                tabs={responseBodyTabs}
               />
-            ))}
+            )}
           {!output && !error && (
             <NoResponseContainer>
               <AdsIcon name="no-response" />
@@ -839,6 +863,14 @@ export function EditorJSONtoForm(props: Props) {
     props.actionName,
   );
 
+  const pluginImages = useSelector(getPluginImages);
+
+  const DATASOURCES_OPTIONS = dataSources.map((dataSource) => ({
+    label: dataSource.name,
+    value: dataSource.id,
+    image: pluginImages[dataSource.pluginId],
+  }));
+
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
   if (!props.initialized) {
@@ -861,6 +893,11 @@ export function EditorJSONtoForm(props: Props) {
               name={currentActionConfig ? currentActionConfig.name : ""}
               pageId={pageId}
             />
+            <SearchSnippets
+              className="search-snippets"
+              entityId={currentActionConfig?.id}
+              entityType={ENTITY_TYPE.ACTION}
+            />
             <DropdownSelect>
               <DropdownField
                 className={"t--switch-datasource"}
@@ -872,11 +909,6 @@ export function EditorJSONtoForm(props: Props) {
                 width={232}
               />
             </DropdownSelect>
-            <SearchSnippets
-              className="search-snippets"
-              entityId={currentActionConfig?.id}
-              entityType={ENTITY_TYPE.ACTION}
-            />
             <Button
               className="t--run-query"
               data-guided-tour-iid="run-query"

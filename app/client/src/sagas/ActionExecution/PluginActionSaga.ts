@@ -5,13 +5,14 @@ import {
   executePluginActionSuccess,
   runAction,
   updateAction,
+  setActionResponseDisplayFormat,
 } from "actions/pluginActionActions";
 import {
   ApplicationPayload,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import ActionAPI, {
   ActionExecutionResponse,
   ActionResponse,
@@ -21,6 +22,7 @@ import ActionAPI, {
 import {
   getAction,
   getCurrentPageNameByActionId,
+  getPlugin,
   isActionDirty,
   isActionSaving,
   getJSCollection,
@@ -103,6 +105,8 @@ import { submitCurlImportForm } from "actions/importActions";
 import { getBasePath } from "pages/Editor/Explorer/helpers";
 import { isTrueObject } from "workers/evaluationUtils";
 import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
+import { Plugin } from "api/PluginApi";
+
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
 }
@@ -770,7 +774,7 @@ function* executePluginActionSaga(
     pluginAction = yield select(getAction, actionOrActionId);
     actionId = actionOrActionId;
   } else {
-    pluginAction = actionOrActionId;
+    pluginAction = yield select(getAction, actionOrActionId.id);
     actionId = actionOrActionId.id;
   }
 
@@ -826,12 +830,31 @@ function* executePluginActionSaga(
   try {
     yield validateResponse(response);
     const payload = createActionExecutionResponse(response);
+
     yield put(
       executePluginActionSuccess({
         id: actionId,
         response: payload,
       }),
     );
+    let plugin: Plugin | undefined;
+    if (!!pluginAction.pluginId) {
+      plugin = yield select(getPlugin, pluginAction.pluginId);
+    }
+
+    if (!!plugin) {
+      const responseType = payload?.dataTypes.find(
+        (type) =>
+          plugin?.responseType && type.dataType === plugin?.responseType,
+      );
+      yield put(
+        setActionResponseDisplayFormat({
+          id: actionId,
+          field: "responseDisplayFormat",
+          value: responseType ? responseType?.dataType : "JSON",
+        }),
+      );
+    }
     return {
       payload,
       isError: isErrorResponse(response),

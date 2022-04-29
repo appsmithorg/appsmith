@@ -17,9 +17,12 @@ import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.mongodb.DBRef;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoSecurityException;
 import com.mongodb.reactivestreams.client.MongoClient;
@@ -72,6 +75,7 @@ import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.plugins.constants.FieldName.UPDATE_LIMIT;
 import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
 import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
+import static com.external.plugins.utils.DatasourceUtils.buildClientURI;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -135,8 +139,25 @@ public class MongoPluginTest {
                                 )),
                                 new Document(Map.of("name", "Kierra Gentry", "gender", "F", "age", 40))
                         ))).block();
-                    }
 
+
+                        final MongoCollection<Document> addressCollection = mongoClient.getDatabase("test")
+                                .getCollection("address");
+                        Mono.from(addressCollection.insertMany(List.of(
+                                new Document(Map.of(
+                                        "user", new DBRef("test", "users", "1"),
+                                        "street", "First Street",
+                                        "city", "Line One",
+                                        "state", "UP"
+                                )),
+                                new Document(Map.of(
+                                        "user", new DBRef("AAA", "BBB", "2000"),
+                                        "street", "Second Street",
+                                        "city", "Line Two",
+                                        "state", "UP"
+                                ))
+                        ))).block();
+                    }
                     return Mono.empty();
                 }).block();
     }
@@ -248,6 +269,55 @@ public class MongoPluginTest {
                 })
                 .verifyComplete();
     }
+
+    /**
+     * Test for DBRef after codec implementation
+     */
+    @Test
+    public void testExecuteQueryDBRef() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setValueSafelyInFormData(configMap, BODY, "{\n" +
+                "      find: \"address\",\n" +
+                "      limit: 10,\n" +
+                "    }");
+        actionConfiguration.setFormData(configMap);
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+
+                    assertEquals(2, ((ArrayNode) result.getBody()).size());
+
+                    /*
+                     * Provided Input : new DBRef("test", "users", "1")
+                     * To test if we are getting the expected output after external codec implementation.
+                     * Note: when the codec is removed from the MongoDBPlugin, this is found failing
+                     */
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+                        String expectedOutputJsonString = "{\"$db\":\"test\",\"$ref\":\"users\",\"$id\":\"1\"}";
+                        JsonNode outputNode = mapper.readTree(expectedOutputJsonString);
+                        assertEquals(outputNode, (((ArrayNode) result.getBody()).findValue("user")));
+                    } catch (JsonProcessingException e) {
+                        assert false;
+                    }
+
+                })
+                .verifyComplete();
+    }
+
 
     @Test
     public void testExecuteReadQuery() {
@@ -475,8 +545,13 @@ public class MongoPluginTest {
 
         StepVerifier.create(structureMono)
                 .assertNext(structure -> {
+                    //Sort the Tables since one more table is added and to maintain sequence
+                    structure.getTables().sort(
+                            (DatasourceStructure.Table t1, DatasourceStructure.Table t2)
+                                    ->t2.getName().compareTo(t1.getName())
+                    );
                     assertNotNull(structure);
-                    assertEquals(1, structure.getTables().size());
+                    assertEquals(2, structure.getTables().size());
 
                     final DatasourceStructure.Table usersTable = structure.getTables().get(0);
                     assertEquals("users", usersTable.getName());
@@ -2358,59 +2433,6 @@ public class MongoPluginTest {
                     assertEquals(value.asInt(), 3);
                 })
                 .verifyComplete();
-    }
-
-    @Test
-    public void testBuildClientURI_withoutUserInfoAndAuthSource() {
-
-        final String testUri = "mongodb://host:port/db?param";
-        final String resultUri = "mongodb://host:port/db?param&authSource=admin";
-
-        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        final DBAuth dbAuth = new DBAuth();
-        datasourceConfiguration.setAuthentication(dbAuth);
-        datasourceConfiguration.setProperties(List.of(
-                new Property("0", "Yes"),
-                new Property("1", testUri)
-        ));
-        final String clientURI = pluginExecutor.buildClientURI(datasourceConfiguration);
-        assertEquals(resultUri, clientURI);
-    }
-
-    @Test
-    public void testBuildClientURI_withUserInfoAndAuthSource() {
-
-        final String testUri = "mongodb://user:pass@host:port/db?param&authSource=notAdmin";
-        final String resultUri = "mongodb://user:newPass@host:port/db?param&authSource=notAdmin";
-
-        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        final DBAuth dbAuth = new DBAuth();
-        dbAuth.setPassword("newPass");
-        datasourceConfiguration.setAuthentication(dbAuth);
-        datasourceConfiguration.setProperties(List.of(
-                new Property("0", "Yes"),
-                new Property("1", testUri)
-        ));
-        final String clientURI = pluginExecutor.buildClientURI(datasourceConfiguration);
-        assertEquals(resultUri, clientURI);
-    }
-
-    @Test
-    public void testBuildClientURI_withoutDbInfoAndPortsAndParams() {
-
-        final String testUri = "mongodb://user:pass@host";
-        final String resultUri = "mongodb://user:newPass@host/?authSource=admin";
-
-        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        final DBAuth dbAuth = new DBAuth();
-        dbAuth.setPassword("newPass");
-        datasourceConfiguration.setAuthentication(dbAuth);
-        datasourceConfiguration.setProperties(List.of(
-                new Property("0", "Yes"),
-                new Property("1", testUri)
-        ));
-        final String clientURI = pluginExecutor.buildClientURI(datasourceConfiguration);
-        assertEquals(resultUri, clientURI);
     }
 
     @Test

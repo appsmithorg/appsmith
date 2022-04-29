@@ -12,7 +12,7 @@ import {
 import {
   ApplicationPayload,
   PageListPayload,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
 import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";

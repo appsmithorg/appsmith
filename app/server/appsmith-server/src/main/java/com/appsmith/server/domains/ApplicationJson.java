@@ -3,7 +3,6 @@ package com.appsmith.server.domains;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.models.DecryptedSensitiveFields;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Transient;
@@ -20,10 +19,6 @@ import java.util.Set;
 @Setter
 public class ApplicationJson {
 
-    // This field will be useful when we migrate fields within JSON files (currently this will be useful for Git feature)
-    @JsonIgnore
-    Integer fileFormatVersion = 1;
-
     // To convey the schema version of the client and will be used to check if the imported file is compatible with
     // current DSL schema
     @Transient
@@ -39,6 +34,10 @@ public class ApplicationJson {
     List<Datasource> datasourceList;
 
     List<NewPage> pageList;
+
+    List<String> pageOrder;
+
+    List<String> publishedPageOrder;
 
     String publishedDefaultPageName;
     

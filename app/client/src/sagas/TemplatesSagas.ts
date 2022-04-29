@@ -3,7 +3,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { all, put, takeEvery, call } from "redux-saga/effects";
 import TemplatesAPI, { ImportTemplateResponse } from "api/TemplatesApi";
 import { PLACEHOLDER_PAGE_SLUG } from "constants/routes";

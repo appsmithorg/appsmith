@@ -142,9 +142,9 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
                     Object expiresInResponse = mappedResponse.get(Authentication.EXPIRES_IN);
                     Instant expiresAt = null;
                     if (expiresAtResponse != null) {
-                        expiresAt = Instant.ofEpochSecond(Long.valueOf((Integer) expiresAtResponse));
+                        expiresAt = Instant.ofEpochSecond(Long.parseLong(String.valueOf(expiresAtResponse)));
                     } else if (expiresInResponse != null) {
-                        expiresAt = issuedAt.plusSeconds(Long.valueOf((Integer) expiresInResponse));
+                        expiresAt = issuedAt.plusSeconds(Long.parseLong(String.valueOf(expiresInResponse)));
                     }
                     authenticationResponse.setExpiresAt(expiresAt);
                     authenticationResponse.setIssuedAt(issuedAt);

@@ -41,7 +41,7 @@ import Text, { FontWeight, TextType } from "components/ads/Text";
 import history from "utils/history";
 import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
 import * as FontFamilies from "constants/Fonts";
-import { getQueryParams } from "../../../../utils/AppsmithUtils";
+import { getQueryParams } from "utils/AppsmithUtils";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 
@@ -336,7 +336,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
                     ),
                   )
                   .map((datasource: Datasource) => ({
-                    text: datasource.datasourceConfiguration.url,
+                    text: datasource.datasourceConfiguration?.url,
                     data: datasource,
                     className: !datasource.isValid
                       ? "datasource-hint custom invalid"

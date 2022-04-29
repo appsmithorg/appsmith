@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let guid: any, jsName : any;
+let guid: any, jsName: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
@@ -24,7 +24,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       true,
       false,
     );
-    jsEditor.EnableOnPageLoad("getId", false, true);
+    jsEditor.AddJSFunctionSettings("getId", false, true);
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       dataSources.NavigateToDSCreateNew();
@@ -39,18 +39,19 @@ describe("JSObjects OnLoad Actions tests", function() {
       cy.get("@jsObjName").then((jsObjName) => {
         jsName = jsObjName;
         agHelper.EnterValue(
-          "SELECT * FROM public.users where id = {{" + jsObjName + ".getId.data}}",
-        );;
-      })
+          "SELECT * FROM public.users where id = {{" +
+            jsObjName +
+            ".getId.data}}",
+        );
+      });
     });
-    ee.expandCollapseEntity("WIDGETS");
-    ee.SelectEntityByName("Table1");
+    ee.SelectEntityByName("Table1", "WIDGETS");
     jsEditor.EnterJSContext("Table Data", "{{GetUser.data}}");
 
     agHelper.DeployApp();
     agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog"));
     agHelper.ClickButton("Yes");
-    agHelper.Sleep(1000)
+    agHelper.Sleep(1000);
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
 
     table.ReadTableRowColumnData(0, 0).then((cellData) => {

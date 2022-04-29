@@ -11,6 +11,7 @@ import {
   CellCheckbox,
   ActionWrapper,
   DraggableHeaderWrapper,
+  IconButtonWrapper,
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 
@@ -266,7 +267,7 @@ function IconButton(props: {
     }
   };
   return (
-    <div onClick={handlePropagation}>
+    <IconButtonWrapper disabled={props.disabled} onClick={handlePropagation}>
       <StyledButton
         borderRadius={props.borderRadius}
         boxShadow={props.boxShadow}
@@ -278,7 +279,7 @@ function IconButton(props: {
         loading={loading}
         onClick={handleClick}
       />
-    </div>
+    </IconButtonWrapper>
   );
 }
 
@@ -439,6 +440,7 @@ function TableAction(props: {
 
   return (
     <ActionWrapper
+      disabled={props.isDisabled}
       onClick={(e) => {
         if (props.isSelected) {
           e.stopPropagation();

@@ -38,6 +38,7 @@ export type DropdownOption = {
   onSelect?: DropdownOnSelect;
   data?: any;
   isSectionHeader?: boolean;
+  hasCustomBadge?: boolean;
 };
 export interface DropdownSearchProps {
   enableSearch?: boolean;
@@ -101,6 +102,8 @@ export type DropdownProps = CommonComponentProps &
     defaultIcon?: IconName;
     allowDeselection?: boolean; //prevents de-selection of the selected option
     truncateOption?: boolean; // enabled wrapping and adding tooltip on option item of dropdown menu
+    customBadge?: JSX.Element;
+    selectedHighlightBg?: string;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption | DropdownOption[];
@@ -259,6 +262,10 @@ export const DropdownContainer = styled.div<{ width: string; height?: string }>`
   span.bp3-popover-target {
     display: inline-block;
     width: 100%;
+    height: 100%;
+  }
+  span.bp3-popover-target div {
+    height: 100%;
   }
 
   span.bp3-popover-wrapper {
@@ -333,6 +340,7 @@ const DropdownOptionsWrapper = styled.div<{
 
 const OptionWrapper = styled.div<{
   selected: boolean;
+  selectedHighlightBg?: string;
 }>`
   padding: ${(props) => props.theme.spaces[2] + 1}px
     ${(props) => props.theme.spaces[5]}px;
@@ -340,7 +348,9 @@ const OptionWrapper = styled.div<{
   display: flex;
   align-items: center;
   min-height: 36px;
-  background-color: ${(props) => (props.selected ? Colors.GREEN_3 : null)};
+  background-color: ${(props) =>
+    props.selected ? props.selectedHighlightBg || Colors.GREEN_3 : null};
+
   &&& svg {
     rect {
       fill: ${(props) => props.theme.colors.dropdownIconBg};
@@ -371,7 +381,7 @@ const OptionWrapper = styled.div<{
   }
 
   &:hover {
-    background-color: ${Colors.GREEN_3};
+    background-color: ${(props) => props.selectedHighlightBg || Colors.GREEN_3};
 
     &&& svg {
       rect {
@@ -724,6 +734,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               }
               role="option"
               selected={isSelected}
+              selectedHighlightBg={props.selectedHighlightBg}
             >
               {option.leftElement && (
                 <LeftIconWrapper>{option.leftElement}</LeftIconWrapper>
@@ -747,12 +758,18 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               ) : null}
               {props.showLabelOnly ? (
                 props.truncateOption ? (
-                  <TooltipWrappedText
-                    label={option.label || ""}
-                    type={TextType.P1}
-                  />
+                  <>
+                    <TooltipWrappedText
+                      label={option.label || ""}
+                      type={TextType.P1}
+                    />
+                    {option.hasCustomBadge && props.customBadge}
+                  </>
                 ) : (
-                  <Text type={TextType.P1}>{option.label}</Text>
+                  <>
+                    <Text type={TextType.P1}>{option.label}</Text>
+                    {option.hasCustomBadge && props.customBadge}
+                  </>
                 )
               ) : option.label && option.value ? (
                 <LabelWrapper className="label-container">
@@ -915,11 +932,11 @@ export default function Dropdown(props: DropdownProps) {
           e.preventDefault();
           if (isOpen) {
             setSelected((prevSelected) => {
-              if (!("length" in prevSelected)) {
+              if (!(!!prevSelected && "length" in prevSelected)) {
                 let index = findIndex(props.options, prevSelected);
                 if (index === props.options.length - 1) index = 0;
                 else index++;
-                return props.options[index];
+                return prevSelected ? props.options[index] : props.options[0];
               }
               return prevSelected;
             });
@@ -1007,7 +1024,9 @@ export default function Dropdown(props: DropdownProps) {
           )
         )}
       </Selected>
-      {errorMsg && <ErrorMsg>{errorMsg}</ErrorMsg>}
+      {errorMsg && (
+        <ErrorMsg className="ads-dropdown-errorMsg">{errorMsg}</ErrorMsg>
+      )}
       {helperText && !isOpen && !errorMsg && (
         <HelperMsg>{helperText}</HelperMsg>
       )}

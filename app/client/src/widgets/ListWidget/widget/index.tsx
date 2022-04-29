@@ -39,7 +39,7 @@ import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { escapeSpecialChars } from "../../WidgetUtils";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 
-const clone = require("rfdc/default");
+import { klona } from "klona/full";
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
@@ -693,7 +693,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       this.props.listData
     ) {
       const { page } = this.state;
-      const children = removeFalsyEntries(clone(this.props.children));
+      const children = removeFalsyEntries(klona(this.props.children));
       const childCanvas = children[0];
 
       const canvasChildren = childCanvas.children;

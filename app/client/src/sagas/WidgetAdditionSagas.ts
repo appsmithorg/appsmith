@@ -9,7 +9,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { RenderModes } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import {

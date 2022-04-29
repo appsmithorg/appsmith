@@ -6,7 +6,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   ReduxActionWithoutPayload,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { Action } from "entities/Action";
 import { batchAction } from "actions/batchActions";
 import { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
@@ -218,6 +218,13 @@ export const executePluginActionSuccess = (payload: {
   isPageLoad?: boolean;
 }) => ({
   type: ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS,
+  payload: payload,
+});
+
+export const setActionResponseDisplayFormat = (
+  payload: UpdateActionPropertyActionPayload,
+) => ({
+  type: ReduxActionTypes.SET_ACTION_RESPONSE_DISPLAY_FORMAT,
   payload: payload,
 });
 

@@ -43,7 +43,7 @@ import {
   gitPullInit,
 } from "actions/gitSyncActions";
 import StatusLoader from "../components/StatusLoader";
-import { clearCommitSuccessfulState } from "../../../../actions/gitSyncActions";
+import { clearCommitSuccessfulState } from "actions/gitSyncActions";
 import Statusbar, {
   StatusbarWrapper,
 } from "pages/Editor/gitSync/components/Statusbar";
@@ -291,10 +291,14 @@ function Deploy() {
             width="max-content"
           />
         )}
-        <ConflictInfo
-          isConflicting={isConflicting}
-          learnMoreLink={gitConflictDocumentUrl}
-        />
+        {isConflicting && (
+          <ConflictInfo
+            browserSupportedRemoteUrl={
+              gitMetaData?.browserSupportedRemoteUrl || ""
+            }
+            learnMoreLink={gitConflictDocumentUrl}
+          />
+        )}
         {showCommitButton && (
           <Tooltip
             autoFocus={false}

@@ -8,7 +8,8 @@ let agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("Input widget test with default value from chart datapoint", () => {
 
-    before(() => {
+    //beforeEach - becasuse to enable re-attempt passing!
+    beforeEach(() => {
         cy.fixture('ChartDsl').then((val: any) => {
             agHelper.AddDsl(val)
             dsl = val;
@@ -29,12 +30,18 @@ describe("Input widget test with default value from chart datapoint", () => {
         jsEditor.EnterJSContext("Default Text", dataSet.bindingSeriesTitle + "}}");
         agHelper.DeployApp()
         agHelper.Sleep(1500)//waiting for chart to load!
-        agHelper.XpathNClick("(//*[local-name()='rect'])[13]")
+        agHelper.GetNClick("//*[local-name()='rect']", 13)
         cy.get(locator._inputWidgetInDeployed).first().invoke('val').then($value => {
-            let inputVal = ($value as string).replace(/\s/g, "")
+            let inputVal = ($value as string).replace(/\s/g, "")//removing space here
             //cy.get(locator._toastMsg).invoke('text').then(toastTxt => expect(toastTxt.trim()).to.eq(inputVal))
             cy.get(locator._toastMsg).should('have.text', inputVal)
         })
         cy.get(locator._inputWidgetInDeployed).last().should("have.value", dsl.dsl.children[0].chartData[0].seriesName);
     });
+
+    afterEach(() => {
+        //this is to enable re-attempt passing!
+        agHelper.NavigateBacktoEditor()
+    })
+
 });

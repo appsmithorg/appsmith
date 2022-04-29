@@ -5,7 +5,7 @@ import { Classes as Popover2Classes } from "@blueprintjs/popover2";
 import {
   ApplicationPayload,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -57,7 +57,7 @@ import { retryPromise } from "utils/AppsmithUtils";
 import { fetchUsersForOrg } from "actions/orgActions";
 import { OrgUser } from "constants/orgConstants";
 
-import { getIsGitConnected } from "../../selectors/gitSyncSelectors";
+import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core/lib/esnext/common";
 import {

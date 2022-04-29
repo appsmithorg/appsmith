@@ -16,13 +16,13 @@ import {
   ReduxAction,
   ReduxActionType,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   getDataTree,
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
 import { getWidgets } from "sagas/selectors";
-import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
+import WidgetFactory, { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
 import {
@@ -33,7 +33,7 @@ import log from "loglevel";
 import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {
   PerformanceTransactionName,
-} from "../utils/PerformanceTracker";
+} from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import { Action } from "redux";
 import {

@@ -62,6 +62,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
@@ -557,9 +558,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                             unpublishedCollection.setPageId(newPageId);
                                             actionCollection.setApplicationId(clonedPage.getApplicationId());
 
-                                            DefaultResources defaultResourcesForCollection = new DefaultResources();
-                                            defaultResourcesForCollection.setApplicationId(clonedPageDefaultResources.getApplicationId());
-                                            actionCollection.setDefaultResources(defaultResourcesForCollection);
+                                            DefaultResources defaultResources = new DefaultResources();
+                                            copyNestedNonNullProperties(clonedPageDefaultResources, defaultResources);
+                                            actionCollection.setDefaultResources(defaultResources);
 
                                             DefaultResources defaultResourcesForDTO = new DefaultResources();
                                             defaultResourcesForDTO.setPageId(clonedPageDefaultResources.getPageId());
@@ -578,14 +579,27 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                             if (StringUtils.isEmpty(clonedPageDefaultResources.getBranchName())) {
                                                 unpublishedCollection
                                                         .getDefaultToBranchedActionIdsMap()
-                                                        .forEach((defaultId, oldActionId) ->
-                                                                updatedDefaultToBranchedActionId.put(actionIdsMap.get(oldActionId), actionIdsMap.get(oldActionId)));
-
+                                                        .forEach((defaultId, oldActionId) -> {
+                                                            // Filter out the actionIds for which the reference is not
+                                                            // present in cloned actions, this happens when we have
+                                                            // deleted action in unpublished mode
+                                                            if (StringUtils.hasLength(oldActionId) && StringUtils.hasLength(actionIdsMap.get(oldActionId))) {
+                                                                updatedDefaultToBranchedActionId
+                                                                        .put(actionIdsMap.get(oldActionId), actionIdsMap.get(oldActionId));
+                                                            }
+                                                        });
                                             } else {
                                                 unpublishedCollection
                                                         .getDefaultToBranchedActionIdsMap()
-                                                        .forEach((defaultId, oldActionId) ->
-                                                                updatedDefaultToBranchedActionId.put(defaultId, actionIdsMap.get(oldActionId)));
+                                                        .forEach((defaultId, oldActionId) -> {
+                                                            // Filter out the actionIds for which the reference is not
+                                                            // present in cloned actions, this happens when we have
+                                                            // deleted action in unpublished mode
+                                                            if (StringUtils.hasLength(defaultId) && StringUtils.hasLength(actionIdsMap.get(oldActionId))) {
+                                                                updatedDefaultToBranchedActionId
+                                                                        .put(defaultId, actionIdsMap.get(oldActionId));
+                                                            }
+                                                        });
                                             }
                                             unpublishedCollection.setDefaultToBranchedActionIdsMap(updatedDefaultToBranchedActionId);
 
@@ -595,9 +609,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                             // Set published version to null as the published version of the page does
                                             // not exists when we clone the page.
                                             actionCollection.setPublishedCollection(null);
+                                            actionCollection.getDefaultResources().setPageId(null);
+                                            // Assign new gitSyncId for cloned actionCollection
+                                            actionCollection.setGitSyncId(actionCollection.getApplicationId() + "_" + new ObjectId());
                                             return actionCollectionService.create(actionCollection)
                                                     .flatMap(savedActionCollection -> {
-                                                        if (StringUtils.isEmpty(savedActionCollection.getDefaultResources().getCollectionId())) {
+                                                        if (!StringUtils.hasLength(savedActionCollection.getDefaultResources().getCollectionId())) {
                                                             savedActionCollection.getDefaultResources().setCollectionId(savedActionCollection.getId());
                                                             return actionCollectionService.update(savedActionCollection.getId(), savedActionCollection);
                                                         }
@@ -977,12 +994,20 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> {
+                    int publishedPageCount = 0;
+                    if(application.getPublishedPages() != null) {
+                        publishedPageCount = application.getPublishedPages().size();
+                    }
+
                     analyticsService.sendEvent(
                             AnalyticsEvents.PUBLISH_APPLICATION.getEventName(),
                             user.getUsername(),
                             Map.of(
                                     "appId", defaultIfNull(application.getId(), ""),
-                                    "appName", defaultIfNull(application.getName(), "")
+                                    "appName", defaultIfNull(application.getName(), ""),
+                                    "orgId", defaultIfNull(application.getOrganizationId(), ""),
+                                    "pageCount", publishedPageCount + "",
+                                    "publishedAt", defaultIfNull(application.getLastDeployedAt(), "")
                             )
                     );
                     return Mono.empty();

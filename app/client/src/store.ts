@@ -9,7 +9,10 @@ import createSagaMiddleware from "redux-saga";
 import { rootSaga } from "sagas";
 import { composeWithDevTools } from "redux-devtools-extension/logOnlyInProduction";
 import * as Sentry from "@sentry/react";
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { getRouteBuilderParams, updateURLFactory } from "RouteBuilder";
 import { updateSlugNamesInURL } from "utils/helpers";
 

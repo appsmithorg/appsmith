@@ -33,7 +33,7 @@ import TextInput from "components/ads/TextInput";
 import Button, { Category, Size } from "components/ads/Button";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Subtitle, Title } from "./components/StyledComponents";
-import { Variant } from "../../../components/ads";
+import { Variant } from "components/ads";
 
 const StyledDialog = styled(Dialog)`
   && .bp3-dialog-body {

@@ -21,7 +21,6 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
-import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
@@ -30,14 +29,28 @@ import com.external.plugins.utils.MongoErrorUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.mongodb.ConnectionString;
+import com.mongodb.DBObjectCodecProvider;
+import com.mongodb.DBRefCodecProvider;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoSocketWriteException;
 import com.mongodb.MongoTimeoutException;
+import com.mongodb.client.gridfs.codecs.GridFSFileCodecProvider;
+import com.mongodb.client.model.geojson.codecs.GeoJsonCodecProvider;
+import com.mongodb.connection.ConnectionPoolSettings;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
+import org.bson.codecs.BsonTypeClassMap;
+import org.bson.codecs.BsonValueCodecProvider;
+import org.bson.codecs.DocumentCodec;
+import org.bson.codecs.DocumentCodecProvider;
+import org.bson.codecs.ValueCodecProvider;
+import org.bson.codecs.configuration.CodecRegistries;
+import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.conversions.Bson;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -57,7 +70,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -73,15 +85,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.external.plugins.constants.FieldName.NATIVE_QUERY_PATH_DATA;
-import static com.external.plugins.constants.FieldName.NATIVE_QUERY_PATH_STATUS;
-import static com.external.plugins.constants.FieldName.SUCCESS;
-import static com.external.plugins.utils.MongoPluginUtils.convertMongoFormInputToRawCommand;
-import static com.external.plugins.utils.MongoPluginUtils.generateTemplatesAndStructureForACollection;
-import static com.external.plugins.utils.MongoPluginUtils.getDatabaseName;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
-import static com.external.plugins.utils.MongoPluginUtils.getRawQuery;
-import static com.external.plugins.utils.MongoPluginUtils.isRawCommand;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINES;
@@ -93,11 +97,26 @@ import static com.external.plugins.constants.FieldName.FIND_PROJECTION;
 import static com.external.plugins.constants.FieldName.FIND_QUERY;
 import static com.external.plugins.constants.FieldName.FIND_SORT;
 import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
+import static com.external.plugins.constants.FieldName.NATIVE_QUERY_PATH_DATA;
+import static com.external.plugins.constants.FieldName.NATIVE_QUERY_PATH_STATUS;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
+import static com.external.plugins.constants.FieldName.SUCCESS;
 import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
 import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
-import static com.external.plugins.utils.MongoPluginUtils.urlEncode;
+import static com.external.plugins.utils.DatasourceUtils.buildClientURI;
+import static com.external.plugins.utils.DatasourceUtils.buildURIFromExtractedInfo;
+import static com.external.plugins.utils.DatasourceUtils.extractInfoFromConnectionStringURI;
+import static com.external.plugins.utils.DatasourceUtils.hasNonEmptyURI;
+import static com.external.plugins.utils.DatasourceUtils.isAuthenticated;
+import static com.external.plugins.utils.DatasourceUtils.isHostStringConnectionURI;
+import static com.external.plugins.utils.DatasourceUtils.isUsingURI;
+import static com.external.plugins.utils.MongoPluginUtils.convertMongoFormInputToRawCommand;
+import static com.external.plugins.utils.MongoPluginUtils.generateTemplatesAndStructureForACollection;
+import static com.external.plugins.utils.MongoPluginUtils.getDatabaseName;
+import static com.external.plugins.utils.MongoPluginUtils.getRawQuery;
+import static com.external.plugins.utils.MongoPluginUtils.isRawCommand;
 import static java.lang.Boolean.TRUE;
+import static java.util.Arrays.asList;
 import static org.apache.logging.log4j.util.Strings.isBlank;
 
 public class MongoPlugin extends BasePlugin {
@@ -111,8 +130,6 @@ public class MongoPlugin extends BasePlugin {
     private static final String VALID_AUTH_TYPES_STR = VALID_AUTH_TYPES.stream()
             .map(String::valueOf)
             .collect(Collectors.joining(", "));
-
-    private static final int DEFAULT_PORT = 27017;
 
     public static final String N_MODIFIED = "nModified";
 
@@ -128,7 +145,7 @@ public class MongoPlugin extends BasePlugin {
      *   - mongodb://user:pass@some-url:port,some-url:port,.../some-db...
      * - It has been grouped like this: (mongodb+srv://)(user):(pass)@(some-url)/(some-db...)?(params...)
      */
-    private static final String MONGO_URI_REGEX = "^(mongodb(?:\\+srv)?:\\/\\/)(?:(.+):(.+)@)?([^\\/\\?]+)\\/?([^\\?]+)?\\??(.+)?$";
+    private static final String MONGO_URI_REGEX = "^(mongodb(?:\\+srv)?://)(?:(.+):(.+)@)?([^/?]+)/?([^?]+)?\\??(.+)?$";
 
     /**
      * We use this regex to find usage of special Mongo data types like ObjectId(...) wrapped inside double quotes
@@ -146,39 +163,17 @@ public class MongoPlugin extends BasePlugin {
      */
     private static final String MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE = "(\\\"(E\\((.*?((\\w|-|:|\\.|,|\\s)+).*?)?\\))\\\")";
 
-    private static final int REGEX_GROUP_HEAD = 1;
-
-    private static final int REGEX_GROUP_USERNAME = 2;
-
-    private static final int REGEX_GROUP_PASSWORD = 3;
-
-    private static final int REGEX_HOST_PORT = 4;
-
-    private static final int REGEX_GROUP_DBNAME = 5;
-
-    private static final int REGEX_GROUP_TAIL = 6;
-
     private static final String KEY_USERNAME = "username";
 
     private static final String KEY_PASSWORD = "password";
 
-    private static final String KEY_HOST_PORT = "hostPort";
-
-    private static final String KEY_URI_HEAD = "uriHead";
-
-    private static final String KEY_URI_TAIL = "uriTail";
-
     private static final String KEY_URI_DBNAME = "dbName";
-
-    private static final String YES = "Yes";
-
-    private static final int DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX = 0;
 
     private static final int DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX = 1;
 
     private static final Integer MONGO_COMMAND_EXCEPTION_UNAUTHORIZED_ERROR_CODE = 13;
 
-    private static final Set<String> bsonFields = new HashSet<>(Arrays.asList(
+    private static final Set<String> bsonFields = new HashSet<>(asList(
             AGGREGATE_PIPELINES,
             COUNT_QUERY,
             DELETE_QUERY,
@@ -192,6 +187,18 @@ public class MongoPlugin extends BasePlugin {
     ));
 
     private static final MongoErrorUtils mongoErrorUtils = MongoErrorUtils.getInstance();
+
+    private static final CodecRegistry DEFAULT_REGISTRY = CodecRegistries.fromProviders(
+            asList(new ValueCodecProvider(),
+                    new BsonValueCodecProvider(),
+                    new DocumentCodecProvider(),
+                    new DBRefCodecProvider(),
+                    new DBObjectCodecProvider(),
+                    new BsonValueCodecProvider(),
+                    new GeoJsonCodecProvider(),
+                    new GridFSFileCodecProvider()));
+
+    private static final BsonTypeClassMap DEFAULT_BSON_TYPE_CLASS_MAP = new org.bson.codecs.BsonTypeClassMap();
 
     public MongoPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -213,7 +220,6 @@ public class MongoPlugin extends BasePlugin {
          *                                which would be used for substitution
          * @param datasourceConfiguration : These are the configurations which have been used to create a Datasource from a Plugin
          * @param actionConfiguration     : These are the configurations which have been used to create an Action from a Datasource.
-         * @return
          */
         @Override
         public Mono<ActionExecutionResult> executeParameterized(MongoClient mongoClient,
@@ -332,7 +338,17 @@ public class MongoPlugin extends BasePlugin {
                     )
                     .flatMap(mongoOutput -> {
                         try {
-                            JSONObject outputJson = new JSONObject(mongoOutput.toJson());
+                            /*
+                             * Added Custom codec for JSON conversion since MongoDB Reactive API does not support
+                             * processing of DbRef Object.
+                             * https://github.com/spring-projects/spring-data-mongodb/issues/3015 : Mark Paluch commented
+                             */
+                            DocumentCodec documentCodec = new DocumentCodec(
+                                    DEFAULT_REGISTRY,
+                                    DEFAULT_BSON_TYPE_CLASS_MAP
+                            );
+
+                            JSONObject outputJson = new JSONObject(mongoOutput.toJson(documentCodec));
 
                             //The output json contains the key "ok". This is the status of the command
                             BigInteger status = outputJson.getBigInteger("ok");
@@ -345,10 +361,10 @@ public class MongoPlugin extends BasePlugin {
                                         new ParsedDataType(DisplayDataType.RAW)
                                 ));
 
-                                /**
-                                 * For the `findAndModify` command, we don't get the count of modifications made. Instead,
-                                 * we either get the modified new value or the pre-modified old value (depending on the
-                                 * `new` field in the command. Let's return that value to the user.
+                                /*
+                                  For the `findAndModify` command, we don't get the count of modifications made. Instead,
+                                  we either get the modified new value or the pre-modified old value (depending on the
+                                  `new` field in the command. Let's return that value to the user.
                                  */
                                 if (outputJson.has(VALUE)) {
                                     result.setBody(objectMapper.readTree(
@@ -356,9 +372,9 @@ public class MongoPlugin extends BasePlugin {
                                     ));
                                 }
 
-                                /**
-                                 * The json contains key "cursor" when find command was issued and there are 1 or more
-                                 * results. In case there are no results for find, this key is not present in the result json.
+                                /*
+                                  The json contains key "cursor" when find command was issued and there are 1 or more
+                                  results. In case there are no results for find, this key is not present in the result json.
                                  */
                                 if (outputJson.has("cursor")) {
                                     JSONArray outputResult = (JSONArray) cleanUp(
@@ -366,10 +382,10 @@ public class MongoPlugin extends BasePlugin {
                                     result.setBody(objectMapper.readTree(outputResult.toString()));
                                 }
 
-                                /**
-                                 * The json contains key "n" when insert/update command is issued. "n" for update
-                                 * signifies the no of documents selected for update. "n" in case of insert signifies the
-                                 * number of documents inserted.
+                                /*
+                                  The json contains key "n" when insert/update command is issued. "n" for update
+                                  signifies the no of documents selected for update. "n" in case of insert signifies the
+                                  number of documents inserted.
                                  */
                                 if (outputJson.has("n")) {
                                     JSONObject body = new JSONObject().put("n", outputJson.getBigInteger("n"));
@@ -377,9 +393,9 @@ public class MongoPlugin extends BasePlugin {
                                     headerArray.put(body);
                                 }
 
-                                /**
-                                 * The json key contains key "nModified" in case of update command. This signifies the no of
-                                 * documents updated.
+                                /*
+                                  The json key contains key "nModified" in case of update command. This signifies the no of
+                                  documents updated.
                                  */
                                 if (outputJson.has(N_MODIFIED)) {
                                     JSONObject body = new JSONObject().put(N_MODIFIED, outputJson.getBigInteger(N_MODIFIED));
@@ -387,8 +403,8 @@ public class MongoPlugin extends BasePlugin {
                                     headerArray.put(body);
                                 }
 
-                                /**
-                                 * The json contains key "values" when distinct command is used.
+                                /*
+                                  The json contains key "values" when distinct command is used.
                                  */
                                 if (outputJson.has(VALUES)) {
                                     JSONArray outputResult = (JSONArray) cleanUp(
@@ -405,9 +421,9 @@ public class MongoPlugin extends BasePlugin {
                                     result.setBody(objectMapper.readTree(resultNode.toString()));
                                 }
 
-                                /** TODO
-                                 * Go through all the possible fields that are returned in the output JSON and add all the fields
-                                 * that are important to the headerArray.
+                                /*
+                                TODO Go through all the possible fields that are returned in the output JSON and add all the fields
+                                 that are important to the headerArray.
                                  */
                             }
 
@@ -451,7 +467,7 @@ public class MongoPlugin extends BasePlugin {
          * happens as part of smart substitution process.
          *
          * @param replacementValue - value to be substituted
-         * @param dataType
+         * @param dataType         - the expected datatype of the value
          * @return - updated replacement value
          */
         @Override
@@ -459,13 +475,13 @@ public class MongoPlugin extends BasePlugin {
             replacementValue = removeOrAddQuotesAroundMongoDBSpecialTypes(replacementValue);
 
             if (DataType.BSON_SPECIAL_DATA_TYPES.equals(dataType)) {
-                /**
-                 * For all other data types the replacementValue is prepared for replacement (by using Matcher
-                 * .quoteReplacement(...)) during the common handling of data types in
-                 * `jsonSmartReplacementPlaceholderWithValue(...)` method before reaching this program point. For
-                 * BSON_SPECIAL_DATA_TYPES it is skipped in the common handling flow because we want to modify
-                 * (removeOrAddQuotesAroundMongoDBSpecialTypes(...)) the replacement value further before the final
-                 * replacement happens.
+                /*
+                  For all other data types the replacementValue is prepared for replacement (by using Matcher
+                  .quoteReplacement(...)) during the common handling of data types in
+                  `jsonSmartReplacementPlaceholderWithValue(...)` method before reaching this program point. For
+                  BSON_SPECIAL_DATA_TYPES it is skipped in the common handling flow because we want to modify
+                  (removeOrAddQuotesAroundMongoDBSpecialTypes(...)) the replacement value further before the final
+                  replacement happens.
                  */
                 replacementValue = Matcher.quoteReplacement(replacementValue);
             }
@@ -493,13 +509,13 @@ public class MongoPlugin extends BasePlugin {
                 Pattern pattern = Pattern.compile(regex);
                 Matcher matcher = pattern.matcher(query);
                 while (matcher.find()) {
-                    /**
-                     * `If` branch will match when any special data type is found wrapped within double quotes e.g.
-                     * "ObjectId('someId')":
-                     *   o Group 1 = "ObjectId('someId')"
-                     *   o Group 2 = ObjectId(someId)
-                     *   o Group 3 = 'someId'
-                     *   o Group 4 = someId
+                    /*
+                      `If` branch will match when any special data type is found wrapped within double quotes e.g.
+                      "ObjectId('someId')":
+                        o Group 1 = "ObjectId('someId')"
+                        o Group 2 = ObjectId(someId)
+                        o Group 3 = 'someId'
+                        o Group 4 = someId
                      */
                     if (matcher.group(1) != null) {
                         String objectIdWithQuotes = matcher.group(1);
@@ -553,10 +569,6 @@ public class MongoPlugin extends BasePlugin {
          * !!!WARNING!!! : formData gets updated as part of this flow (and hence is not being returned)
          * This function replaces the mustache variables using smart substitution and updates the existing formData
          * with the values post substitution
-         * @param formData
-         * @param params
-         * @param parameters
-         * @throws AppsmithPluginException
          */
         private void smartSubstituteFormCommand(Map<String, Object> formData,
                                                 List<Param> params,
@@ -573,10 +585,10 @@ public class MongoPlugin extends BasePlugin {
 
         @Override
         public Mono<MongoClient> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            /**
-             * TODO: ReadOnly seems to be not supported at the driver level. The recommendation is to connect with a
-             * user that doesn't have write permissions on the database.
-             * Ref: https://api.mongodb.com/java/2.13/com/mongodb/DB.html#setReadOnly-java.lang.Boolean-
+            /*
+              TODO: ReadOnly seems to be not supported at the driver level. The recommendation is to connect with
+               a user that doesn't have write permissions on the database.
+               Ref: https://api.mongodb.com/java/2.13/com/mongodb/DB.html#setReadOnly-java.lang.Boolean-
              */
 
             return Mono.just(datasourceConfiguration)
@@ -587,7 +599,13 @@ public class MongoPlugin extends BasePlugin {
                             return Mono.error(e);
                         }
                     })
-                    .map(MongoClients::create)
+                    .map(uriString -> MongoClients.create(
+                            MongoClientSettings
+                                    .builder()
+                                    .applyToConnectionPoolSettings(t -> t.applySettings(ConnectionPoolSettings.builder().minSize(0).build()))
+                                    .applyConnectionString(new ConnectionString(uriString))
+                                    .build()
+                    ))
                     .onErrorMap(
                             IllegalArgumentException.class,
                             error ->
@@ -606,206 +624,7 @@ public class MongoPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        private boolean isUsingURI(DatasourceConfiguration datasourceConfiguration) {
-            List<Property> properties = datasourceConfiguration.getProperties();
-            if (properties != null && properties.size() > DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX
-                    && properties.get(DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX) != null
-                    && YES.equals(properties.get(DATASOURCE_CONFIG_USE_MONGO_URI_PROPERTY_INDEX).getValue())) {
-                return true;
-            }
 
-            return false;
-        }
-
-        private boolean hasNonEmptyURI(DatasourceConfiguration datasourceConfiguration) {
-            List<Property> properties = datasourceConfiguration.getProperties();
-            if (properties != null && properties.size() > DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX
-                    && properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX) != null
-                    && !StringUtils.isEmpty(properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue())) {
-                return true;
-            }
-
-            return false;
-        }
-
-        private Map extractInfoFromConnectionStringURI(String uri, String regex) {
-            if (uri.matches(regex)) {
-                Pattern pattern = Pattern.compile(regex);
-                Matcher matcher = pattern.matcher(uri);
-                if (matcher.find()) {
-                    Map extractedInfoMap = new HashMap();
-                    extractedInfoMap.put(KEY_URI_HEAD, matcher.group(REGEX_GROUP_HEAD));
-                    extractedInfoMap.put(KEY_USERNAME, matcher.group(REGEX_GROUP_USERNAME));
-                    extractedInfoMap.put(KEY_PASSWORD, matcher.group(REGEX_GROUP_PASSWORD));
-                    extractedInfoMap.put(KEY_HOST_PORT, matcher.group(REGEX_HOST_PORT));
-                    extractedInfoMap.put(KEY_URI_DBNAME, matcher.group(REGEX_GROUP_DBNAME));
-                    extractedInfoMap.put(KEY_URI_TAIL, matcher.group(REGEX_GROUP_TAIL));
-                    return extractedInfoMap;
-                }
-            }
-
-            return null;
-        }
-
-        private String buildURIFromExtractedInfo(Map extractedInfo, String password) {
-            String userInfo = "";
-            if (extractedInfo.get(KEY_USERNAME) != null) {
-                userInfo += extractedInfo.get(KEY_USERNAME) + ":";
-                if (password != null) {
-                    userInfo += password;
-                }
-                userInfo += "@";
-            }
-
-            final String dbInfo = "/" + (extractedInfo.get(KEY_URI_DBNAME) == null ? "" : extractedInfo.get(KEY_URI_DBNAME));
-
-            String tailInfo = (String) (extractedInfo.get(KEY_URI_TAIL) == null ? "" : extractedInfo.get(KEY_URI_TAIL));
-            if (StringUtils.hasLength(tailInfo)) {
-                if (!tailInfo.contains("authSource")) {
-                    tailInfo = "?" + tailInfo + "&authSource=admin";
-                } else {
-                    tailInfo = "?" + tailInfo;
-                }
-            } else {
-                tailInfo = "?authSource=admin";
-            }
-
-            return extractedInfo.get(KEY_URI_HEAD)
-                    + userInfo
-                    + extractedInfo.get(KEY_HOST_PORT)
-                    + dbInfo
-                    + tailInfo;
-        }
-
-        public String buildClientURI(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
-            List<Property> properties = datasourceConfiguration.getProperties();
-            if (isUsingURI(datasourceConfiguration)) {
-                if (hasNonEmptyURI(datasourceConfiguration)) {
-                    String uriWithHiddenPassword =
-                            (String) properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).getValue();
-                    Map extractedInfo = extractInfoFromConnectionStringURI(uriWithHiddenPassword, MONGO_URI_REGEX);
-                    if (extractedInfo != null) {
-                        String password = ((DBAuth) datasourceConfiguration.getAuthentication()).getPassword();
-                        return buildURIFromExtractedInfo(extractedInfo, password);
-                    } else {
-                        throw new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                "Appsmith server has failed to parse the Mongo connection string URI. Please check " +
-                                        "if the URI has the correct format."
-                        );
-                    }
-                } else {
-                    throw new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                            "Could not find any Mongo connection string URI. Please edit the 'Mongo Connection String" +
-                                    " URI' field to provide the URI to connect to."
-                    );
-                }
-            }
-
-            StringBuilder builder = new StringBuilder();
-            final Connection connection = datasourceConfiguration.getConnection();
-            final List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
-
-            // Use SRV mode if using REPLICA_SET, AND a port is not specified in the first endpoint. In SRV mode, the
-            // host and port details of individual shards will be obtained from the TXT records of the first endpoint.
-            boolean isSrv = Connection.Type.REPLICA_SET.equals(connection.getType())
-                    && endpoints.get(0).getPort() == null;
-
-            if (isSrv) {
-                builder.append("mongodb+srv://");
-            } else {
-                builder.append("mongodb://");
-            }
-
-            boolean hasUsername = false;
-            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-            if (authentication != null) {
-                hasUsername = StringUtils.hasText(authentication.getUsername());
-                final boolean hasPassword = StringUtils.hasText(authentication.getPassword());
-                if (hasUsername) {
-                    builder.append(urlEncode(authentication.getUsername()));
-                }
-                if (hasPassword) {
-                    builder.append(':').append(urlEncode(authentication.getPassword()));
-                }
-                if (hasUsername || hasPassword) {
-                    builder.append('@');
-                }
-            }
-
-            for (Endpoint endpoint : endpoints) {
-                builder.append(endpoint.getHost());
-                if (endpoint.getPort() != null) {
-                    builder.append(':').append(endpoint.getPort());
-                } else if (!isSrv) {
-                    // Connections with +srv should NOT have a port.
-                    builder.append(':').append(DEFAULT_PORT);
-                }
-                builder.append(',');
-            }
-
-            // Delete the trailing comma.
-            builder.deleteCharAt(builder.length() - 1);
-
-            final String authenticationDatabaseName = authentication == null ? null : authentication.getDatabaseName();
-            builder.append('/').append(authenticationDatabaseName);
-
-            List<String> queryParams = new ArrayList<>();
-
-            /*
-             * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
-             */
-            if (datasourceConfiguration.getConnection() == null
-                    || datasourceConfiguration.getConnection().getSsl() == null
-                    || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
-                throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
-                        "Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
-                                "Please reach out to Appsmith customer support to resolve this."
-                );
-            }
-
-            /*
-             * - By default, the driver configures SSL in the preferred mode.
-             */
-            SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
-            switch (sslAuthType) {
-                case ENABLED:
-                    queryParams.add("ssl=true");
-
-                    break;
-                case DISABLED:
-                    queryParams.add("ssl=false");
-
-                    break;
-                case DEFAULT:
-                    /* do nothing - accept default driver setting */
-
-                    break;
-                default:
-                    throw new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
-                            "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
-                                    " Appsmith customer support to resolve this."
-                    );
-            }
-
-            if (hasUsername && authentication.getAuthType() != null) {
-                queryParams.add("authMechanism=" + authentication.getAuthType().name().replace('_', '-'));
-            }
-
-            if (!queryParams.isEmpty()) {
-                builder.append('?');
-                for (String param : queryParams) {
-                    builder.append(param).append('&');
-                }
-                // Delete the trailing ampersand.
-                builder.deleteCharAt(builder.length() - 1);
-            }
-
-            return builder.toString();
-        }
 
         @Override
         public void datasourceDestroy(MongoClient mongoClient) {
@@ -814,21 +633,6 @@ public class MongoPlugin extends BasePlugin {
             }
         }
 
-        private boolean hostStringHasConnectionURIHead(String host) {
-            if (!StringUtils.isEmpty(host) && (host.contains("mongodb://") || host.contains("mongodb+srv"))) {
-                return true;
-            }
-
-            return false;
-        }
-
-        private boolean isHostStringConnectionURI(Endpoint endpoint) {
-            if (endpoint != null && hostStringHasConnectionURIHead(endpoint.getHost())) {
-                return true;
-            }
-
-            return false;
-        }
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
@@ -900,14 +704,14 @@ public class MongoPlugin extends BasePlugin {
                         invalids.add("Invalid authType. Must be one of " + VALID_AUTH_TYPES_STR);
                     }
 
-                    if (StringUtils.isEmpty(authentication.getDatabaseName())) {
+                    if (!StringUtils.hasLength(authentication.getDatabaseName())) {
                         invalids.add("Missing database name.");
                     }
 
                 }
 
                 /*
-                 * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
+                 * Ideally, it is never expected to be null because the SSL dropdown is set to an initial value.
                  */
                 if (datasourceConfiguration.getConnection() == null
                         || datasourceConfiguration.getConnection().getSsl() == null
@@ -1070,7 +874,6 @@ public class MongoPlugin extends BasePlugin {
          * This method coverts Mongo plugin's form data to Mongo's native query. Currently, it is meant to help users
          * switch easily from form based input to raw input mode by providing a readily available translation of the
          * form data to raw query.
-         * @param actionConfiguration
          * @return Mongo's native/raw query set at path `formData.formToNativeQuery.data`
          */
         @Override
@@ -1080,9 +883,9 @@ public class MongoPlugin extends BasePlugin {
                 /* If it is not raw command, then it must be one of the mongo form commands */
                 if (!isRawCommand(formData)) {
 
-                    /**
-                     * This translation must happen only if the user has not edited the raw mode. Hence, check that
-                     * user has not provided any raw query.
+                    /*
+                      This translation must happen only if the user has not edited the raw mode. Hence, check that
+                      user has not provided any raw query.
                      */
                     if (isBlank(getValueSafelyFromFormData(formData, BODY, String.class))) {
                         try {
@@ -1145,12 +948,4 @@ public class MongoPlugin extends BasePlugin {
         return object;
     }
 
-    private static boolean isAuthenticated(DBAuth authentication, String mongoUri) {
-        if (authentication != null && authentication.getUsername() != null
-                && authentication.getPassword() != null && mongoUri.contains("****")) {
-
-            return true;
-        }
-        return false;
-    }
 }

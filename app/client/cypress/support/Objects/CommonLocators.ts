@@ -19,6 +19,8 @@ export class CommonLocators {
     _widgetInDeployed = (widgetType: string) => `.t--widget-${widgetType}`
     _textWidgetInDeployed = this._widgetInDeployed("textwidget") + " span"
     _inputWidgetInDeployed = this._widgetInDeployed("inputwidgetv2") + " input"
+    _inputWidgetv1InDeployed = this._widgetInDeployed("inputwidget") + " input"
+    _textAreainputWidgetv1InDeployed = this._widgetInDeployed("inputwidget") + " textarea"
     _imageWidget = ".t--draggable-imagewidget"
     _backToEditor = ".t--back-to-editor"
     _newPage = ".pages .t--entity-add-btn"
@@ -37,6 +39,7 @@ export class CommonLocators {
     _errorTab = "[data-cy=t--tab-ERROR]"
     _debugErrorMsg = ".t--debugger-message"
     _debuggerLabel = "span.debugger-label"
+    _modal = ".t--modal-widget"
     _entityNameInExplorer = (entityNameinLeftSidebar: string) => "//div[contains(@class, 't--entity-name')][text()='" + entityNameinLeftSidebar + "']"
     _expandCollapseArrow = (entityNameinLeftSidebar: string) => "//div[text()='" + entityNameinLeftSidebar + "']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]"
     _entityProperties = (entityNameinLeftSidebar: string) => "//div[text()='" + entityNameinLeftSidebar + "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//div[contains(@class, 't--entity-property')]//code"
@@ -61,5 +64,8 @@ export class CommonLocators {
     _existingFieldTextByName = (fieldName: string) => "//label[text()='" + fieldName + "']/ancestor::div[contains(@class, 't--property-control-" + fieldName.replace(/ +/g, "").toLowerCase() + "')]"
     _existingFieldValueByName = (fieldName: string) => this._existingFieldTextByName(fieldName) + "//div[contains(@class,'CodeMirror-code')]"
     _evaluatedCurrentValue = "div:last-of-type .t--CodeEditor-evaluatedValue > div:last-of-type pre"
-
+    _multiSelectOptions = (option: string) => "div[title='" + option + "'] input[type='checkbox']"
+    _divWithClass = (className: string) => "//div[contains(@class, '" + className + "')]"
+    _multiSelectItem = (item: string) => "//span[text()='" + item + "']/ancestor::div[@class ='rc-select-selection-overflow-item']//span[contains(@class, 'remove-icon')]"
+    _listWidget = "div[type='LIST_WIDGET']"
 }

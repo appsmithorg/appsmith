@@ -1,6 +1,7 @@
 import React from "react";
-import { isEmpty, isString, maxBy, set, sortBy } from "lodash";
 import log from "loglevel";
+import { klona } from "klona";
+import { isEmpty, isString, maxBy, set, sortBy } from "lodash";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import EmptyDataState from "components/utils/EmptyDataState";
@@ -18,8 +19,6 @@ import { DraggableListCard } from "components/ads/DraggableListCard";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { InputText } from "./InputTextControl";
-
-const clone = require("rfdc/default");
 
 type DroppableItem = BaseItemProps & {
   index: number;
@@ -162,7 +161,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
   updateItems = (items: DroppableItem[]) => {
     const { propertyName, propertyValue } = this.props;
-    const clonedSchema: Schema = clone(propertyValue);
+    const clonedSchema: Schema = klona(propertyValue);
 
     items.forEach((item, index) => {
       clonedSchema[item.id].position = index;

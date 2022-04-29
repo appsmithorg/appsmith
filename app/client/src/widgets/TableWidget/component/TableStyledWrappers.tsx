@@ -263,8 +263,9 @@ export const MenuColumnWrapper = styled.div<{ selected: boolean }>`
   }
 `;
 
-export const ActionWrapper = styled.div`
+export const ActionWrapper = styled.div<{ disabled: boolean }>`
   margin: 0 5px 0 0;
+  ${(props) => (props.disabled ? "cursor: not-allowed;" : null)}
   &&&&&& {
     .bp3-button {
       min-width: 50px;
@@ -278,6 +279,10 @@ export const ActionWrapper = styled.div`
       color: ${Colors.GREY_8};
     }
   }
+`;
+
+export const IconButtonWrapper = styled.div<{ disabled: boolean }>`
+  ${(props) => (props.disabled ? "cursor: not-allowed;" : null)}
 `;
 
 const JUSTIFY_CONTENT = {
@@ -355,6 +360,7 @@ export const CellWrapper = styled.div<{
   useLinkToolTip?: boolean;
   isCellVisible?: boolean;
   isTextType?: boolean;
+  lineHeight?: number;
 }>`
   display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
   align-items: ${(props) => (props.isPadding ? "center" : "flex-start")};

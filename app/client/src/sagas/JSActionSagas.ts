@@ -3,7 +3,7 @@ import {
   EvaluationReduxAction,
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   all,
   put,

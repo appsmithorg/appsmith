@@ -4,7 +4,7 @@ import styled from "styled-components";
 import {
   ApplicationPayload,
   PageListPayload,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { isEllipsisActive } from "utils/helpers";
 import TooltipComponent from "components/ads/Tooltip";

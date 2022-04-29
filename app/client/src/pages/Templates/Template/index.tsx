@@ -9,7 +9,10 @@ import DatasourceChip from "../DatasourceChip";
 import LargeTemplate from "./LargeTemplate";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import { createMessage, FORK_THIS_TEMPLATE } from "ce/constants/messages";
+import {
+  createMessage,
+  FORK_THIS_TEMPLATE,
+} from "@appsmith/constants/messages";
 import { templateIdUrl } from "RouteBuilder";
 
 const TemplateWrapper = styled.div`

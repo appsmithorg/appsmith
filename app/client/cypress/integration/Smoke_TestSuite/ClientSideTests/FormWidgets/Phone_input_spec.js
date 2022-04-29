@@ -91,7 +91,7 @@ describe("Phone input widget - ", () => {
       ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
     ).click();
     cy.selectShowMsg();
-    cy.addSuccessMessage("Submitted!!");
+    cy.addSuccessMessage("Submitted!!", ".t--property-control-onsubmit");
 
     cy.get(widgetInput).clear();
     cy.wait(500);
@@ -103,7 +103,7 @@ describe("Phone input widget - ", () => {
     cy.get(widgetInput).type("{enter}");
     cy.wait(300);
     cy.get(widgetInput).should("contain.value", "");
-    cy.get(".t--widget-textwidget").should("contain", ":undefined");
+    cy.get(".t--widget-textwidget").should("contain", ":");
   });
 
   it("Check isDirty meta property", function() {

@@ -1,4 +1,7 @@
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
 import { Action } from "entities/Action";
 
 export const createQueryRequest = (payload: Partial<Action>) => {

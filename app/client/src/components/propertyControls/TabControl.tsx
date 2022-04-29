@@ -15,7 +15,7 @@ import map from "lodash/map";
 import * as Sentry from "@sentry/react";
 import { Category, Size } from "components/ads/Button";
 import { useDispatch } from "react-redux";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { DraggableListCard } from "components/ads/DraggableListCard";
 
 const StyledPropertyPaneButtonWrapper = styled.div`

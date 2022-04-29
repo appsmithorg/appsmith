@@ -1,5 +1,8 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { FetchPageRequest } from "api/PageApi";
 
 // Type for the object that will store the dynamic values for each component

@@ -191,7 +191,7 @@ function getFieldFromValue(
             const errorArg = args[1] ? args[1][0] : "() => {}";
             const successArg = changeValue.endsWith(")")
               ? `() => ${changeValue}`
-              : `() => ${changeValue}()`;
+              : `() => {}`;
 
             return value.replace(
               ACTION_TRIGGER_REGEX,
@@ -217,7 +217,8 @@ function getFieldFromValue(
             const successArg = args[0] ? args[0][0] : "() => {}";
             const errorArg = changeValue.endsWith(")")
               ? `() => ${changeValue}`
-              : `() => ${changeValue}()`;
+              : `() => {}`;
+
             return value.replace(
               ACTION_TRIGGER_REGEX,
               `{{$1(${successArg}, ${errorArg})}}`,

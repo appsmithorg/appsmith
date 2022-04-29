@@ -7,6 +7,8 @@ import {
   sortBy,
   startCase,
 } from "lodash";
+import { klona } from "klona";
+
 import { sanitizeKey } from "widgets/WidgetUtils";
 import {
   ARRAY_ITEM_KEY,
@@ -22,8 +24,6 @@ import {
   Schema,
   SchemaItem,
 } from "./constants";
-
-const clone = require("rfdc/default");
 
 type Obj = Record<string, any>;
 type JSON = Obj | Obj[];
@@ -120,7 +120,7 @@ export const getSourceDataPathFromSchemaItemPath = (
   schemaItemPath: string,
 ) => {
   const keys = schemaItemPath.split("."); //schema.__root_schema__.children.name -> ["schema", ROOT_SCHEMA_KEY, "children", "name"]
-  let clonedSchema = clone(schema);
+  let clonedSchema = klona(schema);
   let sourceDataPath = "sourceData";
   let schemaItem: SchemaItem;
   let skipIteration = false;
@@ -589,7 +589,7 @@ class SchemaParser {
     widgetName,
     ...rest
   }: Omit<ParserOptions, "identifier">): Schema => {
-    const schema = clone(prevSchema);
+    const schema = klona(prevSchema);
     const currData = normalizeArrayValue(currSourceData as any[]);
 
     const prevDataType = schema[ARRAY_ITEM_KEY]?.dataType;
@@ -626,7 +626,7 @@ class SchemaParser {
     widgetName,
     ...rest
   }: Omit<ParserOptions, "identifier">): Schema => {
-    const schema = clone(prevSchema);
+    const schema = klona(prevSchema);
     const origIdentifierToIdentifierMap = mapOriginalIdentifierToSanitizedIdentifier(
       schema,
     );
@@ -658,7 +658,7 @@ class SchemaParser {
 
     modifiedKeys.forEach((modifiedKey) => {
       const identifier = origIdentifierToIdentifierMap[modifiedKey];
-      const prevSchemaItem = clone(schema[identifier]);
+      const prevSchemaItem = klona(schema[identifier]);
       const currData = currObj[modifiedKey];
       const prevData = prevSchemaItem.sourceData;
       const currDataType = dataTypeFor(currData);

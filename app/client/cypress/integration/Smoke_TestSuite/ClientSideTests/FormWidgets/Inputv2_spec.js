@@ -22,7 +22,7 @@ describe("Input widget V2 - ", () => {
       ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
     ).click();
     cy.selectShowMsg();
-    cy.addSuccessMessage("Submitted!!");
+    cy.addSuccessMessage("Submitted!!", ".t--property-control-onsubmit");
     cy.get(widgetInput).clear();
     cy.wait(300);
     cy.get(widgetInput).type("test{enter}"); //Clicking enter submits the form here
@@ -450,7 +450,7 @@ describe("Input widget V2 - ", () => {
     cy.wait(300);
     if (text) {
       cy.get(`.t--widget-${widgetName} input`)
-        .click()
+        .click({ force: true })
         .type(text);
     }
     cy.get(".t--widget-textwidget").should("contain", expected);

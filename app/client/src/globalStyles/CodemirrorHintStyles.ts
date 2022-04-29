@@ -1,7 +1,7 @@
 import { createGlobalStyle } from "styled-components";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getTypographyByKey, Theme } from "constants/DefaultTheme";
-import { LINT_TOOLTIP_JUSTIFIFIED_LEFT_CLASS } from "components/editorComponents/CodeEditor/constants";
+import { LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS } from "components/editorComponents/CodeEditor/constants";
 
 export const CodemirrorHintStyles = createGlobalStyle<{
   editorTheme: EditorTheme;
@@ -259,7 +259,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     padding: 7px 12px;
     border-radius: 0;
     
-    &.${LINT_TOOLTIP_JUSTIFIFIED_LEFT_CLASS}{
+    &.${LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS}{
     transform: translate(-100%);
   }
   

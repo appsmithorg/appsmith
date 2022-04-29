@@ -1,6 +1,6 @@
 import React from "react";
 import { WidgetState } from "widgets/BaseWidget";
-import { RenderModes, WidgetType } from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import CurrencyInputComponent, {
   CurrencyInputComponentProps,
 } from "../component";
@@ -32,6 +32,7 @@ import {
   limitDecimalValue,
 } from "../component/utilities";
 import { mergeWidgetConfig } from "utils/helpers";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 export function defaultValueValidation(
   value: any,
@@ -113,7 +114,7 @@ class CurrencyInputWidget extends BaseInputWidget<
             },
             {
               helpText: "Changes the type of currency",
-              propertyName: "currencyCode",
+              propertyName: "defaultCurrencyCode",
               label: "Currency",
               enableSearch: true,
               dropdownHeight: "195px",
@@ -188,6 +189,13 @@ class CurrencyInputWidget extends BaseInputWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return _.merge(super.getMetaPropertiesMap(), {
       text: undefined,
+      currencyCode: undefined,
+    });
+  }
+
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return _.merge(super.getDefaultPropertiesMap(), {
+      currencyCode: "defaultCurrencyCode",
     });
   }
 
@@ -210,6 +218,13 @@ class CurrencyInputWidget extends BaseInputWidget<
       this.props.isDirty
     ) {
       this.props.updateWidgetMetaProperty("isDirty", false);
+    }
+
+    if (
+      this.props.currencyCode === this.props.defaultCurrencyCode &&
+      prevProps.currencyCode !== this.props.currencyCode
+    ) {
+      this.onCurrencyTypeChange(this.props.currencyCode);
     }
   }
 
@@ -288,12 +303,7 @@ class CurrencyInputWidget extends BaseInputWidget<
     const countryCode = getCountryCodeFromCurrencyCode(currencyCode);
 
     this.props.updateWidgetMetaProperty("countryCode", countryCode);
-
-    if (this.props.renderMode === RenderModes.CANVAS) {
-      super.updateWidgetProperty("currencyCode", currencyCode);
-    } else {
-      this.props.updateWidgetMetaProperty("currencyCode", currencyCode);
-    }
+    this.props.updateWidgetMetaProperty("currencyCode", currencyCode);
   };
 
   handleKeyDown = (
@@ -338,7 +348,13 @@ class CurrencyInputWidget extends BaseInputWidget<
       <CurrencyInputComponent
         allowCurrencyChange={this.props.allowCurrencyChange}
         autoFocus={this.props.autoFocus}
-        compactMode
+        compactMode={
+          !(
+            (this.props.bottomRow - this.props.topRow) /
+              GRID_DENSITY_MIGRATION_V1 >
+            1
+          )
+        }
         currencyCode={currencyCode}
         decimals={this.props.decimals}
         defaultValue={this.props.defaultText}
@@ -350,9 +366,12 @@ class CurrencyInputWidget extends BaseInputWidget<
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
+        labelAlignment={this.props.labelAlignment}
+        labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelWidth={this.getLabelWidth()}
         onCurrencyTypeChange={this.onCurrencyTypeChange}
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}

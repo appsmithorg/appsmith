@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Link, RouteComponentProps } from "react-router-dom";
+import { Link, RouteComponentProps, withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import { getIsFetchingPage } from "selectors/appViewSelectors";
 import styled from "styled-components";
@@ -142,7 +142,6 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(fetchPublishedPage(pageId, bustCache)),
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(AppViewerPageContainer);
+export default withRouter(
+  connect(mapStateToProps, mapDispatchToProps)(AppViewerPageContainer),
+);

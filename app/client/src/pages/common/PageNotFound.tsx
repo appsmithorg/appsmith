@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import { APPLICATIONS_URL } from "constants/routes";
@@ -10,6 +10,7 @@ import {
   createMessage,
   PAGE_NOT_FOUND,
 } from "@appsmith/constants/messages";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Wrapper = styled.div`
   text-align: center;
@@ -32,6 +33,10 @@ interface Props {
 
 function PageNotFound(props: Props) {
   const { flushErrorsAndRedirect } = props;
+
+  useEffect(() => {
+    AnalyticsUtil.logEvent("PAGE_NOT_FOUND");
+  }, []);
 
   return (
     <Wrapper className="space-y-6">

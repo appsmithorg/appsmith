@@ -2,7 +2,7 @@ import {
   ReduxAction,
   ReduxActionTypes,
   WidgetReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   all,
   put,

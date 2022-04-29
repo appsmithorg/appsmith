@@ -3,7 +3,7 @@ import * as log from "loglevel";
 import smartlookClient from "smartlook-client";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
-import { ANONYMOUS_USERNAME, User } from "../constants/userConstants";
+import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { sha256 } from "js-sha256";
 
 export type EventLocation =
@@ -157,7 +157,7 @@ export type EventName =
   | "COMMENTS_ONBOARDING_MODAL_TRIGGERED"
   | "REPLAY_UNDO"
   | "REPLAY_REDO"
-  | "REDIRECT_URL_COPIED"
+  | "URL_COPIED"
   | "SNIPPET_CUSTOMIZE"
   | "SNIPPET_EXECUTE"
   | "SNIPPET_FILTER"
@@ -171,6 +171,7 @@ export type EventName =
   | "SIGNPOSTING_PUBLISH_CLICK"
   | "SIGNPOSTING_BUILD_APP_CLICK"
   | "SIGNPOSTING_WELCOME_TOUR_CLICK"
+  | "GS_BRANCH_MORE_MENU_OPEN"
   | "GS_OPEN_BRANCH_LIST_POPUP"
   | "GS_CREATE_NEW_BRANCH"
   | "GS_SYNC_BRANCHES"
@@ -197,7 +198,16 @@ export type EventName =
   | "GS_CONTACT_SALES_CLICK"
   | "GS_REGENERATE_SSH_KEY_CONFIRM_CLICK"
   | "GS_REGENERATE_SSH_KEY_MORE_CLICK"
+  | "GS_SWITCH_BRANCH"
+  | "ADMIN_SETTINGS_RESET"
+  | "ADMIN_SETTINGS_SAVE"
+  | "ADMIN_SETTINGS_ERROR"
+  | "ADMIN_SETTINGS_DISCONNECT_AUTH_METHOD"
+  | "ADMIN_SETTINGS_UPGRADE_AUTH_METHOD"
+  | "ADMIN_SETTINGS_EDIT_AUTH_METHOD"
+  | "ADMIN_SETTINGS_ENABLE_AUTH_METHOD"
   | "REFLOW_BETA_FLAG"
+  | "CONTAINER_JUMP"
   | "CONNECT_GIT_CLICK"
   | "REPO_URL_EDIT"
   | "GENERATE_KEY_BUTTON_CLICK"
@@ -211,7 +221,10 @@ export type EventName =
   | "RECONNECTING_DATASOURCE_ITEM_CLICK"
   | "ADD_MISSING_DATASOURCE_LINK_CLICK"
   | "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK"
-  | "TEMPLATE_FILTER_SELECTED";
+  | "TEMPLATE_FILTER_SELECTED"
+  | "MANUAL_UPGRADE_CLICK"
+  | "PAGE_NOT_FOUND"
+  | "RUN_JS_FUNCTION";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");

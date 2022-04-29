@@ -1,5 +1,5 @@
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { ApplicationResponsePayload } from "../api/ApplicationApi";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ApplicationResponsePayload } from "api/ApplicationApi";
 import {
   UpdateApplicationPayload,
   ImportApplicationRequest,

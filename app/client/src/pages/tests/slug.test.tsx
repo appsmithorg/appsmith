@@ -5,7 +5,10 @@ import {
   getRouteBuilderParams,
   updateURLFactory,
 } from "RouteBuilder";
-import { Page, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  Page,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   getCurrentPageId,
   getPageById,

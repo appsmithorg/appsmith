@@ -5,7 +5,12 @@ import {
   WidgetOperations,
   WidgetProps,
 } from "widgets/BaseWidget";
-import { GridDefaults, RenderMode } from "constants/WidgetConstants";
+import {
+  CONTAINER_GRID_PADDING,
+  GridDefaults,
+  RenderMode,
+  WIDGET_PADDING,
+} from "constants/WidgetConstants";
 import { snapToGrid } from "./helpers";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import defaultTemplate from "templates/default";
@@ -16,6 +21,7 @@ import { DSLWidget } from "widgets/constants";
 import { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import { GridProps } from "reflow/reflowTypes";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -94,6 +100,28 @@ export const getDropZoneOffsets = (
     dragOffset.x - parentOffset.x,
     dragOffset.y - parentOffset.y,
   );
+};
+
+export const getMousePositionsOnCanvas = (
+  e: MouseEvent,
+  gridProps: GridProps,
+) => {
+  const mouseTop = Math.floor(
+    (e.offsetY - CONTAINER_GRID_PADDING - WIDGET_PADDING) /
+      gridProps.parentRowSpace,
+  );
+  const mouseLeft = Math.floor(
+    (e.offsetX - CONTAINER_GRID_PADDING - WIDGET_PADDING) /
+      gridProps.parentColumnSpace,
+  );
+
+  return {
+    id: "mouse",
+    top: mouseTop,
+    left: mouseLeft,
+    bottom: mouseTop + 1,
+    right: mouseLeft + 1,
+  };
 };
 
 export const areIntersecting = (r1: Rect, r2: Rect) => {
