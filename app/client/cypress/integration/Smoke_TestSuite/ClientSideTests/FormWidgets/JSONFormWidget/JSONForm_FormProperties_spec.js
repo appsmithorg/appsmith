@@ -113,4 +113,44 @@ describe("JSON Form Widget Form Bindings", () => {
 
     cy.get(publishPage.backToEditor).click({ force: true });
   });
+
+  it("Should set isValid to false on reset when form is invalid", () => {
+    cy.addDsl(dslWithoutSchema);
+
+    const schema = {
+      name: "",
+    };
+
+    cy.openPropertyPane("textwidget");
+    cy.testJsontext("text", "{{JSONForm1.isValid}}");
+
+    cy.openPropertyPane("jsonformwidget");
+    cy.testJsontext("sourcedata", JSON.stringify(schema));
+
+    // make name field required
+    cy.openFieldConfiguration("name");
+    cy.togglebar(`${propertyControlPrefix}-required input`);
+
+    cy.PublishtheApp();
+
+    cy.get(".t--widget-textwidget .bp3-ui-text").contains("false");
+
+    // Click reset button
+    cy.get("button")
+      .contains("Reset")
+      .click({ force: true });
+    cy.get(".t--widget-textwidget .bp3-ui-text").contains("false");
+
+    // Type JOHN in name field
+    cy.get(`${fieldPrefix}-name input`).type("JOHN");
+    cy.get(".t--widget-textwidget .bp3-ui-text").contains("true");
+
+    // Click reset button
+    cy.get("button")
+      .contains("Reset")
+      .click({ force: true });
+    cy.get(".t--widget-textwidget .bp3-ui-text").contains("false");
+
+    cy.get(publishPage.backToEditor).click({ force: true });
+  });
 });
