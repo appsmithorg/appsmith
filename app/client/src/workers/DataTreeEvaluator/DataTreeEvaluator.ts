@@ -1465,7 +1465,6 @@ export default class DataTreeEvaluator {
     for (const d of differences) {
       if (!Array.isArray(d.path) || d.path.length === 0) continue; // Null check for typescript
       // Apply the changes into the evalTree so that it gets the latest changes
-      console.log("D PATH", d.path);
       applyChange(this.evalTree, undefined, d);
     }
   }

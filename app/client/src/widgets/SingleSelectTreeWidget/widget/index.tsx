@@ -382,7 +382,7 @@ class SingleSelectTreeWidget extends BaseWidget<
     return {
       selectedOption: undefined,
       selectedOptionValueArr: undefined,
-      selectedLabel: [],
+      selectedLabel: undefined,
       isDirty: false,
     };
   }
