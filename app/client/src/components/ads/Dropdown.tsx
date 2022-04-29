@@ -678,9 +678,12 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
   };
   const theme = useTheme() as Theme;
 
+  if (!options.length) return null;
+
   return (
     <DropdownWrapper
       className="ads-dropdown-options-wrapper"
+      data-testid="dropdown-options-wrapper"
       isOpen={props.isOpen}
       width={optionWidth}
     >
