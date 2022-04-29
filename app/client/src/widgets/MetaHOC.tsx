@@ -25,8 +25,12 @@ export interface WithMeta {
   updateWidgetMetaProperties: (widgetMetaUpdates: WidgetMetaUpdates) => void;
 }
 
-type WidgetMetaProps = { metaState: Record<string, unknown> };
-type metaHOCProps = WidgetProps & WidgetMetaProps;
+interface WidgetMetaProps {
+  metaState: Record<string, unknown>;
+}
+interface metaHOCProps extends WidgetProps, WidgetMetaProps {
+  triggerEvalOnMetaUpdate: () => void;
+}
 
 function withMeta(WrappedWidget: typeof BaseWidget) {
   class MetaHOC extends React.PureComponent<metaHOCProps> {
@@ -40,14 +44,28 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       this.initialMetaState = { ...WrappedWidget.getMetaPropertiesMap() };
     }
 
-    debouncedTriggerEvalOnMetaUpdate = debounce(
-      this.props.triggerEvalOnMetaUpdate,
-      200,
-      {
-        leading: true,
-        trailing: true,
-      },
-    );
+    handleMetaUpdateEval = (widgetMetaUpdates: MetaUpdates) => {
+      const { executeAction } = this.context;
+      // TODO: batch trigger actions if possible
+      widgetMetaUpdates.forEach(({ actionExecution }) => {
+        if (actionExecution && actionExecution.dynamicString && executeAction) {
+          executeAction({
+            ...actionExecution,
+            source: {
+              id: this.props.widgetId,
+              name: this.props.widgetName,
+            },
+          });
+          this.logExecuteTrigger(actionExecution);
+        }
+      });
+      this.props.triggerEvalOnMetaUpdate();
+    };
+
+    debouncedMetaUpdateEval = debounce(this.handleMetaUpdateEval, 200, {
+      leading: true,
+      trailing: true,
+    });
 
     logUpdateMeta = (propertyName: string, propertyValue: unknown) => {
       AppsmithConsole.info({
@@ -95,14 +113,8 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       ]);
     };
 
-    handleUpdateWidgetMetaProperties = (
-      widgetMetaUpdates: {
-        propertyName: string;
-        propertyValue: unknown;
-        actionExecution?: ExecuteTriggerPayload;
-      }[],
-    ) => {
-      const { executeAction, updateWidgetMetaProperties } = this.context;
+    handleUpdateWidgetMetaProperties = (widgetMetaUpdates: MetaUpdates) => {
+      const { updateWidgetMetaProperties } = this.context;
       const { widgetId } = this.props;
       const allWidgetMetaUpdates: WidgetMetaUpdates = widgetMetaUpdates.map(
         ({ propertyName, propertyValue }) => {
@@ -131,21 +143,8 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       if (updateWidgetMetaProperties) {
         updateWidgetMetaProperties(allWidgetMetaUpdates);
       }
-      // TODO: batch trigger actions if possible
-      widgetMetaUpdates.forEach(({ actionExecution }) => {
-        if (actionExecution && actionExecution.dynamicString && executeAction) {
-          executeAction({
-            ...actionExecution,
-            source: {
-              id: this.props.widgetId,
-              name: this.props.widgetName,
-            },
-          });
-          this.logExecuteTrigger(actionExecution);
-        }
-      });
 
-      this.debouncedTriggerEvalOnMetaUpdate();
+      this.debouncedMetaUpdateEval(widgetMetaUpdates);
     };
 
     updatedProps = () => {
