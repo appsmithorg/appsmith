@@ -22,13 +22,9 @@ import { isEllipsisActive } from "utils/helpers";
 import SegmentHeader from "components/ads/ListSegmentHeader";
 import { useTheme } from "styled-components";
 import { findIndex, isArray } from "lodash";
+import { SubTextPosition } from "components/constants";
 
 export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
-
-export enum SubTextPosition {
-  BOTTOM,
-  LEFT,
-}
 
 export type DropdownOption = {
   label?: string;

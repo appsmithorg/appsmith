@@ -1,4 +1,4 @@
-import { SubTextPosition } from "components/ads";
+import { SubTextPosition } from "components/constants";
 import moment from "moment";
 
 export const DateFormatOptions = [
