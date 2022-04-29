@@ -1101,7 +1101,7 @@ public class FirestorePluginTest {
         params.add(param);
         param = new Param();
         param.setKey("Input2.text");
-        param.setValue("Dodge,cars");
+        param.setValue("[\"Dodge\",\"cars\"]");
         params.add(param);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
@@ -1117,6 +1117,50 @@ public class FirestorePluginTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    public void testArrayInWhereConditional() {
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+
+        List<Object> children = new ArrayList<>();
+        children.add(new HashMap<String, Object>() {{
+            put("key", "{{Input1.text}}");
+            put("condition", "IN");
+            put("value", "{{Input2.text}}");
+        }});
+
+        Map<String, Object> whereMap = new HashMap<>();
+        whereMap.put(CHILDREN, children);
+        setValueSafelyInFormData(configMap, WHERE, whereMap);
+        setValueSafelyInFormData(configMap, PATH, "initial");
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(configMap);
+
+        List params = new ArrayList();
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue("name");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input2.text");
+        param.setValue("[\"two\",\"third\",\"sharon\"]");
+        params.add(param);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(params);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, executeActionDTO, dsConfig, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    List<Map<String, Object>> results = (List) result.getBody();
+                    assertEquals(2, results.size());
+                })
+                .verifyComplete();
+    }
+
 
     @Test
     public void testUpdateDocumentWithFieldValueTimestamp() {

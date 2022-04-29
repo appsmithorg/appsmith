@@ -90,7 +90,7 @@
           "value": "ARRAY_CONTAINS"
         },
         {
-          "label": "Any",
+          "label": "Contains Any",
           "value": "ARRAY_CONTAINS_ANY"
         }
       ]

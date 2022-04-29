@@ -102,9 +102,23 @@ public class WhereConditionUtils {
             case ARRAY_CONTAINS:
                 return query.whereArrayContains(fieldPath, value);
             case ARRAY_CONTAINS_ANY:
-                return query.whereArrayContainsAny(fieldPath, Arrays.asList(value.toString().split(",")) );
+                try {
+                    return query.whereArrayContainsAny(fieldPath, parseList((String) value));
+                } catch (IOException e) {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                            "Unable to parse condition value as a JSON list."
+                    );
+                }
             case IN:
-                return query.whereIn(fieldPath, Arrays.asList(value.toString().split(",")));
+                try {
+                    return query.whereIn(fieldPath, parseList((String) value));
+                } catch (IOException e) {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                            "Unable to parse condition value as a JSON list."
+                    );
+                }
                 // TODO: NOT_IN operator support is awaited in the next version of Firestore driver.
                 // case NOT_IN:
                 //     return Mono.just(query.whereNotIn(fieldPath, value));
