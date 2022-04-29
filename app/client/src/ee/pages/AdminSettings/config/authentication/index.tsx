@@ -30,7 +30,7 @@ const SSO_Auth: AdminConfigType = {
   title: "SAML 2.0",
   component: Sso,
   subText:
-    "Enable your organization to sign in with your preferred SAML2 compliant provider like Ping Identity, Google SAML, Keycloak, or VMware Identity Manager.",
+    "Enable your organization to sign in with your preferred SAML2 compliant provider.",
   canSave: true,
   isConnected: enableSamlOAuth,
 };
