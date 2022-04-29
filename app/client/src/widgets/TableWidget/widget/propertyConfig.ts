@@ -642,16 +642,6 @@ export default [
                       value: "1.875rem",
                       subText: "1.875rem",
                     },
-                    {
-                      label: "XXL",
-                      value: "3rem",
-                      subText: "3rem",
-                    },
-                    {
-                      label: "3XL",
-                      value: "3.75rem",
-                      subText: "3.75rem",
-                    },
                   ],
                   validation: {
                     type: ValidationTypes.TABLE_PROPERTY,
@@ -1689,16 +1679,6 @@ export default [
             label: "XL",
             value: "1.875rem",
             subText: "1.875rem",
-          },
-          {
-            label: "XXL",
-            value: "3rem",
-            subText: "3rem",
-          },
-          {
-            label: "3XL",
-            value: "3.75rem",
-            subText: "3.75rem",
           },
         ],
         isJSConvertible: true,

@@ -1038,6 +1038,7 @@ export const GENERATE_APPLICATION_DESCRIPTION = () =>
 export const DELETE_ORG_SUCCESSFUL = () => "Organization deleted successfully";
 // theming
 export const CHANGE_APP_THEME = (name: string) => `Theme ${name} Applied`;
+export const SAVE_APP_THEME = (name: string) => `Theme ${name} Saved`;
 export const DELETE_APP_THEME = (name: string) => `Theme ${name} Deleted`;
 export const DELETE_APP_THEME_WARNING = () =>
   `Do you really want to delete this theme? This process cannot be undone.`;

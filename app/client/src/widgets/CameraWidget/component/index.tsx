@@ -852,6 +852,7 @@ function DevicePopover(props: DevicePopoverProps) {
       />
       <Popover2
         content={<DeviceMenu items={items} onItemClick={onItemClick} />}
+        portalContainer={document.getElementById("art-board") || undefined}
       >
         <Button minimal rightIcon={<Icon color="white" icon="caret-down" />} />
       </Popover2>
