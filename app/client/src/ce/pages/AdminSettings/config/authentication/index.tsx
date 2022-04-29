@@ -175,7 +175,7 @@ export const Github_Auth_Callout: AuthMethodType = {
   category: SettingCategories.GITHUB_AUTH,
   label: "Github",
   subText:
-    "Enable your organization to sign in with Github (OAuth) single sign-on (SSO).",
+    "Enable your organization to sign in with Github (OAuth 2.0) single sign-on (SSO).",
   image: Github,
   type: "LINK",
   isConnected: enableGithubOAuth,
