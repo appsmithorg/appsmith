@@ -132,26 +132,26 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       dropTargetRef.current.style.height = height;
     }
   };
-  const updateDropTargetRows = (
-    widgetIdsToExclude: string[],
-    widgetBottomRow: number,
-  ) => {
-    if (canDropTargetExtend) {
-      const newRows = calculateDropTargetRows(
-        widgetIdsToExclude,
-        widgetBottomRow,
-        props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
-        occupiedSpacesByChildren,
-      );
-      if (rowRef.current < newRows) {
-        rowRef.current = newRows;
-        updateHeight();
-        return newRows;
+  const updateDropTargetRows = useCallback(
+    (widgetIdsToExclude: string[], widgetBottomRow: number) => {
+      if (canDropTargetExtend) {
+        const newRows = calculateDropTargetRows(
+          widgetIdsToExclude,
+          widgetBottomRow,
+          props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
+          occupiedSpacesByChildren,
+        );
+        if (rowRef.current < newRows) {
+          rowRef.current = newRows;
+          updateHeight();
+          return newRows;
+        }
+        return false;
       }
       return false;
-    }
-    return false;
-  };
+    },
+    [props.minHeight, rowRef.current],
+  );
 
   const handleFocus = (e: any) => {
     if (!isResizing && !isDragging) {
