@@ -3,13 +3,13 @@ import styled from "styled-components";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 // import AnalyticsUtil from "utils/AnalyticsUtil";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { Layers } from "constants/Layers";
 import { bindDataToWidget } from "actions/propertyPaneActions";
+import { isCurrentWidgetFocused } from "selectors/widgetSelectors";
 
 const SnipeableWrapper = styled.div<{ isFocused: boolean }>`
   position: absolute;
@@ -37,10 +37,7 @@ function SnipeableComponent(props: SnipeableComponentProps) {
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
 
-  const isFocusedWidget = useSelector(
-    (state: AppState) =>
-      state.ui.widgetDragResize.focusedWidget === props.widgetId,
-  );
+  const isFocusedWidget = useSelector(isCurrentWidgetFocused(props.widgetId));
 
   const handleMouseOver = (e: any) => {
     focusWidget && !isFocusedWidget && focusWidget(props.widgetId);

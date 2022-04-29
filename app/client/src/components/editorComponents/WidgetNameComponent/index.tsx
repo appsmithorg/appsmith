@@ -22,6 +22,12 @@ import {
 import { bindDataToWidget } from "actions/propertyPaneActions";
 import { hideErrors } from "selectors/debuggerSelectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
+import {
+  isCurrentWidgetFocused,
+  isCurrentWidgetLastSelected,
+  isCurrentWidgetSelected,
+  isMultiSelectedWidget,
+} from "selectors/widgetSelectors";
 
 const PositionStyle = styled.div<{ topRow: number; isSnipingMode: boolean }>`
   position: absolute;
@@ -66,15 +72,11 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const propertyPaneState: PropertyPaneReduxState = useSelector(
     (state: AppState) => state.ui.propertyPane,
   );
-  const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
+  const isLastSelected = useSelector(
+    isCurrentWidgetLastSelected(props.widgetId),
   );
-  const selectedWidgets = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
-  );
-  const focusedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.focusedWidget,
-  );
+  const isSelected = useSelector(isCurrentWidgetSelected(props.widgetId));
+  const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
 
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
@@ -122,25 +124,18 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     e.preventDefault();
     e.stopPropagation();
   };
-  const showAsSelected =
-    selectedWidget === props.widgetId ||
-    selectedWidgets.includes(props.widgetId);
+  const showAsSelected = isLastSelected || isSelected;
 
-  const isMultiSelectedWidget =
-    selectedWidgets &&
-    selectedWidgets.length > 1 &&
-    selectedWidgets.includes(props.widgetId);
+  const isMultiSelected = useSelector(isMultiSelectedWidget(props.widgetId));
   const shouldShowWidgetName = () => {
     return (
       !isCommentMode &&
       !isPreviewMode &&
-      !isMultiSelectedWidget &&
+      !isMultiSelected &&
       (isSnipingMode
-        ? focusedWidget === props.widgetId
+        ? isFocused
         : props.showControls ||
-          ((focusedWidget === props.widgetId || showAsSelected) &&
-            !isDragging &&
-            !isResizing) ||
+          ((isFocused || showAsSelected) && !isDragging && !isResizing) ||
           (!!props.errorCount && !shouldHideErrors))
     );
   };
@@ -154,7 +149,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     props.type === WidgetTypes.MODAL_WIDGET
       ? Activities.HOVERING
       : Activities.NONE;
-  if (focusedWidget === props.widgetId) currentActivity = Activities.HOVERING;
+  if (isFocused) currentActivity = Activities.HOVERING;
   if (showAsSelected) currentActivity = Activities.SELECTED;
   if (
     showAsSelected &&
