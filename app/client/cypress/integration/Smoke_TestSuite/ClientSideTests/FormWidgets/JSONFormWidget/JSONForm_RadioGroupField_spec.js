@@ -26,18 +26,10 @@ function selectAndValidateOption(selector, option, expectedFormData) {
 }
 
 function clearOptionsProperty() {
-  cy.get(".t--property-control-options .CodeMirror  textarea")
+  cy.get(".t--property-control-options .CodeMirror")
     .first()
-    .focus()
-    .type("{ctrl}{shift}{downarrow}")
-    .then(($cm) => {
-      if ($cm.val() !== "") {
-        cy.get(".t--property-control-options .CodeMirror textarea")
-          .first()
-          .clear({
-            force: true,
-          });
-      }
+    .then((editor) => {
+      editor[0].CodeMirror.setValue("");
     });
 }
 
