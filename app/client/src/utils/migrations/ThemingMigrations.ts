@@ -568,6 +568,9 @@ export const migrateStylingPropertiesForTheming = (
       child.accentColor = Colors.GREEN;
     }
 
+    if (child.type === "TEXT_WIDGET") {
+      child.fontFamily = "System Default";
+    }
     // Adds childStyleSheets
     switch (child.type) {
       case "BUTTON_GROUP_WIDGET":
