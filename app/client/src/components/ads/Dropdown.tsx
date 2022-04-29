@@ -462,10 +462,6 @@ const SelectedDropDownHolder = styled.div<{ enableScroll?: boolean }>`
   overflow: ${(props) => (props.enableScroll ? "auto" : "hidden")};
   width: 100%;
 
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
   & ${Text} {
     max-width: 100%;
     overflow: hidden;
