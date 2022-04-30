@@ -80,12 +80,7 @@ describe("Phone input widget - ", () => {
     cy.get(".t--input-country-code-change").should("contain", "🇮🇳+91");
   });
 
-  it("3. Should check that widget input resets on submit", () => {
-    cy.openPropertyPane("textwidget");
-    cy.updateCodeInput(
-      ".t--property-control-text",
-      `{{PhoneInput1.text}}:{{PhoneInput1.value}}`,
-    );
+  it("should check that widget input resets on submit", () => {
     cy.openPropertyPane(widgetName);
     cy.get(
       ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
@@ -94,38 +89,9 @@ describe("Phone input widget - ", () => {
     cy.addSuccessMessage("Submitted!!", ".t--property-control-onsubmit");
 
     cy.get(widgetInput).clear();
-    cy.wait(500);
-    cy.get(widgetInput)
-      .click()
-      .type("1234567890");
-    cy.wait(500);
-    cy.get(".t--widget-textwidget").should("contain", "1234567890:1234567890");
-    cy.get(widgetInput).type("{enter}");
+    cy.wait(300);
+    cy.get(widgetInput).type("1234567890{enter}");
     cy.wait(300);
     cy.get(widgetInput).should("contain.value", "");
-    cy.get(".t--widget-textwidget").should("contain", ":");
-  });
-
-  it("Check isDirty meta property", function() {
-    cy.openPropertyPane("textwidget");
-    cy.updateCodeInput(".t--property-control-text", `{{PhoneInput1.isDirty}}`);
-    // Change defaultText
-    cy.openPropertyPane(widgetName);
-    cy.updateCodeInput(".t--property-control-defaulttext", "1");
-    cy.closePropertyPane();
-    // Check if isDirty is set to false
-    cy.get(".t--widget-textwidget").should("contain", "false");
-    // Interact with UI
-    cy.get(widgetInput).clear();
-    cy.wait(300);
-    cy.get(widgetInput).type("2");
-    cy.wait(300);
-    // Check if isDirty is set to true
-    cy.get(".t--widget-textwidget").should("contain", "true");
-    // Reset isDirty by changing defaultText
-    cy.openPropertyPane(widgetName);
-    cy.updateCodeInput(".t--property-control-defaulttext", "3");
-    // Check if isDirty is set to false
-    cy.get(".t--widget-textwidget").should("contain", "false");
   });
 });

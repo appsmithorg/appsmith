@@ -56,7 +56,7 @@ describe("defaultValueValidation", () => {
 
     expect(result).toEqual({
       isValid: false,
-      parsed: null,
+      parsed: undefined,
       messages: ["This value must be number"],
     });
   });
