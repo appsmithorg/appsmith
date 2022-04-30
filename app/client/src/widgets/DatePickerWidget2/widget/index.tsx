@@ -416,6 +416,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         maxDate={this.props.maxDate}
         minDate={this.props.minDate}
         onDateSelected={this.onDateSelected}
+        ref={this.contentRef}
         selectedDate={this.props.value}
         shortcuts={this.props.shortcuts}
         timePrecision={this.props.timePrecision}
