@@ -43,7 +43,7 @@ import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { escapeSpecialChars } from "../../WidgetUtils";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 
-import { klona } from "klona/full";
+import { klona } from "klona";
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
