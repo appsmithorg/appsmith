@@ -103,7 +103,9 @@ function Files() {
       alwaysShowRightIcon
       className={`group files`}
       customAddButton={
-        <ExplorerSubMenu className={`${EntityClassNames.ADD_BUTTON} files`} />
+        <ExplorerSubMenu
+          className={`${EntityClassNames.ADD_BUTTON} group files`}
+        />
       }
       disabled={false}
       entityId={pageId + "_widgets"}
