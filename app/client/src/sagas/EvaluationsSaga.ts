@@ -140,8 +140,10 @@ function* evaluateTreeSaga(
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
-
-  yield put(updateMetaState(metaUpdates));
+  // if metaUpdates are present only then dispatch updateMetaState
+  if (Object.keys(metaUpdates).length) {
+    yield put(updateMetaState(metaUpdates));
+  }
 
   const updatedDataTree = yield select(getDataTree);
   log.debug({ jsUpdates: jsUpdates });
