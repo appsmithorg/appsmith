@@ -39,6 +39,7 @@ export const metaReducer = createReducer(initialState, {
         `${action.payload.widgetId}.${action.payload.propertyName}`,
         action.payload.propertyValue,
       );
+      return draftMetaState;
     });
 
     return nextState;
@@ -53,6 +54,7 @@ export const metaReducer = createReducer(initialState, {
         `${action.payload.widgetId}.${action.payload.propertyName}`,
         action.payload.propertyValue,
       );
+      return draftMetaState;
     });
 
     return nextState;
