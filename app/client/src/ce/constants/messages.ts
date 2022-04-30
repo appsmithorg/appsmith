@@ -607,6 +607,7 @@ export const CONNECT_TO_GIT_SUBTITLE = () =>
 export const REMOTE_URL = () => "Remote URL";
 export const REMOTE_URL_INFO = () =>
   `Create an empty git repository and paste the remote URL here.`;
+export const IMPORT_URL_INFO = () => `Paste the remote url here:`;
 export const REMOTE_URL_VIA = () => "Remote URL via";
 
 export const USER_PROFILE_SETTINGS_TITLE = () => "User settings";
