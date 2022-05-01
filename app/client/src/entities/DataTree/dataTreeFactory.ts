@@ -1,28 +1,28 @@
-import {
-  ActionDataState,
-  ActionDataWithMeta,
-} from "reducers/entityReducers/actionsReducer";
-import { WidgetProps } from "widgets/BaseWidget";
-import { ActionResponse } from "api/ActionAPI";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { MetaState } from "reducers/entityReducers/metaReducer";
 import { PageListPayload } from "@appsmith/constants/ReduxActionConstants";
-import { ActionConfig, PluginType } from "entities/Action";
-import { AppDataState } from "reducers/entityReducers/appReducer";
-import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
-import { generateDataTreeAction } from "entities/DataTree/dataTreeAction";
-import { generateDataTreeJSAction } from "entities/DataTree/dataTreeJSAction";
-import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
-import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
+import { ActionResponse } from "api/ActionAPI";
+import { PluginId } from "api/PluginApi";
 import { ValidationConfig } from "constants/PropertyControlConstants";
-import { Variable } from "entities/JSCollection";
+import { ActionConfig, PluginType } from "entities/Action";
 import {
   ActionDescription,
   ClearPluginActionDescription,
   RunPluginActionDescription,
 } from "entities/DataTree/actionTriggers";
-import { PluginId } from "api/PluginApi";
+import { generateDataTreeAction } from "entities/DataTree/dataTreeAction";
+import { generateDataTreeJSAction } from "entities/DataTree/dataTreeJSAction";
+import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
+import { Variable } from "entities/JSCollection";
 import log from "loglevel";
+import {
+  ActionDataState,
+  ActionDataWithMeta,
+} from "reducers/entityReducers/actionsReducer";
+import { AppDataState } from "reducers/entityReducers/appReducer";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
+import { MetaState } from "reducers/entityReducers/metaReducer";
+import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
+import { WidgetProps } from "widgets/BaseWidget";
 
 export type ActionDispatcher = (
   ...args: any[]

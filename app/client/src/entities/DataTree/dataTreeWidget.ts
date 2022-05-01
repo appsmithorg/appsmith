@@ -12,14 +12,18 @@ import {
   DataTreeWidget,
   ENTITY_TYPE,
 } from "./dataTreeFactory";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import memoizee from "memoizee";
 
-const generateDataTreeWidgetWithoutMemo = (
+import memoize from "micro-memoize";
+import { debug } from "loglevel";
+
+// We are splitting generateDataTreeWidget into two parts to memoize better as the widget doesn't change very often.
+// Only meta properties change
+const generatePartialDataTreeWidget = (
   widget: FlattenedWidgetProps,
-  widgetMetaProps: Record<string, unknown> = {},
-): DataTreeWidget => {
+): {
+  partial: DataTreeWidget;
+  overridingMetaPropsMap: Record<string, boolean>;
+} => {
   const derivedProps: any = {};
   const blockedDerivedProps: Record<string, true> = {};
   const unInitializedDefaultProps: Record<string, undefined> = {};
@@ -28,6 +32,7 @@ const generateDataTreeWidgetWithoutMemo = (
   const defaultMetaProps = WidgetFactory.getWidgetMetaPropertiesMap(
     widget.type,
   );
+
   const derivedPropertyMap = WidgetFactory.getWidgetDerivedPropertiesMap(
     widget.type,
   );
@@ -96,28 +101,23 @@ const generateDataTreeWidgetWithoutMemo = (
     },
   );
 
-  const overridingMetaProps: Record<string, unknown> = {};
-
-  // overridingMetaProps has all meta property value either from metaReducer or default set by widget whose dependent property also has default property.
-  Object.entries(defaultMetaProps).forEach(([key, value]) => {
-    if (overridingMetaPropsMap[key]) {
-      overridingMetaProps[key] =
-        key in widgetMetaProps ? widgetMetaProps[key] : value;
-    }
-  });
-
   const {
     bindingPaths,
     reactivePaths,
     triggerPaths,
     validationPaths,
-  } = getAllPathsFromPropertyConfig(widget, propertyPaneConfigs, {
-    ...derivedPropertyMap,
-    ...defaultMetaProps,
-    ...unInitializedDefaultProps,
-    ..._.keyBy(dynamicBindingPathList, "key"),
-    ...overridingPropertyPaths,
-  });
+  } = getAllPathsFromPropertyConfig(
+    widget,
+    propertyPaneConfigs,
+    // We are doing a deep equal on this prop in  memoization
+    {
+      ...derivedPropertyMap,
+      ...defaultMetaProps,
+      ...unInitializedDefaultProps,
+      ..._.keyBy(dynamicBindingPathList, "key"),
+      ...overridingPropertyPaths,
+    },
+  );
 
   /**
    * Spread operator does not merge deep objects properly.
@@ -136,12 +136,12 @@ const generateDataTreeWidgetWithoutMemo = (
    *
    * Therefore spread is replaced with "merge" which merges objects recursively.
    */
-  return _.merge(
+  const partial = _.merge(
     {},
     widget,
     unInitializedDefaultProps,
     defaultMetaProps,
-    widgetMetaProps,
+    // widgetMetaProps,
     derivedProps,
     {
       defaultProps,
@@ -151,7 +151,7 @@ const generateDataTreeWidgetWithoutMemo = (
         ...widget.logBlackList,
         ...blockedDerivedProps,
       },
-      meta: _.merge(overridingMetaProps, widgetMetaProps),
+      // meta: _.merge(overridingMetaProps, widgetMetaProps),
       propertyOverrideDependency,
       overridingPropertyPaths,
       bindingPaths,
@@ -164,12 +164,40 @@ const generateDataTreeWidgetWithoutMemo = (
       },
     },
   );
+  return { partial, overridingMetaPropsMap };
 };
 
-export const generateDataTreeWidget = memoizee(
-  generateDataTreeWidgetWithoutMemo,
+// @todo set the max size dynamically based on number of widgets. (widgets.length)
+// Remove the debug statements in July 2022
+const generatePartialDataTreeWidgetMemoized = memoize(
+  generatePartialDataTreeWidget,
   {
-    max: 1000,
-    length: false,
+    onCacheHit: (cache) => debug("###### Main cache hit", cache.keys.length),
+    onCacheAdd: (cache) => debug("###### Main cache missed", cache.keys.length),
+    maxSize: 1000,
   },
 );
+
+export const generateDataTreeWidget = (
+  widget: FlattenedWidgetProps,
+  widgetMetaProps: Record<string, unknown> = {},
+) => {
+  const {
+    overridingMetaPropsMap,
+    partial,
+  } = generatePartialDataTreeWidgetMemoized(widget);
+  const { defaultMetaProps } = partial;
+  const overridingMetaProps: Record<string, unknown> = {};
+
+  // overridingMetaProps has all meta property value either from metaReducer or default set by widget whose dependent property also has default property.
+  Object.entries(defaultMetaProps).forEach(([key, value]) => {
+    if (overridingMetaPropsMap[key]) {
+      overridingMetaProps[key] =
+        key in widgetMetaProps ? widgetMetaProps[key] : value;
+    }
+  });
+
+  return _.merge(partial, widgetMetaProps, {
+    meta: _.merge(overridingMetaProps, widgetMetaProps),
+  });
+};
