@@ -15,7 +15,8 @@ const ee = ObjectsRegistry.EntityExplorer;
 const newPage = "ApiCalls_1";
 const pageName = "crudpage_1";
 const tempBranch = "feat/tempBranch";
-const tempBranch1 = "feat/tempBranch1";
+const tempBranch1 = "feat/testing";
+const tempBranch0 = "test/tempBranch0";
 const mainBranch = "master";
 let datasourceName;
 let repoName;
@@ -99,16 +100,15 @@ describe("Git sync apps", function() {
     });
     // rename page to crud_page
     cy.renameEntity("Page1", pageName);
-    // create a clone of page
     cy.get(`.t--entity-name:contains(${pageName})`)
       .trigger("mouseover")
       .click({ force: true });
-    cy.xpath(apiwidget.popover)
-      .first()
-      .should("be.hidden")
-      .invoke("show")
-      .click({ force: true });
-    cy.get(pages.clonePage).click({ force: true });
+    // create a clone of page
+    cy.get(`.t--entity-item:contains(${pageName})`).within(() => {
+      cy.get(".t--context-menu").click({ force: true });
+    });
+    cy.selectAction("Clone");
+
     cy.wait("@clonePage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -372,7 +372,7 @@ describe("Git sync apps", function() {
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
     // verfiy data binding on all pages in edit mode
-    cy.get(".bp3-input")
+    /* cy.get(".bp3-input")
       .first()
       .should("have.value", "morpheus");
     cy.get(".bp3-input")
@@ -382,6 +382,8 @@ describe("Git sync apps", function() {
       .first()
       .click();
     cy.wait("@getPage");
+    cy.reload();
+    cy.wait(3000);
     cy.get(".bp3-input")
       .first()
       .should("have.value", "Success");
@@ -389,7 +391,7 @@ describe("Git sync apps", function() {
       .eq(1)
       .should("have.value", "Test user 7");
     cy.get(`.t--entity-item:contains(${newPage})`)
-      .last()
+      .first()
       .click();
     cy.wait("@getPage");
     cy.get(".bp3-input")
@@ -410,9 +412,9 @@ describe("Git sync apps", function() {
     cy.wait("@getPage");
     cy.readTabledataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
-    });
+    }); */
   });
-  it("Switch to master and verfiy no uncommitted changes should be shown on master", () => {
+  it("Switch to master and verify no uncommitted changes should be shown on master", () => {
     cy.switchGitBranch("master");
     cy.wait(2000);
     // verify commit input box is disabled
@@ -422,19 +424,15 @@ describe("Git sync apps", function() {
       .and("have.text", "No changes to commit");
     cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
-  it("Switch to tempBranch , Clone the Child_Page, change it's visiblity to hide and deploy, merge to master", () => {
+  it("Switch to tempBranch , Clone the Child_Page, change it's visiblity to hidden and deploy, merge to master", () => {
     cy.switchGitBranch(tempBranch);
     cy.wait(2000);
     //  clone the Child_Page
-    cy.get(`.t--entity-name:contains(Child_Page)`)
-      .trigger("mouseover")
-      .click({ force: true });
-    cy.xpath(apiwidget.popover)
-      .first()
-      .should("be.hidden")
-      .invoke("show")
-      .click({ force: true });
-    cy.get(pages.clonePage).click({ force: true });
+    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.get(`.t--entity-item:contains(Child_Page)`).within(() => {
+      cy.get(".t--context-menu").click({ force: true });
+    });
+    cy.selectAction("Clone");
     cy.wait("@clonePage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -442,9 +440,22 @@ describe("Git sync apps", function() {
     );
     // change cloned page visiblity to hidden
     cy.CheckAndUnfoldEntityItem("PAGES");
-    cy.get(".t--entity-name:contains('Child_Page Copy')").should("be.visible");
-    cy.hoverAndClick();
+
+    cy.get(`.t--entity-item:contains(Child_Page Copy)`).within(() => {
+      cy.get(".t--context-menu").click({ force: true });
+    });
     cy.selectAction("Hide");
+
+    cy.get(`.t--entity-item:contains(Child_Page)`)
+      .first()
+      .click();
+    cy.wait("@getPage");
+    cy.get(homePage.publishButton).click();
+    cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
+    cy.get(gitSyncLocators.commitButton).click();
+    cy.wait(8000);
+    cy.get(gitSyncLocators.closeGitSyncModal).click();
+    cy.wait(2000);
     cy.merge(mainBranch);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.wait(2000);
@@ -462,30 +473,26 @@ describe("Git sync apps", function() {
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
   });
-  it("Create new branch, delete a page settings and merge back to master, verify page is deleted on master", () => {
+  it("Create new branch, delete a page and merge back to master, verify page is deleted on master", () => {
     cy.createGitBranch(tempBranch1);
     // delete page from page settings
-    cy.xpath("//span[contains(@class,'entity-right-icon')]").click({
-      force: true,
-    });
-    cy.xpath("(//button[@type='button'])")
-      .eq(7)
-      .click();
+    cy.Deletepage("Child_Page Copy");
     cy.get(homePage.publishButton).click();
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
     cy.get(gitSyncLocators.commitButton).click();
     cy.wait(8000);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
+    cy.wait(2000);
     cy.merge(mainBranch);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     // verify Child_Page is not on master
     cy.switchGitBranch(mainBranch);
     cy.CheckAndUnfoldEntityItem("PAGES");
-    cy.get(`.t--entity-name:contains("${pageName}")`).should("not.exist");
+    cy.get(`.t--entity-name:contains("Child_Page Copy")`).should("not.exist");
     // create another branch and verify deleted page doesn't exist on it
     cy.createGitBranch(tempBranch0);
     cy.CheckAndUnfoldEntityItem("PAGES");
-    cy.get(`.t--entity-name:contains("${pageName}")`).should("not.exist");
+    cy.get(`.t--entity-name:contains("Child_Page Copy")`).should("not.exist");
   });
 
   it("Import app from git and verify page order should not change", () => {
@@ -501,5 +508,21 @@ describe("Git sync apps", function() {
     cy.importAppFromGit(repoName);
     cy.wait(2000);
     // verify page order remains same as in orignal app
+    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.get(".t--entity-item")
+      .eq(1)
+      .contains("crudpage_1");
+    cy.get(".t--entity-item")
+      .eq(2)
+      .contains("crudpage_1 Copy");
+    cy.get(".t--entity-item")
+      .eq(3)
+      .contains("ApiCalls_1");
+    cy.get(".t--entity-item")
+      .eq(4)
+      .contains("ApiCalls_1 Copy");
+    cy.get(".t--entity-item")
+      .eq(5)
+      .contains("Child_Page");
   });
 });
