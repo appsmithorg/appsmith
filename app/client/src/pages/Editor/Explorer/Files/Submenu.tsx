@@ -172,7 +172,7 @@ export default function ExplorerSubMenu({ className }: SubMenuProps) {
                 return (
                   <div
                     className={classNames({
-                      "px-4 py-2 text-sm flex gap-2": true,
+                      "px-4 py-2 text-sm flex gap-2 t--file-operation": true,
                       "cursor-pointer":
                         item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
                       active:
