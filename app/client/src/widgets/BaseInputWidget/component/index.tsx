@@ -317,6 +317,9 @@ const TextInputWrapper = styled.div<{
         hasError ? Colors.DANGER_SOLID : accentColor,
       )} !important;`};
   }
+
+  ${({ inputHtmlType }) =>
+    inputHtmlType && inputHtmlType !== InputTypes.TEXT && `&&& {flex-grow: 0;}`}
 `;
 
 export type InputHTMLType = "TEXT" | "NUMBER" | "PASSWORD" | "EMAIL" | "TEL";

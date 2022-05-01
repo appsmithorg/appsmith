@@ -7,8 +7,7 @@ export const WARNING_LINT_ERRORS = {
 
 export const LINT_TOOLTIP_CLASS = "CodeMirror-lint-tooltip";
 
-export const LINT_TOOLTIP_JUSTIFIFIED_LEFT_CLASS =
-  "CodeMirror-lint-tooltip-left";
+export const LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS = "CodeMirror-lint-tooltip-left";
 
 export enum LintTooltipDirection {
   left = "left",

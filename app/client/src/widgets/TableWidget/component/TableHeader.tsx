@@ -188,6 +188,11 @@ function TableHeader(props: TableHeaderProps) {
 
       {props.isVisiblePagination && props.serverSidePaginationEnabled && (
         <PaginationWrapper>
+          {props.totalRecordsCount ? (
+            <RowWrapper className="show-page-items">
+              {props.totalRecordsCount} Records
+            </RowWrapper>
+          ) : null}
           <PaginationItemWrapper
             accentColor={props.accentColor}
             borderRadius={props.borderRadius}
@@ -199,14 +204,31 @@ function TableHeader(props: TableHeaderProps) {
           >
             <Icon color={Colors.HIT_GRAY} icon="chevron-left" iconSize={16} />
           </PaginationItemWrapper>
-          <PaginationItemWrapper
-            accentColor={props.accentColor}
-            borderRadius={props.borderRadius}
-            className="page-item"
-            selected
-          >
-            {props.pageNo + 1}
-          </PaginationItemWrapper>
+          {props.totalRecordsCount ? (
+            <RowWrapper>
+              Page&nbsp;
+              <PaginationItemWrapper
+                accentColor={props.accentColor}
+                borderRadius={props.borderRadius}
+                className="page-item"
+                selected
+              >
+                {props.pageNo + 1}
+              </PaginationItemWrapper>
+              &nbsp;
+              <span>{`of ${props.pageCount}`}</span>
+            </RowWrapper>
+          ) : (
+            <PaginationItemWrapper
+              accentColor={props.accentColor}
+              borderRadius={props.borderRadius}
+              className="page-item"
+              selected
+            >
+              {props.pageNo + 1}
+            </PaginationItemWrapper>
+          )}
+
           <PaginationItemWrapper
             accentColor={props.accentColor}
             borderRadius={props.borderRadius}
@@ -241,15 +263,15 @@ function TableHeader(props: TableHeaderProps) {
             <Icon color={Colors.GRAY} icon="chevron-left" iconSize={16} />
           </PaginationItemWrapper>
           <RowWrapper>
-            Page{" "}
+            Page&nbsp;
             <PageNumberInput
               borderRadius={props.borderRadius}
               disabled={props.pageCount === 1}
               pageCount={props.pageCount}
               pageNo={props.pageNo + 1}
               updatePageNo={props.updatePageNo}
-            />{" "}
-            of {props.pageCount}
+            />
+            &nbsp; of {props.pageCount}
           </RowWrapper>
           <PaginationItemWrapper
             accentColor={props.accentColor}
