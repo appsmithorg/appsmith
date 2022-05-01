@@ -199,7 +199,7 @@ describe("Git sync apps", function() {
       .should("have.value", "This is a test");
 
     cy.get(`.t--entity-item:contains(${newPage})`)
-      .last()
+      .first()
       .click();
     cy.wait("@getPage");
     cy.get(".bp3-input")
@@ -256,7 +256,7 @@ describe("Git sync apps", function() {
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
   });
-  it("Create a new branch feat/branch1, add jsObject and datasource query, move them to new page i.e. Child_Page and bind to widgets", () => {
+  it("Create a new branch tempBranch, add jsObject and datasource query, move them to new page i.e. Child_Page and bind to widgets", () => {
     cy.createGitBranch(tempBranch);
     cy.wait(1000);
     // create jsObject and rename it
@@ -324,7 +324,7 @@ describe("Git sync apps", function() {
       });
     cy.wait(2000);
   });
-  it("Commit and push changes, validate data binding on all pages in edit and deploy mode on feat/branch", () => {
+  it("Commit and push changes, validate data binding on all pages in edit and deploy mode on tempBranch", () => {
     // commit and push changes
     cy.get(homePage.publishButton).click();
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
