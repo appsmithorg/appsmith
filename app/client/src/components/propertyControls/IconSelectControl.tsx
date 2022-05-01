@@ -9,7 +9,7 @@ import {
   VirtuosoGridHandle,
 } from "react-virtuoso";
 
-import BaseControl, { ControlData, ControlProps } from "./BaseControl";
+import BaseControl, { ControlProps } from "./BaseControl";
 import TooltipComponent from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
@@ -389,7 +389,10 @@ class IconSelectControl extends BaseControl<
     return "ICON_SELECT";
   }
 
-  static canDisplayValueInUI(config: ControlData, value: any): boolean {
+  static canDisplayValueInUI(
+    config: IconSelectControlProps,
+    value: any,
+  ): boolean {
     if (icons.has(value)) return true;
     return false;
   }

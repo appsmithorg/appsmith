@@ -3,7 +3,6 @@ import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import ButtonTabComponent, {
   ButtonTabOption,
 } from "components/ads/ButtonTabComponent";
-import { DropDownControlProps } from "./DropDownControl";
 
 class IconTabControl extends BaseControl<IconTabControlProps> {
   selectOption = (value: string) => {
@@ -31,7 +30,7 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
 
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
     if (
-      (config as DropDownControlProps)?.options
+      (config as IconTabControlProps)?.options
         ?.map((x: { value: string }) => x.value)
         .includes(value)
     )
