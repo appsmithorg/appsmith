@@ -73,10 +73,10 @@ export const updateMetaState = (metaUpdates: Record<string, unknown>) => {
 };
 
 export function triggerEvalOnMetaUpdate() {
-  return {
+  return batchAction({
     type: ReduxActionTypes.META_UPDATE_DEBOUNCED_EVAL,
     payload: {},
-  };
+  });
 }
 
 export function syncUpdateWidgetMetaProperty(
