@@ -78,6 +78,9 @@ export default defineConfig(({ command }) => {
   );
 
   return {
+    build: {
+      outDir: "build",
+    },
     server: {
       host: "dev.appsmith.com",
       port: 3000,
