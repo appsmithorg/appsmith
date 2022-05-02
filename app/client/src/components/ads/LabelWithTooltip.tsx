@@ -124,8 +124,6 @@ export const multiSelectInputContainerStyles = css<{
     if (compactMode) return "center";
     return "flex-start";
   }};
-  ${({ compactMode, labelPosition }) =>
-    labelPosition !== LabelPosition.Top && compactMode && `overflow-x: hidden`};
 `;
 
 export const LabelContainer = styled.div<LabelContainerProps>`
