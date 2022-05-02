@@ -9,7 +9,7 @@ describe("Currency widget - ", () => {
     cy.addDsl(dsl);
   });
 
-  it("1. Add new dropdown widget", () => {
+  it("Add new dropdown widget", () => {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
     cy.get(`.t--widget-${widgetName}`).should("exist");
@@ -21,7 +21,7 @@ describe("Currency widget - ", () => {
     );
   });
 
-  it("2. should check for type of value and widget", () => {
+  it("should check for type of value and widget", () => {
     function enterAndTest(text, expected) {
       cy.get(widgetInput).clear();
       cy.wait(300);
@@ -91,7 +91,7 @@ describe("Currency widget - ", () => {
     enterAndTest("100.22", "100.22:100.22:true:string:number:GB:GBP");
     cy.get(".t--input-currency-change").should("contain", "£");
   });
-  it("3. should accept 0 decimal option", () => {
+  it("should accept 0 decimal option", () => {
     cy.openPropertyPane(widgetName);
     cy.selectDropdownValue(".t--property-control-decimals", "0");
     cy.closePropertyPane();
@@ -100,7 +100,7 @@ describe("Currency widget - ", () => {
     cy.get(".t--property-control-decimals .cs-text").should("have.text", "0");
   });
 
-  it("4. should check that widget input resets on submit", () => {
+  it("should check that widget input resets on submit", () => {
     cy.openPropertyPane(widgetName);
     cy.get(
       ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
@@ -115,7 +115,7 @@ describe("Currency widget - ", () => {
     cy.get(widgetInput).should("contain.value", "");
   });
 
-  it("5. should check that widget input doesn't round off values", () => {
+  it("should check that widget input doesn't round off values", () => {
     function enterAndTest(text, expected) {
       cy.get(widgetInput).clear();
       cy.wait(300);
@@ -186,7 +186,7 @@ describe("Currency widget - ", () => {
     cy.get(widgetInput).should("contain.value", "1,000.90");
   });
 
-  it("7. should test the formatting of defaultText", () => {
+  it("should test the formatting of defaultText", () => {
     function enterAndTest(input, expected) {
       cy.updateCodeInput(".t--property-control-defaulttext", input);
       cy.wait(500);
@@ -249,7 +249,7 @@ describe("Currency widget - ", () => {
     });
   });
 
-  it("8. Check isDirty meta property", function() {
+  it("Check isDirty meta property", function() {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",
