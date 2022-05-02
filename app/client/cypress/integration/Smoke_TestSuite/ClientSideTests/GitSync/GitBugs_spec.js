@@ -206,7 +206,17 @@ describe("Git synced app with JSObject", function() {
       cy.connectToGitRepo(repoName);
       cy.wait(3000);
     });
-    cy.commitAndPush();
+    cy.window()
+      .its("store")
+      .invoke("getState")
+      .then((state) => {
+        const commitInputDisabled =
+          state.ui.gitSync.gitStatus?.isClean || state.ui.gitSync.isCommitting;
+        if (!commitInputDisabled) {
+          cy.commitAndPush();
+        }
+      });
+
     cy.latestDeployPreview();
     cy.wait(2000);
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
