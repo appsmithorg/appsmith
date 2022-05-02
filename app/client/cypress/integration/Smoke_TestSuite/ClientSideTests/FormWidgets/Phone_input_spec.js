@@ -106,7 +106,7 @@ describe("Phone input widget - ", () => {
     cy.get(".t--widget-textwidget").should("contain", ":");
   });
 
-  it("Check isDirty meta property", function() {
+  it("4. Check isDirty meta property", function() {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(".t--property-control-text", `{{PhoneInput1.isDirty}}`);
     // Change defaultText
