@@ -111,10 +111,7 @@ public class PluginUtilsTest {
 
             assertThat(condition.getOperator().equals(ConditionalOperator.AND));
             Object conditionValue = condition.getValue();
-            assertThat(conditionValue).isNotNull();
-            assertThat(conditionValue instanceof List);
-            List<Condition> conditionList = (List<Condition>) conditionValue;
-            assertThat(conditionList.size()).isEqualTo(0);
+            assertThat(conditionValue).isNull();
 
         } catch (IOException e) {
             e.printStackTrace();

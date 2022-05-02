@@ -1015,9 +1015,15 @@ public class DatabaseChangelog2 {
                         if (oldWhereClauseCondition != null) {
                             Map<String, Object> newWhereClauseCondition = new HashMap<>();
                             final Map clauseCondition = (Map) oldWhereClauseCondition;
-                            newWhereClauseCondition.put("key", clauseCondition.get("path"));
-                            newWhereClauseCondition.put("condition", clauseCondition.get("operator"));
-                            newWhereClauseCondition.put("value", clauseCondition.get("value"));
+                            if (clauseCondition.containsKey("key")) {
+                                newWhereClauseCondition.put("key", clauseCondition.get("path"));
+                            }
+                            if (clauseCondition.containsKey("operator")) {
+                                newWhereClauseCondition.put("condition", clauseCondition.get("operator"));
+                            }
+                            if (clauseCondition.containsKey("value")) {
+                                newWhereClauseCondition.put("value", clauseCondition.get("value"));
+                            }
                             convertedConditionArray.add(newWhereClauseCondition);
                         }
                     });
