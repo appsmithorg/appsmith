@@ -248,8 +248,10 @@ export const darkenColor = (color = "#fff", amount = 10) => {
   const tinyColor = tinycolor(color);
 
   return tinyColor.isValid()
-    ? tinyColor.darken(amount)
-    : tinycolor("#fff").darken(amount);
+    ? tinyColor.darken(amount).toString()
+    : tinycolor("#fff")
+        .darken(amount)
+        .toString();
 };
 
 /**
