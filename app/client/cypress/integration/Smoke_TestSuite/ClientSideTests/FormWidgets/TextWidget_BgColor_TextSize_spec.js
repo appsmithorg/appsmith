@@ -73,7 +73,7 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
       .click({ force: true });
 
     cy.wait(100);
-    cy.selectTextSize("sm");
+    cy.selectTextSize("S");
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.css",
