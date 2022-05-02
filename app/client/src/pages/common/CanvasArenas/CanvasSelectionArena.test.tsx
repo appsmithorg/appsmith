@@ -19,6 +19,7 @@ import { UpdatedMainContainer } from "test/testMockedWidgets";
 import { MemoryRouter } from "react-router-dom";
 import * as utilities from "selectors/editorSelectors";
 import Canvas from "pages/Editor/Canvas";
+import { AppState } from "reducers";
 
 describe("Canvas selection test cases", () => {
   it("Should select using canvas draw", () => {
@@ -45,6 +46,7 @@ describe("Canvas selection test cases", () => {
     const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
     spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
     mockGetIsFetchingPage.mockImplementation(() => false);
+
     const component = render(
       <MemoryRouter
         initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
@@ -55,7 +57,10 @@ describe("Canvas selection test cases", () => {
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
-      { initialState: store.getState(), sagasToRun: sagasToRunForTests },
+      {
+        initialState: store.getState() as Partial<AppState>,
+        sagasToRun: sagasToRunForTests,
+      },
     );
     let selectionCanvas: any = component.queryByTestId(
       `canvas-selection-${MAIN_CONTAINER_WIDGET_ID}`,
@@ -113,7 +118,10 @@ describe("Canvas selection test cases", () => {
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
-      { initialState: store.getState(), sagasToRun: sagasToRunForTests },
+      {
+        initialState: store.getState() as Partial<AppState>,
+        sagasToRun: sagasToRunForTests,
+      },
     );
     const selectionDiv: any = component.queryByTestId(
       `div-selection-${MAIN_CONTAINER_WIDGET_ID}`,
@@ -205,7 +213,10 @@ describe("Canvas selection test cases", () => {
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
-      { initialState: store.getState(), sagasToRun: sagasToRunForTests },
+      {
+        initialState: store.getState() as Partial<AppState>,
+        sagasToRun: sagasToRunForTests,
+      },
     );
     let selectionCanvas: any = component.queryByTestId(
       `canvas-selection-${canvasId}`,
@@ -263,7 +274,7 @@ describe("Canvas selection test cases", () => {
 
     const component = render(
       <MockPageDSL dsl={dsl}>
-        <Canvas dsl={dsl} />
+        <Canvas dsl={dsl} pageId="" />
       </MockPageDSL>,
     );
     const selectionCanvas: any = component.queryByTestId(`canvas-${canvasId}`);
@@ -336,7 +347,10 @@ describe("Canvas selection test cases", () => {
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
-      { initialState: store.getState(), sagasToRun: sagasToRunForTests },
+      {
+        initialState: store.getState() as Partial<AppState>,
+        sagasToRun: sagasToRunForTests,
+      },
     );
 
     const selectionDiv: any = component.queryByTestId(
@@ -424,7 +438,10 @@ describe("Canvas selection test cases", () => {
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
-      { initialState: store.getState(), sagasToRun: sagasToRunForTests },
+      {
+        initialState: store.getState() as Partial<AppState>,
+        sagasToRun: sagasToRunForTests,
+      },
     );
     const widgetEditor: any = component.queryByTestId("widgets-editor");
     let selectionCanvas: any = component.queryByTestId(

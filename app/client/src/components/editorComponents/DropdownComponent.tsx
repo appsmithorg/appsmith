@@ -15,6 +15,7 @@ import {
   IItemListRendererProps,
 } from "@blueprintjs/select";
 import { ButtonVariantTypes, DropdownOption } from "components/constants";
+// @ts-expect-error: redux-form import
 import { WrappedFieldInputProps } from "redux-form/dist/redux-form";
 
 interface ButtonWrapperProps {

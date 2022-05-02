@@ -269,7 +269,7 @@ export const validate = (
   config: ValidationConfig,
   value: unknown,
   props: Record<string, unknown>,
-  propertyPath: string,
+  propertyPath = "",
 ): ValidationResponse => {
   const _result = VALIDATORS[config.type as ValidationTypes](
     config,

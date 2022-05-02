@@ -176,6 +176,7 @@ export function PageHeader(props: PageHeaderProps) {
         {showTabs && !isMobile && (
           <>
             <TabName
+              // @ts-expect-error: type mismatch
               isSelected={matchApplicationPath(location.pathname)}
               onClick={() => history.push(APPLICATIONS_URL)}
             >
@@ -184,6 +185,7 @@ export function PageHeader(props: PageHeaderProps) {
             <TemplatesTabItem>
               <TabName
                 className="t--templates-tab"
+                // @ts-expect-error: type mismatch
                 isSelected={
                   matchTemplatesPath(location.pathname) ||
                   matchTemplatesIdPath(location.pathname)

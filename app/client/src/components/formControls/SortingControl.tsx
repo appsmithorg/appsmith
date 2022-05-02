@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import FormControl from "pages/Editor/FormControl";
 import Icon, { IconSize } from "components/ads/Icon";
 import styled, { css } from "styled-components";
+// @ts-expect-error: redux-form import
 import { FieldArray } from "redux-form/dist/redux-form";
 import FormLabel from "components/editorComponents/FormLabel";
 import { ControlProps } from "./BaseControl";

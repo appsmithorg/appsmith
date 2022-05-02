@@ -2,6 +2,7 @@ import Button, { Category } from "components/ads/Button";
 import { SETTINGS_FORM_NAME } from "constants/forms";
 import React from "react";
 import { useDispatch } from "react-redux";
+// @ts-expect-error: redux-form import
 import { getFormValues } from "redux-form/dist/redux-form";
 import { useSelector } from "store";
 import styled from "styled-components";
@@ -23,7 +24,7 @@ const formValuesSelector = getFormValues(SETTINGS_FORM_NAME);
 
 export default function ButtonComponent({ setting }: SettingComponentProps) {
   const dispatch = useDispatch();
-  const settings = useSelector(formValuesSelector);
+  const settings = useSelector(formValuesSelector) as Record<string, unknown>;
   return (
     <FormGroup setting={setting}>
       <ButtonWrapper>

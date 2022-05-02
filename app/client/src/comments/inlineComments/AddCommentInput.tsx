@@ -30,6 +30,7 @@ import {
 
 import { setShowAppInviteUsersDialog } from "actions/applicationActions";
 import { useDispatch, useSelector } from "react-redux";
+// @ts-expect-error: redux-form import
 import { change } from "redux-form/dist/redux-form";
 
 import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";

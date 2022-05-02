@@ -1,6 +1,7 @@
 import React, { ChangeEvent } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import CodeEditor from "components/editorComponents/CodeEditor";
+// @ts-expect-error: redux-form import
 import { EventOrValueHandler } from "redux-form/dist/redux-form";
 import {
   EditorModes,

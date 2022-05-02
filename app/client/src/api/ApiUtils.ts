@@ -40,6 +40,7 @@ const is404orAuthPath = () => {
 // execution request
 export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   const branch =
+    // @ts-expect-error: AppState type for store.getState()
     getCurrentGitBranch(store.getState()) || getQueryParamsObject().branch;
   if (branch) {
     config.headers.branchName = branch;

@@ -3,6 +3,7 @@ import {
   Field,
   WrappedFieldInputProps,
   WrappedFieldMetaProps,
+  // @ts-expect-error: redux-form import
 } from "redux-form/dist/redux-form";
 import styled from "styled-components";
 import { FormGroup, SettingComponentProps } from "./Common";

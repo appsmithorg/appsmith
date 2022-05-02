@@ -110,6 +110,7 @@ export default memo(function LandingPage(props: LandingPageProps) {
           {props.forSuperUser ? (
             <SuperUserForm onGetStarted={props.onGetStarted} />
           ) : (
+            // @ts-expect-error: onGetStarted type mismatch
             <NonSuperUserForm onGetStarted={props.onGetStarted} />
           )}
         </StyledTextBanner>

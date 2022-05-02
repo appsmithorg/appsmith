@@ -1,5 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
+// @ts-expect-error: redux-form import
 import { submit } from "redux-form/dist/redux-form";
 import ApiEditorForm from "./Form";
 import RapidApiEditorForm from "./RapidApiEditorForm";
@@ -196,6 +197,7 @@ class ApiEditor extends React.Component<Props> {
       <div style={formStyles}>
         {formUiComponent === "ApiEditorForm" && (
           <ApiEditorForm
+            // @ts-expect-error: Prop type mismatch
             apiName={this.props.apiName}
             appName={
               this.props.currentApplication
@@ -213,6 +215,7 @@ class ApiEditor extends React.Component<Props> {
         )}
         {formUiComponent === "RapidApiEditorForm" && (
           <RapidApiEditorForm
+            // @ts-expect-error: Prop type mismatch
             apiId={this.props.match.params.apiId}
             apiName={this.props.apiName}
             appName={

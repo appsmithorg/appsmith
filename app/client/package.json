@@ -162,7 +162,7 @@
   "scripts": {
     "analyze": "yarn cra-bundle-analyzer",
     "start": "vite",
-    "build": "./build.sh",
+    "build": "tsc && vite build",
     "build-local": "craco --max-old-space-size=4096 build --config craco.build.config.js",
     "build-staging": "REACT_APP_ENVIRONMENT=STAGING craco --max-old-space-size=4096 build --config craco.build.config.js",
     "test": "CYPRESS_BASE_URL=https://dev.appsmith.com cypress/test.sh",
@@ -298,6 +298,7 @@
     "vite-plugin-env-compatible": "^1.1.1",
     "vite-plugin-pwa": "^0.12.0",
     "vite-plugin-require": "^0.0.8",
+    "vite-plugin-sentry": "^1.0.14",
     "vite-plugin-svgr": "^1.1.0",
     "vite-raw-plugin": "^1.0.1",
     "webpack-merge": "^4.2.2",

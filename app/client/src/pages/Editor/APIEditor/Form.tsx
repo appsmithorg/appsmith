@@ -5,6 +5,7 @@ import {
   formValueSelector,
   InjectedFormProps,
   reduxForm,
+  // @ts-expect-error: redux-form import
 } from "redux-form/dist/redux-form";
 import {
   HTTP_METHOD_OPTIONS,
@@ -640,7 +641,7 @@ function ApiEditorForm(props: Props) {
         </MainConfiguration>
         {hintMessages && (
           <HelpSection>
-            {hintMessages.map((msg, i) => (
+            {hintMessages.map((msg: string, i: number) => (
               <Callout fill key={i} text={msg} variant={Variant.warning} />
             ))}
           </HelpSection>

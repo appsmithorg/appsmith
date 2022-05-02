@@ -268,6 +268,7 @@ export function* flushErrorsAndRedirectSaga(
     yield put(flushErrors());
   }
 
+  // @ts-expect-error: type mismatch
   history.push(action.payload.url);
 }
 

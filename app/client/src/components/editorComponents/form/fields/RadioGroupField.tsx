@@ -1,5 +1,6 @@
 import React from "react";
-import _ from "lodash";
+import find from "lodash/find";
+// @ts-expect-error: redux-form import
 import { Field } from "redux-form/dist/redux-form";
 import RadioGroupWrapper, { RadioGroupWrapperProps } from "./RadioGroupWrapper";
 
@@ -26,7 +27,7 @@ function RadioFieldGroup(
     <Field
       className={props.className}
       component={renderComponent}
-      format={(value: string) => _.find(props.options, { value }) || ""}
+      format={(value: string) => find(props.options, { value }) || ""}
       normalize={(option: { value: string }) => option.value}
       {...props}
     />

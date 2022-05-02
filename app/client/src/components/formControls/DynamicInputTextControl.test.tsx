@@ -1,6 +1,7 @@
 import React from "react";
 import { render, screen } from "test/testUtils";
 import DynamicInputTextControl from "./DynamicInputTextControl";
+// @ts-expect-error: redux-form import
 import { reduxForm } from "redux-form/dist/redux-form";
 import { mockCodemirrorRender } from "test/__mocks__/CodeMirrorEditorMock";
 import userEvent from "@testing-library/user-event";

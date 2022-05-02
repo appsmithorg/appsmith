@@ -6,6 +6,7 @@ import {
   reduxForm,
   InjectedFormProps,
   formValueSelector,
+  // @ts-expect-error: redux-form import
 } from "redux-form/dist/redux-form";
 import StyledForm from "components/editorComponents/Form";
 import {
@@ -165,5 +166,6 @@ export default connect((state, props: ForgotPasswordProps) => {
     validate,
     form: FORGOT_PASSWORD_FORM_NAME,
     touchOnBlur: true,
+    // @ts-expect-error: type mismatch withRouter
   })(withRouter(ForgotPassword)),
 );

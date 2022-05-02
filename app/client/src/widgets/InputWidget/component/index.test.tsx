@@ -26,6 +26,7 @@ describe("<InputComponent />", () => {
         <Provider store={store}>
           <ThemeProvider theme={theme}>
             <InputComponent
+              compactMode={false}
               inputType="TEXT"
               isInvalid={false}
               isLoading={false}
@@ -33,8 +34,12 @@ describe("<InputComponent />", () => {
               multiline
               onCurrencyTypeChange={noop}
               onFocusChange={noop}
+              onISDCodeChange={() => {
+                return;
+              }}
               onValueChange={noop}
               showError={false}
+              spellCheck={false}
               value="something"
               widgetId="24234r35"
             />

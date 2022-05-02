@@ -118,6 +118,7 @@ function AppInviteUsersForm(props: any) {
       />
 
       {canInviteToOrg && (
+        // @ts-expect-error: prop type mismatch for OrgInviteUsersForm
         <OrgInviteUsersForm isApplicationInvite orgId={props.orgId} />
       )}
     </>

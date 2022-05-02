@@ -4,6 +4,7 @@ import {
   InjectedFormProps,
   Form,
   Field,
+  // @ts-expect-error: redux-form import
 } from "redux-form/dist/redux-form";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";

@@ -15,6 +15,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
+// @ts-expect-error: redux-form import
 import { autofill, change, initialize } from "redux-form/dist/redux-form";
 import {
   getAction,

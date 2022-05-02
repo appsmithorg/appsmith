@@ -5,6 +5,7 @@ import {
   InjectedFormProps,
   reduxForm,
   formValueSelector,
+  // @ts-expect-error: redux-form import
 } from "redux-form/dist/redux-form";
 import {
   LOGIN_FORM_NAME,

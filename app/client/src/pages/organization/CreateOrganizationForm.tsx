@@ -1,4 +1,5 @@
 import React, { useCallback } from "react";
+// @ts-expect-error: redux-form import
 import { Form, reduxForm, InjectedFormProps } from "redux-form/dist/redux-form";
 import { CREATE_ORGANIZATION_FORM_NAME } from "constants/forms";
 import {

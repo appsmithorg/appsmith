@@ -13,6 +13,7 @@ describe("Editor header", () => {
     document.body.appendChild(container);
   });
   it("checks that Omnibar has correct styles", async (done) => {
+    // @ts-expect-error: AppHeader has no props
     const { findByDataCy } = render(<AppHeader />);
     const appOmnibar = await findByDataCy("global-search-modal-trigger");
     act(() => {

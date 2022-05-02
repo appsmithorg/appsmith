@@ -62,6 +62,7 @@ describe("isChildPropertyPath function", () => {
 
 describe("DynamicBindingPathlist", () => {
   it("Properly updates the dynamicBindingPathlist", () => {
+    // @ts-expect-error: action has missing Keys
     const action: Action = {
       cacheResponse: "",
       id: "61810f59a0f5113e30ba72ac",

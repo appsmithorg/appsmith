@@ -10,6 +10,7 @@ import {
   getFormValues,
   InjectedFormProps,
   reduxForm,
+  // @ts-expect-error: redux-form import
 } from "redux-form/dist/redux-form";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import FormControl from "pages/Editor/FormControl";
@@ -444,7 +445,7 @@ class DatasourceRestAPIEditor extends React.Component<
     return (
       <>
         {messages &&
-          messages.map((msg, i) => (
+          messages.map((msg: string, i: number) => (
             <Callout fill key={i} text={msg} variant={Variant.warning} />
           ))}
         <FormInputContainer data-replay-id={btoa("url")}>

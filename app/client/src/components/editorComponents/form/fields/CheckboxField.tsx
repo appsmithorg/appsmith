@@ -1,5 +1,6 @@
 import Checkbox, { CheckboxProps } from "components/ads/Checkbox";
 import React from "react";
+// @ts-expect-error: redux-form import
 import { Field, BaseFieldProps } from "redux-form/dist/redux-form";
 
 type RenderComponentProps = CheckboxProps & {

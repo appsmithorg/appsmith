@@ -24,6 +24,7 @@ import {
 import { getWidgets } from "sagas/selectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
+// @ts-expect-error: vite worker import syntax
 import Worker from "workers/evaluation.worker?worker";
 import {
   EvalError,

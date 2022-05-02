@@ -1,6 +1,7 @@
 import React from "react";
 import Select from "react-select";
 
+// @ts-expect-error: redux-form import
 import { WrappedFieldInputProps } from "redux-form/dist/redux-form";
 import { SelectComponentsConfig } from "react-select/src/components";
 import { LayersContext } from "constants/Layers";

@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { Intent as BlueprintIntent, InputGroup } from "@blueprintjs/core";
 import { Intent, BlueprintInputTransform } from "constants/DefaultTheme";
+// @ts-expect-error: redux-form import
 import { WrappedFieldInputProps } from "redux-form/dist/redux-form";
 
 const StyledInputGroup = styled(InputGroup)`

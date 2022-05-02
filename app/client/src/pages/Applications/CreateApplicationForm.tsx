@@ -5,6 +5,7 @@ import {
   reduxForm,
   InjectedFormProps,
   Field,
+  // @ts-expect-error: redux-form import
 } from "redux-form/dist/redux-form";
 import { CREATE_APPLICATION_FORM_NAME } from "constants/forms";
 import {

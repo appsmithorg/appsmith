@@ -9,6 +9,7 @@ import TextInput from "./TextInput";
 import Toggle from "./Toggle";
 import Text from "./Text";
 import Button from "./Button";
+// @ts-expect-error: redux-form import
 import { getFormValues } from "redux-form/dist/redux-form";
 import { SETTINGS_FORM_NAME } from "constants/forms";
 import { useSelector } from "store";

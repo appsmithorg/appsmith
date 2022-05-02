@@ -5,6 +5,7 @@ import {
   WrappedFieldArrayProps,
   WrappedFieldMetaProps,
   WrappedFieldInputProps,
+  // @ts-expect-error: redux-form import
 } from "redux-form/dist/redux-form";
 import styled from "styled-components";
 import { Icon } from "@blueprintjs/core";

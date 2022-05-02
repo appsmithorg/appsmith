@@ -123,6 +123,7 @@ describe("Klona clone test", () => {
     // mutate
     input.meta.nestedArray[0] = "abc";
     input.meta.nestedArray[1] = { a: "bc" };
+    // @ts-expect-error: type mismatch
     input.meta.nestedObject.Input = "hello";
 
     expect(

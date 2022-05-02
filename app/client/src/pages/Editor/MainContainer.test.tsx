@@ -145,7 +145,10 @@ describe("Drag and Drop widgets into Main container", () => {
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
-      { initialState: store.getState(), sagasToRun: sagasToRunForTests },
+      {
+        initialState: store.getState() as Partial<AppState>,
+        sagasToRun: sagasToRunForTests,
+      },
     );
     const propPane = component.queryByTestId("t--propertypane");
     expect(propPane).toBeNull();
@@ -245,7 +248,10 @@ describe("Drag and Drop widgets into Main container", () => {
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
-      { initialState: store.getState(), sagasToRun: sagasToRunForTests },
+      {
+        initialState: store.getState() as Partial<AppState>,
+        sagasToRun: sagasToRunForTests,
+      },
     );
     const propPane = component.queryByTestId("t--propertypane");
     expect(propPane).toBeNull();
@@ -352,7 +358,10 @@ describe("Drag and Drop widgets into Main container", () => {
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
-      { initialState: store.getState(), sagasToRun: sagasToRunForTests },
+      {
+        initialState: store.getState() as Partial<AppState>,
+        sagasToRun: sagasToRunForTests,
+      },
     );
     const propPane = component.queryByTestId("t--propertypane");
     expect(propPane).toBeNull();
@@ -460,7 +469,10 @@ describe("Drag and Drop widgets into Main container", () => {
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
-      { initialState: store.getState(), sagasToRun: sagasToRunForTests },
+      {
+        initialState: store.getState() as Partial<AppState>,
+        sagasToRun: sagasToRunForTests,
+      },
     );
     const propPane = component.queryByTestId("t--propertypane");
     expect(propPane).toBeNull();
@@ -565,7 +577,10 @@ describe("Drag and Drop widgets into Main container", () => {
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
-      { initialState: store.getState(), sagasToRun: sagasToRunForTests },
+      {
+        initialState: store.getState() as Partial<AppState>,
+        sagasToRun: sagasToRunForTests,
+      },
     );
     const propPane = component.queryByTestId("t--propertypane");
     expect(propPane).toBeNull();

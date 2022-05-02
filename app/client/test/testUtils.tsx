@@ -51,9 +51,11 @@ const customRender = (
     reduxStore = testStore(state.initialState || {});
   }
   if (state && state.sagasToRun) {
+    // @ts-expect-error: reduxStore.getState type mismatch
     reduxStore = testStoreWithTestMiddleWare(reduxStore.getState());
     testSagaMiddleware.run(() => rootSaga(state.sagasToRun));
   }
+  // @ts-expect-error: reduxStore.getState type mismatch
   const defaultTheme = getCurrentThemeDetails(reduxStore.getState());
   return render(
     <BrowserRouter>

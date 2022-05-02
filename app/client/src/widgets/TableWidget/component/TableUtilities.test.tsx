@@ -13,7 +13,8 @@ describe("Test table columnType Image render", () => {
       value,
       ColumnTypes.IMAGE,
       false,
-      { isCellVisible: true },
+      // @ts-expect-error: add cellproperties
+      {},
       930,
       true,
     );
@@ -37,7 +38,8 @@ describe("Test table columnType Image render", () => {
       value,
       ColumnTypes.IMAGE,
       false,
-      { isCellVisible: true },
+      // @ts-expect-error: add cellproperties
+      {},
       930,
       true,
     );
@@ -63,7 +65,8 @@ describe("Test table columnType Image render", () => {
       value,
       ColumnTypes.IMAGE,
       false,
-      { isCellVisible: true },
+      // @ts-expect-error: add cellproperties
+      {},
       930,
       true,
     );
@@ -88,7 +91,8 @@ describe("Test table columnType Image render", () => {
       value,
       ColumnTypes.IMAGE,
       false,
-      { isCellVisible: true },
+      // @ts-expect-error: add cellproperties
+      {},
       930,
       true,
     );
@@ -113,7 +117,8 @@ describe("Test table columnType Image render", () => {
       value,
       ColumnTypes.IMAGE,
       false,
-      { isCellVisible: true },
+      // @ts-expect-error: add cellproperties
+      {},
       930,
       true,
     );
@@ -139,7 +144,8 @@ describe("Test table columnType Image render", () => {
       value,
       ColumnTypes.TEXT,
       false,
-      { isCellVisible: true },
+      // @ts-expect-error: add cellproperties
+      {},
       930,
       true,
     );
@@ -154,7 +160,8 @@ describe("Test table columnType Image render", () => {
       value,
       ColumnTypes.TEXT,
       false,
-      { isCellVisible: true },
+      // @ts-expect-error: add cellproperties
+      {},
       930,
       true,
     );
@@ -169,7 +176,8 @@ describe("Test table columnType Image render", () => {
       value,
       ColumnTypes.NUMBER,
       false,
-      { isCellVisible: true },
+      // @ts-expect-error: add cellproperties
+      {},
       930,
       true,
     );
@@ -184,7 +192,8 @@ describe("Test table columnType Image render", () => {
       value,
       ColumnTypes.NUMBER,
       false,
-      { isCellVisible: true },
+      // @ts-expect-error: add cellproperties
+      {},
       930,
       true,
     );

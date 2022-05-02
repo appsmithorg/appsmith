@@ -4,6 +4,7 @@ import Text, { TextType } from "components/ads/Text";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import styled from "styled-components";
+// @ts-expect-error: redux-form import
 import { FieldArray } from "redux-form/dist/redux-form";
 import { ControlProps } from "./BaseControl";
 

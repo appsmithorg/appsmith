@@ -29,6 +29,7 @@ import {
   createMessage,
   SAVE_HOTKEY_TOASTER_MESSAGE,
 } from "@appsmith/constants/messages";
+import { AppState } from "reducers";
 
 jest.mock("constants/routes", () => {
   return {
@@ -89,7 +90,10 @@ describe("Canvas Hot Keys", () => {
             </GlobalHotKeys>
           </MockApplication>
         </MemoryRouter>,
-        { initialState: store.getState(), sagasToRun: sagasToRunForTests },
+        {
+          initialState: store.getState() as Partial<AppState>,
+          sagasToRun: sagasToRunForTests,
+        },
       );
       let propPane = component.queryByTestId("t--propertypane");
       expect(propPane).toBeNull();
@@ -209,7 +213,10 @@ describe("Canvas Hot Keys", () => {
             </GlobalHotKeys>
           </MockApplication>
         </MemoryRouter>,
-        { initialState: store.getState(), sagasToRun: sagasToRunForTests },
+        {
+          initialState: store.getState() as Partial<AppState>,
+          sagasToRun: sagasToRunForTests,
+        },
       );
       const propPane = component.queryByTestId("t--propertypane");
       expect(propPane).toBeNull();
@@ -251,7 +258,10 @@ describe("Canvas Hot Keys", () => {
             </GlobalHotKeys>
           </MockApplication>
         </MemoryRouter>,
-        { initialState: store.getState(), sagasToRun: sagasToRunForTests },
+        {
+          initialState: store.getState() as Partial<AppState>,
+          sagasToRun: sagasToRunForTests,
+        },
       );
       const propPane = component.queryByTestId("t--propertypane");
       expect(propPane).toBeNull();
@@ -336,7 +346,10 @@ describe("Canvas Hot Keys", () => {
             </GlobalHotKeys>
           </MockApplication>
         </MemoryRouter>,
-        { initialState: store.getState(), sagasToRun: sagasToRunForTests },
+        {
+          initialState: store.getState() as Partial<AppState>,
+          sagasToRun: sagasToRunForTests,
+        },
       );
       const propPane = component.queryByTestId("t--propertypane");
       expect(propPane).toBeNull();

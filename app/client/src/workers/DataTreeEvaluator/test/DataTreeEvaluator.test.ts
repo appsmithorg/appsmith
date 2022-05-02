@@ -12,8 +12,11 @@ ALL_WIDGETS_AND_CONFIG.map(([, config]) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: No types available
     widgetConfigMap[config.type] = {
+      // @ts-expect-error: config.properties type mismatch
       defaultProperties: config.properties.default,
+      // @ts-expect-error: config.properties type mismatch
       derivedProperties: config.properties.derived,
+      // @ts-expect-error: config.properties type mismatch
       metaProperties: config.properties.meta,
     };
   }

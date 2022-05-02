@@ -22,6 +22,7 @@ import {
   getFormSyncErrors,
   InjectedFormProps,
   reduxForm,
+  // @ts-expect-error: redux-form import
 } from "redux-form/dist/redux-form";
 import { isEmail, isStrongPassword } from "utils/formhelpers";
 import { AppState } from "reducers";

@@ -21,6 +21,7 @@ const integrationsEditor = (props: Props) => {
       }}
     >
       <IntegrationsHomeScreen
+        // @ts-expect-error: history type mismatch
         history={history}
         location={location}
         pageId={match.params.pageId}

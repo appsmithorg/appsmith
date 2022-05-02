@@ -9,6 +9,7 @@ import {
   Field,
   WrappedFieldMetaProps,
   WrappedFieldInputProps,
+  // @ts-expect-error: redux-form import
 } from "redux-form/dist/redux-form";
 
 export const StyledInfo = styled.span`

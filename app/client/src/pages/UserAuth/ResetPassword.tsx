@@ -6,6 +6,7 @@ import {
   InjectedFormProps,
   reduxForm,
   Field,
+  // @ts-expect-error: redux-form import
 } from "redux-form/dist/redux-form";
 import { RESET_PASSWORD_FORM_NAME } from "constants/forms";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -237,5 +238,6 @@ export default connect(
     validate,
     form: RESET_PASSWORD_FORM_NAME,
     touchOnBlur: true,
+    // @ts-expect-error: type mismatch withRouter
   })(withRouter(withTheme(ResetPassword))),
 );

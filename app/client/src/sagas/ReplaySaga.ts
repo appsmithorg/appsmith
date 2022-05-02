@@ -63,6 +63,7 @@ import _, { isEmpty } from "lodash";
 import { ReplayEditorUpdate } from "entities/Replay/ReplayEntity/ReplayEditor";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Datasource } from "entities/Datasource";
+// @ts-expect-error: redux-form import
 import { initialize } from "redux-form/dist/redux-form";
 import {
   API_EDITOR_FORM_NAME,

@@ -1,6 +1,7 @@
 import Dropdown from "components/ads/Dropdown";
 import { Colors } from "constants/Colors";
 import React, { useEffect, useState } from "react";
+// @ts-expect-error: redux-form import
 import { WrappedFieldInputProps } from "redux-form/dist/redux-form";
 
 type DropdownWrapperProps = {

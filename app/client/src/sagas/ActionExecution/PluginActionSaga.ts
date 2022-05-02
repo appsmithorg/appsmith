@@ -99,6 +99,7 @@ import {
 } from "sagas/ActionExecution/ActionExecutionSagas";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
+// @ts-expect-error: redux-form import
 import { getFormNames, getFormValues } from "redux-form/dist/redux-form";
 import { CURL_IMPORT_FORM } from "constants/forms";
 import { submitCurlImportForm } from "actions/importActions";

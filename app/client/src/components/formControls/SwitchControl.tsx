@@ -2,6 +2,7 @@ import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import Toggle from "components/ads/Toggle";
 import { ControlType } from "constants/PropertyControlConstants";
+// @ts-expect-error: redux-form import
 import { Field, WrappedFieldProps } from "redux-form/dist/redux-form";
 import styled from "styled-components";
 

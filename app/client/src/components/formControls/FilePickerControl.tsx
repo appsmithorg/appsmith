@@ -12,6 +12,7 @@ import {
   Field,
   WrappedFieldInputProps,
   WrappedFieldMetaProps,
+  // @ts-expect-error: redux-form import
 } from "redux-form/dist/redux-form";
 import DialogComponent from "components/ads/DialogComponent";
 import { useEffect, useCallback } from "react";

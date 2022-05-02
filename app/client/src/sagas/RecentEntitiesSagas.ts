@@ -21,6 +21,7 @@ export const getEntityInCurrentPath = (pathName: string) => {
   if (builderMatch)
     return {
       type: "page",
+      // @ts-expect-error: type mismatch
       id: builderMatch?.params?.pageId,
       params: builderMatch?.params,
     };
@@ -84,6 +85,7 @@ function* handleSelectWidget(action: ReduxAction<{ widgetId: string }>) {
       updateRecentEntity({
         type: "widget",
         id: selectedWidget,
+        // @ts-expect-error: type mismatch
         params: builderMatch?.params,
       }),
     );
@@ -96,6 +98,7 @@ function* handlePathUpdated(
     action.payload.location.pathname,
   );
   if (type && id && id.indexOf(":") === -1) {
+    // @ts-expect-error: type mismatch
     yield put(updateRecentEntity({ type, id, params }));
   }
 }

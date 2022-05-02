@@ -1,5 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
+// @ts-expect-error: redux-form import
 import { getFormValues } from "redux-form/dist/redux-form";
 import { AppState } from "reducers";
 import _ from "lodash";

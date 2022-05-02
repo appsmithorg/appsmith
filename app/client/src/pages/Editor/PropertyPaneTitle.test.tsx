@@ -16,7 +16,7 @@ describe("<PropertyPaneTitle />", () => {
           <PropertyPaneTitle
             actions={[]}
             isPanelTitle
-            // title="test"
+            title="test"
             widgetId="1"
           />
         </ThemeProvider>

@@ -9,6 +9,7 @@ import {
   getFormValues,
   InjectedFormProps,
   reduxForm,
+  // @ts-expect-error: redux-form import
 } from "redux-form/dist/redux-form";
 import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";

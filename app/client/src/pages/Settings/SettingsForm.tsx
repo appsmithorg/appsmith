@@ -11,6 +11,7 @@ import {
   formValueSelector,
   InjectedFormProps,
   reduxForm,
+  // @ts-expect-error: redux-form import
 } from "redux-form/dist/redux-form";
 import {
   getSettings,
@@ -151,7 +152,7 @@ export function SettingsForm(
     return !(requiredFields.length > 0);
   };
 
-  const onClear = (event?: React.FocusEvent<any, any>) => {
+  const onClear = (event?: React.FocusEvent) => {
     if (event?.type === "click") {
       AnalyticsUtil.logEvent("ADMIN_SETTINGS_RESET", {
         method: pageTitle,

@@ -5,6 +5,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
+// @ts-expect-error: redux-form import
 import { reset } from "redux-form/dist/redux-form";
 import UserApi, {
   CreateUserRequest,

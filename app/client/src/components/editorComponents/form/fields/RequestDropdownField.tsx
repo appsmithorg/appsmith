@@ -1,5 +1,6 @@
 import React from "react";
-import _ from "lodash";
+import find from "lodash/find";
+// @ts-expect-error: redux-form import
 import { Field, WrappedFieldProps } from "redux-form/dist/redux-form";
 import DropdownFieldWrapper from "components/editorComponents/form/fields/DropdownFieldWrapper";
 
@@ -27,7 +28,7 @@ function RequestDropdownField(props: RequestDropdownProps) {
   return (
     <Field
       component={renderComponent}
-      format={(value: string) => _.find(props.options, { value }) || ""}
+      format={(value: string) => find(props.options, { value }) || ""}
       normalize={(option: { value: string }) => option.value}
       {...props}
     />

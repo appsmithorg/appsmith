@@ -5,15 +5,30 @@ import viteRawPlugin from "vite-raw-plugin";
 import react from "@vitejs/plugin-react";
 import svgrPlugin from "vite-plugin-svgr";
 import viteCompression from "vite-plugin-compression";
-// import { VitePWA } from "vite-plugin-pwa";
+import viteSentry, { ViteSentryPluginOptions } from "vite-plugin-sentry";
+import { VitePWA } from "vite-plugin-pwa";
 import { defineConfig } from "vite";
+
+const sentryConfig: ViteSentryPluginOptions = {
+  sourceMaps: {
+    include: ["build"],
+    ignore: ["node_modules"],
+  },
+  release: "dfdf7fa46c5b483a944b4571554d6466da3c64a6ed8b46e3b8a4285183a6bcc3",
+  deploy: {
+    env: "Production",
+  },
+};
 
 export default defineConfig(({ command }) => {
   const babelPlugins: any[] = [];
   const babelPresets: string[] = [];
   const configPlugins: any[] = [];
+  const define = {};
 
   if (command === "serve") {
+    define["global"] = {};
+    define["__isBrowser__"] = true;
     // development configurations
     babelPresets.push("@babel/preset-typescript");
     babelPlugins.push("@babel/plugin-transform-typescript", [
@@ -31,15 +46,16 @@ export default defineConfig(({ command }) => {
         algorithm: "brotliCompress",
         threshold: 10240,
       }),
-      // VitePWA({
-      //   strategies: "injectManifest",
-      //   srcDir: "src",
-      //   filename: "serviceworker.js",
-      //   mode: "development",
-      //   workbox: {
-      //     maximumFileSizeToCacheInBytes: 7 * 1024 * 1024,
-      //   },
-      // }),
+      viteSentry(sentryConfig),
+      VitePWA({
+        strategies: "injectManifest",
+        srcDir: "src",
+        filename: "serviceWorker.js",
+        mode: "development",
+        workbox: {
+          maximumFileSizeToCacheInBytes: 7 * 1024 * 1024,
+        },
+      }),
     );
   }
 
@@ -72,10 +88,7 @@ export default defineConfig(({ command }) => {
         port: 3000,
       },
     },
-    define: {
-      global: {},
-      __isBrowser__: true,
-    },
+    define,
     resolve: {
       alias: {
         actions: path.resolve(__dirname, "src/actions"),

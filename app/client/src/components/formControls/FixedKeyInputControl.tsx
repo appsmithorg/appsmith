@@ -23,16 +23,17 @@ class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
       <Wrapper>
         <TextField
           disabled={disabled}
-          format={(value) => {
+          format={(value: unknown) => {
             // Get the value property
             if (value) {
+              // @ts-expect-error: value is of type unknown
               return value.value;
             }
 
             return "";
           }}
           name={configProperty}
-          parse={(value) => {
+          parse={(value: unknown) => {
             // Store the value in this field as {key: fixedKey, value: <user-input>}
             return {
               key: fixedKey,

@@ -1,6 +1,7 @@
 import React, { Fragment, useContext, useEffect, useState } from "react";
 import styled, { css, ThemeContext } from "styled-components";
 import TagListField from "components/editorComponents/form/fields/TagListField";
+// @ts-expect-error: redux-form import
 import { reduxForm, SubmissionError } from "redux-form/dist/redux-form";
 import SelectField from "components/editorComponents/form/fields/SelectField";
 import { connect, useSelector } from "react-redux";

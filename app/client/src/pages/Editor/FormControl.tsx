@@ -6,6 +6,7 @@ import {
   ViewTypes,
 } from "components/formControls/utils";
 import { useSelector, shallowEqual } from "react-redux";
+// @ts-expect-error: redux-form import
 import { getFormValues } from "redux-form/dist/redux-form";
 import FormControlFactory from "utils/formControl/FormControlFactory";
 

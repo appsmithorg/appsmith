@@ -29,6 +29,7 @@ import { updateCurrentPage } from "actions/pageActions";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { getPageURL } from "utils/AppsmithUtils";
 import { APP_MODE } from "entities/App";
+import { AppState } from "reducers";
 
 describe("URL slug names", () => {
   beforeEach(async () => {
@@ -41,7 +42,7 @@ describe("URL slug names", () => {
   });
 
   it("verifies right slug names from slugs selector", () => {
-    const state = store.getState();
+    const state = store.getState() as AppState;
     const { applicationSlug, pageSlug } = selectURLSlugs(state);
     expect(applicationSlug).toBe("my-application");
     expect(pageSlug).toBe("page-1");
@@ -152,7 +153,7 @@ describe("URL slug names", () => {
   });
 
   it("tests getPageUrl utility method", () => {
-    const state = store.getState();
+    const state = store.getState() as AppState;
     const currentApplication = getCurrentApplication(state);
     const currentPageId = getCurrentPageId(state);
     const page = getPageById(currentPageId)(state) as Page;

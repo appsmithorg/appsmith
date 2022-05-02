@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
+// @ts-expect-error: redux-form import
 import { initialize } from "redux-form/dist/redux-form";
 import { getDBPlugins, getPluginImages } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";

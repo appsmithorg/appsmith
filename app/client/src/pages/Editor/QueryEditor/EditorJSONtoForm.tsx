@@ -1,4 +1,5 @@
 import React, { RefObject, useRef, useState } from "react";
+// @ts-expect-error: redux-form import
 import { InjectedFormProps } from "redux-form/dist/redux-form";
 import { Icon, Tag } from "@blueprintjs/core";
 import { isString } from "lodash";
@@ -738,12 +739,15 @@ export function EditorJSONtoForm(props: Props) {
 
   const responseBodyTabs =
     responseDataTypes &&
-    responseDataTypes.map((dataType, index) => {
+    responseDataTypes.map((dataType: unknown, index: number) => {
       return {
         index: index,
+        // @ts-expect-error: dataType is of type unknown
         key: dataType.key,
+        // @ts-expect-error: dataType is of type unknown
         title: dataType.title,
         panelComponent: responseTabComponent(
+          // @ts-expect-error: dataType is of type unknown
           dataType.key,
           output,
           tableBodyHeight,
@@ -762,6 +766,7 @@ export function EditorJSONtoForm(props: Props) {
   const selectedTabIndex =
     responseDataTypes &&
     responseDataTypes.findIndex(
+      // @ts-expect-error: dataType is of type unknown
       (dataType) => dataType.title === responseDisplayFormat?.title,
     );
 
@@ -865,9 +870,12 @@ export function EditorJSONtoForm(props: Props) {
 
   const pluginImages = useSelector(getPluginImages);
 
-  const DATASOURCES_OPTIONS = dataSources.map((dataSource) => ({
+  const DATASOURCES_OPTIONS = dataSources.map((dataSource: unknown) => ({
+    // @ts-expect-error: datasource is of type unknown
     label: dataSource.name,
+    // @ts-expect-error: datasource is of type unknown
     value: dataSource.id,
+    // @ts-expect-error: datasource is of type unknown
     image: pluginImages[dataSource.pluginId],
   }));
 

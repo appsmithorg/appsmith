@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { connect } from "react-redux";
+// @ts-expect-error: redux-form import
 import { reduxForm, InjectedFormProps } from "redux-form/dist/redux-form";
 import styled from "styled-components";
 import { AppState } from "reducers";

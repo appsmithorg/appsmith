@@ -101,6 +101,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
       canOutsideClickClose
       className={"fork-modal"}
       headerIcon={{ name: "fork-2", bgColor: Colors.GEYSER_LIGHT }}
+      // @ts-expect-error: showBasedOnURL is not a boolean
       isOpen={isModalOpen || showBasedOnURL}
       setModalClose={setModalClose}
       title={modalHeading}

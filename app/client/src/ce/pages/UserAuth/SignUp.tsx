@@ -3,6 +3,7 @@ import {
   reduxForm,
   InjectedFormProps,
   formValueSelector,
+  // @ts-expect-error: redux-form import
 } from "redux-form/dist/redux-form";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { SIGNUP_FORM_NAME } from "constants/forms";
@@ -241,5 +242,6 @@ export default connect((state: AppState, props: SignUpFormProps) => {
     validate,
     form: SIGNUP_FORM_NAME,
     touchOnBlur: true,
+    // @ts-expect-error: withTheme wrong typing
   })(withRouter(withTheme(SignUp))),
 );

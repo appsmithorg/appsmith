@@ -1,5 +1,6 @@
 import React from "react";
 
+// @ts-expect-error: redux-form import
 import { reduxForm } from "redux-form/dist/redux-form";
 
 import FormGroup from "components/ads/formFields/FormGroup";

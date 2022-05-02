@@ -2,6 +2,7 @@ import { render } from "test/testUtils";
 import React from "react";
 import UneditableField from "./UneditableField";
 import { REDIRECT_URL_FORM } from "constants/forms";
+// @ts-expect-error: redux-form import
 import { reduxForm } from "redux-form/dist/redux-form";
 
 let container: any = null;

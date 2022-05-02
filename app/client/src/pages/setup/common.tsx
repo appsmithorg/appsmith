@@ -5,6 +5,7 @@ import { FormTextFieldProps } from "components/ads/formFields/TextField";
 import {
   WrappedFieldInputProps,
   WrappedFieldMetaProps,
+  // @ts-expect-error: redux-form import
 } from "redux-form/dist/redux-form";
 import styled from "styled-components";
 import { OptionType } from "./constants";

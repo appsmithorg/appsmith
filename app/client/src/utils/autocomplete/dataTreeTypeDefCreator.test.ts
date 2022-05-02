@@ -43,6 +43,7 @@ describe("dataTreeTypeDefCreator", () => {
       overridingPropertyPaths: {},
       privateWidgets: {},
     };
+    // @ts-expect-error: type mismatch
     const { def, entityInfo } = dataTreeTypeDefCreator({
       Input1: dataTreeEntity,
     });

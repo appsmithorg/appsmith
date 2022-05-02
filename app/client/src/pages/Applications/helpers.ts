@@ -1,6 +1,7 @@
 import { AppIconName } from "components/ads/AppIcon";
 import { AppColorCode } from "constants/DefaultTheme";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+// @ts-expect-error: redux-form import
 import { SubmissionError } from "redux-form/dist/redux-form";
 export type CreateApplicationFormValues = {
   applicationName: string;

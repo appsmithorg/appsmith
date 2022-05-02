@@ -3,6 +3,7 @@ import Select, { InputActionMeta } from "react-select";
 import {
   WrappedFieldInputProps,
   WrappedFieldMetaProps,
+  // @ts-expect-error: redux-form import
 } from "redux-form/dist/redux-form";
 
 import { theme } from "constants/DefaultTheme";
@@ -107,7 +108,9 @@ class CreatableDropdown extends React.Component<DropdownProps> {
         onBlur={() => input.value}
         onChange={(value) => {
           const formattedValue = value;
+          // @ts-expect-error: type mismatch file is unused so ignore
           if (formattedValue && formattedValue.length > 1) {
+            // @ts-expect-error: type mismatch file is unused so ignore
             formattedValue.shift();
           }
 

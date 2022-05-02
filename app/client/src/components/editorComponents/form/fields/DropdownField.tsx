@@ -4,6 +4,7 @@ import {
   BaseDropdown,
   DropdownProps,
 } from "components/designSystems/appsmith/Dropdown";
+// @ts-expect-error: redux-form import
 import { Field } from "redux-form/dist/redux-form";
 import { replayHighlightClass } from "globalStyles/portals";
 

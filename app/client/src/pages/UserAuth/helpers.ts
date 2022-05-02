@@ -1,4 +1,5 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+// @ts-expect-error: redux-form import
 import { SubmissionError } from "redux-form/dist/redux-form";
 
 export type LoginFormValues = {

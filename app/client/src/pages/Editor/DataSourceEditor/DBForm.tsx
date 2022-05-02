@@ -10,6 +10,7 @@ import { Colors } from "constants/Colors";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import Connected from "./Connected";
 import { Datasource } from "entities/Datasource";
+// @ts-expect-error: redux-form import
 import { reduxForm, InjectedFormProps } from "redux-form/dist/redux-form";
 import { APPSMITH_IP_ADDRESSES } from "constants/DatasourceEditorConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
@@ -142,7 +143,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
           </Header>
         )}
         {messages &&
-          messages.map((msg, i) => (
+          messages.map((msg: string, i: number) => (
             <Callout
               addMarginTop
               fill
