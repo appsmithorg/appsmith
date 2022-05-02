@@ -215,39 +215,48 @@ describe("Git synced app with JSObject", function() {
         if (!commitInputDisabled) {
           cy.commitAndPush();
         }
-      });
 
-    cy.latestDeployPreview();
-    cy.wait(2000);
-    cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
-      "be.visible",
-    );
-    // switch to Page1 and validate data binding
-    cy.get(".t--page-switch-tab")
-      .contains("Page1")
-      .click({ force: true });
-    cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
-      "be.visible",
-    );
-    cy.get(commonlocators.backToEditor).click();
-    // verify jsObject data binding on Page 1
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
-    cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
-    cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
-      "be.visible",
-    );
-    // switch to Page1 copy and verify jsObject data binding
-    cy.CheckAndUnfoldEntityItem("PAGES");
-    cy.get(".t--entity-name:contains(Page1)")
-      .last()
-      .trigger("mouseover")
-      .click({ force: true });
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
-    // verify jsObject is not duplicated
-    cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
-    cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
-      "be.visible",
-    );
+        if (state.ui.applications.currentApplication?.lastDeployedAt) {
+          cy.latestDeployPreview();
+        }
+
+        cy.wait(20000);
+        cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+          "be.visible",
+        );
+        // switch to Page1 and validate data binding
+        cy.get(".t--page-switch-tab")
+          .contains("Page1")
+          .click({ force: true });
+        cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+          "be.visible",
+        );
+        cy.get(commonlocators.backToEditor).click();
+        // verify jsObject data binding on Page 1
+        cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+        cy.get(`.t--entity-name:contains(${jsObject})`).should(
+          "have.length",
+          1,
+        );
+        cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+          "be.visible",
+        );
+        // switch to Page1 copy and verify jsObject data binding
+        cy.CheckAndUnfoldEntityItem("PAGES");
+        cy.get(".t--entity-name:contains(Page1)")
+          .last()
+          .trigger("mouseover")
+          .click({ force: true });
+        cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+        // verify jsObject is not duplicated
+        cy.get(`.t--entity-name:contains(${jsObject})`).should(
+          "have.length",
+          1,
+        );
+        cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+          "be.visible",
+        );
+      });
   });
   after(() => {
     cy.deleteTestGithubRepo(repoName);
