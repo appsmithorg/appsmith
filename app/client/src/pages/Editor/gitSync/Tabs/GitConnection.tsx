@@ -15,6 +15,7 @@ import {
   GENERATE_KEY,
   IMPORT_BTN_LABEL,
   IMPORT_FROM_GIT_REPOSITORY,
+  IMPORT_URL_INFO,
   IMPORTING_APP_FROM_GIT,
   LEARN_MORE,
   PASTE_SSH_URL_INFO,
@@ -406,7 +407,7 @@ function GitConnection({ isImport }: Props) {
         {!SSHKeyPair ? (
           <RemoteUrlInfoWrapper>
             <Text color={Colors.GREY_9} type={TextType.P3}>
-              {createMessage(REMOTE_URL_INFO)}
+              {createMessage(isImport ? IMPORT_URL_INFO : REMOTE_URL_INFO)}
             </Text>
             <Space horizontal size={1} />
             <Link
