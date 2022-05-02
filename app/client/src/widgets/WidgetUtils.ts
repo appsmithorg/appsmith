@@ -123,11 +123,7 @@ export const getCustomHoverColor = (
   buttonVariant?: ButtonVariant,
   backgroundColor?: string,
 ) => {
-  if (!backgroundColor) {
-    return theme.colors.button[ButtonStyleTypes.PRIMARY.toLowerCase()][
-      (buttonVariant || ButtonVariantTypes.PRIMARY).toLowerCase()
-    ].hoverColor;
-  }
+  backgroundColor = backgroundColor ? backgroundColor : "#fff";
 
   switch (buttonVariant) {
     case ButtonVariantTypes.SECONDARY:
@@ -142,9 +138,7 @@ export const getCustomHoverColor = (
 
     default:
       return backgroundColor
-        ? tinycolor(backgroundColor)
-            .darken(10)
-            .toString()
+        ? darkenColor(backgroundColor, 10)
         : theme.colors.button.primary.primary.hoverColor;
   }
 };
@@ -155,6 +149,8 @@ export const getCustomBackgroundColor = (
 ) => {
   return buttonVariant === ButtonVariantTypes.PRIMARY
     ? backgroundColor
+      ? backgroundColor
+      : "#fff"
     : "none";
 };
 
@@ -215,7 +211,10 @@ export const escapeSpecialChars = (stringifiedJSONObject: string) => {
  * @returns
  */
 export const getComplementaryGrayscaleColor = (color = "#fff") => {
-  const rgb: any = tinycolor(color).toRgb();
+  const tinyColor = tinycolor(color);
+  const rgb: any = tinyColor.isValid()
+    ? tinyColor.toRgb()
+    : tinycolor("#fff").toRgb();
 
   const brightness = Math.round(
     (parseInt(rgb.r) * 299 + parseInt(rgb.g) * 587 + parseInt(rgb.b) * 114) /
@@ -247,7 +246,13 @@ export const lightenColor = (color = "#fff") => {
  * @returns
  */
 export const darkenColor = (color = "#fff", amount = 10) => {
-  return tinycolor(color).darken(amount);
+  const tinyColor = tinycolor(color);
+
+  return tinyColor.isValid()
+    ? tinyColor.darken(amount).toString()
+    : tinycolor("#fff")
+        .darken(amount)
+        .toString();
 };
 
 /**

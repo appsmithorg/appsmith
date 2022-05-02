@@ -29,6 +29,7 @@ export const CONFIG = {
     labelWidth: 5,
     widgetName: "CheckboxGroup",
     version: 2,
+    labelTextSize: "0.875rem",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

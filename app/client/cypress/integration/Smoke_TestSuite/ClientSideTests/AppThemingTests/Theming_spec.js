@@ -203,7 +203,7 @@ describe("App Theming funtionality", function() {
     cy.get("a[type='submit']").click({ force: true });
 
     cy.wait(200);
-    cy.get(commonlocators.toastMsg).contains("Theme testtheme Applied");
+    cy.get(commonlocators.toastMsg).contains("Theme testtheme Saved");
   });
 
   it("4. Verify Save Theme after changing all properties & widgets conform to the selected theme", () => {
@@ -392,7 +392,7 @@ describe("App Theming funtionality", function() {
     cy.xpath("//span[text()='Save theme']/parent::a").click({ force: true });
 
     cy.wait(200);
-    cy.get(commonlocators.toastMsg).contains("Theme VioletYellowTheme Applied");
+    cy.get(commonlocators.toastMsg).contains("Theme VioletYellowTheme Saved");
   });
 
   it("5. Verify Themes exists under respective section when ChangeTheme button is cicked in properties with Apply Theme & Trash as applicable", () => {
@@ -522,7 +522,7 @@ describe("App Theming funtionality", function() {
       .eq(0)
       .invoke("css", "background-color")
       .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(80, 175, 108)");
+        expect(backgroudColor).to.eq("rgb(3, 179, 101)");
       });
 
     cy.contains("Current Theme")

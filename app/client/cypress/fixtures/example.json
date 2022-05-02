@@ -108,9 +108,9 @@
   "TextLabelValue": "Test Text Label",
   "TextLabelValueScrollable": "Test Text Label to check scroll feature",
   "TextName": "TestTextBox",
-  "TextLabel": "sm",
-  "TextBody": "lg",
-  "TextHeading": "base",
+  "TextLabel": "S",
+  "TextBody": "L",
+  "TextHeading": "M",
   "Datepickername": "Datepicker",
   "DatepickerLable": "date",
   "RichTextEditorName": "RichtextEditor",
@@ -299,5 +299,5 @@
       "name": "Charizard",
       "img": "http://www.serebii.net/pokemongo/pokemon/006.png"
     }
-  ]  
+  ]
 }

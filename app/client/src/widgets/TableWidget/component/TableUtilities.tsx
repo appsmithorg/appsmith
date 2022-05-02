@@ -497,7 +497,6 @@ export const renderCheckBoxHeaderCell = (
     isChecked={!!checkState}
     onClick={onClick}
     role="columnheader"
-    style={{ padding: "0px", justifyContent: "center" }}
   >
     <CellCheckbox>
       {checkState === 1 && <CheckBoxCheckIcon className="th-svg" />}

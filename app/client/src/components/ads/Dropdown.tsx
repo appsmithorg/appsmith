@@ -38,6 +38,7 @@ export type DropdownOption = {
   onSelect?: DropdownOnSelect;
   data?: any;
   isSectionHeader?: boolean;
+  hasCustomBadge?: boolean;
 };
 export interface DropdownSearchProps {
   enableSearch?: boolean;
@@ -104,6 +105,8 @@ export type DropdownProps = CommonComponentProps &
     allowDeselection?: boolean; //prevents de-selection of the selected option
     truncateOption?: boolean; // enabled wrapping and adding tooltip on option item of dropdown menu
     portalClassName?: string;
+    customBadge?: JSX.Element;
+    selectedHighlightBg?: string;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption | DropdownOption[];
@@ -262,6 +265,10 @@ export const DropdownContainer = styled.div<{ width: string; height?: string }>`
   span.bp3-popover-target {
     display: inline-block;
     width: 100%;
+    height: 100%;
+  }
+  span.bp3-popover-target div {
+    height: 100%;
   }
 
   span.bp3-popover-wrapper {
@@ -336,6 +343,7 @@ const DropdownOptionsWrapper = styled.div<{
 
 const OptionWrapper = styled.div<{
   selected: boolean;
+  selectedHighlightBg?: string;
 }>`
   padding: ${(props) => props.theme.spaces[2] + 1}px
     ${(props) => props.theme.spaces[5]}px;
@@ -682,9 +690,12 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
   };
   const theme = useTheme() as Theme;
 
+  if (!options.length) return null;
+
   return (
     <DropdownWrapper
       className="ads-dropdown-options-wrapper"
+      data-testid="dropdown-options-wrapper"
       isOpen={props.isOpen}
       width={optionWidth}
       wrapperBgColor={props.wrapperBgColor}
@@ -740,6 +751,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               }
               role="option"
               selected={isSelected}
+              selectedHighlightBg={props.selectedHighlightBg}
             >
               {option.leftElement && (
                 <LeftIconWrapper>{option.leftElement}</LeftIconWrapper>
@@ -763,12 +775,18 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               ) : null}
               {props.showLabelOnly ? (
                 props.truncateOption ? (
-                  <TooltipWrappedText
-                    label={option.label || ""}
-                    type={TextType.P1}
-                  />
+                  <>
+                    <TooltipWrappedText
+                      label={option.label || ""}
+                      type={TextType.P1}
+                    />
+                    {option.hasCustomBadge && props.customBadge}
+                  </>
                 ) : (
-                  <Text type={TextType.P1}>{option.label}</Text>
+                  <>
+                    <Text type={TextType.P1}>{option.label}</Text>
+                    {option.hasCustomBadge && props.customBadge}
+                  </>
                 )
               ) : option.label && option.value ? (
                 <LabelWrapper className="label-container">

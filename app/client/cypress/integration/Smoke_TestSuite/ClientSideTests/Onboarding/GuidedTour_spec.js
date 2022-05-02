@@ -42,7 +42,7 @@ describe("Guided Tour", function() {
     cy.get(commonlocators.editWidgetName).contains("CountryInput");
     cy.testJsontext("defaulttext", "{{CustomersTable.selectedRow.country}}");
     cy.get(".t--entity-name")
-      .contains("ImageWidget")
+      .contains("DisplayImage")
       .click({ force: true });
     // cy.SearchEntityandOpen("ImageWidget");
     // cy.get(commonlocators.editWidgetName).contains("CountryInput");

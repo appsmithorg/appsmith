@@ -41,7 +41,7 @@ describe("Table Widget property pane feature validation", function() {
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
-    cy.selectTxtSize("3xl");
+    cy.selectTxtSize("3XL");
 
     cy.readTabledataValidateCSS("0", "0", "font-size", "60px");
   });
