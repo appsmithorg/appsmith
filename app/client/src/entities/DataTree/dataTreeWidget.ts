@@ -1,5 +1,5 @@
 import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
-import _ from "lodash";
+import _, { isEqual } from "lodash";
 import memoize from "micro-memoize";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
@@ -20,6 +20,7 @@ const generatePartialDataTreeWidget = (
 ): {
   partial: DataTreeWidget;
   overridingMetaPropsMap: Record<string, boolean>;
+  defaultMetaProps: Record<string, unknown>;
 } => {
   const derivedProps: any = {};
   const blockedDerivedProps: Record<string, true> = {};
@@ -161,7 +162,7 @@ const generatePartialDataTreeWidget = (
       },
     },
   );
-  return { partial, overridingMetaPropsMap };
+  return { partial, overridingMetaPropsMap, defaultMetaProps };
 };
 
 // @todo set the max size dynamically based on number of widgets. (widgets.length)
@@ -169,7 +170,13 @@ const generatePartialDataTreeWidget = (
 const generatePartialDataTreeWidgetMemoized = memoize(
   generatePartialDataTreeWidget,
   {
-    maxSize: 1000,
+    maxSize: 1,
+    onCacheHit: (cache, options) => {
+      console.log("####### cache was hit: ", cache);
+    },
+    onCacheAdd: (cache, options) => {
+      console.log("####### cache was missed ", cache.keys.length);
+    },
   },
 );
 
@@ -178,10 +185,10 @@ export const generateDataTreeWidget = (
   widgetMetaProps: Record<string, unknown> = {},
 ) => {
   const {
+    defaultMetaProps,
     overridingMetaPropsMap,
     partial,
   } = generatePartialDataTreeWidgetMemoized(widget);
-  const { defaultMetaProps } = partial;
   const overridingMetaProps: Record<string, unknown> = {};
 
   // overridingMetaProps has all meta property value either from metaReducer or default set by widget whose dependent property also has default property.
@@ -191,13 +198,20 @@ export const generateDataTreeWidget = (
         key in widgetMetaProps ? widgetMetaProps[key] : value;
     }
   });
+  console.log("*** overridingMetaPropsMap from memo", {
+    overridingMetaPropsMap,
+    overridingMetaProps,
+  });
 
-  debugger;
-  console.log("*** overridingMetaPropsMap memo", overridingMetaPropsMap);
-
-  return _.merge(partial, widgetMetaProps, {
+  const temp = _.merge(partial, widgetMetaProps, {
     meta: _.merge(overridingMetaProps, widgetMetaProps),
   });
+  console.log("#### temp is", {
+    temp,
+    overridingMetaPropsMap,
+    widgetMetaProps,
+  });
+  return temp;
 };
 
 export const generateDataTreeWidget_ = (
@@ -321,7 +335,10 @@ export const generateDataTreeWidget_ = (
    *
    * Therefore spread is replaced with "merge" which merges objects recursively.
    */
-  console.log("*** overridingMetaPropsMap", overridingMetaPropsMap);
+  console.log("*** overridingMetaPropsMap from original", {
+    overridingMetaPropsMap,
+    overridingMetaProps,
+  });
 
   return _.merge(
     {},

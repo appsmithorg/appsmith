@@ -189,12 +189,13 @@ export class DataTreeFactory {
     const startWidgets = performance.now();
 
     Object.values(widgets).forEach((widget) => {
-      const old = generateDataTreeWidget_(widget, widgetsMeta[widget.widgetId]);
       const optimized = generateDataTreeWidget(
         widget,
         widgetsMeta[widget.widgetId],
       );
-      console.log("### Diffs are", diff(old, optimized));
+      const old = generateDataTreeWidget_(widget, widgetsMeta[widget.widgetId]);
+
+      console.log("### Diffs are", diff(old, optimized), widgetsMeta);
       dataTree[widget.widgetName] = optimized;
     });
     const endWidgets = performance.now();
