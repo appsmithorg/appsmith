@@ -87,6 +87,10 @@ import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationR
 import { FormEvalActionPayload } from "./FormEvaluationSaga";
 import { updateMetaState } from "actions/metaActions";
 import { getAllActionValidationConfig } from "selectors/entitiesSelector";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { EvalMetaUpdates } from "workers/DataTreeEvaluator/types";
+import { JSUpdate } from "utils/JSPaneUtils";
+import { DataTreeDiff } from "workers/evaluationUtils";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -125,6 +129,15 @@ function* evaluateTreeSaga(
     jsUpdates,
     logs,
     unEvalUpdates,
+  }: {
+    dataTree: DataTree;
+    dependencies: Record<string, string[]>;
+    errors: EvalError[];
+    evalMetaUpdates: EvalMetaUpdates;
+    evaluationOrder: string[];
+    jsUpdates: Record<string, JSUpdate>;
+    logs: any[];
+    unEvalUpdates: DataTreeDiff[];
   } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -141,16 +154,18 @@ function* evaluateTreeSaga(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
   // if evalMetaUpdates are present only then dispatch updateMetaState
-  if (Object.keys(evalMetaUpdates).length) {
+  if (evalMetaUpdates.length) {
     yield put(updateMetaState(evalMetaUpdates));
   }
   log.debug({ evalMetaUpdates });
 
-  const updatedDataTree = yield select(getDataTree);
+  const updatedDataTree: DataTree = yield select(getDataTree);
   log.debug({ jsUpdates: jsUpdates });
   log.debug({ dataTree: updatedDataTree });
   logs?.forEach((evalLog: any) => log.debug(evalLog));
-  yield call(evalErrorHandler, errors, updatedDataTree, evaluationOrder);
+  // Added type as any due to https://github.com/redux-saga/redux-saga/issues/1482
+  yield call(evalErrorHandler as any, errors, updatedDataTree, evaluationOrder);
+
   const appMode = yield select(getAppMode);
   if (appMode !== APP_MODE.PUBLISHED) {
     yield call(makeUpdateJSCollection, jsUpdates);
