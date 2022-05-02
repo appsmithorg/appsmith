@@ -122,11 +122,7 @@ export const getCustomHoverColor = (
   buttonVariant?: ButtonVariant,
   backgroundColor?: string,
 ) => {
-  if (!backgroundColor) {
-    return theme.colors.button[ButtonStyleTypes.PRIMARY.toLowerCase()][
-      (buttonVariant || ButtonVariantTypes.PRIMARY).toLowerCase()
-    ].hoverColor;
-  }
+  backgroundColor = backgroundColor ? backgroundColor : "#fff";
 
   switch (buttonVariant) {
     case ButtonVariantTypes.SECONDARY:
@@ -152,6 +148,8 @@ export const getCustomBackgroundColor = (
 ) => {
   return buttonVariant === ButtonVariantTypes.PRIMARY
     ? backgroundColor
+      ? backgroundColor
+      : "#fff"
     : "none";
 };
 
