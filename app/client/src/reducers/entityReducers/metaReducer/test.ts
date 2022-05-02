@@ -7,8 +7,8 @@ let previousState = initialState;
 
 const inputWidget = {
   widgetId: "incwlne",
-  propertyName: "text",
-  propertyValue: "test",
+  propertyName: "selectedValues",
+  propertyValue: ["GREEN", "BLUE", "YELLOW"],
 };
 
 const noAction = (): ReduxAction<unknown> => {
@@ -40,12 +40,19 @@ test("Add a widget meta values", () => {
   });
 });
 
-test("Update widget meta state using metaUpdates", () => {
-  const metaUpdates = { incwlne: { text: "test123", inputText: "test123" } };
-  expect(metaReducer(previousState, updateMetaState(metaUpdates))).toEqual({
+test("Update widget meta state using evalMetaUpdates", () => {
+  const evalMetaUpdates = [
+    { widgetId: "incwlne", metaPropertyPath: ["text"], value: "test123" },
+    {
+      widgetId: "incwlne",
+      metaPropertyPath: ["selectedValues"],
+      value: ["YELLOW"],
+    },
+  ];
+  expect(metaReducer(previousState, updateMetaState(evalMetaUpdates))).toEqual({
     incwlne: {
       text: "test123",
-      inputText: "test123",
+      selectedValues: ["YELLOW"],
     },
   });
 });

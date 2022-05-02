@@ -3,6 +3,7 @@ import {
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { BatchAction, batchAction } from "actions/batchActions";
+import { EvalMetaUpdates } from "workers/DataTreeEvaluator/types";
 
 export interface UpdateWidgetMetaPropertyPayload {
   widgetId: string;
@@ -48,11 +49,11 @@ export function resetChildrenMetaProperty(
   };
 }
 
-export const updateMetaState = (metaUpdates: Record<string, unknown>) => {
+export const updateMetaState = (evalMetaUpdates: EvalMetaUpdates) => {
   return {
     type: ReduxActionTypes.UPDATE_META_STATE,
     payload: {
-      metaUpdates,
+      evalMetaUpdates,
     },
   };
 };

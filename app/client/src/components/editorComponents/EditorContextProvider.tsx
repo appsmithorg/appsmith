@@ -19,6 +19,7 @@ import {
   resetChildrenMetaProperty,
   updateWidgetMetaProperty,
   syncUpdateWidgetMetaProperty,
+  triggerEvalOnMetaUpdate,
 } from "actions/metaActions";
 
 export type EditorContextType = {
@@ -28,6 +29,7 @@ export type EditorContextType = {
     widgetId: string,
     payload: any,
   ) => void;
+  triggerEvalOnMetaUpdate?: () => void;
   updateWidgetProperty?: (
     widgetId: string,
     propertyName: string,
@@ -67,6 +69,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
     executeAction,
     resetChildrenMetaProperty,
     syncUpdateWidgetMetaProperty,
+    triggerEvalOnMetaUpdate,
     updateWidget,
     updateWidgetMetaProperty,
     updateWidgetProperty,
@@ -85,6 +88,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       resetChildrenMetaProperty,
       deleteWidgetProperty,
       batchUpdateWidgetProperty,
+      triggerEvalOnMetaUpdate,
     }),
     [
       executeAction,
@@ -96,6 +100,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       resetChildrenMetaProperty,
       deleteWidgetProperty,
       batchUpdateWidgetProperty,
+      triggerEvalOnMetaUpdate,
     ],
   );
   return (
@@ -124,6 +129,7 @@ const mapDispatchToProps = {
   disableDrag: disableDragAction,
   deleteWidgetProperty: deletePropertyAction,
   batchUpdateWidgetProperty: batchUpdatePropertyAction,
+  triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdate,
 };
 
 export default connect(null, mapDispatchToProps)(EditorContextProvider);

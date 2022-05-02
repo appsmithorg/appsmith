@@ -26,6 +26,7 @@ import {
   resetChildrenMetaProperty,
   updateWidgetMetaProperty,
   syncUpdateWidgetMetaProperty,
+  triggerEvalOnMetaUpdate,
 } from "actions/metaActions";
 import { editorInitializer } from "utils/EditorUtils";
 import * as Sentry from "@sentry/react";
@@ -114,6 +115,7 @@ export type AppViewerProps = {
     propertyName: string,
     propertyValue: any,
   ) => void;
+  triggerEvalOnMetaUpdate: () => void;
 } & RouteComponentProps<BuilderRouteParams>;
 
 type Props = AppViewerProps & RouteComponentProps<AppViewerRouteParams>;
@@ -175,6 +177,7 @@ class AppViewer extends Component<Props> {
       executeAction,
       resetChildrenMetaProperty,
       syncUpdateWidgetMetaProperty,
+      triggerEvalOnMetaUpdate,
       updateWidgetMetaProperty,
     } = this.props;
     return (
@@ -187,6 +190,7 @@ class AppViewer extends Component<Props> {
               resetChildrenMetaProperty,
               syncUpdateWidgetMetaProperty,
               updateWidgetMetaProperty,
+              triggerEvalOnMetaUpdate,
             }}
           >
             <ContainerWithComments>
@@ -260,6 +264,7 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(
       syncUpdateWidgetMetaProperty(widgetId, propertyName, propertyValue),
     ),
+  triggerEvalOnMetaUpdate: () => dispatch(triggerEvalOnMetaUpdate()),
 });
 
 export default withRouter(

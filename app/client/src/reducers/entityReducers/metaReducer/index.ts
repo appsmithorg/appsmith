@@ -1,4 +1,4 @@
-import { set, merge } from "lodash";
+import { set } from "lodash";
 import { createReducer } from "utils/AppsmithUtils";
 import { UpdateWidgetMetaPropertyPayload } from "actions/metaActions";
 
@@ -8,7 +8,7 @@ import {
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import produce from "immer";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { EvalMetaUpdates } from "workers/DataTreeEvaluator/types";
 
 export type MetaState = Record<string, Record<string, unknown>>;
 
@@ -18,14 +18,17 @@ export const metaReducer = createReducer(initialState, {
   [ReduxActionTypes.UPDATE_META_STATE]: (
     state: MetaState,
     action: ReduxAction<{
-      metaUpdates: DataTree;
+      evalMetaUpdates: EvalMetaUpdates;
     }>,
   ) => {
-    const { metaUpdates } = action.payload;
+    const { evalMetaUpdates } = action.payload;
 
     // if metaObject is updated in dataTree we also update meta values, to keep meta state in sync.
     const newMetaState = produce(state, (draftMetaState) => {
-      return merge(draftMetaState, metaUpdates);
+      evalMetaUpdates.forEach(({ metaPropertyPath, value, widgetId }) => {
+        set(draftMetaState, [widgetId, ...metaPropertyPath], value);
+      });
+      return draftMetaState;
     });
     return newMetaState;
   },
@@ -94,16 +97,7 @@ export const metaReducer = createReducer(initialState, {
   ) => {
     const widgetId = action.payload.widgetId;
     if (widgetId in state) {
-      const resetData: Record<string, any> = {
-        ...state[widgetId],
-      };
-      Object.keys(resetData).forEach((key: string) => {
-        // NOTE:-
-        // metaHOC component assumes on reset of widget all metaValues will be deleted.
-        // if deletion logic needs to be changed, make sure to also update metaHOC reset condition.
-        delete resetData[key];
-      });
-      return { ...state, [widgetId]: { ...resetData } };
+      return { ...state, [widgetId]: {} };
     }
     return state;
   },

@@ -30,6 +30,7 @@ import { Variable } from "entities/JSCollection";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
+import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -892,7 +893,7 @@ export const getDataTreeWithoutPrivateWidgets = (
 export const overrideWidgetProperties = ({
   currentTree,
   entity,
-  metaUpdates,
+  evalMetaUpdates,
   propertyPath,
   value,
 }: {
@@ -900,7 +901,7 @@ export const overrideWidgetProperties = ({
   propertyPath: string;
   value: unknown;
   currentTree: DataTree;
-  metaUpdates: Record<string, unknown>;
+  evalMetaUpdates: EvalMetaUpdates;
 }) => {
   const clonedValue = klona(value);
   if (propertyPath in entity.overridingPropertyPaths) {
@@ -918,11 +919,12 @@ export const overrideWidgetProperties = ({
         propertyPath.split(".")[0] !== "meta" &&
         overriddenPropertyPathArray[0] === "meta"
       ) {
-        _.set(
-          metaUpdates,
-          [entity.widgetId, ...overriddenPropertyPathArray.slice(1)],
-          clonedValue,
-        );
+        const metaPropertyPath = overriddenPropertyPathArray.slice(1);
+        evalMetaUpdates.push({
+          widgetId: entity.widgetId,
+          metaPropertyPath,
+          value: clonedValue,
+        });
       }
     });
   } else if (

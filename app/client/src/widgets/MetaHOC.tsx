@@ -1,6 +1,6 @@
 import React from "react";
 import BaseWidget, { WidgetProps } from "./BaseWidget";
-import { debounce } from "lodash";
+import { debounce, fromPairs } from "lodash";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -9,7 +9,6 @@ import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionC
 import { connect } from "react-redux";
 import { getWidgetMetaProps } from "sagas/selectors";
 import { AppState } from "reducers";
-import { triggerEvalOnMetaUpdate } from "actions/metaActions";
 
 export type DebouncedExecuteActionPayload = Omit<
   ExecuteTriggerPayload,
@@ -30,7 +29,7 @@ type WidgetMetaProps = { metaState: Record<string, unknown> };
 type metaHOCProps = WidgetProps & WidgetMetaProps;
 
 function withMeta(WrappedWidget: typeof BaseWidget) {
-  class MetaHOC extends React.PureComponent<metaHOCProps> {
+  class MetaHOC extends React.Component<metaHOCProps> {
     static contextType = EditorContext;
 
     initialMetaState: Record<string, unknown>;
@@ -38,7 +37,13 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
 
     constructor(props: metaHOCProps) {
       super(props);
-      this.initialMetaState = { ...WrappedWidget.getMetaPropertiesMap() };
+      const metaProperties = WrappedWidget.getMetaPropertiesMap();
+      this.initialMetaState = fromPairs(
+        Object.keys(metaProperties).map((metaProperty) => {
+          return [metaProperty, this.props[metaProperty]];
+        }),
+      );
+      // this.initialMetaState = { ...WrappedWidget.getMetaPropertiesMap() };
       this.batchExecuteActions = [];
     }
 
@@ -71,8 +76,9 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
     };
 
     handleTriggerEvalOnMetaUpdate = () => {
+      const { triggerEvalOnMetaUpdate } = this.context;
+      if (triggerEvalOnMetaUpdate) triggerEvalOnMetaUpdate();
       this.runBatchActions();
-      this.props.triggerEvalOnMetaUpdate();
     };
 
     debouncedTriggerEvalOnMetaUpdate = debounce(
@@ -138,8 +144,8 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
 
     updatedProps = () => {
       return {
-        ...this.initialMetaState,
-        ...this.props,
+        ...this.initialMetaState, // this contains stale default values and are used when widget is reset. Ideally, widget should reset to its default values instead of stale default values.
+        ...this.props, // if default values are changed we expect to get new values from here.
         ...this.props.metaState,
       };
     };
@@ -160,14 +166,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       metaState,
     };
   };
-
-  const mapDispatchToProps = (dispatch: any) => ({
-    triggerEvalOnMetaUpdate: () => {
-      dispatch(triggerEvalOnMetaUpdate());
-    },
-  });
-
-  return connect(mapStateToProps, mapDispatchToProps)(MetaHOC);
+  return connect(mapStateToProps)(MetaHOC);
 }
 
 export default withMeta;

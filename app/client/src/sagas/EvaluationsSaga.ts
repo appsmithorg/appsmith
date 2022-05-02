@@ -120,10 +120,10 @@ function* evaluateTreeSaga(
     dataTree,
     dependencies,
     errors,
+    evalMetaUpdates,
     evaluationOrder,
     jsUpdates,
     logs,
-    metaUpdates,
     unEvalUpdates,
   } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
@@ -140,10 +140,11 @@ function* evaluateTreeSaga(
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
-  // if metaUpdates are present only then dispatch updateMetaState
-  if (Object.keys(metaUpdates).length) {
-    yield put(updateMetaState(metaUpdates));
+  // if evalMetaUpdates are present only then dispatch updateMetaState
+  if (Object.keys(evalMetaUpdates).length) {
+    yield put(updateMetaState(evalMetaUpdates));
   }
+  log.debug({ evalMetaUpdates });
 
   const updatedDataTree = yield select(getDataTree);
   log.debug({ jsUpdates: jsUpdates });
