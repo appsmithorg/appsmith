@@ -65,6 +65,7 @@ const getPositionStyle_ = memoize(
       yPositionUnit: CSSUnits.PIXEL,
     };
   },
+  { maxSize: 1000 },
 );
 
 /***
