@@ -23,4 +23,7 @@ public class GitAuth implements AppsmithDomain {
     // Deploy key documentation url
     @Transient
     String docUrl;
+
+    @Transient
+    boolean regenerateKey = false;
 }
