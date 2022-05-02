@@ -35,7 +35,7 @@ test("Add a widget meta values", () => {
     }),
   ).toEqual({
     incwlne: {
-      text: "test",
+      selectedValues: ["GREEN", "BLUE", "YELLOW"],
     },
   });
 });
