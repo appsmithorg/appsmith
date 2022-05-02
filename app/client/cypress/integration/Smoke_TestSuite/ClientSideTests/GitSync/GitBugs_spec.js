@@ -220,6 +220,10 @@ describe("Git synced app with JSObject", function() {
           cy.latestDeployPreview();
         }
 
+        cy.wait(1000);
+        if (state.ui.gitSync.isGitSyncModalOpen) {
+          cy.get(gitSyncLocators.closeGitSyncModal).click({ force: true });
+        }
         cy.wait(20000);
         cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
           "be.visible",
