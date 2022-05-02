@@ -193,9 +193,9 @@ export class DataTreeFactory {
         widget,
         widgetsMeta[widget.widgetId],
       );
-      const old = generateDataTreeWidget_(widget, widgetsMeta[widget.widgetId]);
+      // const old = generateDataTreeWidget_(widget, widgetsMeta[widget.widgetId]);
 
-      console.log("### Diffs are", diff(old, optimized), widgetsMeta);
+      // console.log("### Diffs are", diff(old, optimized), widgetsMeta);
       dataTree[widget.widgetName] = optimized;
     });
     const endWidgets = performance.now();
