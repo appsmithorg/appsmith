@@ -269,6 +269,7 @@ describe("AForce - Community Issues page validations", function () {
     agHelper.AssertElementAbsence(locator._widgetInDeployed('tabswidget'))
     table.SelectTableRow(0)
     agHelper.AssertElementPresence(locator._widgetInDeployed('tabswidget'))
+    agHelper.Sleep(2000)//load time for tabs
     agHelper.GetNClick(locator._inputWidgetv1InDeployed).type("-updating title")
     agHelper.GetNClick(locator._textAreainputWidgetv1InDeployed).type("-updating desc")
     agHelper.GetNClick(locator._inputWidgetv1InDeployed, 1).type("-updating issue link")
