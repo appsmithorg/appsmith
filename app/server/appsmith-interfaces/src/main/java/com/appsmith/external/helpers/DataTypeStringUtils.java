@@ -310,27 +310,25 @@ public class DataTypeStringUtils {
 
     private static boolean isDisplayTypeTable(Object data) {
         if (data instanceof List) {
-            // Check if the data is a list of simple json objects i.e. all values in the key value pairs are simple
-            // objects or their wrappers.
-            return ((List)data).stream()
-                    .allMatch(item -> item instanceof Map
-                            && ((Map)item).entrySet().stream()
-                            .allMatch(e -> ((Map.Entry)e).getValue() == null ||
-                            isPrimitiveOrWrapper(((Map.Entry)e).getValue().getClass())));
+            // Check if the data is a list of json objects
+            return ((List) data).stream()
+                    .allMatch(item -> item instanceof Map);
         }
         else if (data instanceof JsonNode) {
-            // Check if the data is an array of simple json objects
+            // Check if the data is an array of json objects
             try {
-                objectMapper.convertValue(data, new TypeReference<List<Map<String, String>>>() {});
+                objectMapper.convertValue(data, new TypeReference<List<Map<String, Object>>>() {
+                });
                 return true;
             } catch (IllegalArgumentException e) {
                 return false;
             }
         }
         else if (data instanceof String) {
-            // Check if the data is an array of simple json objects
+            // Check if the data is an array of json objects
             try {
-                objectMapper.readValue((String)data, new TypeReference<List<Map<String, String>>>() {});
+                objectMapper.readValue((String) data, new TypeReference<List<Map<String, Object>>>() {
+                });
                 return true;
             } catch (IOException e) {
                 return false;

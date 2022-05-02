@@ -153,9 +153,9 @@ const StyledCallout = styled(Callout)`
   }
 `;
 
-const InlineButton = styled(Button)`
+export const InlineButton = styled(Button)`
   display: inline-flex;
-  margin: 0 4px;
+  margin: 0 8px;
 `;
 
 const HelpSection = styled.div`
