@@ -4,12 +4,9 @@ import {
 } from "constants/PropertyControlConstants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { get, isEqual, isObject, isUndefined, omitBy } from "lodash";
-
+import memoize from "micro-memoize";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
-
-import memoize from "micro-memoize";
-import { debug } from "loglevel";
 
 /**
  * @typedef {Object} Paths
@@ -291,8 +288,6 @@ export const getAllPathsFromPropertyConfig = memoize(
         prev[0] === next[0] && prev[1] == next[1] && isEqual(prev[2], next[2])
       );
     },
-    onCacheHit: (cache) => debug("#### Sub cache hit", cache.keys.length),
-    onCacheAdd: (cache) => debug("#### Sub cache miss", cache.keys.length),
   },
 );
 

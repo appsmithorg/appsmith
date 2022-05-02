@@ -2,6 +2,7 @@ import { PageListPayload } from "@appsmith/constants/ReduxActionConstants";
 import { ActionResponse } from "api/ActionAPI";
 import { PluginId } from "api/PluginApi";
 import { ValidationConfig } from "constants/PropertyControlConstants";
+import { diff } from "deep-diff";
 import { ActionConfig, PluginType } from "entities/Action";
 import {
   ActionDescription,
@@ -10,7 +11,10 @@ import {
 } from "entities/DataTree/actionTriggers";
 import { generateDataTreeAction } from "entities/DataTree/dataTreeAction";
 import { generateDataTreeJSAction } from "entities/DataTree/dataTreeJSAction";
-import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
+import {
+  generateDataTreeWidget,
+  generateDataTreeWidget_,
+} from "entities/DataTree/dataTreeWidget";
 import { Variable } from "entities/JSCollection";
 import log from "loglevel";
 import {
@@ -185,10 +189,13 @@ export class DataTreeFactory {
     const startWidgets = performance.now();
 
     Object.values(widgets).forEach((widget) => {
-      dataTree[widget.widgetName] = generateDataTreeWidget(
+      const old = generateDataTreeWidget_(widget, widgetsMeta[widget.widgetId]);
+      const optimized = generateDataTreeWidget(
         widget,
         widgetsMeta[widget.widgetId],
       );
+      console.log("### Diffs are", diff(old, optimized));
+      dataTree[widget.widgetName] = optimized;
     });
     const endWidgets = performance.now();
 
