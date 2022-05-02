@@ -1053,7 +1053,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             "actionCreated", DateUtils.ISO_FORMATTER.format(action.getCreatedAt()),
                             "actionId", ObjectUtils.defaultIfNull(action.getId(), ""),
                             "dsId", ObjectUtils.defaultIfNull(datasource.getId(), ""),
-                            "dsCreatedAt", DateUtils.ISO_FORMATTER.format(datasource.getCreatedAt())
+                            "dsCreatedAt", ObjectUtils.defaultIfNull(DateUtils.ISO_FORMATTER.format(datasource.getCreatedAt()), Instant.now())
 
                     ));
 
