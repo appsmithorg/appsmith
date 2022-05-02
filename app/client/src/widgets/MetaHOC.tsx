@@ -34,34 +34,44 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
     static contextType = EditorContext;
 
     initialMetaState: Record<string, unknown>;
+    batchExecuteActions: Array<DebouncedExecuteActionPayload>;
 
     constructor(props: metaHOCProps) {
       super(props);
       this.initialMetaState = { ...WrappedWidget.getMetaPropertiesMap() };
+      this.batchExecuteActions = [];
     }
 
-    handleTriggerEvalOnMetaUpdate = (
-      actionExecution?: DebouncedExecuteActionPayload,
-    ) => {
+    addActionToBatch = (actionExecution: DebouncedExecuteActionPayload) => {
+      this.batchExecuteActions.push(actionExecution);
+    };
+
+    runBatchActions = () => {
       const { executeAction } = this.context;
-      if (actionExecution && actionExecution.dynamicString && executeAction) {
-        executeAction({
-          ...actionExecution,
-          source: {
-            id: this.props.widgetId,
-            name: this.props.widgetName,
-          },
-        });
-        actionExecution.triggerPropertyName &&
-          AppsmithConsole.info({
-            text: `${actionExecution.triggerPropertyName} triggered`,
+      this.batchExecuteActions.map((actionExecution) => {
+        if (actionExecution && actionExecution.dynamicString && executeAction) {
+          executeAction({
+            ...actionExecution,
             source: {
-              type: ENTITY_TYPE.WIDGET,
               id: this.props.widgetId,
               name: this.props.widgetName,
             },
           });
-      }
+          actionExecution.triggerPropertyName &&
+            AppsmithConsole.info({
+              text: `${actionExecution.triggerPropertyName} triggered`,
+              source: {
+                type: ENTITY_TYPE.WIDGET,
+                id: this.props.widgetId,
+                name: this.props.widgetName,
+              },
+            });
+        }
+      });
+    };
+
+    handleTriggerEvalOnMetaUpdate = () => {
+      this.runBatchActions();
       this.props.triggerEvalOnMetaUpdate();
     };
 
@@ -122,7 +132,8 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
           );
         }
       }
-      this.debouncedTriggerEvalOnMetaUpdate(actionExecution);
+      if (actionExecution) this.addActionToBatch(actionExecution);
+      this.debouncedTriggerEvalOnMetaUpdate();
     };
 
     updatedProps = () => {
