@@ -25,5 +25,5 @@ public class GitAuth implements AppsmithDomain {
     String docUrl;
 
     @Transient
-    boolean regenerateKey = false;
+    boolean isRegeneratedKey = false;
 }

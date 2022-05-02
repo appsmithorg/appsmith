@@ -437,7 +437,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             && !StringUtils.isEmpty(gitData.getDefaultApplicationId())
                             && applicationId.equals(gitData.getDefaultApplicationId())) {
                         // This is the root application with update SSH key request
-                        gitAuth.setRegenerateKey(true);
+                        gitAuth.setRegeneratedKey(true);
                         gitData.setGitAuth(gitAuth);
                         return save(application);
                     } else if(gitData == null) {
@@ -454,7 +454,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         throw new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION,
                                 "Unable to find root application, please connect your application to remote repo to resolve this issue.");
                     }
-                    gitAuth.setRegenerateKey(true);
+                    gitAuth.setRegeneratedKey(true);
 
                     return repository.findById(gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS)
                             .flatMap(defaultApplication -> {
@@ -471,7 +471,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     final Map<String, Object> data = Map.of(
                             "applicationId", application.getId(),
                             "organizationId", application.getOrganizationId(),
-                            "regenerateKey", gitAuth.isRegenerateKey()
+                            "isRegeneratedKey", gitAuth.isRegeneratedKey()
                     );
 
                     return analyticsService.sendObjectEvent(AnalyticsEvents.GENERATE_SSH_KEY, application, data)
