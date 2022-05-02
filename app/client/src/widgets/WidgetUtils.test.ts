@@ -343,7 +343,7 @@ describe("Test widget utility functions", () => {
     // Case 1:
     expect(
       boxShadowMigration(
-        tableWidgetProps as any,
+        tableWidgetProps.dynamicBindingPathList as any,
         "action",
         "0px 0px 4px 3px rgba(0, 0, 0, 0.25)",
         "red",
@@ -371,7 +371,7 @@ describe("Test widget utility functions", () => {
     tableWidgetProps.primaryColumns.action.boxShadow = "VARIANT1";
     tableWidgetProps.primaryColumns.action.boxShadowColor = "blue" as any;
     let newBoxShadow = boxShadowMigration(
-      tableWidgetProps as any,
+      tableWidgetProps.dynamicBindingPathList as any,
       "action",
       tableWidgetProps.primaryColumns.action.boxShadow,
       tableWidgetProps.primaryColumns.action.boxShadowColor,
@@ -382,7 +382,7 @@ describe("Test widget utility functions", () => {
     tableWidgetProps.primaryColumns.action.boxShadowColor = "" as any; // Add empty boxShadowColor.
 
     newBoxShadow = boxShadowMigration(
-      tableWidgetProps as any,
+      tableWidgetProps.dynamicBindingPathList as any,
       "action",
       tableWidgetProps.primaryColumns.action.boxShadow,
       tableWidgetProps.primaryColumns.action.boxShadowColor,
@@ -409,7 +409,7 @@ describe("Test widget utility functions", () => {
       "orange",
     ];
     newBoxShadow = boxShadowMigration(
-      tableWidgetProps as any,
+      tableWidgetProps.dynamicBindingPathList as any,
       "action",
       tableWidgetProps.primaryColumns.action.boxShadow,
       tableWidgetProps.primaryColumns.action.boxShadowColor[0],
@@ -421,7 +421,7 @@ describe("Test widget utility functions", () => {
 
     // Add empty boxShadowColor.
     newBoxShadow = boxShadowMigration(
-      tableWidgetProps as any,
+      tableWidgetProps.dynamicBindingPathList as any,
       "action",
       tableWidgetProps.primaryColumns.action.boxShadow,
       tableWidgetProps.primaryColumns.action.boxShadowColor[0],
