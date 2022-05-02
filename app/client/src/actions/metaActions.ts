@@ -11,11 +11,11 @@ export interface UpdateWidgetMetaPropertyPayload {
   propertyValue: any;
 }
 
-export function updateWidgetMetaProperty(
+export const updateWidgetMetaProperty = (
   widgetId: string,
   propertyName: string,
   propertyValue: any,
-): BatchAction<UpdateWidgetMetaPropertyPayload> {
+): BatchAction<UpdateWidgetMetaPropertyPayload> => {
   return batchAction({
     type: ReduxActionTypes.SET_META_PROP_AND_EVAL,
     payload: {
@@ -24,11 +24,11 @@ export function updateWidgetMetaProperty(
       propertyValue,
     },
   });
-}
+};
 
-export function resetWidgetMetaProperty(
+export const resetWidgetMetaProperty = (
   widgetId: string,
-): BatchAction<{ widgetId: string }> {
+): BatchAction<{ widgetId: string }> => {
   return batchAction({
     type: ReduxActionTypes.RESET_WIDGET_META,
     payload: {
@@ -36,18 +36,18 @@ export function resetWidgetMetaProperty(
     },
     postEvalActions: [{ type: ReduxActionTypes.RESET_WIDGET_META_EVALUATED }],
   });
-}
+};
 
-export function resetChildrenMetaProperty(
+export const resetChildrenMetaProperty = (
   widgetId: string,
-): ReduxAction<{ widgetId: string }> {
+): ReduxAction<{ widgetId: string }> => {
   return {
     type: ReduxActionTypes.RESET_CHILDREN_WIDGET_META,
     payload: {
       widgetId,
     },
   };
-}
+};
 
 export const updateMetaState = (evalMetaUpdates: EvalMetaUpdates) => {
   return {
@@ -58,18 +58,18 @@ export const updateMetaState = (evalMetaUpdates: EvalMetaUpdates) => {
   };
 };
 
-export function triggerEvalOnMetaUpdate() {
+export const triggerEvalOnMetaUpdate = () => {
   return batchAction({
     type: ReduxActionTypes.META_UPDATE_DEBOUNCED_EVAL,
     payload: {},
   });
-}
+};
 
-export function syncUpdateWidgetMetaProperty(
+export const syncUpdateWidgetMetaProperty = (
   widgetId: string,
   propertyName: string,
   propertyValue: any,
-) {
+) => {
   return {
     type: ReduxActionTypes.SET_META_PROP,
     payload: {
@@ -78,4 +78,4 @@ export function syncUpdateWidgetMetaProperty(
       propertyValue,
     },
   };
-}
+};
