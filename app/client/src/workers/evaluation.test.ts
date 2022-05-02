@@ -428,8 +428,8 @@ describe("DataTreeEvaluator", () => {
     };
     evaluator.updateDataTree(updatedUnEvalTree);
     const dataTree = evaluator.evalTree;
-    // expect(dataTree).toHaveProperty("Text2.text", "Hey there");
-    // expect(dataTree).toHaveProperty("Text3.text", "Hey there");
+    expect(dataTree).toHaveProperty("Text2.text", "Label");
+    expect(dataTree).toHaveProperty("Text3.text", "Label");
   });
 
   it("Evaluates a dependency change in update run", () => {
@@ -517,7 +517,7 @@ describe("DataTreeEvaluator", () => {
       },
     };
     evaluator.updateDataTree(updatedUnEvalTree);
-    const dataTree = evaluator.evalTree;
+    // const dataTree = evaluator.evalTree;
     const updatedDependencyMap = evaluator.dependencyMap;
     // expect(dataTree).toHaveProperty("Table1.tableData", [
     //   {

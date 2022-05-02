@@ -1,5 +1,5 @@
 import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
-import _, { isEqual } from "lodash";
+import _ from "lodash";
 import memoize from "micro-memoize";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
@@ -170,13 +170,13 @@ const generatePartialDataTreeWidget = (
 const generatePartialDataTreeWidgetMemoized = memoize(
   generatePartialDataTreeWidget,
   {
-    maxSize: 1,
-    onCacheHit: (cache, options) => {
-      console.log("####### cache was hit: ", cache);
-    },
-    onCacheAdd: (cache, options) => {
-      console.log("####### cache was missed ", cache.keys.length);
-    },
+    maxSize: 1000,
+    // onCacheHit: (cache, options) => {
+    //   console.log("####### cache was hit: ", cache);
+    // },
+    // onCacheAdd: (cache, options) => {
+    //   console.log("####### cache was missed ", cache.keys.length);
+    // },
   },
 );
 
@@ -198,19 +198,19 @@ export const generateDataTreeWidget = (
         key in widgetMetaProps ? widgetMetaProps[key] : value;
     }
   });
-  console.log("*** overridingMetaPropsMap from memo", {
-    overridingMetaPropsMap,
-    overridingMetaProps,
-  });
+  // console.log("*** overridingMetaPropsMap from memo", {
+  //   overridingMetaPropsMap,
+  //   overridingMetaProps,
+  // });
 
   const temp = _.merge(partial, widgetMetaProps, {
     meta: _.merge(overridingMetaProps, widgetMetaProps),
   });
-  console.log("#### temp is", {
-    temp,
-    overridingMetaPropsMap,
-    widgetMetaProps,
-  });
+  // console.log("#### temp is", {
+  //   temp,
+  //   overridingMetaPropsMap,
+  //   widgetMetaProps,
+  // });
   return temp;
 };
 
@@ -335,10 +335,10 @@ export const generateDataTreeWidget_ = (
    *
    * Therefore spread is replaced with "merge" which merges objects recursively.
    */
-  console.log("*** overridingMetaPropsMap from original", {
-    overridingMetaPropsMap,
-    overridingMetaProps,
-  });
+  //  console.log("*** overridingMetaPropsMap from original", {
+  //   overridingMetaPropsMap,
+  //   overridingMetaProps,
+  // });
 
   return _.merge(
     {},
