@@ -27,17 +27,14 @@ describe("AForce - Community Issues page validations", function () {
   it("1. Import application json and validate headers", () => {
     cy.visit("/applications");
     homePage.ImportApp("AForceMigrationExport.json", reconnect);
-    cy.wait("@importNewApplication").then((interception) => {
+    cy.wait("@importNewApplication").then((interception: any) => {
       cy.wait(100);
       const { isPartialImport } = interception.response.body.data;
       if (isPartialImport) {
         // should reconnect modal
         dataSources.ReconnectDataSourcePostgres("AForceDB")
       } else {
-        cy.get(homePage.toastMessage).should(
-          "contain",
-          "Application imported successfully",
-        );
+        agHelper.ValidateToastMessage("Application imported successfully")
       }
       //Validate table is not empty!
       table.WaitUntilTableLoad()

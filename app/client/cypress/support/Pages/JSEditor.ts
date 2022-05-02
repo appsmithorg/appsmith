@@ -5,19 +5,18 @@ export class JSEditor {
   public locator = ObjectsRegistry.CommonLocators;
   public ee = ObjectsRegistry.EntityExplorer;
 
+  //#region Element locators
   private _runButton = "button.run-js-action";
   private _settingsTab = ".tab-title:contains('Settings')";
   private _codeTab = ".tab-title:contains('Code')";
   private _onPageLoadRadioButton = (functionName: string, onLoad: boolean) =>
-    `.${functionName}-on-page-load-setting label:contains(${
-      onLoad ? "Yes" : "No"
+    `.${functionName}-on-page-load-setting label:contains(${onLoad ? "Yes" : "No"
     }) span.checkbox`;
   private _confirmBeforeExecuteRadioButton = (
     functionName: string,
     shouldConfirm: boolean,
   ) =>
-    `.${functionName}-confirm-before-execute label:contains(${
-      shouldConfirm ? "Yes" : "No"
+    `.${functionName}-confirm-before-execute label:contains(${shouldConfirm ? "Yes" : "No"
     }) span.checkbox`;
   private _outputConsole = ".CodeEditorTarget";
   private _jsObjName = ".t--js-action-name-edit-field span";
@@ -31,6 +30,9 @@ export class JSEditor {
   private _closeSettings = "span[icon='small-cross']"
   _dialogBody = (jsFuncName: string) => "//div[@class='bp3-dialog-body']//*[contains(text(), '" + Cypress.env('MESSAGES').QUERY_CONFIRMATION_MODAL_MESSAGE() + "')]//*[contains(text(),'" + jsFuncName + "')]"
 
+  //#endregion
+
+  //#region Page functions
   public NavigateToJSEditor() {
     cy.get(this.locator._createNew)
       .last()
@@ -156,9 +158,9 @@ export class JSEditor {
     } else {
       cy.get(
         this.locator._propertyControl +
-          endp.replace(/ +/g, "").toLowerCase() +
-          " " +
-          this.locator._codeMirrorTextArea,
+        endp.replace(/ +/g, "").toLowerCase() +
+        " " +
+        this.locator._codeMirrorTextArea,
       )
         .first()
         .then((el: any) => {
@@ -205,9 +207,9 @@ export class JSEditor {
   public RemoveText(endp: string) {
     cy.get(
       this.locator._propertyControl +
-        endp +
-        " " +
-        this.locator._codeMirrorTextArea,
+      endp +
+      " " +
+      this.locator._codeMirrorTextArea,
     )
       .first()
       .focus()
@@ -244,7 +246,7 @@ export class JSEditor {
 
   public validateDefaultJSObjProperties(jsObjName: string) {
     this.ee.ActionContextMenuByEntityName(jsObjName, "Show Bindings");
-    cy.get(this._propertyList).then(function($lis) {
+    cy.get(this._propertyList).then(function ($lis) {
       const bindingsLength = $lis.length;
       expect(bindingsLength).to.be.at.least(4);
       expect($lis.eq(0).text()).to.be.oneOf([
@@ -268,16 +270,16 @@ export class JSEditor {
   }
 
 
-  public EnableDisableOnPageLoad(funName: string, onLoad: 'enable' | 'disable' | '', bfrCalling: 'enable' | 'disable' | '') {
-    this.agHelper.GetNClick(this._responseTabAction(funName))
-    this.agHelper.AssertElementPresence(this._dialog('Function settings'))
-    if (onLoad)
-      this.agHelper.CheckUncheck(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_ONPAGELOAD()), onLoad == 'enable' ? true : false)
-    if (bfrCalling)
-      this.agHelper.CheckUncheck(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_CONFIRM_EXECUTION()), bfrCalling == 'enable' ? true : false)
+  // public EnableDisableOnPageLoad(funName: string, onLoad: 'enable' | 'disable' | '', bfrCalling: 'enable' | 'disable' | '') {
+  //   this.agHelper.GetNClick(this._responseTabAction(funName))
+  //   this.agHelper.AssertElementPresence(this._dialog('Function settings'))
+  //   if (onLoad)
+  //     this.agHelper.CheckUncheck(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_ONPAGELOAD()), onLoad == 'enable' ? true : false)
+  //   if (bfrCalling)
+  //     this.agHelper.CheckUncheck(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_CONFIRM_EXECUTION()), bfrCalling == 'enable' ? true : false)
 
-    this.agHelper.GetNClick(this._closeSettings)
-  }
+  //   this.agHelper.GetNClick(this._closeSettings)
+  // }
 
   public VerifyOnPageLoadSetting(funName: string, onLoad: 'checked' | 'unchecked', bfrCalling: 'checked' | 'unchecked') {
     this.agHelper.GetNClick(this._responseTabAction(funName))
@@ -286,7 +288,8 @@ export class JSEditor {
     this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_CONFIRM_EXECUTION()), bfrCalling)
     this.agHelper.GetNClick(this._closeSettings)
   }
-  public AddJSFunctionSettings(
+
+  public EnableDisableOnPageLoad(
     funName: string,
     onLoad = true,
     bfrCalling = true,
@@ -294,14 +297,12 @@ export class JSEditor {
     // Navigate to Settings tab
     this.agHelper.GetNClick(this._settingsTab);
     // Set onPageLoad
-    cy.get(this._onPageLoadRadioButton(funName, onLoad))
-      .first()
-      .click();
+    this.agHelper.GetNClick(this._onPageLoadRadioButton(funName, onLoad));
     // Set confirmBeforeExecute
-    cy.get(this._confirmBeforeExecuteRadioButton(funName, bfrCalling))
-      .first()
-      .click();
+    this.agHelper.GetNClick(this._confirmBeforeExecuteRadioButton(funName, bfrCalling));
     // Return to code tab
     this.agHelper.GetNClick(this._codeTab);
   }
+
+  //#endregion
 }

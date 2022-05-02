@@ -36,7 +36,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       true,
       false,
     );
-    jsEditor.EnableDisableOnPageLoad("getId", 'disable', 'enable'); //Only before calling confirmation is enabled by User here
+    jsEditor.EnableDisableOnPageLoad("getId", false, true); //Only before calling confirmation is enabled by User here
     dataSources.NavigateToActiveDSQueryPane(guid);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("GetUser");
@@ -72,7 +72,7 @@ describe("JSObjects OnLoad Actions tests", function () {
 
   it("4. Verify Error for OnPage Load - disable & Before Function calling enabled for JSOBject", function () {
     ee.SelectEntityByName(jsName as string, 'QUERIES/JS')
-    jsEditor.EnableDisableOnPageLoad("getId", 'disable', 'enable');
+    jsEditor.EnableDisableOnPageLoad("getId", false, true);
     agHelper.DeployApp();
     agHelper.ValidateToastMessage("The action \"GetUser\" has failed")
     agHelper.NavigateBacktoEditor();
@@ -80,7 +80,7 @@ describe("JSObjects OnLoad Actions tests", function () {
 
   it("5. Verify OnPage Load - Enabling back & Before Function calling disabled for JSOBject", function () {
     ee.SelectEntityByName(jsName as string, 'QUERIES/JS')
-    jsEditor.EnableDisableOnPageLoad("getId", 'enable', 'disable');
+    jsEditor.EnableDisableOnPageLoad("getId", true, false);
     agHelper.DeployApp();
     agHelper.AssertElementAbsence(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementAbsence(jsEditor._dialogBody(jsName as string + ".getId"))
