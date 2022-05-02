@@ -668,7 +668,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
         final Flux<Datasource> existingDatasourceFlux = datasourceRepository
-                .findAllByOrganizationId(organizationId, AclPermission.MANAGE_DATASOURCES)
+                .findAllByOrganizationId(organizationId, MANAGE_DATASOURCES)
                 .cache();
 
         String errorField = "";
@@ -716,6 +716,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .filter(datasource -> datasource.getGitSyncId() != null)
                             .forEach(datasource -> savedDatasourcesGitIdToDatasourceMap.put(datasource.getGitSyncId(), datasource));
 
+                    // Check if the destination org have all the required plugins installed
+                    assert importedDatasourceList != null;
+                    for (Datasource datasource : importedDatasourceList) {
+                        if (StringUtils.isEmpty(pluginMap.get(datasource.getPluginId()))) {
+                            return Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED, datasource.getPluginId()));
+                        }
+                    }
                     return Flux.fromIterable(importedDatasourceList)
                             // Check for duplicate datasources to avoid duplicates in target organization
                             .flatMap(datasource -> {
@@ -960,7 +967,12 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                 // This does not apply to the traditional import via file approach
                                                 return Flux.fromIterable(invalidPageIds)
                                                         .flatMap(applicationPageService::deleteUnpublishedPage)
-                                                        .flatMap(page -> newPageService.archiveById(page.getId()))
+                                                        .flatMap(page -> newPageService.archiveById(page.getId())
+                                                                .onErrorResume(e -> {
+                                                                    log.debug("Unable to archive page {} with error {}", page.getId(), e.getMessage());
+                                                                    return Mono.empty();
+                                                                })
+                                                        )
                                                         .then()
                                                         .thenReturn(applicationPages);
                                             });
