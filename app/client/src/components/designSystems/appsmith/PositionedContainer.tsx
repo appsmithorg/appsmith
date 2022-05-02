@@ -131,9 +131,12 @@ export function PositionedContainer(props: PositionedContainerProps) {
   );
 
   // TODO: Experimental fix for sniping mode. This should be handled with a single event
-  const stopEventPropagation = (e: any) => {
-    !isSnipingMode && e.stopPropagation();
-  };
+  const stopEventPropagation = useCallback(
+    (e: any) => {
+      !isSnipingMode && e.stopPropagation();
+    },
+    [isSnipingMode],
+  );
 
   return (
     <PositionedWidget
