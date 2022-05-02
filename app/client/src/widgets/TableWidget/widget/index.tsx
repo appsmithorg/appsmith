@@ -33,7 +33,7 @@ import { getAllTableColumnKeys } from "../component/TableHelpers";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
 
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import { DynamicPath, getDynamicBindings } from "utils/DynamicBindingUtils";
 import { ReactTableFilter, OperatorTypes } from "../component/Constants";
 import { TableWidgetProps } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
@@ -176,7 +176,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             (columnProperties.hasOwnProperty("boxShadow") &&
               cellProperties.boxShadow.includes("VARIANT"))
               ? boxShadowMigration(
-                  this.props,
+                  this.props.dynamicBindingPathList as DynamicPath[],
                   columnProperties.id,
                   cellProperties.boxShadow,
                   isBoxShadowColorInDynamicList

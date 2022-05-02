@@ -10,7 +10,7 @@ import {
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import generate from "nanoid/generate";
-import { WidgetPositionProps, WidgetProps } from "./BaseWidget";
+import { WidgetPositionProps } from "./BaseWidget";
 import { Theme } from "constants/DefaultTheme";
 import {
   ButtonStyleTypes,
@@ -28,6 +28,7 @@ import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleCon
 import { SchemaItem } from "./JSONFormWidget/constants";
 import { find, isEmpty } from "lodash";
 import { rgbaMigrationConstantV56 } from "./constants";
+import { DynamicPath } from "utils/DynamicBindingUtils";
 
 const punycode = require("punycode/");
 
@@ -404,7 +405,7 @@ export const boxShadowUtility = (boxShadow: string, boxShadowColor: string) => {
  * @returns
  */
 export const boxShadowMigration = (
-  child: WidgetProps,
+  dynamicList: DynamicPath[],
   columnName: string,
   boxShadow: string,
   boxShadowColor: any,
@@ -412,10 +413,10 @@ export const boxShadowMigration = (
   const boxShadowRegex = new RegExp(columnName + ".boxShadow$");
   const boxShadowColorRegex = new RegExp(columnName + ".boxShadowColor$");
 
-  const isBoxShadowDynamic = find(child.dynamicBindingPathList, (value) =>
+  const isBoxShadowDynamic = find(dynamicList, (value) =>
     boxShadowRegex.test(value.key),
   );
-  const isBoxShadowColorDynamic = find(child.dynamicBindingPathList, (value) =>
+  const isBoxShadowColorDynamic = find(dynamicList, (value) =>
     boxShadowColorRegex.test(value.key),
   );
 

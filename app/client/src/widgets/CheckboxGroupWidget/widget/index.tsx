@@ -329,7 +329,7 @@ class CheckboxGroupWidget extends BaseWidget<
             propertyName: "labelTextSize",
             label: "Label Text Size",
             controlType: "DROP_DOWN",
-            defaultValue: "PARAGRAPH",
+            defaultValue: "0.875rem",
             options: [
               {
                 label: "S",
