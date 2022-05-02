@@ -14,8 +14,8 @@ import {
   WidgetType,
 } from "constants/WidgetConstants";
 import React, { Component, ReactNode } from "react";
-import { get, memoize } from "lodash";
-import memoizeOne from "memoize-one";
+import { get, memoize as moize } from "lodash";
+import memoize from "micro-memoize";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import SnipeableComponent from "components/editorComponents/SnipeableComponent";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
@@ -41,7 +41,7 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
 
-const getPositionStyle_ = memoizeOne(
+const getPositionStyle_ = memoize(
   (
     componentHeight: number,
     componentWidth: number,
@@ -50,7 +50,7 @@ const getPositionStyle_ = memoizeOne(
     parentColumnSpace: number,
     noContainerOffset: boolean | undefined,
     leftColumn: number,
-  ) => {
+  ): BaseStyle => {
     return {
       positionType: PositionTypes.ABSOLUTE,
       componentHeight,
@@ -220,7 +220,7 @@ abstract class BaseWidget<
     return (Number(this.props.labelWidth) || 0) * this.props.parentColumnSpace;
   };
 
-  getErrorCount = memoize((evalErrors: Record<string, EvaluationError[]>) => {
+  getErrorCount = moize((evalErrors: Record<string, EvaluationError[]>) => {
     return Object.values(evalErrors).reduce(
       (prev, curr) =>
         curr.filter(
