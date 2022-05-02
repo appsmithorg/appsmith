@@ -205,62 +205,63 @@ describe("Git synced app with JSObject", function() {
       cy.createTestGithubRepo(repoName);
       cy.connectToGitRepo(repoName);
       cy.wait(3000);
+
+      cy.window()
+        .its("store")
+        .invoke("getState")
+        .then((state) => {
+          const commitInputDisabled =
+            state.ui.gitSync.gitStatus?.isClean ||
+            state.ui.gitSync.isCommitting;
+          if (!commitInputDisabled) {
+            cy.commitAndPush();
+          }
+
+          // check last deploy preview
+          if (state.ui.applications.currentApplication?.lastDeployedAt) {
+            cy.latestDeployPreview();
+            cy.wait(1000);
+            cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+              "be.visible",
+            );
+            // switch to Page1 and validate data binding
+            cy.get(".t--page-switch-tab")
+              .contains("Page1")
+              .click({ force: true });
+            cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+              "be.visible",
+            );
+            cy.get(commonlocators.backToEditor).click();
+          } else if (state.ui.gitSync.isGitSyncModalOpen) {
+            cy.get(gitSyncLocators.closeGitSyncModal).click({ force: true });
+          }
+
+          // verify jsObject data binding on Page 1
+          cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+          cy.get(`.t--entity-name:contains(${jsObject})`).should(
+            "have.length",
+            1,
+          );
+          cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+            "be.visible",
+          );
+          // switch to Page1 copy and verify jsObject data binding
+          cy.CheckAndUnfoldEntityItem("PAGES");
+          cy.get(".t--entity-name:contains(Page1)")
+            .last()
+            .trigger("mouseover")
+            .click({ force: true });
+          cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+          // verify jsObject is not duplicated
+          cy.get(`.t--entity-name:contains(${jsObject})`).should(
+            "have.length",
+            1,
+          );
+          cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+            "be.visible",
+          );
+        });
     });
-    cy.window()
-      .its("store")
-      .invoke("getState")
-      .then((state) => {
-        const commitInputDisabled =
-          state.ui.gitSync.gitStatus?.isClean || state.ui.gitSync.isCommitting;
-        if (!commitInputDisabled) {
-          cy.commitAndPush();
-        }
-
-        if (state.ui.applications.currentApplication?.lastDeployedAt) {
-          cy.latestDeployPreview();
-        }
-
-        cy.wait(1000);
-        if (state.ui.gitSync.isGitSyncModalOpen) {
-          cy.get(gitSyncLocators.closeGitSyncModal).click({ force: true });
-        }
-        cy.wait(20000);
-        cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
-          "be.visible",
-        );
-        // switch to Page1 and validate data binding
-        cy.get(".t--page-switch-tab")
-          .contains("Page1")
-          .click({ force: true });
-        cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
-          "be.visible",
-        );
-        cy.get(commonlocators.backToEditor).click();
-        // verify jsObject data binding on Page 1
-        cy.CheckAndUnfoldEntityItem("QUERIES/JS");
-        cy.get(`.t--entity-name:contains(${jsObject})`).should(
-          "have.length",
-          1,
-        );
-        cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
-          "be.visible",
-        );
-        // switch to Page1 copy and verify jsObject data binding
-        cy.CheckAndUnfoldEntityItem("PAGES");
-        cy.get(".t--entity-name:contains(Page1)")
-          .last()
-          .trigger("mouseover")
-          .click({ force: true });
-        cy.CheckAndUnfoldEntityItem("QUERIES/JS");
-        // verify jsObject is not duplicated
-        cy.get(`.t--entity-name:contains(${jsObject})`).should(
-          "have.length",
-          1,
-        );
-        cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
-          "be.visible",
-        );
-      });
   });
   after(() => {
     cy.deleteTestGithubRepo(repoName);
