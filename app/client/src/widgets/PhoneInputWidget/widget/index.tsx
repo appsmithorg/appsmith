@@ -320,6 +320,7 @@ class PhoneInputWidget extends BaseInputWidget<
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
+        ref={this.contentRef}
         showError={!!this.props.isFocused}
         tooltip={this.props.tooltip}
         value={value}

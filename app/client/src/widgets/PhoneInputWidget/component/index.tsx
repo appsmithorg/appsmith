@@ -77,6 +77,7 @@ class PhoneInputComponent extends React.Component<PhoneInputComponentProps> {
         onKeyDown={this.onKeyDown}
         onValueChange={this.props.onValueChange}
         placeholder={this.props.placeholder}
+        ref={this.props.innerRef}
         showError={this.props.showError}
         tooltip={this.props.tooltip}
         value={this.props.value}
@@ -91,6 +92,14 @@ export interface PhoneInputComponentProps extends BaseInputComponentProps {
   countryCode?: CountryCode;
   onISDCodeChange: (code?: string) => void;
   allowDialCodeChange: boolean;
+  innerRef?: React.RefObject<HTMLDivElement>;
 }
 
-export default PhoneInputComponent;
+export default React.forwardRef<HTMLDivElement, PhoneInputComponentProps>(
+  (props, ref) => (
+    <PhoneInputComponent
+      {...props}
+      innerRef={ref as React.RefObject<HTMLDivElement>}
+    />
+  ),
+);
