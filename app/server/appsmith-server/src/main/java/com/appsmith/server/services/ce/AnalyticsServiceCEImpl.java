@@ -4,6 +4,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -150,6 +151,11 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         }).subscribeOn(Schedulers.boundedElastic()).subscribe();
     }
 
+    @Override
+    public <T extends BaseDomain> Mono<T> sendObjectEvent(AnalyticsEvents event, T object) {
+        return sendObjectEvent(event, object, null);
+    }
+
     public <T extends BaseDomain> Mono<T> sendObjectEvent(AnalyticsEvents event, T object, Map<String, Object> extraProperties) {
         if (!isActive()) {
             return Mono.just(object);
@@ -159,7 +165,16 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
         // We will create an anonymous user object for event tracking if no user is present
         // Without this, a lot of flows meant for anonymous users will error out
-        Mono<User> userMono = sessionUserService.getCurrentUser();
+
+        // In case the event needs to be sent during sign in, then `sessionUserService.getCurrentUser()` returns Mono.emtpy()
+        // Handle the same by returning an anonymous user only for sending events.
+        User anonymousUser = new User();
+        anonymousUser.setName(FieldName.ANONYMOUS_USER);
+        anonymousUser.setEmail(FieldName.ANONYMOUS_USER);
+        anonymousUser.setIsAnonymous(true);
+
+        Mono<User> userMono = sessionUserService.getCurrentUser()
+                .switchIfEmpty(Mono.just(anonymousUser));
 
         return userMono
                 .map(user -> {
@@ -205,13 +220,5 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
     public <T extends BaseDomain> Mono<T> sendDeleteEvent(T object) {
         return sendDeleteEvent(object, null);
-    }
-
-    public <T extends BaseDomain> Mono<T> sendArchiveEvent(T object) {
-        return sendArchiveEvent(object, null);
-    }
-
-    private <T extends BaseDomain> Mono<T> sendArchiveEvent(T object, Map<String, Object> extraProperties) {
-        return sendObjectEvent(AnalyticsEvents.ARCHIVE, object, extraProperties);
     }
 }

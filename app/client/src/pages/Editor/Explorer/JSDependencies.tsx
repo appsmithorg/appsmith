@@ -50,10 +50,11 @@ const Title = styled.div`
   display: grid;
   grid-template-columns: 20px auto 20px;
   cursor: pointer;
-  height: 36px;
+  height: 32px;
   align-items: center;
   padding-right: 4px;
   padding-left: 0.25rem;
+  font-size: 14px;
   &:hover {
     background: ${Colors.ALABASTER_ALT};
   }

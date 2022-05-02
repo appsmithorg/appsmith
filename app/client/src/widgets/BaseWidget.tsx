@@ -38,6 +38,7 @@ import OverlayCommentsWrapper from "comments/inlineComments/OverlayCommentsWrapp
 import PreventInteractionsOverlay from "components/editorComponents/PreventInteractionsOverlay";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
 
 /***
  * BaseWidget
@@ -188,6 +189,10 @@ abstract class BaseWidget<
     };
   }
 
+  getLabelWidth = () => {
+    return (Number(this.props.labelWidth) || 0) * this.props.parentColumnSpace;
+  };
+
   getErrorCount = memoize((evalErrors: Record<string, EvaluationError[]>) => {
     return Object.values(evalErrors).reduce(
       (prev, curr) =>
@@ -313,12 +318,20 @@ abstract class BaseWidget<
     );
   }
 
+  addPreviewModeWidget(content: ReactNode): React.ReactElement {
+    return (
+      <PreviewModeComponent isVisible={this.props.isVisible}>
+        {content}
+      </PreviewModeComponent>
+    );
+  }
+
   private getWidgetView(): ReactNode {
     let content: ReactNode;
-
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
         content = this.getCanvasView();
+        content = this.addPreviewModeWidget(content);
         content = this.addPreventInteractionOverlay(content);
         content = this.addOverlayComments(content);
         if (!this.props.detachFromLayout) {

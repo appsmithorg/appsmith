@@ -3,13 +3,10 @@ import styled, { ThemeProvider } from "styled-components";
 import classNames from "classnames";
 import { Classes as Popover2Classes } from "@blueprintjs/popover2";
 import {
-  CurrentApplicationData,
+  ApplicationPayload,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
-import {
-  APPLICATIONS_URL,
-  getApplicationViewerPageURL,
-} from "constants/routes";
+} from "@appsmith/constants/ReduxActionConstants";
+import { APPLICATIONS_URL } from "constants/routes";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
@@ -21,6 +18,7 @@ import {
   getCurrentPageId,
   getIsPublishingApplication,
   previewModeSelector,
+  selectURLSlugs,
 } from "selectors/editorSelectors";
 import { getAllUsers, getCurrentOrgId } from "selectors/organizationSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
@@ -35,7 +33,7 @@ import {
 } from "selectors/applicationSelectors";
 import EditorAppName from "./EditorAppName";
 import ProfileDropdown from "pages/common/ProfileDropdown";
-import { getCurrentUser } from "selectors/usersSelectors";
+import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import Button, { Size } from "components/ads/Button";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -54,13 +52,12 @@ import { useLocation } from "react-router";
 import { showConnectGitModal } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
-import getFeatureFlags from "utils/featureFlags";
 
 import { retryPromise } from "utils/AppsmithUtils";
 import { fetchUsersForOrg } from "actions/orgActions";
 import { OrgUser } from "constants/orgConstants";
 
-import { getIsGitConnected } from "../../selectors/gitSyncSelectors";
+import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core/lib/esnext/common";
 import {
@@ -82,10 +79,11 @@ import {
 } from "actions/explorerActions";
 import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
 import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
-import { isMac } from "utils/helpers";
+import { modText } from "utils/helpers";
 import Boxed from "./GuidedTour/Boxed";
 import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
+import { viewerURL } from "RouteBuilder";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -217,12 +215,12 @@ const HamburgerContainer = styled.div`
 type EditorHeaderProps = {
   pageSaveError?: boolean;
   pageName?: string;
-  pageId?: string;
+  pageId: string;
   isPublishing: boolean;
   publishedTime?: string;
   orgId: string;
   applicationId?: string;
-  currentApplication?: CurrentApplicationData;
+  currentApplication?: ApplicationPayload;
   isSaving: boolean;
   publishApplication: (appId: string) => void;
   lastUpdatedTime?: number;
@@ -299,9 +297,11 @@ export function EditorHeader(props: EditorHeaderProps) {
     showAppInviteUsersDialogSelector,
   );
 
+  const featureFlags = useSelector(selectFeatureFlags);
+
   const handleClickDeploy = useCallback(
     (fromDeploy?: boolean) => {
-      if (getFeatureFlags().GIT && isGitConnected) {
+      if (featureFlags.GIT && isGitConnected) {
         dispatch(showConnectGitModal());
         AnalyticsUtil.logEvent("GS_DEPLOY_GIT_CLICK", {
           source: fromDeploy
@@ -312,7 +312,7 @@ export function EditorHeader(props: EditorHeaderProps) {
         handlePublish();
       }
     },
-    [getFeatureFlags().GIT, dispatch, handlePublish],
+    [featureFlags.GIT, dispatch, handlePublish],
   );
 
   /**
@@ -338,10 +338,11 @@ export function EditorHeader(props: EditorHeaderProps) {
   const filteredSharedUserList = props.sharedUserList.filter(
     (user) => user.username !== props.currentUser?.username,
   );
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   return (
     <ThemeProvider theme={theme}>
-      <HeaderWrapper className="pr-3">
+      <HeaderWrapper className="pr-3" data-testid="t--appsmith-editor-header">
         <HeaderSection className="space-x-3">
           <HamburgerContainer className="text-gray-800 transform transition-all duration-400 relative p-0 flex items-center justify-center">
             <TooltipComponent
@@ -353,7 +354,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                       : createMessage(CLOSE_ENTITY_EXPLORER_MESSAGE)}
                   </span>
                   <span className="ml-4 text-xs text-gray-300">
-                    {isMac() ? "Cmd" : "Ctrl"} + /
+                    {modText()} /
                   </span>
                 </div>
               }
@@ -404,8 +405,9 @@ export function EditorHeader(props: EditorHeaderProps) {
             <EditorAppName
               applicationId={applicationId}
               className="t--application-name editable-application-name max-w-48"
-              currentDeployLink={getApplicationViewerPageURL({
-                applicationId: props.applicationId,
+              currentDeployLink={viewerURL({
+                applicationSlug,
+                pageSlug,
                 pageId,
               })}
               defaultSavingState={
@@ -457,7 +459,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               canOutsideClickClose
               headerIcon={{
                 name: "right-arrow",
-                bgColor: "transparent",
+                bgColor: Colors.GEYSER_LIGHT,
               }}
               isOpen={showAppInviteUsersDialog}
               orgId={orgId}
@@ -501,8 +503,9 @@ export function EditorHeader(props: EditorHeaderProps) {
               </TooltipComponent>
 
               <DeployLinkButtonDialog
-                link={getApplicationViewerPageURL({
-                  applicationId: props.applicationId,
+                link={viewerURL({
+                  applicationSlug,
+                  pageSlug,
                   pageId,
                 })}
                 trigger={
@@ -546,7 +549,7 @@ const mapStateToProps = (state: AppState) => ({
   applicationId: getCurrentApplicationId(state),
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),
-  pageId: getCurrentPageId(state),
+  pageId: getCurrentPageId(state) as string,
   sharedUserList: getAllUsers(state),
   currentUser: getCurrentUser(state),
 });

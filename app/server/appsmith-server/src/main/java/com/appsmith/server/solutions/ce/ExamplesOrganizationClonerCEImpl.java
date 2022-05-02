@@ -6,6 +6,7 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -13,6 +14,7 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
@@ -33,7 +35,9 @@ import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
+import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -68,6 +72,7 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
     private final LayoutActionService layoutActionService;
     private final ActionCollectionService actionCollectionService;
     private final LayoutCollectionService layoutCollectionService;
+    private final ThemeService themeService;
 
     public Mono<Organization> cloneExamplesOrganization() {
         return sessionUserService
@@ -196,7 +201,7 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
                             .findFirst()
                             .orElse("");
 
-                    return doOnlyCloneApplicationObjectWithoutItsDependenciesAndReturnPages(application, newApplicationIds)
+                    return doOnlyCloneApplicationObjectWithoutItsDependenciesAndReturnNonDeletedPages(application, newApplicationIds)
                             .flatMap(page ->
                                     Mono.zip(
                                             Mono.just(page),
@@ -276,6 +281,8 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
                                         // `clonedPages` list will also contain all pages cloned.
                                         .collect(HashMap<String, String>::new, (map, tuple2) -> map.put(tuple2.getT2(), tuple2.getT1()))
                                         .flatMap(actionIdsMap -> {
+                                            // Map of <originalCollectionId, clonedActionCollectionIds>
+                                            HashMap<String, String> collectionIdsMap = new HashMap<>();
                                             // Pick all action collections
                                             return actionCollectionService
                                                     .findByPageId(templatePageId)
@@ -307,11 +314,13 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
                                                         unpublishedCollection
                                                                 .getDefaultToBranchedActionIdsMap()
                                                                 .forEach((defaultActionId, oldActionId) -> {
-                                                                    if (!StringUtils.isEmpty(actionIdsMap.get(oldActionId))) {
+                                                                    if (StringUtils.hasLength(oldActionId)
+                                                                            && StringUtils.hasLength(actionIdsMap.get(oldActionId))) {
+
+                                                                        // As this is a new application and not connected
+                                                                        // through git branch, the default and newly
+                                                                        // created actionId will be same
                                                                         newActionIds
-                                                                            // As this is a new application and not connected
-                                                                            // through git branch, the default and newly
-                                                                            // created actionId will be same
                                                                             .put(actionIdsMap.get(oldActionId), actionIdsMap.get(oldActionId));
                                                                     } else {
                                                                         log.debug("Unable to find action {} while forking inside ID map: {}", oldActionId, actionIdsMap);
@@ -321,34 +330,35 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
                                                         unpublishedCollection.setDefaultToBranchedActionIdsMap(newActionIds);
 
                                                         return actionCollectionService.create(actionCollection)
-                                                                .flatMap(newActionCollection -> {
-                                                                    if (StringUtils.isEmpty(newActionCollection.getDefaultResources().getCollectionId())) {
+                                                                .flatMap(clonedActionCollection -> {
+                                                                    if (StringUtils.isEmpty(clonedActionCollection.getDefaultResources().getCollectionId())) {
                                                                         ActionCollection updates = new ActionCollection();
-                                                                        DefaultResources defaultResources2 = newActionCollection.getDefaultResources();
-                                                                        defaultResources2.setCollectionId(newActionCollection.getId());
+                                                                        DefaultResources defaultResources2 = clonedActionCollection.getDefaultResources();
+                                                                        defaultResources2.setCollectionId(clonedActionCollection.getId());
                                                                         updates.setDefaultResources(defaultResources2);
-                                                                        return actionCollectionService.update(newActionCollection.getId(), updates);
+                                                                        return actionCollectionService.update(clonedActionCollection.getId(), updates);
                                                                     }
-                                                                    return Mono.just(newActionCollection);
+                                                                    return Mono.just(clonedActionCollection);
                                                                 })
-                                                                .flatMap(newlyCreatedActionCollection -> {
+                                                                .flatMap(clonedActionCollection -> {
+                                                                    collectionIdsMap.put(originalCollectionId, clonedActionCollection.getId());
                                                                     return Flux.fromIterable(newActionIds.values())
                                                                             .flatMap(newActionService::findById)
                                                                             .flatMap(newlyCreatedAction -> {
                                                                                 ActionDTO unpublishedAction = newlyCreatedAction.getUnpublishedAction();
-                                                                                unpublishedAction.setCollectionId(newlyCreatedActionCollection.getId());
-                                                                                unpublishedAction.getDefaultResources().setCollectionId(newlyCreatedActionCollection.getId());
+                                                                                unpublishedAction.setCollectionId(clonedActionCollection.getId());
+                                                                                unpublishedAction.getDefaultResources().setCollectionId(clonedActionCollection.getId());
                                                                                 return newActionService.update(newlyCreatedAction.getId(), newlyCreatedAction);
                                                                             })
                                                                             .collectList();
                                                                 });
                                                     })
                                                     .collectList()
-                                                    .thenReturn(actionIdsMap);
+                                                    .then(Mono.zip(Mono.just(actionIdsMap), Mono.just(collectionIdsMap)));
                                         });
                             });
                 })
-                .flatMap(actionIdsMap -> updateActionIdsInClonedPages(clonedPages, actionIdsMap))
+                .flatMap(tuple -> updateActionAndCollectionsIdsInClonedPages(clonedPages, tuple.getT1(), tuple.getT2()))
                 // Now publish all the example applications which have been cloned to ensure that there is a
                 // view mode for the newly created user.
                 .then(Mono.just(newApplicationIds))
@@ -357,7 +367,9 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
                 .collectList();
     }
 
-    private Flux<NewPage> updateActionIdsInClonedPages(List<NewPage> clonedPages, Map<String, String> actionIdsMap) {
+    private Flux<NewPage> updateActionAndCollectionsIdsInClonedPages(List<NewPage> clonedPages,
+                                                                     Map<String, String> actionIdsMap,
+                                                                     Map<String, String> actionCollectionIdsMap) {
         final List<Mono<NewPage>> pageSaveMonos = new ArrayList<>();
 
         for (final NewPage page : clonedPages) {
@@ -371,7 +383,7 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
 
             for (final Layout layout : page.getUnpublishedPage().getLayouts()) {
                 if (layout.getLayoutOnLoadActions() != null) {
-                    shouldSave = updateOnLoadActionsWithNewActionIds(actionIdsMap, page.getId(), shouldSave, layout);
+                    shouldSave = updateOnLoadActionsWithNewActionAndCollectionIds(actionIdsMap, actionCollectionIdsMap, page.getId(), shouldSave, layout);
                 }
             }
 
@@ -383,13 +395,22 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
         return Flux.concat(pageSaveMonos);
     }
 
-    private boolean updateOnLoadActionsWithNewActionIds(Map<String, String> actionIdsMap, String pageId, boolean shouldSave, Layout layout) {
+    private boolean updateOnLoadActionsWithNewActionAndCollectionIds(Map<String, String> actionIdsMap,
+                                                                     Map<String, String> collectionIdsMap,
+                                                                     String pageId,
+                                                                     boolean shouldSave,
+                                                                     Layout layout) {
         for (final Set<DslActionDTO> actionSet : layout.getLayoutOnLoadActions()) {
             for (final DslActionDTO actionDTO : actionSet) {
                 if (actionIdsMap.containsKey(actionDTO.getId())) {
                     final String srcActionId = actionDTO.getId();
+                    final String srcCollectionId = actionDTO.getCollectionId();
                     actionDTO.setId(actionIdsMap.get(srcActionId));
                     actionDTO.setDefaultActionId(actionIdsMap.get(srcActionId));
+                    if (StringUtils.hasLength(srcCollectionId)) {
+                        actionDTO.setDefaultCollectionId(collectionIdsMap.get(actionDTO.getCollectionId()));
+                        actionDTO.setCollectionId(collectionIdsMap.get(actionDTO.getCollectionId()));
+                    }
                     shouldSave = true;
                 } else {
                     log.error(
@@ -411,21 +432,39 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
      * @param applicationIds : List where the cloned new application's id would be stored
      * @return A flux that yields all the pages in the template application
      */
-    private Flux<NewPage> doOnlyCloneApplicationObjectWithoutItsDependenciesAndReturnPages(Application application, List<String> applicationIds) {
+    private Flux<NewPage> doOnlyCloneApplicationObjectWithoutItsDependenciesAndReturnNonDeletedPages(Application application, List<String> applicationIds) {
         final String templateApplicationId = application.getId();
         return cloneApplicationDocument(application)
                 .flatMapMany(
                         savedApplication -> {
                             applicationIds.add(savedApplication.getId());
-                            return newPageRepository
-                                    .findByApplicationId(templateApplicationId)
-                                    .map(newPage -> {
-                                        log.info("Preparing page for cloning {} {}.", newPage.getUnpublishedPage().getName(), newPage.getId());
-                                        newPage.setApplicationId(savedApplication.getId());
-                                        return newPage;
-                                    });
+                            return forkThemes(application, savedApplication).thenMany(
+                                    newPageRepository
+                                            .findByApplicationIdAndNonDeletedEditMode(templateApplicationId, AclPermission.READ_PAGES)
+                                            .map(newPage -> {
+                                                log.info("Preparing page for cloning {} {}.", newPage.getUnpublishedPage().getName(), newPage.getId());
+                                                newPage.setApplicationId(savedApplication.getId());
+                                                return newPage;
+                                            })
+                            );
                         }
                 );
+    }
+
+    private Mono<UpdateResult> forkThemes(Application srcApplication, Application destApplication) {
+        return Mono.zip(
+                themeService.cloneThemeToApplication(srcApplication.getEditModeThemeId(), destApplication),
+                themeService.cloneThemeToApplication(srcApplication.getPublishedModeThemeId(), destApplication)
+        ).flatMap(themes -> {
+            Theme editModeTheme = themes.getT1();
+            Theme publishedModeTheme = themes.getT2();
+            return applicationService.setAppTheme(
+                    destApplication.getId(),
+                    editModeTheme.getId(),
+                    publishedModeTheme.getId(),
+                    AclPermission.MANAGE_APPLICATIONS
+            );
+        });
     }
 
     private Mono<Application> cloneApplicationDocument(Application application) {

@@ -31,10 +31,8 @@ import {
   inGuidedTour,
 } from "selectors/onboardingSelectors";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
-import { PropertyPaneSidebar } from "components/editorComponents/PropertyPaneSidebar";
-import { updateExplorerWidthAction } from "actions/explorerActions";
-import { DEFAULT_PROPERTY_PANE_WIDTH } from "constants/AppConstants";
 import Guide from "../GuidedTour/Guide";
+import PropertyPaneContainer from "./PropertyPaneContainer";
 
 /* eslint-disable react/display-name */
 function WidgetsEditor() {
@@ -71,13 +69,17 @@ function WidgetsEditor() {
 
   // navigate to widget
   useEffect(() => {
-    if (!isFetchingPage && window.location.hash.length > 0) {
-      const widgetIdFromURLHash = window.location.hash.substr(1);
+    if (
+      !isFetchingPage &&
+      window.location.hash.length > 0 &&
+      !guidedTourEnabled
+    ) {
+      const widgetIdFromURLHash = window.location.hash.slice(1);
       flashElementsById(widgetIdFromURLHash);
       if (document.getElementById(widgetIdFromURLHash))
         selectWidget(widgetIdFromURLHash);
     }
-  }, [isFetchingPage, selectWidget]);
+  }, [isFetchingPage, selectWidget, guidedTourEnabled]);
 
   const allowDragToSelect = useAllowEditorDragToSelect();
 
@@ -109,26 +111,6 @@ function WidgetsEditor() {
     [allowDragToSelect],
   );
 
-  const [propertyPaneWidth, setPropertyPaneWidth] = React.useState(
-    DEFAULT_PROPERTY_PANE_WIDTH,
-  );
-
-  /**
-   * on property pane sidebar drag end
-   *
-   * @return void
-   */
-  const onRightSidebarDragEnd = useCallback(() => {
-    dispatch(updateExplorerWidthAction(propertyPaneWidth));
-  }, [propertyPaneWidth]);
-
-  /**
-   * on property pane sidebar width change
-   */
-  const onRightSidebarWidthChange = useCallback((newWidth) => {
-    setPropertyPaneWidth(newWidth);
-  }, []);
-
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider>
@@ -139,22 +121,20 @@ function WidgetsEditor() {
       ) : (
         <>
           {guidedTourEnabled && <Guide />}
-          <div
-            className="relative overflow-hidden flex flex-row w-full"
-            data-testid="widgets-editor"
-            draggable
-            onClick={handleWrapperClick}
-            onDragStart={onDragStart}
-          >
-            <PageTabs />
-            <CanvasContainer />
-            <CrudInfoModal />
-            <Debugger />
-            <PropertyPaneSidebar
-              onDragEnd={onRightSidebarDragEnd}
-              onWidthChange={onRightSidebarWidthChange}
-              width={propertyPaneWidth}
-            />
+          <div className="relative overflow-hidden flex flex-row w-full">
+            <div
+              className="relative overflow-hidden flex flex-row w-full"
+              data-testid="widgets-editor"
+              draggable
+              onClick={handleWrapperClick}
+              onDragStart={onDragStart}
+            >
+              <PageTabs />
+              <CanvasContainer />
+              <CrudInfoModal />
+              <Debugger />
+            </div>
+            <PropertyPaneContainer />
           </div>
         </>
       )}

@@ -1,4 +1,4 @@
-const homePage = require("../../../../locators/HomePage.json");
+import homePage from "../../../../locators/HomePage";
 const dsl = require("../../../../fixtures/displayWidgetDsl.json");
 
 describe("Organization Import Application", function() {
@@ -8,9 +8,10 @@ describe("Organization Import Application", function() {
 
   before(() => {
     cy.addDsl(dsl);
+    cy.wait(5000);
   });
 
-  it("Can Import Application", function() {
+  it("Can Import Application from json", function() {
     cy.NavigateToHome();
     appname = localStorage.getItem("AppName");
     cy.get(homePage.searchInput).type(appname);
@@ -47,20 +48,24 @@ describe("Organization Import Application", function() {
             cy.get(homePage.orgImportAppModal).should("be.visible");
             cy.xpath(homePage.uploadLogo).attachFile("exported-app.json");
 
-            cy.get(homePage.orgImportAppButton).click({ force: true });
             cy.wait("@importNewApplication").then((interception) => {
-              let appId = interception.response.body.data.id;
-              let defaultPage = interception.response.body.data.pages.find(
-                (eachPage) => !!eachPage.isDefault,
-              );
+              const importedApp = interception.response.body.data.application;
+              const { pages } = importedApp;
+              const appSlug = importedApp.slug;
+              let defaultPage = pages.find((eachPage) => eachPage.isDefault);
               cy.get(homePage.toastMessage).should(
                 "contain",
                 "Application imported successfully",
               );
-              cy.url().should(
-                "include",
-                `/applications/${appId}/pages/${defaultPage.id}/edit`,
-              );
+              cy.wait("@getPagesForCreateApp").then((interception) => {
+                const pages = interception.response.body.data.pages;
+                const pageSlug =
+                  pages.find((page) => page.isDefault)?.slug ?? "page";
+                cy.url().should(
+                  "include",
+                  `/${appSlug}/${pageSlug}-${defaultPage.id}`,
+                );
+              });
             });
           });
         });

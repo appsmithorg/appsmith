@@ -5,6 +5,7 @@ import com.appsmith.server.controllers.ce.ActionControllerCE;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

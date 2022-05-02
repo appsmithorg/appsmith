@@ -127,8 +127,12 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
     public Mono<ResponseDTO<Boolean>> forgotPasswordRequest(@RequestBody ResetUserPasswordDTO userPasswordDTO,
                                                             @RequestHeader("Origin") String originHeader) {
         userPasswordDTO.setBaseUrl(originHeader);
+        // We shouldn't leak information on whether this operation was successful or not to the client. This can enable
+        // username scraping, where the response of this API can prove whether an email has an account or not.
         return service.forgotPasswordTokenGenerate(userPasswordDTO)
-                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+                .defaultIfEmpty(true)
+                .onErrorReturn(true)
+                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
     }
 
     @GetMapping("/verifyPasswordResetToken")

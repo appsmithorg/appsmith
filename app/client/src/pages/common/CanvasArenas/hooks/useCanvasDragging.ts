@@ -7,24 +7,43 @@ import { debounce, isEmpty, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
-import { ReflowDirection, ReflowedSpaceMap } from "reflow/reflowTypes";
+import {
+  MovementLimitMap,
+  ReflowDirection,
+  ReflowedSpaceMap,
+} from "reflow/reflowTypes";
 import { getZoomLevel } from "selectors/editorSelectors";
-import { isReflowEnabled } from "selectors/widgetReflowSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { getAbsolutePixels } from "utils/helpers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { ReflowInterface, useReflow } from "utils/hooks/useReflow";
-import { getDropZoneOffsets, noCollision } from "utils/WidgetPropsUtils";
+import {
+  getDraggingSpacesFromBlocks,
+  getDropZoneOffsets,
+  getMousePositionsOnCanvas,
+  noCollision,
+} from "utils/WidgetPropsUtils";
 import {
   useBlocksToBeDraggedOnCanvas,
   WidgetDraggingBlock,
 } from "./useBlocksToBeDraggedOnCanvas";
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
+import ContainerJumpMetrics from "./ContainerJumpMetric";
 
 export interface XYCord {
   x: number;
   y: number;
 }
+
+const CONTAINER_JUMP_ACC_THRESHOLD = 8000;
+const CONTAINER_JUMP_SPEED_THRESHOLD = 800;
+
+//Since useCanvasDragging's Instance changes during container jump, metrics is stored outside
+const containerJumpThresholdMetrics = new ContainerJumpMetrics<{
+  speed?: number;
+  acceleration?: number;
+}>();
+
 export const useCanvasDragging = (
   slidingArenaRef: React.RefObject<HTMLDivElement>,
   stickyCanvasRef: React.RefObject<HTMLCanvasElement>,
@@ -41,10 +60,10 @@ export const useCanvasDragging = (
   const canvasZoomLevel = useSelector(getZoomLevel);
   const currentDirection = useRef<ReflowDirection>(ReflowDirection.UNSET);
   const { devicePixelRatio: scale = 1 } = window;
-  const reflowEnabled = useSelector(isReflowEnabled);
   const {
     blocksToDraw,
     defaultHandlePositions,
+    draggingSpaces,
     getSnappedXY,
     isChildOfCanvas,
     isCurrentDraggedCanvas,
@@ -53,6 +72,7 @@ export const useCanvasDragging = (
     isNewWidgetInitialTargetCanvas,
     isResizing,
     lastDraggedCanvas,
+    logContainerJump,
     occSpaces,
     onDrop,
     parentDiff,
@@ -61,7 +81,6 @@ export const useCanvasDragging = (
     stopReflowing,
     updateBottomRow,
     updateRelativeRows,
-    widgetOccupiedSpace,
   } = useBlocksToBeDraggedOnCanvas({
     canExtend,
     noPad,
@@ -78,11 +97,7 @@ export const useCanvasDragging = (
   };
 
   const reflow = useRef<ReflowInterface>();
-  reflow.current = useReflow(
-    widgetOccupiedSpace ? widgetOccupiedSpace.id : "",
-    widgetId || "",
-    gridProps,
-  );
+  reflow.current = useReflow(draggingSpaces, widgetId || "", gridProps);
 
   const {
     setDraggingCanvas,
@@ -192,15 +207,15 @@ export const useCanvasDragging = (
       const scrollObj: any = {};
 
       let currentReflowParams: {
-        canVerticalMove: boolean;
-        canHorizontalMove: boolean;
+        movementLimitMap?: MovementLimitMap;
         bottomMostRow: number;
         movementMap: ReflowedSpaceMap;
+        isIdealToJumpContainer: boolean;
       } = {
-        canVerticalMove: false,
-        canHorizontalMove: false,
+        movementLimitMap: {},
         bottomMostRow: 0,
         movementMap: {},
+        isIdealToJumpContainer: false,
       };
       let lastMousePosition = {
         x: 0,
@@ -297,6 +312,13 @@ export const useCanvasDragging = (
                 relativeStartPoints.top || defaultHandlePositions.top;
             }
             if (!isCurrentDraggedCanvas) {
+              //Called when canvas Changes
+              const {
+                acceleration,
+                speed,
+              } = containerJumpThresholdMetrics.getMetrics();
+              logContainerJump(widgetId, speed, acceleration);
+              containerJumpThresholdMetrics.clearMetrics();
               // we can just use canvasIsDragging but this is needed to render the relative DragLayerComponent
               setDraggingCanvas(widgetId);
             }
@@ -318,18 +340,12 @@ export const useCanvasDragging = (
         };
 
         const canReflowForCurrentMouseMove = () => {
-          const {
-            maxNegativeAcc,
-            maxPositiveAcc,
-            maxSpeed,
-            prevAcceleration,
-            prevSpeed,
-          } = mouseAttributesRef.current;
-          const limit = Math.abs(
-            prevAcceleration < 0 ? maxNegativeAcc : maxPositiveAcc,
-          );
+          const { prevAcceleration, prevSpeed } = mouseAttributesRef.current;
           const acceleration = Math.abs(prevAcceleration);
-          return acceleration < limit / 5 || prevSpeed < maxSpeed / 5;
+          return (
+            acceleration < CONTAINER_JUMP_ACC_THRESHOLD ||
+            prevSpeed < CONTAINER_JUMP_SPEED_THRESHOLD
+          );
         };
         const getMouseMoveDirection = (event: any) => {
           if (lastMousePosition) {
@@ -368,9 +384,7 @@ export const useCanvasDragging = (
           const canReflowBasedOnMouseSpeed = canReflowForCurrentMouseMove();
           const isReflowing = !isEmpty(currentReflowParams.movementMap);
           const canReflow =
-            reflowEnabled &&
-            currentRectanglesToDraw.length === 1 &&
-            !currentRectanglesToDraw[0].detachFromLayout;
+            !currentRectanglesToDraw[0].detachFromLayout && !dropDisabled;
           const currentBlock = currentRectanglesToDraw[0];
           const [leftColumn, topRow] = getDropZoneOffsets(
             snapColumnSpace,
@@ -384,6 +398,7 @@ export const useCanvasDragging = (
               y: 0,
             },
           );
+          const mousePosition = getMousePositionsOnCanvas(e, gridProps);
           const needsReflow = !(
             lastSnappedPosition.leftColumn === leftColumn &&
             lastSnappedPosition.topRow === topRow
@@ -394,22 +409,12 @@ export const useCanvasDragging = (
           };
           if (canReflow && reflow.current) {
             if (needsReflow) {
-              const resizedPositions = {
-                left: leftColumn,
-                top: topRow,
-                right: leftColumn + currentBlock.width / snapColumnSpace,
-                bottom: topRow + currentBlock.height / snapRowSpace,
-                id: currentBlock.widgetId,
-              };
-              const originalPositions = widgetOccupiedSpace
-                ? { ...widgetOccupiedSpace }
-                : {
-                    left: 0,
-                    top: 0,
-                    right: 0,
-                    bottom: 0,
-                    id: currentBlock.widgetId,
-                  };
+              //The position array of dragging Widgets.
+              const resizedPositions = getDraggingSpacesFromBlocks(
+                currentRectanglesToDraw,
+                snapColumnSpace,
+                snapRowSpace,
+              );
               currentDirection.current = getMouseMoveDirection(e);
               const immediateExitContainer = lastDraggedCanvas.current;
               if (lastDraggedCanvas.current) {
@@ -417,30 +422,59 @@ export const useCanvasDragging = (
               }
               currentReflowParams = reflow.current(
                 resizedPositions,
-                originalPositions,
                 currentDirection.current,
                 false,
                 !canReflowBasedOnMouseSpeed,
                 firstMove,
                 immediateExitContainer,
+                mousePosition,
               );
             }
 
             if (isReflowing) {
-              const block = currentRectanglesToDraw[0];
-              const isNotInParentBoundaries = noCollision(
-                { x: block.left, y: block.top },
-                snapColumnSpace,
-                snapRowSpace,
-                { x: 0, y: 0 },
-                block.columnWidth,
-                block.rowHeight,
-                block.widgetId,
-                [],
-                rowRef.current,
-                GridDefaults.DEFAULT_GRID_COLUMNS,
-                block.detachFromLayout,
-              );
+              const {
+                isIdealToJumpContainer,
+                movementLimitMap,
+              } = currentReflowParams;
+
+              if (isIdealToJumpContainer) {
+                const {
+                  prevAcceleration,
+                  prevSpeed: speed,
+                } = mouseAttributesRef.current;
+                const acceleration = Math.abs(prevAcceleration);
+                containerJumpThresholdMetrics.setMetrics({
+                  speed,
+                  acceleration,
+                });
+              }
+
+              for (const block of currentRectanglesToDraw) {
+                const isWithinParentBoundaries = noCollision(
+                  { x: block.left, y: block.top },
+                  snapColumnSpace,
+                  snapRowSpace,
+                  { x: 0, y: 0 },
+                  block.columnWidth,
+                  block.rowHeight,
+                  block.widgetId,
+                  [],
+                  rowRef.current,
+                  GridDefaults.DEFAULT_GRID_COLUMNS,
+                  block.detachFromLayout,
+                );
+
+                let isNotReachedLimit = true;
+                const currentBlockLimit =
+                  movementLimitMap && movementLimitMap[block.widgetId];
+                if (currentBlockLimit) {
+                  isNotReachedLimit =
+                    currentBlockLimit.canHorizontalMove &&
+                    currentBlockLimit.canVerticalMove;
+                }
+                block.isNotColliding =
+                  isWithinParentBoundaries && isNotReachedLimit;
+              }
               const widgetIdsToExclude = currentRectanglesToDraw.map(
                 (a) => a.widgetId,
               );
@@ -450,10 +484,6 @@ export const useCanvasDragging = (
                 widgetIdsToExclude,
               );
               rowRef.current = newRows ? newRows : rowRef.current;
-              currentRectanglesToDraw[0].isNotColliding =
-                isNotInParentBoundaries &&
-                currentReflowParams.canHorizontalMove &&
-                currentReflowParams.canVerticalMove;
             }
           }
         };
@@ -649,29 +679,32 @@ export const useCanvasDragging = (
             );
           }
         };
-        const onScroll = () => {
-          const {
-            lastMouseMoveEvent,
-            lastScrollHeight,
-            lastScrollTop,
-          } = scrollObj;
-          if (
-            lastMouseMoveEvent &&
-            Number.isInteger(lastScrollHeight) &&
-            Number.isInteger(lastScrollTop) &&
-            scrollParent &&
-            canScroll.current
-          ) {
-            const delta =
-              scrollParent?.scrollHeight +
-              scrollParent?.scrollTop -
-              (lastScrollHeight + lastScrollTop);
-            onMouseMove({
-              offsetX: lastMouseMoveEvent.offsetX,
-              offsetY: lastMouseMoveEvent.offsetY + delta,
-            });
-          }
-        };
+        // Adding setTimeout to make sure this gets called after
+        // the onscroll that resets intersectionObserver in StickyCanvasArena.tsx
+        const onScroll = () =>
+          setTimeout(() => {
+            const {
+              lastMouseMoveEvent,
+              lastScrollHeight,
+              lastScrollTop,
+            } = scrollObj;
+            if (
+              lastMouseMoveEvent &&
+              typeof lastScrollHeight === "number" &&
+              typeof lastScrollTop === "number" &&
+              scrollParent &&
+              canScroll.current
+            ) {
+              const delta =
+                scrollParent?.scrollHeight +
+                scrollParent?.scrollTop -
+                (lastScrollHeight + lastScrollTop);
+              onMouseMove({
+                offsetX: lastMouseMoveEvent.offsetX,
+                offsetY: lastMouseMoveEvent.offsetY + delta,
+              });
+            }
+          }, 0);
         const captureMousePosition = (e: any) => {
           if (isDragging && !canvasIsDragging) {
             currentDirection.current = getMouseMoveDirection(e);
@@ -754,14 +787,7 @@ export const useCanvasDragging = (
         resetCanvasState();
       }
     }
-  }, [
-    isDragging,
-    isResizing,
-    blocksToDraw,
-    snapRows,
-    canExtend,
-    reflowEnabled,
-  ]);
+  }, [isDragging, isResizing, blocksToDraw, snapRows, canExtend]);
   return {
     showCanvas: isDragging && !isResizing,
   };

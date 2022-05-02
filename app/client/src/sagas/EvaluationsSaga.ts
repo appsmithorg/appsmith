@@ -16,13 +16,13 @@ import {
   ReduxAction,
   ReduxActionType,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   getDataTree,
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
 import { getWidgets } from "sagas/selectors";
-import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
+import WidgetFactory, { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
 import {
@@ -33,7 +33,7 @@ import log from "loglevel";
 import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {
   PerformanceTransactionName,
-} from "../utils/PerformanceTracker";
+} from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import { Action } from "redux";
 import {
@@ -198,6 +198,7 @@ export function* evaluateAndExecuteDynamicTrigger(
   eventType: EventType,
   triggerMeta: TriggerMeta,
   callbackData?: Array<any>,
+  globalContext?: Record<string, unknown>,
 ) {
   const unEvalTree = yield select(getUnevaluatedDataTree);
   log.debug({ execute: dynamicTrigger });
@@ -205,7 +206,7 @@ export function* evaluateAndExecuteDynamicTrigger(
   const { requestChannel, responseChannel } = yield call(
     worker.duplexRequest,
     EVAL_WORKER_ACTIONS.EVAL_TRIGGER,
-    { dataTree: unEvalTree, dynamicTrigger, callbackData },
+    { dataTree: unEvalTree, dynamicTrigger, callbackData, globalContext },
   );
   let keepAlive = true;
 
@@ -219,9 +220,14 @@ export function* evaluateAndExecuteDynamicTrigger(
        * We raise an error telling the user that an uncaught error has occurred
        * */
       if (requestData.result.errors.length) {
-        throw new UncaughtPromiseError(
-          requestData.result.errors[0].errorMessage,
-        );
+        if (
+          requestData.result.errors[0].errorMessage !==
+          "UncaughtPromiseRejection: User cancelled action execution"
+        ) {
+          throw new UncaughtPromiseError(
+            requestData.result.errors[0].errorMessage,
+          );
+        }
       }
       // It is possible to get a few triggers here if the user
       // still uses the old way of action runs and not promises. For that we
@@ -528,7 +534,7 @@ export function* evaluateArgumentSaga(action: any) {
       (error: any) => error.errorType !== PropertyEvaluationErrorType.LINT,
     );
     if (workerResponse.result) {
-      const validation = validate({ type }, workerResponse.result, {});
+      const validation = validate({ type }, workerResponse.result, {}, "");
       if (!validation.isValid)
         validation.messages?.map((message) => {
           lintErrors.unshift({

@@ -1,3 +1,5 @@
+import { Alignment } from "@blueprintjs/core";
+import { LabelPosition } from "components/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -8,7 +10,7 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     rows: 6,
-    columns: 16,
+    columns: 23,
     animateLoading: true,
     options: [
       { label: "Blue", value: "BLUE" },
@@ -20,6 +22,10 @@ export const CONFIG = {
     isInline: true,
     isRequired: false,
     isVisible: true,
+    labelText: "Label",
+    labelPosition: LabelPosition.Left,
+    labelAlignment: Alignment.LEFT,
+    labelWidth: 5,
     widgetName: "CheckboxGroup",
     version: 2,
   },

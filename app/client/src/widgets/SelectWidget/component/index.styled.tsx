@@ -1,56 +1,28 @@
-import { Classes, ControlGroup, Label } from "@blueprintjs/core";
+import { Classes, ControlGroup } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
+
 import { DropdownOption } from "../constants";
 import { Select } from "@blueprintjs/select";
 import {
   BlueprintCSSTransform,
   createGlobalStyle,
 } from "constants/DefaultTheme";
-
-export const TextLabelWrapper = styled.div<{
-  compactMode: boolean;
-}>`
-  ${(props) =>
-    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
-  display: flex;
-`;
+import { isEmptyOrNill } from "../../../utils/helpers";
+import { LabelPosition, LABEL_MARGIN_OLD_SELECT } from "components/constants";
+import {
+  labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
+} from "components/ads/LabelWithTooltip";
 
 export const StyledDiv = styled.div`
   display: flex;
 `;
-export const StyledLabel = styled(Label)<{
-  $compactMode: boolean;
-  $disabled: boolean;
-  $labelText?: string;
-  $labelTextColor?: string;
-  $labelTextSize?: TextSize;
-  $labelStyle?: string;
-}>`
-  overflow-y: hidden;
-  text-overflow: ellipsis;
-  width: ${(props) => (props.$compactMode ? "auto" : "100%")};
-  text-align: left;
-  color: ${(props) =>
-    props.$labelTextColor
-      ? props.$labelTextColor
-      : props.$disabled
-      ? Colors.GREY_8
-      : "inherit"};
-  font-size: ${(props) =>
-    props.$labelTextSize ? TEXT_SIZES[props.$labelTextSize] : "14px"};
-  font-weight: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
-  font-style: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
-`;
 
-export const StyledControlGroup = styled(ControlGroup)`
+export const StyledControlGroup = styled(ControlGroup)<{
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
+}>`
   &&& > {
     span {
       height: 100%;
@@ -139,13 +111,15 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
     }
   }
   .${Classes.BUTTON_TEXT} {
+    word-break: break-word;
     text-overflow: ellipsis;
     text-align: left;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
-    color: ${(props) => (props.value ? Colors.GREY_10 : Colors.GREY_6)};
+    color: ${(props) =>
+      !isEmptyOrNill(props.value) ? Colors.GREY_10 : Colors.GREY_6};
   }
   && {
     .${Classes.ICON} {
@@ -156,28 +130,25 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
 `;
 
 export const DropdownStyles = createGlobalStyle<{
-  parentWidth: number;
   dropDownWidth: number;
   id: string;
 }>`
-${({ dropDownWidth, id, parentWidth }) => `
+${({ dropDownWidth, id }) => `
   .select-popover-width-${id} {
-    min-width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
+    width: ${dropDownWidth}px !important;
 
     & .${Classes.INPUT_GROUP} {
-       width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
+      width: ${dropDownWidth}px;
     }
   }
 `}
   .select-popover-wrapper {
-    width: auto;
     box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
     border-radius: 0;
     background: white;
 
     & .${Classes.INPUT_GROUP} {
       padding: 12px 12px 8px 12px;
-      min-width: 180px;
 
       & > .${Classes.ICON} {
         &:first-child {
@@ -246,14 +217,65 @@ ${({ dropDownWidth, id, parentWidth }) => `
   }
 `;
 
-export const DropdownContainer = styled.div<{ compactMode: boolean }>`
+export const DropdownContainer = styled.div<{
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
+}>`
   ${BlueprintCSSTransform}
-  display: flex;
-  flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
-  align-items: ${(props) => (props.compactMode ? "center" : "left")};
+  ${labelLayoutStyles}
+  & .${LABEL_CONTAINER_CLASS} {
+    label {
+      ${({ labelPosition }) => {
+        if (!labelPosition) {
+          return `margin-bottom: ${LABEL_MARGIN_OLD_SELECT}`;
+        }
+      }};
+    }
+  }
+`;
 
-  label.select-label {
-    margin-bottom: ${(props) => (props.compactMode ? "0px" : "5px")};
-    margin-right: ${(props) => (props.compactMode ? "10px" : "0px")};
+export const MenuItem = styled.div`
+  & .menu-item-link {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    border-radius: 2px;
+    color: inherit;
+    line-height: 20px;
+    padding: 5px 7px;
+    text-decoration: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+    min-height: 38px;
+    padding: 9px 12px;
+    color: ${Colors.DOVE_GRAY2};
+    outline: none !important;
+    background-color: transparent;
+
+    &:hover {
+      background-color: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+      color: ${Colors.GREY_10};
+      position: relative;
+    }
+  }
+
+  & .menu-item-active {
+    background-color: ${Colors.NARVIK_GREEN};
+  }
+
+  && .has-focus {
+    background-color: ${Colors.GREEN_SOLID_LIGHT_HOVER} !important;
+  }
+
+  & .menu-item-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: break-word;
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin-right: 0;
   }
 `;

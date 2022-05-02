@@ -1,13 +1,10 @@
-import { createActionRequest } from "actions/pluginActionActions";
 import { createModalAction } from "actions/widgetActions";
 import { TreeDropdownOption } from "components/ads/TreeDropdown";
 import TreeStructure from "components/utils/TreeStructure";
 import { PluginType } from "entities/Action";
-import { Datasource } from "entities/Datasource";
 import { isString, keyBy } from "lodash";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import {
-  getPluginIcon,
   JsFileIconV2,
   jsFunctionIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
@@ -21,7 +18,6 @@ import {
 } from "selectors/editorSelectors";
 import {
   getActionsForCurrentPage,
-  getDBDatasources,
   getJSCollectionsForCurrentPage,
   getPageListAsOptions,
 } from "selectors/entitiesSelector";
@@ -29,7 +25,6 @@ import {
   getModalDropdownList,
   getNextModalName,
 } from "selectors/widgetSelectors";
-import { createNewQueryName } from "utils/AppsmithUtils";
 import Fields, {
   ACTION_ANONYMOUS_FUNC_REGEX,
   ACTION_TRIGGER_REGEX,
@@ -41,7 +36,6 @@ import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSCollection } from "actions/jsPaneActions";
-import getFeatureFlags from "utils/featureFlags";
 import { JSAction, Variable } from "entities/JSCollection";
 import {
   CLEAR_INTERVAL,
@@ -65,10 +59,11 @@ import {
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import { selectFeatureFlags } from "selectors/usersSelectors";
+import FeatureFlags from "entities/FeatureFlags";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
-const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
 const baseOptions: { label: string; value: string }[] = [
   {
     label: createMessage(NO_ACTION),
@@ -132,7 +127,8 @@ const baseOptions: { label: string; value: string }[] = [
   },
 ];
 
-const getBaseOptions = () => {
+const getBaseOptions = (featureFlags: FeatureFlags) => {
+  const { JS_EDITOR: isJSEditorEnabled } = featureFlags;
   if (isJSEditorEnabled) {
     const jsOption = baseOptions.find(
       (option: any) => option.value === ActionType.jsFunction,
@@ -195,7 +191,7 @@ function getFieldFromValue(
             const errorArg = args[1] ? args[1][0] : "() => {}";
             const successArg = changeValue.endsWith(")")
               ? `() => ${changeValue}`
-              : `() => ${changeValue}()`;
+              : `() => {}`;
 
             return value.replace(
               ACTION_TRIGGER_REGEX,
@@ -221,7 +217,8 @@ function getFieldFromValue(
             const successArg = args[0] ? args[0][0] : "() => {}";
             const errorArg = changeValue.endsWith(")")
               ? `() => ${changeValue}`
-              : `() => ${changeValue}()`;
+              : `() => {}`;
+
             return value.replace(
               ACTION_TRIGGER_REGEX,
               `{{$1(${successArg}, ${errorArg})}}`,
@@ -416,11 +413,11 @@ function getIntegrationOptionsWithChildren(
   options: TreeDropdownOption[],
   actions: ActionDataState,
   jsActions: Array<JSCollectionData>,
-  datasources: Datasource[],
   createIntegrationOption: TreeDropdownOption,
   dispatch: any,
+  featureFlags: FeatureFlags,
 ) {
-  const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
+  const { JS_EDITOR: isJSEditorEnabled } = featureFlags;
   const createJSObject: TreeDropdownOption = {
     label: "New JS Object",
     value: "JSObject",
@@ -473,34 +470,6 @@ function getIntegrationOptionsWithChildren(
           query.config,
           plugins[(query as any).config.datasource.pluginId],
         ),
-      } as TreeDropdownOption);
-    });
-    datasources.forEach((dataSource: Datasource) => {
-      (option.children as TreeDropdownOption[]).push({
-        label: dataSource.name,
-        id: dataSource.id,
-        value: dataSource.name,
-        type: option.value,
-        icon: getPluginIcon(plugins[dataSource.pluginId]) as React.ReactNode,
-        onSelect: () => {
-          const newQueryName = createNewQueryName(actions, pageId);
-          dispatch(
-            createActionRequest({
-              name: newQueryName,
-              pageId,
-              datasource: {
-                id: dataSource.id,
-              },
-              eventData: {
-                actionType: "Query",
-                from: "home-screen",
-                dataSource: dataSource.name,
-              },
-              pluginId: dataSource.pluginId,
-              actionConfiguration: {},
-            }),
-          );
-        },
       } as TreeDropdownOption);
     });
   }
@@ -561,7 +530,7 @@ function getIntegrationOptionsWithChildren(
 function useIntegrationsOptionTree() {
   const pageId = useSelector(getCurrentPageId) || "";
   const applicationId = useSelector(getCurrentApplicationId) as string;
-  const datasources: Datasource[] = useSelector(getDBDatasources);
+  const featureFlags = useSelector(selectFeatureFlags);
   const dispatch = useDispatch();
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
@@ -574,10 +543,9 @@ function useIntegrationsOptionTree() {
     pageId,
     applicationId,
     pluginGroups,
-    getBaseOptions(),
+    getBaseOptions(featureFlags),
     actions,
     jsActions,
-    datasources,
     {
       label: "New Query",
       value: "datasources",
@@ -593,6 +561,7 @@ function useIntegrationsOptionTree() {
       },
     },
     dispatch,
+    featureFlags,
   );
 }
 

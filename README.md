@@ -104,6 +104,7 @@ Check out some real applications that can be built with Appsmith:
 - 🗓️ [Calendly in Appsmith](https://app.appsmith.com/applications/600186605b452f525458d6d2/pages/600186605b452f525458d6d4/?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
 - 💸 [Fundraising CRM](https://app.appsmith.com/applications/6098bdc65864501cc39c3d2f/pages/6098bdc65864501cc39c3d31/?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
 - 📄 [Application Tracking System App](https://app.appsmith.com/applications/5f43bce13697fd5df1c52ce4/pages/5f43c39c3697fd5df1c52d50/?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
+- 📦 [All Sample Apps](https://docs.appsmith.com/sample-apps?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
 
 - 🌟 Made something cool? [Share it with the community](https://discord.gg/Tx395War)
   <br><br>
@@ -196,6 +197,8 @@ We love our contributors! We're committed to fostering an open and welcoming env
   </tr>
   <tr>
     <td align="center"><a href="https://github.com/prsidhu"><img src="https://avatars.githubusercontent.com/u/5424788?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Preet Sidhu</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=prsidhu" title="Code">💻</a> <a href="https://github.com/appsmithorg/appsmith/issues?q=author%3Aprsidhu" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://www.varstack.com"><img src="https://avatars.githubusercontent.com/u/9394044?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Pallav Agarwal</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=pallavagarwal07" title="Code">💻</a> <a href="https://github.com/appsmithorg/appsmith/issues?q=author%3Apallavagarwal07" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/ganganimaulik"><img src="https://avatars.githubusercontent.com/u/10296400?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Maulik</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=ganganimaulik" title="Code">💻</a></td>
   </tr>
 </table>
 

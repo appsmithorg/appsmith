@@ -6,8 +6,8 @@ const path = require("path");
 
 const {
   delay,
-  login,
   getFormattedTime,
+  login,
   sortObjectKeys,
 } = require("./utils/utils");
 const selectors = {
@@ -109,12 +109,13 @@ module.exports = class Perf {
     await this.page.waitForNavigation();
 
     const currentUrl = this.page.url();
-    const pageIdRegex = /pages(.*)/;
-    const match = pageIdRegex.exec(currentUrl);
-    const pageId = match[1].split("/")[1];
+    const pageId = currentURL
+      .split("/")[5]
+      ?.split("-")
+      .pop();
 
     await this.page.evaluate(
-      async ({ pageId, dsl }) => {
+      async ({ dsl, pageId }) => {
         const layoutId = await fetch(`/api/v1/pages/${pageId}`)
           .then((response) => response.json())
           .then((data) => data.data.layouts[0].id);
@@ -155,7 +156,6 @@ module.exports = class Perf {
 
     const elementHandle = await this.page.$(selectors.fileInput);
     await elementHandle.uploadFile(jsonPath);
-    await this.page.click(selectors.importButton);
 
     await this.page.waitForNavigation();
     await this.page.reload();
@@ -163,7 +163,7 @@ module.exports = class Perf {
 
   generateReport = async () => {
     const report = {};
-    this.traces.forEach(({ path, action }) => {
+    this.traces.forEach(({ action, path }) => {
       report[action] = {};
       const trace = require(path);
       const tasks = new Tracelib.default(trace.traceEvents);

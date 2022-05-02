@@ -18,12 +18,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.DataTypeStringUtils.stringToKnownDataTypeConverter;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Condition {
+
+    public static final String PATH_KEY = "path";
+    public static final String OPERATOR_KEY = "operator";
 
     String path;
 
@@ -73,17 +77,28 @@ public class Condition {
         return condition;
     }
 
+    /**
+     * To evaluate 'Path' and 'Operator' to be available for filtering
+     * 'Values' not evaluated for availability, to support searching empty values
+     * @param condition
+     * @return  Boolean
+     */
     public static Boolean isValid(Condition condition) {
 
-        if (StringUtils.isEmpty(condition.getPath()) ||
-                (condition.getOperator() == null) ||
-                StringUtils.isEmpty((CharSequence) condition.getValue())) {
+        if (StringUtils.isEmpty(condition.getPath()) || (condition.getOperator() == null)) {
             return false;
         }
 
         return true;
     }
 
+    /**
+     * To generate condition list based on selected condition
+     * Mandatory inputs validated are path and operator
+     * Value is optional and considered as a null input
+     * @param configurationList
+     * @return
+     */
     public static List<Condition> generateFromConfiguration(List<Object> configurationList) {
         List<Condition> conditionList = new ArrayList<>();
 
@@ -92,7 +107,7 @@ public class Condition {
             if (condition.entrySet().isEmpty()) {
                 // Its an empty object set by the client for UX. Ignore the same
                 continue;
-            } else if (!condition.keySet().containsAll(Set.of("path", "operator", "value"))) {
+            } else if (isColumnOrOperatorEmpty(condition)) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Filtering Condition not configured properly");
             }
             conditionList.add(new Condition(
@@ -103,5 +118,9 @@ public class Condition {
         }
 
         return conditionList;
+    }
+
+    private static boolean isColumnOrOperatorEmpty(Map<String, String> condition) {
+        return isBlank(condition.get(PATH_KEY)) || isBlank(condition.get(OPERATOR_KEY));
     }
 }

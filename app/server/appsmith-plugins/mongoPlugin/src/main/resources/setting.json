@@ -19,7 +19,7 @@
         {
           "label": "Smart BSON Substitution",
           "info": "Turning on this property fixes the BSON substitution of bindings in the Mongo BSON document by adding/removing quotes intelligently and reduces developer errors",
-          "configProperty": "actionConfiguration.formData.smartSubstitution",
+          "configProperty": "actionConfiguration.formData.smartSubstitution.data",
           "controlType": "SWITCH",
           "initialValue": true
         },

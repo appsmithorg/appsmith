@@ -7,7 +7,7 @@ import { Classes } from "components/ads/common";
 import { useLocation } from "react-router-dom";
 
 const StyledManageUsers = styled("a")`
-  margin-top: 20px;
+  margin-top: 12px;
   display: inline-flex;
   &&&& {
     text-decoration: none;
@@ -16,6 +16,9 @@ const StyledManageUsers = styled("a")`
   .${Classes.TEXT} {
     color: ${(props) => props.theme.colors.modal.manageUser};
     margin-right: ${(props) => props.theme.spaces[1]}px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
   }
   .${Classes.ICON} {
     svg path {
@@ -47,7 +50,7 @@ function ManageUsers({ orgId }: { orgId: string }) {
       }}
     >
       <Text type={TextType.H6}>MANAGE USERS</Text>
-      <Icon name="manage" size={IconSize.XXS} />
+      <Icon name="manage" size={IconSize.XS} />
     </StyledManageUsers>
   ) : null;
 }

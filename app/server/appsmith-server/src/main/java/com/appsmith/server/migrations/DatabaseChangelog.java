@@ -138,6 +138,7 @@ import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_RESOURCES;
 import static com.appsmith.server.constants.FieldName.DYNAMIC_TRIGGER_PATH_LIST;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
@@ -165,6 +166,7 @@ public class DatabaseChangelog {
     public static final String KEY = "key";
     public static final String START_AFTER = "startAfter";
     public static final String END_BEFORE = "endBefore";
+    public static final String SMART_SUBSTITUTION = "smartSubstitution";
 
     @AllArgsConstructor
     @NoArgsConstructor
@@ -185,7 +187,7 @@ public class DatabaseChangelog {
      * Also, please check out the following blog on how to best create indexes :
      * https://emptysqua.re/blog/optimizing-mongodb-compound-indexes/
      */
-    private static Index makeIndex(String... fields) {
+    public static Index makeIndex(String... fields) {
         if (fields.length == 1) {
             return new Index(fields[0], Sort.Direction.ASC).named(fields[0]);
         } else {
@@ -201,14 +203,14 @@ public class DatabaseChangelog {
      * Given a MongockTemplate, a domain class and a bunch of Index definitions, this pure utility function will ensure
      * those indexes on the database behind the MongockTemplate instance.
      */
-    private static void ensureIndexes(MongockTemplate mongoTemplate, Class<?> entityClass, Index... indexes) {
+    public static void ensureIndexes(MongockTemplate mongoTemplate, Class<?> entityClass, Index... indexes) {
         IndexOperations indexOps = mongoTemplate.indexOps(entityClass);
         for (Index index : indexes) {
             indexOps.ensureIndex(index);
         }
     }
 
-    private static void dropIndexIfExists(MongockTemplate mongoTemplate, Class<?> entityClass, String name) {
+    public static void dropIndexIfExists(MongockTemplate mongoTemplate, Class<?> entityClass, String name) {
         try {
             mongoTemplate.indexOps(entityClass).dropIndex(name);
         } catch (UncategorizedMongoDbException ignored) {
@@ -4744,37 +4746,6 @@ public class DatabaseChangelog {
         mongockTemplate.save(firestorePlugin);
     }
 
-    @ChangeSet(order = "108", id = "create-system-themes", author = "")
-    public void createSystemThemes(MongockTemplate mongockTemplate) throws IOException {
-        Index uniqueApplicationIdIndex = new Index()
-                .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)
-                .named("system_theme_index");
-
-        ensureIndexes(mongockTemplate, Theme.class, uniqueApplicationIdIndex);
-
-        final String themesJson = StreamUtils.copyToString(
-                new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
-                Charset.defaultCharset()
-        );
-        Theme[] themes = new Gson().fromJson(themesJson, Theme[].class);
-
-        Theme legacyTheme = null;
-        for (Theme theme : themes) {
-            theme.setSystemTheme(true);
-            Theme savedTheme = mongockTemplate.save(theme);
-            if(savedTheme.getName().equalsIgnoreCase(Theme.LEGACY_THEME_NAME)) {
-                legacyTheme = savedTheme;
-            }
-        }
-
-        // migrate all applications and set legacy theme to them in both mode
-        Update update = new Update().set(fieldName(QApplication.application.publishedModeThemeId), legacyTheme.getId())
-                .set(fieldName(QApplication.application.editModeThemeId), legacyTheme.getId());
-        mongockTemplate.updateMulti(
-                new Query(where(fieldName(QApplication.application.deleted)).is(false)), update, Application.class
-        );
-    }
-
     /**
      * This method sets the key formData.aggregate.limit to 101 for all Mongo plugin actions.
      * It iterates over each action id one by one to avoid out of memory error.
@@ -4815,6 +4786,11 @@ public class DatabaseChangelog {
         }
 
         return true;
+    }
+
+    @ChangeSet(order = "108", id = "create-system-themes", author = "")
+    public void createSystemThemes(MongockTemplate mongockTemplate) throws IOException {
+        createSystemThemes2(mongockTemplate);
     }
 
     /**
@@ -4874,9 +4850,9 @@ public class DatabaseChangelog {
      * @return query
      */
     private Query getQueryToFetchAllPluginActionsWhichAreNotDeleted(Plugin plugin) {
-        Criteria pluginIdIsMongoPluginId = where("pluginId").is(plugin.getId());
+        Criteria pluginIdMatchesSuppliedPluginId = where("pluginId").is(plugin.getId());
         Criteria isNotDeleted = where("deleted").ne(true);
-        return query((new Criteria()).andOperator(pluginIdIsMongoPluginId, isNotDeleted));
+        return query((new Criteria()).andOperator(pluginIdMatchesSuppliedPluginId, isNotDeleted));
     }
 
     /**
@@ -4917,7 +4893,7 @@ public class DatabaseChangelog {
         updateMockdbEndpoint(mongockTemplate);
     }
 
-    @ChangeSet(order = "111", id = "migrate-from-RSA-SHA1-to-ECDSA-SHA2-protocol-for-key-generation", author = "")
+    @ChangeSet(order = "112", id = "migrate-from-RSA-SHA1-to-ECDSA-SHA2-protocol-for-key-generation", author = "")
     public void migrateFromRSASha1ToECDSASha2Protocol(MongockTemplate mongockTemplate) {
         Query query = new Query();
         query.addCriteria(Criteria.where("gitApplicationMetadata.gitAuth").exists(TRUE));
@@ -5025,4 +5001,117 @@ public class DatabaseChangelog {
         );
     }
 
+    /**
+     * Adding this migration again because we've added permission to themes.
+     * Also there are couple of changes in the system theme properties.
+     * @param mongockTemplate
+     * @throws IOException
+     */
+    @ChangeSet(order = "117", id = "create-system-themes-v2", author = "", runAlways = true)
+    public void createSystemThemes2(MongockTemplate mongockTemplate) throws IOException {
+        Index systemThemeIndex = new Index()
+                .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)
+                .named("system_theme_index")
+                .background();
+
+        Index applicationIdIndex = new Index()
+                .on(fieldName(QTheme.theme.applicationId), Sort.Direction.ASC)
+                .on(fieldName(QTheme.theme.deleted), Sort.Direction.ASC)
+                .named("application_id_index")
+                .background();
+
+        dropIndexIfExists(mongockTemplate, Theme.class, "system_theme_index");
+        dropIndexIfExists(mongockTemplate, Theme.class, "application_id_index");
+        ensureIndexes(mongockTemplate, Theme.class, systemThemeIndex, applicationIdIndex);
+
+        final String themesJson = StreamUtils.copyToString(
+                new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
+                Charset.defaultCharset()
+        );
+        Theme[] themes = new Gson().fromJson(themesJson, Theme[].class);
+
+        Theme legacyTheme = null;
+        boolean themeExists = false;
+
+        Policy policyWithCurrentPermission = Policy.builder().permission(READ_THEMES.getValue())
+                .users(Set.of(FieldName.ANONYMOUS_USER)).build();
+
+        for (Theme theme : themes) {
+            theme.setSystemTheme(true);
+            theme.setCreatedAt(Instant.now());
+            theme.setPolicies(Set.of(policyWithCurrentPermission));
+            Query query = new Query(Criteria.where(fieldName(QTheme.theme.name)).is(theme.getName())
+                    .and(fieldName(QTheme.theme.isSystemTheme)).is(true));
+
+            Theme savedTheme = mongockTemplate.findOne(query, Theme.class);
+            if(savedTheme == null) {  // this theme does not exist, create it
+                savedTheme = mongockTemplate.save(theme);
+            } else { // theme already found, update
+                themeExists = true;
+                savedTheme.setDisplayName(theme.getDisplayName());
+                savedTheme.setPolicies(theme.getPolicies());
+                savedTheme.setConfig(theme.getConfig());
+                savedTheme.setProperties(theme.getProperties());
+                savedTheme.setStylesheet(theme.getStylesheet());
+                if(savedTheme.getCreatedAt() == null) {
+                    savedTheme.setCreatedAt(Instant.now());
+                }
+                mongockTemplate.save(savedTheme);
+            }
+
+            if(theme.getName().equalsIgnoreCase(Theme.LEGACY_THEME_NAME)) {
+                legacyTheme = savedTheme;
+            }
+        }
+
+        if(!themeExists) { // this is the first time we're running the migration
+            // migrate all applications and set legacy theme to them in both mode
+            Update update = new Update().set(fieldName(QApplication.application.publishedModeThemeId), legacyTheme.getId())
+                    .set(fieldName(QApplication.application.editModeThemeId), legacyTheme.getId());
+            mongockTemplate.updateMulti(
+                    new Query(where(fieldName(QApplication.application.deleted)).is(false)), update, Application.class
+            );
+        }
+    }
+
+    @ChangeSet(order = "118", id = "set-firestore-smart-substitution-to-false-for-old-cmds", author = "")
+    public void setFirestoreSmartSubstitutionToFalseForOldCommands(MongockTemplate mongockTemplate) {
+        Plugin firestorePlugin = mongockTemplate.findOne(query(where("packageName").is("firestore-plugin")),
+                Plugin.class);
+
+        /* Query to get all Mongo actions which are not deleted */
+        Query queryToGetActions = getQueryToFetchAllPluginActionsWhichAreNotDeleted(firestorePlugin);
+
+        /* Update the previous query to only include id field */
+        queryToGetActions.fields().include(fieldName(QNewAction.newAction.id));
+
+        /* Fetch Firestore actions using the previous query */
+        List<NewAction> firestoreActions = mongockTemplate.find(queryToGetActions, NewAction.class);
+
+        /* set key formData.smartSubstitution */
+        setSmartSubstitutionFieldForEachAction(firestoreActions, mongockTemplate);
+    }
+
+    private void setSmartSubstitutionFieldForEachAction(List<NewAction> firestoreActions,
+                                                        MongockTemplate mongockTemplate) {
+        firestoreActions.stream()
+                .map(NewAction::getId) /* iterate over one action id at a time */
+                .map(actionId -> fetchActionUsingId(actionId, mongockTemplate)) /* fetch action using id */
+                .filter(this::hasUnpublishedActionConfiguration)
+                .forEachOrdered(firestoreAction -> {
+                    /* set key for unpublished action */
+                    Map<String, Object> unpublishedFormData =
+                            firestoreAction.getUnpublishedAction().getActionConfiguration().getFormData();
+                    setValueSafelyInFormData(unpublishedFormData, SMART_SUBSTITUTION, FALSE.toString());
+
+                    /* set key for published action */
+                    if (hasPublishedActionConfiguration(firestoreAction)) {
+                        Map<String, Object> publishedFormData =
+                                firestoreAction.getPublishedAction().getActionConfiguration().getFormData();
+                        setValueSafelyInFormData(publishedFormData, SMART_SUBSTITUTION, FALSE.toString());
+                    }
+
+                    mongockTemplate.save(firestoreAction);
+                });
+    }
 }

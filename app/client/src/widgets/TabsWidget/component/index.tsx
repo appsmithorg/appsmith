@@ -288,7 +288,7 @@ function TabsComponent(props: TabsComponentProps) {
           <TabsContainer isScrollable={isScrollable} ref={tabsRef}>
             {props.tabs.map((tab, index) => (
               <StyledText
-                className={`t--tab-${tab.label}`}
+                className={`t--tab-${tab.label} t--tabid-${tab.id}`}
                 key={index}
                 onClick={(event: React.MouseEvent<HTMLDivElement>) => {
                   onTabChange(tab.widgetId);

@@ -6,7 +6,7 @@ import {
   ReduxActionTypes,
   ReduxAction,
   WidgetReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { Diff } from "deep-diff";
 import produce from "immer";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
@@ -110,6 +110,9 @@ export const metaReducer = createReducer(initialState, {
         ...state[widgetId],
       };
       Object.keys(resetData).forEach((key: string) => {
+        // NOTE:-
+        // metaHOC component assumes on reset of widget all metaValues will be deleted.
+        // if deletion logic needs to be changed, make sure to also update metaHOC reset condition.
         delete resetData[key];
       });
       return { ...state, [widgetId]: { ...resetData } };

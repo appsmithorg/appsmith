@@ -14,7 +14,7 @@ import Popper from "pages/Editor/Popper";
 import { generateClassName } from "utils/generators";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
 import { getWidgetMetaProps } from "sagas/selectors";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { selectWidgetAction } from "actions/widgetSelectionActions";
 import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/draghandler.svg";
 
@@ -75,12 +75,21 @@ class TableFilterPane extends Component<Props> {
         "t--table-filter-toggle-btn " +
         generateClassName(this.props.tableFilterPane.widgetId);
       const el = document.getElementsByClassName(className)[0];
+
+      /*
+        Prevent the FilterPane from overflowing the canvas when the 
+        table widget is on the very top of the canvas.
+      */
+      const boundaryParent = document.querySelector("#root");
+
       return (
         <Popper
+          boundaryParent={boundaryParent || "viewport"}
           disablePopperEvents={get(this.props, "metaProps.isMoved", false)}
           isDraggable
           isOpen
           onPositionChange={this.handlePositionUpdate}
+          parentElement={boundaryParent}
           placement="top"
           position={get(this.props, "metaProps.position") as PositionPropsInt}
           renderDragBlock={

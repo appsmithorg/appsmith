@@ -5,13 +5,16 @@ import {
   PageListPayload,
   ClonePageSuccessPayload,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/AppsmithUtils";
 import { GenerateCRUDSuccess } from "actions/pageActions";
 
 const initialState: PageListReduxState = {
   pages: [],
   isGeneratingTemplatePage: false,
+  applicationId: "",
+  currentPageId: "",
+  defaultPageId: "",
 };
 
 export const pageListReducer = createReducer(initialState, {
@@ -42,6 +45,7 @@ export const pageListReducer = createReducer(initialState, {
         action.payload.pages[0].pageId,
     };
   },
+  [ReduxActionTypes.RESET_PAGE_LIST]: () => initialState,
   [ReduxActionTypes.CREATE_PAGE_SUCCESS]: (
     state: PageListReduxState,
     action: ReduxAction<{
@@ -97,13 +101,26 @@ export const pageListReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.UPDATE_PAGE_SUCCESS]: (
     state: PageListReduxState,
-    action: ReduxAction<{ id: string; name: string; isHidden?: boolean }>,
+    action: ReduxAction<{
+      id: string;
+      name: string;
+      isHidden?: boolean;
+      slug: string;
+    }>,
   ) => {
     const pages = [...state.pages];
-    const updatedPage = pages.find((page) => page.pageId === action.payload.id);
-    if (updatedPage) {
-      updatedPage.pageName = action.payload.name;
-      updatedPage.isHidden = !!action.payload.isHidden;
+    const updatedPageIndex = pages.findIndex(
+      (page) => page.pageId === action.payload.id,
+    );
+
+    if (updatedPageIndex !== -1) {
+      const updatedPage = {
+        ...pages[updatedPageIndex],
+        pageName: action.payload.name,
+        isHidden: !!action.payload.isHidden,
+        slug: action.payload.slug,
+      };
+      pages.splice(updatedPageIndex, 1, updatedPage);
     }
 
     return { ...state, pages };
@@ -168,9 +185,9 @@ export interface AppLayoutConfig {
 
 export interface PageListReduxState {
   pages: PageListPayload;
-  applicationId?: string;
-  defaultPageId?: string;
-  currentPageId?: string;
+  applicationId: string;
+  defaultPageId: string;
+  currentPageId: string;
   appLayout?: AppLayoutConfig;
   isGeneratingTemplatePage?: boolean;
 }

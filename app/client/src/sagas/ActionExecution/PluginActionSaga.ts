@@ -1,44 +1,37 @@
-import {
-  all,
-  call,
-  put,
-  race,
-  select,
-  take,
-  takeLatest,
-} from "redux-saga/effects";
+import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
 import {
   executePluginActionError,
   executePluginActionRequest,
   executePluginActionSuccess,
   runAction,
-  showRunActionConfirmModal,
   updateAction,
+  setActionResponseDisplayFormat,
 } from "actions/pluginActionActions";
 import {
   ApplicationPayload,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import ActionAPI, {
   ActionExecutionResponse,
   ActionResponse,
   ExecuteActionRequest,
   PaginationField,
-  Property,
 } from "api/ActionAPI";
 import {
   getAction,
   getCurrentPageNameByActionId,
+  getPlugin,
   isActionDirty,
   isActionSaving,
+  getJSCollection,
 } from "selectors/entitiesSelector";
 import {
   getAppMode,
   getCurrentApplication,
 } from "selectors/applicationSelectors";
-import _, { get, isString } from "lodash";
+import _, { get, isString, set } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import { validateResponse } from "sagas/ErrorSagas";
@@ -71,18 +64,19 @@ import { EMPTY_RESPONSE } from "components/editorComponents/ApiResponseView";
 import { AppState } from "reducers";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
 import { evaluateActionBindings } from "sagas/EvaluationsSaga";
-import { isBlobUrl, mapToPropList, parseBlobUrl } from "utils/AppsmithUtils";
+import { isBlobUrl, parseBlobUrl } from "utils/AppsmithUtils";
 import { getType, Types } from "utils/TypeHelpers";
 import { matchPath } from "react-router";
 import {
-  API_EDITOR_ID_URL,
-  API_EDITOR_URL,
-  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-  INTEGRATION_EDITOR_URL,
-  QUERIES_EDITOR_ID_URL,
-  QUERIES_EDITOR_URL,
+  API_EDITOR_BASE_PATH,
+  API_EDITOR_ID_PATH,
+  API_EDITOR_PATH_WITH_SELECTED_PAGE_ID,
+  INTEGRATION_EDITOR_PATH,
+  QUERIES_EDITOR_BASE_PATH,
+  QUERIES_EDITOR_ID_PATH,
+  CURL_IMPORT_PAGE_PATH,
 } from "constants/routes";
-import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
+import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import {
   ActionTriggerType,
   RunPluginActionDescription,
@@ -98,10 +92,20 @@ import {
   UserCancelledActionExecutionError,
 } from "sagas/ActionExecution/errorUtils";
 import { trimQueryString } from "utils/helpers";
+import { JSCollection } from "entities/JSCollection";
 import {
   executeAppAction,
   TriggerMeta,
 } from "sagas/ActionExecution/ActionExecutionSagas";
+import { requestModalConfirmationSaga } from "sagas/UtilSagas";
+import { ModalType } from "reducers/uiReducers/modalActionReducer";
+import { getFormNames, getFormValues } from "redux-form";
+import { CURL_IMPORT_FORM } from "constants/forms";
+import { submitCurlImportForm } from "actions/importActions";
+import { getBasePath } from "pages/Editor/Explorer/helpers";
+import { isTrueObject } from "workers/evaluationUtils";
+import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
+import { Plugin } from "api/PluginApi";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -212,6 +216,7 @@ function* readBlob(blobUrl: string): any {
  */
 function* evaluateActionParams(
   bindings: string[] | undefined,
+  formData: FormData,
   executionParams?: Record<string, any> | string,
 ) {
   if (_.isNil(bindings) || bindings.length === 0) return [];
@@ -223,29 +228,36 @@ function* evaluateActionParams(
     executionParams,
   );
 
-  // Convert to object and transform non string values
-  const actionParams: Record<string, string> = {};
+  // Add keys values to formData for the multipart submission
   for (let i = 0; i < bindings.length; i++) {
     const key = bindings[i];
     let value = values[i];
-    if (typeof value === "object") value = JSON.stringify(value);
+
+    if (isTrueObject(value)) {
+      const blobUrlPaths: string[] = [];
+      Object.keys(value).forEach((propertyName) => {
+        if (isBlobUrl(value[propertyName])) {
+          blobUrlPaths.push(propertyName);
+        }
+      });
+
+      for (const blobUrlPath of blobUrlPaths) {
+        const blobUrl = value[blobUrlPath] as string;
+        const resolvedBlobValue = yield call(readBlob, blobUrl);
+        set(value, blobUrlPath, resolvedBlobValue);
+      }
+    }
+
+    if (typeof value === "object") {
+      value = JSON.stringify(value);
+    }
     if (isBlobUrl(value)) {
       value = yield call(readBlob, value);
     }
-    actionParams[key] = value;
+    value = new Blob([value], { type: "text/plain" });
+
+    formData.append(encodeURIComponent(key), value);
   }
-  return mapToPropList(actionParams);
-}
-
-function* confirmRunActionSaga() {
-  yield put(showRunActionConfirmModal(true));
-
-  const { accept } = yield race({
-    cancel: take(ReduxActionTypes.CANCEL_RUN_ACTION_CONFIRM_MODAL),
-    accept: take(ReduxActionTypes.ACCEPT_RUN_ACTION_CONFIRM_MODAL),
-  });
-
-  return !!accept;
 }
 
 export default function* executePluginActionTriggerSaga(
@@ -331,7 +343,7 @@ export default function* executePluginActionTriggerSaga(
       yield call(executeAppAction, {
         event: { type: eventType },
         dynamicString: onError,
-        responseData: [payload.body, params],
+        callbackData: [payload.body, params],
         ...triggerMeta,
       });
     } else {
@@ -359,7 +371,7 @@ export default function* executePluginActionTriggerSaga(
       yield call(executeAppAction, {
         event: { type: eventType },
         dynamicString: onSuccess,
-        responseData: [payload.body, params],
+        callbackData: [payload.body, params],
         ...triggerMeta,
       });
     }
@@ -369,34 +381,56 @@ export default function* executePluginActionTriggerSaga(
 
 function* runActionShortcutSaga() {
   const location = window.location.pathname;
+  const basePath = getBasePath();
   const match: any = matchPath(location, {
     path: [
-      trimQueryString(API_EDITOR_URL()),
-      trimQueryString(API_EDITOR_ID_URL()),
-      trimQueryString(QUERIES_EDITOR_URL()),
-      trimQueryString(QUERIES_EDITOR_ID_URL()),
-      trimQueryString(API_EDITOR_URL_WITH_SELECTED_PAGE_ID()),
-      trimQueryString(INTEGRATION_EDITOR_URL()),
-      trimQueryString(SAAS_EDITOR_API_ID_URL()),
+      trimQueryString(`${basePath}${API_EDITOR_BASE_PATH}`),
+      trimQueryString(`${basePath}${API_EDITOR_ID_PATH}`),
+      trimQueryString(`${basePath}${QUERIES_EDITOR_BASE_PATH}`),
+      trimQueryString(`${basePath}${QUERIES_EDITOR_ID_PATH}`),
+      trimQueryString(`${basePath}${API_EDITOR_PATH_WITH_SELECTED_PAGE_ID}`),
+      trimQueryString(`${basePath}${INTEGRATION_EDITOR_PATH}`),
+      trimQueryString(`${basePath}${SAAS_EDITOR_API_ID_PATH}`),
+      `${basePath}${CURL_IMPORT_PAGE_PATH}`,
     ],
     exact: true,
     strict: false,
   });
+
+  // get the current form name
+  const currentFormNames = yield select(getFormNames());
+
   if (!match || !match.params) return;
   const { apiId, pageId, queryId } = match.params;
   const actionId = apiId || queryId;
-  if (!actionId) return;
-  const trackerId = apiId
-    ? PerformanceTransactionName.RUN_API_SHORTCUT
-    : PerformanceTransactionName.RUN_QUERY_SHORTCUT;
-  PerformanceTracker.startTracking(trackerId, {
-    actionId,
-    pageId,
-  });
-  AnalyticsUtil.logEvent(trackerId as EventName, {
-    actionId,
-  });
-  yield put(runAction(actionId));
+  if (actionId) {
+    const trackerId = apiId
+      ? PerformanceTransactionName.RUN_API_SHORTCUT
+      : PerformanceTransactionName.RUN_QUERY_SHORTCUT;
+    PerformanceTracker.startTracking(trackerId, {
+      actionId,
+      pageId,
+    });
+    AnalyticsUtil.logEvent(trackerId as EventName, {
+      actionId,
+    });
+    yield put(runAction(actionId));
+  } else if (
+    !!currentFormNames &&
+    currentFormNames.includes(CURL_IMPORT_FORM) &&
+    !actionId
+  ) {
+    // if the current form names include the curl form and there are no actionIds i.e. its not an api or query
+    // get the form values and call the submit curl import form function with its data
+    const formValues = yield select(getFormValues(CURL_IMPORT_FORM));
+
+    // if the user has not edited the curl input field, assign an empty string to it, so it doesnt throw an error.
+    if (!formValues?.curl) formValues["curl"] = "";
+
+    yield put(submitCurlImportForm(formValues));
+  } else {
+    return;
+  }
 }
 
 function* runActionSaga(
@@ -517,7 +551,10 @@ function* runActionSaga(
 
     yield put({
       type: ReduxActionErrorTypes.RUN_ACTION_ERROR,
-      payload: { error, id: reduxAction.payload.id },
+      payload: {
+        error: appsmithConsoleErrorMessageList[0],
+        id: reduxAction.payload.id,
+      },
     });
     return;
   }
@@ -561,85 +598,127 @@ function* runActionSaga(
   }
 }
 
-function* executePageLoadAction(pageAction: PageAction) {
-  const pageId = yield select(getCurrentPageId);
-  let currentApp: ApplicationPayload = yield select(getCurrentApplication);
-  currentApp = currentApp || {};
-  const appMode = yield select(getAppMode);
-  AnalyticsUtil.logEvent("EXECUTE_ACTION", {
-    type: pageAction.pluginType,
-    name: pageAction.name,
-    pageId: pageId,
-    appMode: appMode,
-    appId: currentApp.id,
-    onPageLoad: true,
-    appName: currentApp.name,
-    isExampleApp: currentApp.appIsExample,
-  });
-
-  let payload = EMPTY_RESPONSE;
-  let isError = true;
-  const error = `The action "${pageAction.name}" has failed.`;
-  try {
-    const executePluginActionResponse: ExecutePluginActionResponse = yield call(
-      executePluginActionSaga,
-      pageAction,
+function* executeOnPageLoadJSAction(pageAction: PageAction) {
+  const collectionId = pageAction.collectionId;
+  if (collectionId) {
+    const collection: JSCollection = yield select(
+      getJSCollection,
+      collectionId,
     );
-    payload = executePluginActionResponse.payload;
-    isError = executePluginActionResponse.isError;
-  } catch (e) {
-    log.error(e);
-  }
+    const jsAction = collection.actions.find((d) => d.id === pageAction.id);
+    if (!!jsAction) {
+      if (jsAction.confirmBeforeExecute) {
+        const modalPayload = {
+          name: pageAction.name,
+          modalOpen: true,
+          modalType: ModalType.RUN_ACTION,
+        };
 
-  if (isError) {
-    AppsmithConsole.addError({
-      id: pageAction.id,
-      logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
-      text: `Execution failed with status ${payload.statusCode}`,
-      source: {
-        type: ENTITY_TYPE.ACTION,
-        name: pageAction.name,
-        id: pageAction.id,
-      },
-      state: payload.request,
-      messages: [
-        {
-          message: error,
-          type: PLATFORM_ERROR.PLUGIN_EXECUTION,
-          subType: payload.errorType,
-        },
-      ],
+        const confirmed = yield call(
+          requestModalConfirmationSaga,
+          modalPayload,
+        );
+        if (!confirmed) {
+          yield put({
+            type: ReduxActionTypes.RUN_ACTION_CANCELLED,
+            payload: { id: pageAction.id },
+          });
+          throw new UserCancelledActionExecutionError();
+        }
+      }
+      const data = {
+        collectionName: collection.name,
+        action: jsAction,
+        collectionId: collectionId,
+      };
+      yield call(handleExecuteJSFunctionSaga, data);
+    }
+  }
+}
+
+function* executePageLoadAction(pageAction: PageAction) {
+  if (pageAction.hasOwnProperty("collectionId")) {
+    yield call(executeOnPageLoadJSAction, pageAction);
+  } else {
+    const pageId = yield select(getCurrentPageId);
+    let currentApp: ApplicationPayload = yield select(getCurrentApplication);
+    currentApp = currentApp || {};
+    const appMode = yield select(getAppMode);
+    AnalyticsUtil.logEvent("EXECUTE_ACTION", {
+      type: pageAction.pluginType,
+      name: pageAction.name,
+      pageId: pageId,
+      appMode: appMode,
+      appId: currentApp.id,
+      onPageLoad: true,
+      appName: currentApp.name,
+      isExampleApp: currentApp.appIsExample,
     });
 
-    yield put(
-      executePluginActionError({
-        actionId: pageAction.id,
-        isPageLoad: true,
-        error: { message: error },
-        data: payload,
-      }),
-    );
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.EXECUTE_ACTION,
-      {
-        failed: true,
-      },
-      pageAction.id,
-    );
-  } else {
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.EXECUTE_ACTION,
-      undefined,
-      pageAction.id,
-    );
-    yield put(
-      executePluginActionSuccess({
+    let payload = EMPTY_RESPONSE;
+    let isError = true;
+    const error = `The action "${pageAction.name}" has failed.`;
+    try {
+      const executePluginActionResponse: ExecutePluginActionResponse = yield call(
+        executePluginActionSaga,
+        pageAction,
+      );
+      payload = executePluginActionResponse.payload;
+      isError = executePluginActionResponse.isError;
+    } catch (e) {
+      log.error(e);
+    }
+
+    if (isError) {
+      AppsmithConsole.addError({
         id: pageAction.id,
-        response: payload,
-        isPageLoad: true,
-      }),
-    );
-    yield take(ReduxActionTypes.SET_EVALUATED_TREE);
+        logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+        text: `Execution failed with status ${payload.statusCode}`,
+        source: {
+          type: ENTITY_TYPE.ACTION,
+          name: pageAction.name,
+          id: pageAction.id,
+        },
+        state: payload.request,
+        messages: [
+          {
+            message: error,
+            type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+            subType: payload.errorType,
+          },
+        ],
+      });
+
+      yield put(
+        executePluginActionError({
+          actionId: pageAction.id,
+          isPageLoad: true,
+          error: { message: error },
+          data: payload,
+        }),
+      );
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.EXECUTE_ACTION,
+        {
+          failed: true,
+        },
+        pageAction.id,
+      );
+    } else {
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.EXECUTE_ACTION,
+        undefined,
+        pageAction.id,
+      );
+      yield put(
+        executePluginActionSuccess({
+          id: pageAction.id,
+          response: payload,
+          isPageLoad: true,
+        }),
+      );
+      yield take(ReduxActionTypes.SET_EVALUATED_TREE);
+    }
   }
 }
 
@@ -695,12 +774,19 @@ function* executePluginActionSaga(
     pluginAction = yield select(getAction, actionOrActionId);
     actionId = actionOrActionId;
   } else {
-    pluginAction = actionOrActionId;
+    pluginAction = yield select(getAction, actionOrActionId.id);
     actionId = actionOrActionId.id;
   }
 
   if (pluginAction.confirmBeforeExecute) {
-    const confirmed = yield call(confirmRunActionSaga);
+    const modalPayload = {
+      name: pluginAction.name,
+      modalOpen: true,
+      modalType: ModalType.RUN_ACTION,
+    };
+
+    const confirmed = yield call(requestModalConfirmationSaga, modalPayload);
+
     if (!confirmed) {
       yield put({
         type: ReduxActionTypes.RUN_ACTION_CANCELLED,
@@ -718,18 +804,11 @@ function* executePluginActionSaga(
   );
   yield put(executePluginActionRequest({ id: actionId }));
 
-  const actionParams: Property[] = yield call(
-    evaluateActionParams,
-    pluginAction.jsonPathKeys,
-    params,
-  );
-
   const appMode = yield select(getAppMode);
   const timeout = yield select(getActionTimeout, actionId);
 
   const executeActionRequest: ExecuteActionRequest = {
     actionId: actionId,
-    params: actionParams,
     viewMode: appMode === APP_MODE.PUBLISHED,
   };
 
@@ -737,8 +816,12 @@ function* executePluginActionSaga(
     executeActionRequest.paginationField = paginationField;
   }
 
+  const formData = new FormData();
+  formData.append("executeActionDTO", JSON.stringify(executeActionRequest));
+  yield call(evaluateActionParams, pluginAction.jsonPathKeys, formData, params);
+
   const response: ActionExecutionResponse = yield ActionAPI.executeAction(
-    executeActionRequest,
+    formData,
     timeout,
   );
   PerformanceTracker.stopAsyncTracking(
@@ -747,12 +830,31 @@ function* executePluginActionSaga(
   try {
     yield validateResponse(response);
     const payload = createActionExecutionResponse(response);
+
     yield put(
       executePluginActionSuccess({
         id: actionId,
         response: payload,
       }),
     );
+    let plugin: Plugin | undefined;
+    if (!!pluginAction.pluginId) {
+      plugin = yield select(getPlugin, pluginAction.pluginId);
+    }
+
+    if (!!plugin) {
+      const responseType = payload?.dataTypes.find(
+        (type) =>
+          plugin?.responseType && type.dataType === plugin?.responseType,
+      );
+      yield put(
+        setActionResponseDisplayFormat({
+          id: actionId,
+          field: "responseDisplayFormat",
+          value: responseType ? responseType?.dataType : "JSON",
+        }),
+      );
+    }
     return {
       payload,
       isError: isErrorResponse(response),

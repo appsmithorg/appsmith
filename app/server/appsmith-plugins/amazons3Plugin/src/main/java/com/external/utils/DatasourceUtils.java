@@ -1,8 +1,10 @@
 package com.external.utils;
 
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -17,6 +19,7 @@ import java.util.regex.Pattern;
 
 import static com.amazonaws.regions.Regions.DEFAULT_REGION;
 import static com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError.PLUGIN_ERROR;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
 import static com.external.plugins.AmazonS3Plugin.CUSTOM_ENDPOINT_INDEX;
 import static com.external.plugins.AmazonS3Plugin.CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX;
 import static com.external.plugins.AmazonS3Plugin.S3_SERVICE_PROVIDER_PROPERTY_INDEX;
@@ -59,6 +62,7 @@ public class DatasourceUtils {
         WASABI ("wasabi"),
         DIGITAL_OCEAN_SPACES ("digital-ocean-spaces"),
         DREAM_OBJECTS ("dream-objects"),
+        MINIO ("minio"),
         OTHER ("other");
 
         private String name;
@@ -184,8 +188,34 @@ public class DatasourceUtils {
                             DREAM_OBJECTS_REGION_GROUP_INDEX);
 
                     break;
+                case MINIO:
+                    region = getUserProvidedRegion(properties);
+                    if (StringUtils.isBlank(region)) {
+                        /**
+                         * Set a default region in case user has not provided a region.
+                         * Minio server can be configured to work both ways - with or without region attribute. Hence,
+                         * it is upto the user to know whether the Minio server they want to connect to has been
+                         * configured with a region or not.
+                         * As per my experimentation, in case the Minio server has not been configured with a region
+                         * attribute, then any placeholder value will work. However, I am going with US_EAST_1 here
+                         * since this the value that Minio documentation uses to show example applications.
+                         * Ref: https://docs.min.io/docs/how-to-use-aws-sdk-for-java-with-minio-server.html
+                         */
+                        region = Regions.US_EAST_1.getName();
+                    }
+
+                    ClientConfiguration clientConfiguration = new ClientConfiguration();
+                    clientConfiguration.setSignerOverride("AWSS3V4SignerType");
+
+                    /* Ref: https://docs.min.io/docs/how-to-use-aws-sdk-for-java-with-minio-server.html */
+                    s3ClientBuilder = s3ClientBuilder
+                            .withPathStyleAccessEnabled(true)
+                            .withClientConfiguration(clientConfiguration);
+
+                    break;
                 default:
-                    region = (String) properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX).getValue();
+                    region = getValueSafelyFromPropertyList(properties, CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX,
+                            String.class, "");
             }
 
             s3ClientBuilder = s3ClientBuilder
@@ -193,6 +223,10 @@ public class DatasourceUtils {
         }
 
         return s3ClientBuilder;
+    }
+
+    private static String getUserProvidedRegion(List<Property> properties) {
+        return getValueSafelyFromPropertyList(properties, CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX, String.class);
     }
 
     /**

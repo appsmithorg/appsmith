@@ -2,10 +2,13 @@ package com.external.plugins.constants;
 
 public class FieldName {
 
-    public static final String SMART_SUBSTITUTION = "smartSubstitution";
-    public static final String COMMAND = "command";
-    public static final String COLLECTION = "collection";
+    // Common field paths
+    public static final String BODY = "body.data";
+    public static final String SMART_SUBSTITUTION = "smartSubstitution.data";
+    public static final String COMMAND = "command.data";
+    public static final String COLLECTION = "collection.data";
 
+    // Command paths
     public static final String FIND = "find";
     public static final String UPDATE_MANY = "updateMany";
     public static final String DELETE = "delete";
@@ -14,17 +17,18 @@ public class FieldName {
     public static final String AGGREGATE = "aggregate";
     public static final String INSERT = "insert";
 
-    public static final String QUERY = "query";
-    public static final String SORT = "sort";
-    public static final String PROJECTION = "projection";
-    public static final String LIMIT = "limit";
-    public static final String SKIP = "skip";
-    public static final String UPDATE = "update";
-    public static final String KEY = "key";
-    public static final String PIPELINES = "arrayPipelines";
-    public static final String DOCUMENTS = "documents";
+    // Command field paths
+    public static final String QUERY = "query.data";
+    public static final String SORT = "sort.data";
+    public static final String PROJECTION = "projection.data";
+    public static final String LIMIT = "limit.data";
+    public static final String SKIP = "skip.data";
+    public static final String UPDATE = "update.data";
+    public static final String KEY = "key.data";
+    public static final String PIPELINES = "arrayPipelines.data";
+    public static final String DOCUMENTS = "documents.data";
 
-    public static final String AGGREGATE_PIPELINE = AGGREGATE + "." + "arrayPipelines";
+    public static final String AGGREGATE_PIPELINES = AGGREGATE + "." + PIPELINES;
     public static final String AGGREGATE_LIMIT = AGGREGATE + "." + LIMIT;
     public static final String COUNT_QUERY = COUNT + "." + QUERY;
     public static final String DELETE_QUERY = DELETE + "." + QUERY;
@@ -41,6 +45,13 @@ public class FieldName {
     public static final String FIND_SKIP = FIND + "." + SKIP;
     public static final String UPDATE_LIMIT = UPDATE_MANY + "." + LIMIT;
 
+    
     public static final String RAW = "RAW";
-
+    public static final String DATA = "data";
+    public static final String STATUS = "status";
+    public static final String SUCCESS = "SUCCESS";
+    public static final String ERROR = "ERROR";
+    public static final String NATIVE_QUERY_PATH = "misc.formToNativeQuery";
+    public static final String NATIVE_QUERY_PATH_DATA = NATIVE_QUERY_PATH + "." + DATA;
+    public static final String NATIVE_QUERY_PATH_STATUS = NATIVE_QUERY_PATH + "." + STATUS;
 }

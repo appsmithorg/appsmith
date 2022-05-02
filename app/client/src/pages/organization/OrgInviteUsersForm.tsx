@@ -1,9 +1,8 @@
 import React, { Fragment, useContext, useEffect, useState } from "react";
-import styled, { ThemeContext } from "styled-components";
+import styled, { css, ThemeContext } from "styled-components";
 import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
 import SelectField from "components/editorComponents/form/fields/SelectField";
-import Divider from "components/editorComponents/Divider";
 import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import {
@@ -12,7 +11,7 @@ import {
   getCurrentAppOrg,
 } from "selectors/organizationSelectors";
 import Spinner from "components/editorComponents/Spinner";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { InviteUsersToOrgFormValues, inviteUsersToOrg } from "./helpers";
 import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
 import {
@@ -39,10 +38,21 @@ import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "./ManageUsers";
 import ScrollIndicator from "components/ads/ScrollIndicator";
-import UserApi from "api/UserApi";
+import UserApi from "@appsmith/api/UserApi";
+import { Colors } from "constants/Colors";
+
+const CommonTitleTextStyle = css`
+  color: ${Colors.CHARCOAL};
+  font-weight: normal;
+`;
+
+const OrgInviteWrapper = styled.div``;
 
 const OrgInviteTitle = styled.div`
-  padding: 10px 0px;
+  padding: 0 0 10px 0;
+  & > span[type="h5"] {
+    ${CommonTitleTextStyle}
+  }
 `;
 
 const StyledForm = styled.form`
@@ -86,7 +96,7 @@ const StyledInviteFieldGroup = styled.div`
 `;
 
 const UserList = styled.div`
-  margin-top: 10px;
+  margin-top: 24px;
   max-height: 260px;
   overflow-y: auto;
   &&::-webkit-scrollbar-thumb {
@@ -97,8 +107,8 @@ const UserList = styled.div`
 const User = styled.div`
   display: flex;
   align-items: center;
-  height: 54px;
-  padding-left: 15px;
+  min-height: 54px;
+  padding: 5px 0 5px 15px;
   justify-content: space-between;
   color: ${(props) => props.theme.colors.modal.user.textColor};
 `;
@@ -113,17 +123,30 @@ const UserInfo = styled.div`
 
 const UserRole = styled.div`
   flex-basis: 25%;
+  flex-shrink: 0;
   .${Classes.TEXT} {
-    color: ${(props) => props.theme.colors.modal.headerText};
+    color: ${Colors.COD_GRAY};
   }
 `;
 
 const UserName = styled.div`
   display: flex;
   flex-direction: column;
-  margin-left: 10px;
-  span:nth-child(1) {
-    margin-bottom: 1px;
+  margin: 0 10px;
+  span {
+    word-break: break-word;
+
+    &:nth-child(1) {
+      margin-bottom: 1px;
+    }
+
+    &[type="h5"] {
+      color: ${Colors.COD_GRAY};
+    }
+
+    &[type="p2"] {
+      color: ${Colors.GRAY};
+    }
   }
 `;
 
@@ -140,8 +163,8 @@ const Loading = styled(Spinner)`
 const MailConfigContainer = styled.div`
   display: flex;
   flex-direction: column;
-  padding: ${(props) => props.theme.spaces[9]}px
-    ${(props) => props.theme.spaces[2]}px;
+  padding: 24px 4px;
+  padding-bottom: 0;
   align-items: center;
   && > span {
     color: ${(props) => props.theme.colors.modal.email.message};
@@ -268,14 +291,11 @@ function OrgInviteUsersForm(props: any) {
   );
 
   return (
-    <>
+    <OrgInviteWrapper>
       {isApplicationInvite && (
-        <>
-          <Divider />
-          <OrgInviteTitle>
-            <Text type={TextType.H5}>Invite users to {currentOrg?.name} </Text>
-          </OrgInviteTitle>
-        </>
+        <OrgInviteTitle>
+          <Text type={TextType.H5}>Invite users to {currentOrg?.name} </Text>
+        </OrgInviteTitle>
       )}
       <StyledForm
         onSubmit={handleSubmit((values: any, dispatch: any) => {
@@ -388,7 +408,7 @@ function OrgInviteUsersForm(props: any) {
         </ErrorBox>
         {canManage && <ManageUsers orgId={props.orgId} />}
       </StyledForm>
-    </>
+    </OrgInviteWrapper>
   );
 }
 

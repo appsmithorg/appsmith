@@ -8,6 +8,7 @@ import {
 } from "@appsmith/constants/messages";
 import { isEmail } from "utils/formhelpers";
 import { Colors } from "constants/Colors";
+
 const TagInputWrapper = styled.div<{ intent?: Intent }>`
   margin-right: 8px;
 
@@ -57,7 +58,7 @@ type TagInputProps = {
   /** Intent of the tags, which defines their color */
   intent?: Intent;
   hasError?: boolean;
-  customError: (values: any) => void;
+  customError?: (values: any) => void;
 };
 
 /**
@@ -67,19 +68,22 @@ type TagInputProps = {
  * @param props : TagInputProps
  */
 function TagInputComponent(props: TagInputProps) {
-  const _values =
+  const inputValues =
     props.input.value && props.input.value.length > 0
       ? props.input.value.split(",")
       : [];
 
-  const [values, setValues] = useState<string[]>(_values || []);
+  const [values, setValues] = useState<string[]>(inputValues || []);
   const [currentValue, setCurrentValue] = useState<string>("");
 
   useEffect(() => {
-    if (_values.length === 0 && values.length > 0) {
+    if (inputValues.length === 0 && values.length > 0) {
       setValues([]);
     }
-  }, [_values, values]);
+    if (inputValues.length > 0 && values.length === 0) {
+      setValues(inputValues);
+    }
+  }, [inputValues, values]);
 
   const validateEmail = (newValues: string[]) => {
     if (newValues && newValues.length > 0) {
@@ -89,9 +93,9 @@ function TagInputComponent(props: TagInputProps) {
           error = createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST);
         }
       });
-      props.customError(error);
+      props.customError?.(error);
     } else {
-      props.customError("");
+      props.customError?.("");
     }
   };
 
@@ -99,7 +103,7 @@ function TagInputComponent(props: TagInputProps) {
     setValues(newValues);
     props.input.onChange &&
       props.input.onChange(newValues.filter(Boolean).join(","));
-    validateEmail(newValues);
+    props.type === "email" && validateEmail(newValues);
   };
 
   const onTagsChange = (values: React.ReactNode[]) => {
@@ -163,10 +167,11 @@ function TagInputComponent(props: TagInputProps) {
         onKeyDown={onKeyDown}
         placeholder={props.placeholder}
         separator={props.separator || ","}
-        tagProps={{
+        tagProps={(tag) => ({
+          className: tag + "_tag",
           round: true,
-        }}
-        values={_values || [""]}
+        })}
+        values={inputValues || [""]}
       />
     </TagInputWrapper>
   );

@@ -17,13 +17,6 @@
       transition: all ease-in 0.3s;
     }
   </style>
-  <!-- Google Tag Manager -->
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-  })(window,document,'script','dataLayer','%REACT_APP_GOOGLE_ANALYTICS_ID%');</script>
-  <!-- End Google Tag Manager -->
   <script>
     // '' (empty strings), 'false' are falsy
     // could return either boolean or string based on value
@@ -41,14 +34,24 @@
       return result;
     }
     const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
+    const ZIPY_KEY = parseConfig("__APPSMITH_ZIPY_SDK_KEY__");
+    if(CLOUD_HOSTING && ZIPY_KEY) {
+      const script = document.createElement('script');
+      script.crossOrigin = "anonymous";
+      script.defer = true;
+      script.src = "https://cdn.zipy.ai/sdk/v1.0/zipy.min.umd.js";
+      script.onload = () => {
+        window.zipy && window.zipy.init(ZIPY_KEY);
+      }
+      const head = document.getElementsByTagName('head')[0];
+      head && head.appendChild(script);
+    }
+
   </script>
+  <script src="/logger.js"></script>
 </head>
 
 <body class="appsmith-light-theme">
-  <!-- Google Tag Manager (noscript) -->
-  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=%REACT_APP_GOOGLE_ANALYTICS_ID%"
-  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-  <!-- End Google Tag Manager (noscript) -->
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="loader" style="width: 30vw;"></div>
   <!--
@@ -182,6 +185,7 @@
       enableGithubOAuth: parseConfig("__APPSMITH_OAUTH2_GITHUB_CLIENT_ID__"),
       disableLoginForm: parseConfig("__APPSMITH_FORM_LOGIN_DISABLED__"),
       disableSignup: parseConfig("__APPSMITH_SIGNUP_DISABLED__"),
+      disableTelemetry: parseConfig("__APPSMITH_DISABLE_TELEMETRY__"),
       enableRapidAPI: parseConfig("__APPSMITH_MARKETPLACE_ENABLED__"),
       segment: {
         apiKey: parseConfig("__APPSMITH_SEGMENT_KEY__"),

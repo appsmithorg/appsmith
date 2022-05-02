@@ -10,6 +10,7 @@ import styled, { css } from "styled-components";
 import Icon, { IconName, IconSize } from "./Icon";
 import Spinner from "./Spinner";
 import { mediumButton, smallButton, largeButton } from "constants/DefaultTheme";
+import _ from "lodash";
 
 export enum Category {
   primary = "primary",
@@ -284,17 +285,17 @@ const btnColorStyles = (
     case Category.primary:
       bgColor = stateStyles(props, state).bgColorPrimary;
       txtColor = stateStyles(props, state).txtColorPrimary;
-      border = `2px solid ${stateStyles(props, state).borderColorPrimary}`;
+      border = `1.2px solid ${stateStyles(props, state).borderColorPrimary}`;
       break;
     case Category.secondary:
       bgColor = stateStyles(props, state).bgColorSecondary;
       txtColor = stateStyles(props, state).txtColorSecondary;
-      border = `2px solid ${stateStyles(props, state).borderColorSecondary}`;
+      border = `1.2px solid ${stateStyles(props, state).borderColorSecondary}`;
       break;
     case Category.tertiary:
       bgColor = stateStyles(props, state).bgColorTertiary;
       txtColor = stateStyles(props, state).txtColorTertiary;
-      border = `2px solid ${stateStyles(props, state).borderColorTertiary}`;
+      border = `1.2px solid ${stateStyles(props, state).borderColorTertiary}`;
       break;
   }
   return { bgColor, txtColor, border };
@@ -378,7 +379,8 @@ const ButtonStyles = css<ThemeProp & ButtonProps>`
       fill: ${(props) => btnColorStyles(props, "main").txtColor};
     }
   }
-  &:hover {
+  &:hover,
+  &:focus {
     text-decoration: none;
     background-color: ${(props) => btnColorStyles(props, "hover").bgColor};
     color: ${(props) => btnColorStyles(props, "hover").txtColor};
@@ -422,7 +424,7 @@ const ButtonStyles = css<ThemeProp & ButtonProps>`
   }
 `;
 
-const StyledButton = styled("button")`
+export const StyledButton = styled("button")`
   ${ButtonStyles}
 `;
 
@@ -493,11 +495,12 @@ const getButtonContent = (props: ButtonProps) => {
 };
 
 function ButtonComponent(props: ButtonProps) {
+  const omitProps = ["fill"];
   return (
     <StyledButton
       className={props.className}
       data-cy={props.cypressSelector}
-      {...props}
+      {..._.omit(props, omitProps)}
       onClick={(e: React.MouseEvent<HTMLElement>) =>
         props.onClick && props.onClick(e)
       }

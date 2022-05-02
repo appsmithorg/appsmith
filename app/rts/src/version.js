@@ -1,1 +1,1 @@
-export const VERSION = 'SNAPSHOT'
+export const VERSION = "SNAPSHOT";

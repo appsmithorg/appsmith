@@ -2,10 +2,10 @@ import React, { useRef, useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import {
-  CurrentApplicationData,
+  ApplicationPayload,
   PageListPayload,
-} from "constants/ReduxActionConstants";
-import { getApplicationViewerPageURL } from "constants/routes";
+} from "@appsmith/constants/ReduxActionConstants";
+import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { isEllipsisActive } from "utils/helpers";
 import TooltipComponent from "components/ads/Tooltip";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -16,6 +16,7 @@ import { useSelector } from "react-redux";
 
 import { trimQueryString } from "utils/helpers";
 import { getPageURL } from "utils/AppsmithUtils";
+import { viewerURL } from "RouteBuilder";
 
 const PageTab = styled(NavLink)`
   display: flex;
@@ -92,17 +93,16 @@ function PageTabName({ name }: { name: string }) {
     }
   }, [tabNameRef]);
 
-  return ellipsisActive ? (
+  return (
     <TooltipComponent
       boundary="viewport"
       content={name}
+      disabled={!ellipsisActive}
       maxWidth="400px"
       position={Position.BOTTOM}
     >
       {tabNameText}
     </TooltipComponent>
-  ) : (
-    tabNameText
   );
 }
 
@@ -130,7 +130,7 @@ function PageTabContainer({
 }
 
 type Props = {
-  currentApplicationDetails?: CurrentApplicationData;
+  currentApplicationDetails?: ApplicationPayload;
   appPages: PageListPayload;
   measuredTabsRef: (ref: HTMLElement | null) => void;
   tabsScrollable: boolean;
@@ -139,8 +139,8 @@ type Props = {
 
 export function PageTabs(props: Props) {
   const { appPages, currentApplicationDetails } = props;
-  const { pathname } = useLocation();
   const location = useLocation();
+  const { pathname } = location;
   const appMode = useSelector(getAppMode);
   const [query, setQuery] = useState("");
 
@@ -158,8 +158,10 @@ export function PageTabs(props: Props) {
           isTabActive={
             pathname ===
             trimQueryString(
-              getApplicationViewerPageURL({
-                applicationId: currentApplicationDetails?.id,
+              viewerURL({
+                applicationSlug:
+                  currentApplicationDetails?.slug || PLACEHOLDER_APP_SLUG,
+                pageSlug: page.slug || PLACEHOLDER_PAGE_SLUG,
                 pageId: page.pageId,
               }),
             )

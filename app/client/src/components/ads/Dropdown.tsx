@@ -38,6 +38,7 @@ export type DropdownOption = {
   onSelect?: DropdownOnSelect;
   data?: any;
   isSectionHeader?: boolean;
+  hasCustomBadge?: boolean;
 };
 export interface DropdownSearchProps {
   enableSearch?: boolean;
@@ -99,7 +100,10 @@ export type DropdownProps = CommonComponentProps &
     removeSelectedOption?: DropdownOnSelect;
     boundary?: PopperBoundary;
     defaultIcon?: IconName;
+    allowDeselection?: boolean; //prevents de-selection of the selected option
     truncateOption?: boolean; // enabled wrapping and adding tooltip on option item of dropdown menu
+    customBadge?: JSX.Element;
+    selectedHighlightBg?: string;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption | DropdownOption[];
@@ -258,6 +262,10 @@ export const DropdownContainer = styled.div<{ width: string; height?: string }>`
   span.bp3-popover-target {
     display: inline-block;
     width: 100%;
+    height: 100%;
+  }
+  span.bp3-popover-target div {
+    height: 100%;
   }
 
   span.bp3-popover-wrapper {
@@ -332,6 +340,7 @@ const DropdownOptionsWrapper = styled.div<{
 
 const OptionWrapper = styled.div<{
   selected: boolean;
+  selectedHighlightBg?: string;
 }>`
   padding: ${(props) => props.theme.spaces[2] + 1}px
     ${(props) => props.theme.spaces[5]}px;
@@ -339,7 +348,9 @@ const OptionWrapper = styled.div<{
   display: flex;
   align-items: center;
   min-height: 36px;
-  background-color: ${(props) => (props.selected ? Colors.GREEN_3 : null)};
+  background-color: ${(props) =>
+    props.selected ? props.selectedHighlightBg || Colors.GREEN_3 : null};
+
   &&& svg {
     rect {
       fill: ${(props) => props.theme.colors.dropdownIconBg};
@@ -370,7 +381,7 @@ const OptionWrapper = styled.div<{
   }
 
   &:hover {
-    background-color: ${Colors.GREEN_3};
+    background-color: ${(props) => props.selectedHighlightBg || Colors.GREEN_3};
 
     &&& svg {
       rect {
@@ -550,7 +561,7 @@ function DefaultDropDownValueNode({
         : selected.value
       : placeholder
       ? placeholder
-      : "Please select a option.";
+      : "Please select an option.";
 
   function Label() {
     if (isMultiSelect && Array.isArray(selected) && selected.length) {
@@ -643,6 +654,7 @@ interface DropdownOptionsProps extends DropdownProps, DropdownSearchProps {
   selected: DropdownOption | DropdownOption[];
   optionWidth: string;
   isMultiSelect?: boolean;
+  allowDeselection?: boolean;
   isOpen: boolean; // dropdown popover options flashes when closed, this prop helps to make sure it never happens again.
 }
 
@@ -666,9 +678,12 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
   };
   const theme = useTheme() as Theme;
 
+  if (!options.length) return null;
+
   return (
     <DropdownWrapper
       className="ads-dropdown-options-wrapper"
+      data-testid="dropdown-options-wrapper"
       isOpen={props.isOpen}
       width={optionWidth}
     >
@@ -687,14 +702,6 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
         maxHeight={props.dropdownMaxHeight || "auto"}
       >
         {options.map((option: DropdownOption, index: number) => {
-          if (renderOption) {
-            return renderOption({
-              option,
-              index,
-              optionClickHandler,
-              optionWidth,
-            });
-          }
           let isSelected = false;
           if (
             props.isMultiSelect &&
@@ -708,6 +715,15 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
             isSelected =
               (props.selected as DropdownOption).value === option.value;
           }
+          if (renderOption) {
+            return renderOption({
+              option,
+              index,
+              optionClickHandler,
+              optionWidth,
+              isSelectedNode: isSelected,
+            });
+          }
           return !option.isSectionHeader ? (
             <OptionWrapper
               aria-selected={isSelected}
@@ -715,12 +731,13 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               key={index}
               onClick={
                 // users should be able to unselect a selected option by clicking the option again.
-                isSelected
+                isSelected && props.allowDeselection
                   ? () => props.selectedOptionClickHandler(option)
                   : () => props.optionClickHandler(option)
               }
               role="option"
               selected={isSelected}
+              selectedHighlightBg={props.selectedHighlightBg}
             >
               {option.leftElement && (
                 <LeftIconWrapper>{option.leftElement}</LeftIconWrapper>
@@ -744,12 +761,18 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               ) : null}
               {props.showLabelOnly ? (
                 props.truncateOption ? (
-                  <TooltipWrappedText
-                    label={option.label || ""}
-                    type={TextType.P1}
-                  />
+                  <>
+                    <TooltipWrappedText
+                      label={option.label || ""}
+                      type={TextType.P1}
+                    />
+                    {option.hasCustomBadge && props.customBadge}
+                  </>
                 ) : (
-                  <Text type={TextType.P1}>{option.label}</Text>
+                  <>
+                    <Text type={TextType.P1}>{option.label}</Text>
+                    {option.hasCustomBadge && props.customBadge}
+                  </>
                 )
               ) : option.label && option.value ? (
                 <LabelWrapper className="label-container">
@@ -836,13 +859,20 @@ export default function Dropdown(props: DropdownProps) {
     [onSelect],
   );
 
-  //Removes selected option
+  //Removes selected option, should be called when allowDeselection=true
   const selectedOptionClickHandler = useCallback(
     (optionToBeRemoved: DropdownOption) => {
+      let selectedOptions: DropdownOption | DropdownOption[] = [];
       setIsOpen(false);
-      const selectedOptions = (selected as DropdownOption[]).filter(
-        (option: DropdownOption) => option.value !== optionToBeRemoved.value,
-      );
+      if (!Array.isArray(selected)) {
+        if (optionToBeRemoved.value === selected.value) {
+          selectedOptions = optionToBeRemoved;
+        }
+      } else {
+        selectedOptions = selected.filter(
+          (option: DropdownOption) => option.value !== optionToBeRemoved.value,
+        );
+      }
       setSelected(selectedOptions);
       removeSelectedOption &&
         removeSelectedOption(optionToBeRemoved.value, optionToBeRemoved);
@@ -905,11 +935,11 @@ export default function Dropdown(props: DropdownProps) {
           e.preventDefault();
           if (isOpen) {
             setSelected((prevSelected) => {
-              if (!("length" in prevSelected)) {
+              if (!(!!prevSelected && "length" in prevSelected)) {
                 let index = findIndex(props.options, prevSelected);
                 if (index === props.options.length - 1) index = 0;
                 else index++;
-                return props.options[index];
+                return prevSelected ? props.options[index] : props.options[0];
               }
               return prevSelected;
             });
@@ -930,6 +960,11 @@ export default function Dropdown(props: DropdownProps) {
   const [dropdownWrapperWidth, setDropdownWrapperWidth] = useState<string>(
     "100%",
   );
+
+  let dropdownHeight = props.isMultiSelect ? "auto" : "38px";
+  if (props.height) {
+    dropdownHeight = props.height;
+  }
 
   const dropdownWrapperRef = useCallback(
     (ref: HTMLDivElement) => {
@@ -961,7 +996,7 @@ export default function Dropdown(props: DropdownProps) {
         className={props.className}
         disabled={props.disabled}
         hasError={errorFlag}
-        height={props.height || "38px"}
+        height={dropdownHeight}
         isMultiSelect={props.isMultiSelect}
         isOpen={isOpen}
         onClick={() => setIsOpen(!isOpen)}
@@ -992,7 +1027,9 @@ export default function Dropdown(props: DropdownProps) {
           )
         )}
       </Selected>
-      {errorMsg && <ErrorMsg>{errorMsg}</ErrorMsg>}
+      {errorMsg && (
+        <ErrorMsg className="ads-dropdown-errorMsg">{errorMsg}</ErrorMsg>
+      )}
       {helperText && !isOpen && !errorMsg && (
         <HelperMsg>{helperText}</HelperMsg>
       )}
@@ -1005,7 +1042,7 @@ export default function Dropdown(props: DropdownProps) {
     <DropdownContainer
       className={props.containerClassName + " " + replayHighlightClass}
       data-cy={props.cypressSelector}
-      height={"38px"}
+      height={dropdownHeight}
       onKeyDown={handleKeydown}
       role="listbox"
       tabIndex={0}
@@ -1024,6 +1061,7 @@ export default function Dropdown(props: DropdownProps) {
         {dropdownTrigger}
         <RenderDropdownOptions
           {...props}
+          allowDeselection={props.allowDeselection}
           isMultiSelect={props.isMultiSelect}
           isOpen={isOpen}
           optionClickHandler={optionClickHandler}

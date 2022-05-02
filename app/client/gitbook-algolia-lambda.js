@@ -4,29 +4,23 @@ const aws = require("aws-sdk");
 
 const SSM = new aws.SSM();
 
-const DOCS_VERSION = "v1.2.1";
+const SPACE_ID = "-Lzuzdhj8LjrQPaeyCxr-3757176148";
 
-const orderArr = [{
-    path: "master/core-concepts/building-the-ui",
-    order: 0,
-}, {
-    path: "master/core-concepts/connecting-to-databases",
-    order: 1
-}, {
-    path: "master/core-concepts/apis",
-    order: 2
-}, {
-    path: "master/core-concepts/connecting-ui-and-logic",
-    order: 3
-}, {
-    path: "master/core-concepts/building-the-ui/calling-apis-from-widgets#sending-data-to-apis-queries",
-    order: 4
-}];
+const orderMap = {
+    "sample-apps": 0,
+    "core-concepts/connecting-to-data-sources": 1,
+    "core-concepts/displaying-data-read": 2,
+    "core-concepts/capturing-data-write": 3,
+    "core-concepts/writing-code": 4,
+    "troubleshooting-guide": 5,
+    "how-to-guides": 6,
+    "framework-reference/cheat-sheet": 7
+};
 
 var options = {
   headers: {
     Authorization:
-      "Bearer aEhCb3hxVzVYWFJCY0g4b1owZmdKcTdJUmc0MjotTTY5cHFwVDlxTWx0cFU2akh4MC0tTTY5cHFwVWFobjBaRWNzTjh0WA==",
+      "Bearer -M69pqpT9qMltpU6jHx0--M69pqpUahn0ZEcsN8tX",
     Cookie: "__cfduid=d8bac210f6e11cb26a8cd921f77727e3f1588323072",
   },
 };
@@ -36,7 +30,7 @@ console.log("Loading function");
 
 function getPage(pageId) {
   return new Promise((resolve, reject) => {
-    const url = `https://api-beta.gitbook.com/v1/spaces/-Lzuzdhj8LjrQPaeyCxr/content/v/${DOCS_VERSION}/id/${pageId}?format=markdown`;
+    const url = `https://api.gitbook.com/v1/spaces/${SPACE_ID}/content/page/${pageId}?format=markdown`;
     console.log("Getting URL", url);
     https.get(url, options, (res) => {
       res.setEncoding('utf8');
@@ -46,6 +40,7 @@ function getPage(pageId) {
         try {
           const parsedData = JSON.parse(rawData);
           resolve(parsedData);
+          console.log("fetched page " + pageId);
         } catch (e) {
           console.error(e.message);
           console.error("Full response body:", rawData);
@@ -70,7 +65,7 @@ async function getPageRetry(pageId, retries) {
     }
   }
 
-  if (page === null) {
+  if (page == null) {
     throw new Error("Tried getting page " + retries + " times, but failed.");
   }
 
@@ -83,7 +78,8 @@ const pages = {};
 function pushChildPages(masterPage) {
   if (masterPage.pages) {
     masterPage.pages.forEach(page => {
-      page.path = (masterPage.path || masterPage.ref) + "/" + page.path;
+      if (masterPage.path)
+        page.path = (masterPage.path || masterPage.ref) + "/" + page.path;
       pushChildPages(page);
       page.pages = undefined;
       pages[page.uid] = page;
@@ -91,29 +87,50 @@ function pushChildPages(masterPage) {
   }
 }
 
-function swap(arr, index1, index2) {
-    let x = arr[index1];
-    arr[index1] = arr[index2];
-    arr[index2] = x;
-}
-
 async function getAllPages(pageIds) {
   const allPages = [];
   for (const pageId of pageIds) {
-    allPages.push(await getPageRetry(pageId, 3));
+    allPages.push(getPageRetry(pageId, 3));
   }
-  return allPages;
+  return Promise.all(allPages);
+}
+
+function extractLinkMatches(markdown) {
+  const regex =  /\[(.*?)\]\((.*?)\)/g;
+  const matches = markdown.matchAll(regex);
+  return [...matches];
+}
+
+function getAbsoluteLink(link, currentPageFullPath) {
+  console.log("page path ", currentPageFullPath);
+  console.log("relative link ", link);
+  const linkPaths = link.split("/");
+  const pagePaths = currentPageFullPath.split("/");
+  let pathIndex = pagePaths.length > 1 ? (pagePaths.length - 1) : 0;
+  linkPaths.map((path, index) => {
+    if (path === "..") {
+      pagePaths[pathIndex] = undefined;
+      pathIndex -= 1;
+    }
+  });
+  let absoluteLink = pagePaths.filter((path) => path !== undefined).join("/");
+  if (absoluteLink.length > 0) {
+    absoluteLink += "/";
+  }
+  absoluteLink += linkPaths.filter((path) => path !== "..").join("/");
+  console.log("absolute link ", absoluteLink);
+  return absoluteLink;
 }
 
 exports.handler = async (event, context, callback) => {
-  const parameters = await loadParametersFromStore("/" + process.env.ENV + "/algolia");
   console.log('Received event:', JSON.stringify(event, null, 2));
 
+  const parameters = await loadParametersFromStore("/" + process.env.ENV + "/algolia");
   const client = algoliasearch(parameters.application_id, parameters.api_key);
   const algoliaIndex = client.initIndex("test_appsmith");
 
   return await new Promise((resolve, reject) => {
-    https.get("https://api-beta.gitbook.com/v1/spaces/-Lzuzdhj8LjrQPaeyCxr/content", options, (res) => {
+    https.get(`https://api.gitbook.com/v1/spaces/${SPACE_ID}/content`, options, (res) => {
       console.log("Setting up response handlers for GitBook API request");
       res.setEncoding('utf8');
       let rawData = '';
@@ -121,68 +138,83 @@ exports.handler = async (event, context, callback) => {
       res.on('end', () => {
         try {
           const parsedData = JSON.parse(rawData);
-          let requiredIndex = parsedData.variants.findIndex(varaint => varaint.uid === DOCS_VERSION);
-          let masterPage = parsedData.variants[requiredIndex].page;
+          let masterPage = parsedData;
 
           pushChildPages(masterPage);
           delete masterPage.pages;
 
-          pages[masterPage.uid] = masterPage;
-
           getAllPages(Object.keys(pages)).then(updatedPages => {
-
+            // console.log("fetched all pages ", Object.keys(pages));
             updatedPages.forEach((page, index) => {
+              // console.log("update page fullpath", page.uid);
               page.path = pages[page.uid].path;
               delete page.pages;
               page.objectID = page.uid;
               delete page.uid;
-              if(page.path.endsWith("/changelog")) {
-                delete page.document;
-              }
             });
-
-            orderArr.forEach(order => {
-                let index = updatedPages.findIndex(i => i.path === order.path);
-                if(index !== -1) {
-                    swap(updatedPages, index, order.order);
-                }
+            updatedPages.sort((pageA, pageB) => {
+              const orderA = orderMap[pageA.path] || 999;
+              const orderB = orderMap[pageB.path] || 999;
+              return orderB - orderA;
             });
-
+            console.log("sorted pages")
             updatedPages = updatedPages.map((item, index) => {return {...item, defaultOrder: index}});
 
-            // Truncate large docs.
-            updatedPages.filter(page => page.document).forEach(page => {
-              const size = JSON.stringify(page).length;
-              if (size < 10000) {
-                return;
-              }
-              console.log("Truncating page", page);
-              page.document = page.document.substr(0, page.document.length - (JSON.stringify(page).length - 9900));
+            // Truncate large docs, marking few docs as default and changing the markdown key for backward compatibility
+            updatedPages.filter(page => page.markdown)
+              .forEach(page => {
+                if (page.markdown) {
+                  const size = JSON.stringify(page).length;
+                  if (size > 10000) {
+                    page.markdown = page.markdown.slice(0, -(size - 9900));
+                  }
+                  if (orderMap[page.path]) {
+                    page.isDefault = true;
+                  }
+                  const matches = extractLinkMatches(page.markdown);
+                  matches.map((match) => {
+                    const link = match[2];
+                    if (!link.startsWith('https:')) {
+                      const absoluteLink = getAbsoluteLink(link, page.path);
+                      console.log('replace', match[0], match[0].replace("(" + link + ")", "(" + absoluteLink + ")"));
+                      page.markdown = page.markdown.replace(match[0], match[0].replace("(" + link + ")", "(" + absoluteLink + ")"));
+                    }
+                  });
+                  page.document = page.markdown;
+                  page.markdown = undefined;
+                  page.kind = "document";
+                }
             });//*/
 
-            console.log("Pages (" + updatedPages.length + "):", updatedPages.map(page => ({objectID: page.objectID, size: JSON.stringify(page).length, title: page.title, path: page.path})));
+            console.log("Pages:", updatedPages.map(page => ({objectID: page.objectID, size: JSON.stringify(page).length, title: page.title, path: page.path})));
 
             // resolve({
             //   statusCode: 200,
             //   body: JSON.stringify(updatedPages)
             // })
-
-            algoliaIndex.replaceAllObjects(updatedPages, {
-              autoGenerateObjectIDIfNotExist: true
-            }).then(({ objectIDs }) => {
-              console.log("Algolia upload finished", objectIDs);
-              callback(null, 'Finished');
-              resolve({
-                statusCode: 200,
-                body: JSON.stringify(updatedPages)
-              });
-            }).catch(e => {
-              console.error("Algolia upload failed", e);
+            if (updatedPages.length < 5) {
               reject({
-                statusCode: 500,
-                body: 'Algolia upload failed.'
+                statusCode: 304,
+                body: 'No content to update'
               });
-            });
+            } else {
+              algoliaIndex.replaceAllObjects(updatedPages, {
+                autoGenerateObjectIDIfNotExist: true
+              }).then(({ objectIDs }) => {
+                console.log("Algolia upload finished", objectIDs);
+                callback(null, 'Finished');
+                resolve({
+                  statusCode: 200,
+                  body: JSON.stringify(updatedPages)
+                });
+              }).catch(e => {
+                console.error("Algolia upload failed", e);
+                reject({
+                  statusCode: 500,
+                  body: 'Algolia upload failed.'
+                });
+              });
+            }
           });
         } catch (e) {
           reject({

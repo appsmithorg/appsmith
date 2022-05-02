@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import { AppState } from "reducers";
@@ -12,11 +12,12 @@ import { ContextMenuPopoverModifiers } from "../helpers";
 import { noop } from "lodash";
 import { useNewJSCollectionName } from "./helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import {
   CONTEXT_COPY,
   CONTEXT_DELETE,
+  CONFIRM_CONTEXT_DELETE,
   CONTEXT_EDIT_NAME,
   CONTEXT_MOVE,
   CONTEXT_NO_PAGE,
@@ -32,6 +33,7 @@ type EntityContextMenuProps = {
 };
 export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
   const nextEntityName = useNewJSCollectionName();
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -142,14 +144,23 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
                 ],
         },
         {
+          confirmDelete: confirmDelete,
+          className: "t--apiFormDeleteBtn single-select",
           value: "delete",
-          onSelect: () => deleteJSCollectionFromPage(props.id, props.name),
-          label: createMessage(CONTEXT_DELETE),
+          onSelect: () => {
+            confirmDelete
+              ? deleteJSCollectionFromPage(props.id, props.name)
+              : setConfirmDelete(true);
+          },
+          label: confirmDelete
+            ? createMessage(CONFIRM_CONTEXT_DELETE)
+            : createMessage(CONTEXT_DELETE),
           intent: "danger",
         },
       ]}
       selectedValue=""
-      toggle={<ContextMenuTrigger />}
+      setConfirmDelete={setConfirmDelete}
+      toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
   );
 }

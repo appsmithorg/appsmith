@@ -3,8 +3,8 @@ import {
   ReduxActionTypes,
   ReduxAction,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
-import { Plugin } from "api/PluginApi";
+} from "@appsmith/constants/ReduxActionConstants";
+import { DefaultPlugin, Plugin } from "api/PluginApi";
 import {
   PluginFormPayloadWithId,
   PluginFormsPayload,
@@ -14,26 +14,33 @@ import {
   FormEditorConfigs,
   FormSettingsConfigs,
   FormDependencyConfigs,
+  FormDatasourceButtonConfigs,
 } from "utils/DynamicBindingUtils";
 
 export interface PluginDataState {
   list: Plugin[];
+  defaultPluginList: DefaultPlugin[];
   loading: boolean;
   formConfigs: Record<string, any[]>;
   editorConfigs: FormEditorConfigs;
   settingConfigs: FormSettingsConfigs;
   dependencies: FormDependencyConfigs;
+  datasourceFormButtonConfigs: FormDatasourceButtonConfigs;
   fetchingSinglePluginForm: Record<string, boolean>;
+  fetchingDefaultPlugins: boolean;
 }
 
 const initialState: PluginDataState = {
   list: [],
+  defaultPluginList: [],
   loading: false,
   formConfigs: {},
   editorConfigs: {},
   settingConfigs: {},
+  datasourceFormButtonConfigs: {},
   dependencies: {},
   fetchingSinglePluginForm: {},
+  fetchingDefaultPlugins: false,
 };
 
 const pluginsReducer = createReducer(initialState, {
@@ -99,6 +106,10 @@ const pluginsReducer = createReducer(initialState, {
         ...state.settingConfigs,
         [action.payload.id]: action.payload.setting,
       },
+      datasourceFormButtonConfigs: {
+        ...state.datasourceFormButtonConfigs,
+        [action.payload.id]: action.payload.formButton,
+      },
     };
   },
   [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_ERROR]: (
@@ -111,6 +122,22 @@ const pluginsReducer = createReducer(initialState, {
         ...state.fetchingSinglePluginForm,
         [action.payload.id]: false,
       },
+    };
+  },
+  [ReduxActionTypes.GET_DEFAULT_PLUGINS_REQUEST]: (state: PluginDataState) => {
+    return {
+      ...state,
+      fetchingDefaultPlugins: true,
+    };
+  },
+  [ReduxActionTypes.GET_DEFAULT_PLUGINS_SUCCESS]: (
+    state: PluginDataState,
+    action: ReduxAction<DefaultPlugin[]>,
+  ) => {
+    return {
+      ...state,
+      fetchingDefaultPlugins: false,
+      defaultPluginList: action.payload,
     };
   },
 });

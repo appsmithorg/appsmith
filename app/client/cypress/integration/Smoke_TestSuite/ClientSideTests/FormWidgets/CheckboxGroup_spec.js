@@ -1,6 +1,7 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
+const explorer = require("../../../../locators/explorerlocators.json");
 const dsl = require("../../../../fixtures/checkboxgroupDsl.json");
 
 describe("Checkbox Group Widget Functionality", function() {
@@ -128,6 +129,27 @@ describe("Checkbox Group Widget Functionality", function() {
     cy.get(
       ".t--draggable-checkboxgroupwidget div[data-cy^='checkbox-group-container']",
     ).should("have.css", "justify-content", "flex-start");
+  });
+
+  it("Check isDirty meta property", function() {
+    cy.get(explorer.addWidget).click();
+    cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
+    cy.openPropertyPane("textwidget");
+    cy.updateCodeInput(
+      ".t--property-control-text",
+      `{{checkboxgrouptest.isDirty}}`,
+    );
+    // Change defaultSelectedValues
+    cy.openPropertyPane("checkboxgroupwidget");
+    cy.updateCodeInput(".t--property-control-defaultselectedvalues", "GREEN");
+    // Check if isDirty is reset to false
+    cy.get(".t--widget-textwidget").should("contain", "false");
+    // Interact with UI
+    cy.get(formWidgetsPage.labelCheckboxGroup)
+      .first()
+      .click();
+    // Check if isDirty is set to true
+    cy.get(".t--widget-textwidget").should("contain", "true");
   });
 });
 afterEach(() => {

@@ -410,6 +410,25 @@
         "code",
         "bug"
       ]
+    },
+    {
+      "login": "pallavagarwal07",
+      "name": "Pallav Agarwal",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9394044?v=4",
+      "profile": "https://www.varstack.com",
+      "contributions": [
+        "code",
+        "bug"
+      ]
+    },
+    {
+      "login": "ganganimaulik",
+      "name": "Maulik",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10296400?v=4",
+      "profile": "https://github.com/ganganimaulik",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

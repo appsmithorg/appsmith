@@ -69,6 +69,8 @@ const EditableTextWrapper = styled.div<{
   }
 `;
 
+// using the !important keyword here is mandatory because a style is being applied to that element using the style attribute
+// which has higher specificity than other css selectors. It seems the overriding style is being applied by the package itself.
 const TextContainer = styled.div<{ isValid: boolean; minimal: boolean }>`
   display: flex;
   &&&& .${Classes.EDITABLE_TEXT} {
@@ -77,6 +79,10 @@ const TextContainer = styled.div<{ isValid: boolean; minimal: boolean }>`
         text-decoration: ${(props) => (props.minimal ? "underline" : "none")};
       }
     }
+  }
+
+  & span.bp3-editable-text-content {
+    height: auto !important;
   }
 `;
 
@@ -194,7 +200,12 @@ export function EditableText(props: EditableTextProps) {
             value={value}
           />
           {!minimal && !hideEditIcon && !updating && !isEditing && (
-            <Icon fillColor="#939090" name="edit" size={IconSize.XXL} />
+            <Icon
+              className="t--action-name-edit-icon"
+              fillColor="#939090"
+              name="edit"
+              size={IconSize.XXL}
+            />
           )}
         </TextContainer>
       </ErrorTooltip>

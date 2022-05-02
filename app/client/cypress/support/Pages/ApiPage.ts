@@ -1,8 +1,7 @@
-import { AggregateHelper } from "./AggregateHelper";
-import explorer from "../../locators/explorerlocators.json";
-const agHelper = new AggregateHelper();
-
+import { ObjectsRegistry } from "../Objects/Registry"
 export class ApiPage {
+    public agHelper = ObjectsRegistry.AggregateHelper
+    public locator = ObjectsRegistry.CommonLocators;
 
     private _createapi = ".t--createBlankApiCard"
     private _resourceUrl = ".t--dataSourceField"
@@ -10,24 +9,33 @@ export class ApiPage {
     private _headerValue = (index: number) => ".t--actionConfiguration\\.headers\\[0\\]\\.value\\." + index + ""
     private _paramKey = (index: number) => ".t--actionConfiguration\\.queryParameters\\[0\\]\\.key\\." + index + ""
     private _paramValue = (index: number) => ".t--actionConfiguration\\.queryParameters\\[0\\]\\.value\\." + index + ""
-    private _paramsTab = "//li//span[text()='Params']"
+    _bodyKey = (index: number) => ".t--actionConfiguration\\.bodyFormData\\[0\\]\\.key\\." + index + ""
+    _bodyValue = (index: number) => ".t--actionConfiguration\\.bodyFormData\\[0\\]\\.value\\." + index + ""
+    _bodyTypeDropdown = "//span[text()='Type'][@class='bp3-button-text']/parent::button"
     private _apiRunBtn = ".t--apiFormRunBtn"
     private _queryTimeout = "//input[@name='actionConfiguration.timeoutInMillisecond']"
-    private _apiTab = (tabValue: string) => "span:contains('" + tabValue + "')"
     _responseBody = ".CodeMirror-code  span.cm-string.cm-property"
+    private _blankAPI = "span:contains('New Blank API')"
+    private _apiVerbDropdown = ".t--apiFormHttpMethod"
+    private _verbToSelect = (verb: string) => "//div[contains(@class, 't--dropdown-option')]//span[contains(text(),'" + verb + "')]"
+    private _bodySubTab = (subTab: string) => `[data-cy='tab--${subTab}']`
+    _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']"
+    _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']"
+    _noBodyMessageDiv = "#NoBodyMessageDiv"
+    _noBodyMessage = "This request does not have a body"
+    _imageSrc = "//img/parent::div"
+    private _trashDelete = "span[name='delete']"
+    private _onPageLoad = "input[name='executeOnLoad'][type='checkbox']"
 
 
-    CreateAndFillApi(url: string, apiname: string = "", queryTimeout = 30000) {
-        cy.get(explorer.createNew).click({ force: true });
-        cy.get(explorer.blankAPI).click({ force: true });
-        cy.wait("@createNewApi").should(
-            "have.nested.property",
-            "response.body.responseMeta.status",
-            201,
-        );
+    CreateApi(apiName: string = "", apiVerb: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' = 'GET',) {
+        cy.get(this.locator._createNew).click({ force: true });
+        cy.get(this._blankAPI).click({ force: true });
+        this.agHelper.ValidateNetworkStatus("@createNewApi", 201)
+
         // cy.get("@createNewApi").then((response: any) => {
         //     expect(response.response.body.responseMeta.success).to.eq(true);
-        //     cy.get(agHelper._actionName)
+        //     cy.get(this.agHelper._actionName)
         //         .click()
         //         .invoke("text")
         //         .then((text) => {
@@ -35,91 +43,121 @@ export class ApiPage {
         //             expect(someText).to.equal(response.response.body.data.name);
         //         });
         // }); // to check if Api1 = Api1 when Create Api invoked
-        if (apiname)
-            agHelper.RenameWithInPane(apiname)
+
+        if (apiName)
+            this.agHelper.RenameWithInPane(apiName)
         cy.get(this._resourceUrl).should("be.visible");
+        if (apiVerb != 'GET')
+            this.SelectAPIVerb(apiVerb)
+    }
+
+    CreateAndFillApi(url: string, apiname: string = "", apiVerb: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' = 'GET', queryTimeout = 30000) {
+        this.CreateApi(apiname, apiVerb)
         this.EnterURL(url)
-        agHelper.WaitAutoSave()
-        // Added because api name edit takes some time to
-        // reflect in api sidebar after the call passes.
-        agHelper.Sleep(2000);
+        this.agHelper.AssertAutoSave()
+        //this.agHelper.Sleep(2000);// Added because api name edit takes some time to reflect in api sidebar after the call passes.
         cy.get(this._apiRunBtn).should("not.be.disabled");
         this.SetAPITimeout(queryTimeout)
     }
 
     EnterURL(url: string) {
-        cy.get(this._resourceUrl)
-            .first()
-            .click({ force: true })
-            .type(url, { parseSpecialCharSequences: false });
-        agHelper.WaitAutoSave()
+        this.agHelper.EnterValue(url, this._resourceUrl, true)
+        this.agHelper.AssertAutoSave()
     }
 
     EnterHeader(hKey: string, hValue: string) {
-        cy.get(this._apiTab('Header')).should('be.visible').click();
-        cy.get(this._headerKey(0))
-            .first()
-            .click({ force: true })
-            .type(hKey, { parseSpecialCharSequences: false });
-        cy.get(this._headerValue(0))
-            .first()
-            .click({ force: true })
-            .type(hValue, { parseSpecialCharSequences: false });
-        agHelper.WaitAutoSave()
+        this.SelectPaneTab('Headers');
+        this.agHelper.EnterValue(hKey, this._headerKey(0), true)
+        cy.get('body').type("{esc}");
+        this.agHelper.EnterValue(hValue, this._headerValue(0), true)
+        cy.get('body').type("{esc}");
+        this.agHelper.AssertAutoSave()
     }
 
     EnterParams(pKey: string, pValue: string) {
-        cy.xpath(this._paramsTab)
-            .should("be.visible")
-            .click({ force: true });
-        cy.get(this._paramKey(0))
-            .first()
-            .click({ force: true })
-            .type(pKey, { parseSpecialCharSequences: false });
-        cy.get(this._paramValue(0))
-            .first()
-            .click({ force: true })
-            .type(pValue, { parseSpecialCharSequences: false });
-        agHelper.WaitAutoSave()
+        this.SelectPaneTab('Params')
+        this.agHelper.EnterValue(pKey, this._paramKey(0), true)
+        cy.get('body').type("{esc}");
+        this.agHelper.EnterValue(pValue, this._paramValue(0), true)
+        cy.get('body').type("{esc}");
+        this.agHelper.AssertAutoSave()
+    }
+
+    EnterBodyFormData(subTab: 'FORM_URLENCODED' | 'MULTIPART_FORM_DATA', bKey: string, bValue: string, type = "", toTrash = false) {
+        this.SelectPaneTab('Body')
+        this.SelectSubTab(subTab)
+        if (toTrash) {
+            cy.get(this._trashDelete).click()
+            cy.xpath(this._visibleTextSpan('Add more')).click()
+        }
+        this.agHelper.EnterValue(bKey, this._bodyKey(0), true)
+        cy.get('body').type("{esc}");
+
+        if (type) {
+            cy.xpath(this._bodyTypeDropdown).eq(0).click()
+            cy.xpath(this._visibleTextDiv(type)).click()
+        }
+        this.agHelper.EnterValue(bValue, this._bodyValue(0), true)
+        cy.get('body').type("{esc}");
+        this.agHelper.AssertAutoSave()
     }
 
     RunAPI() {
         cy.get(this._apiRunBtn).click({ force: true });
-        cy.wait("@postExecute").should(
-            "have.nested.property",
-            "response.body.data.isExecutionSuccess",
-            true,
-        );
+        this.agHelper.ValidateNetworkExecutionSuccess("@postExecute")
     }
 
     SetAPITimeout(timeout: number) {
-        cy.get(this._apiTab('Settings')).click();
+        this.SelectPaneTab('Settings');
         cy.xpath(this._queryTimeout)
             .clear()
             .type(timeout.toString());
+        this.agHelper.AssertAutoSave()
+        this.SelectPaneTab('Headers');
+    }
 
-        cy.get(this._apiTab('Header')).click();
+    DisableOnPageLoadRun() {
+        this.SelectPaneTab('Settings');
+        cy.get(this._onPageLoad).uncheck({
+            force: true,
+        });
+    }
+
+    SelectPaneTab(tabName: 'Headers' | 'Params' | 'Body' | 'Pagination' | 'Authentication' | 'Settings') {
+        cy.xpath(this._visibleTextSpan(tabName)).should('be.visible').eq(0).click();
+    }
+
+    SelectSubTab(subTabName: 'NONE' | 'JSON' | 'FORM_URLENCODED' | 'MULTIPART_FORM_DATA' | 'RAW') {
+        cy.get(this._bodySubTab(subTabName)).eq(0).should('be.visible').click();
     }
 
     ValidateQueryParams(param: { key: string; value: string; }) {
-        cy.xpath(this._paramsTab)
-            .should("be.visible")
-            .click({ force: true });
+        this.SelectPaneTab('Params')
+        this.agHelper.ValidateCodeEditorContent(this._paramKey(0), param.key)
+        this.agHelper.ValidateCodeEditorContent(this._paramValue(0), param.value)
+    }
 
-        agHelper.ValidateCodeEditorContent(this._paramKey(0), param.key)
-        agHelper.ValidateCodeEditorContent(this._paramValue(0), param.value)
+    ValidateHeaderParams(header: { key: string; value: string; }) {
+        this.SelectPaneTab('Headers')
+        this.agHelper.ValidateCodeEditorContent(this._headerKey(0), header.key)
+        this.agHelper.ValidateCodeEditorContent(this._headerValue(0), header.value)
     }
 
     ReadApiResponsebyKey(key: string) {
-         let apiResp: string = "";
-         cy.get(this._responseBody)
-             .contains(key)
-             .siblings("span")
-             .invoke("text")
-             .then((text) => {
-                 apiResp = `${text.match(/"(.*)"/)![0].split('"').join("") } `;
-                 cy.log("Key value in api response is :" + apiResp);
-                 cy.wrap(apiResp).as("apiResp")
-             });
+        let apiResp: string = "";
+        cy.get(this._responseBody)
+            .contains(key)
+            .siblings("span")
+            .invoke("text")
+            .then((text) => {
+                apiResp = `${text.match(/"(.*)"/)![0].split('"').join("")} `;
+                cy.log("Key value in api response is :" + apiResp);
+                cy.wrap(apiResp).as("apiResp")
+            });
+    }
+
+    public SelectAPIVerb(verb: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH') {
+        cy.get(this._apiVerbDropdown).click()
+        cy.xpath(this._verbToSelect(verb)).should('be.visible').click()
     }
 }

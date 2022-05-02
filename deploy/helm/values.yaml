@@ -22,9 +22,6 @@ commonLabels: {}
 ## @param commonAnnotations Common annotations to add to all Appsmith resources (sub-charts are not considered). Evaluated as a template
 ##
 commonAnnotations: {}
-## @param useStatefulSet Set to true to use a StatefulSet instead of a Deployment
-##
-useStatefulSet: true
 ## @param schedulerName Name of the scheduler (other than default) to dispatch pods
 ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
 ##
@@ -41,10 +38,6 @@ image:
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
-## Namespace
-##
-namespace:
-  create: true
 ## ServiceAccount
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
 ##
@@ -117,9 +110,6 @@ ingress:
     # nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
   hosts: []
     # - host: appsmith-domain.me
-    #   paths:
-    #     - path: /
-    #       pathType: ImplementationSpecific
   ## @param ingress.tls Enable TLS configuration for the host defined at `ingress.hosts` parameter
   ## You can:
   ##   - Use the `ingress.secrets` parameter to create this TLS secret
@@ -177,13 +167,6 @@ resources:
   limits: {}
   requests: {}
 
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
-
 nodeSelector: {}
 
 tolerations: []
@@ -217,22 +200,6 @@ persistence:
   ## @param persistence.size PVC Storage Request
   ##
   size: 10Gi
-  ## Fine tuning for volumeClaimTemplates
-  ##
-  volumeClaimTemplates:
-    ## @param persistence.volumeClaimTemplates.selector A label query over volumes to consider for binding (e.g. when using local volumes)
-    ## A label query over volumes to consider for binding (e.g. when using local volumes)
-    ## See https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#labelselector-v1-meta for more details
-    ##
-    selector: {}
-    ## @param persistence.volumeClaimTemplates.requests Custom PVC requests attributes
-    ## Sometime cloud providers use additional requests attributes to provision custom storage instance
-    ## See https://cloud.ibm.com/docs/containers?topic=containers-file_storage#file_dynamic_statefulset
-    ##
-    requests: {}
-    ## @param persistence.volumeClaimTemplates.dataSource Add dataSource to the VolumeClaimTemplate
-    ##
-    dataSource: {}
 # tags:
 #   install-ingress-nginx: true
 storageClass:
@@ -267,7 +234,7 @@ storageClass:
 autoupdate:
   ## @param autoupdate.enabled - Enable config autoupdate
   ##
-  enabled: true
+  enabled: false
   ## @param autoupdate.scheduler - Schedule cron job to check & update Helm image
   ##
   scheduler: "0 * * * *"
@@ -277,6 +244,8 @@ applicationConfig:
   APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ""
   APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ""
   APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ""
+  APPSMITH_FORM_LOGIN_DISABLED: ""
+  APPSMITH_SIGNUP_DISABLED: ""
   APPSMITH_CLIENT_LOG_LEVEL: ""
   APPSMITH_GOOGLE_MAPS_API_KEY: ""
   APPSMITH_MAIL_ENABLED: ""

@@ -74,7 +74,9 @@ describe("Text Widget color/font/alignment Functionality", function() {
     cy.get(widgetsPage.textColor)
       .first()
       .click({ force: true });
-    cy.xpath(widgetsPage.greenColor).click();
+    cy.get(widgetsPage.greenColor)
+      .last()
+      .click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.wait("@updateLayout");
@@ -89,8 +91,8 @@ describe("Text Widget color/font/alignment Functionality", function() {
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.xpath(widgetsPage.greenColor)
-      .first()
+    cy.get(widgetsPage.greenColor)
+      .last()
       .click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
@@ -116,9 +118,13 @@ describe("Text Widget color/font/alignment Functionality", function() {
   });
 
   it("Test to validate enable scroll feature", function() {
-    cy.get(".t--property-control-enablescroll .bp3-switch").click({
-      force: true,
-    });
+    cy.selectDropdownValue(
+      commonlocators.textOverflowDropdown,
+      "Scroll contents",
+    );
+    cy.get(commonlocators.textOverflowDropdown)
+      .last()
+      .should("have.text", "Scroll contents");
     cy.wait("@updateLayout");
     cy.get(commonlocators.headingTextStyle).trigger("mouseover", {
       force: true,

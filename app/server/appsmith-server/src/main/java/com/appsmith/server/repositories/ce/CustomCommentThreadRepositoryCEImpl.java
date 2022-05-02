@@ -58,13 +58,13 @@ public class CustomCommentThreadRepositoryCEImpl extends BaseAppsmithRepositoryI
                 where(fieldName(QCommentThread.commentThread.applicationId)).is(applicationId),
                 where(fieldName(QCommentThread.commentThread.isPrivate)).is(TRUE)
         );
-        return queryOne(criteria, AclPermission.READ_THREAD);
+        return queryOne(criteria, AclPermission.READ_THREADS);
     }
 
     @Override
     public Mono<UpdateResult> removeSubscriber(String threadId, String username) {
         Update update = new Update().pull(fieldName(QCommentThread.commentThread.subscribers), username);
-        return this.updateById(threadId, update, AclPermission.READ_THREAD);
+        return this.updateById(threadId, update, AclPermission.READ_THREADS);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class CustomCommentThreadRepositoryCEImpl extends BaseAppsmithRepositoryI
         Criteria criteria = where(fieldName(QCommentThread.commentThread.pageId)).is(pageId)
                 .and(fieldName(QCommentThread.commentThread.mode)).is(commentMode);
 
-        return this.updateByCriteria(criteria, update);
+        return this.updateByCriteria(List.of(criteria), update);
     }
 
     @Override
@@ -92,7 +92,7 @@ public class CustomCommentThreadRepositoryCEImpl extends BaseAppsmithRepositoryI
                 where(fieldName(QCommentThread.commentThread.applicationId)).is(applicationId),
                 where(resolvedActiveFieldKey).is(false)
         );
-        return count(criteriaList, AclPermission.READ_THREAD);
+        return count(criteriaList, AclPermission.READ_THREADS);
     }
 
     @Override

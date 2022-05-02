@@ -2,12 +2,12 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import _ from "lodash";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import { Diff } from "deep-diff";
-import { QueryActionConfig } from "../entities/Action";
+import { QueryActionConfig } from "entities/Action";
 
 export const FIRST_EVAL_REDUX_ACTIONS = [
   // Pages
@@ -17,7 +17,7 @@ export const FIRST_EVAL_REDUX_ACTIONS = [
 export const EVALUATE_REDUX_ACTIONS = [
   ...FIRST_EVAL_REDUX_ACTIONS,
   // Actions
-  ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
+  ReduxActionTypes.FETCH_PLUGIN_AND_JS_ACTIONS_SUCCESS,
   ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS,
   ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
   ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
@@ -35,7 +35,6 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR,
   ReduxActionTypes.CLEAR_ACTION_RESPONSE,
   // JS Actions
-  ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
   ReduxActionTypes.CREATE_JS_ACTION_SUCCESS,
   ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
   ReduxActionTypes.DELETE_JS_ACTION_SUCCESS,
@@ -46,6 +45,7 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
   ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
   ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS,
+  ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
   // App Data
   ReduxActionTypes.SET_APP_MODE,
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
@@ -117,9 +117,11 @@ export const initFormEvaluations = (
 export const startFormEvaluations = (
   formId: string,
   formData: QueryActionConfig,
+  datasourceId: string,
+  pluginId: string,
 ) => {
   return {
     type: ReduxActionTypes.RUN_FORM_EVALUATION,
-    payload: { formId, actionConfiguration: formData },
+    payload: { formId, actionConfiguration: formData, datasourceId, pluginId },
   };
 };

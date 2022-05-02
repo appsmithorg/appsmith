@@ -49,6 +49,15 @@ const MembersWrapper = styled.div<{
   isMobile?: boolean;
 }>`
   ${(props) => (props.isMobile ? "width: 100%; margin: auto" : null)}
+  table {
+    tbody {
+      tr {
+        td:first-child {
+          word-break: break-word;
+        }
+      }
+    }
+  }
 `;
 
 const ButtonWrapper = styled.div`

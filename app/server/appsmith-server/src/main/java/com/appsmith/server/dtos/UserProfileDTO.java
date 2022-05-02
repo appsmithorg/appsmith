@@ -45,7 +45,7 @@ public class UserProfileDTO {
 
     boolean enableTelemetry = false;
 
-    Map<String, Object> metadata = new HashMap<>();
+    Map<String, Object> idToken = new HashMap<>();
 
     public boolean isAccountNonExpired() {
         return this.isEnabled;

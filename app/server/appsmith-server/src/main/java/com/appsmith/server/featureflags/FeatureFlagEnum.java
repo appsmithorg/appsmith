@@ -28,5 +28,6 @@ public enum FeatureFlagEnum {
     LINTING,
     MULTIPLAYER,
     GIT,
-    GIT_IMPORT;
+    GIT_IMPORT,
+    APP_TEMPLATE;
 }

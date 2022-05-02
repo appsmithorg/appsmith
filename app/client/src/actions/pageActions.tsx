@@ -6,18 +6,16 @@ import {
   UpdateCanvasPayload,
   ReduxActionErrorTypes,
   AnyReduxAction,
-} from "constants/ReduxActionConstants";
+  WidgetReduxActionTypes,
+  ReplayReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetOperation } from "widgets/BaseWidget";
 import { FetchPageRequest, PageLayout, SavePageResponse } from "api/PageApi";
 import { UrlDataState } from "reducers/entityReducers/appReducer";
 import { APP_MODE } from "entities/App";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { GenerateTemplatePageRequest } from "../api/PageApi";
-import {
-  WidgetReduxActionTypes,
-  ReplayReduxActionTypes,
-} from "constants/ReduxActionConstants";
+import { GenerateTemplatePageRequest } from "api/PageApi";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 
@@ -37,23 +35,6 @@ export interface CreatePageActionPayload {
   layouts: Partial<PageLayout>[];
   blockNavigation?: boolean;
 }
-
-export const fetchPageList = (
-  {
-    applicationId,
-  }: {
-    applicationId: string;
-  },
-  mode: APP_MODE,
-): ReduxAction<FetchPageListPayload> => {
-  return {
-    type: ReduxActionTypes.FETCH_PAGE_LIST_INIT,
-    payload: {
-      applicationId,
-      mode,
-    },
-  };
-};
 
 export const fetchPage = (
   pageId: string,
@@ -94,9 +75,9 @@ export const fetchPublishedPageSuccess = (
   payload: undefined,
 });
 
-export const updateCurrentPage = (id: string) => ({
+export const updateCurrentPage = (id: string, slug?: string) => ({
   type: ReduxActionTypes.SWITCH_CURRENT_PAGE_ID,
-  payload: { id },
+  payload: { id, slug },
 });
 
 export const initCanvasLayout = (
@@ -481,3 +462,11 @@ export const setPageOrder = (
     },
   };
 };
+
+export const resetPageList = () => ({
+  type: ReduxActionTypes.RESET_PAGE_LIST,
+});
+
+export const resetApplicationWidgets = () => ({
+  type: ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST,
+});

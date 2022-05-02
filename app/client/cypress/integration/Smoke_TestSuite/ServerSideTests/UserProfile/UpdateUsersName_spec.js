@@ -1,16 +1,18 @@
-const homePage = require("../../../../locators/HomePage.json");
+import homePage from "../../../../locators/HomePage";
 
 describe("Update a user's name", function() {
   let username;
 
-  it("Update a user's name", function() {
+  it("1. Update a user's name", function() {
     cy.get(homePage.profileMenu).click();
     cy.get(".t--edit-profile").click({ force: true });
 
     cy.generateUUID().then((uid) => {
       username = uid;
       cy.get("[data-cy=t--display-name]").clear();
-      cy.get("[data-cy=t--display-name]").type(username);
+      cy.get("[data-cy=t--display-name]")
+        .click()
+        .type(username);
       // Waiting as the input onchange has a debounce
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(2000);
@@ -21,7 +23,7 @@ describe("Update a user's name", function() {
     });
   });
 
-  it("Validate email address and Reset pwd", function() {
+  it("2. Validate email address and Reset pwd", function() {
     cy.intercept("POST", "/api/v1/users/forgotPassword", {
       fixture: "resetPassword.json",
     }).as("resetPwd");

@@ -4,15 +4,15 @@ import {
   extraLibraries,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { JSHINT as jshint } from "jshint";
+import { JSHINT as jshint, LintError } from "jshint";
 import { isEmpty, keys, last } from "lodash";
 import {
   EvaluationScripts,
   EvaluationScriptType,
   ScriptTemplate,
 } from "workers/evaluate";
-import { ECMA_VERSION } from "workers/constants";
 import { getLintSeverity } from "components/editorComponents/CodeEditor/lintHelpers";
+import { ECMA_VERSION } from "constants/ast";
 
 export const getPositionInEvaluationScript = (
   type: EvaluationScriptType,
@@ -20,7 +20,7 @@ export const getPositionInEvaluationScript = (
   const script = EvaluationScripts[type];
 
   const index = script.indexOf(ScriptTemplate);
-  const substr = script.substr(0, index);
+  const substr = script.slice(0, index !== -1 ? index : 0);
   const lines = substr.split("\n");
   const lastLine = last(lines) || "";
 
@@ -75,17 +75,19 @@ export const getLintingErrors = (
     evil: false, // Use of eval not allowed
     funcscope: true, // Tolerate variable definition inside control statements
     sub: true, // Don't force dot notation
+    expr: true, // suppresses warnings about the use of expressions where normally you would expect to see assignments or function calls
     // environments
     browser: true,
     worker: true,
     mocha: false,
     // global values
     globals: globalData,
+    loopfunc: true,
   };
 
   jshint(script, options);
 
-  return jshint.errors.map((lintError) => {
+  return jshint.errors.filter(lintErrorFilters).map((lintError) => {
     const ch = lintError.character;
     return {
       errorType: PropertyEvaluationErrorType.LINT,
@@ -101,4 +103,13 @@ export const getLintingErrors = (
       ch: lintError.line === scriptPos.line ? ch - scriptPos.ch : ch,
     };
   });
+};
+
+const lintErrorFilters = (lintError: LintError) => {
+  if (lintError.reason === "'currentRow' is not defined.") {
+    return false;
+  } else if (lintError.reason === "'currentItem' is not defined.") {
+    return false;
+  }
+  return true;
 };

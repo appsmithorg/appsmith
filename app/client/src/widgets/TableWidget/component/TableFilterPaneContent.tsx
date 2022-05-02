@@ -73,7 +73,6 @@ const ButtonActionsWrapper = styled.div`
 // margin-left is same as move block width in TableFilterPane.tsx
 const ColumnTypeBindingMessage = styled.div`
   height: 40px;
-  line-height: 40px;
   background: ${Colors.WHITE_SNOW};
   box-sizing: border-box;
   font-size: 12px;

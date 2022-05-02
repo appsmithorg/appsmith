@@ -1,19 +1,107 @@
 import React from "react";
-import { Checkbox, Classes, Label } from "@blueprintjs/core";
-import styled, { keyframes } from "styled-components";
+import { Checkbox, Classes } from "@blueprintjs/core";
+import styled, { css, keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
 import {
-  FontStyleTypes,
-  TextSize,
-  TEXT_SIZES,
-} from "constants/WidgetConstants";
+  LabelPosition,
+  LABEL_MARGIN_OLD_SELECT,
+  SELECT_DEFAULT_HEIGHT,
+} from "components/constants";
+import {
+  labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
+  multiSelectInputContainerStyles,
+} from "components/ads/LabelWithTooltip";
 
 const Input = styled.input`
   height: 0;
   width: 0;
   opacity: 0;
   z-index: -1;
+`;
+
+export const CommonSelectFilterStyle = css`
+  &&&& .${Classes.ALIGN_LEFT} {
+    font-size: 14px;
+    padding-left: 42px;
+    margin-bottom: 0;
+    .${Classes.CONTROL_INDICATOR} {
+      margin-right: 20px;
+    }
+    &.all-options.selected {
+      background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+      color: ${Colors.GREY_10} !important;
+    }
+  }
+  &&&& .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
+    background: transparent;
+    box-shadow: none;
+    border-width: 1px;
+    border-style: solid;
+    border-color: ${Colors.GREY_3};
+    border-radius: 0px;
+    &::before {
+      width: auto;
+      height: 1em;
+    }
+  }
+  .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
+    background: ${Colors.GREEN_SOLID} !important;
+    color: rgb(255, 255, 255);
+    border-color: ${Colors.GREEN_SOLID} !important;
+    box-shadow: none;
+    outline: none !important;
+  }
+
+  & .${Classes.INPUT_GROUP} {
+    padding: 12px 12px 8px 12px;
+
+    & > .${Classes.ICON} {
+      &:first-child {
+        left: 12px;
+        top: 14px;
+        margin: 9px;
+        color: ${Colors.GREY_7};
+
+        & > svg {
+          width: 14px;
+          height: 14px;
+        }
+      }
+    }
+    & > .${Classes.INPUT_ACTION} {
+      &:last-child {
+        right: 13px;
+        top: 13px;
+
+        .${Classes.BUTTON} {
+          min-height: 34px;
+          min-width: 35px;
+          margin: 0px;
+          color: ${Colors.GREY_6} !important;
+
+          &:hover {
+            color: ${Colors.GREY_10} !important;
+            background: ${Colors.GREY_2};
+            border-radius: 0;
+          }
+        }
+      }
+    }
+    .${Classes.INPUT} {
+      height: 36px;
+      padding-left: 29px !important;
+      font-size: 14px;
+      border: 1px solid ${Colors.GREY_3};
+      color: ${Colors.GREY_10};
+      box-shadow: 0px 0px 0px 0px;
+      &:focus {
+        border: 1.2px solid ${Colors.GREEN_SOLID};
+        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER} !important;
+      }
+    }
+  }
 `;
 
 const Indicator = styled.div`
@@ -69,15 +157,13 @@ const rcSelectDropdownSlideUpOut = keyframes`
 `;
 
 export const DropdownStyles = createGlobalStyle<{
-  parentWidth: number;
   dropDownWidth: number;
   id: string;
 }>`
-${({ dropDownWidth, id, parentWidth }) => `
+${({ dropDownWidth, id }) => `
   .multiselect-popover-width-${id} {
-    min-width: ${
-      parentWidth > dropDownWidth ? parentWidth : dropDownWidth
-    }px !important;
+    width: ${dropDownWidth}px !important;
+    min-width: ${dropDownWidth}px !important;
   }
 `}
 .rc-select-dropdown-hidden {
@@ -188,22 +274,21 @@ ${({ dropDownWidth, id, parentWidth }) => `
 	animation-play-state: running;
 }
 .rc-select-dropdown-slide-up-leave.rc-select-dropdown-slide-up-leave-active.rc-select-dropdown-placement-bottomLeft {
-	animation-name: ${rcSelectDropdownSlideUpOut}; 
+	animation-name: ${rcSelectDropdownSlideUpOut};
 	animation-play-state: running;
 }
 .rc-select-dropdown-slide-up-enter.rc-select-dropdown-slide-up-enter-active.rc-select-dropdown-placement-topLeft {
-	animation-name:  ${rcSelectDropdownSlideUpIn}; 
+	animation-name:  ${rcSelectDropdownSlideUpIn};
 	animation-play-state: running;
 }
 .rc-select-dropdown-slide-up-appear.rc-select-dropdown-slide-up-appear-active.rc-select-dropdown-placement-topLeft {
-	animation-name:  ${rcSelectDropdownSlideUpIn}; 
+	animation-name:  ${rcSelectDropdownSlideUpIn};
 	animation-play-state: running;
 }
 .rc-select-dropdown-slide-up-leave.rc-select-dropdown-slide-up-leave-active.rc-select-dropdown-placement-topLeft {
 	animation-name: ${rcSelectDropdownSlideUpOut};
 	animation-play-state: running;
 }
-
 .multi-select-dropdown {
   min-height: 100px;
   position: absolute;
@@ -214,90 +299,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
   background: white;
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
    overflow-x: scroll;
-  > div {
-      min-width: ${({ dropDownWidth }) => dropDownWidth}px;
-    }
-  &&&& .${Classes.ALIGN_LEFT} {
-    font-size: 14px;
-    padding-left: 42px;
-    margin-bottom: 0;
-    .${Classes.CONTROL_INDICATOR} {
-      margin-right: 20px;
-    }
-    &.all-options.selected {
-      background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
-      color: ${Colors.GREY_10} !important;
-    }
-  }
-  &&&& .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
-    background: transparent;
-    box-shadow: none;
-    border-width: 1px;
-    border-style: solid;
-    border-color: ${Colors.GREY_3};
-    border-radius: 0px;
-    &::before {
-      width: auto;
-      height: 1em;
-    }
-  }
-  .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
-    background: ${Colors.GREEN_SOLID} !important;
-    color: rgb(255, 255, 255);
-    border-color: ${Colors.GREEN_SOLID} !important;
-    box-shadow: none;
-    outline: none !important;
-  }
-
-  & .${Classes.INPUT_GROUP} {
-      padding: 12px 12px 8px 12px;
-      min-width: 180px;
-
-      & > .${Classes.ICON} {
-        &:first-child {
-          left: 12px;
-          top: 14px;
-          margin: 9px;
-          color: ${Colors.GREY_7};
-
-          & > svg {
-            width: 14px;
-            height: 14px;
-          }
-        }
-      }
-      & > .${Classes.INPUT_ACTION} {
-        &:last-child {
-          right: 13px;
-          top: 13px;
-
-          .${Classes.BUTTON} {
-            min-height: 34px;
-            min-width: 35px;
-            margin: 0px;
-            color: ${Colors.GREY_6} !important;
-
-            &:hover {
-              color: ${Colors.GREY_10} !important;
-              background: ${Colors.GREY_2};
-              border-radius: 0;
-            }
-          }
-        }
-      }
-      .${Classes.INPUT} {
-        height: 36px;
-        padding-left: 29px !important;
-        font-size: 14px;
-        border: 1px solid ${Colors.GREY_3};
-        color: ${Colors.GREY_10};
-        box-shadow: 0px 0px 0px 0px;
-        &:focus {
-          border: 1.2px solid ${Colors.GREEN_SOLID};
-          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER} !important;
-        }
-      }
-    }
+    ${CommonSelectFilterStyle}
   .rc-select-item {
     font-size: 14px;
     padding: 5px 16px;
@@ -317,15 +319,19 @@ ${({ dropDownWidth, id, parentWidth }) => `
 export const MultiSelectContainer = styled.div<{
   compactMode: boolean;
   isValid: boolean;
+  labelPosition?: LabelPosition;
 }>`
-  display: flex;
-  flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
-  align-items: ${(props) => (props.compactMode ? "center" : "left")};
-
-  label.tree-multiselect-label {
-    margin-bottom: ${(props) => (props.compactMode ? "0px" : "5px")};
-    margin-right: ${(props) => (props.compactMode ? "10px" : "0px")};
+  ${labelLayoutStyles}
+  & .${LABEL_CONTAINER_CLASS} {
+    label {
+      ${({ labelPosition }) => {
+        if (!labelPosition) {
+          return `margin-bottom: ${LABEL_MARGIN_OLD_SELECT}`;
+        }
+      }};
+    }
   }
+
   .rc-select {
     display: inline-block;
     font-size: 12px;
@@ -333,6 +339,12 @@ export const MultiSelectContainer = styled.div<{
     height: 100%;
     position: relative;
     cursor: pointer;
+
+    ${({ compactMode, labelPosition }) =>
+      labelPosition !== LabelPosition.Top &&
+      compactMode &&
+      `height: 100%; overflow: hidden`};
+
     .rc-select-selection-placeholder {
       pointer-events: none;
       position: absolute;
@@ -426,7 +438,6 @@ export const MultiSelectContainer = styled.div<{
       }
       .rc-select-selection-overflow {
         display: flex;
-        flex-wrap: wrap;
         width: 100%;
         align-items: center;
       }
@@ -578,36 +589,10 @@ export const inputIcon = (): JSX.Element => (
   </svg>
 );
 
-export const TextLabelWrapper = styled.div<{
+export const InputContainer = styled.div<{
   compactMode: boolean;
+  labelPosition?: LabelPosition;
 }>`
-  ${(props) =>
-    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
-  display: flex;
-`;
-
-export const StyledLabel = styled(Label)<{
-  $compactMode: boolean;
-  $disabled: boolean;
-  $labelText?: string;
-  $labelTextColor?: string;
-  $labelTextSize?: TextSize;
-  $labelStyle?: string;
-}>`
-  overflow-y: hidden;
-  text-overflow: ellipsis;
-  width: ${(props) => (props.$compactMode ? "auto" : "100%")};
-  text-align: left;
-  color: ${(props) =>
-    props.$labelTextColor
-      ? props.$labelTextColor
-      : props.$disabled
-      ? Colors.GREY_8
-      : "inherit"};
-  font-size: ${(props) =>
-    props.$labelTextSize ? TEXT_SIZES[props.$labelTextSize] : "14px"};
-  font-weight: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
-  font-style: ${(props) =>
-    props?.$labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
+  ${multiSelectInputContainerStyles}
+  ${({ labelPosition }) => labelPosition && `height: ${SELECT_DEFAULT_HEIGHT}`};
 `;

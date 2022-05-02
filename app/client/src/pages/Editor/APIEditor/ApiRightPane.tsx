@@ -2,28 +2,26 @@ import React, { useEffect, useState, useMemo } from "react";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { StyledSeparator } from "pages/Applications/ProductUpdatesModal/ReleaseComponent";
-import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import history from "utils/history";
 import { TabComponent } from "components/ads/Tabs";
 import Text, { FontWeight, TextType } from "components/ads/Text";
 import { TabbedViewContainer } from "./Form";
 import get from "lodash/get";
-import { getQueryParams } from "../../../utils/AppsmithUtils";
+import { getQueryParams } from "utils/AppsmithUtils";
 import ActionRightPane, {
   useEntityDependencies,
 } from "components/editorComponents/ActionRightPane";
-import { useSelector } from "react-redux";
 import { Classes } from "components/ads/common";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
 import { sortedDatasourcesHandler } from "./helpers";
+import { datasourcesEditorIdURL } from "RouteBuilder";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 50px;
-  border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-left: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   height: 100%;
   flex-direction: column;
   .${Classes.TEXT} {
@@ -32,16 +30,24 @@ const EmptyDatasourceContainer = styled.div`
 `;
 
 const DatasourceContainer = styled.div`
-  .react-tabs__tab-list {
+  &&&&&&&&&&& .react-tabs__tab-list {
     padding: 0 16px !important;
     border-bottom: none;
-    border-left: 2px solid #e8e8e8;
+    border-left: 1px solid #e8e8e8;
+    margin-left: 0px;
+    margin-right: 0px;
     .cs-icon {
       margin-right: 0;
     }
   }
   width: ${(props) => props.theme.actionSidePane.width}px;
   color: ${(props) => props.theme.colors.apiPane.text};
+
+  &&&& {
+    .react-tabs__tab-panel {
+      height: calc(100% - 32px);
+    }
+  }
 `;
 
 const DataSourceListWrapper = styled.div`
@@ -49,7 +55,7 @@ const DataSourceListWrapper = styled.div`
   flex-direction: column;
   height: 100%;
   padding: 10px;
-  border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-left: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   overflow: auto;
 `;
 
@@ -128,7 +134,8 @@ const SelectedDatasourceInfoContainer = styled.div`
   align-items: center;
   padding: 2px 8px;
   background-color: ${Colors.LIGHT_GREEN_CYAN};
-  margin-right: 5px;
+  margin-right: 2px;
+  margin-left: 3px;
   text-transform: uppercase;
   & p {
     font-style: normal;
@@ -141,11 +148,12 @@ const SelectedDatasourceInfoContainer = styled.div`
     letter-spacing: 0.4px;
     text-transform: uppercase;
     color: ${Colors.GREEN};
+    white-space: nowrap;
   }
 `;
 
 const SomeWrapper = styled.div`
-  border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-left: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   height: 100%;
 `;
 
@@ -204,8 +212,6 @@ function ApiRightPane(props: any) {
     if (!!props.hasResponse) setSelectedIndex(1);
   }, [props.hasResponse]);
 
-  const applicationId = useSelector(getCurrentApplicationId);
-
   // array of datasources with the current action's datasource first, followed by the rest.
   const sortedDatasources = useMemo(
     () =>
@@ -253,12 +259,11 @@ function ApiRightPane(props: any) {
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   history.push(
-                                    DATA_SOURCES_EDITOR_ID_URL(
-                                      applicationId,
-                                      props.currentPageId,
-                                      d.id,
-                                      getQueryParams(),
-                                    ),
+                                    datasourcesEditorIdURL({
+                                      pageId: props.currentPageId,
+                                      datasourceId: d.id,
+                                      params: getQueryParams(),
+                                    }),
                                   );
                                 }}
                                 size={IconSize.LARGE}
@@ -266,7 +271,7 @@ function ApiRightPane(props: any) {
                             </IconContainer>
                           </DataSourceNameContainer>
                           <DatasourceURL>
-                            {d.datasourceConfiguration.url}
+                            {d.datasourceConfiguration?.url}
                           </DatasourceURL>
                           {dataSourceInfo && (
                             <>

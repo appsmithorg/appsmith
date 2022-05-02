@@ -11,23 +11,25 @@ import {
   WINDOW_OBJECT_PROPERTIES,
 } from "constants/WidgetValidation";
 import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
-import { get, set } from "lodash";
+import { get, set, isNil } from "lodash";
 import { Org } from "constants/orgConstants";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { User } from "constants/userConstants";
-import { getAppsmithConfigs } from "@appsmith/configs";
-import { sha256 } from "js-sha256";
 import moment from "moment";
-import log from "loglevel";
 import { extraLibrariesNames, isDynamicValue } from "./DynamicBindingUtils";
 import { ApiResponse } from "api/ApiResponses";
 import { DSLWidget } from "widgets/constants";
 import * as Sentry from "@sentry/react";
-
-const { cloudHosting, intercomAppID } = getAppsmithConfigs();
+import { matchPath } from "react-router";
+import {
+  BUILDER_PATH,
+  BUILDER_PATH_DEPRECATED,
+  VIEWER_PATH,
+  VIEWER_PATH_DEPRECATED,
+} from "constants/routes";
+import history from "./history";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -261,17 +263,16 @@ export const trimTrailingSlash = (path: string) => {
  * this function is meant for checking the existence of ellipsis by CSS.
  * Since ellipsis by CSS are not part of DOM, we are checking with scroll width\height and offsetidth\height.
  * ScrollWidth\ScrollHeight is always greater than the offsetWidth\OffsetHeight when ellipsis made by CSS is active.
- *
+ * Using clientWidth to fix this https://stackoverflow.com/a/21064102/8692954
  * @param element
  */
 export const isEllipsisActive = (element: HTMLElement | null) => {
-  return (
-    element &&
-    (element.offsetWidth < element.scrollWidth ||
-      element.offsetHeight < element.scrollHeight)
-  );
+  return element && element.clientWidth < element.scrollWidth;
 };
 
+export const isVerticalEllipsisActive = (element: HTMLElement | null) => {
+  return element && element.clientHeight < element.scrollHeight;
+};
 /**
  * converts array to sentences
  * for e.g - ['Pawan', 'Abhinav', 'Hetu'] --> 'Pawan, Abhinav and Hetu'
@@ -430,6 +431,7 @@ export const scrollbarWidth = () => {
 // To { isValid: false, settings.color: false}
 export const flattenObject = (data: Record<string, any>) => {
   const result: Record<string, any> = {};
+
   function recurse(cur: any, prop: any) {
     if (Object(cur) !== cur) {
       result[prop] = cur;
@@ -446,6 +448,7 @@ export const flattenObject = (data: Record<string, any>) => {
       if (isEmpty && prop) result[prop] = {};
     }
   }
+
   recurse(data, "");
   return result;
 };
@@ -484,28 +487,6 @@ export const getIsSafeRedirectURL = (redirectURL: string) => {
   }
 };
 
-export function bootIntercom(user?: User) {
-  if (intercomAppID && window.Intercom) {
-    let { email, username } = user || {};
-    let name;
-    if (!cloudHosting) {
-      username = sha256(username || "");
-      // keep email undefined so that users are prompted to enter it when they reach out on intercom
-      email = undefined;
-    } else {
-      name = user?.name;
-    }
-
-    window.Intercom("boot", {
-      app_id: intercomAppID,
-      user_id: username,
-      email,
-      // keep name undefined instead of an empty string so that intercom auto assigns a name
-      name,
-    });
-  }
-}
-
 export const stopClickEventPropagation = (
   e: React.MouseEvent<HTMLDivElement, MouseEvent>,
 ) => {
@@ -520,10 +501,15 @@ export const stopClickEventPropagation = (
  * @param date 2021-09-08T14:14:12Z
  *
  */
-export const howMuchTimeBeforeText = (date: string) => {
+export const howMuchTimeBeforeText = (
+  date: string,
+  options: { lessThanAMinute: boolean } = { lessThanAMinute: false },
+) => {
   if (!date || !moment.isMoment(moment(date))) {
     return "";
   }
+
+  const { lessThanAMinute } = options;
 
   const now = moment();
   const checkDate = moment(date);
@@ -538,7 +524,10 @@ export const howMuchTimeBeforeText = (date: string) => {
   else if (days > 0) return `${days} day${days > 1 ? "s" : ""}`;
   else if (hours > 0) return `${hours} hr${hours > 1 ? "s" : ""}`;
   else if (minutes > 0) return `${minutes} min${minutes > 1 ? "s" : ""}`;
-  else return `${seconds} sec${seconds > 1 ? "s" : ""}`;
+  else
+    return lessThanAMinute
+      ? "less than a minute"
+      : `${seconds} sec${seconds > 1 ? "s" : ""}`;
 };
 
 /**
@@ -564,17 +553,19 @@ export const truncateString = (
  *
  * @returns
  */
-export const modText = () => (isMac() ? <span>&#8984;</span> : "CTRL");
+export const modText = () => (isMac() ? <span>&#8984;</span> : "Ctrl +");
+export const altText = () => (isMac() ? <span>&#8997;</span> : "Alt +");
+export const shiftText = () => (isMac() ? <span>&#8682;</span> : "Shift +");
 
-export const undoShortCut = () => <span>{modText()}+Z</span>;
+export const undoShortCut = () => <span>{modText()} Z</span>;
 
 export const redoShortCut = () =>
   isMac() ? (
     <span>
-      {modText()}+<span>&#8682;</span>+Z
+      {modText()} {shiftText()} Z
     </span>
   ) : (
-    <span>{modText()}+Y</span>
+    <span>{modText()} Y</span>
   );
 
 /**
@@ -592,28 +583,6 @@ export const trimQueryString = (value = "") => {
 export const getSearchQuery = (search = "", key: string) => {
   const params = new URLSearchParams(search);
   return decodeURIComponent(params.get(key) || "");
-};
-
-/**
- * get query params object
- * ref: https://stackoverflow.com/a/8649003/1543567
- */
-export const getQueryParamsObject = () => {
-  const search = window.location.search.substring(1);
-  if (!search) return {};
-  try {
-    return JSON.parse(
-      '{"' +
-        decodeURI(search)
-          .replace(/"/g, '\\"')
-          .replace(/&/g, '","')
-          .replace(/=/g, '":"') +
-        '"}',
-    );
-  } catch (e) {
-    log.error(e, "error parsing search string");
-    return {};
-  }
 };
 
 /*
@@ -694,4 +663,55 @@ export const captureInvalidDynamicBindingPath = (
     currentDSL.children.map(captureInvalidDynamicBindingPath);
   }
   return currentDSL;
+};
+
+/*
+ * Check if a value is null / undefined / empty string
+ *
+ * @param value: any
+ */
+export const isEmptyOrNill = (value: any) => {
+  return isNil(value) || (isString(value) && value === "");
+};
+
+export const isURLDeprecated = (url: string) => {
+  return !!matchPath(url, {
+    path: [
+      trimQueryString(BUILDER_PATH_DEPRECATED),
+      trimQueryString(VIEWER_PATH_DEPRECATED),
+    ],
+    strict: false,
+    exact: false,
+  });
+};
+
+export const getUpdatedRoute = (
+  path: string,
+  params: Record<string, string>,
+) => {
+  let updatedPath = path;
+  const match = matchPath<{ applicationSlug: string; pageSlug: string }>(path, {
+    path: [trimQueryString(BUILDER_PATH), trimQueryString(VIEWER_PATH)],
+    strict: false,
+    exact: false,
+  });
+  if (match?.params) {
+    const { applicationSlug, pageSlug } = match?.params;
+    if (params.applicationSlug)
+      updatedPath = updatedPath.replace(
+        applicationSlug,
+        params.applicationSlug,
+      );
+    if (params.pageSlug)
+      updatedPath = updatedPath.replace(pageSlug, `${params.pageSlug}-`);
+  }
+  return updatedPath;
+};
+
+export const updateSlugNamesInURL = (params: Record<string, string>) => {
+  const { pathname, search } = window.location;
+  // Do not update old URLs
+  if (isURLDeprecated(pathname)) return;
+  const newURL = getUpdatedRoute(pathname, params);
+  history.replace(newURL + search);
 };

@@ -4,6 +4,9 @@ import { AxiosPromise } from "axios";
 import { AppColorCode } from "constants/DefaultTheme";
 import { AppIconName } from "components/ads/AppIcon";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import { APP_MODE } from "entities/App";
+import { ApplicationVersion } from "actions/applicationActions";
+import { Datasource } from "entities/Datasource";
 
 export type EvaluationVersion = number;
 
@@ -16,14 +19,14 @@ export interface ChangeAppViewAccessRequest {
   publicAccess: boolean;
 }
 
-export interface PublishApplicationResponse extends ApiResponse {
-  data: unknown;
-}
+export type PublishApplicationResponse = ApiResponse<unknown>;
 
 export interface ApplicationPagePayload {
   id: string;
   name: string;
   isDefault: boolean;
+  slug?: string;
+  isHidden?: boolean;
 }
 
 export type GitApplicationMetadata =
@@ -44,25 +47,36 @@ export interface ApplicationResponsePayload {
   name: string;
   organizationId: string;
   evaluationVersion?: EvaluationVersion;
-  pages?: ApplicationPagePayload[];
+  pages: ApplicationPagePayload[];
   appIsExample: boolean;
   appLayout?: AppLayoutConfig;
   unreadCommentThreads?: number;
   gitApplicationMetadata: GitApplicationMetadata;
+  slug: string;
+  applicationVersion: ApplicationVersion;
 }
 
-export interface FetchApplicationResponse extends ApiResponse {
-  data: ApplicationResponsePayload & { pages: ApplicationPagePayload[] };
+export interface FetchApplicationPayload {
+  applicationId?: string;
+  pageId?: string;
+  mode: APP_MODE;
 }
 
-export interface FetchApplicationsResponse extends ApiResponse {
-  data: Array<ApplicationResponsePayload & { pages: ApplicationPagePayload[] }>;
+export interface FetchApplicationResponseData {
+  application: Omit<ApplicationResponsePayload, "pages">;
+  pages: ApplicationPagePayload[];
+  organizationId: string;
 }
 
-export interface CreateApplicationResponse extends ApiResponse {
-  data: ApplicationResponsePayload;
-}
+export type FetchApplicationResponse = ApiResponse<
+  FetchApplicationResponseData
+>;
 
+export type FetchApplicationsResponse = ApiResponse<
+  FetchApplicationResponseData[]
+>;
+
+export type CreateApplicationResponse = ApiResponse<ApplicationResponsePayload>;
 export interface CreateApplicationRequest {
   name: string;
   orgId: string;
@@ -87,9 +101,7 @@ export interface ForkApplicationRequest {
   organizationId: string;
 }
 
-export interface GetAllApplicationResponse extends ApiResponse {
-  data: Array<ApplicationResponsePayload & { pages: ApplicationPagePayload[] }>;
-}
+export type GetAllApplicationResponse = ApiResponse<ApplicationPagePayload[]>;
 
 export type UpdateApplicationPayload = {
   icon?: string;
@@ -97,10 +109,12 @@ export type UpdateApplicationPayload = {
   name?: string;
   currentApp?: boolean;
   appLayout?: AppLayoutConfig;
+  applicationVersion?: number;
 };
 
 export type UpdateApplicationRequest = UpdateApplicationPayload & {
   id: string;
+  callback?: () => void;
 };
 
 export interface ApplicationObject {
@@ -134,6 +148,10 @@ export interface FetchUsersApplicationsOrgsResponse extends ApiResponse {
     newReleasesCount: string;
     releaseItems: Array<Record<string, any>>;
   };
+}
+
+export interface FetchUnconfiguredDatasourceListResponse extends ApiResponse {
+  data: Array<Datasource>;
 }
 
 export interface ImportApplicationRequest {
@@ -174,6 +192,15 @@ class ApplicationApi extends Api {
     applicationId: string,
   ): AxiosPromise<FetchApplicationResponse> {
     return Api.get(ApplicationApi.baseURL + "/" + applicationId);
+  }
+
+  static fetchUnconfiguredDatasourceList(payload: {
+    applicationId: string;
+    orgId: string;
+  }): AxiosPromise<FetchUnconfiguredDatasourceListResponse> {
+    return Api.get(
+      `${ApplicationApi.baseURL}/import/${payload.orgId}/datasources?defaultApplicationId=${payload.applicationId}`,
+    );
   }
 
   static fetchApplicationForViewMode(
@@ -257,14 +284,6 @@ class ApplicationApi extends Api {
         onUploadProgress: request.progress,
       },
     );
-  }
-
-  static getSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
-    return Api.get(ApplicationApi.baseURL + "/ssh-keypair/" + applicationId);
-  }
-
-  static generateSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
-    return Api.post(ApplicationApi.baseURL + "/ssh-keypair/" + applicationId);
   }
 }
 

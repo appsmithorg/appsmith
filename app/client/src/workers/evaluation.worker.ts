@@ -14,7 +14,7 @@ import {
   removeFunctions,
   validateWidgetProperty,
 } from "./evaluationUtils";
-import DataTreeEvaluator from "workers/DataTreeEvaluator";
+import DataTreeEvaluator from "workers/DataTreeEvaluator/DataTreeEvaluator";
 import ReplayEntity from "entities/Replay";
 import evaluate, {
   evaluateAsync,
@@ -212,7 +212,12 @@ ctx.addEventListener(
         return { values: cleanValues, errors };
       }
       case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
-        const { callbackData, dataTree, dynamicTrigger } = requestData;
+        const {
+          callbackData,
+          dataTree,
+          dynamicTrigger,
+          globalContext,
+        } = requestData;
         if (!dataTreeEvaluator) {
           return { triggers: [], errors: [] };
         }
@@ -226,6 +231,9 @@ ctx.addEventListener(
           requestId,
           resolvedFunctions,
           callbackData,
+          {
+            globalContext,
+          },
         );
 
         break;
@@ -241,9 +249,9 @@ ctx.addEventListener(
         return true;
       }
       case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
-        const { props, validation, value } = requestData;
+        const { property, props, validation, value } = requestData;
         return removeFunctions(
-          validateWidgetProperty(validation, value, props),
+          validateWidgetProperty(validation, value, props, property),
         );
       }
       case EVAL_WORKER_ACTIONS.UNDO: {

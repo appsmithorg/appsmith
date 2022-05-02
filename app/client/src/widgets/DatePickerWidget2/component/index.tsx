@@ -1,17 +1,13 @@
 import React from "react";
 import styled from "styled-components";
-import {
-  labelStyle,
-  IntentColors,
-  getBorderCSSShorthand,
-} from "constants/DefaultTheme";
-import { ControlGroup, Classes, Label } from "@blueprintjs/core";
+import { IntentColors, getBorderCSSShorthand } from "constants/DefaultTheme";
+import { ControlGroup, Classes, IRef, Alignment } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
 import moment from "moment-timezone";
 import "../../../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 import { DatePickerType, TimePrecision } from "../constants";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
+import { TextSize } from "constants/WidgetConstants";
 import { Colors } from "constants/Colors";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
@@ -19,8 +15,19 @@ import {
   createMessage,
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
+import { LabelPosition } from "components/constants";
+import { parseDate } from "./utils";
+import LabelWithTooltip, {
+  labelLayoutStyles,
+} from "components/ads/LabelWithTooltip";
 
-const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
+const StyledControlGroup = styled(ControlGroup)<{
+  isValid: boolean;
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
+}>`
+  ${labelLayoutStyles}
+
   &&& {
     .${Classes.INPUT} {
       color: ${Colors.GREY_10};
@@ -58,14 +65,6 @@ const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
     .${Classes.CONTROL_GROUP} {
       justify-content: flex-start;
     }
-    label {
-      ${labelStyle}
-      flex: 0 1 30%;
-      margin: 7px ${WIDGET_PADDING * 2}px 0 0;
-      text-align: right;
-      align-self: flex-start;
-      max-width: calc(30% - ${WIDGET_PADDING}px);
-    }
   }
   &&& {
     input {
@@ -76,6 +75,17 @@ const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
       font-size: ${(props) => props.theme.fontSizes[3]}px;
     }
   }
+`;
+
+export const DateInputWrapper = styled.div<{
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
+}>`
+  display: flex;
+  &&& {
+    flex-grow: 0;
+  }
+  width: 100%;
 `;
 
 class DatePickerComponent extends React.Component<
@@ -90,12 +100,14 @@ class DatePickerComponent extends React.Component<
   }
 
   componentDidUpdate(prevProps: DatePickerComponentProps) {
+    // prevProps.selectedDate can undefined and moment(undefined) returns now
     if (
       this.props.selectedDate !== this.state.selectedDate &&
-      !moment(this.props.selectedDate).isSame(
+      (!moment(this.props.selectedDate).isSame(
         moment(prevProps.selectedDate),
         "seconds",
-      )
+      ) ||
+        (!prevProps.selectedDate && this.props.selectedDate))
     ) {
       this.setState({ selectedDate: this.props.selectedDate });
     }
@@ -107,6 +119,18 @@ class DatePickerComponent extends React.Component<
   };
 
   render() {
+    const {
+      compactMode,
+      isDisabled,
+      isLoading,
+      labelAlignment,
+      labelPosition,
+      labelStyle,
+      labelText,
+      labelTextColor,
+      labelTextSize,
+      labelWidth,
+    } = this.props;
     const now = moment();
     const year = now.get("year");
     const minDate = this.props.minDate
@@ -130,24 +154,34 @@ class DatePickerComponent extends React.Component<
         : null;
     return (
       <StyledControlGroup
+        compactMode={this.props.compactMode}
+        data-testid="datepicker-container"
         fill
         isValid={isValid}
+        labelPosition={this.props.labelPosition}
         onClick={(e: any) => {
           e.stopPropagation();
         }}
       >
-        {this.props.label && (
-          <Label
-            className={
-              this.props.isLoading
-                ? Classes.SKELETON
-                : Classes.TEXT_OVERFLOW_ELLIPSIS
-            }
-          >
-            {this.props.label}
-          </Label>
+        {labelText && (
+          <LabelWithTooltip
+            alignment={labelAlignment}
+            className={`datepicker-label`}
+            color={labelTextColor}
+            compact={compactMode}
+            disabled={isDisabled}
+            fontSize={labelTextSize}
+            fontStyle={labelStyle}
+            loading={isLoading}
+            position={labelPosition}
+            text={labelText}
+            width={labelWidth}
+          />
         )}
-        {
+        <DateInputWrapper
+          compactMode={compactMode}
+          labelPosition={labelPosition}
+        >
           <ErrorTooltip
             isOpen={!isValid}
             message={createMessage(DATE_WIDGET_DEFAULT_VALIDATION_ERROR)}
@@ -160,6 +194,9 @@ class DatePickerComponent extends React.Component<
               }}
               disabled={this.props.isDisabled}
               formatDate={this.formatDate}
+              inputProps={{
+                inputRef: this.props.inputRef,
+              }}
               maxDate={maxDate}
               minDate={minDate}
               onChange={this.onDateSelected}
@@ -179,7 +216,7 @@ class DatePickerComponent extends React.Component<
               value={value}
             />
           </ErrorTooltip>
-        }
+        </DateInputWrapper>
       </StyledControlGroup>
     );
   }
@@ -224,10 +261,8 @@ class DatePickerComponent extends React.Component<
     if (!dateStr) {
       return null;
     } else {
-      const date = moment(dateStr);
       const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
-      if (date.isValid()) return moment(dateStr, dateFormat).toDate();
-      else return moment().toDate();
+      return parseDate(dateStr, dateFormat);
     }
   };
 
@@ -240,17 +275,26 @@ class DatePickerComponent extends React.Component<
    * @param selectedDate
    */
   onDateSelected = (selectedDate: Date | null, isUserChange: boolean) => {
-    const { onDateSelected } = this.props;
-    const date = selectedDate ? selectedDate.toISOString() : "";
-    this.setState({ selectedDate: date });
     if (isUserChange) {
+      const { onDateSelected } = this.props;
+      const date = selectedDate ? selectedDate.toISOString() : "";
+      this.setState({
+        selectedDate: date,
+      });
       onDateSelected(date);
     }
   };
 }
 
 interface DatePickerComponentProps extends ComponentProps {
-  label: string;
+  compactMode: boolean;
+  labelText: string;
+  labelPosition?: LabelPosition;
+  labelAlignment?: Alignment;
+  labelWidth?: number;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+  labelStyle?: string;
   dateFormat: string;
   selectedDate?: string;
   minDate?: string;
@@ -265,6 +309,7 @@ interface DatePickerComponentProps extends ComponentProps {
   shortcuts: boolean;
   firstDayOfWeek?: number;
   timePrecision: TimePrecision;
+  inputRef?: IRef<HTMLInputElement>;
 }
 
 interface DatePickerComponentState {

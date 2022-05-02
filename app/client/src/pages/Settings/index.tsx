@@ -1,5 +1,5 @@
 import { Spinner } from "@blueprintjs/core";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import PageWrapper from "pages/common/PageWrapper";
 import React from "react";
 import { useEffect } from "react";

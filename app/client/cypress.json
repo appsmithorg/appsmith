@@ -1,8 +1,9 @@
 {
 	"baseUrl": "https://dev.appsmith.com/",
-	"defaultCommandTimeout": 20000,
+	"defaultCommandTimeout": 30000,
 	"requestTimeout": 21000,
-	"pageLoadTimeout": 20000,
+	"responseTimeout": 30000,
+	"pageLoadTimeout": 40000,
 	"video": true,
 	"videoUploadOnPasses": false,
 	"reporter": "mochawesome",
@@ -13,16 +14,10 @@
 		"json": false
 	},
 	"ignoreTestFiles": [
-		"**/Smoke_TestSuite/Application/PgAdmin_spec*.js",
-		"**/Smoke_TestSuite/ClientSideTests/DisplayWidgets/Table_Filter_spec*.js",
-		"**/Smoke_TestSuite/ClientSideTests/Onboarding/FirstTimeUserOnboarding_spec*.js",
-		"**/Smoke_TestSuite/ClientSideTests/Binding/PromisesSpec*.ts",
-		"**/Smoke_TestSuite/ServerSideTests/LayoutOnLoadActions/OnLoadActionsSpec*.ts",
-		"**/Smoke_TestSuite/ServerSideTests/QueryPane/S3_spec*.js",
-		"**/Smoke_TestSuite/ServerSideTests/QueryPane/Postgres_Spec*.js"
+		"**/Smoke_TestSuite/Application/PgAdmin_spec*.js"
 	],
 	"chromeWebSecurity": false,
-	"viewportHeight": 900,
+	"viewportHeight": 1100,
 	"viewportWidth": 1400,
 	"retries": {
 		"runMode": 2,

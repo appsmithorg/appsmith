@@ -2,12 +2,12 @@
   "identifier": "ADD_TO_COLLECTION",
   "controlType" : "SECTION",
   "conditionals": {
-    "show": "{{actionConfiguration.formData.command === 'ADD_TO_COLLECTION'}}"
+    "show": "{{actionConfiguration.formData.command.data === 'ADD_TO_COLLECTION'}}"
   },
   "children" : [
     {
       "label": "Collection/Document Path",
-      "configProperty": "actionConfiguration.path",
+      "configProperty": "actionConfiguration.formData.path.data",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
       "isRequired": true,
@@ -15,7 +15,7 @@
     },
     {
       "label": "Timestamp Value Path (use dot(.) notation to reference nested key e.g. [\"key1.key2\"])",
-      "configProperty": "actionConfiguration.formData.timestampValuePath",
+      "configProperty": "actionConfiguration.formData.timestampValuePath.data",
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
       "isRequired": true,
@@ -24,7 +24,7 @@
     },
     {
       "label": "Body",
-      "configProperty": "actionConfiguration.body",
+      "configProperty": "actionConfiguration.formData.body.data",
       "controlType": "QUERY_DYNAMIC_TEXT",
       "initialValue": ""
     }

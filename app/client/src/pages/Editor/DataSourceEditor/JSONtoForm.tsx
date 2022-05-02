@@ -43,9 +43,14 @@ export const SaveButtonContainer = styled.div`
 
 export const ActionButton = styled(BaseButton)`
   &&& {
-    max-width: 72px;
+    width: auto;
+    min-width: 74px;
     margin-right: 9px;
     min-height: 32px;
+
+    & > span {
+      max-width: 100%;
+    }
   }
 `;
 
@@ -70,6 +75,7 @@ export interface JSONtoFormProps {
   formName: string;
   formConfig: any[];
   datasourceId: string;
+  isReconnectingModalOpen?: boolean;
 }
 
 export class JSONtoForm<
@@ -135,7 +141,7 @@ export class JSONtoForm<
       } else {
         const value = _.get(values, fieldConfigProperty);
 
-        if (!value) {
+        if (_.isNil(value)) {
           _.set(errors, fieldConfigProperty, "This field is required");
         }
       }
@@ -224,7 +230,10 @@ export class JSONtoForm<
 
   renderForm = (content: any) => {
     return (
-      <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <div
+        className="t--json-to-form-wrapper"
+        style={{ height: "100%", display: "flex", flexDirection: "column" }}
+      >
         <CloseEditor />
         <DBForm>{content}</DBForm>
       </div>
@@ -234,7 +243,11 @@ export class JSONtoForm<
   renderMainSection = (section: any, index: number) => {
     if (isHidden(this.props.formData, section.hidden)) return null;
     return (
-      <Collapsible defaultIsOpen={index === 0} title={section.sectionName}>
+      <Collapsible
+        defaultIsOpen={index === 0}
+        key={index}
+        title={section.sectionName}
+      >
         {this.renderEachConfig(section)}
       </Collapsible>
     );
@@ -245,6 +258,7 @@ export class JSONtoForm<
     multipleConfig?: ControlProps[],
   ) => {
     multipleConfig = multipleConfig || [];
+
     try {
       this.setupConfig(config);
       return (

@@ -64,6 +64,33 @@ describe("Image Widget Functionality", function() {
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.imageWidget).should("be.visible");
+    cy.get(publish.backToEditor).click();
+  });
+
+  it("Image Widget Functionality To check download option and validate image link", function() {
+    cy.openPropertyPane("imagewidget");
+    cy.togglebar(".t--property-control-enabledownload input[type='checkbox']");
+    cy.get(publish.imageWidget).trigger("mouseover");
+    cy.get(`${publish.imageWidget} a[data-cy=t--image-download]`).should(
+      "have.attr",
+      "href",
+      this.data.NewImage,
+    );
+  });
+
+  it("In case of an image loading error, show off the error message", () => {
+    cy.openPropertyPane("imagewidget");
+    // Invalid image url
+    const invalidImageUrl = "https://www.example.com/does-not-exist.jpg";
+    cy.testCodeMirror(invalidImageUrl);
+
+    // Show off error message
+    cy.get(
+      `${viewWidgetsPage.imageWidget} div[data-testid=styledImage]`,
+    ).should("not.exist");
+    cy.get(
+      `${viewWidgetsPage.imageWidget} [data-testid="error-container"]`,
+    ).contains("Unable to display the image");
   });
 });
 afterEach(() => {

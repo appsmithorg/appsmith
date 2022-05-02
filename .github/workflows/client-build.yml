@@ -24,7 +24,7 @@ defaults:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: buildjet-8vcpu-ubuntu-2004
     # Only run for internal PRs or commits to release or master
     if: |
       github.event.pull_request.head.repo.full_name == github.repository || 
@@ -77,7 +77,7 @@ jobs:
 
       # Install all the dependencies
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
       - name: Set the build environment based on the branch
         id: vars

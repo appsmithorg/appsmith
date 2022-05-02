@@ -3,6 +3,7 @@ import { ComponentProps } from "widgets/BaseComponent";
 import styled from "styled-components";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { Colors } from "constants/Colors";
+import { createMessage, IMAGE_LOAD_ERROR } from "@appsmith/constants/messages";
 
 export interface StyledImageProps {
   defaultImageUrl: string;
@@ -26,8 +27,8 @@ export const StyledImage = styled.div<
   cursor: ${(props) =>
     props.showHoverPointer && props.onClick ? "pointer" : "inherit"};
   background: ${(props) => props.backgroundColor};
-  background-image: ${(props) =>
-    `url(${props.imageError ? props.defaultImageUrl : props.imageUrl})`};
+  ${({ defaultImageUrl, imageError, imageUrl }) =>
+    !imageError && `background-image: url("${imageUrl || defaultImageUrl}")`};
   background-position: center;
   background-repeat: no-repeat;
   height: 100%;
@@ -56,7 +57,7 @@ const ControlBtnWrapper = styled.div`
   background: white;
 `;
 
-const ControlBtn = styled.div`
+const ControlBtn = styled.a`
   height: 25px;
   width: 45px;
   color: white;
@@ -84,6 +85,12 @@ const ControlBtn = styled.div`
   }
 `;
 
+const ErrorContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 enum ZoomingState {
   MAX_ZOOMED_OUT = "MAX_ZOOMED_OUT",
   MAX_ZOOMED_IN = "MAX_ZOOMED_IN",
@@ -108,9 +115,21 @@ class ImageComponent extends React.Component<
       zoomingState: ZoomingState.MAX_ZOOMED_OUT,
     };
   }
+
+  componentDidUpdate = (prevProps: ImageComponentProps) => {
+    // reset the imageError flag when the defaultImageUrl or imageUrl changes
+    if (
+      (prevProps.imageUrl !== this.props.imageUrl ||
+        prevProps.defaultImageUrl !== this.props.defaultImageUrl) &&
+      this.state.imageError
+    ) {
+      this.setState({ imageError: false });
+    }
+  };
+
   render() {
-    const { maxZoomLevel } = this.props;
-    const { imageRotation } = this.state;
+    const { imageUrl, maxZoomLevel } = this.props;
+    const { imageError, imageRotation } = this.state;
     const zoomActive =
       maxZoomLevel !== undefined && maxZoomLevel > 1 && !this.isPanning;
     const isZoomingIn = this.state.zoomingState === ZoomingState.MAX_ZOOMED_OUT;
@@ -119,6 +138,14 @@ class ImageComponent extends React.Component<
       cursor = isZoomingIn ? "zoom-in" : "zoom-out";
     }
     if (this.props.onClick) cursor = "pointer";
+
+    if (imageUrl && imageError)
+      return (
+        <ErrorContainer data-testid="error-container">
+          {createMessage(IMAGE_LOAD_ERROR)}
+        </ErrorContainer>
+      );
+
     return (
       <Wrapper
         onMouseEnter={this.onMouseEnter}
@@ -203,7 +230,7 @@ class ImageComponent extends React.Component<
                     alt={this.props.widgetName}
                     onError={this.onImageError}
                     onLoad={this.onImageLoad}
-                    src={this.props.imageUrl}
+                    src={this.props.imageUrl || this.props.defaultImageUrl}
                     style={{
                       display: "none",
                     }}
@@ -226,6 +253,7 @@ class ImageComponent extends React.Component<
     } = this.props;
     const { showImageControl } = this.state;
     const showDownloadBtn = enableDownload && (!!imageUrl || !!defaultImageUrl);
+    const hrefUrl = imageUrl || defaultImageUrl;
 
     if (showImageControl && (enableRotation || showDownloadBtn)) {
       return (
@@ -274,7 +302,12 @@ class ImageComponent extends React.Component<
             </>
           )}
           {showDownloadBtn && (
-            <ControlBtn onClick={this.handleImageDownload}>
+            <ControlBtn
+              data-cy="t--image-download"
+              download
+              href={hrefUrl}
+              target="_blank"
+            >
               <div>
                 <svg fill="none" height="20" viewBox="0 0 20 20" width="20">
                   <path
@@ -298,43 +331,6 @@ class ImageComponent extends React.Component<
     const nextRotation = rotateRight ? imageRotation + 90 : imageRotation - 90;
 
     this.setState({ imageRotation: nextRotation % 360 });
-
-    if (!!e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  };
-
-  handleImageDownload = (e: any) => {
-    const { defaultImageUrl, imageUrl, widgetId } = this.props;
-    const fileName = `${widgetId}-download`;
-    const downloadUrl = imageUrl || defaultImageUrl;
-
-    const xhr = new XMLHttpRequest();
-    xhr.open("GET", downloadUrl, true);
-    xhr.responseType = "blob";
-
-    xhr.onload = function() {
-      const urlCreator = window.URL || window.webkitURL;
-      const imageUrlObj = urlCreator.createObjectURL(this.response);
-      const tag = document.createElement("a");
-      tag.href = imageUrlObj;
-      tag.download = fileName;
-      document.body.appendChild(tag);
-      tag.click();
-      document.body.removeChild(tag);
-      window.URL.revokeObjectURL(imageUrlObj);
-    };
-    // if download fails open image in new tab
-    xhr.onerror = function() {
-      const tag = document.createElement("a");
-      tag.href = downloadUrl;
-      tag.target = "_blank";
-      document.body.appendChild(tag);
-      tag.click();
-      document.body.removeChild(tag);
-    };
-    xhr.send();
 
     if (!!e) {
       e.preventDefault();

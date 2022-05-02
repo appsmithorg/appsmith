@@ -17,6 +17,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.migrations.JsonSchemaVersions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -50,15 +51,9 @@ public class ResponseUtils {
         page.setId(defaultResourceIds.getPageId());
 
         page.getLayouts()
-                .stream().filter(layout -> !CollectionUtils.isEmpty(layout.getLayoutOnLoadActions()))
-                .forEach(layout -> layout.getLayoutOnLoadActions()
-                        .forEach(dslActionDTOS -> dslActionDTOS
-                                .forEach(actionDTO -> {
-                                    if (!StringUtils.isEmpty(actionDTO.getDefaultActionId())) {
-                                        actionDTO.setId(actionDTO.getDefaultActionId());
-                                    }
-                                }))
-                );
+                .stream()
+                .filter(layout -> !CollectionUtils.isEmpty(layout.getLayoutOnLoadActions()))
+                .forEach(layout -> this.updateLayoutWithDefaultResources(layout));
         return page;
     }
 
@@ -108,6 +103,10 @@ public class ResponseUtils {
             }
             page.setId(page.getDefaultPageId());
         }
+        // need to update the application also if it's present
+        if(applicationPages.getApplication() != null) {
+            applicationPages.setApplication(updateApplicationWithDefaultResources(applicationPages.getApplication()));
+        }
         return applicationPages;
     }
 
@@ -151,6 +150,9 @@ public class ResponseUtils {
                         if (!StringUtils.isEmpty(onLoadAction.getDefaultActionId())) {
                             onLoadAction.setId(onLoadAction.getDefaultActionId());
                         }
+                        if (!StringUtils.isEmpty(onLoadAction.getDefaultCollectionId())) {
+                            onLoadAction.setCollectionId(onLoadAction.getDefaultCollectionId());
+                        }
                     })
             );
         }
@@ -163,6 +165,9 @@ public class ResponseUtils {
                     layoutOnLoadAction.forEach(onLoadAction -> {
                         if (!StringUtils.isEmpty(onLoadAction.getDefaultActionId())) {
                             onLoadAction.setId(onLoadAction.getDefaultActionId());
+                        }
+                        if (!StringUtils.isEmpty(onLoadAction.getDefaultCollectionId())) {
+                            onLoadAction.setCollectionId(onLoadAction.getDefaultCollectionId());
                         }
                     }));
         }
@@ -335,6 +340,14 @@ public class ResponseUtils {
                             page.setId(page.getDefaultPageId());
                         }
                     });
+        }
+
+        if (application.getClientSchemaVersion() == null || application.getServerSchemaVersion() == null
+                || (JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion())
+                && JsonSchemaVersions.serverVersion.equals(application.getServerSchemaVersion()))) {
+            application.setIsAutoUpdate(false);
+        } else {
+            application.setIsAutoUpdate(true);
         }
         return application;
     }

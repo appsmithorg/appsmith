@@ -9,6 +9,7 @@ import { RateSize, RATE_SIZES } from "../constants";
 import TooltipComponent from "components/ads/Tooltip";
 import { disable } from "constants/DefaultTheme";
 import { ComponentProps } from "widgets/BaseComponent";
+import { Colors } from "constants/Colors";
 
 /*
   Note:
@@ -135,7 +136,7 @@ function RateComponent(props: RateComponentProps) {
       <Rating
         emptySymbol={
           <Star
-            color={inactiveColor}
+            color={inactiveColor || Colors.ALTO_3}
             icon={IconNames.STAR}
             iconSize={RATE_SIZES[size]}
           />

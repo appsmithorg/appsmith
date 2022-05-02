@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { ENTITY_TYPE, Log, Message } from "entities/AppsmithConsole";
 import { EventName } from "utils/AnalyticsUtil";
 

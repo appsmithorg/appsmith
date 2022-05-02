@@ -6,17 +6,11 @@ import {
   ReduxActionTypes,
   ReduxActionWithMeta,
   ReduxFormActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { getFormData } from "selectors/formSelectors";
 import { DATASOURCE_DB_FORM, QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import history from "utils/history";
-import {
-  APPLICATIONS_URL,
-  DATA_SOURCES_EDITOR_ID_URL,
-  QUERIES_EDITOR_ID_URL,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-} from "constants/routes";
+import { APPLICATIONS_URL, INTEGRATION_TABS } from "constants/routes";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -30,6 +24,7 @@ import {
   getEditorConfig,
   getSettingConfig,
   getActions,
+  getPlugins,
 } from "selectors/entitiesSelector";
 import { PluginType, QueryAction } from "entities/Action";
 import {
@@ -42,7 +37,7 @@ import { getConfigInitialValues } from "components/formControls/utils";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { Datasource } from "entities/Datasource";
-import _ from "lodash";
+import omit from "lodash/omit";
 import {
   createMessage,
   ERROR_ACTION_RENAME_FAIL,
@@ -54,15 +49,24 @@ import {
 } from "actions/evaluationActions";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { EventLocation } from "utils/AnalyticsUtil";
+import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import {
   ActionData,
   ActionDataState,
 } from "reducers/entityReducers/actionsReducer";
+import {
+  datasourcesEditorIdURL,
+  integrationEditorURL,
+  queryEditorIdURL,
+} from "RouteBuilder";
+import { UIComponentTypes } from "api/PluginApi";
+import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
 
 // Called whenever the query being edited is changed via the URL or query pane
-function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
-  const { id } = actionPayload.payload;
+function* changeQuerySaga(
+  actionPayload: ReduxAction<{ id: string; isSaas: boolean }>,
+) {
+  const { id, isSaas } = actionPayload.payload;
   let configInitialValues = {};
   const applicationId: string = yield select(getCurrentApplicationId);
   const pageId: string = yield select(getCurrentPageId);
@@ -73,52 +77,79 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const action = yield select(getAction, id);
   if (!action) {
     history.push(
-      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+      integrationEditorURL({
+        selectedTab: INTEGRATION_TABS.ACTIVE,
+      }),
     );
     return;
   }
 
-  // fetching pluginId and the consequent configs from the action
-  const pluginId = action.pluginId;
-  const currentEditorConfig: any[] = yield select(getEditorConfig, pluginId);
-  const currentSettingConfig: any[] = yield select(getSettingConfig, pluginId);
+  if (isSaas) {
+    yield put(initialize(QUERY_EDITOR_FORM_NAME, action));
+  } else {
+    // fetching pluginId and the consequent configs from the action
+    const pluginId = action.pluginId;
+    const currentEditorConfig: any[] = yield select(getEditorConfig, pluginId);
+    const currentSettingConfig: any[] = yield select(
+      getSettingConfig,
+      pluginId,
+    );
 
-  // Update the evaluations when the queryID is changed by changing the
-  // URL or selecting new query from the query pane
-  yield put(initFormEvaluations(currentEditorConfig, currentSettingConfig, id));
+    // Update the evaluations when the queryID is changed by changing the
+    // URL or selecting new query from the query pane
+    yield put(
+      initFormEvaluations(currentEditorConfig, currentSettingConfig, id),
+    );
 
-  // If config exists
-  if (currentEditorConfig) {
-    // Get initial values
-    configInitialValues = yield call(
-      getConfigInitialValues,
-      currentEditorConfig,
+    const allPlugins = yield select(getPlugins);
+    let uiComponent = UIComponentTypes.DbEditorForm;
+    if (!!pluginId) uiComponent = getUIComponent(pluginId, allPlugins);
+
+    // If config exists
+    if (currentEditorConfig) {
+      // Get initial values
+      configInitialValues = yield call(
+        getConfigInitialValues,
+        currentEditorConfig,
+        uiComponent === UIComponentTypes.UQIDbEditorForm,
+      );
+    }
+
+    if (currentSettingConfig) {
+      const settingInitialValues = yield call(
+        getConfigInitialValues,
+        currentSettingConfig,
+        uiComponent === UIComponentTypes.UQIDbEditorForm,
+      );
+      configInitialValues = merge(configInitialValues, settingInitialValues);
+    }
+
+    // Merge the initial values and action.
+    const formInitialValues = merge(configInitialValues, action);
+
+    // Set the initialValues in the state for redux-form lib
+    yield put(initialize(QUERY_EDITOR_FORM_NAME, formInitialValues));
+
+    if (uiComponent === UIComponentTypes.UQIDbEditorForm) {
+      // Once the initial values are set, we can run the evaluations based on them.
+      yield put(
+        startFormEvaluations(
+          id,
+          formInitialValues.actionConfiguration,
+          action.datasource.id,
+          pluginId,
+        ),
+      );
+    }
+
+    yield put(
+      updateReplayEntity(
+        formInitialValues.id,
+        formInitialValues,
+        ENTITY_TYPE.ACTION,
+      ),
     );
   }
-
-  if (currentSettingConfig) {
-    const settingInitialValues = yield call(
-      getConfigInitialValues,
-      currentSettingConfig,
-    );
-    configInitialValues = merge(configInitialValues, settingInitialValues);
-  }
-
-  // Merge the initial values and action.
-  const formInitialValues = merge(configInitialValues, action);
-
-  // Set the initialValues in the state for redux-form lib
-  yield put(initialize(QUERY_EDITOR_FORM_NAME, formInitialValues));
-  // Once the initial values are set, we can run the evaluations based on them.
-  yield put(startFormEvaluations(id, formInitialValues.actionConfiguration));
-
-  yield put(
-    updateReplayEntity(
-      formInitialValues.id,
-      formInitialValues,
-      ENTITY_TYPE.ACTION,
-    ),
-  );
 }
 
 function* formValueChangeSaga(
@@ -143,6 +174,8 @@ function* formValueChangeSaga(
 
     // Update the datasource of the form as well
     yield put(autofill(QUERY_EDITOR_FORM_NAME, "datasource", datasource));
+
+    AnalyticsUtil.logEvent("SWITCH_DATASOURCE");
 
     return;
   }
@@ -180,19 +213,22 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
   } = actionPayload.payload;
   if (pluginType === PluginType.DB || pluginType === PluginType.REMOTE) {
     yield put(initialize(QUERY_EDITOR_FORM_NAME, actionPayload.payload));
-    const applicationId: string = yield select(getCurrentApplicationId);
-    const pageId: string = yield select(getCurrentPageId);
     const pluginTemplates = yield select(getPluginTemplates);
     const queryTemplate = pluginTemplates[pluginId];
     // Do not show template view if the query has body(code) or if there are no templates
     const showTemplate = !(
-      !!actionConfiguration.body || isEmpty(queryTemplate)
+      !!actionConfiguration.body ||
+      !!actionConfiguration.formData?.body ||
+      isEmpty(queryTemplate)
     );
     history.replace(
-      QUERIES_EDITOR_ID_URL(applicationId, pageId, id, {
-        editName: "true",
-        showTemplate,
-        from: "datasources",
+      queryEditorIdURL({
+        queryId: id,
+        params: {
+          editName: "true",
+          showTemplate,
+          from: "datasources",
+        },
       }),
     );
   }
@@ -204,19 +240,14 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   if (plugin.type !== PluginType.DB && plugin.type !== PluginType.REMOTE)
     return;
 
-  const pageId = yield select(getCurrentPageId);
-  const applicationId = yield select(getCurrentApplicationId);
-
   yield put(
-    initialize(DATASOURCE_DB_FORM, _.omit(actionPayload.payload, "name")),
+    initialize(DATASOURCE_DB_FORM, omit(actionPayload.payload, "name")),
   );
   history.push(
-    DATA_SOURCES_EDITOR_ID_URL(
-      applicationId,
-      pageId,
-      actionPayload.payload.id,
-      { from: "datasources", ...getQueryParams() },
-    ),
+    datasourcesEditorIdURL({
+      datasourceId: actionPayload.payload.id,
+      params: { from: "datasources", ...getQueryParams() },
+    }),
   );
 }
 
@@ -254,10 +285,11 @@ function* handleNameChangeSuccessSaga(
     if (params.editName) {
       params.editName = "false";
     }
-    const applicationId = yield select(getCurrentApplicationId);
-    const pageId = yield select(getCurrentPageId);
     history.replace(
-      QUERIES_EDITOR_ID_URL(applicationId, pageId, actionId, params),
+      queryEditorIdURL({
+        queryId: actionId,
+        params,
+      }),
     );
   }
 }
@@ -281,6 +313,7 @@ function* createNewQueryForDatasourceSaga(
   const createActionPayload = {
     name: newQueryName,
     pageId,
+    pluginId: datasource?.pluginId,
     datasource: {
       id: datasourceId,
     },

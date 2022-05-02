@@ -12,7 +12,7 @@ export const config: AdminConfigType = {
   settings: [
     {
       id: "APPSMITH_MONGODB_URI",
-      category: "advanced",
+      category: SettingCategories.ADVANCED,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "MongoDB URI",
@@ -21,7 +21,7 @@ export const config: AdminConfigType = {
     },
     {
       id: "APPSMITH_REDIS_URL",
-      category: "advanced",
+      category: SettingCategories.ADVANCED,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Redis URL",
@@ -30,7 +30,7 @@ export const config: AdminConfigType = {
     },
     {
       id: "APPSMITH_CUSTOM_DOMAIN",
-      category: "advanced",
+      category: SettingCategories.ADVANCED,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
       label: "Custom Domain",

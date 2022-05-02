@@ -9,7 +9,7 @@ describe("Binding the API with pageOnLoad and input Widgets", function() {
     cy.addDsl(dsl);
   });
 
-  it("Will load an api on load", function() {
+  it("1. Will load an api on load", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("PageLoadApi");
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
@@ -20,8 +20,9 @@ describe("Binding the API with pageOnLoad and input Widgets", function() {
     cy.reload();
   });
 
-  it("Input widget updated with deafult data", function() {
-    cy.SearchEntityandOpen("Input1");
+  it("2. Input widget updated with deafult data", function() {
+    cy.selectEntityByName("WIDGETS");
+    cy.selectEntityByName("Input1");
     cy.get(widgetsPage.defaultInput).type("3");
 
     cy.wait("@updateLayout").should(
@@ -35,8 +36,8 @@ describe("Binding the API with pageOnLoad and input Widgets", function() {
       .should("contain", "3");
   });
 
-  it("Binding second input widget with API on PageLoad data and default data from input1 widget ", function() {
-    cy.SearchEntityandOpen("Input3");
+  it("3. Binding second input widget with API on PageLoad data and default data from input1 widget ", function() {
+    cy.selectEntityByName("Input3");
     cy.get(widgetsPage.defaultInput).type(testdata.pageloadBinding, {
       parseSpecialCharSequences: false,
     });

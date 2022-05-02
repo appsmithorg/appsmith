@@ -354,7 +354,9 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
                     final String oldPageId = actionCollectionDTO.getPageId();
                     actionCollectionDTO.setPageId(destinationPageId);
-                    actionCollectionDTO.getDefaultResources().setPageId(destinationPage.getDefaultResources().getPageId());
+                    DefaultResources defaultResources = new DefaultResources();
+                    defaultResources.setPageId(destinationPage.getDefaultResources().getPageId());
+                    actionCollectionDTO.setDefaultResources(defaultResources);
                     actionCollectionDTO.setName(actionCollectionMoveDTO.getName());
 
                     return actionUpdatesFlux
@@ -459,7 +461,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         final Mono<Map<String, String>> newValidActionIdsMono = branchedActionCollectionMono
                 .flatMap(branchedActionCollection -> Flux.fromIterable(actionCollectionDTO.getActions())
                         .flatMap(actionDTO -> {
-                            actionDTO.setArchivedAt(null);
+                            actionDTO.setDeletedAt(null);
                             actionDTO.setPageId(branchedActionCollection.getUnpublishedCollection().getPageId());
                             actionDTO.setApplicationId(branchedActionCollection.getApplicationId());
                             if (actionDTO.getId() == null) {
@@ -496,7 +498,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                 .flatMap(branchedActionCollection -> Flux.fromIterable(actionCollectionDTO.getArchivedActions())
                         .flatMap(actionDTO -> {
                             actionDTO.setCollectionId(branchedActionCollection.getId());
-                            actionDTO.setArchivedAt(Instant.now());
+                            actionDTO.setDeletedAt(Instant.now());
                             actionDTO.setPageId(branchedActionCollection.getUnpublishedCollection().getPageId());
                             if (actionDTO.getId() == null) {
                                 actionDTO.getDatasource().setOrganizationId(actionCollectionDTO.getOrganizationId());

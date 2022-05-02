@@ -11,6 +11,7 @@ import {
   CellCheckbox,
   ActionWrapper,
   DraggableHeaderWrapper,
+  IconButtonWrapper,
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 
@@ -25,7 +26,6 @@ import {
 } from "./Constants";
 import { isString, isEmpty, findIndex, isNil, isNaN } from "lodash";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
-import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
 import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
@@ -70,6 +70,7 @@ export const renderCell = (
             cellProperties={cellProperties}
             isCellVisible={isCellVisible}
             isHidden={isHidden}
+            isPadding
           />
         );
       } else if (!isString(value)) {
@@ -78,6 +79,7 @@ export const renderCell = (
             cellProperties={cellProperties}
             isCellVisible={isCellVisible}
             isHidden={isHidden}
+            isPadding
           >
             <div>Invalid Image </div>
           </CellWrapper>
@@ -92,6 +94,7 @@ export const renderCell = (
           cellProperties={cellProperties}
           isCellVisible={isCellVisible}
           isHidden={isHidden}
+          isPadding
         >
           {value
             .toString()
@@ -133,6 +136,7 @@ export const renderCell = (
             cellProperties={cellProperties}
             isCellVisible={isCellVisible}
             isHidden={isHidden}
+            isPadding
           />
         );
       } else if (isString(value) && youtubeRegex.test(value)) {
@@ -142,6 +146,7 @@ export const renderCell = (
             className="video-cell"
             isCellVisible={isCellVisible}
             isHidden={isHidden}
+            isPadding
           >
             <PopoverVideo url={value} />
           </CellWrapper>
@@ -152,6 +157,7 @@ export const renderCell = (
             cellProperties={cellProperties}
             isCellVisible={isCellVisible}
             isHidden={isHidden}
+            isPadding
           >
             Invalid Video Link
           </CellWrapper>
@@ -196,13 +202,20 @@ export const renderIconButton = (
   cellProperties: CellLayoutProperties,
 ) => {
   if (!props.columnActions)
-    return <CellWrapper cellProperties={cellProperties} isHidden={isHidden} />;
+    return (
+      <CellWrapper
+        cellProperties={cellProperties}
+        isHidden={isHidden}
+        isPadding
+      />
+    );
 
   return (
     <CellWrapper
       cellProperties={cellProperties}
       isCellVisible={props.isCellVisible}
       isHidden={isHidden}
+      isPadding
     >
       {props.columnActions.map((action: ColumnAction, index: number) => {
         return (
@@ -254,7 +267,7 @@ function IconButton(props: {
     }
   };
   return (
-    <div onClick={handlePropagation}>
+    <IconButtonWrapper disabled={props.disabled} onClick={handlePropagation}>
       <StyledButton
         borderRadius={props.borderRadius}
         boxShadow={props.boxShadow}
@@ -266,7 +279,7 @@ function IconButton(props: {
         loading={loading}
         onClick={handleClick}
       />
-    </div>
+    </IconButtonWrapper>
   );
 }
 
@@ -274,7 +287,7 @@ interface RenderActionProps {
   isSelected: boolean;
   columnActions?: ColumnAction[];
   backgroundColor: string;
-  buttonLabelColor: string;
+  buttonVariant: ButtonVariant;
   isDisabled: boolean;
   isCellVisible: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
@@ -308,6 +321,7 @@ export const renderActions = (
         cellProperties={cellProperties}
         isCellVisible={props.isCellVisible}
         isHidden={isHidden}
+        isPadding
       />
     );
 
@@ -316,13 +330,14 @@ export const renderActions = (
       cellProperties={cellProperties}
       isCellVisible={props.isCellVisible}
       isHidden={isHidden}
+      isPadding
     >
       {props.columnActions.map((action: ColumnAction, index: number) => {
         return (
           <TableAction
             action={action}
             backgroundColor={props.backgroundColor}
-            buttonLabelColor={props.buttonLabelColor}
+            buttonVariant={props.buttonVariant}
             isCellVisible={props.isCellVisible}
             isDisabled={props.isDisabled}
             isSelected={props.isSelected}
@@ -345,6 +360,7 @@ export const renderMenuButton = (
       cellProperties={cellProperties}
       isCellVisible={props.isCellVisible}
       isHidden={isHidden}
+      isPadding
     >
       <MenuButton {...props} />
     </CellWrapper>
@@ -406,7 +422,7 @@ function TableAction(props: {
   isSelected: boolean;
   action: ColumnAction;
   backgroundColor: string;
-  buttonLabelColor: string;
+  buttonVariant: ButtonVariant;
   isDisabled: boolean;
   isCellVisible: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
@@ -415,11 +431,16 @@ function TableAction(props: {
   const onComplete = () => {
     setLoading(false);
   };
+  const handleClick = () => {
+    if (props.action.dynamicTrigger) {
+      setLoading(true);
+      props.onCommandClick(props.action.dynamicTrigger, onComplete);
+    }
+  };
 
   return (
     <ActionWrapper
-      background={props.backgroundColor}
-      buttonLabelColor={props.buttonLabelColor}
+      disabled={props.isDisabled}
       onClick={(e) => {
         if (props.isSelected) {
           e.stopPropagation();
@@ -427,16 +448,14 @@ function TableAction(props: {
       }}
     >
       {props.isCellVisible ? (
-        <Button
+        <StyledButton
+          buttonColor={props.backgroundColor}
+          buttonVariant={props.buttonVariant}
           disabled={props.isDisabled}
           filled
-          intent="PRIMARY_BUTTON"
           loading={loading}
-          onClick={() => {
-            setLoading(true);
-            props.onCommandClick(props.action.dynamicTrigger, onComplete);
-          }}
-          size="small"
+          onClick={handleClick}
+          small
           text={props.action.label}
         />
       ) : null}
@@ -465,7 +484,6 @@ export const renderCheckBoxHeaderCell = (
     isChecked={!!checkState}
     onClick={onClick}
     role="columnheader"
-    style={{ padding: "0px", justifyContent: "center" }}
   >
     <CellCheckbox>
       {checkState === 1 && <CheckBoxCheckIcon className="th-svg" />}
@@ -580,8 +598,9 @@ export function TableHeaderCell(props: {
   column: any;
   editMode?: boolean;
   isSortable?: boolean;
+  width: number;
 }) {
-  const { column, editMode, isSortable } = props;
+  const { column, editMode, isSortable, width } = props;
   const handleSortColumn = () => {
     if (props.isResizingColumn) return;
     let columnIndex = props.columnIndex;
@@ -604,7 +623,13 @@ export function TableHeaderCell(props: {
         className={!props.isHidden ? `draggable-header` : "hidden-header"}
         horizontalAlignment={column.columnProperties.horizontalAlignment}
       >
-        {props.columnName}
+        <AutoToolTipComponent
+          noPadding
+          tableWidth={width}
+          title={props.columnName}
+        >
+          {props.columnName}
+        </AutoToolTipComponent>
       </DraggableHeaderWrapper>
       {props.isAscOrder !== undefined ? (
         <div>

@@ -68,7 +68,6 @@ export const generateDataTreeWidget = (
 
   Object.entries(defaultProps).forEach(
     ([propertyName, defaultPropertyName]) => {
-      // why default value is undefined ?
       if (!(defaultPropertyName in widget)) {
         unInitializedDefaultProps[defaultPropertyName] = undefined;
       }
@@ -107,6 +106,7 @@ export const generateDataTreeWidget = (
 
   const {
     bindingPaths,
+    reactivePaths,
     triggerPaths,
     validationPaths,
   } = getAllPathsFromPropertyConfig(widget, propertyPaneConfigs, {
@@ -117,30 +117,49 @@ export const generateDataTreeWidget = (
     ...overridingPropertyPaths,
   });
 
-  return {
-    ...widget,
-    ...unInitializedDefaultProps,
-    ...defaultMetaProps,
-    ...widgetMetaProps,
-    ...derivedProps,
-    defaultProps,
-    defaultMetaProps: Object.keys(defaultMetaProps),
-    dynamicBindingPathList,
-    logBlackList: {
-      ...widget.logBlackList,
-      ...blockedDerivedProps,
+  /**
+   * Spread operator does not merge deep objects properly.
+   * Eg a = {
+   *   foo: { bar: 100 }
+   * }
+   * b = {
+   *  foo: { baz: 200 }
+   * }
+   *
+   * { ...a, ...b }
+   *
+   * {
+   *  foo: { baz: 200 } // bar in "a" object got overridden by baz in "b"
+   * }
+   *
+   * Therefore spread is replaced with "merge" which merges objects recursively.
+   */
+  return _.merge(
+    {},
+    widget,
+    unInitializedDefaultProps,
+    defaultMetaProps,
+    widgetMetaProps,
+    derivedProps,
+    {
+      defaultProps,
+      defaultMetaProps: Object.keys(defaultMetaProps),
+      dynamicBindingPathList,
+      logBlackList: {
+        ...widget.logBlackList,
+        ...blockedDerivedProps,
+      },
+      meta: _.merge(overridingMetaProps, widgetMetaProps),
+      propertyOverrideDependency,
+      overridingPropertyPaths,
+      bindingPaths,
+      reactivePaths,
+      triggerPaths,
+      validationPaths,
+      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      privateWidgets: {
+        ...widget.privateWidgets,
+      },
     },
-    meta: {
-      ...overridingMetaProps,
-    },
-    propertyOverrideDependency,
-    overridingPropertyPaths,
-    bindingPaths,
-    triggerPaths,
-    validationPaths,
-    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-    privateWidgets: {
-      ...widget.privateWidgets,
-    },
-  };
+  );
 };

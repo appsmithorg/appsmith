@@ -18,7 +18,7 @@ import { Classes, Position } from "@blueprintjs/core";
 import { noop } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import useClick from "utils/hooks/useClick";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import TooltipComponent from "components/ads/Tooltip";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { inGuidedTour } from "selectors/onboardingSelectors";
@@ -95,6 +95,9 @@ export const EntityItem = styled.div<{
   &:hover {
     background: ${Colors.GREY_2};
   }
+
+  scroll-margin-top: 36px;
+  scroll-snap-margin-top: 36px;
 
   & .${EntityClassNames.TOOLTIP} {
     ${entityTooltipCSS}
@@ -193,7 +196,7 @@ export type EntityProps = {
   onToggle?: (isOpen: boolean) => void;
   alwaysShowRightIcon?: boolean;
   onClickRightIcon?: () => void;
-  addButtonHelptext?: string;
+  addButtonHelptext?: JSX.Element | string;
   isBeta?: boolean;
   preRightIcon?: ReactNode;
   onClickPreRightIcon?: () => void;
@@ -288,8 +291,9 @@ export const Entity = forwardRef(
               props.active ? "active" : ""
             } t--entity-item`}
             data-guided-tour-id={`explorer-entity-${props.name}`}
+            data-guided-tour-iid={props.name}
             highlight={!!props.highlight}
-            id={props.entityId}
+            id={"entity-" + props.entityId}
             isSticky={props.isSticky === true}
             rightIconClickable={typeof props.onClickRightIcon === "function"}
             spaced={!!props.children}

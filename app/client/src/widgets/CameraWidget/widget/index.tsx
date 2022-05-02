@@ -28,7 +28,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
             helpText: "Whether a picture is taken or a video is recorded",
             options: [
               {
-                label: "Camera",
+                label: "Image",
                 value: "CAMERA",
               },
               {
@@ -88,6 +88,17 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
             propertyName: "onImageCapture",
             label: "OnImageCapture",
             controlType: "ACTION_SELECTOR",
+            hidden: () => true,
+            dependencies: ["mode"],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the image is saved",
+            propertyName: "onImageSave",
+            label: "OnImageSave",
+            controlType: "ACTION_SELECTOR",
             hidden: (props: CameraWidgetProps) =>
               props.mode === CameraModeTypes.VIDEO,
             dependencies: ["mode"],
@@ -100,8 +111,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
             propertyName: "onRecordingStart",
             label: "OnRecordingStart",
             controlType: "ACTION_SELECTOR",
-            hidden: (props: CameraWidgetProps) =>
-              props.mode === CameraModeTypes.CAMERA,
+            hidden: () => true,
             dependencies: ["mode"],
             isJSConvertible: true,
             isBindProperty: true,
@@ -111,6 +121,17 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
             helpText: "Triggers an action when the video recording stops",
             propertyName: "onRecordingStop",
             label: "OnRecordingStop",
+            controlType: "ACTION_SELECTOR",
+            hidden: () => true,
+            dependencies: ["mode"],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the video recording is saved",
+            propertyName: "onVideoSave",
+            label: "OnVideoSave",
             controlType: "ACTION_SELECTOR",
             hidden: (props: CameraWidgetProps) =>
               props.mode === CameraModeTypes.CAMERA,
@@ -139,10 +160,10 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       imageDataURL: undefined,
       imageRawBinary: undefined,
       mediaCaptureStatus: MediaCaptureStatusTypes.IMAGE_DEFAULT,
-      timer: undefined,
       videoBlobURL: undefined,
       videoDataURL: undefined,
       videoRawBinary: undefined,
+      isDirty: false,
     };
   }
 
@@ -175,8 +196,10 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
         mirrored={isMirrored}
         mode={mode}
         onImageCapture={this.handleImageCapture}
+        onImageSave={this.handleImageSave}
         onRecordingStart={this.handleRecordingStart}
         onRecordingStop={this.handleRecordingStop}
+        onVideoSave={this.handleVideoSave}
         videoBlobURL={videoBlobURL}
         width={width}
       />
@@ -192,6 +215,11 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("imageRawBinary", undefined);
       return;
     }
+    // Set isDirty to true when an image is caputured
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     const base64Data = image.split(",")[1];
     const imageBlob = base64ToBlob(base64Data, "image/webp");
     const blobURL = URL.createObjectURL(imageBlob);
@@ -215,7 +243,23 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
     });
   };
 
+  handleImageSave = () => {
+    if (this.props.onImageSave) {
+      super.executeAction({
+        triggerPropertyName: "onImageSave",
+        dynamicString: this.props.onImageSave,
+        event: {
+          type: EventType.ON_CAMERA_IMAGE_SAVE,
+        },
+      });
+    }
+  };
+
   handleRecordingStart = () => {
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     if (this.props.onRecordingStart) {
       super.executeAction({
         triggerPropertyName: "onRecordingStart",
@@ -259,6 +303,18 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       },
     });
   };
+
+  handleVideoSave = () => {
+    if (this.props.onVideoSave) {
+      super.executeAction({
+        triggerPropertyName: "onVideoSave",
+        dynamicString: this.props.onVideoSave,
+        event: {
+          type: EventType.ON_CAMERA_VIDEO_RECORDING_SAVE,
+        },
+      });
+    }
+  };
 }
 
 export interface CameraWidgetProps extends WidgetProps {
@@ -267,9 +323,12 @@ export interface CameraWidgetProps extends WidgetProps {
   isVisible: boolean;
   mode: CameraMode;
   onImageCapture?: string;
+  onImageSave?: string;
   onRecordingStart?: string;
   onRecordingStop?: string;
+  onVideoSave?: string;
   videoBlobURL?: string;
+  isDirty: boolean;
 }
 
 export default CameraWidget;

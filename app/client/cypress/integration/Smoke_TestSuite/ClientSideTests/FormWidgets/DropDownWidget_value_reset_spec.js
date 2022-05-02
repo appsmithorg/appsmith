@@ -8,10 +8,11 @@ describe("Dropdown Widget Check value does not reset on navigation", function() 
 
   it("check if the dropdown value does not change on navigation", function() {
     //Change the value of drop down;
-    cy.get(".t--draggable-selectwidget .bp3-popover-target")
+    cy.wait(4000); //settling time for dsl into layout
+    cy.get(commonlocators.selectButton)
       .first()
       .click();
-    cy.selectOnClickOption("Red");
+    cy.selectWidgetOnClickOption("Red");
     cy.wait(200);
 
     //Navigate

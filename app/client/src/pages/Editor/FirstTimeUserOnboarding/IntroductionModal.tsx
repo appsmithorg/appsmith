@@ -14,7 +14,7 @@ import {
   ONBOARDING_INTRO_FOOTER,
   START_TUTORIAL,
 } from "@appsmith/constants/messages";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import React from "react";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
@@ -84,7 +84,7 @@ const StyledCount = styled.h5`
   color: #716e6e;
 `;
 
-const ModalContent = styled.p`
+const ModalContent = styled.div`
   margin-left: 36px;
 `;
 const ModalContentHeader = styled.h5`
@@ -215,18 +215,18 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
               <StyledButton
                 category={Category.tertiary}
                 className="t--introduction-modal-build-button my-6"
-                onClick={() => triggerWelcomeTour(dispatch)}
-                size={Size.large}
-                tag="button"
-                text={createMessage(START_TUTORIAL)}
-              />
-              <StyledButton
-                category={Category.primary}
-                className="t--introduction-modal-build-button my-6 ml-5"
                 onClick={onBuildApp}
                 size={Size.large}
                 tag="button"
                 text={createMessage(BUILD_MY_FIRST_APP)}
+              />
+              <StyledButton
+                category={Category.primary}
+                className="t--introduction-modal-welcome-tour-button my-6 ml-5"
+                onClick={() => triggerWelcomeTour(dispatch)}
+                size={Size.large}
+                tag="button"
+                text={createMessage(START_TUTORIAL)}
               />
             </div>
           </ModalFooter>

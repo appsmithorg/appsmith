@@ -3,12 +3,15 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ReduxActionWithoutPayload,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { PluginFormPayload } from "api/PluginApi";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 
-export const fetchPlugins = (): ReduxActionWithoutPayload => ({
+export const fetchPlugins = (payload?: {
+  orgId?: string;
+}): ReduxAction<{ orgId?: string } | undefined> => ({
   type: ReduxActionTypes.FETCH_PLUGINS_REQUEST,
+  payload,
 });
 
 export const fetchPluginFormConfigs = (): ReduxActionWithoutPayload => ({
@@ -20,6 +23,7 @@ export type PluginFormsPayload = {
   editorConfigs: Record<string, any[]>;
   settingConfigs: Record<string, any[]>;
   dependencies: Record<string, DependencyMap>;
+  datasourceFormButtonConfigs: Record<string, string[]>;
 };
 
 export const fetchPluginFormConfigsSuccess = (
@@ -59,4 +63,8 @@ export const fetchPluginFormConfig = ({
 }) => ({
   type: ReduxActionTypes.GET_PLUGIN_FORM_CONFIG_INIT,
   payload: id,
+});
+
+export const fetchDefaultPlugins = (): ReduxActionWithoutPayload => ({
+  type: ReduxActionTypes.GET_DEFAULT_PLUGINS_REQUEST,
 });

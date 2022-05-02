@@ -29,7 +29,7 @@ describe("Confirm run action", function() {
     cy.onlyQueryRun();
     cy.get(".bp3-dialog")
       .find("button")
-      .contains("Confirm")
+      .contains("Yes")
       .click();
     cy.wait("@postExecute").should(
       "have.nested.property",
@@ -37,13 +37,7 @@ describe("Confirm run action", function() {
       200,
     );
 
-    cy.get(queryEditor.queryMoreAction).click();
-    cy.get(queryEditor.deleteUsingContext).click();
-    cy.wait("@deleteAction").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.deleteQueryUsingContext();
 
     cy.deleteDatasource(datasourceName);
   });

@@ -1,0 +1,1045 @@
+{
+  "clientSchemaVersion": 1,
+  "serverSchemaVersion": 3,
+  "exportedApplication": {
+    "name": "datasourcesWithTED",
+    "isPublic": false,
+    "appIsExample": false,
+    "unreadCommentThreads": 0,
+    "color": "#C2DAF0",
+    "icon": "bicycle",
+    "slug": "datasourceswithted",
+    "evaluationVersion": 2,
+    "applicationVersion": 2,
+    "isManualUpdate": false,
+    "new": true
+  },
+  "datasourceList": [
+    {
+      "userPermissions": [
+        "execute:datasources",
+        "manage:datasources",
+        "read:datasources"
+      ],
+      "gitSyncId": "6243ea137b9ea67ca53653b0_62453e60377813071bab4e32",
+      "name": "TEDMongo",
+      "pluginId": "mongo-plugin",
+      "invalids": [],
+      "messages": [],
+      "isConfigured": true,
+      "isValid": true,
+      "new": true
+    },
+    {
+      "userPermissions": [
+        "execute:datasources",
+        "manage:datasources",
+        "read:datasources"
+      ],
+      "gitSyncId": "6243ea137b9ea67ca53653b0_62453ef0377813071bab4e3a",
+      "name": "TEDMySQL",
+      "pluginId": "mysql-plugin",
+      "invalids": [],
+      "messages": [],
+      "isConfigured": true,
+      "isValid": true,
+      "new": true
+    },
+    {
+      "userPermissions": [
+        "execute:datasources",
+        "manage:datasources",
+        "read:datasources"
+      ],
+      "gitSyncId": "6243ea137b9ea67ca53653b0_62453d94377813071bab4e2e",
+      "name": "TEDPostgres",
+      "pluginId": "postgres-plugin",
+      "invalids": [],
+      "messages": [],
+      "isConfigured": true,
+      "isValid": true,
+      "new": true
+    }
+  ],
+  "pageList": [
+    {
+      "userPermissions": ["read:pages", "manage:pages"],
+      "gitSyncId": "62453cc2377813071bab4e16_62453cc2377813071bab4e18",
+      "unpublishedPage": {
+        "name": "Page1",
+        "slug": "page1",
+        "layouts": [
+          {
+            "id": "Page1",
+            "userPermissions": [],
+            "dsl": {
+              "widgetName": "MainContainer",
+              "backgroundColor": "none",
+              "rightColumn": 816,
+              "snapColumns": 64,
+              "detachFromLayout": true,
+              "widgetId": "0",
+              "topRow": 0,
+              "bottomRow": 1320,
+              "containerStyle": "none",
+              "snapRows": 125,
+              "parentRowSpace": 1,
+              "type": "CANVAS_WIDGET",
+              "canExtend": true,
+              "version": 54,
+              "minHeight": 1292,
+              "parentColumnSpace": 1,
+              "dynamicBindingPathList": [],
+              "leftColumn": 0,
+              "children": [
+                {
+                  "widgetName": "Table1",
+                  "defaultPageSize": 0,
+                  "columnOrder": [
+                    "id",
+                    "name",
+                    "createdAt",
+                    "updatedAt",
+                    "status",
+                    "gender",
+                    "avatar",
+                    "email",
+                    "address",
+                    "role",
+                    "dob",
+                    "phoneNo"
+                  ],
+                  "isVisibleDownload": true,
+                  "dynamicPropertyPathList": [],
+                  "displayName": "Table",
+                  "iconSVG": "/static/media/icon.db8a9cbd.svg",
+                  "topRow": 7,
+                  "bottomRow": 36,
+                  "isSortable": true,
+                  "parentRowSpace": 10,
+                  "type": "TABLE_WIDGET",
+                  "defaultSelectedRow": "0",
+                  "hideCard": false,
+                  "animateLoading": true,
+                  "parentColumnSpace": 12.5625,
+                  "dynamicTriggerPathList": [],
+                  "dynamicBindingPathList": [
+                    { "key": "primaryColumns.status.computedValue" },
+                    { "key": "tableData" },
+                    { "key": "primaryColumns.id.computedValue" },
+                    { "key": "primaryColumns.name.computedValue" },
+                    { "key": "primaryColumns.createdAt.computedValue" },
+                    { "key": "primaryColumns.updatedAt.computedValue" },
+                    { "key": "primaryColumns.gender.computedValue" },
+                    { "key": "primaryColumns.avatar.computedValue" },
+                    { "key": "primaryColumns.email.computedValue" },
+                    { "key": "primaryColumns.address.computedValue" },
+                    { "key": "primaryColumns.role.computedValue" },
+                    { "key": "primaryColumns.dob.computedValue" },
+                    { "key": "primaryColumns.phoneNo.computedValue" }
+                  ],
+                  "leftColumn": 3,
+                  "primaryColumns": {
+                    "status": {
+                      "index": 2,
+                      "width": 150,
+                      "id": "status",
+                      "horizontalAlignment": "LEFT",
+                      "verticalAlignment": "CENTER",
+                      "columnType": "text",
+                      "textSize": "PARAGRAPH",
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "isVisible": true,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "label": "status",
+                      "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.status))}}",
+                      "buttonColor": "#03B365",
+                      "menuColor": "#03B365",
+                      "labelColor": "#FFFFFF"
+                    },
+                    "id": {
+                      "index": 0,
+                      "width": 150,
+                      "id": "id",
+                      "horizontalAlignment": "LEFT",
+                      "verticalAlignment": "CENTER",
+                      "columnType": "text",
+                      "textSize": "PARAGRAPH",
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "isVisible": true,
+                      "isDisabled": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "label": "id",
+                      "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.id))}}"
+                    },
+                    "name": {
+                      "index": 1,
+                      "width": 150,
+                      "id": "name",
+                      "horizontalAlignment": "LEFT",
+                      "verticalAlignment": "CENTER",
+                      "columnType": "text",
+                      "textSize": "PARAGRAPH",
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "isVisible": true,
+                      "isDisabled": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "label": "name",
+                      "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.name))}}"
+                    },
+                    "createdAt": {
+                      "index": 2,
+                      "width": 150,
+                      "id": "createdAt",
+                      "horizontalAlignment": "LEFT",
+                      "verticalAlignment": "CENTER",
+                      "columnType": "text",
+                      "textSize": "PARAGRAPH",
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "isVisible": true,
+                      "isDisabled": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "label": "createdAt",
+                      "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.createdAt))}}"
+                    },
+                    "updatedAt": {
+                      "index": 3,
+                      "width": 150,
+                      "id": "updatedAt",
+                      "horizontalAlignment": "LEFT",
+                      "verticalAlignment": "CENTER",
+                      "columnType": "text",
+                      "textSize": "PARAGRAPH",
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "isVisible": true,
+                      "isDisabled": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "label": "updatedAt",
+                      "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.updatedAt))}}"
+                    },
+                    "gender": {
+                      "index": 5,
+                      "width": 150,
+                      "id": "gender",
+                      "horizontalAlignment": "LEFT",
+                      "verticalAlignment": "CENTER",
+                      "columnType": "text",
+                      "textSize": "PARAGRAPH",
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "isVisible": true,
+                      "isDisabled": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "label": "gender",
+                      "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.gender))}}"
+                    },
+                    "avatar": {
+                      "index": 6,
+                      "width": 150,
+                      "id": "avatar",
+                      "horizontalAlignment": "LEFT",
+                      "verticalAlignment": "CENTER",
+                      "columnType": "text",
+                      "textSize": "PARAGRAPH",
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "isVisible": true,
+                      "isDisabled": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "label": "avatar",
+                      "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.avatar))}}"
+                    },
+                    "email": {
+                      "index": 7,
+                      "width": 150,
+                      "id": "email",
+                      "horizontalAlignment": "LEFT",
+                      "verticalAlignment": "CENTER",
+                      "columnType": "text",
+                      "textSize": "PARAGRAPH",
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "isVisible": true,
+                      "isDisabled": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "label": "email",
+                      "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.email))}}"
+                    },
+                    "address": {
+                      "index": 8,
+                      "width": 150,
+                      "id": "address",
+                      "horizontalAlignment": "LEFT",
+                      "verticalAlignment": "CENTER",
+                      "columnType": "text",
+                      "textSize": "PARAGRAPH",
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "isVisible": true,
+                      "isDisabled": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "label": "address",
+                      "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.address))}}"
+                    },
+                    "role": {
+                      "index": 9,
+                      "width": 150,
+                      "id": "role",
+                      "horizontalAlignment": "LEFT",
+                      "verticalAlignment": "CENTER",
+                      "columnType": "text",
+                      "textSize": "PARAGRAPH",
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "isVisible": true,
+                      "isDisabled": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "label": "role",
+                      "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.role))}}"
+                    },
+                    "dob": {
+                      "index": 10,
+                      "width": 150,
+                      "id": "dob",
+                      "horizontalAlignment": "LEFT",
+                      "verticalAlignment": "CENTER",
+                      "columnType": "text",
+                      "textSize": "PARAGRAPH",
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "isVisible": true,
+                      "isDisabled": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "label": "dob",
+                      "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.dob))}}"
+                    },
+                    "phoneNo": {
+                      "index": 11,
+                      "width": 150,
+                      "id": "phoneNo",
+                      "horizontalAlignment": "LEFT",
+                      "verticalAlignment": "CENTER",
+                      "columnType": "text",
+                      "textSize": "PARAGRAPH",
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "isVisible": true,
+                      "isDisabled": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "label": "phoneNo",
+                      "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.phoneNo))}}"
+                    }
+                  },
+                  "delimiter": ",",
+                  "key": "pvzcjhkpgi",
+                  "derivedColumns": {},
+                  "rightColumn": 28,
+                  "textSize": "PARAGRAPH",
+                  "widgetId": "bf8sp3t39v",
+                  "isVisibleFilters": true,
+                  "tableData": "{{PostgresQuery.data}}",
+                  "isVisible": true,
+                  "label": "Data",
+                  "searchKey": "",
+                  "enableClientSideSearch": true,
+                  "version": 3,
+                  "totalRecordsCount": 0,
+                  "parentId": "0",
+                  "renderMode": "CANVAS",
+                  "isLoading": false,
+                  "horizontalAlignment": "LEFT",
+                  "isVisibleSearch": true,
+                  "isVisiblePagination": true,
+                  "verticalAlignment": "CENTER",
+                  "columnSizeMap": { "task": 245, "step": 62, "status": 75 }
+                },
+                {
+                  "widgetName": "Table2",
+                  "defaultPageSize": 0,
+                  "columnOrder": [
+                    "id",
+                    "configName",
+                    "configJson",
+                    "configVersion",
+                    "updatedAt",
+                    "updatedBy"
+                  ],
+                  "isVisibleDownload": true,
+                  "dynamicPropertyPathList": [],
+                  "displayName": "Table",
+                  "iconSVG": "/static/media/icon.db8a9cbd.svg",
+                  "topRow": 7,
+                  "bottomRow": 36,
+                  "isSortable": true,
+                  "parentRowSpace": 10,
+                  "type": "TABLE_WIDGET",
+                  "defaultSelectedRow": "0",
+                  "hideCard": false,
+                  "animateLoading": true,
+                  "parentColumnSpace": 12.5625,
+                  "dynamicTriggerPathList": [],
+                  "dynamicBindingPathList": [
+                    { "key": "tableData" },
+                    { "key": "primaryColumns.id.computedValue" },
+                    { "key": "primaryColumns.updatedAt.computedValue" },
+                    { "key": "primaryColumns.configName.computedValue" },
+                    { "key": "primaryColumns.configJson.computedValue" },
+                    { "key": "primaryColumns.configVersion.computedValue" },
+                    { "key": "primaryColumns.updatedBy.computedValue" }
+                  ],
+                  "leftColumn": 35,
+                  "primaryColumns": {
+                    "id": {
+                      "index": 0,
+                      "width": 150,
+                      "id": "id",
+                      "horizontalAlignment": "LEFT",
+                      "verticalAlignment": "CENTER",
+                      "columnType": "text",
+                      "textSize": "PARAGRAPH",
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "isVisible": true,
+                      "isDisabled": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "label": "id",
+                      "computedValue": "{{Table2.sanitizedTableData.map((currentRow) => ( currentRow.id))}}"
+                    },
+                    "updatedAt": {
+                      "index": 3,
+                      "width": 150,
+                      "id": "updatedAt",
+                      "horizontalAlignment": "LEFT",
+                      "verticalAlignment": "CENTER",
+                      "columnType": "text",
+                      "textSize": "PARAGRAPH",
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "isVisible": true,
+                      "isDisabled": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "label": "updatedAt",
+                      "computedValue": "{{Table2.sanitizedTableData.map((currentRow) => ( currentRow.updatedAt))}}"
+                    },
+                    "configName": {
+                      "index": 1,
+                      "width": 150,
+                      "id": "configName",
+                      "horizontalAlignment": "LEFT",
+                      "verticalAlignment": "CENTER",
+                      "columnType": "text",
+                      "textSize": "PARAGRAPH",
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "isVisible": true,
+                      "isDisabled": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "label": "configName",
+                      "computedValue": "{{Table2.sanitizedTableData.map((currentRow) => ( currentRow.configName))}}"
+                    },
+                    "configJson": {
+                      "index": 2,
+                      "width": 150,
+                      "id": "configJson",
+                      "horizontalAlignment": "LEFT",
+                      "verticalAlignment": "CENTER",
+                      "columnType": "text",
+                      "textSize": "PARAGRAPH",
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "isVisible": true,
+                      "isDisabled": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "label": "configJson",
+                      "computedValue": "{{Table2.sanitizedTableData.map((currentRow) => ( currentRow.configJson))}}"
+                    },
+                    "configVersion": {
+                      "index": 3,
+                      "width": 150,
+                      "id": "configVersion",
+                      "horizontalAlignment": "LEFT",
+                      "verticalAlignment": "CENTER",
+                      "columnType": "text",
+                      "textSize": "PARAGRAPH",
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "isVisible": true,
+                      "isDisabled": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "label": "configVersion",
+                      "computedValue": "{{Table2.sanitizedTableData.map((currentRow) => ( currentRow.configVersion))}}"
+                    },
+                    "updatedBy": {
+                      "index": 5,
+                      "width": 150,
+                      "id": "updatedBy",
+                      "horizontalAlignment": "LEFT",
+                      "verticalAlignment": "CENTER",
+                      "columnType": "text",
+                      "textSize": "PARAGRAPH",
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "isVisible": true,
+                      "isDisabled": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "label": "updatedBy",
+                      "computedValue": "{{Table2.sanitizedTableData.map((currentRow) => ( currentRow.updatedBy))}}"
+                    }
+                  },
+                  "delimiter": ",",
+                  "key": "l5v3879d0x",
+                  "derivedColumns": {},
+                  "rightColumn": 60,
+                  "textSize": "PARAGRAPH",
+                  "widgetId": "kmwa2of08l",
+                  "isVisibleFilters": true,
+                  "tableData": "{{MySQLQuery.data}}",
+                  "isVisible": true,
+                  "label": "Data",
+                  "searchKey": "",
+                  "enableClientSideSearch": true,
+                  "version": 3,
+                  "totalRecordsCount": 0,
+                  "parentId": "0",
+                  "renderMode": "CANVAS",
+                  "isLoading": false,
+                  "horizontalAlignment": "LEFT",
+                  "isVisibleSearch": true,
+                  "isVisiblePagination": true,
+                  "verticalAlignment": "CENTER",
+                  "columnSizeMap": { "task": 245, "step": 62, "status": 75 }
+                },
+                {
+                  "widgetName": "Input1",
+                  "displayName": "Input",
+                  "iconSVG": "/static/media/icon.9f505595.svg",
+                  "topRow": 40,
+                  "bottomRow": 44,
+                  "parentRowSpace": 10,
+                  "autoFocus": false,
+                  "type": "INPUT_WIDGET_V2",
+                  "hideCard": false,
+                  "animateLoading": true,
+                  "parentColumnSpace": 12.5625,
+                  "dynamicTriggerPathList": [],
+                  "resetOnSubmit": true,
+                  "leftColumn": 21,
+                  "dynamicBindingPathList": [{ "key": "defaultText" }],
+                  "labelStyle": "",
+                  "inputType": "TEXT",
+                  "isDisabled": false,
+                  "key": "r3pmi5zs37",
+                  "isRequired": false,
+                  "rightColumn": 41,
+                  "widgetId": "evbu7a7ape",
+                  "isVisible": true,
+                  "label": "",
+                  "version": 2,
+                  "parentId": "0",
+                  "renderMode": "CANVAS",
+                  "isLoading": false,
+                  "iconAlign": "left",
+                  "defaultText": "{{echoAPI.data.headers.info}}"
+                },
+                {
+                  "widgetName": "Input2",
+                  "displayName": "Input",
+                  "iconSVG": "/static/media/icon.9f505595.svg",
+                  "topRow": 49,
+                  "bottomRow": 53,
+                  "parentRowSpace": 10,
+                  "autoFocus": false,
+                  "type": "INPUT_WIDGET_V2",
+                  "hideCard": false,
+                  "animateLoading": true,
+                  "parentColumnSpace": 12.5625,
+                  "dynamicTriggerPathList": [],
+                  "resetOnSubmit": true,
+                  "leftColumn": 21,
+                  "dynamicBindingPathList": [{ "key": "defaultText" }],
+                  "labelStyle": "",
+                  "inputType": "TEXT",
+                  "isDisabled": false,
+                  "key": "r3pmi5zs37",
+                  "isRequired": false,
+                  "rightColumn": 41,
+                  "widgetId": "66waagimtm",
+                  "isVisible": true,
+                  "label": "",
+                  "version": 2,
+                  "parentId": "0",
+                  "renderMode": "CANVAS",
+                  "isLoading": false,
+                  "iconAlign": "left",
+                  "defaultText": "{{JSObject1.myFun1()}}"
+                }
+              ]
+            },
+            "layoutOnLoadActions": [
+              [
+                {
+                  "id": "Page1_MySQLQuery",
+                  "name": "MySQLQuery",
+                  "confirmBeforeExecute": false,
+                  "pluginType": "DB",
+                  "jsonPathKeys": [],
+                  "timeoutInMillisecond": 10000
+                },
+                {
+                  "id": "Page1_PostgresQuery",
+                  "name": "PostgresQuery",
+                  "confirmBeforeExecute": false,
+                  "pluginType": "DB",
+                  "jsonPathKeys": [],
+                  "timeoutInMillisecond": 10000
+                }
+              ],
+              [
+                {
+                  "id": "Page1_echoAPI",
+                  "name": "echoAPI",
+                  "confirmBeforeExecute": false,
+                  "pluginType": "API",
+                  "jsonPathKeys": [],
+                  "timeoutInMillisecond": 10000
+                }
+              ]
+            ],
+            "new": false
+          }
+        ],
+        "userPermissions": []
+      },
+      "publishedPage": {
+        "name": "Page1",
+        "slug": "page1",
+        "layouts": [
+          {
+            "id": "Page1",
+            "userPermissions": [],
+            "dsl": {
+              "widgetName": "MainContainer",
+              "backgroundColor": "none",
+              "rightColumn": 1224.0,
+              "snapColumns": 16.0,
+              "detachFromLayout": true,
+              "widgetId": "0",
+              "topRow": 0.0,
+              "bottomRow": 1254.0,
+              "containerStyle": "none",
+              "snapRows": 33.0,
+              "parentRowSpace": 1.0,
+              "type": "CANVAS_WIDGET",
+              "canExtend": true,
+              "version": 4.0,
+              "minHeight": 1292.0,
+              "parentColumnSpace": 1.0,
+              "dynamicBindingPathList": [],
+              "leftColumn": 0.0,
+              "children": []
+            },
+            "new": false
+          }
+        ],
+        "userPermissions": []
+      },
+      "new": true
+    }
+  ],
+  "publishedDefaultPageName": "Page1",
+  "unpublishedDefaultPageName": "Page1",
+  "actionList": [
+    {
+      "id": "Page1_MongoQuery",
+      "userPermissions": ["read:actions", "execute:actions", "manage:actions"],
+      "gitSyncId": "62453cc2377813071bab4e16_62453ecd377813071bab4e38",
+      "pluginType": "DB",
+      "pluginId": "mongo-plugin",
+      "unpublishedAction": {
+        "name": "MongoQuery",
+        "datasource": {
+          "id": "TEDMongo",
+          "userPermissions": [],
+          "pluginId": "mongo-plugin",
+          "messages": [],
+          "isValid": true,
+          "new": false
+        },
+        "pageId": "Page1",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "formData": {
+            "command": { "data": "FIND" },
+            "aggregate": { "limit": { "data": "10" } },
+            "delete": { "limit": { "data": "SINGLE" } },
+            "updateMany": { "limit": { "data": "SINGLE" } },
+            "smartSubstitution": { "data": true },
+            "collection": { "data": "{}" },
+            "misc": {
+              "formToNativeQuery": {
+                "data": "{\n  \"find\": \"{}\",\n  \"limit\": 10,\n  \"batchSize\": 10\n}\n",
+                "status": "SUCCESS"
+              }
+            }
+          }
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "confirmBeforeExecute": false,
+        "userPermissions": [],
+        "validName": "MongoQuery"
+      },
+      "publishedAction": {
+        "datasource": {
+          "userPermissions": [],
+          "messages": [],
+          "isValid": true,
+          "new": true
+        },
+        "messages": [],
+        "confirmBeforeExecute": false,
+        "userPermissions": []
+      },
+      "new": false
+    },
+    {
+      "id": "Page1_echoAPI",
+      "userPermissions": ["read:actions", "execute:actions", "manage:actions"],
+      "gitSyncId": "62453cc2377813071bab4e16_62453f75377813071bab4e54",
+      "pluginType": "API",
+      "pluginId": "restapi-plugin",
+      "unpublishedAction": {
+        "name": "echoAPI",
+        "datasource": {
+          "userPermissions": [],
+          "name": "DEFAULT_REST_DATASOURCE",
+          "pluginId": "restapi-plugin",
+          "datasourceConfiguration": { "url": "https://mock-api.appsmith.com" },
+          "invalids": [],
+          "messages": [],
+          "isValid": true,
+          "new": true
+        },
+        "pageId": "Page1",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "path": "/echo/get",
+          "headers": [{ "key": "info", "value": "this is a test" }],
+          "encodeParamsToggle": true,
+          "queryParameters": [],
+          "httpMethod": "GET",
+          "pluginSpecifiedTemplates": [{ "value": true }],
+          "formData": { "apiContentType": "none" }
+        },
+        "executeOnLoad": true,
+        "dynamicBindingPathList": [],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "confirmBeforeExecute": false,
+        "userPermissions": [],
+        "validName": "echoAPI"
+      },
+      "publishedAction": {
+        "datasource": {
+          "userPermissions": [],
+          "messages": [],
+          "isValid": true,
+          "new": true
+        },
+        "messages": [],
+        "confirmBeforeExecute": false,
+        "userPermissions": []
+      },
+      "new": false
+    },
+    {
+      "id": "Page1_PostgresQuery",
+      "userPermissions": ["read:actions", "execute:actions", "manage:actions"],
+      "gitSyncId": "6249ed44068394009c56232d_6249f439068394009c56234f",
+      "pluginType": "DB",
+      "pluginId": "postgres-plugin",
+      "unpublishedAction": {
+        "name": "PostgresQuery",
+        "datasource": {
+          "id": "TEDPostgres",
+          "userPermissions": [],
+          "pluginId": "postgres-plugin",
+          "messages": [],
+          "isValid": true,
+          "new": false
+        },
+        "pageId": "Page1",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "SELECT * FROM public.\"users\" LIMIT 10;",
+          "pluginSpecifiedTemplates": [{ "value": true }]
+        },
+        "executeOnLoad": true,
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "confirmBeforeExecute": false,
+        "userPermissions": [],
+        "validName": "PostgresQuery"
+      },
+      "publishedAction": {
+        "datasource": {
+          "userPermissions": [],
+          "messages": [],
+          "isValid": true,
+          "new": true
+        },
+        "messages": [],
+        "confirmBeforeExecute": false,
+        "userPermissions": []
+      },
+      "new": false
+    },
+    {
+      "id": "Page1_MySQLQuery",
+      "userPermissions": ["read:actions", "execute:actions", "manage:actions"],
+      "gitSyncId": "6249ed44068394009c56232d_6249f5af068394009c562351",
+      "pluginType": "DB",
+      "pluginId": "mysql-plugin",
+      "unpublishedAction": {
+        "name": "MySQLQuery",
+        "datasource": {
+          "id": "TEDMySQL",
+          "userPermissions": [],
+          "pluginId": "mysql-plugin",
+          "messages": [],
+          "isValid": true,
+          "new": false
+        },
+        "pageId": "Page1",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "SELECT * FROM configs LIMIT 10;",
+          "pluginSpecifiedTemplates": [{ "value": true }]
+        },
+        "executeOnLoad": true,
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "confirmBeforeExecute": false,
+        "userPermissions": [],
+        "validName": "MySQLQuery"
+      },
+      "publishedAction": {
+        "datasource": {
+          "userPermissions": [],
+          "messages": [],
+          "isValid": true,
+          "new": true
+        },
+        "messages": [],
+        "confirmBeforeExecute": false,
+        "userPermissions": []
+      },
+      "new": false
+    },
+    {
+      "id": "Page1_JSObject1.myFun1",
+      "userPermissions": ["read:actions", "execute:actions", "manage:actions"],
+      "gitSyncId": "6249ed44068394009c56232d_6249f822068394009c562359",
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "myFun1",
+        "fullyQualifiedName": "JSObject1.myFun1",
+        "datasource": {
+          "userPermissions": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isValid": true,
+          "new": true
+        },
+        "pageId": "Page1",
+        "collectionId": "Page1_JSObject1",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => {\n\t\treturn \"Success\";\n\t}",
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": ["() => {\n\t\treturn \"Success\";\n\t}"],
+        "confirmBeforeExecute": false,
+        "userPermissions": [],
+        "validName": "JSObject1.myFun1"
+      },
+      "publishedAction": {
+        "datasource": {
+          "userPermissions": [],
+          "messages": [],
+          "isValid": true,
+          "new": true
+        },
+        "messages": [],
+        "confirmBeforeExecute": false,
+        "userPermissions": []
+      },
+      "new": false
+    },
+    {
+      "id": "Page1_JSObject1.myFun2",
+      "userPermissions": ["read:actions", "execute:actions", "manage:actions"],
+      "gitSyncId": "6249ed44068394009c56232d_6249f822068394009c56235b",
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "myFun2",
+        "fullyQualifiedName": "JSObject1.myFun2",
+        "datasource": {
+          "userPermissions": [],
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isValid": true,
+          "new": true
+        },
+        "pageId": "Page1",
+        "collectionId": "Page1_JSObject1",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "async () => {\n\t\t//use async-await or promises\n\t}",
+          "jsArguments": [],
+          "isAsync": true
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "async () => {\n\t\t//use async-await or promises\n\t}"
+        ],
+        "confirmBeforeExecute": false,
+        "userPermissions": [],
+        "validName": "JSObject1.myFun2"
+      },
+      "publishedAction": {
+        "datasource": {
+          "userPermissions": [],
+          "messages": [],
+          "isValid": true,
+          "new": true
+        },
+        "messages": [],
+        "confirmBeforeExecute": false,
+        "userPermissions": []
+      },
+      "new": false
+    }
+  ],
+  "actionCollectionList": [
+    {
+      "id": "Page1_JSObject1",
+      "userPermissions": ["read:actions", "execute:actions", "manage:actions"],
+      "gitSyncId": "6249ed44068394009c56232d_6249f7e3068394009c562357",
+      "unpublishedCollection": {
+        "name": "JSObject1",
+        "pageId": "Page1",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actionIds": [],
+        "archivedActionIds": [],
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\treturn \"Success\";\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
+        "variables": [
+          { "name": "myVar1", "value": [] },
+          { "name": "myVar2", "value": {} }
+        ]
+      },
+      "new": false
+    }
+  ],
+  "invisibleActionFields": {
+    "Page1_MongoQuery": {
+      "unpublishedUserSetOnLoad": false,
+      "publishedUserSetOnLoad": false
+    },
+    "Page1_echoAPI": {
+      "unpublishedUserSetOnLoad": false,
+      "publishedUserSetOnLoad": false
+    },
+    "Page1_PostgresQuery": {
+      "unpublishedUserSetOnLoad": false,
+      "publishedUserSetOnLoad": false
+    },
+    "Page1_JSObject1.myFun2": {
+      "unpublishedUserSetOnLoad": false,
+      "publishedUserSetOnLoad": false
+    },
+    "Page1_JSObject1.myFun1": {
+      "unpublishedUserSetOnLoad": false,
+      "publishedUserSetOnLoad": false
+    },
+    "Page1_MySQLQuery": {
+      "unpublishedUserSetOnLoad": false,
+      "publishedUserSetOnLoad": false
+    }
+  },
+  "editModeTheme": {
+    "name": "Classic",
+    "displayName": "Classic",
+    "new": true,
+    "isSystemTheme": true
+  },
+  "publishedTheme": {
+    "name": "Classic",
+    "displayName": "Classic",
+    "new": true,
+    "isSystemTheme": true
+  },
+  "publishedLayoutmongoEscapedWidgets": {},
+  "unpublishedLayoutmongoEscapedWidgets": {}
+}

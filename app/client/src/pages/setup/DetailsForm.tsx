@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Field, InjectedFormProps } from "redux-form";
+import { Field } from "redux-form";
 import {
   DropdownWrapper,
   FormBodyWrapper,
@@ -19,10 +19,13 @@ import {
   WELCOME_FORM_ROLE_DROPDOWN,
   WELCOME_FORM_ROLE,
   WELCOME_FORM_USE_CASE,
+  WELCOME_FORM_CUSTOM_USE_CASE,
   WELCOME_FORM_HEADER,
+  WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER,
+  WELCOME_FORM_USE_CASE_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 import FormTextField from "components/ads/formFields/TextField";
-import { DetailsFormValues } from "./SetupForm";
+import { SetupFormProps } from "./SetupForm";
 import { ButtonWrapper } from "pages/Applications/ForkModalStyles";
 import Button, { Category, Size } from "components/ads/Button";
 import { roleOptions, useCaseOptions } from "./constants";
@@ -39,7 +42,7 @@ const StyledFormBodyWrapper = styled(FormBodyWrapper)`
 `;
 
 export default function DetailsForm(
-  props: InjectedFormProps & DetailsFormValues & { onNext?: () => void },
+  props: SetupFormProps & { onNext?: () => void },
 ) {
   const ref = React.createRef<HTMLDivElement>();
 
@@ -86,6 +89,7 @@ export default function DetailsForm(
           label={createMessage(WELCOME_FORM_VERIFY_PASSWORD)}
         >
           <FormTextField
+            data-testid="verifyPassword"
             name="verifyPassword"
             placeholder="Type correctly"
             type="password"
@@ -99,7 +103,7 @@ export default function DetailsForm(
             asyncControl
             component={withDropdown(roleOptions, "260px")}
             name="role"
-            placeholder=""
+            placeholder={createMessage(WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER)}
             type="text"
           />
         </DropdownWrapper>
@@ -119,10 +123,18 @@ export default function DetailsForm(
             asyncControl
             component={withDropdown(useCaseOptions, "260px")}
             name="useCase"
-            placeholder=""
+            placeholder={createMessage(WELCOME_FORM_USE_CASE_PLACEHOLDER)}
             type="text"
           />
         </DropdownWrapper>
+        {props.useCase == "other" && (
+          <StyledFormGroup
+            className="t--welcome-form-use-case-input"
+            label={createMessage(WELCOME_FORM_CUSTOM_USE_CASE)}
+          >
+            <FormTextField name="custom_useCase" placeholder="" type="text" />
+          </StyledFormGroup>
+        )}
         <ButtonWrapper>
           <Button
             category={Category.tertiary}

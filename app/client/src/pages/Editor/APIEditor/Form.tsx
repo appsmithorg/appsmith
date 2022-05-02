@@ -55,10 +55,12 @@ import get from "lodash/get";
 import DataSourceList from "./ApiRightPane";
 import { Datasource } from "entities/Datasource";
 import {
-  getAction,
   getActionResponses,
-} from "../../../selectors/entitiesSelector";
+  getActionData,
+  getAction,
+} from "selectors/entitiesSelector";
 import { isEmpty, isEqual } from "lodash";
+
 import { Colors } from "constants/Colors";
 import SearchSnippets from "components/ads/SnippetButton";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
@@ -143,7 +145,7 @@ export const TabbedViewContainer = styled.div`
   overflow: auto;
   position: relative;
   height: 100%;
-  border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-top: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   ${FormRow} {
     min-height: auto;
     padding: ${(props) => props.theme.spaces[0]}px;
@@ -154,7 +156,7 @@ export const TabbedViewContainer = styled.div`
 
   &&& {
     ul.react-tabs__tab-list {
-      padding: 0px ${(props) => props.theme.spaces[12]}px;
+      margin: 0px ${(props) => props.theme.spaces[11]}px;
       background-color: ${(props) =>
         props.theme.colors.apiPane.responseBody.bg};
       li.react-tabs__tab--selected {
@@ -229,7 +231,7 @@ const Link = styled.a`
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
-  height: calc(100% - 118px);
+  height: calc(100% - 110px);
   position: relative;
 `;
 interface APIFormProps {
@@ -256,6 +258,8 @@ interface APIFormProps {
   currentPageId?: string;
   applicationId?: string;
   hasResponse: boolean;
+  responseDataTypes: { key: string; title: string }[];
+  responseDisplayFormat: { title: string; value: string };
   suggestedWidgets?: SuggestedWidget[];
   updateDatasource: (datasource: Datasource) => void;
   currentActionDatasourceId: string;
@@ -546,6 +550,8 @@ function ApiEditorForm(props: Props) {
     onRunClick,
     paramsCount,
     pluginId,
+    responseDataTypes,
+    responseDisplayFormat,
     settingsConfig,
     updateDatasource,
   } = props;
@@ -695,7 +701,6 @@ function ApiEditorForm(props: Props) {
                           label="Params"
                           name="actionConfiguration.queryParameters"
                           pushFields
-                          removeTopPadding
                           theme={theme}
                         />
                       </TabSection>
@@ -752,6 +757,8 @@ function ApiEditorForm(props: Props) {
             <ApiResponseView
               apiName={actionName}
               onRunClick={onRunClick}
+              responseDataTypes={responseDataTypes}
+              responseDisplayFormat={responseDisplayFormat}
               theme={theme}
             />
           </SecondaryWrapper>
@@ -852,6 +859,28 @@ export default connect((state: AppState, props: { pluginId: string }) => {
     suggestedWidgets = response.suggestedWidgets;
   }
 
+  const actionData = getActionData(state, apiId);
+  let responseDisplayFormat: { title: string; value: string };
+  let responseDataTypes: { key: string; title: string }[];
+  if (!!actionData && actionData.responseDisplayFormat) {
+    responseDataTypes = actionData.dataTypes.map((data) => {
+      return {
+        key: data.dataType,
+        title: data.dataType,
+      };
+    });
+    responseDisplayFormat = {
+      title: actionData.responseDisplayFormat,
+      value: actionData.responseDisplayFormat,
+    };
+  } else {
+    responseDataTypes = [];
+    responseDisplayFormat = {
+      title: "",
+      value: "",
+    };
+  }
+
   return {
     actionName,
     apiId,
@@ -869,6 +898,8 @@ export default connect((state: AppState, props: { pluginId: string }) => {
     ),
     currentPageId: state.entities.pageList.currentPageId,
     applicationId: state.entities.pageList.applicationId,
+    responseDataTypes,
+    responseDisplayFormat,
     suggestedWidgets,
     hasResponse,
   };

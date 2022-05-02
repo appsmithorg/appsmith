@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-const homePage = require("../../../../locators/HomePage.json");
+import homePage from "../../../../locators/HomePage";
 const publish = require("../../../../locators/publishWidgetspage.json");
 
 describe("Create new org and share with a user", function() {
@@ -133,7 +133,7 @@ describe("Create new org and share with a user", function() {
   it("6. login as uninvited user and then validate public access disable feature", function() {
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
     cy.visit(currentUrl);
-    cy.wait("@viewApp").should(
+    cy.wait("@getPagesForViewApp").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       404,
@@ -143,7 +143,7 @@ describe("Create new org and share with a user", function() {
 
   it("7. visit the app as anonymous user and validate redirection to login page", function() {
     cy.visit(currentUrl);
-    cy.wait("@viewApp").should(
+    cy.wait("@getPagesForViewApp").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       404,

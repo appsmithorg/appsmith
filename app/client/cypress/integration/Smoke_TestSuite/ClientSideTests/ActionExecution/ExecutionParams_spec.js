@@ -42,7 +42,7 @@ describe("API Panel Test Functionality", function() {
   });
 
   it("3. Will pass execution params", function() {
-    cy.selectEntityByName("WIDGETS");
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
     // Bind the table
     cy.get(".t--entity-collapse-toggle")
       .eq(2)

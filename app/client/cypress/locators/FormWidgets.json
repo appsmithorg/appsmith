@@ -1,7 +1,7 @@
 {
   "checkboxWidget": ".t--draggable-checkboxwidget",
   "selectwidget": ".t--draggable-selectwidget",
-  "dropdownWidget": ".t--draggable-dropdownwidget",
+  "dropdownWidget": ".t--draggable-selectwidget",
   "menuButtonWidget": ".t--draggable-menubuttonwidget",
   "multiselectwidgetv2": ".t--draggable-multiselectwidgetv2",
   "multiselecttreeWidget": ".t--draggable-multiselecttreewidget",
@@ -30,6 +30,8 @@
   "dropdownInput": ".bp3-tag-input-values",
   "mulitiselectInput": ".rc-select-selection-search-input",
   "treeSelectInput": ".rc-tree-select-selection-search-input",
+  "treeSelectFilterInput": ".tree-select-dropdown .bp3-input",
+  "multiTreeSelectFilterInput": ".tree-multiselect-dropdown .bp3-input",
   "labelradio": ".t--draggable-radiogroupwidget label",
   "labelCheckboxGroup": ".t--draggable-checkboxgroupwidget label",
   "labelSwitchGroup": ".t--draggable-switchgroupwidget label",
@@ -41,7 +43,7 @@
   "radioInput": ".t--draggable-radiogroupwidget span.t--widget-name",
   "checkboxGroupInput": ".t--draggable-checkboxgroupwidget span.t--widget-name",
   "switchGroupInput": ".t--draggable-switchgroupwidget span.t--widget-name",
-  "radioAddButton": ".t--property-control-options button",
+  "radioAddButton": ".t--property-control-options button.t--property-control-options-add",
   "formD": "div[type='FORM_WIDGET']",
   "datepickerFooter": ".bp3-datepicker-footer span",
   "datepickerFooterPublish": ".bp3-datepicker-footer span",
@@ -63,5 +65,6 @@
   "searchBoxDropdown":".select-popover-wrapper div.bp3-input-group",
   "NavHomePage": "[data-icon='home']",
   "apiCallToast": "div.t--toast-action span[type='p1']",
-  "toggleOnOptionChange": ".t--property-control-onoptionchange .t--js-toggle"
+  "toggleOnOptionChange": ".t--property-control-onoptionchange .t--js-toggle",
+  "toggleButtonVariant": ".t--property-control-buttonvariant .t--js-toggle"
 }

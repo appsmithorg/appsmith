@@ -3,8 +3,6 @@ import styled from "styled-components";
 import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 import { TabProp } from "components/ads/Tabs";
 import { Colors } from "constants/Colors";
-import { MENU_ITEM } from "../constants";
-import BetaTag from "./BetaTag";
 
 type WrapperProps = {
   selected: boolean;
@@ -17,7 +15,7 @@ const getSelectedStyles = (props: WrapperProps) =>
     ? `color: ${props.theme.colors.tabItemBackgroundFill.highlightTextColor};
       font-weight: 500;
       border-bottom: 2px solid ${props.theme.colors.info.light};
-     
+
      `
     : `color: ${Colors.GREY_7}
       `;
@@ -49,11 +47,6 @@ export default function TabItem(props: {
   return (
     <Wrapper key={tab.title} selected={selected} vertical={vertical}>
       {tab.title}
-      {tab.key === MENU_ITEM.GIT_CONNECTION && (
-        <div style={{ marginLeft: 6 }}>
-          <BetaTag />
-        </div>
-      )}
     </Wrapper>
   );
 }

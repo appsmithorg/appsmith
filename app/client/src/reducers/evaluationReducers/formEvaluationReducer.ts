@@ -1,5 +1,8 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { FetchPageRequest } from "api/PageApi";
 
 // Type for the object that will store the dynamic values for each component
@@ -9,7 +12,7 @@ export type DynamicValues = {
   hasStarted: boolean;
   hasFetchFailed: boolean;
   data: any;
-  config: { url: string; method: string; params?: string[] };
+  config: { url: string; method: string; params: Record<string, any> };
 };
 
 export type ConditonalObject = Record<string, any>;

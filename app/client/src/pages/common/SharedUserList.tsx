@@ -1,5 +1,5 @@
 import { Popover, PopoverInteractionKind, Position } from "@blueprintjs/core";
-import UserApi from "api/UserApi";
+import UserApi from "@appsmith/api/UserApi";
 import React, { useMemo } from "react";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "store";
@@ -8,10 +8,11 @@ import ProfileImage from "./ProfileImage";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import { OrgUser } from "constants/orgConstants";
 import { getUserApplicationsOrgsList } from "selectors/applicationSelectors";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
-const UserImageContainer = styled.div`
+const UserImageContainer = styled.div<{ isMobile?: boolean }>`
   display: flex;
-  margin-right: 24px;
+  margin-right: ${({ isMobile }) => (isMobile ? 0 : 24)}px;
 
   .org-share-user-icons {
     cursor: default;
@@ -67,6 +68,7 @@ export default function SharedUserList(props: any) {
   const currentUser = useSelector(getCurrentUser);
   const scrollWrapperRef = React.createRef<HTMLUListElement>();
   const userOrgs = useSelector(getUserApplicationsOrgsList);
+  const isMobile = useIsMobileDevice();
   const allUsers = useMemo(() => {
     const org: any = userOrgs.find((organizationObject: any) => {
       const { organization } = organizationObject;
@@ -77,7 +79,7 @@ export default function SharedUserList(props: any) {
     return userRoles || [];
   }, [userOrgs]);
   return (
-    <UserImageContainer>
+    <UserImageContainer isMobile={isMobile}>
       {allUsers.slice(0, 5).map((el: OrgUser) => (
         <Popover
           boundary="viewport"

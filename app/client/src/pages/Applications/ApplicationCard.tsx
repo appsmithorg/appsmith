@@ -1,9 +1,12 @@
-import React, { useEffect, useState, useRef, useContext } from "react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useContext,
+  useMemo,
+  useCallback,
+} from "react";
 import styled, { ThemeContext } from "styled-components";
-import {
-  getApplicationViewerPageURL,
-  BUILDER_PAGE_URL,
-} from "constants/routes";
 import {
   Card,
   Classes,
@@ -11,7 +14,7 @@ import {
   ICardProps,
   Position,
 } from "@blueprintjs/core";
-import { ApplicationPayload } from "constants/ReduxActionConstants";
+import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -21,7 +24,7 @@ import {
   getApplicationIcon,
   getRandomPaletteColor,
 } from "utils/AppsmithUtils";
-import { omit } from "lodash";
+import { noop, omit } from "lodash";
 import Text, { TextType } from "components/ads/Text";
 import Button, { Category, Size, IconPositions } from "components/ads/Button";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -45,7 +48,7 @@ import {
 import { Classes as CsClasses } from "components/ads/common";
 import TooltipComponent from "components/ads/Tooltip";
 import {
-  isEllipsisActive,
+  isVerticalEllipsisActive,
   truncateString,
   howMuchTimeBeforeText,
 } from "utils/helpers";
@@ -55,6 +58,8 @@ import { Variant } from "components/ads/common";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 import { Colors } from "constants/Colors";
 import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
+import { builderURL, viewerURL } from "RouteBuilder";
+import history from "utils/history";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -161,8 +166,13 @@ const Wrapper = styled(
     props: ICardProps & {
       hasReadPermission?: boolean;
       backgroundColor: string;
+      isMobile?: boolean;
     },
-  ) => <Card {...omit(props, ["hasReadPermission", "backgroundColor"])} />,
+  ) => (
+    <Card
+      {...omit(props, ["hasReadPermission", "backgroundColor", "isMobile"])}
+    />
+  ),
 )`
   display: flex;
   flex-direction: row-reverse;
@@ -191,6 +201,13 @@ const Wrapper = styled(
       }
     }
   }
+
+  ${({ isMobile }) =>
+    isMobile &&
+    `
+    width: 100% !important;
+    height: 126px !important;
+  `}
 `;
 
 const ApplicationImage = styled.div`
@@ -283,6 +300,7 @@ type ApplicationCardProps = {
   delete?: (applicationId: string) => void;
   update?: (id: string, data: UpdateApplicationPayload) => void;
   enableImportExport?: boolean;
+  isMobile?: boolean;
 };
 
 const EditButton = styled(Button)`
@@ -391,9 +409,10 @@ function GitConnectedBadge() {
   );
 }
 
-const Container = styled.div`
+const Container = styled.div<{ isMobile?: boolean }>`
   position: relative;
   overflow: visible;
+  ${({ isMobile }) => isMobile && `width: 100%;`}
 `;
 
 export function ApplicationCard(props: ApplicationCardProps) {
@@ -419,6 +438,12 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
   const applicationId = props.application?.id;
   const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
+
+  const defaultPageSlug = useMemo(() => {
+    const pages = props.application.pages || [];
+    const defaultPage = pages.find((page) => page.isDefault);
+    return defaultPage?.slug || defaultPage?.name;
+  }, []);
 
   useEffect(() => {
     let colorCode;
@@ -452,7 +477,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       moreActionItems.push({
         onSelect: forkApplicationInitiate,
         text: "Fork",
-        icon: "fork",
+        icon: "fork-2",
         cypressSelector: "t--fork-app",
       });
     }
@@ -567,13 +592,26 @@ export function ApplicationCard(props: ApplicationCardProps) {
     initials += props.application.name[1].toUpperCase() || "";
   }
 
-  const viewApplicationURL = getApplicationViewerPageURL({
-    applicationId: applicationId,
-    pageId: props.application.defaultPageId,
+  // should show correct branch of application when edit mode
+  const params: any = {};
+  if (showGitBadge) {
+    params.branch = showGitBadge;
+  }
+  const viewApplicationURL = viewerURL({
+    applicationSlug: props.application.slug as string,
+    applicationVersion: props.application.applicationVersion,
+    pageSlug: defaultPageSlug || "page",
+    applicationId: props.application.id,
+    pageId: props.application.defaultPageId as string,
+    params,
   });
-  const editApplicationURL = BUILDER_PAGE_URL({
-    applicationId: applicationId,
-    pageId: props.application.defaultPageId,
+  const editApplicationURL = builderURL({
+    applicationSlug: props.application.slug as string,
+    applicationVersion: props.application.applicationVersion,
+    applicationId: props.application.id,
+    pageSlug: defaultPageSlug || "page",
+    pageId: props.application.defaultPageId as string,
+    params,
   });
 
   const appNameText = (
@@ -703,8 +741,15 @@ export function ApplicationCard(props: ApplicationCardProps) {
     return editedBy + " edited " + editedOn;
   };
 
+  const LaunchAppInMobile = useCallback(() => {
+    history.push(viewApplicationURL);
+  }, [viewApplicationURL]);
+
   return (
-    <Container>
+    <Container
+      isMobile={props.isMobile}
+      onClick={props.isMobile ? LaunchAppInMobile : noop}
+    >
       <NameWrapper
         className="t--application-card"
         hasReadPermission={hasReadPermission}
@@ -727,6 +772,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
               : "t--application-card-background"
           }
           hasReadPermission={hasReadPermission}
+          isMobile={props.isMobile}
           key={props.application.id}
         >
           <CircleAppIcon name={appIcon} size={Size.large} />
@@ -735,7 +781,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
             isFetching={isFetchingApplications}
             ref={appNameWrapperRef}
           >
-            {isEllipsisActive(appNameWrapperRef?.current) ? (
+            {isVerticalEllipsisActive(appNameWrapperRef?.current) ? (
               <TooltipComponent
                 content={props.application.name}
                 maxWidth="400px"
@@ -746,7 +792,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
               appNameText
             )}
           </AppNameWrapper>
-          {showOverlay && (
+          {showOverlay && !props.isMobile && (
             <div className="overlay">
               <div className="overlay-blur" />
               <ApplicationImage className="image-container">
@@ -755,10 +801,14 @@ export function ApplicationCard(props: ApplicationCardProps) {
                     <EditButton
                       className="t--application-edit-link"
                       fill
-                      href={editApplicationURL}
                       icon={"edit"}
                       iconPosition={IconPositions.left}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        history.push(editApplicationURL);
+                      }}
                       size={Size.medium}
+                      tag="button"
                       text="Edit"
                     />
                   )}
@@ -767,10 +817,14 @@ export function ApplicationCard(props: ApplicationCardProps) {
                       category={Category.tertiary}
                       className="t--application-view-link"
                       fill
-                      href={viewApplicationURL}
                       icon={"rocket"}
                       iconPosition={IconPositions.left}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        history.push(viewApplicationURL);
+                      }}
                       size={Size.medium}
+                      tag="button"
                       text="Launch"
                     />
                   )}
@@ -781,7 +835,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         </Wrapper>
         <CardFooter>
           <ModifiedDataComponent>{editedByText()}</ModifiedDataComponent>
-          {!!moreActionItems.length && ContextMenu}
+          {!!moreActionItems.length && !props.isMobile && ContextMenu}
         </CardFooter>
       </NameWrapper>
       {showGitBadge && <GitConnectedBadge />}

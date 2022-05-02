@@ -40,6 +40,11 @@ public class ActionDTO {
     @Transient
     PluginType pluginType;
 
+    // name of the plugin. used to log analytics events where pluginName is a required attribute
+    // It'll be null if not set
+    @Transient
+    String pluginName;
+
     @Transient
     String pluginId;
 
@@ -105,6 +110,7 @@ public class ActionDTO {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
     Instant deletedAt = null;
 
+    @Deprecated
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
     Instant archivedAt = null;
 

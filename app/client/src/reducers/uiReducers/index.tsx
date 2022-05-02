@@ -8,6 +8,7 @@ import apiPaneReducer from "./apiPaneReducer";
 import datasourcePaneReducer from "./datasourcePaneReducer";
 import authReducer from "./authReducer";
 import orgReducer from "./orgReducer";
+import templateReducer from "./templateReducer";
 import usersReducer from "./usersReducer";
 import { widgetDraggingReducer } from "./dragResizeReducer";
 import importedCollectionsReducer from "./importedCollectionsReducer";
@@ -17,7 +18,7 @@ import queryPaneReducer from "./queryPaneReducer";
 import helpReducer from "./helpReducer";
 import apiNameReducer from "./apiNameReducer";
 import explorerReducer from "./explorerReducer";
-import confirmRunActionReducer from "./confirmRunActionReducer";
+import modalActionReducer from "./modalActionReducer";
 import themeReducer from "./themeReducer";
 import datasourceNameReducer from "./datasourceNameReducer";
 import pageCanvasStructureReducer from "reducers/uiReducers/pageCanvasStructureReducer";
@@ -38,6 +39,7 @@ import gitSyncReducer from "./gitSyncReducer";
 import crudInfoModalReducer from "./crudInfoModalReducer";
 import { widgetReflowReducer } from "./reflowReducer";
 import jsObjectNameReducer from "./jsObjectNameReducer";
+import mainCanvasReducer from "./mainCanvasReducer";
 
 const uiReducer = combineReducers({
   editor: editorReducer,
@@ -48,6 +50,7 @@ const uiReducer = combineReducers({
   applications: applicationsReducer,
   apiPane: apiPaneReducer,
   auth: authReducer,
+  templates: templateReducer,
   orgs: orgReducer,
   users: usersReducer,
   widgetDragResize: widgetDraggingReducer,
@@ -63,7 +66,7 @@ const uiReducer = combineReducers({
   pageCanvasStructure: pageCanvasStructureReducer,
   pageWidgets: pageWidgetsReducer,
   theme: themeReducer,
-  confirmRunAction: confirmRunActionReducer,
+  modalAction: modalActionReducer,
   onBoarding: onBoardingReducer,
   globalSearch: globalSearchReducer,
   releases: releasesReducer,
@@ -79,6 +82,7 @@ const uiReducer = combineReducers({
   appCollab: appCollabReducer,
   crudInfoModal: crudInfoModalReducer,
   widgetReflow: widgetReflowReducer,
+  mainCanvas: mainCanvasReducer,
 });
 
 export default uiReducer;

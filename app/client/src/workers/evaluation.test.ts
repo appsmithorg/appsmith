@@ -7,23 +7,11 @@ import {
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import { PluginType } from "entities/Action";
-import DataTreeEvaluator from "workers/DataTreeEvaluator";
+import DataTreeEvaluator from "workers/DataTreeEvaluator/DataTreeEvaluator";
 import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetFactory from "utils/WidgetFactory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
-
-/**
- * This function sorts the object's value which is array of string.
- *
- * @param {Record<string, Array<string>>} data
- * @return {*}
- */
-const sortObject = (data: Record<string, Array<string>>) => {
-  Object.entries(data).map(([key, value]) => {
-    data[key] = value.sort();
-  });
-  return data;
-};
+import { sortObjectWithArray } from "../utils/treeUtils";
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {
@@ -66,27 +54,20 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     },
     metaProperties: {},
   },
-  DROP_DOWN_WIDGET: {
+  SELECT_WIDGET: {
     defaultProperties: {
-      selectedOptionValue: "defaultOptionValue",
-      selectedOptionValueArr: "defaultOptionValue",
+      selectedOption: "defaultOptionValue",
+      filterText: "",
     },
     derivedProperties: {
-      isValid:
-        "{{this.isRequired ? this.selectionType === 'SINGLE_SELECT' ? !!this.selectedOption : !!this.selectedIndexArr && this.selectedIndexArr.length > 0 : true}}",
-      selectedOption:
-        "{{ this.selectionType === 'SINGLE_SELECT' ? _.find(this.options, { value:  this.selectedOptionValue }) : undefined}}",
-      selectedOptionArr:
-        '{{this.selectionType === "MULTI_SELECT" ? this.options.filter(opt => _.includes(this.selectedOptionValueArr, opt.value)) : undefined}}',
-      selectedIndex:
-        "{{ _.findIndex(this.options, { value: this.selectedOption.value } ) }}",
-      selectedIndexArr:
-        "{{ this.selectedOptionValueArr.map(o => _.findIndex(this.options, { value: o })) }}",
-      value:
-        "{{ this.selectionType === 'SINGLE_SELECT' ? this.selectedOptionValue : this.selectedOptionValueArr }}",
-      selectedOptionValues: "{{ this.selectedOptionValueArr }}",
+      selectedOptionLabel: `{{_.isPlainObject(this.selectedOption) ? this.selectedOption?.label : this.selectedOption}}`,
+      selectedOptionValue: `{{_.isPlainObject(this.selectedOption) ? this.selectedOption?.value : this.selectedOption}}`,
+      isValid: `{{this.isRequired  ? !!this.selectedOptionValue || this.selectedOptionValue === 0 : true}}`,
     },
-    metaProperties: {},
+    metaProperties: {
+      selectedOption: undefined,
+      filterText: "",
+    },
   },
   RADIO_GROUP_WIDGET: {
     defaultProperties: {
@@ -237,6 +218,7 @@ const BASE_WIDGET: DataTreeWidget = {
   parentId: "0",
   version: 1,
   bindingPaths: {},
+  reactivePaths: {},
   triggerPaths: {},
   validationPaths: {},
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
@@ -261,12 +243,12 @@ const BASE_ACTION: DataTreeAction = {
   data: {},
   responseMeta: { isExecutionSuccess: false },
   ENTITY_TYPE: ENTITY_TYPE.ACTION,
-  bindingPaths: {
+  bindingPaths: {},
+  reactivePaths: {
     isLoading: EvaluationSubstitutionType.TEMPLATE,
     data: EvaluationSubstitutionType.TEMPLATE,
   },
   dependencyMap: {},
-  datasourceUrl: "",
 };
 
 const metaMock = jest.spyOn(WidgetFactory, "getWidgetMetaPropertiesMap");
@@ -278,25 +260,25 @@ const mockDerived = jest.spyOn(WidgetFactory, "getWidgetDerivedPropertiesMap");
 const dependencyMap = {
   Dropdown1: [
     "Dropdown1.defaultOptionValue",
+    "Dropdown1.filterText",
     "Dropdown1.isValid",
-    "Dropdown1.selectedIndex",
-    "Dropdown1.selectedIndexArr",
+    "Dropdown1.meta",
     "Dropdown1.selectedOption",
-    "Dropdown1.selectedOptionArr",
+    "Dropdown1.selectedOptionLabel",
     "Dropdown1.selectedOptionValue",
-    "Dropdown1.selectedOptionValueArr",
-    "Dropdown1.selectedOptionValues",
-    "Dropdown1.value",
   ],
   "Dropdown1.isValid": [],
-  "Dropdown1.selectedIndex": [],
-  "Dropdown1.selectedIndexArr": [],
-  "Dropdown1.selectedOption": [],
-  "Dropdown1.selectedOptionArr": [],
-  "Dropdown1.selectedOptionValue": ["Dropdown1.defaultOptionValue"],
-  "Dropdown1.selectedOptionValueArr": ["Dropdown1.defaultOptionValue"],
-  "Dropdown1.selectedOptionValues": [],
-  "Dropdown1.value": [],
+  "Dropdown1.filterText": ["Dropdown1.meta.filterText"],
+  "Dropdown1.meta": [
+    "Dropdown1.meta.filterText",
+    "Dropdown1.meta.selectedOption",
+  ],
+  "Dropdown1.selectedOption": [
+    "Dropdown1.defaultOptionValue",
+    "Dropdown1.meta.selectedOption",
+  ],
+  "Dropdown1.selectedOptionLabel": [],
+  "Dropdown1.selectedOptionValue": [],
   Table1: [
     "Table1.defaultSearchText",
     "Table1.defaultSelectedRow",
@@ -342,7 +324,7 @@ describe("DataTreeEvaluator", () => {
       defaultText: "Default value",
       widgetName: "Input1",
       type: "INPUT_WIDGET_V2",
-      bindingPaths: {
+      reactivePaths: {
         defaultText: EvaluationSubstitutionType.TEMPLATE,
         isValid: EvaluationSubstitutionType.TEMPLATE,
         value: EvaluationSubstitutionType.TEMPLATE,
@@ -394,7 +376,7 @@ describe("DataTreeEvaluator", () => {
             value: "valueTest2",
           },
         ],
-        type: "DROP_DOWN_WIDGET",
+        type: "SELECT_WIDGET",
       },
       {},
     ),
@@ -414,7 +396,7 @@ describe("DataTreeEvaluator", () => {
         text: "{{Table1.selectedRow.test}}",
         dynamicBindingPathList: [{ key: "text" }],
         type: "TEXT_WIDGET",
-        bindingPaths: {
+        reactivePaths: {
           text: EvaluationSubstitutionType.TEMPLATE,
         },
         validationPaths: {
@@ -432,7 +414,7 @@ describe("DataTreeEvaluator", () => {
 
     expect(evaluation).toHaveProperty("Text2.text", "Label");
     expect(evaluation).toHaveProperty("Text3.text", "Label");
-    expect(sortObject(dependencyMap)).toStrictEqual(dependencyMap);
+    expect(sortObjectWithArray(dependencyMap)).toStrictEqual(dependencyMap);
   });
 
   it("Evaluates a value change in update run", () => {
@@ -463,7 +445,9 @@ describe("DataTreeEvaluator", () => {
     expect(dataTree).toHaveProperty("Text2.text", "Label");
     expect(dataTree).toHaveProperty("Text3.text", "Label 3");
 
-    expect(sortObject(updatedDependencyMap)).toStrictEqual(dependencyMap);
+    expect(sortObjectWithArray(updatedDependencyMap)).toStrictEqual(
+      dependencyMap,
+    );
   });
 
   it("Overrides with default value", () => {
@@ -478,6 +462,13 @@ describe("DataTreeEvaluator", () => {
   });
 
   it("Evaluates for value changes in nested diff paths", () => {
+    const bindingPaths = {
+      options: EvaluationSubstitutionType.TEMPLATE,
+      defaultOptionValue: EvaluationSubstitutionType.TEMPLATE,
+      isRequired: EvaluationSubstitutionType.TEMPLATE,
+      isVisible: EvaluationSubstitutionType.TEMPLATE,
+      isDisabled: EvaluationSubstitutionType.TEMPLATE,
+    };
     const updatedUnEvalTree = {
       ...unEvalTree,
       Dropdown2: {
@@ -492,20 +483,14 @@ describe("DataTreeEvaluator", () => {
             value: "valueTest2",
           },
         ],
-        type: "DROP_DOWN_WIDGET",
-        bindingPaths: {
-          options: EvaluationSubstitutionType.TEMPLATE,
-          defaultOptionValue: EvaluationSubstitutionType.TEMPLATE,
-          isRequired: EvaluationSubstitutionType.TEMPLATE,
-          isVisible: EvaluationSubstitutionType.TEMPLATE,
-          isDisabled: EvaluationSubstitutionType.TEMPLATE,
+        type: "SELECT_WIDGET",
+        bindingPaths,
+        reactivePaths: {
+          ...bindingPaths,
           isValid: EvaluationSubstitutionType.TEMPLATE,
           selectedOption: EvaluationSubstitutionType.TEMPLATE,
-          selectedOptionArr: EvaluationSubstitutionType.TEMPLATE,
-          selectedIndex: EvaluationSubstitutionType.TEMPLATE,
-          selectedIndexArr: EvaluationSubstitutionType.TEMPLATE,
-          value: EvaluationSubstitutionType.TEMPLATE,
-          selectedOptionValues: EvaluationSubstitutionType.TEMPLATE,
+          selectedOptionValue: EvaluationSubstitutionType.TEMPLATE,
+          selectedOptionLabel: EvaluationSubstitutionType.TEMPLATE,
         },
       },
     };
@@ -544,7 +529,7 @@ describe("DataTreeEvaluator", () => {
       },
     ]);
 
-    expect(sortObject(updatedDependencyMap)).toStrictEqual({
+    expect(sortObjectWithArray(updatedDependencyMap)).toStrictEqual({
       Api1: ["Api1.data"],
       ...dependencyMap,
       "Table1.tableData": ["Api1.data", "Text1.text"],
@@ -590,7 +575,7 @@ describe("DataTreeEvaluator", () => {
       },
     ]);
     expect(dataTree).toHaveProperty("Text4.text", "Hey");
-    expect(sortObject(updatedDependencyMap)).toStrictEqual({
+    expect(sortObjectWithArray(updatedDependencyMap)).toStrictEqual({
       Api1: ["Api1.data"],
       ...dependencyMap,
       "Table1.tableData": ["Api1.data", "Text1.text"],
@@ -610,8 +595,8 @@ describe("DataTreeEvaluator", () => {
         dependencyMap: {
           "config.body": ["config.pluginSpecifiedTemplates[0].value"],
         },
-        bindingPaths: {
-          ...BASE_ACTION.bindingPaths,
+        reactivePaths: {
+          ...BASE_ACTION.reactivePaths,
           "config.body": EvaluationSubstitutionType.TEMPLATE,
         },
         config: {
@@ -657,8 +642,8 @@ describe("DataTreeEvaluator", () => {
       ...updatedTree2,
       Api2: {
         ...updatedTree2.Api2,
-        bindingPaths: {
-          ...updatedTree2.Api2.bindingPaths,
+        reactivePaths: {
+          ...updatedTree2.Api2.reactivePaths,
           "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
         },
         config: {

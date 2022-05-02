@@ -3,6 +3,8 @@ const fs = require("fs");
 const { actions } = require("../../tests/actions");
 const { parseReports } = require("../summary");
 const supabaseUrl = "https://ymiketujsffsmdmgpmut.supabase.co";
+const os = require("os");
+const hostname = os.hostname();
 
 const metricsToLog = [
   "scripting",
@@ -75,6 +77,9 @@ const createRunMeta = async () => {
       branch: process.env?.GITHUB_REF_NAME,
       gh_run_id: process.env?.GITHUB_RUN_ID || 1,
       pull_request_id: prId || parsePullRequestId(process.env.GITHUB_REF),
+      runner_name: process.env?.RUNNER_NAME,
+      host_name: hostname,
+      machine: process.env?.MACHINE || "",
     },
   ]);
   if (data) {
@@ -94,9 +99,9 @@ const saveData = async (results) => {
       row["meta"] = run_meta.id;
       const runs = results[action][metric];
       runs.forEach((value, i) => {
-        row["value"] = value;
+        row = { ...row, value };
+        rows.push(row);
       });
-      rows.push(row);
     });
   });
 

@@ -22,13 +22,13 @@ import Menu from "components/ads/Menu";
 import { Position } from "@blueprintjs/core";
 import MenuItem from "components/ads/MenuItem";
 import Button, { Category, Size } from "components/ads/Button";
-import { useSSHKeyPair } from "pages/Editor/gitSync/hooks";
 import {
   NotificationBanner,
   NotificationVariant,
 } from "components/ads/NotificationBanner";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import { useSSHKeyPair } from "../hooks/useSSHKeyPair";
 
 const TooltipWrapper = styled.div`
   display: flex;
@@ -61,7 +61,7 @@ const KeyText = styled.span`
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  color: ${Colors.CODE_GRAY};
+  color: ${Colors.COD_GRAY};
 `;
 
 const MoreMenuWrapper = styled.div`
@@ -93,7 +93,7 @@ type DeployedKeyUIProps = {
 };
 
 const NotificationBannerContainer = styled.div`
-  max-width: 456px;
+  max-width: calc(100% - 30px);
 `;
 
 function CopySSHKey(showCopied: boolean, copyToClipboard: () => void) {
@@ -108,6 +108,7 @@ function CopySSHKey(showCopied: boolean, copyToClipboard: () => void) {
     <TooltipWrapper>
       <TooltipComponent content={createMessage(COPY_SSH_KEY)}>
         <Icon
+          className="t--copy-ssh-key"
           fillColor={Colors.DARK_GRAY}
           hoverFillColor={Colors.GRAY2}
           name="duplicate"
@@ -124,9 +125,7 @@ function DeployedKeyUI(props: DeployedKeyUIProps) {
   const { generateSSHKey } = useSSHKeyPair();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [showKeyRegeneratedMessage, setShowKeyRegeneratedMessage] = useState(
-    false,
-  );
+  const [showKeyGeneratedMessage, setShowKeyGeneratedMessage] = useState(true);
 
   const learnMoreClickHandler = () => {
     AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
@@ -139,7 +138,7 @@ function DeployedKeyUI(props: DeployedKeyUIProps) {
     generateSSHKey();
     setShowConfirmation(false);
     setIsMenuOpen(false);
-    setShowKeyRegeneratedMessage(true);
+    setShowKeyGeneratedMessage(true);
     Toaster.show({
       text: createMessage(SSH_KEY_GENERATED),
       variant: Variant.success,
@@ -220,13 +219,13 @@ function DeployedKeyUI(props: DeployedKeyUIProps) {
           </Menu>
         </MoreMenuWrapper>
       </FlexRow>
-      {showKeyRegeneratedMessage && (
+      {showKeyGeneratedMessage && (
         <NotificationBannerContainer>
           <NotificationBanner
             canClose
             className={"enterprise"}
             learnMoreClickHandler={learnMoreClickHandler}
-            onClose={() => setShowKeyRegeneratedMessage(false)}
+            onClose={() => setShowKeyGeneratedMessage(false)}
             variant={NotificationVariant.info}
           >
             <div>

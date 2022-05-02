@@ -1,13 +1,13 @@
 import React from "react";
 import BaseWidget, { WidgetProps } from "./BaseWidget";
-import _ from "lodash";
+import { isObject, debounce, fromPairs, isEqual } from "lodash";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 
-type DebouncedExecuteActionPayload = Omit<
+export type DebouncedExecuteActionPayload = Omit<
   ExecuteTriggerPayload,
   "dynamicString"
 > & {
@@ -17,22 +17,24 @@ type DebouncedExecuteActionPayload = Omit<
 export interface WithMeta {
   updateWidgetMetaProperty: (
     propertyName: string,
-    propertyValue: any,
+    propertyValue: unknown,
     actionExecution?: DebouncedExecuteActionPayload,
   ) => void;
   syncUpdateWidgetMetaProperty: (
     propertyName: string,
-    propertyValue: any,
+    propertyValue: unknown,
   ) => void;
 }
 
+type MetaHOCState = Record<string, unknown>;
+
 const withMeta = (WrappedWidget: typeof BaseWidget) => {
-  return class MetaHOC extends React.PureComponent<WidgetProps, any> {
+  return class MetaHOC extends React.PureComponent<WidgetProps, MetaHOCState> {
     static contextType = EditorContext;
     updatedProperties = new Map<string, true>();
     propertyTriggers = new Map<string, DebouncedExecuteActionPayload>();
 
-    debouncedHandleUpdateWidgetMetaProperty = _.debounce(
+    debouncedHandleUpdateWidgetMetaProperty = debounce(
       this.handleUpdateWidgetMetaProperty.bind(this),
       200,
       {
@@ -41,34 +43,55 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       },
     );
 
-    constructor(props: any) {
+    initialMetaState: Record<string, unknown>;
+
+    constructor(props: WidgetProps) {
       super(props);
       const metaProperties = WrappedWidget.getMetaPropertiesMap();
-      this.state = _.fromPairs(
+      this.initialMetaState = fromPairs(
         Object.keys(metaProperties).map((metaProperty) => {
           return [metaProperty, this.props[metaProperty]];
         }),
       );
+      this.state = this.initialMetaState;
     }
 
     componentDidUpdate(prevProps: WidgetProps) {
+      /*
+        Generally the meta property value of a widget will directly be
+        controlled by itself and the platform will not interfere except:
+        When we reset the meta property value.
+
+        Property which has default value is set to default value and
+        other meta property are set to initial value.
+        For eg:- In Input widget, after reset text = "" and isDirty = false
+      */
+
+      // meta becoming empty only happens on resetWidget action and metaHOC values needs to reset too.
+      if (
+        isObject(this.props.meta) &&
+        isObject(prevProps.meta) &&
+        Object.keys(this.props.meta).length === 0 &&
+        Object.keys(prevProps.meta).length > 0
+      ) {
+        this.setState(this.initialMetaState);
+      }
+
       const metaProperties = WrappedWidget.getMetaPropertiesMap();
       const defaultProperties = WrappedWidget.getDefaultPropertiesMap();
       Object.keys(metaProperties).forEach((metaProperty) => {
         const defaultProperty = defaultProperties[metaProperty];
         /*
-          Generally the meta property value of a widget will directly be
-          controlled by itself and the platform will not interfere except:
-          When we reset the meta property value to it's default property value.
-          This operation happens by the platform and is outside the widget logic
-          so to identify this change, we want to see if the meta value has
-          changed to the current default value. If this has happened, we should
-          set the state of the meta property value (controlled by inside the
-          widget) to the current value that is outside (controlled by platform)
+            Reset operation happens by the platform and is outside the widget logic
+            so to identify this change, we want to see if the meta value has
+            changed to the current default value. If this has happened, we should
+            set the state of the meta property value (controlled by inside the
+            widget) to the current value that is outside (controlled by platform)
         */
         if (
-          !_.isEqual(prevProps[metaProperty], this.props[metaProperty]) &&
-          _.isEqual(this.props[defaultProperty], this.props[metaProperty])
+          defaultProperty &&
+          !isEqual(prevProps[metaProperty], this.props[metaProperty]) &&
+          isEqual(this.props[defaultProperty], this.props[metaProperty])
         ) {
           this.setState({ [metaProperty]: this.props[metaProperty] });
         }
@@ -77,7 +100,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
 
     updateWidgetMetaProperty = (
       propertyName: string,
-      propertyValue: any,
+      propertyValue: unknown,
       actionExecution?: DebouncedExecuteActionPayload,
     ): void => {
       this.updatedProperties.set(propertyName, true);
@@ -112,7 +135,7 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
     // properties from a widget in quick succession
     syncUpdateWidgetMetaProperty = (
       propertyName: string,
-      propertyValue: any,
+      propertyValue: unknown,
     ): void => {
       const { updateWidgetMetaProperty } = this.context;
       const { widgetId } = this.props;

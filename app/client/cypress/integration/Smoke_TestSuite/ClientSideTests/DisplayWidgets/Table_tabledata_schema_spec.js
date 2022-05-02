@@ -1,5 +1,5 @@
 const explorer = require("../../../../locators/explorerlocators.json");
-import homePage from "../../../../locators/HomePage.json";
+import homePage from "../../../../locators/HomePage";
 const publish = require("../../../../locators/publishWidgetspage.json");
 
 describe("Table Widget", function() {
@@ -25,7 +25,7 @@ describe("Table Widget", function() {
     cy.PublishtheApp();
     cy.wait(30000);
     cy.getTableDataSelector("0", "0").then((element) => {
-      cy.get(element, { timeout: 10000 }).should("be.visible");
+      cy.get(element).should("be.visible");
     });
     cy.readTabledataPublish("0", "0").then((value) => {
       expect(value).to.be.equal("joe");
@@ -35,7 +35,7 @@ describe("Table Widget", function() {
       .click();
     cy.wait(1000);
     cy.getTableDataSelector("0", "0").then((element) => {
-      cy.get(element, { timeout: 10000 }).should("be.visible");
+      cy.get(element).should("be.visible");
     });
     cy.readTabledataPublish("0", "0").then((value) => {
       expect(value).to.be.equal("john");
@@ -45,7 +45,7 @@ describe("Table Widget", function() {
       .click();
     cy.wait(1000);
     cy.getTableDataSelector("0", "0").then((element) => {
-      cy.get(element, { timeout: 10000 }).should("be.visible");
+      cy.get(element).should("be.visible");
     });
     cy.readTabledataPublish("0", "0").then((value) => {
       expect(value).to.be.equal("joe");
@@ -56,7 +56,7 @@ describe("Table Widget", function() {
       .click()
       .wait(1000);
     cy.wait(30000);
-    cy.selectEntityByName("WIDGETS");
+    cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.actionContextMenuByEntityName("Switch1");
     cy.actionContextMenuByEntityName("Table1");
   });

@@ -75,16 +75,25 @@ function IframeComponent(props: IframeComponentProps) {
     widgetId,
   } = props;
 
+  const frameRef = useRef<HTMLIFrameElement>(null);
+
   const isFirstRender = useRef(true);
 
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      const iframeWindow =
+        frameRef.current?.contentWindow ||
+        frameRef.current?.contentDocument?.defaultView;
+      // Accept messages only from the current iframe
+      if (event.source !== iframeWindow) return;
+      onMessageReceived(event);
+    };
     // add a listener
-    window.addEventListener("message", onMessageReceived, false);
+    window.addEventListener("message", handler, false);
     // clean up
-    return () =>
-      window.removeEventListener("message", onMessageReceived, false);
+    return () => window.removeEventListener("message", handler, false);
   }, []);
 
   useEffect(() => {
@@ -129,9 +138,20 @@ function IframeComponent(props: IframeComponentProps) {
       {message ? (
         message
       ) : srcDoc ? (
-        <iframe src={source} srcDoc={srcDoc} title={title} />
+        <iframe
+          allow="camera; microphone"
+          ref={frameRef}
+          src={source}
+          srcDoc={srcDoc}
+          title={title}
+        />
       ) : (
-        <iframe src={source} title={title} />
+        <iframe
+          allow="camera; microphone"
+          ref={frameRef}
+          src={source}
+          title={title}
+        />
       )}
     </IframeContainer>
   );

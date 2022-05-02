@@ -3,13 +3,82 @@ import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import SelectComponent from "../component";
-import _ from "lodash";
 import { DropdownOption } from "../constants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { LabelPosition } from "components/constants";
+import { Alignment } from "@blueprintjs/core";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import {
+  findIndex,
+  isArray,
+  isEqual,
+  isNumber,
+  isString,
+  LoDashStatic,
+} from "lodash";
+
+export function defaultOptionValueValidation(
+  value: unknown,
+  props: SelectWidgetProps,
+  _: LoDashStatic,
+): ValidationResponse {
+  let isValid;
+  let parsed;
+  let message = "";
+
+  /*
+   * Function to check if the object has `label` and `value`
+   */
+  const hasLabelValue = (obj: any) => {
+    return (
+      _.isPlainObject(value) &&
+      obj.hasOwnProperty("label") &&
+      obj.hasOwnProperty("value") &&
+      _.isString(obj.label) &&
+      (_.isString(obj.value) || _.isFinite(obj.value))
+    );
+  };
+
+  /*
+   * When value is "{label: 'green', value: 'green'}"
+   */
+  if (typeof value === "string") {
+    try {
+      const parsedValue = JSON.parse(value);
+      if (_.isObject(parsedValue)) {
+        value = parsedValue;
+      }
+    } catch (e) {}
+  }
+
+  if (_.isString(value) || _.isFinite(value) || hasLabelValue(value)) {
+    /*
+     * When value is "", "green", 444, {label: "green", value: "green"}
+     */
+    isValid = true;
+    parsed = value;
+  } else {
+    isValid = false;
+    parsed = {};
+    message = `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`;
+  }
+
+  return {
+    isValid,
+    parsed,
+    messages: [message],
+  };
+}
 
 class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
+  constructor(props: SelectWidgetProps) {
+    super(props);
+  }
   static getPropertyPaneConfig() {
     return [
       {
@@ -21,7 +90,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             propertyName: "options",
             label: "Options",
             controlType: "INPUT_TEXT",
-            placeholderText: '[{ "label": "Option1", "value": "Option2" }]',
+            placeholderText: '[{ "label": "label1", "value": "value1" }]',
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -60,44 +129,22 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
           {
             helpText: "Selects the option with value by default",
             propertyName: "defaultOptionValue",
-            label: "Default Option",
+            label: "Default Value",
             controlType: "INPUT_TEXT",
-            placeholderText: '{ "label": "Option1", "value": "Option2" }',
+            placeholderText: '{ "label": "label1", "value": "value1" }',
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
-              type: ValidationTypes.OBJECT,
+              type: ValidationTypes.FUNCTION,
               params: {
-                allowedKeys: [
-                  {
-                    name: "label",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "",
-                      requiredKey: true,
-                    },
-                  },
-                  {
-                    name: "value",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "",
-                      requiredKey: true,
-                    },
-                  },
-                ],
+                fn: defaultOptionValueValidation,
+                expected: {
+                  type: 'value1 or { "label": "label1", "value": "value1" }',
+                  example: `value1 | { "label": "label1", "value": "value1" }`,
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
               },
             },
-          },
-          {
-            helpText: "Sets a Label Text",
-            propertyName: "labelText",
-            label: "Label Text",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Enter Label text",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
           },
           {
             helpText: "Sets a Placeholder Text",
@@ -169,6 +216,77 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "Label",
+        children: [
+          {
+            helpText: "Sets the label text of the widget",
+            propertyName: "labelText",
+            label: "Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter label text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label position of the widget",
+            propertyName: "labelPosition",
+            label: "Position",
+            controlType: "DROP_DOWN",
+            options: [
+              { label: "Left", value: LabelPosition.Left },
+              { label: "Top", value: LabelPosition.Top },
+              { label: "Auto", value: LabelPosition.Auto },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label alignment of the widget",
+            propertyName: "labelAlignment",
+            label: "Alignment",
+            controlType: "LABEL_ALIGNMENT_OPTIONS",
+            options: [
+              {
+                icon: "LEFT_ALIGN",
+                value: Alignment.LEFT,
+              },
+              {
+                icon: "RIGHT_ALIGN",
+                value: Alignment.RIGHT,
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+            hidden: (props: SelectWidgetProps) =>
+              props.labelPosition !== LabelPosition.Left,
+            dependencies: ["labelPosition"],
+          },
+          {
+            helpText:
+              "Sets the label width of the widget as the number of columns",
+            propertyName: "labelWidth",
+            label: "Width (in columns)",
+            controlType: "NUMERIC_INPUT",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            min: 0,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: {
+                natural: true,
+              },
+            },
+            hidden: (props: SelectWidgetProps) =>
+              props.labelPosition !== LabelPosition.Left,
+            dependencies: ["labelPosition"],
           },
         ],
       },
@@ -273,56 +391,59 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     ];
   }
 
-  static getDerivedPropertiesMap() {
-    return {
-      isValid: `{{this.isRequired  ? !!this.selectedOptionValue || this.selectedOptionValue === 0 : true}}`,
-      selectedOptionLabel: `{{ this.optionValue.label ?? this.optionValue.value }}`,
-      selectedOptionValue: `{{ this.optionValue.value }}`,
-    };
-  }
-
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       defaultValue: "defaultOptionValue",
-      optionValue: "defaultOptionValue",
+      value: "defaultOptionValue",
+      label: "defaultOptionValue",
+      filterText: "",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      defaultValue: undefined,
-      optionValue: undefined,
+      value: undefined,
+      label: undefined,
+      filterText: "",
+      isDirty: false,
+    };
+  }
+
+  static getDerivedPropertiesMap() {
+    return {
+      isValid: `{{this.isRequired  ? !!this.selectedOptionValue || this.selectedOptionValue === 0 : true}}`,
+      selectedOptionLabel: `{{(()=>{const label = _.isPlainObject(this.label) ? this.label?.label : this.label; return label; })()}}`,
+      selectedOptionValue: `{{(()=>{const value = _.isPlainObject(this.value) ? this.value?.value : this.value; return value; })()}}`,
     };
   }
 
   componentDidMount() {
+    super.componentDidMount();
     this.changeSelectedOption();
   }
+
   componentDidUpdate(prevProps: SelectWidgetProps): void {
-    // removing selectedOptionValue if defaultValueChanges
+    // Reset isDirty to false if defaultOptionValue changes
     if (
-      prevProps.defaultOptionValue?.value !==
-        this.props.defaultOptionValue?.value ||
-      prevProps.option !== this.props.option
+      !isEqual(this.props.defaultOptionValue, prevProps.defaultOptionValue) &&
+      this.props.isDirty
     ) {
-      this.changeSelectedOption();
+      this.props.updateWidgetMetaProperty("isDirty", false);
     }
   }
 
-  changeSelectedOption = () => {
-    this.props.updateWidgetMetaProperty("optionValue", this.props.optionValue);
-  };
+  isStringOrNumber = (value: any): value is string | number =>
+    isString(value) || isNumber(value);
 
   getPageView() {
-    const options = _.isArray(this.props.options) ? this.props.options : [];
+    const options = isArray(this.props.options) ? this.props.options : [];
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
 
-    const selectedIndex = _.findIndex(this.props.options, {
+    const selectedIndex = findIndex(this.props.options, {
       value: this.props.selectedOptionValue,
     });
-
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <SelectComponent
@@ -341,18 +462,21 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         isFilterable={this.props.isFilterable}
         isLoading={this.props.isLoading}
         isValid={this.props.isValid}
-        label={this.props.optionValue?.label}
+        label={this.props.selectedOptionLabel}
+        labelAlignment={this.props.labelAlignment}
+        labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelWidth={this.getLabelWidth()}
         onFilterChange={this.onFilterChange}
         onOptionSelected={this.onOptionSelected}
         options={options}
         placeholder={this.props.placeholderText}
         selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
         serverSideFiltering={this.props.serverSideFiltering}
-        value={this.props.optionValue?.value}
+        value={this.props.selectedOptionValue}
         widgetId={this.props.widgetId}
         width={componentWidth}
       />
@@ -362,36 +486,54 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   onOptionSelected = (selectedOption: DropdownOption) => {
     let isChanged = true;
 
-    if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
-    }
-
     // Check if the value has changed. If no option
     // selected till now, there is a change
     if (this.props.selectedOptionValue) {
       isChanged = !(this.props.selectedOptionValue === selectedOption.value);
     }
     if (isChanged) {
-      this.props.updateWidgetMetaProperty("optionValue", selectedOption, {
+      if (!this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", true);
+      }
+
+      this.props.updateWidgetMetaProperty("label", selectedOption.label ?? "");
+
+      this.props.updateWidgetMetaProperty("value", selectedOption.value ?? "", {
         triggerPropertyName: "onOptionChange",
-        dynamicString: this.props.onOptionChange as string,
+        dynamicString: this.props.onOptionChange,
         event: {
           type: EventType.ON_OPTION_CHANGE,
         },
       });
+      if (!this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", true);
+      }
     }
+  };
+
+  changeSelectedOption = () => {
+    const label = this.isStringOrNumber(this.props.label)
+      ? this.props.label
+      : this.props.label?.label;
+    const value = this.isStringOrNumber(this.props.value)
+      ? this.props.value
+      : this.props.value?.value;
+    this.props.updateWidgetMetaProperty("value", value);
+    this.props.updateWidgetMetaProperty("label", label);
   };
 
   onFilterChange = (value: string) => {
     this.props.updateWidgetMetaProperty("filterText", value);
 
-    super.executeAction({
-      triggerPropertyName: "onFilterUpdate",
-      dynamicString: this.props.onFilterUpdate,
-      event: {
-        type: EventType.ON_FILTER_UPDATE,
-      },
-    });
+    if (this.props.onFilterUpdate && this.props.serverSideFiltering) {
+      super.executeAction({
+        triggerPropertyName: "onFilterUpdate",
+        dynamicString: this.props.onFilterUpdate,
+        event: {
+          type: EventType.ON_FILTER_UPDATE,
+        },
+      });
+    }
   };
 
   static getWidgetType(): WidgetType {
@@ -401,20 +543,24 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
 export interface SelectWidgetProps extends WidgetProps {
   placeholderText?: string;
-  label?: string;
+  labelText: string;
+  labelPosition?: LabelPosition;
+  labelAlignment?: Alignment;
+  labelWidth?: number;
   selectedIndex?: number;
-  selectedOption: DropdownOption;
   options?: DropdownOption[];
   onOptionChange?: string;
-  defaultOptionValue?: { label?: string; value?: string };
-  value?: string;
+  defaultOptionValue?: any;
+  value?: any;
+  label?: any;
   isRequired: boolean;
   isFilterable: boolean;
-  defaultValue: string;
+  defaultValue: string | { value: string; label: string };
   selectedOptionLabel: string;
   serverSideFiltering: boolean;
   onFilterUpdate: string;
   isDirty?: boolean;
+  filterText: string;
 }
 
 export default SelectWidget;

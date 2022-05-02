@@ -5,6 +5,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.services.CrudService;
+import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -54,12 +55,16 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<String> findBranchedApplicationId(String branchName, String defaultApplicationId, AclPermission permission);
 
-    Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId);
+    Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId, AclPermission permission);
 
     Mono<Long> getGitConnectedApplicationsCountWithPrivateRepoByOrgId(String organizationId);
 
     Flux<Application> getGitConnectedApplicationsByOrganizationId(String organizationId);
 
     String getRandomAppCardColor();
+
+    Mono<UpdateResult> setAppTheme(String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission);
+
+    Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId);
 
 }

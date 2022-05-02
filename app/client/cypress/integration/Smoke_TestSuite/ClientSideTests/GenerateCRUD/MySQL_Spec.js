@@ -1,6 +1,6 @@
 const pages = require("../../../../locators/Pages.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
-import homePage from "../../../../locators/HomePage.json";
+import homePage from "../../../../locators/HomePage";
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 
 describe("Generate New CRUD Page Inside from My SQL as Data Source", function() {

@@ -48,7 +48,16 @@ ff4j:
       enable: true
       description: Enable git import for apps
       flipstrategy:
-        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        class: org.ff4j.strategy.PonderationStrategy
         param:
-          - name: emailDomains
-            value: appsmith.com
+          - name: weight
+            value: 1
+
+    - uid: APP_TEMPLATE
+      enable: true
+      description: Allow users to browse application templates and import them
+      flipstrategy:
+        class: org.ff4j.strategy.PonderationStrategy
+        param:
+          - name: weight
+            value: 1

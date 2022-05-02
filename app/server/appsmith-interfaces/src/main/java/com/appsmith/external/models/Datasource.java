@@ -28,6 +28,11 @@ public class Datasource extends BaseDomain {
 
     String pluginId;
 
+    // name of the plugin. used to log analytics events where pluginName is a required attribute
+    // It'll be null if not set
+    @Transient
+    String pluginName;
+
     String organizationId;
 
     String templateName;
@@ -64,7 +69,6 @@ public class Datasource extends BaseDomain {
      * This field is introduced as part of git sync feature, for the git import we will need to identify the datasource's
      * which are not configured. This way user can configure those datasource, which may have been introduced as part of git import.
      */
-    @Transient
     Boolean isConfigured;
 
     /**

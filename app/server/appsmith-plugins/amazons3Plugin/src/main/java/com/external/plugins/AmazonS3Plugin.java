@@ -22,6 +22,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -72,6 +73,7 @@ import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDa
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDataOrDefault;
 import static com.appsmith.external.helpers.PluginUtils.parseList;
 import static com.appsmith.external.helpers.PluginUtils.parseWhereClause;
+import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.BUCKET;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.CREATE_DATATYPE;
@@ -84,9 +86,10 @@ import static com.external.plugins.constants.FieldName.LIST_SORT;
 import static com.external.plugins.constants.FieldName.LIST_UNSIGNED_URL;
 import static com.external.plugins.constants.FieldName.LIST_WHERE;
 import static com.external.plugins.constants.FieldName.PATH;
-import static com.external.plugins.constants.FieldName.READ_USING_BASE64_ENCODING;
-import static com.external.utils.TemplateUtils.getTemplates;
+import static com.external.plugins.constants.FieldName.READ_DATATYPE;
+import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
+import static com.external.utils.TemplateUtils.getTemplates;
 import static java.lang.Boolean.TRUE;
 
 public class AmazonS3Plugin extends BasePlugin {
@@ -94,7 +97,6 @@ public class AmazonS3Plugin extends BasePlugin {
     private static final String S3_DRIVER = "com.amazonaws.services.s3.AmazonS3";
     public static final int S3_SERVICE_PROVIDER_PROPERTY_INDEX = 1;
     public static final int CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX = 2;
-    public static final String SMART_SUBSTITUTION = "smartSubstitution";
     public static final int CUSTOM_ENDPOINT_INDEX = 0;
     public static final String DEFAULT_URL_EXPIRY_IN_MINUTES = "5"; // max 7 days is possible
     public static final String YES = "YES";
@@ -400,7 +402,8 @@ public class AmazonS3Plugin extends BasePlugin {
 
             Boolean smartJsonSubstitution = TRUE;
 
-            Object smartSubstitutionObject = formData.getOrDefault(SMART_SUBSTITUTION, TRUE);
+            Object smartSubstitutionObject = getValueSafelyFromFormData(formData, SMART_SUBSTITUTION, Object.class,
+                    TRUE);
 
             if (smartSubstitutionObject instanceof Boolean) {
                 smartJsonSubstitution = (Boolean) smartSubstitutionObject;
@@ -413,7 +416,7 @@ public class AmazonS3Plugin extends BasePlugin {
             try {
                 // Smartly substitute in Json fields and replace all the bindings with values.
                 if (TRUE.equals(smartJsonSubstitution)) {
-                    final String body = actionConfiguration.getBody() != null ? actionConfiguration.getBody() : "";
+                    final String body = (String) getValueSafelyFromFormDataOrDefault(formData, BODY, "");
                     // First extract all the bindings in order
                     List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(body);
                     // Replace all the bindings with a placeholder
@@ -424,7 +427,7 @@ public class AmazonS3Plugin extends BasePlugin {
                             executeActionDTO.getParams(),
                             parameters);
 
-                    actionConfiguration.setBody(updatedValue);
+                    PluginUtils.setValueSafelyInFormData(formData, BODY, updatedValue);
 
                 }
             } catch (AppsmithPluginException e) {
@@ -506,50 +509,50 @@ public class AmazonS3Plugin extends BasePlugin {
                     );
                 }
 
-                requestProperties.put(BUCKET, bucketName == null ? "" : bucketName);
-                requestParams.add(new RequestParamDTO(BUCKET,
-                        bucketName, null, null, null));
+                        requestProperties.put(BUCKET, bucketName == null ? "" : bucketName);
+                        requestParams.add(new RequestParamDTO(BUCKET,
+                                bucketName, null, null, null));
 
-                /*
-                 * - Allow users to upload empty file. Hence, only check for null value.
-                 */
-                final String body = actionConfiguration.getBody();
-                requestProperties.put("content", body == null ? "null" : body);
+                        /*
+                         * - Allow users to upload empty file. Hence, only check for null value.
+                         */
+                        final String body = (String) getValueSafelyFromFormData(formData, BODY);
+                        requestProperties.put("content", body == null ? "null" : body);
 
-                if (s3Action == AmazonS3Action.UPLOAD_FILE_FROM_BODY && body == null) {
-                    return Mono.error(
-                            new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "Mandatory parameter 'Content' is missing. Did you forget to edit the 'Content' " +
-                                            "field in the query form ?"
-                            )
-                    );
-                }
+                        if (s3Action == AmazonS3Action.UPLOAD_FILE_FROM_BODY && body == null) {
+                            return Mono.error(
+                                    new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                            "Mandatory parameter 'Content' is missing. Did you forget to edit the 'Content' " +
+                                                    "field in the query form ?"
+                                    )
+                            );
+                        }
 
-                final String path = actionConfiguration.getPath();
-                requestProperties.put(PATH, path == null ? "" : path);
+                        final String path = (String) getValueSafelyFromFormDataOrDefault(formData, PATH, "");
+                        requestProperties.put(PATH, path);
 
-                if ((s3Action == AmazonS3Action.UPLOAD_FILE_FROM_BODY || s3Action == AmazonS3Action.READ_FILE ||
-                        s3Action == AmazonS3Action.DELETE_FILE) && StringUtils.isNullOrEmpty(path)) {
-                    return Mono.error(
-                            new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "Required parameter 'File Path' is missing. Did you forget to edit the 'File Path' field " +
-                                            "in the query form ? This field cannot be left empty with the chosen action."
-                            )
-                    );
-                }
+                        if ((s3Action == AmazonS3Action.UPLOAD_FILE_FROM_BODY || s3Action == AmazonS3Action.READ_FILE ||
+                                s3Action == AmazonS3Action.DELETE_FILE) && StringUtils.isNullOrEmpty(path)) {
+                            return Mono.error(
+                                    new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                            "Required parameter 'File Path' is missing. Did you forget to edit the 'File Path' field " +
+                                                    "in the query form ? This field cannot be left empty with the chosen action."
+                                    )
+                            );
+                        }
 
-                Object actionResult;
-                switch (s3Action) {
-                    case LIST:
-                        String prefix = (String) getValueSafelyFromFormDataOrDefault(formData, LIST_PREFIX, "");
-                        requestParams.add(new RequestParamDTO(LIST_PREFIX,
-                                prefix, null, null, null));
+                        Object actionResult;
+                        switch (s3Action) {
+                            case LIST:
+                                String prefix = (String) getValueSafelyFromFormDataOrDefault(formData, LIST_PREFIX, "");
+                                requestParams.add(new RequestParamDTO(LIST_PREFIX,
+                                        prefix, null, null, null));
 
-                        ArrayList<String> listOfFiles = listAllFilesInBucket(connection, bucketName, prefix);
+                                ArrayList<String> listOfFiles = listAllFilesInBucket(connection, bucketName, prefix);
 
-                        Boolean isSignedUrl = YES.equals(getValueSafelyFromFormData(formData, LIST_SIGNED_URL));
+                                Boolean isSignedUrl = YES.equals(getValueSafelyFromFormData(formData, LIST_SIGNED_URL));
 
                         if (isSignedUrl) {
                             requestParams.add(new RequestParamDTO(LIST_SIGNED_URL, YES, null,
@@ -611,7 +614,7 @@ public class AmazonS3Plugin extends BasePlugin {
                             }
                         }
 
-                        String isUnsignedUrl = (String) getValueSafelyFromFormData(formData, LIST_UNSIGNED_URL);
+                                String isUnsignedUrl = (String) getValueSafelyFromFormData(formData, LIST_UNSIGNED_URL);
 
                         if (YES.equals(isUnsignedUrl)) {
 
@@ -629,29 +632,30 @@ public class AmazonS3Plugin extends BasePlugin {
                                     null, null));
                         }
 
-                        // Check if where condition is configured
-                        Object whereFormObject = getValueSafelyFromFormData(formData, LIST_WHERE);
-                        Condition condition = null;
-                        if (whereFormObject != null) {
-                            Map<String, Object> whereForm = (Map<String, Object>) whereFormObject;
-                            condition = parseWhereClause(whereForm);
-                        }
+                                // Check if where condition is configured
+                                Object whereFormObject = getValueSafelyFromFormData(formData, LIST_WHERE);
+                                Condition condition = null;
 
-                        List<Map<String, String>> sortBy =
-                                (List<Map<String, String>>) getValueSafelyFromFormData(formData, LIST_SORT);
+                                if (whereFormObject != null) {
+                                    Map<String, Object> whereForm = (Map<String, Object>) whereFormObject;
+                                    condition = parseWhereClause(whereForm);
+                                }
 
-                        Map<String, String> paginateBy =
-                                (Map<String, String>) getValueSafelyFromFormData(formData, LIST_PAGINATE);
+                                List<Map<String, String>> sortBy =
+                                        (List<Map<String, String>>) getValueSafelyFromFormData(formData, LIST_SORT);
 
-                        ArrayNode preFilteringResponse = objectMapper.valueToTree(actionResult);
-                        actionResult = filterDataService.filterDataNew(preFilteringResponse,
-                                new UQIDataFilterParams(condition, null, sortBy, paginateBy));
+                                Map<String, String> paginateBy =
+                                        (Map<String, String>) getValueSafelyFromFormData(formData, LIST_PAGINATE);
 
-                        break;
-                    case UPLOAD_FILE_FROM_BODY: {
-                        requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
+                                ArrayNode preFilteringResponse = objectMapper.valueToTree(actionResult);
+                                actionResult = filterDataService.filterDataNew(preFilteringResponse,
+                                        new UQIDataFilterParams(condition, null, sortBy, paginateBy));
 
-                        int durationInMinutes;
+                                break;
+                            case UPLOAD_FILE_FROM_BODY: {
+                                requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
+
+                                int durationInMinutes;
 
                         try {
                             durationInMinutes = Integer.parseInt((String) getValueSafelyFromFormDataOrDefault(formData,
@@ -749,14 +753,14 @@ public class AmazonS3Plugin extends BasePlugin {
 
                         String result;
 
-                        String isBase64 = (String) getValueSafelyFromFormData(formData, READ_USING_BASE64_ENCODING);
+                        String isBase64 = (String) getValueSafelyFromFormData(formData, READ_DATATYPE);
 
                         if (YES.equals(isBase64)) {
-                            requestParams.add(new RequestParamDTO(READ_USING_BASE64_ENCODING,
+                            requestParams.add(new RequestParamDTO(READ_DATATYPE,
                                     YES, null, null, null));
                             result = readFile(connection, bucketName, path, true);
                         } else {
-                            requestParams.add(new RequestParamDTO(READ_USING_BASE64_ENCODING,
+                            requestParams.add(new RequestParamDTO(READ_DATATYPE,
                                     NO, null, null, null));
                             result = readFile(connection, bucketName, path, false);
                         }
@@ -966,17 +970,6 @@ public class AmazonS3Plugin extends BasePlugin {
                         "the endpoint URL of your S3 instance.");
             }
 
-            final boolean usingCustomServiceProvider =
-                    OTHER_S3_SERVICE_PROVIDER.equals(properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue());
-            if (usingCustomServiceProvider
-                    && (properties.size() < (CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX + 1)
-                    || properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX) == null
-                    || StringUtils.isNullOrEmpty((String) properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX).getValue()))) {
-                invalids.add("Required parameter 'Region' is empty. Did you forget to edit the 'Region' field" +
-                        " in the datasource creation form ? You need to fill it with the region where " +
-                        "your S3 instance is hosted.");
-            }
-
             return invalids;
         }
 
@@ -1057,7 +1050,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, insertedParams, null);
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null);
         }
 
     }

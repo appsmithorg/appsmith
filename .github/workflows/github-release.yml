@@ -44,7 +44,7 @@ jobs:
     needs:
       - prelude
 
-    runs-on: ubuntu-latest
+    runs-on: buildjet-8vcpu-ubuntu-2004
 
     defaults:
       run:
@@ -76,7 +76,7 @@ jobs:
             ${{ runner.OS }}-
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
       - name: Create the bundle
         env:

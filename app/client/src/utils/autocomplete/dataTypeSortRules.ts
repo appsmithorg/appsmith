@@ -61,6 +61,7 @@ const RULES: Record<AutocompleteDataType, Array<string>> = {
     "MULTI_SELECT_WIDGET_V2.selectedOptionLabel",
     "MULTI_SELECT_WIDGET_V2.selectedOptionValue",
     "CIRCULAR_PROGRESS_WIDGET.progress",
+    "PROGRESS_WIDGET.progress",
   ],
   OBJECT: ["ACTION.data"],
   ARRAY: ["ACTION.data", "TABLE_WIDGET.selectedRowIndices"],
@@ -111,6 +112,7 @@ const RULES: Record<AutocompleteDataType, Array<string>> = {
     "MULTI_SELECT_WIDGET_V2.isVisible",
     "MULTI_SELECT_WIDGET_V2.isDisabled",
     "CIRCULAR_PROGRESS_WIDGET.isVisible",
+    "PROGRESS_WIDGET.isVisible",
   ],
   FUNCTION: [
     "ACTION.run()",

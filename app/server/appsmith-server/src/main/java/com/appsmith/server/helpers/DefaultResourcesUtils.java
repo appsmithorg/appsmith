@@ -6,11 +6,14 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.DslActionDTO;
+import com.appsmith.server.dtos.PageDTO;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public class DefaultResourcesUtils {
     public static <T> T createDefaultIdsOrUpdateWithGivenResourceIds(T resource, String branchName) {
@@ -61,10 +64,10 @@ public class DefaultResourcesUtils {
         } else if (resource instanceof NewPage) {
             NewPage page = (NewPage) resource;
             DefaultResources pageDefaultResources = page.getDefaultResources();
-            boolean updateOnLoadActionTemp = false;
+            boolean updateOnLoadAction = false;
             if (Optional.ofNullable(pageDefaultResources).isEmpty()) {
                 pageDefaultResources = new DefaultResources();
-                updateOnLoadActionTemp = true;
+                updateOnLoadAction = true;
             }
 
             final String defaultApplicationId = StringUtils.isEmpty(pageDefaultResources.getApplicationId())
@@ -79,37 +82,10 @@ public class DefaultResourcesUtils {
             pageDefaultResources.setBranchName(branchName);
 
             // Copy layoutOnLoadAction Ids to defaultPageId
-            final boolean updateOnLoadAction = updateOnLoadActionTemp;
-            page.getUnpublishedPage()
-                    .getLayouts()
-                    .forEach(layout -> {
-                        if (!CollectionUtils.isNullOrEmpty(layout.getLayoutOnLoadActions())) {
-                            layout.getLayoutOnLoadActions()
-                                    .forEach(dslActionDTOS -> dslActionDTOS
-                                            .forEach(actionDTO -> {
-                                                if (updateOnLoadAction || StringUtils.isEmpty(actionDTO.getDefaultActionId())) {
-                                                    actionDTO.setDefaultActionId(actionDTO.getId());
-                                                }
-                                            })
-                                    );
-                        }
-                    });
+            updateOnLoadActionAndCollectionIds(page.getUnpublishedPage(), updateOnLoadAction);
 
             if (page.getPublishedPage() != null && !CollectionUtils.isNullOrEmpty(page.getPublishedPage().getLayouts())) {
-                page.getPublishedPage()
-                        .getLayouts()
-                        .forEach(layout -> {
-                            if (!CollectionUtils.isNullOrEmpty(layout.getLayoutOnLoadActions())) {
-                                layout.getLayoutOnLoadActions()
-                                        .forEach(dslActionDTOS -> dslActionDTOS
-                                                .forEach(actionDTO -> {
-                                                    if (updateOnLoadAction || StringUtils.isEmpty(actionDTO.getDefaultActionId())) {
-                                                        actionDTO.setDefaultActionId(actionDTO.getId());
-                                                    }
-                                                })
-                                        );
-                            }
-                        });
+                updateOnLoadActionAndCollectionIds(page.getPublishedPage(), updateOnLoadAction);
             }
             page.setDefaultResources(pageDefaultResources);
         } else if (resource instanceof ActionCollection) {
@@ -129,6 +105,7 @@ public class DefaultResourcesUtils {
                     : actionCollectionDefaultResources.getCollectionId();
             actionCollectionDefaultResources.setApplicationId(defaultApplicationId);
             actionCollectionDefaultResources.setCollectionId(defaultActionCollectionId);
+            actionCollectionDefaultResources.setPageId(null);
             actionCollectionDefaultResources.setBranchName(branchName);
 
             if (Optional.ofNullable(actionCollection.getUnpublishedCollection()).isPresent()) {
@@ -151,6 +128,9 @@ public class DefaultResourcesUtils {
                     : collectionDTODefaultResources.getPageId();
 
             collectionDTODefaultResources.setPageId(defaultPageId);
+            collectionDTODefaultResources.setApplicationId(null);
+            collectionDTODefaultResources.setBranchName(null);
+            collectionDTODefaultResources.setCollectionId(null);
 
             if (updateActionIds) {
                 Map<String, String> updatedActionIds = new HashMap<>();
@@ -164,5 +144,21 @@ public class DefaultResourcesUtils {
             collectionDTO.setDefaultResources(collectionDTODefaultResources);
         }
         return resource;
+    }
+
+    static void updateOnLoadActionAndCollectionIds(PageDTO page, boolean shouldUpdate) {
+        page.getLayouts()
+                .forEach(layout -> {
+                    if (!CollectionUtils.isNullOrEmpty(layout.getLayoutOnLoadActions())) {
+                        for (Set<DslActionDTO> layoutOnLoadAction : layout.getLayoutOnLoadActions()) {
+                            for (DslActionDTO dslActionDTO : layoutOnLoadAction) {
+                                if (shouldUpdate || StringUtils.isEmpty(dslActionDTO.getDefaultActionId())) {
+                                    dslActionDTO.setDefaultActionId(dslActionDTO.getId());
+                                    dslActionDTO.setDefaultCollectionId(dslActionDTO.getCollectionId());
+                                }
+                            }
+                        }
+                    }
+                });
     }
 }

@@ -1,7 +1,8 @@
 const pages = require("../../../../locators/Pages.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
-import homePage from "../../../../locators/HomePage.json";
+import homePage from "../../../../locators/HomePage";
 const datasource = require("../../../../locators/DatasourcesEditor.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
   let datasourceName;
@@ -33,11 +34,11 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
 
     //TestData source
 
-    cy.get(".t--test-datasource").click();
+    cy.get(".t--test-datasource").click({ force: true });
     cy.wait("@testDatasource");
 
     //Save source
-    cy.get(".t--save-datasource").click();
+    cy.get(".t--save-datasource").click({ force: true });
 
     //Verify page after save clicked
     cy.get("@createDatasource").then((httpResponse) => {
@@ -91,6 +92,9 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
       "response.body.responseMeta.status",
       200,
     );
+    cy.get(commonlocators.toastAction)
+      .should("have.length", 1)
+      .should("have.text", "Successfully generated a page");
     cy.get("span:contains('GOT IT')").click();
   });
 
@@ -124,11 +128,11 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
     });
 
     //TestData source
-    cy.get(".t--test-datasource").click();
+    cy.get(".t--test-datasource").click({ force: true });
     cy.wait("@testDatasource");
 
     //Save source
-    cy.get(".t--save-datasource").click();
+    cy.get(".t--save-datasource").click({ force: true });
 
     //Generate Stub for tables dropdown values also
     cy.wait("@getDatasourceStructure").should(

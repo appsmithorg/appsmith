@@ -13,6 +13,8 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
@@ -22,12 +24,14 @@ import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
+import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -44,6 +48,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -165,6 +170,16 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         if(!StringUtils.isEmpty(application.getName())) {
             application.setSlug(TextUtils.makeSlug(application.getName()));
         }
+
+        if(application.getApplicationVersion() != null) {
+            int appVersion = application.getApplicationVersion();
+            if(appVersion < ApplicationVersion.EARLIEST_VERSION || appVersion > ApplicationVersion.LATEST_VERSION) {
+                return Mono.error(new AppsmithException(
+                        AppsmithError.INVALID_PARAMETER,
+                        QApplication.application.applicationVersion.getMetadata().getName()
+                ));
+            }
+        }
         return repository.save(application)
                 .flatMap(this::setTransientFields);
     }
@@ -191,6 +206,17 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         if(!StringUtils.isEmpty(application.getName())) {
             application.setSlug(TextUtils.makeSlug(application.getName()));
         }
+
+        if(application.getApplicationVersion() != null) {
+            int appVersion = application.getApplicationVersion();
+            if(appVersion < ApplicationVersion.EARLIEST_VERSION || appVersion > ApplicationVersion.LATEST_VERSION) {
+                return Mono.error(new AppsmithException(
+                        AppsmithError.INVALID_PARAMETER,
+                        QApplication.application.applicationVersion.getMetadata().getName()
+                ));
+            }
+        }
+
         Mono<String> applicationIdMono;
         GitApplicationMetadata gitData = application.getGitApplicationMetadata();
         if (gitData != null && !StringUtils.isEmpty(gitData.getBranchName()) && !StringUtils.isEmpty(gitData.getDefaultApplicationId())) {
@@ -264,9 +290,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     public Mono<Application> changeViewAccess(String defaultApplicationId,
                                               String branchName,
                                               ApplicationAccessDTO applicationAccessDTO) {
-        return this.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MAKE_PUBLIC_APPLICATIONS)
+        // For git connected application update the policy for all the branch's
+        return findAllApplicationsByDefaultApplicationId(defaultApplicationId, MAKE_PUBLIC_APPLICATIONS)
+                .switchIfEmpty(this.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MAKE_PUBLIC_APPLICATIONS))
                 .flatMap(branchedApplication -> changeViewAccess(branchedApplication.getId(), applicationAccessDTO))
-                .map(responseUtils::updateApplicationWithDefaultResources);
+                .then(repository.findById(defaultApplicationId, MAKE_PUBLIC_APPLICATIONS)
+                        .map(responseUtils::updateApplicationWithDefaultResources));
     }
 
     @Override
@@ -308,18 +337,23 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
         Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
         Map<String, Policy> datasourcePolicyMap = policyUtils.generatePolicyFromPermission(Set.of(EXECUTE_DATASOURCES), user);
+        Map<String, Policy> themePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
+                applicationPolicyMap, Application.class, Theme.class
+        );
 
         final Flux<NewPage> updatedPagesFlux = policyUtils
                 .updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, isPublic);
         // Use the same policy map as actions for action collections since action collections have the same kind of permissions
         final Flux<ActionCollection> updatedActionCollectionsFlux = policyUtils
                 .updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicyMap, isPublic);
-
+        Flux<Theme> updatedThemesFlux = policyUtils.updateThemePolicies(application, themePolicyMap, isPublic);
         final Flux<NewAction> updatedActionsFlux = updatedPagesFlux
                 .collectList()
                 .thenMany(updatedActionCollectionsFlux)
                 .collectList()
                 .then(Mono.justOrEmpty(application.getId()))
+                .thenMany(updatedThemesFlux)
+                .collectList()
                 .flatMapMany(applicationId -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, isPublic));
 
         return updatedActionsFlux
@@ -498,6 +532,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         // need to set isPublic=null because it has a `false` as it's default value in domain class
         application.setIsPublic(null);
         application.setLastEditedAt(Instant.now());
+        application.setIsManualUpdate(true);
         /*
           We're not setting updatedAt and modifiedBy fields to the application DTO because these fields will be set
           by the updateById method of the BaseAppsmithRepositoryImpl
@@ -528,8 +563,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
      * @return Application flux which match the condition
      */
     @Override
-    public Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId) {
-        return repository.getApplicationByGitDefaultApplicationId(defaultApplicationId);
+    public Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId, AclPermission permission) {
+        return repository.getApplicationByGitDefaultApplicationId(defaultApplicationId, permission);
     }
 
     @Override
@@ -547,4 +582,13 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         return ApplicationConstants.APP_CARD_COLORS[randomColorIndex];
     }
 
+    @Override
+    public Mono<UpdateResult> setAppTheme(String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
+        return repository.setAppTheme(applicationId, editModeThemeId, publishedModeThemeId, aclPermission);
+    }
+
+    @Override
+    public Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId) {
+        return repository.getApplicationByDefaultApplicationIdAndDefaultBranch(defaultApplicationId);
+    }
 }

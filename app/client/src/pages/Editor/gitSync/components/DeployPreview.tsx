@@ -3,25 +3,23 @@ import React from "react";
 import styled from "styled-components";
 import { ReactComponent as CloudyIcon } from "assets/icons/ads/cloudy-line.svg";
 import { ReactComponent as RightArrow } from "assets/icons/ads/arrow-right-line.svg";
-
-// import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getApplicationViewerPageURL } from "constants/routes";
 import { useSelector } from "store";
 import {
-  getCurrentApplicationId,
   getCurrentPageId,
+  selectURLSlugs,
+  getApplicationLastDeployedAt,
 } from "selectors/editorSelectors";
 import {
-  LATEST_DP_TITLE,
-  LATEST_DP_SUBTITLE,
   createMessage,
+  LATEST_DP_SUBTITLE,
+  LATEST_DP_TITLE,
 } from "@appsmith/constants/messages";
-import Text, { TextType, Case } from "components/ads/Text";
+import Text, { Case, TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
 import SuccessTick from "pages/common/SuccessTick";
 import { howMuchTimeBeforeText } from "utils/helpers";
-import { getApplicationLastDeployedAt } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { viewerURL } from "RouteBuilder";
 
 const Container = styled.div`
   display: flex;
@@ -35,6 +33,7 @@ const ButtonWrapper = styled.div`
   flex-direction: row;
   padding-top: 2px;
   cursor: pointer;
+
   :hover {
     text-decoration: underline;
   }
@@ -45,6 +44,7 @@ const IconWrapper = styled.div`
   justify-content: center;
   align-items: center;
   display: flex;
+
   svg {
     path {
       fill: ${Colors.GREY_9};
@@ -63,25 +63,32 @@ const CloudIconWrapper = styled.div`
 `;
 
 export default function DeployPreview(props: { showSuccess: boolean }) {
-  const applicationId = useSelector(getCurrentApplicationId);
-  const pageId = useSelector(getCurrentPageId);
+  const pageId = useSelector(getCurrentPageId) as string;
   const lastDeployedAt = useSelector(getApplicationLastDeployedAt);
+  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   const showDeployPreview = () => {
     AnalyticsUtil.logEvent("GS_LAST_DEPLOYED_PREVIEW_LINK_CLICK", {
       source: "GIT_DEPLOY_MODAL",
     });
-    const path = getApplicationViewerPageURL({ applicationId, pageId });
+    const path = viewerURL({
+      applicationSlug,
+      pageSlug,
+      pageId,
+    });
     window.open(path, "_blank");
   };
 
   const lastDeployedAtMsg = lastDeployedAt
     ? `${createMessage(LATEST_DP_SUBTITLE)} ${howMuchTimeBeforeText(
         lastDeployedAt,
+        {
+          lessThanAMinute: true,
+        },
       )} ago`
     : "";
   return lastDeployedAt ? (
-    <Container>
+    <Container className="t--git-deploy-preview">
       <CloudIconWrapper>
         {props.showSuccess ? (
           <SuccessTick height="30px" width="30px" />

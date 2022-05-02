@@ -20,19 +20,24 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 const ButtonContainer = styled.div`
   display: flex;
   align-items: center;
+
   & .label {
     color: ${(props) => props.theme.colors.editorBottomBar.branchBtnText};
     ${(props) => getTypographyByKey(props, "p1")};
     line-height: 18px;
   }
+
   & .icon {
     height: 24px;
   }
+
   margin: 0 ${(props) => props.theme.spaces[4]}px;
   cursor: pointer;
+
   &:hover svg path {
     fill: ${Colors.CHARCOAL};
   }
+
   & .label {
     width: 100px;
     overflow: hidden;
@@ -57,6 +62,8 @@ function BranchButton() {
   return (
     <Popover2
       content={<BranchList setIsPopupOpen={setIsOpen} />}
+      data-testid={"t--git-branch-button-popover"}
+      hasBackdrop
       isOpen={isOpen}
       minimal
       modifiers={{ offset: { enabled: true, options: { offset: [7, 10] } } }}
@@ -74,14 +81,21 @@ function BranchButton() {
         boundary="window"
         content={currentBranch || ""}
         disabled={!isEllipsisActive(labelTarget.current)}
-        hoverOpenDelay={1000}
+        hoverOpenDelay={1}
         position={Position.TOP_LEFT}
       >
-        <ButtonContainer className="t--branch-button">
+        <ButtonContainer
+          className="t--branch-button"
+          data-testid={"t--branch-button-container"}
+        >
           <div className="icon">
             <Icon name="git-branch" size={IconSize.XXXXL} />
           </div>
-          <div className="label" ref={labelTarget}>
+          <div
+            className="label"
+            data-testid={"t--branch-button-currentBranch"}
+            ref={labelTarget}
+          >
             {currentBranch}
             {!status?.isClean && "*"}
           </div>

@@ -44,6 +44,7 @@ export type CollisionAccessors = {
   mathComparator: MathComparators;
   directionIndicator: 1 | -1;
   isHorizontal: boolean;
+  plane: "vertical" | "horizontal";
 };
 
 export type Delta = {
@@ -53,21 +54,51 @@ export type Delta = {
 
 export type CollidingSpace = OccupiedSpace & {
   direction: ReflowDirection;
+  collidingValue: number;
+  collidingId: string;
+  isHorizontal: boolean;
+  order: number;
 };
 
+export type SecondOrderCollision = OccupiedSpace & {
+  children: {
+    [key: string]: OccupiedSpace & {
+      direction: ReflowDirection;
+      isHorizontal: boolean;
+      processed?: boolean;
+    };
+  };
+};
+
+export type SecondOrderCollisionMap = {
+  [key: string]: SecondOrderCollision;
+};
+
+export type MovementLimitMap = {
+  [key: string]: { canVerticalMove: boolean; canHorizontalMove: boolean };
+};
 export type CollidingSpaceMap = {
+  horizontal: CollisionMap;
+  vertical: CollisionMap;
+};
+
+export type CollisionMap = {
   [key: string]: CollidingSpace;
 };
 
 export type CollisionTree = OccupiedSpace & {
+  direction: ReflowDirection;
   children?: {
     [key: string]: CollisionTree;
   };
+  collidingValue: number;
+  collidingId: string;
+  isHorizontal: boolean;
+  order: number;
 };
 
-export type SpaceMovement = {
-  id?: string;
-  directionalMovements: DirectionalMovement[];
+export type SpaceMovementMap = {
+  [key: string]: DirectionalMovement[];
 };
 
 export type DirectionalMovement = {
@@ -77,22 +108,59 @@ export type DirectionalMovement = {
   isHorizontal: boolean;
 };
 
+export type CollisionTreeCache = {
+  [spaceId: string]: {
+    [direction: string]: {
+      value: number;
+      depth?: number;
+      occupiedSpace?: number;
+      currentEmptySpaces?: number;
+      childNode?: CollisionTree;
+    };
+  };
+};
+
 export type ReflowedSpace = {
   X?: number;
   Y?: number;
   width?: number;
   height?: number;
-  depth?: number;
+  horizontalDepth?: number;
+  verticalDepth?: number;
   x?: number;
   y?: number;
   maxX?: number;
   maxY?: number;
+  directionX?: ReflowDirection;
+  directionY?: ReflowDirection;
   dimensionXBeforeCollision?: number;
   dimensionYBeforeCollision?: number;
-  maxOccupiedSpace?: number;
-  emptySpaces?: number;
+  horizontalMaxOccupiedSpace?: number;
+  horizontalEmptySpaces?: number;
+  verticalMaxOccupiedSpace?: number;
+  verticalEmptySpaces?: number;
 };
 
 export type ReflowedSpaceMap = {
   [key: string]: ReflowedSpace;
+};
+
+export type PrevReflowState = {
+  prevSpacesMap: SpaceMap;
+  prevCollidingSpaceMap: CollidingSpaceMap;
+  prevMovementMap: ReflowedSpaceMap;
+  prevSecondOrderCollisionMap: SecondOrderCollisionMap;
+};
+
+export type SpaceMap = { [id: string]: OccupiedSpace };
+
+export type DirectionalVariables = {
+  [key: string]: {
+    [direction: string]: [number, number, CollisionAccessors, ReflowDirection];
+  };
+};
+
+export type OrientationAccessors = {
+  primary: "horizontal" | "vertical";
+  secondary: "horizontal" | "vertical";
 };

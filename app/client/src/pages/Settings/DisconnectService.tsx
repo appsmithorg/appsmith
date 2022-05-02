@@ -1,9 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { Variant } from "components/ads/common";
 import Button from "components/ads/Button";
 import { Callout } from "components/ads/CalloutV2";
-import { createMessage, DANGER_ZONE } from "@appsmith/constants/messages";
+import {
+  createMessage,
+  DANGER_ZONE,
+  DISCONNECT_AUTH_METHOD,
+  DISCONNECT_CONFIRMATION,
+} from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
@@ -15,11 +20,16 @@ export const Container = styled.div`
 export const DisconnectButton = styled(Button)`
   display: inline-block;
   padding: 10px 20px;
+  min-width: 152px;
+  text-align: center;
   font-size: 13px;
   height: 38px;
-  margin-top: 16px;
   background: ${Colors.CRIMSON};
   border: 2px solid ${Colors.CRIMSON};
+
+  &:hover {
+    border: 2px solid ${Colors.CRIMSON};
+  }
 `;
 
 export const Header = styled.h2`
@@ -43,14 +53,31 @@ export function DisconnectService(props: {
   subHeader: string;
   warning: string;
 }) {
+  const [warnDisconnectAuth, setWarnDisconnectAuth] = useState(false);
+  const [disconnectCalled, setDisconnectCalled] = useState(false);
+
+  const callDisconnect = () => {
+    if (!disconnectCalled) {
+      setDisconnectCalled(true);
+      props.disconnect();
+    }
+  };
+
   return (
     <Container>
       <HeaderDanger>{createMessage(DANGER_ZONE)}</HeaderDanger>
       <Info>{props.subHeader}</Info>
-      <Callout actionLabel="Learn More" title={props.warning} type="Warning" />
+      <Callout title={props.warning} type="Warning" />
       <DisconnectButton
-        onClick={props.disconnect}
-        text="Disconnect"
+        data-testid="disconnect-service-button"
+        onClick={() =>
+          warnDisconnectAuth ? callDisconnect() : setWarnDisconnectAuth(true)
+        }
+        text={
+          warnDisconnectAuth
+            ? createMessage(DISCONNECT_CONFIRMATION)
+            : createMessage(DISCONNECT_AUTH_METHOD)
+        }
         variant={Variant.danger}
       />
     </Container>

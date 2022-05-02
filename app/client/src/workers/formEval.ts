@@ -2,8 +2,8 @@ import {
   DynamicValues,
   FormEvalOutput,
   FormEvaluationState,
-} from "../reducers/evaluationReducers/formEvaluationReducer";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+} from "reducers/evaluationReducers/formEvaluationReducer";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { ActionConfig } from "entities/Action";
 import { FormEvalActionPayload } from "sagas/FormEvaluationSaga";
 import { FormConfig } from "components/formControls/BaseControl";
@@ -85,11 +85,8 @@ const generateInitialEvalState = (formConfig: FormConfig) => {
     );
 
   if ("schema" in formConfig && !!formConfig.schema)
-    formConfig.schema.forEach((config: FormConfig, index: number) =>
-      generateInitialEvalState({
-        ...config,
-        configProperty: `${formConfig.configProperty}.column_${index + 1}`,
-      }),
+    formConfig.schema.forEach((config: FormConfig) =>
+      generateInitialEvalState({ ...config }),
     );
 };
 

@@ -21,6 +21,7 @@
     "queryCreate": "//div[contains(@class, 't--template-menu')]//div[text()='Create']",
     "queryUpdate": "//div[contains(@class, 't--template-menu')]//div[text()='Update']",
     "queryDelete": "//div[contains(@class, 't--template-menu')]//div[text()='Delete']",
+    "queryFromEmail":".CodeMirror-lines",
     "codeTextArea": "//div[@class='CodeMirror-code']//span/span",
     "countText": "//span[contains(@class, 'cs-text')][text()='Result:']/span",
     "searchFilefield": "//input[@placeholder='Search File Prefix']",
@@ -31,5 +32,5 @@
     "suggestedWidgetText": "//div[contains(@class, 't--suggested-widget-TEXT_WIDGET')]",
     "suggestedWidgetChart": ".t--suggested-widget-CHART_WIDGET",
     "queryTimeout": "//input[@name='actionConfiguration.timeoutInMillisecond']",
-    "listingAndReviewContext": "//div[text()='listingAndReviews']/ancestor::div/following-sibling::div/div[contains(@class, 'entity-context-menu')]"
+    "listingAndReviewContext": "//div[text()='listingAndReviews']/ancestor::div/following-sibling::div/div[contains(@class, 'entity-context-menu')]//span[text()='Add']"
 }

@@ -7,7 +7,7 @@ import { Popover2 } from "@blueprintjs/popover2";
 
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
-import { Page } from "constants/ReduxActionConstants";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import Toggle from "components/ads/Toggle";
 import { Action } from "./PageListItem";
 import EditName from "./EditName";
@@ -209,7 +209,7 @@ function ContextMenu(props: Props) {
       >
         <Action className={isOpen ? "active" : ""} type="button">
           <SettingsIcon
-            color={Colors.GREY_8}
+            color={Colors.GREY_9}
             height={16}
             onClick={noop}
             width={16}

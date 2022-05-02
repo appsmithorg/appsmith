@@ -19,9 +19,11 @@
   --appsmith-color-black-500 : #939393;
   --appsmith-color-black-400 : #B3B3B3;
   --appsmith-color-black-300 : #D7D7D7;
+  --appsmith-color-black-250 : #E0DEDE;
   --appsmith-color-black-200 : #E7E7E7;
   --appsmith-color-black-100 : #F1F1F1;
   --appsmith-color-black-50 : #F8F8F8;
+  --appsmith-color-black-0 : #FFFFFF;
 
   /* green */
   --appsmith-color-green-500 : #03B364;

@@ -8,21 +8,26 @@ describe("Modal Widget Functionality", function() {
     cy.addDsl(dsl);
   });
 
-  it("Add new Modal", () => {
+  it("1. Add new Modal", () => {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("modalwidget", { x: 300, y: 300 });
     cy.get(".t--modal-widget").should("exist");
   });
 
-  it("Open Existing Modal from created Widgets list", () => {
+  it("2. Open Existing Modal from created Widgets list", () => {
     cy.get(".t--entity-name")
       .contains("WIDGETS")
       .click();
     cy.get(".t--entity-name:contains(Modal1)").click();
     cy.get(".t--modal-widget").should("exist");
+
+    cy.CreateAPI("FirstAPI");
+
+    cy.get(".t--entity-name:contains(Modal1)").click();
+    cy.get(".t--modal-widget").should("exist");
   });
 
-  it("display toast on close action", () => {
+  it("3. Display toast on close action", () => {
     cy.SearchEntityandOpen("Modal1");
 
     cy.get(".t--property-control-onclose")
@@ -31,12 +36,13 @@ describe("Modal Widget Functionality", function() {
 
     cy.testJsontext("onclose", "{{showAlert('test','success')}}");
 
-    cy.get(widgets.iconWidgetBtn).click({ force: true });
+    cy.wait(1000); //make sure evaluated value disappears
+    cy.get(widgets.modalCloseButton).click({ force: true });
 
     cy.get(commonlocators.toastmsg).contains("test");
   });
 
-  it("should paste modal widgets with main container as parentId", () => {
+  it("4. Should paste modal widgets with main container as parentId", () => {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
     cy.SearchEntityandOpen("Modal1");
@@ -46,7 +52,8 @@ describe("Modal Widget Functionality", function() {
       .first()
       .contains("Copied");
 
-    cy.get(widgets.iconWidgetBtn).click({ force: true });
+    cy.wait(1000); //make sure evaluated value disappears
+    cy.get(widgets.modalCloseButton).click({ force: true });
 
     cy.get("body").type(`{${modifierKey}}v`);
 
