@@ -50,6 +50,10 @@ const COMPONENT_DEFAULT_VALUES: ArrayComponentProps = {
   label: "",
 };
 
+type StyledButtonProps = {
+  disabled: boolean;
+};
+
 const ACTION_ICON_SIZE = 10;
 
 const StyledNestedFormWrapper = styled(NestedFormWrapper)`
@@ -62,7 +66,7 @@ const StyledItemWrapper = styled.div`
   flex-direction: column;
 `;
 
-const StyledButton = styled.button`
+const StyledButton = styled.button<StyledButtonProps>`
   align-items: center;
   color: ${Colors.GREEN};
   display: flex;
@@ -71,6 +75,15 @@ const StyledButton = styled.button`
   text-transform: uppercase;
   margin-top: 10px;
   width: 80px;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.3;
+
+    & * {
+      pointer-events: none;
+    }
+  }
 
   span.bp3-icon {
     margin-right: 6px;
@@ -278,7 +291,8 @@ function ArrayField({
             />
             <StyledDeleteButton
               className="t--jsonformfield-array-delete-btn"
-              onClick={() => remove(key)}
+              disabled={schemaItem.isDisabled}
+              onClick={schemaItem.isDisabled ? undefined : () => remove(key)}
               type="button"
             >
               {deleteIcon}
@@ -317,7 +331,8 @@ function ArrayField({
       {fields}
       <StyledButton
         className="t--jsonformfield-array-add-btn"
-        onClick={add}
+        disabled={schemaItem.isDisabled}
+        onClick={schemaItem.isDisabled ? undefined : add}
         type="button"
       >
         <Icon

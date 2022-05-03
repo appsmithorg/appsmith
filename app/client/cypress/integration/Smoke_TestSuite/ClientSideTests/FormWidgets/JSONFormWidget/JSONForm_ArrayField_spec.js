@@ -105,6 +105,52 @@ describe("JSON Form Widget Array Field", () => {
     });
   });
 
+  it("disables add new and remove buttons when array field is disabled", () => {
+    cy.closePropertyPane();
+    cy.openPropertyPane("jsonformwidget");
+    cy.openFieldConfiguration("education");
+
+    let initialNoOfItems = 0;
+    cy.get(`${education}-item`).then(($items) => {
+      initialNoOfItems = $items.length;
+    });
+
+    // Disable -> true
+    cy.togglebar(".t--property-control-disabled input");
+    cy.get(`${education} ${addButton}`).should("have.attr", "disabled");
+    cy.get(`${education} ${addButton}`).should("have.attr", "disabled");
+
+    // Click add button
+    cy.get(`${education} ${addButton}`).click({ force: true });
+    cy.get(`${education}-item`).then(($items) => {
+      expect($items.length).equal(initialNoOfItems);
+    });
+    // Click remove button
+    cy.get(`${education} ${deleteButton}`)
+      .last()
+      .click({ force: true });
+    cy.get(`${education}-item`).then(($items) => {
+      expect($items.length).equal(initialNoOfItems);
+    });
+
+    // Disable -> false
+    cy.togglebarDisable(".t--property-control-disabled input");
+    cy.get(addButton).should("not.have.attr", "disabled");
+    cy.get(deleteButton).should("not.have.attr", "disabled");
+    // Click add button
+    cy.get(`${education} ${addButton}`).click({ force: true });
+    cy.get(`${education}-item`).then(($items) => {
+      expect($items.length).equal(initialNoOfItems + 1);
+    });
+    // Click remove button
+    cy.get(`${education} ${deleteButton}`)
+      .last()
+      .click({ force: true });
+    cy.get(`${education}-item`).then(($items) => {
+      expect($items.length).equal(initialNoOfItems);
+    });
+  });
+
   it("should not render field level default value if form level is present", () => {
     const collegeFieldDefaultValue = "College default value";
 
