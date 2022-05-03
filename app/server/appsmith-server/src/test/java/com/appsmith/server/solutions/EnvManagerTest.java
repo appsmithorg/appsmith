@@ -13,6 +13,7 @@ import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.AnalyticsService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +44,8 @@ public class EnvManagerTest {
     @MockBean
     private UserService userService;
     @MockBean
+    private AnalyticsService analyticsService;
+    @MockBean
     private UserRepository userRepository;
     @MockBean
     private PolicyUtils policyUtils;
@@ -65,6 +68,7 @@ public class EnvManagerTest {
     public void setup() {
         envManager = new EnvManagerImpl(sessionUserService,
                 userService,
+                analyticsService,
                 userRepository,
                 policyUtils,
                 emailSender,
