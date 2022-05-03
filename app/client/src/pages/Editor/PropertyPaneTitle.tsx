@@ -119,14 +119,21 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
     if (props.widgetId === newWidgetId) {
       containerRef.current?.focus();
     } else {
-      setTimeout(() => {
-        document
-          .querySelector(
-            '.t--property-pane-section-wrapper [tabindex]:not([tabindex="-1"])',
-          )
-          // @ts-expect-error: Focus
-          ?.focus();
-      }, 0);
+      // Checks if the property pane opened not because of focusing an input inside a widget
+      if (
+        document.activeElement &&
+        ["input", "textarea"].indexOf(
+          document.activeElement?.tagName?.toLowerCase(),
+        ) === -1
+      )
+        setTimeout(() =>
+          document
+            .querySelector(
+              '.t--property-pane-section-wrapper [tabindex]:not([tabindex="-1"])',
+            )
+            // @ts-expect-error: Focus
+            ?.focus(),
+        );
     }
 
     return () => {
