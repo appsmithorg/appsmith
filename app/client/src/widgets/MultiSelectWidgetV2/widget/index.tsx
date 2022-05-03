@@ -26,6 +26,26 @@ import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import derivedProperties from "./parsedDerivedProperties";
+import { RawValueType } from "rc-tree-select/lib/interface";
+
+export function getSelectedOptions(
+  serverSideFiltering: boolean,
+  selectedOptions: any[],
+  options?: DropdownOption[],
+) {
+  if (serverSideFiltering) {
+    return selectedOptions.map((option) => ({
+      label: option.label ?? option,
+      value: option.value ?? option,
+    }));
+  }
+
+  return selectedOptions.filter(
+    (selectedOption) =>
+      !!find(options, { value: selectedOption.value ?? selectedOption }),
+  );
+}
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -485,19 +505,8 @@ class MultiSelectWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      selectedOptionLabels: `{{
-        !this.serverSideFiltering
-          ? this.selectedOptionValues.map(value => _.find(this.options, {value})?.label)
-          : this.selectedOptions.map(o => o.label ?? o)
-      }}`,
-      selectedOptionValues: `{{
-        !this.serverSideFiltering
-          ? this.selectedOptions?.filter(
-            selectedOption => this.options?.some(
-              option => option.value === (selectedOption.value ?? selectedOption)
-            )).map(o => o.value ?? o)
-          : this.selectedOptions.map(o => o.value ?? o)
-      }}`,
+      selectedOptionLabels: `{{(() => {${derivedProperties.selectedOptionLabels}})()}}`,
+      selectedOptionValues: `{{(() => {${derivedProperties.selectedOptionValues}})()}}`,
       isValid: `{{this.isRequired ? !!this.selectedOptionValues && this.selectedOptionValues.length > 0 : true}}`,
       value: `{{this.selectedOptionValues}}`,
     };
@@ -543,6 +552,14 @@ class MultiSelectWidget extends BaseWidget<
 
     if (hasChanges && this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", false);
+    }
+
+    if (
+      (!this.props.serverSideFiltering &&
+        xorWith(this.props.options, prevProps.options, isEqual).length > 0) ||
+      this.props.serverSideFiltering !== prevProps.serverSideFiltering
+    ) {
+      this.setSelectedOptions();
     }
   }
 
@@ -594,32 +611,12 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   setSelectedOptions = () => {
-    let value: DropdownOption[] = [];
-    if (!this.props.serverSideFiltering) {
-      const matchingOptions = this.props.selectedOptions.reduce(
-        (prev: DropdownOption[], current) => {
-          const matchingOption = find(this.props.options, {
-            value: current.value ?? current,
-          }) as DropdownOption;
-          if (matchingOption) {
-            prev.push(matchingOption);
-          }
-          return prev;
-        },
-        [],
-      );
-      value = matchingOptions;
-    } else {
-      const optionValue = this.props.selectedOptions.map(
-        (option) =>
-          ({
-            label: option.label ?? option,
-            value: option.value ?? option,
-          } as DropdownOption),
-      );
-      value = optionValue;
-    }
-    this.props.updateWidgetMetaProperty("selectedOptions", value);
+    const selectedOptions = getSelectedOptions(
+      this.props.serverSideFiltering,
+      this.props.selectedOptions,
+      this.props.options,
+    );
+    this.props.updateWidgetMetaProperty("selectedOptions", selectedOptions);
   };
 
   onOptionChange = (value: DefaultValueType) => {
@@ -669,11 +666,10 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   options?: DropdownOption[];
   onOptionChange: string;
   onFilterChange: string;
-  defaultOptionValue: string[] | OptionValue[];
+  defaultOptionValue: RawValueType[] | LabelValueType[];
   isRequired: boolean;
   isLoading: boolean;
-  selectedOptions: LabelValueType[];
-  selectedOptionsArray: LabelValueType[];
+  selectedOptions: RawValueType[] | LabelValueType[];
   filterText: string;
   selectedOptionValues: string[];
   selectedOptionLabels: string[];

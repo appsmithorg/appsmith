@@ -1,5 +1,9 @@
 import _ from "lodash";
-import { defaultOptionValueValidation, MultiSelectWidgetProps } from ".";
+import {
+  defaultOptionValueValidation,
+  getSelectedOptions,
+  MultiSelectWidgetProps,
+} from ".";
 
 describe("defaultOptionValueValidation - ", () => {
   it("should get tested with empty string", () => {
@@ -278,5 +282,31 @@ describe("defaultOptionValueValidation - ", () => {
         defaultOptionValueValidation(input, {} as MultiSelectWidgetProps, _),
       ).toEqual(expected);
     });
+  });
+});
+
+describe("getSelectedOptions", () => {
+  const options = [
+    {
+      label: "Blue",
+      value: "BLUE",
+    },
+    {
+      label: "Green",
+      value: "GREEN",
+    },
+    {
+      label: "Red",
+      value: "RED",
+    },
+  ];
+  it("serverSideFiltering, returns selectedOptions", () => {
+    expect(getSelectedOptions(true, ["YELLOW"], options)).toEqual([
+      { label: "YELLOW", value: "YELLOW" },
+    ]);
+  });
+
+  it("serverSideFiltering = false, returns only values which are in options", () => {
+    expect(getSelectedOptions(false, ["YELLOW", options])).toEqual([]);
   });
 });

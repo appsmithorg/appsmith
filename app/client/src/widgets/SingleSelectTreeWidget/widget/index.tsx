@@ -389,28 +389,25 @@ class SingleSelectTreeWidget extends BaseWidget<
 
   componentDidUpdate(prevProps: SingleSelectTreeWidgetProps) {
     if (
+      this.props.defaultOptionValue !== prevProps.defaultOptionValue &&
+      this.props.isDirty
+    ) {
+      if (this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", false);
+      }
+    }
+
+    // Sets selectedOption when options or defaultOptionValue changes
+    if (
       xorWith(
         flattenOptions(this.props.options),
         flattenOptions(prevProps.options),
         isEqual,
-      ).length > 0
+      ).length > 0 ||
+      (!this.props.isDirty &&
+        !isEqual(this.props.selectedOption, prevProps.selectedOption))
     ) {
-      const found = find(this.props.options, {
-        value: this.props.selectedOption.value,
-      });
-      if (!found) {
-        this.props.updateWidgetMetaProperty("selectedOption", {});
-      }
-    }
-    // Sanitizes selectedOption
-    if (!isEqual(this.props.selectedOption, prevProps.selectedOption)) {
       this.setSelectedOption();
-    }
-    if (
-      this.props.defaultOptionValue !== prevProps.defaultOptionValue &&
-      this.props.isDirty
-    ) {
-      this.props.updateWidgetMetaProperty("isDirty", false);
     }
   }
 
@@ -478,20 +475,6 @@ class SingleSelectTreeWidget extends BaseWidget<
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
   };
-
-  setSelectedOptionLabel(
-    options: DropdownOption[],
-    selectedValue: string | number,
-  ) {
-    const selectedLabel = find(flattenOptions(options), {
-      value: selectedValue,
-    })?.label;
-
-    this.props.updateWidgetMetaProperty(
-      "selectedLabel",
-      selectedLabel ? [selectedLabel] : [],
-    );
-  }
 
   setSelectedOption = () => {
     const matchingOption = find(flattenOptions(this.props.options), {

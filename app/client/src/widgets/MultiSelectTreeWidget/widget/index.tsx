@@ -483,12 +483,12 @@ class MultiSelectTreeWidget extends BaseWidget<
   componentDidUpdate(prevProps: MultiSelectTreeWidgetProps) {
     if (
       xor(this.props.defaultOptionValue, prevProps.defaultOptionValue).length >
-      0
+        0 &&
+      this.props.isDirty
     ) {
-      if (this.props.isDirty) {
-        this.props.updateWidgetMetaProperty("isDirty", false);
-      }
+      this.props.updateWidgetMetaProperty("isDirty", false);
     }
+
     if (
       xorWith(
         flattenOptions(this.props.options),
@@ -504,7 +504,7 @@ class MultiSelectTreeWidget extends BaseWidget<
     if (
       xor(this.props.selectedOptionValueArr, prevProps.selectedOptionValueArr)
         .length > 0 &&
-      this.props.isDirty === false
+      !this.props.isDirty
     ) {
       this.setSelectedOptions(
         this.props.options,
