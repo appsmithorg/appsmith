@@ -29,6 +29,7 @@ import {
 import { RenderMode, RenderModes } from "constants/WidgetConstants";
 import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 import { buttonHoverActiveStyles } from "../../ButtonWidget/component/utils";
+import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 
 // Utility functions
 interface ButtonData {
@@ -129,7 +130,9 @@ const PopoverStyles = createGlobalStyle<{
       box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
       margin-top: 8px !important;
       margin-bottom: 8px !important;
-      border-radius: ${borderRadius === "1.5rem" ? `0.375rem` : borderRadius};
+      border-radius: ${
+        borderRadius === THEMEING_TEXT_SIZES.lg ? `0.375rem` : borderRadius
+      };
       box-shadow: none;
       overflow: hidden;
       ${popoverTargetWidth && `width: ${popoverTargetWidth}px`};

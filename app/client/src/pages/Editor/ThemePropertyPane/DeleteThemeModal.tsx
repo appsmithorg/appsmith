@@ -16,17 +16,19 @@ interface DeleteThemeModalProps {
   onDelete(): void;
 }
 
+const deleteIconConfig = {
+  name: "delete",
+  fillColor: Colors.DANGER_SOLID,
+  hoverColor: Colors.DANGER_SOLID_HOVER,
+};
+
 function DeleteThemeModal(props: DeleteThemeModalProps) {
   const { isOpen, onClose, onDelete } = props;
 
   return (
     <Dialog
       canOutsideClickClose
-      headerIcon={{
-        name: "delete",
-        fillColor: Colors.DANGER_SOLID,
-        hoverColor: Colors.DANGER_SOLID_HOVER,
-      }}
+      headerIcon={deleteIconConfig}
       isOpen={isOpen}
       onClose={onClose}
       title={createMessage(DELETE_CONFIRMATION_MODAL_TITLE)}

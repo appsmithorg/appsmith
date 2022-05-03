@@ -12,6 +12,7 @@ import {
 } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -74,7 +75,7 @@ export const CONFIG = {
                   },
                   props: {
                     text: "Modal Title",
-                    fontSize: "1.25rem",
+                    fontSize: THEMEING_TEXT_SIZES.lg,
                     version: 1,
                   },
                 },

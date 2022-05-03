@@ -51,7 +51,7 @@ function ThemeSelector() {
         </button>
         <SettingSection
           className="px-3 py-3 border-t border-b"
-          isOpen={false}
+          isDefaultOpen={false}
           title="Current Theme"
         >
           <ThemeCard theme={selectedTheme} />
@@ -63,7 +63,7 @@ function ThemeSelector() {
           {userSavedThemes.map((theme) => (
             <ThemeCard
               deletable={!theme.isSystemTheme}
-              key={`theme-card-${theme.id}`}
+              key={theme.id}
               selectable
               theme={theme}
             />
@@ -75,7 +75,7 @@ function ThemeSelector() {
         {systemThemes.map((theme) => (
           <ThemeCard
             deletable={!theme.isSystemTheme}
-            key={`theme-card-${theme.id}`}
+            key={theme.id}
             selectable
             theme={theme}
           />

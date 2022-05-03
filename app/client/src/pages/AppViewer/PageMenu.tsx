@@ -27,7 +27,7 @@ type AppViewerHeaderProps = {
   pages: PageListPayload;
   url?: string;
   setMenuOpen?: (shouldOpen: boolean) => void;
-  headerRef?: any;
+  headerRef?: React.RefObject<HTMLDivElement>;
 };
 
 export function PageMenu(props: AppViewerHeaderProps) {
@@ -43,15 +43,18 @@ export function PageMenu(props: AppViewerHeaderProps) {
   const [query, setQuery] = useState("");
 
   // hide menu on click outside
-  useOnClickOutside([menuRef, headerRef], () => {
-    if (typeof setMenuOpen === "function") {
-      setMenuOpen(false);
-    }
-  });
+  useOnClickOutside(
+    [menuRef, headerRef as React.RefObject<HTMLDivElement>],
+    () => {
+      if (typeof setMenuOpen === "function") {
+        setMenuOpen?.(false);
+      }
+    },
+  );
 
   useEffect(() => {
     setQuery(window.location.search);
-  }, [location]);
+  }, [location.search]);
 
   // Mark default page as first page
   const appPages = pages;
