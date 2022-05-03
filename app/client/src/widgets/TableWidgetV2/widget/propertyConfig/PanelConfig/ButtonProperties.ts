@@ -27,10 +27,7 @@ export default {
       label: "Icon",
       helpText: "Sets the icon to be used for the icon button",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.ICON_BUTTON,
-          ColumnTypes.MENU_BUTTON,
-        ]);
+        return hideByColumnType(props, propertyPath, [ColumnTypes.ICON_BUTTON]);
       },
       updateHook: updateIconAlignment,
       dependencies: ["primaryColumns", "columnOrder"],
@@ -47,6 +44,30 @@ export default {
           params: {
             allowedValues: ICON_NAMES,
             default: IconNames.ADD,
+          },
+        },
+      },
+    },
+    {
+      propertyName: "menuButtoniconName",
+      label: "Icon",
+      helpText: "Sets the icon to be used for the menu button",
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
+      },
+      updateHook: updateIconAlignment,
+      dependencies: ["primaryColumns", "columnOrder"],
+      controlType: "ICON_SELECT",
+      customJSControl: "COMPUTE_VALUE_V2",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.TABLE_PROPERTY,
+        params: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: ICON_NAMES,
           },
         },
       },

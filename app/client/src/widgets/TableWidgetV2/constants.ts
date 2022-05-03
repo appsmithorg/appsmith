@@ -9,6 +9,10 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { WithMeta } from "widgets/MetaHOC";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { IconNames } from "@blueprintjs/icons";
+import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
+import { Alignment } from "@blueprintjs/core";
+import { IconName } from "@blueprintjs/icons";
+import { ButtonBorderRadius, ButtonVariant } from "components/constants";
 
 export type EditableCell = {
   column: string;
@@ -107,8 +111,6 @@ export enum ReadOnlyColumnTypes {
 
 export const DEFAULT_BUTTON_COLOR = "rgb(3, 179, 101)";
 
-export const DEFAULT_BUTTON_LABEL_COLOR = "#FFFFFF";
-
 export const DEFAULT_BUTTON_LABEL = "Action";
 
 export const DEFAULT_MENU_VARIANT = "PRIMARY";
@@ -132,3 +134,14 @@ export type OnColumnEventArgs = {
 export const ICON_NAMES = Object.keys(IconNames).map(
   (name: string) => IconNames[name as keyof typeof IconNames],
 );
+
+export type ButtonColumnActions = ColumnAction & {
+  eventType: EventType;
+  iconName?: IconName;
+  variant: ButtonVariant;
+  backgroundColor?: string;
+  iconAlign?: Alignment;
+  borderRadius?: ButtonBorderRadius;
+  isVisible?: boolean;
+  isDisabled?: boolean;
+};
