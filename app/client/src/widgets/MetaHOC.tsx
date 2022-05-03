@@ -166,9 +166,8 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
   }
 
   const mapStateToProps = (state: AppState, ownProps: WidgetProps) => {
-    const metaState = getWidgetMetaProps(state, ownProps.widgetId) || {};
     return {
-      metaState,
+      metaState: getWidgetMetaProps(state, ownProps.widgetId),
     };
   };
   return connect(mapStateToProps)(MetaHOC);
