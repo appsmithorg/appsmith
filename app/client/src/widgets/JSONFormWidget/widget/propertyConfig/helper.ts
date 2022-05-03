@@ -7,9 +7,11 @@ import {
   ARRAY_ITEM_KEY,
   Schema,
   HookResponse,
+  ROOT_SCHEMA_KEY,
 } from "../../constants";
 import { getGrandParentPropertyPath, getParentPropertyPath } from "../helper";
 import { JSONFormWidgetProps } from "..";
+import { processSchemaItemAutocomplete } from "components/propertyControls/JSONFormComputeControl";
 
 export type HiddenFnParams = [JSONFormWidgetProps, string];
 
@@ -80,6 +82,27 @@ export const getSchemaItem = <TSchemaItem extends SchemaItem>(
     fieldTypeNotMatches,
     fieldTypeNotIncludes,
     compute,
+  };
+};
+
+export const getAutocompleteProperties = (props: JSONFormWidgetProps) => {
+  const { schema } = props;
+  const rootSchemaItem = schema[ROOT_SCHEMA_KEY] || {};
+  const { sourceData } = rootSchemaItem;
+
+  const formData = processSchemaItemAutocomplete(rootSchemaItem);
+
+  const fieldState = processSchemaItemAutocomplete(rootSchemaItem, {
+    isVisible: true,
+    isDisabled: true,
+    isRequired: true,
+    isValid: true,
+  });
+
+  return {
+    sourceData,
+    fieldState,
+    formData,
   };
 };
 

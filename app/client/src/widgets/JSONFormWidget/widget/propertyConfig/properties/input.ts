@@ -1,7 +1,11 @@
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { CurrencyDropdownOptions } from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
 import { FieldType, INPUT_TYPES } from "widgets/JSONFormWidget/constants";
-import { getSchemaItem, HiddenFnParams } from "../helper";
+import {
+  getAutocompleteProperties,
+  getSchemaItem,
+  HiddenFnParams,
+} from "../helper";
 import { InputFieldProps } from "widgets/JSONFormWidget/fields/InputField";
 import { ISDCodeDropdownOptions } from "widgets/PhoneInputWidget/component/ISDCodeDropdown";
 import { JSONFormWidgetProps } from "../..";
@@ -462,7 +466,7 @@ const PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
-      customJSControl: "JSON_FORM_COMPUTE_VALUE",
+      additionalAutoComplete: getAutocompleteProperties,
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes(INPUT_TYPES),
       dependencies: ["schema"],
@@ -475,7 +479,7 @@ const PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
-      customJSControl: "JSON_FORM_COMPUTE_VALUE",
+      additionalAutoComplete: getAutocompleteProperties,
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes(INPUT_TYPES),
       dependencies: ["schema"],

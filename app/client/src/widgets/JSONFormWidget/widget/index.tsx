@@ -2,6 +2,7 @@ import React from "react";
 import equal from "fast-deep-equal/es6";
 import { connect } from "react-redux";
 import { debounce, difference, isEmpty, noop } from "lodash";
+import { klona } from "klona";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import JSONFormComponent from "../component";
@@ -22,7 +23,6 @@ import {
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { convertSchemaItemToFormData } from "../helper";
-import { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -207,15 +207,17 @@ class JSONFormWidget extends BaseWidget<
   parseAndSaveFieldState = (
     metaInternalFieldState: MetaInternalFieldState,
     schema: Schema,
-    afterUpdateAction?: DebouncedExecuteActionPayload,
+    afterUpdateAction?: ExecuteTriggerPayload,
   ) => {
     const fieldState = generateFieldState(schema, metaInternalFieldState);
+    const actionPayload =
+      afterUpdateAction && this.applyGlobalContextToAction(afterUpdateAction);
 
     if (!equal(fieldState, this.props.fieldState)) {
       this.props.updateWidgetMetaProperty(
         "fieldState",
         fieldState,
-        afterUpdateAction,
+        actionPayload,
       );
     }
   };
@@ -246,8 +248,26 @@ class JSONFormWidget extends BaseWidget<
     });
   };
 
+  applyGlobalContextToAction = (actionPayload: ExecuteTriggerPayload) => {
+    const payload = klona(actionPayload);
+    const { globalContext } = payload;
+
+    payload.globalContext = {
+      ...globalContext,
+      ...{
+        formData: this.props.formData,
+        fieldState: this.props.fieldState,
+        sourceData: this.props.sourceData,
+      },
+    };
+
+    return payload;
+  };
+
   onExecuteAction = (actionPayload: ExecuteTriggerPayload) => {
-    super.executeAction(actionPayload);
+    const payload = this.applyGlobalContextToAction(actionPayload);
+
+    super.executeAction(payload);
   };
 
   onUpdateWidgetProperty = (propertyName: string, propertyValue: any) => {
@@ -260,7 +280,7 @@ class JSONFormWidget extends BaseWidget<
 
   setMetaInternalFieldState = (
     updateCallback: (prevState: JSONFormWidgetState) => JSONFormWidgetState,
-    afterUpdateAction?: DebouncedExecuteActionPayload,
+    afterUpdateAction?: ExecuteTriggerPayload,
   ) => {
     this.setState((prevState) => {
       const newState = updateCallback(prevState);
