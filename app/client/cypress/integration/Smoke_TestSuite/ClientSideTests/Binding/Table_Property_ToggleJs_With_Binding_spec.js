@@ -41,9 +41,9 @@ describe("Table Widget property pane feature validation", function() {
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
-    cy.selectTxtSize("3XL");
+    cy.selectTxtSize("XL");
 
-    cy.readTabledataValidateCSS("0", "0", "font-size", "60px");
+    cy.readTabledataValidateCSS("0", "0", "font-size", "30px");
   });
 
   it("Table widget toggle test for text size", function() {

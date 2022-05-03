@@ -21,9 +21,10 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     }
 
     const computedValue =
-      this.props.propertyValue && isDynamicValue(this.props.propertyValue)
+      !isNil(this.props.propertyValue) &&
+      isDynamicValue(this.props.propertyValue)
         ? this.props.evaluatedValue
-        : this.props.propertyValue || "";
+        : this.props.propertyValue;
 
     const selected: DropdownOption = options.find(
       (option) => option.value === computedValue,
