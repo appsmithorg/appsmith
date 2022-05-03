@@ -1,7 +1,9 @@
 import metaReducer, { initialState } from "./index";
 import { updateMetaState } from "actions/metaActions";
-import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 
 let previousState = initialState;
 
@@ -49,10 +51,28 @@ test("Update widget meta state using evalMetaUpdates", () => {
       value: ["YELLOW"],
     },
   ];
-  expect(metaReducer(previousState, updateMetaState(evalMetaUpdates))).toEqual({
+  const newMetaReducerState = metaReducer(
+    previousState,
+    updateMetaState(evalMetaUpdates),
+  );
+  expect(newMetaReducerState).toEqual({
     incwlne: {
       text: "test123",
       selectedValues: ["YELLOW"],
     },
+  });
+  previousState = newMetaReducerState;
+});
+
+test("Reset widget", () => {
+  expect(
+    metaReducer(previousState, {
+      type: ReduxActionTypes.RESET_WIDGET_META,
+      payload: {
+        widgetId: inputWidget.widgetId,
+      },
+    }),
+  ).toEqual({
+    incwlne: {},
   });
 });
