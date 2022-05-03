@@ -28,6 +28,7 @@ import {
   countryInputSelector,
   imageWidgetSelector,
 } from "selectors/onboardingSelectors";
+import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { GUIDED_TOUR_STEPS, Steps } from "./constants";
 import { hideIndicator, highlightSection, showIndicator } from "./utils";
 
@@ -230,11 +231,11 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
           // Highlight the selected row and the NameInput widget
           highlightSection(
             "selected-row",
-            `appsmith_widget_${isTableWidgetBound}`,
+            getBaseWidgetClassName(isTableWidgetBound),
             "class",
           );
           highlightSection(
-            `appsmith_widget_${nameInputWidgetId}`,
+            getBaseWidgetClassName(nameInputWidgetId),
             undefined,
             "class",
           );
