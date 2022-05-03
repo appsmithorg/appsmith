@@ -23,6 +23,7 @@ import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 import { getAllApplications } from "actions/applicationActions";
 import { viewerURL } from "RouteBuilder";
+import { useHistory } from "react-router";
 
 /**
  * ---------------------------------------------------------------------------------------------------
@@ -48,6 +49,7 @@ function PrimaryCTA(props: Props) {
   const currentPageID = useSelector(getCurrentPageId);
   const selectedTheme = useSelector(getSelectedAppTheme);
   const currentApplication = useSelector(getCurrentApplication);
+  const history = useHistory();
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
   const userPermissions = currentApplication?.userPermissions ?? [];
   const canEdit = isPermitted(userPermissions, permissionRequired);
@@ -76,7 +78,7 @@ function PrimaryCTA(props: Props) {
           buttonVariant="PRIMARY"
           className={`w-full md:w-auto ${className}`}
           onClick={() => {
-            window.location.href = url;
+            history.push(url);
           }}
           text={createMessage(EDIT_APP)}
         />
@@ -96,7 +98,7 @@ function PrimaryCTA(props: Props) {
           className="t--fork-app"
           icon="fork"
           onClick={() => {
-            window.location.href = forkURL;
+            history.push(forkURL);
           }}
           text={createMessage(FORK_APP)}
         />
