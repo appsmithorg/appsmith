@@ -235,8 +235,8 @@ function DraggableList(props: any) {
         {springs.map(({ scale, y, zIndex }, i) => (
           <animated.div
             {...bind(i)}
-            data-rbd-draggable-id={items[i].id}
-            key={i}
+            data-rbd-draggable-id={items[i].pageId}
+            key={items[i].pageId}
             style={{
               zIndex,
               width: "100%",
