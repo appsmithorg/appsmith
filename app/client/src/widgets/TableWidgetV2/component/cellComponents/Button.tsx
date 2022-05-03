@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 import { ActionWrapper } from "../TableStyledWrappers";
 import { BaseButton } from "widgets/ButtonWidget/component";
-import { EditColumnActions } from "../renderHelpers/EditActionsRenderer";
+import { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
 import styled from "styled-components";
 
 const StyledButton = styled(BaseButton)`
@@ -12,8 +12,8 @@ const StyledButton = styled(BaseButton)`
 export function Button(props: {
   isCellVisible: boolean;
   isSelected: boolean;
-  isDisabled: boolean;
-  action: EditColumnActions;
+  isDisabled?: boolean;
+  action: ButtonColumnActions;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }) {
   const [loading, setLoading] = useState(false);
@@ -29,10 +29,9 @@ export function Button(props: {
 
   return (
     <ActionWrapper
+      disabled={!!props.isDisabled}
       onClick={(e) => {
-        if (props.isSelected) {
-          e.stopPropagation();
-        }
+        e.stopPropagation();
       }}
     >
       {props.isCellVisible && props.action.isVisible ? (

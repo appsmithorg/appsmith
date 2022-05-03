@@ -8,7 +8,7 @@ import {
   ButtonBorderRadius,
 } from "components/constants";
 import { CellLayoutProperties } from "../Constants";
-import { CellWrapper } from "../TableStyledWrappers";
+import { CellWrapper, IconButtonWrapper } from "../TableStyledWrappers";
 import { StyledButton } from "widgets/IconButtonWidget/component";
 
 interface RenderIconButtonProps {
@@ -56,7 +56,7 @@ function IconButton(props: {
     }
   };
   return (
-    <div onClick={handlePropagation}>
+    <IconButtonWrapper disabled={props.disabled} onClick={handlePropagation}>
       <StyledButton
         borderRadius={props.borderRadius}
         boxShadow={props.boxShadow}
@@ -71,7 +71,7 @@ function IconButton(props: {
           handleClick();
         }}
       />
-    </div>
+    </IconButtonWrapper>
   );
 }
 

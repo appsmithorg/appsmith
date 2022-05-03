@@ -28,7 +28,6 @@ import {
   COLUMN_MIN_WIDTH,
   DEFAULT_BUTTON_COLOR,
   DEFAULT_BUTTON_LABEL,
-  DEFAULT_BUTTON_LABEL_COLOR,
   DEFAULT_COLUMN_WIDTH,
   DEFAULT_MENU_BUTTON_LABEL,
   DEFAULT_MENU_VARIANT,
@@ -220,9 +219,13 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                 isCellVisible: cellProperties.isCellVisible ?? true,
                 columnActions: [
                   {
+                    backgroundColor: cellProperties.buttonColor,
+                    eventType: EventType.ON_CLICK,
                     id: column.id,
+                    isVisible: true,
                     label: cellProperties.buttonLabel || DEFAULT_BUTTON_LABEL,
                     dynamicTrigger: column.onClick || "",
+                    variant: cellProperties.buttonVariant,
                   },
                 ],
                 cellProperties,
@@ -354,7 +357,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                 borderRadius: cellProperties.borderRadius,
                 boxShadow: cellProperties.boxShadow,
                 boxShadowColor: cellProperties.boxShadowColor,
-                iconName: cellProperties.iconName,
+                iconName: cellProperties.menuButtoniconName,
                 iconAlign: cellProperties.iconAlign,
                 isCellVisible: cellProperties.isCellVisible ?? true,
                 label:
