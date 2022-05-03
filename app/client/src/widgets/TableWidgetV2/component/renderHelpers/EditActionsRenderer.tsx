@@ -1,26 +1,13 @@
 import React from "react";
-import { IconName } from "@blueprintjs/icons";
 
-import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { EditableCellActions } from "widgets/TableWidgetV2/constants";
+import {
+  ButtonColumnActions,
+  EditableCellActions,
+} from "widgets/TableWidgetV2/constants";
 import { Button } from "../cellComponents/Button";
 import { CellLayoutProperties } from "../Constants";
-import { ButtonVariant } from "components/constants";
-import { Alignment } from "@blueprintjs/core";
-import { ButtonBorderRadius } from "components/constants";
 import { CellWrapper } from "../TableStyledWrappers";
-
-export type EditColumnActions = ColumnAction & {
-  eventType: EventType;
-  iconName?: IconName;
-  variant: ButtonVariant;
-  backgroundColor: string;
-  iconAlign?: Alignment;
-  borderRadius?: ButtonBorderRadius;
-  isVisible?: boolean;
-  isDisabled?: boolean;
-};
 
 type RenderEditActionsProps = {
   compactMode: string;
@@ -28,7 +15,7 @@ type RenderEditActionsProps = {
   isCellVisible: boolean;
   cellProperties: CellLayoutProperties;
   isHidden: boolean;
-  columnActions: EditColumnActions[];
+  columnActions: ButtonColumnActions[];
   onCommandClick: (
     dynamicTrigger: string,
     onComplete: () => void,
@@ -56,11 +43,12 @@ export function renderEditActions(props: RenderEditActionsProps) {
       isCellVisible={props.isCellVisible}
       isHidden={props.isHidden}
     >
-      {props.columnActions.map((action: EditColumnActions, index: number) => {
+      {props.columnActions.map((action: ButtonColumnActions, index: number) => {
         return (
           <Button
             action={action}
             isCellVisible={props.isCellVisible}
+            isDisabled={action.isDisabled}
             isSelected={props.isSelected}
             key={index}
             onCommandClick={(
