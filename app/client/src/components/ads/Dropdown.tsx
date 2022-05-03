@@ -549,6 +549,11 @@ const Chips = styled.div`
   margin-right: 8px;
 `;
 
+const scrollIntoViewOptions: ScrollIntoViewOptions = {
+  behavior: "smooth",
+  block: "nearest",
+};
+
 function TooltipWrappedText(
   props: TextProps & {
     label: string;
@@ -968,10 +973,7 @@ export default function Dropdown(props: DropdownProps) {
                 const index = x < 1 ? props.options.length - 1 : x - 1;
                 document
                   .querySelectorAll(".t--dropdown-option")
-                  [index]?.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center",
-                  });
+                  [index]?.scrollIntoView(scrollIntoViewOptions);
                 return index;
               });
             } else {
@@ -984,10 +986,7 @@ export default function Dropdown(props: DropdownProps) {
                 else index--;
                 document
                   .querySelectorAll(".t--dropdown-option")
-                  [index]?.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center",
-                  });
+                  [index]?.scrollIntoView(scrollIntoViewOptions);
                 return props.options[index];
               });
             }
@@ -1004,10 +1003,7 @@ export default function Dropdown(props: DropdownProps) {
                 const index = x + 1 === props.options.length ? 0 : x + 1;
                 document
                   .querySelectorAll(".t--dropdown-option")
-                  [index]?.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center",
-                  });
+                  [index]?.scrollIntoView(scrollIntoViewOptions);
                 return index;
               });
             } else {
@@ -1020,10 +1016,7 @@ export default function Dropdown(props: DropdownProps) {
                 else index++;
                 document
                   .querySelectorAll(".t--dropdown-option")
-                  [index]?.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center",
-                  });
+                  [index]?.scrollIntoView(scrollIntoViewOptions);
                 return props.options[index];
               });
             }
