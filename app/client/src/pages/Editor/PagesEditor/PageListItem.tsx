@@ -30,6 +30,7 @@ import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core";
 
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import classNames from "classnames";
 
 export const Container = styled.div`
   display: flex;
@@ -70,6 +71,10 @@ export const Action = styled.button`
 
   &:focus {
     outline: none;
+  }
+
+  &:hover:not(.noHover) {
+    background: ${Colors.GREY_5};
   }
 `;
 
@@ -158,8 +163,12 @@ function PageListItem(props: PageListItemProps) {
               hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
               position={Position.BOTTOM}
             >
-              <Action>
-                <DefaultPageIcon color={Colors.GREEN} height={16} width={16} />
+              <Action className="noHover">
+                <DefaultPageIcon
+                  color={Colors.MINE_SHAFT_2}
+                  height={16}
+                  width={16}
+                />
               </Action>
             </TooltipComponent>
           )}
@@ -200,7 +209,10 @@ function PageListItem(props: PageListItemProps) {
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
             position={Position.BOTTOM}
           >
-            <Action type="button">
+            <Action
+              className={classNames({ noHover: item.isDefault })}
+              type="button"
+            >
               <DeleteIcon
                 color={
                   item.isDefault
