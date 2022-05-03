@@ -1,5 +1,6 @@
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
+import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -55,7 +56,7 @@ export const CONFIG = {
                   },
                   props: {
                     text: "2.6 M",
-                    fontSize: "1.5rem",
+                    fontSize: THEMEING_TEXT_SIZES.lg,
                     fontStyle: "BOLD",
                     version: 1,
                   },

@@ -96,7 +96,14 @@ function ThemeEditor() {
     AnalyticsUtil.logEvent("APP_THEMING_SAVE_THEME_START");
 
     setSaveModalOpen(true);
-  }, []);
+  }, [setSaveModalOpen]);
+
+  /**
+   * on close save modal
+   */
+  const onCloseSaveModal = useCallback(() => {
+    setSaveModalOpen(false);
+  }, [setSaveModalOpen]);
 
   return (
     <>
@@ -231,12 +238,7 @@ function ThemeEditor() {
           </SettingSection>
         </main>
       </div>
-      <SaveThemeModal
-        isOpen={isSaveModalOpen}
-        onClose={() => {
-          setSaveModalOpen(false);
-        }}
-      />
+      <SaveThemeModal isOpen={isSaveModalOpen} onClose={onCloseSaveModal} />
       <PopoverStyles />
     </>
   );

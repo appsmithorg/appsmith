@@ -168,7 +168,9 @@ function TableHeader(props: TableHeaderProps) {
         <CommonFunctionsMenuWrapper tableSizes={props.tableSizes}>
           {props.isVisibleFilters && (
             <TableFilters
+              accentColor={props.accentColor}
               applyFilter={props.applyFilter}
+              borderRadius={props.borderRadius}
               columns={props.columns}
               filters={props.filters}
               widgetId={props.widgetId}
