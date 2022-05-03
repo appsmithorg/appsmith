@@ -247,7 +247,6 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     const column = {
       ...columnProps,
       buttonStyle: "rgb(3, 179, 101)",
-      buttonLabelColor: "#FFFFFF",
       isDisabled: false,
       ...tableStyles,
     };
