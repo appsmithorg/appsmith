@@ -134,17 +134,6 @@ function SaveThemeModal(props: SaveThemeModalProps) {
             />
           </div>
         </div>
-        {/* <div className="py-6">
-          <p className="text-base">Want to share your customised theme?</p>
-          <p className="mt-2 text-gray-600">
-            You can submit your theme to Appsmith to be included in our as part
-            of our prefined themes.
-          </p>
-          <div className="mt-3">
-            <Checkbox label="Submit this theme to Appsmith" />
-          </div>
-        </div> */}
-
         <div className="">
           <div className="flex items-center space-x-3">
             <Button
