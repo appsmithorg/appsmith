@@ -1,5 +1,10 @@
 {
   "upgradeSamlButton": ".t--settings-sub-category-upgrade-saml",
   "upgradeOidcButton": ".t--settings-sub-category-upgrade-oidc",
-  "samlButton": ".t--settings-sub-category-saml-auth"
+  "samlButton": ".t--settings-sub-category-saml-auth",
+  "loginWithSAML": "[data-testid='login-with-SAML']",
+  "samlUrlTab": "[data-cy='t--tab-METADATA_URL']",
+  "samlXmlTab": "[data-cy='t--tab-XML']",
+  "samlIdpTab": "[data-cy='t--tab-IDP_DATA']",
+  "disconnectBtn": "[data-testid='disconnect-service-button']"
 }

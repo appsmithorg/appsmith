@@ -50,11 +50,10 @@ export const Info = styled.h3`
   line-height: 19px;
   letter-spacing: -0.24px;
   text-align: left;
-  margin: 8px 0;
+  margin: 16px 0;
 `;
 
 export const MenuContainer = styled.div`
-  height: 56px;
   margin-top: 8px;
 `;
 

@@ -22,8 +22,10 @@ import {
 } from "@appsmith/pages/AdminSettings/config/types";
 import {
   createMessage,
+  DISCONNECT_AUTH_ERROR,
   DISCONNECT_SERVICE_SUBHEADER,
   DISCONNECT_SERVICE_WARNING,
+  MANDATORY_FIELDS_ERROR,
 } from "@appsmith/constants/messages";
 import { Toaster, Variant } from "components/ads";
 import {
@@ -31,6 +33,7 @@ import {
   saveAllowed,
 } from "@appsmith/utils/adminSettingsHelpers";
 import { Classes } from "@blueprintjs/core";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -107,6 +110,9 @@ export function OidcSettingsForm(
   const onSave = () => {
     if (checkMandatoryFileds()) {
       if (saveAllowed(props.settings)) {
+        AnalyticsUtil.logEvent("ADMIN_SETTINGS_SAVE", {
+          method: pageTitle,
+        });
         _.forEach(defaultSettings, (name) => {
           if (!props.settings[name]) {
             props.settings[name] = props.settingsConfig[name].toString();
@@ -117,8 +123,11 @@ export function OidcSettingsForm(
         saveBlocked();
       }
     } else {
+      AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
+        error: createMessage(MANDATORY_FIELDS_ERROR),
+      });
       Toaster.show({
-        text: "Mandatory fields cannot be empty",
+        text: createMessage(MANDATORY_FIELDS_ERROR),
         variant: Variant.danger,
       });
     }
@@ -147,7 +156,12 @@ export function OidcSettingsForm(
     return !(requiredFields.length > 0);
   };
 
-  const onClear = () => {
+  const onClear = (event?: React.FocusEvent<any, any>) => {
+    if (event?.type === "click") {
+      AnalyticsUtil.logEvent("ADMIN_SETTINGS_RESET", {
+        method: pageTitle,
+      });
+    }
     _.forEach(props.settingsConfig, (value, settingName) => {
       const setting = AdminConfig.settingsMap[settingName];
       if (setting && setting.controlType == SettingTypes.TOGGLE) {
@@ -199,8 +213,11 @@ export function OidcSettingsForm(
   useEffect(onClear, []);
 
   const saveBlocked = () => {
+    AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
+      error: createMessage(DISCONNECT_AUTH_ERROR),
+    });
     Toaster.show({
-      text: "Cannot disconnect the only connected authentication method.",
+      text: createMessage(DISCONNECT_AUTH_ERROR),
       variant: Variant.danger,
     });
   };
@@ -232,6 +249,9 @@ export function OidcSettingsForm(
         }
       });
       dispatch(saveSettings(updatedSettings));
+      AnalyticsUtil.logEvent("ADMIN_SETTINGS_DISCONNECT_AUTH_METHOD", {
+        method: pageTitle,
+      });
     } else {
       saveBlocked();
     }

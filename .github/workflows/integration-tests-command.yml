@@ -472,7 +472,7 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        uses: martijnhols/actions-cache@v3
+        uses: martijnhols/actions-cache@v3.0.2
         with:
           path: |
             ~/run_result
@@ -828,7 +828,7 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        uses: martijnhols/actions-cache@v3
+        uses: martijnhols/actions-cache@v3.0.2
         with:
           path: |
             ~/run_result
@@ -1262,12 +1262,11 @@ jobs:
                       summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
                     }
                 });
+                console.log({ result });
+                return result;
               } catch(e) {
                 console.error({ error: e.message });
               }
-              
-            console.log({ result });
-            return result;
             }
 
       - name: Dump the client payload context

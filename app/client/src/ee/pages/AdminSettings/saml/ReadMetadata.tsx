@@ -21,20 +21,24 @@ import {
   SettingsFormWrapper,
   InputProps,
 } from "./components";
+import { getSettingDetail, getSettingLabel } from "../saml";
 import { SSO_IDENTITY_PROVIDER_FORM } from "@appsmith/constants/forms";
 import { fetchSamlMetadata } from "@appsmith/actions/settingsAction";
 import {
   createMessage,
   ENTITY_ID_TOOLTIP,
   REDIRECT_URL_TOOLTIP,
+  MANDATORY_FIELDS_ERROR,
 } from "@appsmith/constants/messages";
 import { Toaster, Variant } from "components/ads";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export type MenuItemsProps = {
   id: string;
   key: MENU_ITEM;
   title: string;
   subText: string;
+  callout?: string;
   inputs: InputProps[];
 };
 
@@ -49,10 +53,13 @@ export const MENU_ITEMS_MAP: MenuItemsProps[] = [
     id: "APPSMITH_SSO_SAML_METADATA_URL",
     key: MENU_ITEM.METADATA_URL,
     title: "Metadata URL",
-    subText: "Provide a Metadata URL to retrieve the IdP details.",
+    subText: "Paste the Metadata URL to retrieve the IdP details.",
+    callout: "Cannot locate the Metadata URL?",
     inputs: [
       {
         className: "t--sso-metadata-url-input",
+        hint:
+          "Metadata is an XML file which has configuration data used to establish trust between the SP and IDP. Paste the public URL of the XML file that contains the IdP information.",
         label: "Metadata URL",
         name: "metadataUrl",
         isRequired: true,
@@ -63,10 +70,13 @@ export const MENU_ITEMS_MAP: MenuItemsProps[] = [
     id: "APPSMITH_SSO_SAML_METADATA_XML",
     key: MENU_ITEM.XML,
     title: "XML",
-    subText: "Paste the raw Metadata XML IdP here.",
+    subText: "Paste the raw Metadata XML to retrieve the IdP details.",
+    callout: "Cannot locate raw Metadata XML?",
     inputs: [
       {
         className: "t--sso-metadata-xml-input",
+        hint:
+          "Metadata is an XML file which has configuration data used to establish trust between the SP and IDP. Paste the file's text in its entirety here.",
         label: "Metadata XML",
         name: "metadataXml",
         type: "Area",
@@ -79,29 +89,37 @@ export const MENU_ITEMS_MAP: MenuItemsProps[] = [
     key: MENU_ITEM.IDP_DATA,
     title: "IdP Data",
     subText: "Provide your individual Identity Provider metadata fields.",
+    callout: "Cannot locate the individual metadata fields?",
     inputs: [
       {
         className: "t--sso-metadata-entity-id-input",
+        hint:
+          "The application-defined unique identifier that is most often the SP Entity ID of your application.",
         label: "Entity ID",
         name: "metadataEntityId",
         isRequired: true,
       },
       {
         className: "t--sso-metadata-sso-url-input",
+        hint:
+          "The location where the SAML assertion is sent with a HTTP POST. This is often referred to as the SAML Assertion Consumer Service (ACS) URL for your application.",
         label: "Single Sign On URL",
         name: "metadataSsoUrl",
         isRequired: true,
       },
       {
         className: "t--sso-metadata-pub-cert-input",
+        hint:
+          "The PEM or DER encoded public key certificate of the Identity Provider used to verify SAML message and assertion signatures.",
         label: "X509 Public Certificate",
         name: "metadataPubCert",
         isRequired: true,
       },
       {
         className: "t--email-input",
+        hint:
+          "Identifies the NameID or Name Identifier which is used to identity the subject of a SAML assertion. Use the NameID format that identifies the email of the user defined in the IdP User Profile.",
         label: "Email",
-        hint: "Configure the mapping of IdP attribute keys for email.",
         name: "metadataEmail",
         isRequired: true,
       },
@@ -136,10 +154,19 @@ function MetadataForm(
   const isSavable = AdminConfig.savableCategories.includes(
     subCategory ?? category,
   );
+  const details = getSettingDetail(category, subCategory);
+  const pageTitle = getSettingLabel(
+    details?.title || (subCategory ?? category),
+  );
   const { activeTabIndex = 0 } = props;
   const providerForm = allSAMLSetupOptions[activeTabIndex];
 
-  const onClear = () => {
+  const onClear = (event?: React.FocusEvent<any, any>) => {
+    if (event?.type === "click") {
+      AnalyticsUtil.logEvent("ADMIN_SETTINGS_RESET", {
+        method: pageTitle,
+      });
+    }
     _.forEach(props.settings, (value, settingName) => {
       props.settings[settingName] = "";
     });
@@ -156,19 +183,28 @@ function MetadataForm(
   const submit = () => {
     const {
       metadataEmail,
+      metadataEntityId,
       metadataPubCert,
       metadataSsoUrl,
       metadataUrl,
       metadataXml,
     } = props.settings;
-    if (activeTabIndex === 0 && metadataUrl) {
+    if (activeTabIndex === 0 && metadataUrl?.toString().trim()) {
+      AnalyticsUtil.logEvent("ADMIN_SETTINGS_SAVE", {
+        method: pageTitle,
+        type: "SAML Metadata URL",
+      });
       dispatch(
         fetchSamlMetadata({
           isEnabled: true,
           importFromUrl: metadataUrl,
         }),
       );
-    } else if (activeTabIndex === 1 && metadataXml) {
+    } else if (activeTabIndex === 1 && metadataXml?.toString().trim()) {
+      AnalyticsUtil.logEvent("ADMIN_SETTINGS_SAVE", {
+        method: pageTitle,
+        type: "SAML Metadata XML",
+      });
       dispatch(
         fetchSamlMetadata({
           isEnabled: true,
@@ -177,10 +213,15 @@ function MetadataForm(
       );
     } else if (
       activeTabIndex === 2 &&
-      metadataEmail &&
-      metadataSsoUrl &&
-      metadataPubCert
+      metadataEmail?.toString().trim() &&
+      metadataSsoUrl?.toString().trim() &&
+      metadataPubCert?.toString().trim() &&
+      metadataEntityId?.toString().trim()
     ) {
+      AnalyticsUtil.logEvent("ADMIN_SETTINGS_SAVE", {
+        method: pageTitle,
+        type: "SAML IDP data",
+      });
       dispatch(
         fetchSamlMetadata({
           isEnabled: true,
@@ -192,8 +233,11 @@ function MetadataForm(
         }),
       );
     } else {
+      AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
+        error: createMessage(MANDATORY_FIELDS_ERROR),
+      });
       Toaster.show({
-        text: "Mandatory fields cannot be empty",
+        text: createMessage(MANDATORY_FIELDS_ERROR),
         variant: Variant.danger,
       });
     }
@@ -201,6 +245,13 @@ function MetadataForm(
 
   return (
     <>
+      {providerForm.callout && (
+        <Callout
+          actionLabel="Read Documentation"
+          title={providerForm.callout}
+          type="Info"
+        />
+      )}
       <Info>{providerForm.subText}</Info>
       <RenderForm inputs={providerForm.inputs} />
       {isSavable && (
@@ -293,11 +344,6 @@ function ReadMetadata() {
           options={allSAMLSetupOptions}
         />
       </MenuContainer>
-      <Callout
-        actionLabel="Read Documentation"
-        title="Cannot locate raw Metadata XML?"
-        type="Info"
-      />
       <BodyContainer>
         <MetadataReduxForm activeTabIndex={activeTabIndex} />
       </BodyContainer>

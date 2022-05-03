@@ -424,7 +424,7 @@ const ButtonStyles = css<ThemeProp & ButtonProps>`
   }
 `;
 
-const StyledButton = styled("button")`
+export const StyledButton = styled("button")`
   ${ButtonStyles}
 `;
 
@@ -502,7 +502,7 @@ function ButtonComponent(props: ButtonProps) {
       data-cy={props.cypressSelector}
       {..._.omit(props, omitProps)}
       onClick={(e: React.MouseEvent<HTMLElement>) =>
-        props.onClick && props.onClick(e)
+        props.onClick && !props.isLoading && props.onClick(e)
       }
     >
       {getButtonContent(props)}
