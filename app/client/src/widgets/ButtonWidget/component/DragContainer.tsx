@@ -78,6 +78,7 @@ export function DragContainer(props: DragContainerProps) {
         loading={props.loading}
         onClick={(event) => {
           if (props.disabled) return;
+          if (props.loading) return;
           if (props.onClick) {
             props.onClick(event);
           }
