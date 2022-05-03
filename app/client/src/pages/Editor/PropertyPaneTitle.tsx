@@ -45,7 +45,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   props: PropertyPaneTitleProps,
 ) {
   const dispatch = useDispatch();
-  const containerRef = useRef<HTMLDivElement | null>();
+  const containerRef = useRef<HTMLDivElement>(null);
   const updating = useSelector(
     (state: AppState) => state.ui.editor.loadingStates.updatingWidgetName,
   );
@@ -142,7 +142,6 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   }, [props.title]);
 
   // Focus title on F2
-
   const [isEditingDefault, setIsEditingDefault] = useState(
     !props.isPanelTitle ? isNew : undefined,
   );
@@ -174,18 +173,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
         </button>
       )}
       {/* EDITABLE TEXT */}
-      <div
-        className="flex-grow"
-        onKeyDown={(e) => {
-          if (e.key === " ") {
-            setIsEditingDefault(true);
-          }
-        }}
-        // @ts-expect-error: Ref
-        ref={containerRef}
-        style={{ maxWidth: `calc(100% - 52px)` }}
-        tabIndex={0}
-      >
+      <div className="flex-grow" style={{ maxWidth: `calc(100% - 52px)` }}>
         <EditableText
           className="flex-grow text-lg font-semibold t--property-pane-title"
           defaultValue={name}
@@ -200,6 +188,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
           savingState={updating ? SavingState.STARTED : SavingState.NOT_STARTED}
           underline
           valueTransform={!props.isPanelTitle ? removeSpecialChars : undefined}
+          wrapperRef={containerRef}
         />
       </div>
 
