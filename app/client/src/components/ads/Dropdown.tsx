@@ -372,8 +372,6 @@ const OptionWrapper = styled.div<{
     props.subTextPosition === SubTextPosition.BOTTOM ? "column" : "row"};
   align-items: ${(props) =>
     props.subTextPosition === SubTextPosition.BOTTOM ? "flex-start" : "center"};
-  align-items: center;
-  min-height: 36px;
   background-color: ${(props) =>
     props.selected ? props.selectedHighlightBg || Colors.GRAY_200 : null};
 
