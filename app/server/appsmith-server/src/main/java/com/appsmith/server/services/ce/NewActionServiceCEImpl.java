@@ -232,6 +232,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         } else {
             if (newAction.getUnpublishedAction() != null) {
                 action = newAction.getUnpublishedAction();
+            } else {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION, newAction.getId(), "No unpublished action found for edit mode"));
             }
         }
 
@@ -250,6 +252,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public void generateAndSetActionPolicies(NewPage page, NewAction action) {
+        if (page == null) {
+            throw new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR, "No page found to copy policies from.");
+        }
         Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(page.getPolicies(), Page.class, Action.class);
         action.setPolicies(documentPolicies);
     }
@@ -1048,7 +1053,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             "actionCreated", DateUtils.ISO_FORMATTER.format(action.getCreatedAt()),
                             "actionId", ObjectUtils.defaultIfNull(action.getId(), ""),
                             "dsId", ObjectUtils.defaultIfNull(datasource.getId(), ""),
-                            "dsCreatedAt", DateUtils.ISO_FORMATTER.format(datasource.getCreatedAt())
+                            "dsCreatedAt", ObjectUtils.defaultIfNull(DateUtils.ISO_FORMATTER.format(datasource.getCreatedAt()), "")
 
                     ));
 
