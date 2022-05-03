@@ -215,6 +215,7 @@ const Selected = styled.div<{
     props.isMultiSelect &&
     `
     min-height: 38px;
+    padding: 2px 8px;
   `}
   cursor: ${(props) =>
     props.disabled || props.isLoading ? "not-allowed" : "pointer"};
