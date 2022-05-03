@@ -12,6 +12,7 @@ import {
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar } from "constants/DefaultTheme";
 import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
+import { Classes } from "@blueprintjs/core";
 
 export const TableWrapper = styled.div<{
   width: number;
@@ -34,7 +35,7 @@ export const TableWrapper = styled.div<{
     height: 100%;
     display: block;
     position: relative;
-    width: ${(props) => props.width - 8}px;
+    width: ${(props) => props.width}px;
     overflow-x: auto;
     ${hideScrollbar};
     .thumb-horizontal {
@@ -270,8 +271,9 @@ export const MenuColumnWrapper = styled.div<{ selected: boolean }>`
   }
 `;
 
-export const ActionWrapper = styled.div`
+export const ActionWrapper = styled.div<{ disabled: boolean }>`
   margin: 0 5px 0 0;
+  ${(props) => (props.disabled ? "cursor: not-allowed;" : null)}
   &&&&&& {
     .bp3-button {
       border: none;
@@ -285,6 +287,10 @@ export const ActionWrapper = styled.div`
       color: ${Colors.GREY_4};
     }
   }
+`;
+
+export const IconButtonWrapper = styled.div<{ disabled: boolean }>`
+  ${(props) => (props.disabled ? "cursor: not-allowed;" : null)}
 `;
 
 export const TableStyles = css<{
@@ -337,6 +343,11 @@ export const CellWrapper = styled.div<{
       props.compactMode ? TABLE_SIZES[props.compactMode].VERTICAL_PADDING : 0}px
     10px;
   line-height: 28px;
+  .${Classes.POPOVER_WRAPPER}, > span > span > span {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   ${(props) =>
     props.cellProperties?.allowCellWrapping
       ? `

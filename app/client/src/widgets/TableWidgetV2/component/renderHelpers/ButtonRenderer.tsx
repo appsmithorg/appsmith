@@ -1,56 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 
-import { CellWrapper, ActionWrapper } from "../TableStyledWrappers";
-import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
+import { CellWrapper } from "../TableStyledWrappers";
 import { CellLayoutProperties } from "../Constants";
-import Button from "components/editorComponents/Button";
-
-export function TableButton(props: {
-  isSelected: boolean;
-  action: ColumnAction;
-  backgroundColor: string;
-  isDisabled: boolean;
-  isCellVisible: boolean;
-  onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
-  icon?: string;
-}) {
-  const [loading, setLoading] = useState(false);
-  const onComplete = () => {
-    setLoading(false);
-  };
-
-  return (
-    <ActionWrapper
-      onClick={(e) => {
-        if (props.isSelected) {
-          e.stopPropagation();
-        }
-      }}
-    >
-      {props.isCellVisible ? (
-        <Button
-          disabled={props.isDisabled}
-          filled
-          icon={props.icon}
-          intent="PRIMARY_BUTTON"
-          loading={loading}
-          onClick={(e) => {
-            e?.stopPropagation();
-            setLoading(true);
-            props.onCommandClick(props.action.dynamicTrigger, onComplete);
-          }}
-          size="small"
-          text={props.action.label}
-        />
-      ) : null}
-    </ActionWrapper>
-  );
-}
+import { Button } from "../cellComponents/Button";
+import { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
 
 export interface RenderActionProps {
   compactMode: string;
   isSelected: boolean;
-  columnActions?: ColumnAction[];
+  columnActions?: ButtonColumnActions[];
   backgroundColor: string;
   isDisabled: boolean;
   isCellVisible: boolean;
@@ -77,11 +35,10 @@ export const renderButton = (props: RenderActionProps) => {
       isCellVisible={props.isCellVisible}
       isHidden={props.isHidden}
     >
-      {props.columnActions.map((action: ColumnAction, index: number) => {
+      {props.columnActions.map((action: ButtonColumnActions, index: number) => {
         return (
-          <TableButton
+          <Button
             action={action}
-            backgroundColor={props.backgroundColor}
             isCellVisible={props.isCellVisible}
             isDisabled={props.isDisabled}
             isSelected={props.isSelected}
