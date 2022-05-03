@@ -15,3 +15,39 @@ export const findDuplicateIndex = (arr: Array<unknown>) => {
   }
   return -1;
 };
+
+/** Function that count occurrences of a substring in a string;
+ * @param {String} string               The string
+ * @param {String} subString            The sub string to search for
+ * @param {Boolean} [allowOverlapping]  Optional. (Default:false)
+ * @param {Number | null} [maxLimit]  Optional. (Default:null)
+ */
+export const countOccurrences = (
+  string: string,
+  subString: string,
+  allowOverlapping = false,
+  maxLimit: number | null = null,
+): number => {
+  string += "";
+  subString += "";
+  if (subString.length <= 0) return string.length + 1;
+
+  let n = 0, // count of occurrences
+    pos = 0; // current position of the pointer
+  const step = allowOverlapping ? 1 : subString.length;
+
+  while (true) {
+    pos = string.indexOf(subString, pos);
+    if (pos >= 0) {
+      ++n;
+      /**
+       * If you are only interested in knowing
+       * whether occurances count exceeds maxLimit,
+       * then break the loop.
+       */
+      if (maxLimit && n > maxLimit) break;
+      pos += step;
+    } else break;
+  }
+  return n;
+};

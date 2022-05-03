@@ -11,7 +11,7 @@ import { curlImportFormValues, curlImportSubmitHandler } from "./helpers";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
-import CloseEditor from "../../../components/editorComponents/CloseEditor";
+import CloseEditor from "components/editorComponents/CloseEditor";
 import Button, { Size } from "components/ads/Button";
 import FormRow from "components/editorComponents/FormRow";
 

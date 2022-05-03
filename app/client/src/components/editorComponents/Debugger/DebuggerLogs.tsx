@@ -19,10 +19,11 @@ const ContainerWrapper = styled.div`
   height: 100%;
 `;
 
-const ListWrapper = styled.div`
+export const ListWrapper = styled.div`
   overflow: auto;
   height: calc(100% - ${LIST_HEADER_HEIGHT});
   ${thinScrollbar};
+  padding-bottom: 25px;
 `;
 
 type Props = {

@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ReduxAction,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import PluginsApi, { PluginFormPayload } from "api/PluginApi";
 import { validateResponse } from "sagas/ErrorSagas";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
@@ -24,6 +24,7 @@ import {
   defaultActionDependenciesConfig,
   defaultActionEditorConfigs,
   defaultActionSettings,
+  defaultDatasourceFormButtonConfig,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { GenericApiResponse } from "api/ApiResponses";
 import PluginApi from "api/PluginApi";
@@ -33,6 +34,7 @@ import {
   FormEditorConfigs,
   FormSettingsConfigs,
   FormDependencyConfigs,
+  FormDatasourceButtonConfigs,
 } from "utils/DynamicBindingUtils";
 
 function* fetchPluginsSaga(
@@ -96,6 +98,7 @@ function* fetchPluginFormConfigsSaga() {
     const editorConfigs: FormEditorConfigs = {};
     const settingConfigs: FormSettingsConfigs = {};
     const dependencies: FormDependencyConfigs = {};
+    const datasourceFormButtonConfigs: FormDatasourceButtonConfigs = {};
 
     Array.from(pluginIdFormsToFetch).forEach((pluginId, index) => {
       const plugin = plugins.find((plugin) => plugin.id === pluginId);
@@ -125,6 +128,14 @@ function* fetchPluginFormConfigsSaga() {
         } else {
           dependencies[pluginId] = pluginFormData[index].dependencies;
         }
+        // Datasource form buttons config if not available use default
+        if (plugin && !pluginFormData[index].formButton) {
+          datasourceFormButtonConfigs[pluginId] =
+            defaultDatasourceFormButtonConfig[plugin.type];
+        } else {
+          datasourceFormButtonConfigs[pluginId] =
+            pluginFormData[index].formButton;
+        }
       }
     });
     yield put(
@@ -133,6 +144,7 @@ function* fetchPluginFormConfigsSaga() {
         editorConfigs,
         settingConfigs,
         dependencies,
+        datasourceFormButtonConfigs,
       }),
     );
   } catch (error) {
@@ -163,6 +175,10 @@ export function* checkAndGetPluginFormConfigsSaga(pluginId: string) {
       if (!formConfigResponse.data.dependencies) {
         formConfigResponse.data.dependencies =
           defaultActionDependenciesConfig[plugin.type];
+      }
+      if (!formConfigResponse.data.formButton) {
+        formConfigResponse.data.formButton =
+          defaultDatasourceFormButtonConfig[plugin.type];
       }
       yield put(
         fetchPluginFormConfigSuccess({

@@ -1,5 +1,8 @@
 import { isBoolean, get, set } from "lodash";
 import { HiddenType } from "./BaseControl";
+import { diff, Diff } from "deep-diff";
+import { MongoDefaultActionConfig } from "constants/DatasourceEditorConstants";
+import { Action } from "@sentry/react/dist/types";
 
 export const evaluateCondtionWithType = (
   conditions: Array<boolean> | undefined,
@@ -255,7 +258,7 @@ export const actionPathFromName = (
   const ActionConfigStarts = "actionConfiguration.";
   let path = name;
   if (path.startsWith(ActionConfigStarts)) {
-    path = "config." + path.substr(ActionConfigStarts.length);
+    path = "config." + path.slice(ActionConfigStarts.length);
   }
   return `${actionName}.${path}`;
 };
@@ -278,3 +281,52 @@ export enum WhereClauseSubComponent {
 }
 
 export const allowedControlTypes = ["DROP_DOWN", "QUERY_DYNAMIC_INPUT_TEXT"];
+
+export function fixActionPayloadForMongoQuery(
+  action?: Action,
+): Action | undefined {
+  if (!action) return action;
+
+  /* eslint-disable */
+  //@ts-nocheck
+  try {
+    let actionObjectDiff: undefined | Diff<any, any>[] = diff(
+      action,
+      MongoDefaultActionConfig,
+    );
+    if (actionObjectDiff) {
+      actionObjectDiff = actionObjectDiff.filter((diff) => diff.kind === "N");
+      for (let i = 0; i < actionObjectDiff.length; i++) {
+        let path = "";
+        let value = "";
+        //kind = N indicates a newly added property/element
+        //This property is present in initialValues but not in action object
+        if (
+          actionObjectDiff &&
+          actionObjectDiff[i].hasOwnProperty("kind") &&
+          actionObjectDiff[i].path &&
+          Array.isArray(actionObjectDiff[i].path) &&
+          actionObjectDiff[i]?.path?.length &&
+          actionObjectDiff[i]?.kind === "N"
+        ) {
+          // Calculate path from path[] in diff
+          //@ts-ignore
+          if (typeof actionObjectDiff[i]?.path[0] === "string") {
+            //@ts-ignore
+            path = actionObjectDiff[i]?.path?.join(".");
+          }
+          // get value from diff object
+          //@ts-ignore
+          value = actionObjectDiff[i]?.rhs;
+          //@ts-ignore
+          set(action, path, value);
+        }
+      }
+    }
+    return action;
+    //@ts-check
+  } catch (error) {
+    console.error("Error adding default paths in Mongo query");
+    return action;
+  }
+}

@@ -2,7 +2,7 @@ import {
   ReduxAction,
   ReduxActionTypes,
   WidgetReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   all,
   put,
@@ -52,11 +52,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getWidgets } from "./selectors";
-import {
-  clearActionResponse,
-  setActionProperty,
-} from "actions/pluginActionActions";
-import { QueryAction } from "entities/Action";
+import { clearActionResponse } from "actions/pluginActionActions";
 import {
   importApplication,
   updateApplicationLayout,
@@ -164,16 +160,6 @@ function* setUpTourAppSaga() {
   );
   // Update getCustomers query body
   const query: ActionData | undefined = yield select(getQueryAction);
-  let body = (query?.config as QueryAction).actionConfiguration.body;
-  body = body?.replace("10", "20");
-  yield put(
-    setActionProperty({
-      actionId: query?.config.id ?? "",
-      propertyName: "actionConfiguration.body",
-      value: body,
-    }),
-  );
-  yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
   yield put(clearActionResponse(query?.config.id ?? ""));
   const applicationId: string = yield select(getCurrentApplicationId);
   history.push(
@@ -247,13 +233,30 @@ function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
     );
 
     if (nameInput && emailInput && countryInput && imageWidget) {
-      yield put(updateWidgetName(nameInput.widgetId, "NameInput"));
+      yield put(
+        updateWidgetName(nameInput.widgetId, GuidedTourEntityNames.NAME_INPUT),
+      );
       yield take(ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS);
-      yield put(updateWidgetName(emailInput.widgetId, "EmailInput"));
+      yield put(
+        updateWidgetName(
+          emailInput.widgetId,
+          GuidedTourEntityNames.EMAIL_INPUT,
+        ),
+      );
       yield take(ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS);
-      yield put(updateWidgetName(countryInput.widgetId, "CountryInput"));
+      yield put(
+        updateWidgetName(
+          countryInput.widgetId,
+          GuidedTourEntityNames.COUNTRY_INPUT,
+        ),
+      );
       yield take(ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS);
-      yield put(updateWidgetName(imageWidget.widgetId, "ImageWidget"));
+      yield put(
+        updateWidgetName(
+          imageWidget.widgetId,
+          GuidedTourEntityNames.DISPLAY_IMAGE,
+        ),
+      );
     }
   } catch (error) {
     log.error(error);

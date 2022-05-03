@@ -1,0 +1,136 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 1056,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 5016,
+        "containerStyle": "none",
+        "snapRows": 125,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 54,
+        "minHeight": 370,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "isVisible": true,
+                "widgetName": "ButtonGroup1",
+                "orientation": "horizontal",
+                "buttonVariant": "PRIMARY",
+                "version": 1,
+                "animateLoading": true,
+                "groupButtons": {
+                    "groupButton1": {
+                        "label": "Favorite",
+                        "iconName": "heart",
+                        "id": "groupButton1",
+                        "widgetId": "",
+                        "buttonColor": "#03B365",
+                        "buttonType": "SIMPLE",
+                        "placement": "CENTER",
+                        "isVisible": true,
+                        "isDisabled": false,
+                        "index": 0,
+                        "menuItems": {}
+                    },
+                    "groupButton2": {
+                        "label": "Add",
+                        "iconName": "add",
+                        "id": "groupButton2",
+                        "buttonColor": "#03B365",
+                        "buttonType": "SIMPLE",
+                        "placement": "CENTER",
+                        "widgetId": "",
+                        "isVisible": true,
+                        "isDisabled": false,
+                        "index": 1,
+                        "menuItems": {},
+                        "onClick": "{{showAlert('test alert','info')}}"
+                    },
+                    "groupButton3": {
+                        "label": "More",
+                        "iconName": "more",
+                        "id": "groupButton3",
+                        "buttonType": "SIMPLE",
+                        "placement": "CENTER",
+                        "buttonColor": "#03B365",
+                        "widgetId": "",
+                        "isVisible": true,
+                        "isDisabled": false,
+                        "index": 2,
+                        "menuItems": {
+                            "menuItem1": {
+                                "label": "First Option",
+                                "backgroundColor": "#FFFFFF",
+                                "id": "menuItem1",
+                                "widgetId": "",
+                                "onClick": "",
+                                "isVisible": true,
+                                "isDisabled": false,
+                                "index": 0
+                            },
+                            "menuItem2": {
+                                "label": "Second Option",
+                                "backgroundColor": "#FFFFFF",
+                                "id": "menuItem2",
+                                "widgetId": "",
+                                "onClick": "",
+                                "isVisible": true,
+                                "isDisabled": false,
+                                "index": 1
+                            },
+                            "menuItem3": {
+                                "label": "Delete",
+                                "iconName": "trash",
+                                "iconColor": "#FFFFFF",
+                                "iconAlign": "right",
+                                "textColor": "#FFFFFF",
+                                "backgroundColor": "#DD4B34",
+                                "id": "menuItem3",
+                                "widgetId": "",
+                                "onClick": "",
+                                "isVisible": true,
+                                "isDisabled": false,
+                                "index": 2
+                            }
+                        },
+                        "onClick": "{{showAlert('test on click','info')}}"
+                    }
+                },
+                "type": "BUTTON_GROUP_WIDGET",
+                "hideCard": false,
+                "displayName": "Button Group",
+                "key": "02rpaqr4am",
+                "iconSVG": "/static/media/icon.d6773218.svg",
+                "isCanvas": false,
+                "widgetId": "6pvgktutco",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "parentColumnSpace": 16.3125,
+                "parentRowSpace": 10,
+                "leftColumn": 13,
+                "rightColumn": 37,
+                "topRow": 11,
+                "bottomRow": 15,
+                "parentId": "0",
+                "dynamicBindingPathList": [],
+                "dynamicTriggerPathList": [
+                    {
+                        "key": "groupButtons.groupButton3.onClick"
+                    },
+                    {
+                        "key": "groupButtons.groupButton2.onClick"
+                    }
+                ],
+                "dynamicPropertyPathList": []
+            }
+        ]
+    }
+}

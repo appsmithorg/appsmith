@@ -49,6 +49,10 @@ export const Classes = {
 
 export const GuidedTourEntityNames = {
   BUTTON_WIDGET: "UpdateButton",
+  NAME_INPUT: "NameInput",
+  EMAIL_INPUT: "EmailInput",
+  COUNTRY_INPUT: "CountryInput",
+  DISPLAY_IMAGE: "DisplayImage",
 };
 
 export enum GUIDED_TOUR_STEPS {
@@ -264,15 +268,8 @@ export const Steps: StepsType = {
       {
         text: (
           <>
-            <b>Edit</b> the getCustomers query below to fetch data. Replace the{" "}
-            <b>limit</b> {`"20"`} with {`"10"`}.
-          </>
-        ),
-      },
-      {
-        text: (
-          <>
-            Now hit the <RunButton>RUN</RunButton> button to see the response.
+            This command will fetch the first 10 items in the user_data
+            database. Hit <RunButton>RUN</RunButton> to see the response.
           </>
         ),
       },
@@ -284,8 +281,8 @@ export const Steps: StepsType = {
         dispatch(setCurrentStepInit(GUIDED_TOUR_STEPS.SELECT_TABLE_WIDGET));
         setTimeout(() => {
           showIndicator(`[data-guided-tour-iid='CustomersTable']`, "right", {
-            top: 3,
-            left: 18,
+            top: 5,
+            left: -15,
           });
         }, 1000);
       },
@@ -431,21 +428,21 @@ export const Steps: StepsType = {
         text: <>{createMessage(STEP_FIVE_HINT_TEXT)}</>,
         steps: [
           <>
-            Connect <b>{`"Email Input"`}</b>
+            Connect <b>{GuidedTourEntityNames.EMAIL_INPUT}</b>
             {"'"}s Default Text Property to{" "}
             <code>
               &#123;&#123;CustomersTable.selectedRow.email&#125;&#125;
             </code>
           </>,
           <>
-            Connect <b>{`"Country Input"`}</b>
+            Connect <b>{GuidedTourEntityNames.COUNTRY_INPUT}</b>
             {"'"}s Default Text Property to{" "}
             <code>
               &#123;&#123;CustomersTable.selectedRow.country&#125;&#125;
             </code>
           </>,
           <>
-            Connect <b>{`"Display Image"`}</b>
+            Connect <b>{GuidedTourEntityNames.DISPLAY_IMAGE}</b>
             {"'"}s Image Property to{" "}
             <code>
               &#123;&#123;CustomersTable.selectedRow.image&#125;&#125;
@@ -518,7 +515,7 @@ export const Steps: StepsType = {
       {
         text: (
           <>
-            Select the button widget to see the properties in the propety pane.
+            Select the button widget to see the properties in the property pane.
             From the onClick dropdown, select <b>Execute a query</b> {"&"} then
             select <b>updateCustomerInfo</b> query
           </>

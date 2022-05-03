@@ -90,6 +90,7 @@ exports.saveProfile = async (reactProfiler, name) => {
 
 exports.login = async (page) => {
   const url = "https://dev.appsmith.com/user/login";
+  // const url = "http://localhost/user/login";
 
   await page.goto(url);
   await page.setViewport({ width: 1920, height: 1080 });
@@ -104,7 +105,7 @@ exports.login = async (page) => {
   await page.waitForSelector(passwordSelector);
   await page.waitForSelector(buttonSelector);
 
-  await page.type(emailSelector, "hello@myemail.com");
+  await page.type(emailSelector, "hello@mymail.com");
   await page.type(passwordSelector, "qwerty1234");
   delay(1000, "before clicking login button");
   await page.click(buttonSelector);

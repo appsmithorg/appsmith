@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import styled, { createGlobalStyle } from "styled-components";
+import styled, { createGlobalStyle, css } from "styled-components";
 import Interweave from "interweave";
 import {
   IButtonProps,
@@ -7,6 +7,7 @@ import {
   Button,
   Alignment,
   Position,
+  Classes,
 } from "@blueprintjs/core";
 import { Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
@@ -23,7 +24,7 @@ import { ThemeProp, Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 
 import ReCAPTCHA from "react-google-recaptcha";
-import { Colors } from "../../../constants/Colors";
+import { Colors } from "constants/Colors";
 import _ from "lodash";
 import {
   ButtonBoxShadow,
@@ -43,7 +44,6 @@ import {
   getCustomJustifyContent,
   getAlignText,
 } from "widgets/WidgetUtils";
-import { RenderMode } from "constants/WidgetConstants";
 import { DragContainer } from "./DragContainer";
 import { buttonHoverActiveStyles } from "./utils";
 
@@ -77,7 +77,7 @@ const TooltipStyles = createGlobalStyle`
 `;
 
 /*
-  Don't use buttonHoverActiveStyles in a nested function it won't work - 
+  Don't use buttonHoverActiveStyles in a nested function it won't work -
 
   const buttonHoverActiveStyles = css ``
 
@@ -95,17 +95,7 @@ const TooltipStyles = createGlobalStyle`
   }`
 */
 
-const StyledButton = styled((props) => (
-  <Button
-    {..._.omit(props, [
-      "borderRadius",
-      "boxShadow",
-      "boxShadowColor",
-      "buttonColor",
-      "buttonVariant",
-    ])}
-  />
-))<ThemeProp & ButtonStyleProps>`
+const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
   height: 100%;
   background-image: none !important;
   font-weight: ${(props) => props.theme.fontWeights[2]};
@@ -124,9 +114,8 @@ const StyledButton = styled((props) => (
           ? theme.colors.button.primary.primary.bgColor
           : "none"
       } !important;
-    
 
-    &:disabled {
+    &:disabled, &.${Classes.DISABLED} {
       background-color: ${theme.colors.button.disabled.bgColor} !important;
       cursor: not-allowed;
       color: ${theme.colors.button.disabled.textColor} !important;
@@ -193,6 +182,20 @@ const StyledButton = styled((props) => (
       : ""}
 `;
 
+const StyledButton = styled((props) => (
+  <Button
+    {..._.omit(props, [
+      "borderRadius",
+      "boxShadow",
+      "boxShadowColor",
+      "buttonColor",
+      "buttonVariant",
+    ])}
+  />
+))<ThemeProp & ButtonStyleProps>`
+  ${buttonBaseStyle}
+`;
+
 export type ButtonStyleProps = {
   buttonColor?: string;
   buttonVariant?: ButtonVariant;
@@ -202,7 +205,6 @@ export type ButtonStyleProps = {
   iconName?: IconName;
   iconAlign?: Alignment;
   placement?: ButtonPlacement;
-  renderMode?: RenderMode;
 };
 
 // To be used in any other part of the app
@@ -221,7 +223,6 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
     loading,
     onClick,
     placement,
-    renderMode,
     rightIcon,
     text,
   } = props;
@@ -235,7 +236,7 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
       disabled={disabled}
       loading={loading}
       onClick={onClick}
-      renderMode={renderMode}
+      showInAllModes
     >
       <StyledButton
         alignText={getAlignText(isRightAlign, iconName)}
@@ -287,7 +288,6 @@ interface ButtonComponentProps extends ComponentProps {
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   isDisabled?: boolean;
   isLoading: boolean;
-  renderMode: RenderMode;
   rightIcon?: IconName | MaybeElement;
   type: ButtonType;
   buttonColor?: string;
@@ -305,6 +305,7 @@ function RecaptchaV2Component(
     children: any;
     isDisabled?: boolean;
     recaptchaType?: RecaptchaType;
+    isLoading: boolean;
     handleError: (event: React.MouseEvent<HTMLElement>, error: string) => void;
   } & RecaptchaProps,
 ) {
@@ -315,6 +316,7 @@ function RecaptchaV2Component(
   };
   const handleBtnClick = async (event: React.MouseEvent<HTMLElement>) => {
     if (props.isDisabled) return;
+    if (props.isLoading) return;
     if (isInvalidKey) {
       // Handle incorrent google recaptcha site key
       props.handleError(event, createMessage(GOOGLE_RECAPTCHA_KEY_ERROR));
@@ -355,6 +357,7 @@ function RecaptchaV3Component(
     children: any;
     isDisabled?: boolean;
     recaptchaType?: RecaptchaType;
+    isLoading: boolean;
     handleError: (event: React.MouseEvent<HTMLElement>, error: string) => void;
   } & RecaptchaProps,
 ) {
@@ -365,6 +368,7 @@ function RecaptchaV3Component(
 
   const handleBtnClick = (event: React.MouseEvent<HTMLElement>) => {
     if (props.isDisabled) return;
+    if (props.isLoading) return;
     if (status === ScriptStatus.READY) {
       (window as any).grecaptcha.ready(() => {
         try {
@@ -408,12 +412,21 @@ function BtnWrapper(
   props: {
     children: any;
     isDisabled?: boolean;
+    isLoading: boolean;
     onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   } & RecaptchaProps,
 ) {
-  if (!props.googleRecaptchaKey)
-    return <div onClick={props.onClick}>{props.children}</div>;
-  else {
+  if (!props.googleRecaptchaKey) {
+    return (
+      <div
+        onClick={(e: React.MouseEvent<HTMLElement>) =>
+          props.onClick && !props.isLoading && props.onClick(e)
+        }
+      >
+        {props.children}
+      </div>
+    );
+  } else {
     const handleError = (
       event: React.MouseEvent<HTMLElement>,
       error: string,
@@ -422,7 +435,7 @@ function BtnWrapper(
         text: error,
         variant: Variant.danger,
       });
-      props.onClick && props.onClick(event);
+      props.onClick && !props.isLoading && props.onClick(event);
     };
     if (props.recaptchaType === RecaptchaTypes.V2) {
       return <RecaptchaV2Component {...props} handleError={handleError} />;
@@ -440,6 +453,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
       googleRecaptchaKey={props.googleRecaptchaKey}
       handleRecaptchaV2Loading={props.handleRecaptchaV2Loading}
       isDisabled={props.isDisabled}
+      isLoading={props.isLoading}
       onClick={props.onClick}
       recaptchaType={props.recaptchaType}
     >
@@ -455,7 +469,6 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
         iconName={props.iconName}
         loading={props.isLoading}
         placement={props.placement}
-        renderMode={props.renderMode}
         rightIcon={props.rightIcon}
         text={props.text}
         type={props.type}

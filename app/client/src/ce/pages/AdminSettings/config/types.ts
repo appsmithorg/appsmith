@@ -1,5 +1,5 @@
 import React from "react";
-import { ReduxAction } from "constants/ReduxActionConstants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { Dispatch } from "react";
 
 export enum SettingTypes {
@@ -13,6 +13,7 @@ export enum SettingTypes {
   UNEDITABLEFIELD = "UNEDITABLEFIELD",
   ACCORDION = "ACCORDION",
   TAGINPUT = "TAGINPUT",
+  DROPDOWN = "DROPDOWN",
 }
 
 export enum SettingSubtype {
@@ -50,6 +51,9 @@ export interface Setting {
   calloutType?: "Info" | "Warning";
   advanced?: Setting[];
   isRequired?: boolean;
+  formName?: string;
+  fieldName?: string;
+  dropdownOptions?: Array<{ id: string; value: string; label?: string }>;
 }
 
 export interface Category {

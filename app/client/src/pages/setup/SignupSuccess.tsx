@@ -1,6 +1,6 @@
 import { firstTimeUserOnboardingInit } from "actions/onboardingActions";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   APPLICATIONS_URL,
   BUILDER_PATH,
@@ -39,17 +39,18 @@ export function SignupSuccess() {
   const redirectUsingQueryParam = useCallback(() => {
     if (redirectUrl) {
       try {
-        const redirectURLObject = new URL(redirectUrl);
         if (
           window.location.pathname == SIGNUP_SUCCESS_URL &&
           shouldEnableFirstTimeUserOnboarding === "true"
         ) {
+          let urlObject;
+          try {
+            urlObject = new URL(redirectUrl);
+          } catch (e) {}
           const match = matchPath<{
-            applicationSlug: string;
-            pageSlug: string;
             pageId: string;
             applicationId: string;
-          }>(redirectURLObject.pathname, {
+          }>(urlObject?.pathname ?? redirectUrl, {
             path: [
               BUILDER_PATH,
               BUILDER_PATH_DEPRECATED,

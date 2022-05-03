@@ -21,7 +21,7 @@ import {
 } from "selectors/editorSelectors";
 import history from "utils/history";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   getFirstTimeUserOnboardingComplete,
   getEnableFirstTimeUserOnboarding,
@@ -163,6 +163,7 @@ const StyledFooter = styled.div`
   display: flex;
   align-items: center;
   margin-top: ${(props) => props.theme.spaces[9]}px;
+  margin-bottom: ${(props) => props.theme.spaces[9]}px;
 `;
 
 function getSuggestedNextActionAndCompletedTasks(

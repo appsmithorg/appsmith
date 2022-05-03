@@ -302,6 +302,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   };
 
   getCustomFusionChartDataSource = () => {
+    // in case of evaluation error, customFusionChartConfig can be undefined
     let config = this.props.customFusionChartConfig as CustomFusionChartConfig;
     if (config && config.dataSource) {
       config = {
@@ -316,7 +317,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         },
       };
     }
-    return config;
+    return config || {};
   };
 
   getScrollChartDataSource = () => {
@@ -437,31 +438,16 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   componentDidUpdate(prevProps: ChartComponentProps) {
     if (!_.isEqual(prevProps, this.props)) {
-      if (this.props.chartType === "CUSTOM_FUSION_CHART") {
-        const chartConfig = {
-          renderAt: this.chartContainerId,
-          width: "100%",
-          height: "100%",
-          events: {
-            dataPlotClick: (evt: any) => {
-              const data = evt.data;
-              const seriesTitle = this.getSeriesTitle(data);
-              this.props.onDataPointClick({
-                x: data.categoryLabel,
-                y: data.dataValue,
-                seriesTitle,
-              });
-            },
-          },
-          ...this.getCustomFusionChartDataSource(),
-        };
-        this.chartInstance = new FusionCharts(chartConfig);
-        this.chartInstance.render();
-        return;
-      }
       const chartType = this.getChartType();
       this.chartInstance.chartType(chartType);
-      if (this.props.allowScroll && this.props.chartType !== "PIE_CHART") {
+      if (this.props.chartType === "CUSTOM_FUSION_CHART") {
+        const { dataSource, type } = this.getCustomFusionChartDataSource();
+        this.chartInstance.chartType(type);
+        this.chartInstance.setChartData(dataSource);
+      } else if (
+        this.props.allowScroll &&
+        this.props.chartType !== "PIE_CHART"
+      ) {
         this.chartInstance.setChartData(this.getScrollChartDataSource());
       } else {
         this.chartInstance.setChartData(this.getChartDataSource());

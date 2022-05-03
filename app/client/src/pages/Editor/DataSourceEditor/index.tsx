@@ -162,7 +162,8 @@ const mapDispatchToProps = (
   ownProps: any,
 ): DatasourcePaneFunctions => ({
   switchDatasource: (id: string) => {
-    if (!ownProps.fromImporting) dispatch(switchDatasource(id));
+    // on reconnect data modal, it shouldn't be redirected to datasource edit page
+    dispatch(switchDatasource(id, ownProps.fromImporting));
   },
   setDatasourceEditorMode: (id: string, viewMode: boolean) =>
     dispatch(setDatsourceEditorMode({ id, viewMode })),

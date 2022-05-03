@@ -118,9 +118,13 @@ describe("Text Widget color/font/alignment Functionality", function() {
   });
 
   it("Test to validate enable scroll feature", function() {
-    cy.get(".t--property-control-enablescroll .bp3-switch").click({
-      force: true,
-    });
+    cy.selectDropdownValue(
+      commonlocators.textOverflowDropdown,
+      "Scroll contents",
+    );
+    cy.get(commonlocators.textOverflowDropdown)
+      .last()
+      .should("have.text", "Scroll contents");
     cy.wait("@updateLayout");
     cy.get(commonlocators.headingTextStyle).trigger("mouseover", {
       force: true,

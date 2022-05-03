@@ -176,12 +176,7 @@ public class AmazonS3PluginTest {
         StepVerifier.create(pluginExecutorMono)
                 .assertNext(executor -> {
                     Set<String> res = executor.validateDatasource(datasourceConfiguration);
-                    assertNotEquals(0, res.size());
-
-                    List<String> errorList = new ArrayList<>(res);
-                    assertTrue(errorList.get(0).contains("Required parameter 'Region' is empty. Did you forget to " +
-                            "edit the 'Region' field in the datasource creation form ? You need to fill it with the " +
-                            "region where your S3 instance is hosted."));
+                    assertEquals(0, res.size());
                 })
                 .verifyComplete();
     }

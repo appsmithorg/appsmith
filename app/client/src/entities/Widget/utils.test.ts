@@ -4,6 +4,7 @@ import tablePropertyPaneConfig from "widgets/TableWidget/widget/propertyConfig";
 import chartPorpertyConfig from "widgets/ChartWidget/widget/propertyConfig";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { ButtonVariantTypes } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 describe("getAllPathsFromPropertyConfig", () => {
@@ -116,8 +117,61 @@ describe("getAllPathsFromPropertyConfig", () => {
     };
     const config = tablePropertyPaneConfig;
 
+    const bindingPaths = {
+      tableData: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
+      defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
+      isVisible: EvaluationSubstitutionType.TEMPLATE,
+      isSortable: EvaluationSubstitutionType.TEMPLATE,
+      animateLoading: EvaluationSubstitutionType.TEMPLATE,
+      primaryColumnId: EvaluationSubstitutionType.TEMPLATE,
+      compactMode: EvaluationSubstitutionType.TEMPLATE,
+      isVisibleDownload: EvaluationSubstitutionType.TEMPLATE,
+      isVisibleFilters: EvaluationSubstitutionType.TEMPLATE,
+      isVisiblePagination: EvaluationSubstitutionType.TEMPLATE,
+      isVisibleSearch: EvaluationSubstitutionType.TEMPLATE,
+      delimiter: EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.name.computedValue": EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.name.horizontalAlignment":
+        EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.name.verticalAlignment":
+        EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.name.textSize": EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.name.fontStyle": EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.name.textColor": EvaluationSubstitutionType.TEMPLATE,
+      // "primaryColumns.name.isVisible": EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.name.isCellVisible": EvaluationSubstitutionType.TEMPLATE,
+
+      "primaryColumns.name.cellBackground": EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.createdAt.inputFormat":
+        EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.createdAt.outputFormat":
+        EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.createdAt.computedValue":
+        EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.createdAt.isCellVisible":
+        EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.createdAt.horizontalAlignment":
+        EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.createdAt.verticalAlignment":
+        EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.createdAt.textSize": EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.createdAt.fontStyle": EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.createdAt.textColor": EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.createdAt.cellBackground":
+        EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.status.buttonLabel": EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.status.buttonColor": EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.status.buttonVariant":
+        EvaluationSubstitutionType.TEMPLATE,
+      "primaryColumns.status.isCellVisible":
+        EvaluationSubstitutionType.TEMPLATE,
+    };
     const expected = {
-      bindingPaths: {
+      bindingPaths,
+      reactivePaths: {
+        ...bindingPaths,
         selectedRow: EvaluationSubstitutionType.TEMPLATE,
         selectedRows: EvaluationSubstitutionType.TEMPLATE,
         tableData: EvaluationSubstitutionType.SMART_SUBSTITUTE,
@@ -173,8 +227,6 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.status.buttonColor":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.status.buttonLabelColor":
-          EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
       },
@@ -208,6 +260,20 @@ describe("getAllPathsFromPropertyConfig", () => {
         },
         isVisible: {
           type: "BOOLEAN",
+        },
+        "primaryColumns.status.buttonVariant": {
+          type: "TABLE_PROPERTY",
+          params: {
+            params: {
+              allowedValues: [
+                ButtonVariantTypes.PRIMARY,
+                ButtonVariantTypes.SECONDARY,
+                ButtonVariantTypes.TERTIARY,
+              ],
+              default: ButtonVariantTypes.PRIMARY,
+            },
+            type: "TEXT",
+          },
         },
         isSortable: {
           type: "BOOLEAN",
@@ -443,15 +509,6 @@ describe("getAllPathsFromPropertyConfig", () => {
             },
           },
         },
-        "primaryColumns.status.buttonLabelColor": {
-          type: ValidationTypes.TABLE_PROPERTY,
-          params: {
-            type: ValidationTypes.TEXT,
-            params: {
-              regex: /^(?![<|{{]).+/,
-            },
-          },
-        },
       },
     };
 
@@ -502,18 +559,21 @@ describe("getAllPathsFromPropertyConfig", () => {
     };
     const config = chartPorpertyConfig;
 
+    const bindingPaths = {
+      chartType: EvaluationSubstitutionType.TEMPLATE,
+      chartName: EvaluationSubstitutionType.TEMPLATE,
+      "chartData.random-id.seriesName": EvaluationSubstitutionType.TEMPLATE,
+      "chartData.random-id.data": EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      xAxisName: EvaluationSubstitutionType.TEMPLATE,
+      yAxisName: EvaluationSubstitutionType.TEMPLATE,
+      isVisible: EvaluationSubstitutionType.TEMPLATE,
+      animateLoading: EvaluationSubstitutionType.TEMPLATE,
+      setAdaptiveYMin: EvaluationSubstitutionType.TEMPLATE,
+    };
+
     const expected = {
-      bindingPaths: {
-        chartType: EvaluationSubstitutionType.TEMPLATE,
-        chartName: EvaluationSubstitutionType.TEMPLATE,
-        "chartData.random-id.seriesName": EvaluationSubstitutionType.TEMPLATE,
-        "chartData.random-id.data": EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        xAxisName: EvaluationSubstitutionType.TEMPLATE,
-        yAxisName: EvaluationSubstitutionType.TEMPLATE,
-        isVisible: EvaluationSubstitutionType.TEMPLATE,
-        animateLoading: EvaluationSubstitutionType.TEMPLATE,
-        setAdaptiveYMin: EvaluationSubstitutionType.TEMPLATE,
-      },
+      bindingPaths,
+      reactivePaths: { ...bindingPaths },
       triggerPaths: {
         onDataPointClick: true,
       },

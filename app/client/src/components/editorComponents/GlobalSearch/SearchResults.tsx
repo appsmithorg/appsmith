@@ -19,7 +19,6 @@ import {
 } from "./utils";
 import SearchContext from "./GlobalSearchContext";
 import {
-  getWidgetIcon,
   getPluginIcon,
   homePageIcon,
   pageIcon,
@@ -32,6 +31,7 @@ import { AppState } from "reducers";
 import { keyBy, noop } from "lodash";
 import { getPageList } from "selectors/editorSelectors";
 import { PluginType } from "entities/Action";
+import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
 
 const DocumentIcon = HelpIcons.DOCUMENT;
 
@@ -181,14 +181,13 @@ function WidgetItem(props: {
   const title = getItemTitle(item);
   const pageName = usePageName(item.pageId);
   const subText = `${pageName}`;
-
   return (
     <>
       <WidgetIconWrapper
         className="icon-wrapper"
         isActiveItem={props.isActiveItem}
       >
-        {getWidgetIcon(type)}
+        <WidgetIcon type={type} />
       </WidgetIconWrapper>
       <ItemTitle>
         <TextWrapper>

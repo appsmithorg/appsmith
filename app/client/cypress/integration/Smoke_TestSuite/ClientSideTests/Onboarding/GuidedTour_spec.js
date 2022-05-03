@@ -17,17 +17,7 @@ describe("Guided Tour", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(guidedTourLocators.welcomeTour).click();
     cy.get(guidedTourLocators.startBuilding).click();
-    // Step 1: Update limit in code and run query
-    cy.get(".CodeMirror")
-      .first()
-      .then((editor) => {
-        editor[0].CodeMirror.setValue("");
-      });
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("SELECT * FROM user_data ORDER BY id LIMIT")
-      .type(" 10;", { delay: 600 });
+    // Step 1: Run query
     cy.runQuery();
     cy.get(guidedTourLocators.successButton).click();
     // Step 2: Select table widget
@@ -52,7 +42,7 @@ describe("Guided Tour", function() {
     cy.get(commonlocators.editWidgetName).contains("CountryInput");
     cy.testJsontext("defaulttext", "{{CustomersTable.selectedRow.country}}");
     cy.get(".t--entity-name")
-      .contains("ImageWidget")
+      .contains("DisplayImage")
       .click({ force: true });
     // cy.SearchEntityandOpen("ImageWidget");
     // cy.get(commonlocators.editWidgetName).contains("CountryInput");
@@ -83,9 +73,12 @@ describe("Guided Tour", function() {
     cy.get(guidedTourLocators.successButton).click();
     // Step 9: Deploy
     cy.PublishtheApp();
+    cy.wait("@getOrganisation");
+    cy.get(guidedTourLocators.rating).should("be.visible");
     cy.get(guidedTourLocators.rating)
       .eq(4)
       .click();
+    cy.get(guidedTourLocators.startBuilding).should("be.visible");
     cy.get(guidedTourLocators.startBuilding).click();
   });
 });

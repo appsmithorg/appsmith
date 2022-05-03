@@ -52,10 +52,17 @@ public abstract class MongoCommand {
     }
 
     public Document parseCommand() {
-        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation : All mongo commands must implement parseCommand");
+        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation : All mongo " +
+                "commands must implement parseCommand");
     }
 
     public List<DatasourceStructure.Template> generateTemplate(Map<String, Object> templateConfiguration) {
-        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation : All mongo commands must implement generateTemplate");
+        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation : All mongo " +
+                "commands must implement generateTemplate");
+    }
+
+    public String getRawQuery() {
+        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation : All mongo " +
+                "commands must implement getRawQuery");
     }
 }

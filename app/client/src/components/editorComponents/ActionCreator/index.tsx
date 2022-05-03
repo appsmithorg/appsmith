@@ -36,7 +36,6 @@ import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSCollection } from "actions/jsPaneActions";
-import getFeatureFlags from "utils/featureFlags";
 import { JSAction, Variable } from "entities/JSCollection";
 import {
   CLEAR_INTERVAL,
@@ -60,10 +59,11 @@ import {
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import { selectFeatureFlags } from "selectors/usersSelectors";
+import FeatureFlags from "entities/FeatureFlags";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
-const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
 const baseOptions: { label: string; value: string }[] = [
   {
     label: createMessage(NO_ACTION),
@@ -127,7 +127,8 @@ const baseOptions: { label: string; value: string }[] = [
   },
 ];
 
-const getBaseOptions = () => {
+const getBaseOptions = (featureFlags: FeatureFlags) => {
+  const { JS_EDITOR: isJSEditorEnabled } = featureFlags;
   if (isJSEditorEnabled) {
     const jsOption = baseOptions.find(
       (option: any) => option.value === ActionType.jsFunction,
@@ -190,7 +191,7 @@ function getFieldFromValue(
             const errorArg = args[1] ? args[1][0] : "() => {}";
             const successArg = changeValue.endsWith(")")
               ? `() => ${changeValue}`
-              : `() => ${changeValue}()`;
+              : `() => {}`;
 
             return value.replace(
               ACTION_TRIGGER_REGEX,
@@ -216,7 +217,8 @@ function getFieldFromValue(
             const successArg = args[0] ? args[0][0] : "() => {}";
             const errorArg = changeValue.endsWith(")")
               ? `() => ${changeValue}`
-              : `() => ${changeValue}()`;
+              : `() => {}`;
+
             return value.replace(
               ACTION_TRIGGER_REGEX,
               `{{$1(${successArg}, ${errorArg})}}`,
@@ -413,8 +415,9 @@ function getIntegrationOptionsWithChildren(
   jsActions: Array<JSCollectionData>,
   createIntegrationOption: TreeDropdownOption,
   dispatch: any,
+  featureFlags: FeatureFlags,
 ) {
-  const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
+  const { JS_EDITOR: isJSEditorEnabled } = featureFlags;
   const createJSObject: TreeDropdownOption = {
     label: "New JS Object",
     value: "JSObject",
@@ -527,6 +530,7 @@ function getIntegrationOptionsWithChildren(
 function useIntegrationsOptionTree() {
   const pageId = useSelector(getCurrentPageId) || "";
   const applicationId = useSelector(getCurrentApplicationId) as string;
+  const featureFlags = useSelector(selectFeatureFlags);
   const dispatch = useDispatch();
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
@@ -539,7 +543,7 @@ function useIntegrationsOptionTree() {
     pageId,
     applicationId,
     pluginGroups,
-    getBaseOptions(),
+    getBaseOptions(featureFlags),
     actions,
     jsActions,
     {
@@ -557,6 +561,7 @@ function useIntegrationsOptionTree() {
       },
     },
     dispatch,
+    featureFlags,
   );
 }
 

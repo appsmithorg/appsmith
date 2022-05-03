@@ -1,16 +1,15 @@
-import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
-import { JSEditor } from "../../../../support/Pages/JSEditor";
-import { CommonLocators } from "../../../../support/Objects/CommonLocators";
-
-const agHelper = new AggregateHelper();
-const jsEditor = new JSEditor();
-const locator = new CommonLocators();
+import { ObjectsRegistry } from "../../../../support/Objects/Registry"
 
 let dataSet: any, dsl: any;
+let agHelper = ObjectsRegistry.AggregateHelper,
+    ee = ObjectsRegistry.EntityExplorer,
+    jsEditor = ObjectsRegistry.JSEditor,
+    locator = ObjectsRegistry.CommonLocators;
 
 describe("Input widget test with default value from chart datapoint", () => {
 
-    before(() => {
+    //beforeEach - becasuse to enable re-attempt passing!
+    beforeEach(() => {
         cy.fixture('ChartDsl').then((val: any) => {
             agHelper.AddDsl(val)
             dsl = val;
@@ -20,29 +19,29 @@ describe("Input widget test with default value from chart datapoint", () => {
         });
     });
 
-    it("1. Input widget test with default value from another Input widget", () => {
-        agHelper.expandCollapseEntity("WIDGETS")
-        agHelper.SelectEntityByName("Input1")
-        jsEditor.EnterJSContext("defaulttext", dataSet.bindChartData + "}}");
-        agHelper.ValidateNetworkCallRespPut('@updateLayout')
-    });
-
-    it("2. Chart with datapoint feature validation", function () {
-        agHelper.SelectEntityByName("Chart1")
+    it("1. Chart widget - Input widget test with default value from another Input widget", () => {
+        ee.SelectEntityByName("Input1", 'WIDGETS')
+        jsEditor.EnterJSContext("Default Text", dataSet.bindChartData + "}}");
+        agHelper.ValidateNetworkStatus('@updateLayout')
+        ee.SelectEntityByName("Chart1")
         agHelper.SelectPropertiesDropDown("ondatapointclick", "Show message")
         agHelper.EnterActionValue("Message", dataSet.bindingDataPoint)
-        agHelper.XpathNClick("(//*[local-name()='rect'])[13]")
-        cy.get(locator._inputWidget).first().invoke('val').then($value => {
-            let inputVal = ($value as string).replace(/\s/g, "")
+        ee.SelectEntityByName("Input2")
+        jsEditor.EnterJSContext("Default Text", dataSet.bindingSeriesTitle + "}}");
+        agHelper.DeployApp()
+        agHelper.Sleep(1500)//waiting for chart to load!
+        agHelper.GetNClick("//*[local-name()='rect']", 13)
+        cy.get(locator._inputWidgetInDeployed).first().invoke('val').then($value => {
+            let inputVal = ($value as string).replace(/\s/g, "")//removing space here
             //cy.get(locator._toastMsg).invoke('text').then(toastTxt => expect(toastTxt.trim()).to.eq(inputVal))
             cy.get(locator._toastMsg).should('have.text', inputVal)
         })
-    })
-
-    it("3. Chart with seriesTitle feature validation", function () {
-        agHelper.SelectEntityByName("Input2")
-        jsEditor.EnterJSContext("defaulttext", dataSet.bindingSeriesTitle + "}}");
-        cy.get(locator._inputWidget).last().should("have.value", dsl.dsl.children[0].chartData[0].seriesName);
+        cy.get(locator._inputWidgetInDeployed).last().should("have.value", dsl.dsl.children[0].chartData[0].seriesName);
     });
+
+    afterEach(() => {
+        //this is to enable re-attempt passing!
+        agHelper.NavigateBacktoEditor()
+    })
 
 });

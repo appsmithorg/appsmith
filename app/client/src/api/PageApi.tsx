@@ -52,8 +52,8 @@ export type SavePageResponseData = {
   actionUpdates: Array<{
     executeOnLoad: boolean;
     id: string;
-    collectionId?: string;
     name: string;
+    collectionId?: string;
   }>;
 };
 

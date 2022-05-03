@@ -61,7 +61,7 @@ import {
 import useRecentEntities from "./useRecentEntities";
 import { get, noop } from "lodash";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { getQueryParams } from "../../../utils/AppsmithUtils";
+import { getQueryParams } from "utils/AppsmithUtils";
 import SnippetsFilter from "./SnippetsFilter";
 import SnippetRefinements from "./SnippetRefinements";
 import { Configure, Index } from "react-instantsearch-dom";

@@ -25,7 +25,8 @@ import {
   getAlignText,
   WidgetContainerDiff,
 } from "widgets/WidgetUtils";
-import _ from "lodash";
+import orderBy from "lodash/orderBy";
+import uniqueId from "lodash/uniqueId";
 import { RenderMode } from "constants/WidgetConstants";
 import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 
@@ -244,9 +245,11 @@ function PopoverContent(props: PopoverContentProps) {
   const { isCompact, menuItems: itemsObj, onItemClicked } = props;
 
   if (!itemsObj) return <StyledMenu />;
-  const items = Object.keys(itemsObj)
+  const visibleItems = Object.keys(itemsObj)
     .map((itemKey) => itemsObj[itemKey])
     .filter((item) => item.isVisible === true);
+
+  const items = orderBy(visibleItems, ["index"], ["asc"]);
 
   const listItems = items.map((menuItem) => {
     const {
@@ -402,7 +405,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     renderMode,
     width,
   } = props;
-  const id = _.uniqueId();
+  const id = uniqueId();
 
   return (
     <>

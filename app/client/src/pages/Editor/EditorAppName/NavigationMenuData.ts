@@ -9,7 +9,7 @@ import {
   setCommentModeInUrl,
   useHideComments,
 } from "pages/Editor/ToggleModeButton";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 
 import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
@@ -23,7 +23,6 @@ import {
 } from "../../Applications/permissionHelpers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { Colors } from "constants/Colors";
-import getFeatureFlags from "utils/featureFlags";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
@@ -38,6 +37,7 @@ import { redoAction, undoAction } from "actions/pageActions";
 import { redoShortCut, undoShortCut } from "utils/helpers";
 import { pageListEditorURL } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;
@@ -122,7 +122,9 @@ export const GetNavigationMenuData = ({
     },
   ];
 
-  if (getFeatureFlags().GIT && !isGitConnected) {
+  const featureFlags = useSelector(selectFeatureFlags);
+
+  if (featureFlags.GIT && !isGitConnected) {
     deployOptions.push({
       text: createMessage(CONNECT_TO_GIT_OPTION),
       onClick: () => openGitConnectionPopup(),

@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -38,11 +39,12 @@ public class ImportExportApplicationServiceImpl extends ImportExportApplicationS
                                               ExamplesOrganizationCloner examplesOrganizationCloner,
                                               ActionCollectionRepository actionCollectionRepository,
                                               ActionCollectionService actionCollectionService,
-                                              ThemeService themeService) {
+                                              ThemeService themeService,
+                                              PolicyUtils policyUtils) {
 
         super(datasourceService, sessionUserService, newActionRepository, datasourceRepository, pluginRepository,
                 organizationService, applicationService, newPageService, applicationPageService, newPageRepository,
                 newActionService, sequenceService, examplesOrganizationCloner, actionCollectionRepository,
-                actionCollectionService, themeService);
+                actionCollectionService, themeService, policyUtils);
     }
 }

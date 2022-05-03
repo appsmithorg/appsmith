@@ -14,7 +14,7 @@ import {
   ICardProps,
   Position,
 } from "@blueprintjs/core";
-import { ApplicationPayload } from "constants/ReduxActionConstants";
+import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -477,7 +477,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       moreActionItems.push({
         onSelect: forkApplicationInitiate,
         text: "Fork",
-        icon: "compasses-line",
+        icon: "fork-2",
         cypressSelector: "t--fork-app",
       });
     }
@@ -592,12 +592,18 @@ export function ApplicationCard(props: ApplicationCardProps) {
     initials += props.application.name[1].toUpperCase() || "";
   }
 
+  // should show correct branch of application when edit mode
+  const params: any = {};
+  if (showGitBadge) {
+    params.branch = showGitBadge;
+  }
   const viewApplicationURL = viewerURL({
     applicationSlug: props.application.slug as string,
     applicationVersion: props.application.applicationVersion,
     pageSlug: defaultPageSlug || "page",
     applicationId: props.application.id,
     pageId: props.application.defaultPageId as string,
+    params,
   });
   const editApplicationURL = builderURL({
     applicationSlug: props.application.slug as string,
@@ -605,6 +611,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     applicationId: props.application.id,
     pageSlug: defaultPageSlug || "page",
     pageId: props.application.defaultPageId as string,
+    params,
   });
 
   const appNameText = (

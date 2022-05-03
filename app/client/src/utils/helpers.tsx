@@ -11,7 +11,7 @@ import {
   WINDOW_OBJECT_PROPERTIES,
 } from "constants/WidgetValidation";
 import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
-import { get, set } from "lodash";
+import { get, set, isNil } from "lodash";
 import { Org } from "constants/orgConstants";
 import {
   isPermitted,
@@ -665,6 +665,15 @@ export const captureInvalidDynamicBindingPath = (
   return currentDSL;
 };
 
+/*
+ * Check if a value is null / undefined / empty string
+ *
+ * @param value: any
+ */
+export const isEmptyOrNill = (value: any) => {
+  return isNil(value) || (isString(value) && value === "");
+};
+
 export const isURLDeprecated = (url: string) => {
   return !!matchPath(url, {
     path: [
@@ -701,6 +710,8 @@ export const getUpdatedRoute = (
 
 export const updateSlugNamesInURL = (params: Record<string, string>) => {
   const { pathname, search } = window.location;
+  // Do not update old URLs
+  if (isURLDeprecated(pathname)) return;
   const newURL = getUpdatedRoute(pathname, params);
   history.replace(newURL + search);
 };

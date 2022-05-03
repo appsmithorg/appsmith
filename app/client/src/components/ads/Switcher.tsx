@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled, { css } from "styled-components";
 import { CommonComponentProps } from "components/ads/common";
-import { Colors } from "../../constants/Colors";
+import { Colors } from "constants/Colors";
 
 /** Styles **/
 const MainContainer = styled.div`

@@ -1,16 +1,15 @@
-import { ApiPage } from "../../../../support/Pages/ApiPage";
-import { AggregateHelper } from "../../../../support/Pages/AggregateHelper";
-import { JSEditor } from "../../../../support/Pages/JSEditor";
-import { CommonLocators } from "../../../../support/Objects/CommonLocators";
-
-const apiPage = new ApiPage();
-const agHelper = new AggregateHelper();
-const jsEditor = new JSEditor();
-const locator = new CommonLocators();
+import { ObjectsRegistry } from "../../../../support/Objects/Registry"
 
 let dataSet: any, valueToTest: any, jsName: any;
+let agHelper = ObjectsRegistry.AggregateHelper,
+    ee = ObjectsRegistry.EntityExplorer,
+    jsEditor = ObjectsRegistry.JSEditor,
+    locator = ObjectsRegistry.CommonLocators,
+    apiPage = ObjectsRegistry.ApiPage,
+    table = ObjectsRegistry.Table;
 
-describe("Validate Create Api and Bind to Table widget via JSObject", () => {
+
+describe("Validate JSObj binding to Table widget", () => {
     before(() => {
         cy.fixture('listwidgetdsl').then((val: any) => {
             agHelper.AddDsl(val)
@@ -37,47 +36,67 @@ describe("Validate Create Api and Bind to Table widget via JSObject", () => {
         })
     });
 
-    it("2. Validate the Api data is updated on List widget", function () {
-        agHelper.expandCollapseEntity("WIDGETS")//to expand widgets
-        agHelper.SelectEntityByName("List1");
-        jsEditor.EnterJSContext("items", "{{" + jsName as string + ".myFun1()}}")
+    it("2. Validate the Api data is updated on List widget + Bug 12438", function () {
+        ee.SelectEntityByName("List1", 'WIDGETS');
+        jsEditor.EnterJSContext("Items", "{{" + jsName as string + ".myFun1()}}")
         cy.get(locator._textWidget).should("have.length", 8);
-        cy.get(locator._textWidget)
-            .first()
-            .invoke("text")
-            .then((text) => {
-                expect(text).to.equal((valueToTest as string).trimEnd());
-            });
-        agHelper.DeployApp();
-        agHelper.WaitUntilEleAppear(locator._textWidgetInDeployed)
-        cy.get(locator._textWidgetInDeployed).should("have.length", 8);
+        agHelper.DeployApp(locator._textWidgetInDeployed);
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 8)
         cy.get(locator._textWidgetInDeployed)
             .first()
             .invoke("text")
             .then((text) => {
                 expect(text).to.equal((valueToTest as string).trimEnd());
             });
+
+        table.AssertPageNumber_List(1)
+        table.NavigateToNextPage_List()
+        table.AssertPageNumber_List(2)
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 8)
+        table.NavigateToNextPage_List()
+        table.AssertPageNumber_List(3, true)
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 4)
+        table.NavigateToPreviousPage_List()
+        table.AssertPageNumber_List(2)
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 8)
+        table.NavigateToPreviousPage_List()
+        table.AssertPageNumber_List(1)
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 8)
+        agHelper.NavigateBacktoEditor()
     });
 
-    it("3. Validate the List widget ", function () {
-        agHelper.NavigateBacktoEditor()
-        agHelper.expandCollapseEntity("WIDGETS")//to expand widgets
-        agHelper.SelectEntityByName("List1");
-        jsEditor.EnterJSContext("itemspacing\\(px\\)", "50")
+    it("3. Validate the List widget + Bug 12438 ", function () {
+        ee.SelectEntityByName("List1", 'WIDGETS');
+        jsEditor.EnterJSContext("Item Spacing (px)", "50")
         cy.get(locator._textWidget).should("have.length", 6);
-        cy.get(locator._textWidget)
-            .first()
-            .invoke("text")
-            .then((text) => {
-                expect(text).to.equal((valueToTest as string).trimEnd());
-            });
-        agHelper.DeployApp();
-        cy.get(locator._textWidgetInDeployed).should("have.length", 6);
+        agHelper.DeployApp(locator._textWidgetInDeployed);
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 6)
         cy.get(locator._textWidgetInDeployed).first()
             .invoke("text")
             .then((text) => {
                 expect(text).to.equal((valueToTest as string).trimEnd());
             });
-        agHelper.NavigateBacktoEditor()
+
+        table.AssertPageNumber_List(1)
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 6)
+        table.NavigateToNextPage_List()
+        table.AssertPageNumber_List(2)
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 6)
+        table.NavigateToNextPage_List()
+        table.AssertPageNumber_List(3)
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 6)
+        table.NavigateToNextPage_List()
+        table.AssertPageNumber_List(4, true)
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 2)
+        table.NavigateToPreviousPage_List()
+        table.AssertPageNumber_List(3)
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 6)
+        table.NavigateToPreviousPage_List()
+        table.AssertPageNumber_List(2)
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 6)
+        table.NavigateToPreviousPage_List()
+        table.AssertPageNumber_List(1)
+        agHelper.AssertElementLength(locator._textWidgetInDeployed, 6)
+        //agHelper.NavigateBacktoEditor()
     });
 });

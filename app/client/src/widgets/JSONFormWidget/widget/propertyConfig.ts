@@ -323,7 +323,7 @@ export default [
       {
         propertyName: "autoGenerateForm",
         helpText:
-          "CAUTION!!! When auto generate form is enabled, the form fields would regenerate if there is any change of source data (keys change or value type changes eg from string to number). If disabled then the fields and their configuration won't change with the change of source data.",
+          "Caution: When auto generate form is enabled, the form fields would regenerate if there is any change of source data (keys change or value type changes eg from string to number). If disabled then the fields and their configuration won't change with the change of source data.",
         label: "Auto Generate Form",
         controlType: "SWITCH",
         isJSConvertible: true,

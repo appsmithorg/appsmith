@@ -6,8 +6,8 @@ import {
   RenderDropdownOptionType,
 } from "components/ads/Dropdown";
 import { useSelector } from "react-redux";
-import { getPluginImages } from "../../../../selectors/entitiesSelector";
-import { Classes } from "../../../../components/ads/common";
+import { getPluginImages } from "selectors/entitiesSelector";
+import { Classes } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
 import { FormIcons } from "icons/FormIcons";
 import _ from "lodash";

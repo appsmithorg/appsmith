@@ -9,7 +9,7 @@ describe("Phone input widget - ", () => {
     cy.addDsl(dsl);
   });
 
-  it("Add new dropdown widget", () => {
+  it("1. Add new dropdown widget", () => {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
     cy.get(`.t--widget-${widgetName}`).should("exist");
@@ -21,7 +21,7 @@ describe("Phone input widget - ", () => {
     );
   });
 
-  it("should check for the format and dialCode", () => {
+  it("2. Should check for the format and dialCode", () => {
     cy.get(`.t--widget-${widgetName} input`).clear();
     cy.wait(500);
     cy.get(`.t--widget-${widgetName} input`).type("9999999999");
@@ -80,7 +80,7 @@ describe("Phone input widget - ", () => {
     cy.get(".t--input-country-code-change").should("contain", "🇮🇳+91");
   });
 
-  it("should check that widget input resets on submit", () => {
+  it("3. Should check that widget input resets on submit", () => {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",
@@ -91,16 +91,41 @@ describe("Phone input widget - ", () => {
       ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
     ).click();
     cy.selectShowMsg();
-    cy.addSuccessMessage("Submitted!!");
+    cy.addSuccessMessage("Submitted!!", ".t--property-control-onsubmit");
 
     cy.get(widgetInput).clear();
-    cy.wait(300);
-    cy.get(widgetInput).type("1234567890");
-    cy.wait(300);
+    cy.wait(500);
+    cy.get(widgetInput)
+      .click()
+      .type("1234567890");
+    cy.wait(500);
     cy.get(".t--widget-textwidget").should("contain", "1234567890:1234567890");
     cy.get(widgetInput).type("{enter}");
     cy.wait(300);
     cy.get(widgetInput).should("contain.value", "");
-    cy.get(".t--widget-textwidget").should("contain", ":undefined");
+    cy.get(".t--widget-textwidget").should("contain", ":");
+  });
+
+  it("Check isDirty meta property", function() {
+    cy.openPropertyPane("textwidget");
+    cy.updateCodeInput(".t--property-control-text", `{{PhoneInput1.isDirty}}`);
+    // Change defaultText
+    cy.openPropertyPane(widgetName);
+    cy.updateCodeInput(".t--property-control-defaulttext", "1");
+    cy.closePropertyPane();
+    // Check if isDirty is set to false
+    cy.get(".t--widget-textwidget").should("contain", "false");
+    // Interact with UI
+    cy.get(widgetInput).clear();
+    cy.wait(300);
+    cy.get(widgetInput).type("2");
+    cy.wait(300);
+    // Check if isDirty is set to true
+    cy.get(".t--widget-textwidget").should("contain", "true");
+    // Reset isDirty by changing defaultText
+    cy.openPropertyPane(widgetName);
+    cy.updateCodeInput(".t--property-control-defaulttext", "3");
+    // Check if isDirty is set to false
+    cy.get(".t--widget-textwidget").should("contain", "false");
   });
 });

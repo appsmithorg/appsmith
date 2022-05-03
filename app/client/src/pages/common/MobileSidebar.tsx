@@ -8,7 +8,7 @@ import {
   getOnSelectAction,
   DropdownOnSelectActions,
 } from "./CustomizedDropdown/dropdownHelpers";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import {

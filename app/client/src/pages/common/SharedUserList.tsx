@@ -1,5 +1,5 @@
 import { Popover, PopoverInteractionKind, Position } from "@blueprintjs/core";
-import UserApi from "api/UserApi";
+import UserApi from "@appsmith/api/UserApi";
 import React, { useMemo } from "react";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "store";

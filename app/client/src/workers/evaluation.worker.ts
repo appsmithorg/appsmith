@@ -14,7 +14,7 @@ import {
   removeFunctions,
   validateWidgetProperty,
 } from "./evaluationUtils";
-import DataTreeEvaluator from "workers/DataTreeEvaluator";
+import DataTreeEvaluator from "workers/DataTreeEvaluator/DataTreeEvaluator";
 import ReplayEntity from "entities/Replay";
 import evaluate, {
   evaluateAsync,

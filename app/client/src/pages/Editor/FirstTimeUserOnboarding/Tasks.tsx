@@ -18,7 +18,7 @@ import {
   ONBOARDING_TASK_FOOTER,
   createMessage,
 } from "@appsmith/constants/messages";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { INTEGRATION_TABS } from "constants/routes";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import React from "react";

@@ -170,7 +170,11 @@ describe("FirstTimeUserOnboarding", function() {
       .should("be.visible")
       .wait(800);
     cy.reload();
-    cy.wait("@getUser");
+    cy.wait("@getPage").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
     cy.get(OnboardingLocator.statusbar).should("be.visible");
     cy.get(OnboardingLocator.textWidgetName).should("be.visible");
   });

@@ -3,7 +3,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { updateAndSaveLayout, WidgetResize } from "actions/pageActions";
 import {
   CanvasWidgetsReduxState,
@@ -100,7 +100,7 @@ import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas"
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
 import { getReflow } from "selectors/widgetReflowSelectors";
-import { widgetReflowState } from "reducers/uiReducers/reflowReducer";
+import { widgetReflow } from "reducers/uiReducers/reflowReducer";
 import { stopReflowAction } from "actions/reflowActions";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 
@@ -170,7 +170,7 @@ export function* reflowWidgets(
   snapColumnSpace: number,
   snapRowSpace: number,
 ) {
-  const reflowState: widgetReflowState = yield select(getReflow);
+  const reflowState: widgetReflow = yield select(getReflow);
 
   const currentWidgets: {
     [widgetId: string]: FlattenedWidgetProps;
@@ -319,7 +319,7 @@ function* updateWidgetPropertySaga(
   );
 }
 
-function* setWidgetDynamicPropertySaga(
+export function* setWidgetDynamicPropertySaga(
   action: ReduxAction<SetWidgetDynamicPropertyPayload>,
 ) {
   const { isDynamic, propertyPath, widgetId } = action.payload;
@@ -328,6 +328,7 @@ function* setWidgetDynamicPropertySaga(
   const propertyValue = _.get(widget, propertyPath);
 
   let dynamicPropertyPathList = getWidgetDynamicPropertyPathList(widget);
+  let dynamicBindingPathList = getEntityDynamicBindingPathList(widget);
   if (isDynamic) {
     const keyExists =
       dynamicPropertyPathList.findIndex((path) => path.key === propertyPath) >
@@ -342,6 +343,9 @@ function* setWidgetDynamicPropertySaga(
     dynamicPropertyPathList = _.reject(dynamicPropertyPathList, {
       key: propertyPath,
     });
+    dynamicBindingPathList = _.reject(dynamicBindingPathList, {
+      key: propertyPath,
+    });
     const { parsed } = yield call(
       validateProperty,
       propertyPath,
@@ -351,7 +355,7 @@ function* setWidgetDynamicPropertySaga(
     widget = set(widget, propertyPath, parsed);
   }
   widget.dynamicPropertyPathList = dynamicPropertyPathList;
-
+  widget.dynamicBindingPathList = dynamicBindingPathList;
   const stateWidgets = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: widget };
 

@@ -17,9 +17,6 @@
     "logo": "https://raw.githubusercontent.com/appsmithorg/appsmith/master/static/logo.png",
     "success_url": "/",
     "stack": "container",
-    "scripts": {
-        "postdeploy" : "/analytics.sh"
-    },
     "env": {
       "APPSMITH_MONGODB_URI": {
         "description": "Your Mongo Database URI. Since Heroku doesn't support a managed MongoDB instance, you'll have to create a Mongo DB instance on another service such as https://cloud.mongodb.com",

@@ -62,6 +62,10 @@ export function DraggableListCard(props: RenderComponentProps) {
   const debouncedUpdate = _.debounce(updateOption, 1000);
 
   useEffect(() => {
+    setVisibility(item.isVisible);
+  }, [item.isVisible]);
+
+  useEffect(() => {
     if (!isEditing && item && item.label) setValue(item.label);
   }, [item?.label, isEditing]);
 
@@ -128,12 +132,13 @@ export function DraggableListCard(props: RenderComponentProps) {
   const showDelete = !!item.isDerived || isDelete;
 
   return (
-    <ItemWrapper
-      className={props.item.isDuplicateLabel ? "has-duplicate-label" : ""}
-    >
+    <ItemWrapper className={item.isDuplicateLabel ? "has-duplicate-label" : ""}>
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
         autoFocus={index === focusedIndex}
+        className={
+          props.item.isDuplicateLabel ? `t--has-duplicate-label-${index}` : ""
+        }
         dataType="text"
         onBlur={onBlur}
         onChange={(value: string) => {

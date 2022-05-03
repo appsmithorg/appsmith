@@ -90,6 +90,30 @@ describe("MultiSelect Widget Functionality", function() {
       .eq(1)
       .should("have.text", "Option 2");
   });
+
+  it("Check isDirty meta property", function() {
+    cy.openPropertyPane("textwidget");
+    cy.updateCodeInput(".t--property-control-text", `{{MultiSelect2.isDirty}}`);
+    // Init isDirty by changing defaultOptionValue
+    cy.openPropertyPane("multiselectwidgetv2");
+    cy.updateCodeInput(
+      ".t--property-control-defaultvalue",
+      '[\n  {\n    "label": "Option 1",\n    "value": "1"\n  }\n]',
+    );
+    cy.get(".t--widget-textwidget").should("contain", "false");
+    // Interact with UI
+    cy.get(".rc-select-selector").click({ force: true });
+    cy.dropdownMultiSelectDynamic("Option 2");
+    // Check if isDirty is set to true
+    cy.get(".t--widget-textwidget").should("contain", "true");
+    // Reset isDirty by changing defaultOptionValue
+    cy.updateCodeInput(
+      ".t--property-control-defaultvalue",
+      '[\n  {\n    "label": "Option 2",\n    "value": "2"\n  }\n]',
+    );
+    // Check if isDirty is set to false
+    cy.get(".t--widget-textwidget").should("contain", "false");
+  });
 });
 afterEach(() => {
   // put your clean up code if any

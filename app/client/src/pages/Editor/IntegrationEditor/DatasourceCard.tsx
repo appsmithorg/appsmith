@@ -17,17 +17,16 @@ import { Position } from "@blueprintjs/core/lib/esm/common/position";
 
 import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
-import { getQueryParams } from "../../../utils/AppsmithUtils";
+import { getQueryParams } from "utils/AppsmithUtils";
 import Menu from "components/ads/Menu";
-import { IconSize } from "../../../components/ads/Icon";
-import Icon from "components/ads/Icon";
+import Icon, { IconSize } from "components/ads/Icon";
 import MenuItem from "components/ads/MenuItem";
-import { deleteDatasource } from "../../../actions/datasourceActions";
+import { deleteDatasource } from "actions/datasourceActions";
 import {
   getGenerateCRUDEnabledPluginMap,
   getIsDeletingDatasource,
-} from "../../../selectors/entitiesSelector";
-import { GenerateCRUDEnabledPluginMap, Plugin } from "../../../api/PluginApi";
+} from "selectors/entitiesSelector";
+import { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
 import {
@@ -330,7 +329,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                 category={Category.tertiary}
                 className="t--reconnect-btn"
                 onClick={editDatasource}
-                text="RECONNECT APPLICATION"
+                text="RECONNECT"
               />
 
               <MenuWrapper

@@ -21,7 +21,9 @@ import {
   RATING_TITLE,
 } from "@appsmith/constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { builderURL } from "RouteBuilder";
+import { Colors } from "constants/Colors";
+import history from "utils/history";
+import { APPLICATIONS_URL } from "constants/routes";
 
 const Container = styled.div`
   background-color: ${(props) => props.theme.colors.guidedTour.card.background};
@@ -103,6 +105,7 @@ function CongratulationsView() {
     setShow(false);
     dispatch(showPostCompletionMessage(false));
     setPostWelcomeTourState(false);
+    history.push(APPLICATIONS_URL);
   };
 
   if (!show) return null;
@@ -124,7 +127,7 @@ function CongratulationsView() {
               emptySymbol={
                 <Icon
                   className={"t--guided-tour-rating star"}
-                  fillColor={"#858282"}
+                  fillColor={Colors.GREY_7}
                   name="star-line"
                   size={IconSize.XXXXL}
                 />
@@ -154,11 +157,10 @@ function CongratulationsView() {
           <Button
             className="t--start-building"
             height="38"
-            href={builderURL()}
             onClick={hideMessage}
             size={Size.large}
+            tag="button"
             text={createMessage(END_BUTTON_TEXT)}
-            type="button"
           />
         </Wrapper>
       </Container>

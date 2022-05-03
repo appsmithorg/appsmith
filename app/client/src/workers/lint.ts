@@ -11,8 +11,8 @@ import {
   EvaluationScriptType,
   ScriptTemplate,
 } from "workers/evaluate";
-import { ECMA_VERSION } from "workers/constants";
 import { getLintSeverity } from "components/editorComponents/CodeEditor/lintHelpers";
+import { ECMA_VERSION } from "constants/ast";
 
 export const getPositionInEvaluationScript = (
   type: EvaluationScriptType,
@@ -20,7 +20,7 @@ export const getPositionInEvaluationScript = (
   const script = EvaluationScripts[type];
 
   const index = script.indexOf(ScriptTemplate);
-  const substr = script.substr(0, index);
+  const substr = script.slice(0, index !== -1 ? index : 0);
   const lines = substr.split("\n");
   const lastLine = last(lines) || "";
 

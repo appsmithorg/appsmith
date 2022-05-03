@@ -10,6 +10,7 @@ import styled, { css } from "styled-components";
 import Icon, { IconName, IconSize } from "./Icon";
 import Spinner from "./Spinner";
 import { mediumButton, smallButton, largeButton } from "constants/DefaultTheme";
+import _ from "lodash";
 
 export enum Category {
   primary = "primary",
@@ -423,7 +424,7 @@ const ButtonStyles = css<ThemeProp & ButtonProps>`
   }
 `;
 
-const StyledButton = styled("button")`
+export const StyledButton = styled("button")`
   ${ButtonStyles}
 `;
 
@@ -494,13 +495,14 @@ const getButtonContent = (props: ButtonProps) => {
 };
 
 function ButtonComponent(props: ButtonProps) {
+  const omitProps = ["fill"];
   return (
     <StyledButton
       className={props.className}
       data-cy={props.cypressSelector}
-      {...props}
+      {..._.omit(props, omitProps)}
       onClick={(e: React.MouseEvent<HTMLElement>) =>
-        props.onClick && props.onClick(e)
+        props.onClick && !props.isLoading && props.onClick(e)
       }
     >
       {getButtonContent(props)}

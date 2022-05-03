@@ -20,14 +20,22 @@ const StyledHr = styled.div`
   margin-left: ${(props) => props.theme.spaces[3]}px;
 `;
 
-export default function SegmentHeader(props: {
+export type SegmentHeaderProps = {
   title: string;
   style?: CSSProperties;
-}) {
+  hideStyledHr?: boolean;
+};
+
+export default function SegmentHeader(props: SegmentHeaderProps) {
   return (
-    <StyledSegmentHeader style={props.style}>
+    <StyledSegmentHeader
+      data-testid={"t--styled-segment-header"}
+      style={props.style}
+    >
       {props.title}
-      <StyledHr />
+      {!props.hideStyledHr && (
+        <StyledHr data-testid={"t--styled-segment-header-hr"} />
+      )}
     </StyledSegmentHeader>
   );
 }
