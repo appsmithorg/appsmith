@@ -43,7 +43,6 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
           return [metaProperty, this.props[metaProperty]];
         }),
       );
-      // this.initialMetaState = { ...WrappedWidget.getMetaPropertiesMap() };
       this.batchExecuteActions = [];
     }
 

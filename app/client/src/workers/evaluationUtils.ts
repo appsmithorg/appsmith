@@ -915,6 +915,7 @@ export const overrideWidgetProperties = ({
         [entity.widgetName, ...overriddenPropertyPathArray],
         clonedValue,
       );
+      // evalMetaUpdates has all updates from property which overrides meta values.
       if (
         propertyPath.split(".")[0] !== "meta" &&
         overriddenPropertyPathArray[0] === "meta"

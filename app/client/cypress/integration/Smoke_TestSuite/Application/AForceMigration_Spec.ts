@@ -265,9 +265,8 @@ describe("AForce - Community Issues page validations", function () {
   })
 
   it("9. Validate Updating issue from Details tab", () => {
-    // As the table row is already selected, tab widget is expected to be visible.
-    // agHelper.AssertElementAbsence(locator._widgetInDeployed('tabswidget'))
-    // table.SelectTableRow(0)
+    agHelper.AssertElementAbsence(locator._widgetInDeployed('tabswidget'))
+    table.SelectTableRow(0)
     agHelper.AssertElementPresence(locator._widgetInDeployed('tabswidget'))
     agHelper.Sleep(2000)//load time for tabs
     agHelper.GetNClick(locator._inputWidgetv1InDeployed).type("-updating title")
