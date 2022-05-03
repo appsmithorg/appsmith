@@ -904,7 +904,7 @@ export const ONBOARDING_TASK_DATASOURCE_BODY = () =>
   "Adding a datasource makes creating applications more powerful. Don’t worry if you don’t have any data on hand, we have a sample dataset that you can use.";
 export const ONBOARDING_TASK_DATASOURCE_BUTTON = () => "+ Add a datasource";
 export const ONBOARDING_TASK_DATASOURCE_FOOTER_ACTION = () => "Add a widget";
-export const ONBOARDING_TASK_DATASOURCE_FOOTER = () => "First.";
+export const ONBOARDING_TASK_DATASOURCE_FOOTER = () => "first.";
 //2. query
 export const ONBOARDING_TASK_QUERY_HEADER = () => "Next, create a query";
 export const ONBOARDING_TASK_QUERY_BODY = () =>
