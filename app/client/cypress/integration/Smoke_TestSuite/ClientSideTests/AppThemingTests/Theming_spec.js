@@ -522,7 +522,7 @@ describe("App Theming funtionality", function() {
       .eq(0)
       .invoke("css", "background-color")
       .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(3, 179, 101)");
+        expect(backgroudColor).to.eq("rgb(22, 163, 74)");
       });
 
     cy.contains("Current Theme")
