@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import SearchBox from "react-google-maps/lib/components/places/SearchBox";
 import StandaloneSearchBox from "react-google-maps/lib/components/places/StandaloneSearchBox";
@@ -6,8 +6,16 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 import { StyledInputGroup } from "./StyledControls";
 import log from "loglevel";
+import styled from "styled-components";
+import { InputWrapper } from "components/ads/TextInput";
 
 const { google } = getAppsmithConfigs();
+
+const StyledInputWrapper = styled.div`
+  &:focus ${InputWrapper} {
+    border: 1px solid var(--appsmith-input-focus-border-color);
+  }
+`;
 
 class LocationSearchControl extends BaseControl<ControlProps> {
   searchBox: any = null;
@@ -72,6 +80,33 @@ function MapScriptWrapper(props: MapScriptWrapperProps) {
     AddScriptTo.HEAD,
   );
   const [title, setTitle] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const wrapperRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeydown);
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
+  }, []);
+
+  const handleKeydown = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case "Enter":
+      case " ":
+        if (document.activeElement === wrapperRef?.current) {
+          inputRef?.current?.focus();
+          e.preventDefault();
+        }
+        break;
+      case "Escape":
+        if (document.activeElement === inputRef?.current) {
+          wrapperRef?.current?.focus();
+          e.preventDefault();
+        }
+        break;
+    }
+  };
 
   return (
     <div data-standalone-searchbox="">
@@ -83,17 +118,21 @@ function MapScriptWrapper(props: MapScriptWrapperProps) {
           }}
           ref={props.onSearchBoxMounted}
         >
-          <StyledInputGroup
-            dataType="text"
-            defaultValue={title || props.propertyValue?.title}
-            onChange={(value: string) => {
-              if (value === "") {
-                props.clearLocation();
-              }
-              setTitle(value);
-            }}
-            placeholder="Enter location"
-          />
+          <StyledInputWrapper ref={wrapperRef} tabIndex={0}>
+            <StyledInputGroup
+              dataType="text"
+              defaultValue={title || props.propertyValue?.title}
+              onChange={(value: string) => {
+                if (value === "") {
+                  props.clearLocation();
+                }
+                setTitle(value);
+              }}
+              placeholder="Enter location"
+              ref={inputRef}
+              tabIndex={-1}
+            />
+          </StyledInputWrapper>
         </StandaloneSearchBox>
       )}
     </div>
