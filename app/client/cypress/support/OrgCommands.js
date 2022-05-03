@@ -278,7 +278,7 @@ Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
   cy.wait(2000);
   cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
-  cy.get(homePage.applicationName).dblclick();
+  cy.get(homePage.applicationName).dblclick(); // to close the tooltip of rename
   cy.wait("@updateApplication").should(
     "have.nested.property",
     "response.body.responseMeta.status",
