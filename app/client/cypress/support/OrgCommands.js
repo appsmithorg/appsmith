@@ -4,13 +4,9 @@
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
-
-const {
-  addMatchImageSnapshotCommand,
-} = require("cypress-image-snapshot/command");
 import homePage from "../locators/HomePage";
 const generatePage = require("../locators/GeneratePage.json");
-
+import explorer from "../locators/explorerlocators";
 export const initLocalstorage = () => {
   cy.window().then((window) => {
     window.localStorage.setItem("ShowCommentsButtonToolTip", "");
@@ -306,4 +302,13 @@ Cypress.Commands.add("CreateAppInFirstListedOrg", (appname) => {
    * we wait for that to finish before updating layout here
    */
   cy.wait("@updateLayout");
+});
+Cypress.Commands.add("renameEntity", (entityName, renamedEntity) => {
+  cy.get(`.t--entity-item:contains(${entityName})`).within(() => {
+    cy.get(".t--context-menu").click({ force: true });
+  });
+  cy.selectAction("Edit Name");
+  cy.get(explorer.editEntity)
+    .last()
+    .type(`${renamedEntity}`, { force: true });
 });
