@@ -4,7 +4,6 @@ import styled from "styled-components";
 import { noop } from "lodash";
 
 import { CommonComponentProps } from "./common";
-import { EditableText as BlueprintEditableText } from "@blueprintjs/core";
 import EditableTextSubComponent, {
   EditInteractionKind,
   SavingState,
