@@ -685,7 +685,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         if (!errorField.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, errorField, INVALID_JSON_FILE));
         }
-        assert importedApplication != null;
+        assert importedApplication != null: "Received invalid application object!";
         if(importedApplication.getApplicationVersion() == null) {
             importedApplication.setApplicationVersion(ApplicationVersion.EARLIEST_VERSION);
         }
@@ -710,6 +710,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     return Mono.just(new ArrayList<Datasource>());
                 })
                 .flatMap(existingDatasources -> {
+
+                    if (CollectionUtils.isEmpty(importedDatasourceList)) {
+                        return Mono.empty();
+                    }
                     Map<String, Datasource> savedDatasourcesGitIdToDatasourceMap = new HashMap<>();
 
                     existingDatasources.stream()
@@ -717,7 +721,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .forEach(datasource -> savedDatasourcesGitIdToDatasourceMap.put(datasource.getGitSyncId(), datasource));
 
                     // Check if the destination org have all the required plugins installed
-                    assert importedDatasourceList != null;
                     for (Datasource datasource : importedDatasourceList) {
                         if (StringUtils.isEmpty(pluginMap.get(datasource.getPluginId()))) {
                             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED, datasource.getPluginId()));
@@ -863,7 +866,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     );
 
                     // Import and save pages, also update the pages related fields in saved application
-                    assert importedNewPageList != null;
+                    assert importedNewPageList != null: "Unable to find pages in the imported application";
 
                     // For git-sync this will not be empty
                     Mono<List<NewPage>> existingPagesMono = newPageService
@@ -1278,11 +1281,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         Map<String, NewAction> savedActionsGitIdToActionsMap = new HashMap<>();
         final String organizationId = importedApplication.getOrganizationId();
+        if (CollectionUtils.isEmpty(importedNewActionList)) {
+            return Flux.fromIterable(new ArrayList<>());
+        }
         existingActions.stream()
                 .filter(newAction -> newAction.getGitSyncId() != null)
                 .forEach(newAction -> savedActionsGitIdToActionsMap.put(newAction.getGitSyncId(), newAction));
 
-        assert importedNewActionList != null;
 
         return Flux.fromIterable(importedNewActionList)
                 .filter(action -> action.getUnpublishedAction() != null
