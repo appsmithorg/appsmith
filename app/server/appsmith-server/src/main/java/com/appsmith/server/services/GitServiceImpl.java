@@ -12,6 +12,8 @@ import com.appsmith.server.services.ce.GitServiceCEImpl;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.redis.core.ReactiveRedisOperations;
+import org.springframework.data.redis.core.ReactiveValueOperations;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -35,11 +37,12 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
                           GitCloudServicesUtils gitCloudServicesUtils,
                           GitDeployKeysRepository gitDeployKeysRepository,
                           DatasourceService datasourceService,
-                          PluginService pluginService) {
+                          PluginService pluginService,
+                          ReactiveRedisOperations<String, String> redisOperations) {
 
         super(userService, userDataService, sessionUserService, applicationService, applicationPageService,
                 newPageService, newActionService, actionCollectionService, fileUtils, importExportApplicationService,
                 gitExecutor, responseUtils, emailConfig, analyticsService, gitCloudServicesUtils, gitDeployKeysRepository,
-                datasourceService, pluginService);
+                datasourceService, pluginService, redisOperations);
     }
 }
