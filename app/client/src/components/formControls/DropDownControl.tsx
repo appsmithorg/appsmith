@@ -3,7 +3,7 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import styled from "styled-components";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { ControlType } from "constants/PropertyControlConstants";
-import _ from "lodash";
+import { isArray, isNil } from "lodash";
 import {
   Field,
   WrappedFieldInputProps,
@@ -12,13 +12,34 @@ import {
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { getDynamicFetchedValues } from "selectors/formSelectors";
+import { change } from "redux-form";
+import { diff } from "deep-diff";
 
 const DropdownSelect = styled.div`
   font-size: 14px;
   width: 20vw;
 `;
 
-class DropDownControl extends BaseControl<DropDownControlProps> {
+class DropDownControl extends BaseControl<Props> {
+  componentDidUpdate(prevProps: Props) {
+    // if options received by the fetchDynamicValues for the multi select changes, update the config property path's values.
+    // we do this to make sure, the data does not contain values from the previous option.
+    // we use the query editor form name because this is the only type of formName
+    if (
+      this.props.fetchOptionsConditionally &&
+      this.props.isMultiSelect &&
+      isArray(prevProps.options) &&
+      prevProps.options.length > 1 &&
+      !!diff(prevProps.options, this.props.options)
+    ) {
+      this.props.updateConfigPropertyValue(
+        this.props.formName,
+        this.props.configProperty,
+        [],
+      );
+    }
+  }
+
   render() {
     const styles = {
       width: "20vw",
@@ -53,7 +74,7 @@ function renderDropdown(
   } & DropDownControlProps,
 ): JSX.Element {
   let selectedValue: string | string[];
-  if (_.isNil(props.input?.value)) {
+  if (isNil(props.input?.value)) {
     if (props.isMultiSelect)
       selectedValue = props?.initialValue ? (props.initialValue as string) : [];
     else
@@ -83,7 +104,7 @@ function renderDropdown(
   }
   // Function to handle selction of options
   const onSelectOptions = (value: string | undefined) => {
-    if (!_.isNil(value)) {
+    if (!isNil(value)) {
       if (props.isMultiSelect) {
         if (Array.isArray(selectedValue)) {
           if (!selectedValue.includes(value))
@@ -98,7 +119,7 @@ function renderDropdown(
 
   // Function to handle deselction of options
   const onRemoveOptions = (value: string | undefined) => {
-    if (!_.isNil(value)) {
+    if (!isNil(value)) {
       if (props.isMultiSelect) {
         if (Array.isArray(selectedValue)) {
           if (selectedValue.includes(value))
@@ -147,6 +168,16 @@ export interface DropDownControlProps extends ControlProps {
   isLoading: boolean;
 }
 
+type ReduxDispatchProps = {
+  updateConfigPropertyValue: (
+    formName: string,
+    field: string,
+    value: any,
+  ) => void;
+};
+
+type Props = DropDownControlProps & ReduxDispatchProps;
+
 const mapStateToProps = (
   state: AppState,
   ownProps: DropDownControlProps,
@@ -172,5 +203,11 @@ const mapStateToProps = (
   }
 };
 
+const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
+  updateConfigPropertyValue: (formName: string, field: string, value: any) => {
+    dispatch(change(formName, field, value));
+  },
+});
+
 // Connecting this componenet to the state to allow for dynamic fetching of options to be updated.
-export default connect(mapStateToProps)(DropDownControl);
+export default connect(mapStateToProps, mapDispatchToProps)(DropDownControl);

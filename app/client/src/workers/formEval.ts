@@ -23,9 +23,9 @@ export enum ConditionType {
   EVALUATE_FORM_CONFIG = "evaluateFormConfig", // When set, the component will evaluate the form config settings
 }
 
-enum FormDataPaths {
-  COMMAND = "actionConfiguration.formData.command.data",
-}
+// enum FormDataPaths {
+//   COMMAND = "actionConfiguration.formData.command.data",
+// }
 
 // Object to hold the initial eval object
 let finalEvalObj: FormEvalOutput;
@@ -288,70 +288,79 @@ function getFormEvaluation(
 ): FormEvaluationState {
   // Only change the form evaluation state if the form ID is same or the evaluation state is present
   if (!!currentEvalState && currentEvalState.hasOwnProperty(formId)) {
-    const currentFormIdEvalState = currentEvalState[formId];
+    // const currentFormIdEvalState = currentEvalState[formId];
     // specific conditions to be evaluated
-    let conditionToBeEvaluated = {};
-    // dynamic conditions always need evaluations
-    let dynamicConditionsToBeFetched = {};
-    for (const [key, value] of Object.entries(currentFormIdEvalState)) {
-      if (
-        value &&
-        !!value.configPropertyPath &&
-        actionDiffPath?.includes(value.configPropertyPath)
-      ) {
-        // static dependency pathlist should be a key of identifiers that point to formControls that are dependent on the result of the current form config value.
-        // it is important to note the difference between staticDependencyPathList and dynamicDependencyPathList is that the former is for formConfigs that don't require API calls
-        if (!!value.staticDependencyPathList) {
-          value.staticDependencyPathList.forEach((key) => {
-            conditionToBeEvaluated = {
-              ...conditionToBeEvaluated,
-              [key]: currentFormIdEvalState[key],
-            };
-          });
-        }
-        conditionToBeEvaluated = { ...conditionToBeEvaluated, [key]: value };
-      }
+    // let conditionToBeEvaluated = {};
+    // // dynamic conditions always need evaluations
+    // let dynamicConditionsToBeFetched = {};
+    // for (const [key, value] of Object.entries(currentFormIdEvalState)) {
+    //   if (
+    //     value &&
+    //     !!value.configPropertyPath &&
+    //     actionDiffPath?.includes(value.configPropertyPath)
+    //   ) {
+    //     // static dependency pathlist should be a key of identifiers that point to formControls that are dependent on the result of the current form config value.
+    //     // it is important to note the difference between staticDependencyPathList and dynamicDependencyPathList is that the former is for formConfigs that don't require API calls
+    //     if (!!value.staticDependencyPathList) {
+    //       value.staticDependencyPathList.forEach((key) => {
+    //         conditionToBeEvaluated = {
+    //           ...conditionToBeEvaluated,
+    //           [key]: currentFormIdEvalState[key],
+    //         };
+    //       });
+    //     }
+    //     conditionToBeEvaluated = { ...conditionToBeEvaluated, [key]: value };
+    //   }
 
-      // if there are dynamic values present, add them to the condition to be evaluated.
-      if (value && (!!value.fetchDynamicValues || !!value.evaluateFormConfig)) {
-        dynamicConditionsToBeFetched = {
-          ...dynamicConditionsToBeFetched,
-          [key]: value,
-        };
-      }
-    }
+    //   // if there are dynamic values present, add them to the condition to be evaluated.
+    //   if (value && (!!value.fetchDynamicValues || !!value.evaluateFormConfig)) {
+    //     dynamicConditionsToBeFetched = {
+    //       ...dynamicConditionsToBeFetched,
+    //       [key]: value,
+    //     };
+    //   }
+    // }
 
     // if no condition is to be evaluated or if the currently changing action diff path is the command path
     // then we run evaluations on the whole form.
     // However if the action diff path is simply changing its viewType, we don't want to evaluate the whole form.
-    if (
-      (isEmpty(conditionToBeEvaluated) ||
-        actionDiffPath === FormDataPaths.COMMAND) &&
-      !actionDiffPath?.endsWith(".viewType")
-    ) {
-      conditionToBeEvaluated = evaluate(
-        actionConfiguration,
-        currentEvalState[formId],
-        actionDiffPath,
-        hasRouteChanged,
-      );
-    } else {
-      conditionToBeEvaluated = {
-        ...conditionToBeEvaluated,
-        ...dynamicConditionsToBeFetched,
-      };
-      conditionToBeEvaluated = evaluate(
-        actionConfiguration,
-        conditionToBeEvaluated,
-        actionDiffPath,
-        hasRouteChanged,
-      );
-    }
+    //   if (
+    //     (isEmpty(conditionToBeEvaluated) ||
+    //       actionDiffPath === FormDataPaths.COMMAND) &&
+    //     // !actionDiffPath?.endsWith(".viewType") &&
+    //     true
+    //   ) {
+    //     conditionToBeEvaluated = evaluate(
+    //       actionConfiguration,
+    //       currentEvalState[formId],
+    //       actionDiffPath,
+    //       hasRouteChanged,
+    //     );
+    //   } else {
+    //     conditionToBeEvaluated = {
+    //       ...conditionToBeEvaluated,
+    //       ...dynamicConditionsToBeFetched,
+    //     };
+    //     conditionToBeEvaluated = evaluate(
+    //       actionConfiguration,
+    //       conditionToBeEvaluated,
+    //       actionDiffPath,
+    //       hasRouteChanged,
+    //     );
+    //   }
 
-    currentEvalState[formId] = {
-      ...currentEvalState[formId],
-      ...conditionToBeEvaluated,
-    };
+    //   currentEvalState[formId] = {
+    //     ...currentEvalState[formId],
+    //     ...conditionToBeEvaluated,
+    //   };
+    // }
+
+    currentEvalState[formId] = evaluate(
+      actionConfiguration,
+      currentEvalState[formId],
+      actionDiffPath,
+      hasRouteChanged,
+    );
   }
 
   return currentEvalState;
