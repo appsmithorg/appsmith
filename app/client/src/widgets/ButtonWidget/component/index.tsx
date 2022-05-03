@@ -77,7 +77,7 @@ const TooltipStyles = createGlobalStyle`
 `;
 
 /*
-  Don't use buttonHoverActiveStyles in a nested function it won't work - 
+  Don't use buttonHoverActiveStyles in a nested function it won't work -
 
   const buttonHoverActiveStyles = css ``
 
@@ -114,7 +114,6 @@ const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
           ? theme.colors.button.primary.primary.bgColor
           : "none"
       } !important;
-
 
     &:disabled, &.${Classes.DISABLED} {
       background-color: ${theme.colors.button.disabled.bgColor} !important;
@@ -306,6 +305,7 @@ function RecaptchaV2Component(
     children: any;
     isDisabled?: boolean;
     recaptchaType?: RecaptchaType;
+    isLoading: boolean;
     handleError: (event: React.MouseEvent<HTMLElement>, error: string) => void;
   } & RecaptchaProps,
 ) {
@@ -316,6 +316,7 @@ function RecaptchaV2Component(
   };
   const handleBtnClick = async (event: React.MouseEvent<HTMLElement>) => {
     if (props.isDisabled) return;
+    if (props.isLoading) return;
     if (isInvalidKey) {
       // Handle incorrent google recaptcha site key
       props.handleError(event, createMessage(GOOGLE_RECAPTCHA_KEY_ERROR));
@@ -356,6 +357,7 @@ function RecaptchaV3Component(
     children: any;
     isDisabled?: boolean;
     recaptchaType?: RecaptchaType;
+    isLoading: boolean;
     handleError: (event: React.MouseEvent<HTMLElement>, error: string) => void;
   } & RecaptchaProps,
 ) {
@@ -366,6 +368,7 @@ function RecaptchaV3Component(
 
   const handleBtnClick = (event: React.MouseEvent<HTMLElement>) => {
     if (props.isDisabled) return;
+    if (props.isLoading) return;
     if (status === ScriptStatus.READY) {
       (window as any).grecaptcha.ready(() => {
         try {
@@ -409,12 +412,21 @@ function BtnWrapper(
   props: {
     children: any;
     isDisabled?: boolean;
+    isLoading: boolean;
     onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   } & RecaptchaProps,
 ) {
-  if (!props.googleRecaptchaKey)
-    return <div onClick={props.onClick}>{props.children}</div>;
-  else {
+  if (!props.googleRecaptchaKey) {
+    return (
+      <div
+        onClick={(e: React.MouseEvent<HTMLElement>) =>
+          props.onClick && !props.isLoading && props.onClick(e)
+        }
+      >
+        {props.children}
+      </div>
+    );
+  } else {
     const handleError = (
       event: React.MouseEvent<HTMLElement>,
       error: string,
@@ -423,7 +435,7 @@ function BtnWrapper(
         text: error,
         variant: Variant.danger,
       });
-      props.onClick && props.onClick(event);
+      props.onClick && !props.isLoading && props.onClick(event);
     };
     if (props.recaptchaType === RecaptchaTypes.V2) {
       return <RecaptchaV2Component {...props} handleError={handleError} />;
@@ -441,6 +453,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
       googleRecaptchaKey={props.googleRecaptchaKey}
       handleRecaptchaV2Loading={props.handleRecaptchaV2Loading}
       isDisabled={props.isDisabled}
+      isLoading={props.isLoading}
       onClick={props.onClick}
       recaptchaType={props.recaptchaType}
     >
