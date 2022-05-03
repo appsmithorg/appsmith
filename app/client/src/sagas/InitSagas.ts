@@ -403,6 +403,11 @@ export function* initializeAppViewerSaga(
   );
   yield put({ type: ReduxActionTypes.START_EVALUATION });
 
+  const defaultPageId: string = yield select(getDefaultPageId);
+  const toLoadPageId: string = pageId || defaultPageId;
+
+  yield call(initiateURLUpdate, toLoadPageId, APP_MODE.PUBLISHED, pageId);
+
   const resultOfPrimaryCalls: boolean = yield failFastApiCalls(
     [
       fetchActionsForView({ applicationId }),
@@ -419,11 +424,6 @@ export function* initializeAppViewerSaga(
   );
 
   if (!resultOfPrimaryCalls) return;
-
-  const defaultPageId: string = yield select(getDefaultPageId);
-  const toLoadPageId: string = pageId || defaultPageId;
-
-  yield call(initiateURLUpdate, toLoadPageId, APP_MODE.PUBLISHED, pageId);
 
   if (toLoadPageId) {
     yield put(fetchPublishedPage(toLoadPageId, true));
