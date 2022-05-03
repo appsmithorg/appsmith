@@ -51,6 +51,10 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       this.batchExecuteActions.push(actionExecution);
     };
 
+    clearBatchActions = () => {
+      this.batchExecuteActions = [];
+    };
+
     runBatchActions = () => {
       const { executeAction } = this.context;
       this.batchExecuteActions.map((actionExecution) => {
@@ -73,6 +77,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
             });
         }
       });
+      this.clearBatchActions();
     };
 
     handleTriggerEvalOnMetaUpdate = () => {
