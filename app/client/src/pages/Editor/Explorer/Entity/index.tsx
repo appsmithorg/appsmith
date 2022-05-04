@@ -5,6 +5,7 @@ import React, {
   useRef,
   forwardRef,
   useCallback,
+  RefObject,
 } from "react";
 import styled, { css } from "styled-components";
 import { Colors } from "constants/Colors";
@@ -201,6 +202,7 @@ export type EntityProps = {
   preRightIcon?: ReactNode;
   onClickPreRightIcon?: () => void;
   isSticky?: boolean;
+  collapseRef?: RefObject<HTMLDivElement> | null;
 };
 
 export const Entity = forwardRef(
@@ -360,7 +362,12 @@ export const Entity = forwardRef(
             )}
             <Loader isVisible={isUpdating} />
           </EntityItem>
-          <Collapse active={props.active} isOpen={isOpen} step={props.step}>
+          <Collapse
+            active={props.active}
+            collapseRef={props.collapseRef}
+            isOpen={isOpen}
+            step={props.step}
+          >
             {props.children}
           </Collapse>
         </Wrapper>
