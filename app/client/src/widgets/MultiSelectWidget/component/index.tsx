@@ -52,6 +52,9 @@ export interface MultiSelectProps
   widgetId: string;
   onFocus?: (e: React.FocusEvent) => void;
   onBlur?: (e: React.FocusEvent) => void;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
 }
 
 const DEBOUNCE_TIMEOUT = 800;

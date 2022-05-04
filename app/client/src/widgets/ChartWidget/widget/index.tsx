@@ -53,6 +53,9 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       <Suspense fallback={<Skeleton />}>
         <ChartComponent
           allowScroll={this.props.allowScroll}
+          backgroundColor={this.props.backgroundColor}
+          borderRadius={this.props.borderRadius}
+          boxShadow={this.props.boxShadow}
           chartData={this.props.chartData}
           chartName={this.props.chartName}
           chartType={this.props.chartType}
@@ -62,6 +65,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
           key={this.props.widgetId}
           labelOrientation={this.props.labelOrientation}
           onDataPointClick={this.onDataPointClick}
+          primaryColor={"#FFFF00"}
           setAdaptiveYMin={this.props.setAdaptiveYMin}
           widgetId={this.props.widgetId}
           xAxisName={this.props.xAxisName}
@@ -85,6 +89,10 @@ export interface ChartWidgetProps extends WidgetProps {
   chartName: string;
   isVisible?: boolean;
   allowScroll: boolean;
+  backgroundColor: string;
+  borderRadius: string;
+  boxShadow?: string;
+  primaryColor?: string;
 }
 
 type ChartComponentPartialProps = Omit<ChartComponentProps, "onDataPointClick">;
