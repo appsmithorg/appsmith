@@ -104,8 +104,6 @@ const formToDatasourceAuthentication = (
       refreshTokenClientCredentialsLocation:
         authentication.refreshTokenClientCredentialsLocation,
     };
-    /* eslint-disable */
-    console.log("rrai", oAuth2Common);
     if (isClientCredentials(authType, authentication)) {
       return {
         ...oAuth2Common,
