@@ -35,14 +35,16 @@ export type JSONFormComponentProps<TValues = any> = {
   executeAction: (actionPayload: ExecuteTriggerPayload) => void;
   fieldLimitExceeded: boolean;
   fixedFooter: boolean;
+  getFormData: () => TValues;
+  isWidgetMounting: boolean;
   isSubmitting: boolean;
+  onFormValidityUpdate: (isValid: boolean) => void;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   registerResetObserver: (callback: () => void) => void;
   renderMode: RenderMode;
   resetButtonLabel: string;
   resetButtonStyles: ButtonStyleProps;
   schema: Schema;
-  getFormData: () => TValues;
   scrollContents: boolean;
   submitButtonLabel: string;
   unregisterResetObserver: () => void;
@@ -94,6 +96,8 @@ function JSONFormComponent<TValues>({
   fieldLimitExceeded,
   getFormData,
   isSubmitting,
+  isWidgetMounting,
+  onFormValidityUpdate,
   registerResetObserver,
   renderMode,
   resetButtonLabel,
@@ -173,6 +177,8 @@ function JSONFormComponent<TValues>({
           getFormData={getFormData}
           hideFooter={hideFooter}
           isSubmitting={isSubmitting}
+          isWidgetMounting={isWidgetMounting}
+          onFormValidityUpdate={onFormValidityUpdate}
           onSubmit={rest.onSubmit}
           registerResetObserver={registerResetObserver}
           resetButtonLabel={resetButtonLabel}

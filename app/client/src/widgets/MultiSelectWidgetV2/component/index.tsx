@@ -61,6 +61,9 @@ export interface MultiSelectProps
   filterText?: string;
   widgetId: string;
   isFilterable: boolean;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor?: string;
   onFocus?: (e: React.FocusEvent) => void;
   onBlur?: (e: React.FocusEvent) => void;
 }
@@ -69,7 +72,10 @@ const DEBOUNCE_TIMEOUT = 1000;
 const FOCUS_TIMEOUT = 500;
 
 function MultiSelectComponent({
+  accentColor,
   allowSelectAll,
+  borderRadius,
+  boxShadow,
   compactMode,
   disabled,
   dropdownStyle,
@@ -283,6 +289,7 @@ function MultiSelectComponent({
         <div className={`${loading ? Classes.SKELETON : ""}`}>
           {filteredOptions.length && allowSelectAll ? (
             <StyledCheckbox
+              accentColor={accentColor}
               alignIndicator="left"
               checked={isSelectAll}
               className={`all-options ${isSelectAll ? "selected" : ""}`}
@@ -307,13 +314,21 @@ function MultiSelectComponent({
 
   return (
     <MultiSelectContainer
+      accentColor={accentColor}
+      borderRadius={borderRadius}
+      boxShadow={boxShadow}
       compactMode={compactMode}
       data-testid="multiselect-container"
       isValid={isValid}
       labelPosition={labelPosition}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
-      <DropdownStyles dropDownWidth={memoDropDownWidth} id={widgetId} />
+      <DropdownStyles
+        accentColor={accentColor}
+        borderRadius={borderRadius}
+        dropDownWidth={memoDropDownWidth}
+        id={widgetId}
+      />
       {labelText && (
         <LabelWithTooltip
           alignment={labelAlignment}

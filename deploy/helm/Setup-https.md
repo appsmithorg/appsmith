@@ -86,6 +86,7 @@ The steps below explain how to use Ingress routes and cert-manager to configure 
   --set ingress.hosts[0].host=DOMAIN \
   --set ingress.certManagerTls[0].hosts[0]=DOMAIN \
   --set ingress.certManagerTls[0].secretName=letsencrypt-prod
+  --set ingress.className=nginx
   ```
 
 After the deployment completes, visit the domain in your browser and you should see the Appsmith site over a secure TLS connection with a valid Let's Encrypt certificate.
