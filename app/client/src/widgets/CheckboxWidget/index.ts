@@ -8,7 +8,7 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     rows: 4,
-    columns: 20,
+    columns: 7,
     label: "Label",
     defaultCheckedState: true,
     widgetName: "Checkbox",

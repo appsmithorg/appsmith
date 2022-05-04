@@ -108,9 +108,9 @@
   "TextLabelValue": "Test Text Label",
   "TextLabelValueScrollable": "Test Text Label to check scroll feature",
   "TextName": "TestTextBox",
-  "TextLabel": "Paragraph",
-  "TextBody": "Heading 2",
-  "TextHeading": "Heading 1",
+  "TextLabel": "S",
+  "TextBody": "L",
+  "TextHeading": "M",
   "Datepickername": "Datepicker",
   "DatepickerLable": "date",
   "RichTextEditorName": "RichtextEditor",
@@ -317,5 +317,5 @@
       "image": "https://wallpaperaccess.com/full/812632.jpg",
       "userName": "Toby William"
     }
-  ] 
+  ]
 }
