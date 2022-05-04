@@ -8,11 +8,14 @@ export const getPropertyValue = (
 ) => {
   if (value && isObject(value) && !Array.isArray(value)) {
     return value;
-  }
-  if (value && Array.isArray(value) && value[index]) {
-    return preserveCase
-      ? value[index].toString()
-      : value[index].toString().toUpperCase();
+  } else if (value && Array.isArray(value)) {
+    if (value[index]) {
+      return preserveCase
+        ? value[index].toString()
+        : value[index].toString().toUpperCase();
+    } else {
+      return value[index];
+    }
   } else if (value) {
     return preserveCase ? value.toString() : value.toString().toUpperCase();
   } else {
