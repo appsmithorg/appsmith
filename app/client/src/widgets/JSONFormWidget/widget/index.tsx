@@ -27,7 +27,6 @@ import {
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { convertSchemaItemToFormData } from "../helper";
-import { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -214,16 +213,19 @@ class JSONFormWidget extends BaseWidget<
   parseAndSaveFieldState = (
     metaInternalFieldState: MetaInternalFieldState,
     schema: Schema,
-    afterUpdateAction?: DebouncedExecuteActionPayload,
+    afterUpdateAction?: ExecuteTriggerPayload,
   ) => {
     const fieldState = generateFieldState(schema, metaInternalFieldState);
 
     if (!equal(fieldState, this.props.fieldState)) {
-      this.props.updateWidgetMetaProperty(
-        "fieldState",
-        fieldState,
-        afterUpdateAction,
-      );
+      /**
+       * Using syncUpdateWidgetMetaProperty to avoid race-condition when
+       * multiple properties are updating in quick succession. As sync fn
+       * does not support action execution as a callback, it has to be
+       * explicitly called.
+       */
+      this.props.syncUpdateWidgetMetaProperty("fieldState", fieldState);
+      afterUpdateAction && this.executeAction(afterUpdateAction);
     }
   };
 
@@ -267,7 +269,7 @@ class JSONFormWidget extends BaseWidget<
 
   setMetaInternalFieldState = (
     updateCallback: (prevState: JSONFormWidgetState) => JSONFormWidgetState,
-    afterUpdateAction?: DebouncedExecuteActionPayload,
+    afterUpdateAction?: ExecuteTriggerPayload,
   ) => {
     this.setState((prevState) => {
       const newState = updateCallback(prevState);
