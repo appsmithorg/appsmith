@@ -33,7 +33,8 @@ public enum AnalyticsEvents {
     GIT_TEST_CONNECTION,
     GIT_DELETE_BRANCH,
     GIT_DISCARD_CHANGES,
-    GENERATE_SSH_KEY
+    AUTHENTICATION_METHOD_CONFIGURATION("Authentication Method Configured"),
+    GENERATE_SSH_KEY("generate_SSH_KEY")
     ;
 
     private final String eventName;

@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Transient;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,9 +36,9 @@ public class ApplicationJson {
 
     List<NewPage> pageList;
 
-    List<String> pageOrder;
+    List<String> pageOrder = new ArrayList<>();
 
-    List<String> publishedPageOrder;
+    List<String> publishedPageOrder = new ArrayList<>();
 
     String publishedDefaultPageName;
     
