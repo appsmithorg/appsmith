@@ -5,6 +5,7 @@ import {
   TriggerFailureError,
 } from "sagas/ActionExecution/errorUtils";
 import { TriggerMeta } from "./ActionExecutionSagas";
+import { isEmpty } from "lodash";
 
 export function* postMessageSaga(
   payload: PostMessageDescription["payload"],
@@ -23,8 +24,10 @@ export function* executePostMessage(
       throw new TriggerFailureError(
         "Please enter a valid url as targetOrigin. Failing to provide a specific target discloses the data you send to any interested malicious site.",
       );
-    } else if (!message) {
+    } else if (isEmpty(message)) {
       throw new TriggerFailureError("Please enter a message.");
+    } else if (isEmpty(targetOrigin)) {
+      throw new TriggerFailureError("Please enter a target origin URL.");
     } else {
       window.parent.postMessage(message, targetOrigin, undefined);
     }
