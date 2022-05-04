@@ -10,12 +10,14 @@ import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import {
   getUsedActionNames,
   getSavingStatusForActionName,
+  getSavingStatusForJSObjectName,
 } from "selectors/actionSelectors";
 import {
   ACTION_INVALID_NAME_ERROR,
   ACTION_NAME_CONFLICT_ERROR,
   createMessage,
 } from "@appsmith/constants/messages";
+import { PluginType } from "entities/Action";
 
 type NameEditorProps = {
   checkForGuidedTour?: boolean;
@@ -23,6 +25,7 @@ type NameEditorProps = {
   currentActionConfig: { id: string; name: string } | undefined;
   dispatchAction: (a: any) => any;
   suffixErrorMessage?: (params?: any) => string;
+  pluginType?: PluginType;
 };
 
 /**
@@ -44,7 +47,13 @@ function NameEditor(props: NameEditorProps) {
   const [forceUpdate, setForceUpdate] = useState(false);
   const dispatch = useDispatch();
   if (!currentActionConfig?.id) {
-    log.error("No correct API id or Query id found in the url.");
+    log.error(
+      `No correct ${
+        props.pluginType === PluginType.JS
+          ? "JSObject Id"
+          : "API id or Query id"
+      } found in the url.`,
+    );
   }
   const guidedTourEnabled = useSelector(inGuidedTour);
 
@@ -52,7 +61,9 @@ function NameEditor(props: NameEditorProps) {
     isSaving: boolean;
     error: boolean;
   } = useSelector((state: AppState) =>
-    getSavingStatusForActionName(state, currentActionConfig?.id || ""),
+    props.pluginType === PluginType.JS
+      ? getSavingStatusForJSObjectName(state, currentActionConfig?.id || "")
+      : getSavingStatusForActionName(state, currentActionConfig?.id || ""),
   );
 
   const conflictingNames = useSelector(
