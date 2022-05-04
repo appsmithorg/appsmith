@@ -41,7 +41,7 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
 
-const getPositionStyle_ = memoize(
+const memoizedPositionStyle = memoize(
   (
     componentHeight: number,
     componentWidth: number,
@@ -412,7 +412,7 @@ abstract class BaseWidget<
    */
   private getPositionStyle = () => {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
-    return getPositionStyle_(
+    return memoizedPositionStyle(
       componentHeight,
       componentWidth,
       this.props.topRow,
