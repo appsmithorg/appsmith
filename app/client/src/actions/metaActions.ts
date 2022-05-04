@@ -11,7 +11,7 @@ export interface UpdateWidgetMetaPropertyPayload {
   propertyValue: unknown;
 }
 
-export const updateWidgetMetaProperty = (
+export const updateWidgetMetaPropAndEval = (
   widgetId: string,
   propertyName: string,
   propertyValue: unknown,

@@ -31,6 +31,7 @@ type metaHOCProps = WidgetProps & WidgetMetaProps;
 function withMeta(WrappedWidget: typeof BaseWidget) {
   class MetaHOC extends React.Component<metaHOCProps> {
     static contextType = EditorContext;
+    context!: React.ContextType<typeof EditorContext>;
 
     initialMetaState: Record<string, unknown>;
     batchExecuteActions: Array<DebouncedExecuteActionPayload>;
@@ -60,6 +61,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
         if (actionExecution && actionExecution.dynamicString && executeAction) {
           executeAction({
             ...actionExecution,
+            dynamicString: actionExecution.dynamicString, // when we spread the object above check of dynamic string doesn't account for type.
             source: {
               id: this.props.widgetId,
               name: this.props.widgetName,

@@ -19,7 +19,6 @@ import { EditorContext } from "components/editorComponents/EditorContextProvider
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import {
   resetChildrenMetaProperty,
-  updateWidgetMetaProperty,
   syncUpdateWidgetMetaProperty,
   triggerEvalOnMetaUpdate,
 } from "actions/metaActions";
@@ -168,15 +167,6 @@ function AppViewer(props: Props) {
   );
 
   /**
-   * callback for updating widget meta property and triggering evaluation
-   */
-  const updateWidgetMetaPropertyCallback = useCallback(
-    (widgetId: string, propertyName: string, propertyValue: unknown) =>
-      dispatch(updateWidgetMetaProperty(widgetId, propertyName, propertyValue)),
-    [],
-  );
-
-  /**
    * callback for initializing app
    */
   const resetChildrenMetaPropertyCallback = useCallback(
@@ -218,7 +208,6 @@ function AppViewer(props: Props) {
         <EditorContext.Provider
           value={{
             executeAction: executeActionCallback,
-            updateWidgetMetaProperty: updateWidgetMetaPropertyCallback,
             resetChildrenMetaProperty: resetChildrenMetaPropertyCallback,
             batchUpdateWidgetProperty: batchUpdateWidgetPropertyCallback,
             syncUpdateWidgetMetaProperty: syncUpdateWidgetMetaPropertyCallback,
