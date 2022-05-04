@@ -25,6 +25,7 @@ const Container = styled.div`
 `;
 
 export default function DiscardChangesWarning({
+  discardDocUrl,
   onCloseDiscardChangesWarning,
 }: any) {
   const notificationBannerOptions: NotificationBannerProps = {
@@ -33,7 +34,7 @@ export default function DiscardChangesWarning({
     icon: "warning-line",
     onClose: () => onCloseDiscardChangesWarning(),
     variant: NotificationVariant.error,
-    learnMoreClickHandler: () => false,
+    learnMoreClickHandler: () => window.open(discardDocUrl, "_blank"),
   };
   return (
     <Container>

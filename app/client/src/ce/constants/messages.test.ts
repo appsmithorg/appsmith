@@ -47,6 +47,7 @@ import {
   GIT_SETTINGS,
   GIT_UPSTREAM_CHANGES,
   GIT_USER_UPDATED_SUCCESSFULLY,
+  IMPORTING_APP_FROM_GIT,
   INVALID_USER_DETAILS_MSG,
   IS_MERGING,
   MERGE,
@@ -113,9 +114,9 @@ describe("git-sync messages", () => {
     },
     {
       key: "COMMITTING_AND_PUSHING_CHANGES",
-      value: "COMMITTING AND PUSHING CHANGES...",
+      value: "Committing and pushing changes...",
     },
-    { key: "IS_MERGING", value: "MERGING CHANGES..." },
+    { key: "IS_MERGING", value: "Merging changes..." },
     {
       key: "MERGE_CHANGES",
       value: "Merge changes",
@@ -288,7 +289,7 @@ describe("git-sync messages", () => {
     },
     {
       key: "DISCARDING_AND_PULLING_CHANGES",
-      value: "DISCARDING AND PULLING CHANGES...",
+      value: "Discarding and pulling changes...",
     },
     {
       key: "ARE_YOU_SURE",
@@ -297,6 +298,10 @@ describe("git-sync messages", () => {
     {
       key: "DISCARD_CHANGES",
       value: "Discard changes",
+    },
+    {
+      key: "IMPORTING_APP_FROM_GIT",
+      value: "Importing application from git",
     },
   ];
   const functions = [
@@ -346,6 +351,7 @@ describe("git-sync messages", () => {
     GIT_SETTINGS,
     GIT_UPSTREAM_CHANGES,
     GIT_USER_UPDATED_SUCCESSFULLY,
+    IMPORTING_APP_FROM_GIT,
     INVALID_USER_DETAILS_MSG,
     IS_MERGING,
     MERGE,

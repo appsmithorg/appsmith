@@ -645,12 +645,12 @@ export const REGENERATE_KEY_CONFIRM_MESSAGE = () =>
 export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
   "Paste this key in your repository settings and give it write access.";
 export const COMMITTING_AND_PUSHING_CHANGES = () =>
-  "COMMITTING AND PUSHING CHANGES...";
+  "Committing and pushing changes...";
 export const DISCARDING_AND_PULLING_CHANGES = () =>
-  "DISCARDING AND PULLING CHANGES...";
+  "Discarding and pulling changes...";
 export const DISCARD_SUCCESS = () => "Discarded changes successfully.";
 
-export const IS_MERGING = () => "MERGING CHANGES...";
+export const IS_MERGING = () => "Merging changes...";
 
 export const MERGE_CHANGES = () => "Merge changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
@@ -729,8 +729,8 @@ export const GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS = (name: string) =>
 export const APPLICATION_NAME = () => "Application name";
 export const NOT_OPTIONS = () => "Not Options!";
 export const OPEN_REPO = () => "OPEN REPO";
-export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
-export const IMPORTING_APP_FROM_GIT = () => "IMPORTING APPLICATION FROM GIT";
+export const CONNECTING_REPO = () => "Connecting to git repo";
+export const IMPORTING_APP_FROM_GIT = () => "Importing application from git";
 export const ERROR_CONNECTING = () => "Error while connecting";
 export const ERROR_COMMITTING = () => "Error while committing";
 export const CONFIRM_SSH_KEY = () => "Make sure your SSH Key has write access.";

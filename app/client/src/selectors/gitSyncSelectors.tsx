@@ -146,6 +146,9 @@ export const getUseGlobalProfile = (state: AppState) =>
 const FALLBACK_GIT_SYNC_DOCS_URL =
   "https://docs.appsmith.com/core-concepts/git-sync";
 
+export const getDiscardDocUrl = (state: AppState) =>
+  state.ui.gitSync.gitStatus?.discardDocUrl || FALLBACK_GIT_SYNC_DOCS_URL;
+
 // git connect ssh key deploy url
 export const getSSHKeyDeployDocUrl = (state: AppState) =>
   state.ui.gitSync.deployKeyDocUrl || FALLBACK_GIT_SYNC_DOCS_URL;

@@ -479,6 +479,7 @@ export type GitStatusData = {
   remoteBranch: string;
   modifiedJSObjects: number;
   modifiedDatasources: number;
+  discardDocUrl?: string;
 };
 
 type GitErrorPayloadType = {
