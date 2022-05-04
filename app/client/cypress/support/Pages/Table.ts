@@ -1,7 +1,8 @@
 import { ObjectsRegistry } from "../Objects/Registry"
 const path = require("path");
 
-type filterTypes ='contains' | 'does not contain' | 'starts with' | 'ends with' | 'is exactly' | 'empty' | 'not empty' | 'is equal to' |'not equal to' |'greater than' |'greater than or equal to' |'less than'|'less than or equal to';
+type filterTypes = 'contains' | 'does not contain' | 'starts with' | 'ends with' | 'is exactly' | 'empty' | 'not empty' | 'is equal to' | 'not equal to' | 'greater than' | 'greater than or equal to' | 'less than' | 'less than or equal to';
+type columnTypeValues = 'Plain Text' | 'URL' | 'Number' | 'Image' | 'Video' | 'Date' | 'Button' | 'Menu Button' | 'Icon Button';
 
 export class Table {
   public agHelper = ObjectsRegistry.AggregateHelper
@@ -39,6 +40,7 @@ export class Table {
   _filterOperatorDropdown = ".t--table-filter-operators-dropdown"
   private _downloadBtn = ".t--table-download-btn"
   private _downloadOption = ".t--table-download-data-option"
+  _columnSettings = (columnName: string) => "//input[@placeholder='Column Title'][@value='" + columnName + "']/parent::div/following-sibling::div[contains(@class, 't--edit-column-btn')]"
 
 
   public WaitUntilTableLoad() {
@@ -125,7 +127,7 @@ export class Table {
       });
   }
 
-  public SelectTableRow(rowIndex: number) {
+  public SelectTableRow(rowIndex: number) {//0 for 1st row
     cy.get(this._tableRow(rowIndex, 0)).first().click({ force: true });
     this.agHelper.Sleep()//for select to reflect
   }
@@ -204,6 +206,23 @@ export class Table {
     cy.readFile(downloadedFilename, "binary", {
       timeout: 15000,
     }).should((buffer) => expect(buffer).to.contain(textToBePresent));
+  }
+
+  public ChangeColumnType(columnName: string, newDataType: columnTypeValues) {
+    this.agHelper.GetNClick(this._columnSettings(columnName))
+    this.agHelper.SelectDropdownList('Column Type', newDataType)
+    this.agHelper.ValidateNetworkStatus("@updateLayout")
+  }
+
+  public AssertURLColumnNavigation(row: number, col: number, expectedURL: string) {
+    this.agHelper.StubbingWindow()
+    this.agHelper.GetNClick(this._tableRowColumnData(row, col)).then($cellData => {
+      //Cypress.$($cellData).trigger('click');
+      cy.url().should("eql", expectedURL);
+      this.agHelper.Sleep()
+      cy.go(-1);
+      this.WaitUntilTableLoad()
+    });
   }
 
   //List methods - keeping it for now!
