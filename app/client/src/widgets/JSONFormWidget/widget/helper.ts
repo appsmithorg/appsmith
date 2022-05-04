@@ -9,6 +9,7 @@ import {
   ARRAY_ITEM_KEY,
   AUTO_JS_ENABLED_FIELDS,
   FieldState,
+  FieldThemeStylesheet,
   FieldType,
   JSON,
   MAX_ALLOWED_FIELDS,
@@ -41,6 +42,7 @@ type ComputeSchemaProps = {
   prevSchema?: Schema;
   widgetName: string;
   currentDynamicPropertyPathList?: PathList;
+  fieldThemeStylesheets?: FieldThemeStylesheet;
 };
 
 export enum ComputedSchemaStatus {
@@ -251,6 +253,7 @@ const computeDynamicPropertyPathList = (
 export const computeSchema = ({
   currentDynamicPropertyPathList,
   currSourceData,
+  fieldThemeStylesheets,
   prevSchema = {},
   prevSourceData,
   widgetName,
@@ -284,7 +287,11 @@ export const computeSchema = ({
 
   const start = performance.now();
 
-  const schema = SchemaParser.parse(widgetName, currSourceData, prevSchema);
+  const schema = SchemaParser.parse(widgetName, {
+    fieldThemeStylesheets,
+    currSourceData,
+    schema: prevSchema,
+  });
 
   log.debug(
     "JSONForm widget schema parsing took",

@@ -29,8 +29,11 @@ const buttonStyles = css<Partial<ButtonProps>>`
     border-radius: 0;
     background: ${(props) =>
       props.filled || props.outline ? "inherit" : "transparent"};
-
+    border-radius: ${({ borderRadius }) => borderRadius};
+    box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
     width: ${(props) => (props.fluid ? "100%" : "auto")};
+    height: 100%;
+    padding: 0 10px;
   }
   &&&&&& {
     &.bp3-button span {
@@ -86,6 +89,9 @@ export type ButtonProps = {
   fluid?: boolean;
   skin?: Skin;
   target?: string;
+  borderRadius?: string;
+  boxShadow?: string;
+  boxShadowColor?: string;
 };
 
 export const Button = (props: ButtonProps) => {
@@ -129,6 +135,9 @@ export const Button = (props: ButtonProps) => {
   } else
     return (
       <StyledButton
+        borderRadius={props.borderRadius}
+        boxShadow={props.boxShadow}
+        boxShadowColor={props.boxShadowColor}
         icon={icon}
         rightIcon={rightIcon}
         {...baseProps}

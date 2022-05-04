@@ -209,7 +209,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
     const columnProps: ColumnProperties = getDefaultColumnProperties(
       newColumnName,
       nextIndex,
-      this.props.widgetProperties.widgetName,
+      this.props.widgetProperties,
       true,
     );
     const tableStyles = getTableStyles(this.props.widgetProperties);

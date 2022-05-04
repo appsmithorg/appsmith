@@ -13,7 +13,12 @@ import {
   EventType,
   ExecuteTriggerPayload,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { FieldState, ROOT_SCHEMA_KEY, Schema } from "../constants";
+import {
+  FieldState,
+  FieldThemeStylesheet,
+  ROOT_SCHEMA_KEY,
+  Schema,
+} from "../constants";
 import {
   ComputedSchemaStatus,
   computeSchema,
@@ -47,6 +52,7 @@ export interface JSONFormWidgetProps extends WidgetProps {
   submitButtonLabel: string;
   submitButtonStyles: ButtonStyleProps;
   title: string;
+  childStylesheet: FieldThemeStylesheet;
 }
 
 export type MetaInternalFieldState = FieldState<{
@@ -67,12 +73,17 @@ class JSONFormWidget extends BaseWidget<
   WidgetState & JSONFormWidgetState
 > {
   debouncedParseAndSaveFieldState: any;
+  isWidgetMounting: boolean;
+
   constructor(props: JSONFormWidgetProps) {
     super(props);
+
     this.debouncedParseAndSaveFieldState = debounce(
       this.parseAndSaveFieldState,
       SAVE_FIELD_STATE_DEBOUNCE_TIMEOUT,
     );
+
+    this.isWidgetMounting = true;
   }
 
   state = {
@@ -104,6 +115,7 @@ class JSONFormWidget extends BaseWidget<
 
   componentDidMount() {
     this.constructAndSaveSchemaIfRequired();
+    this.isWidgetMounting = false;
   }
 
   componentDidUpdate(prevProps: JSONFormWidgetProps) {
@@ -173,6 +185,7 @@ class JSONFormWidget extends BaseWidget<
       prevSchema: widget.schema,
       prevSourceData,
       widgetName: widget.widgetName,
+      fieldThemeStylesheets: widget.childStylesheet,
     });
     const { dynamicPropertyPathList, schema, status } = computedSchema;
 
@@ -214,11 +227,14 @@ class JSONFormWidget extends BaseWidget<
       afterUpdateAction && this.applyGlobalContextToAction(afterUpdateAction);
 
     if (!equal(fieldState, this.props.fieldState)) {
-      this.props.updateWidgetMetaProperty(
-        "fieldState",
-        fieldState,
-        actionPayload,
-      );
+      /**
+       * Using syncUpdateWidgetMetaProperty to avoid race-condition when
+       * multiple properties are updating in quick succession. As sync fn
+       * does not support action execution as a callback, it has to be
+       * explicitly called.
+       */
+      this.props.syncUpdateWidgetMetaProperty("fieldState", fieldState);
+      actionPayload && this.executeAction(actionPayload);
     }
   };
 
@@ -327,6 +343,7 @@ class JSONFormWidget extends BaseWidget<
         fixedFooter={this.props.fixedFooter}
         getFormData={this.getFormData}
         isSubmitting={this.state.isSubmitting}
+        isWidgetMounting={this.isWidgetMounting}
         onFormValidityUpdate={this.onFormValidityUpdate}
         onSubmit={this.onSubmit}
         registerResetObserver={this.registerResetObserver}

@@ -25,6 +25,7 @@ export const VALID_FUNCTION_NAME_ERROR = () =>
   `Must be a valid variable name (camelCase)`;
 export const UNIQUE_NAME_ERROR = () => `Name must be unique`;
 export const NAME_SPACE_ERROR = () => `Name must not have spaces`;
+export const SPECIAL_CHARACTER_ERROR = () => `Name must be alphanumeric`;
 
 export const FORM_VALIDATION_EMPTY_EMAIL = () => `Please enter an email`;
 export const FORM_VALIDATION_INVALID_EMAIL = () =>
@@ -1049,7 +1050,20 @@ export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
 export const CREATE_DATASOURCE_TOOLTIP = () => "Add a new datasource";
 export const ADD_QUERY_JS_TOOLTIP = () => "Create New";
 
+// Add datasource
+export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
+export const GENERATE_APPLICATION_DESCRIPTION = () =>
+  "Quickly generate a page to perform CRUD operations on your database tables";
 export const DELETE_ORG_SUCCESSFUL = () => "Organization deleted successfully";
+// theming
+export const CHANGE_APP_THEME = (name: string) => `Theme ${name} Applied`;
+export const SAVE_APP_THEME = (name: string) => `Theme ${name} Saved`;
+export const DELETE_APP_THEME = (name: string) => `Theme ${name} Deleted`;
+export const DELETE_APP_THEME_WARNING = () =>
+  `Do you really want to delete this theme? This process cannot be undone.`;
+export const APP_THEME_BETA_CARD_HEADING = () => `🎨 Theme your app`;
+export const APP_THEME_BETA_CARD_CONTENT = () =>
+  `Customize your app's look through global styles. Full widget support coming soon`;
 
 export const UPGRADE_TO_EE = (authLabel: string) =>
   `Hello, I would like to upgrade and start using ${authLabel} authentication.`;
