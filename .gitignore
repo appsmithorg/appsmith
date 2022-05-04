@@ -20,4 +20,3 @@ deploy/ansible/appsmith_playbook/inventory
 # performance tests
 app/client/perf/traces/*
 .history
-stacks
