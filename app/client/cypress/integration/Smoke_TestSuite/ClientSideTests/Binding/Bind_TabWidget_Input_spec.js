@@ -1,8 +1,4 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/tabInputDsl.json");
-const pages = require("../../../../locators/Pages.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 
@@ -26,7 +22,7 @@ describe("Binding the input Widget with tab Widget", function() {
     cy.PublishtheApp();
     cy.get(publish.tabWidget)
       .contains("Tab 2")
-      .click({ force: true })
+      .click()
       .wait(1000)
       .should("have.class", "is-selected");
 
@@ -36,7 +32,7 @@ describe("Binding the input Widget with tab Widget", function() {
       .should("contain", "Tab 2");
     cy.get(publish.tabWidget)
       .contains("Tab 1")
-      .click({ force: true })
+      .click()
       .wait(1000)
       .should("have.class", "is-selected");
 
