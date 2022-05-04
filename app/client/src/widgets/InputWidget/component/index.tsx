@@ -36,6 +36,7 @@ import ISDCodeDropdown, {
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import Icon from "components/ads/Icon";
 import { limitDecimalValue, getSeparators } from "./utilities";
+import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { LabelPosition } from "components/constants";
 import LabelWithTooltip, {
   labelLayoutStyles,
@@ -298,7 +299,7 @@ class InputComponent extends React.Component<
   componentDidMount() {
     if (this.props.inputType === InputTypes.CURRENCY) {
       const element: any = document.querySelectorAll(
-        `.appsmith_widget_${this.props.widgetId} .bp3-button`,
+        `.${getBaseWidgetClassName(this.props.widgetId)} .bp3-button`,
       );
       if (element !== null) {
         element[0].addEventListener("click", this.onIncrementButtonClick);
@@ -313,7 +314,7 @@ class InputComponent extends React.Component<
       this.props.inputType !== prevProps.inputType
     ) {
       const element: any = document.querySelectorAll(
-        `.appsmith_widget_${this.props.widgetId} .bp3-button`,
+        `.${getBaseWidgetClassName(this.props.widgetId)} .bp3-button`,
       );
       if (element !== null) {
         element[0].addEventListener("click", this.onIncrementButtonClick);
@@ -325,7 +326,7 @@ class InputComponent extends React.Component<
   componentWillUnmount() {
     if (this.props.inputType === InputTypes.CURRENCY) {
       const element: any = document.querySelectorAll(
-        `.appsmith_widget_${this.props.widgetId} .bp3-button`,
+        `.${getBaseWidgetClassName(this.props.widgetId)} .bp3-button`,
       );
       if (element !== null) {
         element[0].removeEventListener("click", this.onIncrementButtonClick);

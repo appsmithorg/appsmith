@@ -66,12 +66,17 @@ class JSONFormWidget extends BaseWidget<
   WidgetState & JSONFormWidgetState
 > {
   debouncedParseAndSaveFieldState: any;
+  isWidgetMounting: boolean;
+
   constructor(props: JSONFormWidgetProps) {
     super(props);
+
     this.debouncedParseAndSaveFieldState = debounce(
       this.parseAndSaveFieldState,
       SAVE_FIELD_STATE_DEBOUNCE_TIMEOUT,
     );
+
+    this.isWidgetMounting = true;
   }
 
   state = {
@@ -103,6 +108,7 @@ class JSONFormWidget extends BaseWidget<
 
   componentDidMount() {
     this.constructAndSaveSchemaIfRequired();
+    this.isWidgetMounting = false;
   }
 
   componentDidUpdate(prevProps: JSONFormWidgetProps) {
@@ -309,6 +315,7 @@ class JSONFormWidget extends BaseWidget<
         fixedFooter={this.props.fixedFooter}
         getFormData={this.getFormData}
         isSubmitting={this.state.isSubmitting}
+        isWidgetMounting={this.isWidgetMounting}
         onFormValidityUpdate={this.onFormValidityUpdate}
         onSubmit={this.onSubmit}
         registerResetObserver={this.registerResetObserver}
