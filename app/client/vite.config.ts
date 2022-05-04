@@ -66,6 +66,7 @@ export default defineConfig(({ command }) => {
       fileRegex: /_derived\.js$/,
     }),
     react({
+      jsxRuntime: "classic",
       babel: {
         presets: babelPresets,
         plugins: babelPlugins,

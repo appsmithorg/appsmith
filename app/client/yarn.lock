@@ -4178,6 +4178,13 @@
     hoist-non-react-statics "^3.3.0"
     redux "^4.0.0"
 
+"@types/react-responsive@8.0.5":
+  version "8.0.5"
+  resolved "https://registry.yarnpkg.com/@types/react-responsive/-/react-responsive-8.0.5.tgz#77769862d2a0711434feb972be08e3e6c334440a"
+  integrity sha512-k3gQJgI87oP5IrVZe//3LKJFnAeFaqqWmmtl5eoYL2H3HqFcIhUaE30kRK1CsW3DHdojZxcVj4ZNc2ClsEu2PA==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-router-dom@^5.1.2":
   version "5.1.6"
   resolved "https://registry.npmjs.org/@types/react-router-dom/-/react-router-dom-5.1.6.tgz"
@@ -15806,14 +15813,15 @@ react-refresh@^0.8.3:
   version "0.8.3"
   resolved "https://registry.npmjs.org/react-refresh/-/react-refresh-0.8.3.tgz"
 
-react-responsive@^9.0.0-beta.3:
-  version "9.0.0-beta.3"
-  resolved "https://registry.yarnpkg.com/react-responsive/-/react-responsive-9.0.0-beta.3.tgz#934cd8e21d007335ef1456b66288ee197e69b78a"
+react-responsive@8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/react-responsive/-/react-responsive-8.0.0.tgz#d54bccc52b450c75dcd946eaa365ea9f279ffbb9"
+  integrity sha512-l8FRTEoifVnhoFsnaWeyCHQ8O088ug9IIihUupG/8Ah3x1OITLourRDAisvKF5P+5ST4HRC08bSBYQkNfknAYA==
   dependencies:
     hyphenate-style-name "^1.0.0"
     matchmediaquery "^0.3.0"
     prop-types "^15.6.1"
-    shallow-equal "^1.2.1"
+    shallow-equal "^1.1.0"
 
 react-router-dom@^5.1.2:
   version "5.2.0"
@@ -16989,9 +16997,10 @@ shallow-clone@^3.0.0:
   dependencies:
     kind-of "^6.0.2"
 
-shallow-equal@^1.2.1:
+shallow-equal@^1.1.0:
   version "1.2.1"
-  resolved "https://registry.npmjs.org/shallow-equal/-/shallow-equal-1.2.1.tgz"
+  resolved "https://registry.yarnpkg.com/shallow-equal/-/shallow-equal-1.2.1.tgz#4c16abfa56043aa20d050324efa68940b0da79da"
+  integrity sha512-S4vJDjHHMBaiZuT9NPb616CSmLf618jawtv3sufLl6ivK8WocjAo58cXwbRV1cgqxH0Qbv+iUt6m05eqEa2IRA==
 
 shallowequal@^1.0.1, shallowequal@^1.1.0:
   version "1.1.0"

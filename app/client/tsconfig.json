@@ -31,6 +31,7 @@
       "./typings",
       "./node_modules/@types"
     ],
+    "types": ["vite/client"],
     "sourceMap": true,
     "baseUrl": "./src",
     "noFallthroughCasesInSwitch": true
