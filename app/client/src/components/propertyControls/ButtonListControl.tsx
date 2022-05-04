@@ -9,7 +9,6 @@ import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
 import { Category, Size } from "components/ads/Button";
-import { Colors } from "constants/Colors";
 import { ButtonPlacementTypes } from "components/constants";
 import { DraggableListCard } from "components/ads/DraggableListCard";
 
@@ -179,6 +178,7 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
       "Group Button ",
       groupButtonsArray.map((groupButton: any) => groupButton.label),
     );
+
     groupButtons = {
       ...groupButtons,
       [newGroupButtonId]: {
@@ -187,11 +187,12 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
         label: newGroupButtonLabel,
         menuItems: {},
         buttonType: "SIMPLE",
-        buttonColor: Colors.GREEN,
         placement: ButtonPlacementTypes.CENTER,
         widgetId: generateReactKey(),
         isDisabled: false,
         isVisible: true,
+        buttonColor: this.props.widgetProperties.childStylesheet.button
+          .buttonColor,
       },
     };
 

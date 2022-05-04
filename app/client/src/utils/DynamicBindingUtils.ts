@@ -303,6 +303,15 @@ export const isPathADynamicProperty = (
   return false;
 };
 
+export const THEME_BINDING_REGEX = /{{.*appsmith\.theme\..*}}/;
+
+export const isThemeBoundProperty = (
+  widget: WidgetProps,
+  path: string,
+): boolean => {
+  return widget && widget[path] && THEME_BINDING_REGEX.test(widget[path]);
+};
+
 export const unsafeFunctionForEval = [
   "setTimeout",
   "fetch",

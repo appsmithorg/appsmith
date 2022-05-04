@@ -47,6 +47,8 @@ interface TableFilterProps {
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
   widgetId: string;
+  accentColor: string;
+  borderRadius: string;
 }
 
 function TableFilters(props: TableFilterProps) {

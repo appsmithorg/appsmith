@@ -7,7 +7,6 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { Alignment } from "@blueprintjs/core";
 import {
   ButtonBorderRadius,
-  ButtonBoxShadow,
   ButtonVariant,
   ButtonVariantTypes,
   ButtonPlacementTypes,
@@ -39,9 +38,8 @@ export interface MenuButtonWidgetProps extends WidgetProps {
   >;
   menuVariant?: ButtonVariant;
   menuColor?: string;
-  borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
   placement?: ButtonPlacement;
@@ -101,22 +99,6 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       validation: { type: ValidationTypes.TEXT },
                     },
                     {
-                      propertyName: "backgroundColor",
-                      helpText: "Sets the background color of a menu item",
-                      label: "Background color",
-                      controlType: "COLOR_PICKER",
-                      isBindProperty: false,
-                      isTriggerProperty: false,
-                    },
-                    {
-                      propertyName: "textColor",
-                      helpText: "Sets the text color of a menu item",
-                      label: "Text color",
-                      controlType: "COLOR_PICKER",
-                      isBindProperty: false,
-                      isTriggerProperty: false,
-                    },
-                    {
                       propertyName: "isDisabled",
                       helpText: "Disables input to the widget",
                       label: "Disabled",
@@ -150,14 +132,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.TEXT },
                     },
-                    {
-                      propertyName: "iconColor",
-                      helpText: "Sets the icon color of a menu item",
-                      label: "Icon color",
-                      controlType: "COLOR_PICKER",
-                      isBindProperty: false,
-                      isTriggerProperty: false,
-                    },
+
                     {
                       propertyName: "iconAlign",
                       label: "Icon alignment",
@@ -191,6 +166,35 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       isJSConvertible: true,
                       isBindProperty: true,
                       isTriggerProperty: true,
+                    },
+                  ],
+                },
+                {
+                  sectionName: "Styles",
+                  children: [
+                    {
+                      propertyName: "iconColor",
+                      helpText: "Sets the icon color of a menu item",
+                      label: "Icon color",
+                      controlType: "COLOR_PICKER",
+                      isBindProperty: false,
+                      isTriggerProperty: false,
+                    },
+                    {
+                      propertyName: "backgroundColor",
+                      helpText: "Sets the background color of a menu item",
+                      label: "Background color",
+                      controlType: "COLOR_PICKER",
+                      isBindProperty: false,
+                      isTriggerProperty: false,
+                    },
+                    {
+                      propertyName: "textColor",
+                      helpText: "Sets the text color of a menu item",
+                      label: "Text color",
+                      controlType: "COLOR_PICKER",
+                      isBindProperty: false,
+                      isTriggerProperty: false,
                     },
                   ],
                 },
@@ -248,8 +252,10 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             helpText: "Sets the style of the Menu button",
             label: "Menu Color",
             controlType: "COLOR_PICKER",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "menuVariant",
@@ -290,15 +296,11 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             label: "Border Radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
-            controlType: "BUTTON_BORDER_RADIUS_OPTIONS",
-            isBindProperty: false,
+            controlType: "BORDER_RADIUS_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
-              },
-            },
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "boxShadow",
@@ -306,35 +308,10 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: [
-                  "NONE",
-                  "VARIANT1",
-                  "VARIANT2",
-                  "VARIANT3",
-                  "VARIANT4",
-                  "VARIANT5",
-                ],
-              },
-            },
-          },
-          {
-            propertyName: "boxShadowColor",
-            helpText: "Sets the shadow color of the widget",
-            label: "Shadow Color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                regex: /^(?![<|{{]).+/,
-              },
-            },
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "iconName",

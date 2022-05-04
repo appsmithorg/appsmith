@@ -1,7 +1,6 @@
-import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
-import { Colors } from "constants/Colors";
-import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import IconSVG from "./icon.svg";
+import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -9,7 +8,6 @@ export const CONFIG = {
   iconSVG: IconSVG,
   defaults: {
     label: "Open Menu",
-    menuColor: Colors.GREEN,
     menuVariant: ButtonVariantTypes.PRIMARY,
     placement: ButtonPlacementTypes.CENTER,
     isCompact: false,
