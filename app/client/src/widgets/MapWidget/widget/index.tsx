@@ -15,14 +15,18 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 const { google } = getAppsmithConfigs();
 
-const DisabledContainer = styled.div`
+const DisabledContainer = styled.div<{
+  borderRadius: string;
+  boxShadow?: string;
+}>`
   background-color: white;
   height: 100%;
   text-align: center;
   display: flex;
   flex-direction: column;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => boxShadow} !important;
   border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
-  border-radius: 0;
   h1 {
     margin-top: 15%;
     margin-bottom: 10%;
@@ -220,6 +224,35 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
           },
         ],
       },
+
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
     ];
   }
 
@@ -340,7 +373,10 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     return (
       <>
         {!google.enabled && (
-          <DisabledContainer>
+          <DisabledContainer
+            borderRadius={this.props.borderRadius}
+            boxShadow={this.props.boxShadow}
+          >
             <h1>{"Map Widget disabled"}</h1>
             <p>{"Map widget requires a Google Maps API Key"}</p>
             <p>
@@ -360,6 +396,8 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
           <MapComponent
             allowZoom={this.props.allowZoom}
             apiKey={google.apiKey}
+            borderRadius={this.props.borderRadius}
+            boxShadow={this.props.boxShadow}
             center={this.getCenter()}
             clickedMarkerCentered={this.props.isClickedMarkerCentered}
             enableCreateMarker={this.props.enableCreateMarker}
@@ -414,6 +452,8 @@ export interface MapWidgetProps extends WidgetProps {
   };
   onMarkerClick?: string;
   onCreateMarker?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 export default MapWidget;

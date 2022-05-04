@@ -74,6 +74,7 @@ describe("Checkbox Group Widget Functionality", function() {
     cy.openPropertyPane("checkboxgroupwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
+    cy.wait(500);
     cy.get(publish.checkboxGroupWidget + " " + "input")
       .eq(0)
       .should("exist");
