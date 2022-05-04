@@ -22,7 +22,6 @@ import {
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { convertSchemaItemToFormData } from "../helper";
-import { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -67,12 +66,17 @@ class JSONFormWidget extends BaseWidget<
   WidgetState & JSONFormWidgetState
 > {
   debouncedParseAndSaveFieldState: any;
+  isWidgetMounting: boolean;
+
   constructor(props: JSONFormWidgetProps) {
     super(props);
+
     this.debouncedParseAndSaveFieldState = debounce(
       this.parseAndSaveFieldState,
       SAVE_FIELD_STATE_DEBOUNCE_TIMEOUT,
     );
+
+    this.isWidgetMounting = true;
   }
 
   state = {
@@ -104,6 +108,7 @@ class JSONFormWidget extends BaseWidget<
 
   componentDidMount() {
     this.constructAndSaveSchemaIfRequired();
+    this.isWidgetMounting = false;
   }
 
   componentDidUpdate(prevProps: JSONFormWidgetProps) {
@@ -207,16 +212,19 @@ class JSONFormWidget extends BaseWidget<
   parseAndSaveFieldState = (
     metaInternalFieldState: MetaInternalFieldState,
     schema: Schema,
-    afterUpdateAction?: DebouncedExecuteActionPayload,
+    afterUpdateAction?: ExecuteTriggerPayload,
   ) => {
     const fieldState = generateFieldState(schema, metaInternalFieldState);
 
     if (!equal(fieldState, this.props.fieldState)) {
-      this.props.updateWidgetMetaProperty(
-        "fieldState",
-        fieldState,
-        afterUpdateAction,
-      );
+      /**
+       * Using syncUpdateWidgetMetaProperty to avoid race-condition when
+       * multiple properties are updating in quick succession. As sync fn
+       * does not support action execution as a callback, it has to be
+       * explicitly called.
+       */
+      this.props.syncUpdateWidgetMetaProperty("fieldState", fieldState);
+      afterUpdateAction && this.executeAction(afterUpdateAction);
     }
   };
 
@@ -260,7 +268,7 @@ class JSONFormWidget extends BaseWidget<
 
   setMetaInternalFieldState = (
     updateCallback: (prevState: JSONFormWidgetState) => JSONFormWidgetState,
-    afterUpdateAction?: DebouncedExecuteActionPayload,
+    afterUpdateAction?: ExecuteTriggerPayload,
   ) => {
     this.setState((prevState) => {
       const newState = updateCallback(prevState);
@@ -307,6 +315,7 @@ class JSONFormWidget extends BaseWidget<
         fixedFooter={this.props.fixedFooter}
         getFormData={this.getFormData}
         isSubmitting={this.state.isSubmitting}
+        isWidgetMounting={this.isWidgetMounting}
         onFormValidityUpdate={this.onFormValidityUpdate}
         onSubmit={this.onSubmit}
         registerResetObserver={this.registerResetObserver}
