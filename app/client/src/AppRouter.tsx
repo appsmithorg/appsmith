@@ -59,6 +59,7 @@ import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
 import { fetchFeatureFlagsInit } from "actions/userActions";
 import FeatureFlags from "entities/FeatureFlags";
+import WDSPage from "components/wds/Showcase";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -121,6 +122,7 @@ function AppRouter(props: {
               <SentryRoute component={OrganizationLoader} path={ORG_URL} />
               <SentryRoute component={Users} exact path={USERS_URL} />
               <SentryRoute component={UserAuth} path={USER_AUTH_URL} />
+              <SentryRoute component={WDSPage} path="/wds" />
               <SentryRoute
                 component={ApplicationListLoader}
                 exact

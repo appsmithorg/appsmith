@@ -36,7 +36,10 @@ import {
 import { updateAndSaveLayout } from "actions/pageActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { commentModeSelector } from "selectors/commentsSelectors";
-import { snipingModeSelector } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  snipingModeSelector,
+} from "selectors/editorSelectors";
 import { findFieldInfo, REPLAY_FOCUS_DELAY } from "entities/Replay/replayUtils";
 import { setActionProperty, updateAction } from "actions/pluginActionActions";
 import { getEntityInCurrentPath } from "./RecentEntitiesSagas";
@@ -70,6 +73,12 @@ import {
   DATASOURCE_REST_API_FORM,
   QUERY_EDITOR_FORM_NAME,
 } from "constants/forms";
+import { Canvas } from "entities/Replay/ReplayEntity/ReplayCanvas";
+import {
+  setAppThemingModeStackAction,
+  updateSelectedAppThemeAction,
+} from "actions/appThemingActions";
+import { AppThemingMode } from "selectors/appThemingSelectors";
 
 export type UndoRedoPayload = {
   operation: ReplayReduxActionTypes;
@@ -195,12 +204,18 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
     } = workerResponse;
 
     logs && logs.forEach((evalLog: any) => log.debug(evalLog));
+
+    if (replay.theme) {
+      yield call(replayThemeSaga, replayEntity, replay);
+
+      return;
+    }
     switch (replayEntityType) {
       case ENTITY_TYPE.WIDGET: {
         const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
         AnalyticsUtil.logEvent(event, { paths, timeTaken });
         if (isPropertyUpdate) yield call(openPropertyPaneSaga, replay);
-        yield put(updateAndSaveLayout(replayEntity, false, false));
+        yield put(updateAndSaveLayout(replayEntity.widgets, false, false));
         if (!isPropertyUpdate) yield call(postUndoRedoSaga, replay);
         break;
       }
@@ -220,6 +235,39 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
   } catch (e) {
     log.error(e);
     Sentry.captureException(e);
+  }
+}
+
+/**
+ * replay theme actions
+ *
+ * @param replayEntity
+ * @param replay
+ */
+function* replayThemeSaga(replayEntity: Canvas, replay: any) {
+  const applicationId: string = yield select(getCurrentApplicationId);
+
+  // if theme is changed, open the theme selector
+  if (replay.themeChanged) {
+    yield put(
+      setAppThemingModeStackAction([AppThemingMode.APP_THEME_SELECTION]),
+    );
+  } else {
+    yield put(setAppThemingModeStackAction([]));
+  }
+
+  yield put(selectWidgetAction());
+
+  // todo(pawan): check with arun/rahul on how we can get rid of this check
+  // better way to do is set shouldreplay = false when evaluating tree
+  if (replayEntity.theme.id) {
+    yield put(
+      updateSelectedAppThemeAction({
+        theme: replayEntity.theme,
+        shouldReplay: false,
+        applicationId,
+      }),
+    );
   }
 }
 
@@ -328,7 +376,7 @@ function* getDatasourceFieldConfig(
 }
 
 /*
-  Figure out the tab in which the last modified field is present and the 
+  Figure out the tab in which the last modified field is present and the
   field config of the last modified field.
 */
 function* getEditorFieldConfig(replayEntity: Action, modifiedProperty: string) {

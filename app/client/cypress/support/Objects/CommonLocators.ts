@@ -68,4 +68,5 @@ export class CommonLocators {
     _divWithClass = (className: string) => "//div[contains(@class, '" + className + "')]"
     _multiSelectItem = (item: string) => "//span[text()='" + item + "']/ancestor::div[@class ='rc-select-selection-overflow-item']//span[contains(@class, 'remove-icon')]"
     _listWidget = "div[type='LIST_WIDGET']"
+    _dropdownText = ".t--dropdown-option"
 }

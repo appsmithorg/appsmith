@@ -1,7 +1,7 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let dsl: any;
-let agHelper = ObjectsRegistry.AggregateHelper,
+const agHelper = ObjectsRegistry.AggregateHelper,
   homePage = ObjectsRegistry.HomePage,
   ee = ObjectsRegistry.EntityExplorer,
   apiPage = ObjectsRegistry.ApiPage,
@@ -61,7 +61,7 @@ describe("Layout OnLoad Actions tests", function() {
     //apiPage.RunAPI();
 
     //Adding dependency in right order matters!
-    ee.SelectEntityByName("WIDGETS");
+    ee.expandCollapseEntity("WIDGETS");
     ee.SelectEntityByName("Image1");
     jsEditor.EnterJSContext("Image", `{{RandomFlora.data}}`, true);
 
