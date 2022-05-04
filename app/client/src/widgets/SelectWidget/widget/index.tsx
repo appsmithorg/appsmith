@@ -18,6 +18,7 @@ import {
   findIndex,
   isArray,
   isEqual,
+  isPlainObject,
   LoDashStatic,
   xorWith,
 } from "lodash";
@@ -27,10 +28,23 @@ export function defaultOptionValueValidation(
   props: SelectWidgetProps,
   _: LoDashStatic,
 ): ValidationResponse {
+  const { options, serverSideFiltering } = props;
+
   let isValid;
   let parsed;
   let message = "";
-  const { options, serverSideFiltering } = props;
+  let parsedOptions = options;
+
+  if (!_.isArray(options) && typeof options === "string") {
+    try {
+      const parsedValues = JSON.parse(options);
+      if (_.isArray(parsedValues)) {
+        parsedOptions = parsedValues;
+      }
+    } catch (e) {
+      parsedOptions = [];
+    }
+  }
 
   /*
    * Function to check if the object has `label` and `value`
@@ -62,7 +76,6 @@ export function defaultOptionValueValidation(
      * When value is "", "green", 444, {label: "green", value: "green"}
      */
     isValid = true;
-    // parsed = value;
   } else {
     isValid = false;
     parsed = {};
@@ -78,7 +91,8 @@ export function defaultOptionValueValidation(
     }
     // Checks for server side filtering
     // Checks if the value exists in options
-    const matchingOption = _.find(options, {
+
+    const matchingOption = _.find(parsedOptions, {
       value: parsed.value,
     });
 
@@ -88,7 +102,7 @@ export function defaultOptionValueValidation(
       if (serverSideFiltering) {
         // Server side filtering: ON
         // Checks value type
-        if (_.isString(value) || _.isFinite(value)) {
+        if (!parsed.label) {
           isValid = false;
           parsed = {};
           message = `Default value is missing in options. Please use {label : <string | num>, value : < string | num>} format to show default for server side data`;
@@ -107,6 +121,28 @@ export function defaultOptionValueValidation(
     parsed,
     messages: [message],
   };
+}
+
+export function getSelectedOption(
+  serverSideFiltering: boolean,
+  selectedOption: any,
+  options?: DropdownOption[],
+) {
+  const matchingOption = find(options, {
+    value: selectedOption.value ?? selectedOption,
+  });
+  if (matchingOption) {
+    return matchingOption;
+  } else if (
+    serverSideFiltering &&
+    isPlainObject(selectedOption) &&
+    selectedOption.hasOwnProperty("label") &&
+    selectedOption.hasOwnProperty("value")
+  ) {
+    return selectedOption;
+  }
+
+  return {};
 }
 
 class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
@@ -445,7 +481,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       isValid: `{{this.isRequired  ? !!this.selectedOptionValue || this.selectedOptionValue === 0 : true}}`,
       selectedOptionLabel: `{{this.selectedOption.label}}`,
       selectedOptionValue: `{{this.selectedOption.value}}`,
-      value: `{{ this.selectedOption.value }}`,
+      value: `{{ this.selectedOptionValue }}`,
     };
   }
 
@@ -455,15 +491,22 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       if (this.props.isDirty) {
         this.props.updateWidgetMetaProperty("isDirty", false);
       }
-      this.setSelectedOption();
-    }
-    if (
+
+      this.setSelectedOption(
+        this.props.serverSideFiltering,
+        this.props.defaultOptionValue,
+        this.props.options,
+      );
+    } else if (
       (!this.props.serverSideFiltering &&
         xorWith(this.props.options, prevProps.options, isEqual).length > 0) ||
       this.props.serverSideFiltering !== prevProps.serverSideFiltering
     ) {
-      // Sets selectedOption
-      this.setSelectedOption();
+      this.setSelectedOption(
+        this.props.serverSideFiltering,
+        this.props.selectedOption,
+        this.props.options,
+      );
     }
   }
 
@@ -516,25 +559,17 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     );
   }
 
-  setSelectedOption = () => {
-    const matchingOption = find(this.props.options, {
-      value: this.props.selectedOption.value,
-    });
-    if (matchingOption) {
-      this.props.updateWidgetMetaProperty("selectedOption", matchingOption);
-    } else {
-      if (
-        this.props.serverSideFiltering &&
-        this.props.defaultOptionValue.hasOwnProperty("label")
-      ) {
-        this.props.updateWidgetMetaProperty(
-          "selectedOption",
-          this.props.defaultOptionValue,
-        );
-      } else {
-        this.props.updateWidgetMetaProperty("selectedOption", {});
-      }
-    }
+  setSelectedOption = (
+    serverSideFiltering: boolean,
+    selectedOption: any,
+    options?: DropdownOption[],
+  ) => {
+    const updatedOption = getSelectedOption(
+      serverSideFiltering,
+      selectedOption,
+      options,
+    );
+    this.props.updateWidgetMetaProperty("selectedOption", updatedOption);
   };
 
   onOptionSelected = (selectedOption: DropdownOption) => {

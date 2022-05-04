@@ -498,6 +498,7 @@ export interface SingleSelectTreeWidgetProps extends WidgetProps {
   isLoading: boolean;
   allowClear: boolean;
   selectedLabel: string[];
+  selectedOption: any;
   selectedOptionValue: string;
   selectedOptionLabel: string;
   expandAll: boolean;
