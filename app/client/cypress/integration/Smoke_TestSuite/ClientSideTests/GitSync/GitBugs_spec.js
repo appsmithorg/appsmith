@@ -267,3 +267,46 @@ describe("Git synced app with JSObject", function() {
     cy.deleteTestGithubRepo(repoName);
   });
 });
+describe("Git sync Bug #13385", function() {
+  it("Bug:13385 : Unable to see application in home page after the git connect flow is aborted in middle", () => {
+    cy.NavigateToHome();
+    cy.createOrg();
+    cy.wait("@createOrg").then((interception) => {
+      const newOrganizationName = interception.response.body.data.name;
+      cy.CreateAppForOrg(newOrganizationName, `${newOrganizationName}app`);
+
+      cy.generateUUID().then((uid) => {
+        const owner = Cypress.env("TEST_GITHUB_USER_NAME");
+        repoName = uid;
+        cy.createTestGithubRepo(repoName);
+
+        // open gitSync modal
+        cy.get(homePage.deployPopupOptionTrigger).click();
+        cy.get(homePage.connectToGitBtn).click({ force: true });
+
+        cy.intercept(
+          {
+            url: "api/v1/git/connect/*",
+            hostname: window.location.host,
+          },
+          (req) => {
+            req.headers["origin"] = "Cypress";
+          },
+        );
+        cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
+          `generateKey-${repoName}`,
+        );
+        cy.get(gitSyncLocators.gitRepoInput).type(
+          `git@github.com:${owner}/${repoName}.git`,
+        );
+        // abort git flow after generating key
+        cy.get(gitSyncLocators.closeGitSyncModal).click();
+      });
+      // verify app is visible and open
+      cy.NavigateToHome();
+      cy.reload();
+      cy.wait(3000);
+      cy.SearchApp(`${newOrganizationName}app`);
+    });
+  });
+});

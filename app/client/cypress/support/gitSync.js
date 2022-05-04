@@ -296,7 +296,7 @@ Cypress.Commands.add("merge", (destinationBranch) => {
 
 Cypress.Commands.add(
   "importAppFromGit",
-  (repo, shouldCommit = true, assertConnectFailure) => {
+  (repo, assertConnectFailure, failureMessage) => {
     const testEmail = "test@test.com";
     const testUsername = "testusername";
     const owner = Cypress.env("TEST_GITHUB_USER_NAME");
@@ -355,7 +355,9 @@ Cypress.Commands.add(
       } else {
         cy.wait("@importFromGit").then((interception) => {
           const status = interception.response.body.responseMeta.status;
+          const message = interception.response.body.responseMeta.error.message;
           expect(status).to.be.gte(400);
+          expect(message).to.contain(failureMessage);
         });
       }
     });
