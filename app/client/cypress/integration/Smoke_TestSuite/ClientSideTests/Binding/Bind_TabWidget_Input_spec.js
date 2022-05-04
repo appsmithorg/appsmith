@@ -27,7 +27,7 @@ describe("Binding the input Widget with tab Widget", function() {
     cy.get(publish.tabWidget)
       .contains("Tab 2")
       .click({ force: true })
-      .should("be.selected");
+      .should("have.class", "is-selected");
 
     cy.get(publish.inputWidget + " " + "input")
       .first()
@@ -36,7 +36,7 @@ describe("Binding the input Widget with tab Widget", function() {
     cy.get(publish.tabWidget)
       .contains("Tab 1")
       .click({ force: true })
-      .should("be.selected");
+      .should("have.class", "is-selected");
 
     cy.get(publish.inputWidget + " " + "input")
       .first()

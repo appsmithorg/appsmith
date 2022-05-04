@@ -8,13 +8,13 @@ import { EvalMetaUpdates } from "workers/DataTreeEvaluator/types";
 export interface UpdateWidgetMetaPropertyPayload {
   widgetId: string;
   propertyName: string;
-  propertyValue: any;
+  propertyValue: unknown;
 }
 
 export const updateWidgetMetaProperty = (
   widgetId: string,
   propertyName: string,
-  propertyValue: any,
+  propertyValue: unknown,
 ): BatchAction<UpdateWidgetMetaPropertyPayload> => {
   return batchAction({
     type: ReduxActionTypes.SET_META_PROP_AND_EVAL,
@@ -68,7 +68,7 @@ export const triggerEvalOnMetaUpdate = () => {
 export const syncUpdateWidgetMetaProperty = (
   widgetId: string,
   propertyName: string,
-  propertyValue: any,
+  propertyValue: unknown,
 ) => {
   return {
     type: ReduxActionTypes.SET_META_PROP,

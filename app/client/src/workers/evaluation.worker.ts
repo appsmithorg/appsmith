@@ -91,6 +91,7 @@ ctx.addEventListener(
         const {
           allActionValidationConfig,
           shouldReplay = true,
+          theme,
           unevalTree,
           widgets,
           widgetTypeConfigMap,
@@ -104,10 +105,11 @@ ctx.addEventListener(
         let unEvalUpdates: DataTreeDiff[] = [];
         let jsUpdates: Record<string, any> = {};
         let evalMetaUpdates: EvalMetaUpdates = [];
+
         try {
           if (!dataTreeEvaluator) {
             replayMap = replayMap || {};
-            replayMap[CANVAS] = new ReplayCanvas(widgets);
+            replayMap[CANVAS] = new ReplayCanvas({ widgets, theme });
             //allActionValidationConfigs maybe empty
             dataTreeEvaluator = new DataTreeEvaluator(
               widgetTypeConfigMap,
@@ -131,7 +133,7 @@ ctx.addEventListener(
               );
             }
             if (shouldReplay) {
-              replayMap[CANVAS]?.update(widgets);
+              replayMap[CANVAS]?.update({ widgets, theme });
             }
             dataTreeEvaluator = new DataTreeEvaluator(
               widgetTypeConfigMap,
@@ -158,7 +160,7 @@ ctx.addEventListener(
             }
             dataTree = {};
             if (shouldReplay) {
-              replayMap[CANVAS]?.update(widgets);
+              replayMap[CANVAS]?.update({ widgets, theme });
             }
             const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
             evaluationOrder = updateResponse.evaluationOrder;

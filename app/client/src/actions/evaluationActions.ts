@@ -62,6 +62,10 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.RESET_WIDGET_META,
   // Batches
   ReduxActionTypes.BATCH_UPDATES_SUCCESS,
+  // App Theme
+  ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS,
+  ReduxActionTypes.CHANGE_SELECTED_APP_THEME_SUCCESS,
+  ReduxActionTypes.SET_PREVIEW_APP_THEME,
 ];
 // Topics used for datasource and query form evaluations
 export const FORM_EVALUATION_REDUX_ACTIONS = [
