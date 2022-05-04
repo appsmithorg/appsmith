@@ -384,6 +384,7 @@ function ReconnectDatasourceModal() {
   }, [isModalOpen, isDatasourceTesting, isDatasourceUpdating]);
 
   const handleClose = useCallback(() => {
+    localStorage.setItem("importedAppPendingInfo", "null");
     dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
     dispatch(setOrgIdForImport(""));
     dispatch(resetDatasourceConfigForImportFetchedFlag());
@@ -453,7 +454,7 @@ function ReconnectDatasourceModal() {
   useEffect(() => {
     if (isModalOpen && !isTesting) {
       // if selected datasource is gsheet datasource, it shouldn't be redirected to app immediately
-      if (!queryIsImport && datasources.length) {
+      if (queryParams.get("importForGit") !== "true" && datasources.length) {
         const selectedDS = datasources.find(
           (ds: Datasource) => ds.id === selectedDatasourceId,
         );
