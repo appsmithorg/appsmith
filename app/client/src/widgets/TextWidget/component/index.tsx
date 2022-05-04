@@ -108,11 +108,6 @@ export const StyledText = styled(Text)<{
       ? `calc(100% - ${ELLIPSIS_HEIGHT}px)`
       : "100%"};
   overflow-x: hidden;
-  overflow-y: ${(props) =>
-    props.overflow !== OverflowTypes.SCROLL ||
-    props.overflow === OverflowTypes.TRUNCATE.valueOf()
-      ? "hidden"
-      : "auto"};
   text-overflow: ellipsis;
   text-align: ${(props) => props.textAlign.toLowerCase()};
   display: flex;
@@ -204,6 +199,7 @@ export interface TextComponentProps extends ComponentProps {
   leftColumn?: number;
   rightColumn?: number;
   topRow?: number;
+  innerRef?: React.RefObject<HTMLDivElement>;
 }
 
 type State = {
@@ -278,7 +274,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
     } = this.props;
 
     return (
-      <>
+      <div ref={this.props.innerRef}>
         <TextContainer>
           <StyledText
             backgroundColor={backgroundColor}
@@ -352,9 +348,16 @@ class TextComponent extends React.Component<TextComponentProps, State> {
             </Content>
           </ModalContent>
         </ModalComponent>
-      </>
+      </div>
     );
   }
 }
 
-export default TextComponent;
+export default React.forwardRef<HTMLDivElement, TextComponentProps>(
+  (props, ref) => (
+    <TextComponent
+      {...props}
+      innerRef={ref as React.RefObject<HTMLDivElement>}
+    />
+  ),
+);
