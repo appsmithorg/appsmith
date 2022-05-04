@@ -27,6 +27,7 @@ import { InputTypes } from "../constants";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import Icon from "components/ads/Icon";
 import { InputType } from "widgets/InputWidget/constants";
+import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { LabelPosition } from "components/constants";
 import LabelWithTooltip, {
   labelLayoutStyles,
@@ -331,7 +332,7 @@ class BaseInputComponent extends React.Component<
   componentDidMount() {
     if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
       const element = document.querySelector<HTMLDivElement>(
-        `.appsmith_widget_${this.props.widgetId} .bp3-button-group`,
+        `.${getBaseWidgetClassName(this.props.widgetId)} .bp3-button-group`,
       );
 
       if (element !== null && element.childNodes) {
@@ -350,7 +351,7 @@ class BaseInputComponent extends React.Component<
   componentWillUnmount() {
     if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
       const element = document.querySelector<HTMLDivElement>(
-        `.appsmith_widget_${this.props.widgetId} .bp3-button-group`,
+        `.${getBaseWidgetClassName(this.props.widgetId)} .bp3-button-group`,
       );
 
       if (element !== null && element.childNodes) {
