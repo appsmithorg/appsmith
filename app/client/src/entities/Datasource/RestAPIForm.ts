@@ -70,6 +70,7 @@ export interface Oauth2Common {
   audience: string;
   resource: string;
   sendScopeWithRefreshToken: string;
+  refreshTokenClientCredentialsLocation: string;
 }
 
 export interface ClientCredentials extends Oauth2Common {
@@ -83,7 +84,6 @@ export interface AuthorizationCode extends Oauth2Common {
   customAuthenticationParameters: Property[];
   isAuthorizationHeader: boolean;
   isAuthorized: boolean;
-  refreshTokenClientCredentialsLocation: string;
 }
 
 export interface Basic {
