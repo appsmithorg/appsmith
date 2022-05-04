@@ -32,7 +32,8 @@ public enum AnalyticsEvents {
     GIT_IMPORT,
     GIT_TEST_CONNECTION,
     GIT_DELETE_BRANCH,
-    GIT_DISCARD_CHANGES
+    GIT_DISCARD_CHANGES,
+    AUTHENTICATION_METHOD_CONFIGURATION("Authentication Method Configured")
     ;
 
     private final String eventName;
