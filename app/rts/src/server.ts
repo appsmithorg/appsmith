@@ -167,51 +167,54 @@ async function tryAuth(socket: Socket) {
     /* ********************************************************* */
 
     // const host = socket.handshake.headers.host;
-    const connectionCookie = socket.handshake.headers.cookie;
+    const connectionCookie = socket?.handshake?.headers?.cookie;
     if (connectionCookie == null || connectionCookie === "") {
         return false;
     }
 
     const matchedCookie = connectionCookie.match(/\bSESSION=\S+/);
-    if (matchedCookie) {
-        const sessionCookie = matchedCookie[0];
-        let response;
-        try {
-            response = await axios.request({
-                method: "GET",
-                url: API_BASE_URL + "/users/me",
-                headers: {
-                    Cookie: sessionCookie,
-                },
-            });
-        } catch (error) {
-            if (error.response?.status === 401) {
-                console.info("401 received when authenticating user with cookie: " + sessionCookie);
-            } else if (error.response) {
-                log.error("Error response received while authentication: ", error.response);
-            } else {
-                log.error("Error authenticating", error);
-            }
-            return false;
-        }
-
-        const email = response.data.data.email;
-        const name = response.data.data.name ? response.data.data.name : email;
-
-        // If the session check API succeeds & the email/name is anonymousUser, then the user is not authenticated
-        // and we should not allow them to join any rooms
-        if (email === "anonymousUser" || name === "anonymousUser") {
-            return false;
-        }
-
-        socket.data.email = email;
-        socket.data.name = name;
-
-        if (socket.data.pendingRoomId) {  // an appId or pageId is pending for this socket, join now
-            joinEditRoom(socket, socket.data.pendingRoomId, socket.data.pendingRoomPrefix);
-        }
-        return true;
+    if (!matchedCookie) {
+        return false;
     }
+
+    const sessionCookie = matchedCookie[0];
+    let response;
+    try {
+        response = await axios.request({
+            method: "GET",
+            url: API_BASE_URL + "/users/me",
+            headers: {
+                Cookie: sessionCookie,
+            },
+        });
+    } catch (error) {
+        if (error.response?.status === 401) {
+            console.info("401 received when authenticating user with cookie: " + sessionCookie);
+        } else if (error.response) {
+            log.error("Error response received while authentication: ", error.response);
+        } else {
+            log.error("Error authenticating", error);
+        }
+        return false;
+    }
+
+    const email = response?.data?.data?.email;
+    const name = response?.data?.data?.name ?? email;
+
+    // If the session check API succeeds & the email/name is anonymousUser, then the user is not authenticated
+    // and we should not allow them to join any rooms
+    if (email == null || email === "anonymousUser" || name === "anonymousUser") {
+        return false;
+    }
+
+    socket.data.email = email;
+    socket.data.name = name;
+
+    if (socket.data.pendingRoomId) {  // an appId or pageId is pending for this socket, join now
+        joinEditRoom(socket, socket.data.pendingRoomId, socket.data.pendingRoomPrefix);
+    }
+
+    return true;
 }
 
 async function watchMongoDB(io) {
