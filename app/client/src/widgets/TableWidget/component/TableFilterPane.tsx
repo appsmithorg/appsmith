@@ -42,6 +42,8 @@ export interface TableFilterPaneProps {
   columns: ReactTableColumnProps[];
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
+  accentColor: string;
+  borderRadius: string;
 }
 
 interface PositionPropsInt {
@@ -77,7 +79,7 @@ class TableFilterPane extends Component<Props> {
       const el = document.getElementsByClassName(className)[0];
 
       /*
-        Prevent the FilterPane from overflowing the canvas when the 
+        Prevent the FilterPane from overflowing the canvas when the
         table widget is on the very top of the canvas.
       */
       const boundaryParent = document.querySelector("#root");
