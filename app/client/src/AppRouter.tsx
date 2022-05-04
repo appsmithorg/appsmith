@@ -52,7 +52,7 @@ import UserProfile from "pages/UserProfile";
 import { getCurrentUser } from "actions/authActions";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import Setup from "pages/setup";
-import Settings from "pages/Settings";
+import Settings from "@appsmith/pages/AdminSettings";
 import SignupSuccess from "pages/setup/SignupSuccess";
 import { Theme } from "constants/DefaultTheme";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
