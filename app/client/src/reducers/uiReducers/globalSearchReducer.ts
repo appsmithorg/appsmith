@@ -43,6 +43,7 @@ const globalSearchReducer = createReducer(initialState, {
     return {
       ...state,
       modalOpen: !state.modalOpen,
+      filterContext: initialState.filterContext,
     };
   },
   [ReduxActionTypes.SET_GLOBAL_SEARCH_CATEGORY]: (
