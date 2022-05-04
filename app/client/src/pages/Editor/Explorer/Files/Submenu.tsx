@@ -31,7 +31,6 @@ import { ADD_QUERY_JS_BUTTON, createMessage } from "ce/constants/messages";
 
 const SubMenuContainer = styled.div`
   width: 250px;
-  box-shadow: 0px 24px 48px -12px rgba(16, 24, 40, 0.25);
   .ops-container {
     max-height: 220px;
     overflow: hidden;
