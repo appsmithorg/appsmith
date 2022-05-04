@@ -18,6 +18,8 @@ import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
 import { getWidgets } from "sagas/selectors";
 import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
+import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
+import { getAppThemingStack } from "selectors/appThemingSelectors";
 
 type Props = {
   width: number;
@@ -43,6 +45,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   const canvasWidgets = useSelector(getWidgets);
   const isPreviewMode = useSelector(previewModeSelector);
   const isCommentMode = useSelector(commentModeSelector);
+  const themingStack = useSelector(getAppThemingStack);
   const selectedWidgetIds = useSelector(getSelectedWidgets);
   const isDraggingOrResizing = useSelector(getIsDraggingOrResizing);
 
@@ -79,17 +82,24 @@ export const PropertyPaneSidebar = memo((props: Props) => {
    */
   const propertyPane = useMemo(() => {
     switch (true) {
-      case selectedWidgets.length == 0:
-        return <CanvasPropertyPane />;
       case selectedWidgets.length > 1:
         return <MultiSelectPropertyPane />;
       case selectedWidgets.length === 1:
         if (shouldNotRenderPane) return <CanvasPropertyPane />;
         else return <WidgetPropertyPane />;
+      case themingStack.length > 0:
+        return <ThemePropertyPane />;
+      case selectedWidgets.length === 0:
+        return <CanvasPropertyPane />;
       default:
         return <CanvasPropertyPane />;
     }
-  }, [selectedWidgets.length, isDraggingForSelection, shouldNotRenderPane]);
+  }, [
+    selectedWidgets.length,
+    isDraggingForSelection,
+    shouldNotRenderPane,
+    themingStack.join(","),
+  ]);
 
   return (
     <div className="relative">

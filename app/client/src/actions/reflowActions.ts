@@ -18,22 +18,3 @@ export const stopReflowAction = () => {
     type: ReflowReduxActionTypes.STOP_REFLOW,
   };
 };
-
-export const updateReflowOnBoardingAction = (payload: boolean) => {
-  return {
-    type: ReflowReduxActionTypes.ONBOARDING_UPDATE,
-    payload,
-  };
-};
-
-export const closeOnboardingCardAction = () => {
-  return {
-    type: ReflowReduxActionTypes.CLOSE_ONBOARDING_CARD,
-  };
-};
-export const setEnableReflowAction = (payload: boolean) => {
-  return {
-    type: ReflowReduxActionTypes.ENABLE_REFLOW,
-    payload,
-  };
-};

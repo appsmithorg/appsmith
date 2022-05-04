@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Icon, Position } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import styled from "styled-components";
@@ -21,7 +21,6 @@ import { Colors } from "constants/Colors";
 
 interface RateContainerProps {
   isDisabled: boolean;
-  scrollable: boolean;
 }
 
 export const RateContainer = styled.div<RateContainerProps>`
@@ -33,16 +32,28 @@ export const RateContainer = styled.div<RateContainerProps>`
   overflow: auto;
 
   > span {
-    align-self: ${(props) => (props.scrollable ? "flex-start" : "center")};
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+    height: auto;
+
+    & > span {
+      height: 100%;
+
+      & > span {
+        height: 100%;
+        padding: 0;
+        display: flex !important;
+        align-items: center;
+      }
+    }
   }
 
   ${({ isDisabled }) => isDisabled && disable}
 `;
 
-export const Star = styled(Icon)`
-  padding: ${(props) =>
-    props.iconSize === 12 ? 2.92 : props.iconSize === 16 ? 4.37 : 4.93}px;
-`;
+export const Star = styled(Icon)``;
 
 export interface RateComponentProps extends ComponentProps {
   value: number;
@@ -99,40 +110,18 @@ function RateComponent(props: RateComponentProps) {
   const rateContainerRef = React.createRef<HTMLDivElement>();
 
   const {
-    bottomRow,
     inactiveColor,
     isAllowHalf,
     isDisabled,
-    leftColumn,
     maxCount,
     onValueChanged,
     readonly,
-    rightColumn,
     size,
-    topRow,
     value,
   } = props;
 
-  const [scrollable, setScrollable] = useState(false);
-
-  useEffect(() => {
-    const rateContainerElement = rateContainerRef.current;
-    if (
-      rateContainerElement &&
-      rateContainerElement.scrollHeight > rateContainerElement.clientHeight
-    ) {
-      setScrollable(true);
-    } else {
-      setScrollable(false);
-    }
-  }, [leftColumn, rightColumn, topRow, bottomRow, maxCount, size]);
-
   return (
-    <RateContainer
-      isDisabled={Boolean(isDisabled)}
-      ref={rateContainerRef}
-      scrollable={scrollable}
-    >
+    <RateContainer isDisabled={Boolean(isDisabled)} ref={rateContainerRef}>
       <Rating
         emptySymbol={
           <Star

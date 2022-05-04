@@ -501,7 +501,7 @@ describe("Migration Validate", function() {
       .first()
       .invoke("attr", "value")
       .should("contain", "#FFC13D");
-    cy.get(widgetsPage.selectedTextSize).should("have.text", "24px");
+    cy.validateCodeEditorContent(".t--property-control-textsize", "1.5rem");
   });
 
   // it("2. Add dsl and Validate Migration on pageload", function () {

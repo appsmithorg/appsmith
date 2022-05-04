@@ -163,6 +163,7 @@ const StyledFooter = styled.div`
   display: flex;
   align-items: center;
   margin-top: ${(props) => props.theme.spaces[9]}px;
+  margin-bottom: ${(props) => props.theme.spaces[9]}px;
 `;
 
 function getSuggestedNextActionAndCompletedTasks(

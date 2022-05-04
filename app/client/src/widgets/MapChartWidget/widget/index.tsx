@@ -262,6 +262,28 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
         ],
       },
       {
@@ -317,6 +339,8 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
     return (
       <Suspense fallback={<Skeleton />}>
         <MapChartComponent
+          borderRadius={this.props.borderRadius}
+          boxShadow={this.props.boxShadow}
           caption={mapTitle}
           colorRange={colorRange}
           data={data}
@@ -336,6 +360,8 @@ export interface MapChartWidgetProps extends WidgetProps {
   onDataPointClick?: string;
   showLabels: boolean;
   colorRange: MapColorObject[];
+  borderRadius?: string;
+  boxShadow?: string;
 }
 
 export default MapChartWidget;

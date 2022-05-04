@@ -2,7 +2,9 @@ import log from "loglevel";
 import moment from "moment";
 import localforage from "localforage";
 
-const STORAGE_KEYS: { [id: string]: string } = {
+export const STORAGE_KEYS: {
+  [id: string]: string;
+} = {
   AUTH_EXPIRATION: "Auth.expiration",
   ROUTE_BEFORE_LOGIN: "RedirectPath",
   COPIED_WIDGET: "CopiedWidget",
@@ -18,8 +20,7 @@ const STORAGE_KEYS: { [id: string]: string } = {
   FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY:
     "FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY",
   HIDE_CONCURRENT_EDITOR_WARNING_TOAST: "HIDE_CONCURRENT_EDITOR_WARNING_TOAST",
-  REFLOW_BETA_FLAG: "REFLOW_BETA_FLAG",
-  REFLOW_ONBOARDED_FLAG: "REFLOW_ONBOARDED_FLAG",
+  APP_THEMING_BETA_SHOWN: "APP_THEMING_BETA_SHOWN",
 };
 
 const store = localforage.createInstance({
@@ -64,30 +65,19 @@ const setStoredUsersBetaFlags = (email: any, userBetaFlagsObj: any) => {
   return store.setItem(email, userBetaFlagsObj);
 };
 
-export const setReflowBetaFlag = async (email: any, enable: boolean) => {
+export const setBetaFlag = async (email: any, key: string, value: any) => {
   const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
   const updatedObj = {
     ...userBetaFlagsObj,
-    [STORAGE_KEYS.REFLOW_BETA_FLAG]: enable,
+    [key]: value,
   };
   setStoredUsersBetaFlags(email, updatedObj);
 };
 
-export const getReflowBetaFlag = async (email: any) => {
+export const getBetaFlag = async (email: any, key: string) => {
   const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
-  return userBetaFlagsObj && userBetaFlagsObj[STORAGE_KEYS.REFLOW_BETA_FLAG];
-};
 
-export const setReflowOnBoardingFlag = async (
-  email: any,
-  onBoardingState: boolean,
-) => {
-  const userBetaFlagsObj: any = await getStoredUsersBetaFlags(email);
-  const updatedObj = {
-    ...userBetaFlagsObj,
-    [STORAGE_KEYS.REFLOW_ONBOARDED_FLAG]: onBoardingState,
-  };
-  setStoredUsersBetaFlags(email, updatedObj);
+  return userBetaFlagsObj && userBetaFlagsObj[key];
 };
 
 export const getReflowOnBoardingFlag = async (email: any) => {

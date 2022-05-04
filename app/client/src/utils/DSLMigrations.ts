@@ -51,6 +51,8 @@ import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget"
 import { DSLWidget } from "widgets/constants";
 import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
+import { migrateStylingPropertiesForTheming } from "./migrations/ThemingMigrations";
+
 import {
   migratePhoneInputWidgetAllowFormatting,
   migratePhoneInputWidgetDefaultDialCode,
@@ -1085,6 +1087,11 @@ export const transformDSL = (
 
   if (currentDSL.version === 56) {
     currentDSL = migrateRadioGroupAlignmentProperty(currentDSL);
+    currentDSL.version = 57;
+  }
+
+  if (currentDSL.version === 57) {
+    currentDSL = migrateStylingPropertiesForTheming(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
