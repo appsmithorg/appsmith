@@ -18,8 +18,8 @@ describe("Git disconnect modal:", function() {
 
   it("should be opened with proper components", function() {
     cy.connectToGitRepo(repoName, false);
+    cy.get(gitSyncLocators.bottomBarCommitButton).click();
     cy.get("[data-cy=t--tab-GIT_CONNECTION]").click();
-
     // after clicked disconnect on connection modal,
     // it should be closed and disconnect modal should be opened
     cy.get(gitSyncLocators.disconnectIcon).click();
