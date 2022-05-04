@@ -364,11 +364,17 @@ export class AggregateHelper {
     }
 
     public AssertExistingToggleState(propertyName: string, toggle: 'checked' | 'unchecked') {
-        let locator = propertyName.startsWith("//") ? cy.xpath(propertyName) : cy.xpath(this.locator._propertyToggleValue(propertyName))
+        let locator;
         if (propertyName.startsWith("//")) {
+            locator = cy.xpath(propertyName);
+            locator.should("have.attr", toggle)
+        }
+        else if (propertyName.includes(' ')) {
+            locator = cy.get(propertyName);
             locator.should("have.attr", toggle)
         }
         else {
+            locator = cy.xpath(this.locator._propertyToggleValue(propertyName));
             locator.invoke("attr", "class")
                 .then((classes) => {
                     expect(classes).includes(toggle);

@@ -12,12 +12,21 @@ export class JSEditor {
   private _onPageLoadRadioButton = (functionName: string, onLoad: boolean) =>
     `.${functionName}-on-page-load-setting label:contains(${onLoad ? "Yes" : "No"
     }) span.checkbox`;
+  private _onPageLoadRadioButtonStatus = (functionName: string, onLoad: boolean) =>
+    `.${functionName}-on-page-load-setting label:contains(${onLoad ? "Yes" : "No"
+    })>input`;
   private _confirmBeforeExecuteRadioButton = (
     functionName: string,
     shouldConfirm: boolean,
   ) =>
     `.${functionName}-confirm-before-execute label:contains(${shouldConfirm ? "Yes" : "No"
     }) span.checkbox`;
+  private _confirmBeforeExecuteRadioButtonStatus = (
+    functionName: string,
+    shouldConfirm: boolean,
+  ) =>
+    `.${functionName}-confirm-before-execute label:contains(${shouldConfirm ? "Yes" : "No"
+    })>input`;
   private _outputConsole = ".CodeEditorTarget";
   private _jsObjName = ".t--js-action-name-edit-field span";
   private _jsObjTxt = ".t--js-action-name-edit-field input";
@@ -292,12 +301,16 @@ export class JSEditor {
   //   this.agHelper.GetNClick(this._closeSettings)
   // }
 
-  public VerifyOnPageLoadSetting(funName: string, onLoad: 'checked' | 'unchecked', bfrCalling: 'checked' | 'unchecked') {
-    this.agHelper.GetNClick(this._responseTabAction(funName))
-    this.agHelper.AssertElementPresence(this._dialog('Function settings'))
-    this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_ONPAGELOAD()), onLoad)
-    this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_CONFIRM_EXECUTION()), bfrCalling)
-    this.agHelper.GetNClick(this._closeSettings)
+  public VerifyOnPageLoadSetting(funName: string, onLoad = true, bfrCalling = true) {
+    // this.agHelper.GetNClick(this._responseTabAction(funName))
+    // this.agHelper.AssertElementPresence(this._dialog('Function settings'))
+    // this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_ONPAGELOAD()), onLoad)
+    // this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_CONFIRM_EXECUTION()), bfrCalling)
+    // this.agHelper.GetNClick(this._closeSettings)
+
+    this.agHelper.GetNClick(this._settingsTab);
+    this.agHelper.AssertExistingToggleState(this._onPageLoadRadioButtonStatus(funName, onLoad), onLoad == true ? 'checked' : 'unchecked')
+    this.agHelper.AssertExistingToggleState(this._confirmBeforeExecuteRadioButtonStatus(funName, bfrCalling), bfrCalling == true ? 'checked' : 'unchecked')
   }
 
   public EnableDisableOnPageLoad(

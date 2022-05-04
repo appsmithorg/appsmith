@@ -67,7 +67,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     agHelper.ClickButton("Yes");
     agHelper.Sleep(1000)
     ee.SelectEntityByName(jsName as string, 'QUERIES/JS')
-    jsEditor.VerifyOnPageLoadSetting('getId', 'checked', 'checked')
+    jsEditor.VerifyOnPageLoadSetting('getId', true, true)
   });
 
   it("4. Verify Error for OnPage Load - disable & Before Function calling enabled for JSOBject", function () {
