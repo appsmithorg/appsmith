@@ -5,6 +5,7 @@ import {
   FormConfigEvalObject,
   FormEvalOutput,
 } from "reducers/evaluationReducers/formEvaluationReducer";
+import { isString } from "lodash";
 import { FormConfigType, HiddenType } from "./BaseControl";
 
 export const evaluateCondtionWithType = (
@@ -114,7 +115,8 @@ export const alternateViewTypeInputConfig = (controlType: string) => {
       ? "QUERY_DYNAMIC_TEXT"
       : "QUERY_DYNAMIC_INPUT_TEXT",
     evaluationSubstitutionType: "TEMPLATE",
-    inputType: "JSON",
+    // inputType: "JSON",
+    inputType: "TEXT",
     showLineNumbers: true,
   };
 };
@@ -157,7 +159,9 @@ export const switchViewType = (
       changeFormValue(
         formName,
         configProperty,
-        JSON.stringify(currentData, null, "\t"),
+        isString(currentData)
+          ? currentData
+          : JSON.stringify(currentData, null, "\t"),
       );
     }
   } else {

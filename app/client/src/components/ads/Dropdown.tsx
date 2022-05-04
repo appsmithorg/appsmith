@@ -618,7 +618,7 @@ function DefaultDropDownValueNode({
           hasError,
           optionWidth,
         })
-      ) : isMultiSelect && Array.isArray(selected) && selected.length ? (
+      ) : isMultiSelect && Array.isArray(selected) ? (
         <Label />
       ) : (
         !Array.isArray(selected) && (
