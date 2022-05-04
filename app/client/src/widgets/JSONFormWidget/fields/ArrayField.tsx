@@ -134,8 +134,6 @@ function ArrayField({
 
   const { setMetaInternalFieldState } = useContext(FormContext);
 
-  const basePropertyPath = `${propertyPath}.children.${ARRAY_ITEM_KEY}`;
-
   const add = () => {
     let values = klona(getValues(name));
     if (values && values.length) {
@@ -255,9 +253,10 @@ function ArrayField({
   const fields = useMemo(() => {
     const arrayItemSchema = schemaItem.children[ARRAY_ITEM_KEY];
 
+    const fieldPropertyPath = `${propertyPath}.children.${ARRAY_ITEM_KEY}`;
+
     return itemKeys.map((key, index) => {
       const fieldName = `${name}[${index}]` as ControllerRenderProps["name"];
-      const fieldPropertyPath = `${basePropertyPath}.children.${arrayItemSchema.identifier}`;
 
       return (
         <Accordion
@@ -289,13 +288,13 @@ function ArrayField({
       );
     });
   }, [
-    schemaItem,
-    basePropertyPath,
-    name,
-    remove,
-    itemKeys,
-    fieldClassName,
     cachedDefaultValue,
+    fieldClassName,
+    itemKeys,
+    name,
+    propertyPath,
+    remove,
+    schemaItem,
   ]);
 
   if (!schemaItem.isVisible) {
