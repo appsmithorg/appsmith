@@ -38,17 +38,16 @@ import {
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { focusWidget } from "actions/widgetActions";
-import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
 import { GridDefaults } from "constants/WidgetConstants";
 import { DropTargetContext } from "./DropTargetComponent";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
 import {
   isCurrentWidgetFocused,
   isCurrentWidgetLastSelected,
-  isCurrentWidgetSelected,
+  isWidgetSelected,
   isMultiSelectedWidget,
+  getParentToOpenIfAny,
 } from "selectors/widgetSelectors";
 
 export type ResizableComponentProps = WidgetProps & {
@@ -60,7 +59,6 @@ export const ResizableComponent = memo(function ResizableComponent(
 ) {
   // Fetch information from the context
   const { updateWidget } = useContext(EditorContext);
-  const canvasWidgets = useSelector(getCanvasWidgets);
 
   const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
@@ -71,7 +69,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   const { selectWidget } = useWidgetSelection();
   const { setIsResizing } = useWidgetDragResize();
   // Check if current widget is in the list of selected widgets
-  const isSelected = useSelector(isCurrentWidgetSelected(props.widgetId));
+  const isSelected = useSelector(isWidgetSelected(props.widgetId));
   // Check if current widget is the last selected widget
   const isLastSelected = useSelector(
     isCurrentWidgetLastSelected(props.widgetId),
@@ -86,9 +84,8 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
-  const parentWidgetToSelect = getParentToOpenIfAny(
-    props.widgetId,
-    canvasWidgets,
+  const parentWidgetToSelect = useSelector(
+    getParentToOpenIfAny(props.widgetId),
   );
   const isParentWidgetSelected = useSelector(
     isCurrentWidgetLastSelected(parentWidgetToSelect?.widgetId || ""),

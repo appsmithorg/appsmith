@@ -1,9 +1,12 @@
+import { get } from "lodash";
 import { createSelector } from "reselect";
 import { AppState } from "reducers";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getExistingWidgetNames } from "sagas/selectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
 
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { getWidgets } from "sagas/selectors";
 import WidgetFactory from "utils/WidgetFactory";
 import { getSelectedWidget, getSelectedWidgets } from "./ui";
 
@@ -51,8 +54,8 @@ export const getParentWidget = createSelector(
   },
 );
 
-// Check if current widget is in the list of selected widgets
-export const isCurrentWidgetSelected = (widgetId: string) => {
+// Check if widget is in the list of selected widgets
+export const isWidgetSelected = (widgetId: string) => {
   return createSelector(getSelectedWidgets, (widgets): boolean =>
     widgets.includes(widgetId),
   );
@@ -80,3 +83,36 @@ export const isMultiSelectedWidget = (widgetId: string) => {
     (widgets): boolean => widgets.length > 1 && widgets.includes(widgetId),
   );
 };
+
+/**
+ *
+ * @param widgetId
+ * @param widgets
+ * @returns
+ */
+export function getParentToOpenIfAny(widgetId: string | undefined) {
+  return createSelector(getWidgets, (widgets) => {
+    if (widgetId) {
+      let widget = get(widgets, widgetId, undefined);
+
+      // While this widget has a openParentPropertyPane equql to true
+      while (widget?.openParentPropertyPane) {
+        // Get parent widget props
+        const parent = get(widgets, `${widget.parentId}`, undefined);
+
+        // If parent has openParentPropertyPane = false, return the currnet parent
+        if (!parent?.openParentPropertyPane) {
+          return parent;
+        }
+
+        if (parent?.parentId && parent.parentId !== MAIN_CONTAINER_WIDGET_ID) {
+          widget = get(widgets, `${widget.parentId}`, undefined);
+
+          continue;
+        }
+      }
+    }
+
+    return;
+  });
+}

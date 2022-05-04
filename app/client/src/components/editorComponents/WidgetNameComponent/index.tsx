@@ -25,7 +25,7 @@ import { commentModeSelector } from "selectors/commentsSelectors";
 import {
   isCurrentWidgetFocused,
   isCurrentWidgetLastSelected,
-  isCurrentWidgetSelected,
+  isWidgetSelected,
   isMultiSelectedWidget,
 } from "selectors/widgetSelectors";
 
@@ -75,7 +75,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const isLastSelected = useSelector(
     isCurrentWidgetLastSelected(props.widgetId),
   );
-  const isSelected = useSelector(isCurrentWidgetSelected(props.widgetId));
+  const isSelected = useSelector(isWidgetSelected(props.widgetId));
   const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
 
   const isResizing = useSelector(

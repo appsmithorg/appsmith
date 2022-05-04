@@ -17,7 +17,7 @@ import {
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import {
   isCurrentWidgetFocused,
-  isCurrentWidgetSelected,
+  isWidgetSelected,
 } from "selectors/widgetSelectors";
 
 const DraggableWrapper = styled.div`
@@ -77,7 +77,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
-  const isSelected = useSelector(isCurrentWidgetSelected(props.widgetId));
+  const isSelected = useSelector(isWidgetSelected(props.widgetId));
   // This state tels us which widget is focused
   // The value is the widgetId of the focused widget.
   const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
