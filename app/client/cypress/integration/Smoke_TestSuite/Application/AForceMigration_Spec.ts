@@ -309,8 +309,8 @@ describe("AForce - Community Issues page validations", function () {
   })
 
   it("10. Validate Deleting the newly created issue", () => {
-    // agHelper.AssertElementAbsence(locator._widgetInDeployed('tabswidget'))
-    // table.SelectTableRow(0)
+    agHelper.AssertElementAbsence(locator._widgetInDeployed('tabswidget'))
+    table.SelectTableRow(0)
     agHelper.AssertElementPresence(locator._widgetInDeployed('tabswidget'))
     cy.get(table._trashIcon).closest('div').click()
     agHelper.AssertElementAbsence(locator._widgetInDeployed('tabswidget'))
