@@ -34,7 +34,6 @@ describe("Tab widget test", function() {
       });
   });
 });
-
 afterEach(() => {
   // put your clean up code if any
 });
