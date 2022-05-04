@@ -3,8 +3,10 @@ import {
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { get, isEqual, isObject, isUndefined, omitBy } from "lodash";
-import memoize from "micro-memoize";
+import { get, isObject, isUndefined, omitBy } from "lodash";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import memoizee from "memoizee/weak";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 
@@ -277,15 +279,16 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
   return { reactivePaths, triggerPaths, validationPaths, bindingPaths };
 };
 
-// @todo set the max size dynamically based on number of widgets. (widgets.length)
-// Remove the debug statements in July 2022
-export const getAllPathsFromPropertyConfig = memoize(
+export const getAllPathsFromPropertyConfig = memoizee(
   getAllPathsFromPropertyConfigWithoutMemo,
   {
-    maxSize: 1000,
-    isEqual: (prev, next) => {
+    max: 1000,
+    length: false,
+    normalizer: (args: Array<any>) => {
       return (
-        prev[0] === next[0] && prev[1] == next[1] && isEqual(prev[2], next[2])
+        JSON.stringify(args[0]) +
+        JSON.stringify(args[1]) +
+        JSON.stringify(args[2])
       );
     },
   },

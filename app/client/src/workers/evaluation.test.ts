@@ -420,7 +420,6 @@ describe("DataTreeEvaluator", () => {
   it("Evaluates a value change in update run", () => {
     const updatedUnEvalTree = {
       ...unEvalTree,
-
       Text1: {
         ...unEvalTree.Text1,
         text: "Hey there",
@@ -428,8 +427,8 @@ describe("DataTreeEvaluator", () => {
     };
     evaluator.updateDataTree(updatedUnEvalTree);
     const dataTree = evaluator.evalTree;
-    expect(dataTree).toHaveProperty("Text2.text", "Label");
-    expect(dataTree).toHaveProperty("Text3.text", "Label");
+    expect(dataTree).toHaveProperty("Text2.text", "Hey there");
+    expect(dataTree).toHaveProperty("Text3.text", "Hey there");
   });
 
   it("Evaluates a dependency change in update run", () => {
@@ -517,18 +516,18 @@ describe("DataTreeEvaluator", () => {
       },
     };
     evaluator.updateDataTree(updatedUnEvalTree);
-    // const dataTree = evaluator.evalTree;
+    const dataTree = evaluator.evalTree;
     const updatedDependencyMap = evaluator.dependencyMap;
-    // expect(dataTree).toHaveProperty("Table1.tableData", [
-    //   {
-    //     test: "Hey",
-    //     raw: "Label",
-    //   },
-    //   {
-    //     test: "Ho",
-    //     raw: "Label",
-    //   },
-    // ]);
+    expect(dataTree).toHaveProperty("Table1.tableData", [
+      {
+        test: "Hey",
+        raw: "Label",
+      },
+      {
+        test: "Ho",
+        raw: "Label",
+      },
+    ]);
 
     expect(sortObjectWithArray(updatedDependencyMap)).toStrictEqual({
       Api1: ["Api1.data"],
@@ -565,16 +564,16 @@ describe("DataTreeEvaluator", () => {
     evaluator.updateDataTree(updatedUnEvalTree);
     const dataTree = evaluator.evalTree;
     const updatedDependencyMap = evaluator.dependencyMap;
-    // expect(dataTree).toHaveProperty("Table1.tableData", [
-    //   {
-    //     test: "Hey",
-    //     raw: "Label",
-    //   },
-    //   {
-    //     test: "Ho",
-    //     raw: "Label",
-    //   },
-    // ]);
+    expect(dataTree).toHaveProperty("Table1.tableData", [
+      {
+        test: "Hey",
+        raw: "Label",
+      },
+      {
+        test: "Ho",
+        raw: "Label",
+      },
+    ]);
     expect(dataTree).toHaveProperty("Text4.text", "Hey");
     expect(sortObjectWithArray(updatedDependencyMap)).toStrictEqual({
       Api1: ["Api1.data"],
