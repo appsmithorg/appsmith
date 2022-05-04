@@ -14,7 +14,7 @@ import {
   WidgetType,
 } from "constants/WidgetConstants";
 import React, { Component, ReactNode } from "react";
-import { get, memoize as moize } from "lodash";
+import { get } from "lodash";
 import memoize from "micro-memoize";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import SnipeableComponent from "components/editorComponents/SnipeableComponent";
@@ -221,15 +221,18 @@ abstract class BaseWidget<
     return (Number(this.props.labelWidth) || 0) * this.props.parentColumnSpace;
   };
 
-  getErrorCount = moize((evalErrors: Record<string, EvaluationError[]>) => {
-    return Object.values(evalErrors).reduce(
-      (prev, curr) =>
-        curr.filter(
-          (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
-        ).length + prev,
-      0,
-    );
-  }, JSON.stringify);
+  getErrorCount = memoize(
+    (evalErrors: Record<string, EvaluationError[]>): number => {
+      return Object.values(evalErrors).reduce(
+        (prev, curr) =>
+          curr.filter(
+            (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
+          ).length + prev,
+        0,
+      );
+    },
+    { maxSize: 1000 },
+  );
 
   render() {
     return this.getWidgetView();
