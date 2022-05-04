@@ -15,6 +15,7 @@ export const CONFIG = {
     label: "Label",
     labelPosition: LabelPosition.Left,
     labelAlignment: Alignment.LEFT,
+    labelTextSize: "0.875rem",
     labelWidth: 5,
     options: [
       { label: "Yes", value: "Y" },

@@ -123,7 +123,9 @@ function* handleJSCollectionCreatedSaga(
   history.push(
     jsCollectionIdURL({
       collectionId: id,
-      params: {},
+      params: {
+        editName: true,
+      },
     }),
   );
 }
