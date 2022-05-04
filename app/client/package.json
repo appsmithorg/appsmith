@@ -38,7 +38,7 @@
     "acorn-walk": "^8.2.0",
     "algoliasearch": "^4.2.0",
     "astring": "^1.7.5",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "caniuse-lite": "^1.0.30001208",
     "classnames": "^2.3.1",
     "codemirror": "^5.59.2",
