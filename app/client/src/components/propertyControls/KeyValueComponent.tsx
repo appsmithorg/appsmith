@@ -1,4 +1,11 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  EventHandler,
+  FocusEvent,
+  useRef,
+} from "react";
 
 import styled from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
@@ -8,7 +15,7 @@ import {
   StyledInputGroup,
   StyledPropertyPaneButton,
 } from "./StyledControls";
-
+import { InputWrapper } from "components/ads/TextInput";
 import { DropDownOptionWithKey } from "./OptionControl";
 import { DropdownOption } from "components/constants";
 import { generateReactKey } from "utils/generators";
@@ -199,8 +206,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
       {renderPairs.map((pair: DropDownOptionWithKey, index) => {
         return (
           <ControlWrapper key={pair.key} orientation={"HORIZONTAL"}>
-            <StyledInputGroup
-              dataType={"text"}
+            <InputGroupWithMultiState
               onBlur={onInputBlur}
               onChange={(value: string) => {
                 updateKey(index, value);
@@ -210,8 +216,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
               value={pair.label}
             />
             <StyledBox />
-            <StyledInputGroup
-              dataType={"text"}
+            <InputGroupWithMultiState
               onBlur={onInputBlur}
               onChange={(value: string) => {
                 updateValue(index, value);
@@ -243,5 +248,64 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
         type="button"
       />
     </>
+  );
+}
+
+const StyledInputWrapper = styled.div`
+  &:focus ${InputWrapper} {
+    border: 1.2px solid var(--appsmith-input-focus-border-color);
+  }
+`;
+
+type InputGroupWithMultiStateProps = {
+  onBlur?: EventHandler<FocusEvent<any>>;
+  onChange?: (value: string) => void;
+  onFocus?: EventHandler<FocusEvent<any>>;
+  placeholder?: string;
+  value: string;
+};
+
+function InputGroupWithMultiState(props: InputGroupWithMultiStateProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const wrapperRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeydown);
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
+  }, []);
+
+  const handleKeydown = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case "Enter":
+      case " ":
+        if (document.activeElement === wrapperRef?.current) {
+          inputRef?.current?.focus();
+          e.preventDefault();
+        }
+        break;
+      case "Escape":
+        if (document.activeElement === inputRef?.current) {
+          wrapperRef?.current?.focus();
+          e.preventDefault();
+        }
+        break;
+    }
+  };
+
+  return (
+    <StyledInputWrapper ref={wrapperRef} tabIndex={0}>
+      <StyledInputGroup
+        dataType={"text"}
+        onBlur={props.onBlur}
+        onChange={props.onChange}
+        onFocus={props.onFocus}
+        placeholder={props.placeholder}
+        ref={inputRef}
+        tabIndex={-1}
+        value={props.value}
+        width="auto"
+      />
+    </StyledInputWrapper>
   );
 }
