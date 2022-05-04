@@ -11,6 +11,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import { isEqual, memoize } from "lodash";
 import { getReflowSelector } from "selectors/widgetReflowSelectors";
 import { AppState } from "reducers";
+import { POSITIONED_WIDGET } from "constants/componentClassNameConstants";
 
 const PositionedWidget = styled.div<{ zIndexOnHover: number }>`
   &:hover {
@@ -44,8 +45,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
   const containerClassName = useMemo(() => {
     return (
       generateClassName(props.widgetId) +
-      " positioned-widget " +
-      `t--widget-${props.widgetType
+      ` ${POSITIONED_WIDGET} t--widget-${props.widgetType
         .split("_")
         .join("")
         .toLowerCase()}`
@@ -74,7 +74,8 @@ export function PositionedContainer(props: PositionedContainerProps) {
     const reflowWidth = reflowedPosition?.width;
     const reflowHeight = reflowedPosition?.height;
     const reflowEffected = isCurrentCanvasReflowing && reflowedPosition;
-    const hasReflowedPosition = reflowEffected && reflowX + reflowY !== 0;
+    const hasReflowedPosition =
+      reflowEffected && (reflowX !== 0 || reflowY !== 0);
     const hasReflowedDimensions =
       reflowEffected &&
       ((reflowHeight && reflowHeight !== props.style.componentHeight) ||

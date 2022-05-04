@@ -2,11 +2,11 @@ import {
   ApplicationPayload,
   Page,
   ReduxAction,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "./AnalyticsUtil";
-import FormControlRegistry from "./FormControlRegistry";
+import FormControlRegistry from "./formControl/FormControlRegistry";
 import { Property } from "api/ActionAPI";
 import _ from "lodash";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";

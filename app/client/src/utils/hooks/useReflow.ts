@@ -24,6 +24,7 @@ import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
 import { AppState } from "reducers";
+import { areIntersecting } from "utils/WidgetPropsUtils";
 
 type WidgetCollidingSpace = CollidingSpace & {
   type: string;
@@ -45,10 +46,12 @@ export interface ReflowInterface {
     shouldSkipContainerReflow?: boolean,
     forceDirection?: boolean,
     immediateExitContainer?: string,
+    mousePosition?: OccupiedSpace,
   ): {
     movementLimitMap?: MovementLimitMap;
     movementMap: ReflowedSpaceMap;
     bottomMostRow: number;
+    isIdealToJumpContainer: boolean;
   };
 }
 
@@ -95,6 +98,7 @@ export const useReflow = (
     shouldSkipContainerReflow = false,
     forceDirection = false,
     immediateExitContainer?: string,
+    mousePosition?: OccupiedSpace,
   ) {
     const prevReflowState: PrevReflowState = {
       prevSpacesMap: getSpacesMapFromArray(prevPositions.current),
@@ -102,6 +106,9 @@ export const useReflow = (
       prevMovementMap: prevMovementMap.current,
       prevSecondOrderCollisionMap: prevSecondOrderCollisionMap.current,
     };
+
+    // To track container jumps
+    let isIdealToJumpContainer = false;
 
     const {
       collidingSpaceMap,
@@ -140,7 +147,12 @@ export const useReflow = (
       ] as WidgetCollidingSpace[];
 
       for (const collidingSpace of collidingSpaces) {
-        if (checkIsDropTarget(collidingSpace.type)) {
+        if (
+          checkIsDropTarget(collidingSpace.type) &&
+          mousePosition &&
+          areIntersecting(mousePosition, collidingSpace)
+        ) {
+          isIdealToJumpContainer = true;
           correctedMovementMap = {};
         }
       }
@@ -169,6 +181,7 @@ export const useReflow = (
       movementLimitMap,
       movementMap: correctedMovementMap,
       bottomMostRow,
+      isIdealToJumpContainer,
     };
   };
 };

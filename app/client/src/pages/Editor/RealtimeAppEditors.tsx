@@ -2,8 +2,8 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getRealtimeAppEditors } from "selectors/appCollabSelectors";
 import TooltipComponent from "components/ads/Tooltip";
-import ProfileImage from "../common/ProfileImage";
-import UserApi from "api/UserApi";
+import ProfileImage from "pages/common/ProfileImage";
+import UserApi from "@appsmith/api/UserApi";
 import styled from "styled-components";
 import {
   collabStartEditingAppEvent,

@@ -7,7 +7,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   UpdateCanvasPayload,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   clonePageSuccess,
   deletePageSuccess,
@@ -92,11 +92,11 @@ import * as Sentry from "@sentry/react";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
-import { GenerateTemplatePageRequest } from "../api/PageApi";
+import { GenerateTemplatePageRequest } from "api/PageApi";
 import {
   generateTemplateError,
   generateTemplateSuccess,
-} from "../actions/pageActions";
+} from "actions/pageActions";
 import { getAppMode } from "selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
@@ -348,7 +348,7 @@ export function* fetchAllPublishedPagesSaga() {
     const pageIds = yield select(getAllPageIds);
     yield all(
       pageIds.map((pageId: string) => {
-        return call(PageApi.fetchPublishedPage, { pageId });
+        return call(PageApi.fetchPublishedPage, { pageId, bustCache: true });
       }),
     );
   } catch (error) {
@@ -976,6 +976,7 @@ export function* generateTemplatePageSaga(
           responseMeta: response.responseMeta,
         },
         pageId,
+        isFirstLoad: true,
       });
 
       // TODO : Add this to onSuccess (Redux Action)

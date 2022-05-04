@@ -1,10 +1,9 @@
 import { debounce, set } from "lodash";
 import { useMemo, useContext, useCallback } from "react";
+import { klona } from "klona";
 
 import { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
 import FormContext from "../FormContext";
-
-const clone = require("rfdc/default");
 
 export type UseUpdateInternalMetaStateProps = {
   propertyName?: string;
@@ -24,7 +23,7 @@ function useUpdateInternalMetaState({
     ) => {
       if (propertyName) {
         setMetaInternalFieldState((prevState) => {
-          const metaInternalFieldState = clone(
+          const metaInternalFieldState = klona(
             prevState.metaInternalFieldState,
           );
           set(metaInternalFieldState, propertyName, propertyValue);

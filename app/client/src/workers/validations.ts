@@ -4,7 +4,7 @@ import {
   ValidationTypes,
   ValidationResponse,
   Validator,
-} from "../constants/WidgetValidation";
+} from "constants/WidgetValidation";
 import _, {
   compact,
   get,
@@ -27,7 +27,7 @@ import * as log from "loglevel";
 import { countOccurrences, findDuplicateIndex } from "./helpers";
 export const UNDEFINED_VALIDATION = "UNDEFINED_VALIDATION";
 export const VALIDATION_ERROR_COUNT_THRESHOLD = 10;
-const MAX_ALLOWED_LINE_BREAKS = 5000; // Rendering performance deteriorates beyond this number.
+const MAX_ALLOWED_LINE_BREAKS = 1000; // Rendering performance deteriorates beyond this number.
 const LINE_BREAKS_ERROR_MESSAGE = `Warning: New lines in the text exceed ${MAX_ALLOWED_LINE_BREAKS}. The text displayed will not contain any new lines.`;
 
 const flat = (array: Record<string, any>[], uniqueParam: string) => {

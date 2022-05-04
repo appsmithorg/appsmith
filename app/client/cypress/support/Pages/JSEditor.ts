@@ -1,26 +1,59 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+
 export class JSEditor {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
   public ee = ObjectsRegistry.EntityExplorer;
 
-  private _runButton = "//li//*[local-name() = 'svg' and @class='run-button']";
+  private _runButton = "button.run-js-action";
+  private _settingsTab = ".tab-title:contains('Settings')";
+  private _codeTab = ".tab-title:contains('Code')";
+  private _onPageLoadRadioButton = (functionName: string, onLoad: boolean) =>
+    `.${functionName}-on-page-load-setting label:contains(${
+      onLoad ? "Yes" : "No"
+    }) span.checkbox`;
+  private _confirmBeforeExecuteRadioButton = (
+    functionName: string,
+    shouldConfirm: boolean,
+  ) =>
+    `.${functionName}-confirm-before-execute label:contains(${
+      shouldConfirm ? "Yes" : "No"
+    }) span.checkbox`;
+  private _outputConsole = ".CodeEditorTarget";
   private _jsObjName = ".t--js-action-name-edit-field span";
   private _jsObjTxt = ".t--js-action-name-edit-field input";
-  private _newJSobj = "span:contains('New JS Object')"
-  private _bindingsClose = ".t--entity-property-close"
-  private _propertyList = ".t--entity-property"
-  private _responseTabAction = (funName: string) => "//div[@class='function-name'][text()='" + funName + "']/following-sibling::div//*[local-name()='svg']"
-  private _functionSetting = (settingTxt: string) => "//span[contains(text(),'" + settingTxt + "')]/parent::div/following-sibling::input[@type='checkbox']"
-  _dialog = (dialogHeader: string) => "//div[contains(@class, 'bp3-dialog')]//h4[contains(text(), '" + dialogHeader + "')]"
-  private _closeSettings = "span[icon='small-cross']"
-
+  private _newJSobj = "span:contains('New JS Object')";
+  private _bindingsClose = ".t--entity-property-close";
+  private _propertyList = ".t--entity-property";
+  private _responseTabAction = (funName: string) =>
+    "//div[@class='function-name'][text()='" +
+    funName +
+    "']/following-sibling::div//*[local-name()='svg']";
+  private _functionSetting = (settingTxt: string) =>
+    "//span[text()='" +
+    settingTxt +
+    "']/parent::div/following-sibling::input[@type='checkbox']";
+  _dialog = (dialogHeader: string) =>
+    "//div[contains(@class, 'bp3-dialog')]//h4[contains(text(), '" +
+    dialogHeader +
+    "')]";
+  private _closeSettings = "span[icon='small-cross']";
 
   public NavigateToJSEditor() {
     cy.get(this.locator._createNew)
       .last()
       .click({ force: true });
     cy.get(this._newJSobj).click({ force: true });
+
+    // Assert that the name of the JS Object is focused when newly created
+    cy.get(this._jsObjTxt)
+      .should("be.focused")
+      .type("{enter}");
+
+    cy.wait(1000);
+
+    // Assert that the name of the JS Object is no longer in the editable form after pressing "enter"
+    cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
     //this.agHelper.WaitUntilEleDisappear(this.locator._toastMsg, 'created successfully')
@@ -75,6 +108,7 @@ export class JSEditor {
           input.type(JSCode, {
             parseSpecialCharSequences: false,
             delay: 150,
+            force: true
           });
         }
       });
@@ -85,7 +119,7 @@ export class JSEditor {
     if (toRun) {
       //clicking 1 times & waits for 3 second for result to be populated!
       Cypress._.times(1, () => {
-        cy.xpath(this._runButton)
+        cy.get(this._runButton)
           .first()
           .click()
           .wait(3000);
@@ -112,13 +146,16 @@ export class JSEditor {
     value: string,
     paste = true,
     toToggleOnJS = false,
+    notField = false,
   ) {
     if (toToggleOnJS) {
       cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
         .invoke("attr", "class")
         .then((classes: any) => {
           if (!classes.includes("is-active")) {
-            cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+            cy.get(
+              this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()),
+            )
               .first()
               .click({ force: true });
           }
@@ -134,19 +171,22 @@ export class JSEditor {
     //   .type("{del}", { force: true });
 
     if (paste) {
-      this.agHelper.EnterValue(value, endp)
-    }
-    else {
-      cy.get(this.locator._propertyControl + endp.replace(/ +/g, "").toLowerCase() + " " + this.locator._codeMirrorTextArea)
+      this.agHelper.EnterValue(value, endp, notField);
+    } else {
+      cy.get(
+        this.locator._propertyControl +
+          endp.replace(/ +/g, "").toLowerCase() +
+          " " +
+          this.locator._codeMirrorTextArea,
+      )
         .first()
         .then((el: any) => {
           const input = cy.get(el);
           input.type(value, {
             parseSpecialCharSequences: false,
           });
-        })
+        });
     }
-
 
     // cy.focused().then(($cm: any) => {
     //   if ($cm.contents != "") {
@@ -178,8 +218,22 @@ export class JSEditor {
     //     });
     // });
 
-    this.agHelper.AssertAutoSave()//Allowing time for Evaluate value to capture value
+    this.agHelper.AssertAutoSave(); //Allowing time for Evaluate value to capture value
+  }
 
+  public RemoveText(endp: string) {
+    cy.get(
+      this.locator._propertyControl +
+        endp +
+        " " +
+        this.locator._codeMirrorTextArea,
+    )
+      .first()
+      .focus()
+      .type("{uparrow}", { force: true })
+      .type("{ctrl}{shift}{downarrow}", { force: true })
+      .type("{del}", { force: true });
+    this.agHelper.AssertAutoSave();
   }
 
   public RenameJSObjFromForm(renameVal: string) {
@@ -232,17 +286,22 @@ export class JSEditor {
     cy.get(this._bindingsClose).click({ force: true });
   }
 
-
-  public EnableOnPageLoad(funName: string, onLoad = true, bfrCalling = true) {
-
-    this.agHelper.XpathNClick(this._responseTabAction(funName))
-    this.agHelper.AssertElementPresence(this._dialog('Function settings'))
-    if (onLoad)
-      this.agHelper.CheckUncheck(this._functionSetting('Run Function on Page load'), true)
-    if (bfrCalling)
-      this.agHelper.CheckUncheck(this._functionSetting('Request confirmation before calling function?'), true)
-
-    this.agHelper.GetNClick(this._closeSettings)
+  public AddJSFunctionSettings(
+    funName: string,
+    onLoad = true,
+    bfrCalling = true,
+  ) {
+    // Navigate to Settings tab
+    this.agHelper.GetNClick(this._settingsTab);
+    // Set onPageLoad
+    cy.get(this._onPageLoadRadioButton(funName, onLoad))
+      .first()
+      .click();
+    // Set confirmBeforeExecute
+    cy.get(this._confirmBeforeExecuteRadioButton(funName, bfrCalling))
+      .first()
+      .click();
+    // Return to code tab
+    this.agHelper.GetNClick(this._codeTab);
   }
-
 }

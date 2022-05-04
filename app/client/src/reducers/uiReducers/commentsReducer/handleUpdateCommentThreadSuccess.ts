@@ -1,5 +1,5 @@
 import { CommentThread } from "entities/Comments/CommentsInterfaces";
-import { ReduxAction } from "constants/ReduxActionConstants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { get } from "lodash";
 import { CommentsReduxState } from "./interfaces";
 

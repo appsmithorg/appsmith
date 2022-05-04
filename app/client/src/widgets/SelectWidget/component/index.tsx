@@ -1,18 +1,16 @@
 import React from "react";
 import { ComponentProps } from "widgets/BaseComponent";
-import { Classes } from "@blueprintjs/core";
+import { Alignment, Classes } from "@blueprintjs/core";
 import { DropdownOption } from "../constants";
 import {
   IItemListRendererProps,
   IItemRendererProps,
 } from "@blueprintjs/select";
-import { debounce, findIndex, isEmpty, isNil, isNumber } from "lodash";
+import { debounce, findIndex, isEmpty, isEqual, isNil, isNumber } from "lodash";
 import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
 import { FixedSizeList } from "react-window";
 import { TextSize } from "constants/WidgetConstants";
 import {
-  StyledLabel,
-  TextLabelWrapper,
   StyledControlGroup,
   StyledSingleDropDown,
   DropdownStyles,
@@ -21,7 +19,9 @@ import {
 } from "./index.styled";
 import Fuse from "fuse.js";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
+import { LabelPosition } from "components/constants";
 import SelectButton from "./SelectButton";
+import LabelWithTooltip from "components/ads/LabelWithTooltip";
 import { labelMargin } from "../../WidgetUtils";
 
 const FUSE_OPTIONS = {
@@ -39,7 +39,6 @@ const MAX_RENDER_MENU_ITEMS_HEIGHT = 300;
 
 interface SelectComponentState {
   activeItemIndex: number | undefined;
-  query?: string;
   isOpen?: boolean;
 }
 
@@ -54,14 +53,12 @@ class SelectComponent extends React.Component<
   state = {
     // used to show focused item for keyboard up down key interection
     activeItemIndex: -1,
-    query: "",
     isOpen: false,
   };
 
   componentDidMount = () => {
     // set default selectedIndex as focused index
     this.setState({ activeItemIndex: this.props.selectedIndex });
-    this.setState({ query: this.props.filterText });
   };
 
   componentDidUpdate = (prevProps: SelectComponentProps) => {
@@ -113,15 +110,10 @@ class SelectComponent extends React.Component<
     });
     return optionIndex === this.props.selectedIndex;
   };
-  onQueryChange = (filterValue: string) => {
-    this.setState({ query: filterValue });
+  onQueryChange = debounce((filterValue: string) => {
+    if (isEqual(filterValue, this.props.filterText)) return;
     this.props.onFilterChange(filterValue);
     this.listRef?.current?.scrollTo(0);
-    if (!this.props.serverSideFiltering) return;
-    return this.serverSideSearch(filterValue);
-  };
-  serverSideSearch = debounce((filterValue: string) => {
-    this.props.onFilterChange(filterValue);
   }, DEBOUNCE_TIMEOUT);
 
   renderSingleSelectItem = (
@@ -138,7 +130,11 @@ class SelectComponent extends React.Component<
     const focusClassName = `${isFocused && "has-focus"}`;
     const selectedClassName = `${isSelected && "menu-item-active"}`;
     return (
-      <MenuItem key={option.value} onClick={itemProps.handleClick}>
+      <MenuItem
+        accentColor={this.props.accentColor}
+        key={option.value}
+        onClick={itemProps.handleClick}
+      >
         <a
           className={`menu-item-link ${selectedClassName} ${focusClassName}`}
           tabIndex={0}
@@ -162,7 +158,7 @@ class SelectComponent extends React.Component<
     }
   };
   noResultsUI = (
-    <MenuItem>
+    <MenuItem accentColor={this.props.accentColor}>
       <a className="menu-item-link">
         <div className="menu-item-text">No Results Found</div>
       </a>
@@ -195,7 +191,7 @@ class SelectComponent extends React.Component<
     // Don't scroll if the list is filtered.
     const optionsCount = this.props.options.length;
     const scrollOffset: number =
-      !this.state.query &&
+      !this.props.filterText &&
       isNumber(activeItemIndex) &&
       optionsCount * ITEM_SIZE > MAX_RENDER_MENU_ITEMS_HEIGHT
         ? activeItemIndex * ITEM_SIZE
@@ -237,13 +233,19 @@ class SelectComponent extends React.Component<
 
   render() {
     const {
+      accentColor,
+      borderRadius,
+      boxShadow,
       compactMode,
       disabled,
       isLoading,
+      labelAlignment,
+      labelPosition,
       labelStyle,
       labelText,
       labelTextColor,
       labelTextSize,
+      labelWidth,
       widgetId,
     } = this.props;
     // active focused item
@@ -280,28 +282,43 @@ class SelectComponent extends React.Component<
         : "";
 
     return (
-      <DropdownContainer compactMode={compactMode}>
-        <DropdownStyles dropDownWidth={this.getDropdownWidth()} id={widgetId} />
+      <DropdownContainer
+        compactMode={compactMode}
+        data-testid="select-container"
+        labelPosition={labelPosition}
+      >
+        <DropdownStyles
+          accentColor={accentColor}
+          borderRadius={borderRadius}
+          dropDownWidth={this.getDropdownWidth()}
+          id={widgetId}
+        />
         {labelText && (
-          <TextLabelWrapper compactMode={compactMode} ref={this.labelRef}>
-            <StyledLabel
-              $compactMode={compactMode}
-              $disabled={!!disabled}
-              $labelStyle={labelStyle}
-              $labelText={labelText}
-              $labelTextColor={labelTextColor}
-              $labelTextSize={labelTextSize}
-              className={`select-label ${
-                isLoading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
-              }`}
-            >
-              {labelText}
-            </StyledLabel>
-          </TextLabelWrapper>
+          <LabelWithTooltip
+            alignment={labelAlignment}
+            className={`select-label`}
+            color={labelTextColor}
+            compact={compactMode}
+            disabled={disabled}
+            fontSize={labelTextSize}
+            fontStyle={labelStyle}
+            loading={isLoading}
+            position={labelPosition}
+            ref={this.labelRef}
+            text={labelText}
+            width={labelWidth}
+          />
         )}
-        <StyledControlGroup fill>
+        <StyledControlGroup
+          compactMode={compactMode}
+          fill
+          labelPosition={labelPosition}
+        >
           <StyledSingleDropDown
+            accentColor={accentColor}
             activeItem={activeItem()}
+            borderRadius={borderRadius}
+            boxShadow={boxShadow}
             className={isLoading ? Classes.SKELETON : ""}
             disabled={disabled}
             filterable={this.props.isFilterable}
@@ -320,6 +337,8 @@ class SelectComponent extends React.Component<
             onItemSelect={this.onItemSelect}
             onQueryChange={this.onQueryChange}
             popoverProps={{
+              portalContainer:
+                document.getElementById("art-board") || undefined,
               boundary: "window",
               isOpen: this.state.isOpen,
               minimal: true,
@@ -341,7 +360,7 @@ class SelectComponent extends React.Component<
               },
               popoverClassName: `select-popover-wrapper select-popover-width-${this.props.widgetId}`,
             }}
-            query={this.state.query}
+            query={this.props.filterText}
             scrollToActiveItem
             value={this.props.value as string}
           >
@@ -365,10 +384,13 @@ export interface SelectComponentProps extends ComponentProps {
   disabled?: boolean;
   onOptionSelected: (optionSelected: DropdownOption) => void;
   placeholder?: string;
-  labelText?: string;
+  labelAlignment?: Alignment;
+  labelPosition?: LabelPosition;
+  labelText: string;
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
+  labelWidth?: number;
   compactMode: boolean;
   selectedIndex?: number;
   options: DropdownOption[];
@@ -384,6 +406,9 @@ export interface SelectComponentProps extends ComponentProps {
   value?: string;
   label?: string;
   filterText?: string;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor?: string;
 }
 
 export default React.memo(SelectComponent);

@@ -15,12 +15,14 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   ReduxActionWithoutPayload,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 
 import {
   fetchPage,
   fetchPublishedPage,
+  resetApplicationWidgets,
+  resetPageList,
   setAppMode,
   updateAppPersistentStore,
 } from "actions/pageActions";
@@ -38,6 +40,7 @@ import {
 import {
   ApplicationVersion,
   fetchApplication,
+  resetCurrentApplication,
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
@@ -83,6 +86,10 @@ import { isURLDeprecated, getUpdatedRoute } from "utils/helpers";
 import { fillPathname, viewerURL, builderURL } from "RouteBuilder";
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
+import {
+  fetchSelectedAppThemeAction,
+  fetchAppThemesAction,
+} from "actions/appThemingActions";
 
 export function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -118,6 +125,13 @@ export function* failFastApiCalls(
   return true;
 }
 
+/**
+ * this saga is called once then application is loaded.
+ * It will hold the editor in uninitialized till all the apis/actions are completed
+ *
+ * @param initializeEditorAction
+ * @returns
+ */
 function* bootstrapEditor(payload: InitializeEditorPayload) {
   const { branch } = payload;
   yield put(resetEditorSuccess());
@@ -230,11 +244,15 @@ function* initiateEditorActions(applicationId: string) {
   const initActionsCalls = [
     fetchActions({ applicationId }, []),
     fetchJSCollections({ applicationId }),
+    fetchSelectedAppThemeAction(applicationId),
+    fetchAppThemesAction(applicationId),
   ];
 
   const successActionEffects = [
     ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
     ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
+    ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
+    ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
   ];
   const failureActionEffects = [
     ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
@@ -329,6 +347,7 @@ function* initializeEditorSaga(
     yield all([
       call(initiateEditorActions, applicationId),
       call(initiatePluginsAndDatasources),
+      call(populatePageDSLsSaga),
     ]);
 
     AnalyticsUtil.logEvent("EDITOR_OPEN", {
@@ -347,8 +366,6 @@ function* initializeEditorSaga(
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.INIT_EDIT_APP,
     );
-
-    yield call(populatePageDSLsSaga);
   } catch (e) {
     log.error(e);
     Sentry.captureException(e);
@@ -401,25 +418,33 @@ export function* initializeAppViewerSaga(
   );
   yield put({ type: ReduxActionTypes.START_EVALUATION });
 
-  const resultOfPrimaryCalls: boolean = yield failFastApiCalls(
-    [fetchActionsForView({ applicationId })],
-    [ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS],
-    [ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR],
-  );
-
-  if (!resultOfPrimaryCalls) return;
-
-  const jsActionsCall: boolean = yield failFastApiCalls(
-    [fetchJSCollectionsForView({ applicationId })],
-    [ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS],
-    [ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR],
-  );
-  if (!jsActionsCall) return;
-
   const defaultPageId: string = yield select(getDefaultPageId);
   const toLoadPageId: string = pageId || defaultPageId;
 
   yield call(initiateURLUpdate, toLoadPageId, APP_MODE.PUBLISHED, pageId);
+
+  const resultOfPrimaryCalls: boolean = yield failFastApiCalls(
+    [
+      fetchActionsForView({ applicationId }),
+      fetchJSCollectionsForView({ applicationId }),
+      fetchPublishedPage(toLoadPageId, true),
+      fetchSelectedAppThemeAction(applicationId),
+      fetchAppThemesAction(applicationId),
+    ],
+    [
+      ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
+      ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
+      ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
+      ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
+      ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
+    ],
+    [
+      ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
+      ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
+    ],
+  );
+
+  if (!resultOfPrimaryCalls) return;
 
   if (toLoadPageId) {
     yield put(fetchPublishedPage(toLoadPageId, true));
@@ -463,6 +488,9 @@ export function* initializeAppViewerSaga(
 }
 
 function* resetEditorSaga() {
+  yield put(resetCurrentApplication());
+  yield put(resetPageList());
+  yield put(resetApplicationWidgets());
   yield put(resetRecentEntities());
   // End guided tour once user exits editor
   yield put(enableGuidedTour(false));

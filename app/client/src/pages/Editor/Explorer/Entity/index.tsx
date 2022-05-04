@@ -18,7 +18,7 @@ import { Classes, Position } from "@blueprintjs/core";
 import { noop } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import useClick from "utils/hooks/useClick";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import TooltipComponent from "components/ads/Tooltip";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { inGuidedTour } from "selectors/onboardingSelectors";
@@ -95,6 +95,9 @@ export const EntityItem = styled.div<{
   &:hover {
     background: ${Colors.GREY_2};
   }
+
+  scroll-margin-top: 36px;
+  scroll-snap-margin-top: 36px;
 
   & .${EntityClassNames.TOOLTIP} {
     ${entityTooltipCSS}

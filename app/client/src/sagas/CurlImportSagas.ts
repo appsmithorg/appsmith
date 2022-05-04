@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ReduxAction,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { validateResponse } from "sagas/ErrorSagas";
 import CurlImportApi, { CurlImportRequest } from "api/ImportApi";
 import { ApiResponse } from "api/ApiResponses";

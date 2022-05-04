@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ReduxAction,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { Action } from "entities/Action";
 import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 

@@ -7,7 +7,7 @@ import {
   refCommentThreadsSelector,
   unpublishedCommentThreadSelector,
   visibleCommentThreadSelector,
-} from "../../selectors/commentsSelectors";
+} from "selectors/commentsSelectors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,

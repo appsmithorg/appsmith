@@ -10,7 +10,7 @@ import { generateReactKey } from "utils/generators";
 import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
 import store from "store";
 import Datasources from "./Datasources";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { mockDatasources } from "./mockTestData";
 import { updateCurrentPage } from "actions/pageActions";
 

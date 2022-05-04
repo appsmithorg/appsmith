@@ -8,7 +8,7 @@ import {
 } from "entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { promisifyAction } from "workers/PromisifyAction";
-const clone = require("rfdc/default");
+import { klona } from "klona/full";
 declare global {
   interface Window {
     ALLOW_ASYNC?: boolean;
@@ -263,7 +263,7 @@ export const enhanceDataTreeWithFunctions = (
   dataTree: Readonly<DataTree>,
   requestId = "",
 ): DataTree => {
-  const clonedDT = clone(dataTree);
+  const clonedDT = klona(dataTree);
   self.TRIGGER_COLLECTOR = [];
   Object.entries(DATA_TREE_FUNCTIONS).forEach(([name, funcOrFuncCreator]) => {
     if (

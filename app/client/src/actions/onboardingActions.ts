@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { WidgetProps } from "widgets/BaseWidget";
 

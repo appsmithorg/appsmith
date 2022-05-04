@@ -2,7 +2,9 @@ const dsl = require("../../../fixtures/mongoAppdsl.json");
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
+const commonlocators = require("../../../locators/commonlocators.json");
 
+let repoName;
 describe("Shopping cart App", function() {
   let datasourceName;
 
@@ -166,4 +168,19 @@ describe("Shopping cart App", function() {
       .eq(3)
       .should("have.text", "3");
   });
+  /*it("Connect the appplication to git and validate data in deploy mode and edit mode", function() {
+    cy.generateUUID().then((uid) => {
+      repoName = uid;
+      cy.createTestGithubRepo(repoName);
+      cy.connectToGitRepo(repoName);
+    });
+    cy.latestDeployPreview();
+    cy.wait(2000)
+    cy.get(".selected-row").children().eq(0)
+    .should("have.text", "A man called ove");
+    cy.get(commonlocators.backToEditor).click();
+    cy.get(".selected-row").children().eq(0)
+    .should("have.text", "A man called ove");
+    cy.wait(1000);
+  }) */
 });

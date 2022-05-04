@@ -2,12 +2,12 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import _ from "lodash";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import { Diff } from "deep-diff";
-import { QueryActionConfig } from "../entities/Action";
+import { QueryActionConfig } from "entities/Action";
 
 export const FIRST_EVAL_REDUX_ACTIONS = [
   // Pages
@@ -61,6 +61,10 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.RESET_WIDGET_META,
   // Batches
   ReduxActionTypes.BATCH_UPDATES_SUCCESS,
+  // App Theme
+  ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS,
+  ReduxActionTypes.CHANGE_SELECTED_APP_THEME_SUCCESS,
+  ReduxActionTypes.SET_PREVIEW_APP_THEME,
 ];
 // Topics used for datsource and query form evaluations
 export const FORM_EVALUATION_REDUX_ACTIONS = [

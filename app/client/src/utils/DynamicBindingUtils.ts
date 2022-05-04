@@ -239,6 +239,15 @@ export const isPathADynamicBinding = (
   }
   return false;
 };
+/**
+ * Get property path from full property path
+ * Input: "Table1.meta.searchText" => Output: "meta.searchText"
+ * @param {string} fullPropertyPath
+ * @return {*}
+ */
+export const getPropertyPath = (fullPropertyPath: string) => {
+  return fullPropertyPath.substring(fullPropertyPath.indexOf(".") + 1);
+};
 
 export const getWidgetDynamicTriggerPathList = (
   widget: WidgetProps,
@@ -292,6 +301,15 @@ export const isPathADynamicProperty = (
     return _.find(widget.dynamicPropertyPathList, { key: path }) !== undefined;
   }
   return false;
+};
+
+export const THEME_BINDING_REGEX = /{{.*appsmith\.theme\..*}}/;
+
+export const isThemeBoundProperty = (
+  widget: WidgetProps,
+  path: string,
+): boolean => {
+  return widget && widget[path] && THEME_BINDING_REGEX.test(widget[path]);
 };
 
 export const unsafeFunctionForEval = [

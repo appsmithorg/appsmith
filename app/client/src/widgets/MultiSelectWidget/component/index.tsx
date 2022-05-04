@@ -6,8 +6,6 @@ import {
   DropdownStyles,
   MultiSelectContainer,
   StyledCheckbox,
-  TextLabelWrapper,
-  StyledLabel,
 } from "./index.styled";
 import {
   CANVAS_CLASSNAME,
@@ -16,10 +14,12 @@ import {
 } from "constants/WidgetConstants";
 import debounce from "lodash/debounce";
 import Icon from "components/ads/Icon";
-import { Classes } from "@blueprintjs/core";
+import { Alignment, Classes } from "@blueprintjs/core";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import _ from "lodash";
 import { Colors } from "constants/Colors";
+import { LabelPosition } from "components/constants";
+import LabelWithTooltip from "components/ads/LabelWithTooltip";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;
@@ -39,15 +39,22 @@ export interface MultiSelectProps
   onFilterChange: (text: string) => void;
   dropDownWidth: number;
   width: number;
-  labelText?: string;
+  labelText: string;
+  labelPosition?: LabelPosition;
+  labelAlignment?: Alignment;
+  labelWidth?: number;
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
   compactMode: boolean;
   isValid: boolean;
   allowSelectAll?: boolean;
+  widgetId: string;
   onFocus?: (e: React.FocusEvent) => void;
   onBlur?: (e: React.FocusEvent) => void;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
 }
 
 const DEBOUNCE_TIMEOUT = 800;
@@ -59,10 +66,13 @@ function MultiSelectComponent({
   dropdownStyle,
   dropDownWidth,
   isValid,
+  labelAlignment,
+  labelPosition,
   labelStyle,
   labelText,
   labelTextColor,
   labelTextSize,
+  labelWidth,
   loading,
   onBlur,
   onChange,
@@ -75,7 +85,22 @@ function MultiSelectComponent({
   width,
 }: MultiSelectProps): JSX.Element {
   const [isSelectAll, setIsSelectAll] = useState(false);
+
   const _menu = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (
+      !isSelectAll &&
+      options.length &&
+      value.length &&
+      options.length === value.length
+    ) {
+      setIsSelectAll(true);
+    }
+    if (isSelectAll && options.length !== value.length) {
+      setIsSelectAll(false);
+    }
+  }, [options, value]);
 
   const getDropdownPosition = useCallback(() => {
     const node = _menu.current;
@@ -95,19 +120,6 @@ function MultiSelectComponent({
     }
     return onChange([]);
   };
-  useEffect(() => {
-    if (
-      !isSelectAll &&
-      options.length &&
-      value.length &&
-      options.length === value.length
-    ) {
-      setIsSelectAll(true);
-    }
-    if (isSelectAll && options.length !== value.length) {
-      setIsSelectAll(false);
-    }
-  }, [options, value]);
 
   const dropdownRender = useCallback(
     (
@@ -157,7 +169,9 @@ function MultiSelectComponent({
     <MultiSelectContainer
       className={loading ? Classes.SKELETON : ""}
       compactMode={compactMode}
+      data-testid="multiselect-container"
       isValid={isValid}
+      labelPosition={labelPosition}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
       <DropdownStyles
@@ -166,21 +180,19 @@ function MultiSelectComponent({
         parentWidth={width - WidgetContainerDiff}
       />
       {labelText && (
-        <TextLabelWrapper compactMode={compactMode}>
-          <StyledLabel
-            $compactMode={compactMode}
-            $disabled={disabled}
-            $labelStyle={labelStyle}
-            $labelText={labelText}
-            $labelTextColor={labelTextColor}
-            $labelTextSize={labelTextSize}
-            className={`tree-multiselect-label ${
-              loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
-            }`}
-          >
-            {labelText}
-          </StyledLabel>
-        </TextLabelWrapper>
+        <LabelWithTooltip
+          alignment={labelAlignment}
+          className={`multiselect-label`}
+          color={labelTextColor}
+          compact={compactMode}
+          disabled={disabled}
+          fontSize={labelTextSize}
+          fontStyle={labelStyle}
+          loading={loading}
+          position={labelPosition}
+          text={labelText}
+          width={labelWidth}
+        />
       )}
       <Select
         animation="slide-up"

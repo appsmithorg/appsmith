@@ -9,7 +9,10 @@ import DatasourceChip from "../DatasourceChip";
 import LargeTemplate from "./LargeTemplate";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import { createMessage, FORK_THIS_TEMPLATE } from "ce/constants/messages";
+import {
+  createMessage,
+  FORK_THIS_TEMPLATE,
+} from "@appsmith/constants/messages";
 import { templateIdUrl } from "RouteBuilder";
 
 const TemplateWrapper = styled.div`
@@ -93,6 +96,7 @@ const StyledButton = styled(Button)`
 export interface TemplateProps {
   template: TemplateInterface;
   size?: string;
+  onClick?: () => void;
 }
 
 const Template = (props: TemplateProps) => {
@@ -106,6 +110,7 @@ const Template = (props: TemplateProps) => {
 export interface TemplateLayoutProps {
   template: TemplateInterface;
   className?: string;
+  onClick?: () => void;
 }
 
 export function TemplateLayout(props: TemplateLayoutProps) {
@@ -120,6 +125,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
   const [showForkModal, setShowForkModal] = useState(false);
   const onClick = () => {
     history.push(templateIdUrl({ id }));
+    props.onClick && props.onClick();
   };
 
   const onForkButtonTrigger = (e: React.MouseEvent<HTMLElement>) => {

@@ -55,10 +55,11 @@ import Setup from "pages/setup";
 import Settings from "pages/Settings";
 import SignupSuccess from "pages/setup/SignupSuccess";
 import { Theme } from "constants/DefaultTheme";
-import { ERROR_CODES } from "ce/constants/ApiConstants";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
 import { fetchFeatureFlagsInit } from "actions/userActions";
 import FeatureFlags from "entities/FeatureFlags";
+import WDSPage from "components/wds/Showcase";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -87,7 +88,7 @@ function AppRouter(props: {
   featureFlags: FeatureFlags;
   setTheme: (theme: ThemeMode) => void;
 }) {
-  const { featureFlags, getCurrentUser, getFeatureFlags } = props;
+  const { getCurrentUser, getFeatureFlags } = props;
   useEffect(() => {
     AnalyticsUtil.logEvent("ROUTE_CHANGE", { path: window.location.pathname });
     const stopListener = history.listen((location: any) => {
@@ -121,6 +122,7 @@ function AppRouter(props: {
               <SentryRoute component={OrganizationLoader} path={ORG_URL} />
               <SentryRoute component={Users} exact path={USERS_URL} />
               <SentryRoute component={UserAuth} path={USER_AUTH_URL} />
+              <SentryRoute component={WDSPage} path="/wds" />
               <SentryRoute
                 component={ApplicationListLoader}
                 exact
@@ -137,12 +139,11 @@ function AppRouter(props: {
                 path={UNSUBSCRIBE_EMAIL_URL}
               />
               <SentryRoute component={Setup} exact path={SETUP} />
-              {featureFlags.APP_TEMPLATE && (
-                <SentryRoute
-                  component={TemplatesListLoader}
-                  path={TEMPLATES_PATH}
-                />
-              )}
+
+              <SentryRoute
+                component={TemplatesListLoader}
+                path={TEMPLATES_PATH}
+              />
               <Redirect
                 exact
                 from={ADMIN_SETTINGS_PATH}

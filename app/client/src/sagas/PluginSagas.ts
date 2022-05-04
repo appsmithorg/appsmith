@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ReduxAction,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import PluginsApi, { PluginFormPayload } from "api/PluginApi";
 import { validateResponse } from "sagas/ErrorSagas";
 import { getCurrentOrgId } from "selectors/organizationSelectors";

@@ -2,12 +2,12 @@ import {
   ReduxAction,
   ReduxActionTypes,
   ReduxActionWithCallbacks,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { CreateDatasourceConfig } from "api/DatasourcesApi";
 import { Datasource } from "entities/Datasource";
 import { PluginType } from "entities/Action";
-import { executeDatasourceQueryRequest } from "../api/DatasourcesApi";
-import { ResponseMeta } from "../api/ApiResponses";
+import { executeDatasourceQueryRequest } from "api/DatasourcesApi";
+import { ResponseMeta } from "api/ApiResponses";
 
 export const createDatasourceFromForm = (payload: CreateDatasourceConfig) => {
   return {

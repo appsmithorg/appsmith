@@ -1,12 +1,11 @@
 import { debounce, get } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getWidgetByID, getWidgets } from "sagas/selectors";
+import { getWidgets } from "sagas/selectors";
 
 import {
   DefaultLayoutType,
   layoutConfigurations,
-  MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import {
   getExplorerPinned,
@@ -15,6 +14,7 @@ import {
 import {
   getCurrentApplicationLayout,
   getCurrentPageId,
+  getMainCanvasProps,
   previewModeSelector,
 } from "selectors/editorSelectors";
 import { APP_MODE } from "entities/App";
@@ -36,7 +36,7 @@ export const useDynamicAppLayout = () => {
   const domEntityExplorer = document.querySelector(".js-entity-explorer");
   const domPropertyPane = document.querySelector(".js-property-pane-sidebar");
   const { height: screenHeight, width: screenWidth } = useWindowSizeHooks();
-  const mainContainer = useSelector(getWidgetByID(MAIN_CONTAINER_WIDGET_ID));
+  const mainCanvasProps = useSelector(getMainCanvasProps);
   const isPreviewMode = useSelector(previewModeSelector);
   const currentPageId = useSelector(getCurrentPageId);
   const canvasWidgets = useSelector(getWidgets);
@@ -46,8 +46,8 @@ export const useDynamicAppLayout = () => {
    * calculates min height
    */
   const calculatedMinHeight = useMemo(() => {
-    return calculateDynamicHeight(canvasWidgets, mainContainer?.minHeight);
-  }, [mainContainer]);
+    return calculateDynamicHeight(canvasWidgets, mainCanvasProps?.height);
+  }, [mainCanvasProps]);
 
   /**
    * app layout range i.e minWidth and maxWidth for the current layout
@@ -97,8 +97,8 @@ export const useDynamicAppLayout = () => {
       calculatedWidth -= propertyPaneWidth;
     }
 
-    // if explorer is unpinned or its preview mode, we don't need to subtract the EE width
-    if (isExplorerPinned === true && isPreviewMode === false) {
+    // if explorer is closed or its preview mode, we don't need to subtract the EE width
+    if (isExplorerPinned === true && !isPreviewMode) {
       const explorerWidth = domEntityExplorer?.clientWidth || 0;
 
       calculatedWidth -= explorerWidth;
@@ -108,10 +108,12 @@ export const useDynamicAppLayout = () => {
       case maxWidth < 0:
       case appLayout?.type === "FLUID":
       case calculatedWidth < maxWidth && calculatedWidth > minWidth:
+        const totalWidthToSubtract = BORDERS_WIDTH + GUTTER_WIDTH;
+        // NOTE: gutter + border width will be only substracted when theme mode and preview mode are off
         return (
           calculatedWidth -
           (appMode === APP_MODE.EDIT && !isPreviewMode
-            ? BORDERS_WIDTH + GUTTER_WIDTH
+            ? totalWidthToSubtract
             : 0)
         );
       case calculatedWidth < minWidth:
@@ -131,17 +133,17 @@ export const useDynamicAppLayout = () => {
    */
   const resizeToLayout = () => {
     const calculatedWidth = calculateCanvasWidth();
-    const { rightColumn } = mainContainer || {};
+    const { width: rightColumn } = mainCanvasProps || {};
 
     if (rightColumn !== calculatedWidth) {
       dispatch(
-        updateCanvasLayoutAction(calculatedWidth, mainContainer?.minHeight),
+        updateCanvasLayoutAction(calculatedWidth, mainCanvasProps?.height),
       );
     }
   };
 
   const debouncedResize = useCallback(debounce(resizeToLayout, 250), [
-    mainContainer,
+    mainCanvasProps,
     screenWidth,
   ]);
 
@@ -149,15 +151,12 @@ export const useDynamicAppLayout = () => {
    * when screen height is changed, update canvas layout
    */
   useEffect(() => {
-    if (calculatedMinHeight !== mainContainer?.minHeight) {
+    if (calculatedMinHeight !== mainCanvasProps?.height) {
       dispatch(
-        updateCanvasLayoutAction(
-          mainContainer?.rightColumn,
-          calculatedMinHeight,
-        ),
+        updateCanvasLayoutAction(mainCanvasProps?.width, calculatedMinHeight),
       );
     }
-  }, [screenHeight, mainContainer?.minHeight]);
+  }, [screenHeight, mainCanvasProps?.height]);
 
   useEffect(() => {
     debouncedResize();
@@ -171,13 +170,14 @@ export const useDynamicAppLayout = () => {
    *  - preview mode
    *  - explorer width
    *  - explorer is pinned
+   *  - theme mode is turned on
    */
   useEffect(() => {
     resizeToLayout();
   }, [
     appLayout,
     currentPageId,
-    mainContainer?.rightColumn,
+    mainCanvasProps?.width,
     isPreviewMode,
     explorerWidth,
     isExplorerPinned,

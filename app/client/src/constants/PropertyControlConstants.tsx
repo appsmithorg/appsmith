@@ -6,6 +6,7 @@ import {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import { AppTheme } from "entities/AppTheming";
 
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
@@ -54,6 +55,7 @@ export type PropertyPaneControlConfig = {
     propertyValue: any,
   ) => Array<{ propertyPath: string; propertyValue: any }> | undefined;
   hidden?: (props: any, propertyPath: string) => boolean;
+  invisible?: boolean;
   isBindProperty: boolean;
   isTriggerProperty: boolean;
   validation?: ValidationConfig;
@@ -65,6 +67,14 @@ export type PropertyPaneControlConfig = {
   dependencies?: string[];
   evaluatedDependencies?: string[]; // dependencies to be picked from the __evaluated__ object
   expected?: CodeEditorExpected;
+  getStylesheetValue?: (
+    props: any,
+    propertyPath: string,
+    stylesheet?: AppTheme["stylesheet"][string],
+  ) => AppTheme["stylesheet"][string][string];
+  // TODO(abhinav): To fix this, rename the options property of the controls which use this
+  // Alternatively, create a new structure
+  options?: any;
 };
 
 type ValidationConfigParams = {

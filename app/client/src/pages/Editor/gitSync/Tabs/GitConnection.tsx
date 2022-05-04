@@ -15,6 +15,7 @@ import {
   GENERATE_KEY,
   IMPORT_BTN_LABEL,
   IMPORT_FROM_GIT_REPOSITORY,
+  IMPORT_URL_INFO,
   IMPORTING_APP_FROM_GIT,
   LEARN_MORE,
   PASTE_SSH_URL_INFO,
@@ -29,7 +30,6 @@ import UserGitProfileSettings from "../components/UserGitProfileSettings";
 import { AUTH_TYPE_OPTIONS } from "../constants";
 import { Colors } from "constants/Colors";
 import Button, { Category, Size } from "components/ads/Button";
-import { useGitConnect, useSSHKeyPair } from "../hooks";
 import { useDispatch, useSelector } from "react-redux";
 import copy from "copy-to-clipboard";
 import {
@@ -71,6 +71,7 @@ import TooltipComponent from "components/ads/Tooltip";
 import Icon, { IconSize } from "components/ads/Icon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { isValidGitRemoteUrl } from "../utils";
+import { useGitConnect, useSSHKeyPair } from "../hooks";
 
 export const UrlOptionContainer = styled.div`
   display: flex;
@@ -406,7 +407,7 @@ function GitConnection({ isImport }: Props) {
         {!SSHKeyPair ? (
           <RemoteUrlInfoWrapper>
             <Text color={Colors.GREY_9} type={TextType.P3}>
-              {createMessage(REMOTE_URL_INFO)}
+              {createMessage(isImport ? IMPORT_URL_INFO : REMOTE_URL_INFO)}
             </Text>
             <Space horizontal size={1} />
             <Link

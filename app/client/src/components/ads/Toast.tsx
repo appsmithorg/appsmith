@@ -10,7 +10,7 @@ import Icon, { IconSize } from "./Icon";
 import Text, { TextType } from "./Text";
 import { toast, ToastOptions, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { ReduxActionType } from "constants/ReduxActionConstants";
+import { ReduxActionType } from "@appsmith/constants/ReduxActionConstants";
 import { useDispatch } from "react-redux";
 import { Colors } from "constants/Colors";
 import DebugButton from "components/editorComponents/Debugger/DebugCTA";
@@ -233,6 +233,7 @@ export const Toaster = {
         pauseOnFocusLoss: !config.dispatchableAction && !config.hideProgressBar,
         autoClose: false,
         closeOnClick: true,
+        position: "top-center",
         hideProgressBar: config.hideProgressBar,
       },
     );

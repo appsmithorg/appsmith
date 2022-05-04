@@ -8,7 +8,7 @@ import {
   getOnSelectAction,
   DropdownOnSelectActions,
 } from "./CustomizedDropdown/dropdownHelpers";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import {
@@ -104,7 +104,7 @@ export default function MobileSideBar(props: MobileSideBarProps) {
       <ProfileSection>
         <ProfileImage
           className="t--profile-menu-icon"
-          side={52}
+          size={52}
           source={!!props.photoId ? `/api/v1/assets/${props.photoId}` : ""}
           userName={props.name || props.userName}
         />

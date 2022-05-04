@@ -76,6 +76,19 @@ export const DropdownWrapper = styled(StyledFormGroup)`
       border: 1px solid rgba(0, 0, 0, 8%);
     }
   }
+
+  .ads-dropdown-errorMsg {
+    font-size: ${(props) => props.theme.fontSizes[3]}px;
+  }
+`;
+
+export const Center = styled.div`
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
 `;
 
 export function withDropdown(options: OptionType[], width: string) {
@@ -90,14 +103,16 @@ export function withDropdown(options: OptionType[], width: string) {
       componentProps.input.onBlur && componentProps.input.onBlur(value);
     }
 
-    const selected =
-      options.find((option) => option.value == componentProps.input.value) ||
-      {};
+    const selected = options.find(
+      (option) => option.value == componentProps.input.value,
+    ) || { label: componentProps.placeholder };
+    const hasError = componentProps.meta.invalid && componentProps.meta.touched;
 
     return (
       <Dropdown
         className={DROPDOWN_CLASSNAME}
         dontUsePortal
+        errorMsg={hasError ? componentProps.meta.error : ""}
         fillOptions
         onSelect={onSelect}
         options={options}

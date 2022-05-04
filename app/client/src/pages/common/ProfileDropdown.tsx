@@ -10,7 +10,7 @@ import {
   getOnSelectAction,
   DropdownOnSelectActions,
 } from "./CustomizedDropdown/dropdownHelpers";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import ProfileImage from "./ProfileImage";
 import { PopperModifiers } from "@blueprintjs/core";
 import {
@@ -102,6 +102,7 @@ export default function ProfileDropdown(props: TagProps) {
     >
       <ProfileImage
         className="t--profile-menu-icon"
+        size={34}
         source={!!props.photoId ? `/api/v1/assets/${props.photoId}` : ""}
         userName={props.name || props.userName}
       />

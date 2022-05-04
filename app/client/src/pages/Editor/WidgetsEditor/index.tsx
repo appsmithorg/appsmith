@@ -74,7 +74,7 @@ function WidgetsEditor() {
       window.location.hash.length > 0 &&
       !guidedTourEnabled
     ) {
-      const widgetIdFromURLHash = window.location.hash.substr(1);
+      const widgetIdFromURLHash = window.location.hash.slice(1);
       flashElementsById(widgetIdFromURLHash);
       if (document.getElementById(widgetIdFromURLHash))
         selectWidget(widgetIdFromURLHash);
@@ -121,9 +121,9 @@ function WidgetsEditor() {
       ) : (
         <>
           {guidedTourEnabled && <Guide />}
-          <div className="relative overflow-hidden flex flex-row w-full">
+          <div className="relative flex flex-row w-full overflow-hidden">
             <div
-              className="relative overflow-hidden flex flex-row w-full"
+              className="relative flex flex-row w-full overflow-hidden"
               data-testid="widgets-editor"
               draggable
               onClick={handleWrapperClick}

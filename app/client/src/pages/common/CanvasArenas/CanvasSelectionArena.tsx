@@ -20,9 +20,13 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { XYCord } from "./hooks/useCanvasDragging";
 import { theme } from "constants/DefaultTheme";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
-import { commentModeSelector } from "../../../selectors/commentsSelectors";
+import { commentModeSelector } from "selectors/commentsSelectors";
 import { StickyCanvasArena } from "./StickyCanvasArena";
 import { getAbsolutePixels } from "utils/helpers";
+import {
+  getSlidingCanvasName,
+  getStickyCanvasName,
+} from "constants/componentClassNameConstants";
 
 export interface SelectedArenaDimensions {
   top: number;
@@ -482,10 +486,10 @@ export function CanvasSelectionArena({
   return shouldShow ? (
     <StickyCanvasArena
       canExtend={canExtend}
-      canvasId={`canvas-selection-${widgetId}`}
+      canvasId={getSlidingCanvasName(widgetId)}
       canvasPadding={canvasPadding}
       getRelativeScrollingParent={getNearestParentCanvas}
-      id={`div-selection-${widgetId}`}
+      id={getStickyCanvasName(widgetId)}
       ref={canvasRef}
       showCanvas={shouldShow}
       snapColSpace={snapColumnSpace}

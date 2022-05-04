@@ -9,7 +9,7 @@ import { ControlIcons } from "icons/ControlIcons";
 import { IconWrapper } from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
 import PageListItem, { Action } from "./PageListItem";
-import { Page } from "constants/ReduxActionConstants";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import {
   getCurrentApplicationId,
   getPageList,

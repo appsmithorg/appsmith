@@ -1,7 +1,7 @@
 import React from "react";
 import ProfileImage, { Profile } from "pages/common/ProfileImage";
 
-import UserApi from "api/UserApi";
+import UserApi from "@appsmith/api/UserApi";
 
 import { AppsmithNotification, NotificationTypes } from "entities/Notification";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -157,7 +157,7 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
     <FlexContainer onClick={handleClick}>
       <ProfileImageContainer>
         <ProfileImage
-          side={25}
+          size={25}
           source={`/api/${UserApi.photoURL}/${authorUsername}`}
           userName={displayName}
         />
@@ -236,7 +236,7 @@ function CommentThreadNotification(props: {
     <FlexContainer onClick={handleClick}>
       <ProfileImageContainer>
         <ProfileImage
-          side={25}
+          size={25}
           source={`/api/${UserApi.photoURL}/${authorUsername}`}
           userName={displayName}
         />

@@ -1,4 +1,4 @@
-import * as generators from "../utils/generators";
+import * as generators from "utils/generators";
 import { RenderModes } from "constants/WidgetConstants";
 import {
   migrateChartDataFromArrayToObject,
@@ -16,6 +16,7 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import {
   extractCurrentDSL,
   getDraggingSpacesFromBlocks,
+  getMousePositionsOnCanvas,
 } from "./WidgetPropsUtils";
 import { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 
@@ -70,7 +71,42 @@ describe("WidgetProps tests", () => {
       ),
     ).toEqual(draggingSpaces);
   });
-
+  it("getMousePositionsOnCanvas should Return Mouse Position relative to Canvas", () => {
+    const gridProps = {
+      parentColumnSpace: 10,
+      parentRowSpace: 10,
+      maxGridColumns: 64,
+    };
+    const mouseEvent = ({
+      offsetX: 500,
+      offsetY: 600,
+    } as unknown) as MouseEvent;
+    expect(getMousePositionsOnCanvas(mouseEvent, gridProps)).toEqual({
+      id: "mouse",
+      top: 59,
+      left: 49,
+      bottom: 60,
+      right: 50,
+    });
+  });
+  it("getMousePositionsOnCanvas should even return negative Mouse Position relative to Canvas", () => {
+    const gridProps = {
+      parentColumnSpace: 10,
+      parentRowSpace: 10,
+      maxGridColumns: 64,
+    };
+    const mouseEvent = ({
+      offsetX: 2,
+      offsetY: 5,
+    } as unknown) as MouseEvent;
+    expect(getMousePositionsOnCanvas(mouseEvent, gridProps)).toEqual({
+      id: "mouse",
+      top: -1,
+      left: -1,
+      bottom: 0,
+      right: 0,
+    });
+  });
   it("it checks if array to object migration functions for chart widget ", () => {
     const input = {
       type: "CANVAS_WIDGET",

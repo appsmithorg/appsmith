@@ -19,7 +19,7 @@ import {
   ADD_PAGE_TOOLTIP,
   PAGE_PROPERTIES_TOOLTIP,
 } from "@appsmith/constants/messages";
-import { Page } from "constants/ReduxActionConstants";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { Position } from "@blueprintjs/core";

@@ -1,9 +1,9 @@
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { diff } from "deep-diff";
 import { merge } from "lodash";
 import { getAction } from "selectors/entitiesSelector";
 import { getConfigInitialValues } from "components/formControls/utils";
-import { getPathAndValueFromActionDiffObject } from "../../../../utils/getPathAndValueFromActionDiffObject";
+import { getPathAndValueFromActionDiffObject } from "utils/getPathAndValueFromActionDiffObject";
 import configureStore from "redux-mock-store";
 import { setActionProperty } from "actions/pluginActionActions";
 import initialState from "../__data__/InitialState.json";

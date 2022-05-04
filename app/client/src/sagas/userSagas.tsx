@@ -4,7 +4,7 @@ import {
   ReduxActionWithPromise,
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { reset } from "redux-form";
 import UserApi, {
   CreateUserRequest,
@@ -14,7 +14,7 @@ import UserApi, {
   TokenPasswordUpdateRequest,
   UpdateUserRequest,
   LeaveOrgRequest,
-} from "api/UserApi";
+} from "@appsmith/api/UserApi";
 import { AUTH_LOGIN_URL, SETUP } from "constants/routes";
 import history from "utils/history";
 import { ApiResponse } from "api/ApiResponses";

@@ -39,7 +39,7 @@ import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar"
 import Pages from "pages/Editor/Explorer/Pages";
 import { Colors } from "constants/Colors";
 import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { builderURL } from "RouteBuilder";
 
 type Props = {
@@ -190,7 +190,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   return (
     <div
       className={classNames({
-        [`js-entity-explorer t--entity-explorer transform transition-all flex h-full  duration-400 border-r border-gray-200 ${tailwindLayers.entityExplorer}`]: true,
+        [`js-entity-explorer t--entity-explorer transform transition-all flex h-full duration-400 border-r border-gray-200 ${tailwindLayers.entityExplorer}`]: true,
         "relative ": pinned && !isPreviewMode,
         "-translate-x-full": (!pinned && !active) || isPreviewMode,
         "shadow-xl": !pinned,

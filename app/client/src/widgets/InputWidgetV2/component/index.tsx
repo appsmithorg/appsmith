@@ -40,8 +40,11 @@ class InputComponent extends React.Component<InputComponentProps> {
   render() {
     return (
       <BaseInputComponent
+        accentColor={this.props.accentColor}
         allowNumericCharactersOnly={this.props.allowNumericCharactersOnly}
         autoFocus={this.props.autoFocus}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         compactMode={this.props.compactMode}
         defaultValue={this.props.defaultValue}
         disableNewLineOnPressEnterKey={this.props.disableNewLineOnPressEnterKey}
@@ -56,9 +59,12 @@ class InputComponent extends React.Component<InputComponentProps> {
         isInvalid={this.props.isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
+        labelAlignment={this.props.labelAlignment}
+        labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelWidth={this.props.labelWidth}
         maxChars={this.props.maxChars}
         maxNum={this.props.maxNum}
         minNum={this.props.minNum}
@@ -83,6 +89,9 @@ export interface InputComponentProps extends BaseInputComponentProps {
   spellCheck?: boolean;
   maxNum?: number;
   minNum?: number;
+  borderRadius?: string;
+  boxShadow?: string;
+  accentColor?: string;
 }
 
 export default InputComponent;

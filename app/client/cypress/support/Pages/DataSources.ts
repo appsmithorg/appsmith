@@ -20,6 +20,8 @@ export class DataSources {
     private _datasourceCard = ".t--datasource"
     _templateMenu = ".t--template-menu"
     private _createQuery = ".t--create-query"
+    private _importSuccessModal = ".t--import-app-success-modal"
+    private _importSuccessModalClose = ".t--import-success-modal-got-it"
     _visibleTextSpan = (spanText: string) => "//span[contains(text(),'" + spanText + "')]"
     _dropdownTitle = (ddTitle: string) => "//p[contains(text(),'" + ddTitle + "')]/parent::label/following-sibling::div/div/div"
     _reconnectModal = "div.reconnect-datasource-modal"
@@ -106,12 +108,14 @@ export class DataSources {
     }
 
     public ReconnectDataSourcePostgres(dbName: string) {
-        cy.get(this._reconnectModal).should('exist')
+        this.agHelper.AssertElementPresence(this._reconnectModal)
         cy.xpath(this._activeDSListReconnectModal("PostgreSQL")).should('be.visible')
         cy.xpath(this._activeDSListReconnectModal(dbName)).should('be.visible')//.click()
         this.ValidateNSelectDropdown("Connection Mode", "", "Read / Write")
         this.FillPostgresDSForm()
         cy.get(this._saveDs).click();
+        cy.get(this._importSuccessModal).should("be.visible");
+        cy.get(this._importSuccessModalClose).click({ force: true });
     }
 
 }

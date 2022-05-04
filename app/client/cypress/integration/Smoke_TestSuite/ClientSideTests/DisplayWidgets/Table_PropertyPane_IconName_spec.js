@@ -29,7 +29,7 @@ describe("Table Widget property pane feature validation", function() {
     });
 
     cy.changeColumnType("Menu Button");
-    cy.wait(400);
+    cy.wait(500);
     cy.get(commonlocators.selectedIcon).should("have.text", "(none)");
     cy.getTableDataSelector("1", "5").then((selector) => {
       cy.get(selector + " button span.bp3-icon").should("not.exist");

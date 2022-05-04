@@ -3,7 +3,7 @@ import { ComponentProps } from "widgets/BaseComponent";
 import styled from "styled-components";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { Colors } from "constants/Colors";
-import { createMessage, IMAGE_LOAD_ERROR } from "ce/constants/messages";
+import { createMessage, IMAGE_LOAD_ERROR } from "@appsmith/constants/messages";
 
 export interface StyledImageProps {
   defaultImageUrl: string;
@@ -35,9 +35,15 @@ export const StyledImage = styled.div<
   width: 100%;
 `;
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{
+  borderRadius: string;
+  boxShadow?: string;
+}>`
   height: 100%;
   width: 100%;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+  overflow: hidden;
   .react-transform-element,
   .react-transform-component {
     height: 100%;
@@ -148,6 +154,8 @@ class ImageComponent extends React.Component<
 
     return (
       <Wrapper
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         onMouseEnter={this.onMouseEnter}
         onMouseLeave={this.onMouseLeave}
       >
@@ -371,6 +379,8 @@ export interface ImageComponentProps extends ComponentProps {
   objectFit: string;
   disableDrag: (disabled: boolean) => void;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 export default ImageComponent;

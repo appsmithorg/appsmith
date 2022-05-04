@@ -33,7 +33,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import { ApplicationPayload } from "constants/ReduxActionConstants";
+import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
   getPageList,
   getPlugins,

@@ -4,9 +4,9 @@ import Text, { TextType } from "components/ads/Text";
 import styled, { ThemeContext } from "styled-components";
 import { Colors } from "constants/Colors";
 
-export const Profile = styled.div<{ backgroundColor?: string; side?: number }>`
-  width: ${(props) => props.side || 34}px;
-  height: ${(props) => props.side || 34}px;
+export const Profile = styled.div<{ backgroundColor?: string; size?: number }>`
+  width: ${(props) => props.size || 34}px;
+  height: ${(props) => props.size || 34}px;
   display: flex;
   align-items: center;
   border-radius: 50%;
@@ -31,7 +31,7 @@ export default function ProfileImage(props: {
   userName?: string;
   className?: string;
   commonName?: string;
-  side?: number;
+  size?: number;
   source?: string;
 }) {
   const theme = useContext(ThemeContext);
@@ -52,7 +52,7 @@ export default function ProfileImage(props: {
     <Profile
       backgroundColor={backgroundColor}
       className={props.className}
-      side={props.side} // side since it's a square
+      size={props.size} // size since it's a square
     >
       {!shouldRenderImage ? (
         <Text highlight type={TextType.H6}>

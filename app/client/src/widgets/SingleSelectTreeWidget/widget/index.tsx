@@ -14,6 +14,8 @@ import { isString } from "../../../utils/helpers";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import SingleSelectTreeComponent from "../component";
+import { LabelPosition } from "components/constants";
+import { Alignment } from "@blueprintjs/core";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -126,16 +128,6 @@ class SingleSelectTreeWidget extends BaseWidget<
             },
           },
           {
-            helpText: "Sets a Label Text",
-            propertyName: "labelText",
-            label: "Label Text",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Enter Label text",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
             helpText: "Sets a Placeholder Text",
             propertyName: "placeholderText",
             label: "Placeholder",
@@ -208,57 +200,127 @@ class SingleSelectTreeWidget extends BaseWidget<
           },
         ],
       },
+
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText: "Triggers an action when a user selects an option",
+            propertyName: "onOptionChange",
+            label: "onOptionChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+      {
+        sectionName: "Label",
+        children: [
+          {
+            helpText: "Sets the label text of the widget",
+            propertyName: "labelText",
+            label: "Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter label text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label position of the widget",
+            propertyName: "labelPosition",
+            label: "Position",
+            controlType: "DROP_DOWN",
+            options: [
+              { label: "Left", value: LabelPosition.Left },
+              { label: "Top", value: LabelPosition.Top },
+              { label: "Auto", value: LabelPosition.Auto },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label alignment of the widget",
+            propertyName: "labelAlignment",
+            label: "Alignment",
+            controlType: "LABEL_ALIGNMENT_OPTIONS",
+            options: [
+              {
+                icon: "LEFT_ALIGN",
+                value: Alignment.LEFT,
+              },
+              {
+                icon: "RIGHT_ALIGN",
+                value: Alignment.RIGHT,
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+            hidden: (props: SingleSelectTreeWidgetProps) =>
+              props.labelPosition !== LabelPosition.Left,
+            dependencies: ["labelPosition"],
+          },
+          {
+            helpText:
+              "Sets the label width of the widget as the number of columns",
+            propertyName: "labelWidth",
+            label: "Width (in columns)",
+            controlType: "NUMERIC_INPUT",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            min: 0,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: {
+                natural: true,
+              },
+            },
+            hidden: (props: SingleSelectTreeWidgetProps) =>
+              props.labelPosition !== LabelPosition.Left,
+            dependencies: ["labelPosition"],
+          },
+        ],
+      },
       {
         sectionName: "Styles",
         children: [
           {
-            propertyName: "labelTextColor",
-            label: "Label Text Color",
+            propertyName: "accentColor",
+            label: "Accent Color",
             controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+            invisible: true,
+          },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            propertyName: "labelTextSize",
-            label: "Label Text Size",
-            controlType: "DROP_DOWN",
-            defaultValue: "PARAGRAPH",
-            options: [
-              {
-                label: "Heading 1",
-                value: "HEADING1",
-                subText: "24px",
-                icon: "HEADING_ONE",
-              },
-              {
-                label: "Heading 2",
-                value: "HEADING2",
-                subText: "18px",
-                icon: "HEADING_TWO",
-              },
-              {
-                label: "Heading 3",
-                value: "HEADING3",
-                subText: "16px",
-                icon: "HEADING_THREE",
-              },
-              {
-                label: "Paragraph",
-                value: "PARAGRAPH",
-                subText: "14px",
-                icon: "PARAGRAPH",
-              },
-              {
-                label: "Paragraph 2",
-                value: "PARAGRAPH2",
-                subText: "12px",
-                icon: "PARAGRAPH_TWO",
-              },
-            ],
-            isBindProperty: false,
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "labelStyle",
@@ -272,6 +334,57 @@ class SingleSelectTreeWidget extends BaseWidget<
               {
                 icon: "ITALICS_FONT",
                 value: "ITALIC",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "labelTextColor",
+            label: "Label Text Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "labelTextSize",
+            label: "Label Text Size",
+            controlType: "DROP_DOWN",
+            defaultValue: "0.875rem",
+            options: [
+              {
+                label: "S",
+                value: "0.875rem",
+                subText: "0.875rem",
+              },
+              {
+                label: "M",
+                value: "1rem",
+                subText: "1rem",
+              },
+              {
+                label: "L",
+                value: "1.25rem",
+                subText: "1.25rem",
+              },
+              {
+                label: "XL",
+                value: "1.875rem",
+                subText: "1.875rem",
+              },
+              {
+                label: "XXL",
+                value: "3rem",
+                subText: "3rem",
+              },
+              {
+                label: "3XL",
+                value: "3.75rem",
+                subText: "3.75rem",
               },
             ],
             isJSConvertible: true,
@@ -351,7 +464,10 @@ class SingleSelectTreeWidget extends BaseWidget<
     const { componentWidth } = this.getComponentDimensions();
     return (
       <SingleSelectTreeComponent
+        accentColor={this.props.accentColor}
         allowClear={this.props.allowClear}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         compactMode={
           !(
             (this.props.bottomRow - this.props.topRow) /
@@ -367,10 +483,13 @@ class SingleSelectTreeWidget extends BaseWidget<
         expandAll={this.props.expandAll}
         isFilterable
         isValid={!isInvalid}
+        labelAlignment={this.props.labelAlignment}
+        labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelWidth={this.getLabelWidth()}
         loading={this.props.isLoading}
         onChange={this.onOptionChange}
         options={options}
@@ -441,15 +560,21 @@ export interface SingleSelectTreeWidgetProps extends WidgetProps {
   isRequired: boolean;
   isLoading: boolean;
   allowClear: boolean;
-  labelText?: string;
   selectedLabel: string[];
   selectedOption: string | number;
   selectedOptionValue: string;
   selectedOptionLabel: string;
   expandAll: boolean;
+  labelText: string;
+  labelPosition?: LabelPosition;
+  labelAlignment?: Alignment;
+  labelWidth?: number;
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
   isDirty?: boolean;
 }
 

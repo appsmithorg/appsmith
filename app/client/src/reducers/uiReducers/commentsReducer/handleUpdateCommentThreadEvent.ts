@@ -1,4 +1,4 @@
-import { ReduxAction } from "constants/ReduxActionConstants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { get, uniqBy } from "lodash";
 import { CommentsReduxState } from "./interfaces";
 

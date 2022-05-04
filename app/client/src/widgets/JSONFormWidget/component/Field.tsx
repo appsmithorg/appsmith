@@ -2,12 +2,11 @@ import equal from "fast-deep-equal/es6";
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { ControllerProps, useFormContext } from "react-hook-form";
+import { klona } from "klona";
 
 import FieldLabel, { FieldLabelProps } from "./FieldLabel";
 import useUpdateAccessor from "../fields/useObserveAccessor";
 import { FIELD_MARGIN_BOTTOM } from "./styleConstants";
-
-const clone = require("rfdc/default");
 
 type FieldProps<TValue> = React.PropsWithChildren<
   {
@@ -60,7 +59,7 @@ function Field<TValue>({
 
       // Follow the comment in Form component above reset(convertedFormData);
       setTimeout(() => {
-        setValue(name, clone(defaultValue));
+        setValue(name, klona(defaultValue));
       }, 0);
     }
   }, [defaultValue, setValue]);

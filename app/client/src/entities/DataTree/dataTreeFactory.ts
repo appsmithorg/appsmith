@@ -6,7 +6,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { ActionResponse } from "api/ActionAPI";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MetaState } from "reducers/entityReducers/metaReducer";
-import { PageListPayload } from "constants/ReduxActionConstants";
+import { PageListPayload } from "@appsmith/constants/ReduxActionConstants";
 import { ActionConfig, PluginType } from "entities/Action";
 import { AppDataState } from "reducers/entityReducers/appReducer";
 import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
@@ -21,6 +21,7 @@ import {
   ClearPluginActionDescription,
   RunPluginActionDescription,
 } from "entities/DataTree/actionTriggers";
+import { AppTheme } from "entities/AppTheming";
 import { PluginId } from "api/PluginApi";
 
 export type ActionDispatcher = (
@@ -60,6 +61,7 @@ export interface DataTreeAction
     | Record<string, unknown>;
   dynamicBindingPathList: DynamicPath[];
   bindingPaths: Record<string, EvaluationSubstitutionType>;
+  reactivePaths: Record<string, EvaluationSubstitutionType>;
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
   dependencyMap: DependencyMap;
   logBlackList: Record<string, true>;
@@ -75,6 +77,7 @@ export interface DataTreeJSAction {
   meta: Record<string, MetaArgs>;
   dynamicBindingPathList: DynamicPath[];
   bindingPaths: Record<string, EvaluationSubstitutionType>;
+  reactivePaths: Record<string, EvaluationSubstitutionType>;
   variables: Array<string>;
   dependencyMap: DependencyMap;
 }
@@ -106,6 +109,7 @@ export type PropertyOverrideDependency = Record<
 
 export interface DataTreeWidget extends WidgetProps {
   bindingPaths: Record<string, EvaluationSubstitutionType>;
+  reactivePaths: Record<string, EvaluationSubstitutionType>;
   triggerPaths: Record<string, boolean>;
   validationPaths: Record<string, ValidationConfig>;
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
@@ -118,6 +122,7 @@ export interface DataTreeWidget extends WidgetProps {
 export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {
   ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
   store: Record<string, unknown>;
+  theme: AppTheme["properties"];
 }
 export type DataTreeObjectEntity =
   | DataTreeAction
@@ -143,6 +148,7 @@ type DataTreeSeed = {
   pageList: PageListPayload;
   appData: AppDataState;
   jsActions: JSCollectionDataState;
+  theme: AppTheme["properties"];
 };
 
 export class DataTreeFactory {
@@ -153,6 +159,7 @@ export class DataTreeFactory {
     jsActions,
     pageList,
     pluginDependencyConfig,
+    theme,
     widgets,
     widgetsMeta,
   }: DataTreeSeed): DataTree {
@@ -182,6 +189,7 @@ export class DataTreeFactory {
       // combine both persistent and transient state with the transient state
       // taking precedence in case the key is the same
       store: { ...appData.store.persistent, ...appData.store.transient },
+      theme,
     } as DataTreeAppsmith;
     (dataTree.appsmith as DataTreeAppsmith).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
     return dataTree;

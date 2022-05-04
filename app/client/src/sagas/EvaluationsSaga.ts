@@ -16,13 +16,13 @@ import {
   ReduxAction,
   ReduxActionType,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   getDataTree,
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
 import { getWidgets } from "sagas/selectors";
-import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
+import WidgetFactory, { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
 import {
@@ -33,7 +33,7 @@ import log from "loglevel";
 import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {
   PerformanceTransactionName,
-} from "../utils/PerformanceTracker";
+} from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import { Action } from "redux";
 import {
@@ -85,6 +85,7 @@ import { Channel } from "redux-saga";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FormEvalActionPayload } from "./FormEvaluationSaga";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { updateMetaState } from "actions/metaActions";
 import { getAllActionValidationConfig } from "selectors/entitiesSelector";
 
@@ -99,6 +100,7 @@ function* evaluateTreeSaga(
   const allActionValidationConfig = yield select(getAllActionValidationConfig);
   const unevalTree = yield select(getUnevaluatedDataTree);
   const widgets = yield select(getWidgets);
+  const theme = yield select(getSelectedAppTheme);
 
   log.debug({ unevalTree });
   PerformanceTracker.startAsyncTracking(
@@ -111,6 +113,7 @@ function* evaluateTreeSaga(
       unevalTree,
       widgetTypeConfigMap,
       widgets,
+      theme,
       shouldReplay,
       allActionValidationConfig,
     },
@@ -438,6 +441,7 @@ function* evaluationChangeListenerSaga() {
     const action: EvaluationReduxAction<unknown | unknown[]> = yield take(
       evtActionChannel,
     );
+
     if (shouldProcessBatchedAction(action)) {
       const postEvalActions = getPostEvalActions(action);
       yield call(

@@ -19,6 +19,7 @@ const JS_object_tree: DataTreeJSAction = {
   meta: {},
   dynamicBindingPathList: [],
   bindingPaths: {},
+  reactivePaths: {},
   variables: [],
   dependencyMap: {},
 };
@@ -26,6 +27,7 @@ const JS_object_tree: DataTreeJSAction = {
 const Select_tree: DataTreeWidget = {
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
   bindingPaths: {},
+  reactivePaths: {},
   triggerPaths: {},
   validationPaths: {},
   logBlackList: {},
@@ -58,6 +60,7 @@ const Query_tree: DataTreeAction = {
   clear: {},
   dynamicBindingPathList: [],
   bindingPaths: {},
+  reactivePaths: {},
   ENTITY_TYPE: ENTITY_TYPE.ACTION,
   dependencyMap: {},
   logBlackList: {},
