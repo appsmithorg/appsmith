@@ -6,7 +6,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { FieldType } from "widgets/JSONFormWidget/constants";
 import { optionsCustomValidation } from "widgets/RadioGroupWidget/widget";
-import { HiddenFnParams, getSchemaItem } from "../helper";
+import { HiddenFnParams, getSchemaItem, getStylesheetValue } from "../helper";
 
 /**
  * Alias function is used to test the optionsCustomValidation separately
@@ -108,6 +108,22 @@ const PROPERTIES = {
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.RADIO_GROUP),
       dependencies: ["schema", "sourceData"],
+    },
+  ],
+  styles: [
+    {
+      propertyName: "accentColor",
+      helpText: "Sets the accent color of the radio",
+      label: "Accent Color",
+      controlType: "COLOR_PICKER",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      getStylesheetValue,
+      validation: { type: ValidationTypes.TEXT },
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.RADIO_GROUP),
+      dependencies: ["schema"],
     },
   ],
 };

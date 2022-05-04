@@ -11,9 +11,8 @@ import { Colors } from "constants/Colors";
 
 const Container = styled.div`
   width: 100%;
-  display: flex;
-  padding: 0 ${(props) => props.theme.spaces[7]}px;
   align-items: center;
+
   & {
     svg path,
     svg:hover path {
@@ -26,13 +25,24 @@ const Container = styled.div`
 `;
 
 const ScrollBtnContainer = styled.div<{ visible: boolean }>`
-  padding: ${(props) => props.theme.spaces[2]}px;
   cursor: pointer;
+  display: flex;
+  position: absolute;
+  height: 100%;
+  padding: 0 10px;
+
+  & > span {
+    background: white;
+    position: relative;
+    z-index: 1;
+  }
+
   ${(props) =>
     props.visible
       ? `
       visibility: visible;
       opacity: 1;
+      z-index: 1;
       transition: visibility 0s linear 0s, opacity 300ms;
     `
       : `
@@ -118,8 +128,9 @@ export function PageTabsContainer(props: AppViewerHeaderProps) {
   }, [isScrolling, isScrollingLeft]);
 
   return appPages.length > 1 ? (
-    <Container className="h-9">
+    <Container className="relative hidden px-6 h-9 md:flex">
       <ScrollBtnContainer
+        className="left-0"
         onMouseDown={() => startScrolling(true)}
         onMouseLeave={stopScrolling}
         onMouseUp={stopScrolling}
@@ -137,6 +148,7 @@ export function PageTabsContainer(props: AppViewerHeaderProps) {
         tabsScrollable={tabsScrollable}
       />
       <ScrollBtnContainer
+        className="right-0"
         onMouseDown={() => startScrolling(false)}
         onMouseLeave={stopScrolling}
         onMouseUp={stopScrolling}
