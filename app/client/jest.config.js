@@ -8,8 +8,9 @@ module.exports = {
   setupFiles: ["jest-canvas-mock"],
   roots: ["<rootDir>/src"],
   transform: {
-    "^.+\\.(png|js|ts|tsx)$": "ts-jest",
+    "^.+\\.(js|jsx|ts|tsx)$": ["babel-jest", { rootMode: "upward" }],
   },
+  testEnvironment: "jsdom",
   setupFilesAfterEnv: ["<rootDir>/test/setup.ts"],
   testRegex: "(/__tests__/.*|(\\.|/)(test|spec))\\.(tsx|ts|js)?$",
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node", "css"],
@@ -22,7 +23,8 @@ module.exports = {
     "\\.svg$": "<rootDir>/test/__mocks__/svgMock.js",
     "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":
       "<rootDir>/test/__mocks__/fileMock.js",
-    "^worker-loader!": "<rootDir>/test/__mocks__/workerMock.js",
+    "'workers/evaluation.worker?worker":
+      "<rootDir>/test/__mocks__/workerMock.js",
     "^!!raw-loader!": "<rootDir>/test/__mocks__/derivedMock.js",
     "test/(.*)": "<rootDir>/test/$1",
     "@appsmith/(.*)": "<rootDir>/src/ee/$1",

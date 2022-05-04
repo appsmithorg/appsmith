@@ -8,12 +8,14 @@
   },
   "cracoConfig": "craco.dev.config.js",
   "dependencies": {
+    "@babel/plugin-proposal-private-methods": "7.16.11",
+    "@babel/preset-env": "7.16.11",
+    "@babel/preset-react": "7.16.7",
     "@blueprintjs/core": "^3.36.0",
     "@blueprintjs/datetime": "^3.23.6",
     "@blueprintjs/icons": "^3.10.0",
     "@blueprintjs/popover2": "^0.5.0",
     "@blueprintjs/select": "^3.10.0",
-    "@blueprintjs/timezone": "^3.6.0",
     "@craco/craco": "^5.7.0",
     "@draft-js-plugins/editor": "^4.1.0",
     "@draft-js-plugins/mention": "^4.5.1",
@@ -125,7 +127,6 @@
     "react-responsive": "8.0.0",
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "4.0.1",
     "react-select": "^3.0.8",
     "react-spring": "^9.4.0",
     "react-syntax-highlighter": "^15.4.4",
@@ -177,9 +178,6 @@
     "postinstall": "patch-package",
     "preview": "vite preview --port 3000"
   },
-  "resolution": {
-    "jest": "24.8.0"
-  },
   "eslintConfig": {
     "extends": "react-app",
     "parser": "@typescript-eslint/parser",
@@ -201,20 +199,19 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "@babel/core": "^7.7.4",
     "@babel/plugin-transform-typescript": "^7.16.8",
     "@babel/preset-typescript": "^7.16.7",
-    "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.2.6",
-    "@testing-library/react-hooks": "^7.0.2",
-    "@testing-library/user-event": "^13.1.1",
+    "@testing-library/jest-dom": "5.16.4",
+    "@testing-library/react": "12.1.2",
+    "@testing-library/react-hooks": "8.0.0",
+    "@testing-library/user-event": "14.1.1",
     "@types/codemirror": "^0.0.96",
     "@types/deep-diff": "^1.0.0",
     "@types/dom-mediacapture-record": "^1.0.11",
     "@types/downloadjs": "^1.4.2",
     "@types/draft-js": "^0.11.1",
     "@types/emoji-mart": "^3.0.4",
-    "@types/jest": "^24.0.22",
+    "@types/jest": "27.4.1",
     "@types/js-beautify": "^1.13.2",
     "@types/jshint": "^2.12.0",
     "@types/lodash": "^4.14.120",
@@ -278,6 +275,7 @@
     "eslint-plugin-react-hooks": "^2.3.0",
     "eslint-plugin-sort-destructure-keys": "^1.3.5",
     "factory.ts": "^0.5.1",
+    "jest": "27.5.1",
     "jest-canvas-mock": "^2.3.1",
     "jest-styled-components": "^7.0.8",
     "mocha": "^7.1.0",
@@ -294,7 +292,7 @@
     "redux-devtools-extension": "^2.13.8",
     "redux-mock-store": "^1.5.4",
     "tailwindcss": "^3.0.24",
-    "ts-jest": "^26.5.4",
+    "ts-jest": "27.1.4",
     "vite": "^2.9.5",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-env-compatible": "^1.1.1",
@@ -310,8 +308,5 @@
     "hooks": {
       "pre-commit": "lint-staged"
     }
-  },
-  "resolutions": {
-    "react-error-overlay": "6.0.9"
   }
 }
