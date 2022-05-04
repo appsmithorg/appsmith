@@ -117,6 +117,10 @@ const StyledResetButtonWrapper = styled.div`
 
 const DEBOUNCE_TIMEOUT = 200;
 
+const RESET_OPTIONS = {
+  keepErrors: true,
+};
+
 function Form<TValues = any>({
   backgroundColor,
   children,
@@ -166,7 +170,7 @@ function Form<TValues = any>({
         : {};
 
     if (typeof defaultValues === "object") {
-      reset(defaultValues);
+      reset(defaultValues, RESET_OPTIONS);
     }
   };
 
@@ -206,7 +210,7 @@ function Form<TValues = any>({
          * race condition in ReactHookForm.
          */
         setTimeout(() => {
-          reset(convertedFormData);
+          reset(convertedFormData, RESET_OPTIONS);
         }, 0);
       }
     }
