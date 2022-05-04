@@ -101,8 +101,6 @@ const formToDatasourceAuthentication = (
       audience: authentication.audience,
       resource: authentication.resource,
       sendScopeWithRefreshToken: authentication.sendScopeWithRefreshToken,
-      refreshTokenClientCredentialsLocation:
-        authentication.refreshTokenClientCredentialsLocation,
     };
     if (isClientCredentials(authType, authentication)) {
       return {
@@ -120,6 +118,8 @@ const formToDatasourceAuthentication = (
         authorizationUrl: authentication.authorizationUrl,
         isAuthorizationHeader: authentication.isAuthorizationHeader,
         isAuthorized: !!authentication.isAuthorized,
+        refreshTokenClientCredentialsLocation:
+          authentication.refreshTokenClientCredentialsLocation,
         customAuthenticationParameters: cleanupProperties(
           authentication.customAuthenticationParameters,
         ),
@@ -188,8 +188,6 @@ const datasourceToFormAuthentication = (
       audience: authentication.audience || "",
       resource: authentication.resource || "",
       sendScopeWithRefreshToken: authentication.sendScopeWithRefreshToken || "",
-      refreshTokenClientCredentialsLocation:
-        authentication.refreshTokenClientCredentialsLocation || "",
     };
     if (isClientCredentials(authType, authentication)) {
       return {
@@ -213,6 +211,8 @@ const datasourceToFormAuthentication = (
           typeof authentication.isAuthorizationHeader === "undefined"
             ? true
             : !!authentication.isAuthorizationHeader,
+        refreshTokenClientCredentialsLocation:
+          authentication.refreshTokenClientCredentialsLocation || "",
       };
     }
   }
