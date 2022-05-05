@@ -56,6 +56,11 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     isDraggingOrResizing &&
     selectedWidgetIds[0] !== prevSelectedWidgetId.current;
 
+  // This is to keep the theming properties from changing,
+  // while dragging a widget when no other widgets were selected
+  const keepThemeWhileDragging =
+    prevSelectedWidgetId.current === undefined && shouldNotRenderPane;
+
   const selectedWidgets = useMemo(
     () =>
       compact(
@@ -85,7 +90,10 @@ export const PropertyPaneSidebar = memo((props: Props) => {
       case selectedWidgets.length > 1:
         return <MultiSelectPropertyPane />;
       case selectedWidgets.length === 1:
-        if (shouldNotRenderPane) return <CanvasPropertyPane />;
+        if (shouldNotRenderPane)
+          return (
+            <CanvasPropertyPane skipThemeEditor={!keepThemeWhileDragging} />
+          );
         else return <WidgetPropertyPane />;
       case themingStack.length > 0:
         return <ThemePropertyPane />;
@@ -99,6 +107,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     isDraggingForSelection,
     shouldNotRenderPane,
     themingStack.join(","),
+    keepThemeWhileDragging,
   ]);
 
   return (
