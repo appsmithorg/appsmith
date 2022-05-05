@@ -16,6 +16,7 @@ import { AppState } from "reducers";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getIsEditorInitialized,
   getIsPublishingApplication,
   previewModeSelector,
   selectURLSlugs,
@@ -84,6 +85,7 @@ import Boxed from "./GuidedTour/Boxed";
 import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
 import { viewerURL } from "RouteBuilder";
+import { getIsInitialized } from "selectors/appViewSelectors";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -340,14 +342,19 @@ export function EditorHeader(props: EditorHeaderProps) {
   );
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
+  const isEditorInitialised = useSelector(getIsEditorInitialized);
+  const isViewerInitialised = useSelector(getIsInitialized);
+  const showModes =
+    (isEditorInitialised || isViewerInitialised) && !shouldHideComments;
+
   return (
     <ThemeProvider theme={theme}>
       <HeaderWrapper className="pr-3" data-testid="t--appsmith-editor-header">
         <HeaderSection className="space-x-3">
-          <HamburgerContainer className="text-gray-800 transform transition-all duration-400 relative p-0 flex items-center justify-center">
+          <HamburgerContainer className="relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400">
             <TooltipComponent
               content={
-                <div className="flex justify-between items-center">
+                <div className="flex items-center justify-between">
                   <span>
                     {!pinned
                       ? createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)
@@ -364,7 +371,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 className="relative w-4 h-4 text-trueGray-600 group t--pin-entity-explorer"
                 onMouseEnter={onMenuHover}
               >
-                <MenuIcon className="absolute w-4 h-4 transition-opacity fill-current cursor-pointer group-hover:opacity-0" />
+                <MenuIcon className="absolute w-4 h-4 transition-opacity cursor-pointer fill-current group-hover:opacity-0" />
                 {!pinned && (
                   <UnpinIcon
                     className="absolute w-4 h-4 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
@@ -432,9 +439,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               setIsPopoverOpen={setIsPopoverOpen}
             />
           </TooltipComponent>
-          {!shouldHideComments && (
-            <ToggleModeButton showSelectedMode={!isPopoverOpen} />
-          )}
+          {showModes && <ToggleModeButton showSelectedMode={!isPopoverOpen} />}
         </HeaderSection>
         <HeaderSection
           className={classNames({

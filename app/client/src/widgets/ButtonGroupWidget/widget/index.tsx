@@ -6,15 +6,14 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
-  ButtonBoxShadow,
   ButtonVariant,
-  ButtonBorderRadiusTypes,
   ButtonPlacementTypes,
   ButtonPlacement,
   ButtonVariantTypes,
 } from "components/constants";
 import ButtonGroupComponent from "../component";
 import { MinimumPopupRows } from "widgets/constants";
+import { getStylesheetValue } from "./helpers";
 
 class ButtonGroupWidget extends BaseWidget<
   ButtonGroupWidgetProps,
@@ -87,6 +86,7 @@ class ButtonGroupWidget extends BaseWidget<
             label: "",
             isBindProperty: false,
             isTriggerProperty: false,
+            dependencies: ["childStylesheet"],
             panelConfig: {
               editableTitle: true,
               titlePropertyName: "label",
@@ -141,14 +141,6 @@ class ButtonGroupWidget extends BaseWidget<
                           allowedValues: ["SIMPLE", "MENU"],
                         },
                       },
-                    },
-                    {
-                      propertyName: "buttonColor",
-                      helpText: "Changes the color of the button",
-                      label: "Button Color",
-                      controlType: "COLOR_PICKER",
-                      isBindProperty: false,
-                      isTriggerProperty: false,
                     },
                     {
                       propertyName: "isDisabled",
@@ -291,23 +283,7 @@ class ButtonGroupWidget extends BaseWidget<
                                 isTriggerProperty: false,
                                 validation: { type: ValidationTypes.TEXT },
                               },
-                              {
-                                propertyName: "backgroundColor",
-                                helpText:
-                                  "Sets the background color of a menu item",
-                                label: "Background color",
-                                controlType: "COLOR_PICKER",
-                                isBindProperty: false,
-                                isTriggerProperty: false,
-                              },
-                              {
-                                propertyName: "textColor",
-                                helpText: "Sets the text color of a menu item",
-                                label: "Text color",
-                                controlType: "COLOR_PICKER",
-                                isBindProperty: false,
-                                isTriggerProperty: false,
-                              },
+
                               {
                                 propertyName: "isDisabled",
                                 helpText: "Disables menu item",
@@ -344,14 +320,7 @@ class ButtonGroupWidget extends BaseWidget<
                                 isTriggerProperty: false,
                                 validation: { type: ValidationTypes.TEXT },
                               },
-                              {
-                                propertyName: "iconColor",
-                                helpText: "Sets the icon color of a menu item",
-                                label: "Icon color",
-                                controlType: "COLOR_PICKER",
-                                isBindProperty: false,
-                                isTriggerProperty: false,
-                              },
+
                               {
                                 propertyName: "iconAlign",
                                 label: "Icon alignment",
@@ -389,6 +358,38 @@ class ButtonGroupWidget extends BaseWidget<
                               },
                             ],
                           },
+                          {
+                            sectionName: "Style",
+                            children: [
+                              {
+                                propertyName: "iconColor",
+                                helpText: "Sets the icon color of a menu item",
+                                label: "Icon color",
+                                controlType: "COLOR_PICKER",
+                                isBindProperty: false,
+                                isTriggerProperty: false,
+                              },
+                              {
+                                propertyName: "backgroundColor",
+                                helpText:
+                                  "Sets the background color of a menu item",
+                                label: "Background color",
+                                controlType: "COLOR_PICKER",
+                                isJSConvertible: true,
+                                isBindProperty: true,
+                                isTriggerProperty: false,
+                                validation: { type: ValidationTypes.TEXT },
+                              },
+                              {
+                                propertyName: "textColor",
+                                helpText: "Sets the text color of a menu item",
+                                label: "Text color",
+                                controlType: "COLOR_PICKER",
+                                isBindProperty: false,
+                                isTriggerProperty: false,
+                              },
+                            ],
+                          },
                         ],
                       },
                     },
@@ -416,6 +417,22 @@ class ButtonGroupWidget extends BaseWidget<
                       isJSConvertible: true,
                       isBindProperty: true,
                       isTriggerProperty: true,
+                    },
+                  ],
+                },
+                {
+                  sectionName: "Styles",
+                  children: [
+                    {
+                      getStylesheetValue,
+                      propertyName: "buttonColor",
+                      helpText: "Changes the color of the button",
+                      label: "Button Color",
+                      controlType: "COLOR_PICKER",
+                      isJSConvertible: true,
+                      isBindProperty: true,
+                      isTriggerProperty: false,
+                      validation: { type: ValidationTypes.TEXT },
                     },
                   ],
                 },
@@ -467,19 +484,10 @@ class ButtonGroupWidget extends BaseWidget<
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
-            options: [
-              ButtonBorderRadiusTypes.SHARP,
-              ButtonBorderRadiusTypes.ROUNDED,
-              ButtonBorderRadiusTypes.CIRCLE,
-            ],
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ["SHARP", "ROUNDED", "CIRCLE"],
-              },
-            },
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "boxShadow",
@@ -487,35 +495,10 @@ class ButtonGroupWidget extends BaseWidget<
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: [
-                  "NONE",
-                  "VARIANT1",
-                  "VARIANT2",
-                  "VARIANT3",
-                  "VARIANT4",
-                  "VARIANT5",
-                ],
-              },
-            },
-          },
-          {
-            propertyName: "boxShadowColor",
-            helpText: "Sets the shadow color of the widget",
-            label: "Shadow Color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                regex: /^(?![<|{{]).+/,
-              },
-            },
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },
@@ -542,7 +525,6 @@ class ButtonGroupWidget extends BaseWidget<
       <ButtonGroupComponent
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        boxShadowColor={this.props.boxShadowColor}
         buttonClickHandler={this.handleClick}
         buttonVariant={this.props.buttonVariant}
         groupButtons={this.props.groupButtons}
@@ -564,9 +546,8 @@ class ButtonGroupWidget extends BaseWidget<
 export interface ButtonGroupWidgetProps extends WidgetProps {
   orientation: string;
   isDisabled: boolean;
-  borderRadius?: ButtonBorderRadiusTypes;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius?: string;
+  boxShadow?: string;
   buttonVariant: ButtonVariant;
   groupButtons: Record<
     string,

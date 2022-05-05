@@ -121,9 +121,9 @@ function WidgetsEditor() {
       ) : (
         <>
           {guidedTourEnabled && <Guide />}
-          <div className="relative overflow-hidden flex flex-row w-full">
+          <div className="relative flex flex-row w-full overflow-hidden">
             <div
-              className="relative overflow-hidden flex flex-row w-full"
+              className="relative flex flex-row w-full overflow-hidden"
               data-testid="widgets-editor"
               draggable
               onClick={handleWrapperClick}

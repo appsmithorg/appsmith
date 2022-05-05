@@ -20,6 +20,7 @@ const IconSelectContainerStyles = createGlobalStyle<{
 }>`
   .bp3-select-popover {
     width: ${({ targetWidth }) => targetWidth}px;
+    background: white;
 
     .bp3-input-group {
       margin: 5px !important;

@@ -19,11 +19,17 @@ import { CUSTOM_MAP_PLUGINS } from "../CustomMapConstants";
 // Adding the chart and theme as dependency to the core fusioncharts
 ReactFC.fcRoot(FusionCharts, FusionMaps, World, FusionTheme);
 
-const MapChartContainer = styled.div`
+const MapChartContainer = styled.div<{
+  borderRadius?: string;
+  boxShadow?: string;
+}>`
   display: flex;
   height: 100%;
   width: 100%;
   background: white;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`};
+  overflow: hidden;
 
   & > div {
     width: 100%;
@@ -198,7 +204,10 @@ function MapChartComponent(props: MapChartComponentProps) {
   };
 
   return (
-    <MapChartContainer>
+    <MapChartContainer
+      borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
+    >
       <ReactFC {...chartConfigs} onRender={renderComplete} />
     </MapChartContainer>
   );
@@ -212,6 +221,8 @@ export interface MapChartComponentProps {
   onDataPointClick: (evt: any) => void;
   showLabels: boolean;
   type: MapType;
+  borderRadius?: string;
+  boxShadow?: string;
 }
 
 export default MapChartComponent;

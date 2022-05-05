@@ -14,9 +14,9 @@ import { buttonHoverActiveStyles } from "./utils";
 /*
   We are adding a wrapper in Canvas mode to the Button and once
   we deploy it we remove the wrapper altogether.
-  Because we are adding a wrapper we also need to duplicate any 
+  Because we are adding a wrapper we also need to duplicate any
   :hover, :active & :focus styles and pass onClick to the wrapper.
-  We could have checked for firefox browser using window.navigator 
+  We could have checked for firefox browser using window.navigator
   but we wanted our widget to be pure and have similar experience
   in all the Browsers.
 */
@@ -78,6 +78,7 @@ export function DragContainer(props: DragContainerProps) {
         loading={props.loading}
         onClick={(event) => {
           if (props.disabled) return;
+          if (props.loading) return;
           if (props.onClick) {
             props.onClick(event);
           }

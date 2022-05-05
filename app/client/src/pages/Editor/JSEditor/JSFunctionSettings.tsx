@@ -83,6 +83,7 @@ const JSFunctionSettingsWrapper = styled.div`
   height: 100%;
   border-bottom: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   border-top: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  overflow: auto;
 `;
 
 const SettingsContainer = styled.div`
