@@ -116,6 +116,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   );
 
   useEffect(() => {
+    if (props.isPanelTitle) return;
     if (props.widgetId === newWidgetId) {
       containerRef.current?.focus();
     } else {
