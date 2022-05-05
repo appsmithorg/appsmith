@@ -23,9 +23,10 @@ export enum ConditionType {
   EVALUATE_FORM_CONFIG = "evaluateFormConfig", // When set, the component will evaluate the form config settings
 }
 
-// enum FormDataPaths {
-//   COMMAND = "actionConfiguration.formData.command.data",
-// }
+export enum FormDataPaths {
+  COMMAND = "actionConfiguration.formData.command.data",
+  ENTITY_TYPE = "actionConfiguration.formData.entityType.data",
+}
 
 // Object to hold the initial eval object
 let finalEvalObj: FormEvalOutput;

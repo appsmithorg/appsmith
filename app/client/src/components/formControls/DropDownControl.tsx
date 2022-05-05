@@ -3,7 +3,7 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import styled from "styled-components";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { ControlType } from "constants/PropertyControlConstants";
-import { isArray, isNil } from "lodash";
+import { get, isArray, isNil } from "lodash";
 import {
   Field,
   WrappedFieldInputProps,
@@ -12,8 +12,10 @@ import {
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { getDynamicFetchedValues } from "selectors/formSelectors";
-import { change } from "redux-form";
+import { change, getFormValues } from "redux-form";
 import { diff } from "deep-diff";
+import { FormDataPaths } from "workers/formEval";
+import { Action } from "entities/Action";
 
 const DropdownSelect = styled.div`
   font-size: 14px;
@@ -37,6 +39,27 @@ class DropDownControl extends BaseControl<Props> {
         this.props.configProperty,
         [],
       );
+    }
+
+    // For entity types to query on the datasource
+    // when the command is changed, we want to clear the entity, so users can choose the entity type they want to work with
+    // this also prevents the wrong entity type value from being persisted in the event that the new command value does not match the entity type.
+    if (this.props.configProperty === FormDataPaths.ENTITY_TYPE) {
+      const prevCommandValue = get(
+        prevProps?.formValues,
+        FormDataPaths.COMMAND,
+      );
+      const currentCommandValue = get(
+        this.props?.formValues,
+        FormDataPaths.COMMAND,
+      );
+      if (prevCommandValue !== currentCommandValue) {
+        this.props.updateConfigPropertyValue(
+          this.props.formName,
+          this.props.configProperty,
+          "",
+        );
+      }
     }
   }
 
@@ -166,6 +189,7 @@ export interface DropDownControlProps extends ControlProps {
   isSearchable?: boolean;
   fetchOptionsConditionally?: boolean;
   isLoading: boolean;
+  formValues: Partial<Action>;
 }
 
 type ReduxDispatchProps = {
@@ -181,12 +205,17 @@ type Props = DropDownControlProps & ReduxDispatchProps;
 const mapStateToProps = (
   state: AppState,
   ownProps: DropDownControlProps,
-): { isLoading: boolean; options: DropdownOption[] } => {
+): {
+  isLoading: boolean;
+  options: DropdownOption[];
+  formValues: Partial<Action>;
+} => {
   // Added default options to prevent error when options is undefined
   let isLoading = false;
   let options: DropdownOption[] = ownProps.fetchOptionsConditionally
     ? []
     : ownProps.options;
+  const formValues: Partial<Action> = getFormValues(ownProps.formName)(state);
 
   try {
     if (ownProps.fetchOptionsConditionally) {
@@ -194,12 +223,9 @@ const mapStateToProps = (
       isLoading = dynamicFetchedValues.isLoading;
       options = dynamicFetchedValues.data;
     }
-    return { isLoading, options };
   } catch (e) {
-    return {
-      isLoading,
-      options,
-    };
+  } finally {
+    return { isLoading, options, formValues };
   }
 };
 
