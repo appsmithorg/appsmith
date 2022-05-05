@@ -63,6 +63,10 @@ const StyledEntity = styled(Entity)<{ pagesSize?: number }>`
   }
 `;
 
+const RelativeContainer = styled.div`
+  position: relative;
+`;
+
 function Pages() {
   const applicationId = useSelector(getCurrentApplicationId);
   const pages: Page[] = useSelector(selectAllPages);
@@ -181,7 +185,7 @@ function Pages() {
   );
 
   return (
-    <div style={{ position: "relative" }}>
+    <RelativeContainer>
       <StyledEntity
         action={onPageListSelection}
         addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
@@ -213,7 +217,7 @@ function Pages() {
           `}
         />
       </div>
-    </div>
+    </RelativeContainer>
   );
 }
 
