@@ -25,22 +25,20 @@ describe("Binding the input Widget with tab Widget", function() {
   it("validation of data displayed in input widgets based on tab selected", function() {
     cy.PublishtheApp();
     cy.get(publish.tabWidget)
-      .contains("Tab 2")
-      .click({ force: true })
-      .should("be.selected");
-
-    cy.get(publish.inputWidget + " " + "input")
-      .first()
-      .invoke("attr", "value")
-      .should("contain", "Tab 2");
-    cy.get(publish.tabWidget)
       .contains("Tab 1")
       .click({ force: true })
-      .should("be.selected");
-
+      .should("have.class", "is-selected");
     cy.get(publish.inputWidget + " " + "input")
       .first()
       .invoke("attr", "value")
       .should("contain", "Tab 1");
+    cy.get(publish.tabWidget)
+      .contains("Tab 2")
+      .click({ force: true })
+      .should("have.class", "is-selected");
+    cy.get(publish.inputWidget + " " + "input")
+      .first()
+      .invoke("attr", "value")
+      .should("contain", "Tab 2");
   });
 });

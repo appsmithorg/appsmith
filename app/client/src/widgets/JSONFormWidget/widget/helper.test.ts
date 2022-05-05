@@ -594,6 +594,7 @@ describe(".computeSchema", () => {
     const response = computeSchema({
       currSourceData: schemaTestData.initialDataset.dataSource,
       widgetName: "JSONForm1",
+      fieldThemeStylesheets: schemaTestData.fieldThemeStylesheets,
     });
 
     const expectedDynamicPropertyPathList = [
@@ -624,6 +625,7 @@ describe(".computeSchema", () => {
       currSourceData: schemaTestData.initialDataset.dataSource,
       currentDynamicPropertyPathList: existingDynamicBindingPropertyPathList,
       widgetName: "JSONForm1",
+      fieldThemeStylesheets: schemaTestData.fieldThemeStylesheets,
     });
 
     expect(response.status).toEqual(ComputedSchemaStatus.UPDATED);
@@ -650,6 +652,7 @@ describe(".computeSchema", () => {
       prevSchema: schemaTestData.initialDataset.schemaOutput,
       currentDynamicPropertyPathList: existingDynamicBindingPropertyPathList,
       widgetName: "JSONForm1",
+      fieldThemeStylesheets: schemaTestData.fieldThemeStylesheets,
     });
 
     expect(response.status).toEqual(ComputedSchemaStatus.UPDATED);
