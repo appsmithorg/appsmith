@@ -208,6 +208,45 @@ class FilePickerWidget extends BaseWidget<
           },
         ],
       },
+
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "buttonColor",
+            helpText: "Changes the color of the button",
+            label: "Button Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
     ];
   }
   static getDefaultPropertiesMap(): Record<string, string> {
@@ -473,6 +512,9 @@ class FilePickerWidget extends BaseWidget<
   getPageView() {
     return (
       <FilePickerComponent
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
+        buttonColor={this.props.buttonColor}
         files={this.props.selectedFiles || []}
         isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading || this.state.isLoading}
@@ -503,6 +545,9 @@ interface FilePickerWidgetProps extends WidgetProps {
   onFilesSelected?: string;
   fileDataType: FileDataTypes;
   isRequired?: boolean;
+  backgroundColor: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 export type FilePickerWidgetV2Props = FilePickerWidgetProps;

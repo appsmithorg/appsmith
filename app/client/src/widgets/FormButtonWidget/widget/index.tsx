@@ -10,7 +10,6 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import ButtonWidget from "widgets/ButtonWidget";
 import {
   ButtonBorderRadius,
-  ButtonBoxShadow,
   ButtonVariant,
   RecaptchaType,
   RecaptchaTypes,
@@ -209,8 +208,7 @@ export interface FormButtonWidgetProps extends WidgetProps {
   buttonVariant?: ButtonVariant;
   buttonColor?: string;
   borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  boxShadow?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
 }

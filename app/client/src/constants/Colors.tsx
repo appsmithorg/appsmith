@@ -187,4 +187,5 @@ export const Colors = {
   COD_GRAY: "#191919",
   MINE_SHAFT_2: "#333333",
 };
+
 export type Color = typeof Colors[keyof typeof Colors];

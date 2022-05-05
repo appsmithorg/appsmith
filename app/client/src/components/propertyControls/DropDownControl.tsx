@@ -3,6 +3,7 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
 import { DropdownOption } from "components/ads/Dropdown";
 import { isNil } from "lodash";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
@@ -36,9 +37,13 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       const propertyValueSet = new Set(this.props.propertyValue);
       selected = options.filter((option) => propertyValueSet.has(option.value));
     } else {
-      selected = options.find(
-        (option) => option.value === this.props.propertyValue,
-      );
+      const computedValue =
+        !isNil(this.props.propertyValue) &&
+        isDynamicValue(this.props.propertyValue)
+          ? this.props.evaluatedValue
+          : this.props.propertyValue;
+
+      selected = options.find((option) => option.value === computedValue);
     }
 
     if (selected) {

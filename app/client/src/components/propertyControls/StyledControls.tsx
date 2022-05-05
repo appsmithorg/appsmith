@@ -34,6 +34,9 @@ export const ControlWrapper = styled.div<ControlWrapperProps>`
   &&& > label {
     display: inline-block;
   }
+  &:focus-within .reset-button {
+    display: block;
+  }
 `;
 
 export const ControlPropertyLabelContainer = styled.div`
