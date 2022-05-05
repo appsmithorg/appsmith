@@ -64,7 +64,7 @@ export const isValid = (
 
   const parsedRegex = parseRegex(schemaItem.regex);
 
-  return parsedRegex ? parsedRegex.test(inputValue) : true;
+  return !parsedRegex || parsedRegex.test(inputValue);
 };
 
 const transformValue = (value: string) => {
