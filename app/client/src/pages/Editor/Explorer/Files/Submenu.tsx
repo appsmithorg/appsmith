@@ -143,7 +143,7 @@ export default function ExplorerSubMenu({ className }: SubMenuProps) {
         >
           <SubMenuContainer className="bg-white overflow-y-auto overflow-x-hidden flex flex-col justify-start z-10 delay-150 transition-all">
             <div className="px-4 py-2 text-sm font-medium text-gray">
-              CREATE NEW
+              Create New
             </div>
             <div className="flex items-center space-x-2 px-4">
               <SearchIcon className="box-content w-4 h-4" />
@@ -166,37 +166,41 @@ export default function ExplorerSubMenu({ className }: SubMenuProps) {
               )}
             </div>
             <div className="ops-container">
-              {fileOperations.map((item: any, idx: number) => {
-                const icon =
-                  item.icon ||
-                  (item.pluginId && (
-                    <EntityIcon>
-                      {getPluginIcon(pluginGroups[item.pluginId])}
-                    </EntityIcon>
-                  ));
-                return (
-                  <div
-                    className={classNames({
-                      "px-4 py-2 text-sm flex items-center gap-2 t--file-operation": true,
-                      "cursor-pointer":
-                        item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
-                      active:
-                        activeItemIdx === idx &&
-                        item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
-                      "font-medium text-gray section-title":
-                        item.kind === SEARCH_ITEM_TYPES.sectionTitle,
-                    })}
-                    id={`file-op-${idx}`}
-                    key={`file-op-${idx}`}
-                    onClick={() => handleClick(item)}
-                  >
-                    {icon && <span className="flex-shrink-0">{icon}</span>}
-                    <span className="overflow-hidden whitespace-nowrap overflow-ellipsis">
-                      {item.shortTitle || item.title}
-                    </span>
-                  </div>
-                );
-              })}
+              {fileOperations
+                .filter(
+                  (item: any) => item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
+                )
+                .map((item: any, idx: number) => {
+                  const icon =
+                    item.icon ||
+                    (item.pluginId && (
+                      <EntityIcon>
+                        {getPluginIcon(pluginGroups[item.pluginId])}
+                      </EntityIcon>
+                    ));
+                  return (
+                    <div
+                      className={classNames({
+                        "px-4 py-2 text-sm flex items-center gap-2 t--file-operation": true,
+                        "cursor-pointer":
+                          item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
+                        active:
+                          activeItemIdx === idx &&
+                          item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
+                        "font-medium text-gray section-title":
+                          item.kind === SEARCH_ITEM_TYPES.sectionTitle,
+                      })}
+                      id={`file-op-${idx}`}
+                      key={`file-op-${idx}`}
+                      onClick={() => handleClick(item)}
+                    >
+                      {icon && <span className="flex-shrink-0">{icon}</span>}
+                      <span className="overflow-hidden whitespace-nowrap overflow-ellipsis">
+                        {item.shortTitle || item.title}
+                      </span>
+                    </div>
+                  );
+                })}
             </div>
           </SubMenuContainer>
         </SubmenuHotKeys>
