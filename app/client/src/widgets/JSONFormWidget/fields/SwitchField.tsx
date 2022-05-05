@@ -14,6 +14,7 @@ import {
 import { SwitchComponent } from "widgets/SwitchWidget/component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
+import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 
 type SwitchComponentOwnProps = FieldComponentBaseProps &
   FieldEventProps & {
@@ -31,6 +32,7 @@ const COMPONENT_DEFAULT_VALUES: SwitchComponentOwnProps = {
   isDisabled: false,
   isRequired: false,
   isVisible: true,
+  labelTextSize: BASE_LABEL_TEXT_SIZE,
   label: "",
 };
 

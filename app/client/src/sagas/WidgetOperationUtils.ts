@@ -6,10 +6,12 @@ import {
 } from "./selectors";
 import _, { isString, remove } from "lodash";
 import {
+  CONTAINER_GRID_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
   WidgetType,
+  WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { all, call } from "redux-saga/effects";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
@@ -31,12 +33,31 @@ import {
 import { getNextEntityName } from "utils/AppsmithUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { areIntersecting } from "utils/WidgetPropsUtils";
+import { GridProps, ReflowedSpaceMap, SpaceMap } from "reflow/reflowTypes";
+import {
+  getBaseWidgetClassName,
+  getSlidingCanvasName,
+  getStickyCanvasName,
+  POSITIONED_WIDGET,
+} from "constants/componentClassNameConstants";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
   parentId: string;
   list: WidgetProps[];
 }
+
+export type NewPastePositionVariables = {
+  bottomMostRow?: number;
+  gridProps?: GridProps;
+  newPastingPositionMap?: SpaceMap;
+  reflowedMovementMap?: ReflowedSpaceMap;
+  canvasId?: string;
+};
+
+export const WIDGET_PASTE_PADDING = 1;
 
 /**
  * checks if triggerpaths contains property path passed
@@ -310,6 +331,8 @@ export const getParentWidgetIdForPasting = function*(
     if (childWidget && childWidget.type === "CANVAS_WIDGET") {
       newWidgetParentId = childWidget.widgetId;
     }
+  } else if (selectedWidget && selectedWidget.type === "CANVAS_WIDGET") {
+    newWidgetParentId = selectedWidget.widgetId;
   }
   return newWidgetParentId;
 };
@@ -365,7 +388,7 @@ export const checkIfPastingIntoListWidget = function(
 };
 
 /**
- * get top, left, right, bottom most widgets from copied groups when pasting
+ * get top, left, right, bottom most widgets and and totalWidth from copied groups when pasting
  *
  * @param copiedWidgetGroups
  * @returns
@@ -385,14 +408,42 @@ export const getBoundaryWidgetsFromCopiedGroups = function(
   const bottomMostWidget = copiedWidgetGroups.sort(
     (a, b) => b.list[0].bottomRow - a.list[0].bottomRow,
   )[0].list[0];
-
   return {
     topMostWidget,
     leftMostWidget,
     rightMostWidget,
     bottomMostWidget,
+    totalWidth: rightMostWidget.rightColumn - leftMostWidget.leftColumn,
   };
 };
+
+/**
+ * get totalWidth, maxThickness, topMostRow and leftMostColumn from selected Widgets
+ *
+ * @param selectedWidgets
+ * @returns
+ */
+export function getBoundariesFromSelectedWidgets(
+  selectedWidgets: WidgetProps[],
+) {
+  const topMostWidget = selectedWidgets.sort((a, b) => a.topRow - b.topRow)[0];
+  const leftMostWidget = selectedWidgets.sort(
+    (a, b) => a.leftColumn - b.leftColumn,
+  )[0];
+  const rightMostWidget = selectedWidgets.sort(
+    (a, b) => b.rightColumn - a.rightColumn,
+  )[0];
+  const thickestWidget = selectedWidgets.sort(
+    (a, b) => b.bottomRow - b.topRow - a.bottomRow + a.topRow,
+  )[0];
+
+  return {
+    totalWidth: rightMostWidget.rightColumn - leftMostWidget.leftColumn,
+    maxThickness: thickestWidget.bottomRow - thickestWidget.topRow,
+    topMostRow: topMostWidget.topRow,
+    leftMostColumn: leftMostWidget.leftColumn,
+  };
+}
 
 /**
  * -------------------------------------------------------------------------------
@@ -431,6 +482,442 @@ export const getSelectedWidgetWhenPasting = function*() {
 
   return selectedWidget;
 };
+
+/**
+ * calculates mouse positions in terms of grid values
+ *
+ * @param canvasRect canvas DOM rect
+ * @param canvasId Id of the canvas widget
+ * @param snapGrid grid parameters
+ * @param padding padding inside of widget
+ * @param mouseLocation mouse Location in terms of absolute pixel values
+ * @returns
+ */
+export function getMousePositions(
+  canvasRect: DOMRect,
+  canvasId: string,
+  snapGrid: { snapRowSpace: number; snapColumnSpace: number },
+  padding: number,
+  mouseLocation?: { x: number; y: number },
+) {
+  //check if the mouse location is inside of the container widget
+  if (
+    !mouseLocation ||
+    !(
+      canvasRect.top < mouseLocation.y &&
+      canvasRect.left < mouseLocation.x &&
+      canvasRect.bottom > mouseLocation.y &&
+      canvasRect.right > mouseLocation.x
+    )
+  )
+    return;
+
+  //get DOM of the overall canvas including it's total scroll height
+  const stickyCanvasDOM = document.querySelector(
+    `#${getStickyCanvasName(canvasId)}`,
+  );
+  if (!stickyCanvasDOM) return;
+
+  const rect = stickyCanvasDOM.getBoundingClientRect();
+
+  // get mouse position relative to the canvas.
+  const relativeMouseLocation = {
+    y: mouseLocation.y - rect.top - padding,
+    x: mouseLocation.x - rect.left - padding,
+  };
+
+  return {
+    top: Math.floor(relativeMouseLocation.y / snapGrid.snapRowSpace),
+    left: Math.floor(relativeMouseLocation.x / snapGrid.snapColumnSpace),
+  };
+}
+
+/**
+ * This method calculates the snap Grid dimensions.
+ *
+ * @param LayoutWidget
+ * @param canvasWidth
+ * @returns
+ */
+export function getSnappedGrid(LayoutWidget: WidgetProps, canvasWidth: number) {
+  let padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
+  if (
+    LayoutWidget.widgetId === MAIN_CONTAINER_WIDGET_ID ||
+    LayoutWidget.type === "CONTAINER_WIDGET"
+  ) {
+    //For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
+    padding = CONTAINER_GRID_PADDING * 2;
+  }
+  if (LayoutWidget.noPad) {
+    // Widgets like ListWidget choose to have no container padding so will only have widget padding
+    padding = WIDGET_PADDING * 2;
+  }
+  const width = canvasWidth - padding;
+  return {
+    snapGrid: {
+      snapRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      snapColumnSpace: canvasWidth
+        ? width / GridDefaults.DEFAULT_GRID_COLUMNS
+        : 0,
+    },
+    padding: padding / 2,
+  };
+}
+
+/**
+ * method to return default canvas,
+ * It is MAIN_CONTAINER_WIDGET_ID by default or
+ * if a modal is open, then default canvas is a Modal's canvas
+ *
+ * @param canvasWidgets
+ * @returns
+ */
+export function getDefaultCanvas(canvasWidgets: CanvasWidgetsReduxState) {
+  const containerDOM = document.querySelector(".t--modal-widget");
+  //if a modal is open, then get it's canvas Id
+  if (containerDOM && containerDOM.id && canvasWidgets[containerDOM.id]) {
+    const containerWidget = canvasWidgets[containerDOM.id];
+    const { canvasDOM, canvasId } = getCanvasIdForContainer(containerWidget);
+    return {
+      canvasId,
+      canvasDOM,
+      containerWidget,
+    };
+  } else {
+    //default canvas is set as MAIN_CONTAINER_WIDGET_ID
+    return {
+      canvasId: MAIN_CONTAINER_WIDGET_ID,
+      containerWidget: canvasWidgets[MAIN_CONTAINER_WIDGET_ID],
+      canvasDOM: document.querySelector(
+        `#${getSlidingCanvasName(MAIN_CONTAINER_WIDGET_ID)}`,
+      ),
+    };
+  }
+}
+
+/**
+ * This method returns the Id of the parent widget of the canvas widget
+ *
+ * @param canvasId
+ * @returns
+ */
+export function getContainerIdForCanvas(canvasId: string) {
+  if (canvasId === MAIN_CONTAINER_WIDGET_ID) return canvasId;
+
+  const selector = `#${getSlidingCanvasName(canvasId)}`;
+  const canvasDOM = document.querySelector(selector);
+  if (!canvasDOM) return "";
+  //check for positionedWidget parent
+  let containerDOM = canvasDOM.closest(`.${POSITIONED_WIDGET}`);
+  //if positioned widget parent is not found, most likely is a modal widget
+  if (!containerDOM) containerDOM = canvasDOM.closest(".t--modal-widget");
+
+  return containerDOM ? containerDOM.id : "";
+}
+
+/**
+ * This method returns Id of the child canvas inside of the Layout Widget
+ *
+ * @param layoutWidget
+ * @returns
+ */
+export function getCanvasIdForContainer(layoutWidget: WidgetProps) {
+  const selector =
+    layoutWidget.type === "MODAL_WIDGET"
+      ? `.${getBaseWidgetClassName(layoutWidget.widgetId)}`
+      : `.${POSITIONED_WIDGET}.${getBaseWidgetClassName(
+          layoutWidget.widgetId,
+        )}`;
+  const containerDOM = document.querySelector(selector);
+  if (!containerDOM) return {};
+  const canvasDOM = containerDOM.getElementsByTagName("canvas");
+
+  return {
+    canvasId: canvasDOM ? canvasDOM[0]?.id.split("-")[2] : undefined,
+    canvasDOM: canvasDOM[0],
+  };
+}
+
+/**
+ * This method returns array of occupiedSpaces with changes Ids
+ *
+ * @param newPastingPositionMap
+ * @returns
+ */
+export function changeIdsOfPastePositions(newPastingPositionMap: SpaceMap) {
+  const newPastePositions = [];
+  const newPastingPositionArray = Object.values(newPastingPositionMap);
+  let count = 1;
+  for (const position of newPastingPositionArray) {
+    newPastePositions.push({
+      ...position,
+      id: count.toString(),
+    });
+    count++;
+  }
+
+  return newPastePositions;
+}
+
+/**
+ * Iterates over the selected widgets to find the next available space below the selected widgets
+ * where in the new pasting positions dont overlap with the selected widgets
+ *
+ * @param copiedSpaces
+ * @param selectedSpaces
+ * @param thickness
+ * @returns
+ */
+export function getVerticallyAdjustedPositions(
+  copiedSpaces: OccupiedSpace[],
+  selectedSpaces: OccupiedSpace[],
+  thickness: number,
+) {
+  let verticalOffset = thickness;
+
+  const newPastingPositionMap: SpaceMap = {};
+
+  //iterate over the widgets to calculate verticalOffset
+  //TODO: find a better way to do this.
+  for (let i = 0; i < copiedSpaces.length; i++) {
+    const copiedSpace = {
+      ...copiedSpaces[i],
+      top: copiedSpaces[i].top + verticalOffset,
+      bottom: copiedSpaces[i].bottom + verticalOffset,
+    };
+
+    for (let j = 0; j < selectedSpaces.length; j++) {
+      const selectedSpace = selectedSpaces[j];
+      if (areIntersecting(copiedSpace, selectedSpace)) {
+        const increment = selectedSpace.bottom - copiedSpace.top;
+        if (increment > 0) {
+          verticalOffset += increment;
+          i = 0;
+          j = 0;
+          break;
+        } else return;
+      }
+    }
+  }
+
+  verticalOffset += WIDGET_PASTE_PADDING;
+
+  // offset the pasting positions down
+  for (const copiedSpace of copiedSpaces) {
+    newPastingPositionMap[copiedSpace.id] = {
+      ...copiedSpace,
+      top: copiedSpace.top + verticalOffset,
+      bottom: copiedSpace.bottom + verticalOffset,
+    };
+  }
+
+  return newPastingPositionMap;
+}
+
+/**
+ * Simple method to convert widget props to occupied spaces
+ *
+ * @param widgets
+ * @returns
+ */
+export function getOccupiedSpacesFromProps(
+  widgets: WidgetProps[],
+): OccupiedSpace[] {
+  const occupiedSpaces = [];
+  for (const widget of widgets) {
+    const currentSpace = {
+      id: widget.widgetId,
+      top: widget.topRow,
+      left: widget.leftColumn,
+      bottom: widget.bottomRow,
+      right: widget.rightColumn,
+    } as OccupiedSpace;
+    occupiedSpaces.push(currentSpace);
+  }
+
+  return occupiedSpaces;
+}
+
+/**
+ * Method that adjusts the positions of copied spaces using,
+ * the top-left of copied widgets and top left of where it should be placed
+ *
+ * @param copiedWidgetGroups
+ * @param copiedTopMostRow
+ * @param selectedTopMostRow
+ * @param copiedLeftMostColumn
+ * @param pasteLeftMostColumn
+ * @returns
+ */
+export function getNewPositionsForCopiedWidgets(
+  copiedWidgetGroups: CopiedWidgetGroup[],
+  copiedTopMostRow: number,
+  selectedTopMostRow: number,
+  copiedLeftMostColumn: number,
+  pasteLeftMostColumn: number,
+): OccupiedSpace[] {
+  const copiedSpacePositions = [];
+
+  // the logic is that, when subtracted by top-left of copied widget, the new position's top-left will be zero
+  // by adding the selectedTopMostRow or pasteLeftMostColumn, copied widget's top row is aligned there
+
+  const leftOffSet = copiedLeftMostColumn - pasteLeftMostColumn;
+  const topOffSet = copiedTopMostRow - selectedTopMostRow;
+
+  for (const copiedWidgetGroup of copiedWidgetGroups) {
+    const copiedWidget = copiedWidgetGroup.list[0];
+
+    const currentSpace = {
+      id: copiedWidgetGroup.widgetId,
+      top: copiedWidget.topRow - topOffSet,
+      left: copiedWidget.leftColumn - leftOffSet,
+      bottom: copiedWidget.bottomRow - topOffSet,
+      right: copiedWidget.rightColumn - leftOffSet,
+    } as OccupiedSpace;
+
+    copiedSpacePositions.push(currentSpace);
+  }
+
+  return copiedSpacePositions;
+}
+
+/**
+ * Method that adjusts the positions of copied spaces using,
+ * the top-left of copied widgets and top left of where it should be placed
+ *
+ * @param copiedWidgetGroups
+ * @param copiedTopMostRow
+ * @param mouseTopRow
+ * @param copiedLeftMostColumn
+ * @param mouseLeftColumn
+ * @returns
+ */
+export function getPastePositionMapFromMousePointer(
+  copiedWidgetGroups: CopiedWidgetGroup[],
+  copiedTopMostRow: number,
+  mouseTopRow: number,
+  copiedLeftMostColumn: number,
+  mouseLeftColumn: number,
+): SpaceMap {
+  const newPastingPositionMap: SpaceMap = {};
+
+  // the logic is that, when subtracted by top-left of copied widget, the new position's top-left will be zero
+  // by adding the selectedTopMostRow or pasteLeftMostColumn, copied widget's top row is aligned there
+
+  const leftOffSet = copiedLeftMostColumn - mouseLeftColumn;
+  const topOffSet = copiedTopMostRow - mouseTopRow;
+
+  for (const copiedWidgetGroup of copiedWidgetGroups) {
+    const copiedWidget = copiedWidgetGroup.list[0];
+
+    newPastingPositionMap[copiedWidgetGroup.widgetId] = {
+      id: copiedWidgetGroup.widgetId,
+      top: copiedWidget.topRow - topOffSet,
+      left: copiedWidget.leftColumn - leftOffSet,
+      bottom: copiedWidget.bottomRow - topOffSet,
+      right: copiedWidget.rightColumn - leftOffSet,
+      type: copiedWidget.type,
+    } as OccupiedSpace;
+  }
+
+  return newPastingPositionMap;
+}
+
+/**
+ * Take the canvas widgets and move them with the reflowed values
+ *
+ *
+ * @param widgets
+ * @param gridProps
+ * @param reflowingWidgets
+ * @returns
+ */
+export function getReflowedPositions(
+  widgets: {
+    [widgetId: string]: FlattenedWidgetProps;
+  },
+  gridProps?: GridProps,
+  reflowingWidgets?: ReflowedSpaceMap,
+) {
+  const currentWidgets: {
+    [widgetId: string]: FlattenedWidgetProps;
+  } = { ...widgets };
+
+  const reflowWidgetKeys = Object.keys(reflowingWidgets || {});
+
+  // if there are no reflowed widgets return the original widgets
+  if (!reflowingWidgets || !gridProps || reflowWidgetKeys.length <= 0)
+    return widgets;
+
+  for (const reflowedWidgetId of reflowWidgetKeys) {
+    const reflowWidget = reflowingWidgets[reflowedWidgetId];
+    const canvasWidget = { ...currentWidgets[reflowedWidgetId] };
+
+    let { bottomRow, leftColumn, rightColumn, topRow } = canvasWidget;
+
+    // adjust the positions with respect to the reflowed positions
+    if (reflowWidget.X !== undefined && reflowWidget.width !== undefined) {
+      leftColumn = Math.round(
+        canvasWidget.leftColumn + reflowWidget.X / gridProps.parentColumnSpace,
+      );
+      rightColumn = Math.round(
+        leftColumn + reflowWidget.width / gridProps.parentColumnSpace,
+      );
+    }
+
+    if (reflowWidget.Y !== undefined && reflowWidget.height !== undefined) {
+      topRow = Math.round(
+        canvasWidget.topRow + reflowWidget.Y / gridProps.parentRowSpace,
+      );
+      bottomRow = Math.round(
+        topRow + reflowWidget.height / gridProps.parentRowSpace,
+      );
+    }
+
+    currentWidgets[reflowedWidgetId] = {
+      ...canvasWidget,
+      topRow,
+      leftColumn,
+      bottomRow,
+      rightColumn,
+    };
+  }
+
+  return currentWidgets;
+}
+
+/**
+ * method to return array of widget properties from widgetsIds, without any undefined values
+ *
+ * @param widgetsIds
+ * @param canvasWidgets
+ * @returns array of widgets properties
+ */
+export function getWidgetsFromIds(
+  widgetsIds: string[],
+  canvasWidgets: CanvasWidgetsReduxState,
+) {
+  const widgets = [];
+  for (const currentId of widgetsIds) {
+    if (canvasWidgets[currentId]) widgets.push(canvasWidgets[currentId]);
+  }
+
+  return widgets;
+}
+
+/**
+ * Check if it is drop target Including the CANVAS_WIDGET
+ *
+ * @param type
+ * @returns
+ */
+export function isDropTarget(type: WidgetType, includeCanvasWidget = false) {
+  const isLayoutWidget = !!WidgetFactory.widgetConfigMap.get(type)?.isCanvas;
+
+  if (includeCanvasWidget) return isLayoutWidget || type === "CANVAS_WIDGET";
+
+  return isLayoutWidget;
+}
 
 /**
  * group copied widgets into a container

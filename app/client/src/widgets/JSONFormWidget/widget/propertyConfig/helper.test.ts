@@ -58,6 +58,7 @@ describe(".fieldTypeUpdateHook", () => {
           accentColor: "{{appsmith.theme.colors.primaryColor}}",
           borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
           boxShadow: "none",
+          labelTextSize: "0.875rem",
         },
       },
       dataType: DataType.ARRAY,
@@ -70,6 +71,7 @@ describe(".fieldTypeUpdateHook", () => {
       identifier: "hobbies",
       originalIdentifier: "hobbies",
       position: 4,
+      labelTextSize: "0.875rem",
     };
 
     const expectedNewSchema = set(

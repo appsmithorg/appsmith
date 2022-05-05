@@ -26,6 +26,7 @@ import { InputTypes } from "../constants";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import Icon from "components/ads/Icon";
 import { InputType } from "widgets/InputWidget/constants";
+import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { LabelPosition } from "components/constants";
 import LabelWithTooltip, {
   labelLayoutStyles,
@@ -317,6 +318,9 @@ const TextInputWrapper = styled.div<{
         hasError ? Colors.DANGER_SOLID : accentColor,
       )} !important;`};
   }
+
+  ${({ inputHtmlType }) =>
+    inputHtmlType && inputHtmlType !== InputTypes.TEXT && `&&& {flex-grow: 0;}`}
 `;
 
 export type InputHTMLType = "TEXT" | "NUMBER" | "PASSWORD" | "EMAIL" | "TEL";
@@ -337,7 +341,7 @@ class BaseInputComponent extends React.Component<
   componentDidMount() {
     if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
       const element = document.querySelector<HTMLDivElement>(
-        `.appsmith_widget_${this.props.widgetId} .bp3-button-group`,
+        `.${getBaseWidgetClassName(this.props.widgetId)} .bp3-button-group`,
       );
 
       if (element !== null && element.childNodes) {
@@ -356,7 +360,7 @@ class BaseInputComponent extends React.Component<
   componentWillUnmount() {
     if (isNumberInputType(this.props.inputHTMLType) && this.props.onStep) {
       const element = document.querySelector<HTMLDivElement>(
-        `.appsmith_widget_${this.props.widgetId} .bp3-button-group`,
+        `.${getBaseWidgetClassName(this.props.widgetId)} .bp3-button-group`,
       );
 
       if (element !== null && element.childNodes) {

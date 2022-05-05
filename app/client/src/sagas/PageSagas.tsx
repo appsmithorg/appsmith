@@ -976,6 +976,7 @@ export function* generateTemplatePageSaga(
           responseMeta: response.responseMeta,
         },
         pageId,
+        isFirstLoad: true,
       });
 
       // TODO : Add this to onSuccess (Redux Action)

@@ -42,6 +42,12 @@ import { klona as clone } from "klona/full";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
+const themePropertiesDefaults = {
+  boxShadow: "none",
+  borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  accentColor: "{{appsmith.theme.colors.primaryColor}}",
+};
+
 type GeneratedWidgetPayload = {
   widgetId: string;
   widgets: { [widgetId: string]: FlattenedWidgetProps };
@@ -68,13 +74,7 @@ function* getEntityNames() {
 function* getThemeDefaultConfig(type: string) {
   const stylesheet = yield select(getSelectedAppThemeStylesheet);
 
-  return (
-    stylesheet[type] || {
-      boxShadow: "none",
-      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-      accentColor: "{{appsmith.theme.colors.primaryColor}}",
-    }
-  );
+  return stylesheet[type] || themePropertiesDefaults;
 }
 
 function* getChildWidgetProps(

@@ -337,6 +337,8 @@ class SelectComponent extends React.Component<
             onItemSelect={this.onItemSelect}
             onQueryChange={this.onQueryChange}
             popoverProps={{
+              portalContainer:
+                document.getElementById("art-board") || undefined,
               boundary: "window",
               isOpen: this.state.isOpen,
               minimal: true,

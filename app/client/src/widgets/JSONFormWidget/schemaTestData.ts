@@ -33,12 +33,14 @@ const initialDataset = {
     __root_schema__: {
       isDisabled: false,
       isRequired: false,
+      labelTextSize: "0.875rem",
       label: "",
       isVisible: true,
       children: {
         name: {
           isDisabled: false,
           isRequired: false,
+          labelTextSize: "0.875rem",
           label: "Name",
           isVisible: true,
           isSpellCheck: false,
@@ -61,6 +63,7 @@ const initialDataset = {
         age: {
           isDisabled: false,
           isRequired: false,
+          labelTextSize: "0.875rem",
           label: "Age",
           isVisible: true,
           isSpellCheck: false,
@@ -85,6 +88,7 @@ const initialDataset = {
           dateFormat: "MM/DD/YYYY",
           isDisabled: false,
           isRequired: false,
+          labelTextSize: "0.875rem",
           label: "Dob",
           maxDate: "2121-12-31T18:29:00.000Z",
           minDate: "1920-12-31T18:30:00.000Z",
@@ -112,6 +116,7 @@ const initialDataset = {
           isDisabled: false,
           isRequired: false,
           isVisible: true,
+          labelTextSize: "0.875rem",
           label: "Boolean",
           children: {},
           dataType: DataType.BOOLEAN,
@@ -130,6 +135,7 @@ const initialDataset = {
         hobbies: {
           isDisabled: false,
           isRequired: false,
+          labelTextSize: "0.875rem",
           label: "Hobbies",
           isVisible: true,
           serverSideFiltering: false,
@@ -156,6 +162,7 @@ const initialDataset = {
         __: {
           isDisabled: false,
           isRequired: false,
+          labelTextSize: "0.875rem",
           label: "%%",
           isVisible: true,
           isSpellCheck: false,
@@ -178,6 +185,7 @@ const initialDataset = {
         xn__j2bd4cyac6f: {
           isDisabled: false,
           isRequired: false,
+          labelTextSize: "0.875rem",
           label: "हिन्दि",
           isVisible: true,
           isSpellCheck: false,
@@ -203,17 +211,20 @@ const initialDataset = {
           isDisabled: false,
           isRequired: false,
           isVisible: true,
+          labelTextSize: "0.875rem",
           label: "Education",
           children: {
             __array_item__: {
               isDisabled: false,
               isRequired: false,
+              labelTextSize: "0.875rem",
               label: "Array Item",
               isVisible: true,
               children: {
                 college: {
                   isDisabled: false,
                   isRequired: false,
+                  labelTextSize: "0.875rem",
                   label: "College",
                   isVisible: true,
                   isSpellCheck: false,
@@ -236,6 +247,7 @@ const initialDataset = {
                 number: {
                   isDisabled: false,
                   isRequired: false,
+                  labelTextSize: "0.875rem",
                   label: "Number",
                   isVisible: true,
                   isSpellCheck: false,
@@ -260,6 +272,7 @@ const initialDataset = {
                   dateFormat: "MM/DD/YYYY",
                   isDisabled: false,
                   isRequired: false,
+                  labelTextSize: "0.875rem",
                   label: "Graduation Date",
                   maxDate: "2121-12-31T18:29:00.000Z",
                   minDate: "1920-12-31T18:30:00.000Z",
@@ -287,6 +300,7 @@ const initialDataset = {
                   isDisabled: false,
                   isRequired: false,
                   isVisible: true,
+                  labelTextSize: "0.875rem",
                   label: "Boolean",
                   children: {},
                   dataType: DataType.BOOLEAN,
@@ -339,12 +353,14 @@ const initialDataset = {
         address: {
           isDisabled: false,
           isRequired: false,
+          labelTextSize: "0.875rem",
           label: "Address",
           isVisible: true,
           children: {
             Line1: {
               isDisabled: false,
               isRequired: false,
+              labelTextSize: "0.875rem",
               label: "Line 1",
               isVisible: true,
               isSpellCheck: false,
@@ -368,6 +384,7 @@ const initialDataset = {
               isSpellCheck: false,
               isDisabled: false,
               isRequired: false,
+              labelTextSize: "0.875rem",
               label: "City",
               isVisible: true,
               children: {},
@@ -458,12 +475,14 @@ const withRemovedKeyFromInitialDataset = {
     __root_schema__: {
       isDisabled: false,
       isRequired: false,
+      labelTextSize: "0.875rem",
       label: "",
       isVisible: true,
       children: {
         name: {
           isDisabled: false,
           isRequired: false,
+          labelTextSize: "0.875rem",
           label: "Name",
           isVisible: true,
           isSpellCheck: false,
@@ -486,6 +505,7 @@ const withRemovedKeyFromInitialDataset = {
         age: {
           isDisabled: false,
           isRequired: false,
+          labelTextSize: "0.875rem",
           label: "Age",
           isVisible: true,
           isSpellCheck: false,
@@ -510,6 +530,7 @@ const withRemovedKeyFromInitialDataset = {
           dateFormat: "MM/DD/YYYY",
           isDisabled: false,
           isRequired: false,
+          labelTextSize: "0.875rem",
           label: "Dob",
           maxDate: "2121-12-31T18:29:00.000Z",
           minDate: "1920-12-31T18:30:00.000Z",
@@ -535,6 +556,7 @@ const withRemovedKeyFromInitialDataset = {
         hobbies: {
           isDisabled: false,
           isRequired: false,
+          labelTextSize: "0.875rem",
           label: "Hobbies",
           isVisible: true,
           serverSideFiltering: false,
@@ -562,6 +584,7 @@ const withRemovedKeyFromInitialDataset = {
         xn__j2bd4cyac6f: {
           isDisabled: false,
           isRequired: false,
+          labelTextSize: "0.875rem",
           label: "हिन्दि",
           isVisible: true,
           isSpellCheck: false,
@@ -587,17 +610,20 @@ const withRemovedKeyFromInitialDataset = {
           isDisabled: false,
           isRequired: false,
           isVisible: true,
+          labelTextSize: "0.875rem",
           label: "Education",
           children: {
             __array_item__: {
               isDisabled: false,
               isRequired: false,
+              labelTextSize: "0.875rem",
               label: "Array Item",
               isVisible: true,
               children: {
                 college: {
                   isDisabled: false,
                   isRequired: false,
+                  labelTextSize: "0.875rem",
                   label: "College",
                   isVisible: true,
                   isSpellCheck: false,
@@ -620,6 +646,7 @@ const withRemovedKeyFromInitialDataset = {
                 number: {
                   isDisabled: false,
                   isRequired: false,
+                  labelTextSize: "0.875rem",
                   label: "Number",
                   isVisible: true,
                   isSpellCheck: false,
@@ -644,6 +671,7 @@ const withRemovedKeyFromInitialDataset = {
                   dateFormat: "MM/DD/YYYY",
                   isDisabled: false,
                   isRequired: false,
+                  labelTextSize: "0.875rem",
                   label: "Graduation Date",
                   maxDate: "2121-12-31T18:29:00.000Z",
                   minDate: "1920-12-31T18:30:00.000Z",
@@ -671,6 +699,7 @@ const withRemovedKeyFromInitialDataset = {
                   isDisabled: false,
                   isRequired: false,
                   isVisible: true,
+                  labelTextSize: "0.875rem",
                   label: "Boolean",
                   children: {},
                   dataType: DataType.BOOLEAN,
@@ -723,12 +752,14 @@ const withRemovedKeyFromInitialDataset = {
         address: {
           isDisabled: false,
           isRequired: false,
+          labelTextSize: "0.875rem",
           label: "Address",
           isVisible: true,
           children: {
             Line1: {
               isDisabled: false,
               isRequired: false,
+              labelTextSize: "0.875rem",
               label: "Line 1",
               isVisible: true,
               isSpellCheck: false,
@@ -751,6 +782,7 @@ const withRemovedKeyFromInitialDataset = {
             city: {
               isDisabled: false,
               isRequired: false,
+              labelTextSize: "0.875rem",
               label: "City",
               isSpellCheck: false,
               isVisible: true,
@@ -841,12 +873,14 @@ const withRemovedAddedKeyToInitialDataset = {
     __root_schema__: {
       isDisabled: false,
       isRequired: false,
+      labelTextSize: "0.875rem",
       label: "",
       isVisible: true,
       children: {
         name: {
           isDisabled: false,
           isRequired: false,
+          labelTextSize: "0.875rem",
           label: "Name",
           isVisible: true,
           isSpellCheck: false,
@@ -869,6 +903,7 @@ const withRemovedAddedKeyToInitialDataset = {
         age: {
           isDisabled: false,
           isRequired: false,
+          labelTextSize: "0.875rem",
           label: "Age",
           isVisible: true,
           isSpellCheck: false,
@@ -893,6 +928,7 @@ const withRemovedAddedKeyToInitialDataset = {
           dateFormat: "MM/DD/YYYY",
           isDisabled: false,
           isRequired: false,
+          labelTextSize: "0.875rem",
           label: "Dob",
           maxDate: "2121-12-31T18:29:00.000Z",
           minDate: "1920-12-31T18:30:00.000Z",
@@ -918,6 +954,7 @@ const withRemovedAddedKeyToInitialDataset = {
         hobbies: {
           isDisabled: false,
           isRequired: false,
+          labelTextSize: "0.875rem",
           label: "Hobbies",
           isVisible: true,
           serverSideFiltering: false,
@@ -945,6 +982,7 @@ const withRemovedAddedKeyToInitialDataset = {
         xn__j2bd4cyac6f: {
           isDisabled: false,
           isRequired: false,
+          labelTextSize: "0.875rem",
           label: "हिन्दि",
           isVisible: true,
           isSpellCheck: false,
@@ -970,17 +1008,20 @@ const withRemovedAddedKeyToInitialDataset = {
           isDisabled: false,
           isRequired: false,
           isVisible: true,
+          labelTextSize: "0.875rem",
           label: "Education",
           children: {
             __array_item__: {
               isDisabled: false,
               isRequired: false,
+              labelTextSize: "0.875rem",
               label: "Array Item",
               isVisible: true,
               children: {
                 college: {
                   isDisabled: false,
                   isRequired: false,
+                  labelTextSize: "0.875rem",
                   label: "College",
                   isVisible: true,
                   isSpellCheck: false,
@@ -1003,6 +1044,7 @@ const withRemovedAddedKeyToInitialDataset = {
                 number: {
                   isDisabled: false,
                   isRequired: false,
+                  labelTextSize: "0.875rem",
                   label: "Number",
                   isVisible: true,
                   isSpellCheck: false,
@@ -1027,6 +1069,7 @@ const withRemovedAddedKeyToInitialDataset = {
                   dateFormat: "MM/DD/YYYY",
                   isDisabled: false,
                   isRequired: false,
+                  labelTextSize: "0.875rem",
                   label: "Graduation Date",
                   maxDate: "2121-12-31T18:29:00.000Z",
                   minDate: "1920-12-31T18:30:00.000Z",
@@ -1054,6 +1097,7 @@ const withRemovedAddedKeyToInitialDataset = {
                   isDisabled: false,
                   isRequired: false,
                   isVisible: true,
+                  labelTextSize: "0.875rem",
                   label: "Boolean",
                   children: {},
                   dataType: DataType.BOOLEAN,
@@ -1106,12 +1150,14 @@ const withRemovedAddedKeyToInitialDataset = {
         address: {
           isDisabled: false,
           isRequired: false,
+          labelTextSize: "0.875rem",
           label: "Address",
           isVisible: true,
           children: {
             Line1: {
               isDisabled: false,
               isRequired: false,
+              labelTextSize: "0.875rem",
               label: "Line 1",
               isVisible: true,
               isSpellCheck: false,
@@ -1135,6 +1181,7 @@ const withRemovedAddedKeyToInitialDataset = {
               isSpellCheck: false,
               isDisabled: false,
               isRequired: false,
+              labelTextSize: "0.875rem",
               label: "City",
               isVisible: true,
               children: {},
@@ -1168,6 +1215,7 @@ const withRemovedAddedKeyToInitialDataset = {
         gender: {
           isDisabled: false,
           isRequired: false,
+          labelTextSize: "0.875rem",
           label: "Gender",
           isVisible: true,
           isSpellCheck: false,

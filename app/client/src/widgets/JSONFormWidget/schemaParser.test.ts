@@ -143,6 +143,7 @@ describe("#getSchemaItemByFieldType", () => {
       position: 1,
       serverSideFiltering: false,
       isFilterable: false,
+      labelTextSize: "0.875rem",
     };
 
     const result = SchemaParser.getSchemaItemByFieldType(FieldType.SELECT, {
@@ -186,6 +187,7 @@ describe("#getSchemaItemByFieldType", () => {
       position: 1,
       serverSideFiltering: false,
       isFilterable: false,
+      labelTextSize: "0.875rem",
     };
 
     const result = SchemaParser.getSchemaItemByFieldType(FieldType.SELECT, {
@@ -227,6 +229,7 @@ describe("#getSchemaItemByFieldType", () => {
           originalIdentifier: ARRAY_ITEM_KEY,
           position: -1,
           isSpellCheck: false,
+          labelTextSize: "0.875rem",
         },
       },
       dataType: DataType.ARRAY,
@@ -240,6 +243,7 @@ describe("#getSchemaItemByFieldType", () => {
       originalIdentifier: "hobbies",
       isCollapsible: true,
       position: 4,
+      labelTextSize: "0.875rem",
     };
 
     const result = SchemaParser.getSchemaItemByFieldType(FieldType.ARRAY, {
@@ -279,6 +283,7 @@ describe("#getSchemaItemByFieldType", () => {
           identifier: ARRAY_ITEM_KEY,
           originalIdentifier: ARRAY_ITEM_KEY,
           position: -1,
+          labelTextSize: "0.875rem",
         },
       },
       dataType: DataType.STRING,
@@ -292,6 +297,7 @@ describe("#getSchemaItemByFieldType", () => {
       originalIdentifier: "name",
       isCollapsible: true,
       position: 0,
+      labelTextSize: "0.875rem",
     };
 
     const result = SchemaParser.getSchemaItemByFieldType(FieldType.ARRAY, {
@@ -326,6 +332,7 @@ describe("#getSchemaItemFor", () => {
       identifier: "firstName",
       originalIdentifier: "firstName",
       position: -1,
+      labelTextSize: "0.875rem",
       isSpellCheck: false,
     };
 
@@ -360,6 +367,7 @@ describe("#getSchemaItemFor", () => {
       originalIdentifier: "firstName",
       position: -1,
       isSpellCheck: false,
+      labelTextSize: "0.875rem",
     };
 
     const result = SchemaParser.getSchemaItemFor(key, {
@@ -393,6 +401,7 @@ describe("#getSchemaItemFor", () => {
       originalIdentifier: "firstName",
       position: -1,
       alignWidget: "LEFT",
+      labelTextSize: "0.875rem",
     };
 
     const result = SchemaParser.getSchemaItemFor(key, {
@@ -429,6 +438,7 @@ describe("#getSchemaItemFor", () => {
       originalIdentifier: "hobbies",
       position: -1,
       serverSideFiltering: false,
+      labelTextSize: "0.875rem",
       options: [
         { label: "Blue", value: "BLUE" },
         { label: "Green", value: "GREEN" },
@@ -557,6 +567,7 @@ describe("#convertArrayToSchema", () => {
             originalIdentifier: "firstName",
             position: 0,
             isSpellCheck: false,
+            labelTextSize: "0.875rem",
           },
         },
         dataType: DataType.OBJECT,
@@ -570,6 +581,7 @@ describe("#convertArrayToSchema", () => {
         identifier: ARRAY_ITEM_KEY,
         originalIdentifier: ARRAY_ITEM_KEY,
         position: -1,
+        labelTextSize: "0.875rem",
       },
     };
 
@@ -674,6 +686,7 @@ describe("#convertArrayToSchema", () => {
             originalIdentifier: "lastName",
             position: 1,
             isSpellCheck: false,
+            labelTextSize: "0.875rem",
           },
         },
         dataType: DataType.OBJECT,
@@ -729,6 +742,7 @@ describe("#convertObjectToSchema", () => {
         originalIdentifier: "firstName",
         position: 0,
         isSpellCheck: false,
+        labelTextSize: "0.875rem",
       },
     };
 
@@ -800,6 +814,7 @@ describe("#convertObjectToSchema", () => {
         fieldType: FieldType.TEXT_INPUT,
         iconAlign: "left",
         sourceData: "Doe",
+        labelTextSize: "0.875rem",
         isCustomField: false,
         accessor: "lastName",
         identifier: "lastName",
@@ -917,6 +932,7 @@ describe("#convertObjectToSchema", () => {
         fieldType: FieldType.TEXT_INPUT,
         iconAlign: "left",
         sourceData: "Some other value",
+        labelTextSize: "0.875rem",
         isCustomField: false,
         accessor: "%%",
         identifier: "__1",

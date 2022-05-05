@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo } from "react";
+import React, { useEffect, useRef, useMemo, useState } from "react";
 import styled from "styled-components";
 import {
   Popover,
@@ -113,7 +113,7 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
   } = props;
 
   const isClick = useRef(false);
-  const [isFocusTrapped, setIsFocusTrapped] = React.useState(false);
+  const [isFocusTrapped, setIsFocusTrapped] = useState(false);
 
   function handleFocus() {
     if (!isClick.current) setIsFocusTrapped(true);
@@ -289,6 +289,13 @@ function LeftIcon(props: LeftIconProps) {
   );
 }
 
+const DEBOUNCE_TIMER = 250;
+const POPOVER_MODFIER = {
+  offset: {
+    offset: "0, 10px",
+  },
+};
+
 function ColorPickerComponent(props: ColorPickerProps) {
   const inputRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
@@ -304,16 +311,9 @@ function ColorPickerComponent(props: ColorPickerProps) {
   const debouncedOnChange = React.useCallback(
     debounce((color: string) => {
       props.changeColor(color);
-    }, 250),
+    }, DEBOUNCE_TIMER),
     [],
   );
-
-  useEffect(() => {
-    document.body.addEventListener("keydown", handleKeydown);
-    return () => {
-      document.body.removeEventListener("keydown", handleKeydown);
-    };
-  });
 
   const currentFocus = useRef(0);
 
@@ -425,6 +425,13 @@ function ColorPickerComponent(props: ColorPickerProps) {
     }
   };
 
+  useEffect(() => {
+    document.body.addEventListener("keydown", handleKeydown);
+    return () => {
+      document.body.removeEventListener("keydown", handleKeydown);
+    };
+  }, [handleKeydown]);
+
   const handleChangeColor = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     debouncedOnChange(value);
@@ -463,11 +470,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
         interactionKind={PopoverInteractionKind.CLICK}
         isOpen={isOpen}
         minimal
-        modifiers={{
-          offset: {
-            offset: "0, 10px",
-          },
-        }}
+        modifiers={POPOVER_MODFIER}
         onInteraction={handleOnInteraction}
       >
         <StyledInputGroup

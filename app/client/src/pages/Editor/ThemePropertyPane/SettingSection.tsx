@@ -4,7 +4,7 @@ import { Collapse } from "@blueprintjs/core";
 import ArrowRight from "remixicon-react/ArrowRightSLineIcon";
 
 interface SettingSectionProps {
-  isOpen?: boolean;
+  isDefaultOpen?: boolean;
   className?: string;
   title: string;
   children?: React.ReactNode;
@@ -13,7 +13,7 @@ interface SettingSectionProps {
 
 export function SettingSection(props: SettingSectionProps) {
   const { className = "", collapsible = true } = props;
-  const [isOpen, setOpen] = useState(props.isOpen);
+  const [isOpen, setOpen] = useState(props.isDefaultOpen);
 
   return (
     <div className={className}>

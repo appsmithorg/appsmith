@@ -181,6 +181,12 @@ export const migrateStylingPropertiesForTheming = (
           /**
            * Migrate the borderRadius if exists for the primary columns and derived columns
            */
+          if (!column.borderRadius) {
+            column.borderRadius = THEMING_BORDER_RADIUS.none;
+            if (isDerivedColumn) {
+              derivedColumn.borderRadius = THEMING_BORDER_RADIUS.none;
+            }
+          }
           switch (column.borderRadius) {
             case ButtonBorderRadiusTypes.SHARP:
               column.borderRadius = THEMING_BORDER_RADIUS.none;
@@ -216,6 +222,9 @@ export const migrateStylingPropertiesForTheming = (
             );
           } else {
             column.boxShadow = "none";
+            if (isDerivedColumn) {
+              derivedColumn.boxShadow = "none";
+            }
           }
 
           switch (column.boxShadow) {
@@ -559,6 +568,9 @@ export const migrateStylingPropertiesForTheming = (
       child.accentColor = Colors.GREEN;
     }
 
+    if (child.type === "TEXT_WIDGET") {
+      child.fontFamily = "System Default";
+    }
     // Adds childStyleSheets
     switch (child.type) {
       case "BUTTON_GROUP_WIDGET":

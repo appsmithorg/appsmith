@@ -33,6 +33,7 @@ import {
 import orderBy from "lodash/orderBy";
 import { RenderMode } from "constants/WidgetConstants";
 import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
+import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 
 const PopoverStyles = createGlobalStyle<{
   parentWidth: number;
@@ -46,8 +47,9 @@ const PopoverStyles = createGlobalStyle<{
     background: none;
     box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
     margin-top: 8px !important;
+    margin-bottom: 8px !important;
     border-radius: ${({ borderRadius }) =>
-      borderRadius >= `1.5rem` ? `0.375rem` : borderRadius};
+      borderRadius >= THEMEING_TEXT_SIZES.lg ? `0.375rem` : borderRadius};
     overflow: hidden;
   }
 

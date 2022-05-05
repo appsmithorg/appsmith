@@ -283,25 +283,30 @@ export function updateIconAlignmentHook(
 // For example, when we add a new column or update a derived column's name
 // The propertyPath will be of the type `primaryColumns.columnId`
 // Handling BindingProperty of derived columns
-const addColumnRegex = /^primaryColumns\.\w+$/; // primaryColumns.customColumn1
-const updateColumnRegex = /^primaryColumns\.(\w+)\.(.*)$/; // primaryColumns.customColumn1.computedValue
-
 export const updateDerivedColumnsHook = (
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: any,
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
-  // // If we're adding a column, we need to add it to the `derivedColumns` property as well
-  if (propertyValue && addColumnRegex.test(propertyPath)) {
-    if (propertyValue.id) {
-      const propertiesToUpdate = [];
-      // sets default value for some properties
-      propertyValue.labelColor = Colors.WHITE;
+  let propertiesToUpdate: Array<{
+    propertyPath: string;
+    propertyValue: any;
+  }> = [];
+  if (props && propertyValue) {
+    // If we're adding a column, we need to add it to the `derivedColumns` property as well
+    if (/^primaryColumns\.\w+$/.test(propertyPath)) {
+      const newId = propertyValue.id;
+      if (newId) {
+        // sets default value for some properties
+        propertyValue.labelColor = Colors.WHITE;
 
-      propertiesToUpdate.push({
-        propertyPath: `derivedColumns.${propertyValue.id}`,
-        propertyValue,
-      });
+        propertiesToUpdate = [
+          {
+            propertyPath: `derivedColumns.${newId}`,
+            propertyValue,
+          },
+        ];
+      }
 
       const oldColumnOrder = props.columnOrder || [];
       const newColumnOrder = [...oldColumnOrder, propertyValue.id];
@@ -309,35 +314,41 @@ export const updateDerivedColumnsHook = (
         propertyPath: "columnOrder",
         propertyValue: newColumnOrder,
       });
-      return propertiesToUpdate;
     }
-  }
+    // If we're updating a columns' name, we need to update the `derivedColumns` property as well.
+    const regex = /^primaryColumns\.(\w+)\.(.*)$/;
+    if (regex.test(propertyPath)) {
+      const matches = propertyPath.match(regex);
+      if (matches && matches.length === 3) {
+        // updated to use column keys
+        const columnId = matches[1];
+        const columnProperty = matches[2];
+        const primaryColumn = props.primaryColumns[columnId];
+        const isDerived = primaryColumn ? primaryColumn.isDerived : false;
 
-  // If we're updating a columns' name, computed value, we need to update the `derivedColumns` property as well.
-  const matches = propertyPath.match(updateColumnRegex);
-  if (matches && matches.length === 3) {
-    const propertiesToUpdate = [];
-    const columnId = matches[1];
-    const columnProperty = matches[2];
-    const { derivedColumns = {} } = props;
-    // only change derived properties of custom columns
-    if (derivedColumns[columnId]) {
-      propertiesToUpdate.push({
-        propertyPath: `derivedColumns.${columnId}.${columnProperty}`,
-        propertyValue: propertyValue,
-      });
+        const { derivedColumns = {} } = props;
+
+        if (isDerived && derivedColumns && derivedColumns[columnId]) {
+          propertiesToUpdate = [
+            {
+              propertyPath: `derivedColumns.${columnId}.${columnProperty}`,
+              propertyValue: propertyValue,
+            },
+          ];
+        }
+
+        updateThemeStylesheetsInColumns(
+          props,
+          propertyValue,
+          columnId,
+          columnProperty,
+          propertiesToUpdate,
+        );
+      }
     }
-
-    updateThemeStylesheetsInColumns(
-      props,
-      propertyValue,
-      columnId,
-      columnProperty,
-      propertiesToUpdate,
-    );
-
-    return propertiesToUpdate;
+    if (propertiesToUpdate.length > 0) return propertiesToUpdate;
   }
+  return;
 };
 
 /**

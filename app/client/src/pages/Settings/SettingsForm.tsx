@@ -35,6 +35,7 @@ import {
   connectedMethods,
   saveAllowed,
 } from "@appsmith/utils/adminSettingsHelpers";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -105,11 +106,17 @@ export function SettingsForm(
   const onSave = () => {
     if (checkMandatoryFileds()) {
       if (saveAllowed(props.settings)) {
+        AnalyticsUtil.logEvent("ADMIN_SETTINGS_SAVE", {
+          method: pageTitle,
+        });
         dispatch(saveSettings(props.settings));
       } else {
         saveBlocked();
       }
     } else {
+      AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
+        error: createMessage(MANDATORY_FIELDS_ERROR),
+      });
       Toaster.show({
         text: createMessage(MANDATORY_FIELDS_ERROR),
         variant: Variant.danger,
@@ -140,7 +147,12 @@ export function SettingsForm(
     return !(requiredFields.length > 0);
   };
 
-  const onClear = () => {
+  const onClear = (event?: React.FocusEvent<any, any>) => {
+    if (event?.type === "click") {
+      AnalyticsUtil.logEvent("ADMIN_SETTINGS_RESET", {
+        method: pageTitle,
+      });
+    }
     _.forEach(props.settingsConfig, (value, settingName) => {
       const setting = AdminConfig.settingsMap[settingName];
       if (setting && setting.controlType == SettingTypes.TOGGLE) {
@@ -161,6 +173,9 @@ export function SettingsForm(
   }, []);
 
   const saveBlocked = () => {
+    AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
+      error: createMessage(DISCONNECT_AUTH_ERROR),
+    });
     Toaster.show({
       text: createMessage(DISCONNECT_AUTH_ERROR),
       variant: Variant.danger,
@@ -176,6 +191,9 @@ export function SettingsForm(
         }
       });
       dispatch(saveSettings(updatedSettings));
+      AnalyticsUtil.logEvent("ADMIN_SETTINGS_DISCONNECT_AUTH_METHOD", {
+        method: pageTitle,
+      });
     } else {
       saveBlocked();
     }

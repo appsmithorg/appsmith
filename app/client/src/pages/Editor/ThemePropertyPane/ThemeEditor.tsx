@@ -96,11 +96,18 @@ function ThemeEditor() {
     AnalyticsUtil.logEvent("APP_THEMING_SAVE_THEME_START");
 
     setSaveModalOpen(true);
-  }, []);
+  }, [setSaveModalOpen]);
+
+  /**
+   * on close save modal
+   */
+  const onCloseSaveModal = useCallback(() => {
+    setSaveModalOpen(false);
+  }, [setSaveModalOpen]);
 
   return (
     <>
-      <div className="">
+      <div>
         <header className="px-3 space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -141,7 +148,7 @@ function ThemeEditor() {
         </div>
         <main className="mt-1">
           {/* FONT  */}
-          <SettingSection className="px-3 py-3" isOpen title="Font">
+          <SettingSection className="px-3 py-3" isDefaultOpen title="Font">
             {Object.keys(selectedTheme.config.fontFamily).map(
               (fontFamilySectionName: string, index: number) => {
                 return (
@@ -167,7 +174,11 @@ function ThemeEditor() {
             )}
           </SettingSection>
           {/* COLORS */}
-          <SettingSection className="px-3 py-3 border-t" isOpen title="Color">
+          <SettingSection
+            className="px-3 py-3 border-t"
+            isDefaultOpen
+            title="Color"
+          >
             <section className="space-y-2">
               <ThemeColorControl
                 theme={selectedTheme}
@@ -177,7 +188,11 @@ function ThemeEditor() {
           </SettingSection>
 
           {/* BORDER RADIUS */}
-          <SettingSection className="px-3 py-3 border-t " isOpen title="Border">
+          <SettingSection
+            className="px-3 py-3 border-t "
+            isDefaultOpen
+            title="Border"
+          >
             {Object.keys(selectedTheme.config.borderRadius).map(
               (borderRadiusSectionName: string, index: number) => {
                 return (
@@ -204,7 +219,11 @@ function ThemeEditor() {
           </SettingSection>
 
           {/* BOX SHADOW */}
-          <SettingSection className="px-3 py-3 border-t " isOpen title="Shadow">
+          <SettingSection
+            className="px-3 py-3 border-t "
+            isDefaultOpen
+            title="Shadow"
+          >
             {Object.keys(selectedTheme.config.boxShadow).map(
               (boxShadowSectionName: string, index: number) => {
                 return (
@@ -231,12 +250,7 @@ function ThemeEditor() {
           </SettingSection>
         </main>
       </div>
-      <SaveThemeModal
-        isOpen={isSaveModalOpen}
-        onClose={() => {
-          setSaveModalOpen(false);
-        }}
-      />
+      <SaveThemeModal isOpen={isSaveModalOpen} onClose={onCloseSaveModal} />
       <PopoverStyles />
     </>
   );

@@ -10,7 +10,7 @@ import {
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import generate from "nanoid/generate";
-import { WidgetPositionProps, WidgetProps } from "./BaseWidget";
+import { WidgetPositionProps } from "./BaseWidget";
 import { Theme } from "constants/DefaultTheme";
 import {
   ButtonStyleTypes,
@@ -28,6 +28,7 @@ import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleCon
 import { SchemaItem } from "./JSONFormWidget/constants";
 import { find, isEmpty } from "lodash";
 import { rgbaMigrationConstantV56 } from "./constants";
+import { DynamicPath } from "utils/DynamicBindingUtils";
 
 const punycode = require("punycode/");
 
@@ -122,11 +123,7 @@ export const getCustomHoverColor = (
   buttonVariant?: ButtonVariant,
   backgroundColor?: string,
 ) => {
-  if (!backgroundColor) {
-    return theme.colors.button[ButtonStyleTypes.PRIMARY.toLowerCase()][
-      (buttonVariant || ButtonVariantTypes.PRIMARY).toLowerCase()
-    ].hoverColor;
-  }
+  backgroundColor = backgroundColor ? backgroundColor : "#fff";
 
   switch (buttonVariant) {
     case ButtonVariantTypes.SECONDARY:
@@ -141,9 +138,7 @@ export const getCustomHoverColor = (
 
     default:
       return backgroundColor
-        ? tinycolor(backgroundColor)
-            .darken(10)
-            .toString()
+        ? darkenColor(backgroundColor, 10)
         : theme.colors.button.primary.primary.hoverColor;
   }
 };
@@ -154,6 +149,8 @@ export const getCustomBackgroundColor = (
 ) => {
   return buttonVariant === ButtonVariantTypes.PRIMARY
     ? backgroundColor
+      ? backgroundColor
+      : "#fff"
     : "none";
 };
 
@@ -214,7 +211,10 @@ export const escapeSpecialChars = (stringifiedJSONObject: string) => {
  * @returns
  */
 export const getComplementaryGrayscaleColor = (color = "#fff") => {
-  const rgb: any = tinycolor(color).toRgb();
+  const tinyColor = tinycolor(color);
+  const rgb: any = tinyColor.isValid()
+    ? tinyColor.toRgb()
+    : tinycolor("#fff").toRgb();
 
   const brightness = Math.round(
     (parseInt(rgb.r) * 299 + parseInt(rgb.g) * 587 + parseInt(rgb.b) * 114) /
@@ -246,7 +246,13 @@ export const lightenColor = (color = "#fff") => {
  * @returns
  */
 export const darkenColor = (color = "#fff", amount = 10) => {
-  return tinycolor(color).darken(amount);
+  const tinyColor = tinycolor(color);
+
+  return tinyColor.isValid()
+    ? tinyColor.darken(amount).toString()
+    : tinycolor("#fff")
+        .darken(amount)
+        .toString();
 };
 
 /**
@@ -307,6 +313,7 @@ export const PopoverStyles = createGlobalStyle<{
 
 /**
  * Maps the old font sizes such as HEADING1, HEADING2 etc. to the new theming fontSizes(in rems).
+ * This is specifically added for the theming migration. For text-widget v2 this function should be removed.
  * @param fontSize
  * @returns
  */
@@ -329,7 +336,8 @@ export const fontSizeUtility = (fontSize: string | undefined) => {
 };
 
 /**
- * Function to map Old borderRadius(with dynamic binding) to the new theming border radius in theming migration
+ * Function to map Old borderRadius(with dynamic binding) to the new theming border radius in theming migration.
+ * This function should be removed from the widgets whenever their is a new version release for the widgets.
  * @param borderRadius
  * @returns
  */
@@ -402,7 +410,7 @@ export const boxShadowUtility = (boxShadow: string, boxShadowColor: string) => {
  * @returns
  */
 export const boxShadowMigration = (
-  child: WidgetProps,
+  dynamicList: DynamicPath[],
   columnName: string,
   boxShadow: string,
   boxShadowColor: any,
@@ -410,10 +418,10 @@ export const boxShadowMigration = (
   const boxShadowRegex = new RegExp(columnName + ".boxShadow$");
   const boxShadowColorRegex = new RegExp(columnName + ".boxShadowColor$");
 
-  const isBoxShadowDynamic = find(child.dynamicBindingPathList, (value) =>
+  const isBoxShadowDynamic = find(dynamicList, (value) =>
     boxShadowRegex.test(value.key),
   );
-  const isBoxShadowColorDynamic = find(child.dynamicBindingPathList, (value) =>
+  const isBoxShadowColorDynamic = find(dynamicList, (value) =>
     boxShadowColorRegex.test(value.key),
   );
 

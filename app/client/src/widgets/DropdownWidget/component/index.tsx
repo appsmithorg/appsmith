@@ -115,8 +115,6 @@ const StyledControlGroup = styled(ControlGroup)<{
   compactMode: boolean;
   labelPosition?: LabelPosition;
 }>`
-  ${({ compactMode, labelPosition }) =>
-    labelPosition !== LabelPosition.Top && compactMode && `overflow-x: hidden`};
   &&& > {
     span {
       height: 100%;

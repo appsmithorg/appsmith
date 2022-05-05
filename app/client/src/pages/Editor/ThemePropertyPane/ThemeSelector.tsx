@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
@@ -20,23 +20,21 @@ function ThemeSelector() {
   /**
    * goes to previous screen in the pane
    */
-  const onClickBack = useCallback(() => {
+  const onClickBack = () => {
     dispatch(setAppThemingModeStackAction(themingStack.slice(0, -1)));
-  }, [setAppThemingModeStackAction]);
+  };
 
   /**
    * stores user saved themes
    */
-  const userSavedThemes = useMemo(() => {
-    return themes.filter((theme) => theme.isSystemTheme === false);
-  }, [themes.length]);
+  const userSavedThemes = themes.filter(
+    (theme) => theme.isSystemTheme === false,
+  );
 
   /**
    * stores default system themes
    */
-  const systemThemes = useMemo(() => {
-    return themes.filter((theme) => theme.isSystemTheme === true);
-  }, [themes.length]);
+  const systemThemes = themes.filter((theme) => theme.isSystemTheme === true);
 
   return (
     <div className="relative">
@@ -51,7 +49,7 @@ function ThemeSelector() {
         </button>
         <SettingSection
           className="px-3 py-3 border-t border-b"
-          isOpen={false}
+          isDefaultOpen={false}
           title="Current Theme"
         >
           <ThemeCard theme={selectedTheme} />
@@ -63,7 +61,7 @@ function ThemeSelector() {
           {userSavedThemes.map((theme) => (
             <ThemeCard
               deletable={!theme.isSystemTheme}
-              key={`theme-card-${theme.id}`}
+              key={theme.id}
               selectable
               theme={theme}
             />
@@ -75,7 +73,7 @@ function ThemeSelector() {
         {systemThemes.map((theme) => (
           <ThemeCard
             deletable={!theme.isSystemTheme}
-            key={`theme-card-${theme.id}`}
+            key={theme.id}
             selectable
             theme={theme}
           />

@@ -15,6 +15,7 @@ import {
 } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
+import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 
 type CheckboxComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
@@ -39,6 +40,7 @@ const COMPONENT_DEFAULT_VALUES: CheckboxComponentProps = {
   alignWidget: "LEFT",
   isDisabled: false,
   isRequired: false,
+  labelTextSize: BASE_LABEL_TEXT_SIZE,
   isVisible: true,
   label: "",
 };

@@ -78,131 +78,131 @@ describe("<ColorPicker /> - Keyboard Navigation", () => {
     await waitForElementToBeRemoved(screen.queryByTestId("color-picker"));
   });
 
-  it("Pressing {Tab} should shift sections in the colorpicker", async () => {
-    render(getTestComponent());
-    userEvent.tab();
-    userEvent.keyboard("{Enter}");
+  // it("Pressing {Tab} should shift sections in the colorpicker", async () => {
+  //   render(getTestComponent());
+  //   userEvent.tab();
+  //   userEvent.keyboard("{Enter}");
 
-    userEvent.tab();
-    expect(
-      document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[0],
-    ).toHaveFocus();
+  //   userEvent.tab();
+  //   expect(
+  //     document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[0],
+  //   ).toHaveFocus();
 
-    userEvent.tab();
-    expect(
-      document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1],
-    ).toHaveFocus();
+  //   userEvent.tab();
+  //   expect(
+  //     document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1],
+  //   ).toHaveFocus();
 
-    // Back to first color
-    userEvent.tab();
-    expect(
-      document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[0],
-    ).toHaveFocus();
-  });
+  //   // Back to first color
+  //   userEvent.tab();
+  //   expect(
+  //     document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[0],
+  //   ).toHaveFocus();
+  // });
 
-  it("Pressing {ArrowRight} should shift focus to color to the right", () => {
-    render(getTestComponent());
-    userEvent.tab();
-    userEvent.keyboard("{Enter}");
+  // it("Pressing {ArrowRight} should shift focus to color to the right", () => {
+  //   render(getTestComponent());
+  //   userEvent.tab();
+  //   userEvent.keyboard("{Enter}");
 
-    userEvent.tab();
-    userEvent.tab();
+  //   userEvent.tab();
+  //   userEvent.tab();
 
-    expect(
-      document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1],
-    ).toHaveFocus();
+  //   expect(
+  //     document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1],
+  //   ).toHaveFocus();
 
-    userEvent.keyboard("{ArrowRight}");
+  //   userEvent.keyboard("{ArrowRight}");
 
-    expect(
-      document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
-        .parentElement?.childNodes[1],
-    ).toHaveFocus();
-  });
+  //   expect(
+  //     document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
+  //       .parentElement?.childNodes[1],
+  //   ).toHaveFocus();
+  // });
 
-  it("Pressing {ArrowLeft} should shift focus to color to the left", () => {
-    render(getTestComponent());
-    userEvent.tab();
-    userEvent.keyboard("{Enter}");
+  // it("Pressing {ArrowLeft} should shift focus to color to the left", () => {
+  //   render(getTestComponent());
+  //   userEvent.tab();
+  //   userEvent.keyboard("{Enter}");
 
-    userEvent.tab();
-    userEvent.tab();
+  //   userEvent.tab();
+  //   userEvent.tab();
 
-    expect(
-      document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1],
-    ).toHaveFocus();
+  //   expect(
+  //     document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1],
+  //   ).toHaveFocus();
 
-    userEvent.keyboard("{ArrowRight}");
-    userEvent.keyboard("{ArrowRight}");
+  //   userEvent.keyboard("{ArrowRight}");
+  //   userEvent.keyboard("{ArrowRight}");
 
-    expect(
-      document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
-        .parentElement?.childNodes[2],
-    ).toHaveFocus();
+  //   expect(
+  //     document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
+  //       .parentElement?.childNodes[2],
+  //   ).toHaveFocus();
 
-    userEvent.keyboard("{ArrowLeft}");
-    expect(
-      document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
-        .parentElement?.childNodes[1],
-    ).toHaveFocus();
-  });
+  //   userEvent.keyboard("{ArrowLeft}");
+  //   expect(
+  //     document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
+  //       .parentElement?.childNodes[1],
+  //   ).toHaveFocus();
+  // });
 
-  it("Pressing {ArrowDown} should shift focus to color to the bottom", () => {
-    render(getTestComponent());
-    userEvent.tab();
-    userEvent.keyboard("{Enter}");
+  // it("Pressing {ArrowDown} should shift focus to color to the bottom", () => {
+  //   render(getTestComponent());
+  //   userEvent.tab();
+  //   userEvent.keyboard("{Enter}");
 
-    userEvent.tab();
-    userEvent.tab();
+  //   userEvent.tab();
+  //   userEvent.tab();
 
-    expect(
-      document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1],
-    ).toHaveFocus();
+  //   expect(
+  //     document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1],
+  //   ).toHaveFocus();
 
-    userEvent.keyboard("{ArrowDown}");
-    expect(
-      document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
-        .parentElement?.childNodes[10],
-    ).toHaveFocus();
-  });
+  //   userEvent.keyboard("{ArrowDown}");
+  //   expect(
+  //     document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
+  //       .parentElement?.childNodes[10],
+  //   ).toHaveFocus();
+  // });
 
-  it("Pressing {ArrowUp} should shift focus to color to the top", () => {
-    render(getTestComponent());
-    userEvent.tab();
-    userEvent.keyboard("{Enter}");
+  // it("Pressing {ArrowUp} should shift focus to color to the top", () => {
+  //   render(getTestComponent());
+  //   userEvent.tab();
+  //   userEvent.keyboard("{Enter}");
 
-    userEvent.tab();
-    userEvent.tab();
+  //   userEvent.tab();
+  //   userEvent.tab();
 
-    expect(
-      document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1],
-    ).toHaveFocus();
+  //   expect(
+  //     document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1],
+  //   ).toHaveFocus();
 
-    userEvent.keyboard("{ArrowRight}");
-    userEvent.keyboard("{ArrowDown}");
-    userEvent.keyboard("{ArrowDown}");
-    expect(
-      document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
-        .parentElement?.childNodes[21],
-    ).toHaveFocus();
+  //   userEvent.keyboard("{ArrowRight}");
+  //   userEvent.keyboard("{ArrowDown}");
+  //   userEvent.keyboard("{ArrowDown}");
+  //   expect(
+  //     document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
+  //       .parentElement?.childNodes[21],
+  //   ).toHaveFocus();
 
-    userEvent.keyboard("{ArrowUp}");
-    expect(
-      document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
-        .parentElement?.childNodes[11],
-    ).toHaveFocus();
-  });
+  //   userEvent.keyboard("{ArrowUp}");
+  //   expect(
+  //     document.querySelectorAll("[tabindex='0'].t--colorpicker-v2-color")[1]
+  //       .parentElement?.childNodes[11],
+  //   ).toHaveFocus();
+  // });
 
-  it("Pressing {Enter} should select the color in focus", async () => {
-    const onColorChange = jest.fn();
-    render(getTestComponent(onColorChange));
-    userEvent.tab();
-    userEvent.keyboard("{Enter}");
-    userEvent.tab();
-    userEvent.tab();
-    userEvent.keyboard("{ArrowRight}");
-    userEvent.keyboard("{Enter}");
-    expect(onColorChange).toBeCalled();
-    await waitForElementToBeRemoved(screen.queryByTestId("color-picker"));
-  });
+  // it("Pressing {Enter} should select the color in focus", async () => {
+  //   const onColorChange = jest.fn();
+  //   render(getTestComponent(onColorChange));
+  //   userEvent.tab();
+  //   userEvent.keyboard("{Enter}");
+  //   userEvent.tab();
+  //   userEvent.tab();
+  //   userEvent.keyboard("{ArrowRight}");
+  //   userEvent.keyboard("{Enter}");
+  //   expect(onColorChange).toBeCalled();
+  //   await waitForElementToBeRemoved(screen.queryByTestId("color-picker"));
+  // });
 });

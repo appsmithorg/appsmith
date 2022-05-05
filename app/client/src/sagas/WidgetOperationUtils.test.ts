@@ -1,5 +1,7 @@
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { get } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
+import { FlattenedWidgetProps } from "widgets/constants";
 import {
   handleIfParentIsListWidgetWhilePasting,
   handleSpecificCasesWhilePasting,
@@ -7,7 +9,15 @@ import {
   checkIfPastingIntoListWidget,
   updateListWidgetPropertiesOnChildDelete,
   purgeOrphanedDynamicPaths,
-  removeDynamicBindingProperties,
+  getBoundariesFromSelectedWidgets,
+  getSnappedGrid,
+  changeIdsOfPastePositions,
+  getVerticallyAdjustedPositions,
+  getNewPositionsForCopiedWidgets,
+  CopiedWidgetGroup,
+  getPastePositionMapFromMousePointer,
+  getReflowedPositions,
+  getWidgetsFromIds,
 } from "./WidgetOperationUtils";
 
 describe("WidgetOperationSaga", () => {
@@ -623,82 +633,349 @@ describe("WidgetOperationSaga", () => {
     const result = purgeOrphanedDynamicPaths((input as any) as WidgetProps);
     expect(result).toStrictEqual(expected);
   });
-});
-
-describe("test removeDynamicBindingList", () => {
-  it("should remove table derived binding properties", () => {
-    // table bindings with derived properties
-    const dynamicBindingList = [
-      { key: "primaryColumns.step.computedValue" },
-      { key: "primaryColumns.task.computedValue" },
-      { key: "primaryColumns.status.computedValue" },
-      { key: "primaryColumns.action.computedValue" },
-      { key: "derivedColumns.customColumn1.isCellVisible" },
-      { key: "primaryColumns.customColumn1.isCellVisible" },
-    ];
-    const propertyPath = "primaryColumns.customColumn1.isCellVisible";
-    const dynamicProperties = removeDynamicBindingProperties(
-      propertyPath,
-      dynamicBindingList,
-    );
-
-    // should remove custom and derived properties for customColumn1.isCellVisible
-    expect(dynamicProperties).not.toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          key: "derivedColumns.customColumn1.isCellVisible",
-        }),
-        expect.objectContaining({
-          key: "primaryColumns.customColumn1.isCellVisible",
-        }),
-      ]),
-    );
+  it("should return boundaries of selected Widgets", () => {
+    const selectedWidgets = ([
+      {
+        id: "1234",
+        topRow: 10,
+        leftColumn: 20,
+        rightColumn: 45,
+        bottomRow: 40,
+      },
+      {
+        id: "1233",
+        topRow: 45,
+        leftColumn: 30,
+        rightColumn: 60,
+        bottomRow: 70,
+      },
+    ] as any) as WidgetProps[];
+    expect(getBoundariesFromSelectedWidgets(selectedWidgets)).toEqual({
+      totalWidth: 40,
+      maxThickness: 30,
+      topMostRow: 10,
+      leftMostColumn: 20,
+    });
+  });
+  describe("test getSnappedGrid", () => {
+    it("should return snapGrids for a ContainerWidget", () => {
+      const canvasWidget = ({
+        widgetId: "1234",
+        type: "CONTAINER_WIDGET",
+        noPad: true,
+      } as any) as WidgetProps;
+      expect(getSnappedGrid(canvasWidget, 250)).toEqual({
+        padding: 4,
+        snapGrid: {
+          snapColumnSpace: 3.78125,
+          snapRowSpace: 10,
+        },
+      });
+    });
+    it("should return snapGrids for non ContainerWidget", () => {
+      const canvasWidget = ({
+        widgetId: "1234",
+        type: "LIST_WIDGET",
+        noPad: false,
+      } as any) as WidgetProps;
+      expect(getSnappedGrid(canvasWidget, 250)).toEqual({
+        padding: 10,
+        snapGrid: {
+          snapColumnSpace: 3.59375,
+          snapRowSpace: 10,
+        },
+      });
+    });
+  });
+  it("should test changeIdsOfPastePositions", () => {
+    const newPastingPositionMap = {
+      "1234": {
+        id: "1234",
+        left: 10,
+        right: 20,
+        top: 10,
+        bottom: 20,
+      },
+      "1235": {
+        id: "1235",
+        left: 11,
+        right: 22,
+        top: 11,
+        bottom: 22,
+      },
+    };
+    expect(changeIdsOfPastePositions(newPastingPositionMap)).toEqual([
+      {
+        id: "1",
+        left: 10,
+        right: 20,
+        top: 10,
+        bottom: 20,
+      },
+      {
+        id: "2",
+        left: 11,
+        right: 22,
+        top: 11,
+        bottom: 22,
+      },
+    ]);
   });
 
-  it("should remove table binding properties", () => {
-    // table bindings
-    const dynamicBindingList = [
-      { key: "primaryColumns.step.computedValue" },
-      { key: "primaryColumns.task.computedValue" },
-      { key: "primaryColumns.status.computedValue" },
-      { key: "primaryColumns.action.computedValue" },
-      { key: "primaryColumns.action.buttonLabel" },
-    ];
-
-    const propertyPath = "primaryColumns.action.buttonLabel";
-
-    const dynamicProperties = removeDynamicBindingProperties(
-      propertyPath,
-      dynamicBindingList,
-    );
-
-    // should remove primaryColumns.action.buttonLabel property
-    expect(dynamicProperties).not.toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          key: "primaryColumns.action.buttonLabel",
-        }),
-      ]),
-    );
+  it("should offset widgets vertically so that it doesn't overlap with selected widgets", () => {
+    const selectedWidgets = [
+      {
+        id: "1234",
+        top: 10,
+        left: 20,
+        right: 45,
+        bottom: 40,
+      },
+      {
+        id: "1233",
+        top: 45,
+        left: 30,
+        right: 60,
+        bottom: 70,
+      },
+      {
+        id: "1235",
+        topRow: 80,
+        left: 10,
+        right: 50,
+        bottom: 100,
+      },
+    ] as OccupiedSpace[];
+    const copiedWidgets = ([
+      {
+        id: "1234",
+        top: 10,
+        left: 20,
+        right: 45,
+        bottom: 40,
+      },
+      {
+        id: "1233",
+        top: 45,
+        left: 30,
+        right: 60,
+        bottom: 70,
+      },
+    ] as any) as OccupiedSpace[];
+    expect(
+      getVerticallyAdjustedPositions(copiedWidgets, selectedWidgets, 30),
+    ).toEqual({
+      "1234": {
+        id: "1234",
+        top: 71,
+        left: 20,
+        right: 45,
+        bottom: 101,
+      },
+      "1233": {
+        id: "1233",
+        top: 106,
+        left: 30,
+        right: 60,
+        bottom: 131,
+      },
+    });
   });
+  it("should test getNewPositionsForCopiedWidgets", () => {
+    const copiedGroups = ([
+      {
+        widgetId: "1234",
+        list: [
+          {
+            topRow: 10,
+            leftColumn: 20,
+            rightColumn: 45,
+            bottomRow: 40,
+          },
+        ],
+      },
+      {
+        widgetId: "1235",
+        list: [
+          {
+            topRow: 45,
+            leftColumn: 25,
+            rightColumn: 40,
+            bottomRow: 80,
+          },
+        ],
+      },
+    ] as any) as CopiedWidgetGroup[];
+    expect(
+      getNewPositionsForCopiedWidgets(copiedGroups, 10, 40, 20, 10),
+    ).toEqual([
+      {
+        id: "1234",
+        top: 40,
+        left: 10,
+        right: 35,
+        bottom: 70,
+      },
+      {
+        id: "1235",
+        top: 75,
+        left: 15,
+        right: 30,
+        bottom: 110,
+      },
+    ]);
+  });
+  it("should test getPastePositionMapFromMousePointer", () => {
+    const copiedGroups = ([
+      {
+        widgetId: "1234",
+        list: [
+          {
+            topRow: 10,
+            leftColumn: 20,
+            rightColumn: 45,
+            bottomRow: 40,
+          },
+        ],
+      },
+      {
+        widgetId: "1235",
+        list: [
+          {
+            topRow: 45,
+            leftColumn: 25,
+            rightColumn: 40,
+            bottomRow: 80,
+          },
+        ],
+      },
+    ] as any) as CopiedWidgetGroup[];
+    expect(
+      getPastePositionMapFromMousePointer(copiedGroups, 10, 40, 20, 10),
+    ).toEqual({
+      "1234": {
+        id: "1234",
+        top: 40,
+        left: 10,
+        right: 35,
+        bottom: 70,
+      },
+      "1235": {
+        id: "1235",
+        top: 75,
+        left: 15,
+        right: 30,
+        bottom: 110,
+      },
+    });
+  });
+  it("should test getReflowedPositions", () => {
+    const widgets = {
+      "1234": {
+        widgetId: "1234",
+        topRow: 40,
+        leftColumn: 10,
+        rightColumn: 35,
+        bottomRow: 70,
+      } as FlattenedWidgetProps,
+      "1233": {
+        widgetId: "1233",
+        topRow: 45,
+        leftColumn: 30,
+        rightColumn: 60,
+        bottomRow: 70,
+      } as FlattenedWidgetProps,
+      "1235": {
+        widgetId: "1235",
+        topRow: 75,
+        leftColumn: 15,
+        rightColumn: 30,
+        bottomRow: 110,
+      } as FlattenedWidgetProps,
+    };
 
-  it("should remove widget properties", () => {
-    // button widget binding
-    const dynamicBindingList = [{ key: "isVisible" }];
+    const gridProps = {
+      parentRowSpace: 10,
+      parentColumnSpace: 10,
+      maxGridColumns: 64,
+    };
 
-    const propertyPath = "isVisible";
-    const dynamicProperties = removeDynamicBindingProperties(
-      propertyPath,
-      dynamicBindingList,
-    );
+    const reflowingWidgets = {
+      "1234": {
+        X: 30,
+        width: 200,
+      },
+      "1235": {
+        X: 40,
+        width: 250,
+        Y: 50,
+        height: 250,
+      },
+    };
 
-    // should remove the isVisible property
-    expect(dynamicProperties).not.toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          key: "isVisible",
-        }),
-      ]),
-    );
+    expect(getReflowedPositions(widgets, gridProps, reflowingWidgets)).toEqual({
+      "1234": {
+        widgetId: "1234",
+        topRow: 40,
+        leftColumn: 13,
+        rightColumn: 33,
+        bottomRow: 70,
+      },
+      "1233": {
+        widgetId: "1233",
+        topRow: 45,
+        leftColumn: 30,
+        rightColumn: 60,
+        bottomRow: 70,
+      },
+      "1235": {
+        widgetId: "1235",
+        topRow: 80,
+        leftColumn: 19,
+        rightColumn: 44,
+        bottomRow: 105,
+      },
+    });
+  });
+  it("should test getWidgetsFromIds", () => {
+    const widgets = {
+      "1234": {
+        widgetId: "1234",
+        topRow: 40,
+        leftColumn: 10,
+        rightColumn: 35,
+        bottomRow: 70,
+      } as FlattenedWidgetProps,
+      "1233": {
+        widgetId: "1233",
+        topRow: 45,
+        leftColumn: 30,
+        rightColumn: 60,
+        bottomRow: 70,
+      } as FlattenedWidgetProps,
+      "1235": {
+        widgetId: "1235",
+        topRow: 75,
+        leftColumn: 15,
+        rightColumn: 30,
+        bottomRow: 110,
+      } as FlattenedWidgetProps,
+    };
+    expect(getWidgetsFromIds(["1235", "1234", "1237"], widgets)).toEqual([
+      {
+        widgetId: "1235",
+        topRow: 75,
+        leftColumn: 15,
+        rightColumn: 30,
+        bottomRow: 110,
+      },
+      {
+        widgetId: "1234",
+        topRow: 40,
+        leftColumn: 10,
+        rightColumn: 35,
+        bottomRow: 70,
+      },
+    ]);
   });
 });

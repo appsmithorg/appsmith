@@ -23,12 +23,16 @@ import {
 import Spinner from "components/ads/Spinner";
 import useGoogleFont from "utils/hooks/useGoogleFont";
 import { IconSize } from "components/ads/Icon";
+import { getCurrentThemeDetails } from "selectors/themeSelectors";
 
-const Container = styled.section`
+const Container = styled.section<{
+  background: string;
+}>`
   width: 100%;
   position: relative;
   overflow-x: auto;
   overflow-y: auto;
+  background: ${({ background }) => background};
   &:before {
     position: absolute;
     top: 0;
@@ -45,6 +49,7 @@ function CanvasContainer() {
   const isFetchingPage = useSelector(getIsFetchingPage);
   const widgets = useSelector(getCanvasWidgetDsl);
   const pages = useSelector(getViewModePageList);
+  const theme = useSelector(getCurrentThemeDetails);
   const isPreviewMode = useSelector(previewModeSelector);
   const selectedTheme = useSelector(getSelectedAppTheme);
   const params = useParams<{ applicationId: string; pageId: string }>();
@@ -73,9 +78,16 @@ function CanvasContainer() {
   if (!isFetchingPage && widgets) {
     node = <Canvas dsl={widgets} pageId={params.pageId} />;
   }
-
+  // calculating exact height to not allow scroll at this component,
+  // calculating total height minus margin on top, top bar and bottom bar
+  const heightWithTopMargin = `calc(100vh - 2.25rem - ${theme.smallHeaderHeight} - ${theme.bottomBarHeight})`;
   return (
     <Container
+      background={
+        isPreviewMode
+          ? selectedTheme.properties.colors.backgroundColor
+          : "initial"
+      }
       className={classNames({
         [`${getCanvasClassName()} scrollbar-thin`]: true,
         "mt-0": !shouldHaveTopMargin,
@@ -83,11 +95,8 @@ function CanvasContainer() {
       })}
       key={currentPageId}
       style={{
-        height: `calc(100% - ${shouldHaveTopMargin ? "2rem" : "0px"})`,
+        height: shouldHaveTopMargin ? heightWithTopMargin : "100vh",
         fontFamily: fontFamily,
-        background: isPreviewMode
-          ? selectedTheme.properties.colors.backgroundColor
-          : "initial",
       }}
     >
       {isAppThemeChanging && (

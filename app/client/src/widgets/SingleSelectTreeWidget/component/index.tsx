@@ -158,7 +158,6 @@ function SingleSelectTreeComponent({
     [],
   );
   const onClear = useCallback(() => onChange([], []), []);
-  const id = widgetId;
   const onOpen = useCallback((open: boolean) => {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
@@ -231,7 +230,7 @@ function SingleSelectTreeComponent({
         accentColor={accentColor}
         borderRadius={borderRadius}
         dropDownWidth={memoDropDownWidth}
-        id={id}
+        id={widgetId}
       />
       {labelText && (
         <LabelWithTooltip

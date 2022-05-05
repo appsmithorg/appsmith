@@ -2,6 +2,7 @@ const pages = require("../../../../locators/Pages.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 import homePage from "../../../../locators/HomePage";
 const datasource = require("../../../../locators/DatasourcesEditor.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
   let datasourceName;
@@ -91,6 +92,9 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
       "response.body.responseMeta.status",
       200,
     );
+    cy.get(commonlocators.toastAction)
+      .should("have.length", 1)
+      .should("have.text", "Successfully generated a page");
     cy.get("span:contains('GOT IT')").click();
   });
 

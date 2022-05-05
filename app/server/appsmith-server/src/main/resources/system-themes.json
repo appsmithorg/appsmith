@@ -4,7 +4,7 @@
     "displayName": "Classic",
     "config": {
       "colors": {
-        "primaryColor": "#50AF6C",
+        "primaryColor": "#16a34a",
         "backgroundColor": "#F6F6F6"
       },
       "borderRadius": {
@@ -50,7 +50,6 @@
       },
       "BUTTON_GROUP_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
         "boxShadow": "none",
         "childStylesheet": {
           "button": {
@@ -100,7 +99,6 @@
       "FILE_PICKER_WIDGET_V2": {
         "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
         "boxShadow": "none"
       },
       "FORM_WIDGET": {
@@ -119,24 +117,22 @@
       },
       "IFRAME_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
       "IMAGE_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
         "boxShadow": "none"
       },
       "INPUT_WIDGET": {
         "accentColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+
         "boxShadow": "none"
       },
       "INPUT_WIDGET_V2": {
         "accentColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+
         "boxShadow": "none"
       },
       "JSON_FORM_WIDGET": {
@@ -338,6 +334,7 @@
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
       "TEXT_WIDGET": {
+        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
       },
       "VIDEO_WIDGET": {
@@ -352,7 +349,7 @@
     },
     "properties": {
       "colors": {
-        "primaryColor": "#50AF6C",
+        "primaryColor": "#16a34a",
         "backgroundColor": "#F6F6F6"
       },
       "borderRadius": {
@@ -417,7 +414,7 @@
       },
       "BUTTON_GROUP_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+
         "boxShadow": "none",
         "childStylesheet": {
           "button": {
@@ -467,7 +464,7 @@
       "FILE_PICKER_WIDGET_V2": {
         "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+
         "boxShadow": "none"
       },
       "FORM_WIDGET": {
@@ -486,24 +483,24 @@
       },
       "IFRAME_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
       "IMAGE_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+
         "boxShadow": "none"
       },
       "INPUT_WIDGET": {
         "accentColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+
         "boxShadow": "none"
       },
       "INPUT_WIDGET_V2": {
         "accentColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+
         "boxShadow": "none"
       },
       "JSON_FORM_WIDGET": {
@@ -705,6 +702,7 @@
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
       "TEXT_WIDGET": {
+        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
       },
       "VIDEO_WIDGET": {
@@ -784,7 +782,7 @@
       },
       "BUTTON_GROUP_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+
         "boxShadow": "none",
         "childStylesheet": {
           "button": {
@@ -834,7 +832,7 @@
       "FILE_PICKER_WIDGET_V2": {
         "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+
         "boxShadow": "none"
       },
       "FORM_WIDGET": {
@@ -853,24 +851,24 @@
       },
       "IFRAME_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
       "IMAGE_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+
         "boxShadow": "none"
       },
       "INPUT_WIDGET": {
         "accentColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+
         "boxShadow": "none"
       },
       "INPUT_WIDGET_V2": {
         "accentColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+
         "boxShadow": "none"
       },
       "JSON_FORM_WIDGET": {
@@ -1072,7 +1070,8 @@
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
       "TEXT_WIDGET": {
-        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}"
       },
       "VIDEO_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
@@ -1151,7 +1150,7 @@
       },
       "BUTTON_GROUP_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+
         "boxShadow": "none",
         "childStylesheet": {
           "button": {
@@ -1201,7 +1200,6 @@
       "FILE_PICKER_WIDGET_V2": {
         "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
         "boxShadow": "none"
       },
       "FORM_WIDGET": {
@@ -1220,24 +1218,20 @@
       },
       "IFRAME_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
       "IMAGE_WIDGET": {
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
         "boxShadow": "none"
       },
       "INPUT_WIDGET": {
         "accentColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
         "boxShadow": "none"
       },
       "INPUT_WIDGET_V2": {
         "accentColor": "{{appsmith.theme.colors.primaryColor}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
         "boxShadow": "none"
       },
       "JSON_FORM_WIDGET": {
@@ -1439,6 +1433,7 @@
         "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
       },
       "TEXT_WIDGET": {
+        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
       },
       "VIDEO_WIDGET": {
