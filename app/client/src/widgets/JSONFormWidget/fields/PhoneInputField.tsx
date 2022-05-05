@@ -14,6 +14,7 @@ import ISDCodeDropdown, {
   ISDCodeDropdownOptions,
 } from "widgets/PhoneInputWidget/component/ISDCodeDropdown";
 import { isEmpty } from "../helper";
+import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 
 type PhoneInputComponentProps = BaseInputComponentProps & {
   allowDialCodeChange: boolean;
@@ -27,6 +28,7 @@ export type PhoneInputFieldProps = BaseFieldComponentProps<
 type ISDCodeDropdownComponentProps = {
   allowDialCodeChange: boolean;
   dialCode: string;
+  fieldName: string;
   isDisabled: boolean;
   propertyPath: string;
 };
@@ -38,6 +40,7 @@ const COMPONENT_DEFAULT_VALUES: PhoneInputComponentProps = {
   isRequired: false,
   isSpellCheck: false,
   isVisible: true,
+  labelTextSize: BASE_LABEL_TEXT_SIZE,
   label: "",
 };
 
@@ -75,6 +78,7 @@ const transformValue = (value: string) => {
 function ISDCodeDropdownComponent({
   allowDialCodeChange,
   dialCode,
+  fieldName,
   isDisabled,
   propertyPath,
 }: ISDCodeDropdownComponentProps) {
@@ -99,6 +103,7 @@ function ISDCodeDropdownComponent({
       onISDCodeChange={onISDCodeChange}
       options={ISDCodeDropdownOptions}
       selected={selectedISDCode}
+      widgetId={fieldName}
     />
   );
 }
@@ -114,6 +119,7 @@ function PhoneInputField({
     <ISDCodeDropdownComponent
       allowDialCodeChange={schemaItem.allowDialCodeChange}
       dialCode={schemaItem.dialCode}
+      fieldName={name}
       isDisabled={schemaItem.isDisabled}
       propertyPath={propertyPath}
     />

@@ -170,16 +170,12 @@ describe("Undo/Redo functionality", function() {
 
   it("checks undo/redo for color picker", function() {
     cy.dragAndDropToCanvas("textwidget", { x: 100, y: 100 });
-    cy.get(widgetsPage.textColor)
-      .first()
-      .click({ force: true });
-    cy.get(widgetsPage.greenColor)
-      .last()
-      .click();
+    cy.selectColor("textcolor");
+    cy.get("body").click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.wait("@updateLayout");
-    cy.readTextDataValidateCSS("color", "rgb(3, 179, 101)");
+    cy.readTextDataValidateCSS("color", "rgb(126, 34, 206)");
 
     cy.get("body").type(`{${modifierKey}}z`);
     cy.get(widgetsPage.textColor)
@@ -192,7 +188,7 @@ describe("Undo/Redo functionality", function() {
     cy.get(widgetsPage.textColor)
       .first()
       .invoke("attr", "value")
-      .should("contain", "#03b365");
+      .should("contain", "#7e22ce");
   });
 
   it("checks undo/redo for option control for radio button", function() {

@@ -5,6 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.EnvVariables;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.EnvChangesResponseDTO;
@@ -19,6 +20,7 @@ import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.AnalyticsService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -71,6 +74,8 @@ import static com.appsmith.server.constants.EnvVariables.APPSMITH_RECAPTCHA_SITE
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_REPLY_TO;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_SIGNUP_ALLOWED_DOMAINS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_SIGNUP_DISABLED;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_GOOGLE_CLIENT_ID;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_GITHUB_CLIENT_ID;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -79,6 +84,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
     private final SessionUserService sessionUserService;
     private final UserService userService;
+    private final AnalyticsService analyticsService;
     private final UserRepository userRepository;
     private final PolicyUtils policyUtils;
     private final EmailSender emailSender;
@@ -196,6 +202,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
                     try {
                         Files.write(envFilePath, changedContent);
+                        sendAnalyticsEvent(user, originalVariables, changes);
                     } catch (IOException e) {
                         log.error("Unable to write to env file " + envFilePath, e);
                         return Mono.error(e);
@@ -282,6 +289,61 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
                     return Mono.just(new EnvChangesResponseDTO(true));
                 });
+    }
+
+    /**
+     * Sends analytics events after a new authentication method is added or removed.
+     * @param user
+     * @param originalVariables Already existing env variables
+     * @param changes Changes in the env variables
+     * @return
+     */
+    private Mono<Void> sendAnalyticsEvent(User user, Map<String, String> originalVariables, Map<String, String> changes) {
+        // Generate analytics event properties template(s) according to the env variable changes
+        List<Map> analyticsEvents = getAnalyticsEvents(originalVariables, changes, new ArrayList<>());
+
+        for (Map analyticsEvent : analyticsEvents) {
+            analyticsService.sendEvent(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.getEventName(), user.getUsername(), analyticsEvent);
+        }
+
+        return Mono.empty();
+    }
+
+    /**
+     * Generates analytics event properties template(s) according to the env variable changes.
+     * @param originalVariables Already existing env variables
+     * @param changes Changes in the env variables
+     * @param extraAuthEnvs To incorporate extra authentication methods in enterprise edition
+     * @return
+     */
+    public List<Map> getAnalyticsEvents(Map<String, String> originalVariables, Map<String, String> changes, List<String> extraAuthEnvs){
+        List<String> authEnvs = new ArrayList<>(List.of(APPSMITH_OAUTH2_GOOGLE_CLIENT_ID.name(), APPSMITH_OAUTH2_GITHUB_CLIENT_ID.name()));
+
+        // Add extra authentication methods
+        authEnvs.addAll(extraAuthEnvs);
+
+        // Generate analytics event(s) properties
+        List<Map> analyticsEvents = new ArrayList<>();
+        for (String authEnv : authEnvs) {
+            if (changes.containsKey(authEnv)) {
+                Map<String, String> properties = new HashMap<>(){{
+                    put("provider", authEnv);
+                }};
+                // Authentication configuration added
+                if (!changes.get(authEnv).isEmpty() && originalVariables.get(authEnv).isEmpty()) {
+                    properties.put("action", "Added");
+                }
+                // Authentication configuration removed
+                else if (changes.get(authEnv).isEmpty() && !originalVariables.get(authEnv).isEmpty()) {
+                    properties.put("action", "Removed");
+                }
+                if(properties.containsKey("action")){
+                    analyticsEvents.add(properties);
+                }
+            }
+        }
+
+        return analyticsEvents;
     }
 
     /**
