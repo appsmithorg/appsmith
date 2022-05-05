@@ -95,78 +95,6 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         sectionName: "Styles",
         children: [
           {
-            propertyName: "backgroundColor",
-            label: "Cell Background Color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                regex: /^((?![<|{{]).+){0,1}/,
-                expected: {
-                  type: "string (HTML color name or HEX value)",
-                  example: `red | #9C0D38`,
-                  autocompleteDataType: AutocompleteDataType.STRING,
-                },
-              },
-            },
-          },
-          {
-            propertyName: "textColor",
-            label: "Text Color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                regex: /^(?![<|{{]).+/,
-              },
-            },
-          },
-          {
-            propertyName: "truncateButtonColor",
-            label: "Truncate Button Color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                regex: /^(?![<|{{]).+/,
-              },
-            },
-            dependencies: ["overflow"],
-            hidden: (props: TextWidgetProps) => {
-              return props.overflow !== OverflowTypes.TRUNCATE;
-            },
-          },
-          {
-            helpText: "Use a html color name, HEX, RGB or RGBA value",
-            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-            propertyName: "borderColor",
-            label: "Border Color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            helpText:
-              "Enter value for border width which can also use as margin",
-            propertyName: "borderWidth",
-            label: "Border Width",
-            placeholderText: "Enter value in px",
-            controlType: "INPUT_TEXT",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
-          },
-          {
             propertyName: "fontSize",
             label: "Text Size",
             controlType: "DROP_DOWN",
@@ -263,6 +191,78 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.TEXT,
             },
+          },
+          {
+            propertyName: "backgroundColor",
+            label: "Cell Background Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^((?![<|{{]).+){0,1}/,
+                expected: {
+                  type: "string (HTML color name or HEX value)",
+                  example: `red | #9C0D38`,
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
+              },
+            },
+          },
+          {
+            propertyName: "textColor",
+            label: "Text Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
+          },
+          {
+            propertyName: "truncateButtonColor",
+            label: "Truncate Button Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
+            dependencies: ["overflow"],
+            hidden: (props: TextWidgetProps) => {
+              return props.overflow !== OverflowTypes.TRUNCATE;
+            },
+          },
+          {
+            helpText: "Use a html color name, HEX, RGB or RGBA value",
+            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
+            propertyName: "borderColor",
+            label: "Border Color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText:
+              "Enter value for border width which can also use as margin",
+            propertyName: "borderWidth",
+            label: "Border Width",
+            placeholderText: "Enter value in px",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.NUMBER },
           },
           {
             propertyName: "fontStyle",
