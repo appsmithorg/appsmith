@@ -3,11 +3,16 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import BaseInputComponent from "widgets/BaseInputWidget/component";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
-import { CellLayoutProperties, TABLE_SIZES } from "../Constants";
+import {
+  CellLayoutProperties,
+  TABLE_SIZES,
+  VerticalAlignment,
+} from "../Constants";
 
 const Wrapper = styled.div<{
-  cellProperties: CellLayoutProperties;
   compactMode: string;
+  allowCellWrapping?: boolean;
+  verticalAlignment?: VerticalAlignment;
 }>`
   padding: 1px;
   border: 1px solid ${Colors.GREEN_1};
@@ -18,11 +23,11 @@ const Wrapper = styled.div<{
   left: 0;
   overflow: hidden;
   height: ${(props) =>
-    props.cellProperties.allowCellWrapping
+    props.allowCellWrapping
       ? `100%`
       : `${TABLE_SIZES[props.compactMode].ROW_HEIGHT}px`};
   ${(props) => {
-    switch (props.cellProperties.verticalAlignment) {
+    switch (props.verticalAlignment) {
       case "TOP":
         return `top: 0;`;
       case "BOTTOM":
@@ -63,7 +68,6 @@ const Wrapper = styled.div<{
 `;
 
 type InlineEditorPropsType = {
-  cellProperties: CellLayoutProperties;
   compactMode: string;
   inputType: InputTypes.TEXT | InputTypes.NUMBER;
   multiline: boolean;
@@ -71,10 +75,11 @@ type InlineEditorPropsType = {
   onDiscard: () => void;
   onSave: () => void;
   value: any;
+  allowCellWrapping?: boolean;
+  verticalAlignment?: VerticalAlignment;
 };
 
 export function InlineCellEditor({
-  cellProperties,
   compactMode,
   inputType = InputTypes.TEXT,
   multiline,
@@ -126,7 +131,11 @@ export function InlineCellEditor({
   }, [cursorPos, inputRef.current]);
 
   return (
-    <Wrapper cellProperties={cellProperties} compactMode={compactMode}>
+    <Wrapper
+      allowCellWrapping={cellProperties.allowCellWrapping}
+      compactMode={compactMode}
+      verticalAlignment={cellProperties.verticalAlignment}
+    >
       <BaseInputComponent
         autoFocus
         compactMode

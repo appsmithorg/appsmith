@@ -2,7 +2,12 @@ import React from "react";
 import { IconName } from "@blueprintjs/icons";
 import { Alignment } from "@blueprintjs/core";
 
-import { CellLayoutProperties, MenuItems } from "../Constants";
+import {
+  CellAlignment,
+  CellLayoutProperties,
+  MenuItems,
+  VerticalAlignment,
+} from "../Constants";
 import {
   ButtonVariant,
   ButtonBoxShadow,
@@ -67,7 +72,6 @@ function MenuButton({
 export interface RenderMenuButtonProps {
   compactMode: string;
   isSelected: boolean;
-  // columnActions?: ColumnAction[];
   label: string;
   isDisabled: boolean;
   isCellVisible: boolean;
@@ -81,21 +85,32 @@ export interface RenderMenuButtonProps {
   boxShadowColor?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
+  isHidden: boolean;
+  allowCellWrapping?: boolean;
+  horizontalAlignment?: CellAlignment;
+  verticalAlignment?: VerticalAlignment;
 }
 
-export const renderMenuButton = (
-  props: RenderMenuButtonProps,
-  isHidden: boolean,
-  cellProperties: CellLayoutProperties,
-) => {
+export function MenuButtonCell(props: RenderMenuButtonProps) {
+  const {
+    allowCellWrapping,
+    compactMode,
+    horizontalAlignment,
+    isCellVisible,
+    isHidden,
+    verticalAlignment,
+  } = props;
+
   return (
     <CellWrapper
-      cellProperties={cellProperties}
-      compactMode={props.compactMode}
-      isCellVisible={props.isCellVisible}
+      allowCellWrapping={allowCellWrapping}
+      compactMode={compactMode}
+      horizontalAlignment={horizontalAlignment}
+      isCellVisible={isCellVisible}
       isHidden={isHidden}
+      verticalAlignment={verticalAlignment}
     >
       <MenuButton {...props} />
     </CellWrapper>
   );
-};
+}
