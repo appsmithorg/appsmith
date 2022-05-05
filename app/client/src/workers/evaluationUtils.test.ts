@@ -20,6 +20,10 @@ import {
 import { warn as logWarn } from "loglevel";
 import { Diff } from "deep-diff";
 import { flatten } from "lodash";
+import { generateDataTreeWidget } from "../entities/DataTree/dataTreeWidget";
+import { overrideWidgetProperties } from "./evaluationUtils";
+import { DataTree } from "../entities/DataTree/dataTreeFactory";
+import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
 
 // to check if logWarn was called.
 // use jest.unmock, if the mock needs to be removed.
@@ -393,5 +397,54 @@ describe("translateDiffEvent", () => {
     );
 
     expect(expectedTranslations).toStrictEqual(actualTranslations);
+  });
+});
+
+describe("overrideWidgetProperties", () => {
+  const currentTree: DataTree = {
+    Input1: {
+      widgetId: "Input1",
+      defaultText: "abc",
+      text: "",
+      meta: {
+        inputText: "",
+        text: "",
+      },
+      overridingPropertyPaths: {
+        defaultText: ["inputText", "meta.inputText", "text", "meta.text"],
+        "meta.inputText": ["inputText"],
+        "meta.text": ["text"],
+      },
+      propertyOverrideDependency: {
+        inputText: {
+          DEFAULT: "defaultText",
+          META: "meta.inputText",
+        },
+        text: {
+          DEFAULT: "defaultText",
+          META: "meta.text",
+        },
+      },
+    },
+  };
+
+  it("defaultText updating meta and text", () => {
+    const evalMetaUpdates: EvalMetaUpdates = [];
+    const overwriteObj = overrideWidgetProperties({
+      currentTree,
+      entity: currentTree.Input1 as DataTreeWidget,
+      propertyPath: "defaultText",
+      value: "abcde",
+      evalMetaUpdates,
+    });
+
+    expect(overwriteObj).toStrictEqual(undefined);
+
+    expect(evalMetaUpdates).toStrictEqual([
+      { widgetId: "Input1", metaPropertyPath: ["inputText"], value: "abcde" },
+      { widgetId: "Input1", metaPropertyPath: ["text"], value: "abcde" },
+    ]);
+    // Fix test
+    // expect(currentTree.Input1.meta).toStrictEqual("abcde");
   });
 });
