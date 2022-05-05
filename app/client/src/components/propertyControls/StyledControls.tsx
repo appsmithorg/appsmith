@@ -187,6 +187,8 @@ const InputGroup = styled(TextInput)`
 `;
 
 const StyledInputWrapper = styled.div`
+  width: 100%;
+
   &:focus ${InputWrapper} {
     border: 1px solid var(--appsmith-input-focus-border-color);
   }
@@ -227,7 +229,7 @@ export const StyledInputGroup = React.forwardRef(
 
     return (
       <StyledInputWrapper ref={wrapperRef} tabIndex={0}>
-        <InputGroup ref={inputRef} {...props} tabIndex={-1} />
+        <InputGroup ref={inputRef} {...props} tabIndex={-1} width="auto" />
       </StyledInputWrapper>
     );
   },
