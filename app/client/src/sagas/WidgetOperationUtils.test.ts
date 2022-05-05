@@ -1,4 +1,5 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { get } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import { FlattenedWidgetProps } from "widgets/constants";
@@ -6,7 +7,8 @@ import {
   handleIfParentIsListWidgetWhilePasting,
   handleSpecificCasesWhilePasting,
   doesTriggerPathsContainPropertyPath,
-  checkIfPastingIntoListWidget,
+  getSelectedWidgetIfPastingIntoListWidget,
+  checkIfPastingListWidgetOntoItself,
   updateListWidgetPropertiesOnChildDelete,
   purgeOrphanedDynamicPaths,
   getBoundariesFromSelectedWidgets,
@@ -400,8 +402,8 @@ describe("WidgetOperationSaga", () => {
     );
   });
 
-  it("should returns widgets after executing checkIfPastingIntoListWidget", async () => {
-    const result = checkIfPastingIntoListWidget(
+  it("should returns widgets after executing getSelectedWidgetIfPastingIntoListWidget", async () => {
+    const result = getSelectedWidgetIfPastingIntoListWidget(
       {
         list2: {
           widgetId: "list2",
@@ -977,5 +979,106 @@ describe("WidgetOperationSaga", () => {
         bottomRow: 70,
       },
     ]);
+  });
+  it("should test checkIfPastingListWidgetOntoItself", () => {
+    const canvasWidgets = {
+      list2: {
+        widgetId: "list2",
+        type: "LIST_WIDGET",
+        widgetName: "List2",
+        parentId: "0",
+        renderMode: RenderModes.CANVAS,
+        parentColumnSpace: 2,
+        parentRowSpace: 3,
+        leftColumn: 2,
+        rightColumn: 3,
+        topRow: 1,
+        bottomRow: 3,
+        isLoading: false,
+        listData: [],
+        version: 16,
+        disablePropertyPane: false,
+        template: {},
+        children: [],
+      },
+    };
+    const selectedWidget = {
+      widgetId: "list2",
+      type: "LIST_WIDGET",
+      widgetName: "List2",
+      parentId: "0",
+      renderMode: RenderModes.CANVAS,
+      parentColumnSpace: 2,
+      parentRowSpace: 3,
+      leftColumn: 2,
+      rightColumn: 3,
+      topRow: 1,
+      bottomRow: 3,
+      isLoading: false,
+      listData: [],
+      version: 16,
+      disablePropertyPane: false,
+      template: {},
+      children: [],
+    };
+    //if copying list widget onto list widget
+    expect(
+      checkIfPastingListWidgetOntoItself(canvasWidgets, selectedWidget, [
+        {
+          widgetId: "list2",
+          parentId: "0",
+          list: [
+            {
+              widgetId: "list2",
+              type: "LIST_WIDGET",
+              widgetName: "List2",
+              parentId: "0",
+              renderMode: "CANVAS",
+              parentColumnSpace: 2,
+              parentRowSpace: 3,
+              leftColumn: 2,
+              rightColumn: 3,
+              topRow: 1,
+              bottomRow: 3,
+              isLoading: false,
+              listData: [],
+              version: 16,
+              disablePropertyPane: false,
+              template: {},
+            },
+          ],
+        },
+      ]),
+    ).toBe(true);
+
+    //if copying container widget onto list widget
+    expect(
+      checkIfPastingListWidgetOntoItself(canvasWidgets, selectedWidget, [
+        {
+          widgetId: "container",
+          parentId: "0",
+          list: [
+            {
+              widgetId: "container",
+              type: "CONTAINER_WIDGET",
+              widgetName: "container",
+              parentId: "0",
+              renderMode: "CANVAS",
+              parentColumnSpace: 2,
+              parentRowSpace: 3,
+              leftColumn: 2,
+              rightColumn: 3,
+              topRow: 1,
+              bottomRow: 3,
+              isLoading: false,
+              listData: [],
+              version: 16,
+              disablePropertyPane: false,
+              template: {},
+            },
+          ],
+        },
+      ]),
+    ).toBe(false);
   });
 });

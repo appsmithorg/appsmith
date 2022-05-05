@@ -110,6 +110,7 @@ import {
   getWidgetsFromIds,
   getDefaultCanvas,
   isDropTarget,
+  checkIfPastingListWidgetOntoItself,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
@@ -867,7 +868,12 @@ const getNewPositions = function*(
   if (
     !(
       selectedWidgets.length === 1 &&
-      isDropTarget(selectedWidgets[0].type, true)
+      isDropTarget(selectedWidgets[0].type, true) &&
+      !checkIfPastingListWidgetOntoItself(
+        canvasWidgets,
+        selectedWidgets[0],
+        copiedWidgetGroups,
+      )
     ) &&
     selectedWidgets.length > 0
   ) {
