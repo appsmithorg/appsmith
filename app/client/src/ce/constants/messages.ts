@@ -321,7 +321,7 @@ export const OMNIBAR_PLACEHOLDER_SNIPPETS = () => "Search code snippets";
 export const OMNIBAR_PLACEHOLDER_NAV = () => "Search widgets and queries";
 export const OMNIBAR_PLACEHOLDER_DOC = () => "Search documentation";
 export const CREATE_NEW_OMNIBAR_PLACEHOLDER = () =>
-  "Create a new Query, API or JSObject";
+  "Create a new Query, API or JS Object";
 export const HELPBAR_PLACEHOLDER = () => "Quick search & navigation";
 export const NO_SEARCH_DATA_TEXT = () => "No results found";
 
