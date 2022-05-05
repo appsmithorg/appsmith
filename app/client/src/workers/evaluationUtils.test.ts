@@ -20,7 +20,6 @@ import {
 import { warn as logWarn } from "loglevel";
 import { Diff } from "deep-diff";
 import { flatten } from "lodash";
-import { generateDataTreeWidget } from "../entities/DataTree/dataTreeWidget";
 import { overrideWidgetProperties } from "./evaluationUtils";
 import { DataTree } from "../entities/DataTree/dataTreeFactory";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
