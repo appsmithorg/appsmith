@@ -1,7 +1,11 @@
 import React from "react";
 import { isNumber, isNil } from "lodash";
 
-import { CellLayoutProperties } from "../Constants";
+import {
+  CellAlignment,
+  CellLayoutProperties,
+  VerticalAlignment,
+} from "../Constants";
 import {
   ColumnTypes,
   EditableCellActions,
@@ -13,24 +17,30 @@ export type RenderDefaultPropsType = {
   value: any;
   columnType: string;
   isHidden: boolean;
-  cellProperties: CellLayoutProperties;
   tableWidth: number;
   isCellEditable: boolean;
   isCellVisible: boolean;
   isCellEditMode?: boolean;
   onCellTextChange: (data: string) => void;
   toggleCellEditMode: (editMode: boolean, action?: EditableCellActions) => void;
+  allowCellWrapping?: boolean;
+  verticalAlignment?: VerticalAlignment;
+  cellBackground?: string;
+  hasUnsavedChanged?: boolean;
+  horizontalAlignment?: CellAlignment;
+  textColor?: string;
+  displayText?: string;
 };
 
 export function getCellText(
   value: any,
-  cellProperties: CellLayoutProperties,
   columnType: string,
+  displayText?: string,
 ) {
   let text;
 
-  if (value && columnType === ColumnTypes.URL && cellProperties.displayText) {
-    text = cellProperties.displayText;
+  if (value && columnType === ColumnTypes.URL && displayText) {
+    text = displayText;
   } else if (!isNil(value) && (!isNumber(value) || !isNaN(value))) {
     text = value.toString();
   } else {
@@ -40,26 +50,35 @@ export function getCellText(
   return text;
 }
 
-export const renderDefault = (props: RenderDefaultPropsType) => {
+export function DefaultCell(props: RenderDefaultPropsType) {
   const {
-    cellProperties,
+    allowCellWrapping,
+    cellBackground,
     columnType,
     compactMode,
+    displayText,
+    hasUnsavedChanged,
+    horizontalAlignment,
     isCellEditable,
     isCellEditMode,
     isCellVisible,
     isHidden,
     onCellTextChange,
     tableWidth,
+    textColor,
     toggleCellEditMode,
     value,
+    verticalAlignment,
   } = props;
 
   return (
     <TextCell
-      cellProperties={cellProperties}
+      allowCellWrapping={allowCellWrapping}
+      cellBackground={cellBackground}
       columnType={columnType}
       compactMode={compactMode}
+      hasUnsavedChanged={hasUnsavedChanged}
+      horizontalAlignment={horizontalAlignment}
       isCellEditMode={isCellEditMode}
       isCellEditable={isCellEditable}
       isCellVisible={isCellVisible}
@@ -69,8 +88,10 @@ export const renderDefault = (props: RenderDefaultPropsType) => {
       onDiscard={() => toggleCellEditMode(false, EditableCellActions.DISCARD)}
       onSave={() => toggleCellEditMode(false, EditableCellActions.SAVE)}
       tableWidth={tableWidth}
+      textColor={textColor}
       toggleCellEditMode={toggleCellEditMode}
-      value={getCellText(value, cellProperties, columnType)}
+      value={getCellText(value, columnType, displayText)}
+      verticalAlignment={verticalAlignment}
     />
   );
-};
+}
