@@ -239,6 +239,8 @@ autoupdate:
   ##
   scheduler: "0 * * * *"
 
+secretName: ""
+
 applicationConfig:
   APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ""
   APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ""

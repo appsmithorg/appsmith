@@ -402,7 +402,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         String repoName = gitData.getRepoName();
                         Path repoPath = Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), repoName);
                         // Delete git repo from local and delete the applications from DB
-                        return gitFileUtils.detachRemote(repoPath)
+                        return gitFileUtils.deleteLocalRepo(repoPath)
                                 .flatMapMany(isCleared -> applicationService
                                         .findAllApplicationsByDefaultApplicationId(gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS));
                     }
