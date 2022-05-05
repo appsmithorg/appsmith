@@ -25,7 +25,6 @@ describe("Binding the input Widget with tab Widget", function() {
       .click()
       .wait(1000)
       .should("have.class", "is-selected");
-
     cy.get(publish.inputWidget + " " + "input")
       .first()
       .invoke("attr", "value")
@@ -35,7 +34,6 @@ describe("Binding the input Widget with tab Widget", function() {
       .click()
       .wait(1000)
       .should("have.class", "is-selected");
-
     cy.get(publish.inputWidget + " " + "input")
       .first()
       .invoke("attr", "value")
