@@ -1,6 +1,6 @@
 import React from "react";
 
-import { CellLayoutProperties } from "../Constants";
+import { CellAlignment, VerticalAlignment } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
 import { isString } from "lodash";
@@ -18,31 +18,45 @@ type renderCellType = {
   compactMode: string;
   value: any;
   isHidden: boolean;
-  cellProperties: CellLayoutProperties;
   isCellVisible: boolean;
+  allowCellWrapping?: boolean;
+  horizontalAlignment?: CellAlignment;
+  verticalAlignment?: VerticalAlignment;
 };
 
-export const renderVideo = (args: renderCellType) => {
-  const { cellProperties, compactMode, isCellVisible, isHidden, value } = args;
+export const VideoCell = (props: renderCellType) => {
+  const {
+    allowCellWrapping,
+    compactMode,
+    horizontalAlignment,
+    isCellVisible,
+    isHidden,
+    value,
+    verticalAlignment,
+  } = props;
 
   const youtubeRegex = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
   if (!value) {
     return (
       <CellWrapper
-        cellProperties={cellProperties}
+        allowCellWrapping={allowCellWrapping}
         compactMode={compactMode}
+        horizontalAlignment={horizontalAlignment}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
+        verticalAlignment={verticalAlignment}
       />
     );
   } else if (isString(value) && youtubeRegex.test(value)) {
     return (
       <StyledCellWrapper
-        cellProperties={cellProperties}
+        allowCellWrapping={allowCellWrapping}
         className="video-cell"
         compactMode={compactMode}
+        horizontalAlignment={horizontalAlignment}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
+        verticalAlignment={verticalAlignment}
       >
         <PopoverVideo url={value} />
       </StyledCellWrapper>
@@ -50,10 +64,12 @@ export const renderVideo = (args: renderCellType) => {
   } else {
     return (
       <CellWrapper
-        cellProperties={cellProperties}
+        allowCellWrapping={allowCellWrapping}
         compactMode={compactMode}
+        horizontalAlignment={horizontalAlignment}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
+        verticalAlignment={verticalAlignment}
       >
         Invalid Video Link
       </CellWrapper>

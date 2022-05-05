@@ -6,14 +6,17 @@ import {
   EditableCellActions,
 } from "widgets/TableWidgetV2/constants";
 import { Button } from "../cellComponents/Button";
-import { CellLayoutProperties } from "../Constants";
+import {
+  CellAlignment,
+  CellLayoutProperties,
+  VerticalAlignment,
+} from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
 
 type RenderEditActionsProps = {
   compactMode: string;
   isSelected: boolean;
   isCellVisible: boolean;
-  cellProperties: CellLayoutProperties;
   isHidden: boolean;
   columnActions: ButtonColumnActions[];
   onCommandClick: (
@@ -22,48 +25,64 @@ type RenderEditActionsProps = {
     eventType: EventType,
   ) => void;
   onDiscard: () => void;
+  allowCellWrapping?: boolean;
+  horizontalAlignment?: CellAlignment;
+  verticalAlignment?: VerticalAlignment;
 };
 
-export function renderEditActions(props: RenderEditActionsProps) {
-  if (!props.columnActions) {
+export function EditActionCell(props: RenderEditActionsProps) {
+  const {
+    allowCellWrapping,
+    columnActions,
+    compactMode,
+    horizontalAlignment,
+    isCellVisible,
+    isHidden,
+    isSelected,
+    onCommandClick,
+    onDiscard,
+    verticalAlignment,
+  } = props;
+
+  if (!columnActions) {
     return (
       <CellWrapper
-        cellProperties={props.cellProperties}
-        compactMode={props.compactMode}
-        isCellVisible={props.isCellVisible}
-        isHidden={props.isHidden}
+        allowCellWrapping={allowCellWrapping}
+        compactMode={compactMode}
+        horizontalAlignment={horizontalAlignment}
+        isCellVisible={isCellVisible}
+        isHidden={isHidden}
+        verticalAlignment={verticalAlignment}
       />
     );
   }
 
   return (
     <CellWrapper
-      cellProperties={props.cellProperties}
-      compactMode={props.compactMode}
-      isCellVisible={props.isCellVisible}
-      isHidden={props.isHidden}
+      allowCellWrapping={allowCellWrapping}
+      compactMode={compactMode}
+      horizontalAlignment={horizontalAlignment}
+      isCellVisible={isCellVisible}
+      isHidden={isHidden}
+      verticalAlignment={verticalAlignment}
     >
-      {props.columnActions.map((action: ButtonColumnActions, index: number) => {
+      {columnActions.map((action: ButtonColumnActions, index: number) => {
         return (
           <Button
             action={action}
-            isCellVisible={props.isCellVisible}
+            isCellVisible={isCellVisible}
             isDisabled={action.isDisabled}
-            isSelected={props.isSelected}
+            isSelected={isSelected}
             key={index}
             onCommandClick={(
               dynamicTrigger: string,
               onComplete: () => void,
             ) => {
               if (action.id === EditableCellActions.DISCARD) {
-                props.onDiscard();
+                onDiscard();
               }
 
-              props.onCommandClick(
-                dynamicTrigger,
-                onComplete,
-                action.eventType,
-              );
+              onCommandClick(dynamicTrigger, onComplete, action.eventType);
             }}
           />
         );
