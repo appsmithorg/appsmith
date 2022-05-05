@@ -1,9 +1,9 @@
+import React from "react";
 import AdminConfig from "./config";
 import { Redirect, useParams } from "react-router";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
-import React from "react";
-import SettingsForm from "./SettingsForm";
+import SettingsForm from "pages/Settings/SettingsForm";
 
 const Main = () => {
   const params = useParams() as any;
