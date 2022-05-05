@@ -35,6 +35,7 @@ import { AppState } from "reducers";
 import {
   getActiveJSActionId,
   getIsExecutingJSAction,
+  getIsSavingJSCollection,
   getJSActions,
   getJSCollectionParseErrors,
 } from "selectors/entitiesSelector";
@@ -104,6 +105,10 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     ),
   );
 
+  const isSavingCurrentJSCollection = useSelector((state: AppState) =>
+    getIsSavingJSCollection(state, currentJSCollection.id),
+  );
+
   // Triggered when there is a change in the code editor
   const handleEditorChange = (valueOrEvent: ChangeEvent<any> | string) => {
     const value: string =
@@ -116,6 +121,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
 
   // Executes JS action
   const executeJSAction = (jsAction: JSAction) => {
+    if (isSavingCurrentJSCollection) return;
     setActiveResponse(jsAction);
     if (jsAction.id !== selectedJSActionOption.data?.id)
       setSelectedJSActionOption(convertJSActionToDropdownOption(jsAction));
