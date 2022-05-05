@@ -1,4 +1,4 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry"
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let dsl: any;
 let agHelper = ObjectsRegistry.AggregateHelper,
@@ -8,19 +8,22 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   jsEditor = ObjectsRegistry.JSEditor,
   locator = ObjectsRegistry.CommonLocators;
 
-describe("Layout OnLoad Actions tests", function () {
+describe("Layout OnLoad Actions tests", function() {
   before(() => {
     cy.fixture("onPageLoadActionsDsl").then((val: any) => {
       dsl = val;
     });
   });
 
-  it("1. Bug 8595: OnPageLoad execution - when No api to run on Pageload", function () {
+  it("1. Bug 8595: OnPageLoad execution - when No api to run on Pageload", function() {
     agHelper.AddDsl(dsl);
     ee.SelectEntityByName("WIDGETS");
     ee.SelectEntityByName("Page1");
     cy.url().then((url) => {
-      const pageid = url.split("/")[5]?.split("-").pop();
+      const pageid = url
+        .split("/")[5]
+        ?.split("-")
+        .pop();
       cy.log(pageid + "page id");
       cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
         const respBody = JSON.stringify(response.body);
@@ -31,7 +34,7 @@ describe("Layout OnLoad Actions tests", function () {
     });
   });
 
-  it("2. Bug 8595: OnPageLoad execution - when Query Parmas added via Params tab", function () {
+  it("2. Bug 8595: OnPageLoad execution - when Query Parmas added via Params tab", function() {
     agHelper.AddDsl(dsl, locator._imageWidget);
     apiPage.CreateAndFillApi(
       "https://source.unsplash.com/collection/1599413",
@@ -43,7 +46,7 @@ describe("Layout OnLoad Actions tests", function () {
     //apiPage.RunAPI();
 
     apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes");
-    apiPage.EnterHeader("dependency", "{{RandomUser.data}}");//via Params tab
+    apiPage.EnterHeader("dependency", "{{RandomUser.data}}"); //via Params tab
     //apiPage.RunAPI();
 
     apiPage.CreateAndFillApi(
@@ -54,7 +57,7 @@ describe("Layout OnLoad Actions tests", function () {
     //apiPage.RunAPI();
 
     apiPage.CreateAndFillApi("https://api.genderize.io", "Genderize");
-    apiPage.EnterParams("name", "{{RandomUser.data.results[0].name.first}}");//via Params tab
+    apiPage.EnterParams("name", "{{RandomUser.data.results[0].name.first}}"); //via Params tab
     //apiPage.RunAPI();
 
     //Adding dependency in right order matters!
@@ -63,13 +66,25 @@ describe("Layout OnLoad Actions tests", function () {
     jsEditor.EnterJSContext("Image", `{{RandomFlora.data}}`, true);
 
     ee.SelectEntityByName("Image2");
-    jsEditor.EnterJSContext("Image", `{{RandomUser.data.results[0].picture.large}}`, true);
+    jsEditor.EnterJSContext(
+      "Image",
+      `{{RandomUser.data.results[0].picture.large}}`,
+      true,
+    );
 
     ee.SelectEntityByName("Text1");
-    jsEditor.EnterJSContext("Text", `{{InspiringQuotes.data.quote.body}}\n--\n{{InspiringQuotes.data.quote.author}}\n`, true);
+    jsEditor.EnterJSContext(
+      "Text",
+      `{{InspiringQuotes.data.quote.body}}\n--\n{{InspiringQuotes.data.quote.author}}\n`,
+      true,
+    );
 
     ee.SelectEntityByName("Text2");
-    jsEditor.EnterJSContext("Text", `Hi, here is {{RandomUser.data.results[0].name.first}} & I'm {{RandomUser.data.results[0].dob.age}}'yo\nI live in {{RandomUser.data.results[0].location.country}}\nMy Suggestion : {{Suggestions.data.activity}}\n\nI'm {{Genderize.data.gender}}`, true);
+    jsEditor.EnterJSContext(
+      "Text",
+      `Hi, here is {{RandomUser.data.results[0].name.first}} & I'm {{RandomUser.data.results[0].dob.age}}'yo\nI live in {{RandomUser.data.results[0].location.country}}\nMy Suggestion : {{Suggestions.data.activity}}\n\nI'm {{Genderize.data.gender}}`,
+      true,
+    );
 
     // cy.url().then((url) => {
     //   const pageid = url.split("/")[4]?.split("-").pop();
@@ -110,10 +125,10 @@ describe("Layout OnLoad Actions tests", function () {
     //   });
     // });
 
-    agHelper.DeployApp()
-    agHelper.Sleep()//waiting for error toast - incase it wants to appear!
-    agHelper.AssertElementAbsence(locator._toastMsg)
-    agHelper.Sleep(5000)//for all api's to ccomplete call!
+    agHelper.DeployApp();
+    agHelper.Sleep(); //waiting for error toast - incase it wants to appear!
+    agHelper.AssertElementAbsence(locator._toastMsg);
+    agHelper.Sleep(5000); //for all api's to ccomplete call!
     cy.wait("@viewPage").then(($response) => {
       const respBody = JSON.stringify($response.response?.body);
 
@@ -147,14 +162,14 @@ describe("Layout OnLoad Actions tests", function () {
       expect(JSON.parse(JSON.stringify(_suggestions))[0]["name"]).to.eq(
         "Suggestions",
       );
-    })
+    });
 
-    agHelper.NavigateBacktoEditor()
+    agHelper.NavigateBacktoEditor();
   });
 
-  it("3. Bug 10049, 10055: Dependency not executed in expected order in layoutOnLoadActions when dependency added via URL", function () {
-    ee.SelectEntityByName('Genderize', 'QUERIES/JS')
-    ee.ActionContextMenuByEntityName('Genderize', 'Delete', 'Are you sure?')
+  it("3. Bug 10049, 10055: Dependency not executed in expected order in layoutOnLoadActions when dependency added via URL", function() {
+    ee.SelectEntityByName("Genderize", "QUERIES/JS");
+    ee.ActionContextMenuByEntityName("Genderize", "Delete", "Are you sure?");
 
     apiPage.CreateAndFillApi(
       "https://api.genderize.io?name={{RandomUser.data.results[0].name.first}}",
@@ -164,11 +179,11 @@ describe("Layout OnLoad Actions tests", function () {
       key: "name",
       value: "{{RandomUser.data.results[0].name.first}}",
     }); // verifies Bug 10055
-    
-    agHelper.DeployApp()
-    agHelper.Sleep()//waiting for error toast - incase it wants to appear!
-    agHelper.AssertElementAbsence(locator._toastMsg)
-    agHelper.Sleep(5000)//for all api's to ccomplete call!
+
+    agHelper.DeployApp();
+    agHelper.Sleep(); //waiting for error toast - incase it wants to appear!
+    agHelper.AssertElementAbsence(locator._toastMsg);
+    agHelper.Sleep(5000); //for all api's to ccomplete call!
     cy.wait("@viewPage").then(($response) => {
       const respBody = JSON.stringify($response.response?.body);
       const _randomFlora = JSON.parse(respBody).data.layouts[0]
@@ -197,6 +212,6 @@ describe("Layout OnLoad Actions tests", function () {
       expect(JSON.parse(JSON.stringify(_suggestions))[0]["name"]).to.eq(
         "Suggestions",
       );
-    })
+    });
   });
 });
