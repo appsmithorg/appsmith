@@ -25,6 +25,7 @@ export const VALID_FUNCTION_NAME_ERROR = () =>
   `Must be a valid variable name (camelCase)`;
 export const UNIQUE_NAME_ERROR = () => `Name must be unique`;
 export const NAME_SPACE_ERROR = () => `Name must not have spaces`;
+export const SPECIAL_CHARACTER_ERROR = () => `Name must be alphanumeric`;
 
 export const FORM_VALIDATION_EMPTY_EMAIL = () => `Please enter an email`;
 export const FORM_VALIDATION_INVALID_EMAIL = () =>
@@ -392,6 +393,8 @@ export const ACTION_CONFIGURATION_UPDATED = () => "Configuration updated";
 export const WIDGET_PROPERTIES_UPDATED = () => "Widget properties were updated";
 export const EMPTY_RESPONSE_FIRST_HALF = () => "🙌 Click on";
 export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
+export const EMPTY_JS_RESPONSE_LAST_HALF = () =>
+  "to view response of selected function";
 export const INVALID_EMAIL = () => "Please enter a valid email";
 export const DEBUGGER_INTERCOM_TEXT = (text: string) =>
   `Hi, \nI'm facing the following error on Appsmith, can you please help? \n\n${text}`;
@@ -451,6 +454,8 @@ export const JS_EXECUTION_FAILURE = () => "JS Function execution failed";
 export const JS_EXECUTION_FAILURE_TOASTER = () =>
   "There was an error while executing function";
 export const JS_SETTINGS_ONPAGELOAD = () => "Run function on page load (Beta)";
+export const JS_EXECUTION_SUCCESS_TOASTER = (actionName: string) =>
+  `${actionName} ran successfully`;
 export const JS_SETTINGS_ONPAGELOAD_SUBTEXT = () =>
   "Will refresh data every time page is reloaded";
 export const JS_SETTINGS_CONFIRM_EXECUTION = () =>
@@ -459,6 +464,13 @@ export const JS_SETTINGS_CONFIRM_EXECUTION_SUBTEXT = () =>
   "Ask confirmation from the user every time before refreshing data";
 export const JS_SETTINGS_EXECUTE_TIMEOUT = () =>
   "Function Timeout (in milliseconds)";
+export const ASYNC_FUNCTION_SETTINGS_HEADING = () => "Async Function Settings";
+export const NO_ASYNC_FUNCTIONS = () =>
+  "There is no asynchronous function in this JSObject";
+export const NO_JS_FUNCTION_TO_RUN = (JSObjectName: string) =>
+  `${JSObjectName} has no function`;
+export const NO_JS_FUNCTION_RETURN_VALUE = (JSFunctionName: string) =>
+  `${JSFunctionName} did not return any data. Did you add a return statement?`;
 
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import application";
@@ -596,6 +608,7 @@ export const CONNECT_TO_GIT_SUBTITLE = () =>
 export const REMOTE_URL = () => "Remote URL";
 export const REMOTE_URL_INFO = () =>
   `Create an empty git repository and paste the remote URL here.`;
+export const IMPORT_URL_INFO = () => `Paste the remote URL here:`;
 export const REMOTE_URL_VIA = () => "Remote URL via";
 
 export const USER_PROFILE_SETTINGS_TITLE = () => "User settings";
@@ -1037,7 +1050,20 @@ export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
 export const CREATE_DATASOURCE_TOOLTIP = () => "Add a new datasource";
 export const ADD_QUERY_JS_TOOLTIP = () => "Create New";
 
+// Add datasource
+export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
+export const GENERATE_APPLICATION_DESCRIPTION = () =>
+  "Quickly generate a page to perform CRUD operations on your database tables";
 export const DELETE_ORG_SUCCESSFUL = () => "Organization deleted successfully";
+// theming
+export const CHANGE_APP_THEME = (name: string) => `Theme ${name} Applied`;
+export const SAVE_APP_THEME = (name: string) => `Theme ${name} Saved`;
+export const DELETE_APP_THEME = (name: string) => `Theme ${name} Deleted`;
+export const DELETE_APP_THEME_WARNING = () =>
+  `Do you really want to delete this theme? This process cannot be undone.`;
+export const APP_THEME_BETA_CARD_HEADING = () => `🎨 Theme your app`;
+export const APP_THEME_BETA_CARD_CONTENT = () =>
+  `Customize your app's look through global styles. Full widget support coming soon`;
 
 export const UPGRADE_TO_EE = (authLabel: string) =>
   `Hello, I would like to upgrade and start using ${authLabel} authentication.`;

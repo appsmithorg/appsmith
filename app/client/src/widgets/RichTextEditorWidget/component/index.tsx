@@ -11,6 +11,8 @@ import LabelWithTooltip, {
 } from "components/ads/LabelWithTooltip";
 
 const StyledRTEditor = styled.div<{
+  borderRadius: string;
+  boxShadow?: string;
   compactMode: boolean;
   labelPosition?: LabelPosition;
   isValid?: boolean;
@@ -22,6 +24,11 @@ const StyledRTEditor = styled.div<{
       ${(props) => (props.isValid ? "none" : Colors.DANGER_SOLID)};
     .tox .tox-editor-header {
       z-index: 0;
+    }
+
+    .tox-tinymce {
+      border-radius: ${({ borderRadius }) => borderRadius};
+      box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
     }
   }
   .tox {
@@ -53,6 +60,8 @@ export interface RichtextEditorComponentProps {
   isVisible?: boolean;
   compactMode: boolean;
   isToolbarHidden: boolean;
+  borderRadius: string;
+  boxShadow?: string;
   labelText: string;
   labelPosition?: LabelPosition;
   labelAlignment?: Alignment;
@@ -119,6 +128,8 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
 
   return (
     <StyledRTEditor
+      borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
       className={`container-${props.widgetId}`}
       compactMode={compactMode}
       data-testid="rte-container"

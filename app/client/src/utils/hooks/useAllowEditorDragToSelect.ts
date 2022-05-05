@@ -34,6 +34,7 @@ export const useAllowEditorDragToSelect = () => {
   const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
+
   return (
     !isResizingOrDragging &&
     !isDraggingDisabled &&

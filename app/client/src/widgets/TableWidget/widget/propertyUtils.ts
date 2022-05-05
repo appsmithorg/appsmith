@@ -3,6 +3,10 @@ import { ColumnProperties } from "../component/Constants";
 import { TableWidgetProps } from "../constants";
 import { Colors } from "constants/Colors";
 import { get } from "lodash";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
 import { IconNames } from "@blueprintjs/icons";
 
 export enum ColumnTypes {
@@ -294,8 +298,6 @@ export const updateDerivedColumnsHook = (
       const newId = propertyValue.id;
       if (newId) {
         // sets default value for some properties
-        propertyValue.buttonColor = Colors.GREEN;
-        propertyValue.menuColor = Colors.GREEN;
         propertyValue.labelColor = Colors.WHITE;
 
         propertiesToUpdate = [
@@ -334,12 +336,78 @@ export const updateDerivedColumnsHook = (
             },
           ];
         }
+
+        updateThemeStylesheetsInColumns(
+          props,
+          propertyValue,
+          columnId,
+          columnProperty,
+          propertiesToUpdate,
+        );
       }
     }
     if (propertiesToUpdate.length > 0) return propertiesToUpdate;
   }
   return;
 };
+
+/**
+ * updates theme stylesheets
+ *
+ * @param props
+ * @param propertyPath
+ * @param propertyValue
+ */
+function updateThemeStylesheetsInColumns(
+  props: TableWidgetProps,
+  propertyValue: any,
+  columnId: string,
+  columnProperty: string,
+  propertiesToUpdate: Array<{ propertyPath: string; propertyValue: any }>,
+) {
+  if (columnProperty === "columnType") {
+    const oldColumnType = props.columnType;
+    const newColumnType = propertyValue;
+
+    const propertiesToRemove = Object.keys(
+      props.childStylesheet[oldColumnType] || {},
+    );
+
+    const propertiesToAdd = Object.keys(
+      props.childStylesheet[newColumnType] || {},
+    );
+
+    propertiesToRemove.forEach((propertyKey) => {
+      propertiesToUpdate.push({
+        propertyPath: `derivedColumns.${columnId}.${propertyKey}`,
+        propertyValue: undefined,
+      });
+
+      propertiesToUpdate.push({
+        propertyPath: `primaryColumns.${columnId}.${propertyKey}`,
+        propertyValue: undefined,
+      });
+    });
+
+    propertiesToAdd.forEach((propertyKey) => {
+      const { jsSnippets, stringSegments } = getDynamicBindings(
+        props.childStylesheet[newColumnType][propertyKey],
+      );
+
+      const js = combineDynamicBindings(jsSnippets, stringSegments);
+
+      propertiesToUpdate.push({
+        propertyPath: `derivedColumns.${columnId}.${propertyKey}`,
+        propertyValue: `{{${props.widgetName}.sanitizedTableData.map((currentRow) => ( ${js}))}}`,
+      });
+
+      propertiesToUpdate.push({
+        propertyPath: `primaryColumns.${columnId}.${propertyKey}`,
+        propertyValue: `{{${props.widgetName}.sanitizedTableData.map((currentRow) => ( ${js}))}}`,
+      });
+    });
+  }
+}
 // Gets the base property path excluding the current property.
 // For example, for  `primaryColumns[5].computedValue` it will return
 // `primaryColumns[5]`
@@ -370,4 +438,46 @@ export const hideByColumnType = (
     : getBasePropertyPath(propertyPath);
   const columnType = get(props, `${baseProperty}.columnType`, "");
   return !columnTypes.includes(columnType);
+};
+
+/**
+ * A function for updateHook to remove the boxShadowColor property post migration.
+ * @param props
+ * @param propertyPath
+ * @param propertyValue
+ */
+export const removeBoxShadowColorProp = (
+  props: TableWidgetProps,
+  propertyPath: string,
+) => {
+  const boxShadowColorPath = replacePropertyName(
+    propertyPath,
+    "boxShadowColor",
+  );
+  return [
+    {
+      propertyPath: boxShadowColorPath,
+      propertyValue: undefined,
+    },
+  ];
+};
+
+/**
+ * This function will replace the property present at the end of the propertyPath with the targetPropertyName.
+ * e.g.
+ * propertyPath = primaryColumns.action.boxShadow
+ * Running this function will give the new propertyPath like below:
+ * propertyPath = primaryColumns.action.boxShadowColor
+ *
+ * @param propertyPath The property path inside a widget
+ * @param targetPropertyName Target property name
+ * @returns New property path with target property name at the end.
+ */
+export const replacePropertyName = (
+  propertyPath: string,
+  targetPropertyName: string,
+) => {
+  const path = propertyPath.split(".");
+  path.pop();
+  return `${path.join(".")}.${targetPropertyName}`;
 };

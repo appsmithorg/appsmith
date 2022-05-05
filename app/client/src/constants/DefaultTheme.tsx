@@ -7,6 +7,7 @@ import { AlertIcons } from "icons/AlertIcons";
 import { IconProps } from "constants/IconConstants";
 import { JSXElementConstructor } from "react";
 import { typography, Typography, TypographyKeys } from "./typography";
+
 import { LabelPosition } from "components/constants";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
 
@@ -2472,7 +2473,7 @@ export const light: ColorType = {
     },
     menu: {
       border: lightShades[13],
-      bg: lightShades[0],
+      bg: lightShades[11],
       text: lightShades[8],
       hover: lightShades[2],
       hoverText: lightShades[10],
