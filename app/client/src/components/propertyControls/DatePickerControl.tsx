@@ -11,18 +11,11 @@ const DatePickerControlWrapper = styled.div<{ isValid: boolean }>`
   display: flex;
   flex-direction: column;
   margin: 8px 0 0 0;
-  /* &&& {
-    input {
-      background: ${(props) => props.theme.colors.paneTextBG};
-      color: ${(props) => props.theme.colors.textOnDarkBG};
-      font-size: ${(props) => props.theme.fontSizes[3]}px;
-      box-shadow: none;
-      border: ${(props) =>
-        !props.isValid
-          ? `1px solid ${props.theme.colors.error}`
-          : `1px solid transparent`};
-    }
-  } */
+
+  &:focus .bp3-input-group input {
+    border: 1px solid var(--appsmith-input-focus-border-color);
+  }
+
   .vertical-center {
     display: flex;
     justify-content: space-between;
@@ -53,12 +46,41 @@ class DatePickerControl extends BaseControl<
     .set({ month: 0, date: 1, year: this.year - 150 })
     .toDate();
 
+  private wrapperRef = React.createRef<HTMLInputElement>();
+  private inputRef = React.createRef<HTMLInputElement>();
+
   constructor(props: DatePickerControlProps) {
     super(props);
     this.state = {
       selectedDate: props.propertyValue,
     };
   }
+
+  componentDidMount() {
+    window.addEventListener("keydown", this.handleKeydown);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("keydown", this.handleKeydown);
+  }
+
+  private handleKeydown = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case "Enter":
+      case " ":
+        if (document.activeElement === this.wrapperRef?.current) {
+          this.inputRef?.current?.focus();
+          e.preventDefault();
+        }
+        break;
+      case "Escape":
+        if (document.activeElement === this.inputRef?.current) {
+          this.wrapperRef?.current?.focus();
+          e.preventDefault();
+        }
+        break;
+    }
+  };
 
   render() {
     const version = this.props.widgetProperties.version;
@@ -75,17 +97,20 @@ class DatePickerControl extends BaseControl<
           ? new Date(this.props.propertyValue)
           : this.parseDate(this.props.propertyValue)
         : null;
+
     return (
-      <DatePickerControlWrapper isValid tabIndex={0}>
+      <DatePickerControlWrapper isValid ref={this.wrapperRef} tabIndex={0}>
         <DatePickerComponent
           closeOnSelection
           formatDate={this.formatDate}
+          inputRef={this.inputRef}
           maxDate={this.maxDate}
           minDate={this.minDate}
           onChange={this.onDateSelected}
           parseDate={this.parseDate}
           placeholder="YYYY-MM-DD HH:mm"
           showActionsBar
+          tabIndex={-1}
           timePrecision={TimePrecision.MINUTE}
           value={value}
         />
