@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, Redirect, useLocation } from "react-router-dom";
-import { connect, useSelector, useStore } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import {
   InjectedFormProps,
   reduxForm,
