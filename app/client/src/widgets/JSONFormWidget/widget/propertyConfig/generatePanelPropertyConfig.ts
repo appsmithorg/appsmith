@@ -14,6 +14,7 @@ import {
   DATE_PROPERTIES,
   INPUT_PROPERTIES,
   MULTI_SELECT_PROPERTIES,
+  OBJECT_PROPERTIES,
   RADIO_GROUP_PROPERTIES,
   SELECT_PROPERTIES,
   SWITCH_PROPERTIES,
@@ -61,28 +62,9 @@ function generatePanelPropertyConfig(
                 );
               });
             },
-            dependencies: ["schema"],
+            dependencies: ["schema", "childStylesheet"],
           },
         ],
-      },
-      {
-        sectionName: "Styles",
-        children: [...COMMON_PROPERTIES.styles],
-        hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
-          const schemaItem: SchemaItem = get(props, propertyPath, {});
-
-          if (
-            schemaItem.identifier === ARRAY_ITEM_KEY &&
-            schemaItem.fieldType !== FieldType.ARRAY
-          ) {
-            return true;
-          }
-
-          return (
-            schemaItem.fieldType !== FieldType.OBJECT &&
-            schemaItem.fieldType !== FieldType.ARRAY
-          );
-        },
       },
       {
         sectionName: "Label Styles",
@@ -90,9 +72,32 @@ function generatePanelPropertyConfig(
         hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
           const schemaItem: SchemaItem = get(props, propertyPath, {});
 
-          return schemaItem.identifier === ARRAY_ITEM_KEY;
+          return (
+            schemaItem.identifier === ARRAY_ITEM_KEY &&
+            schemaItem.fieldType === FieldType.OBJECT
+          );
         },
       },
+      {
+        sectionName: "Styles",
+        children: [
+          ...CHECKBOX_PROPERTIES.styles,
+          ...RADIO_GROUP_PROPERTIES.styles,
+          ...SWITCH_PROPERTIES.styles,
+          ...COMMON_PROPERTIES.styles,
+        ],
+        hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
+          const schemaItem: SchemaItem = get(props, propertyPath, {});
+
+          // Array and Object handle their own style sections
+          return (
+            schemaItem.fieldType === FieldType.OBJECT ||
+            schemaItem.fieldType === FieldType.ARRAY
+          );
+        },
+      },
+      ...OBJECT_PROPERTIES.sections,
+      ...ARRAY_PROPERTIES.sections,
       {
         sectionName: "Actions",
         children: [
