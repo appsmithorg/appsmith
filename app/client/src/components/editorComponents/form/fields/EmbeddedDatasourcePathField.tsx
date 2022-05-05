@@ -55,10 +55,12 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { KeyValuePair } from "entities/Action";
 import _ from "lodash";
 import {
+  getApiActions,
   getDatasource,
   getDatasourcesByPluginId,
 } from "selectors/entitiesSelector";
 import { datasourcesEditorIdURL } from "RouteBuilder";
+import { ActionData } from "reducers/entityReducers/actionsReducer";
 
 type ReduxStateProps = {
   orgId: string;
@@ -68,6 +70,7 @@ type ReduxStateProps = {
   applicationId?: string;
   dataTree: DataTree;
   actionName: string;
+  apiActions: ActionData[];
 };
 
 type ReduxDispatchProps = {
@@ -429,6 +432,24 @@ class EmbeddedDatasourcePathComponent extends React.Component<
     document.getElementById("custom-tooltip")?.classList.remove("highlighter");
   };
 
+  componentDidMount() {
+    const { apiActions, datasource, orgId, pluginId } = this.props;
+    const datasourceUrl = get(datasource, "datasourceConfiguration.url", "");
+
+    if (apiActions.length <= 1 && datasourceUrl === "") {
+      // if there is one or less api action, we set default value to mock api
+      let newDatasource = { ...DEFAULT_DATASOURCE(pluginId, orgId) };
+      newDatasource = {
+        ...newDatasource,
+        datasourceConfiguration: {
+          ...newDatasource.datasourceConfiguration,
+          url: "https://mock-api.appsmith.com/users",
+        },
+      };
+      setTimeout(() => this.props.updateDatasource(newDatasource));
+    }
+  }
+
   // if the next props is not equal to the current props, do not rerender, same for state
   shouldComponentUpdate(nextProps: any, nextState: any) {
     if (!_.isEqual(nextProps, this.props)) {
@@ -558,6 +579,7 @@ const mapStateToProps = (
     applicationId: getCurrentApplicationId(state),
     dataTree: getDataTree(state),
     actionName: ownProps.actionName,
+    apiActions: getApiActions(state),
   };
 };
 
