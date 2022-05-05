@@ -32,6 +32,12 @@ import { ADD_QUERY_JS_BUTTON, createMessage } from "ce/constants/messages";
 const SubMenuContainer = styled.div`
   width: 250px;
   .ops-container {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+      display: none;
+      -webkit-appearance: none;
+    }
     max-height: 220px;
     overflow: hidden;
     overflow-y: auto;
@@ -135,7 +141,7 @@ export default function ExplorerSubMenu({ className }: SubMenuProps) {
           handleSubmitKey={handleSelect}
           handleUpKey={handleUpKey}
         >
-          <SubMenuContainer className="bg-white overflow-y-auto overflow-x-hidden pb-2 flex flex-col justify-start z-10 delay-150 transition-all">
+          <SubMenuContainer className="bg-white overflow-y-auto overflow-x-hidden flex flex-col justify-start z-10 delay-150 transition-all">
             <div className="px-4 py-2 text-sm font-medium text-gray">
               CREATE NEW
             </div>
