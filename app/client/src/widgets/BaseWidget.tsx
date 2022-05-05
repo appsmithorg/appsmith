@@ -39,6 +39,7 @@ import PreventInteractionsOverlay from "components/editorComponents/PreventInter
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 /***
  * BaseWidget
@@ -152,6 +153,66 @@ abstract class BaseWidget<
   resetChildrenMetaProperty(widgetId: string) {
     const { resetChildrenMetaProperty } = this.context;
     resetChildrenMetaProperty(widgetId);
+  }
+
+  /*
+    This method calls the action to update widget height
+    We're not using `updateWidgetProperty`, because, the workflow differs
+    We will be computing properties of all widgets which are effected by
+    this change.
+    @param height number: Height of the widget's contents in pixels 
+    @return void
+
+    TODO (abhinav): Make sure that this isn't called for scenarios which do not require it
+    This is for performance. We don't want unnecessary code to run
+  */
+  updateDynamicHeight(height: number): void {
+    const shouldUpdate = this.shouldUpdateDynamicHeight(height);
+
+    const { updateWidgetDynamicHeight } = this.context;
+    const { widgetId } = this.props;
+    shouldUpdate && updateWidgetDynamicHeight(widgetId, height);
+  }
+
+  // TODO: ADD_TEST(abhinav): Write a unit test
+  shouldUpdateDynamicHeight(expectedHeight: number): boolean {
+    // The current height in pixels of the widget
+    const currentHeight =
+      (this.props.bottomRow - this.props.topRow) * this.props.parentRowSpace;
+
+    // Does this widget have dynamic height enabled
+    const isDynamicHeightEnabled =
+      this.props.dynamiHeight === DynamicHeight.HUG_CONTENTS;
+
+    // Run the following pieces of code only if dynamic height is enabled
+    if (!isDynamicHeightEnabled) return false;
+
+    // If current height is less than the expected height
+    // We're trying to see if we can increase the height
+    if (currentHeight < expectedHeight) {
+      // Get the max possible height for the widget
+      const widgetMaxHeight = this.props.maxDynamicHeight;
+      // If we're not already at the max height, we can increase height
+      if (widgetMaxHeight > currentHeight) {
+        return true;
+      }
+    }
+
+    // If current height is greater than expected height
+    // We're trying to see if we can reduce the height
+    if (currentHeight > expectedHeight) {
+      // Get the minimum possible height for the widget
+      const widgetMinHeight = this.props.minDynamicHeight;
+      // If our attempt to reduce does not go below the min possible height
+      // We can safely reduce the height
+      if (widgetMinHeight < currentHeight) {
+        return true;
+      }
+    }
+
+    // Since the conditions to change height already return true
+    // If we reach this point, we don't have to change height
+    return false;
   }
 
   /* eslint-disable @typescript-eslint/no-empty-function */
