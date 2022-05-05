@@ -34,8 +34,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow-y: hidden;
-  padding: 0px 8px 0px 8px;
+  overflow: hidden;
 `;
 
 const BodyContainer = styled.div`
@@ -49,10 +48,17 @@ const MenuContainer = styled.div`
 
 const CloseBtnContainer = styled.div`
   position: absolute;
-  right: 0;
+  right: -5px;
   top: 0;
-  padding: ${(props) => props.theme.spaces[1]}px;
+  padding: ${(props) => props.theme.spaces[1]}px 0;
   border-radius: ${(props) => props.theme.radii[1]}px;
+
+  &:hover {
+    svg,
+    svg path {
+      fill: ${({ theme }) => get(theme, "colors.gitSyncModal.closeIconHover")};
+    }
+  }
 `;
 
 const ComponentsByTab = {

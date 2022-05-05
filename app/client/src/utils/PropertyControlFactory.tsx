@@ -30,10 +30,14 @@ class PropertyControlFactory {
     additionalAutoComplete?: Record<string, Record<string, unknown>>,
     hideEvaluatedValue?: boolean,
   ): JSX.Element {
-    let controlBuilder = this.controlMap.get(controlData.controlType);
+    let controlBuilder;
+
     if (preferEditor) {
-      if (customEditor) controlBuilder = this.controlMap.get(customEditor);
-      else controlBuilder = this.controlMap.get("CODE_EDITOR");
+      controlBuilder = customEditor
+        ? this.controlMap.get(customEditor)
+        : this.controlMap.get("CODE_EDITOR");
+    } else {
+      controlBuilder = this.controlMap.get(controlData.controlType);
     }
 
     if (controlBuilder) {

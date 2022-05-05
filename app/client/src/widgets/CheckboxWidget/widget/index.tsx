@@ -108,6 +108,33 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
           },
         ],
       },
+
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "accentColor",
+            helpText: "Sets the checked state color of the checkbox",
+            label: "Accent Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
     ];
   }
 
@@ -143,7 +170,9 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   getPageView() {
     return (
       <CheckboxComponent
+        accentColor={this.props.accentColor}
         alignWidget={this.props.alignWidget}
+        borderRadius={this.props.borderRadius}
         isChecked={!!this.props.isChecked}
         isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading}
@@ -184,6 +213,8 @@ export interface CheckboxWidgetProps extends WidgetProps {
   onCheckChange?: string;
   isRequired?: boolean;
   alignWidget: AlignWidget;
+  accentColor: string;
+  borderRadius: string;
 }
 
 export default CheckboxWidget;

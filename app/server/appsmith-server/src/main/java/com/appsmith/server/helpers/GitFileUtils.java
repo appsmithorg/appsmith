@@ -255,10 +255,10 @@ public class GitFileUtils {
      * @param editModeUrl    URL to deployed version of the application edit mode
      * @return Path where the Application is stored
      */
-    public Mono<Path> initializeGitRepo(Path baseRepoSuffix,
-                                        String viewModeUrl,
-                                        String editModeUrl) throws IOException {
-        return fileUtils.initializeGitRepo(baseRepoSuffix,viewModeUrl, editModeUrl)
+    public Mono<Path> initializeReadme(Path baseRepoSuffix,
+                                       String viewModeUrl,
+                                       String editModeUrl) throws IOException {
+        return fileUtils.initializeReadme(baseRepoSuffix,viewModeUrl, editModeUrl)
                 .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e)));
     }
 
@@ -267,8 +267,8 @@ public class GitFileUtils {
      * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
      * @return success on remove of file system
      */
-    public Mono<Boolean> detachRemote(Path baseRepoSuffix) {
-        return fileUtils.detachRemote(baseRepoSuffix);
+    public Mono<Boolean> deleteLocalRepo(Path baseRepoSuffix) {
+        return fileUtils.deleteLocalRepo(baseRepoSuffix);
     }
 
     public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException {
