@@ -2,18 +2,17 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router";
 import ReadMetadata from "./ReadMetadata";
+import { RaisedCard, HeaderSecondary } from "./components";
 import {
   Wrapper,
+  BottomSpace,
   HeaderWrapper,
   SettingsHeader,
   SettingsSubHeader,
-  RaisedCard,
-  HeaderSecondary,
   SettingsFormWrapper,
-} from "./components";
-import AdminConfig from "pages/Settings/config";
+} from "pages/Settings/components";
+import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import RestartBanner from "pages/Settings/RestartBanner";
-import { BottomSpace } from "pages/Settings/SettingsForm";
 import { DisconnectService } from "pages/Settings/DisconnectService";
 import { fetchSamlMetadata } from "@appsmith/actions/settingsAction";
 import { connectedMethods } from "@appsmith/utils/adminSettingsHelpers";
