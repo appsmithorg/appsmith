@@ -361,7 +361,6 @@ function Deploy() {
 
           {showCommitButton && (
             <Tooltip
-              autoFocus={false}
               content={createMessage(GIT_NO_UPDATED_TOOLTIP)}
               disabled={showCommitButton && !commitButtonLoading}
               donotUsePortal
