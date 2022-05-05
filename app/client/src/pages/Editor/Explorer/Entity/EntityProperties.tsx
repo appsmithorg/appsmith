@@ -30,6 +30,8 @@ const EntityInfoContainer = styled.div`
   max-width: 400px;
   max-height: ${BindingContainerMaxHeight}px;
   overflow-y: hidden;
+  border: 1px solid rgba(229, 231, 235, var(--tw-border-opacity));
+  box-shadow: 4px 0px 10px 2px #ebebeb;
 `;
 
 const selectEntityInfo = (state: AppState) => state.ui.explorer.entityInfo;
@@ -197,7 +199,7 @@ export function EntityProperties() {
   return (
     <EntityInfoContainer
       className={classNames({
-        "absolute bp3-popover overflow-y-auto overflow-x-hidden bg-white pb-4 flex flex-col justify-center z-10 delay-150 transition-all": true,
+        "absolute overflow-y-auto overflow-x-hidden bg-white pb-4 flex flex-col justify-center z-10 delay-150 transition-all": true,
         "-left-100": !show,
       })}
       ref={ref}
