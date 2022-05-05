@@ -3,8 +3,9 @@ import {
   DatasourceTable,
 } from "entities/Datasource";
 import React, { memo, ReactElement } from "react";
+import { useSelector } from "react-redux";
+import { getIsFetchingDatasourceStructure } from "selectors/entitiesSelector";
 import EntityPlaceholder from "../Entity/Placeholder";
-import { useEntityUpdateState } from "../hooks";
 import DatasourceStructure from "./DatasourceStructure";
 
 type Props = {
@@ -14,10 +15,11 @@ type Props = {
 };
 
 const Container = (props: Props) => {
-  const isLoading = useEntityUpdateState(props.datasourceId);
   let view: ReactElement<Props> = <div />;
-
-  if (!isLoading) {
+  const isFetchingDatasourceStructure = useSelector(
+    getIsFetchingDatasourceStructure,
+  );
+  if (!isFetchingDatasourceStructure) {
     if (props.datasourceStructure?.tables?.length) {
       view = (
         <>
