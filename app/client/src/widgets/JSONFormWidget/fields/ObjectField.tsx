@@ -4,7 +4,7 @@ import { ControllerRenderProps } from "react-hook-form";
 import { sortBy } from "lodash";
 
 import Accordion from "../component/Accordion";
-import FieldLabel from "../component/FieldLabel";
+import FieldLabel, { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 import FieldRenderer from "./FieldRenderer";
 import NestedFormWrapper from "../component/NestedFormWrapper";
 import useUpdateAccessor from "./useObserveAccessor";
@@ -17,8 +17,15 @@ import {
 
 type ObjectComponentProps = FieldComponentBaseProps & {
   backgroundColor?: string;
+  borderColor?: string;
+  borderWidth?: number;
+  borderRadius?: string;
+  boxShadow?: string;
   cellBackgroundColor?: string;
   cellBorderColor?: string;
+  cellBorderWidth?: number;
+  cellBorderRadius?: string;
+  cellBoxShadow?: string;
 };
 
 // Note: Do not use ControllerRenderProps["name"] here for name, as it causes TS stack overflow
@@ -38,6 +45,7 @@ const COMPONENT_DEFAULT_VALUES: ObjectComponentProps = {
   isDisabled: false,
   isRequired: false,
   isVisible: true,
+  labelTextSize: BASE_LABEL_TEXT_SIZE,
   label: "",
 };
 
@@ -64,8 +72,6 @@ function ObjectField({
   const {
     accessor,
     backgroundColor,
-    cellBackgroundColor,
-    cellBorderColor,
     isVisible = true,
     label,
     tooltip,
@@ -123,15 +129,30 @@ function ObjectField({
     >
       <NestedFormWrapper
         backgroundColor={isRootField ? "transparent" : backgroundColor}
+        borderColor={schemaItem.borderColor}
+        borderRadius={schemaItem.borderRadius}
+        borderWidth={schemaItem.borderWidth}
+        boxShadow={schemaItem.boxShadow}
         withoutPadding={isRootField}
       >
-        {!hideLabel && <FieldLabel label={label} tooltip={tooltip} />}
+        {!hideLabel && (
+          <FieldLabel
+            label={label}
+            labelStyle={schemaItem.labelStyle}
+            labelTextColor={schemaItem.labelTextColor}
+            labelTextSize={schemaItem.labelTextSize}
+            tooltip={tooltip}
+          />
+        )}
         {isRootField || hideAccordion ? (
           field
         ) : (
           <Accordion
-            backgroundColor={cellBackgroundColor}
-            borderColor={cellBorderColor}
+            backgroundColor={schemaItem.cellBackgroundColor}
+            borderColor={schemaItem.cellBorderColor}
+            borderRadius={schemaItem.cellBorderRadius}
+            borderWidth={schemaItem.cellBorderWidth}
+            boxShadow={schemaItem.cellBoxShadow}
             isCollapsible={false}
           >
             {field}

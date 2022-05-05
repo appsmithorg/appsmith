@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import styled from "styled-components";
 import { Alignment, IconName } from "@blueprintjs/core";
 import { isNil } from "lodash";
 import { useController } from "react-hook-form";
@@ -32,21 +33,25 @@ import {
 import BaseInputComponent, {
   InputHTMLType,
 } from "widgets/BaseInputWidget/component";
+import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 
 export type BaseInputComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
+    borderRadius?: string;
+    boxShadow?: string;
     errorMessage?: string;
     iconAlign?: Omit<Alignment, "center">;
     iconName?: IconName;
+    isSpellCheck: boolean;
     maxChars?: number;
     maxNum?: number;
     minNum?: number;
     onEnterKeyPress?: string;
     onTextChanged?: string;
     placeholderText?: string;
+    accentColor?: string;
     regex?: string;
     validation?: boolean;
-    isSpellCheck: boolean;
   };
 
 export type OnValueChangeOptions = {
@@ -70,13 +75,24 @@ type IsValidOptions = {
   fieldType: FieldType;
 };
 
+type StyledInputWrapperProps = {
+  multiline: boolean;
+};
+
 const COMPONENT_DEFAULT_VALUES: BaseInputComponentProps = {
   isDisabled: false,
   isRequired: false,
   isSpellCheck: false,
   isVisible: true,
+  labelTextSize: BASE_LABEL_TEXT_SIZE,
   label: "",
 };
+
+// This is to compensate the lack of Resizable Component which gives Input widget's height.
+const StyledInputWrapper = styled.div<StyledInputWrapperProps>`
+  height: ${({ multiline }) => (multiline ? "100px" : "32px")};
+  width: 100%;
+`;
 
 // REGEX origin https://github.com/manishsaraan/email-validator/blob/master/index.js
 export const EMAIL_REGEX = new RegExp(
@@ -325,6 +341,9 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     return (
       <BaseInputComponent
         {...conditionalProps}
+        accentColor={schemaItem.accentColor}
+        borderRadius={schemaItem.borderRadius}
+        boxShadow={schemaItem.boxShadow}
         compactMode={false}
         disableNewLineOnPressEnterKey={Boolean(schemaItem.onEnterKeyPress)}
         disabled={schemaItem.isDisabled}
@@ -376,7 +395,11 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
       name={name}
       tooltip={schemaItem.tooltip}
     >
-      {fieldComponent}
+      <StyledInputWrapper
+        multiline={schemaItem.fieldType === FieldType.MULTILINE_TEXT_INPUT}
+      >
+        {fieldComponent}
+      </StyledInputWrapper>
     </Field>
   );
 }
