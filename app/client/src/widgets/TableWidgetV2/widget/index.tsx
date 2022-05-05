@@ -60,17 +60,14 @@ import { Colors } from "constants/Colors";
 import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
 import equal from "fast-deep-equal/es6";
 import { sanitizeKey } from "widgets/WidgetUtils";
-import { renderDefault } from "../component/renderHelpers/DefaultRenderer";
-import { renderButton } from "../component/renderHelpers/ButtonRenderer";
-import { renderSelect } from "../component/renderHelpers/SelectRenderer";
-import {
-  renderMenuButton,
-  RenderMenuButtonProps,
-} from "../component/renderHelpers/MenuButtonRenderer";
-import { renderImage } from "../component/renderHelpers/ImageRenderer";
-import { renderVideo } from "../component/renderHelpers/VideoRenders";
-import { renderIconButton } from "../component/renderHelpers/IconButtonRenderer";
-import { renderEditActions } from "../component/renderHelpers/EditActionsRenderer";
+import { DefaultCell } from "../component/renderHelpers/DefaultRenderer";
+import { ButtonCell } from "../component/renderHelpers/ButtonRenderer";
+import { SelectCell } from "../component/renderHelpers/SelectRenderer";
+import { MenuButtonCell } from "../component/renderHelpers/MenuButtonRenderer";
+import { ImageCell } from "../component/renderHelpers/ImageRenderer";
+import { VideoCell } from "../component/renderHelpers/VideoRenders";
+import { IconButtonCell } from "../component/renderHelpers/IconButtonRenderer";
+import { EditActionCell } from "../component/renderHelpers/EditActionsRenderer";
 import { klona as clone } from "klona/full";
 
 const ReactTableComponent = lazy(() =>
@@ -137,19 +134,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
    * based on columnType
    */
   getTableColumns = () => {
-    const {
-      columnWidthMap = {},
-      filteredTableData = [],
-      multiRowSelection,
-      selectedRowIndex,
-      selectedRowIndices,
-      orderedTableColumns = [],
-    } = this.props;
+    const { columnWidthMap = {}, orderedTableColumns = [] } = this.props;
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
 
     const { componentWidth } = this.getComponentDimensions();
-    const compactMode = this.props.compactMode || CompactModeTypes.DEFAULT;
     let totalColumnWidth = 0;
 
     orderedTableColumns.forEach((column: any) => {
@@ -172,344 +161,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           inputFormat: column.inputFormat || "",
         },
         columnProperties: column,
-        Cell: (props: any) => {
-          const rowIndex: number = props.cell.row.index;
-          const row = filteredTableData[rowIndex];
-          const originalIndex = row[ORIGINAL_INDEX_KEY] ?? rowIndex;
-
-          // cellProperties order or size does not change when filter/sorting/grouping is applied
-          // on the data thus original index is needed to identify the column's cell property.
-          const cellProperties = getCellProperties(column, originalIndex);
-          let isSelected = false;
-
-          if (this.props.transientTableData) {
-            cellProperties.hasUnsavedChanged =
-              this.props.transientTableData.hasOwnProperty(originalIndex) &&
-              this.props.transientTableData[originalIndex].hasOwnProperty(
-                props.cell.column.columnProperties.alias,
-              );
-          }
-
-          if (multiRowSelection) {
-            isSelected =
-              _.isArray(selectedRowIndices) &&
-              selectedRowIndices.includes(rowIndex);
-          } else {
-            isSelected = selectedRowIndex === rowIndex;
-          }
-
-          const isColumnEditable = column.isEditable;
-
-          switch (column.columnType) {
-            case ColumnTypes.BUTTON:
-              return renderButton({
-                compactMode,
-                isSelected: isSelected,
-                onCommandClick: (action: string, onComplete: () => void) =>
-                  this.onColumnEvent({
-                    rowIndex,
-                    action,
-                    onComplete,
-                    triggerPropertyName: "onClick",
-                    eventType: EventType.ON_CLICK,
-                  }),
-                backgroundColor:
-                  cellProperties.buttonColor || DEFAULT_BUTTON_COLOR,
-                isDisabled: !!cellProperties.isDisabled,
-                isCellVisible: cellProperties.isCellVisible ?? true,
-                columnActions: [
-                  {
-                    backgroundColor: cellProperties.buttonColor,
-                    eventType: EventType.ON_CLICK,
-                    id: column.id,
-                    isVisible: true,
-                    label: cellProperties.buttonLabel || DEFAULT_BUTTON_LABEL,
-                    dynamicTrigger: column.onClick || "",
-                    variant: cellProperties.buttonVariant,
-                  },
-                ],
-                cellProperties,
-                isHidden,
-              });
-
-            case ColumnTypes.EDIT_ACTIONS:
-              return renderEditActions({
-                compactMode,
-                isSelected: isSelected,
-                onCommandClick: (
-                  action: string,
-                  onComplete: () => void,
-                  eventType: EventType,
-                ) =>
-                  this.onColumnEvent({
-                    rowIndex,
-                    action,
-                    onComplete,
-                    triggerPropertyName: "onClick",
-                    eventType: eventType,
-                  }),
-                isCellVisible: cellProperties.isCellVisible ?? true,
-                columnActions: [
-                  {
-                    id: EditableCellActions.SAVE,
-                    label: cellProperties.saveActionLabel,
-                    dynamicTrigger: column.onSave || "",
-                    eventType: EventType.ON_ROW_SAVE,
-                    iconName: cellProperties.saveActionIconName,
-                    variant: cellProperties.saveButtonVariant,
-                    backgroundColor: cellProperties.saveButtonColor,
-                    iconAlign: cellProperties.saveIconAlign,
-                    borderRadius: cellProperties.saveBorderRadius,
-                    isVisible: cellProperties.isSaveVisible,
-                    isDisabled: cellProperties.isSaveDisabled,
-                  },
-                  {
-                    id: EditableCellActions.DISCARD,
-                    label: cellProperties.discardActionLabel,
-                    dynamicTrigger: column.onDiscard || "",
-                    eventType: EventType.ON_ROW_DISCARD,
-                    iconName: cellProperties.discardActionIconName,
-                    variant: cellProperties.discardButtonVariant,
-                    backgroundColor: cellProperties.discardButtonColor,
-                    iconAlign: cellProperties.discardIconAlign,
-                    borderRadius: cellProperties.discardBorderRadius,
-                    isVisible: cellProperties.isDiscardVisible,
-                    isDisabled: cellProperties.isDiscardDisabled,
-                  },
-                ],
-                cellProperties,
-                isHidden,
-                onDiscard: () => {
-                  this.removeRowFromTransientTableData(originalIndex);
-                },
-              });
-
-            case ColumnTypes.SELECT:
-              const onSelect = (value: string) => {
-                this.updateTransientTableData({
-                  __original_index__: this.getRowOriginalIndex(rowIndex),
-                  [props.cell.column.columnProperties.alias]: value,
-                });
-
-                if (column.onOptionChange) {
-                  this.onColumnEvent({
-                    rowIndex,
-                    action: column.onOptionChange,
-                    triggerPropertyName: "onOptionChange",
-                    eventType: EventType.ON_OPTION_CHANGE,
-                  });
-                }
-              };
-
-              return renderSelect({
-                cellProperties: cellProperties,
-                compactMode,
-                options: column.selectOptions,
-                onItemSelect: onSelect,
-                isCellVisible: cellProperties.isCellVisible ?? true,
-                isEditable: isColumnEditable,
-                isHidden,
-                tableWidth: componentWidth,
-                value: props.cell.value,
-                width:
-                  this.props.columnWidthMap?.[column.id] ||
-                  DEFAULT_COLUMN_WIDTH,
-              });
-
-            case ColumnTypes.IMAGE:
-              const onClick = column.onClick
-                ? () =>
-                    this.onColumnEvent({
-                      rowIndex,
-                      action: column.onClick,
-                      triggerPropertyName: "onClick",
-                      eventType: EventType.ON_CLICK,
-                    })
-                : noop;
-
-              return renderImage({
-                compactMode,
-                value: props.cell.value,
-                isHidden: isHidden,
-                cellProperties: cellProperties,
-                isCellVisible: cellProperties.isCellVisible ?? true,
-                onClick: onClick,
-                isSelected: isSelected,
-              });
-
-            case ColumnTypes.MENU_BUTTON:
-              const menuButtonProps: RenderMenuButtonProps = {
-                compactMode,
-                isSelected: isSelected,
-                onCommandClick: (action: string, onComplete?: () => void) =>
-                  this.onColumnEvent({
-                    rowIndex,
-                    action,
-                    onComplete,
-                    triggerPropertyName: "onClick",
-                    eventType: EventType.ON_CLICK,
-                  }),
-                isDisabled: !!cellProperties.isDisabled,
-                menuItems: cellProperties.menuItems,
-                isCompact: !!cellProperties.isCompact,
-                menuVariant: cellProperties.menuVariant ?? DEFAULT_MENU_VARIANT,
-                menuColor: cellProperties.menuColor || Colors.GREEN,
-                borderRadius: cellProperties.borderRadius,
-                boxShadow: cellProperties.boxShadow,
-                boxShadowColor: cellProperties.boxShadowColor,
-                iconName: cellProperties.menuButtoniconName,
-                iconAlign: cellProperties.iconAlign,
-                isCellVisible: cellProperties.isCellVisible ?? true,
-                label:
-                  cellProperties.menuButtonLabel ?? DEFAULT_MENU_BUTTON_LABEL,
-              };
-
-              return renderMenuButton(
-                menuButtonProps,
-                isHidden,
-                cellProperties,
-              );
-
-            case ColumnTypes.ICON_BUTTON:
-              const iconButtonProps = {
-                compactMode,
-                isSelected: isSelected,
-                onCommandClick: (action: string, onComplete: () => void) =>
-                  this.onColumnEvent({
-                    rowIndex,
-                    action,
-                    onComplete,
-                    triggerPropertyName: "onClick",
-                    eventType: EventType.ON_CLICK,
-                  }),
-                columnActions: [
-                  {
-                    id: column.id,
-                    dynamicTrigger: column.onClick || "",
-                  },
-                ],
-                iconName: (cellProperties.iconName ||
-                  IconNames.ADD) as IconName,
-                buttonColor: cellProperties.buttonColor || Colors.GREEN,
-                buttonVariant: cellProperties.buttonVariant || "PRIMARY",
-                borderRadius: cellProperties.borderRadius || "SHARP",
-                boxShadow: cellProperties.boxShadow || "NONE",
-                boxShadowColor: cellProperties.boxShadowColor || "",
-                isCellVisible: cellProperties.isCellVisible ?? true,
-                disabled: !!cellProperties.isDisabled,
-              };
-
-              return renderIconButton(
-                iconButtonProps,
-                isHidden,
-                cellProperties,
-              );
-
-            case ColumnTypes.VIDEO:
-              return renderVideo({
-                compactMode,
-                value: props.cell.value,
-                isHidden: isHidden,
-                cellProperties: cellProperties,
-                isCellVisible: cellProperties.isCellVisible ?? true,
-              });
-
-            default:
-              const isCellEditMode =
-                props.cell.column.alias === this.props.editableCell.column &&
-                rowIndex === this.props.editableCell.index;
-              return renderDefault({
-                compactMode,
-                value: props.cell.value,
-                columnType: column.columnType,
-                isHidden: isHidden,
-                cellProperties: cellProperties,
-                tableWidth: componentWidth,
-                isCellEditable:
-                  (isColumnEditable && cellProperties.isCellEditable) ?? false,
-                isCellVisible: cellProperties.isCellVisible ?? true,
-                isCellEditMode: isCellEditMode,
-                onCellTextChange: (data: string) => {
-                  this.props.updateWidgetMetaProperty("editableCell", {
-                    ...this.props.editableCell,
-                    value: data,
-                  });
-                },
-                toggleCellEditMode: (
-                  enable: boolean,
-                  action?: EditableCellActions,
-                ) => {
-                  if (enable) {
-                    if (this.editTimer) {
-                      clearTimeout(this.editTimer);
-                    }
-
-                    this.props.updateWidgetMetaProperty("editableCell", {
-                      column: props.cell.column.alias,
-                      index: rowIndex,
-                      value: props.cell.value,
-                      // To revert back to previous on discard
-                      initialValue: props.cell.value,
-                    });
-
-                    /*
-                     * We need to clear the selectedRowIndex and selectedRowIndices
-                     * if the rows are sorted, to avoid selectedRow jumping to
-                     * different page.
-                     */
-                    if (this.props.sortOrder.column) {
-                      if (this.props.multiRowSelection) {
-                        this.props.updateWidgetMetaProperty(
-                          "selectedRowIndices",
-                          [],
-                        );
-                      } else {
-                        this.props.updateWidgetMetaProperty(
-                          "selectedRowIndex",
-                          -1,
-                        );
-                      }
-                    }
-                  } else {
-                    if (
-                      action === EditableCellActions.SAVE &&
-                      props.cell.value !== this.props.editableCell.initialValue
-                    ) {
-                      this.updateTransientTableData({
-                        __original_index__: this.getRowOriginalIndex(rowIndex),
-                        [props.cell.column.columnProperties.alias]:
-                          props.cell.value,
-                      });
-
-                      if (
-                        props.cell.column.columnProperties.onSubmit &&
-                        !this.hasRowEditActionsColumn()
-                      ) {
-                        this.onColumnEvent({
-                          rowIndex: rowIndex,
-                          action: props.cell.column.columnProperties.onSubmit,
-                          triggerPropertyName: "onSubmit",
-                          eventType: EventType.ON_SUBMIT,
-                          row: {
-                            ...this.props.filteredTableData[rowIndex],
-                            [this.props.editableCell.column]: this.props
-                              .editableCell.value,
-                          },
-                        });
-                      }
-                    }
-
-                    /*
-                     * We need to let the evaulations compute derived property (filteredTableData)
-                     * before we clear the editableCell to avoid the text flickering
-                     */
-                    this.editTimer = setTimeout(() => {
-                      this.props.updateWidgetMetaProperty("editableCell", {});
-                    }, 100);
-                  }
-                },
-              });
-          }
+        Cell: (props: any): JSX.Element => {
+          return this.renderCell(props, column, componentWidth);
         },
       };
 
@@ -1509,6 +1162,386 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     } else {
       return false;
     }
+  };
+
+  renderCell = (props: any, column: any, componentWidth: number) => {
+    const isHidden = !column.isVisible;
+    const {
+      filteredTableData = [],
+      multiRowSelection,
+      selectedRowIndex,
+      selectedRowIndices,
+      compactMode = CompactModeTypes.DEFAULT,
+    } = this.props;
+
+    const rowIndex: number = props.cell.row.index;
+    const row = filteredTableData[rowIndex];
+    const originalIndex = row[ORIGINAL_INDEX_KEY] ?? rowIndex;
+
+    // cellProperties order or size does not change when filter/sorting/grouping is applied
+    // on the data thus original index is needed to identify the column's cell property.
+    const cellProperties = getCellProperties(column, originalIndex);
+    let isSelected = false;
+
+    if (this.props.transientTableData) {
+      cellProperties.hasUnsavedChanged =
+        this.props.transientTableData.hasOwnProperty(originalIndex) &&
+        this.props.transientTableData[originalIndex].hasOwnProperty(
+          props.cell.column.columnProperties.alias,
+        );
+    }
+
+    if (multiRowSelection) {
+      isSelected =
+        _.isArray(selectedRowIndices) && selectedRowIndices.includes(rowIndex);
+    } else {
+      isSelected = selectedRowIndex === rowIndex;
+    }
+
+    const isColumnEditable = column.isEditable;
+
+    switch (column.columnType) {
+      case ColumnTypes.BUTTON:
+        return (
+          <ButtonCell
+            allowCellWrapping={cellProperties.allowCellWrapping}
+            backgroundColor={cellProperties.buttonColor || DEFAULT_BUTTON_COLOR}
+            columnActions={[
+              {
+                backgroundColor: cellProperties.buttonColor,
+                eventType: EventType.ON_CLICK,
+                id: column.id,
+                isVisible: true,
+                label: cellProperties.buttonLabel || DEFAULT_BUTTON_LABEL,
+                dynamicTrigger: column.onClick || "",
+                variant: cellProperties.buttonVariant,
+              },
+            ]}
+            compactMode={compactMode}
+            horizontalAlignment={cellProperties.horizontalAlignment}
+            isCellVisible={cellProperties.isCellVisible ?? true}
+            isDisabled={!!cellProperties.isDisabled}
+            isHidden={isHidden}
+            isSelected={isSelected}
+            onCommandClick={(action: string, onComplete: () => void) =>
+              this.onColumnEvent({
+                rowIndex,
+                action,
+                onComplete,
+                triggerPropertyName: "onClick",
+                eventType: EventType.ON_CLICK,
+              })
+            }
+            verticalAlignment={cellProperties.verticalAlignment}
+          />
+        );
+
+      case ColumnTypes.EDIT_ACTIONS:
+        return (
+          <EditActionCell
+            allowCellWrapping={cellProperties.allowCellWrapping}
+            columnActions={[
+              {
+                id: EditableCellActions.SAVE,
+                label: cellProperties.saveActionLabel,
+                dynamicTrigger: column.onSave || "",
+                eventType: EventType.ON_ROW_SAVE,
+                iconName: cellProperties.saveActionIconName,
+                variant: cellProperties.saveButtonVariant,
+                backgroundColor: cellProperties.saveButtonColor,
+                iconAlign: cellProperties.saveIconAlign,
+                borderRadius: cellProperties.saveBorderRadius,
+                isVisible: cellProperties.isSaveVisible,
+                isDisabled: cellProperties.isSaveDisabled,
+              },
+              {
+                id: EditableCellActions.DISCARD,
+                label: cellProperties.discardActionLabel,
+                dynamicTrigger: column.onDiscard || "",
+                eventType: EventType.ON_ROW_DISCARD,
+                iconName: cellProperties.discardActionIconName,
+                variant: cellProperties.discardButtonVariant,
+                backgroundColor: cellProperties.discardButtonColor,
+                iconAlign: cellProperties.discardIconAlign,
+                borderRadius: cellProperties.discardBorderRadius,
+                isVisible: cellProperties.isDiscardVisible,
+                isDisabled: cellProperties.isDiscardDisabled,
+              },
+            ]}
+            compactMode={compactMode}
+            horizontalAlignment={cellProperties.horizontalAlignment}
+            isCellVisible={cellProperties.isCellVisible ?? true}
+            isHidden={isHidden}
+            isSelected={isSelected}
+            onCommandClick={(
+              action: string,
+              onComplete: () => void,
+              eventType: EventType,
+            ) =>
+              this.onColumnEvent({
+                rowIndex,
+                action,
+                onComplete,
+                triggerPropertyName: "onClick",
+                eventType: eventType,
+              })
+            }
+            onDiscard={() =>
+              this.removeRowFromTransientTableData(originalIndex)
+            }
+            verticalAlignment={cellProperties.verticalAlignment}
+          />
+        );
+
+      case ColumnTypes.SELECT:
+        const onSelect = (value: string) => {
+          this.updateTransientTableData({
+            __original_index__: this.getRowOriginalIndex(rowIndex),
+            [props.cell.column.columnProperties.alias]: value,
+          });
+
+          if (column.onOptionChange) {
+            this.onColumnEvent({
+              rowIndex,
+              action: column.onOptionChange,
+              triggerPropertyName: "onOptionChange",
+              eventType: EventType.ON_OPTION_CHANGE,
+            });
+          }
+        };
+
+        return (
+          <SelectCell
+            allowCellWrapping={cellProperties.allowCellWrapping}
+            compactMode={compactMode}
+            horizontalAlignment={cellProperties.horizontalAlignment}
+            isCellEditable={cellProperties.isCellEditable}
+            isCellVisible={cellProperties.isCellVisible ?? true}
+            isEditable={isColumnEditable}
+            isHidden={isHidden}
+            onItemSelect={onSelect}
+            options={column.selectOptions}
+            tableWidth={componentWidth}
+            textColor={cellProperties.textColor}
+            value={props.cell.value}
+            verticalAlignment={cellProperties.verticalAlignment}
+            width={
+              this.props.columnWidthMap?.[column.id] || DEFAULT_COLUMN_WIDTH
+            }
+          />
+        );
+
+      case ColumnTypes.IMAGE:
+        const onClick = column.onClick
+          ? () =>
+              this.onColumnEvent({
+                rowIndex,
+                action: column.onClick,
+                triggerPropertyName: "onClick",
+                eventType: EventType.ON_CLICK,
+              })
+          : noop;
+
+        return (
+          <ImageCell
+            allowCellWrapping={cellProperties.allowCellWrapping}
+            compactMode={compactMode}
+            horizontalAlignment={cellProperties.horizontalAlignment}
+            isCellVisible={cellProperties.isCellVisible ?? true}
+            isHidden={isHidden}
+            isSelected={isSelected}
+            onClick={onClick}
+            value={props.cell.value}
+            verticalAlignment={cellProperties.verticalAlignment}
+          />
+        );
+
+      case ColumnTypes.MENU_BUTTON:
+        return (
+          <MenuButtonCell
+            allowCellWrapping={cellProperties.allowCellWrapping}
+            borderRadius={cellProperties.borderRadius}
+            boxShadow={cellProperties.boxShadow}
+            boxShadowColor={cellProperties.boxShadowColor}
+            compactMode={compactMode}
+            horizontalAlignment={cellProperties.horizontalAlignment}
+            iconAlign={cellProperties.iconAlign}
+            iconName={cellProperties.menuButtoniconName}
+            isCellVisible={cellProperties.isCellVisible ?? true}
+            isCompact={!!cellProperties.isCompact}
+            isDisabled={!!cellProperties.isDisabled}
+            isHidden={isHidden}
+            isSelected={isSelected}
+            label={cellProperties.menuButtonLabel ?? DEFAULT_MENU_BUTTON_LABEL}
+            menuColor={cellProperties.menuColor || Colors.GREEN}
+            menuItems={cellProperties.menuItems}
+            menuVariant={cellProperties.menuVariant ?? DEFAULT_MENU_VARIANT}
+            onCommandClick={(action: string, onComplete?: () => void) =>
+              this.onColumnEvent({
+                rowIndex,
+                action,
+                onComplete,
+                triggerPropertyName: "onClick",
+                eventType: EventType.ON_CLICK,
+              })
+            }
+            verticalAlignment={cellProperties.verticalAlignment}
+          />
+        );
+
+      case ColumnTypes.ICON_BUTTON:
+        return (
+          <IconButtonCell
+            allowCellWrapping={cellProperties.allowCellWrapping}
+            borderRadius={cellProperties.borderRadius || "SHARP"}
+            boxShadow={cellProperties.boxShadow || "NONE"}
+            boxShadowColor={cellProperties.boxShadowColor || ""}
+            buttonColor={cellProperties.buttonColor || Colors.GREEN}
+            buttonVariant={cellProperties.buttonVariant || "PRIMARY"}
+            columnActions={[
+              {
+                id: column.id,
+                dynamicTrigger: column.onClick || "",
+              },
+            ]}
+            compactMode={compactMode}
+            disabled={!!cellProperties.isDisabled}
+            horizontalAlignment={cellProperties.horizontalAlignment}
+            iconName={(cellProperties.iconName || IconNames.ADD) as IconName}
+            isCellVisible={cellProperties.isCellVisible ?? true}
+            isHidden={isHidden}
+            isSelected={isSelected}
+            onCommandClick={(action: string, onComplete: () => void) =>
+              this.onColumnEvent({
+                rowIndex,
+                action,
+                onComplete,
+                triggerPropertyName: "onClick",
+                eventType: EventType.ON_CLICK,
+              })
+            }
+            verticalAlignment={cellProperties.verticalAlignment}
+          />
+        );
+
+      case ColumnTypes.VIDEO:
+        return (
+          <VideoCell
+            allowCellWrapping={cellProperties.allowCellWrapping}
+            compactMode={compactMode}
+            horizontalAlignment={cellProperties.horizontalAlignment}
+            isCellVisible={cellProperties.isCellVisible ?? true}
+            isHidden={isHidden}
+            value={props.cell.value}
+            verticalAlignment={cellProperties.verticalAlignment}
+          />
+        );
+
+      default:
+        const isCellEditMode =
+          props.cell.column.alias === this.props.editableCell.column &&
+          rowIndex === this.props.editableCell.index;
+
+        return (
+          <DefaultCell
+            allowCellWrapping={cellProperties.allowCellWrapping}
+            cellBackground={cellProperties.cellBackground}
+            columnType={column.columnType}
+            compactMode={compactMode}
+            displayText={cellProperties.displayText}
+            hasUnsavedChanged={cellProperties.hasUnsavedChanged}
+            horizontalAlignment={cellProperties.horizontalAlignment}
+            isCellEditMode={isCellEditMode}
+            isCellEditable={
+              (isColumnEditable && cellProperties.isCellEditable) ?? false
+            }
+            isCellVisible={cellProperties.isCellVisible ?? true}
+            isHidden={isHidden}
+            onCellTextChange={this.onEditableCellTextChange}
+            tableWidth={componentWidth}
+            textColor={cellProperties.textColor}
+            toggleCellEditMode={(
+              enable: boolean,
+              action?: EditableCellActions,
+            ) => {
+              if (enable) {
+                if (this.editTimer) {
+                  clearTimeout(this.editTimer);
+                }
+
+                this.props.updateWidgetMetaProperty("editableCell", {
+                  column: props.cell.column.alias,
+                  index: rowIndex,
+                  value: props.cell.value,
+                  // To revert back to previous on discard
+                  initialValue: props.cell.value,
+                });
+
+                /*
+                 * We need to clear the selectedRowIndex and selectedRowIndices
+                 * if the rows are sorted, to avoid selectedRow jumping to
+                 * different page.
+                 */
+                if (this.props.sortOrder.column) {
+                  if (this.props.multiRowSelection) {
+                    this.props.updateWidgetMetaProperty(
+                      "selectedRowIndices",
+                      [],
+                    );
+                  } else {
+                    this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
+                  }
+                }
+              } else {
+                if (
+                  action === EditableCellActions.SAVE &&
+                  props.cell.value !== this.props.editableCell.initialValue
+                ) {
+                  this.updateTransientTableData({
+                    __original_index__: this.getRowOriginalIndex(rowIndex),
+                    [props.cell.column.columnProperties.alias]:
+                      props.cell.value,
+                  });
+
+                  if (
+                    props.cell.column.columnProperties.onSubmit &&
+                    !this.hasRowEditActionsColumn()
+                  ) {
+                    this.onColumnEvent({
+                      rowIndex: rowIndex,
+                      action: props.cell.column.columnProperties.onSubmit,
+                      triggerPropertyName: "onSubmit",
+                      eventType: EventType.ON_SUBMIT,
+                      row: {
+                        ...this.props.filteredTableData[rowIndex],
+                        [this.props.editableCell.column]: this.props
+                          .editableCell.value,
+                      },
+                    });
+                  }
+                }
+
+                /*
+                 * We need to let the evaulations compute derived property (filteredTableData)
+                 * before we clear the editableCell to avoid the text flickering
+                 */
+                this.editTimer = setTimeout(() => {
+                  this.props.updateWidgetMetaProperty("editableCell", {});
+                }, 100);
+              }
+            }}
+            value={props.cell.value}
+            verticalAlignment={cellProperties.verticalAlignment}
+          />
+        );
+    }
+  };
+
+  onEditableCellTextChange = (data: string) => {
+    this.props.updateWidgetMetaProperty("editableCell", {
+      ...this.props.editableCell,
+      value: data,
+    });
   };
 }
 

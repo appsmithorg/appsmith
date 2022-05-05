@@ -9,20 +9,20 @@ import {
   ColumnTypes,
   EditableCellActions,
 } from "widgets/TableWidgetV2/constants";
-import { ALIGN_ITEMS, CellLayoutProperties, TABLE_SIZES } from "../Constants";
+import { ALIGN_ITEMS, TABLE_SIZES, VerticalAlignment } from "../Constants";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 
 const Container = styled.div<{
-  cellProperties: CellLayoutProperties;
   isCellEditMode?: boolean;
+  verticalAlignment?: VerticalAlignment;
+  cellBackground?: string;
 }>`
   height: 100%;
   width: 100%;
   display: flex;
   align-items: ${(props) =>
-    props.cellProperties.verticalAlignment &&
-    ALIGN_ITEMS[props.cellProperties.verticalAlignment]};
-  background: ${(props) => props?.cellProperties?.cellBackground};
+    props.verticalAlignment && ALIGN_ITEMS[props.verticalAlignment]};
+  background: ${(props) => props.cellBackground};
 
   &:hover {
     .editable-cell-icon {
@@ -32,7 +32,7 @@ const Container = styled.div<{
 `;
 
 const Wrapper = styled.div<{
-  allowWrapping: boolean;
+  allowWrapping?: boolean;
   compactMode: string;
   isCellEditMode?: boolean;
 }>`
@@ -91,17 +91,22 @@ interface PropType extends RenderDefaultPropsType {
 }
 
 export function TextCell({
-  cellProperties,
+  allowCellWrapping,
+  cellBackground,
   columnType,
   compactMode,
+  hasUnsavedChanged,
+  horizontalAlignment,
   isCellEditable,
   isCellEditMode,
   isCellVisible,
   isHidden,
   onCellTextChange,
   tableWidth,
+  textColor,
   toggleCellEditMode,
   value,
+  verticalAlignment,
 }: PropType) {
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -120,7 +125,7 @@ export function TextCell({
   if (isCellEditMode) {
     editor = (
       <InlineCellEditor
-        cellProperties={cellProperties}
+        allowCellWrapping={allowCellWrapping}
         compactMode={compactMode}
         inputType={
           columnType === ColumnTypes.NUMBER
@@ -135,35 +140,43 @@ export function TextCell({
         onDiscard={() => toggleCellEditMode(false, EditableCellActions.DISCARD)}
         onSave={() => toggleCellEditMode(false, EditableCellActions.SAVE)}
         value={value}
+        verticalAlignment={verticalAlignment}
       />
     );
   }
 
   return (
-    <Container cellProperties={cellProperties} isCellEditMode={isCellEditMode}>
+    <Container
+      cellBackground={cellBackground}
+      isCellEditMode={isCellEditMode}
+      verticalAlignment={verticalAlignment}
+    >
       <Wrapper
-        allowWrapping={cellProperties.allowCellWrapping}
+        allowWrapping={allowCellWrapping}
         compactMode={compactMode}
         isCellEditMode={isCellEditMode}
         onDoubleClick={onEdit}
         ref={contentRef}
       >
-        {cellProperties.hasUnsavedChanged && <UnsavedChangesMarker />}
+        {hasUnsavedChanged && <UnsavedChangesMarker />}
         <StyledAutoToolTipComponent
-          cellProperties={cellProperties}
+          allowCellWrapping={allowCellWrapping}
           className={isCellEditable ? "editable-cell" : ""}
           columnType={columnType}
           compactMode={compactMode}
+          horizontalAlignment={horizontalAlignment}
           isCellVisible={isCellVisible}
           isHidden={isHidden}
           tableWidth={tableWidth}
+          textColor={textColor}
           title={!!value ? value.toString() : ""}
+          verticalAlignment={verticalAlignment}
         >
           {value}
         </StyledAutoToolTipComponent>
         {isCellEditable && (
           <StyledEditIcon
-            backgroundColor={cellProperties.cellBackground}
+            backgroundColor={cellBackground}
             className="editable-cell-icon"
             compactMode={compactMode}
             onMouseUp={onEdit}

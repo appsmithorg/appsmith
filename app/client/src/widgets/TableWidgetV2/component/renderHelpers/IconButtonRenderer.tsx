@@ -7,7 +7,11 @@ import {
   ButtonBoxShadow,
   ButtonBorderRadius,
 } from "components/constants";
-import { CellLayoutProperties } from "../Constants";
+import {
+  CellAlignment,
+  CellLayoutProperties,
+  VerticalAlignment,
+} from "../Constants";
 import { CellWrapper, IconButtonWrapper } from "../TableStyledWrappers";
 import { StyledButton } from "widgets/IconButtonWidget/component";
 
@@ -24,6 +28,10 @@ interface RenderIconButtonProps {
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
   isCellVisible: boolean;
   disabled: boolean;
+  isHidden: boolean;
+  allowCellWrapping?: boolean;
+  horizontalAlignment?: CellAlignment;
+  verticalAlignment?: VerticalAlignment;
 }
 
 function IconButton(props: {
@@ -75,38 +83,62 @@ function IconButton(props: {
   );
 }
 
-export const renderIconButton = (
-  props: RenderIconButtonProps,
-  isHidden: boolean,
-  cellProperties: CellLayoutProperties,
-) => {
-  if (!props.columnActions)
-    return <CellWrapper cellProperties={cellProperties} isHidden={isHidden} />;
+export function IconButtonCell(props: RenderIconButtonProps) {
+  const {
+    allowCellWrapping,
+    borderRadius,
+    boxShadow,
+    boxShadowColor,
+    buttonColor,
+    buttonVariant,
+    columnActions,
+    compactMode,
+    disabled,
+    horizontalAlignment,
+    iconName,
+    isCellVisible,
+    isHidden,
+    isSelected,
+    onCommandClick,
+    verticalAlignment,
+  } = props;
+
+  if (!columnActions)
+    return (
+      <CellWrapper
+        allowCellWrapping={allowCellWrapping}
+        horizontalAlignment={horizontalAlignment}
+        isHidden={isHidden}
+        verticalAlignment={verticalAlignment}
+      />
+    );
 
   return (
     <CellWrapper
-      cellProperties={cellProperties}
-      compactMode={props.compactMode}
-      isCellVisible={props.isCellVisible}
+      allowCellWrapping={allowCellWrapping}
+      compactMode={compactMode}
+      horizontalAlignment={horizontalAlignment}
+      isCellVisible={isCellVisible}
       isHidden={isHidden}
+      verticalAlignment={verticalAlignment}
     >
-      {props.columnActions.map((action: ColumnAction, index: number) => {
+      {columnActions.map((action: ColumnAction, index: number) => {
         return (
           <IconButton
             action={action}
-            borderRadius={props.borderRadius}
-            boxShadow={props.boxShadow}
-            boxShadowColor={props.boxShadowColor}
-            buttonColor={props.buttonColor}
-            buttonVariant={props.buttonVariant}
-            disabled={props.disabled}
-            iconName={props.iconName}
-            isSelected={props.isSelected}
+            borderRadius={borderRadius}
+            boxShadow={boxShadow}
+            boxShadowColor={boxShadowColor}
+            buttonColor={buttonColor}
+            buttonVariant={buttonVariant}
+            disabled={disabled}
+            iconName={iconName}
+            isSelected={isSelected}
             key={index}
-            onCommandClick={props.onCommandClick}
+            onCommandClick={onCommandClick}
           />
         );
       })}
     </CellWrapper>
   );
-};
+}
