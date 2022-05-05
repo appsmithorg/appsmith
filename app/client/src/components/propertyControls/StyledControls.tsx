@@ -194,7 +194,6 @@ const StyledInputWrapper = styled.div`
   }
 `;
 
-// export function StyledInputGroup(props: TextInputProps) {
 export const StyledInputGroup = React.forwardRef(
   (props: TextInputProps, ref) => {
     let inputRef = useRef<HTMLInputElement>(null);
