@@ -1,0 +1,149 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1936,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 1160,
+    "containerStyle": "none",
+    "snapRows": 116,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 54,
+    "minHeight": 1170,
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "boxShadow": "NONE",
+        "widgetName": "Container1",
+        "borderColor": "transparent",
+        "isCanvas": true,
+        "displayName": "Container",
+        "iconSVG": "/static/media/icon.1977dca3.svg",
+        "topRow": 18,
+        "bottomRow": 58,
+        "parentRowSpace": 10,
+        "type": "CONTAINER_WIDGET",
+        "hideCard": false,
+        "animateLoading": true,
+        "parentColumnSpace": 30.0625,
+        "leftColumn": 6,
+        "children": [
+          {
+            "widgetName": "Canvas1",
+            "rightColumn": 721.5,
+            "detachFromLayout": true,
+            "displayName": "Canvas",
+            "widgetId": "79a7avach5",
+            "containerStyle": "none",
+            "topRow": 0,
+            "bottomRow": 400,
+            "parentRowSpace": 1,
+            "isVisible": true,
+            "type": "CANVAS_WIDGET",
+            "canExtend": false,
+            "version": 1,
+            "hideCard": true,
+            "parentId": "drqlbbf2jm",
+            "minHeight": 400,
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "children": [],
+            "key": "wv7g2n64td"
+          }
+        ],
+        "borderWidth": "0",
+        "key": "t9ac12itzf",
+        "backgroundColor": "#FFFFFF",
+        "rightColumn": 30,
+        "widgetId": "drqlbbf2jm",
+        "containerStyle": "card",
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "borderRadius": "0"
+      },
+      {
+        "widgetName": "Chart1",
+        "allowScroll": false,
+        "displayName": "Chart",
+        "iconSVG": "/static/media/icon.6adbe31e.svg",
+        "topRow": 20,
+        "bottomRow": 52,
+        "parentRowSpace": 10,
+        "type": "CHART_WIDGET",
+        "hideCard": false,
+        "chartData": {
+          "0jqgz3wqpx": {
+            "seriesName": "Sales",
+            "data": [
+              {
+                "x": "Product1",
+                "y": 20000
+              },
+              {
+                "x": "Product2",
+                "y": 22000
+              },
+              {
+                "x": "Product3",
+                "y": 32000
+              }
+            ]
+          }
+        },
+        "animateLoading": true,
+        "parentColumnSpace": 30.0625,
+        "leftColumn": 35,
+        "customFusionChartConfig": {
+          "type": "column2d",
+          "dataSource": {
+            "chart": {
+              "caption": "Sales Report",
+              "xAxisName": "Product Line",
+              "yAxisName": "Revenue($)",
+              "theme": "fusion"
+            },
+            "data": [
+              {
+                "label": "Product1",
+                "value": 20000
+              },
+              {
+                "label": "Product2",
+                "value": 22000
+              },
+              {
+                "label": "Product3",
+                "value": 32000
+              }
+            ]
+          }
+        },
+        "key": "5dh7y0hcpk",
+        "rightColumn": 59,
+        "widgetId": "mxhtzoaizs",
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "labelOrientation": "auto",
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "yAxisName": "Revenue($)",
+        "chartName": "Sales Report",
+        "xAxisName": "Product Line",
+        "chartType": "COLUMN_CHART"
+      }
+    ]
+  }
+}
