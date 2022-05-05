@@ -2,6 +2,7 @@ import { createSelector } from "reselect";
 import { AppState } from "reducers";
 import { AppViewReduxState } from "reducers/uiReducers/appViewReducer";
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
+import { builderURL } from "RouteBuilder";
 
 const getAppViewState = (state: AppState) => state.ui.appView;
 const getPageListState = (state: AppState): PageListReduxState =>
@@ -35,3 +36,24 @@ export const getCurrentDSLPageId = createSelector(
   getPageListState,
   (pageList: PageListReduxState) => pageList.currentPageId,
 );
+
+export const getEditorURL = createSelector(
+  getPageListState,
+  (pageList: PageListReduxState) =>
+    pageList.applicationId && pageList.currentPageId
+      ? builderURL({
+          applicationId: pageList.applicationId,
+          pageId: pageList.currentPageId,
+        })
+      : "",
+);
+
+/**
+ * returns the height of header in app view mode
+ *
+ * @param state
+ * @returns
+ */
+export const getAppViewHeaderHeight = (state: AppState) => {
+  return state.ui.appView.headerHeight;
+};
