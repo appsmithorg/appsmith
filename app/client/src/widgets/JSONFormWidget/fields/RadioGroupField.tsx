@@ -1,4 +1,6 @@
 import React, { useCallback, useContext } from "react";
+import { Alignment } from "@blueprintjs/core";
+import { isNumber } from "lodash";
 import { useController } from "react-hook-form";
 
 import FormContext from "../FormContext";
@@ -9,7 +11,6 @@ import { RadioOption } from "widgets/RadioGroupWidget/constants";
 import { BaseFieldComponentProps, FieldComponentBaseProps } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
-import { Alignment } from "@blueprintjs/core";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 
 type RadioGroupComponentProps = FieldComponentBaseProps & {
@@ -55,6 +56,7 @@ function RadioGroupField({
   });
 
   const isValueValid = isValid(schemaItem, value);
+  const isOptionsValueNumeric = isNumber(schemaItem.options[0]?.value);
 
   useRegisterFieldValidity({
     isValid: isValueValid,
@@ -64,7 +66,11 @@ function RadioGroupField({
 
   const onSelectionChange = useCallback(
     (selectedValue: string) => {
-      onChange(selectedValue);
+      const value = isOptionsValueNumeric
+        ? parseFloat(selectedValue)
+        : selectedValue;
+
+      onChange(value);
 
       if (schemaItem.onSelectionChange && executeAction) {
         executeAction({
@@ -76,13 +82,18 @@ function RadioGroupField({
         });
       }
     },
-    [onChange, executeAction, schemaItem.onSelectionChange],
+    [
+      onChange,
+      executeAction,
+      schemaItem.onSelectionChange,
+      isOptionsValueNumeric,
+    ],
   );
 
   return (
     <Field
       accessor={schemaItem.accessor}
-      defaultValue={passedDefaultValue || schemaItem.defaultValue}
+      defaultValue={passedDefaultValue ?? schemaItem.defaultValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}
