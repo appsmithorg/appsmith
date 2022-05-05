@@ -106,20 +106,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             },
             dependencies: ["maxCount", "isAllowHalf"],
           },
-          {
-            propertyName: "activeColor",
-            label: "Active color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "inactiveColor",
-            label: "Inactive color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
+
           {
             propertyName: "tooltips",
             helpText: "Sets the tooltip contents of stars",
@@ -208,6 +195,29 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: true,
+          },
+        ],
+      },
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "activeColor",
+            label: "Active color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "inactiveColor",
+            label: "Inactive color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },
