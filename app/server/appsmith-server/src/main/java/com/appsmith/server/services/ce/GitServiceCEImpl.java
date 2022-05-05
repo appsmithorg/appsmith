@@ -506,7 +506,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                         return addAnalyticsForGitOperation(
                                 AnalyticsEvents.GIT_COMMIT.getEventName(),
                                 childApplication,
-                                AppsmithError.INVALID_GIT_CONFIGURATION.getTitle(),
+                                AppsmithError.INVALID_GIT_CONFIGURATION.getErrorType(),
                                 AppsmithError.INVALID_GIT_CONFIGURATION.getMessage(errorMessage),
                                 childApplication.getGitApplicationMetadata().getIsRepoPrivate()
                         )
@@ -676,7 +676,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                             return addAnalyticsForGitOperation(
                                                     AnalyticsEvents.GIT_PRIVATE_REPO_LIMIT_EXCEEDED.getEventName(),
                                                     application,
-                                                    AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getTitle(),
+                                                    AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getErrorType(),
                                                     AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage(),
                                                     application.getGitApplicationMetadata().getIsRepoPrivate()
                                             )
@@ -751,7 +751,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         return addAnalyticsForGitOperation(
                                                 AnalyticsEvents.GIT_CONNECT.getEventName(),
                                                 application,
-                                                AppsmithError.INVALID_GIT_REPO.getTitle(),
+                                                AppsmithError.INVALID_GIT_REPO.getErrorType(),
                                                 AppsmithError.INVALID_GIT_REPO.getMessage(),
                                                 application.getGitApplicationMetadata().getIsRepoPrivate()
                                         )
@@ -961,7 +961,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                         return addAnalyticsForGitOperation(
                                 AnalyticsEvents.GIT_PUSH.getEventName(),
                                 application,
-                                AppsmithError.GIT_UPSTREAM_CHANGES.getTitle(),
+                                AppsmithError.GIT_UPSTREAM_CHANGES.getErrorType(),
                                 AppsmithError.GIT_UPSTREAM_CHANGES.getMessage(),
                                 application.getGitApplicationMetadata().getIsRepoPrivate()
                         )
@@ -1287,7 +1287,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     return fileUtils.reconstructApplicationJsonFromGitRepo(srcApplication.getOrganizationId(), defaultApplicationId, srcApplication.getGitApplicationMetadata().getRepoName(), branchName)
                                             .zipWith(Mono.just(tuple.getT2()));
                                 }
-                                log.error(" Git checkout remote branch failed", throwable.getMessage());
+                                log.error(" Git checkout remote branch failed {}", throwable.getMessage());
                                 return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " --checkout", throwable.getMessage()));
                             });
                 })
@@ -1855,7 +1855,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                 return addAnalyticsForGitOperation(
                                                         AnalyticsEvents.GIT_IMPORT.getEventName(),
                                                         newApplication,
-                                                        AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getTitle(),
+                                                        AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getErrorType(),
                                                         AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage(),
                                                         false
                                                 ).flatMap(user -> Mono.error(new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR)));
