@@ -322,15 +322,17 @@ export const updateDerivedColumnsHook = (
         propertyPath: `derivedColumns.${columnId}.${columnProperty}`,
         propertyValue: propertyValue,
       });
-
-      updateThemeStylesheetsInColumns(
-        props,
-        propertyValue,
-        columnId,
-        columnProperty,
-        propertiesToUpdate,
-      );
     }
+
+    updateThemeStylesheetsInColumns(
+      props,
+      propertyValue,
+      columnId,
+      columnProperty,
+      propertiesToUpdate,
+    );
+
+    return propertiesToUpdate;
   }
 };
 
