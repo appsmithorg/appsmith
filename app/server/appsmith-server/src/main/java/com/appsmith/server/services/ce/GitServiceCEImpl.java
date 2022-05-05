@@ -476,7 +476,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .onErrorResume(e -> {
                     log.error("Error in commit flow: ", e);
                     if (e instanceof RepositoryNotFoundException) {
-                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", e));
+                        return Mono.error(new AppsmithException(AppsmithError.REPOSITORY_NOT_FOUND, defaultApplicationId));
                     } else if (e instanceof AppsmithException) {
                         return Mono.error(e);
                     }
