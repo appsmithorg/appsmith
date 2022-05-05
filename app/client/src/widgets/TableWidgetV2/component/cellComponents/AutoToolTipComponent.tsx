@@ -1,11 +1,14 @@
 import React, { createRef, memo, useEffect, useState } from "react";
 import { Tooltip } from "@blueprintjs/core";
 import { CellWrapper } from "../TableStyledWrappers";
-import { CellLayoutProperties } from "../Constants";
+import {
+  CellAlignment,
+  CellLayoutProperties,
+  VerticalAlignment,
+} from "../Constants";
 import { ReactComponent as OpenNewTabIcon } from "assets/icons/control/open-new-tab.svg";
 import styled from "styled-components";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
-import isEqual from "fast-deep-equal";
 
 const TooltipContentWrapper = styled.div<{ width: number }>`
   word-break: break-all;
@@ -19,12 +22,12 @@ export const OpenNewTabIconWrapper = styled.div`
 `;
 
 export const ColumnWrapper = styled.div<{
-  cellProperties?: CellLayoutProperties;
+  textColor?: string;
 }>`
   display: flex;
   align-items: center;
   height: 100%;
-  color: ${(props) => props?.cellProperties?.textColor};
+  color: ${(props) => props.textColor};
 `;
 
 interface Props {
@@ -32,11 +35,14 @@ interface Props {
   isCellVisible?: boolean;
   children: React.ReactNode;
   title: string;
-  cellProperties?: CellLayoutProperties;
   tableWidth?: number;
   columnType?: string;
   className?: string;
   compactMode?: string;
+  allowCellWrapping?: boolean;
+  horizontalAlignment?: CellAlignment;
+  verticalAlignment?: VerticalAlignment;
+  textColor?: string;
 }
 
 function LinkWrapper(props: Props) {
@@ -52,8 +58,9 @@ function LinkWrapper(props: Props) {
   }, [ref]);
   return (
     <CellWrapper
-      cellProperties={props.cellProperties}
+      allowCellWrapping={props.allowCellWrapping}
       compactMode={props.compactMode}
+      horizontalAlignment={props.horizontalAlignment}
       isCellVisible={props.isCellVisible}
       isHidden={props.isHidden}
       isHyperLink
@@ -63,6 +70,7 @@ function LinkWrapper(props: Props) {
         window.open(props.title, "_blank");
       }}
       useLinkToolTip={useToolTip}
+      verticalAlignment={props.verticalAlignment}
     >
       <div className="link-text" ref={ref}>
         {useToolTip && props.children ? (
@@ -104,17 +112,16 @@ function AutoToolTipComponent(props: Props) {
     return <LinkWrapper {...props} />;
   }
   return (
-    <ColumnWrapper
-      cellProperties={props.cellProperties}
-      className={props.className}
-    >
+    <ColumnWrapper className={props.className} textColor={props.textColor}>
       <CellWrapper
-        cellProperties={props.cellProperties}
+        allowCellWrapping={props.allowCellWrapping}
         compactMode={props.compactMode}
+        horizontalAlignment={props.horizontalAlignment}
         isCellVisible={props.isCellVisible}
         isHidden={props.isHidden}
         isTextType
         ref={ref}
+        verticalAlignment={props.verticalAlignment}
       >
         {useToolTip && props.children ? (
           <Tooltip
@@ -137,16 +144,4 @@ function AutoToolTipComponent(props: Props) {
   );
 }
 
-export default memo(
-  AutoToolTipComponent,
-  (prev, next) =>
-    prev.isHidden === next.isHidden &&
-    prev.isCellVisible === next.isCellVisible &&
-    prev.children === next.children &&
-    prev.title === next.title &&
-    prev.tableWidth === next.tableWidth &&
-    prev.columnType === next.columnType &&
-    prev.className === next.className &&
-    prev.compactMode === next.compactMode &&
-    isEqual(prev.cellProperties, next.cellProperties),
-);
+export default AutoToolTipComponent;

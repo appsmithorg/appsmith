@@ -2,44 +2,56 @@ import React from "react";
 import { isString, noop } from "lodash";
 
 import { CellWrapper } from "../TableStyledWrappers";
-import { CellLayoutProperties } from "../Constants";
+import {
+  CellAlignment,
+  CellLayoutProperties,
+  VerticalAlignment,
+} from "../Constants";
 
 type renderImageType = {
   value: any;
   isHidden: boolean;
-  cellProperties: CellLayoutProperties;
   isCellVisible: boolean;
   onClick?: () => void;
   isSelected?: boolean;
   compactMode: string;
+  allowCellWrapping?: boolean;
+  horizontalAlignment?: CellAlignment;
+  verticalAlignment?: VerticalAlignment;
 };
 
-export const renderImage = (args: renderImageType) => {
+export function ImageCell(args: renderImageType) {
   const {
     compactMode,
     value,
     isHidden,
-    cellProperties,
     isCellVisible,
     onClick = noop,
+    allowCellWrapping,
+    horizontalAlignment,
+    verticalAlignment,
   } = args;
 
   if (!value) {
     return (
       <CellWrapper
-        cellProperties={cellProperties}
+        allowCellWrapping={allowCellWrapping}
         compactMode={compactMode}
+        horizontalAlignment={horizontalAlignment}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
+        verticalAlignment={verticalAlignment}
       />
     );
   } else if (!isString(value)) {
     return (
       <CellWrapper
-        cellProperties={cellProperties}
+        allowCellWrapping={allowCellWrapping}
         compactMode={compactMode}
+        horizontalAlignment={horizontalAlignment}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
+        verticalAlignment={verticalAlignment}
       >
         <div>Invalid Image </div>
       </CellWrapper>
@@ -51,10 +63,12 @@ export const renderImage = (args: renderImageType) => {
   const base64ImageRegex = /^data:image\/.*;base64/;
   return (
     <CellWrapper
-      cellProperties={cellProperties}
+      allowCellWrapping={allowCellWrapping}
       compactMode={compactMode}
+      horizontalAlignment={horizontalAlignment}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
+      verticalAlignment={verticalAlignment}
     >
       {value
         .toString()
@@ -86,4 +100,4 @@ export const renderImage = (args: renderImageType) => {
         })}
     </CellWrapper>
   );
-};
+}

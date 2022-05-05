@@ -2,7 +2,12 @@ import React from "react";
 import { noop } from "lodash";
 import SelectComponent from "widgets/SelectWidget/component";
 import { DropdownOption } from "widgets/SelectWidget/constants";
-import { CellLayoutProperties, TABLE_SIZES } from "../Constants";
+import {
+  CellAlignment,
+  CellLayoutProperties,
+  TABLE_SIZES,
+  VerticalAlignment,
+} from "../Constants";
 import { getSelectColumnTypeOptions } from "widgets/TableWidgetV2/widget/utilities";
 import { CellWrapper } from "../TableStyledWrappers";
 import styled from "constants/DefaultTheme";
@@ -24,23 +29,31 @@ type SelectProps = {
   onItemSelect: (value: string) => void;
   value: string;
   width: number;
-  cellProperties: CellLayoutProperties;
   isHidden: boolean;
   isEditable: boolean;
   tableWidth: number;
+  isCellEditable?: boolean;
+  allowCellWrapping?: boolean;
+  horizontalAlignment?: CellAlignment;
+  verticalAlignment?: VerticalAlignment;
+  textColor?: string;
 };
 
-export const renderSelect = (props: SelectProps) => {
+export const SelectCell = (props: SelectProps) => {
   const {
-    cellProperties,
+    allowCellWrapping,
     compactMode,
+    horizontalAlignment,
+    isCellEditable,
     isCellVisible,
     isEditable,
     isHidden,
     onItemSelect,
     options,
     tableWidth,
+    textColor,
     value,
+    verticalAlignment,
     width,
   } = props;
 
@@ -57,13 +70,15 @@ export const renderSelect = (props: SelectProps) => {
 
   const selectedIndex = prepatedOptions.indexOf(value);
 
-  if (isEditable && cellProperties.isCellEditable) {
+  if (isEditable && isCellEditable) {
     return (
       <CellWrapper
-        cellProperties={cellProperties}
+        allowCellWrapping={allowCellWrapping}
         compactMode={compactMode}
+        horizontalAlignment={horizontalAlignment}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
+        verticalAlignment={verticalAlignment}
       >
         <StyledSelectComponent
           compactMode
@@ -88,13 +103,16 @@ export const renderSelect = (props: SelectProps) => {
   } else {
     return (
       <StyledAutoToolTipComponent
-        cellProperties={cellProperties}
+        allowCellWrapping={allowCellWrapping}
         columnType={ColumnTypes.SELECT}
         compactMode={compactMode}
+        horizontalAlignment={horizontalAlignment}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
         tableWidth={tableWidth}
+        textColor={textColor}
         title={!!value ? value.toString() : ""}
+        verticalAlignment={verticalAlignment}
       >
         {value}
       </StyledAutoToolTipComponent>

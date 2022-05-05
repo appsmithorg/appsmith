@@ -8,6 +8,8 @@ import {
   IMAGE_VERTICAL_ALIGN,
   TEXT_ALIGN,
   TABLE_SIZES,
+  CellAlignment,
+  VerticalAlignment,
 } from "./Constants";
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar } from "constants/DefaultTheme";
@@ -325,12 +327,14 @@ export const TableStyles = css<{
 
 export const CellWrapper = styled.div<{
   isHidden?: boolean;
-  cellProperties?: CellLayoutProperties;
   isHyperLink?: boolean;
   useLinkToolTip?: boolean;
   isCellVisible?: boolean;
   isTextType?: boolean;
   compactMode?: string;
+  allowCellWrapping?: boolean;
+  horizontalAlignment?: CellAlignment;
+  verticalAlignment?: VerticalAlignment;
 }>`
   display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
   align-items: center;
@@ -349,7 +353,7 @@ export const CellWrapper = styled.div<{
     text-overflow: ellipsis;
   }
   ${(props) =>
-    props.cellProperties?.allowCellWrapping
+    props.allowCellWrapping
       ? `
         white-space: break-spaces;
         word-break: break-word;
@@ -368,11 +372,10 @@ export const CellWrapper = styled.div<{
     margin: 0 5px 0 0;
     border-radius: 4px;
     background-position-x: ${(props) =>
-      props?.cellProperties?.horizontalAlignment &&
-      IMAGE_HORIZONTAL_ALIGN[props?.cellProperties?.horizontalAlignment]};
+      props.horizontalAlignment &&
+      IMAGE_HORIZONTAL_ALIGN[props.horizontalAlignment]};
     background-position-y: ${(props) =>
-      props?.cellProperties?.verticalAlignment &&
-      IMAGE_VERTICAL_ALIGN[props?.cellProperties?.verticalAlignment]};
+      props.verticalAlignment && IMAGE_VERTICAL_ALIGN[props.verticalAlignment]};
     background-repeat: no-repeat;
     background-size: contain;
   }
@@ -400,8 +403,7 @@ export const CellWrapper = styled.div<{
     text-overflow: ellipsis;
     white-space: nowrap;
     text-align: ${(props) =>
-      props?.cellProperties?.horizontalAlignment &&
-      TEXT_ALIGN[props?.cellProperties?.horizontalAlignment]};
+      props.horizontalAlignment && TEXT_ALIGN[props.horizontalAlignment]};
   }
   .hidden-icon {
     display: none;
