@@ -47,3 +47,108 @@ export type AlignWidget = "LEFT" | "RIGHT";
 
 // Minimum Rows for Widget Popups
 export const MinimumPopupRows = 12;
+
+// Default boxShadowColor used in theming migration
+export const rgbaMigrationConstantV56 = "rgba(0, 0, 0, 0.25)";
+
+export const BUTTON_GROUP_CHILD_STYLESHEET = {
+  button: {
+    buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+  },
+};
+
+export const TABLE_WIDGET_CHILD_STYLESHEET = {
+  button: {
+    buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  menuButton: {
+    menuColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  iconButton: {
+    menuColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+};
+
+export const JSON_FORM_WIDGET_CHILD_STYLESHEET = {
+  ARRAY: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+    cellBorderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    cellBoxShadow: "none",
+  },
+  OBJECT: {
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+    cellBorderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    cellBoxShadow: "none",
+  },
+  CHECKBOX: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  },
+  CURRENCY_INPUT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  DATEPICKER: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  EMAIL_INPUT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  MULTISELECT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  MULTILINE_TEXT_INPUT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  NUMBER_INPUT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  PASSWORD_INPUT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  PHONE_NUMBER_INPUT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  RADIO_GROUP: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    boxShadow: "none",
+  },
+  SELECT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+  SWITCH: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    boxShadow: "none",
+  },
+  TEXT_INPUT: {
+    accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    boxShadow: "none",
+  },
+};

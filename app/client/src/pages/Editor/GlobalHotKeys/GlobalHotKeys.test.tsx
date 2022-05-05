@@ -7,7 +7,7 @@ import {
 } from "test/factories/WidgetFactoryUtils";
 import { act, render, fireEvent, waitFor } from "test/testUtils";
 import GlobalHotKeys from "./GlobalHotKeys";
-import MainContainer from "./MainContainer";
+import MainContainer from "../MainContainer";
 import { MemoryRouter } from "react-router-dom";
 import * as utilities from "selectors/editorSelectors";
 import store from "store";
@@ -56,7 +56,7 @@ describe("Canvas Hot Keys", () => {
       rootSaga: mockGenerator,
     }));
 
-    // only the deafault exports are mocked to avoid overriding utilities exported out of them. defaults are marked to avoid worker initiation and page api calls in tests.
+    // only the default exports are mocked to avoid overriding utilities exported out of them. defaults are marked to avoid worker initiation and page api calls in tests.
     jest.mock("sagas/EvaluationsSaga", () => ({
       ...jest.requireActual("sagas/EvaluationsSaga"),
       default: mockGenerator,
@@ -84,7 +84,11 @@ describe("Canvas Hot Keys", () => {
           initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
         >
           <MockApplication>
-            <GlobalHotKeys>
+            <GlobalHotKeys
+              getMousePosition={() => {
+                return { x: 0, y: 0 };
+              }}
+            >
               <UpdatedMainContainer dsl={dsl} />
             </GlobalHotKeys>
           </MockApplication>
@@ -204,7 +208,11 @@ describe("Canvas Hot Keys", () => {
           initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
         >
           <MockApplication>
-            <GlobalHotKeys>
+            <GlobalHotKeys
+              getMousePosition={() => {
+                return { x: 0, y: 0 };
+              }}
+            >
               <UpdatedMainContainer dsl={dsl} />
             </GlobalHotKeys>
           </MockApplication>
@@ -246,7 +254,11 @@ describe("Canvas Hot Keys", () => {
           initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
         >
           <MockApplication>
-            <GlobalHotKeys>
+            <GlobalHotKeys
+              getMousePosition={() => {
+                return { x: 0, y: 0 };
+              }}
+            >
               <UpdatedMainContainer dsl={dsl} />
             </GlobalHotKeys>
           </MockApplication>
@@ -331,7 +343,11 @@ describe("Canvas Hot Keys", () => {
           initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
         >
           <MockApplication>
-            <GlobalHotKeys>
+            <GlobalHotKeys
+              getMousePosition={() => {
+                return { x: 0, y: 0 };
+              }}
+            >
               <UpdatedMainContainer dsl={dsl} />
             </GlobalHotKeys>
           </MockApplication>
@@ -388,7 +404,11 @@ describe("Cut/Copy/Paste hotkey", () => {
     });
     const component = render(
       <MockPageDSL dsl={dsl}>
-        <GlobalHotKeys>
+        <GlobalHotKeys
+          getMousePosition={() => {
+            return { x: 0, y: 0 };
+          }}
+        >
           <MockCanvas />
         </GlobalHotKeys>
       </MockPageDSL>,
@@ -469,7 +489,11 @@ describe("Cut/Copy/Paste hotkey", () => {
     });
     const component = render(
       <MockPageDSL dsl={dsl}>
-        <GlobalHotKeys>
+        <GlobalHotKeys
+          getMousePosition={() => {
+            return { x: 0, y: 0 };
+          }}
+        >
           <MockCanvas />
         </GlobalHotKeys>
       </MockPageDSL>,
@@ -540,7 +564,11 @@ describe("Undo/Redo hotkey", () => {
     const dispatchSpy = jest.spyOn(store, "dispatch");
     const component = render(
       <MockPageDSL>
-        <GlobalHotKeys>
+        <GlobalHotKeys
+          getMousePosition={() => {
+            return { x: 0, y: 0 };
+          }}
+        >
           <MockCanvas />
         </GlobalHotKeys>
       </MockPageDSL>,
@@ -566,7 +594,11 @@ describe("Undo/Redo hotkey", () => {
     const dispatchSpy = jest.spyOn(store, "dispatch");
     const component = render(
       <MockPageDSL>
-        <GlobalHotKeys>
+        <GlobalHotKeys
+          getMousePosition={() => {
+            return { x: 0, y: 0 };
+          }}
+        >
           <MockCanvas />
         </GlobalHotKeys>
       </MockPageDSL>,
@@ -592,7 +624,11 @@ describe("Undo/Redo hotkey", () => {
     const dispatchSpy = jest.spyOn(store, "dispatch");
     const component = render(
       <MockPageDSL>
-        <GlobalHotKeys>
+        <GlobalHotKeys
+          getMousePosition={() => {
+            return { x: 0, y: 0 };
+          }}
+        >
           <MockCanvas />
         </GlobalHotKeys>
       </MockPageDSL>,
@@ -628,7 +664,11 @@ describe("cmd + s hotkey", () => {
           pauseOnHover={false}
           transition={Slide}
         />
-        <GlobalHotKeys>
+        <GlobalHotKeys
+          getMousePosition={() => {
+            return { x: 0, y: 0 };
+          }}
+        >
           <div />
         </GlobalHotKeys>
       </>,
