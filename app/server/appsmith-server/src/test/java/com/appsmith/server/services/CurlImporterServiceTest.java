@@ -91,6 +91,42 @@ public class CurlImporterServiceTest {
                 .isEqualTo(List.of("curl", "-H", "X-Something: something \"quoted\" else", "http://httpbin.org/get"));
         assertThat(curlImporterService.lex("curl -H \"X-Something: something \\\\\\\"quoted\\\" else\" http://httpbin.org/get"))
                 .isEqualTo(List.of("curl", "-H", "X-Something: something \\\"quoted\" else", "http://httpbin.org/get"));
+        // The following tests are meant for cases when any of the components have nested quotes within them
+        // In this example, the header argument is surrounded by single quotes, the value for it is surrounded by double quotes,
+        // and the contents of the value has two single quotes
+        assertThat(curlImporterService.lex("curl -H 'X-Something: \"something '\\''quoted with nesting'\\'' else\"' http://httpbin.org/get"))
+                .isEqualTo(List.of("curl", "-H", "X-Something: \"something 'quoted with nesting' else\"", "http://httpbin.org/get"));
+        // In this example, the header argument is surrounded by single quotes, the value for it is surrounded by double quotes,
+        // and the contents of the value has one single quote
+        assertThat(curlImporterService.lex("curl -H 'X-Something: \"something '\\''ed with nesting else\"' http://httpbin.org/get"))
+                .isEqualTo(List.of("curl", "-H", "X-Something: \"something 'ed with nesting else\"", "http://httpbin.org/get"));
+
+        // In the following test, we're simulating a subshell. This subshell call is outside of quotes
+        try {
+            curlImporterService.lex("curl -H 'X-Something: \"something '$(echo test)' quoted with nesting else\"' http://httpbin.org/get");
+        } catch (Exception e) {
+            assertThat(e).isInstanceOf(AppsmithException.class);
+            assertThat(e.getMessage()).isEqualTo(AppsmithError.GENERIC_BAD_REQUEST.getMessage("Please do not try to invoke a subshell in the cURL"));
+        }
+        try {
+            curlImporterService.lex("curl -H 'X-Something: \"something '`echo test`' quoted with nesting else\"' http://httpbin.org/get");
+        } catch (Exception e) {
+            assertThat(e).isInstanceOf(AppsmithException.class);
+            assertThat(e.getMessage()).isEqualTo(AppsmithError.GENERIC_BAD_REQUEST.getMessage("Please do not try to invoke a subshell in the cURL"));
+        }
+        // In the following test, we're simulating a subshell. Subshells can be inside double-quoted strings as well
+        try {
+            curlImporterService.lex("curl -H \"X-Something: 'something $(echo test) quoted with nesting else'\" http://httpbin.org/get");
+        } catch (Exception e) {
+            assertThat(e).isInstanceOf(AppsmithException.class);
+            assertThat(e.getMessage()).isEqualTo(AppsmithError.GENERIC_BAD_REQUEST.getMessage("Please do not try to invoke a subshell in the cURL"));
+        }
+        try {
+            curlImporterService.lex("curl -H \"X-Something: 'something `echo test` quoted with nesting else'\" http://httpbin.org/get");
+        } catch (Exception e) {
+            assertThat(e).isInstanceOf(AppsmithException.class);
+            assertThat(e.getMessage()).isEqualTo(AppsmithError.GENERIC_BAD_REQUEST.getMessage("Please do not try to invoke a subshell in the cURL"));
+        }
     }
 
     @Test
@@ -264,6 +300,7 @@ public class CurlImporterServiceTest {
         assertThat(actionConfiguration.getHttpMethod()).isEqualTo(HttpMethod.POST);
         assertThat(actionConfiguration.getBody()).isNullOrEmpty();
     }
+
 
     @Test
     public void missingMethod() throws AppsmithException {
