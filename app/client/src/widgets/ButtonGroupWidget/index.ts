@@ -1,5 +1,8 @@
 import { ButtonVariantTypes } from "components/constants";
-import { Colors } from "constants/Colors";
+import { get } from "lodash";
+import { WidgetProps } from "widgets/BaseWidget";
+import { BlueprintOperationTypes } from "widgets/constants";
+import { klona as clone } from "klona/full";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -24,7 +27,6 @@ export const CONFIG = {
         iconName: "heart",
         id: "groupButton1",
         widgetId: "",
-        buttonColor: Colors.GREEN,
         buttonType: "SIMPLE",
         placement: "CENTER",
         isVisible: true,
@@ -36,7 +38,6 @@ export const CONFIG = {
         label: "Add",
         iconName: "add",
         id: "groupButton2",
-        buttonColor: Colors.GREEN,
         buttonType: "SIMPLE",
         placement: "CENTER",
         widgetId: "",
@@ -51,7 +52,6 @@ export const CONFIG = {
         id: "groupButton3",
         buttonType: "MENU",
         placement: "CENTER",
-        buttonColor: Colors.GREEN,
         widgetId: "",
         isVisible: true,
         isDisabled: false,
@@ -93,6 +93,48 @@ export const CONFIG = {
           },
         },
       },
+    },
+    blueprint: {
+      operations: [
+        {
+          type: BlueprintOperationTypes.MODIFY_PROPS,
+          fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
+            const groupButtons = clone(widget.groupButtons);
+            const dynamicBindingPathList: any[] = get(
+              widget,
+              "dynamicBindingPathList",
+              [],
+            );
+
+            Object.keys(groupButtons).map((groupButtonKey) => {
+              groupButtons[groupButtonKey].buttonColor = get(
+                widget,
+                "childStylesheet.button.buttonColor",
+                "{{appsmith.theme.colors.primaryColor}}",
+              );
+
+              dynamicBindingPathList.push({
+                key: `groupButtons.${groupButtonKey}.buttonColor`,
+              });
+            });
+
+            const updatePropertyMap = [
+              {
+                widgetId: widget.widgetId,
+                propertyName: "dynamicBindingPathList",
+                propertyValue: dynamicBindingPathList,
+              },
+              {
+                widgetId: widget.widgetId,
+                propertyName: "groupButtons",
+                propertyValue: groupButtons,
+              },
+            ];
+
+            return updatePropertyMap;
+          },
+        },
+      ],
     },
   },
   properties: {
