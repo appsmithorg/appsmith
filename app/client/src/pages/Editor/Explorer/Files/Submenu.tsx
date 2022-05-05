@@ -171,7 +171,7 @@ export default function ExplorerSubMenu({ className }: SubMenuProps) {
                 return (
                   <div
                     className={classNames({
-                      "px-4 py-2 text-sm flex gap-2 t--file-operation": true,
+                      "px-4 py-2 text-sm flex items-center gap-2 t--file-operation": true,
                       "cursor-pointer":
                         item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
                       active:
@@ -186,7 +186,7 @@ export default function ExplorerSubMenu({ className }: SubMenuProps) {
                   >
                     {icon && <span className="flex-shrink-0">{icon}</span>}
                     <span className="overflow-hidden whitespace-nowrap overflow-ellipsis">
-                      {item.title}
+                      {item.shortTitle || item.title}
                     </span>
                   </div>
                 );
