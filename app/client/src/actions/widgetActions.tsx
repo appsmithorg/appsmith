@@ -103,11 +103,15 @@ export const copyWidget = (isShortcut: boolean) => {
   };
 };
 
-export const pasteWidget = (groupWidgets = false) => {
+export const pasteWidget = (
+  groupWidgets = false,
+  mouseLocation: { x: number; y: number },
+) => {
   return {
     type: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
     payload: {
       groupWidgets: groupWidgets,
+      mouseLocation,
     },
   };
 };
