@@ -328,9 +328,9 @@ public class FileUtilsImpl implements FileInterface {
      * @throws IOException
      */
     @Override
-    public Mono<Path> initializeGitRepo(Path baseRepoSuffix,
-                                        String viewModeUrl,
-                                        String editModeUrl) throws IOException {
+    public Mono<Path> initializeReadme(Path baseRepoSuffix,
+                                       String viewModeUrl,
+                                       String editModeUrl) throws IOException {
         ClassLoader classLoader = getClass().getClassLoader();
         InputStream inputStream = classLoader.getResourceAsStream(gitServiceConfig.getReadmeTemplatePath());
 
@@ -346,8 +346,9 @@ public class FileUtilsImpl implements FileInterface {
     }
 
     @Override
-    public Mono<Boolean> detachRemote(Path baseRepoSuffix) {
-        File file = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile();
+    public Mono<Boolean> deleteLocalRepo(Path baseRepoSuffix) {
+        // Remove the complete directory from path: baseRepo/organizationId/defaultApplicationId
+        File file = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).getParent().toFile();
         while (file.exists()) {
             FileSystemUtils.deleteRecursively(file);
         }

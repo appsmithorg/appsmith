@@ -16,6 +16,7 @@ export const CONFIG = {
     labelPosition: LabelPosition.Left,
     labelAlignment: Alignment.LEFT,
     labelWidth: 5,
+    labelTextSize: "0.875rem",
     options: [
       { label: "Blue", value: "BLUE" },
       { label: "Green", value: "GREEN" },

@@ -44,6 +44,7 @@ export interface DropdownSearchProps {
   enableSearch?: boolean;
   searchPlaceholder?: string;
   onSearch?: (value: any) => void;
+  searchAutoFocus?: boolean;
 }
 
 export interface RenderDropdownOptionType {
@@ -56,7 +57,7 @@ export interface RenderDropdownOptionType {
   optionWidth: string;
 }
 
-type RenderOption = ({
+export type RenderOption = ({
   hasError,
   index,
   option,
@@ -89,6 +90,7 @@ export type DropdownProps = CommonComponentProps &
     errorMsg?: string; // If errorMsg is defined, we show dropDown's error state with the message.
     placeholder?: string;
     helperText?: string;
+    wrapperBgColor?: string;
     /**
      * if fillOptions is true,
      * dropdown popover width will be same as dropdown width
@@ -102,6 +104,7 @@ export type DropdownProps = CommonComponentProps &
     defaultIcon?: IconName;
     allowDeselection?: boolean; //prevents de-selection of the selected option
     truncateOption?: boolean; // enabled wrapping and adding tooltip on option item of dropdown menu
+    portalClassName?: string;
     customBadge?: JSX.Element;
     selectedHighlightBg?: string;
   };
@@ -137,8 +140,7 @@ const DropdownTriggerWrapper = styled.div<{
     props.isOpen && !props.disabled
       ? `
       box-sizing: border-box;
-      border: 1px solid ${Colors.GREEN_1};
-      box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
+      border: 1px solid var(--appsmith-color-black-900);
     `
       : null};
   .${Classes.TEXT} {
@@ -252,7 +254,8 @@ const Selected = styled.div<{
         ? props.hasError
           ? Colors.FAIR_PINK
           : props.theme.colors.dropdown.hovered.bg
-        : Colors.WHITE}
+        : Colors.WHITE};
+  }
 `;
 
 export const DropdownContainer = styled.div<{ width: string; height?: string }>`
@@ -282,11 +285,12 @@ const DropdownSelect = styled.div``;
 export const DropdownWrapper = styled.div<{
   width: string;
   isOpen: boolean;
+  wrapperBgColor?: string;
 }>`
   width: ${(props) => props.width};
   height: fit-content;
   z-index: 1;
-  background-color: ${(props) => props.theme.colors.dropdown.menu.bg};
+  background-color: ${(props) => props.wrapperBgColor};
   border: 1px solid ${(props) => props.theme.colors.dropdown.menu.border};
   padding: ${(props) => props.theme.spaces[3]}px 0;
   overflow: hidden;
@@ -302,8 +306,7 @@ export const DropdownWrapper = styled.div<{
       padding-left: 36px !important;
 
       &:focus {
-        border: 1.2px solid ${Colors.GREEN_1};
-        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
+        border: 1.2px solid var(--appsmith-color-black-900);
       }
     }
 
@@ -323,7 +326,7 @@ export const DropdownWrapper = styled.div<{
 `;
 
 const SearchComponentWrapper = styled.div`
-  margin: 0px 5px;
+  margin: 0px 8px 8px 8px;
 `;
 
 const DropdownOptionsWrapper = styled.div<{
@@ -349,8 +352,7 @@ const OptionWrapper = styled.div<{
   align-items: center;
   min-height: 36px;
   background-color: ${(props) =>
-    props.selected ? props.selectedHighlightBg || Colors.GREEN_3 : null};
-
+    props.selected ? `var(--appsmith-color-black-200)` : null};
   &&& svg {
     rect {
       fill: ${(props) => props.theme.colors.dropdownIconBg};
@@ -381,7 +383,7 @@ const OptionWrapper = styled.div<{
   }
 
   &:hover {
-    background-color: ${(props) => props.selectedHighlightBg || Colors.GREEN_3};
+    background-color: ${(props) => props.theme.colors.dropdown.menu.hover};
 
     &&& svg {
       rect {
@@ -459,6 +461,14 @@ const SelectedDropDownHolder = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  &.custom-render-option > * {
+    // below if to override any custom margin and padding added in the render option
+    // because the above container already comes with a padding
+    // which will result broken UI
+    margin: 0 !important;
+    padding: 0 !important;
+  }
 `;
 
 const SelectedIcon = styled(Icon)`
@@ -491,7 +501,6 @@ const SelectedIcon = styled(Icon)`
 `;
 
 const DropdownIcon = styled(Icon)`
-  margin-right: 7px;
   svg {
     fill: ${(props) =>
       props.fillColor ? props.fillColor : props.theme.colors.dropdown.icon};
@@ -606,7 +615,9 @@ function DefaultDropDownValueNode({
   }
 
   return (
-    <SelectedDropDownHolder>
+    <SelectedDropDownHolder
+      className={renderNode ? "custom-render-option" : ""}
+    >
       {renderNode ? (
         renderNode({
           isSelectedNode: true,
@@ -653,6 +664,7 @@ interface DropdownOptionsProps extends DropdownProps, DropdownSearchProps {
   headerLabel?: string;
   selected: DropdownOption | DropdownOption[];
   optionWidth: string;
+  wrapperBgColor?: string;
   isMultiSelect?: boolean;
   allowDeselection?: boolean;
   isOpen: boolean; // dropdown popover options flashes when closed, this prop helps to make sure it never happens again.
@@ -686,10 +698,12 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
       data-testid="dropdown-options-wrapper"
       isOpen={props.isOpen}
       width={optionWidth}
+      wrapperBgColor={props.wrapperBgColor}
     >
       {props.enableSearch && (
         <SearchComponentWrapper>
           <SearchComponent
+            autoFocus={props.searchAutoFocus}
             onSearch={onOptionSearch}
             placeholder={props.searchPlaceholder || ""}
             value={searchValue}
@@ -727,7 +741,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
           return !option.isSectionHeader ? (
             <OptionWrapper
               aria-selected={isSelected}
-              className="t--dropdown-option"
+              className={`t--dropdown-option ${isSelected ? "selected" : ""}`}
               key={index}
               onClick={
                 // users should be able to unselect a selected option by clicking the option again.
@@ -817,6 +831,7 @@ export default function Dropdown(props: DropdownProps) {
     helperText,
     removeSelectedOption,
     hasError,
+    wrapperBgColor,
     closeOnSpace = true,
   } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -1055,6 +1070,7 @@ export default function Dropdown(props: DropdownProps) {
         modifiers={{ arrow: { enabled: true } }}
         onInteraction={(state) => !disabled && setIsOpen(state)}
         popoverClassName={`${props.className} none-shadow-popover`}
+        portalClassName={props.portalClassName}
         position={Position.BOTTOM_LEFT}
         usePortal={!props.dontUsePortal}
       >
@@ -1068,6 +1084,7 @@ export default function Dropdown(props: DropdownProps) {
           optionWidth={dropdownOptionWidth}
           selected={selected ? selected : { id: undefined, value: undefined }}
           selectedOptionClickHandler={selectedOptionClickHandler}
+          wrapperBgColor={wrapperBgColor}
         />
       </Popover>
     </DropdownContainer>
