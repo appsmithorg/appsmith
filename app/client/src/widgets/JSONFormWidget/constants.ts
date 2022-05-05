@@ -209,7 +209,6 @@ export const INPUT_FIELD_TYPE: Record<typeof INPUT_TYPES[number], InputType> = {
 
 export const FIELD_EXPECTING_OPTIONS = [
   FieldType.MULTISELECT,
-  FieldType.RADIO_GROUP,
   FieldType.SELECT,
 ];
 
