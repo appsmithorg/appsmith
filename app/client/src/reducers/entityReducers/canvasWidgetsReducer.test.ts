@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import reducer from "./canvasWidgetsReducer";
 
 describe("Canvas Widgets Reducer", () => {
