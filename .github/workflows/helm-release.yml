@@ -34,7 +34,8 @@ jobs:
       - name: Get the chart version
         id: chart-version
         run: |
-          awk '$1 == "version:" {print $2}' "${{ github.workspace }}/deploy/helm/Chart.yaml"
+          chart_version="$(awk '$1 == "version:" {print $2}' "${{ github.workspace }}/deploy/helm/Chart.yaml")"
+          echo "::set-output name=version::$chart_version"
 
       # Scan the S3 bucket with the Helm version retrieved from Chart.yaml
       # If an archive with this version already exists in the bucket, fail immediately.
@@ -43,7 +44,12 @@ jobs:
           AWS_ACCESS_KEY_ID: "${{ secrets.HELM_AWS_ACCESS_KEY_ID }}"
           AWS_SECRET_ACCESS_KEY: "${{ secrets.HELM_AWS_SECRET_ACCESS_KEY }}"
         run: |
-          archive="appsmith-${{ steps.chart-version.outputs.data }}.tgz"
+          chart_version="${{ steps.chart-version.outputs.data }}"
+          if [[ -z $chart_version ]]; then
+            echo "Empty chart version from Chart.yaml. Exiting." >&2
+            exit 1
+          fi
+          archive="appsmith-$chart_version.tgz"
           if [[ "$archive" == "$(aws s3api list-objects --bucket helm.appsmith.com --prefix "$archive")" ]]; then
             echo "$archive is already present in the Helm bucket. Please change the version number in Chart.yaml file" >&2
             exit 1
