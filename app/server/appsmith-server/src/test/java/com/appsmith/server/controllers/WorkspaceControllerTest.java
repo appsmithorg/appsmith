@@ -20,15 +20,15 @@ import org.springframework.web.reactive.function.BodyInserters;
 @RunWith(SpringRunner.class)
 @WebFluxTest(WorkspaceController.class)
 @Import(SecurityTestConfig.class)
-public class OrganizationControllerTest {
+public class WorkspaceControllerTest {
     @Autowired
     private WebTestClient webTestClient;
 
     @MockBean
-    private WorkspaceService organizationService;
+    private WorkspaceService workspaceService;
 
     @MockBean
-    private UserWorkspaceService userOrganizationService;
+    private UserWorkspaceService userWorkspaceService;
 
     @MockBean
     private UserService userService;
