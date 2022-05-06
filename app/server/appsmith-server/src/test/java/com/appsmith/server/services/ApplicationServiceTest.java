@@ -28,7 +28,7 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
-import com.appsmith.server.dtos.OrganizationApplicationsDTO;
+import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -566,10 +566,10 @@ public class ApplicationServiceTest {
                     //In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
                     assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
 
-                    List<OrganizationApplicationsDTO> organizationApplicationsDTOs = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> organizationApplicationsDTOs = userHomepageDTO.getOrganizationApplications();
                     assertThat(organizationApplicationsDTOs.size()).isPositive();
 
-                    for (OrganizationApplicationsDTO organizationApplicationDTO : organizationApplicationsDTOs) {
+                    for (WorkspaceApplicationsDTO organizationApplicationDTO : organizationApplicationsDTOs) {
                         if (organizationApplicationDTO.getOrganization().getName().equals("Spring Test Organization")) {
                             assertThat(organizationApplicationDTO.getOrganization().getUserPermissions()).contains("read:organizations");
 
@@ -619,10 +619,10 @@ public class ApplicationServiceTest {
                     //In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
                     assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
 
-                    List<OrganizationApplicationsDTO> organizationApplicationsDTOs = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> organizationApplicationsDTOs = userHomepageDTO.getOrganizationApplications();
                     assertThat(organizationApplicationsDTOs.size()).isPositive();
 
-                    for (OrganizationApplicationsDTO organizationApplicationDTO : organizationApplicationsDTOs) {
+                    for (WorkspaceApplicationsDTO organizationApplicationDTO : organizationApplicationsDTOs) {
                         if (organizationApplicationDTO.getOrganization().getId().equals(orgId)) {
                             List<Application> applications = organizationApplicationDTO
                                     .getApplications()
@@ -659,10 +659,10 @@ public class ApplicationServiceTest {
                     //In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
                     assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
 
-                    List<OrganizationApplicationsDTO> organizationApplications = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> organizationApplications = userHomepageDTO.getOrganizationApplications();
 
                     // There should be atleast one organization present in the output.
-                    OrganizationApplicationsDTO orgAppDto = organizationApplications.get(0);
+                    WorkspaceApplicationsDTO orgAppDto = organizationApplications.get(0);
                     assertThat(orgAppDto.getOrganization().getUserPermissions().contains("read:organizations"));
                 })
                 .verifyComplete();

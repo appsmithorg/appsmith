@@ -8,7 +8,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
-import com.appsmith.server.dtos.OrganizationApplicationsDTO;
+import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -208,9 +208,9 @@ public class ApplicationFetcherUnitTest {
 
         StepVerifier.create(applicationFetcher.getAllApplications())
                 .assertNext(userHomepageDTO -> {
-                    List<OrganizationApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
                     assertThat(dtos.size()).isEqualTo(4);
-                    for (OrganizationApplicationsDTO dto : dtos) {
+                    for (WorkspaceApplicationsDTO dto : dtos) {
                         assertThat(dto.getApplications().size()).isEqualTo(4);
                         List<Application> applicationList = dto.getApplications();
                         for (Application application : applicationList) {
@@ -254,9 +254,9 @@ public class ApplicationFetcherUnitTest {
 
         StepVerifier.create(applicationFetcher.getAllApplications())
                 .assertNext(userHomepageDTO -> {
-                    List<OrganizationApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
                     assertThat(dtos.size()).isEqualTo(4);
-                    for (OrganizationApplicationsDTO dto : dtos) {
+                    for (WorkspaceApplicationsDTO dto : dtos) {
                         assertThat(dto.getApplications().size()).isEqualTo(4);
                         List<Application> applicationList = dto.getApplications();
                         for (Application application : applicationList) {
@@ -275,7 +275,7 @@ public class ApplicationFetcherUnitTest {
                 .thenReturn(Mono.just(new Application()));
         Mono<UserHomepageDTO> userHomepageDTOMono = applicationFetcher.getAllApplications()
                 .flatMap(userHomepageDTO -> {
-                    List<OrganizationApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
                     List<Application> applicationList = dtos.get(0).getApplications();
                     return Mono.just(applicationList.get(0));
                 })
@@ -285,9 +285,9 @@ public class ApplicationFetcherUnitTest {
 
         StepVerifier.create(userHomepageDTOMono)
                 .assertNext(userHomepageDTO -> {
-                    List<OrganizationApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
                     assertThat(dtos.size()).isEqualTo(4);
-                    for (OrganizationApplicationsDTO dto : dtos) {
+                    for (WorkspaceApplicationsDTO dto : dtos) {
                         assertThat(dto.getApplications().size()).isEqualTo(4);
                         List<Application> applicationList = dto.getApplications();
                         for (Application application : applicationList) {
@@ -304,7 +304,7 @@ public class ApplicationFetcherUnitTest {
         // For connect and create branch flow scenarios where - defaultBranchName is somehow not saved in DB
         userHomepageDTOMono = applicationFetcher.getAllApplications()
                 .flatMap(userHomepageDTO -> {
-                    List<OrganizationApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
                     List<Application> applicationList = dtos.get(0).getApplications();
                     return Mono.just(applicationList.get(0));
                 })
@@ -341,9 +341,9 @@ public class ApplicationFetcherUnitTest {
 
         StepVerifier.create(userHomepageDTOMono)
                 .assertNext(userHomepageDTO -> {
-                    List<OrganizationApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getOrganizationApplications();
                     assertThat(dtos.size()).isEqualTo(4);
-                    for (OrganizationApplicationsDTO dto : dtos) {
+                    for (WorkspaceApplicationsDTO dto : dtos) {
                         assertThat(dto.getApplications().size()).isEqualTo(4);
                         List<Application> applicationList = dto.getApplications();
                         for (Application application : applicationList) {
@@ -387,7 +387,7 @@ public class ApplicationFetcherUnitTest {
 
         StepVerifier.create(applicationFetcher.getAllApplications())
                 .assertNext(userHomepageDTO -> {
-                    List<OrganizationApplicationsDTO> organizationApplications = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> organizationApplications = userHomepageDTO.getOrganizationApplications();
                     assertThat(organizationApplications).isNotNull();
                     assertThat(organizationApplications.size()).isEqualTo(4);
 
@@ -440,7 +440,7 @@ public class ApplicationFetcherUnitTest {
 
         StepVerifier.create(applicationFetcher.getAllApplications())
                 .assertNext(userHomepageDTO -> {
-                    List<OrganizationApplicationsDTO> organizationApplications = userHomepageDTO.getOrganizationApplications();
+                    List<WorkspaceApplicationsDTO> organizationApplications = userHomepageDTO.getOrganizationApplications();
                     assertThat(organizationApplications).isNotNull();
                     assertThat(organizationApplications.size()).isEqualTo(4);
 

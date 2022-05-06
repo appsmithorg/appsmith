@@ -7,7 +7,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
-import com.appsmith.server.dtos.OrganizationApplicationsDTO;
+import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.ReleaseNode;
 import com.appsmith.server.dtos.UserHomepageDTO;
@@ -152,7 +152,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
 
                                 Map<String, Collection<Application>> applicationsCollectionByOrgId = tuple.getT2();
 
-                                List<OrganizationApplicationsDTO> organizationApplicationsDTOS = new ArrayList<>();
+                                List<WorkspaceApplicationsDTO> organizationApplicationsDTOS = new ArrayList<>();
 
                                 for(String orgId : orgIdSortedSet) {
                                     Workspace organization = organizations.get(orgId);
@@ -164,7 +164,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                                             applicationList.addAll(applicationCollection);
                                         }
 
-                                        OrganizationApplicationsDTO organizationApplicationsDTO = new OrganizationApplicationsDTO();
+                                        WorkspaceApplicationsDTO organizationApplicationsDTO = new WorkspaceApplicationsDTO();
                                         organizationApplicationsDTO.setOrganization(organization);
                                         organizationApplicationsDTO.setApplications(applicationList);
                                         organizationApplicationsDTO.setUserRoles(organization.getUserRoles());
@@ -188,7 +188,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                     return newPageService.findPageSlugsByApplicationIds(applicationIds, READ_PAGES)
                             .collectMultimap(NewPage::getApplicationId)
                             .map(applicationPageMap -> {
-                                for (OrganizationApplicationsDTO orgApps : userHomepageDTO.getOrganizationApplications()) {
+                                for (WorkspaceApplicationsDTO orgApps : userHomepageDTO.getOrganizationApplications()) {
                                     for (Application application : orgApps.getApplications()) {
                                         setDefaultPageSlug(application, applicationPageMap, Application::getPages, NewPage::getUnpublishedPage);
                                         setDefaultPageSlug(application, applicationPageMap, Application::getPublishedPages, NewPage::getPublishedPage);

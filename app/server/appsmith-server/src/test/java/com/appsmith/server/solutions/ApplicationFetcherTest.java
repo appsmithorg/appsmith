@@ -2,7 +2,7 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.OrganizationApplicationsDTO;
+import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.services.ApplicationPageService;
@@ -54,9 +54,9 @@ class ApplicationFetcherTest {
         StepVerifier.create(homepageDTOMono).assertNext(userHomepageDTO -> {
             assertThat(userHomepageDTO.getOrganizationApplications()).isNotNull();
 
-            OrganizationApplicationsDTO orgApps = userHomepageDTO.getOrganizationApplications().stream().filter(
+            WorkspaceApplicationsDTO orgApps = userHomepageDTO.getOrganizationApplications().stream().filter(
                     x -> x.getOrganization().getName().equals(newOrg.getName())
-            ).findFirst().orElse(new OrganizationApplicationsDTO());
+            ).findFirst().orElse(new WorkspaceApplicationsDTO());
 
             assertThat(orgApps.getApplications().size()).isEqualTo(1);
             assertThat(orgApps.getApplications().get(0).getPublishedPages().size()).isEqualTo(1);
