@@ -40,7 +40,7 @@ export class Table {
   _filterOperatorDropdown = ".t--table-filter-operators-dropdown"
   private _downloadBtn = ".t--table-download-btn"
   private _downloadOption = ".t--table-download-data-option"
-  _columnSettings = (columnName: string) => "//input[@placeholder='Column Title'][@value='" + columnName + "']/parent::div/following-sibling::div[contains(@class, 't--edit-column-btn')]"
+  _columnSettings = (columnName: string) => "//input[@placeholder='Column Title'][@value='" + columnName + "']/parent::div/parent::div/following-sibling::div[contains(@class, 't--edit-column-btn')]"
 
 
   public WaitUntilTableLoad() {
