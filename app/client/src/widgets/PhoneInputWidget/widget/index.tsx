@@ -106,7 +106,7 @@ class PhoneInputWidget extends BaseInputWidget<
               propertyName: "defaultText",
               label: "Default Text",
               controlType: "INPUT_TEXT",
-              placeholderText: "John Doe",
+              placeholderText: "000 0000",
               isBindProperty: true,
               isTriggerProperty: false,
               validation: {
