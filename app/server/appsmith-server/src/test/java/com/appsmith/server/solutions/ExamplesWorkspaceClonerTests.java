@@ -84,7 +84,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @DirtiesContext
-public class ExamplesOrganizationClonerTests {
+public class ExamplesWorkspaceClonerTests {
 
     @Autowired
     private ExamplesWorkspaceCloner examplesOrganizationCloner;
