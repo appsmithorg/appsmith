@@ -32,7 +32,7 @@ describe("API Panel Test Functionality", function() {
       cy.xpath(apiwidget.postbody)
         .click({ force: true })
         .focus()
-        .type(json, { force: true });
+        .invoke("val", json);
       cy.WaitAutoSave();
       cy.RunAPI();
       cy.validateRequest(
