@@ -423,8 +423,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
      * @return public key which will be used by user to copy to relevant platform
      */
     @Override
-    public Mono<GitAuth> createOrUpdateSshKeyPair(String applicationId) {
-        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey();
+    public Mono<GitAuth> createOrUpdateSshKeyPair(String applicationId, String keyType) {
+        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(keyType);
 
         return repository.findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(

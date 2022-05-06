@@ -1991,7 +1991,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     @Override
     public Mono<GitAuth> generateSSHKey() {
-        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey();
+        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(null);
 
         GitDeployKeys gitDeployKeys = new GitDeployKeys();
         gitDeployKeys.setGitAuth(gitAuth);

@@ -194,8 +194,9 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     }
 
     @PostMapping("/ssh-keypair/{applicationId}")
-    public Mono<ResponseDTO<GitAuth>> generateSSHKeyPair(@PathVariable String applicationId) {
-        return service.createOrUpdateSshKeyPair(applicationId)
+    public Mono<ResponseDTO<GitAuth>> generateSSHKeyPair(@PathVariable String applicationId,
+                                                         @RequestParam(required = false) String keyType) {
+        return service.createOrUpdateSshKeyPair(applicationId, keyType)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 

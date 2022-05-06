@@ -45,7 +45,7 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<Application> setTransientFields(Application application);
 
-    Mono<GitAuth> createOrUpdateSshKeyPair(String applicationId);
+    Mono<GitAuth> createOrUpdateSshKeyPair(String applicationId, String keyType);
 
     Mono<GitAuth> getSshKey(String applicationId);
 

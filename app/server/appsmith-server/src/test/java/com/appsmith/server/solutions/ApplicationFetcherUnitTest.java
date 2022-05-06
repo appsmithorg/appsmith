@@ -203,7 +203,7 @@ public class ApplicationFetcherUnitTest {
                     .thenReturn(updateDefaultPageIdsWithinApplication(application));
         }
 
-        Mockito.when(applicationService.createOrUpdateSshKeyPair(Mockito.anyString()))
+        Mockito.when(applicationService.createOrUpdateSshKeyPair(Mockito.anyString(), null))
                 .thenReturn(Mono.just(new GitAuth()));
 
         StepVerifier.create(applicationFetcher.getAllApplications())
@@ -249,7 +249,7 @@ public class ApplicationFetcherUnitTest {
                     .thenReturn(updateDefaultPageIdsWithinApplication(application));
         }
 
-        Mockito.when(applicationService.createOrUpdateSshKeyPair(Mockito.anyString()))
+        Mockito.when(applicationService.createOrUpdateSshKeyPair(Mockito.anyString(), null))
                 .thenReturn(Mono.just(new GitAuth()));
 
         StepVerifier.create(applicationFetcher.getAllApplications())
@@ -280,7 +280,7 @@ public class ApplicationFetcherUnitTest {
                     return Mono.just(applicationList.get(0));
                 })
                 // After choosing the any app randomly to connect to git, Generate keys and stop the process
-                .flatMap(application -> applicationService.createOrUpdateSshKeyPair(application.getId()))
+                .flatMap(application -> applicationService.createOrUpdateSshKeyPair(application.getId(), null))
                 .then(applicationFetcher.getAllApplications());
 
         StepVerifier.create(userHomepageDTOMono)
