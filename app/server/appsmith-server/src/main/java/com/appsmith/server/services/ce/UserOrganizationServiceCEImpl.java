@@ -42,7 +42,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 
 
 @Slf4j
-public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE {
+public class UserOrganizationServiceCEImpl implements UserWorkspaceServiceCE {
     private final SessionUserService sessionUserService;
     private final WorkspaceRepository organizationRepository;
     private final UserRepository userRepository;
@@ -79,7 +79,7 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
      * @return
      */
     @Override
-    public Mono<User> addUserToOrganization(String orgId, User user) {
+    public Mono<User> addUserToWorkspace(String orgId, User user) {
 
         Mono<User> currentUserMono;
         if (user == null) {
@@ -127,7 +127,7 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
     }
 
     @Override
-    public Mono<Workspace> addUserRoleToOrganization(String orgId, UserRole userRole) {
+    public Mono<Workspace> addUserRoleToWorkspace(String orgId, UserRole userRole) {
         Mono<Workspace> organizationMono = organizationRepository.findById(orgId, MANAGE_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)));
         Mono<User> userMono = userRepository.findByEmail(userRole.getUsername())
@@ -137,12 +137,12 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
                 .flatMap(tuple -> {
                     Workspace organization = tuple.getT1();
                     User user = tuple.getT2();
-                    return addUserToOrganizationGivenUserObject(organization, user, userRole);
+                    return addUserToWorkspaceGivenUserObject(organization, user, userRole);
                 });
     }
 
     @Override
-    public Mono<Workspace> addUserToOrganizationGivenUserObject(Workspace organization, User user, UserRole userRole) {
+    public Mono<Workspace> addUserToWorkspaceGivenUserObject(Workspace organization, User user, UserRole userRole) {
         List<UserRole> userRoles = organization.getUserRoles();
         if (userRoles == null) {
             userRoles = new ArrayList<>();
@@ -213,7 +213,7 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
     }
 
     @Override
-    public Mono<User> leaveOrganization(String orgId) {
+    public Mono<User> leaveWorkspace(String orgId) {
         Mono<Workspace> organizationMono = organizationRepository.findById(orgId);
         Mono<User> userMono = sessionUserService.getCurrentUser()
                     .flatMap(user1 -> userRepository.findByEmail(user1.getUsername()));
@@ -336,7 +336,7 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
                 if (userRole.getRoleName() != null) {
                     // If a userRole name has been specified, then it means that the user's role has been modified.
                     Mono<Workspace> userAddedToOrganizationMono = userRemovedOrganizationMono
-                            .flatMap(organization1 -> this.addUserToOrganizationGivenUserObject(organization1, user, userRole));
+                            .flatMap(organization1 -> this.addUserToWorkspaceGivenUserObject(organization1, user, userRole));
                     finalUpdatedOrganizationMono = userAddedToOrganizationMono.flatMap(addedOrganization -> {
 
                         Map<String, String> params = new HashMap<>();
@@ -407,7 +407,7 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
     }
 
     @Override
-    public Mono<Workspace> bulkAddUsersToOrganization(Workspace organization, List<User> users, String roleName) {
+    public Mono<Workspace> bulkAddUsersToWorkspace(Workspace organization, List<User> users, String roleName) {
         List<UserRole> userRoles = organization.getUserRoles();
         if (userRoles == null) {
             userRoles = new ArrayList<>();

@@ -1,7 +1,7 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.services.ce.UserOrganizationServiceCE;
+import com.appsmith.server.services.ce.UserWorkspaceServiceCE;
 
-public interface UserOrganizationService extends UserOrganizationServiceCE {
+public interface UserOrganizationService extends UserWorkspaceServiceCE {
 
 }

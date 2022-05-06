@@ -227,7 +227,7 @@ public class ActionCollectionServiceTest {
         userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
         userRole.setUsername("usertest@usertest.com");
 
-        userOrganizationService.addUserRoleToOrganization(testApp.getOrganizationId(), userRole).block();
+        userOrganizationService.addUserRoleToWorkspace(testApp.getOrganizationId(), userRole).block();
 
         assert actionCollection != null;
         Mono<ActionCollection> readActionCollectionMono =

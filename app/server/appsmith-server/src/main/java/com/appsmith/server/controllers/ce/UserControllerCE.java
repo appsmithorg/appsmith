@@ -105,13 +105,13 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
 
     @PutMapping("/addOrganization/{orgId}")
     public Mono<ResponseDTO<User>> addUserToOrganization(@PathVariable String orgId) {
-        return userOrganizationService.addUserToOrganization(orgId, null)
+        return userOrganizationService.addUserToWorkspace(orgId, null)
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 
     @PutMapping("/leaveOrganization/{orgId}")
     public Mono<ResponseDTO<User>> leaveOrganization(@PathVariable String orgId) {
-        return userOrganizationService.leaveOrganization(orgId)
+        return userOrganizationService.leaveWorkspace(orgId)
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 

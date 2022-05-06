@@ -723,7 +723,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .flatMap(tuple -> {
                     List<User> invitedUsers = tuple.getT1();
                     Workspace organization = tuple.getT2();
-                    return userOrganizationService.bulkAddUsersToOrganization(organization, invitedUsers, inviteUsersDTO.getRoleName());
+                    return userOrganizationService.bulkAddUsersToWorkspace(organization, invitedUsers, inviteUsersDTO.getRoleName());
                 });
 
         // Add organization id to each invited user

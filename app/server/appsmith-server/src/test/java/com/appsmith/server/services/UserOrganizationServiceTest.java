@@ -145,9 +145,9 @@ class UserOrganizationServiceTest {
         UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), ORGANIZATION_DEVELOPER);
 
         Mono<User> userMono = userOrganizationService
-                .addUserToOrganizationGivenUserObject(this.organization, currentUser, userRole)
+                .addUserToWorkspaceGivenUserObject(this.organization, currentUser, userRole)
                 .then(saveUserDataMono)
-                .then(userOrganizationService.leaveOrganization(this.organization.getId()));
+                .then(userOrganizationService.leaveWorkspace(this.organization.getId()));
 
         StepVerifier.create(userMono).assertNext(user -> {
             assertEquals("api_user", user.getEmail());
@@ -174,7 +174,7 @@ class UserOrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     void leaveOrganization_WhenUserDoesNotExistInOrg_ThrowsException() {
-        Mono<User> userMono = userOrganizationService.leaveOrganization(this.organization.getId());
+        Mono<User> userMono = userOrganizationService.leaveWorkspace(this.organization.getId());
         StepVerifier.create(userMono).expectErrorMessage(
                 AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.USER + " api_user in the organization", organization.getName())
         ).verify();
@@ -187,7 +187,7 @@ class UserOrganizationServiceTest {
         User currentUser = userRepository.findByEmail("api_user").block();
         UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), ORGANIZATION_ADMIN);
 
-        userOrganizationService.addUserToOrganizationGivenUserObject(organization, currentUser, userRole).block();
+        userOrganizationService.addUserToWorkspaceGivenUserObject(organization, currentUser, userRole).block();
 
         // try to remove the user from org
         UserRole updatedRole = new UserRole();
@@ -210,7 +210,7 @@ class UserOrganizationServiceTest {
         // add the current user as an admin to the organization
         User currentUser = userRepository.findByEmail("api_user").block();
         UserRole userRole = createUserRole(currentUser.getUsername(), currentUser.getId(), ORGANIZATION_ADMIN);
-        userOrganizationService.addUserToOrganizationGivenUserObject(organization, currentUser, userRole).block();
+        userOrganizationService.addUserToWorkspaceGivenUserObject(organization, currentUser, userRole).block();
 
         // try to remove the user from org
         UserRole updatedRole = new UserRole();
@@ -337,7 +337,7 @@ class UserOrganizationServiceTest {
                     List<User> users = new ArrayList<>(1);
                     users.add(user);
                     return userOrganizationService
-                            .bulkAddUsersToOrganization(organization, users, ORGANIZATION_DEVELOPER.getName())
+                            .bulkAddUsersToWorkspace(organization, users, ORGANIZATION_DEVELOPER.getName())
                             .thenReturn(commentThread);
                 }).flatMap(commentThread ->
                         commentThreadRepository.findById(commentThread.getId())

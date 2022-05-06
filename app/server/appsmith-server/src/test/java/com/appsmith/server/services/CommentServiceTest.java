@@ -635,8 +635,8 @@ public class CommentServiceTest {
             userRole.setRole(AppsmithRole.ORGANIZATION_ADMIN);
 
             return userService.create(user)
-                    .then(userOrganizationService.addUserRoleToOrganization(application.getOrganizationId(), userRole))
-                    .then(userOrganizationService.leaveOrganization(application.getOrganizationId()))
+                    .then(userOrganizationService.addUserRoleToWorkspace(application.getOrganizationId(), userRole))
+                    .then(userOrganizationService.leaveWorkspace(application.getOrganizationId()))
                     .thenReturn(application);
         }).flatMap(application -> {
             String pageId = application.getPublishedPages().get(0).getId();

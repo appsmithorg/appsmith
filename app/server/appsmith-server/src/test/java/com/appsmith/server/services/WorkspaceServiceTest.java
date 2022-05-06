@@ -626,7 +626,7 @@ public class WorkspaceServiceTest {
                     UserRole userRole = new UserRole();
                     userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
                     userRole.setUsername("usertest@usertest.com");
-                    return userOrganizationService.addUserRoleToOrganization(organization1.getId(), userRole);
+                    return userOrganizationService.addUserRoleToWorkspace(organization1.getId(), userRole);
                 })
                 .map(organization1 -> {
                     log.debug("Organization policies after adding user is : {}", organization1.getPolicies());
@@ -724,7 +724,7 @@ public class WorkspaceServiceTest {
                     UserRole userRole = new UserRole();
                     userRole.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
                     userRole.setUsername("usertest@usertest.com");
-                    return userOrganizationService.addUserRoleToOrganization(organization1.getId(), userRole);
+                    return userOrganizationService.addUserRoleToWorkspace(organization1.getId(), userRole);
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Viewer Test Application",
@@ -792,7 +792,7 @@ public class WorkspaceServiceTest {
                     UserRole userRole = new UserRole();
                     userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
                     userRole.setUsername("usertest@usertest.com");
-                    return userOrganizationService.addUserRoleToOrganization(organization1.getId(), userRole);
+                    return userOrganizationService.addUserRoleToWorkspace(organization1.getId(), userRole);
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Test Application",
@@ -860,7 +860,7 @@ public class WorkspaceServiceTest {
                     UserRole userRole = new UserRole();
                     userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
                     userRole.setUsername("usertest@usertest.com");
-                    return userOrganizationService.addUserRoleToOrganization(organization1.getId(), userRole);
+                    return userOrganizationService.addUserRoleToWorkspace(organization1.getId(), userRole);
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Delete Test Application",
