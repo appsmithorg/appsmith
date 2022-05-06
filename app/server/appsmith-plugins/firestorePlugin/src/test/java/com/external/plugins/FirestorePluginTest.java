@@ -37,6 +37,7 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -128,6 +129,15 @@ public class FirestorePluginTest {
                 "start", Timestamp.valueOf("2018-09-01 09:01:15")
         ));
         firestoreConnection.document("numeric/two").set(numData).get();
+
+        firestoreConnection.document("info/family")
+                .set( Map.of(
+                            "kids", Arrays.asList("Ally", "Dolly", "Shelly", "Kelly"),
+                            "cars", Arrays.asList("Odyssey", "Dodge"),
+                            "wife", "Billy",
+                            "phone_numbers", Arrays.asList(Integer.valueOf("555"),Integer.valueOf("99"), Integer.valueOf("333"), Integer.valueOf("888") )
+                ))
+                .get();
 
         firestoreConnection.document("changing/to-update").set(Map.of("value", 1)).get();
         firestoreConnection.document("changing/to-delete").set(Map.of("value", 1)).get();
@@ -976,6 +986,181 @@ public class FirestorePluginTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    public void testArrayContainsWhereConditional() {
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+
+        List<Object> children = new ArrayList<>();
+        children.add(new HashMap<String, Object>() {{
+            put("key", "{{Input1.text}}");
+            put("condition", "ARRAY_CONTAINS");
+            put("value", "{{Input2.text}}");
+        }});
+
+        Map<String, Object> whereMap = new HashMap<>();
+        whereMap.put(CHILDREN, children);
+        setValueSafelyInFormData(configMap, WHERE, whereMap);
+        setValueSafelyInFormData(configMap, PATH, "info");
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(configMap);
+
+        List params = new ArrayList();
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue("kids");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input2.text");
+        param.setValue("Ally");
+        params.add(param);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(params);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, executeActionDTO, dsConfig, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    List<Map<String, Object>> results = (List) result.getBody();
+                    assertEquals(1, results.size());
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    public void testArrayContainsNumberWhereConditional() {
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+
+        List<Object> children = new ArrayList<>();
+        children.add(new HashMap<String, Object>() {{
+            put("key", "{{Input1.text}}");
+            put("condition", "ARRAY_CONTAINS");
+            put("value", "{{Input2.text}}");
+        }});
+
+        Map<String, Object> whereMap = new HashMap<>();
+        whereMap.put(CHILDREN, children);
+        setValueSafelyInFormData(configMap, WHERE, whereMap);
+        setValueSafelyInFormData(configMap, PATH, "info");
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(configMap);
+
+        List params = new ArrayList();
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue("phone_numbers");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input2.text");
+        param.setValue("333");
+        params.add(param);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(params);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, executeActionDTO, dsConfig, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    List<Map<String, Object>> results = (List) result.getBody();
+                    assertEquals(1, results.size());
+                })
+                .verifyComplete();
+    }
+
+
+    @Test
+    public void testArrayContainsAnyWhereConditional() {
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+
+        List<Object> children = new ArrayList<>();
+        children.add(new HashMap<String, Object>() {{
+            put("key", "{{Input1.text}}");
+            put("condition", "ARRAY_CONTAINS_ANY");
+            put("value", "{{Input2.text}}");
+        }});
+
+        Map<String, Object> whereMap = new HashMap<>();
+        whereMap.put(CHILDREN, children);
+        setValueSafelyInFormData(configMap, WHERE, whereMap);
+        setValueSafelyInFormData(configMap, PATH, "info");
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(configMap);
+
+        List params = new ArrayList();
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue("cars");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input2.text");
+        param.setValue("[\"Dodge\",\"cars\"]");
+        params.add(param);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(params);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, executeActionDTO, dsConfig, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    List<Map<String, Object>> results = (List) result.getBody();
+                    assertEquals(1, results.size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testArrayInWhereConditional() {
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+
+        List<Object> children = new ArrayList<>();
+        children.add(new HashMap<String, Object>() {{
+            put("key", "{{Input1.text}}");
+            put("condition", "IN");
+            put("value", "{{Input2.text}}");
+        }});
+
+        Map<String, Object> whereMap = new HashMap<>();
+        whereMap.put(CHILDREN, children);
+        setValueSafelyInFormData(configMap, WHERE, whereMap);
+        setValueSafelyInFormData(configMap, PATH, "initial");
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(configMap);
+
+        List params = new ArrayList();
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue("name");
+        params.add(param);
+        param = new Param();
+        param.setKey("Input2.text");
+        param.setValue("[\"two\",\"third\",\"sharon\"]");
+        params.add(param);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(params);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor
+                .executeParameterized(firestoreConnection, executeActionDTO, dsConfig, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    List<Map<String, Object>> results = (List) result.getBody();
+                    assertEquals(2, results.size());
+                })
+                .verifyComplete();
+    }
+
 
     @Test
     public void testUpdateDocumentWithFieldValueTimestamp() {

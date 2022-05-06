@@ -115,8 +115,6 @@ const StyledControlGroup = styled(ControlGroup)<{
   compactMode: boolean;
   labelPosition?: LabelPosition;
 }>`
-  ${({ compactMode, labelPosition }) =>
-    labelPosition !== LabelPosition.Top && compactMode && `overflow-x: hidden`};
   &&& > {
     span {
       height: 100%;
@@ -452,6 +450,9 @@ export interface DropDownComponentProps extends ComponentProps {
   serverSideFiltering: boolean;
   hasError?: boolean;
   onFilterChange: (text: string) => void;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
 }
 
 export default DropDownComponent;
