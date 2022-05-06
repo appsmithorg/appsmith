@@ -39,7 +39,7 @@ import replaySaga from "./ReplaySaga";
 import selectionCanvasSagas from "./CanvasSagas/SelectionCanvasSagas";
 import draggingCanvasSagas from "./CanvasSagas/DraggingCanvasSagas";
 import gitSyncSagas from "./GitSyncSagas";
-
+import appThemingSaga from "./AppThemingSaga";
 import log from "loglevel";
 import * as sentry from "@sentry/react";
 import formEvaluationChangeListener from "./FormEvaluationSaga";
@@ -89,6 +89,7 @@ const sagas = [
   draggingCanvasSagas,
   gitSyncSagas,
   SuperUserSagas,
+  appThemingSaga,
 ];
 
 export function* rootSaga(sagasToRun = sagas): any {

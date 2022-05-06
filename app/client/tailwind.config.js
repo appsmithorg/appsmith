@@ -176,6 +176,7 @@ module.exports = {
       DEFAULT: "1px",
       0: "0px",
       2: "2px",
+      3: "3px",
       4: "4px",
       8: "8px",
     },
@@ -309,6 +310,7 @@ module.exports = {
       ],
     },
     fontSize: {
+      xxs: ["0.50rem", { lineHeight: "1rem" }],
       xs: ["0.75rem", { lineHeight: "1rem" }],
       sm: ["0.875rem", { lineHeight: "1.25rem" }],
       base: ["1rem", { lineHeight: "1.5rem" }],
@@ -947,7 +949,7 @@ module.exports = {
     backgroundRepeat: ["responsive"],
     backgroundSize: ["responsive"],
     backgroundOrigin: ["responsive"],
-    blur: ["responsive"],
+    blur: ["responsive", "group-hover"],
     borderCollapse: ["responsive"],
     borderColor: [
       "responsive",
@@ -976,7 +978,7 @@ module.exports = {
     container: ["responsive"],
     contrast: ["responsive"],
     cursor: ["responsive"],
-    display: ["responsive"],
+    display: ["responsive", "group-hover"],
     divideColor: ["responsive", "dark"],
     divideOpacity: ["responsive", "dark"],
     divideStyle: ["responsive"],

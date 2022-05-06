@@ -4,16 +4,15 @@ import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
+import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
-import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.GitDeployKeyDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
@@ -95,9 +94,10 @@ public class GitControllerCE {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<String>> commit(@RequestBody GitCommitDTO commitDTO,
                                             @PathVariable String defaultApplicationId,
-                                            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+                                            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+                                            @RequestParam(required = false, defaultValue = "false") Boolean doAmend) {
         log.debug("Going to commit application {}, branch : {}", defaultApplicationId, branchName);
-        return service.commitApplication(commitDTO, defaultApplicationId, branchName)
+        return service.commitApplication(commitDTO, defaultApplicationId, branchName, doAmend)
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 

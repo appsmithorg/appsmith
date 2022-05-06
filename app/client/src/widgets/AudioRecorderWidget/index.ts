@@ -7,7 +7,6 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    backgroundColor: "#F86A2B",
     iconColor: "white",
     isDisabled: false,
     isVisible: true,

@@ -36,6 +36,7 @@ export type JSONFormComponentProps<TValues = any> = {
   fieldLimitExceeded: boolean;
   fixedFooter: boolean;
   getFormData: () => TValues;
+  isWidgetMounting: boolean;
   isSubmitting: boolean;
   onFormValidityUpdate: (isValid: boolean) => void;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
@@ -95,6 +96,7 @@ function JSONFormComponent<TValues>({
   fieldLimitExceeded,
   getFormData,
   isSubmitting,
+  isWidgetMounting,
   onFormValidityUpdate,
   registerResetObserver,
   renderMode,
@@ -175,6 +177,7 @@ function JSONFormComponent<TValues>({
           getFormData={getFormData}
           hideFooter={hideFooter}
           isSubmitting={isSubmitting}
+          isWidgetMounting={isWidgetMounting}
           onFormValidityUpdate={onFormValidityUpdate}
           onSubmit={rest.onSubmit}
           registerResetObserver={registerResetObserver}

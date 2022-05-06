@@ -10,12 +10,17 @@ type StyledCheckboxProps = {
   disabled?: boolean;
   indeterminate?: boolean;
   rowSpace: number;
+  borderRadius?: string;
+  accentColor?: string;
 };
 
 type StyledCheckboxContainerProps = {
   isValid: boolean;
   noContainerPadding?: boolean;
 };
+
+const DEFAULT_BORDER_RADIUS = "0";
+const DEFAULT_BACKGROUND_COLOR = Colors.GREEN_SOLID;
 
 const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
   && {
@@ -28,8 +33,11 @@ const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
     width: 100%;
     &.${Alignment.RIGHT} {
       justify-content: flex-end;
-    }
 
+      label {
+        flex-direction: row-reverse;
+      }
+    }
     & .bp3-control-indicator {
       border: ${(props) =>
         !props.isValid && `1px solid ${props.theme.colors.error} !important`};
@@ -40,23 +48,20 @@ const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
 export const StyledCheckbox = styled(Checkbox)<StyledCheckboxProps>`
   height: ${({ rowSpace }) => rowSpace}px;
   color: ${({ checked }) => (checked ? Colors.GREY_10 : Colors.GREY_9)};
-
   &.bp3-control.bp3-checkbox .bp3-control-indicator {
-    border-radius: 0;
+    border-radius: ${({ borderRadius }) => borderRadius};
     border: 1px solid ${Colors.GREY_3};
     box-shadow: none !important;
     outline: none !important;
     background: transparent;
-
-    ${({ checked, indeterminate }) =>
+    ${({ accentColor, checked, indeterminate }) =>
       checked || indeterminate
         ? `
-        background-color: ${Colors.GREEN_SOLID} !important;
+        background-color: ${accentColor} !important;
         background-image: none;
         border: none !important;
         `
         : ``}
-
     ${({ checked }) =>
       checked &&
       `
@@ -64,10 +69,8 @@ export const StyledCheckbox = styled(Checkbox)<StyledCheckboxProps>`
           background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='14' height='14' /%3E%3Cpath d='M10.1039 3.5L11 4.40822L5.48269 10L2.5 6.97705L3.39613 6.06883L5.48269 8.18305L10.1039 3.5Z' fill='white'/%3E%3C/svg%3E%0A") !important;
         }
     `}
-
     ${({ disabled }) => (disabled ? `opacity: 0.5;` : ``)}
   }
-
   &:hover {
     &.bp3-control.bp3-checkbox .bp3-control-indicator {
       ${({ disabled }) =>
@@ -84,7 +87,6 @@ export const StyledCheckbox = styled(Checkbox)<StyledCheckboxProps>`
           : ""};
     }
   }
-
   &.${Classes.CONTROL}.${Classes.DISABLED} {
     color: ${Colors.GREY_8};
   }
@@ -112,7 +114,9 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
         noContainerPadding={this.props.noContainerPadding}
       >
         <StyledCheckbox
+          accentColor={this.props.accentColor || DEFAULT_BACKGROUND_COLOR}
           alignIndicator={checkboxAlignClass}
+          borderRadius={this.props.borderRadius || DEFAULT_BORDER_RADIUS}
           checked={this.props.isChecked}
           className={
             this.props.isLoading ? Classes.SKELETON : Classes.RUNNING_TEXT
@@ -143,6 +147,8 @@ export interface CheckboxComponentProps extends ComponentProps {
   onCheckChange: (isChecked: boolean) => void;
   rowSpace: number;
   inputRef?: (el: HTMLInputElement | null) => any;
+  accentColor: string;
+  borderRadius: string;
 }
 
 export default CheckboxComponent;
