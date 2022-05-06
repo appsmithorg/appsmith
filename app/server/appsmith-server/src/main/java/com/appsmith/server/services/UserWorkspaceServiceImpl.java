@@ -11,17 +11,17 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class UserOrganizationServiceImpl extends UserWorkspaceServiceCEImpl implements UserWorkspaceService {
+public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl implements UserWorkspaceService {
 
-    public UserOrganizationServiceImpl(SessionUserService sessionUserService,
-                                       WorkspaceRepository organizationRepository,
+    public UserWorkspaceServiceImpl(SessionUserService sessionUserService,
+                                       WorkspaceRepository workspaceRepository,
                                        UserRepository userRepository,
                                        UserDataRepository userDataRepository,
                                        PolicyUtils policyUtils,
                                        EmailSender emailSender,
                                        UserDataService userDataService) {
 
-        super(sessionUserService, organizationRepository, userRepository, userDataRepository, policyUtils, emailSender,
+        super(sessionUserService, workspaceRepository, userRepository, userDataRepository, policyUtils, emailSender,
                 userDataService);
     }
 }
