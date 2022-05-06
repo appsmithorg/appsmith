@@ -27,7 +27,7 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                                    AnalyticsService analyticsService,
                                    PluginRepository pluginRepository,
                                    SessionUserService sessionUserService,
-                                   UserOrganizationService userOrganizationService,
+                                   UserWorkspaceService userOrganizationService,
                                    UserRepository userRepository,
                                    RoleGraph roleGraph,
                                    AssetRepository assetRepository,

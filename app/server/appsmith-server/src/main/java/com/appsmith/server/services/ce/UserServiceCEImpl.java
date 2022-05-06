@@ -41,7 +41,7 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
-import com.appsmith.server.services.UserOrganizationService;
+import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.UserChangedHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -96,7 +96,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final ApplicationRepository applicationRepository;
     private final PolicyUtils policyUtils;
     private final WorkspaceRepository organizationRepository;
-    private final UserOrganizationService userOrganizationService;
+    private final UserWorkspaceService userOrganizationService;
     private final RoleGraph roleGraph;
     private final CommonConfig commonConfig;
     private final EmailConfig emailConfig;
@@ -126,7 +126,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                              ApplicationRepository applicationRepository,
                              PolicyUtils policyUtils,
                              WorkspaceRepository organizationRepository,
-                             UserOrganizationService userOrganizationService,
+                             UserWorkspaceService userOrganizationService,
                              RoleGraph roleGraph,
                              ConfigService configService,
                              CommonConfig commonConfig,

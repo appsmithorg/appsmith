@@ -12,7 +12,7 @@ import com.appsmith.server.dtos.UserSignupRequestDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
-import com.appsmith.server.services.UserOrganizationService;
+import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.UserSignup;
 import lombok.extern.slf4j.Slf4j;
@@ -45,14 +45,14 @@ import java.util.Map;
 public class UserControllerCE extends BaseController<UserService, User, String> {
 
     private final SessionUserService sessionUserService;
-    private final UserOrganizationService userOrganizationService;
+    private final UserWorkspaceService userOrganizationService;
     private final UserSignup userSignup;
     private final UserDataService userDataService;
 
     @Autowired
     public UserControllerCE(UserService service,
                             SessionUserService sessionUserService,
-                            UserOrganizationService userOrganizationService,
+                            UserWorkspaceService userOrganizationService,
                             UserSignup userSignup,
                             UserDataService userDataService) {
         super(service);

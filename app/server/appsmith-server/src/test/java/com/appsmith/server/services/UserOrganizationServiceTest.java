@@ -50,7 +50,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class UserOrganizationServiceTest {
 
     @Autowired
-    private UserOrganizationService userOrganizationService;
+    private UserWorkspaceService userOrganizationService;
 
     @Autowired
     private WorkspaceRepository organizationRepository;

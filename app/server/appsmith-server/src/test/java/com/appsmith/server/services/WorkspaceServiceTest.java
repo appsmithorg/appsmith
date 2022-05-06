@@ -72,7 +72,7 @@ public class WorkspaceServiceTest {
     WorkspaceService organizationService;
 
     @Autowired
-    UserOrganizationService userOrganizationService;
+    UserWorkspaceService userOrganizationService;
 
     @Autowired
     WorkspaceRepository organizationRepository;

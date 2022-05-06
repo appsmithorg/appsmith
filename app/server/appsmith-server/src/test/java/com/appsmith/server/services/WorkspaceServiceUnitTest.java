@@ -33,7 +33,7 @@ public class WorkspaceServiceUnitTest {
 
     @MockBean PluginRepository pluginRepository;
     @MockBean SessionUserService sessionUserService;
-    @MockBean UserOrganizationService userOrganizationService;
+    @MockBean UserWorkspaceService userOrganizationService;
     @MockBean UserRepository userRepository;
     @MockBean RoleGraph roleGraph;
     @MockBean AssetRepository assetRepository;

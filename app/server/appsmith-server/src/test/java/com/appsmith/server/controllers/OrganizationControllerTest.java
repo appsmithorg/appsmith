@@ -3,7 +3,7 @@ package com.appsmith.server.controllers;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.SecurityTestConfig;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.services.UserOrganizationService;
+import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +28,7 @@ public class OrganizationControllerTest {
     private WorkspaceService organizationService;
 
     @MockBean
-    private UserOrganizationService userOrganizationService;
+    private UserWorkspaceService userOrganizationService;
 
     @MockBean
     private UserService userService;

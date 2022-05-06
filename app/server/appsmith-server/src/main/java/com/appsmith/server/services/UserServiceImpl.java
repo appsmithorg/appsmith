@@ -39,7 +39,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                            ApplicationRepository applicationRepository,
                            PolicyUtils policyUtils,
                            WorkspaceRepository organizationRepository,
-                           UserOrganizationService userOrganizationService,
+                           UserWorkspaceService userOrganizationService,
                            RoleGraph roleGraph,
                            ConfigService configService,
                            CommonConfig commonConfig,

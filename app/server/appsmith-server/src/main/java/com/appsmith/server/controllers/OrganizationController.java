@@ -3,7 +3,7 @@ package com.appsmith.server.controllers;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.controllers.ce.WorkspaceControllerCE;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.services.UserOrganizationService;
+import com.appsmith.server.services.UserWorkspaceService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrganizationController extends WorkspaceControllerCE {
 
     public OrganizationController(WorkspaceService organizationService,
-                                  UserOrganizationService userOrganizationService) {
+                                  UserWorkspaceService userOrganizationService) {
 
         super(organizationService, userOrganizationService);
     }

@@ -94,7 +94,7 @@ public class ActionCollectionServiceTest {
     PluginRepository pluginRepository;
 
     @Autowired
-    UserOrganizationService userOrganizationService;
+    UserWorkspaceService userOrganizationService;
 
     @Autowired
     NewActionService newActionService;

@@ -23,7 +23,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.UserOrganizationService;
+import com.appsmith.server.services.UserWorkspaceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -57,7 +57,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     private final PluginRepository pluginRepository;
     private final SessionUserService sessionUserService;
-    private final UserOrganizationService userOrganizationService;
+    private final UserWorkspaceService userOrganizationService;
     private final UserRepository userRepository;
     private final RoleGraph roleGraph;
     private final AssetRepository assetRepository;
@@ -73,7 +73,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                      AnalyticsService analyticsService,
                                      PluginRepository pluginRepository,
                                      SessionUserService sessionUserService,
-                                     UserOrganizationService userOrganizationService,
+                                     UserWorkspaceService userOrganizationService,
                                      UserRepository userRepository,
                                      RoleGraph roleGraph,
                                      AssetRepository assetRepository,

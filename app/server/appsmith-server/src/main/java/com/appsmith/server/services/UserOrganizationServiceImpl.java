@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class UserOrganizationServiceImpl extends UserOrganizationServiceCEImpl implements UserOrganizationService {
+public class UserOrganizationServiceImpl extends UserOrganizationServiceCEImpl implements UserWorkspaceService {
 
     public UserOrganizationServiceImpl(SessionUserService sessionUserService,
                                        WorkspaceRepository organizationRepository,

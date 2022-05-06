@@ -5,7 +5,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.services.UserOrganizationService;
+import com.appsmith.server.services.UserWorkspaceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.multipart.Part;
@@ -27,10 +27,10 @@ import java.util.Map;
 
 @RequestMapping(Url.ORGANIZATION_URL)
 public class WorkspaceControllerCE extends BaseController<WorkspaceService, Workspace, String> {
-    private final UserOrganizationService userOrganizationService;
+    private final UserWorkspaceService userOrganizationService;
 
     @Autowired
-    public WorkspaceControllerCE(WorkspaceService organizationService, UserOrganizationService userOrganizationService) {
+    public WorkspaceControllerCE(WorkspaceService organizationService, UserWorkspaceService userOrganizationService) {
         super(organizationService);
         this.userOrganizationService = userOrganizationService;
     }

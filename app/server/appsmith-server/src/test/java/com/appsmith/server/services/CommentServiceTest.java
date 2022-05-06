@@ -81,7 +81,7 @@ public class CommentServiceTest {
     private NotificationRepository notificationRepository;
 
     @Autowired
-    private UserOrganizationService userOrganizationService;
+    private UserWorkspaceService userOrganizationService;
 
     @MockBean
     private Analytics analytics;
