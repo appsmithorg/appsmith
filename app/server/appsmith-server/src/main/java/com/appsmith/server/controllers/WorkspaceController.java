@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(Url.ORGANIZATION_URL)
-public class OrganizationController extends WorkspaceControllerCE {
+public class WorkspaceController extends WorkspaceControllerCE {
 
-    public OrganizationController(WorkspaceService organizationService,
-                                  UserWorkspaceService userOrganizationService) {
+    public WorkspaceController(WorkspaceService workspaceService,
+                                  UserWorkspaceService userWorkspaceService) {
 
-        super(organizationService, userOrganizationService);
+        super(workspaceService, userWorkspaceService);
     }
 }

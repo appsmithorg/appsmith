@@ -18,7 +18,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
 @RunWith(SpringRunner.class)
-@WebFluxTest(OrganizationController.class)
+@WebFluxTest(WorkspaceController.class)
 @Import(SecurityTestConfig.class)
 public class OrganizationControllerTest {
     @Autowired
