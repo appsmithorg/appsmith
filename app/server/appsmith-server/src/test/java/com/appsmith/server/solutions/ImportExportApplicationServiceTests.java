@@ -2567,7 +2567,7 @@ public class ImportExportApplicationServiceTests {
         StepVerifier
                 .create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.PLUGIN_NOT_INSTALLED.getMessage(randomId)))
+                        throwable.getMessage().equals(AppsmithError.UNKNOWN_PLUGIN_REFERENCE.getMessage(randomId)))
                 .verify();
     }
 }
