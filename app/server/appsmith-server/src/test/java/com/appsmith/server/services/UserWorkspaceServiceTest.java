@@ -47,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @DirtiesContext
-class UserOrganizationServiceTest {
+class UserWorkspaceServiceTest {
 
     @Autowired
     private UserWorkspaceService userOrganizationService;
