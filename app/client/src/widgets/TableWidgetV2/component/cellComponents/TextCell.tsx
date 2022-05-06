@@ -95,6 +95,7 @@ export function TextCell({
   cellBackground,
   columnType,
   compactMode,
+  fontStyle,
   hasUnsavedChanged,
   horizontalAlignment,
   isCellEditable,
@@ -104,6 +105,7 @@ export function TextCell({
   onCellTextChange,
   tableWidth,
   textColor,
+  textSize,
   toggleCellEditMode,
   value,
   verticalAlignment,
@@ -161,14 +163,17 @@ export function TextCell({
         {hasUnsavedChanged && <UnsavedChangesMarker />}
         <StyledAutoToolTipComponent
           allowCellWrapping={allowCellWrapping}
+          cellBackground={cellBackground}
           className={isCellEditable ? "editable-cell" : ""}
           columnType={columnType}
           compactMode={compactMode}
+          fontStyle={fontStyle}
           horizontalAlignment={horizontalAlignment}
           isCellVisible={isCellVisible}
           isHidden={isHidden}
           tableWidth={tableWidth}
           textColor={textColor}
+          textSize={textSize}
           title={!!value ? value.toString() : ""}
           verticalAlignment={verticalAlignment}
         >

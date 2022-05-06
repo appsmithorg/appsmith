@@ -11,6 +11,7 @@ import {
   EditableCellActions,
 } from "widgets/TableWidgetV2/constants";
 import { TextCell } from "../cellComponents/TextCell";
+import { TextSize } from "constants/WidgetConstants";
 
 export type RenderDefaultPropsType = {
   compactMode: string;
@@ -30,6 +31,8 @@ export type RenderDefaultPropsType = {
   horizontalAlignment?: CellAlignment;
   textColor?: string;
   displayText?: string;
+  fontStyle: string;
+  textSize: TextSize;
 };
 
 export function getCellText(
@@ -57,6 +60,7 @@ export function DefaultCell(props: RenderDefaultPropsType) {
     columnType,
     compactMode,
     displayText,
+    fontStyle,
     hasUnsavedChanged,
     horizontalAlignment,
     isCellEditable,
@@ -66,6 +70,7 @@ export function DefaultCell(props: RenderDefaultPropsType) {
     onCellTextChange,
     tableWidth,
     textColor,
+    textSize,
     toggleCellEditMode,
     value,
     verticalAlignment,
@@ -77,6 +82,7 @@ export function DefaultCell(props: RenderDefaultPropsType) {
       cellBackground={cellBackground}
       columnType={columnType}
       compactMode={compactMode}
+      fontStyle={fontStyle}
       hasUnsavedChanged={hasUnsavedChanged}
       horizontalAlignment={horizontalAlignment}
       isCellEditMode={isCellEditMode}
@@ -89,6 +95,7 @@ export function DefaultCell(props: RenderDefaultPropsType) {
       onSave={() => toggleCellEditMode(false, EditableCellActions.SAVE)}
       tableWidth={tableWidth}
       textColor={textColor}
+      textSize={textSize}
       toggleCellEditMode={toggleCellEditMode}
       value={getCellText(value, columnType, displayText)}
       verticalAlignment={verticalAlignment}

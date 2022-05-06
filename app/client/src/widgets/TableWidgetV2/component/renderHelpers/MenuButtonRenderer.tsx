@@ -16,6 +16,7 @@ import {
 import { CellWrapper } from "../TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import MenuButtonTableComponent from "../cellComponents/menuButtonTableComponent";
+import { TextSize } from "constants/WidgetConstants";
 
 interface MenuButtonProps extends Omit<RenderMenuButtonProps, "columnActions"> {
   action?: ColumnAction;
@@ -89,25 +90,37 @@ export interface RenderMenuButtonProps {
   allowCellWrapping?: boolean;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
+  fontStyle: string;
+  textColor: string;
+  cellBackground: string;
+  textSize: TextSize;
 }
 
 export function MenuButtonCell(props: RenderMenuButtonProps) {
   const {
     allowCellWrapping,
+    cellBackground,
     compactMode,
+    fontStyle,
     horizontalAlignment,
     isCellVisible,
     isHidden,
+    textColor,
+    textSize,
     verticalAlignment,
   } = props;
 
   return (
     <CellWrapper
       allowCellWrapping={allowCellWrapping}
+      cellBackground={cellBackground}
       compactMode={compactMode}
+      fontStyle={fontStyle}
       horizontalAlignment={horizontalAlignment}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
+      textColor={textColor}
+      textSize={textSize}
       verticalAlignment={verticalAlignment}
     >
       <MenuButton {...props} />
