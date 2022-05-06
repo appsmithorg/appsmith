@@ -2,7 +2,7 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.domains.QOrganization;
+import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -31,21 +31,21 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Mono<Workspace> findByName(String name, AclPermission aclPermission) {
-        Criteria nameCriteria = where(fieldName(QOrganization.organization.name)).is(name);
+        Criteria nameCriteria = where(fieldName(QWorkspace.workspace.name)).is(name);
 
         return queryOne(List.of(nameCriteria), aclPermission);
     }
 
     @Override
     public Flux<Workspace> findByIdsIn(Set<String> orgIds, AclPermission aclPermission, Sort sort) {
-        Criteria orgIdsCriteria = where(fieldName(QOrganization.organization.id)).in(orgIds);
+        Criteria orgIdsCriteria = where(fieldName(QWorkspace.workspace.id)).in(orgIds);
 
         return queryAll(List.of(orgIdsCriteria), aclPermission, sort);
     }
 
     @Override
     public Mono<Long> nextSlugNumber(String slugPrefix) {
-        final String slugField = fieldName(QOrganization.organization.slug);
+        final String slugField = fieldName(QWorkspace.workspace.slug);
         final Query slugPrefixQuery = query(where(slugField).regex("^" + slugPrefix + "\\d*$"));
         slugPrefixQuery.fields().include(slugField);
         return mongoOperations
