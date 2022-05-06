@@ -11,18 +11,13 @@ describe("Table Widget property pane feature validation", function() {
     // Open property pane
     cy.openPropertyPane("tablewidget");
     // Click on text color input field
-    cy.get(widgetsPage.textColor)
-      .first()
-      .click({ force: true });
-    // Select green color
-    cy.get(widgetsPage.greenColor)
-      .last()
-      .click();
+    cy.selectColor("textcolor");
+
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.wait("@updateLayout");
     // Verify the text color is green
-    cy.readTabledataValidateCSS("1", "0", "color", "rgb(3, 179, 101)");
+    cy.readTabledataValidateCSS("1", "0", "color", "rgb(126, 34, 206)");
     // Change the text color and enter purple in input field
     cy.get(widgetsPage.textColor)
       .scrollIntoView()
@@ -32,16 +27,11 @@ describe("Table Widget property pane feature validation", function() {
     // Verify the text color is purple
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(128, 0, 128)");
     // Click on cell background color
-    cy.get(`${widgetsPage.cellBackground} input`)
-      .first()
-      .scrollIntoView()
-      .click({ force: true });
+    cy.selectColor("cellbackgroundcolor");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     // select the green color
-    cy.get(widgetsPage.greenColor)
-      .last()
-      .click();
+
     cy.wait("@updateLayout");
     cy.assertPageSave();
     cy.PublishtheApp();
@@ -52,7 +42,7 @@ describe("Table Widget property pane feature validation", function() {
       "1",
       "1",
       "background-color",
-      "rgb(3, 179, 101)",
+      "rgb(126, 34, 206)",
     );
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("tablewidget");
