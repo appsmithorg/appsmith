@@ -406,7 +406,6 @@ export const checkIfPastingListWidgetOntoItself = function(
 };
 
 /**
- * get top, left, right, bottom most widgets and and totalWidth from copied groups when pasting
  * get top, left, right, bottom most widgets and totalWidth from copied groups when pasting
  *
  * @param copiedWidgetGroups
