@@ -13,6 +13,7 @@ export enum SettingTypes {
   UNEDITABLEFIELD = "UNEDITABLEFIELD",
   ACCORDION = "ACCORDION",
   TAGINPUT = "TAGINPUT",
+  DROPDOWN = "DROPDOWN",
 }
 
 export enum SettingSubtype {
@@ -52,6 +53,7 @@ export interface Setting {
   isRequired?: boolean;
   formName?: string;
   fieldName?: string;
+  dropdownOptions?: Array<{ id: string; value: string; label?: string }>;
 }
 
 export interface Category {

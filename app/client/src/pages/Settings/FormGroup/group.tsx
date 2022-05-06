@@ -20,6 +20,7 @@ import { Callout } from "components/ads/CalloutV2";
 import { CopyUrlReduxForm } from "components/ads/formFields/CopyUrlForm";
 import Accordion from "./Accordion";
 import TagInputField from "./TagInputField";
+import Dropdown from "./Dropdown";
 import { Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 
@@ -226,6 +227,21 @@ export default function Group({
                       settings={setting.advanced}
                       subCategory={subCategory}
                     />
+                  </div>
+                );
+              case SettingTypes.DROPDOWN:
+                return (
+                  <div
+                    className={setting.isHidden ? "hide" : ""}
+                    data-testid="admin-settings-dropdown"
+                    key={setting.name || setting.id}
+                  >
+                    {setting.dropdownOptions && (
+                      <Dropdown
+                        dropdownOptions={setting.dropdownOptions}
+                        setting={setting}
+                      />
+                    )}
                   </div>
                 );
             }

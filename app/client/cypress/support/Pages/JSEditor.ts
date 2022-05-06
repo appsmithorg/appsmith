@@ -5,7 +5,28 @@ export class JSEditor {
   public locator = ObjectsRegistry.CommonLocators;
   public ee = ObjectsRegistry.EntityExplorer;
 
-  private _runButton = "//li//*[local-name() = 'svg' and @class='run-button']";
+  //#region Element locators
+  private _runButton = "button.run-js-action";
+  private _settingsTab = ".tab-title:contains('Settings')";
+  private _codeTab = ".tab-title:contains('Code')";
+  private _onPageLoadRadioButton = (functionName: string, onLoad: boolean) =>
+    `.${functionName}-on-page-load-setting label:contains(${onLoad ? "Yes" : "No"
+    }) span.checkbox`;
+  private _onPageLoadRadioButtonStatus = (functionName: string, onLoad: boolean) =>
+    `.${functionName}-on-page-load-setting label:contains(${onLoad ? "Yes" : "No"
+    })>input`;
+  private _confirmBeforeExecuteRadioButton = (
+    functionName: string,
+    shouldConfirm: boolean,
+  ) =>
+    `.${functionName}-confirm-before-execute label:contains(${shouldConfirm ? "Yes" : "No"
+    }) span.checkbox`;
+  private _confirmBeforeExecuteRadioButtonStatus = (
+    functionName: string,
+    shouldConfirm: boolean,
+  ) =>
+    `.${functionName}-confirm-before-execute label:contains(${shouldConfirm ? "Yes" : "No"
+    })>input`;
   private _outputConsole = ".CodeEditorTarget";
   private _jsObjName = ".t--js-action-name-edit-field span";
   private _jsObjTxt = ".t--js-action-name-edit-field input";
@@ -16,13 +37,26 @@ export class JSEditor {
   private _functionSetting = (settingTxt: string) => "//span[text()='" + settingTxt + "']/parent::div/following-sibling::input[@type='checkbox']"
   _dialog = (dialogHeader: string) => "//div[contains(@class, 'bp3-dialog')]//h4[contains(text(), '" + dialogHeader + "')]"
   private _closeSettings = "span[icon='small-cross']"
+  _dialogBody = (jsFuncName: string) => "//div[@class='bp3-dialog-body']//*[contains(text(), '" + Cypress.env('MESSAGES').QUERY_CONFIRMATION_MODAL_MESSAGE() + "')]//*[contains(text(),'" + jsFuncName + "')]"
 
+  //#endregion
 
+  //#region Page functions
   public NavigateToJSEditor() {
     cy.get(this.locator._createNew)
       .last()
       .click({ force: true });
     cy.get(this._newJSobj).click({ force: true });
+
+    // Assert that the name of the JS Object is focused when newly created
+    cy.get(this._jsObjTxt)
+      .should("be.focused")
+      .type("{enter}");
+
+    cy.wait(1000);
+
+    // Assert that the name of the JS Object is no longer in the editable form after pressing "enter"
+    cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
     //this.agHelper.WaitUntilEleDisappear(this.locator._toastMsg, 'created successfully')
@@ -77,6 +111,7 @@ export class JSEditor {
           input.type(JSCode, {
             parseSpecialCharSequences: false,
             delay: 150,
+            force: true
           });
         }
       });
@@ -87,7 +122,7 @@ export class JSEditor {
     if (toRun) {
       //clicking 1 times & waits for 3 second for result to be populated!
       Cypress._.times(1, () => {
-        cy.xpath(this._runButton)
+        cy.get(this._runButton)
           .first()
           .click()
           .wait(3000);
@@ -109,13 +144,21 @@ export class JSEditor {
     this.agHelper.AssertAutoSave(); //Ample wait due to open bug # 10284
   }
 
-  public EnterJSContext(endp: string, value: string, paste = true, toToggleOnJS = false, notField = false) {
+  public EnterJSContext(
+    endp: string,
+    value: string,
+    paste = true,
+    toToggleOnJS = false,
+    notField = false,
+  ) {
     if (toToggleOnJS) {
       cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
         .invoke("attr", "class")
         .then((classes: any) => {
           if (!classes.includes("is-active")) {
-            cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+            cy.get(
+              this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()),
+            )
               .first()
               .click({ force: true });
           }
@@ -131,19 +174,22 @@ export class JSEditor {
     //   .type("{del}", { force: true });
 
     if (paste) {
-      this.agHelper.EnterValue(value, endp, notField)
-    }
-    else {
-      cy.get(this.locator._propertyControl + endp.replace(/ +/g, "").toLowerCase() + " " + this.locator._codeMirrorTextArea)
+      this.agHelper.EnterValue(value, endp, notField);
+    } else {
+      cy.get(
+        this.locator._propertyControl +
+        endp.replace(/ +/g, "").toLowerCase() +
+        " " +
+        this.locator._codeMirrorTextArea,
+      )
         .first()
         .then((el: any) => {
           const input = cy.get(el);
           input.type(value, {
             parseSpecialCharSequences: false,
           });
-        })
+        });
     }
-
 
     // cy.focused().then(($cm: any) => {
     //   if ($cm.contents != "") {
@@ -175,18 +221,22 @@ export class JSEditor {
     //     });
     // });
 
-    this.agHelper.AssertAutoSave()//Allowing time for Evaluate value to capture value
-
+    this.agHelper.AssertAutoSave(); //Allowing time for Evaluate value to capture value
   }
 
   public RemoveText(endp: string) {
-    cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
+    cy.get(
+      this.locator._propertyControl +
+      endp +
+      " " +
+      this.locator._codeMirrorTextArea,
+    )
       .first()
       .focus()
       .type("{uparrow}", { force: true })
       .type("{ctrl}{shift}{downarrow}", { force: true })
       .type("{del}", { force: true });
-    this.agHelper.AssertAutoSave()
+    this.agHelper.AssertAutoSave();
   }
 
   public RenameJSObjFromForm(renameVal: string) {
@@ -240,16 +290,43 @@ export class JSEditor {
   }
 
 
-  public EnableOnPageLoad(funName: string, onLoad = true, bfrCalling = true) {
+  // public EnableDisableOnPageLoad(funName: string, onLoad: 'enable' | 'disable' | '', bfrCalling: 'enable' | 'disable' | '') {
+  //   this.agHelper.GetNClick(this._responseTabAction(funName))
+  //   this.agHelper.AssertElementPresence(this._dialog('Function settings'))
+  //   if (onLoad)
+  //     this.agHelper.CheckUncheck(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_ONPAGELOAD()), onLoad == 'enable' ? true : false)
+  //   if (bfrCalling)
+  //     this.agHelper.CheckUncheck(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_CONFIRM_EXECUTION()), bfrCalling == 'enable' ? true : false)
 
-    this.agHelper.GetNClick(this._responseTabAction(funName))
-    this.agHelper.AssertElementPresence(this._dialog('Function settings'))
-    if (onLoad)
-      this.agHelper.CheckUncheck(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_ONPAGELOAD()), true)
-    if (bfrCalling)
-      this.agHelper.CheckUncheck(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_CONFIRM_EXECUTION()), true)
+  //   this.agHelper.GetNClick(this._closeSettings)
+  // }
 
-    this.agHelper.GetNClick(this._closeSettings)
+  public VerifyOnPageLoadSetting(funName: string, onLoad = true, bfrCalling = true) {
+    // this.agHelper.GetNClick(this._responseTabAction(funName))
+    // this.agHelper.AssertElementPresence(this._dialog('Function settings'))
+    // this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_ONPAGELOAD()), onLoad)
+    // this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_CONFIRM_EXECUTION()), bfrCalling)
+    // this.agHelper.GetNClick(this._closeSettings)
+
+    this.agHelper.GetNClick(this._settingsTab);
+    this.agHelper.AssertExistingToggleState(this._onPageLoadRadioButtonStatus(funName, onLoad), onLoad == true ? 'checked' : 'unchecked')
+    this.agHelper.AssertExistingToggleState(this._confirmBeforeExecuteRadioButtonStatus(funName, bfrCalling), bfrCalling == true ? 'checked' : 'unchecked')
   }
 
+  public EnableDisableOnPageLoad(
+    funName: string,
+    onLoad = true,
+    bfrCalling = true,
+  ) {
+    // Navigate to Settings tab
+    this.agHelper.GetNClick(this._settingsTab);
+    // Set onPageLoad
+    this.agHelper.GetNClick(this._onPageLoadRadioButton(funName, onLoad));
+    // Set confirmBeforeExecute
+    this.agHelper.GetNClick(this._confirmBeforeExecuteRadioButton(funName, bfrCalling));
+    // Return to code tab
+    this.agHelper.GetNClick(this._codeTab);
+  }
+
+  //#endregion
 }

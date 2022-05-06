@@ -10,4 +10,6 @@ public interface CustomThemeRepositoryCE extends AppsmithRepository<Theme> {
     Flux<Theme> getApplicationThemes(String applicationId, AclPermission aclPermission);
     Flux<Theme> getSystemThemes();
     Mono<Theme> getSystemThemeByName(String themeName);
+    Mono<Boolean> archiveByApplicationId(String applicationId);
+    Mono<Boolean> archiveDraftThemesById(String editModeThemeId, String publishedModeThemeId);
 }

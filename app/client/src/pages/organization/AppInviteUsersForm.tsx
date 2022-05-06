@@ -17,25 +17,25 @@ import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { Colors } from "constants/Colors";
 import { viewerURL } from "RouteBuilder";
 
+const StyledCopyToClipBoard = styled(CopyToClipBoard)`
+  margin-bottom: 24px;
+`;
+
 const CommonTitleTextStyle = css`
   color: ${Colors.CHARCOAL};
   font-weight: normal;
 `;
 
 const Title = styled.div`
-  padding: 0 0 10px 0;
+  padding: 0 0 8px 0;
   & > span[type="h5"] {
     ${CommonTitleTextStyle}
   }
 `;
 
-const StyledCopyToClipBoard = styled(CopyToClipBoard)`
-  margin-bottom: 24px;
-`;
-
 const ShareWithPublicOption = styled.div`
   display: flex;
-  margin-bottom: 24px;
+  margin-bottom: 8px;
   align-items: center;
   justify-content: space-between;
 
