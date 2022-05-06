@@ -17,9 +17,9 @@ import javax.validation.Validator;
 
 @Slf4j
 @Service
-public class OrganizationServiceImpl extends WorkspaceServiceCEImpl implements WorkspaceService {
+public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements WorkspaceService {
 
-    public OrganizationServiceImpl(Scheduler scheduler,
+    public WorkspaceServiceImpl(Scheduler scheduler,
                                    Validator validator,
                                    MongoConverter mongoConverter,
                                    ReactiveMongoTemplate reactiveMongoTemplate,

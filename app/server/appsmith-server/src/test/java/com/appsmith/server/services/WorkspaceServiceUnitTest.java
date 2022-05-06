@@ -50,7 +50,7 @@ public class WorkspaceServiceUnitTest {
 
     @Before
     public void setUp() {
-        organizationService = new OrganizationServiceImpl(scheduler, validator, mongoConverter, reactiveMongoTemplate,
+        organizationService = new WorkspaceServiceImpl(scheduler, validator, mongoConverter, reactiveMongoTemplate,
                 organizationRepository, analyticsService, pluginRepository, sessionUserService, userOrganizationService,
                 userRepository, roleGraph, assetRepository, assetService,
                 applicationRepository);
