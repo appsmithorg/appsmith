@@ -226,7 +226,7 @@ function DeployedKeyUI(props: DeployedKeyUIProps) {
             className={"enterprise"}
             learnMoreClickHandler={learnMoreClickHandler}
             onClose={() => setShowKeyGeneratedMessage(false)}
-            variant={NotificationVariant.info}
+            variant={NotificationVariant.enterprise}
           >
             <div>
               <Text color={Colors.GREY_9} type={TextType.P3}>
