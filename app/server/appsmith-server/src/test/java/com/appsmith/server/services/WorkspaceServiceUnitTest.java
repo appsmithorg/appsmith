@@ -29,7 +29,7 @@ import java.util.List;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-public class OrganizationServiceUnitTest {
+public class WorkspaceServiceUnitTest {
 
     @MockBean PluginRepository pluginRepository;
     @MockBean SessionUserService sessionUserService;
