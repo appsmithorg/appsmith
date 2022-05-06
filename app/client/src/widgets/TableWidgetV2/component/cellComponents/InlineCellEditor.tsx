@@ -87,6 +87,8 @@ export function InlineCellEditor({
   onDiscard,
   onSave,
   value,
+  allowCellWrapping,
+  verticalAlignment,
 }: InlineEditorPropsType) {
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null);
   const [cursorPos, setCursorPos] = useState(value.length);
@@ -132,9 +134,9 @@ export function InlineCellEditor({
 
   return (
     <Wrapper
-      allowCellWrapping={cellProperties.allowCellWrapping}
+      allowCellWrapping={allowCellWrapping}
       compactMode={compactMode}
-      verticalAlignment={cellProperties.verticalAlignment}
+      verticalAlignment={verticalAlignment}
     >
       <BaseInputComponent
         autoFocus

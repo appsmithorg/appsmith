@@ -2,11 +2,8 @@ import React from "react";
 import { isString, noop } from "lodash";
 
 import { CellWrapper } from "../TableStyledWrappers";
-import {
-  CellAlignment,
-  CellLayoutProperties,
-  VerticalAlignment,
-} from "../Constants";
+import { CellAlignment, VerticalAlignment } from "../Constants";
+import { TextSize } from "constants/WidgetConstants";
 
 type renderImageType = {
   value: any;
@@ -18,6 +15,10 @@ type renderImageType = {
   allowCellWrapping?: boolean;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
+  fontStyle: string;
+  textColor: string;
+  cellBackground: string;
+  textSize: TextSize;
 };
 
 export function ImageCell(args: renderImageType) {
@@ -30,16 +31,24 @@ export function ImageCell(args: renderImageType) {
     allowCellWrapping,
     horizontalAlignment,
     verticalAlignment,
+    cellBackground,
+    fontStyle,
+    textColor,
+    textSize,
   } = args;
 
   if (!value) {
     return (
       <CellWrapper
         allowCellWrapping={allowCellWrapping}
+        cellBackground={cellBackground}
         compactMode={compactMode}
+        fontStyle={fontStyle}
         horizontalAlignment={horizontalAlignment}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
+        textColor={textColor}
+        textSize={textSize}
         verticalAlignment={verticalAlignment}
       />
     );
@@ -47,10 +56,14 @@ export function ImageCell(args: renderImageType) {
     return (
       <CellWrapper
         allowCellWrapping={allowCellWrapping}
+        cellBackground={cellBackground}
         compactMode={compactMode}
+        fontStyle={fontStyle}
         horizontalAlignment={horizontalAlignment}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
+        textColor={textColor}
+        textSize={textSize}
         verticalAlignment={verticalAlignment}
       >
         <div>Invalid Image </div>
@@ -64,10 +77,14 @@ export function ImageCell(args: renderImageType) {
   return (
     <CellWrapper
       allowCellWrapping={allowCellWrapping}
+      cellBackground={cellBackground}
       compactMode={compactMode}
+      fontStyle={fontStyle}
       horizontalAlignment={horizontalAlignment}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
+      textColor={textColor}
+      textSize={textSize}
       verticalAlignment={verticalAlignment}
     >
       {value

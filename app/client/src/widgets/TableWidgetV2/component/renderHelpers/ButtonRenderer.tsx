@@ -1,13 +1,10 @@
 import React from "react";
 
 import { CellWrapper } from "../TableStyledWrappers";
-import {
-  CellAlignment,
-  CellLayoutProperties,
-  VerticalAlignment,
-} from "../Constants";
+import { CellAlignment, VerticalAlignment } from "../Constants";
 import { Button } from "../cellComponents/Button";
 import { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
+import { TextSize } from "constants/WidgetConstants";
 
 export interface RenderActionProps {
   compactMode: string;
@@ -21,19 +18,27 @@ export interface RenderActionProps {
   allowCellWrapping?: boolean;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
+  fontStyle: string;
+  textColor: string;
+  cellBackground: string;
+  textSize: TextSize;
 }
 
 export function ButtonCell(props: RenderActionProps) {
   const {
     allowCellWrapping,
+    cellBackground,
     columnActions,
     compactMode,
+    fontStyle,
     horizontalAlignment,
     isCellVisible,
     isDisabled,
     isHidden,
     isSelected,
     onCommandClick,
+    textColor,
+    textSize,
     verticalAlignment,
   } = props;
 
@@ -41,10 +46,14 @@ export function ButtonCell(props: RenderActionProps) {
     return (
       <CellWrapper
         allowCellWrapping={allowCellWrapping}
+        cellBackground={cellBackground}
         compactMode={compactMode}
+        fontStyle={fontStyle}
         horizontalAlignment={horizontalAlignment}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
+        textColor={textColor}
+        textSize={textSize}
         verticalAlignment={verticalAlignment}
       />
     );
@@ -52,10 +61,14 @@ export function ButtonCell(props: RenderActionProps) {
   return (
     <CellWrapper
       allowCellWrapping={allowCellWrapping}
+      cellBackground={cellBackground}
       compactMode={compactMode}
+      fontStyle={fontStyle}
       horizontalAlignment={horizontalAlignment}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
+      textColor={textColor}
+      textSize={textSize}
       verticalAlignment={verticalAlignment}
     >
       {columnActions.map((action: ButtonColumnActions, index: number) => {

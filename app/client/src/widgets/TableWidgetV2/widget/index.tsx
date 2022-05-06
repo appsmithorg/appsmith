@@ -1206,6 +1206,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           <ButtonCell
             allowCellWrapping={cellProperties.allowCellWrapping}
             backgroundColor={cellProperties.buttonColor || DEFAULT_BUTTON_COLOR}
+            cellBackground={cellProperties.cellBackground}
             columnActions={[
               {
                 backgroundColor: cellProperties.buttonColor,
@@ -1218,6 +1219,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
               },
             ]}
             compactMode={compactMode}
+            fontStyle={cellProperties.fontStyle}
             horizontalAlignment={cellProperties.horizontalAlignment}
             isCellVisible={cellProperties.isCellVisible ?? true}
             isDisabled={!!cellProperties.isDisabled}
@@ -1232,6 +1234,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                 eventType: EventType.ON_CLICK,
               })
             }
+            textColor={cellProperties.textColor}
+            textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}
           />
         );
@@ -1240,6 +1244,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         return (
           <EditActionCell
             allowCellWrapping={cellProperties.allowCellWrapping}
+            cellBackground={cellProperties.cellBackground}
             columnActions={[
               {
                 id: EditableCellActions.SAVE,
@@ -1269,6 +1274,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
               },
             ]}
             compactMode={compactMode}
+            fontStyle={cellProperties.fontStyle}
             horizontalAlignment={cellProperties.horizontalAlignment}
             isCellVisible={cellProperties.isCellVisible ?? true}
             isHidden={isHidden}
@@ -1289,6 +1295,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             onDiscard={() =>
               this.removeRowFromTransientTableData(originalIndex)
             }
+            textColor={cellProperties.textColor}
+            textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}
           />
         );
@@ -1313,7 +1321,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         return (
           <SelectCell
             allowCellWrapping={cellProperties.allowCellWrapping}
+            cellBackground={cellProperties.cellBackground}
             compactMode={compactMode}
+            fontStyle={cellProperties.fontStyle}
             horizontalAlignment={cellProperties.horizontalAlignment}
             isCellEditable={cellProperties.isCellEditable}
             isCellVisible={cellProperties.isCellVisible ?? true}
@@ -1323,6 +1333,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             options={column.selectOptions}
             tableWidth={componentWidth}
             textColor={cellProperties.textColor}
+            textSize={cellProperties.textSize}
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
             width={
@@ -1345,12 +1356,16 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         return (
           <ImageCell
             allowCellWrapping={cellProperties.allowCellWrapping}
+            cellBackground={cellProperties.cellBackground}
             compactMode={compactMode}
+            fontStyle={cellProperties.fontStyle}
             horizontalAlignment={cellProperties.horizontalAlignment}
             isCellVisible={cellProperties.isCellVisible ?? true}
             isHidden={isHidden}
             isSelected={isSelected}
             onClick={onClick}
+            textColor={cellProperties.textColor}
+            textSize={cellProperties.textSize}
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
           />
@@ -1363,7 +1378,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             borderRadius={cellProperties.borderRadius}
             boxShadow={cellProperties.boxShadow}
             boxShadowColor={cellProperties.boxShadowColor}
+            cellBackground={cellProperties.cellBackground}
             compactMode={compactMode}
+            fontStyle={cellProperties.fontStyle}
             horizontalAlignment={cellProperties.horizontalAlignment}
             iconAlign={cellProperties.iconAlign}
             iconName={cellProperties.menuButtoniconName}
@@ -1385,6 +1402,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                 eventType: EventType.ON_CLICK,
               })
             }
+            textColor={cellProperties.textColor}
+            textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}
           />
         );
@@ -1398,6 +1417,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             boxShadowColor={cellProperties.boxShadowColor || ""}
             buttonColor={cellProperties.buttonColor || Colors.GREEN}
             buttonVariant={cellProperties.buttonVariant || "PRIMARY"}
+            cellBackground={cellProperties.cellBackground}
             columnActions={[
               {
                 id: column.id,
@@ -1406,6 +1426,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             ]}
             compactMode={compactMode}
             disabled={!!cellProperties.isDisabled}
+            fontStyle={cellProperties.fontStyle}
             horizontalAlignment={cellProperties.horizontalAlignment}
             iconName={(cellProperties.iconName || IconNames.ADD) as IconName}
             isCellVisible={cellProperties.isCellVisible ?? true}
@@ -1420,6 +1441,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                 eventType: EventType.ON_CLICK,
               })
             }
+            textColor={cellProperties.textColor}
+            textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}
           />
         );
@@ -1428,10 +1451,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         return (
           <VideoCell
             allowCellWrapping={cellProperties.allowCellWrapping}
+            cellBackground={cellProperties.cellBackground}
             compactMode={compactMode}
+            fontStyle={cellProperties.fontStyle}
             horizontalAlignment={cellProperties.horizontalAlignment}
             isCellVisible={cellProperties.isCellVisible ?? true}
             isHidden={isHidden}
+            textColor={cellProperties.textColor}
+            textSize={cellProperties.textSize}
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
           />
@@ -1449,6 +1476,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             columnType={column.columnType}
             compactMode={compactMode}
             displayText={cellProperties.displayText}
+            fontStyle={cellProperties.fontStyle}
             hasUnsavedChanged={cellProperties.hasUnsavedChanged}
             horizontalAlignment={cellProperties.horizontalAlignment}
             isCellEditMode={isCellEditMode}
@@ -1460,6 +1488,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             onCellTextChange={this.onEditableCellTextChange}
             tableWidth={componentWidth}
             textColor={cellProperties.textColor}
+            textSize={cellProperties.textSize}
             toggleCellEditMode={(
               enable: boolean,
               action?: EditableCellActions,
