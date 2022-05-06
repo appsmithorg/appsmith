@@ -1,3 +1,4 @@
+import React, { RefObject, useEffect, useRef } from "react";
 import { Classes, MenuItem, Menu } from "@blueprintjs/core";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateRangeInput } from "@blueprintjs/datetime";
@@ -9,8 +10,6 @@ import { FormIcons } from "icons/FormIcons";
 import Button from "components/ads/Button";
 import TextInput, { TextInputProps } from "components/ads/TextInput";
 import Dropdown from "components/ads/Dropdown";
-import MultiSelectDropdown from "components/ads/MultiselectDropdown";
-import React, { RefObject, useEffect, useRef } from "react";
 import { InputWrapper } from "components/ads/TextInput";
 
 type ControlWrapperProps = {
@@ -108,11 +107,6 @@ export const StyledDropDownContainer = styled.div`
 export const StyledDropDown = styled(Dropdown)`
   background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
   box-shadow: none;
-  height: 36px;
-`;
-
-export const StyledMultiSelectDropDown = styled(MultiSelectDropdown)`
-  background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
 `;
 
 export const StyledMenu = styled(Menu)`
