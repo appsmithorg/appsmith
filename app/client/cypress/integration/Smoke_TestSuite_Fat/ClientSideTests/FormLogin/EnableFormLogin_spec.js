@@ -64,10 +64,7 @@ describe("Form Login test functionality", function() {
       cy.get("[type='email']").type(uid + "@appsmith.com");
       cy.get("[type='password']").type(uid);
       cy.get("[type='submit']").click({ force: true });
-      cy.get(".form-message-container").should(
-        "not.contain",
-        "Signup is restricted on this instance of Appsmith",
-      );
+      cy.get(".form-message-container").should("not.exist");
     });
   });
 
