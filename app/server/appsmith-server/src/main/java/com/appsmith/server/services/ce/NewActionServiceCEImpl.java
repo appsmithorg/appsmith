@@ -120,6 +120,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public static final String NATIVE_QUERY_PATH = "formToNativeQuery";
     public static final String NATIVE_QUERY_PATH_DATA = NATIVE_QUERY_PATH + "." + DATA;
     public static final String NATIVE_QUERY_PATH_STATUS = NATIVE_QUERY_PATH + "." + STATUS;
+    public static final PluginType JS_PLUGIN_TYPE = PluginType.JS;
+    public static final String JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 
     private final NewActionRepository repository;
     private final DatasourceService datasourceService;
@@ -230,6 +232,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         } else {
             if (newAction.getUnpublishedAction() != null) {
                 action = newAction.getUnpublishedAction();
+            } else {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION, newAction.getId(), "No unpublished action found for edit mode"));
             }
         }
 
@@ -248,6 +252,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public void generateAndSetActionPolicies(NewPage page, NewAction action) {
+        if (page == null) {
+            throw new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR, "No page found to copy policies from.");
+        }
         Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(page.getPolicies(), Page.class, Action.class);
         action.setPolicies(documentPolicies);
     }
@@ -371,10 +378,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     action.setInvalids(invalids);
                     action.setPluginName(plugin.getName());
                     newAction.setUnpublishedAction(action);
-                    newAction.setPluginType(plugin.getType());
-                    newAction.setPluginId(plugin.getId());
                     return newAction;
-                }).map(this::extractAndSetJsonPathKeys)
+                })
+                .flatMap(this::sanitizeAction)
+                .map(this::extractAndSetJsonPathKeys)
                 .map(updatedAction -> {
                     // In case of external datasource (not embedded) instead of storing the entire datasource
                     // again inside the action, instead replace it with just the datasource ID. This is so that
@@ -1046,7 +1053,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             "actionCreated", DateUtils.ISO_FORMATTER.format(action.getCreatedAt()),
                             "actionId", ObjectUtils.defaultIfNull(action.getId(), ""),
                             "dsId", ObjectUtils.defaultIfNull(datasource.getId(), ""),
-                            "dsCreatedAt", DateUtils.ISO_FORMATTER.format(datasource.getCreatedAt())
+                            "dsCreatedAt", ObjectUtils.defaultIfNull(DateUtils.ISO_FORMATTER.format(datasource.getCreatedAt()), "")
 
                     ));
 
@@ -1100,7 +1107,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Flux<NewAction> findUnpublishedOnLoadActionsExplicitSetByUserInPage(String pageId) {
         return repository
-                .findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(pageId, MANAGE_ACTIONS);
+                .findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(pageId, MANAGE_ACTIONS)
+                .flatMap(this::sanitizeAction);
     }
 
     /**
@@ -1113,27 +1121,32 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Flux<NewAction> findUnpublishedActionsInPageByNames(Set<String> names, String pageId) {
         return repository
-                .findUnpublishedActionsByNameInAndPageId(names, pageId, MANAGE_ACTIONS);
+                .findUnpublishedActionsByNameInAndPageId(names, pageId, MANAGE_ACTIONS)
+                .flatMap(this::sanitizeAction);
     }
 
     @Override
     public Mono<NewAction> findById(String id) {
-        return repository.findById(id);
+        return repository.findById(id)
+                .flatMap(this::sanitizeAction);
     }
 
     @Override
     public Mono<NewAction> findById(String id, AclPermission aclPermission) {
-        return repository.findById(id, aclPermission);
+        return repository.findById(id, aclPermission)
+                .flatMap(this::sanitizeAction);
     }
 
     @Override
     public Flux<NewAction> findByPageId(String pageId, AclPermission permission) {
-        return repository.findByPageId(pageId, permission);
+        return repository.findByPageId(pageId, permission)
+                .flatMap(this::sanitizeAction);
     }
 
     @Override
     public Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission permission) {
-        return repository.findByPageIdAndViewMode(pageId, viewMode, permission);
+        return repository.findByPageIdAndViewMode(pageId, viewMode, permission)
+                .flatMap(this::sanitizeAction);
     }
 
     @Override
@@ -1151,7 +1164,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     // every created action starts from an unpublishedAction state.
 
                     return Mono.just(action);
-                });
+                })
+                .flatMap(this::sanitizeAction);
     }
 
     @Override
@@ -1320,9 +1334,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             return applicationService
                     .findById(params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS)
                     .flatMapMany(application -> repository.findByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS))
+                    .flatMap(this::sanitizeAction)
                     .flatMap(this::setTransientFieldsInUnpublishedAction);
         }
         return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, READ_ACTIONS, sort)
+                .flatMap(this::sanitizeAction)
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
     }
 
@@ -1365,6 +1381,75 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()));
     }
 
+    /**
+     * This method is meant to be used to check for any missing or bad values in NewAction object and attempt to fix it.
+     *
+     * This method is added in response to certain cases where it was found that pluginId and pluginType keys
+     * were missing from the NewAction object in the database.Since it is currently not know what exactly causes
+     * these values to go missing, this check will serve as a workaround by fetching and setting pluginId and
+     * pluginType using the datasource object contained in the ActionDTO object.
+     * Ref: https://github.com/appsmithorg/appsmith/issues/11927
+     *
+     */
+    public Mono<NewAction> sanitizeAction(NewAction action) {
+        Mono<NewAction> actionMono = Mono.just(action);
+        if (isPluginTypeOrPluginIdMissing(action)) {
+            actionMono = providePluginTypeAndIdToNewActionObjectUsingJSTypeOrDatasource(action);
+        }
+
+        return actionMono;
+    }
+
+    private boolean isPluginTypeOrPluginIdMissing(NewAction action) {
+        return action.getPluginId() == null || action.getPluginType() == null;
+    }
+
+    private Mono<NewAction> providePluginTypeAndIdToNewActionObjectUsingJSTypeOrDatasource(NewAction action) {
+        ActionDTO actionDTO = action.getUnpublishedAction();
+        if (actionDTO == null) {
+            return Mono.just(action);
+        }
+
+        /**
+         * if path:
+         * In case an action object is related to a JS Object then it must have a non-null collectionId.
+         *
+         * else path:
+         * Otherwise, check if the datasource object has the pluginId. If so, use this pluginId to fetch the correct
+         * pluginType.
+         */
+        Datasource datasource = actionDTO.getDatasource();
+        if (actionDTO.getCollectionId() != null) {
+            return setPluginIdAndTypeForJSAction(action);
+        }
+        else if (datasource != null && datasource.getPluginId() != null) {
+            String pluginId = datasource.getPluginId();
+            action.setPluginId(pluginId);
+
+            return setPluginTypeFromId(action, pluginId);
+        }
+
+        return Mono.just(action);
+    }
+
+    private Mono<NewAction> setPluginTypeFromId(NewAction action, String pluginId) {
+        return pluginService.findById(pluginId)
+                .flatMap(plugin -> {
+                    action.setPluginType(plugin.getType());
+                    return Mono.just(action);
+                });
+    }
+
+    private Mono<NewAction> setPluginIdAndTypeForJSAction(NewAction action) {
+        action.setPluginType(JS_PLUGIN_TYPE);
+
+        return pluginService.findByPackageName(JS_PLUGIN_PACKAGE_NAME)
+                .flatMap(plugin -> {
+                    action.setPluginId(plugin.getId());
+                    return Mono.just(action);
+                });
+    }
+
     // We can afford to make this call all the time since we already have all the info we need in context
     private Mono<DatasourceContext> getRemoteDatasourceContext(Plugin plugin, Datasource datasource) {
         final DatasourceContext datasourceContext = new DatasourceContext();
@@ -1388,7 +1473,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         if (action.getGitSyncId() == null) {
             action.setGitSyncId(action.getApplicationId() + "_" + Instant.now().toString());
         }
-        return repository.save(action);
+
+        return sanitizeAction(action)
+                .flatMap(sanitizedAction -> repository.save(sanitizedAction));
     }
 
     @Override
@@ -1396,12 +1483,17 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         actions.stream()
                 .filter(action -> action.getGitSyncId() == null)
                 .forEach(action -> action.setGitSyncId(action.getApplicationId() + "_" + Instant.now().toString()));
-        return repository.saveAll(actions);
+
+        return Flux.fromIterable(actions)
+                .flatMap(this::sanitizeAction)
+                .collectList()
+                .flatMapMany(actionList -> repository.saveAll(actionList));
     }
 
     @Override
     public Flux<NewAction> findByPageId(String pageId) {
-        return repository.findByPageId(pageId);
+        return repository.findByPageId(pageId)
+                .flatMap(this::sanitizeAction);
     }
 
     /**
@@ -1642,7 +1734,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return repository.findByBranchNameAndDefaultActionId(branchName, defaultActionId, permission)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId + "," + branchName))
-                );
+                )
+                .flatMap(this::sanitizeAction);
     }
 
     public Mono<String> findBranchedIdByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission) {

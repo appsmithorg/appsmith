@@ -5,12 +5,14 @@ const {
   enableGithubOAuth,
   enableGoogleOAuth,
   enableOidcOAuth,
+  enableSamlOAuth,
 } = getAppsmithConfigs();
 
 export const connectedMethods = [
   enableGoogleOAuth,
   enableGithubOAuth,
   enableOidcOAuth,
+  enableSamlOAuth,
   !disableLoginForm,
 ].filter(Boolean);
 
@@ -29,7 +31,11 @@ export const saveAllowed = (settings: any) => {
         settings["APPSMITH_OAUTH2_OIDC_CLIENT_ID"] !== "" && enableOidcOAuth;
 
     return (
-      checkFormLogin || checkGoogleAuth || checkGithubAuth || checkOidcAuth
+      checkFormLogin ||
+      checkGoogleAuth ||
+      checkGithubAuth ||
+      checkOidcAuth ||
+      enableSamlOAuth
     );
   } else {
     return connectedMethods.length >= 2;

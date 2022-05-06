@@ -82,7 +82,7 @@ import {
   ActionValidationConfigMap,
   ValidationConfig,
 } from "constants/PropertyControlConstants";
-const clone = require("rfdc/default");
+import { klona } from "klona/full";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -123,7 +123,7 @@ export default class DataTreeEvaluator {
   createFirstTree(unEvalTree: DataTree) {
     const totalStart = performance.now();
     // cloneDeep will make sure not to omit key which has value as undefined.
-    let localUnEvalTree = clone(unEvalTree);
+    let localUnEvalTree = klona(unEvalTree);
     let jsUpdates: Record<string, JSUpdate> = {};
     //parse js collection to get functions
     //save current state of js collection action and variables to be added to uneval tree
@@ -158,7 +158,7 @@ export default class DataTreeEvaluator {
     this.evalTree = getValidatedTree(evaluatedTree);
     const validateEnd = performance.now();
 
-    this.oldUnEvalTree = clone(localUnEvalTree);
+    this.oldUnEvalTree = klona(localUnEvalTree);
     const totalEnd = performance.now();
     const timeTakenForFirstTree = {
       total: (totalEnd - totalStart).toFixed(2),
@@ -366,8 +366,9 @@ export default class DataTreeEvaluator {
     const totalEnd = performance.now();
     // TODO: For some reason we are passing some reference which are getting mutated.
     // Need to check why big api responses are getting split between two eval runs
-    this.oldUnEvalTree = clone(localUnEvalTree);
+    this.oldUnEvalTree = klona(localUnEvalTree);
     this.evalTree = newEvalTree;
+
     const timeTakenForSubTreeEval = {
       total: (totalEnd - totalStart).toFixed(2),
       findDifferences: (diffCheckTimeStop - diffCheckTimeStart).toFixed(2),
@@ -601,7 +602,7 @@ export default class DataTreeEvaluator {
     resolvedFunctions: Record<string, any>,
     sortedDependencies: Array<string>,
   ): DataTree {
-    const tree = clone(oldUnevalTree);
+    const tree = klona(oldUnevalTree);
     try {
       return sortedDependencies.reduce(
         (currentTree: DataTree, fullPropertyPath: string) => {

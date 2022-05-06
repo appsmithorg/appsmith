@@ -8,6 +8,7 @@ describe("MultiSelectTree Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
+
   it("Selects value with enter in default value", () => {
     cy.openPropertyPane("multiselecttreewidget");
     cy.testJsontext("defaultvalue", "RED\n");

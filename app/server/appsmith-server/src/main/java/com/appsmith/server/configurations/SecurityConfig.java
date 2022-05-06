@@ -10,14 +10,20 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.oauth2.client.oidc.authentication.ReactiveOidcIdTokenDecoderFactory;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoderFactory;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
@@ -72,6 +78,9 @@ public class SecurityConfig {
 
     @Autowired
     private RedirectHelper redirectHelper;
+
+    @Value("${appsmith.oidc.jwt-signing-algo}")
+    private String oidcJwtSigningAlgorithm;
 
     /**
      * This routerFunction is required to map /public/** endpoints to the src/main/resources/public folder
@@ -172,6 +181,27 @@ public class SecurityConfig {
         resolver.addCookieInitializer((builder) -> builder.sameSite("Lax"));
         return resolver;
     }
+
+    @Bean
+    public ReactiveJwtDecoderFactory<ClientRegistration> idTokenDecoderFactory() {
+        ReactiveOidcIdTokenDecoderFactory idTokenDecoderFactory = new ReactiveOidcIdTokenDecoderFactory();
+        idTokenDecoderFactory.setJwsAlgorithmResolver(clientRegistration -> {
+            String clientName = clientRegistration.getClientName();
+            if (clientName.equals("oidc")) {
+                if (!StringUtils.isEmpty(oidcJwtSigningAlgorithm)) {
+                    SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.from(oidcJwtSigningAlgorithm);
+                    if (signatureAlgorithm != null) {
+                        return signatureAlgorithm;
+                    }
+                }
+            }
+
+            // Default to RS256 for all other client registrations.
+            return SignatureAlgorithm.RS256;
+        });
+        return idTokenDecoderFactory;
+    }
+
 
     private User createAnonymousUser() {
         User user = new User();

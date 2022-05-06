@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
@@ -412,8 +413,13 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
     private Map<String, Object> generateSamlIdpFromConfig(Map<String, Object> configuration, String baseUrl) {
 
         // Add default configurations which must be applied irrespective of the mode of configuring the IDP.
-        configuration.put("entityId", baseUrl + "/auth/realms/appsmith");
         configuration.put("syncMode", "IMPORT");
+
+        Object entityId = configuration.get("entityId");
+        if (entityId == null || StringUtils.isEmpty((CharSequence) entityId)) {
+            // Only override entityId if absent from the user set config.
+            configuration.put("entityId", baseUrl + "/auth/realms/appsmith");
+        }
 
         Map<String, Object> identityProviderRequest = new HashMap();
         identityProviderRequest.put("alias", IDP_NAME);
@@ -576,8 +582,9 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
                                 // Find the media type of the response to parse the body as required.
                                 MediaType contentType = headers.getContentType();
                                 HttpStatus statusCode = stringResponseEntity.getStatusCode();
+
                                 if (!statusCode.is2xxSuccessful()) {
-                                    return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                                    return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE));
                                 }
 
                                 byte[] body = stringResponseEntity.getBody();
@@ -590,11 +597,11 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
                                         Map<String, Object> responseMap = objectMapper.readValue(jsonBody, tr);
                                         return Mono.just(responseMap);
                                     } catch (IOException e) {
-                                        return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, jsonBody, e));
+                                        return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE, jsonBody, e));
                                     }
                                 }
 
-                                return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                                return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE));
                             });
                 });
     }

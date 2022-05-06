@@ -1,1 +1,11 @@
 export * from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes as CE_ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+
+export const ReduxActionTypes = {
+  ...CE_ReduxActionTypes,
+  REGISTER_SSO_IDENTITY_PROVIDER: "REGISTER_SSO_IDENTITY_PROVIDER",
+  UPDATE_IDENTITY_PROVIDER_METADATA: "UPDATE_IDENTITY_PROVIDER_METADATA",
+  FETCH_SAML_METADATA: "FETCH_SAML_METADATA",
+  FETCH_SAML_METADATA_SUCCESS: "FETCH_SAML_METADATA_SUCCESS",
+  FETCH_SAML_METADATA_ERROR: "FETCH_SAML_METADATA_ERROR",
+};

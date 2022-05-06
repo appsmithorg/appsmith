@@ -5,6 +5,7 @@
 .vscode/*
 
 app/client/cypress.env.json
+stacks
 
 # to ignore the node_modeules folder
 node_modules

@@ -1,6 +1,7 @@
 import React from "react";
-import { isEmpty, isString, maxBy, set, sortBy } from "lodash";
 import log from "loglevel";
+import { klona } from "klona";
+import { isEmpty, isString, maxBy, set, sortBy } from "lodash";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import EmptyDataState from "components/utils/EmptyDataState";
@@ -18,8 +19,7 @@ import { DraggableListCard } from "components/ads/DraggableListCard";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { InputText } from "./InputTextControl";
-
-const clone = require("rfdc/default");
+import { JSONFormWidgetProps } from "widgets/JSONFormWidget/widget";
 
 type DroppableItem = BaseItemProps & {
   index: number;
@@ -120,7 +120,10 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
     if (this.isArrayItem()) return;
 
     const { propertyValue = {}, propertyName, widgetProperties } = this.props;
-    const { widgetName } = widgetProperties;
+    const {
+      childStylesheet,
+      widgetName,
+    } = widgetProperties as JSONFormWidgetProps;
     const schema: Schema = propertyValue;
     const existingKeys = getKeysFromSchema(schema, ["identifier", "accessor"]);
     const schemaItems = Object.values(schema);
@@ -133,19 +136,33 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
       isCustomField: true,
       skipDefaultValueProcessing: true,
       identifier: nextFieldKey,
+      fieldThemeStylesheets: childStylesheet,
     });
 
     schemaItem.position = lastSchemaItemPosition + 1;
+
+    const path = `${propertyName}.${nextFieldKey}`;
 
     if (isEmpty(widgetProperties.schema)) {
       const newSchema = {
         schema: SchemaParser.parse(widgetProperties.widgetName, {}),
       };
-      set(newSchema, `${propertyName}.${nextFieldKey}`, schemaItem);
+      set(newSchema, path, schemaItem);
 
       this.updateProperty("schema", newSchema.schema);
     } else {
-      this.updateProperty(`${propertyName}.${nextFieldKey}`, schemaItem);
+      /**
+       * TODO(Ashit): Not suppose to update the whole schema but just
+       * the path within the schema. This is just a hack to make sure
+       * the new added paths gets into the dynamicBindingPathList until
+       * the updateProperty function is fixed.
+       */
+      const updatedSchema = {
+        schema: klona(widgetProperties.schema),
+      };
+      set(updatedSchema, path, schemaItem);
+
+      this.updateProperty("schema", updatedSchema.schema);
     }
   };
 
@@ -162,7 +179,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
   updateItems = (items: DroppableItem[]) => {
     const { propertyName, propertyValue } = this.props;
-    const clonedSchema: Schema = clone(propertyValue);
+    const clonedSchema: Schema = klona(propertyValue);
 
     items.forEach((item, index) => {
       clonedSchema[item.id].position = index;

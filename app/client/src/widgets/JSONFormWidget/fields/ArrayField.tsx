@@ -9,9 +9,10 @@ import styled from "styled-components";
 import { ControllerRenderProps, useFormContext } from "react-hook-form";
 import { get, set } from "lodash";
 import { Icon } from "@blueprintjs/core";
+import { klona } from "klona";
 
 import Accordion from "../component/Accordion";
-import FieldLabel from "../component/FieldLabel";
+import FieldLabel, { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 import FieldRenderer from "./FieldRenderer";
 import FormContext from "../FormContext";
 import NestedFormWrapper from "../component/NestedFormWrapper";
@@ -30,17 +31,27 @@ import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import { generateReactKey } from "utils/generators";
 import { schemaItemDefaultValue } from "../helper";
 
-const clone = require("rfdc/default");
-
 type ArrayComponentProps = FieldComponentBaseProps & {
   backgroundColor?: string;
+  borderColor?: string;
+  borderWidth?: number;
+  borderRadius?: string;
+  boxShadow?: string;
   cellBackgroundColor?: string;
   cellBorderColor?: string;
+  cellBorderWidth?: number;
+  cellBorderRadius?: string;
+  cellBoxShadow?: string;
+  accentColor?: string;
   defaultValue?: any[];
   isCollapsible: boolean;
 };
 
 type ArrayFieldProps = BaseFieldComponentProps<ArrayComponentProps>;
+
+type StyledButtonProps = {
+  color?: string;
+};
 
 const COMPONENT_DEFAULT_VALUES: ArrayComponentProps = {
   backgroundColor: Colors.GREY_1,
@@ -48,6 +59,7 @@ const COMPONENT_DEFAULT_VALUES: ArrayComponentProps = {
   isDisabled: false,
   isRequired: false,
   isVisible: true,
+  labelTextSize: BASE_LABEL_TEXT_SIZE,
   label: "",
 };
 
@@ -63,9 +75,9 @@ const StyledItemWrapper = styled.div`
   flex-direction: column;
 `;
 
-const StyledButton = styled.button`
+const StyledButton = styled.button<StyledButtonProps>`
   align-items: center;
-  color: ${Colors.GREEN};
+  color: ${({ color }) => color || Colors.GREEN};
   display: flex;
   font-size: 11px;
   font-weight: 600;
@@ -88,12 +100,30 @@ const DEFAULT_FIELD_RENDERER_OPTIONS = {
   hideAccordion: true,
 };
 
+/**
+ * TODO(Ashit): The +1 to the ACTION_ICON_SIZE is an eye-balled value to center
+ * align the icon and the text (Add new / Remove). The icon seems to
+ * have an odd height which leads to this inconsistency and needs to be further
+ * investigated
+ */
+
+const StyledIconWrapper = styled.div`
+  display: flex;
+  align-items: center;
+
+  & span {
+    height: ${ACTION_ICON_SIZE + 1}px;
+  }
+`;
+
 const deleteIcon = (
-  <Icon
-    icon="trash"
-    iconSize={ACTION_ICON_SIZE}
-    style={{ color: Colors.CRIMSON }}
-  />
+  <StyledIconWrapper>
+    <Icon
+      icon="trash"
+      iconSize={ACTION_ICON_SIZE}
+      style={{ color: Colors.CRIMSON }}
+    />
+  </StyledIconWrapper>
 );
 
 const getDefaultValue = (
@@ -138,7 +168,7 @@ function ArrayField({
   const basePropertyPath = `${propertyPath}.children.${ARRAY_ITEM_KEY}`;
 
   const add = () => {
-    let values = clone(getValues(name));
+    let values = klona(getValues(name));
     if (values && values.length) {
       values.push({});
     } else {
@@ -149,7 +179,7 @@ function ArrayField({
 
   const remove = useCallback(
     (removedKey: string) => {
-      const values = clone(getValues(name));
+      const values = klona(getValues(name));
       if (values === undefined) {
         return;
       }
@@ -165,7 +195,7 @@ function ArrayField({
       // cachedDefaultValue[index] in the FieldRenderer
       if (removedIndex < cachedDefaultValue.length) {
         setCachedDefaultValue((prevDefaultValue) => {
-          const clonedValue = clone(prevDefaultValue);
+          const clonedValue = klona(prevDefaultValue);
 
           clonedValue.splice(removedIndex, 1);
 
@@ -175,7 +205,7 @@ function ArrayField({
 
       // Manually remove from the values and re-insert to maintain the position of the
       // values
-      const newValues = clone(
+      const newValues = klona(
         values.filter((_val: any, index: number) => index !== removedIndex),
       );
 
@@ -216,8 +246,8 @@ function ArrayField({
   }, [valueLength]);
 
   useDeepEffect(() => {
-    setValue(name, clone(defaultValue));
-    setCachedDefaultValue(clone(defaultValue));
+    setValue(name, klona(defaultValue));
+    setCachedDefaultValue(klona(defaultValue));
   }, [defaultValue]);
 
   /**
@@ -228,7 +258,7 @@ function ArrayField({
    */
   useDeepEffect(() => {
     setMetaInternalFieldState((prevState) => {
-      const metaInternalFieldState = clone(prevState.metaInternalFieldState);
+      const metaInternalFieldState = klona(prevState.metaInternalFieldState);
       const currMetaInternalFieldState: FieldState<{ isValid: true }> = get(
         metaInternalFieldState,
         name,
@@ -264,6 +294,9 @@ function ArrayField({
         <Accordion
           backgroundColor={schemaItem.cellBackgroundColor}
           borderColor={schemaItem.cellBorderColor}
+          borderRadius={schemaItem.cellBorderRadius}
+          borderWidth={schemaItem.cellBorderWidth}
+          boxShadow={schemaItem.cellBoxShadow}
           className={`t--jsonformfield-${fieldClassName}-item t--item-${index}`}
           isCollapsible={schemaItem.isCollapsible}
           key={key}
@@ -306,6 +339,10 @@ function ArrayField({
   return (
     <StyledNestedFormWrapper
       backgroundColor={schemaItem.backgroundColor}
+      borderColor={schemaItem.borderColor}
+      borderRadius={schemaItem.borderRadius}
+      borderWidth={schemaItem.borderWidth}
+      boxShadow={schemaItem.boxShadow}
       className={`t--jsonformfield-${fieldClassName}`}
     >
       <FieldLabel
@@ -318,14 +355,17 @@ function ArrayField({
       {fields}
       <StyledButton
         className="t--jsonformfield-array-add-btn"
+        color={schemaItem.accentColor}
         onClick={add}
         type="button"
       >
-        <Icon
-          icon="add"
-          iconSize={ACTION_ICON_SIZE}
-          style={{ color: Colors.GREEN }}
-        />
+        <StyledIconWrapper>
+          <Icon
+            icon="add"
+            iconSize={ACTION_ICON_SIZE}
+            style={{ color: schemaItem.accentColor || Colors.GREEN }}
+          />
+        </StyledIconWrapper>
         <span className="t--text">Add New</span>
       </StyledButton>
     </StyledNestedFormWrapper>

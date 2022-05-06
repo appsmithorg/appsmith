@@ -7,23 +7,23 @@ import {
 import ApplicationApi, {
   ApplicationObject,
   ApplicationPagePayload,
+  ApplicationResponsePayload,
   ChangeAppViewAccessRequest,
   CreateApplicationRequest,
   CreateApplicationResponse,
   DeleteApplicationRequest,
   DuplicateApplicationRequest,
+  FetchApplicationPayload,
+  FetchApplicationResponse,
+  FetchUnconfiguredDatasourceListResponse,
   FetchUsersApplicationsOrgsResponse,
   ForkApplicationRequest,
+  ImportApplicationRequest,
   OrganizationApplicationObject,
   PublishApplicationRequest,
   PublishApplicationResponse,
   SetDefaultPageRequest,
   UpdateApplicationRequest,
-  ImportApplicationRequest,
-  FetchApplicationResponse,
-  FetchApplicationPayload,
-  ApplicationResponsePayload,
-  FetchUnconfiguredDatasourceListResponse,
 } from "api/ApplicationApi";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
@@ -31,27 +31,30 @@ import { validateResponse } from "./ErrorSagas";
 import { getUserApplicationsOrgsList } from "selectors/applicationSelectors";
 import { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
+import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
+import { AppState } from "reducers";
 import {
-  setDefaultApplicationPageSuccess,
-  resetCurrentApplication,
-  fetchApplication,
   ApplicationVersion,
-  initDatasourceConnectionDuringImportSuccess,
-  importApplicationSuccess,
-  setOrgIdForImport,
-  setIsReconnectingDatasourcesModalOpen,
+  fetchApplication,
   getAllApplications,
+  importApplicationSuccess,
+  initDatasourceConnectionDuringImportSuccess,
+  resetCurrentApplication,
+  setDefaultApplicationPageSuccess,
+  setIsReconnectingDatasourcesModalOpen,
+  setOrgIdForImport,
   showReconnectDatasourceModal,
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
   DELETING_APPLICATION,
+  DISCARD_SUCCESS,
   DUPLICATING_APPLICATION,
 } from "@appsmith/constants/messages";
 import { Toaster } from "components/ads/Toast";
 import { APP_MODE } from "entities/App";
-import { Organization } from "constants/orgConstants";
+import { Org, Organization } from "constants/orgConstants";
 import { Variant } from "components/ads/common";
 import { AppIconName } from "components/ads/AppIcon";
 import { AppColorCode } from "constants/DefaultTheme";
@@ -70,7 +73,6 @@ import {
   reconnectPageLevelWebsocket,
 } from "actions/websocketActions";
 import { getCurrentOrg } from "selectors/organizationSelectors";
-import { Org } from "constants/orgConstants";
 
 import {
   getCurrentStep,
@@ -86,17 +88,15 @@ import {
 import { failFastApiCalls } from "./InitSagas";
 import { Datasource } from "entities/Datasource";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
-import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { builderURL, generateTemplateURL, viewerURL } from "RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "./selectors";
 import PageApi from "api/PageApi";
-import { identity, pickBy } from "lodash";
+import { identity, merge, pickBy } from "lodash";
 import { checkAndGetPluginFormConfigsSaga } from "./PluginSagas";
 import { getPluginForm } from "selectors/entitiesSelector";
 import { getConfigInitialValues } from "components/formControls/utils";
-import { merge } from "lodash";
 import DatasourcesApi from "api/DatasourcesApi";
-import { AppState } from "reducers";
+import { resetApplicationWidgets } from "actions/pageActions";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -169,6 +169,7 @@ export function* publishApplicationSaga(
     });
   }
 }
+
 export function* getAllApplicationSaga() {
   try {
     const response: FetchUsersApplicationsOrgsResponse = yield call(
@@ -251,6 +252,14 @@ export function* fetchAppAndPagesSaga(
           orgId: response.data.organizationId,
         },
       });
+
+      if (localStorage.getItem("GIT_DISCARD_CHANGES") === "success") {
+        Toaster.show({
+          text: createMessage(DISCARD_SUCCESS),
+          variant: Variant.success,
+        });
+        localStorage.setItem("GIT_DISCARD_CHANGES", "");
+      }
 
       yield put({
         type: ReduxActionTypes.SET_APP_VERSION_ON_WORKER,
@@ -530,9 +539,7 @@ export function* createApplicationSaga(
         // This sets ui.pageWidgets = {} to ensure that
         // widgets are cleaned up from state before
         // finishing creating a new application
-        yield put({
-          type: ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST,
-        });
+        yield put(resetApplicationWidgets());
         yield put({
           type: ReduxActionTypes.CREATE_APPLICATION_SUCCESS,
           payload: {

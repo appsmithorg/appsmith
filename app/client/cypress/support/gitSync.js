@@ -10,7 +10,6 @@ const {
 import gitSyncLocators from "../locators/gitSyncLocators";
 import homePage from "../locators/HomePage";
 const commonLocators = require("../locators/commonlocators.json");
-
 const GITHUB_API_BASE = "https://api.github.com";
 
 Cypress.Commands.add("revokeAccessGit", (appName) => {
@@ -100,9 +99,10 @@ Cypress.Commands.add(
           "response.body.responseMeta.status",
           200,
         );
+      }
 
-        // click commit button
-        if (shouldCommit) {
+      // click commit button
+      /* if (shouldCommit) {
           cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
           cy.get(gitSyncLocators.commitButton).click();
           // check for commit success
@@ -119,10 +119,31 @@ Cypress.Commands.add(
           const status = interception.response.body.responseMeta.status;
           expect(status).to.be.gte(400);
         });
-      }
+      } */
+      cy.get(gitSyncLocators.closeGitSyncModal).click();
     });
   },
 );
+Cypress.Commands.add("latestDeployPreview", () => {
+  cy.server();
+  cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
+  // Wait before publish
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(2000);
+  cy.assertPageSave();
+
+  // Stubbing window.open to open in the same tab
+  cy.window().then((window) => {
+    cy.stub(window, "open").callsFake((url) => {
+      window.location.href = Cypress.config().baseUrl + url.substring(1);
+      window.location.target = "_self";
+    });
+  });
+  cy.get(gitSyncLocators.bottomBarCommitButton).click();
+  cy.xpath("//span[text()='Latest deployed preview']").click();
+  cy.log("pagename: " + localStorage.getItem("PageName"));
+  cy.wait(2000); //wait time for page to load!
+});
 
 Cypress.Commands.add("createGitBranch", (branch) => {
   cy.get(gitSyncLocators.branchButton).click({ force: true });
@@ -208,7 +229,6 @@ Cypress.Commands.add("commitAndPush", (assertFailure) => {
   cy.get(homePage.publishButton).click();
   cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
   cy.get(gitSyncLocators.commitButton).click();
-
   if (!assertFailure) {
     // check for commit success
     cy.wait("@commit").should(
@@ -216,6 +236,7 @@ Cypress.Commands.add("commitAndPush", (assertFailure) => {
       "response.body.responseMeta.status",
       201,
     );
+    cy.wait(2000);
   } else {
     cy.wait("@commit").then((interception) => {
       const status = interception.response.body.responseMeta.status;
@@ -265,11 +286,17 @@ Cypress.Commands.add("merge", (destinationBranch) => {
     .click();
   cy.contains(Cypress.env("MESSAGES").NO_MERGE_CONFLICT());
   cy.get(gitSyncLocators.mergeCTA).click();
+  cy.wait("@mergeBranch").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.contains(Cypress.env("MESSAGES").MERGED_SUCCESSFULLY());
 });
 
 Cypress.Commands.add(
   "importAppFromGit",
-  (repo, shouldCommit = true, assertConnectFailure) => {
+  (repo, assertConnectFailure, failureMessage) => {
     const testEmail = "test@test.com";
     const testUsername = "testusername";
     const owner = Cypress.env("TEST_GITHUB_USER_NAME");
@@ -328,7 +355,9 @@ Cypress.Commands.add(
       } else {
         cy.wait("@importFromGit").then((interception) => {
           const status = interception.response.body.responseMeta.status;
+          const message = interception.response.body.responseMeta.error.message;
           expect(status).to.be.gte(400);
+          expect(message).to.contain(failureMessage);
         });
       }
     });

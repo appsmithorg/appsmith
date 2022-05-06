@@ -21,4 +21,7 @@ export default {
   restartNotice: ".t--admin-settings-restart-notice",
   appsmithLogo: ".t--appsmith-logo",
   appsmithHeader: "[data-testid='t--appsmith-page-header']",
+  loginWithGoogle: "[data-testid='login-with-Google']",
+  loginWithGithub: "[data-testid='login-with-Github']",
+  disconnectBtn: "[data-testid='disconnect-service-button']",
 };

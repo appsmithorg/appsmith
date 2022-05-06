@@ -141,6 +141,8 @@ public enum AppsmithError {
     UNKNOWN_SERVER_VARIABLE_TYPE(500, 5019, "Unexpected state. Server side variable type is unknown. Please contact Appsmith support to report this issue.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
     MIGRATION_ERROR(500, 5018, "This action is already migrated", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     SAML_ALREADY_CONFIGURED(500, 5019, "SAML configuration already exists. Please disconnect SAML before trying to configure it again", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
+    INVALID_GIT_SSH_URL(400, 4050, "Please enter valid SSH URL of your repository", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR, null),
+    SAML_CONFIGURATION_FAILURE(400, 4051, "SAML configuration failed.", AppsmithErrorAction.DEFAULT, null, ErrorType.ARGUMENT_ERROR, null),
     ;
 
     private final Integer httpErrorCode;

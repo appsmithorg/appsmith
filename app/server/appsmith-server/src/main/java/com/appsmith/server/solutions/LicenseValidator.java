@@ -31,10 +31,9 @@ public class LicenseValidator {
     public void check() {
 
         String licenseKey = licenseConfig.getLicenseKey();
-        log.debug("Going to do a license check for license key {}", licenseKey);
 
         if (StringUtils.isEmpty(licenseKey)) {
-            log.debug("Exiting application. Invalid license key {}", licenseKey);
+            log.debug("Exiting application. Invalid license key");
             System.exit(1);
         }
 
@@ -84,10 +83,10 @@ public class LicenseValidator {
                 .block();
 
         if (!isValid) {
-            log.debug("Shutting down. License check returned invalid for the license key {}", licenseKey);
+            log.debug("Shutting down. License check returned invalid.");
             System.exit(1);
         }
 
-        log.debug("Valid license key : {}", licenseKey);
+        log.debug("Valid license key");
     }
 }

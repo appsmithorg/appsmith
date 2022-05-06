@@ -1,4 +1,5 @@
 import { Alignment } from "@blueprintjs/core";
+import { LabelPosition } from "components/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -11,7 +12,7 @@ export const CONFIG = {
   defaults: {
     widgetName: "SwitchGroup",
     rows: 6,
-    columns: 18,
+    columns: 26,
     options: [
       { label: "Blue", value: "BLUE" },
       { label: "Green", value: "GREEN" },
@@ -24,7 +25,12 @@ export const CONFIG = {
     isVisible: true,
     animateLoading: true,
     alignment: Alignment.LEFT,
+    labelText: "Label",
+    labelPosition: LabelPosition.Left,
+    labelAlignment: Alignment.LEFT,
+    labelWidth: 5,
     version: 1,
+    labelTextSize: "0.875rem",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

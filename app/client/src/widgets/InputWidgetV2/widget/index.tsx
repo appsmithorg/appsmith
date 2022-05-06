@@ -465,13 +465,16 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
 
     return (
       <InputComponent
-        autoFocus={this.props.autoFocus}
+        accentColor={this.props.accentColor}
         // show label and Input side by side if true
+        autoFocus={this.props.autoFocus}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         compactMode={
           !(
             (this.props.bottomRow - this.props.topRow) /
               GRID_DENSITY_MIGRATION_V1 >
-              1 && this.props.inputType === "TEXT"
+            1
           )
         }
         defaultValue={this.props.defaultText}
@@ -483,9 +486,12 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
+        labelAlignment={this.props.labelAlignment}
+        labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelWidth={this.getLabelWidth()}
         multiline={
           (this.props.bottomRow - this.props.topRow) /
             minInputSingleLineHeight >
