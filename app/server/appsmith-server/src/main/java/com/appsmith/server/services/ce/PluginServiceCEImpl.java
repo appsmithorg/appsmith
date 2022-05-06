@@ -3,7 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.domains.OrganizationPlugin;
+import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.dtos.InstallPluginRedisDTO;
@@ -132,7 +132,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
                     List<String> pluginIds = org.getPlugins()
                             .stream()
-                            .map(OrganizationPlugin::getPluginId)
+                            .map(WorkspacePlugin::getPluginId)
                             .collect(Collectors.toList());
                     Query query = new Query();
                     query.addCriteria(Criteria.where(FieldName.ID).in(pluginIds));
@@ -191,11 +191,11 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Override
     public Flux<Workspace> installDefaultPlugins(List<Plugin> plugins) {
-        final List<OrganizationPlugin> newOrganizationPlugins = plugins
+        final List<WorkspacePlugin> newOrganizationPlugins = plugins
                 .stream()
                 .filter(plugin -> Boolean.TRUE.equals(plugin.getDefaultInstall()))
                 .map(plugin -> {
-                    return new OrganizationPlugin(plugin.getId(), WorkspacePluginStatus.ACTIVATED);
+                    return new WorkspacePlugin(plugin.getId(), WorkspacePluginStatus.ACTIVATED);
                 })
                 .collect(Collectors.toList());
         return organizationService.getAll()
@@ -229,7 +229,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                 //i.e. the rest of the code flow would only happen when there is a plugin found for the organization that can
                 //be uninstalled.
                 .flatMap(organization -> {
-                    Set<OrganizationPlugin> organizationPluginList = organization.getPlugins();
+                    Set<WorkspacePlugin> organizationPluginList = organization.getPlugins();
                     organizationPluginList.removeIf(listPlugin -> listPlugin.getPluginId().equals(pluginDTO.getPluginId()));
                     organization.setPlugins(organizationPluginList);
                     return organizationService.save(organization);
@@ -271,12 +271,12 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                             .then(organizationService.getById(pluginDTO.getOrganizationId()))
                             .flatMap(organization -> {
 
-                                Set<OrganizationPlugin> organizationPluginList = organization.getPlugins();
+                                Set<WorkspacePlugin> organizationPluginList = organization.getPlugins();
                                 if (organizationPluginList == null) {
                                     organizationPluginList = new HashSet<>();
                                 }
 
-                                OrganizationPlugin organizationPlugin = new OrganizationPlugin();
+                                WorkspacePlugin organizationPlugin = new WorkspacePlugin();
                                 organizationPlugin.setPluginId(pluginDTO.getPluginId());
                                 organizationPlugin.setStatus(status);
                                 organizationPluginList.add(organizationPlugin);

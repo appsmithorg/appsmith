@@ -8,7 +8,7 @@ import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.domains.OrganizationPlugin;
+import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
@@ -179,7 +179,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                     Also, since all our deployments are single node, this logic will still work
                  */
                 .flatMap(org -> pluginRepository.findByDefaultInstall(true)
-                        .map(obj -> new OrganizationPlugin(obj.getId(), WorkspacePluginStatus.FREE))
+                        .map(obj -> new WorkspacePlugin(obj.getId(), WorkspacePluginStatus.FREE))
                         .collect(Collectors.toSet())
                         .map(pluginList -> {
                             org.setPlugins(pluginList);

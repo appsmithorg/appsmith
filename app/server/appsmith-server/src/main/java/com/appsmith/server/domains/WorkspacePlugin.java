@@ -15,7 +15,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class OrganizationPlugin extends BaseDomain {
+public class WorkspacePlugin extends BaseDomain {
 
     String pluginId;
 

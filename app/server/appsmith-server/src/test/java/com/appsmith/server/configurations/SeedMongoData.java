@@ -4,7 +4,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.domains.OrganizationPlugin;
+import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
@@ -177,13 +177,13 @@ public class SeedMongoData {
         // Seed the organization data into the DB
         Flux<Workspace> organizationFlux = mongoTemplate
                 .find(new Query().addCriteria(where("name").in(pluginData[0][0], pluginData[1][0], pluginData[2][0])), Plugin.class)
-                .map(plugin -> new OrganizationPlugin(plugin.getId(), WorkspacePluginStatus.FREE))
+                .map(plugin -> new WorkspacePlugin(plugin.getId(), WorkspacePluginStatus.FREE))
                 .collect(Collectors.toSet())
                 .cache()
                 .repeat()
                 .zipWithIterable(List.of(orgData))
                 .map(tuple -> {
-                    final Set<OrganizationPlugin> orgPlugins = tuple.getT1();
+                    final Set<WorkspacePlugin> orgPlugins = tuple.getT1();
                     final Object[] orgArray = tuple.getT2();
 
                     Workspace organization = new Workspace();
