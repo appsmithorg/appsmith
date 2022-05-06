@@ -26,11 +26,11 @@ import java.util.Map;
 
 
 @RequestMapping(Url.ORGANIZATION_URL)
-public class OrganizationControllerCE extends BaseController<WorkspaceService, Workspace, String> {
+public class WorkspaceControllerCE extends BaseController<WorkspaceService, Workspace, String> {
     private final UserOrganizationService userOrganizationService;
 
     @Autowired
-    public OrganizationControllerCE(WorkspaceService organizationService, UserOrganizationService userOrganizationService) {
+    public WorkspaceControllerCE(WorkspaceService organizationService, UserOrganizationService userOrganizationService) {
         super(organizationService);
         this.userOrganizationService = userOrganizationService;
     }
