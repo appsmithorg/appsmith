@@ -9,6 +9,7 @@ import {
 import { ReactComponent as OpenNewTabIcon } from "assets/icons/control/open-new-tab.svg";
 import styled from "styled-components";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
+import { TextSize } from "constants/WidgetConstants";
 
 const TooltipContentWrapper = styled.div<{ width: number }>`
   word-break: break-all;
@@ -43,6 +44,9 @@ interface Props {
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
   textColor?: string;
+  fontStyle: string;
+  cellBackground: string;
+  textSize: TextSize;
 }
 
 function LinkWrapper(props: Props) {
@@ -59,7 +63,9 @@ function LinkWrapper(props: Props) {
   return (
     <CellWrapper
       allowCellWrapping={props.allowCellWrapping}
+      cellBackground={props.cellBackground}
       compactMode={props.compactMode}
+      fontStyle={props.fontStyle}
       horizontalAlignment={props.horizontalAlignment}
       isCellVisible={props.isCellVisible}
       isHidden={props.isHidden}
@@ -69,6 +75,8 @@ function LinkWrapper(props: Props) {
         e.stopPropagation();
         window.open(props.title, "_blank");
       }}
+      textColor={props.textColor}
+      textSize={props.textSize}
       useLinkToolTip={useToolTip}
       verticalAlignment={props.verticalAlignment}
     >
@@ -115,12 +123,16 @@ function AutoToolTipComponent(props: Props) {
     <ColumnWrapper className={props.className} textColor={props.textColor}>
       <CellWrapper
         allowCellWrapping={props.allowCellWrapping}
+        cellBackground={props.cellBackground}
         compactMode={props.compactMode}
+        fontStyle={props.fontStyle}
         horizontalAlignment={props.horizontalAlignment}
         isCellVisible={props.isCellVisible}
         isHidden={props.isHidden}
         isTextType
         ref={ref}
+        textColor={props.textColor}
+        textSize={props.textSize}
         verticalAlignment={props.verticalAlignment}
       >
         {useToolTip && props.children ? (

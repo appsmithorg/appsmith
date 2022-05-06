@@ -6,12 +6,9 @@ import {
   EditableCellActions,
 } from "widgets/TableWidgetV2/constants";
 import { Button } from "../cellComponents/Button";
-import {
-  CellAlignment,
-  CellLayoutProperties,
-  VerticalAlignment,
-} from "../Constants";
+import { CellAlignment, VerticalAlignment } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
+import { TextSize } from "constants/WidgetConstants";
 
 type RenderEditActionsProps = {
   compactMode: string;
@@ -28,19 +25,27 @@ type RenderEditActionsProps = {
   allowCellWrapping?: boolean;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
+  fontStyle: string;
+  textColor: string;
+  cellBackground: string;
+  textSize: TextSize;
 };
 
 export function EditActionCell(props: RenderEditActionsProps) {
   const {
     allowCellWrapping,
+    cellBackground,
     columnActions,
     compactMode,
+    fontStyle,
     horizontalAlignment,
     isCellVisible,
     isHidden,
     isSelected,
     onCommandClick,
     onDiscard,
+    textColor,
+    textSize,
     verticalAlignment,
   } = props;
 
@@ -48,10 +53,14 @@ export function EditActionCell(props: RenderEditActionsProps) {
     return (
       <CellWrapper
         allowCellWrapping={allowCellWrapping}
+        cellBackground={cellBackground}
         compactMode={compactMode}
+        fontStyle={fontStyle}
         horizontalAlignment={horizontalAlignment}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
+        textColor={textColor}
+        textSize={textSize}
         verticalAlignment={verticalAlignment}
       />
     );

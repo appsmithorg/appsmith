@@ -13,7 +13,11 @@ import {
 } from "./Constants";
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar } from "constants/DefaultTheme";
-import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
+import {
+  FontStyleTypes,
+  TextSize,
+  TEXT_SIZES,
+} from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
 
 export const TableWrapper = styled.div<{
@@ -298,32 +302,7 @@ export const IconButtonWrapper = styled.div<{ disabled: boolean }>`
 export const TableStyles = css<{
   cellProperties?: CellLayoutProperties;
   isTextType?: boolean;
-}>`
-  font-weight: ${(props) =>
-    props?.cellProperties?.fontStyle?.includes(FontStyleTypes.BOLD)
-      ? "bold"
-      : "normal"};
-  color: ${(props) => props?.cellProperties?.textColor};
-  font-style: ${(props) =>
-    props?.cellProperties?.fontStyle?.includes(FontStyleTypes.ITALIC)
-      ? "italic"
-      : ""};
-  text-decoration: ${(props) =>
-    props?.cellProperties?.fontStyle?.includes(FontStyleTypes.UNDERLINE) &&
-    props.isTextType
-      ? "underline"
-      : ""};
-  justify-content: ${(props) =>
-    props?.cellProperties?.horizontalAlignment &&
-    JUSTIFY_CONTENT[props?.cellProperties?.horizontalAlignment]};
-  align-items: ${(props) =>
-    props?.cellProperties?.verticalAlignment &&
-    ALIGN_ITEMS[props?.cellProperties?.verticalAlignment]};
-  background: ${(props) => props?.cellProperties?.cellBackground};
-  font-size: ${(props) =>
-    props?.cellProperties?.textSize &&
-    TEXT_SIZES[props?.cellProperties?.textSize]};
-`;
+}>``;
 
 export const CellWrapper = styled.div<{
   isHidden?: boolean;
@@ -335,6 +314,10 @@ export const CellWrapper = styled.div<{
   allowCellWrapping?: boolean;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
+  fontStyle: string;
+  textColor: string;
+  cellBackground: string;
+  textSize: TextSize;
 }>`
   display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
   align-items: center;
@@ -342,7 +325,22 @@ export const CellWrapper = styled.div<{
   width: 100%;
   height: 100%;
   opacity: ${(props) => (props.isHidden ? "0.6" : "1")};
-  ${TableStyles};
+  font-weight: ${(props) =>
+    props.fontStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
+  color: ${(props) => props.textColor};
+  font-style: ${(props) =>
+    props.fontStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
+  text-decoration: ${(props) =>
+    props.fontStyle?.includes(FontStyleTypes.UNDERLINE) && props.isTextType
+      ? "underline"
+      : ""};
+  justify-content: ${(props) =>
+    props.horizontalAlignment && JUSTIFY_CONTENT[props.horizontalAlignment]};
+  align-items: ${(props) =>
+    props.verticalAlignment && ALIGN_ITEMS[props.verticalAlignment]};
+  background: ${(props) => props.cellBackground};
+  font-size: ${(props) => props.textSize && TEXT_SIZES[props.textSize]};
+
   padding: ${(props) =>
       props.compactMode ? TABLE_SIZES[props.compactMode].VERTICAL_PADDING : 0}px
     10px;
