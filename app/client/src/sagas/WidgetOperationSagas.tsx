@@ -845,6 +845,7 @@ export function calculateNewWidgetPosition(
  * @param copiedTotalWidth total width of the copied widgets
  * @param copiedTopMostRow top row of the top most copied widget
  * @param copiedLeftMostColumn left column of the left most copied widget
+ * @param shouldGroup boolean to indicate if the user is grouping instead of pasting
  * @returns
  */
 const getNewPositions = function*(
@@ -853,7 +854,11 @@ const getNewPositions = function*(
   copiedTotalWidth: number,
   copiedTopMostRow: number,
   copiedLeftMostColumn: number,
+  shouldGroup: boolean,
 ) {
+  // if it is grouping instead of pasting then skip the pasting logic
+  if (shouldGroup) return {};
+
   const selectedWidgetIDs: string[] = yield select(getSelectedWidgets);
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const selectedWidgets = getWidgetsFromIds(selectedWidgetIDs, canvasWidgets);
@@ -1244,6 +1249,7 @@ function* pasteWidgetSaga(
     copiedTotalWidth,
     topMostWidget.topRow,
     leftMostWidget.leftColumn,
+    shouldGroup,
   );
 
   if (canvasId) pastingIntoWidgetId = canvasId;
