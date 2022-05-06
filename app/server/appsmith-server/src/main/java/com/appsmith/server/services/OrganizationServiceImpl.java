@@ -3,7 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.OrganizationServiceCEImpl;
@@ -23,7 +23,7 @@ public class OrganizationServiceImpl extends OrganizationServiceCEImpl implement
                                    Validator validator,
                                    MongoConverter mongoConverter,
                                    ReactiveMongoTemplate reactiveMongoTemplate,
-                                   OrganizationRepository repository,
+                                   WorkspaceRepository repository,
                                    AnalyticsService analyticsService,
                                    PluginRepository pluginRepository,
                                    SessionUserService sessionUserService,

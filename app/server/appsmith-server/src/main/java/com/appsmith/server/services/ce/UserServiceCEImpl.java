@@ -31,7 +31,7 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -95,7 +95,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final EmailSender emailSender;
     private final ApplicationRepository applicationRepository;
     private final PolicyUtils policyUtils;
-    private final OrganizationRepository organizationRepository;
+    private final WorkspaceRepository organizationRepository;
     private final UserOrganizationService userOrganizationService;
     private final RoleGraph roleGraph;
     private final CommonConfig commonConfig;
@@ -125,7 +125,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                              EmailSender emailSender,
                              ApplicationRepository applicationRepository,
                              PolicyUtils policyUtils,
-                             OrganizationRepository organizationRepository,
+                             WorkspaceRepository organizationRepository,
                              UserOrganizationService userOrganizationService,
                              RoleGraph roleGraph,
                              ConfigService configService,

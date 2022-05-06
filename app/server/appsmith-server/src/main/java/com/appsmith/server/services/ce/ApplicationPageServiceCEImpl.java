@@ -32,7 +32,7 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
@@ -79,7 +79,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     private final ApplicationService applicationService;
     private final SessionUserService sessionUserService;
-    private final OrganizationRepository organizationRepository;
+    private final WorkspaceRepository organizationRepository;
     private final LayoutActionService layoutActionService;
 
     private final AnalyticsService analyticsService;

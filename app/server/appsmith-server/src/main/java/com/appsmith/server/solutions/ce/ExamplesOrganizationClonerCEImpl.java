@@ -24,7 +24,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -59,7 +59,7 @@ import java.util.Set;
 public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClonerCE {
 
     private final OrganizationService organizationService;
-    private final OrganizationRepository organizationRepository;
+    private final WorkspaceRepository organizationRepository;
     private final DatasourceService datasourceService;
     private final DatasourceRepository datasourceRepository;
     private final ConfigService configService;

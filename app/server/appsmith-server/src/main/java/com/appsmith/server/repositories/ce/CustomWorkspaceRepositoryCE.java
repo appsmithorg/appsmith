@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Set;
 
-public interface CustomOrganizationRepositoryCE extends AppsmithRepository<Workspace> {
+public interface CustomWorkspaceRepositoryCE extends AppsmithRepository<Workspace> {
 
     Mono<Workspace> findByName(String name, AclPermission aclPermission);
 
@@ -19,5 +19,5 @@ public interface CustomOrganizationRepositoryCE extends AppsmithRepository<Works
 
     Mono<Void> updateUserRoleNames(String userId, String userName);
 
-    Flux<Workspace> findAllOrganizations();
+    Flux<Workspace> findAllWorkspaces();
 }

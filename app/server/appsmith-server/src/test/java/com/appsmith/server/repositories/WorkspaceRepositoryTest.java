@@ -24,10 +24,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @Slf4j
 @DirtiesContext
-class OrganizationRepositoryTest {
+class WorkspaceRepositoryTest {
 
     @Autowired
-    private OrganizationRepository organizationRepository;
+    private WorkspaceRepository organizationRepository;
 
     @Test
     void updateUserRoleNames_WhenUserIdMatched_AllOrgsUpdated() {

@@ -7,7 +7,7 @@ import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import org.junit.Assert;
@@ -41,7 +41,7 @@ public class OrganizationServiceUnitTest {
     @MockBean Scheduler scheduler;
     @MockBean MongoConverter mongoConverter;
     @MockBean ReactiveMongoTemplate reactiveMongoTemplate;
-    @MockBean OrganizationRepository organizationRepository;
+    @MockBean WorkspaceRepository organizationRepository;
     @MockBean Validator validator;
     @MockBean AnalyticsService analyticsService;
     @MockBean ApplicationRepository applicationRepository;

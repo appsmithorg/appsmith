@@ -16,7 +16,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -52,7 +52,7 @@ import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 
 @Slf4j
-public class OrganizationServiceCEImpl extends BaseService<OrganizationRepository, Workspace, String>
+public class OrganizationServiceCEImpl extends BaseService<WorkspaceRepository, Workspace, String>
         implements OrganizationServiceCE {
 
     private final PluginRepository pluginRepository;
@@ -69,7 +69,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                                      Validator validator,
                                      MongoConverter mongoConverter,
                                      ReactiveMongoTemplate reactiveMongoTemplate,
-                                     OrganizationRepository repository,
+                                     WorkspaceRepository repository,
                                      AnalyticsService analyticsService,
                                      PluginRepository pluginRepository,
                                      SessionUserService sessionUserService,
@@ -364,7 +364,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
 
     @Override
     public Flux<Workspace> getAll() {
-        return repository.findAllOrganizations();
+        return repository.findAllWorkspaces();
     }
 
     @Override

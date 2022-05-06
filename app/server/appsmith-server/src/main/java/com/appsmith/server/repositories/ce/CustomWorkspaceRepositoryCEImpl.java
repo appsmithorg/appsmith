@@ -22,10 +22,10 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Slf4j
-public class CustomOrganizationRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Workspace>
-        implements CustomOrganizationRepositoryCE {
+public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Workspace>
+        implements CustomWorkspaceRepositoryCE {
 
-    public CustomOrganizationRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
+    public CustomWorkspaceRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
         super(mongoOperations, mongoConverter);
     }
 
@@ -78,7 +78,7 @@ public class CustomOrganizationRepositoryCEImpl extends BaseAppsmithRepositoryIm
     }
 
     @Override
-    public Flux<Workspace> findAllOrganizations() {
+    public Flux<Workspace> findAllWorkspaces() {
         return mongoOperations.find(new Query(), Workspace.class);
     }
 }

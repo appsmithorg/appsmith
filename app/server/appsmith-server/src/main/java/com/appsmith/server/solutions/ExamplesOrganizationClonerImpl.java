@@ -2,7 +2,7 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 public class ExamplesOrganizationClonerImpl extends ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationCloner {
 
     public ExamplesOrganizationClonerImpl(OrganizationService organizationService,
-                                          OrganizationRepository organizationRepository,
+                                          WorkspaceRepository organizationRepository,
                                           DatasourceService datasourceService,
                                           DatasourceRepository datasourceRepository,
                                           ConfigService configService,

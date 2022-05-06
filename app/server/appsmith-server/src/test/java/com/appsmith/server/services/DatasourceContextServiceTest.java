@@ -9,7 +9,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,7 +33,7 @@ public class DatasourceContextServiceTest {
     EncryptionService encryptionService;
 
     @Autowired
-    OrganizationRepository organizationRepository;
+    WorkspaceRepository organizationRepository;
 
     @Autowired
     PluginService pluginService;

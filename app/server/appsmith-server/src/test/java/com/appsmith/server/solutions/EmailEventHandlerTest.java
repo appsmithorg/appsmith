@@ -15,7 +15,7 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +47,7 @@ public class EmailEventHandlerTest {
     @MockBean
     private EmailSender emailSender;
     @MockBean
-    private OrganizationRepository organizationRepository;
+    private WorkspaceRepository organizationRepository;
     @MockBean
     private ApplicationRepository applicationRepository;
     @MockBean

@@ -39,7 +39,7 @@ import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.migrations.JsonSchemaVersions;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -106,7 +106,7 @@ public class GitServiceTest {
     OrganizationService organizationService;
 
     @Autowired
-    OrganizationRepository organizationRepository;
+    WorkspaceRepository organizationRepository;
 
     @Autowired
     ApplicationPageService applicationPageService;

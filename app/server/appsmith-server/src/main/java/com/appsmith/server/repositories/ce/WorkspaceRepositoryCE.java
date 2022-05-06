@@ -2,10 +2,10 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.repositories.BaseRepository;
-import com.appsmith.server.repositories.CustomOrganizationRepository;
+import com.appsmith.server.repositories.CustomWorkspaceRepository;
 import reactor.core.publisher.Mono;
 
-public interface OrganizationRepositoryCE extends BaseRepository<Workspace, String>, CustomOrganizationRepository {
+public interface WorkspaceRepositoryCE extends BaseRepository<Workspace, String>, CustomWorkspaceRepository {
 
     Mono<Workspace> findBySlug(String slug);
 

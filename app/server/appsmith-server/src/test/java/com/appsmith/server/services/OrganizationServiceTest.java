@@ -18,7 +18,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -75,7 +75,7 @@ public class OrganizationServiceTest {
     UserOrganizationService userOrganizationService;
 
     @Autowired
-    OrganizationRepository organizationRepository;
+    WorkspaceRepository organizationRepository;
 
     @Autowired
     ApplicationPageService applicationPageService;

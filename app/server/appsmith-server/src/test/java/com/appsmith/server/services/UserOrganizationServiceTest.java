@@ -15,7 +15,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
@@ -53,7 +53,7 @@ class UserOrganizationServiceTest {
     private UserOrganizationService userOrganizationService;
 
     @Autowired
-    private OrganizationRepository organizationRepository;
+    private WorkspaceRepository organizationRepository;
 
     @Autowired
     private UserRepository userRepository;

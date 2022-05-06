@@ -42,7 +42,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.WidgetSuggestionHelper;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -119,7 +119,7 @@ public class ActionServiceCE_Test {
     OrganizationService organizationService;
 
     @Autowired
-    OrganizationRepository organizationRepository;
+    WorkspaceRepository organizationRepository;
 
     @Autowired
     PluginRepository pluginRepository;

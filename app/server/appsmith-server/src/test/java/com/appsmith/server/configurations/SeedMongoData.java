@@ -13,7 +13,7 @@ import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.UserState;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PageRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -51,7 +51,7 @@ public class SeedMongoData {
 
     @Bean
     ApplicationRunner init(UserRepository userRepository,
-                           OrganizationRepository organizationRepository,
+                           WorkspaceRepository organizationRepository,
                            ApplicationRepository applicationRepository,
                            PageRepository pageRepository,
                            PluginRepository pluginRepository,

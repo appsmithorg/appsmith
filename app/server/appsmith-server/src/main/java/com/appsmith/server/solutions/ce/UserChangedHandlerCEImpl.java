@@ -5,7 +5,7 @@ import com.appsmith.server.events.UserChangedEvent;
 import com.appsmith.server.events.UserPhotoChangedEvent;
 import com.appsmith.server.repositories.CommentRepository;
 import com.appsmith.server.repositories.NotificationRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -21,7 +21,7 @@ public class UserChangedHandlerCEImpl implements UserChangedHandlerCE {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final CommentRepository commentRepository;
     private final NotificationRepository notificationRepository;
-    private final OrganizationRepository organizationRepository;
+    private final WorkspaceRepository organizationRepository;
 
     public User publish(User user) {
         applicationEventPublisher.publishEvent(new UserChangedEvent(user));

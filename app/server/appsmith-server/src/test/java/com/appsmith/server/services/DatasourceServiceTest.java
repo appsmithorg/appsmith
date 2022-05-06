@@ -23,7 +23,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,7 +66,7 @@ public class DatasourceServiceTest {
     OrganizationService organizationService;
 
     @Autowired
-    OrganizationRepository organizationRepository;
+    WorkspaceRepository organizationRepository;
 
     @Autowired
     NewActionService newActionService;

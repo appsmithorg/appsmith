@@ -2,7 +2,7 @@ package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.authentication.handlers.ce.AuthenticationSuccessHandlerCE;
 import com.appsmith.server.helpers.RedirectHelper;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -22,7 +22,7 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
                                         AnalyticsService analyticsService,
                                         UserDataService userDataService,
                                         UserRepository userRepository,
-                                        OrganizationRepository organizationRepository,
+                                        WorkspaceRepository organizationRepository,
                                         ApplicationPageService applicationPageService) {
         super(examplesOrganizationCloner, redirectHelper, sessionUserService, analyticsService, userDataService,
                 userRepository, organizationRepository, applicationPageService);

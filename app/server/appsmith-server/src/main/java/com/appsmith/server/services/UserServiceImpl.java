@@ -7,7 +7,7 @@ import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.UserServiceCEImpl;
@@ -38,7 +38,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                            EmailSender emailSender,
                            ApplicationRepository applicationRepository,
                            PolicyUtils policyUtils,
-                           OrganizationRepository organizationRepository,
+                           WorkspaceRepository organizationRepository,
                            UserOrganizationService userOrganizationService,
                            RoleGraph roleGraph,
                            ConfigService configService,

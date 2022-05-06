@@ -15,7 +15,7 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -45,7 +45,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
 
     private final ApplicationEventPublisher applicationEventPublisher;
     private final EmailSender emailSender;
-    private final OrganizationRepository organizationRepository;
+    private final WorkspaceRepository organizationRepository;
     private final ApplicationRepository applicationRepository;
     private final NewPageRepository newPageRepository;
     private final PolicyUtils policyUtils;

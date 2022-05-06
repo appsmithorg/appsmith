@@ -20,7 +20,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.SessionUserService;
@@ -44,7 +44,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 @Slf4j
 public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE {
     private final SessionUserService sessionUserService;
-    private final OrganizationRepository organizationRepository;
+    private final WorkspaceRepository organizationRepository;
     private final UserRepository userRepository;
     private final UserDataRepository userDataRepository;
     private final PolicyUtils policyUtils;
@@ -55,7 +55,7 @@ public class UserOrganizationServiceCEImpl implements UserOrganizationServiceCE 
 
     @Autowired
     public UserOrganizationServiceCEImpl(SessionUserService sessionUserService,
-                                         OrganizationRepository organizationRepository,
+                                         WorkspaceRepository organizationRepository,
                                          UserRepository userRepository,
                                          UserDataRepository userDataRepository,
                                          PolicyUtils policyUtils,

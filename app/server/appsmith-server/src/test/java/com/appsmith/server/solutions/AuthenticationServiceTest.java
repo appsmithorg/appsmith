@@ -15,7 +15,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.PluginService;
@@ -58,7 +58,7 @@ public class AuthenticationServiceTest {
     PluginExecutorHelper pluginExecutorHelper;
 
     @Autowired
-    OrganizationRepository organizationRepository;
+    WorkspaceRepository organizationRepository;
 
     @Autowired
     UserService userService;
