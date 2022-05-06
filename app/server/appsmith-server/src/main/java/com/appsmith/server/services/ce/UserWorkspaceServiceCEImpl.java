@@ -42,7 +42,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 
 
 @Slf4j
-public class UserOrganizationServiceCEImpl implements UserWorkspaceServiceCE {
+public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private final SessionUserService sessionUserService;
     private final WorkspaceRepository organizationRepository;
     private final UserRepository userRepository;
@@ -54,7 +54,7 @@ public class UserOrganizationServiceCEImpl implements UserWorkspaceServiceCE {
     private static final String UPDATE_ROLE_EXISTING_USER_TEMPLATE = "email/updateRoleExistingUserTemplate.html";
 
     @Autowired
-    public UserOrganizationServiceCEImpl(SessionUserService sessionUserService,
+    public UserWorkspaceServiceCEImpl(SessionUserService sessionUserService,
                                          WorkspaceRepository organizationRepository,
                                          UserRepository userRepository,
                                          UserDataRepository userDataRepository,
