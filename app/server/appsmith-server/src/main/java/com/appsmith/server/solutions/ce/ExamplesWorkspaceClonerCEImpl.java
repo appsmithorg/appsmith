@@ -56,7 +56,7 @@ import java.util.Set;
 
 @Slf4j
 @RequiredArgsConstructor
-public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClonerCE {
+public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE {
 
     private final WorkspaceService organizationService;
     private final WorkspaceRepository organizationRepository;
@@ -74,7 +74,7 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
     private final LayoutCollectionService layoutCollectionService;
     private final ThemeService themeService;
 
-    public Mono<Workspace> cloneExamplesOrganization() {
+    public Mono<Workspace> cloneExamplesWorkspace() {
         return sessionUserService
                 .getCurrentUser()
                 .flatMap(this::cloneExamplesOrganization);
@@ -97,7 +97,7 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
 
         return configService.getTemplateOrganizationId()
                 .doOnError(error -> log.error("Error loading template organization id config.", error))
-                .flatMap(templateOrganizationId -> cloneOrganizationForUser(
+                .flatMap(templateOrganizationId -> cloneWorkspaceForUser(
                         templateOrganizationId,
                         user,
                         configService.getTemplateApplications(),
@@ -114,7 +114,7 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
      * @param user                   The user who will own the new cloned organization.
      * @return Publishes the newly created organization.
      */
-    public Mono<Workspace> cloneOrganizationForUser(
+    public Mono<Workspace> cloneWorkspaceForUser(
             String templateOrganizationId,
             User user,
             Flux<Application> applicationFlux,

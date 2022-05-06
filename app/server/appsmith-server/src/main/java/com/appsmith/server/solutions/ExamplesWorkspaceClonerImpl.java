@@ -15,15 +15,15 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
-import com.appsmith.server.solutions.ce.ExamplesOrganizationClonerCEImpl;
+import com.appsmith.server.solutions.ce.ExamplesWorkspaceClonerCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class ExamplesOrganizationClonerImpl extends ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationCloner {
+public class ExamplesWorkspaceClonerImpl extends ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceCloner {
 
-    public ExamplesOrganizationClonerImpl(WorkspaceService organizationService,
+    public ExamplesWorkspaceClonerImpl(WorkspaceService organizationService,
                                           WorkspaceRepository organizationRepository,
                                           DatasourceService datasourceService,
                                           DatasourceRepository datasourceRepository,

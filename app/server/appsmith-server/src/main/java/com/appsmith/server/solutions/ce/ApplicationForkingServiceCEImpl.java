@@ -14,7 +14,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.solutions.ExamplesOrganizationCloner;
+import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -32,7 +32,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
     private final ApplicationService applicationService;
     private final WorkspaceService organizationService;
-    private final ExamplesOrganizationCloner examplesOrganizationCloner;
+    private final ExamplesWorkspaceCloner examplesOrganizationCloner;
     private final PolicyUtils policyUtils;
     private final SessionUserService sessionUserService;
     private final AnalyticsService analyticsService;

@@ -87,7 +87,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ExamplesOrganizationClonerTests {
 
     @Autowired
-    private ExamplesOrganizationCloner examplesOrganizationCloner;
+    private ExamplesWorkspaceCloner examplesOrganizationCloner;
 
     @Autowired
     private ApplicationService applicationService;
@@ -181,7 +181,7 @@ public class ExamplesOrganizationClonerTests {
         final Mono<OrganizationData> resultMono = organizationService.create(newOrganization)
                 .zipWith(sessionUserService.getCurrentUser())
                 .flatMap(tuple ->
-                        examplesOrganizationCloner.cloneOrganizationForUser(tuple.getT1().getId(), tuple.getT2(), Flux.empty(), Flux.empty()))
+                        examplesOrganizationCloner.cloneWorkspaceForUser(tuple.getT1().getId(), tuple.getT2(), Flux.empty(), Flux.empty()))
                 .flatMap(this::loadOrganizationData);
 
         StepVerifier.create(resultMono)
@@ -225,7 +225,7 @@ public class ExamplesOrganizationClonerTests {
                                     applicationPageService.createApplication(app2)
                             )
                             .flatMap(tuple1 ->
-                                    examplesOrganizationCloner.cloneOrganizationForUser(
+                                    examplesOrganizationCloner.cloneWorkspaceForUser(
                                             organization.getId(),
                                             tuple.getT2(),
                                             Flux.fromArray(new Application[]{tuple1.getT1()}),
@@ -286,7 +286,7 @@ public class ExamplesOrganizationClonerTests {
                                     })
                             )
                             .flatMap(tuple1 ->
-                                    examplesOrganizationCloner.cloneOrganizationForUser(
+                                    examplesOrganizationCloner.cloneWorkspaceForUser(
                                             organization.getId(),
                                             tuple.getT2(),
                                             Flux.fromArray(new Application[]{tuple1.getT1(), tuple1.getT2()}),
@@ -348,7 +348,7 @@ public class ExamplesOrganizationClonerTests {
                     return Mono.when(
                             applicationPageService.createApplication(app1),
                             applicationPageService.createApplication(app2)
-                    ).then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2(), Flux.empty(), Flux.empty()));
+                    ).then(examplesOrganizationCloner.cloneWorkspaceForUser(organization.getId(), tuple.getT2(), Flux.empty(), Flux.empty()));
                 })
                 .flatMap(this::loadOrganizationData);
 
@@ -457,7 +457,7 @@ public class ExamplesOrganizationClonerTests {
                     return Mono.when(
                             datasourceService.create(ds1),
                             datasourceService.create(ds2)
-                    ).then(examplesOrganizationCloner.cloneOrganizationForUser(organization.getId(), tuple.getT2(), Flux.empty(), Flux.empty()));
+                    ).then(examplesOrganizationCloner.cloneWorkspaceForUser(organization.getId(), tuple.getT2(), Flux.empty(), Flux.empty()));
                 })
                 .flatMap(this::loadOrganizationData);
 
@@ -512,7 +512,7 @@ public class ExamplesOrganizationClonerTests {
                     return Mono.zip(
                             datasourceService.create(ds1),
                             datasourceService.create(ds2)
-                    ).flatMap(tuple1 -> examplesOrganizationCloner.cloneOrganizationForUser(
+                    ).flatMap(tuple1 -> examplesOrganizationCloner.cloneWorkspaceForUser(
                             organization.getId(),
                             tuple.getT2(),
                             Flux.empty(),
@@ -577,7 +577,7 @@ public class ExamplesOrganizationClonerTests {
                                     datasourceService.create(ds2)
                             )
                             .flatMap(tuple1 ->
-                                    examplesOrganizationCloner.cloneOrganizationForUser(
+                                    examplesOrganizationCloner.cloneWorkspaceForUser(
                                             organization.getId(),
                                             tuple.getT2(),
                                             Flux.fromArray(new Application[]{tuple1.getT1(), tuple1.getT2()}),
@@ -727,7 +727,7 @@ public class ExamplesOrganizationClonerTests {
         layoutActionService.createSingleAction(action3).block();
         layoutCollectionService.createCollection(actionCollectionDTO1).block();
 
-        final Mono<OrganizationData> resultMono = examplesOrganizationCloner.cloneOrganizationForUser(
+        final Mono<OrganizationData> resultMono = examplesOrganizationCloner.cloneWorkspaceForUser(
                         organization.getId(),
                         user,
                         Flux.fromIterable(List.of(app, app2Again)),

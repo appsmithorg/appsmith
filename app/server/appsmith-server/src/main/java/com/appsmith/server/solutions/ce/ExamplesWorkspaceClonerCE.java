@@ -11,26 +11,26 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 
-public interface ExamplesOrganizationClonerCE {
+public interface ExamplesWorkspaceClonerCE {
 
-    Mono<Workspace> cloneExamplesOrganization();
+    Mono<Workspace> cloneExamplesWorkspace();
 
-    Mono<Workspace> cloneOrganizationForUser(
-            String templateOrganizationId,
+    Mono<Workspace> cloneWorkspaceForUser(
+            String templateWorkspaceId,
             User user,
             Flux<Application> applicationFlux,
             Flux<Datasource> datasourceFlux
     );
 
-    Mono<List<String>> cloneApplications(String toOrganizationId, Flux<Application> applicationFlux);
+    Mono<List<String>> cloneApplications(String toWorkspaceId, Flux<Application> applicationFlux);
 
     Mono<List<String>> cloneApplications(
-            String toOrganizationId,
+            String toWorkspaceId,
             Flux<Application> applicationFlux,
             Flux<Datasource> datasourceFlux
     );
 
-    Mono<Datasource> cloneDatasource(String datasourceId, String toOrganizationId);
+    Mono<Datasource> cloneDatasource(String datasourceId, String toWorkspaceId);
 
     void makePristine(BaseDomain domain);
 

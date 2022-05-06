@@ -16,7 +16,7 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
 
     public ApplicationForkingServiceImpl(ApplicationService applicationService,
                                          WorkspaceService organizationService,
-                                         ExamplesOrganizationCloner examplesOrganizationCloner,
+                                         ExamplesWorkspaceCloner examplesOrganizationCloner,
                                          PolicyUtils policyUtils,
                                          SessionUserService sessionUserService,
                                          AnalyticsService analyticsService,

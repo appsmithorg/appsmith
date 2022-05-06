@@ -13,7 +13,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
-import com.appsmith.server.solutions.ExamplesOrganizationCloner;
+import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -45,7 +45,7 @@ import static com.appsmith.server.helpers.RedirectHelper.SIGNUP_SUCCESS_URL;
 public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSuccessHandler {
 
     private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
-    private final ExamplesOrganizationCloner examplesOrganizationCloner;
+    private final ExamplesWorkspaceCloner examplesOrganizationCloner;
     private final RedirectHelper redirectHelper;
     private final SessionUserService sessionUserService;
     private final AnalyticsService analyticsService;
@@ -144,7 +144,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                         "modeOfLogin", modeOfLogin
                                 )
                         ));
-                        monos.add(examplesOrganizationCloner.cloneExamplesOrganization());
+                        monos.add(examplesOrganizationCloner.cloneExamplesWorkspace());
                     }
 
                     return Mono.whenDelayError(monos);

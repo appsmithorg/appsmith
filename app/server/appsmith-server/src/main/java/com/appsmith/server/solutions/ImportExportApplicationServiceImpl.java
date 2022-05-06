@@ -36,7 +36,7 @@ public class ImportExportApplicationServiceImpl extends ImportExportApplicationS
                                               NewPageRepository newPageRepository,
                                               NewActionService newActionService,
                                               SequenceService sequenceService,
-                                              ExamplesOrganizationCloner examplesOrganizationCloner,
+                                              ExamplesWorkspaceCloner examplesOrganizationCloner,
                                               ActionCollectionRepository actionCollectionRepository,
                                               ActionCollectionService actionCollectionService,
                                               ThemeService themeService,

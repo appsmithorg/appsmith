@@ -51,7 +51,7 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
-import com.appsmith.server.solutions.ExamplesOrganizationCloner;
+import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -105,7 +105,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final NewPageRepository newPageRepository;
     private final NewActionService newActionService;
     private final SequenceService sequenceService;
-    private final ExamplesOrganizationCloner examplesOrganizationCloner;
+    private final ExamplesWorkspaceCloner examplesOrganizationCloner;
     private final ActionCollectionRepository actionCollectionRepository;
     private final ActionCollectionService actionCollectionService;
     private final ThemeService themeService;
