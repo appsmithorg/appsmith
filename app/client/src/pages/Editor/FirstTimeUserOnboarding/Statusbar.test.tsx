@@ -30,51 +30,51 @@ describe("Statusbar", () => {
     document.body.appendChild(container);
   });
 
-  it("is rendered", async (done) => {
+  it("is rendered", (done) => {
     renderComponent(getStore(0));
     const statusbar = screen.queryAllByTestId("statusbar-container");
     expect(statusbar).toHaveLength(1);
     done();
   });
 
-  it("is pro", async (done) => {
+  it("is pro", (done) => {
     renderComponent(getStore(0));
     const statusbar = screen.queryAllByTestId("statusbar-container");
     expect(statusbar).not.toBeNull();
     done();
   });
 
-  it("is showing first step", async () => {
+  it("is showing first step", () => {
     renderComponent(getStore(0));
     const statusbarText = screen.queryAllByTestId("statusbar-text");
     expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STATUS_STEPS_FIRST());
   });
 
-  it("is showing second step", async () => {
+  it("is showing second step", () => {
     renderComponent(getStore(1));
     const statusbarText = screen.queryAllByTestId("statusbar-text");
     expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STATUS_STEPS_SECOND());
   });
 
-  it("is showing third step", async () => {
+  it("is showing third step", () => {
     renderComponent(getStore(2));
     const statusbarText = screen.queryAllByTestId("statusbar-text");
     expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STATUS_STEPS_THIRD());
   });
 
-  it("is showing fourth step", async () => {
+  it("is showing fourth step", () => {
     renderComponent(getStore(3));
     const statusbarText = screen.queryAllByTestId("statusbar-text");
     expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STATUS_STEPS_FOURTH());
   });
 
-  it("is showing fifth step", async () => {
+  it("is showing fifth step", () => {
     renderComponent(getStore(4));
     const statusbarText = screen.queryAllByTestId("statusbar-text");
     expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STATUS_STEPS_FIVETH());
   });
 
-  it("is showing sixth step", async () => {
+  it("is showing sixth step", () => {
     renderComponent(getStore(5));
     const statusbarText = screen.queryAllByTestId("statusbar-text");
     expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STATUS_STEPS_SIXTH());

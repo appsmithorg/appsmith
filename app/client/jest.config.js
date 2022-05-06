@@ -23,8 +23,7 @@ module.exports = {
     "\\.svg$": "<rootDir>/test/__mocks__/svgMock.js",
     "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":
       "<rootDir>/test/__mocks__/fileMock.js",
-    "'workers/evaluation.worker?worker":
-      "<rootDir>/test/__mocks__/workerMock.js",
+    "workers/evaluation.worker?(.*)": "<rootDir>/test/__mocks__/workerMock.js",
     "^!!raw-loader!": "<rootDir>/test/__mocks__/derivedMock.js",
     "test/(.*)": "<rootDir>/test/$1",
     "@appsmith/(.*)": "<rootDir>/src/ee/$1",

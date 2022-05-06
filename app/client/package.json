@@ -199,6 +199,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@babel/plugin-proposal-decorators": "^7.17.9",
     "@babel/plugin-transform-typescript": "^7.16.8",
     "@babel/preset-typescript": "^7.16.7",
     "@testing-library/jest-dom": "5.16.4",
