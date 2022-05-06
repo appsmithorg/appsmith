@@ -478,6 +478,8 @@ export type GitStatusData = {
   modifiedQueries: number;
   remoteBranch: string;
   modifiedJSObjects: number;
+  modifiedDatasources: number;
+  discardDocUrl?: string;
 };
 
 type GitErrorPayloadType = {
@@ -546,6 +548,8 @@ export type GitSyncReducerState = GitBranchDeleteState & {
   isImportingApplicationViaGit?: boolean;
 
   gitImportError?: any;
+
+  isDiscarding?: boolean;
 };
 
 export default gitSyncReducer;
