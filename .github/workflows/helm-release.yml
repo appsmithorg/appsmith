@@ -1,0 +1,66 @@
+name: Helm Charts Publish
+
+# Package & publish new version for Helm chart to S3 bucket.
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "deploy/helm/**"
+
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: deploy/helm
+        shell: bash
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.6.3
+
+      - name: Get the chart version
+        id: chart-version
+        run: |
+          awk '$1 == "version:" {print $2}' "${{ github.workspace }}/deploy/helm/Chart.yaml"
+
+      # Scan the S3 bucket with the Helm version retrieved from Chart.yaml
+      # If an archive with this version already exists in the bucket, fail immediately.
+      - name: Check chart version is not already published
+        env:
+          AWS_ACCESS_KEY_ID: "${{ secrets.HELM_AWS_ACCESS_KEY_ID }}"
+          AWS_SECRET_ACCESS_KEY: "${{ secrets.HELM_AWS_SECRET_ACCESS_KEY }}"
+        run: |
+          archive="appsmith-${{ steps.chart-version.outputs.data }}.tgz"
+          if [[ "$archive" == "$(aws s3api list-objects --bucket helm.appsmith.com --prefix "$archive")" ]]; then
+            echo "$archive is already present in the Helm bucket. Please change the version number in Chart.yaml file" >&2
+            exit 1
+          fi
+
+      - name: Publish Helm
+        env:
+          AWS_ACCESS_KEY_ID: "${{ secrets.HELM_AWS_ACCESS_KEY_ID }}"
+          AWS_SECRET_ACCESS_KEY: "${{ secrets.HELM_AWS_SECRET_ACCESS_KEY }}"
+          # Not really sure why this is needed, but without it, we see the error:
+          #   <botocore.awsrequest.AWSRequest object at 0x7fde607adac0>
+          #   Error: Process completed with exit code 255.
+          AWS_EC2_METADATA_DISABLED: true
+        run: |
+          echo "Publishing new Helm chart version"
+          helm package .
+          aws s3 cp s3://${{ secrets.HELM_S3_BUCKET }}/index.yaml .
+          helm repo index . --url https://${{ secrets.HELM_S3_BUCKET }} --merge index.yaml
+          aws s3 cp appsmith-${{ steps.chart-version.outputs.data }}.tgz s3://${{ secrets.HELM_S3_BUCKET }}
+          aws s3 cp index.yaml s3://${{ secrets.HELM_S3_BUCKET }}
