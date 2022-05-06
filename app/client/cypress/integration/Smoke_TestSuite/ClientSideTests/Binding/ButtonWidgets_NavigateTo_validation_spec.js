@@ -28,6 +28,7 @@ describe("Binding the button Widgets and validating NavigateTo Page functionalit
 
   it("Button click should take the control to page link validation", function() {
     cy.PublishtheApp();
+    cy.wait(2000);
     cy.get(publish.buttonWidget).click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
