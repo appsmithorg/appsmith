@@ -65,7 +65,7 @@ import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
-import com.appsmith.server.dtos.OrganizationPluginStatus;
+import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.TextUtils;
@@ -248,7 +248,7 @@ public class DatabaseChangelog {
 
             if (!installedPlugins.contains(pluginId)) {
                 organization.getPlugins()
-                        .add(new OrganizationPlugin(pluginId, OrganizationPluginStatus.FREE));
+                        .add(new OrganizationPlugin(pluginId, WorkspacePluginStatus.FREE));
             }
 
             mongockTemplate.save(organization);
@@ -518,7 +518,7 @@ public class DatabaseChangelog {
             for (Plugin defaultPlugin : defaultPlugins) {
                 if (!installedPlugins.contains(defaultPlugin.getId())) {
                     organization.getPlugins()
-                            .add(new OrganizationPlugin(defaultPlugin.getId(), OrganizationPluginStatus.FREE));
+                            .add(new OrganizationPlugin(defaultPlugin.getId(), WorkspacePluginStatus.FREE));
                 }
             }
 

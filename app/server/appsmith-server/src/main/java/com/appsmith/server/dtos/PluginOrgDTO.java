@@ -11,5 +11,5 @@ public class PluginOrgDTO {
 
     String organizationId;
 
-    OrganizationPluginStatus status;
+    WorkspacePluginStatus status;
 }

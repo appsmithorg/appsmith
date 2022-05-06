@@ -1,5 +1,5 @@
 package com.appsmith.server.dtos;
 
-public enum OrganizationPluginStatus {
+public enum WorkspacePluginStatus {
     FREE, TRIAL, ACTIVATED
 }

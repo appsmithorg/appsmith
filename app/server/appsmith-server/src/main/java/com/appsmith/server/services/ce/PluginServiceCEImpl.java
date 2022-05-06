@@ -7,7 +7,7 @@ import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.dtos.InstallPluginRedisDTO;
-import com.appsmith.server.dtos.OrganizationPluginStatus;
+import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.dtos.PluginOrgDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -195,7 +195,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                 .stream()
                 .filter(plugin -> Boolean.TRUE.equals(plugin.getDefaultInstall()))
                 .map(plugin -> {
-                    return new OrganizationPlugin(plugin.getId(), OrganizationPluginStatus.ACTIVATED);
+                    return new OrganizationPlugin(plugin.getId(), WorkspacePluginStatus.ACTIVATED);
                 })
                 .collect(Collectors.toList());
         return organizationService.getAll()
@@ -236,7 +236,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                 });
     }
 
-    private Mono<Workspace> storeOrganizationPlugin(PluginOrgDTO pluginDTO, OrganizationPluginStatus status) {
+    private Mono<Workspace> storeOrganizationPlugin(PluginOrgDTO pluginDTO, WorkspacePluginStatus status) {
 
         Mono<Workspace> pluginInOrganizationMono = organizationService
                 .findByIdAndPluginsPluginId(pluginDTO.getOrganizationId(), pluginDTO.getPluginId());

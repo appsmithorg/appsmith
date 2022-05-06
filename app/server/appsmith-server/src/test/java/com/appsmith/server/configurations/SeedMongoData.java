@@ -11,7 +11,7 @@ import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.UserState;
-import com.appsmith.server.dtos.OrganizationPluginStatus;
+import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PageRepository;
@@ -177,7 +177,7 @@ public class SeedMongoData {
         // Seed the organization data into the DB
         Flux<Workspace> organizationFlux = mongoTemplate
                 .find(new Query().addCriteria(where("name").in(pluginData[0][0], pluginData[1][0], pluginData[2][0])), Plugin.class)
-                .map(plugin -> new OrganizationPlugin(plugin.getId(), OrganizationPluginStatus.FREE))
+                .map(plugin -> new OrganizationPlugin(plugin.getId(), WorkspacePluginStatus.FREE))
                 .collect(Collectors.toSet())
                 .cache()
                 .repeat()

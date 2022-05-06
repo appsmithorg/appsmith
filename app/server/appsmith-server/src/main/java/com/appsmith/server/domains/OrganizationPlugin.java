@@ -1,7 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.server.dtos.OrganizationPluginStatus;
+import com.appsmith.server.dtos.WorkspacePluginStatus;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -19,6 +19,6 @@ public class OrganizationPlugin extends BaseDomain {
 
     String pluginId;
 
-    OrganizationPluginStatus status;
+    WorkspacePluginStatus status;
 
 }
