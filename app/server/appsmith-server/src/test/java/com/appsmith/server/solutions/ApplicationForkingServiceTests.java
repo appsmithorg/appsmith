@@ -36,7 +36,7 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
@@ -108,7 +108,7 @@ public class ApplicationForkingServiceTests {
     private DatasourceService datasourceService;
 
     @Autowired
-    private OrganizationService organizationService;
+    private WorkspaceService organizationService;
 
     @Autowired
     private ApplicationPageService applicationPageService;

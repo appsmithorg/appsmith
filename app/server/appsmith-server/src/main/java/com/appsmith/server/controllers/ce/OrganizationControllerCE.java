@@ -4,7 +4,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.UserOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,11 +26,11 @@ import java.util.Map;
 
 
 @RequestMapping(Url.ORGANIZATION_URL)
-public class OrganizationControllerCE extends BaseController<OrganizationService, Workspace, String> {
+public class OrganizationControllerCE extends BaseController<WorkspaceService, Workspace, String> {
     private final UserOrganizationService userOrganizationService;
 
     @Autowired
-    public OrganizationControllerCE(OrganizationService organizationService, UserOrganizationService userOrganizationService) {
+    public OrganizationControllerCE(WorkspaceService organizationService, UserOrganizationService userOrganizationService) {
         super(organizationService);
         this.userOrganizationService = userOrganizationService;
     }

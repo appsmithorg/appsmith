@@ -71,7 +71,7 @@ public class MockDataServiceTest {
     UserService userService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService organizationService;
 
     @Autowired
     NewActionService newActionService;

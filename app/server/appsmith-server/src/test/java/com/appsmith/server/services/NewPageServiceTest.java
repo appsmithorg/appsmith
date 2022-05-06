@@ -30,7 +30,7 @@ class NewPageServiceTest {
     ApplicationPageService applicationPageService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService organizationService;
 
     @Test
     @WithUserDetails("api_user")

@@ -103,7 +103,7 @@ public class GitServiceTest {
     GitService gitService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService organizationService;
 
     @Autowired
     WorkspaceRepository organizationRepository;

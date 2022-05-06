@@ -15,7 +15,7 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
@@ -46,7 +46,7 @@ import static org.mockito.ArgumentMatchers.eq;
 @RunWith(SpringRunner.class)
 public class ApplicationFetcherUnitTest {
     @MockBean
-    OrganizationService organizationService;
+    WorkspaceService organizationService;
 
     @MockBean
     SessionUserService sessionUserService;

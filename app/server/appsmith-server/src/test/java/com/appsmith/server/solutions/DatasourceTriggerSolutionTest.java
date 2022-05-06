@@ -10,7 +10,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.services.DatasourceService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
 import org.junit.Before;
@@ -58,7 +58,7 @@ public class DatasourceTriggerSolutionTest {
     DatasourceService datasourceService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService organizationService;
 
     String orgId;
 

@@ -63,7 +63,7 @@ public class DatasourceServiceTest {
     PluginService pluginService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService organizationService;
 
     @Autowired
     WorkspaceRepository organizationRepository;

@@ -22,7 +22,7 @@ import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -70,7 +70,7 @@ public class ShareOrganizationPermissionTests {
     UserService userService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService organizationService;
 
     @Autowired
     ApplicationService applicationService;

@@ -6,7 +6,7 @@ import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ class ApplicationFetcherTest {
     private ApplicationPageService applicationPageService;
 
     @Autowired
-    private OrganizationService organizationService;
+    private WorkspaceService organizationService;
 
     @Autowired
     private ApplicationFetcher applicationFetcher;

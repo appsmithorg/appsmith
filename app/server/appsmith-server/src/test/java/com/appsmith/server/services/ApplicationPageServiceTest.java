@@ -36,7 +36,7 @@ public class ApplicationPageServiceTest {
     ApplicationPageService applicationPageService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService organizationService;
 
     @Autowired
     CommentService commentService;

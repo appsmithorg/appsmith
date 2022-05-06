@@ -69,7 +69,7 @@ import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.TextUtils;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
@@ -312,7 +312,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "003", id = "add-org-slugs", author = "")
-    public void addOrgSlugs(MongockTemplate mongoTemplate, OrganizationService organizationService) {
+    public void addOrgSlugs(MongockTemplate mongoTemplate, WorkspaceService organizationService) {
         // For all existing organizations, add a slug field, which should be unique.
         // We are blocking here for adding a slug to each existing organization. This is bad and slow. Do NOT copy this
         // code fragment into the services' control flow. This is a single migration code and is expected to run once in

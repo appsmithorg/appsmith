@@ -40,7 +40,7 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
@@ -96,7 +96,7 @@ public class ExamplesOrganizationClonerTests {
     private DatasourceService datasourceService;
 
     @Autowired
-    private OrganizationService organizationService;
+    private WorkspaceService organizationService;
 
     @Autowired
     private ApplicationPageService applicationPageService;

@@ -85,7 +85,7 @@ public class ActionCollectionServiceTest {
     UserService userService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService organizationService;
 
     @Autowired
     WorkspaceRepository organizationRepository;

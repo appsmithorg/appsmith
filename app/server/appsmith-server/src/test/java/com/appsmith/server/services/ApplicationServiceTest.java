@@ -117,7 +117,7 @@ public class ApplicationServiceTest {
     UserService userService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService organizationService;
 
     @Autowired
     DatasourceService datasourceService;

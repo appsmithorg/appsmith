@@ -22,7 +22,7 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                                  MongoConverter mongoConverter,
                                  ReactiveMongoTemplate reactiveMongoTemplate,
                                  DatasourceRepository repository,
-                                 OrganizationService organizationService,
+                                 WorkspaceService organizationService,
                                  AnalyticsService analyticsService,
                                  SessionUserService sessionUserService,
                                  PluginService pluginService,

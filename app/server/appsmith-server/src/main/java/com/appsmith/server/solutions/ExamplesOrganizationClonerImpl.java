@@ -11,7 +11,7 @@ import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewActionService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ExamplesOrganizationClonerImpl extends ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationCloner {
 
-    public ExamplesOrganizationClonerImpl(OrganizationService organizationService,
+    public ExamplesOrganizationClonerImpl(WorkspaceService organizationService,
                                           WorkspaceRepository organizationRepository,
                                           DatasourceService datasourceService,
                                           DatasourceRepository datasourceRepository,

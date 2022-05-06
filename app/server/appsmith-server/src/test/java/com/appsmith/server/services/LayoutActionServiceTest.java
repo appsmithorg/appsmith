@@ -89,7 +89,7 @@ public class LayoutActionServiceTest {
     UserService userService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService organizationService;
 
     @Autowired
     WorkspaceRepository organizationRepository;

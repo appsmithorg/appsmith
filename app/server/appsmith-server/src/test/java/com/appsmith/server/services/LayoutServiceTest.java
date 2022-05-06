@@ -68,7 +68,7 @@ public class LayoutServiceTest {
     UserService userService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService organizationService;
 
     @Autowired
     NewActionService newActionService;

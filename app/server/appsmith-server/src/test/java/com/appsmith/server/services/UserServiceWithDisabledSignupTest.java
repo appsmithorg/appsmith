@@ -43,7 +43,7 @@ public class UserServiceWithDisabledSignupTest {
     UserService userService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService organizationService;
 
     @Autowired
     ApplicationService applicationService;

@@ -2,7 +2,7 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.SecurityTestConfig;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.UserOrganizationService;
 import com.appsmith.server.services.UserService;
 import org.junit.Test;
@@ -25,7 +25,7 @@ public class OrganizationControllerTest {
     private WebTestClient webTestClient;
 
     @MockBean
-    private OrganizationService organizationService;
+    private WorkspaceService organizationService;
 
     @MockBean
     private UserOrganizationService userOrganizationService;

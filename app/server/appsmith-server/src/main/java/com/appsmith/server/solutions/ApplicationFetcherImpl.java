@@ -3,7 +3,7 @@ package com.appsmith.server.solutions;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
@@ -17,7 +17,7 @@ public class ApplicationFetcherImpl extends ApplicationFetcherCEImpl implements 
     public ApplicationFetcherImpl(SessionUserService sessionUserService,
                                   UserService userService,
                                   UserDataService userDataService,
-                                  OrganizationService organizationService,
+                                  WorkspaceService organizationService,
                                   ApplicationRepository applicationRepository,
                                   ReleaseNotesService releaseNotesService,
                                   ResponseUtils responseUtils,

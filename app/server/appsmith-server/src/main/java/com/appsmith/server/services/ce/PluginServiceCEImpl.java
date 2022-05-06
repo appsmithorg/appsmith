@@ -14,7 +14,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
 public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, String> implements PluginServiceCE {
 
     public static final String UQI_DB_EDITOR_FORM = "UQIDbEditorForm";
-    private final OrganizationService organizationService;
+    private final WorkspaceService organizationService;
     private final PluginManager pluginManager;
     private final ReactiveRedisTemplate<String, String> reactiveTemplate;
     private final ChannelTopic topic;
@@ -96,7 +96,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                              ReactiveMongoTemplate reactiveMongoTemplate,
                              PluginRepository repository,
                              AnalyticsService analyticsService,
-                             OrganizationService organizationService,
+                             WorkspaceService organizationService,
                              PluginManager pluginManager,
                              ReactiveRedisTemplate<String, String> reactiveTemplate,
                              ChannelTopic topic,

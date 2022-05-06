@@ -33,7 +33,7 @@ import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewActionService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
@@ -58,7 +58,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClonerCE {
 
-    private final OrganizationService organizationService;
+    private final WorkspaceService organizationService;
     private final WorkspaceRepository organizationRepository;
     private final DatasourceService datasourceService;
     private final DatasourceRepository datasourceRepository;

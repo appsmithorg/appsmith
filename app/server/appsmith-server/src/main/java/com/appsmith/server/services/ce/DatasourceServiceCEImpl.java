@@ -21,7 +21,7 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
@@ -56,7 +56,7 @@ import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIO
 @Slf4j
 public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, Datasource, String> implements DatasourceServiceCE {
 
-    private final OrganizationService organizationService;
+    private final WorkspaceService organizationService;
     private final SessionUserService sessionUserService;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
@@ -71,7 +71,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                                    MongoConverter mongoConverter,
                                    ReactiveMongoTemplate reactiveMongoTemplate,
                                    DatasourceRepository repository,
-                                   OrganizationService organizationService,
+                                   WorkspaceService organizationService,
                                    AnalyticsService analyticsService,
                                    SessionUserService sessionUserService,
                                    PluginService pluginService,

@@ -24,7 +24,7 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
                              ReactiveMongoTemplate reactiveMongoTemplate,
                              PluginRepository repository,
                              AnalyticsService analyticsService,
-                             OrganizationService organizationService,
+                             WorkspaceService organizationService,
                              PluginManager pluginManager,
                              ReactiveRedisTemplate<String,
                                      String> reactiveTemplate,

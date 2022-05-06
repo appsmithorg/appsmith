@@ -46,7 +46,7 @@ public class OrganizationServiceUnitTest {
     @MockBean AnalyticsService analyticsService;
     @MockBean ApplicationRepository applicationRepository;
 
-    OrganizationService organizationService;
+    WorkspaceService organizationService;
 
     @Before
     public void setUp() {

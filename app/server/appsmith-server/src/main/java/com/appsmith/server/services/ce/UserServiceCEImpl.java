@@ -38,7 +38,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserOrganizationService;
@@ -88,7 +88,7 @@ import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldN
 @Slf4j
 public class UserServiceCEImpl extends BaseService<UserRepository, User, String> implements UserServiceCE {
 
-    private final OrganizationService organizationService;
+    private final WorkspaceService organizationService;
     private final SessionUserService sessionUserService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
@@ -117,7 +117,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                              MongoConverter mongoConverter,
                              ReactiveMongoTemplate reactiveMongoTemplate,
                              UserRepository repository,
-                             OrganizationService organizationService,
+                             WorkspaceService organizationService,
                              AnalyticsService analyticsService,
                              SessionUserService sessionUserService,
                              PasswordResetTokenRepository passwordResetTokenRepository,

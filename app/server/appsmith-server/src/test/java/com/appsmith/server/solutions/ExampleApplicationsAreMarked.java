@@ -6,7 +6,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +42,7 @@ public class ExampleApplicationsAreMarked {
     private ApplicationService applicationService;
 
     @Autowired
-    private OrganizationService organizationService;
+    private WorkspaceService organizationService;
 
     @Autowired
     private ApplicationPageService applicationPageService;

@@ -78,7 +78,7 @@ public class PageServiceTest {
     LayoutService layoutService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService organizationService;
 
     @Autowired
     ApplicationService applicationService;

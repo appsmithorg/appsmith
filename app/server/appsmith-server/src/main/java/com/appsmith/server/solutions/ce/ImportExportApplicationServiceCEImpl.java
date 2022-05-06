@@ -47,7 +47,7 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
@@ -98,7 +98,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final NewActionRepository newActionRepository;
     private final DatasourceRepository datasourceRepository;
     private final PluginRepository pluginRepository;
-    private final OrganizationService organizationService;
+    private final WorkspaceService organizationService;
     private final ApplicationService applicationService;
     private final NewPageService newPageService;
     private final ApplicationPageService applicationPageService;

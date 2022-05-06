@@ -69,7 +69,7 @@ public class CommentServiceTest {
     ApplicationPageService applicationPageService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService organizationService;
 
     @Autowired
     PolicyUtils policyUtils;

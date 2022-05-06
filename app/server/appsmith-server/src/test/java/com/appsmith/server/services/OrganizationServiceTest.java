@@ -69,7 +69,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class OrganizationServiceTest {
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService organizationService;
 
     @Autowired
     UserOrganizationService userOrganizationService;

@@ -16,7 +16,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
@@ -58,7 +58,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
     private final SessionUserService sessionUserService;
     private final UserService userService;
     private final UserDataService userDataService;
-    private final OrganizationService organizationService;
+    private final WorkspaceService organizationService;
     private final ApplicationRepository applicationRepository;
     private final ReleaseNotesService releaseNotesService;
     private final ResponseUtils responseUtils;

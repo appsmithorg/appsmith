@@ -17,7 +17,7 @@ import javax.validation.Validator;
 
 @Slf4j
 @Service
-public class OrganizationServiceImpl extends OrganizationServiceCEImpl implements OrganizationService {
+public class OrganizationServiceImpl extends OrganizationServiceCEImpl implements WorkspaceService {
 
     public OrganizationServiceImpl(Scheduler scheduler,
                                    Validator validator,

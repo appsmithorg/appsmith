@@ -30,7 +30,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                            MongoConverter mongoConverter,
                            ReactiveMongoTemplate reactiveMongoTemplate,
                            UserRepository repository,
-                           OrganizationService organizationService,
+                           WorkspaceService organizationService,
                            AnalyticsService analyticsService,
                            SessionUserService sessionUserService,
                            PasswordResetTokenRepository passwordResetTokenRepository,
