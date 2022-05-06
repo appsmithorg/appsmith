@@ -52,7 +52,7 @@ import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 
 @Slf4j
-public class OrganizationServiceCEImpl extends BaseService<WorkspaceRepository, Workspace, String>
+public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Workspace, String>
         implements WorkspaceServiceCE {
 
     private final PluginRepository pluginRepository;
@@ -65,7 +65,7 @@ public class OrganizationServiceCEImpl extends BaseService<WorkspaceRepository, 
     private final ApplicationRepository applicationRepository;
 
     @Autowired
-    public OrganizationServiceCEImpl(Scheduler scheduler,
+    public WorkspaceServiceCEImpl(Scheduler scheduler,
                                      Validator validator,
                                      MongoConverter mongoConverter,
                                      ReactiveMongoTemplate reactiveMongoTemplate,
