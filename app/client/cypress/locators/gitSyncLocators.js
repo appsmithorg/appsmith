@@ -32,6 +32,8 @@ export default {
   learnMoreDeployKey: "//a[text()='Learn More']",
   learnMoreSshUrl: ".t--learn-more-ssh-url",
   readDocument: ".t--read-document",
+  gitConnectErrorLearnMore:
+    ".t--git-connection-error .t--notification-banner-learn-more",
   deployPreview: ".t--git-deploy-preview",
   mergeButton: ".t--git-merge-button",
   disconnectIcon: ".t--git-disconnect-icon",
