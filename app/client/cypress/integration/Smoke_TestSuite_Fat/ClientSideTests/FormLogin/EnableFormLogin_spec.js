@@ -57,7 +57,20 @@ describe("Form Login test functionality", function() {
       cy.get(homePage.profileMenu).click();
       cy.get(homePage.signOutIcon).click();
     });
+    cy.wait(500);
+    // validating form signup is disabled
+    cy.get(".t--sign-up").click({ force: true });
+    cy.generateUUID().then((uid) => {
+      cy.get("[type='email']").type(uid + "@appsmith.com");
+      cy.get("[type='password']").type(uid);
+      cy.get("[type='submit']").click({ force: true });
+      cy.get(".form-message-container").should(
+        "not.contain",
+        "Signup is restricted on this instance of Appsmith",
+      );
+    });
   });
+
   it("2. Go to admin settings and disable Form Login", function() {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
