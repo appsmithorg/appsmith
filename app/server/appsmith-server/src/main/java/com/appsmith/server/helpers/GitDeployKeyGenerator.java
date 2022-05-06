@@ -19,23 +19,23 @@ import static org.reflections.Reflections.log;
 
 public class GitDeployKeyGenerator {
     public enum supportedProtocols {
-        ECDSA(521, "github, gitlab, bitbucket"),
+        ECDSA(256, ""),
         RSA(4096, "Azure Devops");
 
         private final Integer key_size;
 
-        private final String supportedPlatForms;
+        private final String supportedPlatforms;
 
         supportedProtocols(int key_size, String supportedPlatForms) {
             this.key_size = key_size;
-            this.supportedPlatForms = supportedPlatForms;
+            this.supportedPlatforms = supportedPlatForms;
         }
 
         public GitDeployKeyDTO getProtocolDetails() {
             GitDeployKeyDTO gitDeployKeyDTO = new GitDeployKeyDTO();
             gitDeployKeyDTO.setProtocolName(this.name());
             gitDeployKeyDTO.setKeySize(this.key_size);
-            gitDeployKeyDTO.setPlatFormSupported(this.supportedPlatForms);
+            gitDeployKeyDTO.setPlatFormSupported(this.supportedPlatforms);
             return gitDeployKeyDTO;
         }
 
@@ -46,12 +46,12 @@ public class GitDeployKeyGenerator {
         KeyPair kpair;
         int key;
         int keySize;
-        if(StringUtils.isEmpty(keyType)) {
-            key = KeyPair.ECDSA;
-            keySize = supportedProtocols.ECDSA.key_size;
-        } else {
+        if(!StringUtils.isEmpty(keyType) && keyType.equals(supportedProtocols.RSA.name())) {
             key = KeyPair.RSA;
             keySize = supportedProtocols.RSA.key_size;
+        } else {
+            key = KeyPair.ECDSA;
+            keySize = supportedProtocols.ECDSA.key_size;
         }
 
         try {
