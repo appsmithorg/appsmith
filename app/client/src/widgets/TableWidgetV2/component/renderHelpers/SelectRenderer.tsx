@@ -13,6 +13,7 @@ import { CellWrapper } from "../TableStyledWrappers";
 import styled from "constants/DefaultTheme";
 import AutoToolTipComponent from "../cellComponents/AutoToolTipComponent";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
+import { TextSize } from "constants/WidgetConstants";
 
 const StyledSelectComponent = styled(SelectComponent)`
   width: 100%;
@@ -37,12 +38,17 @@ type SelectProps = {
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
   textColor?: string;
+  fontStyle: string;
+  cellBackground: string;
+  textSize: TextSize;
 };
 
 export const SelectCell = (props: SelectProps) => {
   const {
     allowCellWrapping,
+    cellBackground,
     compactMode,
+    fontStyle,
     horizontalAlignment,
     isCellEditable,
     isCellVisible,
@@ -52,6 +58,7 @@ export const SelectCell = (props: SelectProps) => {
     options,
     tableWidth,
     textColor,
+    textSize,
     value,
     verticalAlignment,
     width,
@@ -74,10 +81,14 @@ export const SelectCell = (props: SelectProps) => {
     return (
       <CellWrapper
         allowCellWrapping={allowCellWrapping}
+        cellBackground={cellBackground}
         compactMode={compactMode}
+        fontStyle={fontStyle}
         horizontalAlignment={horizontalAlignment}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
+        textColor={textColor}
+        textSize={textSize}
         verticalAlignment={verticalAlignment}
       >
         <StyledSelectComponent
@@ -104,13 +115,16 @@ export const SelectCell = (props: SelectProps) => {
     return (
       <StyledAutoToolTipComponent
         allowCellWrapping={allowCellWrapping}
+        cellBackground={cellBackground}
         columnType={ColumnTypes.SELECT}
         compactMode={compactMode}
+        fontStyle={fontStyle}
         horizontalAlignment={horizontalAlignment}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
         tableWidth={tableWidth}
         textColor={textColor}
+        textSize={textSize}
         title={!!value ? value.toString() : ""}
         verticalAlignment={verticalAlignment}
       >

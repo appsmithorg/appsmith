@@ -14,6 +14,7 @@ import {
 } from "../Constants";
 import { CellWrapper, IconButtonWrapper } from "../TableStyledWrappers";
 import { StyledButton } from "widgets/IconButtonWidget/component";
+import { TextSize } from "constants/WidgetConstants";
 
 interface RenderIconButtonProps {
   compactMode: string;
@@ -32,6 +33,10 @@ interface RenderIconButtonProps {
   allowCellWrapping?: boolean;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
+  fontStyle: string;
+  textColor: string;
+  cellBackground: string;
+  textSize: TextSize;
 }
 
 function IconButton(props: {
@@ -91,15 +96,19 @@ export function IconButtonCell(props: RenderIconButtonProps) {
     boxShadowColor,
     buttonColor,
     buttonVariant,
+    cellBackground,
     columnActions,
     compactMode,
     disabled,
+    fontStyle,
     horizontalAlignment,
     iconName,
     isCellVisible,
     isHidden,
     isSelected,
     onCommandClick,
+    textColor,
+    textSize,
     verticalAlignment,
   } = props;
 
@@ -107,8 +116,12 @@ export function IconButtonCell(props: RenderIconButtonProps) {
     return (
       <CellWrapper
         allowCellWrapping={allowCellWrapping}
+        cellBackground={cellBackground}
+        fontStyle={fontStyle}
         horizontalAlignment={horizontalAlignment}
         isHidden={isHidden}
+        textColor={textColor}
+        textSize={textSize}
         verticalAlignment={verticalAlignment}
       />
     );
@@ -116,10 +129,14 @@ export function IconButtonCell(props: RenderIconButtonProps) {
   return (
     <CellWrapper
       allowCellWrapping={allowCellWrapping}
+      cellBackground={cellBackground}
       compactMode={compactMode}
+      fontStyle={fontStyle}
       horizontalAlignment={horizontalAlignment}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
+      textColor={textColor}
+      textSize={textSize}
       verticalAlignment={verticalAlignment}
     >
       {columnActions.map((action: ColumnAction, index: number) => {
