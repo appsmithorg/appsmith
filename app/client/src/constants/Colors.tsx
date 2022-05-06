@@ -179,6 +179,9 @@ export const Colors = {
   YELLOW_LIGHT: "#F4AF0A",
   BROWN: "#864C17",
 
+  GRAY_50: "#F8F8F8",
+  GRAY_200: "#E7E7E7",
+  GRAY_400: "#B3B3B3",
   GRAY_700: "#575757",
   GRAY_800: "#393939",
   GRAY_900: "#101828",
