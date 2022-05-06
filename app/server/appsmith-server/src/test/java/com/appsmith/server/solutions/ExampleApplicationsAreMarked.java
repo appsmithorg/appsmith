@@ -2,7 +2,7 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
@@ -59,7 +59,7 @@ public class ExampleApplicationsAreMarked {
     @Test
     @WithUserDetails(value = "api_user")
     public void exampleApplicationsAreMarked() {
-        Organization newOrganization = new Organization();
+        Workspace newOrganization = new Workspace();
         newOrganization.setName("Template Organization 3");
         final Mono<List<Application>> resultMono = Mono
                 .zip(
@@ -67,7 +67,7 @@ public class ExampleApplicationsAreMarked {
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Organization organization = tuple.getT1();
+                    final Workspace organization = tuple.getT1();
 
                     assert organization.getId() != null;
                     Mockito.when(configService.getTemplateOrganizationId()).thenReturn(Mono.just(organization.getId()));

@@ -15,7 +15,7 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.Theme;
@@ -166,9 +166,9 @@ public class ApplicationForkingServiceTests {
         }
 
 
-        Organization sourceOrganization = new Organization();
+        Workspace sourceOrganization = new Workspace();
         sourceOrganization.setName("Source Organization");
-        organizationService.create(sourceOrganization).map(Organization::getId).block();
+        organizationService.create(sourceOrganization).map(Workspace::getId).block();
 
         Application app1 = new Application();
         app1.setName("1 - public app");
@@ -267,13 +267,13 @@ public class ApplicationForkingServiceTests {
     }
 
     private static class OrganizationData {
-        Organization organization;
+        Workspace organization;
         List<Application> applications = new ArrayList<>();
         List<Datasource> datasources = new ArrayList<>();
         List<ActionDTO> actions = new ArrayList<>();
     }
 
-    public Mono<OrganizationData> loadOrganizationData(Organization organization) {
+    public Mono<OrganizationData> loadOrganizationData(Workspace organization) {
         final OrganizationData data = new OrganizationData();
         data.organization = organization;
 
@@ -295,11 +295,11 @@ public class ApplicationForkingServiceTests {
     @WithUserDetails(value = "api_user")
     public void test1_cloneOrganizationWithItsContents() {
 
-        Organization targetOrganization = new Organization();
+        Workspace targetOrganization = new Workspace();
         targetOrganization.setName("Target Organization");
 
         final Mono<Application> resultMono = organizationService.create(targetOrganization)
-                .map(Organization::getId)
+                .map(Workspace::getId)
                 .flatMap(targetOrganizationId ->
                         applicationForkingService.forkApplicationToOrganization(sourceAppId, targetOrganizationId)
                 );
@@ -388,7 +388,7 @@ public class ApplicationForkingServiceTests {
     @WithUserDetails(value = "usertest@usertest.com")
     public void test2_forkApplicationWithReadApplicationUserAccess() {
 
-        Organization targetOrganization = new Organization();
+        Workspace targetOrganization = new Workspace();
         targetOrganization.setName("test-user-organization");
 
         final Mono<Application> resultMono = organizationService.create(targetOrganization)
@@ -421,7 +421,7 @@ public class ApplicationForkingServiceTests {
     @WithUserDetails(value = "api_user")
     public void test4_validForkApplication_cancelledMidWay_createValidApplication() {
 
-        Organization targetOrganization = new Organization();
+        Workspace targetOrganization = new Workspace();
         targetOrganization.setName("Target Organization");
         targetOrganization = organizationService.create(targetOrganization).block();
 
@@ -522,7 +522,7 @@ public class ApplicationForkingServiceTests {
     @WithUserDetails("api_user")
     public void forkApplicationToOrganization_WhenAppHasUnsavedThemeCustomization_ForkedWithCustomizations() {
         String uniqueString = UUID.randomUUID().toString();
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("org_" + uniqueString);
 
         Mono<Tuple4<Theme, Theme, Application, Application>> tuple4Mono = organizationService.create(organization)
@@ -536,7 +536,7 @@ public class ApplicationForkingServiceTests {
                     return themeService.updateTheme(srcApplication.getId(), theme)
                             .then(applicationService.findById(srcApplication.getId()));
                 }).flatMap(srcApplication -> {
-                    Organization desOrg = new Organization();
+                    Workspace desOrg = new Workspace();
                     desOrg.setName("org_dest_" + uniqueString);
                     return organizationService.create(desOrg).flatMap(createdOrg ->
                             applicationForkingService.forkApplicationToOrganization(srcApplication.getId(), createdOrg.getId())
@@ -588,7 +588,7 @@ public class ApplicationForkingServiceTests {
     @WithUserDetails("api_user")
     public void forkApplicationToOrganization_WhenAppHasSystemTheme_SystemThemeSet() {
         String uniqueString = UUID.randomUUID().toString();
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("org_" + uniqueString);
 
         Mono<Tuple3<Theme, Application, Application>> tuple3Mono = organizationService.create(organization)
@@ -597,7 +597,7 @@ public class ApplicationForkingServiceTests {
                     application.setName("app_" + uniqueString);
                     return applicationPageService.createApplication(application, createdOrg.getId());
                 }).flatMap(srcApplication -> {
-                    Organization desOrg = new Organization();
+                    Workspace desOrg = new Workspace();
                     desOrg.setName("org_dest_" + uniqueString);
                     return organizationService.create(desOrg).flatMap(createdOrg ->
                             applicationForkingService.forkApplicationToOrganization(srcApplication.getId(), createdOrg.getId())
@@ -639,7 +639,7 @@ public class ApplicationForkingServiceTests {
     @WithUserDetails("api_user")
     public void forkApplicationToOrganization_WhenAppHasCustomSavedTheme_NewCustomThemeCreated() {
         String uniqueString = UUID.randomUUID().toString();
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("org_" + uniqueString);
 
         Mono<Tuple4<Theme, Theme, Application, Application>> tuple4Mono = organizationService.create(organization)
@@ -654,7 +654,7 @@ public class ApplicationForkingServiceTests {
                             .then(themeService.persistCurrentTheme(srcApplication.getId(), theme))
                             .then(applicationService.findById(srcApplication.getId()));
                 }).flatMap(srcApplication -> {
-                    Organization desOrg = new Organization();
+                    Workspace desOrg = new Workspace();
                     desOrg.setName("org_dest_" + uniqueString);
                     return organizationService.create(desOrg).flatMap(createdOrg ->
                             applicationForkingService.forkApplicationToOrganization(srcApplication.getId(), createdOrg.getId())
@@ -708,13 +708,13 @@ public class ApplicationForkingServiceTests {
     @WithUserDetails(value = "api_user")
     public void forkApplication_deletePageAfterBeingPublished_deletedPageIsNotCloned() {
 
-        Organization targetOrganization = new Organization();
+        Workspace targetOrganization = new Workspace();
         targetOrganization.setName("delete-edit-mode-page-target-org");
         targetOrganization = organizationService.create(targetOrganization).block();
         assert targetOrganization != null;
         final String targetOrgId = targetOrganization.getId();
 
-        Organization srcOrganization = new Organization();
+        Workspace srcOrganization = new Workspace();
         srcOrganization.setName("delete-edit-mode-page-src-org");
         srcOrganization = organizationService.create(srcOrganization).block();
 
@@ -752,7 +752,7 @@ public class ApplicationForkingServiceTests {
                 .verifyComplete();
     }
 
-    private Flux<ActionDTO> getActionsInOrganization(Organization organization) {
+    private Flux<ActionDTO> getActionsInOrganization(Workspace organization) {
         return applicationService
                 .findByOrganizationId(organization.getId(), READ_APPLICATIONS)
                 // fetch the unpublished pages
@@ -765,7 +765,7 @@ public class ApplicationForkingServiceTests {
     @WithUserDetails(value = "api_user")
     public void forkGitConnectedApplication_defaultBranchUpdated_forkDefaultBranchApplication() {
         String uniqueString = UUID.randomUUID().toString();
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("org_" + uniqueString);
 
         Mono<Application> applicationMono = organizationService.create(organization)
@@ -817,7 +817,7 @@ public class ApplicationForkingServiceTests {
                             });
                 })
                 .flatMap(srcApplication -> {
-                    Organization desOrg = new Organization();
+                    Workspace desOrg = new Workspace();
                     desOrg.setName("org_dest_" + uniqueString);
 
                     return organizationService.create(desOrg).flatMap(createdOrg ->

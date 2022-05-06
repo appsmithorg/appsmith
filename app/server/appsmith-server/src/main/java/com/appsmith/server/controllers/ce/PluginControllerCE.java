@@ -1,7 +1,7 @@
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.server.constants.Url;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.PluginOrgDTO;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -30,14 +30,14 @@ public class PluginControllerCE extends BaseController<PluginService, Plugin, St
 
     @PostMapping("/install")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<Organization>> install(@Valid @RequestBody PluginOrgDTO plugin) {
+    public Mono<ResponseDTO<Workspace>> install(@Valid @RequestBody PluginOrgDTO plugin) {
         return service.installPlugin(plugin)
                 .map(organization -> new ResponseDTO<>(HttpStatus.CREATED.value(), organization, null));
     }
 
     @PostMapping("/uninstall")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<Organization>> uninstall(@Valid @RequestBody PluginOrgDTO plugin) {
+    public Mono<ResponseDTO<Workspace>> uninstall(@Valid @RequestBody PluginOrgDTO plugin) {
         return service.uninstallPlugin(plugin)
                 .map(organization -> new ResponseDTO<>(HttpStatus.CREATED.value(), organization, null));
     }

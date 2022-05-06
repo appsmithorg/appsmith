@@ -4,7 +4,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
@@ -145,17 +145,17 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
 
                     return organizationService
                             .findByIdsIn(orgIds, READ_ORGANIZATIONS)
-                            .collectMap(Organization::getId, v -> v)
+                            .collectMap(Workspace::getId, v -> v)
                             .zipWith(applicationsMapMono)
                             .map(tuple -> {
-                                Map<String, Organization> organizations = tuple.getT1();
+                                Map<String, Workspace> organizations = tuple.getT1();
 
                                 Map<String, Collection<Application>> applicationsCollectionByOrgId = tuple.getT2();
 
                                 List<OrganizationApplicationsDTO> organizationApplicationsDTOS = new ArrayList<>();
 
                                 for(String orgId : orgIdSortedSet) {
-                                    Organization organization = organizations.get(orgId);
+                                    Workspace organization = organizations.get(orgId);
                                     if(organization != null) {
                                         Collection<Application> applicationCollection = applicationsCollectionByOrgId.get(organization.getId());
 

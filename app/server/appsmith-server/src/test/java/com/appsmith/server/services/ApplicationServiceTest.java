@@ -18,7 +18,7 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QNewAction;
@@ -645,9 +645,9 @@ public class ApplicationServiceTest {
         Mockito.when(releaseNotesService.getReleaseNodes()).thenReturn(Mono.empty());
 
         // Create an organization for this user first.
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("usertest's organization");
-        Mono<Organization> organizationMono = organizationService.create(organization);
+        Mono<Workspace> organizationMono = organizationService.create(organization);
 
         Mono<UserHomepageDTO> allApplications = organizationMono
                 .then(applicationFetcher.getAllApplications());

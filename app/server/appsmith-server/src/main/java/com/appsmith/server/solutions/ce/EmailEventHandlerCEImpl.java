@@ -6,7 +6,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.GitApplicationMetadata;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.events.CommentAddedEvent;
 import com.appsmith.server.events.CommentThreadClosedEvent;
@@ -227,7 +227,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
         );
     }
 
-    private Mono<Boolean> geBotEmailSenderMono(Comment comment, String originHeader, Organization organization, Application application) {
+    private Mono<Boolean> geBotEmailSenderMono(Comment comment, String originHeader, Workspace organization, Application application) {
         Map<String, Object> templateParams = new HashMap<>();
         templateParams.put("App_User_Name", CommentConstants.APPSMITH_BOT_NAME);
         templateParams.put("Commenter_Name", comment.getAuthorName());
@@ -250,7 +250,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
         );
     }
 
-    private Mono<Boolean> sendEmailForCommentAdded(Organization organization, Application application, Comment comment, String originHeader, Set<String> subscribers, String pagename) {
+    private Mono<Boolean> sendEmailForCommentAdded(Workspace organization, Application application, Comment comment, String originHeader, Set<String> subscribers, String pagename) {
         List<Mono<Boolean>> emailMonos = new ArrayList<>();
         for (UserRole userRole : organization.getUserRoles()) {
             if(!comment.getAuthorUsername().equals(userRole.getUsername()) && subscribers.contains(userRole.getUsername())) {
@@ -264,7 +264,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
         return Flux.concat(emailMonos).then(Mono.just(Boolean.TRUE));
     }
 
-    private Mono<Boolean> sendEmailForCommentThreadResolved(String authorUserName, Organization organization, Application application, CommentThread commentThread, String originHeader, String pageName) {
+    private Mono<Boolean> sendEmailForCommentThreadResolved(String authorUserName, Workspace organization, Application application, CommentThread commentThread, String originHeader, String pageName) {
         List<Mono<Boolean>> emailMonos = new ArrayList<>();
         Set<String> subscribers = commentThread.getSubscribers();
         for (UserRole userRole : organization.getUserRoles()) {

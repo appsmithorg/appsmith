@@ -3,7 +3,7 @@ package com.appsmith.server.configurations;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
@@ -175,7 +175,7 @@ public class SeedMongoData {
                 .cache();
 
         // Seed the organization data into the DB
-        Flux<Organization> organizationFlux = mongoTemplate
+        Flux<Workspace> organizationFlux = mongoTemplate
                 .find(new Query().addCriteria(where("name").in(pluginData[0][0], pluginData[1][0], pluginData[2][0])), Plugin.class)
                 .map(plugin -> new OrganizationPlugin(plugin.getId(), OrganizationPluginStatus.FREE))
                 .collect(Collectors.toSet())
@@ -186,7 +186,7 @@ public class SeedMongoData {
                     final Set<OrganizationPlugin> orgPlugins = tuple.getT1();
                     final Object[] orgArray = tuple.getT2();
 
-                    Organization organization = new Organization();
+                    Workspace organization = new Workspace();
                     organization.setName((String) orgArray[0]);
                     organization.setDomain((String) orgArray[1]);
                     organization.setWebsite((String) orgArray[2]);
@@ -208,7 +208,7 @@ public class SeedMongoData {
                 })
                 .flatMap(organizationRepository::save);
 
-        Flux<Organization> organizationFlux1 = organizationRepository.deleteAll()
+        Flux<Workspace> organizationFlux1 = organizationRepository.deleteAll()
                 .thenMany(pluginFlux)
                 .thenMany(userFlux)
                 .thenMany(organizationFlux);
@@ -235,7 +235,7 @@ public class SeedMongoData {
                         }));
 
         Query orgNameQuery = new Query(where("slug").is(orgData[0][3]));
-        Mono<Organization> orgByNameMono = mongoTemplate.findOne(orgNameQuery, Organization.class)
+        Mono<Workspace> orgByNameMono = mongoTemplate.findOne(orgNameQuery, Workspace.class)
                 .switchIfEmpty(Mono.error(new Exception("Can't find org")));
 
         Query appNameQuery = new Query(where("name").is(appData[0][0]));

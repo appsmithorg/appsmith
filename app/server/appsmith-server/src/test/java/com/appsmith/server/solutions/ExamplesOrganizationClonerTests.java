@@ -19,7 +19,7 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
@@ -140,14 +140,14 @@ public class ExamplesOrganizationClonerTests {
     private LayoutCollectionService layoutCollectionService;
 
     private static class OrganizationData {
-        Organization organization;
+        Workspace organization;
         List<Application> applications = new ArrayList<>();
         List<Datasource> datasources = new ArrayList<>();
         List<ActionDTO> actions = new ArrayList<>();
         List<ActionCollectionDTO> actionCollections = new ArrayList<>();
     }
 
-    public Mono<OrganizationData> loadOrganizationData(Organization organization) {
+    public Mono<OrganizationData> loadOrganizationData(Workspace organization) {
         final OrganizationData data = new OrganizationData();
         data.organization = organization;
 
@@ -176,7 +176,7 @@ public class ExamplesOrganizationClonerTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void cloneEmptyOrganization() {
-        Organization newOrganization = new Organization();
+        Workspace newOrganization = new Workspace();
         newOrganization.setName("Template Organization");
         final Mono<OrganizationData> resultMono = organizationService.create(newOrganization)
                 .zipWith(sessionUserService.getCurrentUser())
@@ -202,7 +202,7 @@ public class ExamplesOrganizationClonerTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void cloneOrganizationWithItsContents() {
-        Organization newOrganization = new Organization();
+        Workspace newOrganization = new Workspace();
         newOrganization.setName("Template Organization");
         final Mono<OrganizationData> resultMono = Mono
                 .zip(
@@ -210,7 +210,7 @@ public class ExamplesOrganizationClonerTests {
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Organization organization = tuple.getT1();
+                    final Workspace organization = tuple.getT1();
                     Application app1 = new Application();
                     app1.setName("1 - public app");
                     app1.setOrganizationId(organization.getId());
@@ -256,7 +256,7 @@ public class ExamplesOrganizationClonerTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void cloneOrganizationWithOnlyPublicApplications() {
-        Organization newOrganization = new Organization();
+        Workspace newOrganization = new Workspace();
         newOrganization.setName("Template Organization 2");
         final Mono<OrganizationData> resultMono = Mono
                 .zip(
@@ -264,7 +264,7 @@ public class ExamplesOrganizationClonerTests {
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Organization organization = tuple.getT1();
+                    final Workspace organization = tuple.getT1();
 
                     Application app1 = new Application();
                     app1.setName("1 - public app more");
@@ -327,7 +327,7 @@ public class ExamplesOrganizationClonerTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void cloneOrganizationWithOnlyPrivateApplications() {
-        Organization newOrganization = new Organization();
+        Workspace newOrganization = new Workspace();
         newOrganization.setName("Template Organization 2");
         final Mono<OrganizationData> resultMono = Mono
                 .zip(
@@ -335,7 +335,7 @@ public class ExamplesOrganizationClonerTests {
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Organization organization = tuple.getT1();
+                    final Workspace organization = tuple.getT1();
 
                     Application app1 = new Application();
                     app1.setName("1 - private app more");
@@ -370,10 +370,10 @@ public class ExamplesOrganizationClonerTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void cloneApplicationMultipleTimes() {
-        Organization sourceOrg = new Organization();
+        Workspace sourceOrg = new Workspace();
         sourceOrg.setName("Source Org 1");
 
-        Organization targetOrg = new Organization();
+        Workspace targetOrg = new Workspace();
         targetOrg.setName("Target Org 1");
 
         final Mono<List<String>> resultMono = Mono
@@ -382,7 +382,7 @@ public class ExamplesOrganizationClonerTests {
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Organization sourceOrg1 = tuple.getT1();
+                    final Workspace sourceOrg1 = tuple.getT1();
                     Application app1 = new Application();
                     app1.setName("awesome app");
                     app1.setOrganizationId(sourceOrg1.getId());
@@ -426,7 +426,7 @@ public class ExamplesOrganizationClonerTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void cloneOrganizationWithOnlyDatasources() {
-        Organization newOrganization = new Organization();
+        Workspace newOrganization = new Workspace();
         newOrganization.setName("Template Organization 2");
         final Mono<OrganizationData> resultMono = Mono
                 .zip(
@@ -434,7 +434,7 @@ public class ExamplesOrganizationClonerTests {
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Organization organization = tuple.getT1();
+                    final Workspace organization = tuple.getT1();
 
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");
@@ -479,7 +479,7 @@ public class ExamplesOrganizationClonerTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void cloneOrganizationWithOnlyDatasourcesSpecifiedExplicitly() {
-        Organization newOrganization = new Organization();
+        Workspace newOrganization = new Workspace();
         newOrganization.setName("Template Organization 2");
         final Mono<OrganizationData> resultMono = Mono
                 .zip(
@@ -487,7 +487,7 @@ public class ExamplesOrganizationClonerTests {
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Organization organization = tuple.getT1();
+                    final Workspace organization = tuple.getT1();
 
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");
@@ -541,7 +541,7 @@ public class ExamplesOrganizationClonerTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void cloneOrganizationWithDatasourcesAndApplications() {
-        Organization newOrganization = new Organization();
+        Workspace newOrganization = new Workspace();
         newOrganization.setName("Template Organization 2");
         final Mono<OrganizationData> resultMono = Mono
                 .zip(
@@ -549,7 +549,7 @@ public class ExamplesOrganizationClonerTests {
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Organization organization = tuple.getT1();
+                    final Workspace organization = tuple.getT1();
 
                     final Application app1 = new Application();
                     app1.setName("first application");
@@ -610,9 +610,9 @@ public class ExamplesOrganizationClonerTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void cloneOrganizationWithDatasourcesAndApplicationsAndActionsAndCollections() {
-        Organization newOrganization = new Organization();
+        Workspace newOrganization = new Workspace();
         newOrganization.setName("Template Organization 2");
-        final Organization organization = organizationService.create(newOrganization).block();
+        final Workspace organization = organizationService.create(newOrganization).block();
         final User user = sessionUserService.getCurrentUser().block();
 
         final Application app1 = new Application();
@@ -781,10 +781,10 @@ public class ExamplesOrganizationClonerTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void cloneApplicationWithActionsThrice() {
-        Organization sourceOrg = new Organization();
+        Workspace sourceOrg = new Workspace();
         sourceOrg.setName("Source Org 2");
 
-        Organization targetOrg = new Organization();
+        Workspace targetOrg = new Workspace();
         targetOrg.setName("Target Org 2");
 
         final Mono<OrganizationData> resultMono = Mono
@@ -793,7 +793,7 @@ public class ExamplesOrganizationClonerTests {
                         sessionUserService.getCurrentUser()
                 )
                 .flatMap(tuple -> {
-                    final Organization sourceOrg1 = tuple.getT1();
+                    final Workspace sourceOrg1 = tuple.getT1();
 
                     final Application app1 = new Application();
                     app1.setName("that great app");
@@ -926,7 +926,7 @@ public class ExamplesOrganizationClonerTests {
                                 ));
                             })
                             .flatMap(tuple1 -> {
-                                final Organization targetOrg1 = tuple1.getT1();
+                                final Workspace targetOrg1 = tuple1.getT1();
                                 final String originalId = tuple1.getT2().getId();
                                 final String originalName = tuple1.getT2().getName();
 
@@ -1021,7 +1021,7 @@ public class ExamplesOrganizationClonerTests {
         return list.stream().map(fn).collect(Collectors.toList());
     }
 
-    private Flux<ActionDTO> getActionsInOrganization(Organization organization) {
+    private Flux<ActionDTO> getActionsInOrganization(Workspace organization) {
         return applicationService
                 .findByOrganizationId(organization.getId(), READ_APPLICATIONS)
                 // fetch the unpublished pages
@@ -1030,7 +1030,7 @@ public class ExamplesOrganizationClonerTests {
                         Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId())))));
     }
 
-    private Flux<ActionCollectionDTO> getActionCollectionsInOrganization(Organization organization) {
+    private Flux<ActionCollectionDTO> getActionCollectionsInOrganization(Workspace organization) {
         return applicationService
                 .findByOrganizationId(organization.getId(), READ_APPLICATIONS)
                 // fetch the unpublished pages

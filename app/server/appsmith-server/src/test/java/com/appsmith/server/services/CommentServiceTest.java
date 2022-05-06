@@ -7,7 +7,7 @@ import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
@@ -109,7 +109,7 @@ public class CommentServiceTest {
     @WithUserDetails(value = "api_user")
     public void setup() {
         String randomId = UUID.randomUUID().toString();
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName(randomId + "-test-org");
 
         final Mono<Tuple2<CommentThread, List<CommentThread>>> resultMono = organizationService
@@ -204,7 +204,7 @@ public class CommentServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void deleteValidComment() {
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("CommentDeleteTestOrg");
         Mono<Comment> beforeDeletionMono = organizationService
                 .create(organization)
@@ -241,7 +241,7 @@ public class CommentServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testAddReaction() {
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("ReactionsOrg");
         Mono<Comment> reactionMono = organizationService
                 .create(organization)
@@ -280,7 +280,7 @@ public class CommentServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testAddAndRemoveReaction() {
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("ReactionsOrg");
         Mono<Comment> reactionMono = organizationService
                 .create(organization)
@@ -502,7 +502,7 @@ public class CommentServiceTest {
         userData.setCommentOnboardingState(CommentOnboardingState.COMMENTED);
         Mockito.when(userDataRepository.findByUserId(any(String.class))).thenReturn(Mono.just(userData));
 
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("GetThreadsTestOrg");
 
         Mono<List<CommentThread>> commentThreadListMono = organizationService
@@ -544,7 +544,7 @@ public class CommentServiceTest {
         userData.setCommentOnboardingState(CommentOnboardingState.COMMENTED);
         Mockito.when(userDataRepository.findByUserId(any(String.class))).thenReturn(Mono.just(userData));
 
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("CreateThreadTestOrg");
 
         String testUsernameForNotification = "test_username_for_notification";
@@ -612,7 +612,7 @@ public class CommentServiceTest {
                 userDataRepository.removeIdFromRecentlyUsedList(any(String.class), any(String.class), any(List.class))
         ).thenReturn(Mono.just(Mockito.mock(UpdateResult.class)));
         String randomId = UUID.randomUUID().toString();
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("Comment test " + randomId);
 
         Mono<CommentThread> commentThreadMono = organizationService.create(organization).flatMap(organization1 -> {

@@ -7,7 +7,7 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CommentThread;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
@@ -76,12 +76,12 @@ class UserOrganizationServiceTest {
     @Autowired
     private UserDataService userDataService;
 
-    private Organization organization;
+    private Workspace organization;
     private User user;
 
     @BeforeEach
     public void setup() {
-        Organization org = new Organization();
+        Workspace org = new Workspace();
         org.setName("Test org");
         org.setUserRoles(new ArrayList<>());
         this.organization = organizationRepository.save(org).block();
@@ -246,7 +246,7 @@ class UserOrganizationServiceTest {
         application.setOrganizationId(this.organization.getId());
         application.setName("Test application");
         Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(
-                organization.getPolicies(), Organization.class, Application.class
+                organization.getPolicies(), Workspace.class, Application.class
         );
         application.setPolicies(documentPolicies);
         return application;

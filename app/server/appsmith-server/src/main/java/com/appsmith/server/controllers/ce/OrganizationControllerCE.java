@@ -1,7 +1,7 @@
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.server.constants.Url;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.OrganizationService;
@@ -26,7 +26,7 @@ import java.util.Map;
 
 
 @RequestMapping(Url.ORGANIZATION_URL)
-public class OrganizationControllerCE extends BaseController<OrganizationService, Organization, String> {
+public class OrganizationControllerCE extends BaseController<OrganizationService, Workspace, String> {
     private final UserOrganizationService userOrganizationService;
 
     @Autowired
@@ -61,7 +61,7 @@ public class OrganizationControllerCE extends BaseController<OrganizationService
     }
 
     @PostMapping("/{organizationId}/logo")
-    public Mono<ResponseDTO<Organization>> uploadLogo(@PathVariable String organizationId,
+    public Mono<ResponseDTO<Workspace>> uploadLogo(@PathVariable String organizationId,
                                                       @RequestPart("file") Mono<Part> fileMono) {
         return fileMono
                 .flatMap(filePart -> service.uploadLogo(organizationId, filePart))
@@ -69,7 +69,7 @@ public class OrganizationControllerCE extends BaseController<OrganizationService
     }
 
     @DeleteMapping("/{organizationId}/logo")
-    public Mono<ResponseDTO<Organization>> deleteLogo(@PathVariable String organizationId) {
+    public Mono<ResponseDTO<Workspace>> deleteLogo(@PathVariable String organizationId) {
         return service.deleteLogo(organizationId)
                 .map(organization -> new ResponseDTO<>(HttpStatus.OK.value(), organization, null));
     }

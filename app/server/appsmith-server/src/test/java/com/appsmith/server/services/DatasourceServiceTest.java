@@ -15,7 +15,7 @@ import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -88,7 +88,7 @@ public class DatasourceServiceTest {
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
-        Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
+        Workspace testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
         orgId = testOrg == null ? "" : testOrg.getId();
     }
 
@@ -96,7 +96,7 @@ public class DatasourceServiceTest {
     @WithUserDetails(value = "api_user")
     public void datasourceDefaultNameCounterAsPerOrgId() {
         //Create new organization
-        Organization organization1 = new Organization();
+        Workspace organization1 = new Workspace();
         organization1.setId("random-org-id-1");
         organization1.setName("Random Org 1");
 
@@ -107,13 +107,13 @@ public class DatasourceServiceTest {
                     return datasourceService.create(datasource);
                 })
                 .flatMap(datasource1 -> {
-                    Organization organization2 = new Organization();
+                    Workspace organization2 = new Workspace();
                     organization2.setId("random-org-id-2");
                     organization2.setName("Random Org 2");
                     return Mono.zip(Mono.just(datasource1), organizationService.create(organization2));
                 })
                 .flatMap(object -> {
-                    final Organization org2 = object.getT2();
+                    final Workspace org2 = object.getT2();
                     Datasource datasource2 = new Datasource();
                     datasource2.setOrganizationId(org2.getId());
                     return Mono.zip(Mono.just(object.getT1()), datasourceService.create(datasource2));
@@ -523,7 +523,7 @@ public class DatasourceServiceTest {
                         pluginService.findByName("Installed Plugin Name")
                 )
                 .flatMap(objects -> {
-                    final Organization organization = objects.getT1();
+                    final Workspace organization = objects.getT1();
                     final Plugin plugin = objects.getT2();
 
                     Datasource datasource = new Datasource();
@@ -589,7 +589,7 @@ public class DatasourceServiceTest {
                         pluginService.findByName("Installed Plugin Name")
                 )
                 .flatMap(objects -> {
-                    final Organization organization = objects.getT1();
+                    final Workspace organization = objects.getT1();
                     final Plugin plugin = objects.getT2();
 
                     Datasource datasource = new Datasource();

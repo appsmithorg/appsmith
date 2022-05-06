@@ -1,7 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Slf4j
-public class CustomOrganizationRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Organization>
+public class CustomOrganizationRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Workspace>
         implements CustomOrganizationRepositoryCE {
 
     public CustomOrganizationRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
@@ -30,14 +30,14 @@ public class CustomOrganizationRepositoryCEImpl extends BaseAppsmithRepositoryIm
     }
 
     @Override
-    public Mono<Organization> findByName(String name, AclPermission aclPermission) {
+    public Mono<Workspace> findByName(String name, AclPermission aclPermission) {
         Criteria nameCriteria = where(fieldName(QOrganization.organization.name)).is(name);
 
         return queryOne(List.of(nameCriteria), aclPermission);
     }
 
     @Override
-    public Flux<Organization> findByIdsIn(Set<String> orgIds, AclPermission aclPermission, Sort sort) {
+    public Flux<Workspace> findByIdsIn(Set<String> orgIds, AclPermission aclPermission, Sort sort) {
         Criteria orgIdsCriteria = where(fieldName(QOrganization.organization.id)).in(orgIds);
 
         return queryAll(List.of(orgIdsCriteria), aclPermission, sort);
@@ -49,8 +49,8 @@ public class CustomOrganizationRepositoryCEImpl extends BaseAppsmithRepositoryIm
         final Query slugPrefixQuery = query(where(slugField).regex("^" + slugPrefix + "\\d*$"));
         slugPrefixQuery.fields().include(slugField);
         return mongoOperations
-                .find(slugPrefixQuery, Organization.class)
-                .map(Organization::getSlug)
+                .find(slugPrefixQuery, Workspace.class)
+                .map(Workspace::getSlug)
                 .collect(Collectors.toSet())
                 .map(slugs -> {
                     if (slugs.isEmpty() || !slugs.contains(slugPrefix)) {
@@ -72,13 +72,13 @@ public class CustomOrganizationRepositoryCEImpl extends BaseAppsmithRepositoryIm
                 .updateMulti(
                         Query.query(Criteria.where("userRoles.userId").is(userId)),
                         Update.update("userRoles.$.name", userName),
-                        Organization.class
+                        Workspace.class
                 )
                 .then();
     }
 
     @Override
-    public Flux<Organization> findAllOrganizations() {
-        return mongoOperations.find(new Query(), Organization.class);
+    public Flux<Workspace> findAllOrganizations() {
+        return mongoOperations.find(new Query(), Workspace.class);
     }
 }

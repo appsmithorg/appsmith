@@ -2,7 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
@@ -120,7 +120,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         }
 
         // TODO : Think about the various scenarios where this plugin api is called and then decide on permissions.
-        Mono<Organization> organizationMono = organizationService.getById(organizationId);
+        Mono<Workspace> organizationMono = organizationService.getById(organizationId);
 
         return organizationMono
                 .flatMapMany(org -> {
@@ -177,7 +177,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     }
 
     @Override
-    public Mono<Organization> installPlugin(PluginOrgDTO pluginOrgDTO) {
+    public Mono<Workspace> installPlugin(PluginOrgDTO pluginOrgDTO) {
         if (pluginOrgDTO.getPluginId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
@@ -190,7 +190,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     }
 
     @Override
-    public Flux<Organization> installDefaultPlugins(List<Plugin> plugins) {
+    public Flux<Workspace> installDefaultPlugins(List<Plugin> plugins) {
         final List<OrganizationPlugin> newOrganizationPlugins = plugins
                 .stream()
                 .filter(plugin -> Boolean.TRUE.equals(plugin.getDefaultInstall()))
@@ -211,7 +211,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     }
 
     @Override
-    public Mono<Organization> uninstallPlugin(PluginOrgDTO pluginDTO) {
+    public Mono<Workspace> uninstallPlugin(PluginOrgDTO pluginDTO) {
         if (pluginDTO.getPluginId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
@@ -220,7 +220,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         }
 
         //Find the organization using id and plugin id -> This is to find if the organization has the plugin installed
-        Mono<Organization> organizationMono = organizationService.findByIdAndPluginsPluginId(pluginDTO.getOrganizationId(),
+        Mono<Workspace> organizationMono = organizationService.findByIdAndPluginsPluginId(pluginDTO.getOrganizationId(),
                 pluginDTO.getPluginId());
 
         return organizationMono
@@ -236,9 +236,9 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                 });
     }
 
-    private Mono<Organization> storeOrganizationPlugin(PluginOrgDTO pluginDTO, OrganizationPluginStatus status) {
+    private Mono<Workspace> storeOrganizationPlugin(PluginOrgDTO pluginDTO, OrganizationPluginStatus status) {
 
-        Mono<Organization> pluginInOrganizationMono = organizationService
+        Mono<Workspace> pluginInOrganizationMono = organizationService
                 .findByIdAndPluginsPluginId(pluginDTO.getOrganizationId(), pluginDTO.getPluginId());
 
 

@@ -7,7 +7,7 @@ import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.LoginSource;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -59,7 +59,7 @@ public class UserServiceWithDisabledSignupTest {
 
     Mono<User> userMono;
 
-    Mono<Organization> organizationMono;
+    Mono<Workspace> organizationMono;
 
     @Autowired
     UserSignup userSignup;

@@ -18,7 +18,7 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.Theme;
@@ -188,9 +188,9 @@ public class ImportExportApplicationServiceTests {
             return;
         }
         installedPlugin = pluginRepository.findByPackageName("installed-plugin").block();
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("Import-Export-Test-Organization");
-        Organization savedOrganization = organizationService.create(organization).block();
+        Workspace savedOrganization = organizationService.create(organization).block();
         orgId = savedOrganization.getId();
 
         Application testApplication = new Application();
@@ -282,8 +282,8 @@ public class ImportExportApplicationServiceTests {
                 });
     }
 
-    private Organization createTemplateOrganization() {
-        Organization newOrganization = new Organization();
+    private Workspace createTemplateOrganization() {
+        Workspace newOrganization = new Workspace();
         newOrganization.setName("Template Organization");
         return organizationService.create(newOrganization).block();
     }
@@ -366,7 +366,7 @@ public class ImportExportApplicationServiceTests {
     @WithUserDetails(value = "api_user")
     public void createExportAppJsonWithActionAndActionCollectionTest() {
 
-        Organization newOrganization = new Organization();
+        Workspace newOrganization = new Workspace();
         newOrganization.setName("template-org-with-ds");
 
         Application testApplication = new Application();
@@ -586,7 +586,7 @@ public class ImportExportApplicationServiceTests {
             )
             .flatMap(tuple -> {
 
-                Organization organization = tuple.getT1();
+                Workspace organization = tuple.getT1();
                 Application testApp = tuple.getT2();
 
                 final String pageId = testApp.getPages().get(0).getId();
@@ -739,7 +739,7 @@ public class ImportExportApplicationServiceTests {
         
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
     
-        Organization newOrganization = new Organization();
+        Workspace newOrganization = new Workspace();
         newOrganization.setName("Template Organization");
     
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
@@ -847,7 +847,7 @@ public class ImportExportApplicationServiceTests {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
 
-        Organization newOrganization = new Organization();
+        Workspace newOrganization = new Workspace();
         newOrganization.setName("Midway cancel import app organization");
         newOrganization = organizationService.create(newOrganization).block();
 
@@ -883,7 +883,7 @@ public class ImportExportApplicationServiceTests {
                 "test_assets/ImportExportServiceTest/valid-application-with-custom-themes.json"
         );
 
-        Organization newOrganization = new Organization();
+        Workspace newOrganization = new Workspace();
         newOrganization.setName("Import theme test org");
 
         final Mono<ApplicationImportDTO> resultMono = organizationService
@@ -923,7 +923,7 @@ public class ImportExportApplicationServiceTests {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application-without-action-collection.json");
 
-        Organization newOrganization = new Organization();
+        Workspace newOrganization = new Workspace();
         newOrganization.setName("Template Organization");
 
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
@@ -1001,7 +1001,7 @@ public class ImportExportApplicationServiceTests {
     public void importApplication_WithoutThemes_LegacyThemesAssigned() {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application-without-theme.json");
 
-        Organization newOrganization = new Organization();
+        Workspace newOrganization = new Workspace();
         newOrganization.setName("Template Organization");
 
         final Mono<ApplicationImportDTO> resultMono = organizationService.create(newOrganization)
@@ -1024,7 +1024,7 @@ public class ImportExportApplicationServiceTests {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-application-without-pageId-action-collection.json");
 
-        Organization newOrganization = new Organization();
+        Workspace newOrganization = new Workspace();
         newOrganization.setName("Template Organization");
 
         final Mono<ApplicationImportDTO> resultMono = organizationService
@@ -1146,7 +1146,7 @@ public class ImportExportApplicationServiceTests {
     public void importApplication_withUnConfiguredDatasources_Success() {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application-with-un-configured-datasource.json");
 
-        Organization newOrganization = new Organization();
+        Workspace newOrganization = new Workspace();
         newOrganization.setName("Template Organization");
 
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
@@ -1995,7 +1995,7 @@ public class ImportExportApplicationServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void exportApplication_withDatasourceConfig_exportedWithDecryptedFields() {
-        Organization newOrganization = new Organization();
+        Workspace newOrganization = new Workspace();
         newOrganization.setName("template-org-with-ds");
 
         Application testApplication = new Application();
@@ -2235,7 +2235,7 @@ public class ImportExportApplicationServiceTests {
 
         ApplicationJson applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json").block();
 
-        Organization testOrganization = new Organization();
+        Workspace testOrganization = new Workspace();
         testOrganization.setName("Duplicate datasource with different plugin org");
         testOrganization = organizationService.create(testOrganization).block();
 
@@ -2288,7 +2288,7 @@ public class ImportExportApplicationServiceTests {
 
         ApplicationJson applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json").block();
 
-        Organization testOrganization = new Organization();
+        Workspace testOrganization = new Workspace();
         testOrganization.setName("Duplicate datasource with same plugin org");
         testOrganization = organizationService.create(testOrganization).block();
 
@@ -2338,7 +2338,7 @@ public class ImportExportApplicationServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void exportAndImportApplication_withMultiplePagesOrderSameInDeployAndEditMode_PagesOrderIsMaintainedInEditAndViewMode() {
-        Organization newOrganization = new Organization();
+        Workspace newOrganization = new Workspace();
         newOrganization.setName("template-org-with-ds");
 
         Application testApplication = new Application();
@@ -2433,7 +2433,7 @@ public class ImportExportApplicationServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void exportAndImportApplication_withMultiplePagesOrderDifferentInDeployAndEditMode_PagesOrderIsMaintainedInEditAndViewMode() {
-        Organization newOrganization = new Organization();
+        Workspace newOrganization = new Workspace();
         newOrganization.setName("template-org-with-ds");
 
         Application testApplication = new Application();
@@ -2553,7 +2553,7 @@ public class ImportExportApplicationServiceTests {
     @WithUserDetails(value = "api_user")
     public void importApplication_invalidPluginReferenceForDatasource_throwException() {
 
-        Organization newOrganization = new Organization();
+        Workspace newOrganization = new Workspace();
         newOrganization.setName("Template Organization");
 
         ApplicationJson appJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json").block();

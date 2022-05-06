@@ -10,7 +10,7 @@ import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.InviteUsersDTO;
@@ -101,11 +101,11 @@ public class OrganizationServiceTest {
     @Autowired
     private AssetRepository assetRepository;
 
-    Organization organization;
+    Workspace organization;
 
     @Before
     public void setup() {
-        organization = new Organization();
+        organization = new Workspace();
         organization.setName("Test Name");
         organization.setDomain("example.com");
         organization.setWebsite("https://example.com");
@@ -117,8 +117,8 @@ public class OrganizationServiceTest {
     @WithUserDetails(value = "api_user")
     public void createDefaultOrganization() {
 
-        Mono<Organization> organizationMono = userRepository.findByEmail("api_user")
-                .flatMap(user -> organizationService.createDefault(new Organization(), user))
+        Mono<Workspace> organizationMono = userRepository.findByEmail("api_user")
+                .flatMap(user -> organizationService.createDefault(new Workspace(), user))
                 .switchIfEmpty(Mono.error(new Exception("createDefault is returning empty!!")));
 
         StepVerifier.create(organizationMono)
@@ -139,13 +139,13 @@ public class OrganizationServiceTest {
         newUser.setPassword("new-user-with-default-org-password");
 
         Mono<User> userMono = userService.create(newUser).cache();
-        Mono<Organization> defaultOrgMono = userMono
+        Mono<Workspace> defaultOrgMono = userMono
                 .flatMap(user -> organizationRepository
                         .findById(user.getOrganizationIds().stream().findFirst().get()));
 
         StepVerifier.create(Mono.zip(userMono, defaultOrgMono))
                 .assertNext(tuple -> {
-                    Organization defaultOrg = tuple.getT2();
+                        Workspace defaultOrg = tuple.getT2();
                     User user = tuple.getT1();
 
                     assertThat(user.getId()).isNotNull();
@@ -160,7 +160,7 @@ public class OrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void nullCreateOrganization() {
-        Mono<Organization> organizationResponse = organizationService.create(null);
+        Mono<Workspace> organizationResponse = organizationService.create(null);
         StepVerifier.create(organizationResponse)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                         throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ORGANIZATION)))
@@ -171,7 +171,7 @@ public class OrganizationServiceTest {
     @WithUserDetails(value = "api_user")
     public void nullName() {
         organization.setName(null);
-        Mono<Organization> organizationResponse = organizationService.create(organization);
+        Mono<Workspace> organizationResponse = organizationService.create(organization);
         StepVerifier.create(organizationResponse)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                         throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME)))
@@ -189,7 +189,7 @@ public class OrganizationServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
-        Mono<Organization> organizationResponse = organizationService.create(organization)
+        Mono<Workspace> organizationResponse = organizationService.create(organization)
                 .switchIfEmpty(Mono.error(new Exception("create is returning empty!!")));
         StepVerifier.create(organizationResponse)
                 .assertNext(organization1 -> {
@@ -208,7 +208,7 @@ public class OrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getOrganizationInvalidId() {
-        Mono<Organization> organizationMono = organizationService.getById("random-id");
+        Mono<Workspace> organizationMono = organizationService.getById("random-id");
         StepVerifier.create(organizationMono)
                 // This would not return any organization and would complete.
                 .verifyComplete();
@@ -217,7 +217,7 @@ public class OrganizationServiceTest {
     @Test
     @WithMockUser(username = "api_user")
     public void getOrganizationNullId() {
-        Mono<Organization> organizationMono = organizationService.getById(null);
+        Mono<Workspace> organizationMono = organizationService.getById(null);
         StepVerifier.create(organizationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                         throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ID)))
@@ -227,13 +227,13 @@ public class OrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void validGetOrganizationByName() {
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("Test For Get Name");
         organization.setDomain("example.com");
         organization.setWebsite("https://example.com");
         organization.setSlug("test-for-get-name");
-        Mono<Organization> createOrganization = organizationService.create(organization);
-        Mono<Organization> getOrganization = createOrganization.flatMap(t -> organizationService.getById(t.getId()));
+        Mono<Workspace> createOrganization = organizationService.create(organization);
+        Mono<Workspace> getOrganization = createOrganization.flatMap(t -> organizationService.getById(t.getId()));
         StepVerifier.create(getOrganization)
                 .assertNext(t -> {
                     assertThat(t).isNotNull();
@@ -254,16 +254,16 @@ public class OrganizationServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
-        Organization organization = new Organization();
+                Workspace organization = new Workspace();
         organization.setName("Test Update Name");
         organization.setDomain("example.com");
         organization.setWebsite("https://example.com");
         organization.setSlug("test-update-name");
 
-        Mono<Organization> createOrganization = organizationService.create(organization);
-        Mono<Organization> updateOrganization = createOrganization
+        Mono<Workspace> createOrganization = organizationService.create(organization);
+        Mono<Workspace> updateOrganization = createOrganization
                 .flatMap(t -> {
-                    Organization newOrganization = new Organization();
+                    Workspace newOrganization = new Workspace();
                     newOrganization.setDomain("abc.com");
                     return organizationService.update(t.getId(), newOrganization);
                 });
@@ -294,15 +294,15 @@ public class OrganizationServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("Test Update Name");
         organization.setDomain("example.com");
         organization.setWebsite("https://example.com");
         organization.setSlug("test-update-name");
-        Mono<Organization> createOrganization = organizationService.create(organization);
-        Mono<Organization> updateOrganization = createOrganization
+        Mono<Workspace> createOrganization = organizationService.create(organization);
+        Mono<Workspace> updateOrganization = createOrganization
                 .flatMap(t -> {
-                    Organization newOrganization = new Organization();
+                    Workspace newOrganization = new Workspace();
                     newOrganization.setName("");
                     return organizationService.update(t.getId(), newOrganization);
                 });
@@ -316,7 +316,7 @@ public class OrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void uniqueSlugs() {
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("Slug org");
         organization.setDomain("example.com");
         organization.setWebsite("https://example.com");
@@ -334,18 +334,18 @@ public class OrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createDuplicateNameOrganization() {
-        Organization firstOrg = new Organization();
+        Workspace firstOrg = new Workspace();
         firstOrg.setName("Really good org");
         firstOrg.setDomain("example.com");
         firstOrg.setWebsite("https://example.com");
 
-        Organization secondOrg = new Organization();
+        Workspace secondOrg = new Workspace();
         secondOrg.setName(firstOrg.getName());
         secondOrg.setDomain(firstOrg.getDomain());
         secondOrg.setWebsite(firstOrg.getWebsite());
 
-        Mono<Organization> firstOrgCreation = organizationService.create(firstOrg).cache();
-        Mono<Organization> secondOrgCreation = firstOrgCreation.then(organizationService.create(secondOrg));
+        Mono<Workspace> firstOrgCreation = organizationService.create(firstOrg).cache();
+        Mono<Workspace> secondOrgCreation = firstOrgCreation.then(organizationService.create(secondOrg));
 
         StepVerifier.create(Mono.zip(firstOrgCreation, secondOrgCreation))
                 .assertNext(orgsTuple -> {
@@ -372,12 +372,12 @@ public class OrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getAllMembersForOrganization() {
-        Organization testOrg = new Organization();
+        Workspace testOrg = new Workspace();
         testOrg.setName("Get All Members For Organization Test");
         testOrg.setDomain("test.com");
         testOrg.setWebsite("https://test.com");
 
-        Mono<Organization> createOrganizationMono = organizationService.create(testOrg);
+        Mono<Workspace> createOrganizationMono = organizationService.create(testOrg);
         Mono<List<UserRole>> usersMono = createOrganizationMono
                 .flatMap(organization -> organizationService.getOrganizationMembers(organization.getId()));
 
@@ -400,7 +400,7 @@ public class OrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void addExistingUserToOrganizationAsAdmin() {
-        Mono<Organization> seedOrganization = organizationRepository.findByName("Spring Test Organization", AclPermission.READ_ORGANIZATIONS)
+        Mono<Workspace> seedOrganization = organizationRepository.findByName("Spring Test Organization", AclPermission.READ_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND)));
 
         Mono<List<User>> usersAddedToOrgMono = seedOrganization
@@ -417,14 +417,14 @@ public class OrganizationServiceTest {
                 })
                 .cache();
 
-        Mono<Organization> orgAfterUpdateMono = usersAddedToOrgMono
+        Mono<Workspace> orgAfterUpdateMono = usersAddedToOrgMono
                 .then(seedOrganization);
 
         StepVerifier
                 .create(Mono.zip(usersAddedToOrgMono, orgAfterUpdateMono))
                 .assertNext(tuple -> {
                     User user = tuple.getT1().get(0);
-                    Organization org = tuple.getT2();
+                    Workspace org = tuple.getT2();
 
                     assertThat(org).isNotNull();
                     assertThat(org.getName()).isEqualTo("Spring Test Organization");
@@ -459,7 +459,7 @@ public class OrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void addNewUserToOrganizationAsAdmin() {
-        Mono<Organization> seedOrganization = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS)
+        Mono<Workspace> seedOrganization = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND)));
 
         Mono<List<User>> userAddedToOrgMono = seedOrganization
@@ -476,14 +476,14 @@ public class OrganizationServiceTest {
                 })
                 .cache();
 
-        Mono<Organization> orgAfterUpdateMono = userAddedToOrgMono
+        Mono<Workspace> orgAfterUpdateMono = userAddedToOrgMono
                 .then(seedOrganization);
 
         StepVerifier
                 .create(Mono.zip(userAddedToOrgMono, orgAfterUpdateMono))
                 .assertNext(tuple -> {
                     User user = tuple.getT1().get(0);
-                    Organization org = tuple.getT2();
+                    Workspace org = tuple.getT2();
                     log.debug("org user roles : {}", org.getUserRoles());
 
                     assertThat(org).isNotNull();
@@ -525,12 +525,12 @@ public class OrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void addNewUserToOrganizationAsViewer() {
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("Add Viewer to Test Organization");
         organization.setDomain("example.com");
         organization.setWebsite("https://example.com");
 
-        Mono<Organization> organizationMono = organizationService
+        Mono<Workspace> organizationMono = organizationService
                 .create(organization)
                 .cache();
 
@@ -548,16 +548,16 @@ public class OrganizationServiceTest {
                 })
                 .cache();
 
-        Mono<Organization> readOrgMono = organizationRepository.findByName("Add Viewer to Test Organization");
+        Mono<Workspace> readOrgMono = organizationRepository.findByName("Add Viewer to Test Organization");
 
-        Mono<Organization> orgAfterUpdateMono = userAddedToOrgMono
+        Mono<Workspace> orgAfterUpdateMono = userAddedToOrgMono
                 .then(readOrgMono);
 
         StepVerifier
                 .create(Mono.zip(userAddedToOrgMono, orgAfterUpdateMono))
                 .assertNext(tuple -> {
                     User user = tuple.getT1().get(0);
-                    Organization org = tuple.getT2();
+                    Workspace org = tuple.getT2();
 
                     assertThat(org).isNotNull();
                     assertThat(org.getName()).isEqualTo("Add Viewer to Test Organization");
@@ -594,12 +594,12 @@ public class OrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void addUserToOrganizationAsAdminAndCheckApplicationAndDatasourcePermissions() {
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("Member Management Admin Test Organization");
         organization.setDomain("example.com");
         organization.setWebsite("https://example.com");
 
-        Mono<Organization> organizationMono = organizationService
+        Mono<Workspace> organizationMono = organizationService
                 .create(organization)
                 .cache();
 
@@ -620,7 +620,7 @@ public class OrganizationServiceTest {
                     return datasourceService.create(datasource);
                 });
 
-        Mono<Organization> userAddedToOrgMono = organizationMono
+        Mono<Workspace> userAddedToOrgMono = organizationMono
                 .flatMap(organization1 -> {
                     // Add user to organization
                     UserRole userRole = new UserRole();
@@ -637,7 +637,7 @@ public class OrganizationServiceTest {
                 AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
-        Mono<Organization> readOrganizationByNameMono = organizationRepository.findByName("Member Management Admin Test Organization")
+        Mono<Workspace> readOrganizationByNameMono = organizationRepository.findByName("Member Management Admin Test Organization")
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "organization by name")));
 
         Mono<Datasource> readDatasourceByNameMono = organizationMono.flatMap(organization1 ->
@@ -645,7 +645,7 @@ public class OrganizationServiceTest {
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Datasource")))
         );
 
-        Mono<Tuple3<Application, Organization, Datasource>> testMono = organizationMono
+        Mono<Tuple3<Application, Workspace, Datasource>> testMono = organizationMono
                 // create application and datasource
                 .then(Mono.zip(applicationMono, datasourceMono))
                 // Now add the user
@@ -657,7 +657,7 @@ public class OrganizationServiceTest {
                 .create(testMono)
                 .assertNext(tuple -> {
                     Application application = tuple.getT1();
-                    Organization org = tuple.getT2();
+                    Workspace org = tuple.getT2();
                     Datasource datasource = tuple.getT3();
                     assertThat(org).isNotNull();
                     assertThat(org.getUserRoles().get(1).getUsername()).isEqualTo("usertest@usertest.com");
@@ -701,12 +701,12 @@ public class OrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void addUserToOrganizationAsViewerAndCheckApplicationPermissions() {
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("Member Management Viewer Test Organization");
         organization.setDomain("example.com");
         organization.setWebsite("https://example.com");
 
-        Mono<Organization> organizationMono = organizationService
+        Mono<Workspace> organizationMono = organizationService
                 .create(organization)
                 .cache();
 
@@ -718,7 +718,7 @@ public class OrganizationServiceTest {
                     return applicationPageService.createApplication(application, org.getId());
                 });
 
-        Mono<Organization> userAddedToOrgMono = organizationMono
+        Mono<Workspace> userAddedToOrgMono = organizationMono
                 .flatMap(organization1 -> {
                     // Add user to organization
                     UserRole userRole = new UserRole();
@@ -731,10 +731,10 @@ public class OrganizationServiceTest {
                 AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
-        Mono<Organization> readOrganizationByNameMono = organizationRepository.findByName("Member Management Viewer Test Organization")
+        Mono<Workspace> readOrganizationByNameMono = organizationRepository.findByName("Member Management Viewer Test Organization")
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "organization by name")));
 
-        Mono<Tuple2<Application, Organization>> testMono = organizationMono
+        Mono<Tuple2<Application, Workspace>> testMono = organizationMono
                 .then(applicationMono)
                 .then(userAddedToOrgMono)
                 .then(Mono.zip(readApplicationByNameMono, readOrganizationByNameMono));
@@ -743,7 +743,7 @@ public class OrganizationServiceTest {
                 .create(testMono)
                 .assertNext(tuple -> {
                     Application application = tuple.getT1();
-                    Organization org = tuple.getT2();
+                    Workspace org = tuple.getT2();
                     assertThat(org).isNotNull();
                     assertThat(org.getUserRoles().get(1).getUsername()).isEqualTo("usertest@usertest.com");
 
@@ -769,12 +769,12 @@ public class OrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void changeUserRoleAndCheckApplicationPermissionChanges() {
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("Member Management Test Organization");
         organization.setDomain("example.com");
         organization.setWebsite("https://example.com");
 
-        Mono<Organization> organizationMono = organizationService
+        Mono<Workspace> organizationMono = organizationService
                 .create(organization)
                 .cache();
 
@@ -786,7 +786,7 @@ public class OrganizationServiceTest {
                     return applicationPageService.createApplication(application, org.getId());
                 });
 
-        Mono<Organization> userAddedToOrgMono = organizationMono
+        Mono<Workspace> userAddedToOrgMono = organizationMono
                 .flatMap(organization1 -> {
                     // Add user to organization
                     UserRole userRole = new UserRole();
@@ -837,12 +837,12 @@ public class OrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void deleteUserRoleFromOrganizationTest() {
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("Member Management Delete Test Organization");
         organization.setDomain("example.com");
         organization.setWebsite("https://example.com");
 
-        Mono<Organization> organizationMono = organizationService
+        Mono<Workspace> organizationMono = organizationService
                 .create(organization)
                 .cache();
 
@@ -854,7 +854,7 @@ public class OrganizationServiceTest {
                     return applicationPageService.createApplication(application, org.getId());
                 });
 
-        Mono<Organization> userAddedToOrgMono = organizationMono
+        Mono<Workspace> userAddedToOrgMono = organizationMono
                 .flatMap(organization1 -> {
                     // Add user to organization
                     UserRole userRole = new UserRole();
@@ -867,7 +867,7 @@ public class OrganizationServiceTest {
                 AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
-        Mono<Organization> readOrganizationByNameMono = organizationRepository.findByName("Member Management Delete Test Organization")
+        Mono<Workspace> readOrganizationByNameMono = organizationRepository.findByName("Member Management Delete Test Organization")
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "organization by name")));
 
         Mono<UserRole> userRoleChangeMono = organizationMono
@@ -879,7 +879,7 @@ public class OrganizationServiceTest {
                     return userOrganizationService.updateRoleForMember(org.getId(), userRole, "http://localhost:8080");
                 });
 
-        Mono<Tuple2<Application, Organization>> tupleMono = organizationMono
+        Mono<Tuple2<Application, Workspace>> tupleMono = organizationMono
                 .then(createApplicationMono)
                 .then(userAddedToOrgMono)
                 .then(userRoleChangeMono)
@@ -890,7 +890,7 @@ public class OrganizationServiceTest {
                 .create(tupleMono)
                 .assertNext(tuple -> {
                     Application application = tuple.getT1();
-                    Organization org = tuple.getT2();
+                    Workspace org = tuple.getT2();
                     assertThat(org.getUserRoles().size()).isEqualTo(1);
 
                     Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
@@ -913,12 +913,12 @@ public class OrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void addNewUsersBulkToOrganizationAsViewer() {
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("Add Bulk Viewers to Test Organization");
         organization.setDomain("example.com");
         organization.setWebsite("https://example.com");
 
-        Mono<Organization> organizationMono = organizationService
+        Mono<Workspace> organizationMono = organizationService
                 .create(organization)
                 .cache();
 
@@ -938,16 +938,16 @@ public class OrganizationServiceTest {
                 })
                 .cache();
 
-        Mono<Organization> readOrgMono = organizationRepository.findByName("Add Bulk Viewers to Test Organization");
+        Mono<Workspace> readOrgMono = organizationRepository.findByName("Add Bulk Viewers to Test Organization");
 
-        Mono<Organization> orgAfterUpdateMono = userAddedToOrgMono
+        Mono<Workspace> orgAfterUpdateMono = userAddedToOrgMono
                 .then(readOrgMono);
 
         StepVerifier
                 .create(Mono.zip(userAddedToOrgMono, orgAfterUpdateMono))
                 .assertNext(tuple -> {
                     User user = tuple.getT1().get(0);
-                    Organization org = tuple.getT2();
+                    Workspace org = tuple.getT2();
 
                     assertThat(org).isNotNull();
                     assertThat(org.getName()).isEqualTo("Add Bulk Viewers to Test Organization");
@@ -1031,8 +1031,8 @@ public class OrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void uploadOrganizationLogo_nullFilePart() throws IOException {
-        Mono<Organization> createOrganization = organizationService.create(organization).cache();
-        final Mono<Organization> resultMono = createOrganization
+        Mono<Workspace> createOrganization = organizationService.create(organization).cache();
+        final Mono<Workspace> resultMono = createOrganization
                 .flatMap(organization -> organizationService.uploadLogo(organization.getId(), null));
 
         StepVerifier.create(resultMono)
@@ -1054,10 +1054,10 @@ public class OrganizationServiceTest {
 
         // The pre-requisite of creating an organization has been blocked for code readability
         // The duration sets an upper limit for this test to run
-        String orgId = organizationService.create(organization).blockOptional(Duration.ofSeconds(3)).map(Organization::getId).orElse(null);
+        String orgId = organizationService.create(organization).blockOptional(Duration.ofSeconds(3)).map(Workspace::getId).orElse(null);
         assertThat(orgId).isNotNull();
 
-        final Mono<Organization> resultMono = organizationService.uploadLogo(orgId, filepart);
+        final Mono<Workspace> resultMono = organizationService.uploadLogo(orgId, filepart);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -1068,7 +1068,7 @@ public class OrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testDeleteLogo_invalidOrganization() {
-        Mono<Organization> deleteLogo = organizationService.deleteLogo("");
+        Mono<Workspace> deleteLogo = organizationService.deleteLogo("");
         StepVerifier.create(deleteLogo)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                         throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.ORGANIZATION, "")))
@@ -1086,9 +1086,9 @@ public class OrganizationServiceTest {
         Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
         Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
 
-        Mono<Organization> createOrganization = organizationService.create(organization).cache();
+        Mono<Workspace> createOrganization = organizationService.create(organization).cache();
 
-        final Mono<Tuple2<Organization, Asset>> resultMono = createOrganization
+        final Mono<Tuple2<Workspace, Asset>> resultMono = createOrganization
                 .flatMap(organization -> organizationService.uploadLogo(organization.getId(), filepart)
                         .flatMap(organizationWithLogo -> Mono.zip(
                                 Mono.just(organizationWithLogo),
@@ -1097,7 +1097,7 @@ public class OrganizationServiceTest {
 
         StepVerifier.create(resultMono)
                 .assertNext(tuple -> {
-                    final Organization organizationWithLogo = tuple.getT1();
+                    final Workspace organizationWithLogo = tuple.getT1();
                     assertThat(organizationWithLogo.getLogoUrl()).isNotNull();
                     assertThat(organizationWithLogo.getLogoUrl()).contains(organizationWithLogo.getLogoAssetId());
 
@@ -1106,7 +1106,7 @@ public class OrganizationServiceTest {
                 })
                 .verifyComplete();
 
-        Mono<Organization> deleteLogo = createOrganization.flatMap(organization -> organizationService.deleteLogo(organization.getId()));
+        Mono<Workspace> deleteLogo = createOrganization.flatMap(organization -> organizationService.deleteLogo(organization.getId()));
         StepVerifier.create(deleteLogo)
                 .assertNext(x -> {
                     assertThat(x.getLogoAssetId()).isNull();
@@ -1118,10 +1118,10 @@ public class OrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void delete_WhenOrgHasApp_ThrowsException() {
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("Test org to test delete org");
 
-        Mono<Organization> deleteOrgMono = organizationService.create(organization)
+        Mono<Workspace> deleteOrgMono = organizationService.create(organization)
                 .flatMap(savedOrg -> {
                     Application application = new Application();
                     application.setOrganizationId(savedOrg.getId());
@@ -1140,7 +1140,7 @@ public class OrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void delete_WithoutManagePermission_ThrowsException() {
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("Test org to test delete org");
         Policy readOrgPolicy = Policy.builder()
                 .permission(READ_ORGANIZATIONS.getValue())
@@ -1154,7 +1154,7 @@ public class OrganizationServiceTest {
         // api user has read org permission but no manage org permission
         organization.setPolicies(Set.of(readOrgPolicy, manageOrgPolicy));
 
-        Mono<Organization> deleteOrgMono = organizationRepository.save(organization)
+        Mono<Workspace> deleteOrgMono = organizationRepository.save(organization)
                 .flatMap(savedOrg ->
                         organizationService.archiveById(savedOrg.getId())
                 );
@@ -1168,10 +1168,10 @@ public class OrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void delete_WhenOrgHasNoApp_OrgIsDeleted() {
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("Test org to test delete org");
 
-        Mono<Organization> deleteOrgMono = organizationService.create(organization)
+        Mono<Workspace> deleteOrgMono = organizationService.create(organization)
                 .flatMap(savedOrg ->
                     organizationService.archiveById(savedOrg.getId())
                             .then(organizationRepository.findById(savedOrg.getId()))

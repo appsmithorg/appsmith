@@ -5,7 +5,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -68,9 +68,9 @@ public class DatasourceTriggerSolutionTest {
     @WithUserDetails(value = "api_user")
     public void setup() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("Datasource Trigger Test Organization");
-        Organization savedOrganization = organizationService.create(organization).block();
+        Workspace savedOrganization = organizationService.create(organization).block();
         orgId = savedOrganization.getId();
 
         Datasource datasource = new Datasource();

@@ -6,7 +6,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.events.CommentAddedEvent;
@@ -60,7 +60,7 @@ public class EmailEventHandlerTest {
     EmailEventHandler emailEventHandler;
 
     private Application application;
-    private Organization organization;
+    private Workspace organization;
 
     String authorUserName = "abc";
     String originHeader = "efg";
@@ -77,7 +77,7 @@ public class EmailEventHandlerTest {
         application = new Application();
         application.setName("Test application for comment");
         application.setOrganizationId(organizationId);
-        organization = new Organization();
+        organization = new Workspace();
 
         // add a role with email receiver username
         UserRole userRole = new UserRole();

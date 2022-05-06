@@ -21,7 +21,7 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
@@ -689,9 +689,9 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_moreThanThreePrivateRepos_throwException() throws IOException {
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("Limit Private Repo Test Organization");
-        String limitPrivateRepoTestOrgId = organizationService.create(organization).map(Organization::getId).block();
+        String limitPrivateRepoTestOrgId = organizationService.create(organization).map(Workspace::getId).block();
 
         Mockito
                 .when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(eq(limitPrivateRepoTestOrgId), Mockito.anyBoolean()))
@@ -738,9 +738,9 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_toggleAccessibilityToPublicForConnectedApp_connectSuccessful() throws IOException {
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("Toggle Accessibility To Public From Private Repo Test Organization");
-        String limitPrivateRepoTestOrgId = organizationService.create(organization).map(Organization::getId).block();
+        String limitPrivateRepoTestOrgId = organizationService.create(organization).map(Workspace::getId).block();
 
         Mockito
                 .when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(eq(limitPrivateRepoTestOrgId), Mockito.anyBoolean()))
@@ -2490,10 +2490,10 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfSameType_Success() throws GitAPIException, IOException {
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("gitImportOrg");
         final String testOrgId = organizationService.create(organization)
-                .map(Organization::getId)
+                .map(Workspace::getId)
                 .block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepo.git", testUserProfile);
@@ -2537,10 +2537,10 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfSameTypeCancelledMidway_Success() {
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("gitImportOrgCancelledMidway");
         final String testOrgId = organizationService.create(organization)
-                .map(Organization::getId)
+                .map(Workspace::getId)
                 .block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepoCancelledMidway.git", testUserProfile);

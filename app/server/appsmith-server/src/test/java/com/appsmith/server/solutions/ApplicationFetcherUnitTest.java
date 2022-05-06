@@ -5,7 +5,7 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
@@ -153,10 +153,10 @@ public class ApplicationFetcherUnitTest {
         return application;
     }
 
-    private List<Organization> createDummyOrganizations() {
-        List<Organization> organizationList = new ArrayList<>(4);
+    private List<Workspace> createDummyOrganizations() {
+        List<Workspace> organizationList = new ArrayList<>(4);
         for(int i = 1; i <= 4; i++) {
-            Organization organization = new Organization();
+            Workspace organization = new Workspace();
             organization.setId("org-" + i);
             organization.setName(organization.getId());
             organizationList.add(organization);

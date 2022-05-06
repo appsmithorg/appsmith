@@ -1,17 +1,17 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomOrganizationRepository;
 import reactor.core.publisher.Mono;
 
-public interface OrganizationRepositoryCE extends BaseRepository<Organization, String>, CustomOrganizationRepository {
+public interface OrganizationRepositoryCE extends BaseRepository<Workspace, String>, CustomOrganizationRepository {
 
-    Mono<Organization> findBySlug(String slug);
+    Mono<Workspace> findBySlug(String slug);
 
-    Mono<Organization> findByIdAndPluginsPluginId(String organizationId, String pluginId);
+    Mono<Workspace> findByIdAndPluginsPluginId(String organizationId, String pluginId);
 
-    Mono<Organization> findByName(String name);
+    Mono<Workspace> findByName(String name);
 
     Mono<Void> updateUserRoleNames(String userId, String userName);
 

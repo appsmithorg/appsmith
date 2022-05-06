@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.services.CrudService;
@@ -13,35 +13,35 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public interface OrganizationServiceCE extends CrudService<Organization, String> {
+public interface OrganizationServiceCE extends CrudService<Workspace, String> {
 
-    Mono<Organization> create(Organization organization);
+    Mono<Workspace> create(Workspace organization);
 
-    Mono<Organization> getBySlug(String slug);
+    Mono<Workspace> getBySlug(String slug);
 
     Mono<String> getNextUniqueSlug(String initialSlug);
 
-    Mono<Organization> createDefault(Organization organization, User user);
+    Mono<Workspace> createDefault(Workspace organization, User user);
 
-    Mono<Organization> create(Organization organization, User user);
+    Mono<Workspace> create(Workspace organization, User user);
 
-    Mono<Organization> findById(String id, AclPermission permission);
+    Mono<Workspace> findById(String id, AclPermission permission);
 
-    Mono<Organization> save(Organization organization);
+    Mono<Workspace> save(Workspace organization);
 
-    Mono<Organization> findByIdAndPluginsPluginId(String organizationId, String pluginId);
+    Mono<Workspace> findByIdAndPluginsPluginId(String organizationId, String pluginId);
 
-    Flux<Organization> findByIdsIn(Set<String> ids,AclPermission permission);
+    Flux<Workspace> findByIdsIn(Set<String> ids,AclPermission permission);
 
     Mono<Map<String, String>> getUserRolesForOrganization(String orgId);
 
     Mono<List<UserRole>> getOrganizationMembers(String orgId);
 
-    Mono<Organization> uploadLogo(String organizationId, Part filePart);
+    Mono<Workspace> uploadLogo(String organizationId, Part filePart);
 
-    Mono<Organization> deleteLogo(String organizationId);
+    Mono<Workspace> deleteLogo(String organizationId);
 
-    Flux<Organization> getAll();
+    Flux<Workspace> getAll();
 
-    Mono<Organization> archiveById(String s);
+    Mono<Workspace> archiveById(String s);
 }

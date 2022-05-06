@@ -16,7 +16,7 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.CRUDPageResourceDTO;
@@ -98,7 +98,7 @@ public class CreateDBTablePageSolutionTests {
 
     private static Datasource testDatasource = new Datasource();
 
-    private static Organization testOrg;
+    private static Workspace testOrg;
 
     private static Application testApp;
 
@@ -176,7 +176,7 @@ public class CreateDBTablePageSolutionTests {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (testOrg == null) {
-            Organization organization = new Organization();
+            Workspace organization = new Workspace();
             organization.setName("Create-DB-Table-Page-Org");
             testOrg = organizationService.create(organization).block();
         }

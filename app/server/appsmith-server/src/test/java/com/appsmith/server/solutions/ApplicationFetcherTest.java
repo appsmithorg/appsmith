@@ -1,7 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
@@ -38,7 +38,7 @@ class ApplicationFetcherTest {
     @WithUserDetails("api_user")
     void getAllApplications_WhenUnpublishedPageExists_ReturnsApplications() {
         String randomUUID = UUID.randomUUID().toString();
-        Organization newOrg = new Organization();
+        Workspace newOrg = new Workspace();
         newOrg.setName("org_" + randomUUID);
 
         Mono<UserHomepageDTO> homepageDTOMono = organizationService.create(newOrg).flatMap(organization -> {

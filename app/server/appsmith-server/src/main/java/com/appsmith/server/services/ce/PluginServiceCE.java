@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.InstallPluginRedisDTO;
 import com.appsmith.server.dtos.PluginOrgDTO;
@@ -18,11 +18,11 @@ public interface PluginServiceCE extends CrudService<Plugin, String> {
 
     Flux<Plugin> getDefaultPluginIcons();
 
-    Mono<Organization> installPlugin(PluginOrgDTO plugin);
+    Mono<Workspace> installPlugin(PluginOrgDTO plugin);
 
-    Flux<Organization> installDefaultPlugins(List<Plugin> plugins);
+    Flux<Workspace> installDefaultPlugins(List<Plugin> plugins);
 
-    Mono<Organization> uninstallPlugin(PluginOrgDTO plugin);
+    Mono<Workspace> uninstallPlugin(PluginOrgDTO plugin);
 
     Mono<Plugin> findByName(String name);
 

@@ -7,7 +7,7 @@ import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.domains.Application;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.ActionDTO;
@@ -109,9 +109,9 @@ public class ShareOrganizationPermissionTests {
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("Share Test Organization");
-        Organization savedOrganization = organizationService.create(organization).block();
+        Workspace savedOrganization = organizationService.create(organization).block();
         organizationId = savedOrganization.getId();
 
         Application application = new Application();
@@ -150,12 +150,12 @@ public class ShareOrganizationPermissionTests {
                 .build();
 
         Mono<Application> applicationMono = applicationService.findById(savedApplication.getId());
-        Mono<Organization> organizationMono = organizationService.findById(organizationId, READ_ORGANIZATIONS);
+        Mono<Workspace> organizationMono = organizationService.findById(organizationId, READ_ORGANIZATIONS);
 
         StepVerifier.create(Mono.zip(applicationMono, organizationMono))
                 .assertNext(tuple -> {
                     Application application = tuple.getT1();
-                    Organization organization = tuple.getT2();
+                    Workspace organization = tuple.getT2();
 
                     assertThat(application.getPolicies()).contains(makePublicApp);
                     assertThat(organization.getPolicies()).contains(inviteUserPolicy);
@@ -186,7 +186,7 @@ public class ShareOrganizationPermissionTests {
                 .users(Set.of("admin@solutiontest.com", "developer@solutiontest.com"))
                 .build();
 
-        Mono<Organization> organizationMono = organizationService.findById(organizationId, READ_ORGANIZATIONS);
+        Mono<Workspace> organizationMono = organizationService.findById(organizationId, READ_ORGANIZATIONS);
 
         StepVerifier.create(organizationMono)
                 .assertNext(organization -> {
@@ -217,9 +217,9 @@ public class ShareOrganizationPermissionTests {
     public void validInviteUserWhenCancelledMidWay() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("Organization for Invite Cancellation Test");
-        Organization savedOrganization = organizationService.create(organization).block();
+        Workspace savedOrganization = organizationService.create(organization).block();
 
         Application application = new Application();
         application.setName("Application for Invite Cancellation Test");
@@ -285,7 +285,7 @@ public class ShareOrganizationPermissionTests {
         // Before fetching any objects from the database, to avoid flaky tests, first sleep for 10 seconds. This
         // ensures that we are guaranteed that the invite flow (which was cancelled in 5 ms) has run to completion
         // before we fetch the org, app, pages and actions
-        Mono<Organization> organizationMono = Mono.just(savedOrganization.getId())
+        Mono<Workspace> organizationMono = Mono.just(savedOrganization.getId())
                 .flatMap(orgId -> {
                     try {
                         // Before fetching the updated organzation, sleep for 10 seconds to ensure that the invite finishes
@@ -316,7 +316,7 @@ public class ShareOrganizationPermissionTests {
         StepVerifier
                 .create(Mono.zip(organizationMono, fetchApplicationFromDbMono, actionsMono, pagesMono))
                 .assertNext(tuple -> {
-                    Organization updatedOrganization = tuple.getT1();
+                    Workspace updatedOrganization = tuple.getT1();
                     Application updatedApp = tuple.getT2();
                     List<NewAction> updatedActions = tuple.getT3();
                     List<PageDTO> updatedPageDTOs = tuple.getT4();

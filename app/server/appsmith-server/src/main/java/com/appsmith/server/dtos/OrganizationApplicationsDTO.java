@@ -1,7 +1,7 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.UserRole;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class OrganizationApplicationsDTO {
-    Organization organization;
+    Workspace organization;
     List<Application> applications;
     List<UserRole> userRoles;
 }

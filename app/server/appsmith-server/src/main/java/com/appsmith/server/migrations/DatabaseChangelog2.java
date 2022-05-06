@@ -10,17 +10,21 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QPlugin;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
+import com.google.gson.Gson;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -743,6 +747,34 @@ public class DatabaseChangelog2 {
                         fieldName(QBaseDomain.baseDomain.deleted)
                 )
                 .named("defaultApplicationId_gitSyncId_deleted_compound_index")
+        );
+    }
+
+    @ChangeSet(order = "008", id = "copy-organization-to-workspaces", author = "")
+    public void copyOrganizationToWorkspaces(MongockTemplate mongockTemplate) {
+        Gson gson = new Gson();
+        for (Organization organization : mongockTemplate.findAll(Organization.class)) {
+            Workspace workspace = gson.fromJson(gson.toJson(organization), Workspace.class);
+            mongockTemplate.insert(workspace);
+        }
+    }
+
+    @ChangeSet(order = "009", id = "drop-organization-collection", author = "")
+    public void dropOrganizationCollection(MongockTemplate mongockTemplate) {
+        mongockTemplate.dropCollection(Organization.class);
+    }
+
+
+    /**
+     * We are creating indexes manually because Spring's index resolver creates indexes on fields as well.
+     * See https://stackoverflow.com/questions/60867491/ for an explanation of the problem. We have that problem with
+     * the `Action.datasource` field.
+     */
+    @ChangeSet(order = "010", id = "add-workspace-indexes", author = "")
+    public void addWorkspaceIndexes(MongockTemplate mongockTemplate) {
+        ensureIndexes(mongockTemplate, Workspace.class,
+            makeIndex("createdAt"),
+            makeIndex("slug").unique()
         );
     }
 

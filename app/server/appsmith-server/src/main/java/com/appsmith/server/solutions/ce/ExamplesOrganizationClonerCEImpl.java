@@ -13,7 +13,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
@@ -74,7 +74,7 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
     private final LayoutCollectionService layoutCollectionService;
     private final ThemeService themeService;
 
-    public Mono<Organization> cloneExamplesOrganization() {
+    public Mono<Workspace> cloneExamplesOrganization() {
         return sessionUserService
                 .getCurrentUser()
                 .flatMap(this::cloneExamplesOrganization);
@@ -88,7 +88,7 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
      * @param user User who will be the owner of the cloned organization.
      * @return Empty Mono.
      */
-    private Mono<Organization> cloneExamplesOrganization(User user) {
+    private Mono<Workspace> cloneExamplesOrganization(User user) {
         if (!CollectionUtils.isEmpty(user.getOrganizationIds())) {
             // Don't create an examples organization if the user already has some organizations, perhaps because they
             // were invited to some.
@@ -114,7 +114,7 @@ public class ExamplesOrganizationClonerCEImpl implements ExamplesOrganizationClo
      * @param user                   The user who will own the new cloned organization.
      * @return Publishes the newly created organization.
      */
-    public Mono<Organization> cloneOrganizationForUser(
+    public Mono<Workspace> cloneOrganizationForUser(
             String templateOrganizationId,
             User user,
             Flux<Application> applicationFlux,

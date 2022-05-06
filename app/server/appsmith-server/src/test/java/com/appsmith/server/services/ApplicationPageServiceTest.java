@@ -5,7 +5,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -60,7 +60,7 @@ public class ApplicationPageServiceTest {
      * @return publisher of PageDTO
      */
     private Mono<PageDTO> createPageMono(String uniquePrefix) {
-        Organization unsavedOrg = new Organization();
+        Workspace unsavedOrg = new Workspace();
         unsavedOrg.setName(uniquePrefix + "_org");
         return organizationService.create(unsavedOrg)
                 .flatMap(organization -> {

@@ -8,7 +8,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.LoginSource;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -94,7 +94,7 @@ public class UserServiceTest {
 
     Mono<User> userMono;
 
-    Mono<Organization> organizationMono;
+    Mono<Workspace> organizationMono;
 
     @Autowired
     UserSignup userSignup;
@@ -108,7 +108,7 @@ public class UserServiceTest {
     //Test if email params are updating correctly
     @Test
     public void checkEmailParamsForExistingUser() {
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("UserServiceTest Update Org");
         organization.setSlug("userservicetest-update-org");
 
@@ -126,7 +126,7 @@ public class UserServiceTest {
 
     @Test
     public void checkEmailParamsForNewUser() {
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("UserServiceTest Update Org");
         organization.setSlug("userservicetest-update-org");
 
@@ -165,7 +165,7 @@ public class UserServiceTest {
     @WithUserDetails(value = "api_user")
     public void updateUserWithValidOrganization() {
         // Create a new organization
-        Organization updateOrg = new Organization();
+        Workspace updateOrg = new Workspace();
         updateOrg.setName("UserServiceTest Update Org");
 
         User updateUser = new User();
@@ -425,12 +425,12 @@ public class UserServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void signUpAfterBeingInvitedToAppsmithOrganization() {
-        Organization organization = new Organization();
+        Workspace organization = new Workspace();
         organization.setName("SignUp after adding user to Test Organization");
         organization.setDomain("example.com");
         organization.setWebsite("https://example.com");
 
-        Mono<Organization> organizationMono = organizationService
+        Mono<Workspace> organizationMono = organizationService
                 .create(organization)
                 .cache();
 

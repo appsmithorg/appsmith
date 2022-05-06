@@ -3,7 +3,7 @@ package com.appsmith.server.solutions.ce;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -13,9 +13,9 @@ import java.util.List;
 
 public interface ExamplesOrganizationClonerCE {
 
-    Mono<Organization> cloneExamplesOrganization();
+    Mono<Workspace> cloneExamplesOrganization();
 
-    Mono<Organization> cloneOrganizationForUser(
+    Mono<Workspace> cloneOrganizationForUser(
             String templateOrganizationId,
             User user,
             Flux<Application> applicationFlux,

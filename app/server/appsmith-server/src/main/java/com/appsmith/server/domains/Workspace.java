@@ -19,8 +19,7 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @Document
-@Deprecated
-public class Organization extends BaseDomain {
+public class Workspace extends BaseDomain {
 
     private String domain;
 

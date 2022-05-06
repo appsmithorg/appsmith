@@ -2,7 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -59,7 +59,7 @@ public class OrganizationServiceUnitTest {
     @Test
     public void getOrganizationMembers_WhenRoleIsNull_ReturnsEmptyList() {
         // create a organization object
-        Organization testOrg = new Organization();
+        Workspace testOrg = new Workspace();
         testOrg.setName("Get All Members For Organization Test");
         testOrg.setDomain("test.com");
         testOrg.setWebsite("https://test.com");

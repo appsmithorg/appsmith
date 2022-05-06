@@ -13,7 +13,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.LoginSource;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
@@ -545,7 +545,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                 userSignupDTO.setUser(savedUser);
 
                                 log.debug("Creating blank default organization for user '{}'.", savedUser.getEmail());
-                                return organizationService.createDefault(new Organization(), savedUser)
+                                return organizationService.createDefault(new Workspace(), savedUser)
                                         .map(org -> {
                                             userSignupDTO.setDefaultOrganizationId(org.getId());
                                             return userSignupDTO;
@@ -672,11 +672,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
 
         // Check if the current user has invite permissions
-        Mono<Organization> organizationMono = organizationRepository.findById(inviteUsersDTO.getOrgId(), ORGANIZATION_INVITE_USERS)
+        Mono<Workspace> organizationMono = organizationRepository.findById(inviteUsersDTO.getOrgId(), ORGANIZATION_INVITE_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, inviteUsersDTO.getOrgId())))
                 .zipWith(currentUserMono)
                 .flatMap(tuple -> {
-                    Organization organization = tuple.getT1();
+                    Workspace organization = tuple.getT1();
                     User currentUser = tuple.getT2();
 
                     // This code segment checks if the current user can invite for the invited role.
@@ -694,7 +694,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .flatMap(username -> Mono.zip(Mono.just(username), organizationMono, currentUserMono))
                 .flatMap(tuple -> {
                     String username = tuple.getT1();
-                    Organization organization = tuple.getT2();
+                    Workspace organization = tuple.getT2();
                     User currentUser = tuple.getT3();
 
                     return repository.findByEmail(username)
@@ -719,10 +719,10 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .cache();
 
         // Add User to the invited Organization
-        Mono<Organization> organizationWithUsersAddedMono = Mono.zip(inviteUsersFlux.collectList(), organizationMono)
+        Mono<Workspace> organizationWithUsersAddedMono = Mono.zip(inviteUsersFlux.collectList(), organizationMono)
                 .flatMap(tuple -> {
                     List<User> invitedUsers = tuple.getT1();
-                    Organization organization = tuple.getT2();
+                    Workspace organization = tuple.getT2();
                     return userOrganizationService.bulkAddUsersToOrganization(organization, invitedUsers, inviteUsersDTO.getRoleName());
                 });
 
@@ -732,7 +732,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 // zipping with organizationMono to ensure that the orgId is checked before updating the user object.
                 .flatMap(tuple -> {
                     User invitedUser = tuple.getT1();
-                    Organization organization = tuple.getT2();
+                    Workspace organization = tuple.getT2();
 
                     Set<String> organizationIds = invitedUser.getOrganizationIds();
                     if (organizationIds == null) {
@@ -775,7 +775,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         );
     }
 
-    private Mono<User> createNewUserAndSendInviteEmail(String email, String originHeader, Organization organization, User inviter, String role) {
+    private Mono<User> createNewUserAndSendInviteEmail(String email, String originHeader, Workspace organization, User inviter, String role) {
         User newUser = new User();
         newUser.setEmail(email.toLowerCase());
 
@@ -809,7 +809,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 });
     }
 
-    private Mono<Boolean> isUserPermittedToInviteForGivenRole(Organization organization, String username, String invitedRoleName) {
+    private Mono<Boolean> isUserPermittedToInviteForGivenRole(Workspace organization, String username, String invitedRoleName) {
         List<UserRole> userRoles = organization.getUserRoles();
 
         // The current organization has no members. Clearly the current user is also not present
@@ -893,7 +893,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 });
     }
 
-    public Map<String, String> getEmailParams(Organization organization, User inviter, String inviteUrl, boolean isNewUser) {
+    public Map<String, String> getEmailParams(Workspace organization, User inviter, String inviteUrl, boolean isNewUser) {
         Map<String, String> params = new HashMap<>();
 
         if (inviter != null) {
