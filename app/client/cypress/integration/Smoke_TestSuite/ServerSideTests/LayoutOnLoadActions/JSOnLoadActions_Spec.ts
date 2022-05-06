@@ -5,14 +5,15 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
   jsEditor = ObjectsRegistry.JSEditor,
-  table = ObjectsRegistry.Table;
+  table = ObjectsRegistry.Table,
+  locator = ObjectsRegistry.CommonLocators;
 
-describe("JSObjects OnLoad Actions tests", function () {
+describe("JSObjects OnLoad Actions tests", function() {
   before(() => {
     ee.DragDropWidgetNVerify("tablewidget", 300, 300);
   });
 
-  it("1. Create Postgress DS & the query", function () {
+  it("1. Create Postgress DS & the query", function() {
     ee.NavigateToSwitcher("explorer");
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
@@ -25,7 +26,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     });
   });
 
-  it("2. Verify User enables only 'Before Function calling' & OnPage Load is Automatically enable after mapping done on JSOBject", function () {
+  it("2. Verify User enables only 'Before Function calling' & OnPage Load is Automatically enable after mapping done on JSOBject", function() {
     jsEditor.CreateJSObject(
       `export default {
       getId: async () => {
@@ -43,16 +44,23 @@ describe("JSObjects OnLoad Actions tests", function () {
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
       agHelper.EnterValue(
-        "SELECT * FROM public.users where id = {{" + jsObjName + ".getId.data}}",
+        "SELECT * FROM public.users where id = {{" +
+          jsObjName +
+          ".getId.data}}",
       );
-      ee.SelectEntityByName("Table1", 'WIDGETS');
+      ee.SelectEntityByName("Table1", "WIDGETS");
       jsEditor.EnterJSContext("Table Data", "{{GetUser.data}}");
-      agHelper.ValidateToastMessage("[" + jsName as string + ".getId, GetUser] will be executed automatically on page load")
+      agHelper.ValidateToastMessage(
+        (("[" + jsName) as string) +
+          ".getId, GetUser] will be executed automatically on page load",
+      );
       agHelper.DeployApp();
       agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog"));
-      agHelper.AssertElementPresence(jsEditor._dialogBody(jsName as string + ".getId"))
+      agHelper.AssertElementPresence(
+        jsEditor._dialogBody((jsName as string) + ".getId"),
+      );
       agHelper.ClickButton("Yes");
-      agHelper.Sleep(1000)
+      agHelper.Sleep(1000);
     });
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
     table.ReadTableRowColumnData(0, 0).then((cellData) => {
@@ -61,29 +69,35 @@ describe("JSObjects OnLoad Actions tests", function () {
     agHelper.NavigateBacktoEditor();
   });
 
-  it("3. Verify OnPage Load - auto enabeld from above case for JSOBject", function () {
+  it("3. Verify OnPage Load - auto enabled from above case for JSOBject", function() {
     agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog"));
-    agHelper.AssertElementPresence(jsEditor._dialogBody(jsName as string + ".getId"))
+    agHelper.AssertElementPresence(
+      jsEditor._dialogBody((jsName as string) + ".getId"),
+    );
     agHelper.ClickButton("Yes");
-    agHelper.Sleep(1000)
-    ee.SelectEntityByName(jsName as string, 'QUERIES/JS')
-    jsEditor.VerifyOnPageLoadSetting('getId', true, true)
+    agHelper.Sleep(1000);
+    ee.SelectEntityByName(jsName as string, "QUERIES/JS");
+    jsEditor.VerifyOnPageLoadSetting("getId", true, true);
   });
 
-  it("4. Verify Error for OnPage Load - disable & Before Function calling enabled for JSOBject", function () {
-    ee.SelectEntityByName(jsName as string, 'QUERIES/JS')
+  it("4. Verify Error for OnPage Load - disable & Before Function calling enabled for JSOBject", function() {
+    ee.SelectEntityByName(jsName as string, "QUERIES/JS");
     jsEditor.EnableDisableOnPageLoad("getId", false, true);
     agHelper.DeployApp();
-    agHelper.ValidateToastMessage("The action \"GetUser\" has failed")
+    agHelper.ValidateToastMessage('The action "GetUser" has failed');
     agHelper.NavigateBacktoEditor();
   });
 
-  it("5. Verify OnPage Load - Enabling back & Before Function calling disabled for JSOBject", function () {
-    ee.SelectEntityByName(jsName as string, 'QUERIES/JS')
+  it("5. Verify OnPage Load - Enabling back & Before Function calling disabled for JSOBject", function() {
+    ee.SelectEntityByName(jsName as string, "QUERIES/JS");
     jsEditor.EnableDisableOnPageLoad("getId", true, false);
     agHelper.DeployApp();
     agHelper.AssertElementAbsence(jsEditor._dialog("Confirmation Dialog"));
-    agHelper.AssertElementAbsence(jsEditor._dialogBody(jsName as string + ".getId"))
+    agHelper.AssertElementAbsence(
+      jsEditor._dialogBody((jsName as string) + ".getId"),
+    );
+    // assert that on view mode, we don't get "successful run" toast message for onpageload actions
+    agHelper.AssertElementAbsence(locator._toastMsg);
     // agHelper.ClickButton("Yes");
     // agHelper.Sleep(1000)
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
