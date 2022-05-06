@@ -172,7 +172,7 @@ describe("Container Widget Functionality", function() {
     cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("List1");
     // Scroll down to Styles and Add background colour
-    cy.selectColor("backgroundcolor");
+    cy.selectColor("background");
     cy.wait(1000);
     cy.selectColor("itembackgroundcolor");
     // Click on Deploy and ensure it is deployed appropriately
@@ -181,13 +181,13 @@ describe("Container Widget Functionality", function() {
     cy.get(widgetsPage.listWidget).should(
       "have.css",
       "background-color",
-      "rgb(3, 179, 101)",
+      "rgb(126, 34, 206)",
     );
     // Verify List Item Background Color
     cy.get(widgetsPage.itemContainerWidget).should(
       "have.css",
       "background-color",
-      "rgb(3, 179, 101)",
+      "rgb(126, 34, 206)",
     );
     cy.get(publishPage.backToEditor).click({ force: true });
   });
@@ -198,7 +198,7 @@ describe("Container Widget Functionality", function() {
     cy.selectEntityByName("List1");
     // Scroll down to Styles and Add background colour
     cy.get(widgetsPage.backgroundColorToggle).click({ force: true });
-    cy.testJsontext("backgroundcolor", "#FFC13D");
+    cy.testJsontext("background", "#FFC13D");
     cy.wait(1000);
     cy.get(widgetsPage.itemBackgroundColorToggle).click({ force: true });
     cy.testJsontext("itembackgroundcolor", "#38AFF4");

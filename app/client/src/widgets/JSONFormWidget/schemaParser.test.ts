@@ -27,21 +27,21 @@ const widgetName = "JSONForm1";
 
 describe("#parse", () => {
   it("returns a new schema for a valid data source", () => {
-    const result = SchemaParser.parse(
-      widgetName,
-      testData.initialDataset.dataSource,
-      {},
-    );
+    const result = SchemaParser.parse(widgetName, {
+      currSourceData: testData.initialDataset.dataSource,
+      schema: {},
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
 
     expect(result).toEqual(testData.initialDataset.schemaOutput);
   });
 
   it("returns an updated schema when a key removed from existing data source", () => {
-    const result = SchemaParser.parse(
-      widgetName,
-      testData.withRemovedKeyFromInitialDataset.dataSource,
-      testData.initialDataset.schemaOutput,
-    );
+    const result = SchemaParser.parse(widgetName, {
+      currSourceData: testData.withRemovedKeyFromInitialDataset.dataSource,
+      schema: testData.initialDataset.schemaOutput,
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
 
     expect(result).toEqual(
       testData.withRemovedKeyFromInitialDataset.schemaOutput,
@@ -51,11 +51,11 @@ describe("#parse", () => {
   it("returns an updated schema when new key added to existing data source", () => {
     const widgetName = "JSONForm1";
 
-    const result = SchemaParser.parse(
-      widgetName,
-      testData.withRemovedAddedKeyToInitialDataset.dataSource,
-      testData.initialDataset.schemaOutput,
-    );
+    const result = SchemaParser.parse(widgetName, {
+      currSourceData: testData.withRemovedAddedKeyToInitialDataset.dataSource,
+      schema: testData.initialDataset.schemaOutput,
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
 
     expect(result).toEqual(
       testData.withRemovedAddedKeyToInitialDataset.schemaOutput,
@@ -63,11 +63,11 @@ describe("#parse", () => {
   });
 
   it("returns unmodified schema when existing field's value in data source changes to null/undefined", () => {
-    const initialSchema = SchemaParser.parse(
-      widgetName,
-      testData.initialDataset.dataSource,
-      {},
-    );
+    const initialSchema = SchemaParser.parse(widgetName, {
+      currSourceData: testData.initialDataset.dataSource,
+      schema: {},
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
 
     expect(initialSchema).toEqual(testData.initialDataset.schemaOutput);
 
@@ -79,11 +79,11 @@ describe("#parse", () => {
     set(expectedNulledSchema, "__root_schema__.children.dob.sourceData", null);
     set(expectedNulledSchema, "__root_schema__.sourceData.dob", null);
 
-    const schemaWithNulledField = SchemaParser.parse(
-      widgetName,
-      nulledDataSource,
-      initialSchema,
-    );
+    const schemaWithNulledField = SchemaParser.parse(widgetName, {
+      currSourceData: nulledDataSource,
+      schema: initialSchema,
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
 
     expect(schemaWithNulledField).toEqual(expectedNulledSchema);
 
@@ -103,11 +103,11 @@ describe("#parse", () => {
       undefined,
     );
 
-    const schemaWithUndefinedField = SchemaParser.parse(
-      widgetName,
-      undefinedDataSource,
-      schemaWithNulledField,
-    );
+    const schemaWithUndefinedField = SchemaParser.parse(widgetName, {
+      currSourceData: undefinedDataSource,
+      schema: schemaWithNulledField,
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
 
     expect(schemaWithUndefinedField).toEqual(expectedUndefinedSchema);
   });
@@ -143,6 +143,7 @@ describe("#getSchemaItemByFieldType", () => {
       position: 1,
       serverSideFiltering: false,
       isFilterable: false,
+      labelTextSize: "0.875rem",
     };
 
     const result = SchemaParser.getSchemaItemByFieldType(FieldType.SELECT, {
@@ -186,6 +187,7 @@ describe("#getSchemaItemByFieldType", () => {
       position: 1,
       serverSideFiltering: false,
       isFilterable: false,
+      labelTextSize: "0.875rem",
     };
 
     const result = SchemaParser.getSchemaItemByFieldType(FieldType.SELECT, {
@@ -227,6 +229,7 @@ describe("#getSchemaItemByFieldType", () => {
           originalIdentifier: ARRAY_ITEM_KEY,
           position: -1,
           isSpellCheck: false,
+          labelTextSize: "0.875rem",
         },
       },
       dataType: DataType.ARRAY,
@@ -240,6 +243,7 @@ describe("#getSchemaItemByFieldType", () => {
       originalIdentifier: "hobbies",
       isCollapsible: true,
       position: 4,
+      labelTextSize: "0.875rem",
     };
 
     const result = SchemaParser.getSchemaItemByFieldType(FieldType.ARRAY, {
@@ -279,6 +283,7 @@ describe("#getSchemaItemByFieldType", () => {
           identifier: ARRAY_ITEM_KEY,
           originalIdentifier: ARRAY_ITEM_KEY,
           position: -1,
+          labelTextSize: "0.875rem",
         },
       },
       dataType: DataType.STRING,
@@ -292,6 +297,7 @@ describe("#getSchemaItemByFieldType", () => {
       originalIdentifier: "name",
       isCollapsible: true,
       position: 0,
+      labelTextSize: "0.875rem",
     };
 
     const result = SchemaParser.getSchemaItemByFieldType(FieldType.ARRAY, {
@@ -326,6 +332,7 @@ describe("#getSchemaItemFor", () => {
       identifier: "firstName",
       originalIdentifier: "firstName",
       position: -1,
+      labelTextSize: "0.875rem",
       isSpellCheck: false,
     };
 
@@ -360,6 +367,7 @@ describe("#getSchemaItemFor", () => {
       originalIdentifier: "firstName",
       position: -1,
       isSpellCheck: false,
+      labelTextSize: "0.875rem",
     };
 
     const result = SchemaParser.getSchemaItemFor(key, {
@@ -393,6 +401,7 @@ describe("#getSchemaItemFor", () => {
       originalIdentifier: "firstName",
       position: -1,
       alignWidget: "LEFT",
+      labelTextSize: "0.875rem",
     };
 
     const result = SchemaParser.getSchemaItemFor(key, {
@@ -429,6 +438,7 @@ describe("#getSchemaItemFor", () => {
       originalIdentifier: "hobbies",
       position: -1,
       serverSideFiltering: false,
+      labelTextSize: "0.875rem",
       options: [
         { label: "Blue", value: "BLUE" },
         { label: "Green", value: "GREEN" },
@@ -557,6 +567,7 @@ describe("#convertArrayToSchema", () => {
             originalIdentifier: "firstName",
             position: 0,
             isSpellCheck: false,
+            labelTextSize: "0.875rem",
           },
         },
         dataType: DataType.OBJECT,
@@ -570,6 +581,7 @@ describe("#convertArrayToSchema", () => {
         identifier: ARRAY_ITEM_KEY,
         originalIdentifier: ARRAY_ITEM_KEY,
         position: -1,
+        labelTextSize: "0.875rem",
       },
     };
 
@@ -674,6 +686,7 @@ describe("#convertArrayToSchema", () => {
             originalIdentifier: "lastName",
             position: 1,
             isSpellCheck: false,
+            labelTextSize: "0.875rem",
           },
         },
         dataType: DataType.OBJECT,
@@ -729,6 +742,7 @@ describe("#convertObjectToSchema", () => {
         originalIdentifier: "firstName",
         position: 0,
         isSpellCheck: false,
+        labelTextSize: "0.875rem",
       },
     };
 
@@ -800,6 +814,7 @@ describe("#convertObjectToSchema", () => {
         fieldType: FieldType.TEXT_INPUT,
         iconAlign: "left",
         sourceData: "Doe",
+        labelTextSize: "0.875rem",
         isCustomField: false,
         accessor: "lastName",
         identifier: "lastName",
@@ -917,6 +932,7 @@ describe("#convertObjectToSchema", () => {
         fieldType: FieldType.TEXT_INPUT,
         iconAlign: "left",
         sourceData: "Some other value",
+        labelTextSize: "0.875rem",
         isCustomField: false,
         accessor: "%%",
         identifier: "__1",

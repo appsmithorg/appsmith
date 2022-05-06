@@ -29,6 +29,7 @@ export const CONFIG = {
     isRequired: false,
     isDisabled: false,
     animateLoading: true,
+    labelTextSize: "0.875rem",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

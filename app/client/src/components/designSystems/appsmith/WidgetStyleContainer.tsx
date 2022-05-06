@@ -2,7 +2,6 @@ import React, { ReactNode } from "react";
 import styled from "styled-components";
 import { ContainerStyle } from "widgets/ContainerWidget/component";
 import { Color } from "constants/Colors";
-import { Theme } from "constants/DefaultTheme";
 
 export enum BoxShadowTypes {
   NONE = "NONE",
@@ -23,55 +22,19 @@ export interface WidgetStyleContainerProps {
   borderWidth?: number;
   borderRadius?: number;
   boxShadow?: BoxShadow;
-  boxShadowColor?: string;
+  className?: string;
 }
-
-// get box shadow style string based on boxShadow and boxShadowColor
-const getBoxShadow = ({
-  boxShadow,
-  boxShadowColor,
-  theme,
-}: {
-  boxShadow?: BoxShadow;
-  boxShadowColor?: string;
-  theme: Theme;
-}) => {
-  switch (boxShadow) {
-    case BoxShadowTypes.VARIANT1:
-      return `0px 0px 4px 3px ${boxShadowColor ||
-        theme.colors.button.boxShadow.default.variant1}`;
-    case BoxShadowTypes.VARIANT2:
-      return `3px 3px 4px ${boxShadowColor ||
-        theme.colors.button.boxShadow.default.variant2}`;
-    case BoxShadowTypes.VARIANT3:
-      return `0px 1px 3px ${boxShadowColor ||
-        theme.colors.button.boxShadow.default.variant3}`;
-    case BoxShadowTypes.VARIANT4:
-      return `2px 2px 0px ${boxShadowColor ||
-        theme.colors.button.boxShadow.default.variant4}`;
-    case BoxShadowTypes.VARIANT5:
-      return `-2px -2px 0px ${boxShadowColor ||
-        theme.colors.button.boxShadow.default.variant5}`;
-    default:
-      return "none";
-  }
-};
 
 const WidgetStyle = styled.div<WidgetStyleContainerProps>`
   height: 100%;
   width: 100%;
-  overflow: hidden;
-  border-radius: ${(props) => props.borderRadius}px;
-  box-shadow: ${(props) => getBoxShadow(props)} !important;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow:  ${(props) => props.boxShadow} !important;
+  border-width: ${(props) => props.borderWidth}px;
+  border-color: ${(props) => props.borderColor || "transparent"};
+  border-style: solid;
+
   & > div {
-    ${(props) =>
-      props.containerStyle !== "none"
-        ? `
-    border-width: ${props.borderWidth}px;
-    border-radius: ${props.borderRadius}px;
-    border-color: ${props.borderColor || "transparent"};
-    border-style: solid;`
-        : ""}
     height: 100%;
     width: 100%;
     overflow: hidden;

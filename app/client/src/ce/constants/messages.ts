@@ -6,6 +6,7 @@ export function createMessage(
 }
 
 export const YES = () => `Yes`;
+export const ARE_YOU_SURE = () => `Are you sure?`;
 export const ERROR_MESSAGE_SELECT_ACTION = () => `Please select an action`;
 export const ERROR_MESSAGE_SELECT_ACTION_TYPE = () =>
   `Please select an action type`;
@@ -25,6 +26,7 @@ export const VALID_FUNCTION_NAME_ERROR = () =>
   `Must be a valid variable name (camelCase)`;
 export const UNIQUE_NAME_ERROR = () => `Name must be unique`;
 export const NAME_SPACE_ERROR = () => `Name must not have spaces`;
+export const SPECIAL_CHARACTER_ERROR = () => `Name must be alphanumeric`;
 
 export const FORM_VALIDATION_EMPTY_EMAIL = () => `Please enter an email`;
 export const FORM_VALIDATION_INVALID_EMAIL = () =>
@@ -320,7 +322,7 @@ export const OMNIBAR_PLACEHOLDER_SNIPPETS = () => "Search code snippets";
 export const OMNIBAR_PLACEHOLDER_NAV = () => "Search widgets and queries";
 export const OMNIBAR_PLACEHOLDER_DOC = () => "Search documentation";
 export const CREATE_NEW_OMNIBAR_PLACEHOLDER = () =>
-  "Create a new Query, API or JSObject";
+  "Create a new Query, API or JS Object";
 export const HELPBAR_PLACEHOLDER = () => "Quick search & navigation";
 export const NO_SEARCH_DATA_TEXT = () => "No results found";
 
@@ -643,8 +645,12 @@ export const REGENERATE_KEY_CONFIRM_MESSAGE = () =>
 export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
   "Paste this key in your repository settings and give it write access.";
 export const COMMITTING_AND_PUSHING_CHANGES = () =>
-  "COMMITTING AND PUSHING CHANGES...";
-export const IS_MERGING = () => "MERGING CHANGES...";
+  "Committing and pushing changes...";
+export const DISCARDING_AND_PULLING_CHANGES = () =>
+  "Discarding and pulling changes...";
+export const DISCARD_SUCCESS = () => "Discarded changes successfully.";
+
+export const IS_MERGING = () => "Merging changes...";
 
 export const MERGE_CHANGES = () => "Merge changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
@@ -657,7 +663,7 @@ export const SUBMIT = () => "SUBMIT";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
   "Git user updated successfully";
 export const REMOTE_URL_INPUT_PLACEHOLDER = () =>
-  "git://example.com:user/repo.git";
+  "ssh://example.com:user/repo.git";
 export const GIT_COMMIT_MESSAGE_PLACEHOLDER = () => "Your commit message here";
 export const COPIED_SSH_KEY = () => "Copied SSH Key";
 export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
@@ -723,8 +729,8 @@ export const GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS = (name: string) =>
 export const APPLICATION_NAME = () => "Application name";
 export const NOT_OPTIONS = () => "Not Options!";
 export const OPEN_REPO = () => "OPEN REPO";
-export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
-export const IMPORTING_APP_FROM_GIT = () => "IMPORTING APPLICATION FROM GIT";
+export const CONNECTING_REPO = () => "Connecting to git repo";
+export const IMPORTING_APP_FROM_GIT = () => "Importing application from git";
 export const ERROR_CONNECTING = () => "Error while connecting";
 export const ERROR_COMMITTING = () => "Error while committing";
 export const CONFIRM_SSH_KEY = () => "Make sure your SSH Key has write access.";
@@ -748,11 +754,16 @@ export const CONNECTING_TO_REPO_DISABLED = () =>
   "Connecting to a git repo is disabled";
 export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
 export const MERGED_SUCCESSFULLY = () => "Merged successfully";
+export const DISCARD_CHANGES_WARNING = () =>
+  "Discarding these changes will pull previous changes from Git.";
+export const DISCARD_CHANGES = () => "Discard changes";
 
 // GIT DEPLOY begin
 export const DEPLOY = () => "Deploy";
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
 export const CHANGES_ONLY_USER = () => "Changes since last commit";
+export const CHANGES_MADE_SINCE_LAST_COMMIT = () =>
+  "Changes made since last commit";
 export const CHANGES_ONLY_MIGRATION = () =>
   "Appsmith update changes since last commit";
 export const CHANGES_USER_AND_MIGRATION = () =>
@@ -1049,7 +1060,20 @@ export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
 export const CREATE_DATASOURCE_TOOLTIP = () => "Add a new datasource";
 export const ADD_QUERY_JS_TOOLTIP = () => "Create New";
 
+// Add datasource
+export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
+export const GENERATE_APPLICATION_DESCRIPTION = () =>
+  "Quickly generate a page to perform CRUD operations on your database tables";
 export const DELETE_ORG_SUCCESSFUL = () => "Organization deleted successfully";
+// theming
+export const CHANGE_APP_THEME = (name: string) => `Theme ${name} Applied`;
+export const SAVE_APP_THEME = (name: string) => `Theme ${name} Saved`;
+export const DELETE_APP_THEME = (name: string) => `Theme ${name} Deleted`;
+export const DELETE_APP_THEME_WARNING = () =>
+  `Do you really want to delete this theme? This process cannot be undone.`;
+export const APP_THEME_BETA_CARD_HEADING = () => `🎨 Theme your app`;
+export const APP_THEME_BETA_CARD_CONTENT = () =>
+  `Customize your app's look through global styles. Full widget support coming soon`;
 
 export const UPGRADE_TO_EE = (authLabel: string) =>
   `Hello, I would like to upgrade and start using ${authLabel} authentication.`;
