@@ -1,4 +1,5 @@
-import { get } from "lodash";
+import { klona } from "klona";
+import { get, set } from "lodash";
 
 import SchemaParser from "widgets/JSONFormWidget/schemaParser";
 import {
@@ -7,9 +8,12 @@ import {
   ARRAY_ITEM_KEY,
   Schema,
   HookResponse,
+  FieldThemeStylesheet,
 } from "../../constants";
 import { getGrandParentPropertyPath, getParentPropertyPath } from "../helper";
 import { JSONFormWidgetProps } from "..";
+import { getFieldStylesheet } from "widgets/JSONFormWidget/helper";
+import { AppTheme } from "entities/AppTheming";
 
 export type HiddenFnParams = [JSONFormWidgetProps, string];
 
@@ -18,23 +22,28 @@ export const fieldTypeUpdateHook = (
   propertyPath: string,
   fieldType: FieldType,
 ): HookResponse => {
-  const { schema, widgetName } = props;
+  const { childStylesheet, schema, widgetName } = props;
   const schemaItemPath = getParentPropertyPath(propertyPath);
   const schemaItem: SchemaItem = get(props, schemaItemPath, {});
 
-  const options = {
+  const newSchemaItem = SchemaParser.getSchemaItemByFieldType(fieldType, {
     schemaItem,
     schemaItemPath,
     schema,
     widgetName,
-  };
+    fieldThemeStylesheets: childStylesheet,
+  });
 
-  const newSchemaItem = SchemaParser.getSchemaItemByFieldType(
-    fieldType,
-    options,
-  );
+  /**
+   * TODO(Ashit): Not suppose to update the whole schema but just
+   * the path within the schema. This is just a hack to make sure
+   * the new added paths gets into the dynamicBindingPathList until
+   * the updateProperty function is fixed.
+   */
+  const updatedSchema = { schema: klona(schema) };
+  set(updatedSchema, schemaItemPath, newSchemaItem);
 
-  return [{ propertyPath: schemaItemPath, propertyValue: newSchemaItem }];
+  return [{ propertyPath: "schema", propertyValue: updatedSchema.schema }];
 };
 
 export const hiddenIfArrayItemIsObject = (
@@ -51,8 +60,7 @@ export const hiddenIfArrayItemIsObject = (
 
   return (
     schemaItem.identifier === ARRAY_ITEM_KEY &&
-    (schemaItem.fieldType === FieldType.OBJECT ||
-      schemaItem.fieldType === FieldType.ARRAY)
+    schemaItem.fieldType === FieldType.OBJECT
   );
 };
 
@@ -62,6 +70,7 @@ export const getSchemaItem = <TSchemaItem extends SchemaItem>(
 ) => {
   const parentPropertyPath = getParentPropertyPath(propertyPath);
   const schemaItem: TSchemaItem = get(props, parentPropertyPath, {});
+  const propertyName = propertyPath.split(".").slice(-1)[0]; // schema.__root_schema__.age.borderRadius -> borderRadius
 
   const fieldTypeMatches = (fieldType: FieldType) =>
     fieldType === schemaItem.fieldType;
@@ -73,14 +82,37 @@ export const getSchemaItem = <TSchemaItem extends SchemaItem>(
     fieldTypes: Readonly<FieldType[]> | FieldType[],
   ) => !fieldTypes.includes(schemaItem.fieldType);
 
-  const compute = (cb: (props: TSchemaItem) => any) => cb(schemaItem);
+  const fieldTypeIncludes = (fieldTypes: Readonly<FieldType[]> | FieldType[]) =>
+    fieldTypes.includes(schemaItem.fieldType);
+
+  const compute = <TReturnValue>(
+    cb: (props: TSchemaItem, propertyName: string) => TReturnValue,
+  ): TReturnValue => cb(schemaItem, propertyName);
 
   return {
     fieldTypeMatches,
     fieldTypeNotMatches,
     fieldTypeNotIncludes,
+    fieldTypeIncludes,
     compute,
   };
+};
+
+export const getStylesheetValue = (
+  props: JSONFormWidgetProps,
+  propertyPath: string,
+  widgetStylesheet?: AppTheme["stylesheet"][string],
+) => {
+  return getSchemaItem(props, propertyPath).compute(
+    (schemaItem, propertyName) => {
+      const fieldStylesheet = getFieldStylesheet(
+        schemaItem.fieldType,
+        widgetStylesheet?.childStylesheet as FieldThemeStylesheet,
+      );
+
+      return fieldStylesheet[propertyName] || "";
+    },
+  );
 };
 
 const getUpdatedSchemaFor = (
