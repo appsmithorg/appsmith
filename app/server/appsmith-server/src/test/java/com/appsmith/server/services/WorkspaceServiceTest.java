@@ -66,7 +66,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @DirtiesContext
 @Slf4j
-public class OrganizationServiceTest {
+public class WorkspaceServiceTest {
 
     @Autowired
     WorkspaceService organizationService;
