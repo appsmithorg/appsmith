@@ -5,6 +5,7 @@ import { CellWrapper } from "../TableStyledWrappers";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
 import { isString } from "lodash";
 import styled from "constants/DefaultTheme";
+import { TextSize } from "constants/WidgetConstants";
 
 const StyledCellWrapper = styled(CellWrapper)`
   & {
@@ -22,15 +23,23 @@ type renderCellType = {
   allowCellWrapping?: boolean;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
+  fontStyle: string;
+  textColor: string;
+  cellBackground: string;
+  textSize: TextSize;
 };
 
 export const VideoCell = (props: renderCellType) => {
   const {
     allowCellWrapping,
+    cellBackground,
     compactMode,
+    fontStyle,
     horizontalAlignment,
     isCellVisible,
     isHidden,
+    textColor,
+    textSize,
     value,
     verticalAlignment,
   } = props;
@@ -40,10 +49,14 @@ export const VideoCell = (props: renderCellType) => {
     return (
       <CellWrapper
         allowCellWrapping={allowCellWrapping}
+        cellBackground={cellBackground}
         compactMode={compactMode}
+        fontStyle={fontStyle}
         horizontalAlignment={horizontalAlignment}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
+        textColor={textColor}
+        textSize={textSize}
         verticalAlignment={verticalAlignment}
       />
     );
@@ -51,11 +64,15 @@ export const VideoCell = (props: renderCellType) => {
     return (
       <StyledCellWrapper
         allowCellWrapping={allowCellWrapping}
+        cellBackground={cellBackground}
         className="video-cell"
         compactMode={compactMode}
+        fontStyle={fontStyle}
         horizontalAlignment={horizontalAlignment}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
+        textColor={textColor}
+        textSize={textSize}
         verticalAlignment={verticalAlignment}
       >
         <PopoverVideo url={value} />
