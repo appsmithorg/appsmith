@@ -359,7 +359,7 @@ public class OrganizationServiceTest {
     @WithUserDetails(value = "api_user")
     public void getAllUserRolesForOrganizationDomainAsAdministrator() {
         Mono<Map<String, String>> userRolesForOrganization = organizationService.create(organization)
-                .flatMap(createdOrg -> organizationService.getUserRolesForOrganization(createdOrg.getId()));
+                .flatMap(createdOrg -> organizationService.getUserRolesForWorkspace(createdOrg.getId()));
 
         StepVerifier.create(userRolesForOrganization)
                 .assertNext(roles -> {
@@ -379,7 +379,7 @@ public class OrganizationServiceTest {
 
         Mono<Workspace> createOrganizationMono = organizationService.create(testOrg);
         Mono<List<UserRole>> usersMono = createOrganizationMono
-                .flatMap(organization -> organizationService.getOrganizationMembers(organization.getId()));
+                .flatMap(organization -> organizationService.getWorkspaceMembers(organization.getId()));
 
         StepVerifier
                 .create(usersMono)

@@ -69,7 +69,7 @@ public class OrganizationServiceUnitTest {
         Mockito.when(organizationRepository.findById("test-org-id", ORGANIZATION_INVITE_USERS))
                 .thenReturn(Mono.just(testOrg));
 
-        Mono<List<UserRole>> organizationMembers = organizationService.getOrganizationMembers(testOrg.getId());
+        Mono<List<UserRole>> organizationMembers = organizationService.getWorkspaceMembers(testOrg.getId());
         StepVerifier
                 .create(organizationMembers)
                 .assertNext(userRoles -> {
@@ -85,7 +85,7 @@ public class OrganizationServiceUnitTest {
         Mockito.when(organizationRepository.findById(sampleOrgId, ORGANIZATION_INVITE_USERS))
                 .thenReturn(Mono.empty());
 
-        Mono<List<UserRole>> organizationMembers = organizationService.getOrganizationMembers(sampleOrgId);
+        Mono<List<UserRole>> organizationMembers = organizationService.getWorkspaceMembers(sampleOrgId);
         StepVerifier
                 .create(organizationMembers)
                 .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.ORGANIZATION, sampleOrgId))

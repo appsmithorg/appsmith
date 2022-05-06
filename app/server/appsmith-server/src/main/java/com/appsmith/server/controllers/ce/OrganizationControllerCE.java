@@ -42,13 +42,13 @@ public class OrganizationControllerCE extends BaseController<OrganizationService
      */
     @GetMapping("/roles")
     public Mono<ResponseDTO<Map<String, String>>> getUserRolesForOrganization(@RequestParam String organizationId) {
-        return service.getUserRolesForOrganization(organizationId)
+        return service.getUserRolesForWorkspace(organizationId)
                 .map(permissions -> new ResponseDTO<>(HttpStatus.OK.value(), permissions, null));
     }
 
     @GetMapping("/{orgId}/members")
     public Mono<ResponseDTO<List<UserRole>>> getUserMembersOfOrganization(@PathVariable String orgId) {
-        return service.getOrganizationMembers(orgId)
+        return service.getWorkspaceMembers(orgId)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
 

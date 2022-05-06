@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public interface OrganizationServiceCE extends CrudService<Workspace, String> {
+public interface WorkspaceServiceCE extends CrudService<Workspace, String> {
 
     Mono<Workspace> create(Workspace organization);
 
@@ -33,9 +33,9 @@ public interface OrganizationServiceCE extends CrudService<Workspace, String> {
 
     Flux<Workspace> findByIdsIn(Set<String> ids,AclPermission permission);
 
-    Mono<Map<String, String>> getUserRolesForOrganization(String orgId);
+    Mono<Map<String, String>> getUserRolesForWorkspace(String orgId);
 
-    Mono<List<UserRole>> getOrganizationMembers(String orgId);
+    Mono<List<UserRole>> getWorkspaceMembers(String orgId);
 
     Mono<Workspace> uploadLogo(String organizationId, Part filePart);
 

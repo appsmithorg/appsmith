@@ -169,7 +169,7 @@ public class ShareOrganizationPermissionTests {
     public void testAdminInviteRoles() {
 
         Set<String> roles = Set.of("Administrator", "Developer", "App Viewer");
-        Mono<Map<String, String>> userRolesForOrganization = organizationService.getUserRolesForOrganization(organizationId);
+        Mono<Map<String, String>> userRolesForOrganization = organizationService.getUserRolesForWorkspace(organizationId);
 
         StepVerifier.create(userRolesForOrganization)
                 .assertNext(rolesMap -> {
@@ -201,7 +201,7 @@ public class ShareOrganizationPermissionTests {
     public void testDeveloperInviteRoles() {
 
         Set<String> roles = Set.of("Developer", "App Viewer");
-        Mono<Map<String, String>> userRolesForOrganization = organizationService.getUserRolesForOrganization(organizationId);
+        Mono<Map<String, String>> userRolesForOrganization = organizationService.getUserRolesForWorkspace(organizationId);
 
         StepVerifier.create(userRolesForOrganization)
                 .assertNext(rolesMap -> {

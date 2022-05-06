@@ -53,7 +53,7 @@ import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 
 @Slf4j
 public class OrganizationServiceCEImpl extends BaseService<WorkspaceRepository, Workspace, String>
-        implements OrganizationServiceCE {
+        implements WorkspaceServiceCE {
 
     private final PluginRepository pluginRepository;
     private final SessionUserService sessionUserService;
@@ -264,7 +264,7 @@ public class OrganizationServiceCEImpl extends BaseService<WorkspaceRepository, 
     }
 
     @Override
-    public Mono<Map<String, String>> getUserRolesForOrganization(String orgId) {
+    public Mono<Map<String, String>> getUserRolesForWorkspace(String orgId) {
         if (orgId == null || orgId.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
         }
@@ -306,7 +306,7 @@ public class OrganizationServiceCEImpl extends BaseService<WorkspaceRepository, 
     }
 
     @Override
-    public Mono<List<UserRole>> getOrganizationMembers(String orgId) {
+    public Mono<List<UserRole>> getWorkspaceMembers(String orgId) {
         return repository
                 .findById(orgId, ORGANIZATION_INVITE_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)))
