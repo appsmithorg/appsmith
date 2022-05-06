@@ -23,8 +23,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class ExamplesWorkspaceClonerImpl extends ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceCloner {
 
-    public ExamplesWorkspaceClonerImpl(WorkspaceService organizationService,
-                                          WorkspaceRepository organizationRepository,
+    public ExamplesWorkspaceClonerImpl(WorkspaceService workspaceService,
+                                          WorkspaceRepository workspaceRepository,
                                           DatasourceService datasourceService,
                                           DatasourceRepository datasourceRepository,
                                           ConfigService configService,
@@ -39,7 +39,7 @@ public class ExamplesWorkspaceClonerImpl extends ExamplesWorkspaceClonerCEImpl i
                                           LayoutCollectionService layoutCollectionService,
                                           ThemeService themeService) {
 
-        super(organizationService, organizationRepository, datasourceService, datasourceRepository, configService,
+        super(workspaceService, workspaceRepository, datasourceService, datasourceRepository, configService,
                 sessionUserService, userService, applicationService, applicationPageService, newPageRepository,
                 newActionService, layoutActionService, actionCollectionService, layoutCollectionService, themeService);
     }

@@ -43,7 +43,7 @@ public class PluginServiceCEImplTest {
     @MockBean
     AnalyticsService analyticsService;
     @MockBean
-    WorkspaceService organizationService;
+    WorkspaceService workspaceService;
     @MockBean
     PluginManager pluginManager;
     @MockBean
@@ -60,7 +60,7 @@ public class PluginServiceCEImplTest {
         objectMapper = new ObjectMapper();
         pluginService = new PluginServiceCEImpl(
                 scheduler, validator, mongoConverter, reactiveMongoTemplate,
-                repository, analyticsService, organizationService, pluginManager, reactiveTemplate, topic, objectMapper);
+                repository, analyticsService, workspaceService, pluginManager, reactiveTemplate, topic, objectMapper);
     }
 
     @Test

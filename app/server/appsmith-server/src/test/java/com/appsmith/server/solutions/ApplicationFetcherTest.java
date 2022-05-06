@@ -29,7 +29,7 @@ class ApplicationFetcherTest {
     private ApplicationPageService applicationPageService;
 
     @Autowired
-    private WorkspaceService organizationService;
+    private WorkspaceService workspaceService;
 
     @Autowired
     private ApplicationFetcher applicationFetcher;
@@ -41,7 +41,7 @@ class ApplicationFetcherTest {
         Workspace newOrg = new Workspace();
         newOrg.setName("org_" + randomUUID);
 
-        Mono<UserHomepageDTO> homepageDTOMono = organizationService.create(newOrg).flatMap(organization -> {
+        Mono<UserHomepageDTO> homepageDTOMono = workspaceService.create(newOrg).flatMap(organization -> {
             Application application = new Application();
             application.setName("app_" + randomUUID);
             return applicationPageService.createApplication(application, organization.getId());

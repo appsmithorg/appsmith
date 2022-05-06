@@ -43,7 +43,7 @@ public class UserServiceWithDisabledSignupTest {
     UserService userService;
 
     @Autowired
-    WorkspaceService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
     ApplicationService applicationService;
@@ -67,7 +67,7 @@ public class UserServiceWithDisabledSignupTest {
     @Before
     public void setup() {
         userMono = userService.findByEmail("usertest@usertest.com");
-        organizationMono = organizationService.getBySlug("spring-test-organization");
+        organizationMono = workspaceService.getBySlug("spring-test-organization");
     }
 
     @Test

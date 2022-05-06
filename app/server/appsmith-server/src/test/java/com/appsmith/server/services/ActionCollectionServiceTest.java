@@ -85,16 +85,16 @@ public class ActionCollectionServiceTest {
     UserService userService;
 
     @Autowired
-    WorkspaceService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
-    WorkspaceRepository organizationRepository;
+    WorkspaceRepository workspaceRepository;
 
     @Autowired
     PluginRepository pluginRepository;
 
     @Autowired
-    UserWorkspaceService userOrganizationService;
+    UserWorkspaceService userWorkspaceService;
 
     @Autowired
     NewActionService newActionService;
@@ -119,14 +119,14 @@ public class ActionCollectionServiceTest {
         User apiUser = userService.findByEmail("api_user").block();
         assert apiUser != null;
         orgId = apiUser.getOrganizationIds().iterator().next();
-        Workspace organization = organizationService.getById(orgId).block();
+        Workspace workspace = workspaceService.getById(orgId).block();
 
         if (testApp == null && testPage == null) {
             //Create application and page which will be used by the tests to create actions for.
             Application application = new Application();
             application.setName(UUID.randomUUID().toString());
-            assert organization != null;
-            testApp = applicationPageService.createApplication(application, organization.getId()).block();
+            assert workspace != null;
+            testApp = applicationPageService.createApplication(application, workspace.getId()).block();
 
             assert testApp != null;
             final String pageId = testApp.getPages().get(0).getId();
@@ -156,7 +156,7 @@ public class ActionCollectionServiceTest {
             layout.setPublishedDsl(dsl);
         }
 
-        Workspace testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
+        Workspace testOrg = workspaceRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
         assert testOrg != null;
         orgId = testOrg.getId();
         datasource = new Datasource();
@@ -210,7 +210,7 @@ public class ActionCollectionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void addUserToOrganizationAsAdminAndCheckActionCollectionPermissions() {
+    public void addUserToWorkspaceAsAdminAndCheckActionCollectionPermissions() {
 
         // Create action collection
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
@@ -227,7 +227,7 @@ public class ActionCollectionServiceTest {
         userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
         userRole.setUsername("usertest@usertest.com");
 
-        userOrganizationService.addUserRoleToWorkspace(testApp.getOrganizationId(), userRole).block();
+        userWorkspaceService.addUserRoleToWorkspace(testApp.getOrganizationId(), userRole).block();
 
         assert actionCollection != null;
         Mono<ActionCollection> readActionCollectionMono =

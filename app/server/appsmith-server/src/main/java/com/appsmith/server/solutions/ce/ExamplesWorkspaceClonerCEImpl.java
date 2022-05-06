@@ -58,8 +58,8 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE {
 
-    private final WorkspaceService organizationService;
-    private final WorkspaceRepository organizationRepository;
+    private final WorkspaceService workspaceService;
+    private final WorkspaceRepository workspaceRepository;
     private final DatasourceService datasourceService;
     private final DatasourceRepository datasourceRepository;
     private final ConfigService configService;
@@ -77,28 +77,28 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
     public Mono<Workspace> cloneExamplesWorkspace() {
         return sessionUserService
                 .getCurrentUser()
-                .flatMap(this::cloneExamplesOrganization);
+                .flatMap(this::cloneExamplesWorkspace);
     }
 
     /**
-     * Clones the template organization (as specified in config collection) for the given user. The given user will be
-     * the owner of the cloned organization. This method also assumes that the given user is the same as the user in
+     * Clones the template workspace (as specified in config collection) for the given user. The given user will be
+     * the owner of the cloned workspace. This method also assumes that the given user is the same as the user in
      * the current Spring session.
      *
-     * @param user User who will be the owner of the cloned organization.
+     * @param user User who will be the owner of the cloned workspace.
      * @return Empty Mono.
      */
-    private Mono<Workspace> cloneExamplesOrganization(User user) {
+    private Mono<Workspace> cloneExamplesWorkspace(User user) {
         if (!CollectionUtils.isEmpty(user.getOrganizationIds())) {
-            // Don't create an examples organization if the user already has some organizations, perhaps because they
+            // Don't create an examples workspace if the user already has some workspaces, perhaps because they
             // were invited to some.
             return Mono.empty();
         }
 
-        return configService.getTemplateOrganizationId()
-                .doOnError(error -> log.error("Error loading template organization id config.", error))
-                .flatMap(templateOrganizationId -> cloneWorkspaceForUser(
-                        templateOrganizationId,
+        return configService.getTemplateWorkspaceId()
+                .doOnError(error -> log.error("Error loading template workspace id config.", error))
+                .flatMap(templateWorkspaceId -> cloneWorkspaceForUser(
+                        templateWorkspaceId,
                         user,
                         configService.getTemplateApplications(),
                         configService.getTemplateDatasources()
@@ -106,48 +106,48 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
     }
 
     /**
-     * Given an organization ID and a user, clone the organization and make the given user the owner of the cloned
-     * organization. This recursively clones all objects inside the organization. This method also assumes that the
+     * Given an workspace ID and a user, clone the workspace and make the given user the owner of the cloned
+     * workspace. This recursively clones all objects inside the workspace. This method also assumes that the
      * given user is the same as the user in the current Spring session.
      *
-     * @param templateOrganizationId Organization ID of the organization to create a clone of.
-     * @param user                   The user who will own the new cloned organization.
-     * @return Publishes the newly created organization.
+     * @param templateWorkspaceId workspace ID of the workspace to create a clone of.
+     * @param user                   The user who will own the new cloned workspace.
+     * @return Publishes the newly created workspace.
      */
     public Mono<Workspace> cloneWorkspaceForUser(
-            String templateOrganizationId,
+            String templateWorkspaceId,
             User user,
             Flux<Application> applicationFlux,
             Flux<Datasource> datasourceFlux
     ) {
 
-        log.info("Cloning organization id {}", templateOrganizationId);
+        log.info("Cloning workspace id {}", templateWorkspaceId);
 
-        if (!StringUtils.hasText(templateOrganizationId)) {
+        if (!StringUtils.hasText(templateWorkspaceId)) {
             return Mono.empty();
         }
 
-        return organizationRepository
-                .findById(templateOrganizationId)
-                .doOnSuccess(organization -> {
-                    if (organization == null) {
+        return workspaceRepository
+                .findById(templateWorkspaceId)
+                .doOnSuccess(workspace -> {
+                    if (workspace == null) {
                         log.error(
-                                "Template examples organization not found. Not creating a clone for user {}.",
+                                "Template examples workspace not found. Not creating a clone for user {}.",
                                 user.getEmail()
                         );
                     }
                 })
-                .flatMap(organization -> {
-                    makePristine(organization);
-                    if (!CollectionUtils.isEmpty(organization.getUserRoles())) {
-                        organization.getUserRoles().clear();
+                .flatMap(workspace -> {
+                    makePristine(workspace);
+                    if (!CollectionUtils.isEmpty(workspace.getUserRoles())) {
+                        workspace.getUserRoles().clear();
                     }
-                    organization.setSlug(null);
-                    return organizationService.createDefault(organization, user);
+                    workspace.setSlug(null);
+                    return workspaceService.createDefault(workspace, user);
                 })
-                .flatMap(newOrganization -> {
+                .flatMap(newWorkspace -> {
                     User userUpdate = new User();
-                    userUpdate.setExamplesOrganizationId(newOrganization.getId());
+                    userUpdate.setExamplesOrganizationId(newWorkspace.getId());
                     userUpdate.setPasswordResetInitiated(user.getPasswordResetInitiated());
                     userUpdate.setSource(user.getSource());
                     userUpdate.setGroupIds(null);
@@ -155,26 +155,26 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                     return Mono
                             .when(
                                     userService.update(user.getId(), userUpdate),
-                                    cloneApplications(newOrganization.getId(), applicationFlux, datasourceFlux)
+                                    cloneApplications(newWorkspace.getId(), applicationFlux, datasourceFlux)
                             )
-                            .thenReturn(newOrganization);
+                            .thenReturn(newWorkspace);
                 })
-                .doOnError(error -> log.error("Error cloning examples organization.", error));
+                .doOnError(error -> log.error("Error cloning examples workspace.", error));
     }
 
-    public Mono<List<String>> cloneApplications(String toOrganizationId, Flux<Application> applicationFlux) {
-        return cloneApplications(toOrganizationId, applicationFlux, Flux.empty());
+    public Mono<List<String>> cloneApplications(String toWorkspaceId, Flux<Application> applicationFlux) {
+        return cloneApplications(toWorkspaceId, applicationFlux, Flux.empty());
     }
 
     /**
-     * Clone all applications (except deleted ones), including it's pages and actions from one organization into
-     * another. Also clones all datasources (not just the ones used by any applications) in the given organizations.
+     * Clone all applications (except deleted ones), including it's pages and actions from one workspace into
+     * another. Also clones all datasources (not just the ones used by any applications) in the given workspace.
      *
-     * @param toOrganizationId   ID of the organization that is the target to copy objects to.
+     * @param toWorkspaceId   ID of the workspace that is the target to copy objects to.
      * @return Empty Mono.
      */
     public Mono<List<String>> cloneApplications(
-            String toOrganizationId,
+            String toWorkspaceId,
             Flux<Application> applicationFlux,
             Flux<Datasource> datasourceFlux
     ) {
@@ -187,13 +187,13 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
         return datasourceFlux
                 .flatMap(datasource -> {
                     final String datasourceId = datasource.getId();
-                    final Mono<Datasource> clonerMono = cloneDatasource(datasourceId, toOrganizationId);
+                    final Mono<Datasource> clonerMono = cloneDatasource(datasourceId, toWorkspaceId);
                     cloneDatasourceMonos.put(datasourceId, clonerMono.cache());
                     return clonerMono;
                 })
                 .thenMany(applicationFlux)
                 .flatMap(application -> {
-                    application.setOrganizationId(toOrganizationId);
+                    application.setOrganizationId(toWorkspaceId);
 
                     final String defaultPageId = application.getPages().stream()
                             .filter(ApplicationPage::isDefault)
@@ -249,7 +249,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                             final String originalActionId = newAction.getId();
                                             log.info("Creating clone of action {}", originalActionId);
                                             makePristine(newAction);
-                                            newAction.setOrganizationId(toOrganizationId);
+                                            newAction.setOrganizationId(toWorkspaceId);
                                             ActionDTO action = newAction.getUnpublishedAction();
                                             action.setCollectionId(null);
 
@@ -259,7 +259,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                                 if (datasourceInsideAction.getId() != null) {
                                                     final String datasourceId = datasourceInsideAction.getId();
                                                     if (!cloneDatasourceMonos.containsKey(datasourceId)) {
-                                                        cloneDatasourceMonos.put(datasourceId, cloneDatasource(datasourceId, toOrganizationId).cache());
+                                                        cloneDatasourceMonos.put(datasourceId, cloneDatasource(datasourceId, toWorkspaceId).cache());
                                                     }
                                                     actionMono = cloneDatasourceMonos.get(datasourceId)
                                                             .map(newDatasource -> {
@@ -267,7 +267,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                                                 return action;
                                                             });
                                                 } else {
-                                                    datasourceInsideAction.setOrganizationId(toOrganizationId);
+                                                    datasourceInsideAction.setOrganizationId(toWorkspaceId);
                                                 }
                                             }
                                             return Mono.zip(actionMono
@@ -300,7 +300,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                                         defaultResources.setPageId(savedPage.getId());
                                                         unpublishedCollection.setDefaultResources(defaultResources);
 
-                                                        actionCollection.setOrganizationId(toOrganizationId);
+                                                        actionCollection.setOrganizationId(toWorkspaceId);
                                                         actionCollection.setApplicationId(savedPage.getApplicationId());
 
                                                         DefaultResources defaultResources1 = new DefaultResources();
@@ -493,8 +493,8 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                 );
     }
 
-    public Mono<Datasource> cloneDatasource(String datasourceId, String toOrganizationId) {
-        final Mono<List<Datasource>> existingDatasourcesMono = datasourceRepository.findAllByOrganizationId(toOrganizationId)
+    public Mono<Datasource> cloneDatasource(String datasourceId, String toWorkspaceId) {
+        final Mono<List<Datasource>> existingDatasourcesMono = datasourceRepository.findAllByOrganizationId(toWorkspaceId)
                 .collectList();
 
         return Mono.zip(datasourceRepository.findById(datasourceId), existingDatasourcesMono)
@@ -524,7 +524,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                             .switchIfEmpty(Mono.defer(() -> {
                                 // No matching existing datasource found, so create a new one.
                                 makePristine(templateDatasource);
-                                templateDatasource.setOrganizationId(toOrganizationId);
+                                templateDatasource.setOrganizationId(toWorkspaceId);
                                 return createSuffixedDatasource(templateDatasource);
                             }));
                 });

@@ -175,7 +175,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .flatMap(this::validateObject)
                 // Install all the default plugins when the org is created
                 /* TODO: This is a hack. We should ideally use the pluginService.installPlugin() function.
-                    Not using it right now because of circular dependency b/w organizationService and pluginService
+                    Not using it right now because of circular dependency b/w workspaceService and pluginService
                     Also, since all our deployments are single node, this logic will still work
                  */
                 .flatMap(org -> pluginRepository.findByDefaultInstall(true)
@@ -322,7 +322,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId)));
 
         // We don't execute the upload Mono if we don't find the organization.
-        final Mono<Asset> uploadAssetMono = assetService.upload(filePart, Constraint.ORGANIZATION_LOGO_SIZE_KB, false);
+        final Mono<Asset> uploadAssetMono = assetService.upload(filePart, Constraint.WORKSPACE_LOGO_SIZE_KB, false);
 
         return findOrganizationMono
                 .flatMap(organization -> Mono.zip(Mono.just(organization), uploadAssetMono))

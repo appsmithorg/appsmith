@@ -103,10 +103,10 @@ public class GitServiceTest {
     GitService gitService;
 
     @Autowired
-    WorkspaceService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
-    WorkspaceRepository organizationRepository;
+    WorkspaceRepository workspaceRepository;
 
     @Autowired
     ApplicationPageService applicationPageService;
@@ -163,7 +163,7 @@ public class GitServiceTest {
     public void setup() throws IOException {
 
         if (StringUtils.isEmpty(orgId)) {
-            orgId = organizationRepository
+            orgId = workspaceRepository
                     .findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS)
                     .block()
                     .getId();
@@ -230,7 +230,7 @@ public class GitServiceTest {
         return createApplicationConnectedToGit(name, branchName, orgId);
     }
 
-    private Application createApplicationConnectedToGit(String name, String branchName, String organizationId) throws IOException {
+    private Application createApplicationConnectedToGit(String name, String branchName, String workspaceId) throws IOException {
 
         if (StringUtils.isEmpty(branchName)) {
             branchName = DEFAULT_BRANCH;
@@ -254,7 +254,7 @@ public class GitServiceTest {
 
         Application testApplication = new Application();
         testApplication.setName(name);
-        testApplication.setOrganizationId(organizationId);
+        testApplication.setOrganizationId(workspaceId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
         GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
@@ -689,9 +689,9 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_moreThanThreePrivateRepos_throwException() throws IOException {
-        Workspace organization = new Workspace();
-        organization.setName("Limit Private Repo Test Organization");
-        String limitPrivateRepoTestOrgId = organizationService.create(organization).map(Workspace::getId).block();
+        Workspace workspace = new Workspace();
+        workspace.setName("Limit Private Repo Test Organization");
+        String limitPrivateRepoTestOrgId = workspaceService.create(workspace).map(Workspace::getId).block();
 
         Mockito
                 .when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(eq(limitPrivateRepoTestOrgId), Mockito.anyBoolean()))
@@ -738,9 +738,9 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_toggleAccessibilityToPublicForConnectedApp_connectSuccessful() throws IOException {
-        Workspace organization = new Workspace();
-        organization.setName("Toggle Accessibility To Public From Private Repo Test Organization");
-        String limitPrivateRepoTestOrgId = organizationService.create(organization).map(Workspace::getId).block();
+        Workspace workspace = new Workspace();
+        workspace.setName("Toggle Accessibility To Public From Private Repo Test Organization");
+        String limitPrivateRepoTestOrgId = workspaceService.create(workspace).map(Workspace::getId).block();
 
         Mockito
                 .when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(eq(limitPrivateRepoTestOrgId), Mockito.anyBoolean()))
@@ -2490,9 +2490,9 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfSameType_Success() throws GitAPIException, IOException {
-        Workspace organization = new Workspace();
-        organization.setName("gitImportOrg");
-        final String testOrgId = organizationService.create(organization)
+        Workspace workspace = new Workspace();
+        workspace.setName("gitImportOrg");
+        final String testOrgId = workspaceService.create(workspace)
                 .map(Workspace::getId)
                 .block();
 
@@ -2537,9 +2537,9 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfSameTypeCancelledMidway_Success() {
-        Workspace organization = new Workspace();
-        organization.setName("gitImportOrgCancelledMidway");
-        final String testOrgId = organizationService.create(organization)
+        Workspace workspace = new Workspace();
+        workspace.setName("gitImportOrgCancelledMidway");
+        final String testOrgId = workspaceService.create(workspace)
                 .map(Workspace::getId)
                 .block();
 

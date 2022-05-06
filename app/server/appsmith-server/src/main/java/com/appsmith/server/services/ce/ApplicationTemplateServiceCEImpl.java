@@ -129,9 +129,9 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     @Override
-    public Mono<Application> importApplicationFromTemplate(String templateId, String organizationId) {
+    public Mono<Application> importApplicationFromTemplate(String templateId, String workspaceId) {
         return getApplicationJsonFromTemplate(templateId).flatMap(applicationJson ->
-            importExportApplicationService.importApplicationInOrganization(organizationId, applicationJson)
+            importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson)
         ).flatMap(application -> {
             ApplicationTemplate applicationTemplate = new ApplicationTemplate();
             applicationTemplate.setId(templateId);

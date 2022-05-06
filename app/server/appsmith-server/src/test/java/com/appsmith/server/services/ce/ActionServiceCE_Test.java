@@ -116,10 +116,10 @@ public class ActionServiceCE_Test {
     UserService userService;
 
     @Autowired
-    WorkspaceService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
-    WorkspaceRepository organizationRepository;
+    WorkspaceRepository workspaceRepository;
 
     @Autowired
     PluginRepository pluginRepository;
@@ -174,7 +174,7 @@ public class ActionServiceCE_Test {
 
         User apiUser = userService.findByEmail("api_user").block();
         orgId = apiUser.getOrganizationIds().iterator().next();
-        Workspace organization = organizationService.getById(orgId).block();
+        Workspace organization = workspaceService.getById(orgId).block();
 
         if (testApp == null && testPage == null) {
             //Create application and page which will be used by the tests to create actions for.
@@ -221,7 +221,7 @@ public class ActionServiceCE_Test {
                                 .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName()));
                     })
                     // Assign the branchName to all the resources connected to the application
-                    .flatMap(tuple -> importExportApplicationService.importApplicationInOrganization(orgId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                    .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspace(orgId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                     .block();
 
             gitConnectedPage = newPageService.findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false).block();
@@ -229,7 +229,7 @@ public class ActionServiceCE_Test {
             branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
         }
 
-        Workspace testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
+        Workspace testOrg = workspaceRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
         orgId = testOrg.getId();
         datasource = new Datasource();
         datasource.setName("Default Database");

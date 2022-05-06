@@ -78,7 +78,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                                                  @RequestParam String orgId,
                                                  ServerWebExchange exchange) {
         if (orgId == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "organization id"));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "workspace id"));
         }
         log.debug("Going to create application in org {}", orgId);
         return applicationPageService.createApplication(resource, orgId)
@@ -127,7 +127,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
     @GetMapping("/new")
     public Mono<ResponseDTO<UserHomepageDTO>> getAllApplicationsForHome() {
-        log.debug("Going to get all applications grouped by organization");
+        log.debug("Going to get all applications grouped by workspace");
         return applicationFetcher.getAllApplications()
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
     }
@@ -155,12 +155,12 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
-    @PostMapping("/{defaultApplicationId}/fork/{organizationId}")
+    @PostMapping("/{defaultApplicationId}/fork/{workspaceId}")
     public Mono<ResponseDTO<Application>> forkApplication(
             @PathVariable String defaultApplicationId,
-            @PathVariable String organizationId,
+            @PathVariable String workspaceId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return applicationForkingService.forkApplicationToOrganization(defaultApplicationId, organizationId, branchName)
+        return applicationForkingService.forkApplicationToWorkspace(defaultApplicationId, workspaceId, branchName)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
@@ -184,12 +184,12 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 });
     }
 
-    @PostMapping(value = "/import/{orgId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/import/{workspaceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromFile(@RequestPart("file") Mono<Part> fileMono,
-                                                                             @PathVariable String orgId) {
-        log.debug("Going to import application in organization with id: {}", orgId);
+                                                                             @PathVariable String workspaceId) {
+        log.debug("Going to import application in workspace with id: {}", workspaceId);
         return fileMono
-                .flatMap(file -> importExportApplicationService.extractFileAndSaveApplication(orgId, file))
+                .flatMap(file -> importExportApplicationService.extractFileAndSaveApplication(workspaceId, file))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 

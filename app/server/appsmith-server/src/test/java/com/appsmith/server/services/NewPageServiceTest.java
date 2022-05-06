@@ -30,7 +30,7 @@ class NewPageServiceTest {
     ApplicationPageService applicationPageService;
 
     @Autowired
-    WorkspaceService organizationService;
+    WorkspaceService workspaceService;
 
     @Test
     @WithUserDetails("api_user")
@@ -48,7 +48,7 @@ class NewPageServiceTest {
         String randomId = UUID.randomUUID().toString();
         Workspace organization = new Workspace();
         organization.setName("org_" + randomId);
-        Mono<ApplicationPagesDTO> applicationPagesDTOMono = organizationService.create(organization).flatMap(createdOrg -> {
+        Mono<ApplicationPagesDTO> applicationPagesDTOMono = workspaceService.create(organization).flatMap(createdOrg -> {
             Application application = new Application();
             application.setName("app_" + randomId);
             return applicationPageService.createApplication(application, createdOrg.getId());
@@ -72,12 +72,12 @@ class NewPageServiceTest {
     @WithUserDetails("api_user")
     void findApplicationPages_WhenPageIdPresent_ReturnsPages() {
         String randomId = UUID.randomUUID().toString();
-        Workspace organization = new Workspace();
-        organization.setName("org_" + randomId);
-        Mono<ApplicationPagesDTO> applicationPagesDTOMono = organizationService.create(organization).flatMap(createdOrg -> {
+        Workspace workspace = new Workspace();
+        workspace.setName("org_" + randomId);
+        Mono<ApplicationPagesDTO> applicationPagesDTOMono = workspaceService.create(workspace).flatMap(createdWorkspace -> {
             Application application = new Application();
             application.setName("app_" + randomId);
-            return applicationPageService.createApplication(application, createdOrg.getId());
+            return applicationPageService.createApplication(application, createdWorkspace.getId());
         }).flatMap(application -> {
             PageDTO pageDTO = new PageDTO();
             pageDTO.setName("page_" + randomId);

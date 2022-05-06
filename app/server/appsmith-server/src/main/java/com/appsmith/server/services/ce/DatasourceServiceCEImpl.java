@@ -56,7 +56,7 @@ import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIO
 @Slf4j
 public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, Datasource, String> implements DatasourceServiceCE {
 
-    private final WorkspaceService organizationService;
+    private final WorkspaceService workspaceService;
     private final SessionUserService sessionUserService;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
@@ -71,7 +71,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                                    MongoConverter mongoConverter,
                                    ReactiveMongoTemplate reactiveMongoTemplate,
                                    DatasourceRepository repository,
-                                   WorkspaceService organizationService,
+                                   WorkspaceService workspaceService,
                                    AnalyticsService analyticsService,
                                    SessionUserService sessionUserService,
                                    PluginService pluginService,
@@ -81,7 +81,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                                    NewActionRepository newActionRepository) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.organizationService = organizationService;
+        this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
         this.pluginService = pluginService;
         this.pluginExecutorHelper = pluginExecutorHelper;
@@ -130,7 +130,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     private Mono<Datasource> generateAndSetDatasourcePolicies(Mono<User> userMono, Datasource datasource) {
         return userMono
                 .flatMap(user -> {
-                    Mono<Workspace> orgMono = organizationService.findById(datasource.getOrganizationId(), ORGANIZATION_MANAGE_APPLICATIONS)
+                    Mono<Workspace> orgMono = workspaceService.findById(datasource.getOrganizationId(), ORGANIZATION_MANAGE_APPLICATIONS)
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, datasource.getOrganizationId())));
 
                     return orgMono.map(org -> {
@@ -231,7 +231,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
             return Mono.just(datasource);
         }
 
-        Mono<Workspace> checkPluginInstallationAndThenReturnOrganizationMono = organizationService
+        Mono<Workspace> checkPluginInstallationAndThenReturnOrganizationMono = workspaceService
                 .findByIdAndPluginsPluginId(datasource.getOrganizationId(), datasource.getPluginId())
                 .switchIfEmpty(Mono.defer(() -> {
                     invalids.add(AppsmithError.PLUGIN_NOT_INSTALLED.getMessage(datasource.getPluginId()));

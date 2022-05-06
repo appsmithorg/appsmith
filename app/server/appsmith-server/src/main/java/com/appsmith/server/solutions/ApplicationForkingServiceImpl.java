@@ -15,14 +15,14 @@ import org.springframework.stereotype.Service;
 public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEImpl implements ApplicationForkingService {
 
     public ApplicationForkingServiceImpl(ApplicationService applicationService,
-                                         WorkspaceService organizationService,
-                                         ExamplesWorkspaceCloner examplesOrganizationCloner,
+                                         WorkspaceService workspaceService,
+                                         ExamplesWorkspaceCloner examplesWorkspaceCloner,
                                          PolicyUtils policyUtils,
                                          SessionUserService sessionUserService,
                                          AnalyticsService analyticsService,
                                          ResponseUtils responseUtils) {
 
-        super(applicationService, organizationService, examplesOrganizationCloner, policyUtils, sessionUserService,
+        super(applicationService, workspaceService, examplesWorkspaceCloner, policyUtils, sessionUserService,
                 analyticsService, responseUtils);
     }
 }

@@ -70,7 +70,7 @@ public class ShareWorkspacePermissionTests {
     UserService userService;
 
     @Autowired
-    WorkspaceService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
     ApplicationService applicationService;
@@ -111,7 +111,7 @@ public class ShareWorkspacePermissionTests {
     public void setup() {
         Workspace organization = new Workspace();
         organization.setName("Share Test Organization");
-        Workspace savedOrganization = organizationService.create(organization).block();
+        Workspace savedOrganization = workspaceService.create(organization).block();
         organizationId = savedOrganization.getId();
 
         Application application = new Application();
@@ -150,7 +150,7 @@ public class ShareWorkspacePermissionTests {
                 .build();
 
         Mono<Application> applicationMono = applicationService.findById(savedApplication.getId());
-        Mono<Workspace> organizationMono = organizationService.findById(organizationId, READ_ORGANIZATIONS);
+        Mono<Workspace> organizationMono = workspaceService.findById(organizationId, READ_ORGANIZATIONS);
 
         StepVerifier.create(Mono.zip(applicationMono, organizationMono))
                 .assertNext(tuple -> {
@@ -169,7 +169,7 @@ public class ShareWorkspacePermissionTests {
     public void testAdminInviteRoles() {
 
         Set<String> roles = Set.of("Administrator", "Developer", "App Viewer");
-        Mono<Map<String, String>> userRolesForOrganization = organizationService.getUserRolesForWorkspace(organizationId);
+        Mono<Map<String, String>> userRolesForOrganization = workspaceService.getUserRolesForWorkspace(organizationId);
 
         StepVerifier.create(userRolesForOrganization)
                 .assertNext(rolesMap -> {
@@ -186,7 +186,7 @@ public class ShareWorkspacePermissionTests {
                 .users(Set.of("admin@solutiontest.com", "developer@solutiontest.com"))
                 .build();
 
-        Mono<Workspace> organizationMono = organizationService.findById(organizationId, READ_ORGANIZATIONS);
+        Mono<Workspace> organizationMono = workspaceService.findById(organizationId, READ_ORGANIZATIONS);
 
         StepVerifier.create(organizationMono)
                 .assertNext(organization -> {
@@ -201,7 +201,7 @@ public class ShareWorkspacePermissionTests {
     public void testDeveloperInviteRoles() {
 
         Set<String> roles = Set.of("Developer", "App Viewer");
-        Mono<Map<String, String>> userRolesForOrganization = organizationService.getUserRolesForWorkspace(organizationId);
+        Mono<Map<String, String>> userRolesForOrganization = workspaceService.getUserRolesForWorkspace(organizationId);
 
         StepVerifier.create(userRolesForOrganization)
                 .assertNext(rolesMap -> {
@@ -219,7 +219,7 @@ public class ShareWorkspacePermissionTests {
 
         Workspace organization = new Workspace();
         organization.setName("Organization for Invite Cancellation Test");
-        Workspace savedOrganization = organizationService.create(organization).block();
+        Workspace savedOrganization = workspaceService.create(organization).block();
 
         Application application = new Application();
         application.setName("Application for Invite Cancellation Test");
@@ -293,7 +293,7 @@ public class ShareWorkspacePermissionTests {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return organizationService.findById(orgId, READ_ORGANIZATIONS);
+                    return workspaceService.findById(orgId, READ_ORGANIZATIONS);
                 })
                 .cache();
 

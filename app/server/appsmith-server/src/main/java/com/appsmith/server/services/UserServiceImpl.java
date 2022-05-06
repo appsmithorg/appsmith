@@ -30,7 +30,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                            MongoConverter mongoConverter,
                            ReactiveMongoTemplate reactiveMongoTemplate,
                            UserRepository repository,
-                           WorkspaceService organizationService,
+                           WorkspaceService workspaceService,
                            AnalyticsService analyticsService,
                            SessionUserService sessionUserService,
                            PasswordResetTokenRepository passwordResetTokenRepository,
@@ -49,7 +49,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                            ApplicationPageService applicationPageService,
                            UserDataService userDataService) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, organizationService,
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, workspaceService,
                 analyticsService, sessionUserService, passwordResetTokenRepository, passwordEncoder, emailSender,
                 applicationRepository, policyUtils, organizationRepository, userOrganizationService, roleGraph,
                 configService, commonConfig, emailConfig, userChangedHandler, encryptionService, applicationPageService,

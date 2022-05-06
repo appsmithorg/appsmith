@@ -88,7 +88,7 @@ import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldN
 @Slf4j
 public class UserServiceCEImpl extends BaseService<UserRepository, User, String> implements UserServiceCE {
 
-    private final WorkspaceService organizationService;
+    private final WorkspaceService workspaceService;
     private final SessionUserService sessionUserService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
@@ -117,7 +117,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                              MongoConverter mongoConverter,
                              ReactiveMongoTemplate reactiveMongoTemplate,
                              UserRepository repository,
-                             WorkspaceService organizationService,
+                             WorkspaceService workspaceService,
                              AnalyticsService analyticsService,
                              SessionUserService sessionUserService,
                              PasswordResetTokenRepository passwordResetTokenRepository,
@@ -136,7 +136,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                              ApplicationPageService applicationPageService,
                              UserDataService userDataService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.organizationService = organizationService;
+        this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.passwordEncoder = passwordEncoder;
@@ -545,7 +545,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                 userSignupDTO.setUser(savedUser);
 
                                 log.debug("Creating blank default organization for user '{}'.", savedUser.getEmail());
-                                return organizationService.createDefault(new Workspace(), savedUser)
+                                return workspaceService.createDefault(new Workspace(), savedUser)
                                         .map(org -> {
                                             userSignupDTO.setDefaultOrganizationId(org.getId());
                                             return userSignupDTO;

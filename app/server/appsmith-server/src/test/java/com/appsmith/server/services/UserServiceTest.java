@@ -72,7 +72,7 @@ public class UserServiceTest {
     UserService userService;
 
     @Autowired
-    WorkspaceService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
     ApplicationService applicationService;
@@ -102,7 +102,7 @@ public class UserServiceTest {
     @Before
     public void setup() {
         userMono = userService.findByEmail("usertest@usertest.com");
-        organizationMono = organizationService.getBySlug("spring-test-organization");
+        organizationMono = workspaceService.getBySlug("spring-test-organization");
     }
 
     //Test if email params are updating correctly
@@ -165,8 +165,8 @@ public class UserServiceTest {
     @WithUserDetails(value = "api_user")
     public void updateUserWithValidOrganization() {
         // Create a new organization
-        Workspace updateOrg = new Workspace();
-        updateOrg.setName("UserServiceTest Update Org");
+        Workspace updateWorkspace = new Workspace();
+        updateWorkspace.setName("UserServiceTest Update Org");
 
         User updateUser = new User();
 
@@ -174,7 +174,7 @@ public class UserServiceTest {
                 .switchIfEmpty(Mono.error(new Exception("Unable to find user")));
 
         //Add valid organization id to the updateUser object.
-        Mono<User> userMono = organizationService.create(updateOrg)
+        Mono<User> userMono = workspaceService.create(updateWorkspace)
                 .flatMap(org -> {
                     updateUser.setCurrentOrganizationId(org.getId());
                     return userMono1.flatMap(user -> userService.update(user.getId(), updateUser));
@@ -430,7 +430,7 @@ public class UserServiceTest {
         organization.setDomain("example.com");
         organization.setWebsite("https://example.com");
 
-        Mono<Workspace> organizationMono = organizationService
+        Mono<Workspace> organizationMono = workspaceService
                 .create(organization)
                 .cache();
 

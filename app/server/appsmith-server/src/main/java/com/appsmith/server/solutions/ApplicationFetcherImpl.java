@@ -17,13 +17,13 @@ public class ApplicationFetcherImpl extends ApplicationFetcherCEImpl implements 
     public ApplicationFetcherImpl(SessionUserService sessionUserService,
                                   UserService userService,
                                   UserDataService userDataService,
-                                  WorkspaceService organizationService,
+                                  WorkspaceService workspaceService,
                                   ApplicationRepository applicationRepository,
                                   ReleaseNotesService releaseNotesService,
                                   ResponseUtils responseUtils,
                                   NewPageService newPageService) {
 
-        super(sessionUserService, userService, userDataService, organizationService, applicationRepository,
+        super(sessionUserService, userService, userDataService, workspaceService, applicationRepository,
                 releaseNotesService, responseUtils, newPageService);
     }
 }

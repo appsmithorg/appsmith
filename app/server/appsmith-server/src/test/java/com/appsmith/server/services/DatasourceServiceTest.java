@@ -63,10 +63,10 @@ public class DatasourceServiceTest {
     PluginService pluginService;
 
     @Autowired
-    WorkspaceService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
-    WorkspaceRepository organizationRepository;
+    WorkspaceRepository workspaceRepository;
 
     @Autowired
     NewActionService newActionService;
@@ -88,29 +88,29 @@ public class DatasourceServiceTest {
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
-        Workspace testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
+        Workspace testOrg = workspaceRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
         orgId = testOrg == null ? "" : testOrg.getId();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void datasourceDefaultNameCounterAsPerOrgId() {
-        //Create new organization
-        Workspace organization1 = new Workspace();
-        organization1.setId("random-org-id-1");
-        organization1.setName("Random Org 1");
+        //Create new workspace
+        Workspace workspace11 = new Workspace();
+        workspace11.setId("random-org-id-1");
+        workspace11.setName("Random Org 1");
 
-        StepVerifier.create(organizationService.create(organization1)
+        StepVerifier.create(workspaceService.create(workspace11)
                 .flatMap(org -> {
                     Datasource datasource = new Datasource();
                     datasource.setOrganizationId(org.getId());
                     return datasourceService.create(datasource);
                 })
                 .flatMap(datasource1 -> {
-                    Workspace organization2 = new Workspace();
-                    organization2.setId("random-org-id-2");
-                    organization2.setName("Random Org 2");
-                    return Mono.zip(Mono.just(datasource1), organizationService.create(organization2));
+                    Workspace workspace2 = new Workspace();
+                    workspace2.setId("random-org-id-2");
+                    workspace2.setName("Random Org 2");
+                    return Mono.zip(Mono.just(datasource1), workspaceService.create(workspace2));
                 })
                 .flatMap(object -> {
                     final Workspace org2 = object.getT2();
@@ -519,11 +519,11 @@ public class DatasourceServiceTest {
 
         Mono<Datasource> datasourceMono = Mono
                 .zip(
-                        organizationRepository.findByName("Spring Test Organization", AclPermission.READ_ORGANIZATIONS),
+                        workspaceRepository.findByName("Spring Test Organization", AclPermission.READ_ORGANIZATIONS),
                         pluginService.findByName("Installed Plugin Name")
                 )
                 .flatMap(objects -> {
-                    final Workspace organization = objects.getT1();
+                    final Workspace workspace = objects.getT1();
                     final Plugin plugin = objects.getT2();
 
                     Datasource datasource = new Datasource();
@@ -531,17 +531,17 @@ public class DatasourceServiceTest {
                     DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
                     datasourceConfiguration.setUrl("http://test.com");
                     datasource.setDatasourceConfiguration(datasourceConfiguration);
-                    datasource.setOrganizationId(organization.getId());
+                    datasource.setOrganizationId(workspace.getId());
                     datasource.setPluginId(plugin.getId());
 
                     final Application application = new Application();
                     application.setName("application 1");
 
                     return Mono.zip(
-                            Mono.just(organization),
+                            Mono.just(workspace),
                             Mono.just(plugin),
                             datasourceService.create(datasource),
-                            applicationPageService.createApplication(application, organization.getId())
+                            applicationPageService.createApplication(application, workspace.getId())
                                     .flatMap(application1 -> {
                                         final PageDTO page = new PageDTO();
                                         page.setName("test page 1");
@@ -585,11 +585,11 @@ public class DatasourceServiceTest {
 
         Mono<Datasource> datasourceMono = Mono
                 .zip(
-                        organizationRepository.findByName("Spring Test Organization", AclPermission.READ_ORGANIZATIONS),
+                        workspaceRepository.findByName("Spring Test Organization", AclPermission.READ_ORGANIZATIONS),
                         pluginService.findByName("Installed Plugin Name")
                 )
                 .flatMap(objects -> {
-                    final Workspace organization = objects.getT1();
+                    final Workspace workspace = objects.getT1();
                     final Plugin plugin = objects.getT2();
 
                     Datasource datasource = new Datasource();
@@ -597,17 +597,17 @@ public class DatasourceServiceTest {
                     DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
                     datasourceConfiguration.setUrl("http://test.com");
                     datasource.setDatasourceConfiguration(datasourceConfiguration);
-                    datasource.setOrganizationId(organization.getId());
+                    datasource.setOrganizationId(workspace.getId());
                     datasource.setPluginId(plugin.getId());
 
                     final Application application = new Application();
                     application.setName("application 2");
 
                     return Mono.zip(
-                            Mono.just(organization),
+                            Mono.just(workspace),
                             Mono.just(plugin),
                             datasourceService.create(datasource),
-                            applicationPageService.createApplication(application, organization.getId())
+                            applicationPageService.createApplication(application, workspace.getId())
                                     .zipWhen(application1 -> {
                                         final PageDTO page = new PageDTO();
                                         page.setName("test page 1");

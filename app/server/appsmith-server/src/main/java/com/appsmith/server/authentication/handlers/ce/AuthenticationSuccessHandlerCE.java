@@ -45,13 +45,13 @@ import static com.appsmith.server.helpers.RedirectHelper.SIGNUP_SUCCESS_URL;
 public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSuccessHandler {
 
     private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
-    private final ExamplesWorkspaceCloner examplesOrganizationCloner;
+    private final ExamplesWorkspaceCloner examplesWorkspaceCloner;
     private final RedirectHelper redirectHelper;
     private final SessionUserService sessionUserService;
     private final AnalyticsService analyticsService;
     private final UserDataService userDataService;
     private final UserRepository userRepository;
-    private final WorkspaceRepository organizationRepository;
+    private final WorkspaceRepository workspaceRepository;
     private final ApplicationPageService applicationPageService;
 
     /**
@@ -144,7 +144,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                         "modeOfLogin", modeOfLogin
                                 )
                         ));
-                        monos.add(examplesOrganizationCloner.cloneExamplesWorkspace());
+                        monos.add(examplesWorkspaceCloner.cloneExamplesWorkspace());
                     }
 
                     return Mono.whenDelayError(monos);
@@ -154,10 +154,10 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
 
     private Mono<Application> createDefaultApplication(User user) {
         // need to create default application
-        String organizationId = user.getOrganizationIds().iterator().next();
+        String workspaceId = user.getOrganizationIds().iterator().next();
 
         Application application = new Application();
-        application.setOrganizationId(organizationId);
+        application.setOrganizationId(workspaceId);
         application.setName("My first application");
         return applicationPageService.createApplication(application);
     }

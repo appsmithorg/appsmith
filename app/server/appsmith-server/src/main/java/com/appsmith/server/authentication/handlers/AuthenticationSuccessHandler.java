@@ -16,15 +16,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE {
 
-    public AuthenticationSuccessHandler(ExamplesWorkspaceCloner examplesOrganizationCloner,
+    public AuthenticationSuccessHandler(ExamplesWorkspaceCloner examplesWorkspaceCloner,
                                         RedirectHelper redirectHelper,
                                         SessionUserService sessionUserService,
                                         AnalyticsService analyticsService,
                                         UserDataService userDataService,
                                         UserRepository userRepository,
-                                        WorkspaceRepository organizationRepository,
+                                        WorkspaceRepository workspaceRepository,
                                         ApplicationPageService applicationPageService) {
-        super(examplesOrganizationCloner, redirectHelper, sessionUserService, analyticsService, userDataService,
-                userRepository, organizationRepository, applicationPageService);
+        super(examplesWorkspaceCloner, redirectHelper, sessionUserService, analyticsService, userDataService,
+                userRepository, workspaceRepository, applicationPageService);
     }
 }

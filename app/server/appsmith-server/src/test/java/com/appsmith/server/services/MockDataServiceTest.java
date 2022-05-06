@@ -53,7 +53,7 @@ public class MockDataServiceTest {
     PluginService pluginService;
 
     @Autowired
-    WorkspaceRepository organizationRepository;
+    WorkspaceRepository workspaceRepository;
 
     @Autowired
     LayoutActionService layoutActionService;
@@ -71,7 +71,7 @@ public class MockDataServiceTest {
     UserService userService;
 
     @Autowired
-    WorkspaceService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
     NewActionService newActionService;
@@ -88,17 +88,17 @@ public class MockDataServiceTest {
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
-        Workspace testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
+        Workspace testOrg = workspaceRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
         orgId = testOrg == null ? "" : testOrg.getId();
         User apiUser = userService.findByEmail("api_user").block();
         orgId = apiUser.getOrganizationIds().iterator().next();
-        Workspace organization = organizationService.getById(orgId).block();
+        Workspace workspace = workspaceService.getById(orgId).block();
 
         if (testPage == null) {
             //Create application and page which will be used by the tests to create actions for.
             Application application = new Application();
             application.setName(UUID.randomUUID().toString());
-            testApp = applicationPageService.createApplication(application, organization.getId()).block();
+            testApp = applicationPageService.createApplication(application, workspace.getId()).block();
             final String pageId = testApp.getPages().get(0).getId();
             testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
         }

@@ -46,7 +46,7 @@ import static org.mockito.ArgumentMatchers.eq;
 @RunWith(SpringRunner.class)
 public class ApplicationFetcherUnitTest {
     @MockBean
-    WorkspaceService organizationService;
+    WorkspaceService workspaceService;
 
     @MockBean
     SessionUserService sessionUserService;
@@ -83,7 +83,7 @@ public class ApplicationFetcherUnitTest {
         applicationFetcher = new ApplicationFetcherImpl(sessionUserService,
                 userService,
                 userDataService,
-                organizationService,
+                workspaceService,
                 applicationRepository,
                 releaseNotesService,
                 responseUtils,
@@ -172,7 +172,7 @@ public class ApplicationFetcherUnitTest {
 
         Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(testUser));
         Mockito.when(userService.findByEmail(testUser.getEmail())).thenReturn(Mono.just(testUser));
-        Mockito.when(organizationService.findByIdsIn(testUser.getOrganizationIds(), READ_ORGANIZATIONS))
+        Mockito.when(workspaceService.findByIdsIn(testUser.getOrganizationIds(), READ_ORGANIZATIONS))
                 .thenReturn(Flux.fromIterable(createDummyOrganizations()));
         Mockito.when(releaseNotesService.getReleaseNodes()).thenReturn(Mono.empty());
         Mockito.when(releaseNotesService.computeNewFrom(any())).thenReturn("0");

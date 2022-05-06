@@ -29,22 +29,22 @@ public class ImportExportApplicationServiceImpl extends ImportExportApplicationS
                                               NewActionRepository newActionRepository,
                                               DatasourceRepository datasourceRepository,
                                               PluginRepository pluginRepository,
-                                              WorkspaceService organizationService,
+                                              WorkspaceService workspaceService,
                                               ApplicationService applicationService,
                                               NewPageService newPageService,
                                               ApplicationPageService applicationPageService,
                                               NewPageRepository newPageRepository,
                                               NewActionService newActionService,
                                               SequenceService sequenceService,
-                                              ExamplesWorkspaceCloner examplesOrganizationCloner,
+                                              ExamplesWorkspaceCloner examplesWorkspaceCloner,
                                               ActionCollectionRepository actionCollectionRepository,
                                               ActionCollectionService actionCollectionService,
                                               ThemeService themeService,
                                               PolicyUtils policyUtils) {
 
         super(datasourceService, sessionUserService, newActionRepository, datasourceRepository, pluginRepository,
-                organizationService, applicationService, newPageService, applicationPageService, newPageRepository,
-                newActionService, sequenceService, examplesOrganizationCloner, actionCollectionRepository,
+                workspaceService, applicationService, newPageService, applicationPageService, newPageRepository,
+                newActionService, sequenceService, examplesWorkspaceCloner, actionCollectionRepository,
                 actionCollectionService, themeService, policyUtils);
     }
 }

@@ -117,7 +117,7 @@ public class ApplicationServiceTest {
     UserService userService;
 
     @Autowired
-    WorkspaceService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
     DatasourceService datasourceService;
@@ -205,7 +205,7 @@ public class ApplicationServiceTest {
                     })
                     // Assign the branchName to all the resources connected to the application
                     .flatMap(application -> importExportApplicationService.exportApplicationById(application.getId(), gitData.getBranchName()))
-                    .flatMap(applicationJson -> importExportApplicationService.importApplicationInOrganization(orgId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
+                    .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson, gitConnectedApp.getId(), gitData.getBranchName()))
                     .block();
 
             testPlugin = pluginService.findByName("Installed Plugin Name").block();
@@ -647,7 +647,7 @@ public class ApplicationServiceTest {
         // Create an organization for this user first.
         Workspace organization = new Workspace();
         organization.setName("usertest's organization");
-        Mono<Workspace> organizationMono = organizationService.create(organization);
+        Mono<Workspace> organizationMono = workspaceService.create(organization);
 
         Mono<UserHomepageDTO> allApplications = organizationMono
                 .then(applicationFetcher.getAllApplications());
@@ -2870,7 +2870,7 @@ public class ApplicationServiceTest {
         testApplication.setGitApplicationMetadata(gitData);
         Application application = applicationPageService.createApplication(testApplication)
                 .flatMap(application1 -> importExportApplicationService.exportApplicationById(gitConnectedApp.getId(), gitData.getBranchName())
-                        .flatMap(applicationJson -> importExportApplicationService.importApplicationInOrganization(orgId, applicationJson, application1.getId(), gitData.getBranchName())))
+                        .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(orgId, applicationJson, application1.getId(), gitData.getBranchName())))
                 .block();
 
 

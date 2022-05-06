@@ -18,10 +18,10 @@ public class UserController extends UserControllerCE {
 
     public UserController(UserService service,
                           SessionUserService sessionUserService,
-                          UserWorkspaceService userOrganizationService,
+                          UserWorkspaceService userWorkspaceService,
                           UserSignup userSignup,
                           UserDataService userDataService) {
 
-        super(service, sessionUserService, userOrganizationService, userSignup, userDataService);
+        super(service, sessionUserService, userWorkspaceService, userSignup, userDataService);
     }
 }

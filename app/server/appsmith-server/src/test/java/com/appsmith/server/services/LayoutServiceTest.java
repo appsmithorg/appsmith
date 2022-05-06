@@ -68,7 +68,7 @@ public class LayoutServiceTest {
     UserService userService;
 
     @Autowired
-    WorkspaceService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
     NewActionService newActionService;
@@ -82,7 +82,7 @@ public class LayoutServiceTest {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
-    String orgId;
+    String workspaceId;
 
     Datasource datasource;
 
@@ -93,11 +93,11 @@ public class LayoutServiceTest {
     public void setup() {
         purgeAllPages();
         User apiUser = userService.findByEmail("api_user").block();
-        orgId = apiUser.getOrganizationIds().iterator().next();
+        workspaceId = apiUser.getOrganizationIds().iterator().next();
 
         datasource = new Datasource();
         datasource.setName("Default Database");
-        datasource.setOrganizationId(orgId);
+        datasource.setOrganizationId(workspaceId);
         Plugin installedPlugin = pluginRepository.findByPackageName("installed-plugin").block();
         installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
         datasource.setPluginId(installedPlugin.getId());
@@ -140,7 +140,7 @@ public class LayoutServiceTest {
 
         Application application = new Application();
         application.setName("createValidLayout-Test-Application");
-        Mono<Application> applicationMono = applicationPageService.createApplication(application, orgId);
+        Mono<Application> applicationMono = applicationPageService.createApplication(application, workspaceId);
 
         Mono<PageDTO> pageMono = applicationMono
                 .switchIfEmpty(Mono.error(new Exception("No application found")))
@@ -171,7 +171,7 @@ public class LayoutServiceTest {
     private Mono<PageDTO> createPage(Application app, PageDTO page) {
         return newPageService
                 .findByNameAndViewMode(page.getName(), AclPermission.READ_PAGES, false)
-                .switchIfEmpty(applicationPageService.createApplication(app, orgId)
+                .switchIfEmpty(applicationPageService.createApplication(app, workspaceId)
                         .map(application -> {
                             page.setApplicationId(application.getId());
                             return page;

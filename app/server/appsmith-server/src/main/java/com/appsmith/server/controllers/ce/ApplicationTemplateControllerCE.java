@@ -46,10 +46,10 @@ public class ApplicationTemplateControllerCE {
                 .map(filters -> new ResponseDTO<>(HttpStatus.OK.value(), filters, null));
     }
 
-    @PostMapping("{templateId}/import/{organizationId}")
+    @PostMapping("{templateId}/import/{workspaceId}")
     public Mono<ResponseDTO<Application>> importApplicationFromTemplate(@PathVariable String templateId,
-                                                           @PathVariable String organizationId) {
-        return applicationTemplateService.importApplicationFromTemplate(templateId, organizationId)
+                                                           @PathVariable String workspaceId) {
+        return applicationTemplateService.importApplicationFromTemplate(templateId, workspaceId)
                 .map(importedApp -> new ResponseDTO<>(HttpStatus.OK.value(), importedApp, null));
     }
 }

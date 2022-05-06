@@ -32,14 +32,14 @@ public class PluginControllerCE extends BaseController<PluginService, Plugin, St
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Workspace>> install(@Valid @RequestBody PluginOrgDTO plugin) {
         return service.installPlugin(plugin)
-                .map(organization -> new ResponseDTO<>(HttpStatus.CREATED.value(), organization, null));
+                .map(workspace -> new ResponseDTO<>(HttpStatus.CREATED.value(), workspace, null));
     }
 
     @PostMapping("/uninstall")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Workspace>> uninstall(@Valid @RequestBody PluginOrgDTO plugin) {
         return service.uninstallPlugin(plugin)
-                .map(organization -> new ResponseDTO<>(HttpStatus.CREATED.value(), organization, null));
+                .map(workspace -> new ResponseDTO<>(HttpStatus.CREATED.value(), workspace, null));
     }
 
     @GetMapping("/{pluginId}/form")

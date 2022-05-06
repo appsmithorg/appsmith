@@ -74,7 +74,7 @@ public class CreateDBTablePageSolutionTests {
     NewPageService newPageService;
 
     @Autowired
-    WorkspaceService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
     DatasourceService datasourceService;
@@ -178,7 +178,7 @@ public class CreateDBTablePageSolutionTests {
         if (testOrg == null) {
             Workspace organization = new Workspace();
             organization.setName("Create-DB-Table-Page-Org");
-            testOrg = organizationService.create(organization).block();
+            testOrg = workspaceService.create(organization).block();
         }
 
         if (testApp == null) {
@@ -336,7 +336,7 @@ public class CreateDBTablePageSolutionTests {
                             .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName()));
                 })
                 // Assign the branchName to all the resources connected to the application
-                .flatMap(tuple -> importExportApplicationService.importApplicationInOrganization(testOrg.getId(), tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspace(testOrg.getId(), tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                 .block();
 
         resource.setApplicationId(gitData.getDefaultApplicationId());

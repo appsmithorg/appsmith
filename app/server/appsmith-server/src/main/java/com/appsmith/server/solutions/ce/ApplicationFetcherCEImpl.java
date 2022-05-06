@@ -58,7 +58,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
     private final SessionUserService sessionUserService;
     private final UserService userService;
     private final UserDataService userDataService;
-    private final WorkspaceService organizationService;
+    private final WorkspaceService workspaceService;
     private final ApplicationRepository applicationRepository;
     private final ReleaseNotesService releaseNotesService;
     private final ResponseUtils responseUtils;
@@ -143,7 +143,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                             Application::getOrganizationId, Function.identity()
                     );
 
-                    return organizationService
+                    return workspaceService
                             .findByIdsIn(orgIds, READ_ORGANIZATIONS)
                             .collectMap(Workspace::getId, v -> v)
                             .zipWith(applicationsMapMono)

@@ -58,7 +58,7 @@ public class DatasourceTriggerSolutionTest {
     DatasourceService datasourceService;
 
     @Autowired
-    WorkspaceService organizationService;
+    WorkspaceService workspaceService;
 
     String orgId;
 
@@ -70,7 +70,7 @@ public class DatasourceTriggerSolutionTest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
         Workspace organization = new Workspace();
         organization.setName("Datasource Trigger Test Organization");
-        Workspace savedOrganization = organizationService.create(organization).block();
+        Workspace savedOrganization = workspaceService.create(organization).block();
         orgId = savedOrganization.getId();
 
         Datasource datasource = new Datasource();

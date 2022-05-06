@@ -78,7 +78,7 @@ public class PageServiceTest {
     LayoutService layoutService;
 
     @Autowired
-    WorkspaceService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
     ApplicationService applicationService;
@@ -150,7 +150,7 @@ public class PageServiceTest {
                             .zipWhen(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), gitData.getBranchName()));
                 })
                 // Assign the branchName to all the resources connected to the application
-                .flatMap(tuple -> importExportApplicationService.importApplicationInOrganization(orgId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspace(orgId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                 .block();
     }
 

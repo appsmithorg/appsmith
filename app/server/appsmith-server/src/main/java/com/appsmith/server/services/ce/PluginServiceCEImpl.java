@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
 public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, String> implements PluginServiceCE {
 
     public static final String UQI_DB_EDITOR_FORM = "UQIDbEditorForm";
-    private final WorkspaceService organizationService;
+    private final WorkspaceService workspaceService;
     private final PluginManager pluginManager;
     private final ReactiveRedisTemplate<String, String> reactiveTemplate;
     private final ChannelTopic topic;
@@ -96,13 +96,13 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                              ReactiveMongoTemplate reactiveMongoTemplate,
                              PluginRepository repository,
                              AnalyticsService analyticsService,
-                             WorkspaceService organizationService,
+                             WorkspaceService workspaceService,
                              PluginManager pluginManager,
                              ReactiveRedisTemplate<String, String> reactiveTemplate,
                              ChannelTopic topic,
                              ObjectMapper objectMapper) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.organizationService = organizationService;
+        this.workspaceService = workspaceService;
         this.pluginManager = pluginManager;
         this.reactiveTemplate = reactiveTemplate;
         this.topic = topic;
@@ -120,7 +120,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         }
 
         // TODO : Think about the various scenarios where this plugin api is called and then decide on permissions.
-        Mono<Workspace> organizationMono = organizationService.getById(organizationId);
+        Mono<Workspace> organizationMono = workspaceService.getById(organizationId);
 
         return organizationMono
                 .flatMapMany(org -> {
@@ -198,14 +198,14 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                     return new WorkspacePlugin(plugin.getId(), WorkspacePluginStatus.ACTIVATED);
                 })
                 .collect(Collectors.toList());
-        return organizationService.getAll()
+        return workspaceService.getAll()
                 .flatMap(organization -> {
                     // Only perform a DB op if plugins associated to this org have changed
                     if (organization.getPlugins().containsAll(newOrganizationPlugins)) {
                         return Mono.just(organization);
                     } else {
                         organization.getPlugins().addAll(newOrganizationPlugins);
-                        return organizationService.save(organization);
+                        return workspaceService.save(organization);
                     }
                 });
     }
@@ -220,7 +220,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         }
 
         //Find the organization using id and plugin id -> This is to find if the organization has the plugin installed
-        Mono<Workspace> organizationMono = organizationService.findByIdAndPluginsPluginId(pluginDTO.getOrganizationId(),
+        Mono<Workspace> organizationMono = workspaceService.findByIdAndPluginsPluginId(pluginDTO.getOrganizationId(),
                 pluginDTO.getPluginId());
 
         return organizationMono
@@ -232,13 +232,13 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                     Set<WorkspacePlugin> organizationPluginList = organization.getPlugins();
                     organizationPluginList.removeIf(listPlugin -> listPlugin.getPluginId().equals(pluginDTO.getPluginId()));
                     organization.setPlugins(organizationPluginList);
-                    return organizationService.save(organization);
+                    return workspaceService.save(organization);
                 });
     }
 
     private Mono<Workspace> storeOrganizationPlugin(PluginOrgDTO pluginDTO, WorkspacePluginStatus status) {
 
-        Mono<Workspace> pluginInOrganizationMono = organizationService
+        Mono<Workspace> pluginInOrganizationMono = workspaceService
                 .findByIdAndPluginsPluginId(pluginDTO.getOrganizationId(), pluginDTO.getPluginId());
 
 
@@ -268,7 +268,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                                         .subscribe();
                             })
                             //Now that the plugin jar has been successfully downloaded, go on and add the plugin to the organization
-                            .then(organizationService.getById(pluginDTO.getOrganizationId()))
+                            .then(workspaceService.getById(pluginDTO.getOrganizationId()))
                             .flatMap(organization -> {
 
                                 Set<WorkspacePlugin> organizationPluginList = organization.getPlugins();
@@ -284,7 +284,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
                                 log.debug("Going to save the organization with install plugin. This means that installation has been successful");
 
-                                return organizationService.save(organization);
+                                return workspaceService.save(organization);
                             });
                 }));
     }
