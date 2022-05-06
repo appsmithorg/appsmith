@@ -15,6 +15,8 @@ export const ReduxSagaChannels = {
 };
 
 export const ReduxActionTypes = {
+  GIT_DISCARD_CHANGES_SUCCESS: "GIT_DISCARD_CHANGES_SUCCESS",
+  GIT_DISCARD_CHANGES: "GIT_DISCARD_CHANGES",
   DELETE_BRANCH_INIT: "DELETE_BRANCH_INIT",
   DELETING_BRANCH: "DELETING_BRANCH",
   DELETE_BRANCH_SUCCESS: "DELETE_BRANCH_SUCCESS",
@@ -724,6 +726,7 @@ export const ReduxActionTypes = {
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes = {
+  GIT_DISCARD_CHANGES_ERROR: "GIT_DISCARD_CHANGES_ERROR",
   DELETE_BRANCH_WARNING: "DELETE_BRANCH_WARNING",
   DELETE_BRANCH_ERROR: "DELETE_BRANCH_ERROR",
   GIT_PULL_ERROR: "GIT_PULL_ERROR",
