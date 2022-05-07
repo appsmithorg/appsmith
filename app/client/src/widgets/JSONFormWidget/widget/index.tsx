@@ -1,7 +1,8 @@
 import React from "react";
 import equal from "fast-deep-equal/es6";
 import { connect } from "react-redux";
-import { debounce, difference, isEmpty, noop } from "lodash";
+import { debounce, difference, isEmpty, noop, merge } from "lodash";
+import { klona } from "klona";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import JSONFormComponent from "../component";
@@ -222,6 +223,22 @@ class JSONFormWidget extends BaseWidget<
     afterUpdateAction?: ExecuteTriggerPayload,
   ) => {
     const fieldState = generateFieldState(schema, metaInternalFieldState);
+    const action = klona(afterUpdateAction);
+
+    /**
+     * globalContext from the afterUpdateAction takes precedence as it may have a different
+     * fieldState value than the one returned from generateFieldState.
+     * */
+    if (action) {
+      action.globalContext = merge(
+        {
+          fieldState,
+        },
+        action?.globalContext,
+      );
+    }
+
+    const actionPayload = action && this.applyGlobalContextToAction(action);
 
     if (!equal(fieldState, this.props.fieldState)) {
       this.props.updateWidgetMetaProperty(
@@ -258,8 +275,31 @@ class JSONFormWidget extends BaseWidget<
     });
   };
 
+  applyGlobalContextToAction = (actionPayload: ExecuteTriggerPayload) => {
+    const payload = klona(actionPayload);
+    const { globalContext } = payload;
+
+    /**
+     * globalContext from the actionPayload takes precedence as it may have latest
+     * values compared the ones coming from props
+     * */
+    payload.globalContext = merge(
+      {},
+      {
+        formData: this.props.formData,
+        fieldState: this.props.fieldState,
+        sourceData: this.props.sourceData,
+      },
+      globalContext,
+    );
+
+    return payload;
+  };
+
   onExecuteAction = (actionPayload: ExecuteTriggerPayload) => {
-    super.executeAction(actionPayload);
+    const payload = this.applyGlobalContextToAction(actionPayload);
+
+    super.executeAction(payload);
   };
 
   onUpdateWidgetProperty = (propertyName: string, propertyValue: any) => {
