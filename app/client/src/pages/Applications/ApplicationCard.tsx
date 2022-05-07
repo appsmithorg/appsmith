@@ -527,7 +527,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const shareApp = () => {
     props.share && props.share(applicationId);
   };
-  const exportApplicationAsJSONFile = () => {
+  const exportApplicationAsJSONFile = useCallback(() => {
     // export api response comes with content-disposition header.
     // there is no straightforward way to handle it with axios/fetch
     const id = `t--export-app-link`;
@@ -549,7 +549,23 @@ export function ApplicationCard(props: ApplicationCardProps) {
       text: `Successfully exported ${props.application.name}`,
       variant: Variant.success,
     });
-  };
+  }, [props.application.name, applicationId]);
+
+  // update onSelect callback when app name is updated
+  useEffect(() => {
+    setMoreActionItems(
+      moreActionItems.map((item) => {
+        if (item.text === "Export") {
+          return {
+            ...item,
+            onSelect: exportApplicationAsJSONFile,
+          };
+        }
+        return item;
+      }),
+    );
+  }, [exportApplicationAsJSONFile]);
+
   const forkApplicationInitiate = () => {
     // open fork application modal
     // on click on an organisation, create app and take to app
