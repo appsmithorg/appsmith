@@ -21,8 +21,14 @@ import { warn as logWarn } from "loglevel";
 import { Diff } from "deep-diff";
 import { flatten } from "lodash";
 import { overrideWidgetProperties } from "./evaluationUtils";
-import { DataTree } from "../entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
+import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
+import TableWidget, { CONFIG as TableWidgetConfig } from "widgets/TableWidget";
+import InputWidget, {
+  CONFIG as InputWidgetV2Config,
+} from "widgets/InputWidgetV2";
+import { registerWidget } from "utils/WidgetRegisterHelpers";
 
 // to check if logWarn was called.
 // use jest.unmock, if the mock needs to be removed.
@@ -51,6 +57,7 @@ const BASE_WIDGET: DataTreeWidget = {
   privateWidgets: {},
   propertyOverrideDependency: {},
   overridingPropertyPaths: {},
+  meta: {},
 };
 
 const testDataTree: Record<string, DataTreeWidget> = {
@@ -400,50 +407,134 @@ describe("translateDiffEvent", () => {
 });
 
 describe("overrideWidgetProperties", () => {
-  const currentTree: DataTree = {
-    Input1: {
-      widgetId: "Input1",
-      defaultText: "abc",
-      text: "",
-      meta: {
-        inputText: "",
-        text: "",
-      },
-      overridingPropertyPaths: {
-        defaultText: ["inputText", "meta.inputText", "text", "meta.text"],
-        "meta.inputText": ["inputText"],
-        "meta.text": ["text"],
-      },
-      propertyOverrideDependency: {
-        inputText: {
-          DEFAULT: "defaultText",
-          META: "meta.inputText",
-        },
-        text: {
-          DEFAULT: "defaultText",
-          META: "meta.text",
-        },
-      },
-    },
-  };
+  beforeAll(() => {
+    registerWidget(TableWidget, TableWidgetConfig);
+    registerWidget(InputWidget, InputWidgetV2Config);
+  });
 
-  it("defaultText updating meta and text", () => {
-    const evalMetaUpdates: EvalMetaUpdates = [];
-    const overwriteObj = overrideWidgetProperties({
-      currentTree,
-      entity: currentTree.Input1 as DataTreeWidget,
-      propertyPath: "defaultText",
-      value: "abcde",
-      evalMetaUpdates,
+  describe("1. Input widget ", () => {
+    const currentTree: DataTree = {};
+    beforeAll(() => {
+      const inputWidgetDataTree = generateDataTreeWidget(
+        {
+          type: InputWidget.getWidgetType(),
+          widgetId: "egwwwfgab",
+          widgetName: "Input1",
+          children: [],
+        },
+        {},
+      );
+      currentTree["Input1"] = inputWidgetDataTree;
     });
+    // When default text is re-evaluated it will override values of meta.text and text in InputWidget
+    it("1. defaultText updating meta.text and text", () => {
+      const evalMetaUpdates: EvalMetaUpdates = [];
+      const overwriteObj = overrideWidgetProperties({
+        currentTree,
+        entity: currentTree.Input1 as DataTreeWidget,
+        propertyPath: "defaultText",
+        value: "abcde",
+        evalMetaUpdates,
+      });
 
-    expect(overwriteObj).toStrictEqual(undefined);
+      expect(overwriteObj).toStrictEqual(undefined);
 
-    expect(evalMetaUpdates).toStrictEqual([
-      { widgetId: "Input1", metaPropertyPath: ["inputText"], value: "abcde" },
-      { widgetId: "Input1", metaPropertyPath: ["text"], value: "abcde" },
-    ]);
-    // Fix test
-    // expect(currentTree.Input1.meta).toStrictEqual("abcde");
+      expect(evalMetaUpdates).toStrictEqual([
+        {
+          widgetId: currentTree.Input1.widgetId,
+          metaPropertyPath: ["inputText"],
+          value: "abcde",
+        },
+        {
+          widgetId: currentTree.Input1.widgetId,
+          metaPropertyPath: ["text"],
+          value: "abcde",
+        },
+      ]);
+
+      expect(currentTree.Input1.meta).toStrictEqual({
+        text: "abcde",
+        inputText: "abcde",
+      });
+    });
+    // When meta.text is re-evaluated it will override values text in InputWidget
+    it("2. meta.text updating text", () => {
+      const evalMetaUpdates: EvalMetaUpdates = [];
+      const overwriteObj = overrideWidgetProperties({
+        currentTree,
+        entity: currentTree.Input1 as DataTreeWidget,
+        propertyPath: "meta.text",
+        value: "abcdefg",
+        evalMetaUpdates,
+      });
+
+      expect(overwriteObj).toStrictEqual(undefined);
+
+      expect(evalMetaUpdates).toStrictEqual([]);
+
+      expect(currentTree.Input1.text).toStrictEqual("abcdefg");
+    });
+  });
+
+  describe("2. Table widget ", () => {
+    const currentTree: DataTree = {};
+    beforeAll(() => {
+      const tableWidgetDataTree = generateDataTreeWidget(
+        {
+          type: TableWidget.getWidgetType(),
+          widgetId: "random",
+          widgetName: "Table1",
+          children: [],
+        },
+        {},
+      );
+      currentTree["Table1"] = tableWidgetDataTree;
+    });
+    // When default defaultSelectedRow is re-evaluated it will override values of meta.selectedRowIndices, selectedRowIndices, meta.selectedRowIndex & selectedRowIndex.
+    it("1. On change of defaultSelectedRow ", () => {
+      const evalMetaUpdates: EvalMetaUpdates = [];
+      const overwriteObj = overrideWidgetProperties({
+        currentTree,
+        entity: currentTree.Table1 as DataTreeWidget,
+        propertyPath: "defaultSelectedRow",
+        value: [0, 1],
+        evalMetaUpdates,
+      });
+
+      expect(overwriteObj).toStrictEqual(undefined);
+
+      expect(evalMetaUpdates).toStrictEqual([
+        {
+          widgetId: currentTree.Table1.widgetId,
+          metaPropertyPath: ["selectedRowIndex"],
+          value: [0, 1],
+        },
+        {
+          widgetId: currentTree.Table1.widgetId,
+          metaPropertyPath: ["selectedRowIndices"],
+          value: [0, 1],
+        },
+      ]);
+
+      expect(currentTree.Table1.meta.selectedRowIndex).toStrictEqual([0, 1]);
+      expect(currentTree.Table1.meta.selectedRowIndices).toStrictEqual([0, 1]);
+    });
+    // When meta.selectedRowIndex is re-evaluated it will override values selectedRowIndex
+    it("2. meta.selectedRowIndex updating selectedRowIndex", () => {
+      const evalMetaUpdates: EvalMetaUpdates = [];
+      const overwriteObj = overrideWidgetProperties({
+        currentTree,
+        entity: currentTree.Table1 as DataTreeWidget,
+        propertyPath: "meta.selectedRowIndex",
+        value: 0,
+        evalMetaUpdates,
+      });
+
+      expect(overwriteObj).toStrictEqual(undefined);
+
+      expect(evalMetaUpdates).toStrictEqual([]);
+
+      expect(currentTree.Table1.selectedRowIndex).toStrictEqual(0);
+    });
   });
 });

@@ -117,6 +117,7 @@ export interface DataTreeWidget extends WidgetProps {
   propertyOverrideDependency: PropertyOverrideDependency;
   overridingPropertyPaths: OverridingPropertyPaths;
   privateWidgets: PrivateWidgets;
+  meta: Record<string, unknown>;
 }
 
 export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {
