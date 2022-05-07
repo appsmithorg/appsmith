@@ -244,7 +244,7 @@ class JSONFormWidget extends BaseWidget<
       this.props.updateWidgetMetaProperty(
         "fieldState",
         fieldState,
-        afterUpdateAction,
+        actionPayload,
       );
     }
   };
