@@ -6,6 +6,12 @@ import { isNil } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
+  componentDidMount() {
+    if (this.props.defaultValue) {
+      this.onItemSelect(this.props.defaultValue);
+    }
+  }
+
   render() {
     let defaultSelected: DropdownOption | DropdownOption[] = {
       label: "No selection.",
