@@ -7,7 +7,7 @@ import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   componentDidMount() {
-    if (this.props.defaultValue) {
+    if (this.props.defaultValue && !this.props.propertyValue) {
       this.onItemSelect(this.props.defaultValue);
     }
   }
