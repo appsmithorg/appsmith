@@ -34,27 +34,29 @@ jobs:
       - name: Get the chart version
         id: chart-version
         run: |
+          set -o xtrace
+          cat "${{ github.workspace }}/deploy/helm/Chart.yaml"
           chart_version="$(awk '$1 == "version:" {print $2}' "${{ github.workspace }}/deploy/helm/Chart.yaml")"
           echo "::set-output name=version::$chart_version"
-
       # Scan the S3 bucket with the Helm version retrieved from Chart.yaml
       # If an archive with this version already exists in the bucket, fail immediately.
       - name: Check chart version is not already published
         env:
           AWS_ACCESS_KEY_ID: "${{ secrets.HELM_AWS_ACCESS_KEY_ID }}"
           AWS_SECRET_ACCESS_KEY: "${{ secrets.HELM_AWS_SECRET_ACCESS_KEY }}"
+          AWS_EC2_METADATA_DISABLED: true
         run: |
-          chart_version="${{ steps.chart-version.outputs.data }}"
+          set -o xtrace
+          chart_version="${{ steps.chart-version.outputs.version }}"
           if [[ -z $chart_version ]]; then
             echo "Empty chart version from Chart.yaml. Exiting." >&2
             exit 1
           fi
           archive="appsmith-$chart_version.tgz"
-          if [[ "$archive" == "$(aws s3api list-objects --bucket helm.appsmith.com --prefix "$archive")" ]]; then
-            echo "$archive is already present in the Helm bucket. Please change the version number in Chart.yaml file" >&2
+          if [[ "$archive" == "$(aws s3api list-objects --bucket '${{ secrets.HELM_S3_BUCKET }}' --prefix "$archive" --query 'Contents[0].Key' --output text)" ]]; then
+            echo "$archive is already present in the Helm bucket. Please change the version number in 'Chart.yaml' file." >&2
             exit 1
           fi
-
       - name: Publish Helm
         env:
           AWS_ACCESS_KEY_ID: "${{ secrets.HELM_AWS_ACCESS_KEY_ID }}"
@@ -68,5 +70,5 @@ jobs:
           helm package .
           aws s3 cp s3://${{ secrets.HELM_S3_BUCKET }}/index.yaml .
           helm repo index . --url https://${{ secrets.HELM_S3_BUCKET }} --merge index.yaml
-          aws s3 cp appsmith-${{ steps.chart-version.outputs.data }}.tgz s3://${{ secrets.HELM_S3_BUCKET }}
+          aws s3 cp appsmith-${{ steps.chart-version.outputs.version }}.tgz s3://${{ secrets.HELM_S3_BUCKET }}
           aws s3 cp index.yaml s3://${{ secrets.HELM_S3_BUCKET }}

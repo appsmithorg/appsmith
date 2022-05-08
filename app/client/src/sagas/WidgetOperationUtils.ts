@@ -350,14 +350,10 @@ export const isCopiedModalWidget = function(
   return false;
 };
 
-export const checkIfPastingIntoListWidget = function(
+export const getSelectedWidgetIfPastingIntoListWidget = function(
   canvasWidgets: CanvasWidgetsReduxState,
   selectedWidget: FlattenedWidgetProps | undefined,
-  copiedWidgets: {
-    widgetId: string;
-    parentId: string;
-    list: WidgetProps[];
-  }[],
+  copiedWidgets: CopiedWidgetGroup[],
 ) {
   // when list widget is selected, if the user is pasting, we want it to be pasted in the template
   // which is first children of list widget
@@ -388,7 +384,29 @@ export const checkIfPastingIntoListWidget = function(
 };
 
 /**
- * get top, left, right, bottom most widgets and and totalWidth from copied groups when pasting
+ * checks if the selectedWidget is a list widget and copiedWidgetsGroups contains list widget
+ *
+ * @param canvasWidgets
+ * @param selectedWidget
+ * @param copiedWidgetsGroups
+ * @returns
+ */
+export const checkIfPastingListWidgetOntoItself = function(
+  canvasWidgets: CanvasWidgetsReduxState,
+  selectedWidget: FlattenedWidgetProps | undefined,
+  copiedWidgetsGroups: CopiedWidgetGroup[],
+) {
+  return (
+    getSelectedWidgetIfPastingIntoListWidget(
+      canvasWidgets,
+      selectedWidget,
+      copiedWidgetsGroups,
+    )?.type === "LIST_WIDGET"
+  );
+};
+
+/**
+ * get top, left, right, bottom most widgets and totalWidth from copied groups when pasting
  *
  * @param copiedWidgetGroups
  * @returns
@@ -474,7 +492,7 @@ export const getSelectedWidgetWhenPasting = function*() {
     getFocusedWidget,
   );
 
-  selectedWidget = checkIfPastingIntoListWidget(
+  selectedWidget = getSelectedWidgetIfPastingIntoListWidget(
     canvasWidgets,
     selectedWidget || focusedWidget,
     copiedWidgetGroups,
