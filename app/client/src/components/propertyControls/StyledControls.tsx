@@ -9,7 +9,6 @@ import { FormIcons } from "icons/FormIcons";
 import Button from "components/ads/Button";
 import TextInput from "components/ads/TextInput";
 import Dropdown from "components/ads/Dropdown";
-import MultiSelectDropdown from "components/ads/MultiselectDropdown";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
@@ -34,6 +33,9 @@ export const ControlWrapper = styled.div<ControlWrapperProps>`
   }
   &&& > label {
     display: inline-block;
+  }
+  &:focus-within .reset-button {
+    display: block;
   }
 `;
 
@@ -103,11 +105,6 @@ export const StyledDropDownContainer = styled.div`
 export const StyledDropDown = styled(Dropdown)`
   background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
   box-shadow: none;
-  height: 36px;
-`;
-
-export const StyledMultiSelectDropDown = styled(MultiSelectDropdown)`
-  background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
 `;
 
 export const StyledMenu = styled(Menu)`

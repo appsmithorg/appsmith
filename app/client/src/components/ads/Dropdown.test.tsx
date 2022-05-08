@@ -32,14 +32,16 @@ const getTestComponent = (
   handleOnSelect: any = undefined,
   props = optionsProps,
   allowDeselection?: boolean,
+  isMultiSelect?: boolean,
 ) => (
   <ThemeProvider theme={lightTheme}>
     <Dropdown
       allowDeselection={allowDeselection}
       containerClassName="dropdown-container"
+      isMultiSelect={isMultiSelect}
       onSelect={handleOnSelect}
       options={props.options}
-      selected={props.selected}
+      selected={isMultiSelect ? [props.selected] : props.selected}
       showLabelOnly={props.showLabelOnly}
     />
     ,
@@ -163,6 +165,46 @@ describe("<Dropdown /> - Keyboard Navigation", () => {
     userEvent.keyboard("{Escape}");
     expect(screen.getByRole("listbox")).toHaveTextContent("Primary");
     expect(handleOnSelect).not.toHaveBeenCalled();
+  });
+});
+
+describe("<Dropdown isMultiSelect /> - Keyboard Navigation", () => {
+  it("After selecting an option using arrow, {Enter} or ' ' should trigger optionClick", () => {
+    const handleOnSelect = jest.fn();
+    render(getTestComponent(handleOnSelect, optionsProps, undefined, true));
+    userEvent.tab();
+    userEvent.keyboard("{Enter}");
+    userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{Enter}");
+    expect(handleOnSelect).toHaveBeenLastCalledWith(
+      optionsProps.options[0].value,
+      optionsProps.options[0],
+    );
+    userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard(" ");
+    expect(handleOnSelect).toHaveBeenLastCalledWith(
+      optionsProps.options[1].value,
+      optionsProps.options[1],
+    );
+    userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{ArrowDown}");
+    userEvent.keyboard("{Enter}");
+    expect(handleOnSelect).toHaveBeenLastCalledWith(
+      optionsProps.options[0].value,
+      optionsProps.options[0],
+    );
+    userEvent.keyboard("{ArrowUp}");
+    userEvent.keyboard("{Enter}");
+    expect(handleOnSelect).toHaveBeenLastCalledWith(
+      optionsProps.options[2].value,
+      optionsProps.options[2],
+    );
+    userEvent.keyboard("{ArrowUp}");
+    userEvent.keyboard(" ");
+    expect(handleOnSelect).toHaveBeenLastCalledWith(
+      optionsProps.options[1].value,
+      optionsProps.options[1],
+    );
   });
 });
 
