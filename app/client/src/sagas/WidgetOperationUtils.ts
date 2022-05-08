@@ -1492,7 +1492,7 @@ export function getParentColumnSpace(
   // get Grid values such as snapRowSpace and snapColumnSpace
   const { snapGrid } = getSnappedGrid(containerWidget, rect.width);
 
-  return snapGrid ? snapGrid.snapColumnSpace : undefined;
+  return snapGrid?.snapColumnSpace;
 }
 
 /*

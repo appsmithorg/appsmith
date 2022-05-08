@@ -1216,7 +1216,8 @@ function* pasteWidgetSaga(
 
     //while grouping, the container around the selected widgets will increase by 2 rows,
     //hence if there are any widgets in that path then we reflow those widgets
-    // If there are already widgets inside the selection box even before grouping then we wil no choice but to move it down to the bottom most row
+    // If there are already widgets inside the selection box even before grouping
+    //then we will have to move it down to the bottom most row
     ({
       bottomMostRow,
       copiedWidgetGroups,
