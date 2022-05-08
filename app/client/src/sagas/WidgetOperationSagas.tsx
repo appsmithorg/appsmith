@@ -124,7 +124,12 @@ import {
   collisionCheckPostReflow,
   getBottomRowAfterReflow,
 } from "utils/reflowHookUtils";
-import { PrevReflowState, ReflowDirection, SpaceMap } from "reflow/reflowTypes";
+import {
+  GridProps,
+  PrevReflowState,
+  ReflowDirection,
+  SpaceMap,
+} from "reflow/reflowTypes";
 import { WidgetSpace } from "constants/CanvasEditorConstants";
 import { reflow } from "reflow";
 import { getBottomMostRow } from "reflow/reflowUtils";
@@ -1162,16 +1167,18 @@ function* pasteWidgetSaga(
   let widgets: CanvasWidgetsReduxState = canvasWidgets;
   const selectedWidget: FlattenedWidgetProps<undefined> = yield getSelectedWidgetWhenPasting();
 
+  let reflowedMovementMap,
+    bottomMostRow: number | undefined,
+    gridProps: GridProps | undefined,
+    newPastingPositionMap: SpaceMap | undefined,
+    canvasId;
+
   let pastingIntoWidgetId: string = yield getParentWidgetIdForPasting(
     canvasWidgets,
     selectedWidget,
   );
 
-  let isThereACollision: boolean = yield isSelectedWidgetsColliding(
-    widgets,
-    copiedWidgetGroups,
-    pastingIntoWidgetId,
-  );
+  let isThereACollision = false;
 
   // if this is true, selected widgets will be grouped in container
   if (shouldGroup) {
@@ -1179,7 +1186,6 @@ function* pasteWidgetSaga(
     pastingIntoWidgetId = yield getParentWidgetIdForGrouping(
       widgets,
       copiedWidgetGroups,
-      pastingIntoWidgetId,
     );
     widgets = yield filterOutSelectedWidgets(
       copiedWidgetGroups[0].parentId,
@@ -1191,10 +1197,19 @@ function* pasteWidgetSaga(
       pastingIntoWidgetId,
     );
 
-    copiedWidgetGroups = yield groupWidgetsIntoContainer(
+    //while grouping, the container around the selected widgets will increase by 2 rows,
+    //hence if there are any widgets in that path then we reflow those widgets
+    // If there are already widgets inside the selection box even before grouping then we wil no choice but to move it down to the bottom most row
+    ({
+      bottomMostRow,
+      copiedWidgetGroups,
+      gridProps,
+      reflowedMovementMap,
+    } = yield groupWidgetsIntoContainer(
       copiedWidgetGroups,
       pastingIntoWidgetId,
-    );
+      isThereACollision,
+    ));
   } else if (isCopiedModalWidget(copiedWidgetGroups, widgets)) {
     pastingIntoWidgetId = MAIN_CONTAINER_WIDGET_ID;
   }
@@ -1217,24 +1232,27 @@ function* pasteWidgetSaga(
     widgets,
   );
 
-  // new pasting positions, the variables are undefined if the positions cannot be calculated,
-  // then it pastes the regular way at the bottom of the canvas
-  const {
-    bottomMostRow,
-    canvasId,
-    gridProps,
-    newPastingPositionMap,
-    reflowedMovementMap,
-  }: NewPastePositionVariables = yield call(
-    getNewPositions,
-    copiedWidgetGroups,
-    action.payload.mouseLocation,
-    copiedTotalWidth,
-    topMostWidget.topRow,
-    leftMostWidget.leftColumn,
-  );
+  // skip new position calculation if grouping
+  if (!shouldGroup) {
+    // new pasting positions, the variables are undefined if the positions cannot be calculated,
+    // then it pastes the regular way at the bottom of the canvas
+    ({
+      bottomMostRow,
+      canvasId,
+      gridProps,
+      newPastingPositionMap,
+      reflowedMovementMap,
+    } = yield call(
+      getNewPositions,
+      copiedWidgetGroups,
+      action.payload.mouseLocation,
+      copiedTotalWidth,
+      topMostWidget.topRow,
+      leftMostWidget.leftColumn,
+    ));
 
-  if (canvasId) pastingIntoWidgetId = canvasId;
+    if (canvasId) pastingIntoWidgetId = canvasId;
+  }
 
   yield all(
     copiedWidgetGroups.map((copiedWidgets) =>
