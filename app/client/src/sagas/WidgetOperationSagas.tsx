@@ -11,8 +11,10 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidget, getWidgets } from "./selectors";
 import {
+  actionChannel,
   all,
   call,
+  take,
   fork,
   put,
   select,
@@ -110,6 +112,8 @@ import {
   getWidgetsFromIds,
   getDefaultCanvas,
   isDropTarget,
+  checkIfPastingListWidgetOntoItself,
+  getValueFromTree,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
@@ -354,7 +358,12 @@ function* updateWidgetPropertySaga(
 export function* setWidgetDynamicPropertySaga(
   action: ReduxAction<SetWidgetDynamicPropertyPayload>,
 ) {
-  const { isDynamic, propertyPath, widgetId } = action.payload;
+  const {
+    isDynamic,
+    propertyPath,
+    shouldRejectDynamicBindingPathList = true,
+    widgetId,
+  } = action.payload;
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
   let widget = cloneDeep({ ...stateWidget });
   const propertyValue = _.get(widget, propertyPath);
@@ -375,9 +384,12 @@ export function* setWidgetDynamicPropertySaga(
     dynamicPropertyPathList = _.reject(dynamicPropertyPathList, {
       key: propertyPath,
     });
-    dynamicBindingPathList = _.reject(dynamicBindingPathList, {
-      key: propertyPath,
-    });
+
+    if (shouldRejectDynamicBindingPathList) {
+      dynamicBindingPathList = _.reject(dynamicBindingPathList, {
+        key: propertyPath,
+      });
+    }
     const { parsed } = yield call(
       validateProperty,
       propertyPath,
@@ -395,7 +407,7 @@ export function* setWidgetDynamicPropertySaga(
   yield put(updateAndSaveLayout(widgets));
 }
 
-function getPropertiesToUpdate(
+export function getPropertiesToUpdate(
   widget: WidgetProps,
   updates: Record<string, unknown>,
   triggerPaths?: string[],
@@ -431,7 +443,7 @@ function getPropertiesToUpdate(
   } = getAllPathsFromPropertyConfig(widgetWithUpdates, widgetConfig, {});
 
   Object.keys(updatePaths).forEach((propertyPath) => {
-    const propertyValue = _.get(updates, propertyPath);
+    const propertyValue = getValueFromTree(updates, propertyPath);
     // only check if
     if (!_.isString(propertyValue)) {
       return;
@@ -864,7 +876,12 @@ const getNewPositions = function*(
   if (
     !(
       selectedWidgets.length === 1 &&
-      isDropTarget(selectedWidgets[0].type, true)
+      isDropTarget(selectedWidgets[0].type, true) &&
+      !checkIfPastingListWidgetOntoItself(
+        canvasWidgets,
+        selectedWidgets[0],
+        copiedWidgetGroups,
+      )
     ) &&
     selectedWidgets.length > 0
   ) {
@@ -1621,10 +1638,28 @@ export function* groupWidgetsSaga() {
   }
 }
 
+function* widgetBatchUpdatePropertySaga() {
+  /*
+   * BATCH_UPDATE_WIDGET_PROPERTY should be processed serially as
+   * it updates the state. We want the state updates from previous
+   * batch update to be flushed out to the store before processing
+   * the another batch update.
+   */
+  const batchUpdateWidgetPropertyChannel = yield actionChannel(
+    ReduxActionTypes.BATCH_UPDATE_WIDGET_PROPERTY,
+  );
+
+  while (true) {
+    const action = yield take(batchUpdateWidgetPropertyChannel);
+    yield call(batchUpdateWidgetPropertySaga, action);
+  }
+}
+
 export default function* widgetOperationSagas() {
   yield fork(widgetAdditionSagas);
   yield fork(widgetDeletionSagas);
   yield fork(widgetSelectionSagas);
+  yield fork(widgetBatchUpdatePropertySaga);
   yield all([
     takeEvery(ReduxActionTypes.ADD_SUGGESTED_WIDGET, addSuggestedWidget),
     takeLatest(WidgetReduxActionTypes.WIDGET_RESIZE, resizeSaga),
@@ -1643,10 +1678,6 @@ export default function* widgetOperationSagas() {
     takeEvery(
       ReduxActionTypes.RESET_CHILDREN_WIDGET_META,
       resetChildrenMetaSaga,
-    ),
-    takeEvery(
-      ReduxActionTypes.BATCH_UPDATE_WIDGET_PROPERTY,
-      batchUpdateWidgetPropertySaga,
     ),
     takeEvery(
       ReduxActionTypes.BATCH_UPDATE_MULTIPLE_WIDGETS_PROPERTY,

@@ -257,16 +257,13 @@ export class HomePage {
         this.NavigateToHome()
     }
 
-    public ImportApp(fixtureJson: string, reconnect = false) {
+    public ImportApp(fixtureJson: string) {
         cy.get(this._homeIcon).click();
         cy.get(this._optionsIcon).first().click();
         cy.get(this._orgImport).click({ force: true });
         cy.get(this._orgImportAppModal).should("be.visible");
         cy.xpath(this._uploadFile).attachFile(fixtureJson).wait(500);
         cy.get(this._orgImportAppModal).should("not.exist");
-        if (!reconnect) {
-            this.AssertImport()
-        }
     }
 
     public AssertImport() {

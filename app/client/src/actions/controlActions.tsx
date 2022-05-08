@@ -61,6 +61,7 @@ export const setWidgetDynamicProperty = (
   widgetId: string,
   propertyPath: string,
   isDynamic: boolean,
+  shouldRejectDynamicBindingPathList = true,
 ): ReduxAction<SetWidgetDynamicPropertyPayload> => {
   return {
     type: ReduxActionTypes.SET_WIDGET_DYNAMIC_PROPERTY,
@@ -68,6 +69,7 @@ export const setWidgetDynamicProperty = (
       widgetId,
       propertyPath,
       isDynamic,
+      shouldRejectDynamicBindingPathList,
     },
   };
 };
@@ -97,6 +99,7 @@ export interface SetWidgetDynamicPropertyPayload {
   widgetId: string;
   propertyPath: string;
   isDynamic: boolean;
+  shouldRejectDynamicBindingPathList?: boolean;
 }
 
 export interface DeleteWidgetPropertyPayload {
