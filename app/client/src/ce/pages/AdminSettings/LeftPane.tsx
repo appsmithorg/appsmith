@@ -1,41 +1,42 @@
-import { Colors } from "constants/Colors";
 import React from "react";
+import { Colors } from "constants/Colors";
 import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
 import AdminConfig from "./config";
 import { Category } from "@appsmith/pages/AdminSettings/config/types";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   flex-basis: ${(props) =>
     props.theme.homePage.leftPane.width +
     props.theme.homePage.leftPane.leftPadding}px;
   padding: 0px 0px 0px ${(props) => props.theme.homePage.leftPane.leftPadding}px;
 `;
 
-const HeaderContainer = styled.div``;
+export const HeaderContainer = styled.div``;
 
-const StyledHeader = styled.div`
+export const StyledHeader = styled.div`
   font-size: 14px;
   height: 20px;
   line-height: 17px;
   letter-spacing: -0.24px;
   text-transform: uppercase;
-  margin: 40px 16px 16px;
+  margin: 40px 16px 8px;
   color: ${Colors.MASALA};
+  font-weight: 500;
 `;
 
-const CategoryList = styled.ul`
+export const CategoryList = styled.ul`
   margin: 0;
   padding: 0 0 0 16px;
   list-style-type: none;
 `;
 
-const CategoryItem = styled.li``;
+export const CategoryItem = styled.li``;
 
-const StyledLink = styled(Link)<{ $active: boolean }>`
+export const StyledLink = styled(Link)<{ $active: boolean }>`
   height: 38px;
-  padding: 10px 16px;
+  padding: 8px 16px;
   display: block;
   background-color: ${(props) =>
     props.$active ? props.theme.colors.menuItem.hoverBg : ""};
@@ -54,11 +55,11 @@ const StyledLink = styled(Link)<{ $active: boolean }>`
   }
 `;
 
-function useSettingsCategory() {
+export function useSettingsCategory() {
   return Array.from(AdminConfig.categories);
 }
 
-function Categories({
+export function Categories({
   categories,
   currentCategory,
   currentSubCategory,

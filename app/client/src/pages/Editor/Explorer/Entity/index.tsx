@@ -106,6 +106,10 @@ export const EntityItem = styled.div<{
     }
   }
 
+  .file-ops {
+    height: 36px;
+  }
+
   & .${EntityClassNames.COLLAPSE_TOGGLE} {
     svg {
       path {
@@ -201,6 +205,7 @@ export type EntityProps = {
   preRightIcon?: ReactNode;
   onClickPreRightIcon?: () => void;
   isSticky?: boolean;
+  customAddButton?: ReactNode;
 };
 
 export const Entity = forwardRef(
@@ -274,6 +279,22 @@ export const Entity = forwardRef(
     const itemRef = useRef<HTMLDivElement | null>(null);
     useClick(itemRef, handleClick, noop);
 
+    const addButton = props.customAddButton || (
+      <TooltipComponent
+        boundary="viewport"
+        className={EntityClassNames.TOOLTIP}
+        content={props.addButtonHelptext || ""}
+        disabled={!props.addButtonHelptext}
+        hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+        position={Position.RIGHT}
+      >
+        <AddButton
+          className={`${EntityClassNames.ADD_BUTTON} ${props.className}`}
+          onClick={props.onCreate}
+        />
+      </TooltipComponent>
+    );
+
     return (
       <Boxed
         show={props.name === "updateCustomerInfo"}
@@ -336,25 +357,7 @@ export const Entity = forwardRef(
                 {props.rightIcon}
               </IconWrapper>
             )}
-            {props.addButtonHelptext ? (
-              <TooltipComponent
-                boundary="viewport"
-                className={EntityClassNames.TOOLTIP}
-                content={props.addButtonHelptext}
-                hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                position={Position.RIGHT}
-              >
-                <AddButton
-                  className={`${EntityClassNames.ADD_BUTTON} ${props.className}`}
-                  onClick={props.onCreate}
-                />
-              </TooltipComponent>
-            ) : (
-              <AddButton
-                className={`${EntityClassNames.ADD_BUTTON} ${props.className}`}
-                onClick={props.onCreate}
-              />
-            )}
+            {addButton}
             {props.contextMenu && (
               <ContextMenuWrapper>{props.contextMenu}</ContextMenuWrapper>
             )}
