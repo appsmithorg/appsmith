@@ -77,7 +77,7 @@ export enum SortOrderTypes {
 export interface TableStyles {
   cellBackground?: string;
   textColor?: string;
-  textSize?: TextSize;
+  textSize?: string;
   fontStyle?: string;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
@@ -99,7 +99,7 @@ export interface ReactTableFilter {
 export interface CellLayoutProperties {
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
-  textSize?: TextSize;
+  textSize?: string;
   fontStyle?: string;
   textColor?: string;
   cellBackground?: string;
@@ -110,9 +110,8 @@ export interface CellLayoutProperties {
   isDisabled?: boolean;
   displayText?: string;
   buttonVariant: ButtonVariant;
-  borderRadius: ButtonBorderRadius;
-  boxShadow: ButtonBoxShadow;
-  boxShadowColor: string;
+  borderRadius: string;
+  boxShadow: string;
   isCellVisible: boolean;
   isCompact?: boolean;
   menuItems: MenuItems;
@@ -198,7 +197,7 @@ export interface ColumnProperties {
   cellBackground?: string;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
-  textSize?: TextSize;
+  textSize?: string;
   fontStyle?: string;
   textColor?: string;
   enableFilter?: boolean;
@@ -220,7 +219,7 @@ export interface ColumnProperties {
   menuVariant?: ButtonVariant;
   menuColor?: string;
   borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
+  boxShadow?: string;
   boxShadowColor?: string;
   iconName?: IconName;
   menuButtoniconName?: IconName;
