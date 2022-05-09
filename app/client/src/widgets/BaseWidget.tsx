@@ -182,7 +182,7 @@ abstract class BaseWidget<
 
     // Does this widget have dynamic height enabled
     const isDynamicHeightEnabled =
-      this.props.dynamiHeight === DynamicHeight.HUG_CONTENTS;
+      this.props.dynamicHeight === DynamicHeight.HUG_CONTENTS;
 
     // Run the following pieces of code only if dynamic height is enabled
     if (!isDynamicHeightEnabled) return false;
