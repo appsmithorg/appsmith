@@ -62,17 +62,17 @@ describe("Test Create Api and Bind to Table widget", function() {
 
   it("works in the published version", () => {
     cy.PublishtheApp();
-
+    cy.wait(3000);
     cy.get("span:contains('Submit')")
       .closest("div")
       .click();
-
     cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait(5000);
+    cy.wait(3000);
+
     cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",
