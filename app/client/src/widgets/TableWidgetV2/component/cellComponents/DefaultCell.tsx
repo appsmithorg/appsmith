@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo, useMemo } from "react";
 import { isNumber, isNil } from "lodash";
 
 import {
@@ -10,7 +10,7 @@ import {
   ColumnTypes,
   EditableCellActions,
 } from "widgets/TableWidgetV2/constants";
-import { TextCell } from "../cellComponents/TextCell";
+import { TextCell } from "./TextCell";
 import { TextSize } from "constants/WidgetConstants";
 
 export type RenderDefaultPropsType = {
@@ -23,7 +23,14 @@ export type RenderDefaultPropsType = {
   isCellVisible: boolean;
   isCellEditMode?: boolean;
   onCellTextChange: (data: string) => void;
-  toggleCellEditMode: (editMode: boolean, action?: EditableCellActions) => void;
+  toggleCellEditMode: (
+    enable: boolean,
+    rowIndex: number,
+    alias: string,
+    value: string | number,
+    onSubmit: string,
+    action: EditableCellActions,
+  ) => void;
   allowCellWrapping?: boolean;
   verticalAlignment?: VerticalAlignment;
   cellBackground?: string;
@@ -31,8 +38,14 @@ export type RenderDefaultPropsType = {
   horizontalAlignment?: CellAlignment;
   textColor?: string;
   displayText?: string;
-  fontStyle: string;
-  textSize: TextSize;
+  fontStyle?: string;
+  textSize?: TextSize;
+};
+
+type editPropertyType = {
+  alias: string;
+  onSubmitString: string;
+  rowIndex: number;
 };
 
 export function getCellText(
@@ -53,8 +66,9 @@ export function getCellText(
   return text;
 }
 
-export function DefaultCell(props: RenderDefaultPropsType) {
+function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
   const {
+    alias,
     allowCellWrapping,
     cellBackground,
     columnType,
@@ -68,6 +82,8 @@ export function DefaultCell(props: RenderDefaultPropsType) {
     isCellVisible,
     isHidden,
     onCellTextChange,
+    onSubmitString,
+    rowIndex,
     tableWidth,
     textColor,
     textSize,
@@ -75,6 +91,40 @@ export function DefaultCell(props: RenderDefaultPropsType) {
     value,
     verticalAlignment,
   } = props;
+
+  const editEvents = useMemo(
+    () => ({
+      onChange: (text: string) => onCellTextChange(text),
+      onDiscard: () =>
+        toggleCellEditMode(
+          false,
+          rowIndex,
+          alias,
+          value,
+          onSubmitString,
+          EditableCellActions.DISCARD,
+        ),
+      onEdit: () =>
+        toggleCellEditMode(
+          true,
+          rowIndex,
+          alias,
+          value,
+          onSubmitString,
+          EditableCellActions.SAVE,
+        ),
+      onSave: () =>
+        toggleCellEditMode(
+          false,
+          rowIndex,
+          alias,
+          value,
+          onSubmitString,
+          EditableCellActions.SAVE,
+        ),
+    }),
+    [onCellTextChange, toggleCellEditMode, value],
+  );
 
   return (
     <TextCell
@@ -90,9 +140,10 @@ export function DefaultCell(props: RenderDefaultPropsType) {
       isCellVisible={isCellVisible}
       isHidden={isHidden}
       onCellTextChange={onCellTextChange}
-      onChange={(text: string) => onCellTextChange(text)}
-      onDiscard={() => toggleCellEditMode(false, EditableCellActions.DISCARD)}
-      onSave={() => toggleCellEditMode(false, EditableCellActions.SAVE)}
+      onChange={editEvents.onChange}
+      onDiscard={editEvents.onDiscard}
+      onEdit={editEvents.onEdit}
+      onSave={editEvents.onSave}
       tableWidth={tableWidth}
       textColor={textColor}
       textSize={textSize}
@@ -102,3 +153,5 @@ export function DefaultCell(props: RenderDefaultPropsType) {
     />
   );
 }
+
+export default memo(DefaultCell);

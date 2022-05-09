@@ -15,7 +15,7 @@ import {
 } from "components/constants";
 import { CellWrapper } from "../TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
-import MenuButtonTableComponent from "../cellComponents/menuButtonTableComponent";
+import MenuButtonTableComponent from "./menuButtonTableComponent";
 import { TextSize } from "constants/WidgetConstants";
 
 interface MenuButtonProps extends Omit<RenderMenuButtonProps, "columnActions"> {
@@ -90,10 +90,10 @@ export interface RenderMenuButtonProps {
   allowCellWrapping?: boolean;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
-  fontStyle: string;
-  textColor: string;
-  cellBackground: string;
-  textSize: TextSize;
+  fontStyle?: string;
+  textColor?: string;
+  cellBackground?: string;
+  textSize?: TextSize;
 }
 
 export function MenuButtonCell(props: RenderMenuButtonProps) {

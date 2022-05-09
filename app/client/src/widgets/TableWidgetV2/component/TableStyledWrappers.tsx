@@ -314,10 +314,10 @@ export const CellWrapper = styled.div<{
   allowCellWrapping?: boolean;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
-  fontStyle: string;
-  textColor: string;
-  cellBackground: string;
-  textSize: TextSize;
+  fontStyle?: string;
+  textColor?: string;
+  cellBackground?: string;
+  textSize?: TextSize;
 }>`
   display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
   align-items: center;

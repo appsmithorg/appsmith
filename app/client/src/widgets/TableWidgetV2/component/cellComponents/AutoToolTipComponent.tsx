@@ -1,11 +1,7 @@
-import React, { createRef, memo, useEffect, useState } from "react";
+import React, { createRef, useEffect, useState } from "react";
 import { Tooltip } from "@blueprintjs/core";
 import { CellWrapper } from "../TableStyledWrappers";
-import {
-  CellAlignment,
-  CellLayoutProperties,
-  VerticalAlignment,
-} from "../Constants";
+import { CellAlignment, VerticalAlignment } from "../Constants";
 import { ReactComponent as OpenNewTabIcon } from "assets/icons/control/open-new-tab.svg";
 import styled from "styled-components";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
@@ -44,9 +40,9 @@ interface Props {
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
   textColor?: string;
-  fontStyle: string;
-  cellBackground: string;
-  textSize: TextSize;
+  fontStyle?: string;
+  cellBackground?: string;
+  textSize?: TextSize;
 }
 
 function LinkWrapper(props: Props) {

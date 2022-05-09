@@ -33,10 +33,10 @@ interface RenderIconButtonProps {
   allowCellWrapping?: boolean;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
-  fontStyle: string;
-  textColor: string;
-  cellBackground: string;
-  textSize: TextSize;
+  fontStyle?: string;
+  textColor?: string;
+  cellBackground?: string;
+  textSize?: TextSize;
 }
 
 function IconButton(props: {
