@@ -20,7 +20,7 @@ const options = Object.keys(boxShadowOptions).map((optionKey) => ({
       key={optionKey}
       openOnTargetFocus={false}
     >
-      <button>
+      <button tabIndex={-1}>
         <div
           className="flex items-center justify-center w-5 h-5 bg-white"
           style={{ boxShadow: boxShadowOptions[optionKey] }}
