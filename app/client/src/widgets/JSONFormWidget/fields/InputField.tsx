@@ -8,6 +8,7 @@ import BaseInputField, {
 import { BaseFieldComponentProps, FieldType } from "../constants";
 import { isNil } from "lodash";
 import { isEmpty } from "../helper";
+import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 
 type InputComponentProps = BaseInputComponentProps & {
   iconName?: string;
@@ -26,6 +27,7 @@ const COMPONENT_DEFAULT_VALUES: InputComponentProps = {
   isRequired: false,
   isSpellCheck: false,
   isVisible: true,
+  labelTextSize: BASE_LABEL_TEXT_SIZE,
   label: "",
 };
 

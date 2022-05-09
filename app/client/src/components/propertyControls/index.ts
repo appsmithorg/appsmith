@@ -12,9 +12,6 @@ import BaseControl, {
   ControlProps,
 } from "components/propertyControls/BaseControl";
 import CodeEditorControl from "components/propertyControls/CodeEditorControl";
-import MultiSelectControl, {
-  MultiSelectControlProps,
-} from "components/propertyControls/MultiSelectControl";
 import DatePickerControl, {
   DatePickerControlProps,
 } from "components/propertyControls/DatePickerControl";
@@ -65,7 +62,6 @@ export const PropertyControls = {
   SwitchControl,
   OptionControl,
   CodeEditorControl,
-  MultiSelectControl,
   DatePickerControl,
   ActionSelectorControl,
   ColumnActionSelectorControl,
@@ -98,7 +94,6 @@ export type PropertyControlPropsType =
   | InputControlProps
   | DropDownControlProps
   | SwitchControlProps
-  | MultiSelectControlProps
   | DatePickerControlProps
   | MultiSwitchControlProps
   | IconTabControlProps

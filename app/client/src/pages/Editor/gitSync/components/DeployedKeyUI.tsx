@@ -53,15 +53,25 @@ const FlexRow = styled.div`
   width: 100%;
 `;
 
+const KeyType = styled.span`
+  width: 30%;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--appsmith-color-black-900);
+`;
+
 const KeyText = styled.span`
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-  width: calc(100% - 35px);
+  width: 60%;
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  color: ${Colors.CODE_GRAY};
+  color: var(--appsmith-color-black-900);
+  direction: rtl;
+  margin-right: 8px;
 `;
 
 const MoreMenuWrapper = styled.div`
@@ -127,6 +137,8 @@ function DeployedKeyUI(props: DeployedKeyUIProps) {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showKeyGeneratedMessage, setShowKeyGeneratedMessage] = useState(true);
 
+  const [keyType, keyVal, keyName] = SSHKeyPair.split(" ");
+  const keyText = `${keyVal} ${keyName}`;
   const learnMoreClickHandler = () => {
     AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
       source: "SSH_KEY_ON_GIT_CONNECTION_TAB",
@@ -158,7 +170,8 @@ function DeployedKeyUI(props: DeployedKeyUIProps) {
               size={20}
               style={{ marginTop: -1, marginRight: 4 }}
             />
-            <KeyText>{SSHKeyPair}</KeyText>
+            <KeyType>{keyType}</KeyType>
+            <KeyText>{keyText}</KeyText>
             {CopySSHKey(showCopied, copyToClipboard)}
           </FlexRow>
         </DeployedKeyContainer>
@@ -226,7 +239,7 @@ function DeployedKeyUI(props: DeployedKeyUIProps) {
             className={"enterprise"}
             learnMoreClickHandler={learnMoreClickHandler}
             onClose={() => setShowKeyGeneratedMessage(false)}
-            variant={NotificationVariant.info}
+            variant={NotificationVariant.enterprise}
           >
             <div>
               <Text color={Colors.GREY_9} type={TextType.P3}>
