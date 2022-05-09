@@ -221,18 +221,15 @@ abstract class BaseWidget<
     return (Number(this.props.labelWidth) || 0) * this.props.parentColumnSpace;
   };
 
-  getErrorCount = memoize(
-    (evalErrors: Record<string, EvaluationError[]>): number => {
-      return Object.values(evalErrors).reduce(
-        (prev, curr) =>
-          curr.filter(
-            (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
-          ).length + prev,
-        0,
-      );
-    },
-    { maxSize: 1000 },
-  );
+  getErrorCount = (evalErrors: Record<string, EvaluationError[]>): number => {
+    return Object.values(evalErrors).reduce(
+      (prev, curr) =>
+        curr.filter(
+          (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
+        ).length + prev,
+      0,
+    );
+  };
 
   render() {
     return this.getWidgetView();
