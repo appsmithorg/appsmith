@@ -62,7 +62,7 @@ describe("Theme validation for default data", function() {
     //cy.contains("Color").click({ force: true });
     cy.wait(2000);
     cy.colorMouseover(0, "Primary Color");
-    cy.validateColor(0, "#50AF6C");
+    cy.validateColor(0, "#16a34a");
     cy.colorMouseover(1, "Background Color");
     cy.validateColor(1, "#F6F6F6");
   });
