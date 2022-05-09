@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": "^16.0.0",
+    "node": "^16.10.0",
     "npm": "^6.14.10"
   },
   "cracoConfig": "craco.dev.config.js",
