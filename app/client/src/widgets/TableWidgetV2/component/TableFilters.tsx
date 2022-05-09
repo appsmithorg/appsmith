@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { IconWrapper } from "constants/IconConstants";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { ReactComponent as FilterIcon } from "assets/icons/control/filter-icon.svg";
 import { TableIconWrapper } from "./TableStyledWrappers";
 import TableFilterPane from "./TableFilterPane";
 
@@ -17,6 +16,7 @@ import {
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { generateClassName } from "utils/generators";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
+import { ReactComponent as FilterIcon } from "assets/icons/control/filter-icon.svg";
 import TableAction from "./TableAction";
 
 const SelectedFilterWrapper = styled.div`
@@ -115,18 +115,12 @@ function TableFilters(props: TableFilterProps) {
     <>
       <TableAction
         className={className}
-        icon={
-          hasAnyFilters ? (
-            <SelectedFilterWrapper>{filters.length}</SelectedFilterWrapper>
-          ) : null
-        }
+        icon="filter"
         selectMenu={toggleFilterPane}
         selected={isTableFilterPaneVisible}
         title={`Filters${hasAnyFilters ? ` (${filters.length})` : ""}`}
         titleColor={hasAnyFilters ? Colors.CODE_GRAY : Colors.GRAY}
-      >
-        <FilterIcon />
-      </TableAction>
+      />
       <TableFilterPane {...props} />
     </>
   );

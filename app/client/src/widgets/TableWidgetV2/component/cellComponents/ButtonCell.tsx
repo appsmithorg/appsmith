@@ -2,7 +2,7 @@ import React from "react";
 
 import { CellWrapper } from "../TableStyledWrappers";
 import { CellAlignment, VerticalAlignment } from "../Constants";
-import { Button } from "../cellComponents/Button";
+import { Button } from "./Button";
 import { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
 import { TextSize } from "constants/WidgetConstants";
 
@@ -18,10 +18,10 @@ export interface RenderActionProps {
   allowCellWrapping?: boolean;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
-  fontStyle: string;
-  textColor: string;
-  cellBackground: string;
-  textSize: TextSize;
+  fontStyle?: string;
+  textColor?: string;
+  cellBackground?: string;
+  textSize?: TextSize;
 }
 
 export function ButtonCell(props: RenderActionProps) {

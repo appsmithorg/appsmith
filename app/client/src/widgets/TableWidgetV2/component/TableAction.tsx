@@ -2,14 +2,15 @@ import React, { useCallback } from "react";
 import { IconWrapper } from "constants/IconConstants";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
+import { ReactComponent as FilterIcon } from "assets/icons/control/filter-icon.svg";
+import { ReactComponent as DownloadIcon } from "assets/icons/control/download-data-icon.svg";
 
 interface TableActionProps {
   selected: boolean;
   selectMenu: (selected: boolean) => void;
   className: string;
+  icon: string;
   title: string;
-  children: React.ReactNode;
-  icon?: React.ReactNode;
   titleColor?: string;
 }
 
@@ -46,6 +47,16 @@ function TableAction(props: TableActionProps) {
     },
     [props.selected],
   );
+
+  const getIcon = () => {
+    switch (props.icon) {
+      case "download":
+        return <DownloadIcon />;
+      case "filter":
+        return <FilterIcon />;
+    }
+  };
+
   return (
     <TableIconWrapper
       className={props.className}
@@ -58,7 +69,7 @@ function TableAction(props: TableActionProps) {
         height={20}
         width={20}
       >
-        {props.children}
+        {getIcon()}
       </IconWrapper>
       <span className="action-title">{props.title}</span>
     </TableIconWrapper>

@@ -60,14 +60,14 @@ import { Colors } from "constants/Colors";
 import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
 import equal from "fast-deep-equal/es6";
 import { sanitizeKey } from "widgets/WidgetUtils";
-import { DefaultCell } from "../component/renderHelpers/DefaultRenderer";
-import { ButtonCell } from "../component/renderHelpers/ButtonRenderer";
-import { SelectCell } from "../component/renderHelpers/SelectRenderer";
-import { MenuButtonCell } from "../component/renderHelpers/MenuButtonRenderer";
-import { ImageCell } from "../component/renderHelpers/ImageRenderer";
-import { VideoCell } from "../component/renderHelpers/VideoRenders";
-import { IconButtonCell } from "../component/renderHelpers/IconButtonRenderer";
-import { EditActionCell } from "../component/renderHelpers/EditActionsRenderer";
+import DefaultCell from "../component/cellComponents/DefaultCell";
+import { ButtonCell } from "../component/cellComponents/ButtonCell";
+import { SelectCell } from "../component/cellComponents/SelectCell";
+import { MenuButtonCell } from "../component/cellComponents/MenuButtonCell";
+import { ImageCell } from "../component/cellComponents/ImageCell";
+import { VideoCell } from "../component/cellComponents/VideoCell";
+import { IconButtonCell } from "../component/cellComponents/IconButtonCell";
+import { EditActionCell } from "../component/cellComponents/EditActionsCell";
 import { klona as clone } from "klona/full";
 
 const ReactTableComponent = lazy(() =>
@@ -1471,6 +1471,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
         return (
           <DefaultCell
+            alias={props.cell.column.columnProperties.alias}
             allowCellWrapping={cellProperties.allowCellWrapping}
             cellBackground={cellProperties.cellBackground}
             columnType={column.columnType}
@@ -1486,79 +1487,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             isCellVisible={cellProperties.isCellVisible ?? true}
             isHidden={isHidden}
             onCellTextChange={this.onEditableCellTextChange}
+            onSubmitString={props.cell.column.columnProperties.onSubmit}
+            rowIndex={rowIndex}
             tableWidth={componentWidth}
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
-            toggleCellEditMode={(
-              enable: boolean,
-              action?: EditableCellActions,
-            ) => {
-              if (enable) {
-                if (this.editTimer) {
-                  clearTimeout(this.editTimer);
-                }
-
-                this.props.updateWidgetMetaProperty("editableCell", {
-                  column: props.cell.column.alias,
-                  index: rowIndex,
-                  value: props.cell.value,
-                  // To revert back to previous on discard
-                  initialValue: props.cell.value,
-                });
-
-                /*
-                 * We need to clear the selectedRowIndex and selectedRowIndices
-                 * if the rows are sorted, to avoid selectedRow jumping to
-                 * different page.
-                 */
-                if (this.props.sortOrder.column) {
-                  if (this.props.multiRowSelection) {
-                    this.props.updateWidgetMetaProperty(
-                      "selectedRowIndices",
-                      [],
-                    );
-                  } else {
-                    this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
-                  }
-                }
-              } else {
-                if (
-                  action === EditableCellActions.SAVE &&
-                  props.cell.value !== this.props.editableCell.initialValue
-                ) {
-                  this.updateTransientTableData({
-                    __original_index__: this.getRowOriginalIndex(rowIndex),
-                    [props.cell.column.columnProperties.alias]:
-                      props.cell.value,
-                  });
-
-                  if (
-                    props.cell.column.columnProperties.onSubmit &&
-                    !this.hasRowEditActionsColumn()
-                  ) {
-                    this.onColumnEvent({
-                      rowIndex: rowIndex,
-                      action: props.cell.column.columnProperties.onSubmit,
-                      triggerPropertyName: "onSubmit",
-                      eventType: EventType.ON_SUBMIT,
-                      row: {
-                        ...this.props.filteredTableData[rowIndex],
-                        [this.props.editableCell.column]: this.props
-                          .editableCell.value,
-                      },
-                    });
-                  }
-                }
-
-                /*
-                 * We need to let the evaulations compute derived property (filteredTableData)
-                 * before we clear the editableCell to avoid the text flickering
-                 */
-                this.editTimer = setTimeout(() => {
-                  this.props.updateWidgetMetaProperty("editableCell", {});
-                }, 100);
-              }
-            }}
+            toggleCellEditMode={this.toggleCellEditMode}
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
           />
@@ -1571,6 +1505,73 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       ...this.props.editableCell,
       value: data,
     });
+  };
+
+  toggleCellEditMode = (
+    enable: boolean,
+    rowIndex: number,
+    alias: string,
+    value: string | number,
+    onSubmit: string,
+    action: EditableCellActions,
+  ) => {
+    if (enable) {
+      if (this.editTimer) {
+        clearTimeout(this.editTimer);
+      }
+
+      this.props.updateWidgetMetaProperty("editableCell", {
+        column: alias,
+        index: rowIndex,
+        value: value,
+        // To revert back to previous on discard
+        initialValue: value,
+      });
+
+      /*
+       * We need to clear the selectedRowIndex and selectedRowIndices
+       * if the rows are sorted, to avoid selectedRow jumping to
+       * different page.
+       */
+      if (this.props.sortOrder.column) {
+        if (this.props.multiRowSelection) {
+          this.props.updateWidgetMetaProperty("selectedRowIndices", []);
+        } else {
+          this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
+        }
+      }
+    } else {
+      if (
+        action === EditableCellActions.SAVE &&
+        value !== this.props.editableCell.initialValue
+      ) {
+        this.updateTransientTableData({
+          __original_index__: this.getRowOriginalIndex(rowIndex),
+          [alias]: value,
+        });
+
+        if (onSubmit && !this.hasRowEditActionsColumn()) {
+          this.onColumnEvent({
+            rowIndex: rowIndex,
+            action: onSubmit,
+            triggerPropertyName: "onSubmit",
+            eventType: EventType.ON_SUBMIT,
+            row: {
+              ...this.props.filteredTableData[rowIndex],
+              [this.props.editableCell.column]: this.props.editableCell.value,
+            },
+          });
+        }
+      }
+
+      /*
+       * We need to let the evaulations compute derived property (filteredTableData)
+       * before we clear the editableCell to avoid the text flickering
+       */
+      this.editTimer = setTimeout(() => {
+        this.props.updateWidgetMetaProperty("editableCell", {});
+      }, 100);
+    }
   };
 }
 
