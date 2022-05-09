@@ -72,6 +72,8 @@ import { jsCollectionIdURL } from "RouteBuilder";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
+import { APP_MODE } from "entities/App";
+import { getAppMode } from "selectors/applicationSelectors";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
   const organizationId: string = yield select(getCurrentOrgId);
@@ -312,6 +314,7 @@ export function* handleExecuteJSFunctionSaga(data: {
 }): any {
   const { action, collectionId, collectionName } = data;
   const actionId = action.id;
+  const appMode: APP_MODE = yield select(getAppMode);
   yield put(
     executeJSFunctionInit({
       collectionName,
@@ -338,10 +341,11 @@ export function* handleExecuteJSFunctionSaga(data: {
       },
       state: { response: result },
     });
-    Toaster.show({
-      text: createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name),
-      variant: Variant.success,
-    });
+    appMode === APP_MODE.EDIT &&
+      Toaster.show({
+        text: createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name),
+        variant: Variant.success,
+      });
   } catch (e) {
     AppsmithConsole.addError({
       id: actionId,
