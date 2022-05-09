@@ -12,8 +12,11 @@ spec:
   {{- range .Values.persistence.accessModes }}
     - {{ . | quote }}
   {{- end }}
-  persistentVolumeReclaimPolicy: Delete
-  storageClassName: {{ .Values.persistence.storageClass | quote }}
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-pv
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: fs-090c491a0740aa9e3
   local:
     path: {{ .Values.persistence.storagePath }} # Path to the directory this PV refers to.
   nodeAffinity: # nodeAffinity is required when using local volumes.

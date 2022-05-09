@@ -1,43 +1,20 @@
-## @section Global parameters
-## Global Docker image parameters
-## Please, note that this will override the image parameters, including dependencies, configured to use the global value
-## Current available global Docker image parameters: imageRegistry, imagePullSecrets and storageClass
-##
 
-## @param global.storageClass Global StorageClass for Persistent Volume(s)
-## @param global.namespaceOverride Override the namespace for resource deployed by the chart, but can itself be overridden by the local namespaceOverride
-##
-global:
-  storageClass: ""
-  namespaceOverride: ""
-## @param fullnameOverride String to fully override appsmith.fullname template
-##
-fullnameOverride: ""
-## @param containerName specify running container name in a pod
-##
 containerName: "appsmith"
-## @param commonLabels Labels to add to all deployed objects
-##
-commonLabels: {}
-## @param commonAnnotations Common annotations to add to all Appsmith resources (sub-charts are not considered). Evaluated as a template
-##
-commonAnnotations: {}
-## @param schedulerName Name of the scheduler (other than default) to dispatch pods
-## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
-##
-schedulerName: ""
-## @param strategyType StrategyType for Appsmith&reg; statefulset
-## It can be set to RollingUpdate or Recreate by default.
-##
+
+useStatefulSet: false
+
 strategyType: RollingUpdate
-## Image
-##
+
 image:
   registry: index.docker.io
   repository: appsmith/appsmith-ce
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+  tag: "release"
+## Namespace
+##
+namespace:
+  create: true
 ## ServiceAccount
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
 ##
@@ -99,17 +76,19 @@ service:
 ingress:
   ## @param ingress.enabled Enable ingress record generation for Ghost
   ##
-  enabled: false
+  enabled: true
   ## @param ingress.annotations Additional custom annotations for the ingress record
   ## NOTE: If `ingress.certManager=true`, annotation `kubernetes.io/tls-acme: "true"` will automatically be added
   ##
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
+  ingressClassName: nginx
+  #kubernetes.io/ingress.class: "nginx"
     # cert-manager.io/cluster-issuer: "letsencrypt-prod"
     # nginx.ingress.kubernetes.io/ssl-redirect: "true"
     # nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-  hosts: []
-    # - host: appsmith-domain.me
+  hosts:
+    - host: "a9175efee4fac4960bd75ea99b3d000b-08abe2a45de00e2c.elb.ap-south-1.amazonaws.com"
+      paths:
+      - path: "/"
   ## @param ingress.tls Enable TLS configuration for the host defined at `ingress.hosts` parameter
   ## You can:
   ##   - Use the `ingress.secrets` parameter to create this TLS secret
@@ -151,7 +130,7 @@ ingress:
   ## e.g:
   ## className: "nginx"
   ##
-  className: ""
+  className: "nginx"
 
 resources:
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -161,11 +140,18 @@ resources:
   # limits:
   #   cpu: 100m
   #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+
   limits: {}
-  requests: {}
+ # requests:
+  #   cpu: 100m
+   #  memory: 202Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 5
+  # targetMemoryUtilizationPercentage: 80
 
 nodeSelector: {}
 
@@ -179,7 +165,9 @@ persistence:
   enabled: true
   ## @param persistence.storageClass PVC Storage Class
   ##
-  storageClass: ""
+  storageClass: efs-pv
+
+
   ## @param persistence.annotations Additional custom annotations for the PVC
   ##
   annotations: {}
@@ -188,27 +176,41 @@ persistence:
   localStorage: false
   ## @param persistence.storagePath - local storage path
   ##
-  storagePath: /tmp/hostpath_pv
+  storagePath:
   ## @param persistence.localCluster
   ##
-  localCluster:
-    - minikube
+  localCluster: false
   ## @param persistence.accessModes PV Access Mode
   ##
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   ## @param persistence.size PVC Storage Request
   ##
   size: 10Gi
+  ## Fine tuning for volumeClaimTemplates
+  ##
+  volumeClaimTemplates:
+    ## @param persistence.volumeClaimTemplates.selector A label query over volumes to consider for binding (e.g. when using local volumes)
+    ## A label query over volumes to consider for binding (e.g. when using local volumes)
+    ## See https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#labelselector-v1-meta for more details
+    ##
+    selector: {}
+    ## @param persistence.volumeClaimTemplates.requests Custom PVC requests attributes
+    ## Sometime cloud providers use additional requests attributes to provision custom storage instance
+    ## See https://cloud.ibm.com/docs/containers?topic=containers-file_storage#file_dynamic_statefulset
+    ##
+    requests: {}
+    ## @param persistence.volumeClaimTemplates.dataSource Add dataSource to the VolumeClaimTemplate
+    ##
+    dataSource: {}
 # tags:
 #   install-ingress-nginx: true
 storageClass:
   ## @param storageClass.enabled - Enable config storage class
   ##
-  enabled: false
+  enabled: true
   ## @param storageClass.bindingMode - the binding mode for PVCs using this storage class
   ##
-  bindingMode: Immediate
   ## @param storageClass.defaultClass - boolean to set annotation designating this object as the default storage class
   ##
   defaultClass: false
@@ -220,7 +222,7 @@ storageClass:
   reclaimPolicy: Delete
   ## @param storageClass.provisioner - storage class parameters used for volumes created with this storage class
   ##
-  provisioner: ""
+  provisioner: efs.csi.aws.com
   ## @param storageClass.annotations - annotations in yaml map format to be added to the object
   ##
   annotations: {}
@@ -229,17 +231,17 @@ storageClass:
   mountOptions: {}
   ## @param storageClass.parameters - storage class parameters used for volumes created with this storage class
   ##
-  parameters: {}
+  parameters: 
+    provisioningMode: efs-ap
+   
 
 autoupdate:
   ## @param autoupdate.enabled - Enable config autoupdate
   ##
-  enabled: false
+  enabled: true
   ## @param autoupdate.scheduler - Schedule cron job to check & update Helm image
   ##
   scheduler: "0 * * * *"
-
-secretName: ""
 
 applicationConfig:
   APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ""
@@ -263,8 +265,10 @@ applicationConfig:
   APPSMITH_RECAPTCHA_SITE_KEY: ""
   APPSMITH_RECAPTCHA_SECRET_KEY: ""
   APPSMITH_RECAPTCHA_ENABLED: ""
-  APPSMITH_MONGODB_URI: ""
-  APPSMITH_REDIS_URL: ""
+  APPSMITH_MONGODB_URI: "mongodb+srv://appsmith:appsmith@appsmith.yj62f.mongodb.net/newappsmith12"
+  APPSMITH_REDIS_URL: "redis://subin-test-001.ihh5sj.0001.aps1.cache.amazonaws.com:6379"
   APPSMITH_ENCRYPTION_PASSWORD: ""
   APPSMITH_ENCRYPTION_SALT: ""
   APPSMITH_CUSTOM_DOMAIN: ""
+  APPSMITH_CLOUD_SERVICES_BASE_URL: ""
+

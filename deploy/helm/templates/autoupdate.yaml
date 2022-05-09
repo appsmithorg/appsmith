@@ -53,6 +53,7 @@ rules:
       - get
       - list
       - update
+      - restart
   - apiGroups:
       - ""
       - apps

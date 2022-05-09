@@ -3,7 +3,7 @@ apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: {{ .Values.persistence.storageClass }}  
-provisioner: kubernetes.io/no-provisioner
+provisioner: efs.csi.aws.com
 volumeBindingMode: WaitForFirstConsumer
 ---
 {{- else if .Values.storageClass.enabled }}
@@ -26,6 +26,12 @@ allowVolumeExpansion: {{ .Values.storageClass.allowVolumeExpansion }}
 reclaimPolicy: {{ .Values.storageClass.reclaimPolicy }}
 {{- if .Values.storageClass.parameters }}
 parameters:
+  provisioningMode: efs-ap
+  fileSystemId: "fs-090c491a0740aa9e3"
+  directoryPerms: "700"
+  basePath: "/appsmith-data"
+
+
 {{- range $key, $value := .Values.storageClass.parameters }}
   {{ $key }}: {{ $value }}
   {{- end }}
