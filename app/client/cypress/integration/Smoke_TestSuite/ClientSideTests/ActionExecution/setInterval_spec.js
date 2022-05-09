@@ -63,7 +63,9 @@ describe("Test Create Api and Bind to Table widget", function() {
   it("works in the published version", () => {
     cy.PublishtheApp();
 
-    cy.get(publishPage.buttonWidget).click();
+    cy.get("span:contains('Submit')")
+      .closest("div")
+      .click();
 
     cy.wait("@postExecute").should(
       "have.nested.property",
