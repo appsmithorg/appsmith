@@ -10,7 +10,9 @@ import { createBlobUrl } from "utils/AppsmithUtils";
 import { FileDataTypes } from "widgets/constants";
 
 export interface AudioRecorderWidgetProps extends WidgetProps {
-  backgroundColor: string;
+  accentColor: string;
+  borderRadius: string;
+  boxShadow?: string;
   iconColor: string;
   isDisabled: boolean;
   isValid: boolean;
@@ -93,12 +95,36 @@ class AudioRecorderWidget extends BaseWidget<
         sectionName: "Styles",
         children: [
           {
-            propertyName: "backgroundColor",
-            helpText: "Sets the background color of the widget",
-            label: "Background color",
+            propertyName: "accentColor",
+            helpText: "Changes the color of the recorder button",
+            label: "Button Color",
             controlType: "COLOR_PICKER",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "iconColor",
@@ -180,7 +206,6 @@ class AudioRecorderWidget extends BaseWidget<
 
   getPageView() {
     const {
-      backgroundColor,
       blobURL,
       bottomRow,
       iconColor,
@@ -194,8 +219,10 @@ class AudioRecorderWidget extends BaseWidget<
 
     return (
       <AudioRecorderComponent
-        backgroundColor={backgroundColor}
+        accentColor={this.props.accentColor}
         blobUrl={blobURL}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         height={(bottomRow - topRow) * parentRowSpace}
         iconColor={iconColor}
         isDisabled={isDisabled}

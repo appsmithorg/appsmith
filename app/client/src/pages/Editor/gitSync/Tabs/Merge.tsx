@@ -1,44 +1,42 @@
-import React, { useMemo, useState, useCallback, useEffect } from "react";
-import { Title, Caption, Space } from "../components/StyledComponents";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Caption, Space, Title } from "../components/StyledComponents";
 import Dropdown from "components/ads/Dropdown";
 
 import {
-  createMessage,
-  MERGE_CHANGES,
-  SELECT_BRANCH_TO_MERGE,
   CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
-  FETCH_MERGE_STATUS,
+  createMessage,
   FETCH_GIT_STATUS,
+  FETCH_MERGE_STATUS,
   IS_MERGING,
+  MERGE_CHANGES,
   MERGED_SUCCESSFULLY,
+  SELECT_BRANCH_TO_MERGE,
 } from "@appsmith/constants/messages";
 import { ReactComponent as LeftArrow } from "assets/icons/ads/arrow-left-1.svg";
 
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 import Button, { Size } from "components/ads/Button";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import {
   getConflictFoundDocUrlMerge,
+  getFetchingBranches,
   getGitBranches,
   getGitStatus,
   getIsFetchingGitStatus,
+  getIsFetchingMergeStatus,
+  getIsMergeInProgress,
   getMergeError,
   getMergeStatus,
 } from "selectors/gitSyncSelectors";
 import { DropdownOptions } from "../../GeneratePage/components/constants";
 import {
-  mergeBranchInit,
   fetchBranchesInit,
-  resetMergeStatus,
   fetchGitStatusInit,
+  fetchMergeStatusInit,
+  mergeBranchInit,
+  resetMergeStatus,
 } from "actions/gitSyncActions";
-import {
-  getIsFetchingMergeStatus,
-  getFetchingBranches,
-  getIsMergeInProgress,
-} from "selectors/gitSyncSelectors";
-import { fetchMergeStatusInit } from "actions/gitSyncActions";
 import MergeStatus, { MERGE_STATUS_STATE } from "../components/MergeStatus";
 import ConflictInfo from "../components/ConflictInfo";
 import Statusbar, {
@@ -49,8 +47,6 @@ import { Classes } from "../constants";
 import SuccessTick from "pages/common/SuccessTick";
 import Text, { Case, TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
-
-import { useTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
