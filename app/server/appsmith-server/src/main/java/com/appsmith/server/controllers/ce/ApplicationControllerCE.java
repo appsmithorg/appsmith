@@ -10,6 +10,7 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -201,7 +202,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     }
 
     @GetMapping("/ssh-keypair/{applicationId}")
-    public Mono<ResponseDTO<GitAuth>> getSSHKey(@PathVariable String applicationId) {
+    public Mono<ResponseDTO<GitAuthDTO>> getSSHKey(@PathVariable String applicationId) {
         return service.getSshKey(applicationId)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }

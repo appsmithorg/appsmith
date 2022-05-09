@@ -19,6 +19,8 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.GitAuthDTO;
+import com.appsmith.server.dtos.GitDeployKeyDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
@@ -489,13 +491,14 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
      * @return public SSH key
      */
     @Override
-    public Mono<GitAuth> getSshKey(String applicationId) {
+    public Mono<GitAuthDTO> getSshKey(String applicationId) {
         return repository.findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
                 )
                 .flatMap(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    List<GitDeployKeyDTO> gitDeployKeyDTOList =GitDeployKeyGenerator.getSupportedProtocols();
                     if (gitData == null) {
                         return Mono.error(new AppsmithException(
                                 AppsmithError.INVALID_GIT_CONFIGURATION,
@@ -505,7 +508,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     // Check if the application is root application
                     if (applicationId.equals(gitData.getDefaultApplicationId())) {
                         gitData.getGitAuth().setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
-                        return Mono.just(gitData.getGitAuth());
+                        GitAuthDTO gitAuthDTO = new GitAuthDTO();
+                        gitAuthDTO.setGitAuth(gitData.getGitAuth());
+                        gitAuthDTO.setGitDeployKeyDTOList(gitDeployKeyDTOList);
+                        return Mono.just(gitAuthDTO);
                     }
                     if (gitData.getDefaultApplicationId() == null) {
                         throw new AppsmithException(
@@ -513,11 +519,16 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                 "Can't find root application. Please configure the application with git"
                         );
                     }
+
+
                     return repository.findById(gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS)
                             .map(rootApplication -> {
+                                GitAuthDTO gitAuthDTO = new GitAuthDTO();
                                 GitAuth gitAuth = rootApplication.getGitApplicationMetadata().getGitAuth();
                                 gitAuth.setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
-                                return gitAuth;
+                                gitAuthDTO.setGitAuth(gitAuth);
+                                gitAuthDTO.setGitDeployKeyDTOList(gitDeployKeyDTOList);
+                                return gitAuthDTO;
                             });
                 });
     }

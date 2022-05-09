@@ -23,6 +23,7 @@ import com.appsmith.server.domains.GitDeployKeys;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
@@ -1113,7 +1114,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                     if (gitData.getDefaultApplicationId().equals(srcApplication.getId())) {
                         return Mono.just(srcApplication.getGitApplicationMetadata().getGitAuth());
                     }
-                    return applicationService.getSshKey(gitData.getDefaultApplicationId());
+                    return applicationService.getSshKey(gitData.getDefaultApplicationId())
+                            .map(GitAuthDTO::getGitAuth);
                 })
                 .flatMap(tuple -> {
                     Application srcApplication = tuple.getT1();
