@@ -1376,7 +1376,7 @@ const gitSyncModal = {
   menuBackgroundColor: Colors.ALABASTER_ALT,
   separator: Colors.ALTO2,
   closeIcon: Colors.SCORPION,
-  closeIconHover: Colors.COD_GRAY,
+  closeIconHover: Colors.GREY_900,
 };
 type GitSyncModalColors = typeof gitSyncModal;
 

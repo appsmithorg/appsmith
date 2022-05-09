@@ -83,7 +83,7 @@ COPY ./deploy/docker/templates/supervisord/ templates/supervisord/
 COPY ./deploy/docker/templates/cron.d /etc/cron.d/
 RUN chmod 0644 /etc/cron.d/*
 
-RUN chmod +x entrypoint.sh renew-certificate.sh
+RUN chmod +x entrypoint.sh renew-certificate.sh healthcheck.sh
 
 # Disable setuid/setgid bits for the files inside container.
 RUN find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true
@@ -94,4 +94,5 @@ ENV PATH /opt/appsmith/utils/node_modules/.bin:$PATH
 EXPOSE 80
 EXPOSE 443
 ENTRYPOINT [ "/opt/appsmith/entrypoint.sh" ]
+HEALTHCHECK --interval=15s --timeout=15s --start-period=45s CMD "/opt/appsmith/healthcheck.sh"
 CMD ["/usr/bin/supervisord", "-n"]

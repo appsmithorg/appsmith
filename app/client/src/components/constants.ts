@@ -12,6 +12,11 @@ export interface DropdownOption {
   intent?: BlueprintIntent;
 }
 
+export enum SubTextPosition {
+  BOTTOM,
+  LEFT,
+}
+
 export const InputTypes: { [key: string]: string } = {
   TEXT: "TEXT",
   NUMBER: "NUMBER",
