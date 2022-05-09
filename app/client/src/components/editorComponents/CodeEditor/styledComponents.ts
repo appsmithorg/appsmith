@@ -385,3 +385,12 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
     }
   }
 `;
+
+export const ReadOnlyInput = styled.input`
+  border: 1px solid !important;
+  border-color: inherit !important;
+  width: 100%;
+  color: #4b4848 !important;
+  background-color: #ffffff !important;
+  padding: 0 6px;
+`;

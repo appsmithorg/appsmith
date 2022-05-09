@@ -13,6 +13,7 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { CollapseContext } from "pages/Editor/PropertyPane/PropertySection";
+import CodeEditorWrapper from "../editorComponents/CodeEditor/CodeEditorWrapper";
 
 export function InputText(props: {
   label: string;
@@ -41,7 +42,7 @@ export function InputText(props: {
 
   return (
     <StyledDynamicInput>
-      <CodeEditor
+      {/* <CodeEditor
         additionalDynamicData={props.additionalAutocomplete}
         border={CodeEditorBorder.ALL_SIDE}
         dataTreePath={dataTreePath}
@@ -59,7 +60,8 @@ export function InputText(props: {
         size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
         theme={props.theme || EditorTheme.LIGHT}
-      />
+      /> */}
+      <CodeEditorWrapper {...props} isOpen={isOpen} />
     </StyledDynamicInput>
   );
 }
