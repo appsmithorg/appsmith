@@ -30,7 +30,11 @@ describe("Test Create Api and Bind to Table widget", function() {
 
     cy.PublishtheApp();
 
-    cy.get(publishPage.buttonWidget).click();
+    cy.wait(3000);
+    cy.get("span:contains('Submit')")
+      .closest("div")
+      .click();
+
     cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -53,7 +57,11 @@ describe("Test Create Api and Bind to Table widget", function() {
 
     cy.PublishtheApp();
 
-    cy.get(publishPage.buttonWidget).click();
+    cy.wait(3000);
+    cy.get("span:contains('Submit')")
+      .closest("div")
+      .click();
+
     cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",
